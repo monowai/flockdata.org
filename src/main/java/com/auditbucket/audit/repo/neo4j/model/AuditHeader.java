@@ -6,6 +6,7 @@ import com.auditbucket.registration.model.IFortressUser;
 import com.auditbucket.registration.repo.neo4j.model.Fortress;
 import com.auditbucket.registration.repo.neo4j.model.FortressUser;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.*;
 
@@ -56,7 +57,8 @@ public class AuditHeader implements IAuditHeader {
     AuditHeader() {
         uid = UUID.randomUUID().toString();
         this.name = uid;
-        this.dateCreated = System.currentTimeMillis();
+        DateTime now = new DateTime().toDateTime(DateTimeZone.UTC);
+        this.dateCreated = now.toDate().getTime();
         this.lastUpdated = dateCreated;
     }
 
@@ -91,7 +93,7 @@ public class AuditHeader implements IAuditHeader {
 
     @Override
     public String getUID() {
-        return uid.toString();
+        return uid;
     }
 
     @Override

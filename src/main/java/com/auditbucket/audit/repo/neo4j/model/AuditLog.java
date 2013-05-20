@@ -4,7 +4,9 @@ import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.registration.model.IFortressUser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.springframework.data.neo4j.annotation.*;
 
 import java.util.Date;
@@ -38,7 +40,8 @@ public class AuditLog implements IAuditLog {
     private String changeKey;
 
     protected AuditLog() {
-        sysWhen = System.currentTimeMillis();
+        DateTime now =new DateTime().toDateTime(DateTimeZone.UTC);
+        sysWhen = now.toDate().getTime();
     }
 
     public AuditLog(IAuditHeader header, IFortressUser user, DateTime when, String event, String what) {
