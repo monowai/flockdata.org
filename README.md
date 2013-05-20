@@ -65,8 +65,10 @@ Once you have the .war file installed in your app server, you can start firing o
 ### Security
 Note that the user id is 'mike' and the password is '123'. This is bodgy configuration stuff hacked in to spring-security.xml. I'm sure you'll configure your own lovely security domain, or help me out with an OAuth configuration ;)
 
-### Creating Data
-Register yourself with an account
+## Creating Data
+Note that in the examples below, /ab/ is the application context. Substitute for whatever context is appropriate for your deployment.
+
+###Register yourself with an account
 ```
 curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/profiles/register -d '{"name":"mikey", "companyName":"Monowai Dev","password":"whocares"}'
 ```
@@ -74,7 +76,6 @@ curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080
 ```
 curl -u mike:123 -X GET http://localhost:8080/ab/profiles/me
 ```
-
 ### Create an Application Fortress 
 This is one of your computer systems that you want to audit
 ```
@@ -84,9 +85,19 @@ curl -u mike:123 -X PUT  http://localhost:8080/ab/fortress/MyFortressName
 ```
 curl -u mike:123 -X PUT http://localhost:8080/ab/audit/header/new/ -d '"fortress":"MyFotressName", "fortressUser": "yoursystemuser", "recordType":"Company","when":"2012-11-10", yourRef:"123"}'
 ```
-Result code is a UID that your system can store and must use to create a log record in the next section 
+Result code is the Audit Key that your system can store and must use to create log records and use for queries in the next section
 
-### Create a log for an Audit Header
+### Create a Log for the audit header
 ```
-curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/audit/log/ -d '{"eventType":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10", "what": "{\"name\": \"val\"}" }'
+curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/audit/log/new -d '{"eventType":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10", "what": "{\"name\": \"val\"}" }'
 ```
+### View information for the Audit Key
+```
+curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
+```
+
+### View logs associated with the audit key
+```
+curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}/logs
+```
+
