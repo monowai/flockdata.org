@@ -107,7 +107,7 @@ public class TestAuditIntegration {
 
         Long hitCount = auditService.getHitCount("hummingbird.*");
 
-        assertTrue(hitCount != null && hitCount > 1);
+        assertTrue(hitCount != null && hitCount > 1); // Sometimes this fails. It seems to be that the data has not been stored by ES by the time we make this call
         hitCount = auditService.getHitCount("monowai.*");
         assertTrue(hitCount > 1);
         watch.stop();
