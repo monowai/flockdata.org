@@ -22,13 +22,17 @@ Auditing is often seen as a low value "we'll get to it later" approach in a lot 
 * Understand who's changing what across systems
 * Follow updates to information across computer systems in realtime
 * [Event Sourcing](http://martinfowler.com/eaaDev/EventSourcing.html)
-* * Assist in implementing compensating transactions across distributed application boundaries
+* Assist in implementing compensating transactions across distributed application boundaries
 * Free text searching of data changes
 * Keeping the auditing information out of your transaction processing system
 
 ## How does it work?
 
 REST and JSON.
+
+Fortresses, Audith Headers and logs are stored in a graph to enable efficient analysis of changes as they are made to your systems.
+
+Additionally the "what" data that changed in your system is stored in ElasticSearch (Lucene) so that you can perform free text queries against your systems data!
 
 ## Where's it at?
 Very much alpha state. Functionally the API is still undergoing refinement and very little attention has been made to optimizing code or the use of the underlying libraries. I'm getting to that as I can.
@@ -83,7 +87,7 @@ curl -u mike:123 -X PUT  http://localhost:8080/ab/fortress/MyFortressName
 ```
 ### Create an Audit Header for the Fortress
 ```
-curl -u mike:123 -X PUT http://localhost:8080/ab/audit/header/new/ -d '"fortress":"MyFotressName", "fortressUser": "yoursystemuser", "recordType":"Company","when":"2012-11-10", yourRef:"123"}'
+curl -u mike:123 -X PUT http://localhost:8080/ab/audit/header/new/ -d '"fortress":"MyFortressName", "fortressUser": "yoursystemuser", "recordType":"Company","when":"2012-11-10", yourRef:"123"}'
 ```
 Result code is the Audit Key that your system can store and must use to create log records and use for queries in the next section
 
