@@ -50,7 +50,7 @@ public class AuditEP {
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @ResponseBody
     public ResponseEntity<String> createHeader(@RequestBody AuditHeaderInputBean input) throws Exception {
-        // curl -u mike:123 -X PUT http://localhost:8080/ab/audit/header/new/ -d '"fortress":"abc", "fortressUser": "miketest", "recordType":"Company","when":"2012-11-10"}'
+        // curl -u mike:123 -X PUT http://localhost:8080/ab/audit/header/new/ -d '"fortress":"MyFortressName", "fortressUser": "yoursystemuser", "recordType":"Company","when":"2012-11-10"}'
         try {
             String result = auditService.createHeader(input);
             return new ResponseEntity<String>(result, HttpStatus.OK);
@@ -65,7 +65,7 @@ public class AuditEP {
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @ResponseBody
     public ResponseEntity<String> createLog(@RequestBody AuditInputBean input) throws Exception {
-        // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/audit/log/ -d '{"eventType":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10", "what": "{\"name\": \"val\"}" }'
+        // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/audit/log/new -d '{"eventType":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10", "what": "{\"name\": \"val\"}" }'
         try {
 
             DateTime dt = new DateTime(input.getWhen());

@@ -31,7 +31,7 @@ public class RegistrationEP {
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @ResponseBody
     public ResponseEntity<ISystemUser> register(@RequestBody RegistrationBean regBean) throws Exception {
-        // curl -u mike:123 -X PUT  http://localhost:8080/ab/profiles/Monowai/system/123
+        // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/profiles/register -d '{"name":"mikey", "companyName":"Monowai Dev","password":"whocares"}'
         ISystemUser su = regService.registerSystemUser(regBean);
         if (su == null)
             return new ResponseEntity<ISystemUser>(su, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -42,7 +42,7 @@ public class RegistrationEP {
     @RequestMapping(value = "/me", method = RequestMethod.GET)
     @ResponseBody
     public ISystemUser get() throws Exception {
-        // curl -u mike:123 -X PUT  http://localhost:8080/ab/profiles/me
+        // curl -u mike:123 -X GET http://localhost:8080/ab/profiles/me
         ISystemUser result = regService.getSystemUser();
 
         return result;
