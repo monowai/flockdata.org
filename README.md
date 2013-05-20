@@ -17,6 +17,11 @@ We need to keep track of information. We are producing more information faster n
 
 Auditing is often seen as a low value "we'll get to it later" approach in a lot of systems. Applications are concerned with what changed internally at best and tracking no history of changes other than "who last changed it" at worst. This is often not enough when forensic levels of anlaysis may be required and can expose companies to unnecessary risk.
 
+AuditBucket looks at the problem as an opportunity. Enabling the tracking of changes in information occuring across your applications offers a view of what is going on at the information coalface of your business.
+
+### How does it work?
+Look further under the hood and you'll see that computer systems send information over APIs. By tapping in to these APIs "versions" of the information being changed can be logged in AuditBucket for future analysis and tracking trends freeing your processing systems up from the administrative burdon of carrying such information. 
+
 ## What is it good for?
 
 * Understand who's changing what across systems
