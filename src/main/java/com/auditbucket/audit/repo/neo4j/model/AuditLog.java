@@ -4,7 +4,6 @@ import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.registration.model.IFortressUser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.springframework.data.neo4j.annotation.*;
@@ -93,7 +92,7 @@ public class AuditLog implements IAuditLog {
         this.comment = comment;
     }
 
-    @Override
+    @JsonIgnore
     public String getKey() {
         return changeKey;
     }
