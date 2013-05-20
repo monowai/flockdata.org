@@ -41,15 +41,52 @@ I hope to finalise the API over the coming few weeks and would welcome feedback 
 
 ## How to use
 
-Clone the repo. 
+Get the source
+```
+$ git clone https://github.com/monowai/auditbucket
+```
 
+Build with dependancies.
+```
+$ mvn install
+```
 
-* Register yourself with an account
-* Create an Application Fortress 
-* Create an Audit Log for the Fortress
-* Create a log
+Check out the configuration files in src/test/resources and src/main/resources that allow ElasticSearch to connect to a cluster (if you're running such a thing). Otherwise you can run the JUnit tests. The test configuration connects to Neo4J in embedded mode, while the release configuration assumes the connection to be over  HTTP. This shows you how to connect to both environments, so modify to suit your needs.
 
+Deploy in TomCat or whatever be your favourite container. (todo: support as a standalone service with Jetty or somesuch)
 
+Run the tests (you may get a single failure here...)
+```
+$ mvn -Dtest=Test* test
+```
 
+Once you have the .war file installed in your app server, you can start firing off urls to test things.
 
+### Security
+Note that the user id is 'mike' and the password is '123'. This is bodgy configuration stuff hacked in to spring-security.xml. I'm sure you'll configure your own lovely security domain, or help me out with an OAuth configuration ;)
 
+### Creating Data
+Register yourself with an account
+```
+curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/profiles/register -d '{"name":"mikey", "companyName":"Monowai Dev","password":"whocares"}'
+```
+### See who you are
+```
+curl -u mike:123 -X GET http://localhost:8080/ab/profiles/me
+```
+
+### Create an Application Fortress 
+This is one of your computer systems that you want to audit
+```
+curl -u mike:123 -X PUT  http://localhost:8080/ab/fortress/MyFortressName
+```
+### Create an Audit Header for the Fortress
+```
+curl -u mike:123 -X PUT http://localhost:8080/ab/audit/header/new/ -d '"fortress":"MyFotressName", "fortressUser": "yoursystemuser", "recordType":"Company","when":"2012-11-10", yourRef:"123"}'
+```
+Result code is a UID that your system can store and must use to create a log record in the next section 
+
+### Create a log for an Audit Header
+```
+curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/audit/log/ -d '{"eventType":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10", "what": "{\"name\": \"val\"}" }'
+```
