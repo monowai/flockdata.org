@@ -25,7 +25,6 @@ http://www.springframework.org/schema/tx/spring-tx.xsd">
     <tx:annotation-driven mode="proxy"/>
 
     <!--Embedded config-->
-    <!--<neo4j:config storeDirectory="/registration/mike/documents/spring/monowai/audit-bucket/target/graph/audit" />-->
     <neo4j:config storeDirectory="./data/neo4j/"/>
 
     <!--RestAPI Config-->

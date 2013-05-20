@@ -9,16 +9,4 @@
     <elasticsearch:node id="esNode"/>
     <elasticsearch:client node="esNode" id="esClient"/>
 
-    <!--For test purposes-->
-    <!--<bean id="esClient"-->
-    <!--class="fr.pilato.spring.elasticsearch.ElasticsearchClientFactoryBean">-->
-    <!--<property companyName="mappings">-->
-    <!--<list>-->
-    <!--<value>monowai.wportfolio/company</value>-->
-    <!--<value>hummingbird.honeysuckle/company</value>-->
-    <!--</list>-->
-    <!--</property>-->
-    <!--<property companyName="forceTemplate" value="true"/>-->
-    <!--</bean>-->
-
 </beans>
