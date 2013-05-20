@@ -20,7 +20,7 @@ Auditing is often seen as a low value "we'll get to it later" approach in a lot 
 AuditBucket looks at the problem as an opportunity. Enabling the tracking of changes in information occuring across your applications offers a view of what is going on at the information coalface of your business.
 
 ### How does it work?
-Look further under the hood and you'll see that computer systems send information over APIs. By tapping in to these APIs "versions" of the information being changed can be logged in AuditBucket for future analysis and tracking trends freeing your processing systems up from the administrative burdon of carrying such information. 
+Look under the hood of an application and you'll see that it send information over APIs. By tapping in to these APIs "versions" of the information being changed can be logged in AuditBucket for future analysis and tracking trends freeing your processing systems up from the administrative burdon of carrying such information. 
 
 ## What is it good for?
 
