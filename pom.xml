@@ -10,8 +10,9 @@
     <properties>
         <java-version>1.6</java-version>
         <org.springframework-version>3.2.2.RELEASE</org.springframework-version>
-        <org.aspectj-version>1.6.10</org.aspectj-version>
+        <org.aspectj-version>1.6.12</org.aspectj-version>
         <org.slf4j-version>1.6.1</org.slf4j-version>
+        <org.springdata.neo4j>2.2.1.RELEASE</org.springdata.neo4j>
         <org.springsecurity-version>3.1.0.RELEASE</org.springsecurity-version>
         <jackson.version>2.2.1</jackson.version>
     </properties>
@@ -204,6 +205,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>javax.persistence</groupId>
+            <artifactId>persistence-api</artifactId>
+            <version>1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
             <version>0.8.1</version>
@@ -219,13 +226,20 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-neo4j</artifactId>
-            <version>2.2.0.RELEASE</version>
+            <version>${org.springdata.neo4j}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-neo4j-rest</artifactId>
-            <version>2.2.0.RELEASE</version>
+            <version>${org.springdata.neo4j}</version>
         </dependency>
+<!--sd-Neo4J advanced mapping-->
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-neo4j-aspects</artifactId>
+            <version>${org.springdata.neo4j}</version>
+        </dependency>
+
         <dependency>
             <groupId>fr.pilato.spring</groupId>
             <artifactId>spring-elasticsearch</artifactId>
@@ -322,6 +336,16 @@
                 </executions>
                 <configuration>
                     <outxml>true</outxml>
+                    <!--<aspectLibraries>-->
+                        <!--<aspectLibrary>-->
+                            <!--<groupId>org.springframework</groupId>-->
+                            <!--<artifactId>spring-aspects</artifactId>-->
+                        <!--</aspectLibrary>-->
+                        <!--<aspectLibrary>-->
+                            <!--<groupId>org.springframework.data</groupId>-->
+                            <!--<artifactId>spring-data-neo4j-aspects</artifactId>-->
+                        <!--</aspectLibrary>-->
+                    <!--</aspectLibraries>-->
                     <source>${java-version}</source>
                     <target>${java-version}</target>
                 </configuration>

@@ -73,8 +73,8 @@ public class FortressService {
     }
 
     public IFortressUser getFortressUser(IFortress fortress, String fortressUser, boolean createIfMissing) {
-        if (fortressUser == null && fortress == null)
-            throw new IllegalArgumentException("Don't go throwing null in here");
+        if (fortressUser == null || fortress == null)
+            throw new IllegalArgumentException("Don't go throwing null in here ["+(fortressUser==null? "FortressUser]":"Fortress]"));
 
         IFortressUser fu = fortressDao.getFortressUser(fortress.getId(), fortressUser);
         if (createIfMissing && fu == null)

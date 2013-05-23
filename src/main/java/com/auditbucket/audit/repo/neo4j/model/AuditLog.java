@@ -3,9 +3,11 @@ package com.auditbucket.audit.repo.neo4j.model;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.registration.model.IFortressUser;
+import com.auditbucket.registration.repo.neo4j.model.FortressUser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.*;
 
 import java.util.Date;
@@ -15,15 +17,14 @@ import java.util.Date;
  * Date: 15/04/13
  * Time: 5:57 AM
  */
-@RelationshipEntity(type = "auditChange")
+@NodeEntity
 public class AuditLog implements IAuditLog {
 
-    @EndNode()
+    @RelatedTo(elementClass = FortressUser.class, type = "madeBy", direction = Direction.OUTGOING)
     @Fetch
-    private IFortressUser createdBy;
+    private FortressUser madeBy;
 
-    @Indexed(indexName = "changeHeader")
-    @StartNode()
+    @RelatedTo(elementClass = AuditHeader.class, type = "changedTo", direction = Direction.INCOMING)
     private IAuditHeader auditHeader;
 
     @GraphId
@@ -43,10 +44,10 @@ public class AuditLog implements IAuditLog {
         sysWhen = now.toDate().getTime();
     }
 
-    public AuditLog(IAuditHeader header, IFortressUser user, DateTime when, String event, String what) {
+    public AuditLog(IAuditHeader header, IFortressUser madeBy, DateTime when, String event, String what) {
         this();
         setHeader(header);
-        createdBy = user;
+        this.madeBy = (FortressUser) madeBy;
 
         if (when != null)
             this.when = when.getMillis();
@@ -71,8 +72,8 @@ public class AuditLog implements IAuditLog {
         this.auditHeader = header;
     }
 
-    public String getWho() {
-        return createdBy.getName();
+    public IFortressUser getWho() {
+        return madeBy;
     }
 
     public Date getWhen() {

@@ -1,5 +1,7 @@
 package com.auditbucket.audit.model;
 
+import com.auditbucket.registration.model.IFortressUser;
+
 import java.util.Date;
 
 /**
@@ -14,7 +16,7 @@ public interface IAuditLog {
 
     public abstract IAuditHeader getHeader();
 
-    public abstract String getWho();
+    public abstract IFortressUser getWho();
 
     public abstract Date getWhen();
 

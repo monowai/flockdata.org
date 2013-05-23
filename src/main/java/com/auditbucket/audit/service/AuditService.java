@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,13 +65,6 @@ public class AuditService {
     private Log log = LogFactory.getLog(AuditService.class);
 
     private ObjectMapper om = new ObjectMapper();
-    ;
-
-    public String doAudit(String userName, String uid, String fortress, String fortressUser, Date dateWhen, String what) {
-
-
-        return "";
-    }
 
     /**
      * Creates a fortress specific header for the caller. FortressUser is automatically
@@ -262,14 +256,13 @@ public class AuditService {
         IAuditLog auditLog = getLastChange(auditHeader);
         auditChange.delete(auditHeader.getIndexName(), auditHeader.getDataType(), auditLog);
         auditDAO.delete(auditLog);
+
         auditLog = getLastChange(auditHeader);
-        if (auditLog != null) {
-            auditHeader.setLastUser(fortressService.getFortressUser(auditHeader.getFortress(), auditLog.getWho()));
-            auditHeader = auditDAO.save(auditHeader);
-        } else {
-            auditDAO.delete(auditHeader);
-            auditHeader = null;
-        }
+        if (auditLog == null )
+            return null;
+
+        auditHeader.setLastUser(fortressService.getFortressUser(auditHeader.getFortress(),auditLog.getWho().getName() ));
+        auditHeader = auditDAO.save(auditHeader);
         return auditHeader;
     }
 
