@@ -31,7 +31,6 @@ public class AuditLog implements IAuditLog {
     @GraphId
     private Long id;
     private long sysWhen;
-    @Indexed(indexName = "changedWhen")
     private String comment;
 
     private String what;
@@ -40,7 +39,7 @@ public class AuditLog implements IAuditLog {
     private String changeKey;
 
     protected AuditLog() {
-        DateTime now =new DateTime().toDateTime(DateTimeZone.UTC);
+        DateTime now = new DateTime().toDateTime(DateTimeZone.UTC);
         sysWhen = now.toDate().getTime();
     }
 
@@ -49,9 +48,10 @@ public class AuditLog implements IAuditLog {
         this.madeBy = (FortressUser) madeBy;
 
         if (when != null)
-            auditWhen = new AuditWhen((AuditHeader)header, this, when.getMillis());
+            auditWhen = new AuditWhen((AuditHeader) header, this, when.getMillis());
         else
-            auditWhen = new AuditWhen((AuditHeader)header,this, sysWhen);;
+            auditWhen = new AuditWhen((AuditHeader) header, this, sysWhen);
+        ;
 
         this.event = event;
         this.what = what;
@@ -63,7 +63,7 @@ public class AuditLog implements IAuditLog {
         return auditWhen.getAuditHeader();
     }
 
-    public AuditWhen getAuditWhen(){
+    public AuditWhen getAuditWhen() {
         return auditWhen;
     }
 

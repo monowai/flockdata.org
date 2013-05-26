@@ -164,7 +164,7 @@ public class AuditService {
         if (user == null)
             return LogStatus.FORBIDDEN;
 
-        IFortressUser fu = fortressService.getFortressUser(ah.getFortress(), fortressUser, true);
+        IFortressUser fu = fortressService.getFortressUser(ah.getFortress(), fortressUser.toLowerCase(), true);
 
         IAuditLog existingLog = auditDAO.getLastChange(ah.getId());
         if (existingLog != null) {
@@ -183,26 +183,23 @@ public class AuditService {
             if (event == null)
                 event = IAuditLog.CREATE;
         }
+
+        // Spin the following off in to a separate thread?
         AuditChange thisChange = new AuditChange(ah);
         thisChange.setEvent(event);
         thisChange.setWhat(what);
-        thisChange.getName(fortressUser);
         if (dateWhen != null)
             thisChange.setWhen(dateWhen.toDate());
 
-        // Store the change in to the search engine
-        String changeKey = auditChange.save(thisChange);
         // Log in the graph who did this for future reference
         ah.setLastUser(fu);
         ah = auditDAO.save(ah);
 
         AuditLog al = new AuditLog(ah, fu, dateWhen, event, what);
-        al.setKey(changeKey);
+        al.setKey(auditChange.save(thisChange));
         auditDAO.save(al);
 
         return LogStatus.OK;
-
-
     }
 
     public IAuditLog getLastChange(String headerKey) {

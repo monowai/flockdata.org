@@ -38,8 +38,8 @@ public class AuditHeader implements IAuditHeader {
     @Fetch
     private Fortress fortress;
 
-    @RelatedToVia (type ="changedWhen")
-    private Set<AuditWhen> auditWhen =null;
+    @RelatedToVia(type = "changedWhen")
+    private Set<AuditWhen> auditWhen = null;
 
 
     public static final String UUID_KEY = "uid";
@@ -150,6 +150,14 @@ public class AuditHeader implements IAuditHeader {
         return clientRef;
     }
 
+    @Override
+    public String toString() {
+        return "AuditHeader{" +
+                "id=" + id +
+                ", uid='" + uid + '\'' +
+                ", name='" + name + '\'' +
+                '}';
+    }
 
     @Override
     public void bumpUpdate() {

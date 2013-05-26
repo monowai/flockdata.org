@@ -1,10 +1,6 @@
 package com.auditbucket.audit.repo.neo4j.model;
 
-import org.neo4j.graphdb.Relationship;
-import org.springframework.data.neo4j.annotation.EndNode;
-import org.springframework.data.neo4j.annotation.GraphId;
-import org.springframework.data.neo4j.annotation.RelationshipEntity;
-import org.springframework.data.neo4j.annotation.StartNode;
+import org.springframework.data.neo4j.annotation.*;
 
 /**
  * User: mike
@@ -22,8 +18,14 @@ public class AuditWhen {
     @GraphId
     private Long id;
 
-    private Long when =0l;
-    public AuditWhen(){};
+    @Indexed(indexName = "changedWhen")
+    private Long when = 0l;
+
+    public AuditWhen() {
+    }
+
+    ;
+
     public AuditWhen(AuditHeader header, AuditLog log, long millis) {
         this.auditHeader = header;
         this.auditLog = log;
@@ -35,7 +37,7 @@ public class AuditWhen {
         return when;
     }
 
-    public void setWhen(Long when) {
+    void setWhen(Long when) {
         this.when = when;
     }
 

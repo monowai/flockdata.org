@@ -19,7 +19,7 @@ public class AuditChange implements IAuditChange {
     @Id
     private String id;
     private String headerKey;
-    private String dataType;
+    private String _dataType;
     private String what;
     private String name;
     private Date when;
@@ -40,7 +40,7 @@ public class AuditChange implements IAuditChange {
     public AuditChange(IAuditHeader header) {
         this();
         setHeaderKey(header.getUID());
-        this.dataType = header.getDataType();
+        this._dataType = header.getDataType();
         setFortress(header.getFortress());
         this.indexName = header.getIndexName();
         this._clientRef = header.getClientRef();
@@ -141,10 +141,10 @@ public class AuditChange implements IAuditChange {
     }
 
     public String getDataType() {
-        return dataType;
+        return _dataType;
     }
 
     protected void setDataType(String dataType) {
-        this.dataType = dataType;
+        this._dataType = dataType;
     }
 }

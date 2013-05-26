@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface FortressRepository extends GraphRepository<Fortress> {
 
-    @Query(value = "start fortress=node({0}) match fortress-[:fortressUser]-fu where fu.name = {1} return fu")
+    @Query(value = "start fortress=node({0}) match fortress-[:fortressUser]->fu where fu.name = {1} return fu")
     FortressUser getFortressUser(Long fortressId, String userName);
 
     @Query(elementClass = Fortress.class, value = "start company=node({0}) match company-[:owns]->f return f")
