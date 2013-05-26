@@ -7,7 +7,6 @@ import com.auditbucket.audit.repo.neo4j.AuditHeaderRepo;
 import com.auditbucket.audit.repo.neo4j.AuditLogRepo;
 import com.auditbucket.audit.repo.neo4j.model.AuditHeader;
 import com.auditbucket.audit.repo.neo4j.model.AuditLog;
-import com.auditbucket.audit.repo.neo4j.model.AuditWhen;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;

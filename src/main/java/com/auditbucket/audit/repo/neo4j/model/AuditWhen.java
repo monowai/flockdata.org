@@ -1,13 +1,15 @@
 package com.auditbucket.audit.repo.neo4j.model;
 
-import org.springframework.data.neo4j.annotation.*;
+import org.springframework.data.neo4j.annotation.EndNode;
+import org.springframework.data.neo4j.annotation.GraphId;
+import org.springframework.data.neo4j.annotation.StartNode;
 
 /**
  * User: mike
  * Date: 26/05/13
  * Time: 4:12 PM
  */
-@RelationshipEntity(type = "changedWhen")
+
 public class AuditWhen {
 
     @StartNode
@@ -18,7 +20,7 @@ public class AuditWhen {
     @GraphId
     private Long id;
 
-    @Indexed(indexName = "changedWhen")
+
     private Long when = 0l;
 
     public AuditWhen() {

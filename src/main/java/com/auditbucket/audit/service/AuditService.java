@@ -156,7 +156,7 @@ public class AuditService {
     }
 
     @Transactional
-    public LogStatus createLog(@NotNull IAuditHeader ah, @NotNull String fortressUser, DateTime dateWhen, String what, String event) {
+    public LogStatus createLog(@NotNull IAuditHeader header, @NotNull String fortressUser, DateTime dateWhen, String what, String event) {
         if (what == null || what.isEmpty())
             return LogStatus.IGNORE;
 
@@ -164,12 +164,12 @@ public class AuditService {
         if (user == null)
             return LogStatus.FORBIDDEN;
 
-        IFortressUser fu = fortressService.getFortressUser(ah.getFortress(), fortressUser.toLowerCase(), true);
+        IFortressUser fUser = fortressService.getFortressUser(header.getFortress(), fortressUser.toLowerCase(), true);
 
-        IAuditLog existingLog = auditDAO.getLastChange(ah.getId());
+        IAuditLog existingLog = auditDAO.getLastChange(header.getId());
         if (existingLog != null) {
             // Find the change data
-            IAuditLog lastChange = getLastChange(ah);
+            IAuditLog lastChange = getLastChange(header);
             if (lastChange != null) {
                 if (event == null)
                     event = IAuditLog.UPDATE;
@@ -185,17 +185,17 @@ public class AuditService {
         }
 
         // Spin the following off in to a separate thread?
-        AuditChange thisChange = new AuditChange(ah);
+        AuditChange thisChange = new AuditChange(header);
         thisChange.setEvent(event);
         thisChange.setWhat(what);
         if (dateWhen != null)
             thisChange.setWhen(dateWhen.toDate());
 
         // Log in the graph who did this for future reference
-        ah.setLastUser(fu);
-        ah = auditDAO.save(ah);
+        header.setLastUser(fUser);
+        header = auditDAO.save(header);
 
-        AuditLog al = new AuditLog(ah, fu, dateWhen, event, what);
+        AuditLog al = new AuditLog(header, fUser, dateWhen, event, what);
         al.setKey(auditChange.save(thisChange));
         auditDAO.save(al);
 

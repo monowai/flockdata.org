@@ -7,7 +7,6 @@ import com.auditbucket.registration.repo.neo4j.model.FortressUser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.*;
 
 import java.util.Date;
@@ -17,16 +16,20 @@ import java.util.Date;
  * Date: 15/04/13
  * Time: 5:57 AM
  */
-@NodeEntity
+@RelationshipEntity(type = "changedWhen")
 public class AuditLog implements IAuditLog {
 
-    @RelatedTo(elementClass = FortressUser.class, type = "madeBy", direction = Direction.OUTGOING)
+    //@RelatedTo(elementClass = FortressUser.class, type = "madeBy", direction = Direction.OUTGOING)
+    @EndNode
     @Fetch
     private FortressUser madeBy;
 
+    //@RelatedTo(elementClass = AuditHeader.class, type = "changedWhen", direction = Direction.OUTGOING)
     @Fetch
-    @RelatedToVia(elementClass = AuditWhen.class, type = "changedWhen", direction = Direction.OUTGOING)
-    private AuditWhen auditWhen;
+    @Indexed(indexName = "changeHeader")
+    @StartNode
+    private AuditHeader auditHeader;
+    //private AuditWhen auditWhen;
 
     @GraphId
     private Long id;
@@ -35,6 +38,10 @@ public class AuditLog implements IAuditLog {
 
     private String what;
     private String event;
+
+    @Indexed(indexName = "changedWhen")
+    private Long when = 0l;
+
     @Indexed(indexName = "esKey")
     private String changeKey;
 
@@ -46,26 +53,29 @@ public class AuditLog implements IAuditLog {
     public AuditLog(IAuditHeader header, IFortressUser madeBy, DateTime when, String event, String what) {
         this();
         this.madeBy = (FortressUser) madeBy;
-
-        if (when != null)
-            auditWhen = new AuditWhen((AuditHeader) header, this, when.getMillis());
-        else
-            auditWhen = new AuditWhen((AuditHeader) header, this, sysWhen);
-        ;
+        auditHeader = (AuditHeader) header;
+        if (when != null) {
+            //auditWhen = new AuditWhen((AuditHeader) header, this, when.getMillis());
+            this.when = when.getMillis();
+        } else {
+            //auditWhen = new AuditWhen((AuditHeader) header, this, sysWhen);
+            this.when = sysWhen;
+        }
 
         this.event = event;
         this.what = what;
-        auditWhen.setChange(this);
+        //auditWhen.setChange(this);
     }
 
     @JsonIgnore
     public IAuditHeader getHeader() {
-        return auditWhen.getAuditHeader();
+        //return auditWhen.getAuditHeader();
+        return auditHeader;
     }
 
-    public AuditWhen getAuditWhen() {
-        return auditWhen;
-    }
+//    public AuditWhen getAuditWhen() {
+//        return auditWhen;
+//    }
 
     @JsonIgnore
     public long getId() {
@@ -78,7 +88,7 @@ public class AuditLog implements IAuditLog {
     }
 
     public Date getWhen() {
-        return new Date(auditWhen.getWhen());
+        return new Date(when);
     }
 
     public Date getSysWhen() {
