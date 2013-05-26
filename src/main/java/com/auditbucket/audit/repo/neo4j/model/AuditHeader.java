@@ -11,6 +11,7 @@ import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.*;
 
 import java.util.Date;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -36,6 +37,9 @@ public class AuditHeader implements IAuditHeader {
     @RelatedTo(elementClass = Fortress.class, type = "audit", direction = Direction.INCOMING)
     @Fetch
     private Fortress fortress;
+
+    @RelatedToVia (type ="changedWhen")
+    private Set<AuditWhen> auditWhen =null;
 
 
     public static final String UUID_KEY = "uid";
@@ -151,4 +155,5 @@ public class AuditHeader implements IAuditHeader {
     public void bumpUpdate() {
         lastUpdated = System.currentTimeMillis();
     }
+
 }

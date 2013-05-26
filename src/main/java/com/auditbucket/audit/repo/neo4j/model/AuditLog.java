@@ -24,14 +24,14 @@ public class AuditLog implements IAuditLog {
     @Fetch
     private FortressUser madeBy;
 
-    @RelatedTo(elementClass = AuditHeader.class, type = "changedTo", direction = Direction.INCOMING)
-    private IAuditHeader auditHeader;
+    @Fetch
+    @RelatedToVia(elementClass = AuditWhen.class, type = "changedWhen", direction = Direction.OUTGOING)
+    private AuditWhen auditWhen;
 
     @GraphId
     private Long id;
     private long sysWhen;
     @Indexed(indexName = "changedWhen")
-    private long when;
     private String comment;
 
     private String what;
@@ -46,21 +46,25 @@ public class AuditLog implements IAuditLog {
 
     public AuditLog(IAuditHeader header, IFortressUser madeBy, DateTime when, String event, String what) {
         this();
-        setHeader(header);
         this.madeBy = (FortressUser) madeBy;
 
         if (when != null)
-            this.when = when.getMillis();
+            auditWhen = new AuditWhen((AuditHeader)header, this, when.getMillis());
         else
-            this.when = sysWhen;
+            auditWhen = new AuditWhen((AuditHeader)header,this, sysWhen);;
 
         this.event = event;
         this.what = what;
+        auditWhen.setChange(this);
     }
 
     @JsonIgnore
     public IAuditHeader getHeader() {
-        return auditHeader;
+        return auditWhen.getAuditHeader();
+    }
+
+    public AuditWhen getAuditWhen(){
+        return auditWhen;
     }
 
     @JsonIgnore
@@ -68,16 +72,13 @@ public class AuditLog implements IAuditLog {
         return id;
     }
 
-    protected void setHeader(IAuditHeader header) {
-        this.auditHeader = header;
-    }
 
     public IFortressUser getWho() {
         return madeBy;
     }
 
     public Date getWhen() {
-        return new Date(when);
+        return new Date(auditWhen.getWhen());
     }
 
     public Date getSysWhen() {

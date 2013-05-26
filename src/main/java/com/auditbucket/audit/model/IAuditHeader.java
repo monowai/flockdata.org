@@ -1,5 +1,7 @@
 package com.auditbucket.audit.model;
 
+import com.auditbucket.audit.repo.neo4j.model.AuditLog;
+import com.auditbucket.audit.repo.neo4j.model.AuditWhen;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.model.IFortressUser;
 
@@ -51,4 +53,5 @@ public interface IAuditHeader {
      * alters the lastChange value
      */
     void bumpUpdate();
+
 }

@@ -7,7 +7,9 @@ import com.auditbucket.audit.repo.neo4j.AuditHeaderRepo;
 import com.auditbucket.audit.repo.neo4j.AuditLogRepo;
 import com.auditbucket.audit.repo.neo4j.model.AuditHeader;
 import com.auditbucket.audit.repo.neo4j.model.AuditLog;
+import com.auditbucket.audit.repo.neo4j.model.AuditWhen;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
@@ -26,6 +28,10 @@ public class AuditDaoNeo implements IAuditDao {
     @Autowired
     AuditLogRepo auditLogRepo;
 
+    @Autowired
+    Neo4jTemplate template;
+
+
     @Override
     public IAuditHeader save(IAuditHeader auditHeader) {
         auditHeader.bumpUpdate();
@@ -34,6 +40,7 @@ public class AuditDaoNeo implements IAuditDao {
 
     @Override
     public IAuditLog save(IAuditLog auditLog) {
+
         return auditLogRepo.save((AuditLog) auditLog);
     }
 

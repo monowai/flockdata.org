@@ -186,7 +186,7 @@ public class AuditService {
         AuditChange thisChange = new AuditChange(ah);
         thisChange.setEvent(event);
         thisChange.setWhat(what);
-        thisChange.setWho(fortressUser);
+        thisChange.getName(fortressUser);
         if (dateWhen != null)
             thisChange.setWhen(dateWhen.toDate());
 
@@ -195,10 +195,11 @@ public class AuditService {
         // Log in the graph who did this for future reference
         ah.setLastUser(fu);
         ah = auditDAO.save(ah);
-        ah.getLastUser();
-        IAuditLog al = new AuditLog(ah, fu, dateWhen, event, what);
+
+        AuditLog al = new AuditLog(ah, fu, dateWhen, event, what);
         al.setKey(changeKey);
         auditDAO.save(al);
+
         return LogStatus.OK;
 
 

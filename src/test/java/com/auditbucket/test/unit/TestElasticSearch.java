@@ -66,7 +66,7 @@ public class TestElasticSearch {
 
         AuditChange auditChange = new AuditChange(auditHeader);
 
-        auditChange.setWho(uid);
+        auditChange.getName(uid);
         auditChange.setEvent("Create");
         auditChange.setWhen(new Date());
 // What changed?
@@ -128,7 +128,7 @@ public class TestElasticSearch {
 
         AuditChange auditChange = new AuditChange(auditHeader);
 
-        auditChange.setWho(uid);
+        auditChange.getName(uid);
         auditChange.setEvent("Create");
         auditChange.setWhen(new Date());
         auditChange.setVersion(System.currentTimeMillis());

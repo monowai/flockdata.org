@@ -160,6 +160,7 @@ public class TestAuditIntegration {
         }
 
         IAuditLog lastChange = auditService.getLastChange(auditHeader.getUID());
+        assertNotNull (lastChange);
         assertEquals(workingDate.toDate(), lastChange.getWhen());
         auditHeader = auditService.getHeader(ahWP);
         assertEquals(max, auditService.getAuditLogCount(auditHeader.getUID()));

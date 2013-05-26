@@ -21,7 +21,7 @@ public class AuditChange implements IAuditChange {
     private String headerKey;
     private String dataType;
     private String what;
-    private String who;
+    private String name;
     private Date when;
     private String fortressName;
     private String companyName;
@@ -85,12 +85,12 @@ public class AuditChange implements IAuditChange {
 
     }
 
-    public String getWho() {
-        return who;
+    public String getName() {
+        return name;
     }
 
-    public void setWho(String who) {
-        this.who = who;
+    public void getName(String who) {
+        this.name = who;
     }
 
     public Date getWhen() {
