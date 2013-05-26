@@ -24,10 +24,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -156,7 +156,7 @@ public class AuditService {
     }
 
     @Transactional
-    public LogStatus createLog(IAuditHeader ah, String fortressUser, DateTime dateWhen, String what, String event) {
+    public LogStatus createLog(@NotNull IAuditHeader ah, @NotNull String fortressUser, DateTime dateWhen, String what, String event) {
         if (what == null || what.isEmpty())
             return LogStatus.IGNORE;
 
@@ -259,10 +259,10 @@ public class AuditService {
         auditDAO.delete(auditLog);
 
         auditLog = getLastChange(auditHeader);
-        if (auditLog == null )
+        if (auditLog == null)
             return null;
 
-        auditHeader.setLastUser(fortressService.getFortressUser(auditHeader.getFortress(),auditLog.getWho().getName() ));
+        auditHeader.setLastUser(fortressService.getFortressUser(auditHeader.getFortress(), auditLog.getWho().getName()));
         auditHeader = auditDAO.save(auditHeader);
         return auditHeader;
     }
