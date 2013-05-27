@@ -144,10 +144,12 @@ public class TestRegistration {
         String userName = "gina@hummingbird.com";
 
         // Create the company.
-
+        SecurityContextHolder.getContext().setAuthentication(null);
         ISystemUser systemUser = registrationService.registerSystemUser(new RegistrationBean(companyName, adminName, "password"));
         assertNotNull(systemUser);
 
+        // Assume the user has now logged in.
+        SecurityContextHolder.getContext().setAuthentication(auth);
         ICompanyUser nonAdmin = registrationService.addCompanyUser(userName, companyName);
         assertNotNull(nonAdmin);
 

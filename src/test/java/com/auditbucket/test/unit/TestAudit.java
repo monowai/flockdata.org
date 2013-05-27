@@ -70,7 +70,7 @@ public class TestAudit {
     @Test
     public void testEscapedJson() {
         String test = JSONObject.escape("{\"name\": \"value\"}");
-        System.out.println(test);
+        log.info(test);
     }
 
     @Test
@@ -146,7 +146,7 @@ public class TestAudit {
         String ahKey = auditService.createHeader(new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "9999"));
 
         assertNotNull(ahKey);
-        System.out.println(ahKey);
+        log.info(ahKey);
 
         assertNotNull(auditService.getHeader(ahKey));
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
@@ -178,7 +178,7 @@ public class TestAudit {
         String ahKey = auditService.createHeader(new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "YYY"));
 
         assertNotNull(ahKey);
-        System.out.println(ahKey);
+        log.info(ahKey);
 
         assertNotNull(auditService.getHeader(ahKey));
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));

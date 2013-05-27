@@ -13,6 +13,8 @@ import com.auditbucket.registration.repo.neo4j.model.Fortress;
 import com.auditbucket.registration.repo.neo4j.model.FortressUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.JsonNodeFactory;
 import org.codehaus.jackson.node.ObjectNode;
@@ -42,6 +44,7 @@ public class TestElasticSearch {
     private String company = "Monowai";
     private String uid = "mike@monowai.com";
     Authentication auth = new UsernamePasswordAuthenticationToken(uid, "user1");
+    private Log log = LogFactory.getLog(TestElasticSearch.class);
 
     @Autowired
     RegistrationService regService;
@@ -78,7 +81,7 @@ public class TestElasticSearch {
 
         ObjectMapper om = new ObjectMapper();
         try {
-            System.out.println(om.writeValueAsString(auditChange));
+            log.info(om.writeValueAsString(auditChange));
 
             // Elasticsearch
             Node node = nodeBuilder().local(true).node();
@@ -93,14 +96,14 @@ public class TestElasticSearch {
                             .actionGet();
 
             assertNotNull(ir);
-            System.out.println(ir.getId());
+            log.info(ir.getId());
 
             // Retrieve from Lucene
             GetResponse response = client.prepareGet(indexKey, auditChange.getHeaderKey(), ir.id())
                     .execute()
                     .actionGet();
             assertNotNull(response);
-            System.out.println(response.type());
+            log.info(response.type());
 
             AuditChange found = om.readValue(response.getSourceAsBytes(), AuditChange.class);
             assertNotNull(found);
