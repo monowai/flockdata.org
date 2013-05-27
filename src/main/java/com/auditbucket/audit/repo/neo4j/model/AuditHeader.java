@@ -10,6 +10,7 @@ import org.joda.time.DateTimeZone;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.*;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.UUID;
 
@@ -48,7 +49,9 @@ public class AuditHeader implements IAuditHeader {
 
     private String name;
     private long dateCreated;
+
     private String dataType;
+
     private long fortressDate;
     private String comment;
     long lastUpdated = 0;
@@ -65,18 +68,18 @@ public class AuditHeader implements IAuditHeader {
         this.lastUpdated = dateCreated;
     }
 
-    public AuditHeader(IFortressUser createdBy, String dataType, DateTime when, String clientRef) {
+    public AuditHeader(@NotNull IFortressUser createdBy, @NotNull String dataType, DateTime when, String clientRef) {
         this();
         this.createdBy = (FortressUser) createdBy;
         this.lastWho = (FortressUser) createdBy;
         this.fortress = (Fortress) createdBy.getFortress();
         this.fortressDate = when.toDate().getTime();
         this.dataType = dataType;
-        this.clientRef = clientRef;
+        this.clientRef = (clientRef == null ? null : (dataType + "." + clientRef).toLowerCase());
     }
 
     public Long getId() {
-        return id;  //To change body of implemented methods use File | Settings | File Templates.
+        return id;
     }
 
     @Override

@@ -91,10 +91,13 @@ public class AuditService {
         IFortress iFortress = companyService.getCompanyFortress(company, fortress);
         if (iFortress == null)
             throw new IllegalArgumentException("Unable to find the fortress [" + fortress + "] for the company [" + su.getCompany().getName() + "]");
+
+        //ToDo: Check by Client Ref
         // Create fortressUser if missing
         IFortressUser fu = fortressService.getFortressUser(iFortress, inputBean.getFortressUser(), true);
 
         IAuditHeader ah = new AuditHeader(fu, inputBean.getRecordType(), dateWhen, inputBean.getCallerRef());
+
         // ToDo: not AuditHeader, rather the bean
         ah = auditDAO.save(ah);
         if (log.isDebugEnabled())
@@ -121,19 +124,19 @@ public class AuditService {
         return ah;
     }
 
-    private IAuditHeader getHeaderByClientRef(Long fortressID, String clientRef) {
+    public IAuditHeader findByClientRef(Long fortressID, String recordType, String clientRef) {
         String userName = securityHelper.getLoggedInUser();
 
         ISystemUser su = sysUserService.findByName(userName);
         if (su == null)
             throw new SecurityException("Not authorised");
 
-        //ToDo - clientRef by fortessID
-        IAuditHeader ah = auditDAO.findHeaderByClientRef(clientRef);
-        if (ah == null)
-            throw new IllegalArgumentException("Unable to find key [" + clientRef + "] for fortress");
+        IFortress fortress = fortressService.getFortress(fortressID);
+        if (!fortress.getCompany().getId().equals(su.getCompany().getId()))
+            throw new SecurityException("User is not authorised to work with requested Fortress");
 
-        return ah;
+        String key = new StringBuilder().append(recordType).append(".").append(clientRef).toString();
+        return auditDAO.findHeaderByClientRef(key, fortress.getName(), fortress.getCompany().getName());
     }
 
     @Transactional

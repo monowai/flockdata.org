@@ -6,11 +6,12 @@ import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.audit.service.AuditService;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.IFortress;
-import com.auditbucket.registration.model.ISystemUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.time.StopWatch;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,19 +52,20 @@ public class TestAudit {
     @Autowired
     private Neo4jTemplate template;
 
+    private Log log = LogFactory.getLog(TestAudit.class);
 
     @Rollback(false)
     @BeforeTransaction
     public void cleanUpGraph() {
         // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
         // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-        SecurityContextHolder.getContext().setAuthentication(auth);
+        SecurityContextHolder.getContext().setAuthentication(authA);
         Neo4jHelper.cleanDb(template);
     }
 
     private String company = "Monowai";
     private String uid = "mike@monowai.com";
-    Authentication auth = new UsernamePasswordAuthenticationToken(uid, "user1");
+    Authentication authA = new UsernamePasswordAuthenticationToken(uid, "user1");
 
     @Test
     public void testEscapedJson() {
@@ -72,31 +74,60 @@ public class TestAudit {
     }
 
     @Test
+    public void testClientRef() {
+        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        IFortress fortressA = fortressService.registerFortress("auditTest");
+        auditService.createHeader(new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new Date(), "ABC123"));
+
+        Authentication authB = new UsernamePasswordAuthenticationToken("swagger", "user2");
+        SecurityContextHolder.getContext().setAuthentication(authB);
+        regService.registerSystemUser(new RegistrationBean("TestTow", "swagger", "bah"));
+        IFortress fortressB = fortressService.registerFortress("auditTestB");
+        auditService.createHeader(new AuditHeaderInputBean(fortressB.getName(), "wally", "TestAudit", new Date(), "123ABC"));
+
+        SecurityContextHolder.getContext().setAuthentication(authA);
+
+        assertNotNull(auditService.findByClientRef(fortressA.getId(), "TestAudit", "ABC123"));
+        assertNotNull(auditService.findByClientRef(fortressA.getId(), "TestAudit", "abc123"));
+        assertNull(auditService.findByClientRef(fortressA.getId(), "TestAudit", "123ABC"));
+        // Test non external user can't do this
+        SecurityContextHolder.getContext().setAuthentication(authB);
+        try {
+            assertNull(auditService.findByClientRef(fortressA.getId(), "TestAudit", "ABC123"));
+            fail("Security exception not thrown");
+        } catch (SecurityException se) {
+
+        }
+
+    }
+
+    @Test
     public void testHeader() {
 
-        ISystemUser su = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         IFortress fo = fortressService.registerFortress("auditTest");
 
-        String ahKey = auditService.createHeader(new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", new Date()));
+        String ahKey = auditService.createHeader(new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", new Date(), "ABC123"));
 
         assertNotNull(ahKey);
-        System.out.println(ahKey);
+        log.info(ahKey);
 
         assertNotNull(auditService.getHeader(ahKey));
+        assertNotNull(auditService.findByClientRef(fo.getId(), "TestAudit", "ABC123"));
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));
 
         int i = 0;
         double max = 10d;
         StopWatch watch = new StopWatch();
-        System.out.println("Start-");
+        log.info("Start-");
         watch.start();
         while (i < max) {
             auditService.createLog(new AuditInputBean(ahKey, "wally", new DateTime().toString(), "{blah:" + i + "}"));
             i++;
         }
         watch.stop();
-        System.out.println("End " + watch.getTime() / 1000d + " avg = " + (watch.getTime() / 1000d) / max);
+        log.info("End " + watch.getTime() / 1000d + " avg = " + (watch.getTime() / 1000d) / max);
 
         // Test that we get the expected number of log events
         assertEquals(max, (double) auditService.getAuditLogCount(ahKey));
@@ -112,7 +143,7 @@ public class TestAudit {
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         IFortress fo = fortressService.registerFortress("auditTest");
 
-        String ahKey = auditService.createHeader(new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date()));
+        String ahKey = auditService.createHeader(new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "9999"));
 
         assertNotNull(ahKey);
         System.out.println(ahKey);
@@ -144,7 +175,7 @@ public class TestAudit {
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         IFortress fo = fortressService.registerFortress("auditTest");
 
-        String ahKey = auditService.createHeader(new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date()));
+        String ahKey = auditService.createHeader(new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "YYY"));
 
         assertNotNull(ahKey);
         System.out.println(ahKey);

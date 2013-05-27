@@ -36,5 +36,5 @@ public interface IAuditDao {
 
     void delete(IAuditHeader auditHeader);
 
-    IAuditHeader findHeaderByClientRef(String clientRef);
+    IAuditHeader findHeaderByClientRef(String clientRef, String fortressName, String companyName);
 }

@@ -8,6 +8,7 @@ import com.auditbucket.registration.repo.neo4j.FortressUserRepository;
 import com.auditbucket.registration.repo.neo4j.model.Fortress;
 import com.auditbucket.registration.repo.neo4j.model.FortressUser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -39,9 +40,15 @@ public class FortressDaoImpl implements FortressDaoI {
         return fortressRepo.findOne(id);
     }
 
+    @Autowired
+    Neo4jTemplate template;
+
     @Override
     public IFortressUser getFortressUser(Long id, String name) {
-        return fortressRepo.getFortressUser(id, name);
+        IFortressUser fu = fortressRepo.getFortressUser(id, name);
+        if (fu != null)
+            template.fetch(fu.getFortress());
+        return fu;
     }
 
     @Override

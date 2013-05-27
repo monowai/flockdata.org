@@ -17,11 +17,12 @@ public class AuditHeaderInputBean {
     AuditHeaderInputBean() {
     }
 
-    public AuditHeaderInputBean(String fortress, String fortressUser, String recordType, Date when) {
+    public AuditHeaderInputBean(String fortress, String fortressUser, String recordType, Date when, String callerRef) {
         this.when = when;
         this.fortress = fortress;
         this.fortressUser = fortressUser;
         this.recordType = recordType;
+        this.callerRef = callerRef;
 
     }
 

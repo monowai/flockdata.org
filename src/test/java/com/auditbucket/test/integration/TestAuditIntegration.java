@@ -84,14 +84,14 @@ public class TestAuditIntegration {
 
         SecurityContextHolder.getContext().setAuthentication(authMike);
         IFortress fortWP = fortressService.registerFortress("wportfolio");
-        String ahWP = auditService.createHeader(new AuditHeaderInputBean(fortWP.getName(), "wally", "Company", new Date()));
+        String ahWP = auditService.createHeader(new AuditHeaderInputBean(fortWP.getName(), "wally", "Company", new Date(), "AHWP"));
         assertNotNull(ahWP);
         log.info(ahWP);
         assertNotNull(auditService.getHeader(ahWP));
 
         SecurityContextHolder.getContext().setAuthentication(authGina);
         IFortress fortHS = fortressService.registerFortress("honeysuckle");
-        String ahHS = auditService.createHeader(new AuditHeaderInputBean(fortHS.getName(), "harry", "Company", new Date()));
+        String ahHS = auditService.createHeader(new AuditHeaderInputBean(fortHS.getName(), "harry", "Company", new Date(), "AHHS"));
 
 
         assertNotNull(fortressService.getFortressUser(fortWP, "wally", true));
@@ -123,7 +123,7 @@ public class TestAuditIntegration {
         SecurityContextHolder.getContext().setAuthentication(authMike);
 
         IFortress fortWP = fortressService.registerFortress("wportfolio");
-        String ahWP = auditService.createHeader(new AuditHeaderInputBean(fortWP.getName(), "wally", "Company", new Date()));
+        String ahWP = auditService.createHeader(new AuditHeaderInputBean(fortWP.getName(), "wally", "Company", new Date(), "ZZZZ"));
         IAuditHeader auditHeader = auditService.getHeader(ahWP);
         auditService.createLog(auditHeader, "olivia@sunnybell.com", new DateTime(), what, "Update");
         auditHeader = auditService.getHeader(ahWP);
@@ -147,7 +147,7 @@ public class TestAuditIntegration {
         DateTime firstDate = dt.minusDays(max);
         DateTime workingDate = firstDate.toDateTime();
 
-        String ahWP = auditService.createHeader(new AuditHeaderInputBean(fortWP.getName(), "wally", "Company", firstDate.toDate()));
+        String ahWP = auditService.createHeader(new AuditHeaderInputBean(fortWP.getName(), "wally", "Company", firstDate.toDate(), "123"));
         IAuditHeader auditHeader = auditService.getHeader(ahWP);
         int i = 0;
         while (i < max) {
@@ -160,7 +160,7 @@ public class TestAuditIntegration {
         }
 
         IAuditLog lastChange = auditService.getLastChange(auditHeader.getUID());
-        assertNotNull (lastChange);
+        assertNotNull(lastChange);
         assertEquals(workingDate.toDate(), lastChange.getWhen());
         auditHeader = auditService.getHeader(ahWP);
         assertEquals(max, auditService.getAuditLogCount(auditHeader.getUID()));
@@ -183,7 +183,7 @@ public class TestAuditIntegration {
         IFortress fortWP = fortressService.registerFortress("wportfolio");
         DateTime dt = new DateTime().toDateTime();
         DateTime firstDate = dt.minusDays(2);
-        String ahWP = auditService.createHeader(new AuditHeaderInputBean(fortWP.getName(), "olivia@sunnybell.com", "Company", firstDate.toDate()));
+        String ahWP = auditService.createHeader(new AuditHeaderInputBean(fortWP.getName(), "olivia@sunnybell.com", "Company", firstDate.toDate(), "ABC1"));
 
         IAuditHeader auditHeader = auditService.getHeader(ahWP);
         auditService.createLog(auditHeader, "olivia@sunnybell.com", firstDate, what + 1 + "}", "Create");

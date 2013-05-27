@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Set;
 
@@ -48,8 +49,8 @@ public class AuditDaoNeo implements IAuditDao {
         return auditRepo.findByPropertyValue(AuditHeader.UUID_KEY, key);
     }
 
-    public IAuditHeader findHeaderByClientRef(String clientRef) {
-        return auditRepo.findByPropertyValue("clientRef", clientRef);
+    public IAuditHeader findHeaderByClientRef(@NotNull String clientRef, @NotNull String fortressName, @NotNull String companyName) {
+        return auditRepo.findByClientRef(clientRef.toLowerCase(), fortressName, companyName);
     }
 
     @Override
