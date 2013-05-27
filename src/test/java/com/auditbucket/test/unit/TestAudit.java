@@ -77,7 +77,10 @@ public class TestAudit {
     public void testClientRef() {
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         IFortress fortressA = fortressService.registerFortress("auditTest");
-        auditService.createHeader(new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new Date(), "ABC123"));
+        String key = auditService.createHeader(new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new Date(), "ABC123"));
+        // Check we can't create the same header twice for a given client ref
+        String keyB = auditService.createHeader(new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new Date(), "ABC123"));
+        assertEquals(key, keyB);
 
         Authentication authB = new UsernamePasswordAuthenticationToken("swagger", "user2");
         SecurityContextHolder.getContext().setAuthentication(authB);

@@ -92,11 +92,22 @@ public class AuditService {
         if (iFortress == null)
             throw new IllegalArgumentException("Unable to find the fortress [" + fortress + "] for the company [" + su.getCompany().getName() + "]");
 
-        //ToDo: Check by Client Ref
+        IAuditHeader ah = null;
+
+        // Idempotent check
+        if (inputBean.getCallerRef() != null)
+            ah = findByClientRef(iFortress.getId(), inputBean.getRecordType(), inputBean.getCallerRef());
+
+        if (ah != null) {
+            if (log.isDebugEnabled())
+                log.debug("Existing header record found by Caller Ref [" + inputBean.getCallerRef() + "] found [" + ah.getUID() + "]");
+            return ah.getUID();
+        }
+
         // Create fortressUser if missing
         IFortressUser fu = fortressService.getFortressUser(iFortress, inputBean.getFortressUser(), true);
 
-        IAuditHeader ah = new AuditHeader(fu, inputBean.getRecordType(), dateWhen, inputBean.getCallerRef());
+        ah = new AuditHeader(fu, inputBean.getRecordType(), dateWhen, inputBean.getCallerRef());
 
         // ToDo: not AuditHeader, rather the bean
         ah = auditDAO.save(ah);
