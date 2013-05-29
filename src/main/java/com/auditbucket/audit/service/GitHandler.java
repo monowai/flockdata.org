@@ -60,7 +60,7 @@ public class GitHandler {
                 fortress.getUUID().toString(), "this is my new repository",
                 "http://www.monowai.com/", true/*public*/);
 
-        String user = fortress.getUsers();
+        String user = "monowai";
         repo.addCollaborators(github.getUser(user));
 
         return repo;

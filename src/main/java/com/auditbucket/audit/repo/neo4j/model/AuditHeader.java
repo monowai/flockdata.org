@@ -5,6 +5,7 @@ import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.model.IFortressUser;
 import com.auditbucket.registration.repo.neo4j.model.Fortress;
 import com.auditbucket.registration.repo.neo4j.model.FortressUser;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.neo4j.graphdb.Direction;
@@ -24,7 +25,6 @@ public class AuditHeader implements IAuditHeader {
 
     @GraphId
     private Long id;
-
 
     @RelatedTo(elementClass = FortressUser.class, type = "created", direction = Direction.INCOMING)
     @Fetch
@@ -47,22 +47,18 @@ public class AuditHeader implements IAuditHeader {
     @Indexed(indexName = UUID_KEY, unique = true)
     private String uid;
 
+    @Indexed(indexName = "clientRef")
     private String name;
     private long dateCreated;
 
     private String dataType;
 
     private long fortressDate;
-    private String comment;
     long lastUpdated = 0;
-
-    @Indexed(indexName = "clientRef")
-    private String clientRef;
 
 
     AuditHeader() {
         uid = UUID.randomUUID().toString();
-        this.name = uid;
         DateTime now = new DateTime().toDateTime(DateTimeZone.UTC);
         this.dateCreated = now.toDate().getTime();
         this.lastUpdated = dateCreated;
@@ -74,12 +70,18 @@ public class AuditHeader implements IAuditHeader {
         this.lastWho = (FortressUser) createdBy;
         this.fortress = (Fortress) createdBy.getFortress();
         this.fortressDate = when.toDate().getTime();
-        this.dataType = dataType;
-        this.clientRef = (clientRef == null ? null : (dataType + "." + clientRef).toLowerCase());
+        this.dataType = (dataType != null ? dataType.toLowerCase() : "");
+        this.name = (clientRef == null ? null : (dataType + "." + clientRef).toLowerCase());
     }
 
+    @JsonIgnore
     public Long getId() {
         return id;
+    }
+
+    @Override
+    public String getUID() {
+        return uid;
     }
 
     @Override
@@ -95,11 +97,6 @@ public class AuditHeader implements IAuditHeader {
     @Override
     public String getDataType() {
         return dataType;
-    }
-
-    @Override
-    public String getUID() {
-        return uid;
     }
 
     @Override
@@ -127,18 +124,12 @@ public class AuditHeader implements IAuditHeader {
     }
 
     @Override
+    @JsonIgnore
     public String getIndexName() {
         if (fortress != null)
             return new StringBuilder().append(fortress.getCompany().getName().toLowerCase()).append(".").append(fortress.getName().toLowerCase()).toString();
         else
             return null;
-    }
-
-    /**
-     * @return date created in AuditBucket
-     */
-    public Date getDateCreated() {
-        return new Date(dateCreated);
     }
 
     /**
@@ -148,8 +139,11 @@ public class AuditHeader implements IAuditHeader {
         return new Date(fortressDate);
     }
 
-    public String getClientRef() {
-        return clientRef;
+    /**
+     * @return date created in AuditBucket
+     */
+    public Date getDateCreated() {
+        return new Date(dateCreated);
     }
 
     @Override

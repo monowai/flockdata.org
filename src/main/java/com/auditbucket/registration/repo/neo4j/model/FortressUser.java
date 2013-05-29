@@ -2,6 +2,7 @@ package com.auditbucket.registration.repo.neo4j.model;
 
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.model.IFortressUser;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.*;
 
@@ -27,6 +28,7 @@ public class FortressUser implements IFortressUser {
         setFortress(fortress);
     }
 
+    @JsonIgnore
     public Long getId() {
         return id;
     }
@@ -39,6 +41,7 @@ public class FortressUser implements IFortressUser {
         this.name = name.toLowerCase();
     }
 
+    @JsonIgnore
     public IFortress getFortress() {
         return fortress;
     }

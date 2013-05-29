@@ -28,6 +28,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Set;
 
@@ -81,7 +82,6 @@ public class TestAuditIntegration {
 
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         regService.registerSystemUser(new RegistrationBean(hummingbird, gina, "bah"));
-
         SecurityContextHolder.getContext().setAuthentication(authMike);
         IFortress fortWP = fortressService.registerFortress("wportfolio");
         String ahWP = auditService.createHeader(new AuditHeaderInputBean(fortWP.getName(), "wally", "Company", new Date(), "AHWP"));
@@ -216,5 +216,42 @@ public class TestAuditIntegration {
             i++;
         }
         assertEquals(recordsToCreate, (double) auditService.getAuditLogCount(auditHeader));
+    }
+
+    public void testBigLoad() {
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
+        SecurityContextHolder.getContext().setAuthentication(authMike);
+        int max = 2000;
+
+        int i = 641;
+        ArrayList<Long> list = new ArrayList<Long>();
+        while (i < max) {
+            String fortressName = "bulkload" + i;
+            IFortress fortress = fortressService.registerFortress(fortressName);
+            auditService.createHeader(new AuditHeaderInputBean(fortress.getName(), i + "olivia@sunnybell.com", "Company", new Date(), "ABC1"));
+            list.add(fortress.getId());
+            i++;
+        }
+        log.info("Created data set");
+
+        int maxSearch = 500;
+        StopWatch watch = new StopWatch();
+        watch.start();
+        i = 0;
+        do {
+            assertNotNull(auditService.findByName(list.get(i), "Company", "ABC1"));
+            i = i + 10;
+        } while (i <= maxSearch);
+
+        i = 0;
+        do {
+            assertNotNull(auditService.findByName(list.get(i), "Company", "ABC1"));
+            i = i + 12;
+        } while (i <= maxSearch);
+
+        double end = watch.getTime() / 1000d;
+        log.info("End " + end + " avg = " + end / max);
+
+
     }
 }

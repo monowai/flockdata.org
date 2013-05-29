@@ -54,7 +54,7 @@ public class AuditDaoNeo implements IAuditDao {
 
         // This is pretty crappy, but Neo4J will throw an exception the first time you try to search if no index is in place.
         if (template.getGraphDatabaseService().index().existsForNodes("clientRef"))
-            return auditRepo.findByClientRef(clientRef.toLowerCase(), fortressName, companyName);
+            return auditRepo.findByClientRef(clientRef, fortressName, companyName);
 
         return null;
     }

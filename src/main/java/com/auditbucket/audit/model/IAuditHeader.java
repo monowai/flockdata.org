@@ -9,8 +9,6 @@ public interface IAuditHeader {
 
     public abstract IFortress getFortress();
 
-    public abstract String getName();
-
     public abstract String getDataType();
 
     /**
@@ -45,7 +43,7 @@ public interface IAuditHeader {
     /**
      * @return unique identify the fortress recognises for the recordType.
      */
-    public String getClientRef();
+    public String getName();
 
     /**
      * alters the lastChange value

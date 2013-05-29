@@ -11,7 +11,7 @@ import org.springframework.data.neo4j.repository.GraphRepository;
  */
 public interface AuditHeaderRepo extends GraphRepository<AuditHeader> {
 
-    @Query(elementClass = AuditHeader.class, value = "start n=node:clientRef(clientRef = {0} ) " +
+    @Query(elementClass = AuditHeader.class, value = "start n=node:clientRef(name = {0} ) " +
             "   match n<-[:audit]-fortress<-[:owns]-company " +
             "   where fortress.name= {1} and company.name ={2}" +
             "return n")

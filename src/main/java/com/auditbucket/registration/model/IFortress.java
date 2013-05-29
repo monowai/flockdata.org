@@ -9,15 +9,12 @@ public interface IFortress {
 
     public abstract String getName();
 
-	public abstract void setName(String name);
+    public abstract void setName(String name);
 
-	public abstract ICompany getCompany();
-	
-	public abstract void setCompany(ICompany ownedBy);
+    public abstract ICompany getCompany();
+
+    public abstract void setCompany(ICompany ownedBy);
 
     public UUID getUUID();
 
-    public String getRepo();
-
-    public String getUsers();
 }

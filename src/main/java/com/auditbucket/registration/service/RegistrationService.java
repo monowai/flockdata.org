@@ -32,7 +32,7 @@ public class RegistrationService {
         ISystemUser systemUser = systemUserService.findByName(regBean.getName());
 
         if (systemUser != null)
-            throw new IllegalArgumentException("User [" + regBean.getName() + "] is already registered.");
+            return systemUser;
 
         ICompany company = companyService.findByName(regBean.getCompanyName());
         if (company == null) {

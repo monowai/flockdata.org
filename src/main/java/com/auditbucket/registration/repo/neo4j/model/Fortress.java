@@ -2,6 +2,7 @@ package com.auditbucket.registration.repo.neo4j.model;
 
 import com.auditbucket.registration.model.ICompany;
 import com.auditbucket.registration.model.IFortress;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.*;
 
@@ -30,6 +31,7 @@ public class Fortress implements IFortress {
         uuID = UUID.randomUUID();
     }
 
+    @JsonIgnore
     public Long getId() {
         return id;
     }
@@ -44,6 +46,7 @@ public class Fortress implements IFortress {
     }
 
     @Override
+    @JsonIgnore
     public ICompany getCompany() {
         return company;
     }
@@ -52,16 +55,6 @@ public class Fortress implements IFortress {
     public void setCompany(ICompany ownedBy) {
         this.company = (Company) ownedBy;
 
-    }
-
-    @Override
-    public String getRepo() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public String getUsers() {
-        return "monowai";  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public UUID getUUID() {

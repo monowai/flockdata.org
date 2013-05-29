@@ -43,7 +43,7 @@ public class AuditChange implements IAuditChange {
         this._dataType = header.getDataType();
         setFortress(header.getFortress());
         this.indexName = header.getIndexName();
-        this._clientRef = header.getClientRef();
+        this._clientRef = header.getName();
     }
 
     public AuditChange() {

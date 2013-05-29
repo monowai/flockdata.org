@@ -90,13 +90,13 @@ public class TestAudit {
 
         SecurityContextHolder.getContext().setAuthentication(authA);
 
-        assertNotNull(auditService.findByClientRef(fortressA.getId(), "TestAudit", "ABC123"));
-        assertNotNull(auditService.findByClientRef(fortressA.getId(), "TestAudit", "abc123"));
-        assertNull(auditService.findByClientRef(fortressA.getId(), "TestAudit", "123ABC"));
+        assertNotNull(auditService.findByName(fortressA.getId(), "TestAudit", "ABC123"));
+        assertNotNull(auditService.findByName(fortressA.getId(), "TestAudit", "abc123"));
+        assertNull(auditService.findByName(fortressA.getId(), "TestAudit", "123ABC"));
         // Test non external user can't do this
         SecurityContextHolder.getContext().setAuthentication(authB);
         try {
-            assertNull(auditService.findByClientRef(fortressA.getId(), "TestAudit", "ABC123"));
+            assertNull(auditService.findByName(fortressA.getId(), "TestAudit", "ABC123"));
             fail("Security exception not thrown");
         } catch (SecurityException se) {
 
@@ -116,7 +116,7 @@ public class TestAudit {
         log.info(ahKey);
 
         assertNotNull(auditService.getHeader(ahKey));
-        assertNotNull(auditService.findByClientRef(fo.getId(), "TestAudit", "ABC123"));
+        assertNotNull(auditService.findByName(fo.getId(), "TestAudit", "ABC123"));
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));
 

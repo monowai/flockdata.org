@@ -6,9 +6,9 @@ import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.audit.service.AuditService;
 import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -68,7 +68,6 @@ public class AuditEP {
         // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/audit/log/new -d '{"eventType":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10", "what": "{\"name\": \"val\"}" }'
         try {
 
-            DateTime dt = new DateTime(input.getWhen());
             AuditService.LogStatus ls = auditService.createLog(input);
             if (ls.equals(AuditService.LogStatus.FORBIDDEN))
                 return new ResponseEntity<String>("", HttpStatus.FORBIDDEN);
@@ -102,6 +101,24 @@ public class AuditEP {
         }
     }
 
+    @RequestMapping(value = "/find/{fortress}/{recordType}/{clientRef}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<IAuditHeader> getByClientRef(@PathVariable("fortress") String fortress,
+                                                       @PathVariable("recordType") String recordType,
+                                                       @PathVariable("clientRef") String clientRef) throws Exception {
+        try {
+            IFortress f = fortressService.find(fortress);
+            IAuditHeader result = auditService.findByName(f.getId(), recordType, clientRef);
+            return new ResponseEntity<IAuditHeader>(result, HttpStatus.OK);
+
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<IAuditHeader>((IAuditHeader) null, HttpStatus.NOT_FOUND);
+        } catch (SecurityException e) {
+            return new ResponseEntity<IAuditHeader>((IAuditHeader) null, HttpStatus.FORBIDDEN);
+        }
+    }
+
+
     @RequestMapping(value = "/{auditKey}/logs", method = RequestMethod.GET)
     @ResponseBody
     public Set<IAuditLog> getAuditLogs(@PathVariable("auditKey") String auditKey) throws Exception {
@@ -109,5 +126,22 @@ public class AuditEP {
         return auditService.getAuditLogs(auditKey);
 
     }
+
+
+    @RequestMapping(value = "/{auditKey}/lastchange", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<IAuditLog> getLastChange(@PathVariable("auditKey") String auditKey) throws Exception {
+        // curl -u mike:123 -X GET http://localhost:8080/ab/audit/c27ec2e5-2e17-4855-be18-bd8f82249157/logs
+        try {
+            IAuditHeader header = auditService.getHeader(auditKey);
+            return new ResponseEntity<IAuditLog>(auditService.getLastChange(header), HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<IAuditLog>((IAuditLog) null, HttpStatus.NOT_FOUND);
+        } catch (SecurityException e) {
+            return new ResponseEntity<IAuditLog>((IAuditLog) null, HttpStatus.FORBIDDEN);
+        }
+
+    }
+
 
 }
