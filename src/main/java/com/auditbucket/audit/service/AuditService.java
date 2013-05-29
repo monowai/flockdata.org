@@ -206,6 +206,9 @@ public class AuditService {
             thisChange.setWhen(dateWhen.toDate());
 
         // Log in the graph who did this for future reference
+        if (existingLog != null)
+            auditDAO.removeLastChange(header, existingLog.getWho());
+
         header.setLastUser(fUser);
         header = auditDAO.save(header);
 

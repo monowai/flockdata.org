@@ -2,6 +2,7 @@ package com.auditbucket.audit.dao;
 
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
+import com.auditbucket.registration.model.IFortressUser;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
@@ -37,4 +38,6 @@ public interface IAuditDao {
     void delete(IAuditHeader auditHeader);
 
     IAuditHeader findHeaderByClientRef(String clientRef, String fortressName, String companyName);
+
+    public void removeLastChange(IAuditHeader header, IFortressUser fu);
 }

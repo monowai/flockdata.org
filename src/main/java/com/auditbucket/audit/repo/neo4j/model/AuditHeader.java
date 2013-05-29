@@ -26,11 +26,11 @@ public class AuditHeader implements IAuditHeader {
     private Long id;
 
 
-    @RelatedTo(elementClass = FortressUser.class, type = "createdBy", direction = Direction.INCOMING)
+    @RelatedTo(elementClass = FortressUser.class, type = "created", direction = Direction.INCOMING)
     @Fetch
     private FortressUser createdBy;
 
-    @RelatedTo(elementClass = FortressUser.class, type = "lastWho", direction = Direction.OUTGOING)
+    @RelatedTo(elementClass = FortressUser.class, type = "lastChangedBy", direction = Direction.OUTGOING)
     @Fetch
     private FortressUser lastWho;
 

@@ -14,15 +14,15 @@ import java.util.Set;
  */
 public interface AuditLogRepo extends GraphRepository<AuditLog> {
 
-    @Query(value = "start header=node({0}) match header-[cw:changedWhen]->change return count(cw)")
+    @Query(value = "start header=node({0}) match header<-[cw:changed]-byUser return count(cw)")
     int getLogCount(Long auditHeaderID);
 
-    @Query(elementClass = AuditLog.class, value = "start header=node({0}) match header-[cw:changedWhen]->change return cw")
+    @Query(elementClass = AuditLog.class, value = "start header=node({0}) match header<-[cw:changed]-byUser return cw")
     Set<IAuditLog> getAuditLogs(Long auditHeaderID);
 
-    @Query(value = "start header=node({0}) match header-[cw:changedWhen]->change return cw order by cw.when DESC limit 1")
+    @Query(value = "start header=node({0}) match header<-[cw:changed]-byUser return cw order by cw.when DESC limit 1")
     AuditLog getLastChange(Long auditHeaderID);
 
-    @Query(elementClass = AuditLog.class, value = "start header=node({0}) match header-[cw:changedWhen]->change where cw.when >= {1} and cw.when <= {2} return cw ")
+    @Query(elementClass = AuditLog.class, value = "start header=node({0}) match header<-[cw:changed]-byUser where cw.when >= {1} and cw.when <= {2} return cw ")
     Set<IAuditLog> getAuditLogs(Long auditHeaderID, Long from, Long to);
 }

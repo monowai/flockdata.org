@@ -16,18 +16,18 @@ import java.util.Date;
  * Date: 15/04/13
  * Time: 5:57 AM
  */
-@RelationshipEntity(type = "changedWhen")
+@RelationshipEntity(type = "changed")
 public class AuditLog implements IAuditLog {
 
     //@RelatedTo(elementClass = FortressUser.class, type = "madeBy", direction = Direction.OUTGOING)
-    @EndNode
+    @StartNode
     @Fetch
     private FortressUser madeBy;
 
     //@RelatedTo(elementClass = AuditHeader.class, type = "changedWhen", direction = Direction.OUTGOING)
     @Fetch
     @Indexed(indexName = "changeHeader")
-    @StartNode
+    @EndNode
     private AuditHeader auditHeader;
     //private AuditWhen auditWhen;
 

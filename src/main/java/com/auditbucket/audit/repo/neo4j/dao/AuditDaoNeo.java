@@ -7,6 +7,7 @@ import com.auditbucket.audit.repo.neo4j.AuditHeaderRepo;
 import com.auditbucket.audit.repo.neo4j.AuditLogRepo;
 import com.auditbucket.audit.repo.neo4j.model.AuditHeader;
 import com.auditbucket.audit.repo.neo4j.model.AuditLog;
+import com.auditbucket.registration.model.IFortressUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
@@ -56,6 +57,13 @@ public class AuditDaoNeo implements IAuditDao {
             return auditRepo.findByClientRef(clientRef.toLowerCase(), fortressName, companyName);
 
         return null;
+    }
+
+    @Override
+    public void removeLastChange(IAuditHeader header, IFortressUser fu) {
+        // Remove the lastChange relationship
+        template.deleteRelationshipBetween(header, fu, "lastChangedBy");
+        //auditLogRepo.delete(lastChange);
     }
 
     @Override
