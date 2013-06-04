@@ -28,6 +28,7 @@ import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.Set;
 
 import static junit.framework.Assert.*;
 
@@ -167,6 +168,10 @@ public class TestAudit {
         }
         watch.stop();
         assertEquals(1d, (double) auditService.getAuditLogCount(ahKey));
+        Set<IAuditLog> logs = auditService.getAuditLogs(ahKey);
+        assertNotNull(logs);
+        assertFalse(logs.isEmpty());
+        assertEquals(1, logs.size());
     }
 
     /**
@@ -198,4 +203,5 @@ public class TestAudit {
         assertFalse(change.equals(log));
         assertEquals(IAuditLog.UPDATE, change.getEvent());  // log event default
     }
+
 }

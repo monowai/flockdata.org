@@ -7,7 +7,6 @@ import com.auditbucket.audit.repo.neo4j.AuditHeaderRepo;
 import com.auditbucket.audit.repo.neo4j.AuditLogRepo;
 import com.auditbucket.audit.repo.neo4j.model.AuditHeader;
 import com.auditbucket.audit.repo.neo4j.model.AuditLog;
-import com.auditbucket.registration.model.IFortressUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
@@ -41,8 +40,9 @@ public class AuditDaoNeo implements IAuditDao {
 
     @Override
     public IAuditLog save(IAuditLog auditLog) {
-
-        return auditLogRepo.save((AuditLog) auditLog);
+        //auditLog = template.createRelationshipBetween(auditLog.getWho(), auditLog.getHeader(), AuditLog.class, "changed", false );
+        //RelationshipType type = DynamicRelationshipType.withName("changed");
+        return template.save((AuditLog) auditLog);
     }
 
     @Override
@@ -60,10 +60,16 @@ public class AuditDaoNeo implements IAuditDao {
     }
 
     @Override
-    public void removeLastChange(IAuditHeader header, IFortressUser fu) {
+    public void removeLastChange(IAuditHeader header) {
         // Remove the lastChange relationship
-        template.deleteRelationshipBetween(header, fu, "lastChangedBy");
+        template.deleteRelationshipBetween(header, header.getLastUser(), "lastChangedBy");
         //auditLogRepo.delete(lastChange);
+    }
+
+    @Override
+    public IAuditHeader fetch(IAuditHeader header) {
+        template.fetch(header);
+        return header;
     }
 
     @Override
@@ -79,8 +85,11 @@ public class AuditDaoNeo implements IAuditDao {
         return auditLogRepo.getAuditLogs(auditLogID, from.getTime(), to.getTime());
     }
 
-    public Set<IAuditLog> getAuditLogs(Long auditLogID) {
-        return auditLogRepo.getAuditLogs(auditLogID);
+    public Set<IAuditLog> getAuditLogs(Long auditHeaderID) {
+        IAuditHeader header = auditRepo.findOne(auditHeaderID);
+        template.fetch(header);
+        return header.getAuditLogs();
+        //return auditLogRepo.getAuditLogs(auditHeaderID);
     }
 
     @Override
@@ -90,6 +99,7 @@ public class AuditDaoNeo implements IAuditDao {
 
     @Override
     public void delete(IAuditHeader auditHeader) {
+        //ToDo: Remove all the logs
         auditRepo.delete((AuditHeader) auditHeader);
     }
 

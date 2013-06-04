@@ -5,7 +5,6 @@ import com.auditbucket.audit.bean.AuditInputBean;
 import com.auditbucket.audit.dao.IAuditChangeDao;
 import com.auditbucket.audit.dao.IAuditDao;
 import com.auditbucket.audit.dao.IAuditQueryDao;
-import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.audit.repo.es.model.AuditChange;
@@ -29,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -178,45 +176,69 @@ public class AuditService {
         if (user == null)
             return LogStatus.FORBIDDEN;
 
-        IFortressUser fUser = fortressService.getFortressUser(header.getFortress(), fortressUser.toLowerCase(), true);
-
-        IAuditLog existingLog = auditDAO.getLastChange(header.getId());
-        if (existingLog != null) {
+        boolean setHeader = false;
+        IFortress fortress = header.getFortress();
+        IFortressUser fUser = fortressService.getFortressUser(fortress, fortressUser.toLowerCase(), true);
+        header = auditDAO.fetch(header);
+        // Spin the following off in to a separate thread?
+        String alKey;
+        IAuditLog lastChange = auditDAO.getLastChange(header.getId());
+        if (lastChange != null) {
             // Find the change data
-            IAuditLog lastChange = getLastChange(header);
-            if (lastChange != null) {
-                if (event == null)
-                    event = IAuditLog.UPDATE;
-                if (lastChange.getWhat().equals(what)) {
-                    if (log.isDebugEnabled())
-                        log.debug("Ignoring a change we already have");
-                    return LogStatus.IGNORE;
-                }
+            if (lastChange.getWhat().equals(what)) {
+                if (log.isDebugEnabled())
+                    log.debug("Ignoring a change we already have");
+                return LogStatus.IGNORE;
             }
-        } else {
+            if (event == null)
+                event = IAuditLog.UPDATE;
+
+            // Graph who did this for future analysis
+            if (header.getLastUser() != null && !header.getLastUser().getId().equals(fUser.getId())) {
+                setHeader = true;
+                auditDAO.removeLastChange(header);
+            }
+
+            if (fortress.isAddingChanges()) {
+                alKey = createSearchableChange(header, dateWhen, what, event);
+            } else {
+                // Update instead of Create
+                alKey = lastChange.getKey(); // Key does not change in this mode
+                updateSearchableChange(alKey, header, dateWhen, what);
+            }
+        } else { // Creating a new log
             if (event == null)
                 event = IAuditLog.CREATE;
+            setHeader = true;
+            alKey = createSearchableChange(header, dateWhen, what, event);
         }
 
-        // Spin the following off in to a separate thread?
+        if (setHeader) {
+            header.setLastUser(fUser);
+            header = auditDAO.save(header);
+        }
+
+        AuditLog al = new AuditLog(header, fUser, dateWhen, event, what);
+        al.setKey(alKey);
+        auditDAO.save(al);
+
+
+        return LogStatus.OK;
+    }
+
+    private void updateSearchableChange(String existingKey, IAuditHeader header, DateTime dateWhen, String what) {
+        auditChange.update(existingKey, header, what);
+    }
+
+    private String createSearchableChange(IAuditHeader header, DateTime dateWhen, String what, String event) {
+        String alKey;
         AuditChange thisChange = new AuditChange(header);
         thisChange.setEvent(event);
         thisChange.setWhat(what);
         if (dateWhen != null)
             thisChange.setWhen(dateWhen.toDate());
-
-        // Log in the graph who did this for future reference
-        if (existingLog != null)
-            auditDAO.removeLastChange(header, existingLog.getWho());
-
-        header.setLastUser(fUser);
-        header = auditDAO.save(header);
-
-        AuditLog al = new AuditLog(header, fUser, dateWhen, event, what);
-        al.setKey(auditChange.save(thisChange));
-        auditDAO.save(al);
-
-        return LogStatus.OK;
+        alKey = auditChange.save(thisChange);
+        return alKey;
     }
 
     public IAuditLog getLastChange(String headerKey) {
@@ -246,17 +268,6 @@ public class AuditService {
         return auditDAO.getAuditLogs(auditHeader.getId(), from, to);
     }
 
-    public Set<IAuditChange> getChanges(String headerKey, Date from, Date to) {
-        IAuditHeader auditHeader = getValidHeader(headerKey);
-        Set<IAuditLog> logs = getAuditLogs(auditHeader, from, to);
-        Set<IAuditChange> results = new LinkedHashSet<IAuditChange>(logs.size());
-        for (IAuditLog auditLog : logs) {
-            results.add(auditChange.findOne(auditHeader.getIndexName(), auditHeader.getDataType(), auditLog.getKey()));
-
-        }
-        return results;
-
-    }
 
     /**
      * This should be used in compensating transactions to roll back the last change if the caller decides a rollback
@@ -269,13 +280,15 @@ public class AuditService {
     public IAuditHeader cancelLastLog(String headerKey) {
         IAuditHeader auditHeader = getValidHeader(headerKey);
         IAuditLog auditLog = getLastChange(auditHeader);
-        auditChange.delete(auditHeader.getIndexName(), auditHeader.getDataType(), auditLog);
+        auditChange.delete(auditHeader.getIndexName(), auditHeader.getDataType(), auditLog.getKey());
         auditDAO.delete(auditLog);
+
 
         auditLog = getLastChange(auditHeader);
         if (auditLog == null)
             return null;
 
+        auditHeader = auditDAO.fetch(auditHeader);
         auditHeader.setLastUser(fortressService.getFortressUser(auditHeader.getFortress(), auditLog.getWho().getName()));
         auditHeader = auditDAO.save(auditHeader);
         return auditHeader;

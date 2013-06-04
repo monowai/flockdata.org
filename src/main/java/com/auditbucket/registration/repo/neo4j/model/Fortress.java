@@ -20,6 +20,8 @@ public class Fortress implements IFortress {
     @RelatedTo(type = "owns", direction = Direction.INCOMING)
     Company company;
 
+    private Boolean addChanges = false;
+
     private UUID uuID;
 
     public Fortress() {
@@ -59,5 +61,13 @@ public class Fortress implements IFortress {
 
     public UUID getUUID() {
         return uuID;
+    }
+
+    public Boolean isAddingChanges() {
+        return addChanges;
+    }
+
+    public void setAddChanges(Boolean addChanges) {
+        this.addChanges = addChanges;
     }
 }

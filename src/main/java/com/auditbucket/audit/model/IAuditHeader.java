@@ -3,6 +3,8 @@ package com.auditbucket.audit.model;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.model.IFortressUser;
 
+import java.util.Set;
+
 public interface IAuditHeader {
 
     public abstract Long getId();
@@ -50,4 +52,5 @@ public interface IAuditHeader {
      */
     void bumpUpdate();
 
+    Set<IAuditLog> getAuditLogs();
 }

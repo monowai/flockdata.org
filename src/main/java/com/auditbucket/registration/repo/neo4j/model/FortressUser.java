@@ -58,4 +58,5 @@ public class FortressUser implements IFortressUser {
                 '}';
     }
 
+
 }

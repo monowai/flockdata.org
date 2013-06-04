@@ -1,7 +1,6 @@
 package com.auditbucket.test.integration;
 
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
-import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.audit.service.AuditService;
@@ -62,7 +61,7 @@ public class TestAuditIntegration {
     private String hummingbird = "Hummingbird";
     private String mike = "mike@monowai.com";
     private String gina = "gina@hummingbird.com";
-    String what = "{house: \"house\"}";
+    String what = "{\"house\": \"house";
 
     Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
     Authentication authGina = new UsernamePasswordAuthenticationToken(gina, "user1");
@@ -102,8 +101,8 @@ public class TestAuditIntegration {
         StopWatch watch = new StopWatch();
         watch.start();
 
-        createLogRecords(authMike, ahWP, what, 20);
-        createLogRecords(authGina, ahHS, what, 40);
+        createLogRecords(authMike, ahWP, what + "\"}", 20);
+        createLogRecords(authGina, ahHS, what + "\"}", 40);
 
         Long hitCount = auditService.getHitCount("hummingbird.*");
 
@@ -125,7 +124,7 @@ public class TestAuditIntegration {
         IFortress fortWP = fortressService.registerFortress("wportfolio");
         String ahWP = auditService.createHeader(new AuditHeaderInputBean(fortWP.getName(), "wally", "Company", new Date(), "ZZZZ"));
         IAuditHeader auditHeader = auditService.getHeader(ahWP);
-        auditService.createLog(auditHeader, "olivia@sunnybell.com", new DateTime(), what, "Update");
+        auditService.createLog(auditHeader, "olivia@sunnybell.com", new DateTime(), what + "\"}", "Update");
         auditHeader = auditService.getHeader(ahWP);
         IFortressUser fu = fortressService.getUser(auditHeader.getLastUser().getId());
         assertEquals("olivia@sunnybell.com", fu.getName());
@@ -152,12 +151,14 @@ public class TestAuditIntegration {
         int i = 0;
         while (i < max) {
             workingDate = workingDate.plusDays(1);
-            if (i == 0)
-                auditService.createLog(auditHeader, "olivia@sunnybell.com", workingDate, what + i + "}", "Create");
-            else
-                auditService.createLog(auditHeader, "olivia@sunnybell.com", workingDate, what + i + "}", "Update");
+            assertEquals(AuditService.LogStatus.OK, auditService.createLog(auditHeader, "olivia@sunnybell.com", workingDate, what + i + "\"}", null));
+
+            log.info("Created " + i + " new count =" + auditService.getAuditLogCount(auditHeader.getUID()));
             i++;
         }
+
+        Set<IAuditLog> aLogs = auditService.getAuditLogs(auditHeader.getUID());
+        assertEquals(max, aLogs.size());
 
         IAuditLog lastChange = auditService.getLastChange(auditHeader.getUID());
         assertNotNull(lastChange);
@@ -169,9 +170,6 @@ public class TestAuditIntegration {
         log.info("Searching between " + then.toDate() + " and " + workingDate.toDate());
         Set<IAuditLog> logs = auditService.getAuditLogs(auditHeader.getUID(), then.toDate(), workingDate.toDate());
         assertEquals(5, logs.size());
-        log.info("Searching for changes");
-        Set<IAuditChange> changes = auditService.getChanges(auditHeader.getUID(), then.toDate(), workingDate.toDate());
-        assertEquals(5, changes.size());
 
     }
 
@@ -186,8 +184,8 @@ public class TestAuditIntegration {
         String ahWP = auditService.createHeader(new AuditHeaderInputBean(fortWP.getName(), "olivia@sunnybell.com", "Company", firstDate.toDate(), "ABC1"));
 
         IAuditHeader auditHeader = auditService.getHeader(ahWP);
-        auditService.createLog(auditHeader, "olivia@sunnybell.com", firstDate, what + 1 + "}", "Create");
-        auditService.createLog(auditHeader, "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "}", "Update");
+        auditService.createLog(auditHeader, "olivia@sunnybell.com", firstDate, what + 1 + "\"}", null);
+        auditService.createLog(auditHeader, "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}", null);
         Set<IAuditLog> logs = auditService.getAuditLogs(auditHeader.getUID());
         assertEquals(2, logs.size());
         auditHeader = auditService.getHeader(ahWP);

@@ -17,4 +17,11 @@ public interface IFortress {
 
     public UUID getUUID();
 
+    /**
+     * Are changes logged against this fortress accumulated or updated
+     *
+     * @return boolean
+     */
+    public Boolean isAddingChanges();
+
 }

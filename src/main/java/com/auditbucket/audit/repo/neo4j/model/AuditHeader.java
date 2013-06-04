@@ -1,6 +1,7 @@
 package com.auditbucket.audit.repo.neo4j.model;
 
 import com.auditbucket.audit.model.IAuditHeader;
+import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.model.IFortressUser;
 import com.auditbucket.registration.repo.neo4j.model.Fortress;
@@ -13,6 +14,7 @@ import org.springframework.data.neo4j.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -26,7 +28,7 @@ public class AuditHeader implements IAuditHeader {
     @GraphId
     private Long id;
 
-    @RelatedTo(elementClass = FortressUser.class, type = "created", direction = Direction.INCOMING)
+    @RelatedTo(elementClass = FortressUser.class, type = "created", direction = Direction.INCOMING, enforceTargetType = true)
     @Fetch
     private FortressUser createdBy;
 
@@ -38,8 +40,8 @@ public class AuditHeader implements IAuditHeader {
     @Fetch
     private Fortress fortress;
 
-//    @RelatedToVia(type = "changedWhen")
-//    private Set<AuditLog> auditLogs = null;
+    @RelatedToVia(elementClass = AuditLog.class, type = "changed", direction = Direction.INCOMING)
+    private Set<IAuditLog> auditLogs = null;
 
 
     public static final String UUID_KEY = "uid";
@@ -159,6 +161,11 @@ public class AuditHeader implements IAuditHeader {
     @Override
     public void bumpUpdate() {
         lastUpdated = System.currentTimeMillis();
+    }
+
+    @Override
+    public Set<IAuditLog> getAuditLogs() {
+        return auditLogs;
     }
 
 }

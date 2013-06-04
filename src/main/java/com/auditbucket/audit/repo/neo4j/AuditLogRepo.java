@@ -17,10 +17,10 @@ public interface AuditLogRepo extends GraphRepository<AuditLog> {
     @Query(value = "start header=node({0}) match header<-[cw:changed]-byUser return count(cw)")
     int getLogCount(Long auditHeaderID);
 
-    @Query(elementClass = AuditLog.class, value = "start header=node({0}) match header<-[cw:changed]-byUser return cw")
+    @Query(elementClass = AuditLog.class, value = "start header=node({0}) match header<-[cw:changed|created]-byUser return cw")
     Set<IAuditLog> getAuditLogs(Long auditHeaderID);
 
-    @Query(value = "start header=node({0}) match header<-[cw:changed]-byUser return cw order by cw.when DESC limit 1")
+    @Query(elementClass = AuditLog.class, value = "start header=node({0}) match header<-[cw:changed]-byUser return cw order by cw.when DESC limit 1")
     AuditLog getLastChange(Long auditHeaderID);
 
     @Query(elementClass = AuditLog.class, value = "start header=node({0}) match header<-[cw:changed]-byUser where cw.when >= {1} and cw.when <= {2} return cw ")

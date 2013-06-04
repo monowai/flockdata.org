@@ -1,6 +1,7 @@
 package com.auditbucket.audit.dao;
 
 import com.auditbucket.audit.model.IAuditChange;
+import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
 
 /**
@@ -23,5 +24,7 @@ public interface IAuditChangeDao {
      */
     IAuditChange findOne(String indexKey, String recordType, String id);
 
-    void delete(String indexName, String recordType, IAuditLog auditLog);
+    void delete(String indexName, String recordType, String indexKey);
+
+    void update(String existingKey, IAuditHeader header, String what);
 }
