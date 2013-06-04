@@ -2,7 +2,6 @@ package com.auditbucket.audit.dao;
 
 import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
-import com.auditbucket.audit.model.IAuditLog;
 
 /**
  * User: mike
@@ -12,8 +11,6 @@ import com.auditbucket.audit.model.IAuditLog;
 public interface IAuditChangeDao {
     String save(IAuditChange auditChange);
 
-    IAuditChange findOne(IAuditLog auditLog);
-
     /**
      * generally for unit testing. Prefer to use the IAuditLog version.
      *
@@ -22,7 +19,7 @@ public interface IAuditChangeDao {
      * @param id         Lucene Key
      * @return found audit change or null if none
      */
-    IAuditChange findOne(String indexKey, String recordType, String id);
+    byte[] findOne(String indexKey, String recordType, String id);
 
     void delete(String indexName, String recordType, String indexKey);
 
