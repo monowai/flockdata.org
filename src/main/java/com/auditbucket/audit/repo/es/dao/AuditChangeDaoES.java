@@ -46,8 +46,8 @@ public class AuditChangeDaoES implements IAuditChangeDao {
                     .actionGet();
 
             if (log.isDebugEnabled())
-                log.debug("Added what [" + ir.id() + "] to " + auditChange.getIndexName());
-            String parent = ir.id();
+                log.debug("Added what [" + ir.getId() + "] to " + auditChange.getIndexName());
+            String parent = ir.getId();
 
             String child = esClient.prepareIndex(auditChange.getIndexName(), auditChange.getDataType())
                     .setSource(auditChange.getWhat())
@@ -92,7 +92,7 @@ public class AuditChangeDaoES implements IAuditChangeDao {
         IndexRequestBuilder update = esClient.prepareIndex(header.getIndexName(), header.getDataType(), existingKey);
         IndexResponse ur = update.setSource(what).execute().actionGet();
         if (log.isDebugEnabled())
-            log.debug("Updated [" + existingKey + "] for " + header + " to version " + ur.version());
+            log.debug("Updated [" + existingKey + "] for " + header + " to version " + ur.getVersion());
         //To what body of implemented methods use File | Settings | File Templates.
     }
 
@@ -103,7 +103,7 @@ public class AuditChangeDaoES implements IAuditChangeDao {
             return null;
         IAuditChange ac = om.readValue(response.getSourceAsBytes(), AuditChange.class);
         if (ac != null)
-            ac.setId(response.id());
+            ac.setId(response.getId());
         return ac;
 
     }

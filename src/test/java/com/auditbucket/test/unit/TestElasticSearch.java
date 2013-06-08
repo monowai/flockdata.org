@@ -12,9 +12,9 @@ import com.auditbucket.registration.repo.neo4j.model.Fortress;
 import com.auditbucket.registration.repo.neo4j.model.FortressUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.JsonNodeFactory;
 import org.codehaus.jackson.node.ObjectNode;
 import org.elasticsearch.action.get.GetResponse;
@@ -79,7 +79,7 @@ public class TestElasticSearch {
         name.put("last", "Sixpack");
         auditChange.setWhat(name.toString());
 
-        ObjectMapper om = new ObjectMapper();
+        com.fasterxml.jackson.databind.ObjectMapper om = new com.fasterxml.jackson.databind.ObjectMapper();
         try {
             log.info(om.writeValueAsString(auditChange));
 
@@ -99,11 +99,10 @@ public class TestElasticSearch {
             log.info(ir.getId());
 
             // Retrieve from Lucene
-            GetResponse response = client.prepareGet(indexKey, auditChange.getHeaderKey(), ir.id())
+            GetResponse response = client.prepareGet(indexKey, auditChange.getHeaderKey(), ir.getId())
                     .execute()
                     .actionGet();
             assertNotNull(response);
-            log.info(response.type());
 
             AuditChange found = om.readValue(response.getSourceAsBytes(), AuditChange.class);
             assertNotNull(found);
@@ -119,7 +118,7 @@ public class TestElasticSearch {
     }
 
     @Test
-    public void testViaSpringData() {
+    public void testViaSpringData() throws Exception {
 
         SecurityContextHolder.getContext().setAuthentication(auth);
         // As per JSON test, except this time we're doing it all via Spring.
@@ -149,6 +148,10 @@ public class TestElasticSearch {
         // Retrieve from Lucene
         byte[] found = alRepo.findOne(indexKey, auditChange.getDataType(), childID);
         assertNotNull(found);
+        com.fasterxml.jackson.databind.ObjectMapper om = new com.fasterxml.jackson.databind.ObjectMapper();
+
+        JsonNode node = om.readTree(found);
+        log.info(node.toString());
 
         /*assertEquals(0, auditChange.getWhen().compareTo(found.getWhen()));
         assertNotNull(found.getId());
