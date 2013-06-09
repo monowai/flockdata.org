@@ -18,7 +18,6 @@ public class AuditChange implements IAuditChange {
     // ToDo: Figure out naming standard for system variables
     @Id
     private String id;
-    private String headerKey;
     private String recordType;
     private String what;
     private String name;
@@ -26,7 +25,6 @@ public class AuditChange implements IAuditChange {
     private String fortressName;
     private String companyName;
     private String event;
-    private String _clientRef;
     @Version
     private Long version;
 
@@ -39,11 +37,10 @@ public class AuditChange implements IAuditChange {
      */
     public AuditChange(IAuditHeader header) {
         this();
-        setHeaderKey(header.getUID());
+        setName(header.getUID());
         this.recordType = header.getDataType();
         setFortress(header.getFortress());
         this.indexName = header.getIndexName();
-        this._clientRef = header.getName();
     }
 
     public AuditChange() {
@@ -94,13 +91,6 @@ public class AuditChange implements IAuditChange {
         this.id = id;
     }
 
-    public String getHeaderKey() {
-        return headerKey;
-    }
-
-    public void setHeaderKey(String headerKey) {
-        this.headerKey = headerKey;
-    }
 
     private void setFortress(IFortress fortress) {
         this.setFortressName(fortress.getName());

@@ -143,28 +143,11 @@
             </exclusions>
         </dependency>
 
-        <!-- Jackson JSON Processor -->
-        <!--<dependency>-->
-        <!--<groupId>org.codehaus.jackson</groupId>-->
-        <!--<artifactId>jackson-mapper-asl</artifactId>-->
-        <!--<version>1.8.1</version>-->
-        <!--</dependency>-->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
             <version>${jackson.version}</version>
         </dependency>
-        <!-- Rome Atom+RSS -->
-        <!--<dependency>-->
-        <!--<groupId>net.java.dev.rome</groupId>-->
-        <!--<artifactId>rome</artifactId>-->
-        <!--<version>1.0.0</version>-->
-        <!--</dependency>-->
 
         <!-- Joda Time Library -->
         <dependency>
@@ -173,12 +156,6 @@
             <version>2.2</version>
         </dependency>
 
-        <!-- File Upload -->
-        <!--<dependency>-->
-        <!--<groupId>commons-fileupload</groupId>-->
-        <!--<artifactId>commons-fileupload</artifactId>-->
-        <!--<version>1.2.2</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -248,7 +225,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.2.1</version>
+            <version>${jackson.version}</version>
         </dependency>
     </dependencies>
     <repositories>

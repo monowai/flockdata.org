@@ -71,7 +71,6 @@ public class TestElasticSearch {
 
         AuditChange auditChange = new AuditChange(auditHeader);
 
-        auditChange.setName(uid);
         auditChange.setEvent("Create");
         auditChange.setWhen(new Date());
 // What changed?
@@ -96,7 +95,7 @@ public class TestElasticSearch {
 
             // Write the object to Lucene
             IndexResponse ir =
-                    client.prepareIndex(indexKey, auditChange.getHeaderKey())
+                    client.prepareIndex(indexKey, auditChange.getName())
                             .setSource(om.writeValueAsString(auditChange))
                             .execute()
                             .actionGet();
@@ -105,7 +104,7 @@ public class TestElasticSearch {
             log.info(ir.getId());
 
             // Retrieve from Lucene
-            GetResponse response = client.prepareGet(indexKey, auditChange.getHeaderKey(), ir.getId())
+            GetResponse response = client.prepareGet(indexKey, auditChange.getName(), ir.getId())
                     .execute()
                     .actionGet();
             assertNotNull(response);
@@ -136,7 +135,6 @@ public class TestElasticSearch {
 
         IAuditChange auditChange = new AuditChange(auditHeader);
 
-        auditChange.setName(uid);
         auditChange.setEvent("Create");
         auditChange.setWhen(new Date());
         auditChange.setVersion(System.currentTimeMillis());
@@ -164,6 +162,7 @@ public class TestElasticSearch {
 
         IAuditChange ac = om.readValue(parent, AuditChange.class);
         assertNotNull(ac);
+        assertEquals(auditHeader.getUID(), ac.getName());
         // Occasionally findOne() fails for unknown reasons. I think it's down to the time between writing the "what"
         //              and reading it back, hence the Thread.sleep
         Thread.sleep(2000);

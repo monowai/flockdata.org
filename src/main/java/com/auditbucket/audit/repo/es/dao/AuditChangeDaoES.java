@@ -42,7 +42,7 @@ public class AuditChangeDaoES implements IAuditChangeDao {
                 log.debug("Saving to " + indexName + "/" + recordType);
 
             IndexResponse ir = esClient.prepareIndex(indexName, recordType)
-                    .setSource(om.writeValueAsString(auditChange))
+                    .setSource(om.writeValueAsBytes(auditChange))
                     .execute()
                     .actionGet();
 

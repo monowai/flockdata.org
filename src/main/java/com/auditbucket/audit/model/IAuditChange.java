@@ -13,7 +13,7 @@ public interface IAuditChange {
 
     public String getWhat();
 
-    public String getHeaderKey();
+    public String getName();
 
     public String getFortressName();
 
@@ -45,5 +45,4 @@ public interface IAuditChange {
 
     void setWhen(Date date);
 
-    void setName(String uid);
 }
