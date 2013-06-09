@@ -9,7 +9,7 @@ import com.auditbucket.audit.model.IAuditHeader;
  * Time: 12:26 PM
  */
 public interface IAuditChangeDao {
-    String save(IAuditChange auditChange);
+    IAuditChange save(IAuditChange auditChange);
 
     /**
      * generally for unit testing. Prefer to use the IAuditLog version.

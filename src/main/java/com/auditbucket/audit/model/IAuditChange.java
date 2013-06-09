@@ -29,8 +29,21 @@ public interface IAuditChange {
 
     public Long getVersion();
 
-    public String getDataType();
+    public String getRecordType();
 
     public String getId();
 
+    public void setChild(String child);
+
+    public void setParent(String parent);
+
+    public String getParent();
+
+    public String getChild();
+
+    void setEvent(String event);
+
+    void setWhen(Date date);
+
+    void setName(String uid);
 }

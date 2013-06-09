@@ -19,7 +19,7 @@ public class AuditChange implements IAuditChange {
     @Id
     private String id;
     private String headerKey;
-    private String _dataType;
+    private String recordType;
     private String what;
     private String name;
     private Date when;
@@ -40,7 +40,7 @@ public class AuditChange implements IAuditChange {
     public AuditChange(IAuditHeader header) {
         this();
         setHeaderKey(header.getUID());
-        this._dataType = header.getDataType();
+        this.recordType = header.getDataType();
         setFortress(header.getFortress());
         this.indexName = header.getIndexName();
         this._clientRef = header.getName();
@@ -67,6 +67,29 @@ public class AuditChange implements IAuditChange {
         return id;
     }
 
+    private String child;
+
+    @JsonIgnore
+    public void setChild(String child) {
+        this.child = child;
+    }
+
+    public String getChild() {
+        return child;
+    }
+
+    private String parent;
+
+    @JsonIgnore
+    public void setParent(String parent) {
+        this.parent = parent;
+    }
+
+    public String getParent() {
+        return parent;
+    }
+
+
     public void setId(String id) {
         this.id = id;
     }
@@ -89,7 +112,7 @@ public class AuditChange implements IAuditChange {
         return name;
     }
 
-    public void getName(String who) {
+    public void setName(String who) {
         this.name = who;
     }
 
@@ -140,11 +163,11 @@ public class AuditChange implements IAuditChange {
         return version;
     }
 
-    public String getDataType() {
-        return _dataType;
+    public String getRecordType() {
+        return recordType;
     }
 
-    protected void setDataType(String dataType) {
-        this._dataType = dataType;
+    protected void setRecordType(String recordType) {
+        this.recordType = recordType;
     }
 }

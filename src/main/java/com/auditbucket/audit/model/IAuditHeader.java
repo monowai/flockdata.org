@@ -53,4 +53,6 @@ public interface IAuditHeader {
     void bumpUpdate();
 
     Set<IAuditLog> getAuditLogs();
+
+    void setSearchKey(String parentKey);
 }

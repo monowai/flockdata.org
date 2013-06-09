@@ -1,6 +1,7 @@
 package com.auditbucket.test.unit;
 
 import com.auditbucket.audit.dao.IAuditChangeDao;
+import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.repo.es.model.AuditChange;
 import com.auditbucket.audit.repo.neo4j.model.AuditHeader;
@@ -13,10 +14,10 @@ import com.auditbucket.registration.repo.neo4j.model.FortressUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jackson.node.JsonNodeFactory;
-import org.codehaus.jackson.node.ObjectNode;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
@@ -33,9 +34,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.*;
 import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -69,17 +71,21 @@ public class TestElasticSearch {
 
         AuditChange auditChange = new AuditChange(auditHeader);
 
-        auditChange.getName(uid);
+        auditChange.setName(uid);
         auditChange.setEvent("Create");
         auditChange.setWhen(new Date());
 // What changed?
-        ObjectNode name = new ObjectNode(JsonNodeFactory.instance);
+        ObjectMapper om = new ObjectMapper();
+        ObjectNode name = om.createObjectNode();
+        //name.asToken();
+        name.put("first", "Joe");
+        name.put("last", "Sixpack");
+
 
         name.put("first", "Joe");
         name.put("last", "Sixpack");
         auditChange.setWhat(name.toString());
 
-        com.fasterxml.jackson.databind.ObjectMapper om = new com.fasterxml.jackson.databind.ObjectMapper();
         try {
             log.info(om.writeValueAsString(auditChange));
 
@@ -128,37 +134,47 @@ public class TestElasticSearch {
         IAuditHeader auditHeader = new AuditHeader(fu, "Test", new DateTime(), "testref");
 
 
-        AuditChange auditChange = new AuditChange(auditHeader);
+        IAuditChange auditChange = new AuditChange(auditHeader);
 
-        auditChange.getName(uid);
+        auditChange.setName(uid);
         auditChange.setEvent("Create");
         auditChange.setWhen(new Date());
         auditChange.setVersion(System.currentTimeMillis());
+        ObjectMapper om = new ObjectMapper();
 
-        ObjectNode name = new ObjectNode(JsonNodeFactory.instance);
+        Map<String, String> node = new HashMap<String, String>();
+        node.put("first", "Joe");
+        node.put("last", "Sixpack");
 
-        name.put("first", "Joe");
-        name.put("last", "Sixpack");
-        auditChange.setWhat(name.toString());
+
+        auditChange.setWhat(om.writeValueAsString(node));
 
         String indexKey = (auditHeader.getIndexName());
 
-        String childID = alRepo.save(auditChange);
+        auditChange = alRepo.save(auditChange);
+        assertNotNull(auditChange);
+        String childID = auditChange.getChild();
+        String parentID = auditChange.getParent();
         assertNotNull(childID);
+        assertNotNull(parentID);
+        assertNotSame(childID, parentID);
+
         // Retrieve from Lucene
-        byte[] found = alRepo.findOne(indexKey, auditChange.getDataType(), childID);
-        assertNotNull(found);
-        com.fasterxml.jackson.databind.ObjectMapper om = new com.fasterxml.jackson.databind.ObjectMapper();
+        byte[] parent = alRepo.findOne(indexKey, auditChange.getRecordType(), parentID);
 
-        JsonNode node = om.readTree(found);
-        log.info(node.toString());
+        IAuditChange ac = om.readValue(parent, AuditChange.class);
+        assertNotNull(ac);
+        // Occasionally findOne() fails for unknown reasons. I think it's down to the time between writing the "what"
+        //              and reading it back, hence the Thread.sleep
+        Thread.sleep(2000);
+        byte[] child = alRepo.findOne(indexKey, auditChange.getRecordType(), childID);
 
-        /*assertEquals(0, auditChange.getWhen().compareTo(found.getWhen()));
-        assertNotNull(found.getId());
-        assertNotSame("", found.getId());
-        assertNotNull(found.getVersion());
-        assertNotSame(0, found.getVersion());*/
+        assertNotNull(child);
 
+        JsonNode result = om.readTree(child);
+        assertNotNull(result);
+        assertEquals("Joe", result.get("first").textValue());
+        assertEquals("Sixpack", result.get("last").textValue());
 
     }
 

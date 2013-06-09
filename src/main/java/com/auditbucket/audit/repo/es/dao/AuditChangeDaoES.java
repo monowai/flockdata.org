@@ -34,30 +34,35 @@ public class AuditChangeDaoES implements IAuditChangeDao {
      * @param auditChange object containing changes
      * @return key value of the child document
      */
-    public String save(IAuditChange auditChange) {
-
+    public IAuditChange save(IAuditChange auditChange) {
         try {
+            String indexName = auditChange.getIndexName();
+            String recordType = auditChange.getRecordType();
             if (log.isDebugEnabled())
-                log.debug("Saving " + auditChange.getIndexName() + "/" + auditChange.getDataType());
+                log.debug("Saving to " + indexName + "/" + recordType);
 
-            IndexResponse ir = esClient.prepareIndex(auditChange.getIndexName(), auditChange.getDataType())
+            IndexResponse ir = esClient.prepareIndex(indexName, recordType)
                     .setSource(om.writeValueAsString(auditChange))
                     .execute()
                     .actionGet();
 
             if (log.isDebugEnabled())
-                log.debug("Added what [" + ir.getId() + "] to " + auditChange.getIndexName());
+                log.debug("Added what [" + ir.getId() + "] to " + indexName);
             String parent = ir.getId();
+            auditChange.setParent(parent);
 
-            String child = esClient.prepareIndex(auditChange.getIndexName(), auditChange.getDataType())
+            IndexResponse cr = esClient.prepareIndex(indexName, recordType)
                     .setSource(auditChange.getWhat())
                     .setParent(parent)
                     .execute()
-                    .actionGet().getId();
+                    .actionGet();
 
-            return child;
+            auditChange.setChild(cr.getId());
+            if (log.isDebugEnabled())
+                log.debug("Wrote [" + cr.getId() + "] to " + indexName + "/" + recordType);
+            return auditChange;
         } catch (IOException e) {
-            log.fatal("*** Error saving [" + auditChange.getIndexName() + "], [" + auditChange.getDataType() + "]", e);
+            log.fatal("*** Error saving [" + auditChange.getIndexName() + "], [" + auditChange.getRecordType() + "]", e);
         }
 
         return null;
@@ -67,14 +72,17 @@ public class AuditChangeDaoES implements IAuditChangeDao {
 
     @Override
     public byte[] findOne(String indexName, String recordType, String id) {
-        if (log.isTraceEnabled())
-            log.trace("Looking for " + indexName + "/" + recordType + "/" + id);
+        if (log.isDebugEnabled())
+            log.debug("Looking for [" + id + "] in " + indexName + "/" + recordType);
 
         GetResponse response = esClient.prepareGet(indexName, recordType, id)
                 .execute()
                 .actionGet();
         //IAuditChange ac = convert(response);
-        return response.getSourceAsBytes();
+        if (response != null && response.isExists() && !response.isSourceEmpty())
+            return response.getSourceAsBytes();
+
+        return null;
 
     }
 

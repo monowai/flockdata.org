@@ -45,7 +45,6 @@ public class AuditHeader implements IAuditHeader {
 
 
     public static final String UUID_KEY = "uid";
-
     @Indexed(indexName = UUID_KEY, unique = true)
     private String uid;
 
@@ -57,7 +56,7 @@ public class AuditHeader implements IAuditHeader {
 
     private long fortressDate;
     long lastUpdated = 0;
-
+    String searchKey = null;
 
     AuditHeader() {
         uid = UUID.randomUUID().toString();
@@ -166,6 +165,11 @@ public class AuditHeader implements IAuditHeader {
     @Override
     public Set<IAuditLog> getAuditLogs() {
         return auditLogs;
+    }
+
+    @JsonIgnore
+    public void setSearchKey(String parentKey) {
+        this.searchKey = parentKey;
     }
 
 }

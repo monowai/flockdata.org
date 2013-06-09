@@ -5,6 +5,7 @@ import com.auditbucket.audit.bean.AuditInputBean;
 import com.auditbucket.audit.dao.IAuditChangeDao;
 import com.auditbucket.audit.dao.IAuditDao;
 import com.auditbucket.audit.dao.IAuditQueryDao;
+import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.audit.repo.es.model.AuditChange;
@@ -181,7 +182,7 @@ public class AuditService {
         IFortressUser fUser = fortressService.getFortressUser(fortress, fortressUser.toLowerCase(), true);
         header = auditDAO.fetch(header);
         // Spin the following off in to a separate thread?
-        String alKey;
+        String childKey, parentKey = null;
         IAuditLog lastChange = auditDAO.getLastChange(header.getId());
         if (lastChange != null) {
             // Find the change data
@@ -200,26 +201,30 @@ public class AuditService {
             }
 
             if (fortress.isAddingChanges()) {
-                alKey = createSearchableChange(header, dateWhen, what, event);
+                childKey = createSearchableChange(header, dateWhen, what, event).getChild();
             } else {
                 // Update instead of Create
-                alKey = lastChange.getKey(); // Key does not change in this mode
-                updateSearchableChange(alKey, header, dateWhen, what);
+                childKey = lastChange.getKey(); // Key does not change in this mode
+                updateSearchableChange(childKey, header, dateWhen, what);
             }
         } else { // Creating a new log
             if (event == null)
                 event = IAuditLog.CREATE;
             setHeader = true;
-            alKey = createSearchableChange(header, dateWhen, what, event);
+            IAuditChange change = createSearchableChange(header, dateWhen, what, event);
+            childKey = change.getChild();
+            parentKey = change.getParent();
         }
 
         if (setHeader) {
             header.setLastUser(fUser);
+            if (parentKey != null)
+                header.setSearchKey(parentKey);
             header = auditDAO.save(header);
         }
 
         AuditLog al = new AuditLog(header, fUser, dateWhen, event, what);
-        al.setKey(alKey);
+        al.setKey(childKey);
         auditDAO.save(al);
 
 
@@ -230,15 +235,14 @@ public class AuditService {
         auditChange.update(existingKey, header, what);
     }
 
-    private String createSearchableChange(IAuditHeader header, DateTime dateWhen, String what, String event) {
-        String alKey;
-        AuditChange thisChange = new AuditChange(header);
+    private IAuditChange createSearchableChange(IAuditHeader header, DateTime dateWhen, String what, String event) {
+        IAuditChange thisChange = new AuditChange(header);
         thisChange.setEvent(event);
         thisChange.setWhat(what);
         if (dateWhen != null)
             thisChange.setWhen(dateWhen.toDate());
-        alKey = auditChange.save(thisChange);
-        return alKey;
+        thisChange = auditChange.save(thisChange);
+        return thisChange;
     }
 
     public IAuditLog getLastChange(String headerKey) {
