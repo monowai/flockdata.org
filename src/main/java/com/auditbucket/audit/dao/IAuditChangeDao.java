@@ -19,9 +19,12 @@ public interface IAuditChangeDao {
      * @param id         Lucene Key
      * @return found audit change or null if none
      */
-    byte[] findOne(String indexKey, String recordType, String id);
+    byte[] findOne(IAuditHeader header, String id);
 
-    void delete(String indexName, String recordType, String indexKey);
+    byte[] findOne(IAuditHeader header, String id, boolean flush);
 
-    void update(String existingKey, IAuditHeader header, String what);
+    void delete(IAuditHeader header, String indexKey);
+
+    void update(IAuditHeader header, String existingKey, String what);
+
 }

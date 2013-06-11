@@ -3,7 +3,6 @@ package com.auditbucket.audit.repo.es.dao;
 import com.auditbucket.audit.dao.IAuditChangeDao;
 import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
-import com.auditbucket.audit.repo.es.model.AuditChange;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,6 +22,7 @@ import java.io.IOException;
  */
 @Repository("esAuditChange")
 public class AuditChangeDaoES implements IAuditChangeDao {
+    public static final String PARENT = "_parent";
     @Autowired
     private Client esClient;
 
@@ -38,16 +38,15 @@ public class AuditChangeDaoES implements IAuditChangeDao {
         try {
             String indexName = auditChange.getIndexName();
             String recordType = auditChange.getRecordType();
-            if (log.isDebugEnabled())
-                log.debug("Saving to " + indexName + "/" + recordType);
 
-            IndexResponse ir = esClient.prepareIndex(indexName, recordType)
+            IndexResponse ir = esClient.prepareIndex(indexName, recordType + PARENT)
                     .setSource(om.writeValueAsBytes(auditChange))
+                    .setRouting(auditChange.getName())
                     .execute()
                     .actionGet();
 
             if (log.isDebugEnabled())
-                log.debug("Added what [" + ir.getId() + "] to " + indexName);
+                log.debug("Added parent [" + ir.getId() + "] to " + indexName + "/" + recordType + PARENT);
             String parent = ir.getId();
             auditChange.setParent(parent);
 
@@ -59,7 +58,7 @@ public class AuditChangeDaoES implements IAuditChangeDao {
 
             auditChange.setChild(cr.getId());
             if (log.isDebugEnabled())
-                log.debug("Wrote [" + cr.getId() + "] to " + indexName + "/" + recordType);
+                log.debug("Added child [" + cr.getId() + "] to " + indexName + "/" + recordType);
             return auditChange;
         } catch (IOException e) {
             log.fatal("*** Error saving [" + auditChange.getIndexName() + "], [" + auditChange.getRecordType() + "]", e);
@@ -70,49 +69,59 @@ public class AuditChangeDaoES implements IAuditChangeDao {
 
     }
 
+    public byte[] findOne(IAuditHeader header, String id) {
+        return findOne(header, id, false);
+    }
+
     @Override
-    public byte[] findOne(String indexName, String recordType, String id) {
+    public byte[] findOne(IAuditHeader header, String id, boolean parent) {
+        String indexName = header.getIndexName();
+        String recordType = (parent ? header.getDataType() + PARENT : header.getDataType());
         if (log.isDebugEnabled())
             log.debug("Looking for [" + id + "] in " + indexName + "/" + recordType);
 
         GetResponse response = esClient.prepareGet(indexName, recordType, id)
+                .setRouting(header.getUID())
                 .execute()
                 .actionGet();
-        //IAuditChange ac = convert(response);
+
         if (response != null && response.isExists() && !response.isSourceEmpty())
             return response.getSourceAsBytes();
+        log.info("Unable to find response data for [" + id + "] in " + indexName + "/" + recordType);
 
         return null;
 
     }
 
     @Override
-    public void delete(String indexName, String recordType, String indexKey) {
+    public void delete(IAuditHeader header, String indexKey) {
+        String indexName = header.getIndexName();
+        String recordType = header.getDataType();
+        if (log.isDebugEnabled())
+            log.debug("Removing [" + indexKey + "] from " + indexName + "/" + recordType);
+
         esClient.prepareDelete(indexName, recordType, indexKey)
+                .setRouting(header.getUID())
                 .execute()
                 .actionGet();
 
     }
 
     @Override
-    public void update(String existingKey, IAuditHeader header, String what) {
-        delete(header.getIndexName(), header.getDataType(), existingKey);
-        IndexRequestBuilder update = esClient.prepareIndex(header.getIndexName(), header.getDataType(), existingKey);
-        IndexResponse ur = update.setSource(what).execute().actionGet();
+    public void update(IAuditHeader header, String existingKey, String what) {
+        delete(header, existingKey);
+
+        IndexRequestBuilder update = esClient.
+                prepareIndex(header.getIndexName(), header.getDataType(), existingKey)
+                .setRouting(header.getUID())
+                .setOperationThreaded(false);
+
+        IndexResponse ur = update.setSource(what).
+                execute().
+                actionGet();
+
         if (log.isDebugEnabled())
             log.debug("Updated [" + existingKey + "] for " + header + " to version " + ur.getVersion());
-        //To what body of implemented methods use File | Settings | File Templates.
-    }
-
-    private IAuditChange convert(GetResponse response) throws IOException {
-        if (response == null)
-            throw new IllegalArgumentException("Response does not exist for NULL");
-        if (response.isSourceEmpty())
-            return null;
-        IAuditChange ac = om.readValue(response.getSourceAsBytes(), AuditChange.class);
-        if (ac != null)
-            ac.setId(response.getId());
-        return ac;
 
     }
 

@@ -19,17 +19,13 @@ import java.util.Date;
 @RelationshipEntity(type = "changed", useShortNames = true)
 public class AuditLog implements IAuditLog {
 
-    //@RelatedTo(elementClass = FortressUser.class, type = "changed", direction = Direction.OUTGOING)
     @StartNode
-    //@Fetch
     private FortressUser madeBy;
 
-    //@RelatedTo(elementClass = AuditHeader.class, type = "changedWhen", direction = Direction.INCOMING)
     @Fetch
     @Indexed(indexName = "changeHeader")
     @EndNode
     private AuditHeader auditHeader;
-    //private AuditWhen auditWhen;
 
     @GraphId
     private Long id;
@@ -72,10 +68,6 @@ public class AuditLog implements IAuditLog {
         //return auditWhen.getAuditHeader();
         return auditHeader;
     }
-
-//    public AuditWhen getAuditWhen() {
-//        return auditWhen;
-//    }
 
     @JsonIgnore
     public long getId() {

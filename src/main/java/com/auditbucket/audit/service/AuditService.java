@@ -232,7 +232,7 @@ public class AuditService {
     }
 
     private void updateSearchableChange(String existingKey, IAuditHeader header, DateTime dateWhen, String what) {
-        auditChange.update(existingKey, header, what);
+        auditChange.update(header, existingKey, what);
     }
 
     private IAuditChange createSearchableChange(IAuditHeader header, DateTime dateWhen, String what, String event) {
@@ -284,9 +284,11 @@ public class AuditService {
     public IAuditHeader cancelLastLog(String headerKey) {
         IAuditHeader auditHeader = getValidHeader(headerKey);
         IAuditLog auditLog = getLastChange(auditHeader);
-        auditChange.delete(auditHeader.getIndexName(), auditHeader.getDataType(), auditLog.getKey());
-        auditDAO.delete(auditLog);
+        if (auditHeader.getFortress().isAddingChanges())
+            // If adding, then we need to remove the ES document
+            auditChange.delete(auditHeader, auditLog.getKey());
 
+        auditDAO.delete(auditLog);
 
         auditLog = getLastChange(auditHeader);
         if (auditLog == null)
@@ -295,6 +297,11 @@ public class AuditService {
         auditHeader = auditDAO.fetch(auditHeader);
         auditHeader.setLastUser(fortressService.getFortressUser(auditHeader.getFortress(), auditLog.getWho().getName()));
         auditHeader = auditDAO.save(auditHeader);
+
+        // Sync the update to elastic search.
+        if (!auditHeader.getFortress().isAddingChanges())
+            auditChange.update(auditHeader, auditLog.getKey(), auditLog.getWhat());
+
         return auditHeader;
     }
 

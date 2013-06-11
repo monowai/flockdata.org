@@ -60,6 +60,7 @@ public class AuditChange implements IAuditChange {
     /**
      * @return Unique key in the index
      */
+    @JsonIgnore
     public String getId() {
         return id;
     }
@@ -141,6 +142,7 @@ public class AuditChange implements IAuditChange {
         this.companyName = companyName;
     }
 
+    @JsonIgnore
     public String getEvent() {
         return event;
     }
@@ -149,6 +151,7 @@ public class AuditChange implements IAuditChange {
         this.event = event;
     }
 
+    @JsonIgnore
     public Long getVersion() {
         return version;
     }

@@ -157,21 +157,22 @@ public class TestElasticSearch {
         assertNotNull(parentID);
         assertNotSame(childID, parentID);
 
-        // Retrieve from Lucene
-        byte[] parent = alRepo.findOne(indexKey, auditChange.getRecordType(), parentID);
+        // Retrieve parent from Lucene
+        byte[] parent = alRepo.findOne(auditHeader, parentID, true);
 
+        assertNotNull(parent);
         IAuditChange ac = om.readValue(parent, AuditChange.class);
         assertNotNull(ac);
         assertEquals(auditHeader.getUID(), ac.getName());
         // Occasionally findOne() fails for unknown reasons. I think it's down to the time between writing the "what"
         //              and reading it back, hence the Thread.sleep
         Thread.sleep(2000);
-        byte[] child = alRepo.findOne(indexKey, auditChange.getRecordType(), childID);
+        byte[] child = alRepo.findOne(auditHeader, childID);
 
-        assertNotNull(child);
+        assertNotNull("No bytes returned", child);
 
         JsonNode result = om.readTree(child);
-        assertNotNull(result);
+        assertNotNull("Unable to convert to JsonNode", result);
         assertEquals("Joe", result.get("first").textValue());
         assertEquals("Sixpack", result.get("last").textValue());
 
