@@ -11,7 +11,7 @@ import java.util.List;
  * Time: 6:31 PM
  */
 public interface FortressDaoI {
-    public IFortress save(IFortress fortressUser);
+    public IFortress save(IFortress fortress);
 
     public IFortress findByPropertyValue(String name, Object value);
 

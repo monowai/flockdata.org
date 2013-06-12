@@ -1,5 +1,6 @@
 package com.auditbucket.registration.repo.neo4j.model;
 
+import com.auditbucket.registration.endpoint.FortressInputBean;
 import com.auditbucket.registration.model.ICompany;
 import com.auditbucket.registration.model.IFortress;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -20,15 +21,17 @@ public class Fortress implements IFortress {
     @RelatedTo(type = "owns", direction = Direction.INCOMING)
     Company company;
 
-    private Boolean addChanges = false;
+    private Boolean accumulatingChanges = false;
 
     private UUID uuID;
 
     public Fortress() {
     }
 
-    public Fortress(String name, ICompany ownedBy) {
-        setName(name);
+    public Fortress(FortressInputBean fortressInputBean, ICompany ownedBy) {
+        setName(fortressInputBean.getName());
+        setIgnoreSearchEngine(fortressInputBean.getIgnoreSearchEngine());
+        setAccumulatingChanges(fortressInputBean.getAccumulatingChanges());
         setCompany(ownedBy);
         uuID = UUID.randomUUID();
     }
@@ -63,11 +66,22 @@ public class Fortress implements IFortress {
         return uuID;
     }
 
-    public Boolean isAddingChanges() {
-        return addChanges;
+    public Boolean isAccumulatingChanges() {
+        return accumulatingChanges;
     }
 
-    public void setAddChanges(Boolean addChanges) {
-        this.addChanges = addChanges;
+    private Boolean ignoreSearchEngine;
+
+    @Override
+    public Boolean isIgnoreSearchEngine() {
+        return ignoreSearchEngine;
+    }
+
+    public void setIgnoreSearchEngine(Boolean ignoreSearchEngine) {
+        this.ignoreSearchEngine = ignoreSearchEngine;
+    }
+
+    public void setAccumulatingChanges(Boolean addChanges) {
+        this.accumulatingChanges = addChanges;
     }
 }

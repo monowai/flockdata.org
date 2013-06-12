@@ -6,6 +6,7 @@ import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.repo.es.model.AuditChange;
 import com.auditbucket.audit.repo.neo4j.model.AuditHeader;
 import com.auditbucket.audit.service.AuditService;
+import com.auditbucket.registration.endpoint.FortressInputBean;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.model.IFortressUser;
 import com.auditbucket.registration.repo.neo4j.model.Company;
@@ -65,7 +66,7 @@ public class TestElasticSearch {
     public void testJson() {
         // Basic JSON/ES tests to figure our what is going on
 
-        IFortress fortress = new Fortress("fortress", new Company("Monowai"));
+        IFortress fortress = new Fortress(new FortressInputBean("fortress"), new Company("Monowai"));
         IFortressUser fu = new FortressUser(fortress, uid);
         IAuditHeader auditHeader = new AuditHeader(fu, "Test", new DateTime(), "testrefx");
 
@@ -128,7 +129,7 @@ public class TestElasticSearch {
         SecurityContextHolder.getContext().setAuthentication(auth);
         // As per JSON test, except this time we're doing it all via Spring.
 
-        IFortress fortress = new Fortress("fortress", new Company("Monowai"));
+        IFortress fortress = new Fortress(new FortressInputBean("fortress"), new Company("Monowai"));
         IFortressUser fu = new FortressUser(fortress, uid);
         IAuditHeader auditHeader = new AuditHeader(fu, "Test", new DateTime(), "testref");
 

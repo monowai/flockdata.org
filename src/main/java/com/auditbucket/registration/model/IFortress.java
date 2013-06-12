@@ -18,10 +18,14 @@ public interface IFortress {
     public UUID getUUID();
 
     /**
-     * Are changes logged against this fortress accumulated or updated
+     * Are changes logged against this fortress accumulated or updated in the search engine
      *
      * @return boolean
      */
-    public Boolean isAddingChanges();
+    public Boolean isAccumulatingChanges();
+
+    public Boolean isIgnoreSearchEngine();
+
+    public void setAccumulatingChanges(Boolean accumulateChanges);
 
 }

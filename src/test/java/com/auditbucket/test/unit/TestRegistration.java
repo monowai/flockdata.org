@@ -1,6 +1,7 @@
 package com.auditbucket.test.unit;
 
 import com.auditbucket.registration.bean.RegistrationBean;
+import com.auditbucket.registration.endpoint.FortressInputBean;
 import com.auditbucket.registration.model.*;
 import com.auditbucket.registration.repo.neo4j.model.Company;
 import com.auditbucket.registration.repo.neo4j.model.CompanyUser;
@@ -70,7 +71,7 @@ public class TestRegistration {
     }
 
     private IFortress createFortress(String name, ICompany ownedBy) {
-        IFortress fortress = new Fortress(name, ownedBy);
+        IFortress fortress = new Fortress(new FortressInputBean(name), ownedBy);
         fortress = fortressService.save(fortress);
         assertNotNull(fortress);
         return fortress;

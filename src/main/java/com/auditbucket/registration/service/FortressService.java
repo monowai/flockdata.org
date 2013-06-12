@@ -4,6 +4,7 @@ package com.auditbucket.registration.service;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.dao.CompanyDaoI;
 import com.auditbucket.registration.dao.FortressDaoI;
+import com.auditbucket.registration.endpoint.FortressInputBean;
 import com.auditbucket.registration.model.ICompany;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.model.IFortressUser;
@@ -74,7 +75,7 @@ public class FortressService {
 
     public IFortressUser getFortressUser(IFortress fortress, String fortressUser, boolean createIfMissing) {
         if (fortressUser == null || fortress == null)
-            throw new IllegalArgumentException("Don't go throwing null in here ["+(fortressUser==null? "FortressUser]":"Fortress]"));
+            throw new IllegalArgumentException("Don't go throwing null in here [" + (fortressUser == null ? "FortressUser]" : "Fortress]"));
 
         IFortressUser fu = fortressDao.getFortressUser(fortress.getId(), fortressUser);
         if (createIfMissing && fu == null)
@@ -107,17 +108,24 @@ public class FortressService {
     }
 
     @Transactional
-    public IFortress registerFortress(String fortressName) {
+    public IFortress registerFortress(FortressInputBean fib) {
         ICompany company = getCompany();
 
-        IFortress fortress = companyService.getFortress(company, fortressName);
+        IFortress fortress = companyService.getFortress(company, fib.getName());
         if (fortress != null) {
             // Already associated, get out of here
             return fortress;
         }
 
-        fortress = new Fortress(fortressName, company);
+        fortress = new Fortress(fib, company);
         return save(fortress);
+
+    }
+
+    @Transactional
+    public IFortress registerFortress(String fortressName) {
+        FortressInputBean fb = new FortressInputBean(fortressName, false);
+        return registerFortress(fb);
     }
 
     private ICompany getCompany(long fortressId) {

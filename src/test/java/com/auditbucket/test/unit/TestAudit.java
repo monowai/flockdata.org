@@ -5,6 +5,7 @@ import com.auditbucket.audit.bean.AuditInputBean;
 import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.audit.service.AuditService;
 import com.auditbucket.registration.bean.RegistrationBean;
+import com.auditbucket.registration.endpoint.FortressInputBean;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
@@ -203,5 +204,25 @@ public class TestAudit {
         assertFalse(change.equals(log));
         assertEquals(IAuditLog.UPDATE, change.getEvent());  // log event default
     }
+
+    @Test
+    public void testFortressLogCount() {
+
+        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        IFortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
+
+        String ahKey = auditService.createHeader(new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "YYY"));
+
+        assertNotNull(ahKey);
+        log.info(ahKey);
+
+        assertNotNull(auditService.getHeader(ahKey));
+
+        auditService.createLog(new AuditInputBean(ahKey, "wally", new DateTime().toString(), "{blah: 0}"));
+        auditService.getLastChange(ahKey);
+        auditService.createLog(new AuditInputBean(ahKey, "wally", new DateTime().toString(), "{blah: 1}"));
+        // ToDo: How to count the ElasticSearch audit hits. Currently this code is just for exercising the code.
+    }
+
 
 }

@@ -95,6 +95,7 @@ public class AuditChangeDaoES implements IAuditChangeDao {
 
     @Override
     public void delete(IAuditHeader header, String indexKey) {
+        //ToDo: remove from the _parent index
         String indexName = header.getIndexName();
         String recordType = header.getDataType();
         if (log.isDebugEnabled())

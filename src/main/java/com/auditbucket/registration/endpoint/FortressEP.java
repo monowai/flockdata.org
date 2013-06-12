@@ -10,10 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * User: mike
@@ -44,12 +41,11 @@ public class FortressEP {
             return new ResponseEntity<IFortress>(fortress, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{fortressName}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/new", consumes = "application/json", method = RequestMethod.PUT)
     @Transactional
     @ResponseBody
-    public ResponseEntity<String> addFortresses(@PathVariable("fortressName") String fortressName) throws Exception {
-        // curl -u mike:123 -X PUT  http://localhost:8080/ab/fortress/ABC
-        IFortress fortress = fortressService.registerFortress(fortressName);
+    public ResponseEntity<String> addFortresses(@RequestBody FortressInputBean fortressInputBean) throws Exception {
+        IFortress fortress = fortressService.registerFortress(fortressInputBean);
         if (fortress == null)
             return new ResponseEntity<String>("", HttpStatus.INTERNAL_SERVER_ERROR);
         else
