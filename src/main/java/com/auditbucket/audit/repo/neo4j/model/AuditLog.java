@@ -41,6 +41,10 @@ public class AuditLog implements IAuditLog {
     @Indexed(indexName = "esKey")
     private String changeKey;
 
+    @Indexed(indexName = "txRef")
+    private String txRef;
+
+
     protected AuditLog() {
         DateTime now = new DateTime().toDateTime(DateTimeZone.UTC);
         sysWhen = now.toDate().getTime();

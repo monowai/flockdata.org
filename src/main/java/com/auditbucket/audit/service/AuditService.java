@@ -22,6 +22,7 @@ import com.auditbucket.registration.service.SystemUserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -106,7 +107,8 @@ public class AuditService {
         // Create fortressUser if missing
         IFortressUser fu = fortressService.getFortressUser(iFortress, inputBean.getFortressUser(), true);
 
-        ah = new AuditHeader(fu, inputBean.getRecordType(), dateWhen, inputBean.getCallerRef());
+
+        ah = new AuditHeader(fu, inputBean);
 
         // ToDo: not AuditHeader, rather the bean
         ah = auditDAO.save(ah);
@@ -117,7 +119,11 @@ public class AuditService {
 
     }
 
-    public IAuditHeader getHeader(String key) {
+    public IAuditHeader getHeader(@NotNull @NotEmpty String key) {
+        return getHeader(key, false);
+    }
+
+    public IAuditHeader getHeader(@NotNull @NotEmpty String key, boolean inflate) {
         String userName = securityHelper.getLoggedInUser();
 
         ISystemUser su = sysUserService.findByName(userName);
@@ -125,7 +131,7 @@ public class AuditService {
             throw new SecurityException("Not authorised");
 
 
-        IAuditHeader ah = auditDAO.findHeader(key);
+        IAuditHeader ah = auditDAO.findHeader(key, inflate);
         if (ah == null)
             throw new IllegalArgumentException("Unable to find key [" + key + "]");
 
@@ -308,7 +314,7 @@ public class AuditService {
         auditHeader = auditDAO.save(auditHeader);
 
         // Sync the update to elastic search.
-        if (!auditHeader.getFortress().isAccumulatingChanges())
+        if (auditHeader.getFortress().isAccumulatingChanges())
             auditChange.update(auditHeader, auditLog.getKey(), auditLog.getWhat());
 
         return auditHeader;

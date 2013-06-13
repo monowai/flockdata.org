@@ -1,7 +1,7 @@
 package com.auditbucket.test.unit;
 
+import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
-import com.auditbucket.registration.endpoint.FortressInputBean;
 import com.auditbucket.registration.model.*;
 import com.auditbucket.registration.repo.neo4j.model.Company;
 import com.auditbucket.registration.repo.neo4j.model.CompanyUser;

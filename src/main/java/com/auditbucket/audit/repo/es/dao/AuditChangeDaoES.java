@@ -10,9 +10,11 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 
 /**
@@ -109,7 +111,7 @@ public class AuditChangeDaoES implements IAuditChangeDao {
     }
 
     @Override
-    public void update(IAuditHeader header, String existingKey, String what) {
+    public void update(IAuditHeader header, @NotNull @NotEmpty String existingKey, String what) {
         delete(header, existingKey);
 
         IndexRequestBuilder update = esClient.

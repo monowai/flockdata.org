@@ -1,12 +1,13 @@
 package com.auditbucket.test.unit;
 
+import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.dao.IAuditChangeDao;
 import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.repo.es.model.AuditChange;
 import com.auditbucket.audit.repo.neo4j.model.AuditHeader;
 import com.auditbucket.audit.service.AuditService;
-import com.auditbucket.registration.endpoint.FortressInputBean;
+import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.model.IFortressUser;
 import com.auditbucket.registration.repo.neo4j.model.Company;
@@ -68,7 +69,8 @@ public class TestElasticSearch {
 
         IFortress fortress = new Fortress(new FortressInputBean("fortress"), new Company("Monowai"));
         IFortressUser fu = new FortressUser(fortress, uid);
-        IAuditHeader auditHeader = new AuditHeader(fu, "Test", new DateTime(), "testrefx");
+        AuditHeaderInputBean hib = new AuditHeaderInputBean("fortress", "Test", "Test", new DateTime().toDate(), "testRef");
+        IAuditHeader auditHeader = new AuditHeader(fu, hib);
 
         AuditChange auditChange = new AuditChange(auditHeader);
 
@@ -118,7 +120,7 @@ public class TestElasticSearch {
 
 
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();
         }
 
     }
@@ -131,7 +133,8 @@ public class TestElasticSearch {
 
         IFortress fortress = new Fortress(new FortressInputBean("fortress"), new Company("Monowai"));
         IFortressUser fu = new FortressUser(fortress, uid);
-        IAuditHeader auditHeader = new AuditHeader(fu, "Test", new DateTime(), "testref");
+        AuditHeaderInputBean hib = new AuditHeaderInputBean("fortress", "Test", "Test", new DateTime().toDate(), "testRef");
+        IAuditHeader auditHeader = new AuditHeader(fu, hib);
 
 
         IAuditChange auditChange = new AuditChange(auditHeader);

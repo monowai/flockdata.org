@@ -12,17 +12,23 @@ public class AuditHeaderInputBean {
     private String fortressUser;
     private String recordType;
     private String callerRef;
+    private String txRef;
     private Date when;
 
     AuditHeaderInputBean() {
     }
 
     public AuditHeaderInputBean(String fortress, String fortressUser, String recordType, Date when, String callerRef) {
+        this(fortress, fortressUser, recordType, when, callerRef, null);
+    }
+
+    public AuditHeaderInputBean(String fortress, String fortressUser, String recordType, Date when, String callerRef, String txRef) {
         this.when = when;
         this.fortress = fortress;
         this.fortressUser = fortressUser;
         this.recordType = recordType;
         this.callerRef = callerRef;
+        this.txRef = txRef;
 
     }
 
@@ -65,5 +71,13 @@ public class AuditHeaderInputBean {
 
     public void setCallerRef(String callerRef) {
         this.callerRef = callerRef;
+    }
+
+    public String getTxRef() {
+        return txRef;
+    }
+
+    public void setTxRef(String txRef) {
+        this.txRef = txRef;
     }
 }

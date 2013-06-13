@@ -1,6 +1,7 @@
 package com.auditbucket.registration.endpoint;
 
 import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.model.IFortressUser;
 import com.auditbucket.registration.service.CompanyService;

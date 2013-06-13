@@ -1,7 +1,9 @@
 package com.auditbucket.audit.repo.neo4j.model;
 
+import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
+import com.auditbucket.audit.model.ITagRef;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.model.IFortressUser;
 import com.auditbucket.registration.repo.neo4j.model.Fortress;
@@ -15,6 +17,7 @@ import org.springframework.data.neo4j.annotation.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 
 /**
@@ -43,6 +46,8 @@ public class AuditHeader implements IAuditHeader {
     @RelatedToVia(elementClass = AuditLog.class, type = "changed", direction = Direction.INCOMING)
     private Set<IAuditLog> auditLogs = null;
 
+    @RelatedTo(elementClass = TagRef.class, type = "tags")
+    private Set<ITagRef> tags = null;
 
     public static final String UUID_KEY = "uid";
     @Indexed(indexName = UUID_KEY, unique = true)
@@ -65,14 +70,34 @@ public class AuditHeader implements IAuditHeader {
         this.lastUpdated = dateCreated;
     }
 
-    public AuditHeader(@NotNull IFortressUser createdBy, @NotNull String dataType, DateTime when, String clientRef) {
+    public AuditHeader(@NotNull IFortressUser createdBy, @NotNull AuditHeaderInputBean auditInput) {
         this();
+        String eventType = auditInput.getRecordType();
+        String clientRef = auditInput.getCallerRef();
+        Date when = auditInput.getWhen();
+        if (when == null)
+            fortressDate = dateCreated;
+        else
+            fortressDate = when.getTime();
+
         this.createdBy = (FortressUser) createdBy;
         this.lastWho = (FortressUser) createdBy;
         this.fortress = (Fortress) createdBy.getFortress();
-        this.fortressDate = when.toDate().getTime();
-        this.dataType = (dataType != null ? dataType.toLowerCase() : "");
-        this.name = (clientRef == null ? null : (dataType + "." + clientRef).toLowerCase());
+        this.dataType = (eventType != null ? eventType.toLowerCase() : "");
+        this.name = (clientRef == null ? null : (eventType + "." + clientRef).toLowerCase());
+        addTag(auditInput.getTxRef());
+    }
+
+
+    private void addTag(String tagName) {
+        if (tagName == null)
+            return;
+        if (tags == null)
+            tags = new TreeSet<ITagRef>();
+
+        ITagRef tag = new TagRef(tagName, fortress.getCompany());
+        tags.add(tag);
+
     }
 
     @JsonIgnore
@@ -170,6 +195,10 @@ public class AuditHeader implements IAuditHeader {
     @JsonIgnore
     public void setSearchKey(String parentKey) {
         this.searchKey = parentKey;
+    }
+
+    public Set<ITagRef> getTags() {
+        return tags;
     }
 
 }

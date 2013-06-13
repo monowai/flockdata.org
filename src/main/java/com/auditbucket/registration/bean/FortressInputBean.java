@@ -1,4 +1,4 @@
-package com.auditbucket.registration.endpoint;
+package com.auditbucket.registration.bean;
 
 /**
  * User: mike

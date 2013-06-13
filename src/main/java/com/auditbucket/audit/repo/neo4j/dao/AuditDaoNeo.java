@@ -3,10 +3,13 @@ package com.auditbucket.audit.repo.neo4j.dao;
 import com.auditbucket.audit.dao.IAuditDao;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
+import com.auditbucket.audit.model.ITagRef;
 import com.auditbucket.audit.repo.neo4j.AuditHeaderRepo;
 import com.auditbucket.audit.repo.neo4j.AuditLogRepo;
 import com.auditbucket.audit.repo.neo4j.model.AuditHeader;
 import com.auditbucket.audit.repo.neo4j.model.AuditLog;
+import com.auditbucket.audit.repo.neo4j.model.TagRef;
+import com.auditbucket.registration.model.ICompany;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
@@ -40,14 +43,30 @@ public class AuditDaoNeo implements IAuditDao {
 
     @Override
     public IAuditLog save(IAuditLog auditLog) {
-        //auditLog = template.createRelationshipBetween(auditLog.getWho(), auditLog.getHeader(), AuditLog.class, "changed", false );
-        //RelationshipType type = DynamicRelationshipType.withName("changed");
         return template.save((AuditLog) auditLog);
     }
 
+    public ITagRef save(ITagRef tagRef) {
+        return template.save((TagRef) tagRef);
+    }
+
     @Override
+    public Set<IAuditLog> findByTag(@NotNull String tagName, @NotNull ICompany company) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     public IAuditHeader findHeader(String key) {
-        return auditRepo.findByPropertyValue(AuditHeader.UUID_KEY, key);
+        return findHeader(key, false);
+    }
+
+    @Override
+    public IAuditHeader findHeader(String key, boolean inflate) {
+        IAuditHeader header = auditRepo.findByPropertyValue(AuditHeader.UUID_KEY, key);
+        if (inflate) {
+            template.fetch(header);
+            template.fetch(header.getTags());
+        }
+        return header;
     }
 
     public IAuditHeader findHeaderByClientRef(@NotNull String clientRef, @NotNull String fortressName, @NotNull String companyName) {
@@ -63,7 +82,6 @@ public class AuditDaoNeo implements IAuditDao {
     public void removeLastChange(IAuditHeader header) {
         // Remove the lastChange relationship
         template.deleteRelationshipBetween(header, header.getLastUser(), "lastChangedBy");
-        //auditLogRepo.delete(lastChange);
     }
 
     @Override
@@ -89,7 +107,6 @@ public class AuditDaoNeo implements IAuditDao {
         IAuditHeader header = auditRepo.findOne(auditHeaderID);
         template.fetch(header);
         return header.getAuditLogs();
-        //return auditLogRepo.getAuditLogs(auditHeaderID);
     }
 
     @Override

@@ -2,9 +2,9 @@ package com.auditbucket.registration.service;
 
 
 import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.dao.CompanyDaoI;
 import com.auditbucket.registration.dao.FortressDaoI;
-import com.auditbucket.registration.endpoint.FortressInputBean;
 import com.auditbucket.registration.model.ICompany;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.model.IFortressUser;

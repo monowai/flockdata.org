@@ -2,8 +2,11 @@ package com.auditbucket.audit.dao;
 
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
+import com.auditbucket.audit.model.ITagRef;
+import com.auditbucket.registration.model.ICompany;
 import org.springframework.stereotype.Repository;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Set;
 
@@ -18,7 +21,22 @@ public interface IAuditDao {
 
     public IAuditLog save(IAuditLog auditLog);
 
+    public ITagRef save(ITagRef tagRef);
+
+    public Set<IAuditLog> findByTag(@NotNull String txName, @NotNull ICompany company);
+
+    /**
+     * @param key GUID
+     * @return AuditHeader in "default" state
+     */
     public IAuditHeader findHeader(String key);
+
+    /**
+     * @param key     GUID
+     * @param inflate should all relationships be loaded
+     * @return header in inflated or "default" state
+     */
+    public IAuditHeader findHeader(String key, boolean inflate);
 
     /**
      * @param id audit Header PK

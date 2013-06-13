@@ -1,6 +1,6 @@
 package com.auditbucket.registration.repo.neo4j.model;
 
-import com.auditbucket.registration.endpoint.FortressInputBean;
+import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.ICompany;
 import com.auditbucket.registration.model.IFortress;
 import com.fasterxml.jackson.annotation.JsonIgnore;
