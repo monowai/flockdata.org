@@ -14,6 +14,7 @@ public class AuditHeaderInputBean {
     private String callerRef;
     private String txRef;
     private Date when;
+    private String[] tags;
 
     AuditHeaderInputBean() {
     }
@@ -79,5 +80,13 @@ public class AuditHeaderInputBean {
 
     public void setTxRef(String txRef) {
         this.txRef = txRef;
+    }
+
+    public void setTags(String[] tags) {
+        this.tags = tags;
+    }
+
+    public String[] getTags() {
+        return this.tags;
     }
 }

@@ -71,13 +71,20 @@ public class TestTags {
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         IFortress fortressA = fortressService.registerFortress("auditTest");
         String tagRef = "MyTXTag";
-        String key = auditService.createHeader(new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new Date(), "ABC123", tagRef));
+        AuditHeaderInputBean aBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new Date(), "ABC123", tagRef);
+        String tags[] = new String[2];
+        tags[0] = "Blah";
+        tags[1] = "AnyTag";
+
+        aBean.setTags(tags);
+        String key = auditService.createHeader(aBean);
         assertNotNull(key);
         IAuditHeader header = auditService.getHeader(key, true);
         assertNotNull(header);
-        assertEquals(1, header.getTags().size());
-        ITagRef tag = header.getTags().iterator().next();
-        assertEquals(tagRef, tag.getName());
+        assertEquals(1, header.getSysTags().size());
+        ITagRef sysTag = header.getSysTags().iterator().next();
+        assertEquals(tagRef, sysTag.getName());
+        assertEquals(2, header.getTags().size());
 
 
     }

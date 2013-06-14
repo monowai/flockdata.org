@@ -1,7 +1,7 @@
 package com.auditbucket.test.unit;
 
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
-import com.auditbucket.audit.bean.AuditInputBean;
+import com.auditbucket.audit.bean.AuditLogInputBean;
 import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.audit.service.AuditService;
 import com.auditbucket.registration.bean.FortressInputBean;
@@ -128,7 +128,7 @@ public class TestAudit {
         log.info("Start-");
         watch.start();
         while (i < max) {
-            auditService.createLog(new AuditInputBean(ahKey, "wally", new DateTime().toString(), "{blah:" + i + "}"));
+            auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime().toString(), "{blah:" + i + "}"));
             i++;
         }
         watch.stop();
@@ -164,7 +164,7 @@ public class TestAudit {
         watch.start();
         while (i < max) {
             // Same "what" text so should only be one auditLogCount record
-            auditService.createLog(new AuditInputBean(ahKey, "wally", new DateTime().toString(), "{blah: 0}"));
+            auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime().toString(), "{blah: 0}"));
             i++;
         }
         watch.stop();
@@ -193,12 +193,12 @@ public class TestAudit {
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));
 
-        auditService.createLog(new AuditInputBean(ahKey, "wally", new DateTime().toString(), "{blah: 0}"));
+        auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime().toString(), "{blah: 0}"));
         IAuditLog log = auditService.getLastChange(ahKey);
         assertNotNull(log);
         assertEquals(IAuditLog.CREATE, log.getEvent()); // log event default
 
-        auditService.createLog(new AuditInputBean(ahKey, "wally", new DateTime().toString(), "{blah: 1}"));
+        auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime().toString(), "{blah: 1}"));
         IAuditLog change = auditService.getLastChange(ahKey);
         assertNotNull(change);
         assertFalse(change.equals(log));
@@ -218,9 +218,9 @@ public class TestAudit {
 
         assertNotNull(auditService.getHeader(ahKey));
 
-        auditService.createLog(new AuditInputBean(ahKey, "wally", new DateTime().toString(), "{blah: 0}"));
+        auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime().toString(), "{blah: 0}"));
         auditService.getLastChange(ahKey);
-        auditService.createLog(new AuditInputBean(ahKey, "wally", new DateTime().toString(), "{blah: 1}"));
+        auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime().toString(), "{blah: 1}"));
         // ToDo: How to count the ElasticSearch audit hits. Currently this code is just for exercising the code.
     }
 

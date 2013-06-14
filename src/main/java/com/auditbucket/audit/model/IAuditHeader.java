@@ -57,4 +57,6 @@ public interface IAuditHeader {
     Set<ITagRef> getTags();
 
     void setSearchKey(String parentKey);
+
+    Set<ITagRef> getSysTags();
 }

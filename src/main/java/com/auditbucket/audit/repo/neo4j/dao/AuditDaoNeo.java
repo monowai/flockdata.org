@@ -65,6 +65,7 @@ public class AuditDaoNeo implements IAuditDao {
         if (inflate) {
             template.fetch(header);
             template.fetch(header.getTags());
+            template.fetch(header.getSysTags());
         }
         return header;
     }

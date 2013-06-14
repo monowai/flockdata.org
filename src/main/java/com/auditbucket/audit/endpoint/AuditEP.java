@@ -1,7 +1,7 @@
 package com.auditbucket.audit.endpoint;
 
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
-import com.auditbucket.audit.bean.AuditInputBean;
+import com.auditbucket.audit.bean.AuditLogInputBean;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.audit.service.AuditService;
@@ -64,7 +64,7 @@ public class AuditEP {
     @RequestMapping(value = "/log/new", consumes = "application/json", method = RequestMethod.PUT)
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @ResponseBody
-    public ResponseEntity<String> createLog(@RequestBody AuditInputBean input) throws Exception {
+    public ResponseEntity<String> createLog(@RequestBody AuditLogInputBean input) throws Exception {
         // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/audit/log/new -d '{"eventType":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10", "what": "{\"name\": \"val\"}" }'
         try {
 

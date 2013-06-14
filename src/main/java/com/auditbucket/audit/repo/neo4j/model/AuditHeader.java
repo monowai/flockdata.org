@@ -16,8 +16,8 @@ import org.springframework.data.neo4j.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.UUID;
 
 /**
@@ -46,8 +46,12 @@ public class AuditHeader implements IAuditHeader {
     @RelatedToVia(elementClass = AuditLog.class, type = "changed", direction = Direction.INCOMING)
     private Set<IAuditLog> auditLogs = null;
 
-    @RelatedTo(elementClass = TagRef.class, type = "tags")
+    @RelatedTo(elementClass = TagRef.class, type = "companyTags")
     private Set<ITagRef> tags = null;
+
+    @RelatedTo(elementClass = TagRef.class, type = "systemTags")
+    private Set<ITagRef> sysTags = null;
+
 
     public static final String UUID_KEY = "uid";
     @Indexed(indexName = UUID_KEY, unique = true)
@@ -85,18 +89,35 @@ public class AuditHeader implements IAuditHeader {
         this.fortress = (Fortress) createdBy.getFortress();
         this.dataType = (eventType != null ? eventType.toLowerCase() : "");
         this.name = (clientRef == null ? null : (eventType + "." + clientRef).toLowerCase());
-        addTag(auditInput.getTxRef());
-    }
+        addSysTag(auditInput.getTxRef());
+        String tags[] = auditInput.getTags();
+        for (String tag : tags) {
+            addTag(tag);
+        }
 
+    }
 
     private void addTag(String tagName) {
         if (tagName == null)
             return;
         if (tags == null)
-            tags = new TreeSet<ITagRef>();
+            tags = new HashSet<ITagRef>();
 
         ITagRef tag = new TagRef(tagName, fortress.getCompany());
-        tags.add(tag);
+        if (!tags.contains(tag))
+            tags.add(tag);
+
+    }
+
+    private void addSysTag(String tagName) {
+        if (tagName == null)
+            return;
+        if (sysTags == null)
+            sysTags = new HashSet<ITagRef>();
+
+        ITagRef tag = new TagRef(tagName, fortress.getCompany());
+        if (!sysTags.contains(tag))
+            sysTags.add(tag);
 
     }
 
@@ -201,4 +222,7 @@ public class AuditHeader implements IAuditHeader {
         return tags;
     }
 
+    public Set<ITagRef> getSysTags() {
+        return sysTags;
+    }
 }

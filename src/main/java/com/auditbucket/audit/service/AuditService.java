@@ -1,7 +1,7 @@
 package com.auditbucket.audit.service;
 
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
-import com.auditbucket.audit.bean.AuditInputBean;
+import com.auditbucket.audit.bean.AuditLogInputBean;
 import com.auditbucket.audit.dao.IAuditChangeDao;
 import com.auditbucket.audit.dao.IAuditDao;
 import com.auditbucket.audit.dao.IAuditQueryDao;
@@ -75,13 +75,8 @@ public class AuditService {
     @Transactional
     public String createHeader(AuditHeaderInputBean inputBean) {
         String userName = securityHelper.getLoggedInUser();
-        DateTime dateWhen;
-        if (inputBean.getWhen() == null)
-            dateWhen = new DateTime();
-        else
-            dateWhen = new DateTime(inputBean.getWhen().getTime());
-
         ISystemUser su = sysUserService.findByName(userName);
+
         if (su == null)
             throw new SecurityException("Not authorised");
 
@@ -107,10 +102,8 @@ public class AuditService {
         // Create fortressUser if missing
         IFortressUser fu = fortressService.getFortressUser(iFortress, inputBean.getFortressUser(), true);
 
-
         ah = new AuditHeader(fu, inputBean);
 
-        // ToDo: not AuditHeader, rather the bean
         ah = auditDAO.save(ah);
         if (log.isDebugEnabled())
             log.debug("Audit Header created:" + ah.getId() + " key=[" + ah.getUID() + "]");
@@ -156,7 +149,7 @@ public class AuditService {
     }
 
     @Transactional
-    public LogStatus createLog(AuditInputBean input) {
+    public LogStatus createLog(AuditLogInputBean input) {
         return createLog(input.getAuditKey(), input.getFortressUser(), new DateTime(input.getWhen()), input.getWhat(), input.getEventType());
     }
 

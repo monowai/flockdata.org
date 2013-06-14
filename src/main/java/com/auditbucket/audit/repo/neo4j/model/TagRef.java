@@ -54,4 +54,27 @@ public class TagRef implements ITagRef {
     public Set<IAuditHeader> getHeaders() {
         return auditHeaders;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TagRef)) return false;
+
+        TagRef tagRef = (TagRef) o;
+
+        if (company != null ? !company.getId().equals(tagRef.company.getId()) : tagRef.company != null) return false;
+        if (id != null ? !id.equals(tagRef.id) : tagRef.id != null) return false;
+        if (name != null ? !name.equals(tagRef.name) : tagRef.name != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (company != null ? company.hashCode() : 0);
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        return result;
+    }
+
 }

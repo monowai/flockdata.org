@@ -5,7 +5,7 @@ package com.auditbucket.audit.bean;
  * Date: 8/05/13
  * Time: 7:41 PM
  */
-public class AuditInputBean {
+public class AuditLogInputBean {
     //'{"eventType":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10","what":"{name: 22}"}'
     String auditKey;
     String eventType;
@@ -15,10 +15,10 @@ public class AuditInputBean {
     String yourRef;
     private String comment;
 
-    public AuditInputBean() {
+    public AuditLogInputBean() {
     }
 
-    public AuditInputBean(String auditKey, String fortressUser, String when, String what) {
+    public AuditLogInputBean(String auditKey, String fortressUser, String when, String what) {
         this.auditKey = auditKey;
         this.fortressUser = fortressUser;
         this.when = when;
@@ -81,4 +81,6 @@ public class AuditInputBean {
     public void setYourRef(String yourRef) {
         this.yourRef = yourRef;
     }
+
+
 }
