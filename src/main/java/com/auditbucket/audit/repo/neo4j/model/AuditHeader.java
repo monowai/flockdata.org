@@ -47,7 +47,7 @@ public class AuditHeader implements IAuditHeader {
     private Set<IAuditLog> auditLogs = null;
 
     @RelatedTo(elementClass = TagRef.class, type = "companyTags")
-    private Set<ITagRef> tags = null;
+    private Set<ITagRef> txTags = null;
 
     @RelatedTo(elementClass = TagRef.class, type = "systemTags")
     private Set<ITagRef> sysTags = null;
@@ -89,37 +89,10 @@ public class AuditHeader implements IAuditHeader {
         this.fortress = (Fortress) createdBy.getFortress();
         this.dataType = (eventType != null ? eventType.toLowerCase() : "");
         this.name = (clientRef == null ? null : (eventType + "." + clientRef).toLowerCase());
-        addSysTag(auditInput.getTxRef());
-        String tags[] = auditInput.getTags();
-        for (String tag : tags) {
-            addTag(tag);
-        }
+
 
     }
 
-    private void addTag(String tagName) {
-        if (tagName == null)
-            return;
-        if (tags == null)
-            tags = new HashSet<ITagRef>();
-
-        ITagRef tag = new TagRef(tagName, fortress.getCompany());
-        if (!tags.contains(tag))
-            tags.add(tag);
-
-    }
-
-    private void addSysTag(String tagName) {
-        if (tagName == null)
-            return;
-        if (sysTags == null)
-            sysTags = new HashSet<ITagRef>();
-
-        ITagRef tag = new TagRef(tagName, fortress.getCompany());
-        if (!sysTags.contains(tag))
-            sysTags.add(tag);
-
-    }
 
     @JsonIgnore
     public Long getId() {
@@ -218,11 +191,16 @@ public class AuditHeader implements IAuditHeader {
         this.searchKey = parentKey;
     }
 
-    public Set<ITagRef> getTags() {
-        return tags;
+    @Override
+    public void addTxTag(ITagRef tag) {
+        if (tag == null)
+            return;
+        getTxTags().add(tag);
     }
 
-    public Set<ITagRef> getSysTags() {
-        return sysTags;
+    public Set<ITagRef> getTxTags() {
+        if (txTags == null)
+            txTags = new HashSet<ITagRef>();
+        return txTags;
     }
 }

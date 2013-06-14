@@ -2,7 +2,6 @@ package com.auditbucket.test.unit;
 
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.model.IAuditHeader;
-import com.auditbucket.audit.model.ITagRef;
 import com.auditbucket.audit.service.AuditService;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.IFortress;
@@ -67,24 +66,27 @@ public class TestTags {
     Authentication authA = new UsernamePasswordAuthenticationToken(uid, "user1");
 
     @Test
+    public void testTxTags() {
+        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        String txTag = auditService.beginTransaction();
+        assertNotNull(txTag);
+
+    }
+
+    @Test
     public void testTags() {
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         IFortress fortressA = fortressService.registerFortress("auditTest");
         String tagRef = "MyTXTag";
         AuditHeaderInputBean aBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new Date(), "ABC123", tagRef);
         String tags[] = new String[2];
-        tags[0] = "Blah";
-        tags[1] = "AnyTag";
 
         aBean.setTags(tags);
-        String key = auditService.createHeader(aBean);
+        String key = auditService.createHeader(aBean).getUID();
         assertNotNull(key);
         IAuditHeader header = auditService.getHeader(key, true);
         assertNotNull(header);
-        assertEquals(1, header.getSysTags().size());
-        ITagRef sysTag = header.getSysTags().iterator().next();
-        assertEquals(tagRef, sysTag.getName());
-        assertEquals(2, header.getTags().size());
+        assertEquals(1, header.getTxTags().size());
 
 
     }

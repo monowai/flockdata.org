@@ -54,9 +54,9 @@ public interface IAuditHeader {
 
     Set<IAuditLog> getAuditLogs();
 
-    Set<ITagRef> getTags();
-
     void setSearchKey(String parentKey);
 
-    Set<ITagRef> getSysTags();
+    void addTxTag(ITagRef tag);
+
+    Set<ITagRef> getTxTags();
 }

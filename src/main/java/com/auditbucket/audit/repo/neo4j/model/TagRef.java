@@ -4,6 +4,7 @@ import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.ITagRef;
 import com.auditbucket.registration.model.ICompany;
 import com.auditbucket.registration.repo.neo4j.model.Company;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.validator.constraints.NotBlank;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.*;
@@ -23,10 +24,10 @@ public class TagRef implements ITagRef {
     private Long id;
 
     @Fetch
-    @RelatedTo(elementClass = Company.class, type = "validTag", direction = Direction.INCOMING)
+    @RelatedTo(elementClass = Company.class, type = "txTag", direction = Direction.INCOMING)
     private Company company;
 
-    @RelatedTo(elementClass = AuditHeader.class, type = "tags")
+    @RelatedTo(elementClass = AuditHeader.class, type = "txIncludes")
     private Set<IAuditHeader> auditHeaders;
 
     @Indexed(numeric = false, indexName = "tagName")
@@ -46,6 +47,7 @@ public class TagRef implements ITagRef {
     }
 
     @Override
+    @JsonIgnore
     public ICompany getCompany() {
         return company;
     }

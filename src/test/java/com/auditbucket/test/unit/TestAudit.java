@@ -79,9 +79,11 @@ public class TestAudit {
     public void testClientRef() {
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         IFortress fortressA = fortressService.registerFortress("auditTest");
-        String key = auditService.createHeader(new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new Date(), "ABC123"));
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new Date(), "ABC123");
+        String key = auditService.createHeader(inputBean).getUID();
         // Check we can't create the same header twice for a given client ref
-        String keyB = auditService.createHeader(new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new Date(), "ABC123"));
+        inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new Date(), "ABC123");
+        String keyB = auditService.createHeader(inputBean).getUID();
         assertEquals(key, keyB);
 
         Authentication authB = new UsernamePasswordAuthenticationToken("swagger", "user2");
@@ -112,7 +114,8 @@ public class TestAudit {
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         IFortress fo = fortressService.registerFortress("auditTest");
 
-        String ahKey = auditService.createHeader(new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", new Date(), "ABC123"));
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", new Date(), "ABC123");
+        String ahKey = auditService.createHeader(inputBean).getUID();
 
         assertNotNull(ahKey);
         log.info(ahKey);
@@ -128,7 +131,7 @@ public class TestAudit {
         log.info("Start-");
         watch.start();
         while (i < max) {
-            auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime().toString(), "{blah:" + i + "}"));
+            auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{blah:" + i + "}"));
             i++;
         }
         watch.stop();
@@ -148,7 +151,8 @@ public class TestAudit {
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         IFortress fo = fortressService.registerFortress("auditTest");
 
-        String ahKey = auditService.createHeader(new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "9999"));
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "9999");
+        String ahKey = auditService.createHeader(inputBean).getUID();
 
         assertNotNull(ahKey);
         log.info(ahKey);
@@ -164,7 +168,7 @@ public class TestAudit {
         watch.start();
         while (i < max) {
             // Same "what" text so should only be one auditLogCount record
-            auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime().toString(), "{blah: 0}"));
+            auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{blah: 0}"));
             i++;
         }
         watch.stop();
@@ -184,7 +188,8 @@ public class TestAudit {
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         IFortress fo = fortressService.registerFortress("auditTest");
 
-        String ahKey = auditService.createHeader(new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "YYY"));
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "YYY");
+        String ahKey = auditService.createHeader(inputBean).getUID();
 
         assertNotNull(ahKey);
         log.info(ahKey);
@@ -193,12 +198,12 @@ public class TestAudit {
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));
 
-        auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime().toString(), "{blah: 0}"));
+        auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{blah: 0}"));
         IAuditLog log = auditService.getLastChange(ahKey);
         assertNotNull(log);
         assertEquals(IAuditLog.CREATE, log.getEvent()); // log event default
 
-        auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime().toString(), "{blah: 1}"));
+        auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{blah: 1}"));
         IAuditLog change = auditService.getLastChange(ahKey);
         assertNotNull(change);
         assertFalse(change.equals(log));
@@ -210,17 +215,18 @@ public class TestAudit {
 
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         IFortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
-
-        String ahKey = auditService.createHeader(new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "YYY"));
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "YYY");
+        auditService.createHeader(inputBean);
+        String ahKey = inputBean.getUID();
 
         assertNotNull(ahKey);
         log.info(ahKey);
 
         assertNotNull(auditService.getHeader(ahKey));
 
-        auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime().toString(), "{blah: 0}"));
+        auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{blah: 0}"));
         auditService.getLastChange(ahKey);
-        auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime().toString(), "{blah: 1}"));
+        auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{blah: 1}"));
         // ToDo: How to count the ElasticSearch audit hits. Currently this code is just for exercising the code.
     }
 

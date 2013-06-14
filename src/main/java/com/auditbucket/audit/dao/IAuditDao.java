@@ -1,12 +1,12 @@
 package com.auditbucket.audit.dao;
 
+import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.audit.model.ITagRef;
 import com.auditbucket.registration.model.ICompany;
 import org.springframework.stereotype.Repository;
 
-import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Set;
 
@@ -17,13 +17,13 @@ import java.util.Set;
  */
 @Repository
 public interface IAuditDao {
-    public IAuditHeader save(IAuditHeader auditHeader);
+    public IAuditHeader save(IAuditHeader auditHeader, AuditHeaderInputBean inputBean);
+
+    public IAuditHeader save(IAuditHeader auditHeader, String txTag);
 
     public IAuditLog save(IAuditLog auditLog);
 
     public ITagRef save(ITagRef tagRef);
-
-    public Set<IAuditLog> findByTag(@NotNull String txName, @NotNull ICompany company);
 
     /**
      * @param key GUID
@@ -59,4 +59,12 @@ public interface IAuditDao {
     public void removeLastChange(IAuditHeader header);
 
     IAuditHeader fetch(IAuditHeader header);
+
+    Set<IAuditHeader> findByUserTag(String userTag, ICompany company);
+
+    ITagRef findTxTag(String txTag, ICompany company);
+
+    IAuditHeader save(IAuditHeader auditHeader);
+
+    ITagRef beginTransaction(String id, ICompany company);
 }

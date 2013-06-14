@@ -15,6 +15,8 @@ public class AuditHeaderInputBean {
     private String txRef;
     private Date when;
     private String[] tags;
+    private String uid;
+    private String lastMessage;
 
     AuditHeaderInputBean() {
     }
@@ -88,5 +90,17 @@ public class AuditHeaderInputBean {
 
     public String[] getTags() {
         return this.tags;
+    }
+
+    public void setUID(String UID) {
+        this.uid = UID;
+    }
+
+    public String getUID() {
+        return this.uid;
+    }
+
+    public void setLastMessage(String lastMessage) {
+        this.lastMessage = lastMessage;
     }
 }

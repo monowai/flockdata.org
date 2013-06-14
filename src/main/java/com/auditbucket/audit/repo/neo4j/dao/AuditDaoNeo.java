@@ -1,5 +1,6 @@
 package com.auditbucket.audit.repo.neo4j.dao;
 
+import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.dao.IAuditDao;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
@@ -36,10 +37,17 @@ public class AuditDaoNeo implements IAuditDao {
 
 
     @Override
-    public IAuditHeader save(IAuditHeader auditHeader) {
+    public IAuditHeader save(IAuditHeader auditHeader, AuditHeaderInputBean inputBean) {
         auditHeader.bumpUpdate();
         return auditRepo.save((AuditHeader) auditHeader);
     }
+
+    @Override
+    public IAuditHeader save(IAuditHeader auditHeader, String txTag) {
+        auditHeader.bumpUpdate();
+        return auditRepo.save((AuditHeader) auditHeader);
+    }
+
 
     @Override
     public IAuditLog save(IAuditLog auditLog) {
@@ -50,10 +58,6 @@ public class AuditDaoNeo implements IAuditDao {
         return template.save((TagRef) tagRef);
     }
 
-    @Override
-    public Set<IAuditLog> findByTag(@NotNull String tagName, @NotNull ICompany company) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
 
     public IAuditHeader findHeader(String key) {
         return findHeader(key, false);
@@ -64,8 +68,7 @@ public class AuditDaoNeo implements IAuditDao {
         IAuditHeader header = auditRepo.findByPropertyValue(AuditHeader.UUID_KEY, key);
         if (inflate) {
             template.fetch(header);
-            template.fetch(header.getTags());
-            template.fetch(header.getSysTags());
+            template.fetch(header.getTxTags());
         }
         return header;
     }
@@ -89,6 +92,32 @@ public class AuditDaoNeo implements IAuditDao {
     public IAuditHeader fetch(IAuditHeader header) {
         template.fetch(header);
         return header;
+    }
+
+    @Override
+    public Set<IAuditHeader> findByUserTag(String userTag, ICompany company) {
+        return auditRepo.findByUserTag(userTag, company.getId());
+    }
+
+    @Override
+    public ITagRef findTxTag(String userTag, ICompany company) {
+        return auditRepo.findTxTag(userTag, company.getId());
+    }
+
+    @Override
+    public IAuditHeader save(IAuditHeader auditHeader) {
+        return save(auditHeader, (String) null);
+    }
+
+    @Override
+    public ITagRef beginTransaction(String id, ICompany company) {
+
+        ITagRef tag = findTxTag(id, company);
+        if (tag == null) {
+            tag = new TagRef(id, company);
+            template.save(tag);
+        }
+        return tag;
     }
 
     @Override

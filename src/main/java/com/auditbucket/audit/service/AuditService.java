@@ -8,6 +8,7 @@ import com.auditbucket.audit.dao.IAuditQueryDao;
 import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
+import com.auditbucket.audit.model.ITagRef;
 import com.auditbucket.audit.repo.es.model.AuditChange;
 import com.auditbucket.audit.repo.neo4j.model.AuditHeader;
 import com.auditbucket.audit.repo.neo4j.model.AuditLog;
@@ -31,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Created with IntelliJ IDEA.
@@ -66,6 +68,24 @@ public class AuditService {
 
     private ObjectMapper om = new ObjectMapper();
 
+    @Transactional
+    public String beginTransaction() {
+        return beginTransaction(UUID.randomUUID().toString()).getName();
+    }
+
+    @Transactional
+    private ITagRef beginTransaction(String id) {
+        String userName = securityHelper.getLoggedInUser();
+        ISystemUser su = sysUserService.findByName(userName);
+
+        if (su == null)
+            throw new SecurityException("Not authorised");
+
+        ICompany company = su.getCompany();
+        return auditDAO.beginTransaction(id, company);
+
+    }
+
     /**
      * Creates a fortress specific header for the caller. FortressUser is automatically
      * created if it does not exist.
@@ -73,7 +93,7 @@ public class AuditService {
      * @return unique primary key to be used for subsequent log calls
      */
     @Transactional
-    public String createHeader(AuditHeaderInputBean inputBean) {
+    public AuditHeaderInputBean createHeader(AuditHeaderInputBean inputBean) {
         String userName = securityHelper.getLoggedInUser();
         ISystemUser su = sysUserService.findByName(userName);
 
@@ -96,19 +116,27 @@ public class AuditService {
         if (ah != null) {
             if (log.isDebugEnabled())
                 log.debug("Existing header record found by Caller Ref [" + inputBean.getCallerRef() + "] found [" + ah.getUID() + "]");
-            return ah.getUID();
+            inputBean.setUID(ah.getUID());
+            return inputBean;
         }
 
         // Create fortressUser if missing
         IFortressUser fu = fortressService.getFortressUser(iFortress, inputBean.getFortressUser(), true);
+        ITagRef txTag = null;
+        if (inputBean.getTxRef() != null)
+            txTag = beginTransaction(inputBean.getTxRef());
 
         ah = new AuditHeader(fu, inputBean);
+        ah.addTxTag(txTag);
+        ah = auditDAO.save(ah, inputBean);
 
-        ah = auditDAO.save(ah);
+        if (txTag != null)
+            inputBean.setTxRef(txTag.getName());
+
         if (log.isDebugEnabled())
             log.debug("Audit Header created:" + ah.getId() + " key=[" + ah.getUID() + "]");
-
-        return ah.getUID();
+        inputBean.setUID(ah.getUID());
+        return inputBean;
 
     }
 
@@ -150,26 +178,11 @@ public class AuditService {
 
     @Transactional
     public LogStatus createLog(AuditLogInputBean input) {
-        return createLog(input.getAuditKey(), input.getFortressUser(), new DateTime(input.getWhen()), input.getWhat(), input.getEventType());
-    }
-
-    public enum LogStatus {
-        IGNORE, OK, FORBIDDEN, NOT_FOUND
-    }
-
-
-    @Transactional
-    public LogStatus createLog(String auditKey, String fortressUser, DateTime dateWhen, String what, String eventType) {
-        IAuditHeader ah = getHeader(auditKey);
-        if (ah == null)
+        IAuditHeader header = getHeader(input.getAuditKey());
+        if (header == null)
             return LogStatus.NOT_FOUND;
-        return createLog(ah, fortressUser, dateWhen, what, eventType);
 
-    }
-
-    @Transactional
-    public LogStatus createLog(@NotNull IAuditHeader header, @NotNull String fortressUser, DateTime dateWhen, String what, String event) {
-        if (what == null || what.isEmpty())
+        if (input.getWhat() == null || input.getWhat().isEmpty())
             return LogStatus.IGNORE;
 
         String user = securityHelper.getUserName(false, false);
@@ -178,14 +191,21 @@ public class AuditService {
 
         boolean setHeader = false;
         IFortress fortress = header.getFortress();
-        IFortressUser fUser = fortressService.getFortressUser(fortress, fortressUser.toLowerCase(), true);
+        IFortressUser fUser = fortressService.getFortressUser(fortress, input.getFortressUser().toLowerCase(), true);
         header = auditDAO.fetch(header);
         // Spin the following off in to a separate thread?
         String childKey = null, parentKey = null;
         IAuditLog lastChange = auditDAO.getLastChange(header.getId());
+        String event = input.getEventType();
+        DateTime dateWhen;
+        if (input.getWhen() == null)
+            dateWhen = new DateTime();
+        else
+            dateWhen = new DateTime(input.getWhen());
+
         if (lastChange != null) {
             // Find the change data
-            if (lastChange.getWhat().equals(what)) {
+            if (lastChange.getWhat().equals(input.getWhat())) {
                 if (log.isDebugEnabled())
                     log.debug("Ignoring a change we already have");
                 return LogStatus.IGNORE;
@@ -200,19 +220,19 @@ public class AuditService {
             }
 
             if (fortress.isAccumulatingChanges()) {
-                IAuditChange change = createSearchableChange(header, dateWhen, what, event);
+                IAuditChange change = createSearchableChange(header, dateWhen, input.getWhat(), event);
                 if (change != null)
                     childKey = change.getChild();
             } else {
                 // Update instead of Create
                 childKey = lastChange.getKey(); // Key does not change in this mode
-                updateSearchableChange(header, childKey, dateWhen, what);
+                updateSearchableChange(header, childKey, dateWhen, input.getWhat());
             }
         } else { // Creating a new log
             if (event == null)
                 event = IAuditLog.CREATE;
             setHeader = true;
-            IAuditChange change = createSearchableChange(header, dateWhen, what, event);
+            IAuditChange change = createSearchableChange(header, dateWhen, input.getWhat(), event);
             if (change != null) {
                 childKey = change.getChild();
                 parentKey = change.getParent();
@@ -223,14 +243,38 @@ public class AuditService {
             header.setLastUser(fUser);
             if (parentKey != null)
                 header.setSearchKey(parentKey);
-            header = auditDAO.save(header);
+            header = auditDAO.save(header, input.getTxRef());
         }
 
-        AuditLog al = new AuditLog(header, fUser, dateWhen, event, what);
+        AuditLog al = new AuditLog(header, fUser, dateWhen, event, input.getWhat());
+        if (input.getTxRef() != null)
+            al.setTxRef(input.getTxRef());
         al.setKey(childKey);
         auditDAO.save(al);
         return LogStatus.OK;
+
     }
+
+    /**
+     * locates IAuditHeaders by a user defined tag
+     *
+     * @param userTag user specific company tag
+     */
+    public Set<IAuditHeader> findByTag(String userTag) {
+        String userName = securityHelper.getLoggedInUser();
+
+        ISystemUser su = sysUserService.findByName(userName);
+        if (su == null)
+            throw new SecurityException("Not authorised");
+
+        return auditDAO.findByUserTag(userTag, su.getCompany());
+
+    }
+
+    public enum LogStatus {
+        IGNORE, OK, FORBIDDEN, NOT_FOUND
+    }
+
 
     private void updateSearchableChange(IAuditHeader header, String existingKey, DateTime dateWhen, String what) {
         if (header.getFortress().isIgnoreSearchEngine())
@@ -327,7 +371,7 @@ public class AuditService {
     private IAuditHeader getValidHeader(String headerKey) {
         IAuditHeader header = auditDAO.findHeader(headerKey);
         if (header == null) {
-            throw new IllegalArgumentException("No audit header fro [" + headerKey + "]");
+            throw new IllegalArgumentException("No audit header for [" + headerKey + "]");
         }
         String userName = securityHelper.getLoggedInUser();
         ISystemUser sysUser = sysUserService.findByName(userName);

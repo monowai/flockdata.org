@@ -1,5 +1,7 @@
 package com.auditbucket.audit.bean;
 
+import org.joda.time.DateTime;
+
 /**
  * User: mike
  * Date: 8/05/13
@@ -10,6 +12,7 @@ public class AuditLogInputBean {
     String auditKey;
     String eventType;
     String fortressUser;
+    private String txRef;
     String when;
     String what;
     String yourRef;
@@ -18,12 +21,16 @@ public class AuditLogInputBean {
     public AuditLogInputBean() {
     }
 
-    public AuditLogInputBean(String auditKey, String fortressUser, String when, String what) {
+    public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String what) {
         this.auditKey = auditKey;
         this.fortressUser = fortressUser;
-        this.when = when;
+        this.when = when.toString();
         this.what = what;
+    }
 
+    public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String what, String event) {
+        this(auditKey, fortressUser, when, what);
+        this.eventType = event;
     }
 
     public String getAuditKey() {
@@ -83,4 +90,11 @@ public class AuditLogInputBean {
     }
 
 
+    public String getTxRef() {
+        return txRef;
+    }
+
+    public void setTxRef(String txRef) {
+        this.txRef = txRef;
+    }
 }

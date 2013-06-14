@@ -46,18 +46,21 @@ public class AuditEP {
         return "Ping";
     }
 
-    @RequestMapping(value = "/header/new", consumes = "application/json", method = RequestMethod.PUT)
+    @RequestMapping(value = "/header/new", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @ResponseBody
-    public ResponseEntity<String> createHeader(@RequestBody AuditHeaderInputBean input) throws Exception {
+    public ResponseEntity<AuditHeaderInputBean> createHeader(@RequestBody AuditHeaderInputBean input) throws Exception {
         // curl -u mike:123 -X PUT http://localhost:8080/ab/audit/header/new/ -d '"fortress":"MyFortressName", "fortressUser": "yoursystemuser", "recordType":"Company","when":"2012-11-10"}'
         try {
-            String result = auditService.createHeader(input);
-            return new ResponseEntity<String>(result, HttpStatus.OK);
+            input = auditService.createHeader(input);
+            input.setLastMessage("OK");
+            return new ResponseEntity<AuditHeaderInputBean>(input, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            input.setLastMessage(e.getMessage());
+            return new ResponseEntity<AuditHeaderInputBean>(input, HttpStatus.BAD_REQUEST);
         } catch (SecurityException e) {
-            return new ResponseEntity<String>(e.getMessage(), HttpStatus.FORBIDDEN);
+            input.setLastMessage(e.getMessage());
+            return new ResponseEntity<AuditHeaderInputBean>(input, HttpStatus.FORBIDDEN);
         }
     }
 

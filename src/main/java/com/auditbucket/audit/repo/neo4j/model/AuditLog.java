@@ -118,4 +118,7 @@ public class AuditLog implements IAuditLog {
         return what;
     }
 
+    public void setTxRef(String txRef) {
+        this.txRef = txRef;
+    }
 }
