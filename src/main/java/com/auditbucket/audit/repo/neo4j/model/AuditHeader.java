@@ -35,7 +35,7 @@ public class AuditHeader implements IAuditHeader {
     @Fetch
     private FortressUser createdBy;
 
-    @RelatedTo(elementClass = FortressUser.class, type = "lastChangedBy", direction = Direction.OUTGOING)
+    @RelatedTo(elementClass = FortressUser.class, type = "lastChanged", direction = Direction.OUTGOING)
     @Fetch
     private FortressUser lastWho;
 
@@ -46,7 +46,7 @@ public class AuditHeader implements IAuditHeader {
     @RelatedToVia(elementClass = AuditLog.class, type = "changed", direction = Direction.INCOMING)
     private Set<IAuditLog> auditLogs = null;
 
-    @RelatedTo(elementClass = TagRef.class, type = "txIncludes")
+    @RelatedTo(elementClass = TagRef.class, type = "txIncludes", direction = Direction.INCOMING)
     private Set<ITagRef> txTags = null;
 
     public static final String UUID_KEY = "auditKey";
@@ -168,7 +168,6 @@ public class AuditHeader implements IAuditHeader {
                 "id=" + id +
                 ", auditKey='" + auditKey + '\'' +
                 ", name='" + name + '\'' +
-                // ", changes= " +auditLogs.size()+ '\'' +
                 '}';
     }
 

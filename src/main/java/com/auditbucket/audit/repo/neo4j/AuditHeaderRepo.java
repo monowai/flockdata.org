@@ -33,5 +33,10 @@ public interface AuditHeaderRepo extends GraphRepository<AuditHeader> {
             "return txTag")
     TagRef findTxTag(String userTag, Long company);
 
+    String findByTagRef = "start tag =node:tagName(name={0))" +
+            "match tag-[:txIncludes]->audit<-[al:changed]-fortressUser" +
+            "where al.txRef = tag.name" +
+            "return tag, audit.name, al.what";
+
 
 }

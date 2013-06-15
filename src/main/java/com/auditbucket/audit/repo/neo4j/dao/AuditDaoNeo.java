@@ -35,7 +35,6 @@ public class AuditDaoNeo implements IAuditDao {
     @Autowired
     Neo4jTemplate template;
 
-
     @Override
     public IAuditHeader save(IAuditHeader auditHeader, AuditHeaderInputBean inputBean) {
         auditHeader.bumpUpdate();
@@ -84,7 +83,7 @@ public class AuditDaoNeo implements IAuditDao {
     @Override
     public void removeLastChange(IAuditHeader header) {
         // Remove the lastChange relationship
-        template.deleteRelationshipBetween(header, header.getLastUser(), "lastChangedBy");
+        template.deleteRelationshipBetween(header, header.getLastUser(), "lastChanged");
     }
 
     @Override
