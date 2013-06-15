@@ -8,21 +8,26 @@ import java.util.Date;
  * Time: 9:19 AM
  */
 public class AuditHeaderInputBean {
+    private String auditKey;
+    private String txRef;
+    private String callerRef;
     private String fortress;
     private String fortressUser;
     private String recordType;
-    private String callerRef;
-    private String txRef;
     private Date when;
-    private String[] tags;
-    private String uid;
+    private Boolean isTransactional = false;
     private String lastMessage;
 
     AuditHeaderInputBean() {
     }
 
     public AuditHeaderInputBean(String fortress, String fortressUser, String recordType, Date when, String callerRef) {
-        this(fortress, fortressUser, recordType, when, callerRef, null);
+        this(fortress, fortressUser, recordType, when, callerRef, false);
+    }
+
+    public AuditHeaderInputBean(String fortress, String fortressUser, String recordType, Date when, String callerRef, Boolean transactional) {
+        this(fortress, fortressUser, recordType, when, callerRef, (String) null);
+        isTransactional = transactional;
     }
 
     public AuditHeaderInputBean(String fortress, String fortressUser, String recordType, Date when, String callerRef, String txRef) {
@@ -33,6 +38,14 @@ public class AuditHeaderInputBean {
         this.callerRef = callerRef;
         this.txRef = txRef;
 
+    }
+
+    public void setAuditKey(String auditKey) {
+        this.auditKey = auditKey;
+    }
+
+    public String getAuditKey() {
+        return this.auditKey;
     }
 
     public Date getWhen() {
@@ -84,23 +97,15 @@ public class AuditHeaderInputBean {
         this.txRef = txRef;
     }
 
-    public void setTags(String[] tags) {
-        this.tags = tags;
-    }
-
-    public String[] getTags() {
-        return this.tags;
-    }
-
-    public void setUID(String UID) {
-        this.uid = UID;
-    }
-
-    public String getUID() {
-        return this.uid;
-    }
-
     public void setLastMessage(String lastMessage) {
         this.lastMessage = lastMessage;
+    }
+
+    public boolean isTransactional() {
+        return isTransactional;
+    }
+
+    protected void setIsTransactional(Boolean transactional) {
+        this.isTransactional = transactional;
     }
 }

@@ -85,7 +85,7 @@ public class TestAuditIntegration {
         SecurityContextHolder.getContext().setAuthentication(authMike);
         IFortress fortWP = fortressService.registerFortress("wportfolio");
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "wally", "Company", new Date(), "AHWP");
-        String ahWP = auditService.createHeader(inputBean).getUID();
+        String ahWP = auditService.createHeader(inputBean).getAuditKey();
         assertNotNull(ahWP);
         log.info(ahWP);
         assertNotNull(auditService.getHeader(ahWP));
@@ -93,7 +93,7 @@ public class TestAuditIntegration {
         SecurityContextHolder.getContext().setAuthentication(authGina);
         IFortress fortHS = fortressService.registerFortress("honeysuckle");
         inputBean = new AuditHeaderInputBean(fortHS.getName(), "harry", "Company", new Date(), "AHHS");
-        String ahHS = auditService.createHeader(inputBean).getUID();
+        String ahHS = auditService.createHeader(inputBean).getAuditKey();
 
 
         assertNotNull(fortressService.getFortressUser(fortWP, "wally", true));
@@ -126,9 +126,9 @@ public class TestAuditIntegration {
 
         IFortress fortWP = fortressService.registerFortress("wportfolio");
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "wally", "Company", new Date(), "ZZZZ");
-        String ahWP = auditService.createHeader(inputBean).getUID();
+        String ahWP = auditService.createHeader(inputBean).getAuditKey();
         IAuditHeader auditKey = auditService.getHeader(ahWP);
-        auditService.createLog(new AuditLogInputBean(auditKey.getUID(), "olivia@sunnybell.com", new DateTime(), what + "\"}", "Update"));
+        auditService.createLog(new AuditLogInputBean(auditKey.getAuditKey(), "olivia@sunnybell.com", new DateTime(), what + "\"}", "Update"));
         auditKey = auditService.getHeader(ahWP);
         IFortressUser fu = fortressService.getUser(auditKey.getLastUser().getId());
         assertEquals("olivia@sunnybell.com", fu.getName());
@@ -151,29 +151,29 @@ public class TestAuditIntegration {
         DateTime workingDate = firstDate.toDateTime();
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "wally", "Company", firstDate.toDate(), "123");
-        String ahWP = auditService.createHeader(inputBean).getUID();
+        String ahWP = auditService.createHeader(inputBean).getAuditKey();
         IAuditHeader auditHeader = auditService.getHeader(ahWP);
         int i = 0;
         while (i < max) {
             workingDate = workingDate.plusDays(1);
-            assertEquals(AuditService.LogStatus.OK, auditService.createLog(new AuditLogInputBean(auditHeader.getUID(), "olivia@sunnybell.com", workingDate, what + i + "\"}", null)));
+            assertEquals(AuditService.LogStatus.OK, auditService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", workingDate, what + i + "\"}", null)));
 
-            log.info("Created " + i + " new count =" + auditService.getAuditLogCount(auditHeader.getUID()));
+            log.info("Created " + i + " new count =" + auditService.getAuditLogCount(auditHeader.getAuditKey()));
             i++;
         }
 
-        Set<IAuditLog> aLogs = auditService.getAuditLogs(auditHeader.getUID());
+        Set<IAuditLog> aLogs = auditService.getAuditLogs(auditHeader.getAuditKey());
         assertEquals(max, aLogs.size());
 
-        IAuditLog lastChange = auditService.getLastChange(auditHeader.getUID());
+        IAuditLog lastChange = auditService.getLastChange(auditHeader.getAuditKey());
         assertNotNull(lastChange);
         assertEquals(workingDate.toDate(), lastChange.getWhen());
         auditHeader = auditService.getHeader(ahWP);
-        assertEquals(max, auditService.getAuditLogCount(auditHeader.getUID()));
+        assertEquals(max, auditService.getAuditLogCount(auditHeader.getAuditKey()));
 
         DateTime then = workingDate.minusDays(4);
         log.info("Searching between " + then.toDate() + " and " + workingDate.toDate());
-        Set<IAuditLog> logs = auditService.getAuditLogs(auditHeader.getUID(), then.toDate(), workingDate.toDate());
+        Set<IAuditLog> logs = auditService.getAuditLogs(auditHeader.getAuditKey(), then.toDate(), workingDate.toDate());
         assertEquals(5, logs.size());
 
     }
@@ -187,19 +187,19 @@ public class TestAuditIntegration {
         DateTime dt = new DateTime().toDateTime();
         DateTime firstDate = dt.minusDays(2);
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "olivia@sunnybell.com", "Company", firstDate.toDate(), "ABC1");
-        String ahWP = auditService.createHeader(inputBean).getUID();
+        String ahWP = auditService.createHeader(inputBean).getAuditKey();
 
         IAuditHeader auditHeader = auditService.getHeader(ahWP);
-        auditService.createLog(new AuditLogInputBean(auditHeader.getUID(), "olivia@sunnybell.com", firstDate, what + 1 + "\"}", null));
-        auditService.createLog(new AuditLogInputBean(auditHeader.getUID(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}", null));
-        Set<IAuditLog> logs = auditService.getAuditLogs(auditHeader.getUID());
+        auditService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", firstDate, what + 1 + "\"}", null));
+        auditService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}", null));
+        Set<IAuditLog> logs = auditService.getAuditLogs(auditHeader.getAuditKey());
         assertEquals(2, logs.size());
         auditHeader = auditService.getHeader(ahWP);
         compareUser(auditHeader, "isabella@sunnybell.com");
-        auditHeader = auditService.cancelLastLog(auditHeader.getUID());
+        auditHeader = auditService.cancelLastLog(auditHeader.getAuditKey());
         assertNotNull(auditHeader);
         compareUser(auditHeader, "olivia@sunnybell.com");
-        auditHeader = auditService.cancelLastLog(auditHeader.getUID());
+        auditHeader = auditService.cancelLastLog(auditHeader.getAuditKey());
         assertNull(auditHeader);
     }
 

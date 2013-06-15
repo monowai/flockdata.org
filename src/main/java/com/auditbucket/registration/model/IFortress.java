@@ -15,7 +15,7 @@ public interface IFortress {
 
     public abstract void setCompany(ICompany ownedBy);
 
-    public UUID getUUID();
+    public UUID getFortressKey();
 
     /**
      * Are changes logged against this fortress accumulated or updated in the search engine

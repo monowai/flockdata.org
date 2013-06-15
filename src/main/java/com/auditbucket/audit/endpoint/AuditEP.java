@@ -78,6 +78,8 @@ public class AuditEP {
                 return new ResponseEntity<String>("Illegal Audit Key", HttpStatus.NOT_FOUND);
             else if (ls.equals(AuditService.LogStatus.IGNORE))
                 return new ResponseEntity<String>("Ignoring request to change as the 'what' has not changed", HttpStatus.NOT_MODIFIED);
+            else if (ls.equals(AuditService.LogStatus.ILLEGAL_ARGUMENT))
+                return new ResponseEntity<String>(input.getMessage(), HttpStatus.NO_CONTENT);
 
 
             return new ResponseEntity<String>("OK", HttpStatus.OK);

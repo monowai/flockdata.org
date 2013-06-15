@@ -1,7 +1,9 @@
 package com.auditbucket.test.unit;
 
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
+import com.auditbucket.audit.bean.AuditLogInputBean;
 import com.auditbucket.audit.model.IAuditHeader;
+import com.auditbucket.audit.model.ITagRef;
 import com.auditbucket.audit.service.AuditService;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.IFortress;
@@ -9,6 +11,7 @@ import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,8 +71,10 @@ public class TestTags {
     @Test
     public void testTxTags() {
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
-        String txTag = auditService.beginTransaction();
+        ITagRef txTag = auditService.beginTransaction();
         assertNotNull(txTag);
+        // commitTransaction (AuditHeader)
+        // getChanges (txTag)
 
     }
 
@@ -79,14 +84,16 @@ public class TestTags {
         IFortress fortressA = fortressService.registerFortress("auditTest");
         String tagRef = "MyTXTag";
         AuditHeaderInputBean aBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new Date(), "ABC123", tagRef);
-        String tags[] = new String[2];
 
-        aBean.setTags(tags);
-        String key = auditService.createHeader(aBean).getUID();
+        String key = auditService.createHeader(aBean).getAuditKey();
         assertNotNull(key);
         IAuditHeader header = auditService.getHeader(key, true);
         assertNotNull(header);
         assertEquals(1, header.getTxTags().size());
+        AuditLogInputBean alb = new AuditLogInputBean(key, "charlie", DateTime.now(), "some change");
+        alb.setTxRef(aBean.getTxRef());
+        auditService.createLog(alb);
+        //auditService.getAuditLogs(key, aBean.getTxRef());
 
 
     }

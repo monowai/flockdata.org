@@ -16,7 +16,7 @@ public interface IAuditHeader {
     /**
      * @return Global Unique ID
      */
-    public abstract String getUID();
+    public abstract String getAuditKey();
 
     /**
      * @return last fortress user to modify this record

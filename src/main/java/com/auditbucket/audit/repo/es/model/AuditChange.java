@@ -37,7 +37,7 @@ public class AuditChange implements IAuditChange {
      */
     public AuditChange(IAuditHeader header) {
         this();
-        setName(header.getUID());
+        setName(header.getAuditKey());
         this.recordType = header.getDataType();
         setFortress(header.getFortress());
         this.indexName = header.getIndexName();

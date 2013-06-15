@@ -17,6 +17,7 @@ public class AuditLogInputBean {
     String what;
     String yourRef;
     private String comment;
+    private String message;
 
     public AuditLogInputBean() {
     }
@@ -96,5 +97,14 @@ public class AuditLogInputBean {
 
     public void setTxRef(String txRef) {
         this.txRef = txRef;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+
+    }
+
+    public String getMessage() {
+        return message;
     }
 }

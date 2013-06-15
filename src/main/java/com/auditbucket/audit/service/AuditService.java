@@ -69,8 +69,8 @@ public class AuditService {
     private ObjectMapper om = new ObjectMapper();
 
     @Transactional
-    public String beginTransaction() {
-        return beginTransaction(UUID.randomUUID().toString()).getName();
+    public ITagRef beginTransaction() {
+        return beginTransaction(UUID.randomUUID().toString());
     }
 
     @Transactional
@@ -115,16 +115,21 @@ public class AuditService {
 
         if (ah != null) {
             if (log.isDebugEnabled())
-                log.debug("Existing header record found by Caller Ref [" + inputBean.getCallerRef() + "] found [" + ah.getUID() + "]");
-            inputBean.setUID(ah.getUID());
+                log.debug("Existing header record found by Caller Ref [" + inputBean.getCallerRef() + "] found [" + ah.getAuditKey() + "]");
+            inputBean.setAuditKey(ah.getAuditKey());
             return inputBean;
         }
 
         // Create fortressUser if missing
         IFortressUser fu = fortressService.getFortressUser(iFortress, inputBean.getFortressUser(), true);
         ITagRef txTag = null;
+        // Prefer the user supplied, though the transaction will have to belong to the callers company
         if (inputBean.getTxRef() != null)
+            // Joining an existing transaction
             txTag = beginTransaction(inputBean.getTxRef());
+        else if (inputBean.isTransactional())
+            // New transaction
+            txTag = beginTransaction();
 
         ah = new AuditHeader(fu, inputBean);
         ah.addTxTag(txTag);
@@ -134,8 +139,8 @@ public class AuditService {
             inputBean.setTxRef(txTag.getName());
 
         if (log.isDebugEnabled())
-            log.debug("Audit Header created:" + ah.getId() + " key=[" + ah.getUID() + "]");
-        inputBean.setUID(ah.getUID());
+            log.debug("Audit Header created:" + ah.getId() + " key=[" + ah.getAuditKey() + "]");
+        inputBean.setAuditKey(ah.getAuditKey());
         return inputBean;
 
     }
@@ -178,7 +183,7 @@ public class AuditService {
 
     @Transactional
     public LogStatus createLog(AuditLogInputBean input) {
-        IAuditHeader header = getHeader(input.getAuditKey());
+        IAuditHeader header = getHeader(input.getAuditKey(), true);
         if (header == null)
             return LogStatus.NOT_FOUND;
 
@@ -189,10 +194,15 @@ public class AuditService {
         if (user == null)
             return LogStatus.FORBIDDEN;
 
+        if (input.getFortressUser() == null) {
+            input.setMessage("Fortress User not supplied");
+            return LogStatus.ILLEGAL_ARGUMENT;
+        }
+
         boolean setHeader = false;
         IFortress fortress = header.getFortress();
+
         IFortressUser fUser = fortressService.getFortressUser(fortress, input.getFortressUser().toLowerCase(), true);
-        header = auditDAO.fetch(header);
         // Spin the following off in to a separate thread?
         String childKey = null, parentKey = null;
         IAuditLog lastChange = auditDAO.getLastChange(header.getId());
@@ -255,24 +265,14 @@ public class AuditService {
 
     }
 
-    /**
-     * locates IAuditHeaders by a user defined tag
-     *
-     * @param userTag user specific company tag
-     */
-    public Set<IAuditHeader> findByTag(String userTag) {
-        String userName = securityHelper.getLoggedInUser();
 
-        ISystemUser su = sysUserService.findByName(userName);
-        if (su == null)
-            throw new SecurityException("Not authorised");
-
-        return auditDAO.findByUserTag(userTag, su.getCompany());
+    public void getAuditLogs(String key, String txRef) {
+        IAuditHeader header = getValidHeader(key);
 
     }
 
     public enum LogStatus {
-        IGNORE, OK, FORBIDDEN, NOT_FOUND
+        IGNORE, OK, FORBIDDEN, NOT_FOUND, ILLEGAL_ARGUMENT
     }
 
 

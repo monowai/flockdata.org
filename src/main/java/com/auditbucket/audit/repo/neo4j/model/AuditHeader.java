@@ -46,16 +46,12 @@ public class AuditHeader implements IAuditHeader {
     @RelatedToVia(elementClass = AuditLog.class, type = "changed", direction = Direction.INCOMING)
     private Set<IAuditLog> auditLogs = null;
 
-    @RelatedTo(elementClass = TagRef.class, type = "companyTags")
+    @RelatedTo(elementClass = TagRef.class, type = "txIncludes")
     private Set<ITagRef> txTags = null;
 
-    @RelatedTo(elementClass = TagRef.class, type = "systemTags")
-    private Set<ITagRef> sysTags = null;
-
-
-    public static final String UUID_KEY = "uid";
+    public static final String UUID_KEY = "auditKey";
     @Indexed(indexName = UUID_KEY, unique = true)
-    private String uid;
+    private String auditKey;
 
     @Indexed(indexName = "clientRef")
     private String name;
@@ -68,7 +64,7 @@ public class AuditHeader implements IAuditHeader {
     String searchKey = null;
 
     AuditHeader() {
-        uid = UUID.randomUUID().toString();
+        auditKey = UUID.randomUUID().toString();
         DateTime now = new DateTime().toDateTime(DateTimeZone.UTC);
         this.dateCreated = now.toDate().getTime();
         this.lastUpdated = dateCreated;
@@ -100,8 +96,8 @@ public class AuditHeader implements IAuditHeader {
     }
 
     @Override
-    public String getUID() {
-        return uid;
+    public String getAuditKey() {
+        return auditKey;
     }
 
     @Override
@@ -170,7 +166,7 @@ public class AuditHeader implements IAuditHeader {
     public String toString() {
         return "AuditHeader{" +
                 "id=" + id +
-                ", uid='" + uid + '\'' +
+                ", auditKey='" + auditKey + '\'' +
                 ", name='" + name + '\'' +
                 // ", changes= " +auditLogs.size()+ '\'' +
                 '}';

@@ -67,8 +67,7 @@ public class AuditDaoNeo implements IAuditDao {
     public IAuditHeader findHeader(String key, boolean inflate) {
         IAuditHeader header = auditRepo.findByPropertyValue(AuditHeader.UUID_KEY, key);
         if (inflate) {
-            template.fetch(header);
-            template.fetch(header.getTxTags());
+            fetch(header);
         }
         return header;
     }
@@ -91,6 +90,9 @@ public class AuditDaoNeo implements IAuditDao {
     @Override
     public IAuditHeader fetch(IAuditHeader header) {
         template.fetch(header);
+        template.fetch(header.getTxTags());
+        template.fetch(header.getFortress());
+
         return header;
     }
 

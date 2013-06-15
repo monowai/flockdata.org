@@ -83,7 +83,7 @@ public class AuditChangeDaoES implements IAuditChangeDao {
             log.debug("Looking for [" + id + "] in " + indexName + "/" + recordType);
 
         GetResponse response = esClient.prepareGet(indexName, recordType, id)
-                .setRouting(header.getUID())
+                .setRouting(header.getAuditKey())
                 .execute()
                 .actionGet();
 
@@ -104,7 +104,7 @@ public class AuditChangeDaoES implements IAuditChangeDao {
             log.debug("Removing [" + indexKey + "] from " + indexName + "/" + recordType);
 
         esClient.prepareDelete(indexName, recordType, indexKey)
-                .setRouting(header.getUID())
+                .setRouting(header.getAuditKey())
                 .execute()
                 .actionGet();
 
@@ -116,7 +116,7 @@ public class AuditChangeDaoES implements IAuditChangeDao {
 
         IndexRequestBuilder update = esClient.
                 prepareIndex(header.getIndexName(), header.getDataType(), existingKey)
-                .setRouting(header.getUID())
+                .setRouting(header.getAuditKey())
                 .setOperationThreaded(false);
 
         IndexResponse ur = update.setSource(what).

@@ -167,7 +167,7 @@ public class TestElasticSearch {
         assertNotNull(parent);
         IAuditChange ac = om.readValue(parent, AuditChange.class);
         assertNotNull(ac);
-        assertEquals(auditHeader.getUID(), ac.getName());
+        assertEquals(auditHeader.getAuditKey(), ac.getName());
         // Occasionally findOne() fails for unknown reasons. I think it's down to the time between writing the "what"
         //              and reading it back, hence the Thread.sleep
         Thread.sleep(2000);

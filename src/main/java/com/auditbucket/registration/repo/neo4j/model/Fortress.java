@@ -11,6 +11,9 @@ import java.util.UUID;
 
 @NodeEntity
 public class Fortress implements IFortress {
+
+    private UUID fortressKey;
+
     @GraphId
     Long id;
 
@@ -22,8 +25,7 @@ public class Fortress implements IFortress {
     Company company;
 
     private Boolean accumulatingChanges = false;
-
-    private UUID uuID;
+    private Boolean ignoreSearchEngine = true;
 
     public Fortress() {
     }
@@ -33,14 +35,17 @@ public class Fortress implements IFortress {
         setIgnoreSearchEngine(fortressInputBean.getIgnoreSearchEngine());
         setAccumulatingChanges(fortressInputBean.getAccumulatingChanges());
         setCompany(ownedBy);
-        uuID = UUID.randomUUID();
+        fortressKey = UUID.randomUUID();
+    }
+
+    public UUID getFortressKey() {
+        return fortressKey;
     }
 
     @JsonIgnore
     public Long getId() {
         return id;
     }
-
 
     public String getName() {
         return name;
@@ -62,15 +67,9 @@ public class Fortress implements IFortress {
 
     }
 
-    public UUID getUUID() {
-        return uuID;
-    }
-
     public Boolean isAccumulatingChanges() {
         return accumulatingChanges;
     }
-
-    private Boolean ignoreSearchEngine;
 
     @Override
     public Boolean isIgnoreSearchEngine() {
@@ -78,7 +77,8 @@ public class Fortress implements IFortress {
     }
 
     public void setIgnoreSearchEngine(Boolean ignoreSearchEngine) {
-        this.ignoreSearchEngine = ignoreSearchEngine;
+        if (ignoreSearchEngine != null)
+            this.ignoreSearchEngine = ignoreSearchEngine;
     }
 
     public void setAccumulatingChanges(Boolean addChanges) {

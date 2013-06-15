@@ -80,10 +80,10 @@ public class TestAudit {
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         IFortress fortressA = fortressService.registerFortress("auditTest");
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new Date(), "ABC123");
-        String key = auditService.createHeader(inputBean).getUID();
+        String key = auditService.createHeader(inputBean).getAuditKey();
         // Check we can't create the same header twice for a given client ref
         inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new Date(), "ABC123");
-        String keyB = auditService.createHeader(inputBean).getUID();
+        String keyB = auditService.createHeader(inputBean).getAuditKey();
         assertEquals(key, keyB);
 
         Authentication authB = new UsernamePasswordAuthenticationToken("swagger", "user2");
@@ -115,7 +115,7 @@ public class TestAudit {
         IFortress fo = fortressService.registerFortress("auditTest");
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", new Date(), "ABC123");
-        String ahKey = auditService.createHeader(inputBean).getUID();
+        String ahKey = auditService.createHeader(inputBean).getAuditKey();
 
         assertNotNull(ahKey);
         log.info(ahKey);
@@ -152,7 +152,7 @@ public class TestAudit {
         IFortress fo = fortressService.registerFortress("auditTest");
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "9999");
-        String ahKey = auditService.createHeader(inputBean).getUID();
+        String ahKey = auditService.createHeader(inputBean).getAuditKey();
 
         assertNotNull(ahKey);
         log.info(ahKey);
@@ -189,7 +189,7 @@ public class TestAudit {
         IFortress fo = fortressService.registerFortress("auditTest");
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "YYY");
-        String ahKey = auditService.createHeader(inputBean).getUID();
+        String ahKey = auditService.createHeader(inputBean).getAuditKey();
 
         assertNotNull(ahKey);
         log.info(ahKey);
@@ -217,7 +217,7 @@ public class TestAudit {
         IFortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "YYY");
         auditService.createHeader(inputBean);
-        String ahKey = inputBean.getUID();
+        String ahKey = inputBean.getAuditKey();
 
         assertNotNull(ahKey);
         log.info(ahKey);
