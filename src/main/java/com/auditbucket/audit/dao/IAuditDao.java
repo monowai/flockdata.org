@@ -8,6 +8,7 @@ import com.auditbucket.registration.model.ICompany;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -60,11 +61,11 @@ public interface IAuditDao {
 
     IAuditHeader fetch(IAuditHeader header);
 
-    Set<IAuditHeader> findByUserTag(String userTag, ICompany company);
-
     ITagRef findTxTag(String txTag, ICompany company);
 
     IAuditHeader save(IAuditHeader auditHeader);
 
-    ITagRef beginTransaction(String id, ICompany company);
+    public ITagRef beginTransaction(String id, ICompany company);
+
+    public Map<String, Object> findByTransaction(ITagRef txRef);
 }

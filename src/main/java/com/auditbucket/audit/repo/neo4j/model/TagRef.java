@@ -58,6 +58,11 @@ public class TagRef implements ITagRef {
     }
 
     @Override
+    public Long getId() {
+        return id;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof TagRef)) return false;
@@ -79,4 +84,12 @@ public class TagRef implements ITagRef {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "TagRef{" +
+                "company=" + company +
+                ", name='" + name + '\'' +
+                ", id=" + id +
+                '}';
+    }
 }

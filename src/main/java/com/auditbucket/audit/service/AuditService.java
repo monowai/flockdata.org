@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -74,7 +75,7 @@ public class AuditService {
     }
 
     @Transactional
-    private ITagRef beginTransaction(String id) {
+    ITagRef beginTransaction(String id) {
         String userName = securityHelper.getLoggedInUser();
         ISystemUser su = sysUserService.findByName(userName);
 
@@ -84,6 +85,20 @@ public class AuditService {
         ICompany company = su.getCompany();
         return auditDAO.beginTransaction(id, company);
 
+    }
+
+    @Transactional
+    public Map<String, Object> findByTXRef(String txRef) {
+        String userName = securityHelper.getLoggedInUser();
+        ISystemUser su = sysUserService.findByName(userName);
+
+        if (su == null)
+            throw new SecurityException("Not authorised");
+        ITagRef tx = auditDAO.findTxTag(txRef, su.getCompany());
+        if (tx == null)
+            return null;
+
+        return auditDAO.findByTransaction(tx);
     }
 
     /**
@@ -264,7 +279,6 @@ public class AuditService {
         return LogStatus.OK;
 
     }
-
 
     public void getAuditLogs(String key, String txRef) {
         IAuditHeader header = getValidHeader(key);

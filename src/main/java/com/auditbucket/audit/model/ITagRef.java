@@ -15,4 +15,6 @@ public interface ITagRef {
     public ICompany getCompany();
 
     public Set<IAuditHeader> getHeaders();
+
+    Long getId();
 }

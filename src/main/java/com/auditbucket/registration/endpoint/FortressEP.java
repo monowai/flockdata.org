@@ -50,7 +50,7 @@ public class FortressEP {
         if (fortress == null)
             return new ResponseEntity<String>("", HttpStatus.INTERNAL_SERVER_ERROR);
         else
-            return new ResponseEntity<String>(fortress.getFortressKey().toString(), HttpStatus.CREATED);
+            return new ResponseEntity<String>(fortress.getFortressKey(), HttpStatus.CREATED);
 
     }
 

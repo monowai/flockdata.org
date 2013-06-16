@@ -23,6 +23,8 @@ public interface IAuditHeader {
      */
     public IFortressUser getLastUser();
 
+    public long getLastUpdated();
+
     public void setLastUser(IFortressUser user);
 
     /**

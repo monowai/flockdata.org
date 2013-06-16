@@ -27,16 +27,14 @@ public interface AuditHeaderRepo extends GraphRepository<AuditHeader> {
             "return ct")
     Set<IAuditHeader> findByUserTag(String userTag, Long id);
 
+    //ToDo: which is more efficient?
+    // start tag =node:tagName(name="6afe75a7-bf69-40c0-aeea-a2d74c0962de")
+
     @Query(value = "start company=node({1}) " +
             "   MATCH company-[:txTag]->txTag " +
             "   where txTag.name = {0} " +
             "return txTag")
     TagRef findTxTag(String userTag, Long company);
-
-    String findByTagRef = "start tag =node:tagName(name={0))" +
-            "match tag-[:txIncludes]->audit<-[al:changed]-fortressUser" +
-            "where al.txRef = tag.name" +
-            "return tag, audit.name, al.what";
 
 
 }

@@ -1,8 +1,6 @@
 package com.auditbucket.registration.model;
 
 
-import java.util.UUID;
-
 public interface IFortress {
 
     public abstract Long getId();
@@ -15,7 +13,7 @@ public interface IFortress {
 
     public abstract void setCompany(ICompany ownedBy);
 
-    public UUID getFortressKey();
+    public String getFortressKey();
 
     /**
      * Are changes logged against this fortress accumulated or updated in the search engine

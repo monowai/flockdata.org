@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -90,8 +91,25 @@ public class AuditEP {
         }
     }
 
+    @RequestMapping(value = "/tx/{txRef}", produces = "application/json", method = RequestMethod.GET)
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @ResponseBody
+    public ResponseEntity<Map> getAuditTx(@PathVariable("txRef") String txRef) throws Exception {
+        // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
+        Map<String, Object> result;
+        try {
+            result = auditService.findByTXRef(txRef);
+            return new ResponseEntity<Map>(result, HttpStatus.OK);
+
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<Map>((Map) null, HttpStatus.NOT_FOUND);
+        } catch (SecurityException e) {
+            return new ResponseEntity<Map>((Map) null, HttpStatus.FORBIDDEN);
+        }
+    }
 
     @RequestMapping(value = "/{auditKey}", method = RequestMethod.GET)
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @ResponseBody
     public ResponseEntity<IAuditHeader> getAudit(@PathVariable("auditKey") String auditKey) throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
@@ -134,6 +152,7 @@ public class AuditEP {
 
 
     @RequestMapping(value = "/{auditKey}/lastchange", method = RequestMethod.GET)
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @ResponseBody
     public ResponseEntity<IAuditLog> getLastChange(@PathVariable("auditKey") String auditKey) throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/c27ec2e5-2e17-4855-be18-bd8f82249157/logs

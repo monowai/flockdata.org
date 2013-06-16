@@ -37,7 +37,7 @@ public class GitHandler {
             repo.delete();
 
             if (repo != null)
-                System.out.print("Failed to remove repo" + fortress.getFortressKey().toString());
+                System.out.print("Failed to remove repo" + fortress.getFortressKey());
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
@@ -46,7 +46,7 @@ public class GitHandler {
     private GHRepository findRepo(IFortress fortress) throws IOException {
 
         try {
-            return github.getRepository("monowai/" + fortress.getFortressKey().toString());
+            return github.getRepository("monowai/" + fortress.getFortressKey());
         } catch (IOException e) {
             return createRepo(fortress);
         }
@@ -57,7 +57,7 @@ public class GitHandler {
         // Should only need to do this once, when registering a fortress
 
         repo = github.createRepository(
-                fortress.getFortressKey().toString(), "this is my new repository",
+                fortress.getFortressKey(), "this is my new repository",
                 "http://www.monowai.com/", true/*public*/);
 
         String user = "monowai";

@@ -120,6 +120,10 @@ public class AuditHeader implements IAuditHeader {
         return lastWho;
     }
 
+    public long getLastUpdated() {
+        return lastUpdated;
+    }
+
     @Override
     public void setLastUser(IFortressUser user) {
         lastWho = (FortressUser) user;

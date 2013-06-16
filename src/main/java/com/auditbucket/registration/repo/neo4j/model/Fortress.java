@@ -38,8 +38,8 @@ public class Fortress implements IFortress {
         fortressKey = UUID.randomUUID();
     }
 
-    public UUID getFortressKey() {
-        return fortressKey;
+    public String getFortressKey() {
+        return fortressKey.toString();
     }
 
     @JsonIgnore

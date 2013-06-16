@@ -1,6 +1,7 @@
 package com.auditbucket.audit.repo.neo4j.dao;
 
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
+import com.auditbucket.audit.bean.AuditTXResult;
 import com.auditbucket.audit.dao.IAuditDao;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
@@ -11,13 +12,14 @@ import com.auditbucket.audit.repo.neo4j.model.AuditHeader;
 import com.auditbucket.audit.repo.neo4j.model.AuditLog;
 import com.auditbucket.audit.repo.neo4j.model.TagRef;
 import com.auditbucket.registration.model.ICompany;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.Set;
+import java.util.*;
 
 /**
  * User: mike
@@ -96,11 +98,6 @@ public class AuditDaoNeo implements IAuditDao {
     }
 
     @Override
-    public Set<IAuditHeader> findByUserTag(String userTag, ICompany company) {
-        return auditRepo.findByUserTag(userTag, company.getId());
-    }
-
-    @Override
     public ITagRef findTxTag(String userTag, ICompany company) {
         return auditRepo.findTxTag(userTag, company.getId());
     }
@@ -151,4 +148,45 @@ public class AuditDaoNeo implements IAuditDao {
         auditRepo.delete((AuditHeader) auditHeader);
     }
 
+    ObjectMapper om = new ObjectMapper();
+
+    public Map<String, Object> findByTransaction(ITagRef txRef) {
+        //ExecutionEngine engine = new ExecutionEngine( template.getGraphDatabaseService());
+
+        String findByTagRef = "start tag =node({txRef}) " +
+                "              match tag-[:txIncludes]->audit<-[logs:changed]-fortressUser " +
+                "              where logs.txRef = tag.name " +
+                "             return audit, logs " +
+                "           order by logs.sysWhen";
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("txRef", txRef.getId());
+
+        Iterator<Map<String, Object>> rows;
+        Result<Map<String, Object>> exResult = template.query(findByTagRef, params);
+
+        rows = exResult.iterator();
+
+        List<AuditTXResult> simpleResult = new ArrayList<AuditTXResult>();
+        //simpleResult.add(rows);
+
+
+        int i = 1;
+        //Result<Map<String, Object>> results =
+        while (rows.hasNext()) {
+            Map<String, Object> row = rows.next();
+            IAuditHeader audit = template.convert(row.get("audit"), AuditHeader.class);
+            IAuditLog logs = template.convert(row.get("logs"), AuditLog.class);
+
+            AuditTXResult aresult = new AuditTXResult(audit, logs);
+            simpleResult.add(aresult);
+            //aResult[i] = new AuditTXResult(tag, audit, logs);
+            i++;
+
+        }
+        Map<String, Object> result = new HashMap<String, Object>(i);
+        result.put("txRef", txRef.getName());
+        result.put("logs", simpleResult);
+
+        return result;
+    }
 }
