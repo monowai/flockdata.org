@@ -2,7 +2,7 @@ package com.auditbucket.test.unit;
 
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.bean.AuditLogInputBean;
-import com.auditbucket.audit.bean.AuditTXResult;
+import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.ITagRef;
 import com.auditbucket.audit.service.AuditService;
@@ -28,8 +28,11 @@ import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.Map;
+import java.util.Set;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 
 /**
  * User: mike
@@ -96,10 +99,14 @@ public class TestTags {
         alb = new AuditLogInputBean(key, "harry", DateTime.now(), "some other");
         alb.setTxRef(aBean.getTxRef());
         auditService.createLog(alb);
-        AuditTXResult result[] = auditService.findByTXRef(alb.getTxRef());
+        Map<String, Object> result = auditService.findByTXRef(alb.getTxRef());
         assertNotNull(result);
-        assertNotSame("", result);
-        log.info(result);
+        assertEquals(tagRef, result.get("txRef"));
+        Object o = result.get("logs");
+        assertNotNull(o);
+        Set<IAuditChange> changes = (Set<IAuditChange>) o;
+        assertEquals(2, changes.size());
+
 
         //auditService.getAuditLogs(key, aBean.getTxRef());
 

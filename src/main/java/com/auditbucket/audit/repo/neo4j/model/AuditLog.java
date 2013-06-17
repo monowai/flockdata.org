@@ -22,7 +22,6 @@ public class AuditLog implements IAuditLog {
     @StartNode
     private FortressUser madeBy;
 
-    @Fetch
     @Indexed(indexName = "changeHeader")
     @EndNode
     private AuditHeader auditHeader;

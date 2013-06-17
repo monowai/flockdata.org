@@ -12,8 +12,8 @@ import com.auditbucket.audit.repo.neo4j.model.AuditHeader;
 import com.auditbucket.audit.repo.neo4j.model.AuditLog;
 import com.auditbucket.audit.repo.neo4j.model.TagRef;
 import com.auditbucket.registration.model.ICompany;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.conversion.EndResult;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
@@ -148,37 +148,71 @@ public class AuditDaoNeo implements IAuditDao {
         auditRepo.delete((AuditHeader) auditHeader);
     }
 
-    ObjectMapper om = new ObjectMapper();
+    public Map<String, Object> findByTransactionx(ITagRef txRef) {
+        //ExecutionEngine engine = new ExecutionEngine( template.getGraphDatabaseService());
+        if (txRef.getHeaders().size() == 0)
+            template.fetch(txRef);
+
+        //template.fetch(txRef.getHeaders());
+        if (txRef.getHeaders().size() == 0)
+            return null;
+        Collection<Long> keys = new ArrayList<Long>(10);
+        for (IAuditHeader iAuditHeader : txRef.getHeaders()) {
+            keys.add(iAuditHeader.getId());
+        }
+        EndResult<Map<String, Object>> logs = auditLogRepo.findLogs(keys, txRef.getName());
+        Iterator<Map<String, Object>> rows = logs.iterator();
+
+        List<AuditTXResult> simpleResult = new ArrayList<AuditTXResult>();
+        int i = 1;
+        //Result<Map<String, Object>> results =
+        while (rows.hasNext()) {
+            Map<String, Object> row = rows.next();
+            IAuditLog log = template.convert(row.get("log"), AuditLog.class);
+
+            AuditTXResult aresult = new AuditTXResult(log);
+            simpleResult.add(aresult);
+            i++;
+        }
+        Map<String, Object> result = new HashMap<String, Object>(i);
+        result.put("txRef", txRef.getName());
+        result.put("logs", simpleResult);
+
+        return result;
+    }
 
     public Map<String, Object> findByTransaction(ITagRef txRef) {
-        //ExecutionEngine engine = new ExecutionEngine( template.getGraphDatabaseService());
+        //Example showing how to use cypher and extract
 
         String findByTagRef = "start tag =node({txRef}) " +
                 "              match tag-[:txIncludes]->audit<-[logs:changed]-fortressUser " +
-                "              where logs.txRef = tag.name " +
-                "             return audit, logs " +
+                "              where logs.txRef! = tag.name " +
+                "             return logs " +
                 "           order by logs.sysWhen";
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("txRef", txRef.getId());
 
         Iterator<Map<String, Object>> rows;
         Result<Map<String, Object>> exResult = template.query(findByTagRef, params);
+        Map<Long, IAuditHeader> headers = new HashMap<Long, IAuditHeader>();
 
         rows = exResult.iterator();
 
         List<AuditTXResult> simpleResult = new ArrayList<AuditTXResult>();
-        //simpleResult.add(rows);
-
-
         int i = 1;
         //Result<Map<String, Object>> results =
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
-            IAuditHeader audit = template.convert(row.get("audit"), AuditHeader.class);
-            IAuditLog logs = template.convert(row.get("logs"), AuditLog.class);
+            IAuditLog log = template.convert(row.get("logs"), AuditLog.class);
 
-            AuditTXResult aresult = new AuditTXResult(audit, logs);
-            simpleResult.add(aresult);
+            IAuditHeader audit = headers.get(log.getHeader().getId());
+
+            if (audit == null) {
+                audit = template.findOne(log.getHeader().getId(), AuditHeader.class);
+                template.fetch(audit.getFortress());
+                headers.put(audit.getId(), audit);
+            }
+            simpleResult.add(new AuditTXResult(audit, log));
             //aResult[i] = new AuditTXResult(tag, audit, logs);
             i++;
 

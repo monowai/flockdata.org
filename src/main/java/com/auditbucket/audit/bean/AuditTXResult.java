@@ -22,7 +22,13 @@ public class AuditTXResult {
     public AuditTXResult() {
     }
 
+    public AuditTXResult(IAuditLog log) {
+        this(null, log);
+    }
+
     public AuditTXResult(IAuditHeader header, IAuditLog log) {
+        if (header == null)
+            header = log.getHeader();
         this.auditKey = header.getAuditKey();
         this.dataType = header.getDataType();
         this.fortressName = header.getFortress().getName();
