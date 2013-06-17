@@ -26,4 +26,5 @@ public interface IFortress {
 
     public void setAccumulatingChanges(Boolean accumulateChanges);
 
+    public void setIgnoreSearchEngine(Boolean ignoreSearchEngine);
 }

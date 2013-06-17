@@ -124,7 +124,10 @@ public class AuditDaoNeo implements IAuditDao {
     }
 
     public IAuditLog getLastChange(Long auditHeaderID) {
-        return auditLogRepo.getLastChange(auditHeaderID);
+        IAuditLog log = auditLogRepo.getLastChange(auditHeaderID);
+        if (log != null)
+            template.fetch(log.getWho());
+        return log;
     }
 
     public Set<IAuditLog> getAuditLogs(Long auditLogID, Date from, Date to) {
@@ -209,7 +212,7 @@ public class AuditDaoNeo implements IAuditDao {
 
             if (audit == null) {
                 audit = template.findOne(log.getHeader().getId(), AuditHeader.class);
-                template.fetch(audit.getFortress());
+                //template.fetch(audit.getFortress());
                 headers.put(audit.getId(), audit);
             }
             simpleResult.add(new AuditTXResult(audit, log));

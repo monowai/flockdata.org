@@ -38,6 +38,7 @@ public class AuditHeader implements IAuditHeader {
     private FortressUser lastWho;
 
     @RelatedTo(elementClass = Fortress.class, type = "audit", direction = Direction.INCOMING)
+    @Fetch
     private Fortress fortress;
 
     @RelatedToVia(elementClass = AuditLog.class, type = "changed", direction = Direction.INCOMING)

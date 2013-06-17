@@ -84,4 +84,5 @@ public class Fortress implements IFortress {
     public void setAccumulatingChanges(Boolean addChanges) {
         this.accumulatingChanges = addChanges;
     }
+
 }

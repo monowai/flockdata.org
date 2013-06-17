@@ -361,6 +361,7 @@ public class AuditService {
             return null;
 
         auditHeader = auditDAO.fetch(auditHeader);
+
         auditHeader.setLastUser(fortressService.getFortressUser(auditHeader.getFortress(), auditLog.getWho().getName()));
         auditHeader = auditDAO.save(auditHeader);
 
