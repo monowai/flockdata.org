@@ -69,6 +69,7 @@ public class TxRef implements ITxRef {
     }
 
     @Override
+    @JsonIgnore
     public Set<IAuditHeader> getHeaders() {
         return auditHeaders;
     }

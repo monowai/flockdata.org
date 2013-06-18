@@ -172,7 +172,7 @@ public class TestElasticSearch {
         assertEquals(auditHeader.getAuditKey(), ac.getName());
         // Occasionally findOne() fails for unknown reasons. I think it's down to the time between writing the "what"
         //              and reading it back, hence the Thread.sleep
-        Thread.sleep(2000);
+        Thread.sleep(3000);
         byte[] child = alRepo.findOne(auditHeader, childID);
 
         assertNotNull("No bytes returned", child);

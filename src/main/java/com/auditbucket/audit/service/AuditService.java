@@ -89,15 +89,7 @@ public class AuditService {
 
     @Transactional
     public Map<String, Object> findByTXRef(String txRef) {
-        String userName = securityHelper.getLoggedInUser();
-        ISystemUser su = sysUserService.findByName(userName);
-
-        if (su == null)
-            throw new SecurityException("Not authorised");
-        ITxRef tx = auditDAO.findTxTag(txRef, su.getCompany());
-        if (tx == null)
-            return null;
-
+        ITxRef tx = findTx(txRef);
         return auditDAO.findByTransaction(tx);
     }
 
@@ -304,6 +296,18 @@ public class AuditService {
     public void getAuditLogs(String key, String txRef) {
         IAuditHeader header = getValidHeader(key);
 
+    }
+
+    public ITxRef findTx(String txRef) {
+        String userName = securityHelper.getLoggedInUser();
+        ISystemUser su = sysUserService.findByName(userName);
+
+        if (su == null)
+            throw new SecurityException("Not authorised");
+        ITxRef tx = auditDAO.findTxTag(txRef, su.getCompany());
+        if (tx == null)
+            return null;
+        return tx;
     }
 
     public enum LogStatus {

@@ -4,6 +4,7 @@ import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.bean.AuditLogInputBean;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
+import com.auditbucket.audit.model.ITxRef;
 import com.auditbucket.audit.service.AuditService;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.IFortress;
@@ -92,10 +93,10 @@ public class AuditEP {
         }
     }
 
-    @RequestMapping(value = "/tx/{txRef}", produces = "application/json", method = RequestMethod.GET)
+    @RequestMapping(value = "/tx/{txRef}/logs", produces = "application/json", method = RequestMethod.GET)
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @ResponseBody
-    public ResponseEntity<Map> getAuditTx(@PathVariable("txRef") String txRef) throws Exception {
+    public ResponseEntity<Map> getAuditTxLogs(@PathVariable("txRef") String txRef) throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
         Map<String, Object> result;
         try {
@@ -106,6 +107,23 @@ public class AuditEP {
             return new ResponseEntity<Map>((Map) null, HttpStatus.NOT_FOUND);
         } catch (SecurityException e) {
             return new ResponseEntity<Map>((Map) null, HttpStatus.FORBIDDEN);
+        }
+    }
+
+    @RequestMapping(value = "/tx/{txRef}", produces = "application/json", method = RequestMethod.GET)
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @ResponseBody
+    public ResponseEntity<ITxRef> getAuditTx(@PathVariable("txRef") String txRef) throws Exception {
+        // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
+        ITxRef result;
+        try {
+            result = auditService.findTx(txRef);
+            return new ResponseEntity<ITxRef>(result, HttpStatus.OK);
+
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<ITxRef>((ITxRef) null, HttpStatus.NOT_FOUND);
+        } catch (SecurityException e) {
+            return new ResponseEntity<ITxRef>((ITxRef) null, HttpStatus.FORBIDDEN);
         }
     }
 
