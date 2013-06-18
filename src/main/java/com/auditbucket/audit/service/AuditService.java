@@ -2,14 +2,12 @@ package com.auditbucket.audit.service;
 
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.bean.AuditLogInputBean;
-import com.auditbucket.audit.dao.IAuditChangeDao;
 import com.auditbucket.audit.dao.IAuditDao;
 import com.auditbucket.audit.dao.IAuditQueryDao;
 import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.audit.model.ITxRef;
-import com.auditbucket.audit.repo.es.model.AuditChange;
 import com.auditbucket.audit.repo.neo4j.model.AuditHeader;
 import com.auditbucket.audit.repo.neo4j.model.AuditLog;
 import com.auditbucket.helper.SecurityHelper;
@@ -60,10 +58,10 @@ public class AuditService {
     private SecurityHelper securityHelper;
 
     @Autowired
-    private IAuditChangeDao auditChange;
+    private IAuditQueryDao auditQuery;
 
     @Autowired
-    private IAuditQueryDao auditQuery;
+    private AuditSearchService searchService;
 
     private Log log = LogFactory.getLog(AuditService.class);
 
@@ -144,6 +142,8 @@ public class AuditService {
 
         if (txTag != null)
             inputBean.setTxRef(txTag.getName());
+        else if (inputBean.isTransactional())
+            return null;
 
         if (log.isDebugEnabled())
             log.debug("Audit Header created:" + ah.getId() + " key=[" + ah.getAuditKey() + "]");
@@ -250,19 +250,19 @@ public class AuditService {
             }
 
             if (fortress.isAccumulatingChanges()) {
-                IAuditChange change = createSearchableChange(header, dateWhen, input.getWhat(), event);
+                IAuditChange change = searchService.createSearchableChange(header, dateWhen, input.getWhat(), event);
                 if (change != null)
                     childKey = change.getChild();
             } else {
                 // Update instead of Create
                 childKey = lastChange.getKey(); // Key does not change in this mode
-                updateSearchableChange(header, childKey, dateWhen, input.getWhat());
+                searchService.updateSearchableChange(header, childKey, dateWhen, input.getWhat());
             }
         } else { // Creating a new log
             if (event == null)
                 event = IAuditLog.CREATE;
             setHeader = true;
-            IAuditChange change = createSearchableChange(header, dateWhen, input.getWhat(), event);
+            IAuditChange change = searchService.createSearchableChange(header, dateWhen, input.getWhat(), event);
             if (change != null) {
                 childKey = change.getChild();
                 parentKey = change.getParent();
@@ -293,11 +293,6 @@ public class AuditService {
 
     }
 
-    public void getAuditLogs(String key, String txRef) {
-        IAuditHeader header = getValidHeader(key);
-
-    }
-
     public ITxRef findTx(String txRef) {
         String userName = securityHelper.getLoggedInUser();
         ISystemUser su = sysUserService.findByName(userName);
@@ -314,28 +309,6 @@ public class AuditService {
         IGNORE, OK, FORBIDDEN, NOT_FOUND, ILLEGAL_ARGUMENT
     }
 
-
-    private void updateSearchableChange(IAuditHeader header, String existingKey, DateTime dateWhen, String what) {
-        if (header.getFortress().isIgnoreSearchEngine())
-            return;
-        if (existingKey != null)
-            auditChange.update(header, existingKey, what);
-        else
-            // Only happen if the fortress was previously not creating searchable key values
-            createSearchableChange(header, dateWhen, what, "Create");
-    }
-
-    private IAuditChange createSearchableChange(IAuditHeader header, DateTime dateWhen, String what, String event) {
-        if (header.getFortress().isIgnoreSearchEngine())
-            return null;
-        IAuditChange thisChange = new AuditChange(header);
-        thisChange.setEvent(event);
-        thisChange.setWhat(what);
-        if (dateWhen != null)
-            thisChange.setWhen(dateWhen.toDate());
-        thisChange = auditChange.save(thisChange);
-        return thisChange;
-    }
 
     public IAuditLog getLastChange(String headerKey) {
         IAuditHeader ah = getValidHeader(headerKey);
@@ -377,7 +350,7 @@ public class AuditService {
         IAuditLog auditLog = getLastChange(auditHeader);
         if (auditHeader.getFortress().isAccumulatingChanges())
             // If adding, then we need to remove the ES document
-            auditChange.delete(auditHeader, auditLog.getKey());
+            searchService.delete(auditHeader, auditLog.getKey());
 
         auditDAO.delete(auditLog);
 
@@ -392,7 +365,7 @@ public class AuditService {
 
         // Sync the update to elastic search.
         if (auditHeader.getFortress().isAccumulatingChanges())
-            auditChange.update(auditHeader, auditLog.getKey(), auditLog.getWhat());
+            searchService.update(auditHeader, auditLog.getKey(), auditLog.getWhat());
 
         return auditHeader;
     }
