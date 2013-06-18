@@ -45,7 +45,6 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 public class TestElasticSearch {
-    private String company = "Monowai";
     private String uid = "mike@monowai.com";
     Authentication auth = new UsernamePasswordAuthenticationToken(uid, "user1");
     private Log log = LogFactory.getLog(TestElasticSearch.class);
@@ -153,8 +152,6 @@ public class TestElasticSearch {
 
         auditChange.setWhat(om.writeValueAsString(node));
 
-        String indexKey = (auditHeader.getIndexName());
-
         auditChange = alRepo.save(auditChange);
         assertNotNull(auditChange);
         String childID = auditChange.getChild();
@@ -188,13 +185,13 @@ public class TestElasticSearch {
     public void testFortressDefaults() {
         FortressInputBean fortress = new FortressInputBean("");
         // Object Defaults
-        assertFalse(fortress.getAccumulatingChanges());
+        assertFalse(fortress.getAccumulateChanges());
         assertTrue(fortress.getIgnoreSearchEngine());
         fortress = new FortressInputBean("", true);
-        assertTrue(fortress.getAccumulatingChanges());
+        assertTrue(fortress.getAccumulateChanges());
         assertFalse(fortress.getIgnoreSearchEngine());
         fortress = new FortressInputBean("", false);
-        assertFalse(fortress.getAccumulatingChanges());
+        assertFalse(fortress.getAccumulateChanges());
         assertTrue(fortress.getIgnoreSearchEngine());
 
     }

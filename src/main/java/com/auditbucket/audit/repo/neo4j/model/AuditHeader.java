@@ -189,6 +189,12 @@ public class AuditHeader implements IAuditHeader {
         this.searchKey = parentKey;
     }
 
+    @JsonIgnore
+    public String getSearchKey() {
+        return this.searchKey;
+    }
+
+
     @Override
     public void addTxTag(ITxRef tag) {
         if (tag == null)

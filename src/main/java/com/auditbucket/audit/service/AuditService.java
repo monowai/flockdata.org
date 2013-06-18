@@ -250,6 +250,7 @@ public class AuditService {
             } else {
                 // Update instead of Create
                 childKey = lastChange.getKey(); // Key does not change in this mode
+
                 searchService.updateSearchableChange(header, childKey, dateWhen, input.getWhat());
             }
         } else { // Creating a new log

@@ -42,15 +42,19 @@ public class FortressEP {
             return new ResponseEntity<IFortress>(fortress, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/new", consumes = "application/json", method = RequestMethod.PUT)
+    @RequestMapping(value = "/new", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
     @Transactional
     @ResponseBody
-    public ResponseEntity<String> addFortresses(@RequestBody FortressInputBean fortressInputBean) throws Exception {
+    public ResponseEntity<FortressInputBean> addFortresses(@RequestBody FortressInputBean fortressInputBean) throws Exception {
         IFortress fortress = fortressService.registerFortress(fortressInputBean);
-        if (fortress == null)
-            return new ResponseEntity<String>("", HttpStatus.INTERNAL_SERVER_ERROR);
-        else
-            return new ResponseEntity<String>(fortress.getFortressKey(), HttpStatus.CREATED);
+
+        if (fortress == null) {
+            fortressInputBean.setMessage("Unable to create fortress");
+            return new ResponseEntity<FortressInputBean>(fortressInputBean, HttpStatus.INTERNAL_SERVER_ERROR);
+        } else {
+            fortressInputBean.setFortressKey(fortress.getFortressKey());
+            return new ResponseEntity<FortressInputBean>(fortressInputBean, HttpStatus.CREATED);
+        }
 
     }
 

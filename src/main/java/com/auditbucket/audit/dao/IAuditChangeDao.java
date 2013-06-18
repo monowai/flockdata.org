@@ -13,17 +13,16 @@ public interface IAuditChangeDao {
 
     /**
      * generally for unit testing. Prefer to use the IAuditLog version.
+     * This will locate a document in the child index, i.e. source system What information
      *
-     * @param indexKey   Lucene Index to use
-     * @param recordType Record type
-     * @param id         Lucene Key
+     * @param id Lucene Key
      * @return found audit change or null if none
      */
     byte[] findOne(IAuditHeader header, String id);
 
     byte[] findOne(IAuditHeader header, String id, boolean flush);
 
-    void delete(IAuditHeader header, String indexKey);
+    void delete(IAuditHeader header, String existingIndexKey);
 
     void update(IAuditHeader header, String existingKey, String what);
 

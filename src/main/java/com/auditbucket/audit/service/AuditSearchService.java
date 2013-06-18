@@ -33,10 +33,10 @@ public class AuditSearchService {
         if (header.getFortress().isIgnoreSearchEngine())
             return;
         if (existingKey != null)
-            auditChange.update(header, existingKey, what);
-        else
-            // Only happen if the fortress was previously not creating searchable key values
-            createSearchableChange(header, dateWhen, what, "Create");
+            auditChange.delete(header, existingKey);
+
+        // Only happen if the fortress was previously not creating searchable key values
+        createSearchableChange(header, dateWhen, what, "Update");
     }
 
     @Transactional

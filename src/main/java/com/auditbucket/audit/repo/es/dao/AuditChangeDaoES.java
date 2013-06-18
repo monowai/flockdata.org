@@ -54,6 +54,7 @@ public class AuditChangeDaoES implements IAuditChangeDao {
 
             IndexResponse cr = esClient.prepareIndex(indexName, recordType)
                     .setSource(auditChange.getWhat())
+                    .setRouting(auditChange.getName())
                     .setParent(parent)
                     .execute()
                     .actionGet();
@@ -96,17 +97,25 @@ public class AuditChangeDaoES implements IAuditChangeDao {
     }
 
     @Override
-    public void delete(IAuditHeader header, String indexKey) {
-        //ToDo: remove from the _parent index
+    public void delete(IAuditHeader header, String existingIndexKey) {
         String indexName = header.getIndexName();
         String recordType = header.getDataType();
-        if (log.isDebugEnabled())
-            log.debug("Removing [" + indexKey + "] from " + indexName + "/" + recordType);
 
-        esClient.prepareDelete(indexName, recordType, indexKey)
+        esClient.prepareDelete(indexName, recordType, existingIndexKey)
                 .setRouting(header.getAuditKey())
                 .execute()
                 .actionGet();
+
+        if (log.isDebugEnabled())
+            log.debug("Removed child [" + existingIndexKey + "] from " + indexName + "/" + recordType);
+
+        esClient.prepareDelete(indexName, recordType + PARENT, header.getSearchKey())
+                .setRouting(header.getAuditKey())
+                .execute()
+                .actionGet();
+
+        if (log.isDebugEnabled())
+            log.debug("Removed parent [" + header.getSearchKey() + "] from " + indexName + PARENT + "/" + recordType);
 
     }
 
@@ -127,6 +136,4 @@ public class AuditChangeDaoES implements IAuditChangeDao {
             log.debug("Updated [" + existingKey + "] for " + header + " to version " + ur.getVersion());
 
     }
-
-
 }
