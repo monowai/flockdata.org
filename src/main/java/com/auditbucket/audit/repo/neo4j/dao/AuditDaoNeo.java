@@ -98,8 +98,9 @@ public class AuditDaoNeo implements IAuditDao {
     }
 
     @Override
-    public ITxRef findTxTag(String userTag, ICompany company) {
-        return auditRepo.findTxTag(userTag, company.getId());
+    public ITxRef findTxTag(String userTag, ICompany company, boolean fetchHeaders) {
+        ITxRef txRef = auditRepo.findTxTag(userTag, company.getId());
+        return txRef;
     }
 
     @Override
@@ -110,7 +111,7 @@ public class AuditDaoNeo implements IAuditDao {
     @Override
     public ITxRef beginTransaction(String id, ICompany company) {
 
-        ITxRef tag = findTxTag(id, company);
+        ITxRef tag = findTxTag(id, company, false);
         if (tag == null) {
             tag = new TxRef(id, company);
             template.save(tag);

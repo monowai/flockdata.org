@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -101,12 +102,35 @@ public class AuditEP {
         Map<String, Object> result;
         try {
             result = auditService.findByTXRef(txRef);
+            if (result == null) {
+                result = new HashMap<String, Object>(1);
+                result.put("txRef", "Not a valid transaction identifier");
+                return new ResponseEntity<Map>((Map) result, HttpStatus.NOT_FOUND);
+            }
+
             return new ResponseEntity<Map>(result, HttpStatus.OK);
 
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<Map>((Map) null, HttpStatus.NOT_FOUND);
         } catch (SecurityException e) {
             return new ResponseEntity<Map>((Map) null, HttpStatus.FORBIDDEN);
+        }
+    }
+
+    @RequestMapping(value = "/tx/{txRef}/headers", produces = "application/json", method = RequestMethod.GET)
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @ResponseBody
+    public ResponseEntity<Set<IAuditHeader>> getAuditTxHeaders(@PathVariable("txRef") String txRef) throws Exception {
+        // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
+        Set<IAuditHeader> result;
+        try {
+            result = auditService.findTxHeaders(txRef);
+            return new ResponseEntity<Set<IAuditHeader>>(result, HttpStatus.OK);
+
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<Set<IAuditHeader>>((Set<IAuditHeader>) null, HttpStatus.NOT_FOUND);
+        } catch (SecurityException e) {
+            return new ResponseEntity<Set<IAuditHeader>>((Set<IAuditHeader>) null, HttpStatus.FORBIDDEN);
         }
     }
 

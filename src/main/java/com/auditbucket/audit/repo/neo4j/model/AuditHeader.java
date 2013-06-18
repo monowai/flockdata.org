@@ -9,6 +9,7 @@ import com.auditbucket.registration.model.IFortressUser;
 import com.auditbucket.registration.repo.neo4j.model.Fortress;
 import com.auditbucket.registration.repo.neo4j.model.FortressUser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.neo4j.graphdb.Direction;
@@ -100,21 +101,25 @@ public class AuditHeader implements IAuditHeader {
     }
 
     @Override
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public IFortress getFortress() {
         return fortress;
     }
 
     @Override
+    @JsonIgnore
     public String getName() {
         return name;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getDataType() {
         return dataType;
     }
 
     @Override
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public IFortressUser getLastUser() {
         return lastWho;
     }
@@ -129,6 +134,7 @@ public class AuditHeader implements IAuditHeader {
     }
 
     @Override
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public IFortressUser getCreatedBy() {
         return createdBy;
     }
@@ -180,6 +186,7 @@ public class AuditHeader implements IAuditHeader {
     }
 
     @Override
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Set<IAuditLog> getAuditLogs() {
         return auditLogs;
     }
@@ -202,6 +209,7 @@ public class AuditHeader implements IAuditHeader {
         getTxTags().add(tag);
     }
 
+    @JsonIgnore
     public Set<ITxRef> getTxTags() {
         if (txTags == null)
             txTags = new HashSet<ITxRef>();
@@ -209,6 +217,7 @@ public class AuditHeader implements IAuditHeader {
     }
 
     @Override
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getClientRef() {
         return this.clientRef;  //To change body of implemented methods use File | Settings | File Templates.
     }

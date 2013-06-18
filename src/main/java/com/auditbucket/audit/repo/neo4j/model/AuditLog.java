@@ -54,21 +54,17 @@ public class AuditLog implements IAuditLog {
         this.madeBy = (FortressUser) madeBy;
         auditHeader = (AuditHeader) header;
         if (when != null) {
-            //auditWhen = new AuditWhen((AuditHeader) header, this, when.getMillis());
             this.when = when.getMillis();
         } else {
-            //auditWhen = new AuditWhen((AuditHeader) header, this, sysWhen);
             this.when = sysWhen;
         }
 
         this.event = event;
         this.what = what;
-        //auditWhen.setChange(this);
     }
 
     @JsonIgnore
     public IAuditHeader getHeader() {
-        //return auditWhen.getAuditHeader();
         return auditHeader;
     }
 

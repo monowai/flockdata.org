@@ -62,7 +62,7 @@ public interface IAuditDao {
 
     IAuditHeader fetch(IAuditHeader header);
 
-    ITxRef findTxTag(String txTag, ICompany company);
+    ITxRef findTxTag(String txTag, ICompany company, boolean fetchHeaders);
 
     IAuditHeader save(IAuditHeader auditHeader);
 

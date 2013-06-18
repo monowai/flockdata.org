@@ -97,9 +97,9 @@ public class TxRef implements ITxRef {
     @Override
     public String toString() {
         return "TxRef{" +
-                "company=" + company +
+                "id=" + id +
                 ", name='" + name + '\'' +
-                ", id=" + id +
+                ", txStatus=" + txStatus +
                 '}';
     }
 }
