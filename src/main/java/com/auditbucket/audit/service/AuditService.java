@@ -8,7 +8,7 @@ import com.auditbucket.audit.dao.IAuditQueryDao;
 import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
-import com.auditbucket.audit.model.ITagRef;
+import com.auditbucket.audit.model.ITxRef;
 import com.auditbucket.audit.repo.es.model.AuditChange;
 import com.auditbucket.audit.repo.neo4j.model.AuditHeader;
 import com.auditbucket.audit.repo.neo4j.model.AuditLog;
@@ -70,12 +70,12 @@ public class AuditService {
     private ObjectMapper om = new ObjectMapper();
 
     @Transactional
-    public ITagRef beginTransaction() {
+    public ITxRef beginTransaction() {
         return beginTransaction(UUID.randomUUID().toString());
     }
 
     @Transactional
-    ITagRef beginTransaction(String id) {
+    ITxRef beginTransaction(String id) {
         String userName = securityHelper.getLoggedInUser();
         ISystemUser su = sysUserService.findByName(userName);
 
@@ -94,7 +94,7 @@ public class AuditService {
 
         if (su == null)
             throw new SecurityException("Not authorised");
-        ITagRef tx = auditDAO.findTxTag(txRef, su.getCompany());
+        ITxRef tx = auditDAO.findTxTag(txRef, su.getCompany());
         if (tx == null)
             return null;
 
@@ -137,7 +137,7 @@ public class AuditService {
 
         // Create fortressUser if missing
         IFortressUser fu = fortressService.getFortressUser(iFortress, inputBean.getFortressUser(), true);
-        ITagRef txTag = null;
+        ITxRef txTag = null;
         // Prefer the user supplied, though the transaction will have to belong to the callers company
         if (inputBean.getTxRef() != null)
             // Joining an existing transaction
@@ -192,29 +192,41 @@ public class AuditService {
         if (!fortress.getCompany().getId().equals(su.getCompany().getId()))
             throw new SecurityException("User is not authorised to work with requested Fortress");
 
-        String key = new StringBuilder().append(recordType).append(".").append(clientRef).toString();
+        String key = new StringBuilder()
+                .append(recordType)
+                .append(".")
+                .append(clientRef).toString();
         return auditDAO.findHeaderByClientRef(key.toLowerCase(), fortress.getName(), fortress.getCompany().getName());
     }
 
     @Transactional
-    public LogStatus createLog(AuditLogInputBean input) {
-        IAuditHeader header = getHeader(input.getAuditKey(), true);
-        if (header == null)
-            return LogStatus.NOT_FOUND;
+    public AuditLogInputBean createLog(AuditLogInputBean input) {
+        IAuditHeader header = getHeader(input.getAuditKey());
+        if (header == null) {
+            input.setStatus(LogStatus.NOT_FOUND);
+            return input;
+        }
 
-        if (input.getWhat() == null || input.getWhat().isEmpty())
-            return LogStatus.IGNORE;
+        if (input.getWhat() == null || input.getWhat().isEmpty()) {
+            input.setStatus(LogStatus.IGNORE);
+            return input;
+        }
 
         String user = securityHelper.getUserName(false, false);
-        if (user == null)
-            return LogStatus.FORBIDDEN;
+        if (user == null) {
+            input.setStatus(LogStatus.FORBIDDEN);
+            return input;
+        }
 
         if (input.getFortressUser() == null) {
             input.setMessage("Fortress User not supplied");
-            return LogStatus.ILLEGAL_ARGUMENT;
+            input.setStatus(LogStatus.ILLEGAL_ARGUMENT);
+            return input;
         }
 
         boolean setHeader = false;
+
+
         IFortress fortress = header.getFortress();
 
         IFortressUser fUser = fortressService.getFortressUser(fortress, input.getFortressUser().toLowerCase(), true);
@@ -233,7 +245,8 @@ public class AuditService {
             if (lastChange.getWhat().equals(input.getWhat())) {
                 if (log.isDebugEnabled())
                     log.debug("Ignoring a change we already have");
-                return LogStatus.IGNORE;
+                input.setStatus(LogStatus.IGNORE);
+                return input;
             }
             if (event == null)
                 event = IAuditLog.UPDATE;
@@ -265,6 +278,13 @@ public class AuditService {
         }
 
         if (setHeader) {
+            ITxRef txRef;
+            if (input.isTransactional() && input.getTxRef() == null) {
+                txRef = beginTransaction();
+                input.setTxRef(txRef.getName());
+                header.addTxTag(txRef);
+            }
+
             header.setLastUser(fUser);
             if (parentKey != null)
                 header.setSearchKey(parentKey);
@@ -276,7 +296,8 @@ public class AuditService {
             al.setTxRef(input.getTxRef());
         al.setKey(childKey);
         auditDAO.save(al);
-        return LogStatus.OK;
+        input.setStatus(LogStatus.OK);
+        return input;
 
     }
 

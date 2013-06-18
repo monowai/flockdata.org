@@ -72,7 +72,8 @@ public class AuditEP {
         // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/audit/log/new -d '{"eventType":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10", "what": "{\"name\": \"val\"}" }'
         try {
 
-            AuditService.LogStatus ls = auditService.createLog(input);
+            input = auditService.createLog(input);
+            AuditService.LogStatus ls = input.getLogStatus();
             if (ls.equals(AuditService.LogStatus.FORBIDDEN))
                 return new ResponseEntity<String>("", HttpStatus.FORBIDDEN);
             else if (ls.equals(AuditService.LogStatus.NOT_FOUND))

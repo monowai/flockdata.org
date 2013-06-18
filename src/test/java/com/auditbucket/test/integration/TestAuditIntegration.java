@@ -156,7 +156,7 @@ public class TestAuditIntegration {
         int i = 0;
         while (i < max) {
             workingDate = workingDate.plusDays(1);
-            assertEquals(AuditService.LogStatus.OK, auditService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", workingDate, what + i + "\"}", null)));
+            assertEquals(AuditService.LogStatus.OK, auditService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", workingDate, what + i + "\"}", null)).getLogStatus());
 
             log.info("Created " + i + " new count =" + auditService.getAuditLogCount(auditHeader.getAuditKey()));
             i++;

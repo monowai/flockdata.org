@@ -15,6 +15,7 @@ public class AuditTXResult {
     private String fortressName;
     private String fortressKey;
     private String dataType;
+    private String clientRef;
     private Long lastSystemChange;
 
     private IAuditLog auditLog;
@@ -31,6 +32,7 @@ public class AuditTXResult {
             header = log.getHeader();
         this.auditKey = header.getAuditKey();
         this.dataType = header.getDataType();
+        this.clientRef = header.getClientRef();
         this.fortressName = header.getFortress().getName();
         this.fortressKey = header.getFortress().getFortressKey();
         this.lastSystemChange = header.getLastUpdated();
@@ -60,5 +62,9 @@ public class AuditTXResult {
 
     public long getLastSystemChange() {
         return lastSystemChange;
+    }
+
+    public String getClientRef() {
+        return clientRef;
     }
 }

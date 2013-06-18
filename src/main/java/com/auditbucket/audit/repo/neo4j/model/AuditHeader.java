@@ -3,7 +3,7 @@ package com.auditbucket.audit.repo.neo4j.model;
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
-import com.auditbucket.audit.model.ITagRef;
+import com.auditbucket.audit.model.ITxRef;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.model.IFortressUser;
 import com.auditbucket.registration.repo.neo4j.model.Fortress;
@@ -44,8 +44,8 @@ public class AuditHeader implements IAuditHeader {
     @RelatedToVia(elementClass = AuditLog.class, type = "changed", direction = Direction.INCOMING)
     private Set<IAuditLog> auditLogs = null;
 
-    @RelatedTo(elementClass = TagRef.class, type = "txIncludes", direction = Direction.INCOMING)
-    private Set<ITagRef> txTags = null;
+    @RelatedTo(elementClass = TxRef.class, type = "txIncludes", direction = Direction.INCOMING)
+    private Set<ITxRef> txTags = null;
 
     public static final String UUID_KEY = "auditKey";
     @Indexed(indexName = UUID_KEY, unique = true)
@@ -56,6 +56,7 @@ public class AuditHeader implements IAuditHeader {
     private long dateCreated;
 
     private String dataType;
+    private String clientRef;
 
     private long fortressDate;
     long lastUpdated = 0;
@@ -71,7 +72,7 @@ public class AuditHeader implements IAuditHeader {
     public AuditHeader(@NotNull IFortressUser createdBy, @NotNull AuditHeaderInputBean auditInput) {
         this();
         String eventType = auditInput.getRecordType();
-        String clientRef = auditInput.getCallerRef();
+        clientRef = auditInput.getCallerRef();
         Date when = auditInput.getWhen();
         if (when == null)
             fortressDate = dateCreated;
@@ -189,15 +190,20 @@ public class AuditHeader implements IAuditHeader {
     }
 
     @Override
-    public void addTxTag(ITagRef tag) {
+    public void addTxTag(ITxRef tag) {
         if (tag == null)
             return;
         getTxTags().add(tag);
     }
 
-    public Set<ITagRef> getTxTags() {
+    public Set<ITxRef> getTxTags() {
         if (txTags == null)
-            txTags = new HashSet<ITagRef>();
+            txTags = new HashSet<ITxRef>();
         return txTags;
+    }
+
+    @Override
+    public String getClientRef() {
+        return this.clientRef;  //To change body of implemented methods use File | Settings | File Templates.
     }
 }

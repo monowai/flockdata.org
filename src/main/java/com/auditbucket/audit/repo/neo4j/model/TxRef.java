@@ -1,11 +1,13 @@
 package com.auditbucket.audit.repo.neo4j.model;
 
 import com.auditbucket.audit.model.IAuditHeader;
-import com.auditbucket.audit.model.ITagRef;
+import com.auditbucket.audit.model.ITxRef;
 import com.auditbucket.registration.model.ICompany;
 import com.auditbucket.registration.repo.neo4j.model.Company;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.validator.constraints.NotBlank;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.*;
 
@@ -18,7 +20,7 @@ import java.util.Set;
  * Time: 9:34 AM
  */
 @NodeEntity
-public class TagRef implements ITagRef {
+public class TxRef implements ITxRef {
 
     @GraphId
     private Long id;
@@ -33,12 +35,26 @@ public class TagRef implements ITagRef {
     @Indexed(numeric = false, indexName = "tagName")
     private String name;
 
-    protected TagRef() {
+    private TxStatus txStatus = TxStatus.TX_CREATED;
+
+    private long txDate;
+
+    public TxStatus getTxStatus() {
+        return txStatus;
     }
 
-    public TagRef(@NotNull @NotBlank String tagName, @NotNull ICompany company) {
+    public enum TxStatus {
+        TX_CREATED, TX_ROLLBACK, TX_COMMITTED;
+    }
+
+    protected TxRef() {
+    }
+
+    public TxRef(@NotNull @NotBlank String tagName, @NotNull ICompany company) {
         this.name = tagName;
         this.company = (Company) company;
+        setStatus(TxStatus.TX_CREATED);
+
     }
 
     @Override
@@ -62,31 +78,24 @@ public class TagRef implements ITagRef {
         return id;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof TagRef)) return false;
-
-        TagRef tagRef = (TagRef) o;
-
-        if (company != null ? !company.getId().equals(tagRef.company.getId()) : tagRef.company != null) return false;
-        if (id != null ? !id.equals(tagRef.id) : tagRef.id != null) return false;
-        if (name != null ? !name.equals(tagRef.name) : tagRef.name != null) return false;
-
-        return true;
+    public TxStatus commit() {
+        return setStatus(TxStatus.TX_COMMITTED);
     }
 
-    @Override
-    public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (company != null ? company.hashCode() : 0);
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        return result;
+    public TxStatus rollback() {
+        return setStatus(TxStatus.TX_ROLLBACK);
+    }
+
+    private TxStatus setStatus(TxStatus txStatus) {
+        TxStatus previous = this.txStatus;
+        this.txStatus = txStatus;
+        this.txDate = DateTime.now(DateTimeZone.UTC).getMillis();
+        return previous;
     }
 
     @Override
     public String toString() {
-        return "TagRef{" +
+        return "TxRef{" +
                 "company=" + company +
                 ", name='" + name + '\'' +
                 ", id=" + id +

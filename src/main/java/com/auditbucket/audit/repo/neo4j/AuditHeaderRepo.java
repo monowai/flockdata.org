@@ -2,7 +2,7 @@ package com.auditbucket.audit.repo.neo4j;
 
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.repo.neo4j.model.AuditHeader;
-import com.auditbucket.audit.repo.neo4j.model.TagRef;
+import com.auditbucket.audit.repo.neo4j.model.TxRef;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
@@ -34,7 +34,7 @@ public interface AuditHeaderRepo extends GraphRepository<AuditHeader> {
             "   MATCH company-[:txTag]->txTag " +
             "   where txTag.name = {0} " +
             "return txTag")
-    TagRef findTxTag(String userTag, Long company);
+    TxRef findTxTag(String userTag, Long company);
 
 
 }

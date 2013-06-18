@@ -58,7 +58,10 @@ public interface IAuditHeader {
 
     void setSearchKey(String parentKey);
 
-    void addTxTag(ITagRef tag);
+    void addTxTag(ITxRef tag);
 
-    Set<ITagRef> getTxTags();
+    Set<ITxRef> getTxTags();
+
+    String getClientRef();
+
 }

@@ -9,7 +9,7 @@ import java.util.Set;
  * Date: 14/06/13
  * Time: 9:11 AM
  */
-public interface ITagRef {
+public interface ITxRef {
     public String getName();
 
     public ICompany getCompany();

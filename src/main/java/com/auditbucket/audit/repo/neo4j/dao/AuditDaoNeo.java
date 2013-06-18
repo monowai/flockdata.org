@@ -5,12 +5,12 @@ import com.auditbucket.audit.bean.AuditTXResult;
 import com.auditbucket.audit.dao.IAuditDao;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
-import com.auditbucket.audit.model.ITagRef;
+import com.auditbucket.audit.model.ITxRef;
 import com.auditbucket.audit.repo.neo4j.AuditHeaderRepo;
 import com.auditbucket.audit.repo.neo4j.AuditLogRepo;
 import com.auditbucket.audit.repo.neo4j.model.AuditHeader;
 import com.auditbucket.audit.repo.neo4j.model.AuditLog;
-import com.auditbucket.audit.repo.neo4j.model.TagRef;
+import com.auditbucket.audit.repo.neo4j.model.TxRef;
 import com.auditbucket.registration.model.ICompany;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.conversion.EndResult;
@@ -55,8 +55,8 @@ public class AuditDaoNeo implements IAuditDao {
         return template.save((AuditLog) auditLog);
     }
 
-    public ITagRef save(ITagRef tagRef) {
-        return template.save((TagRef) tagRef);
+    public ITxRef save(ITxRef tagRef) {
+        return template.save((TxRef) tagRef);
     }
 
 
@@ -98,7 +98,7 @@ public class AuditDaoNeo implements IAuditDao {
     }
 
     @Override
-    public ITagRef findTxTag(String userTag, ICompany company) {
+    public ITxRef findTxTag(String userTag, ICompany company) {
         return auditRepo.findTxTag(userTag, company.getId());
     }
 
@@ -108,11 +108,11 @@ public class AuditDaoNeo implements IAuditDao {
     }
 
     @Override
-    public ITagRef beginTransaction(String id, ICompany company) {
+    public ITxRef beginTransaction(String id, ICompany company) {
 
-        ITagRef tag = findTxTag(id, company);
+        ITxRef tag = findTxTag(id, company);
         if (tag == null) {
-            tag = new TagRef(id, company);
+            tag = new TxRef(id, company);
             template.save(tag);
         }
         return tag;
@@ -151,7 +151,7 @@ public class AuditDaoNeo implements IAuditDao {
         auditRepo.delete((AuditHeader) auditHeader);
     }
 
-    public Map<String, Object> findByTransactionx(ITagRef txRef) {
+    public Map<String, Object> findByTransactionx(ITxRef txRef) {
         //ExecutionEngine engine = new ExecutionEngine( template.getGraphDatabaseService());
         if (txRef.getHeaders().size() == 0)
             template.fetch(txRef);
@@ -184,7 +184,7 @@ public class AuditDaoNeo implements IAuditDao {
         return result;
     }
 
-    public Map<String, Object> findByTransaction(ITagRef txRef) {
+    public Map<String, Object> findByTransaction(ITxRef txRef) {
         //Example showing how to use cypher and extract
 
         String findByTagRef = "start tag =node({txRef}) " +
@@ -197,6 +197,7 @@ public class AuditDaoNeo implements IAuditDao {
 
         Iterator<Map<String, Object>> rows;
         Result<Map<String, Object>> exResult = template.query(findByTagRef, params);
+
         Map<Long, IAuditHeader> headers = new HashMap<Long, IAuditHeader>();
 
         rows = exResult.iterator();
@@ -207,11 +208,11 @@ public class AuditDaoNeo implements IAuditDao {
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
             IAuditLog log = template.convert(row.get("logs"), AuditLog.class);
-
             IAuditHeader audit = headers.get(log.getHeader().getId());
 
             if (audit == null) {
                 audit = template.findOne(log.getHeader().getId(), AuditHeader.class);
+                template.fetch(log.getWho());
                 //template.fetch(audit.getFortress());
                 headers.put(audit.getId(), audit);
             }

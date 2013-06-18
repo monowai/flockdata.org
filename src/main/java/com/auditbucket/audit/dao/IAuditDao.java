@@ -3,7 +3,7 @@ package com.auditbucket.audit.dao;
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
-import com.auditbucket.audit.model.ITagRef;
+import com.auditbucket.audit.model.ITxRef;
 import com.auditbucket.registration.model.ICompany;
 import org.springframework.stereotype.Repository;
 
@@ -24,7 +24,7 @@ public interface IAuditDao {
 
     public IAuditLog save(IAuditLog auditLog);
 
-    public ITagRef save(ITagRef tagRef);
+    public ITxRef save(ITxRef tagRef);
 
     /**
      * @param key GUID
@@ -61,11 +61,11 @@ public interface IAuditDao {
 
     IAuditHeader fetch(IAuditHeader header);
 
-    ITagRef findTxTag(String txTag, ICompany company);
+    ITxRef findTxTag(String txTag, ICompany company);
 
     IAuditHeader save(IAuditHeader auditHeader);
 
-    public ITagRef beginTransaction(String id, ICompany company);
+    public ITxRef beginTransaction(String id, ICompany company);
 
-    public Map<String, Object> findByTransaction(ITagRef txRef);
+    public Map<String, Object> findByTransaction(ITxRef txRef);
 }

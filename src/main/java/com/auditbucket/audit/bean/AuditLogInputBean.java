@@ -1,5 +1,6 @@
 package com.auditbucket.audit.bean;
 
+import com.auditbucket.audit.service.AuditService;
 import org.joda.time.DateTime;
 
 /**
@@ -13,11 +14,13 @@ public class AuditLogInputBean {
     String eventType;
     String fortressUser;
     private String txRef;
+    private Boolean isTransactional = false;
     String when;
     String what;
     String yourRef;
     private String comment;
     private String message;
+    private AuditService.LogStatus logStatus;
 
     public AuditLogInputBean() {
     }
@@ -96,7 +99,10 @@ public class AuditLogInputBean {
     }
 
     public void setTxRef(String txRef) {
-        this.txRef = txRef;
+        if (txRef != null && txRef.equals(""))
+            this.txRef = null;
+        else
+            this.txRef = txRef;
     }
 
     public void setMessage(String message) {
@@ -106,5 +112,22 @@ public class AuditLogInputBean {
 
     public String getMessage() {
         return message;
+    }
+
+    public void setTransactional(Boolean isTransactional) {
+        this.isTransactional = isTransactional;
+    }
+
+    public Boolean isTransactional() {
+        return isTransactional;
+    }
+
+    public void setStatus(AuditService.LogStatus logStatus) {
+        this.logStatus = logStatus;
+
+    }
+
+    public AuditService.LogStatus getLogStatus() {
+        return this.logStatus;
     }
 }
