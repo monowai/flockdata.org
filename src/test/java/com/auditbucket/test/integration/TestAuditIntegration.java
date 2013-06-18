@@ -4,7 +4,9 @@ import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.bean.AuditLogInputBean;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
+import com.auditbucket.audit.service.AuditSearchService;
 import com.auditbucket.audit.service.AuditService;
+import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.model.IFortressUser;
@@ -48,6 +50,9 @@ public class TestAuditIntegration {
     AuditService auditService;
 
     @Autowired
+    AuditSearchService auditSearchService;
+
+    @Autowired
     RegistrationService regService;
 
     @Autowired
@@ -82,19 +87,19 @@ public class TestAuditIntegration {
 
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         regService.registerSystemUser(new RegistrationBean(hummingbird, gina, "bah"));
+        //Monowai/Mike
         SecurityContextHolder.getContext().setAuthentication(authMike);
-        IFortress fortWP = fortressService.registerFortress("wportfolio");
+        IFortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "wally", "Company", new Date(), "AHWP");
         String ahWP = auditService.createHeader(inputBean).getAuditKey();
         assertNotNull(ahWP);
-        log.info(ahWP);
         assertNotNull(auditService.getHeader(ahWP));
 
+        //Hummingbird/Gina
         SecurityContextHolder.getContext().setAuthentication(authGina);
-        IFortress fortHS = fortressService.registerFortress("honeysuckle");
+        IFortress fortHS = fortressService.registerFortress(new FortressInputBean("honeysuckle", true));
         inputBean = new AuditHeaderInputBean(fortHS.getName(), "harry", "Company", new Date(), "AHHS");
         String ahHS = auditService.createHeader(inputBean).getAuditKey();
-
 
         assertNotNull(fortressService.getFortressUser(fortWP, "wally", true));
         assertNotNull(fortressService.getFortressUser(fortHS, "harry", true));
@@ -106,11 +111,16 @@ public class TestAuditIntegration {
 
         createLogRecords(authMike, ahWP, what + "\"}", 20);
         createLogRecords(authGina, ahHS, what + "\"}", 40);
+        try {
+            Thread.sleep(5000l);
+        } catch (InterruptedException e) {
 
-        Long hitCount = auditService.getHitCount("hummingbird.*");
+            log.error(e);
+        }
+        Long hitCount = auditSearchService.getHitCount("hummingbird.*");
 
         assertTrue(hitCount != null && hitCount > 1); // Sometimes this fails. It seems to be that the data has not been stored by ES by the time we make this call
-        hitCount = auditService.getHitCount("monowai.*");
+        hitCount = auditSearchService.getHitCount("monowai.*");
         assertTrue(hitCount > 1);
         watch.stop();
         log.info("End " + watch.getTime() / 1000d + " avg = " + (watch.getTime() / 1000d) / max);

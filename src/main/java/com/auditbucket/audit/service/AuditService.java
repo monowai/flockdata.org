@@ -3,7 +3,6 @@ package com.auditbucket.audit.service;
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.bean.AuditLogInputBean;
 import com.auditbucket.audit.dao.IAuditDao;
-import com.auditbucket.audit.dao.IAuditQueryDao;
 import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
@@ -42,6 +41,7 @@ import java.util.UUID;
 
 @Service
 public class AuditService {
+    public static final String DOT = ".";
     @Autowired
     FortressService fortressService;
 
@@ -56,9 +56,6 @@ public class AuditService {
 
     @Autowired
     private SecurityHelper securityHelper;
-
-    @Autowired
-    private IAuditQueryDao auditQuery;
 
     @Autowired
     private AuditSearchService searchService;
@@ -173,7 +170,7 @@ public class AuditService {
         return ah;
     }
 
-    public IAuditHeader findByName(Long fortressID, String recordType, String clientRef) {
+    public IAuditHeader findByName(Long fortressID, @NotEmpty @NotNull String recordType, @NotEmpty @NotNull String clientRef) {
         String userName = securityHelper.getLoggedInUser();
 
         ISystemUser su = sysUserService.findByName(userName);
@@ -184,11 +181,8 @@ public class AuditService {
         if (!fortress.getCompany().getId().equals(su.getCompany().getId()))
             throw new SecurityException("User is not authorised to work with requested Fortress");
 
-        String key = new StringBuilder()
-                .append(recordType)
-                .append(".")
-                .append(clientRef).toString();
-        return auditDAO.findHeaderByClientRef(key.toLowerCase(), fortress.getName(), fortress.getCompany().getName());
+        String key = (recordType.trim() + DOT + clientRef.trim());
+        return auditDAO.findHeaderByClientRef(key, fortress.getName(), fortress.getCompany().getName());
     }
 
     @Transactional
@@ -396,7 +390,4 @@ public class AuditService {
 
     }
 
-    public Long getHitCount(String index) {
-        return auditQuery.getHitCount(index);
-    }
 }

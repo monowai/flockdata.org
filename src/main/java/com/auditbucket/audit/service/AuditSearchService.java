@@ -1,6 +1,7 @@
 package com.auditbucket.audit.service;
 
 import com.auditbucket.audit.dao.IAuditChangeDao;
+import com.auditbucket.audit.dao.IAuditQueryDao;
 import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.repo.es.model.AuditChange;
@@ -18,6 +19,13 @@ public class AuditSearchService {
     @Autowired
     private IAuditChangeDao auditChange;
 
+    @Autowired
+    private IAuditQueryDao auditQuery;
+
+
+    public Long getHitCount(String index) {
+        return auditQuery.getHitCount(index);
+    }
 
     void updateSearchableChange(IAuditHeader header, String existingKey, DateTime dateWhen, String what) {
         if (header.getFortress().isIgnoreSearchEngine())

@@ -8,6 +8,7 @@ import com.auditbucket.audit.repo.neo4j.model.TxRef;
 import com.auditbucket.audit.service.AuditService;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.IFortress;
+import com.auditbucket.registration.model.ISystemUser;
 import com.auditbucket.registration.repo.neo4j.model.Company;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
@@ -67,7 +68,6 @@ public class TestTxReference {
         Neo4jHelper.cleanDb(template);
     }
 
-    private String company = "Monowai";
     private String uid = "mike@monowai.com";
     Authentication authA = new UsernamePasswordAuthenticationToken(uid, "user1");
 
@@ -84,11 +84,64 @@ public class TestTxReference {
         assertEquals(TxRef.TxStatus.TX_ROLLBACK, tx.getTxStatus());
         assertEquals(TxRef.TxStatus.TX_COMMITTED, previous);
 
+    }
+
+    @Test
+    public void testAuthorisedToViewTransaction() {
+        ISystemUser suABC = regService.registerSystemUser(new RegistrationBean("ABC", "mike@monowai.com", "bah"));
+        ISystemUser suCBA = regService.registerSystemUser(new RegistrationBean("CBA", "null@monowai.com", "bah"));
+
+        Authentication authABC = new UsernamePasswordAuthenticationToken(suABC.getName(), "user1");
+        Authentication authCBA = new UsernamePasswordAuthenticationToken(suCBA.getName(), "user1");
+
+// ABC Data
+        IFortress fortressABC = fortressService.registerFortress("abcTest");
+        AuditHeaderInputBean abcHeader = new AuditHeaderInputBean(fortressABC.getName(), "wally", "TestAudit", new Date(), "ABC123", true);
+        String abcKey = auditService.createHeader(abcHeader).getAuditKey();
+
+        String abcTxRef = abcHeader.getTxRef();
+        assertNotNull(abcTxRef);
+
+        AuditLogInputBean abcLog = new AuditLogInputBean(abcKey, "charlie", DateTime.now(), "some change");
+        abcLog.setTxRef(abcHeader.getTxRef());
+        assertEquals("ABC Log Not Created", AuditService.LogStatus.OK, auditService.createLog(abcLog).getLogStatus());
+
+// CBA data
+        SecurityContextHolder.getContext().setAuthentication(authCBA);
+        IFortress fortressCBA = fortressService.registerFortress("cbaTest");
+        AuditHeaderInputBean cbaHeader = new AuditHeaderInputBean(fortressCBA.getName(), "wally", "TestAudit", new Date(), "ABC123", true);
+        String cbaKey = auditService.createHeader(cbaHeader).getAuditKey();
+
+        String cbaTxRef = cbaHeader.getTxRef();
+        assertNotNull(cbaTxRef);
+
+        AuditLogInputBean cbaLog = new AuditLogInputBean(cbaKey, "charlie", DateTime.now(), "some change");
+        cbaLog.setTxRef(cbaHeader.getTxRef());
+        assertEquals("CBA Log Not Created", AuditService.LogStatus.OK, auditService.createLog(cbaLog).getLogStatus());
+
+        // CBA Caller can not see the ABC transaction
+        assertNotNull(auditService.findTx(cbaTxRef));
+        assertNull(auditService.findTx(abcTxRef));
+
+        // ABC Caller cannot see the CBA transaction
+        SecurityContextHolder.getContext().setAuthentication(authABC);
+        assertNotNull(auditService.findTx(abcTxRef));
+        assertNull(auditService.findTx(cbaTxRef));
+
+        // WHat happens if ABC tries to use CBA's TX Ref.
+        abcHeader = new AuditHeaderInputBean(fortressABC.getName(), "wally", "TestAudit", new Date(), "asdfdsaf", cbaTxRef);
+        AuditHeaderInputBean result = auditService.createHeader(abcHeader);
+        assertNotNull(result);
+        // It works because TX References have only to be unique for a company
+        //      ab generated references are GUIDs, but the caller is allowed to define their own transaction
+        assertNotNull(auditService.findTx(cbaTxRef));
+
 
     }
 
     @Test
-    public void testTags() {
+    public void testTxCommits() {
+        String company = "Monowai";
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         IFortress fortressA = fortressService.registerFortress("auditTest");
         String tagRef = "MyTXTag";

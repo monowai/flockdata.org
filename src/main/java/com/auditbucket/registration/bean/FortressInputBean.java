@@ -12,6 +12,9 @@ public class FortressInputBean {
 
     public FortressInputBean(String name, boolean accumulatingChanges) {
         this.accumulatingChanges = accumulatingChanges;
+        if (accumulatingChanges)
+            ignoreSearchEngine = false;
+
         this.name = name;
     }
 
