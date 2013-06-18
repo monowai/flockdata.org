@@ -184,5 +184,20 @@ public class TestElasticSearch {
 
     }
 
+    @Test
+    public void testFortressDefaults() {
+        FortressInputBean fortress = new FortressInputBean("");
+        // Object Defaults
+        assertFalse(fortress.getAccumulatingChanges());
+        assertTrue(fortress.getIgnoreSearchEngine());
+        fortress = new FortressInputBean("", true);
+        assertTrue(fortress.getAccumulatingChanges());
+        assertFalse(fortress.getIgnoreSearchEngine());
+        fortress = new FortressInputBean("", false);
+        assertFalse(fortress.getAccumulatingChanges());
+        assertTrue(fortress.getIgnoreSearchEngine());
+
+    }
+
 
 }
