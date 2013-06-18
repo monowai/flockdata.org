@@ -8,6 +8,7 @@ import com.auditbucket.audit.repo.es.model.AuditChange;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * User: mike
@@ -27,6 +28,7 @@ public class AuditSearchService {
         return auditQuery.getHitCount(index);
     }
 
+    @Transactional
     void updateSearchableChange(IAuditHeader header, String existingKey, DateTime dateWhen, String what) {
         if (header.getFortress().isIgnoreSearchEngine())
             return;
@@ -37,6 +39,7 @@ public class AuditSearchService {
             createSearchableChange(header, dateWhen, what, "Create");
     }
 
+    @Transactional
     IAuditChange createSearchableChange(IAuditHeader header, DateTime dateWhen, String what, String event) {
         if (header.getFortress().isIgnoreSearchEngine())
             return null;
@@ -49,11 +52,13 @@ public class AuditSearchService {
         return thisChange;
     }
 
+    @Transactional
     public void delete(IAuditHeader auditHeader, String key) {
         auditChange.delete(auditHeader, key);
 
     }
 
+    @Transactional
     public void update(IAuditHeader auditHeader, String key, String what) {
         auditChange.update(auditHeader, key, what);
 
