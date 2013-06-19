@@ -20,8 +20,6 @@ public interface IAuditChangeDao {
      */
     byte[] findOne(IAuditHeader header, String id);
 
-    byte[] findOne(IAuditHeader header, String id, boolean flush);
-
     void delete(IAuditHeader header, String existingIndexKey);
 
 }

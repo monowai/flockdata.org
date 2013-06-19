@@ -361,7 +361,9 @@ public class AuditService {
             searchService.delete(auditHeader, auditLog.getSearchKey());
 
         auditDAO.delete(auditLog);
-        searchService.delete(auditHeader, auditLog.getSearchKey());
+        String searchKey = auditLog.getSearchKey();
+        if (searchKey != null)
+            searchService.delete(auditHeader, searchKey);
 
         IAuditLog lastChange = getLastChange(auditHeader);
         if (lastChange == null)

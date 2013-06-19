@@ -6,7 +6,7 @@ import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.repo.es.model.AuditChange;
 import com.auditbucket.audit.repo.neo4j.model.AuditHeader;
-import com.auditbucket.audit.service.AuditService;
+import com.auditbucket.audit.service.AuditSearchService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.model.IFortressUser;
@@ -15,7 +15,6 @@ import com.auditbucket.registration.repo.neo4j.model.Fortress;
 import com.auditbucket.registration.repo.neo4j.model.FortressUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.logging.Log;
@@ -56,7 +55,7 @@ public class TestElasticSearch {
     FortressService fortressService;
 
     @Autowired
-    AuditService auditService;
+    AuditSearchService searchService;
 
     @Autowired
     IAuditChangeDao alRepo;
@@ -71,8 +70,6 @@ public class TestElasticSearch {
         Map<String, Object> what = om.readValue(escWhat, Map.class);
         indexMe.put("what", what);
         log.info(indexMe.get("What"));
-
-
     }
 
     @Test
@@ -148,7 +145,6 @@ public class TestElasticSearch {
         AuditHeaderInputBean hib = new AuditHeaderInputBean("fortress", "Test", "Test", new DateTime().toDate(), "testRef");
         IAuditHeader auditHeader = new AuditHeader(fu, hib);
 
-
         IAuditChange auditChange = new AuditChange(auditHeader);
 
         auditChange.setEvent("Create");
@@ -160,34 +156,27 @@ public class TestElasticSearch {
         node.put("first", "Joe");
         node.put("last", "Sixpack");
 
-
         auditChange.setWhat(om.writeValueAsString(node));
 
         auditChange = alRepo.save(auditChange);
         assertNotNull(auditChange);
-        String parentID = auditChange.getSearchKey();
-        assertNotNull(parentID);
+        String searchKey = auditChange.getSearchKey();
+        assertNotNull(searchKey);
 
         // Retrieve parent from Lucene
-        byte[] parent = alRepo.findOne(auditHeader, parentID, true);
+        byte[] parent = alRepo.findOne(auditHeader, searchKey);
 
         assertNotNull(parent);
-        IAuditChange ac = om.readValue(parent, AuditChange.class);
+        Map<String, Object> ac = om.readValue(parent, Map.class);
         assertNotNull(ac);
-        assertEquals(auditHeader.getAuditKey(), ac.getName());
+        assertEquals(auditHeader.getAuditKey(), ac.get("auditKey"));
         // Occasionally findOne() fails for unknown reasons. I think it's down to the time between writing the "what"
         //              and reading it back, hence the Thread.sleep
-        Thread.sleep(3000);
-        byte[] child = alRepo.findOne(auditHeader, parentID);
-
-        assertNotNull("No bytes returned", child);
-
-        JsonNode result = om.readTree(child);
-        assertNotNull("Unable to convert to JsonNode", result);
-        assertEquals("Joe", result.get("first").textValue());
-        assertEquals("Sixpack", result.get("last").textValue());
+        assertEquals("Joe", ac.get("first"));
+        assertEquals("Sixpack", ac.get("last"));
 
     }
+
 
     @Test
     public void testFortressDefaults() {

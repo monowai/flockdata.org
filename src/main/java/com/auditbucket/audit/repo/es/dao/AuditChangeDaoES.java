@@ -64,25 +64,18 @@ public class AuditChangeDaoES implements IAuditChangeDao {
 
             auditChange.setSearchKey(ir.getId());
             if (log.isDebugEnabled())
-                log.debug("Added child [" + ir.getId() + "] to " + indexName + "/" + recordType);
+                log.debug("Added Document [" + ir.getId() + "] to " + indexName + "/" + recordType);
             return auditChange;
         } catch (IOException e) {
             log.fatal("*** Error saving [" + auditChange.getIndexName() + "], [" + auditChange.getRecordType() + "]", e);
+            throw new RuntimeException(e);
         }
-
-        return null;
-
 
     }
 
     public byte[] findOne(IAuditHeader header, String id) {
-        return findOne(header, id, false);
-    }
-
-    @Override
-    public byte[] findOne(IAuditHeader header, String id, boolean parent) {
         String indexName = header.getIndexName();
-        String recordType = (parent ? header.getDataType() + PARENT : header.getDataType());
+        String recordType = header.getDataType();
         if (log.isDebugEnabled())
             log.debug("Looking for [" + id + "] in " + indexName + "/" + recordType);
 
@@ -96,8 +89,8 @@ public class AuditChangeDaoES implements IAuditChangeDao {
         log.info("Unable to find response data for [" + id + "] in " + indexName + "/" + recordType);
 
         return null;
-
     }
+
 
     @Override
     public void delete(IAuditHeader header, String existingIndexKey) {

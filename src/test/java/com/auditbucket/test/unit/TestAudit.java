@@ -224,9 +224,9 @@ public class TestAudit {
 
         assertNotNull(auditService.getHeader(ahKey));
 
-        auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{blah: 0}"));
+        auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 0}"));
         auditService.getLastChange(ahKey);
-        auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{blah: 1}"));
+        auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 1}"));
         // ToDo: How to count the ElasticSearch audit hits. Currently this code is just for exercising the code.
     }
 

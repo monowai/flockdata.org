@@ -5,10 +5,13 @@ import com.auditbucket.audit.dao.IAuditQueryDao;
 import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.repo.es.model.AuditChange;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * User: mike
@@ -39,7 +42,7 @@ public class AuditSearchService {
     }
 
     @Transactional
-    IAuditChange createSearchableChange(IAuditHeader header, DateTime dateWhen, String what, String event) {
+    public IAuditChange createSearchableChange(IAuditHeader header, DateTime dateWhen, @NotEmpty @NotNull String what, String event) {
         if (header.getFortress().isIgnoreSearchEngine())
             return null;
         IAuditChange thisChange = new AuditChange(header);
@@ -52,7 +55,7 @@ public class AuditSearchService {
     }
 
     @Transactional
-    public void delete(IAuditHeader auditHeader, String key) {
+    public void delete(IAuditHeader auditHeader, @NotNull @NotEmpty String key) {
         auditChange.delete(auditHeader, key);
 
     }
