@@ -43,6 +43,10 @@ public class TxRef implements ITxRef {
         return txStatus;
     }
 
+    public long getTxDate() {
+        return txDate;
+    }
+
     public enum TxStatus {
         TX_CREATED, TX_ROLLBACK, TX_COMMITTED;
     }
@@ -75,6 +79,7 @@ public class TxRef implements ITxRef {
     }
 
     @Override
+    @JsonIgnore
     public Long getId() {
         return id;
     }

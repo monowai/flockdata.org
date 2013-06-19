@@ -6,6 +6,7 @@ import com.auditbucket.audit.model.IAuditHeader;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
@@ -101,22 +102,30 @@ public class AuditChangeDaoES implements IAuditChangeDao {
         String indexName = header.getIndexName();
         String recordType = header.getDataType();
 
-        esClient.prepareDelete(indexName, recordType, existingIndexKey)
+        DeleteResponse dr = esClient.prepareDelete(indexName, recordType, existingIndexKey)
                 .setRouting(header.getAuditKey())
                 .execute()
                 .actionGet();
 
-        if (log.isDebugEnabled())
-            log.debug("Removed child [" + existingIndexKey + "] from " + indexName + "/" + recordType);
+        if (log.isDebugEnabled()) {
+            if (dr.isNotFound())
+                log.debug("Didn't find the child to remove [" + existingIndexKey + "] from " + indexName + "/" + recordType);
+            else
+                log.debug("Removed child [" + existingIndexKey + "] from " + indexName + "/" + recordType);
+        }
 
-        esClient.prepareDelete(indexName, recordType + PARENT, header.getSearchKey())
+
+        dr = esClient.prepareDelete(indexName, recordType + PARENT, header.getSearchKey())
                 .setRouting(header.getAuditKey())
                 .execute()
                 .actionGet();
 
-        if (log.isDebugEnabled())
-            log.debug("Removed parent [" + header.getSearchKey() + "] from " + indexName + PARENT + "/" + recordType);
-
+        if (log.isDebugEnabled()) {
+            if (dr.isNotFound())
+                log.debug("Didn't find the parent to remove [" + existingIndexKey + "] from " + indexName + "/" + recordType + PARENT);
+            else
+                log.debug("Removed parent [" + header.getSearchKey() + "] from " + indexName + "/" + recordType + PARENT);
+        }
     }
 
     @Override

@@ -120,17 +120,20 @@ public class AuditEP {
     @RequestMapping(value = "/tx/{txRef}/headers", produces = "application/json", method = RequestMethod.GET)
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @ResponseBody
-    public ResponseEntity<Set<IAuditHeader>> getAuditTxHeaders(@PathVariable("txRef") String txRef) throws Exception {
+    public ResponseEntity<Map<String, Object>> getAuditTxHeaders(@PathVariable("txRef") String txRef) throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
-        Set<IAuditHeader> result;
+        Set<IAuditHeader> headers;
+        Map<String, Object> result = new HashMap<String, Object>(2);
         try {
-            result = auditService.findTxHeaders(txRef);
-            return new ResponseEntity<Set<IAuditHeader>>(result, HttpStatus.OK);
+            headers = auditService.findTxHeaders(txRef);
+            result.put("txRef", txRef);
+            result.put("headers", headers);
+            return new ResponseEntity<Map<String, Object>>(result, HttpStatus.OK);
 
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<Set<IAuditHeader>>((Set<IAuditHeader>) null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<Map<String, Object>>(result, HttpStatus.NOT_FOUND);
         } catch (SecurityException e) {
-            return new ResponseEntity<Set<IAuditHeader>>((Set<IAuditHeader>) null, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<Map<String, Object>>(result, HttpStatus.FORBIDDEN);
         }
     }
 

@@ -29,14 +29,14 @@ public class AuditSearchService {
     }
 
     @Transactional
-    void updateSearchableChange(IAuditHeader header, String existingKey, DateTime dateWhen, String what) {
+    IAuditChange updateSearchableChange(IAuditHeader header, String existingKey, DateTime dateWhen, String what) {
         if (header.getFortress().isIgnoreSearchEngine())
-            return;
+            return null;
         if (existingKey != null)
             auditChange.delete(header, existingKey);
 
         // Only happen if the fortress was previously not creating searchable key values
-        createSearchableChange(header, dateWhen, what, "Update");
+        return createSearchableChange(header, dateWhen, what, "Update");
     }
 
     @Transactional

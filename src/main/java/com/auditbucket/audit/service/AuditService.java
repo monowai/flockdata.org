@@ -214,8 +214,8 @@ public class AuditService {
 
 
         IFortress fortress = header.getFortress();
-
         IFortressUser fUser = fortressService.getFortressUser(fortress, input.getFortressUser().toLowerCase(), true);
+
         // Spin the following off in to a separate thread?
         String childKey = null, parentKey = null;
         IAuditLog lastChange = auditDAO.getLastChange(header.getId());
@@ -251,7 +251,12 @@ public class AuditService {
                 // Update instead of Create
                 childKey = lastChange.getKey(); // Key does not change in this mode
 
-                searchService.updateSearchableChange(header, childKey, dateWhen, input.getWhat());
+                IAuditChange change = searchService.updateSearchableChange(header, childKey, dateWhen, input.getWhat());
+                if (change != null) {
+                    setHeader = true;
+                    childKey = change.getChild();
+                    parentKey = change.getParent();
+                }
             }
         } else { // Creating a new log
             if (event == null)
@@ -368,7 +373,7 @@ public class AuditService {
         auditHeader = auditDAO.save(auditHeader);
 
         // Sync the update to elastic search.
-        if (auditHeader.getFortress().isAccumulatingChanges())
+        if (!auditHeader.getFortress().isIgnoreSearchEngine())
             searchService.update(auditHeader, auditLog.getKey(), auditLog.getWhat());
 
         return auditHeader;
