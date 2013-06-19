@@ -8,15 +8,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * User: mike
@@ -42,27 +40,31 @@ public class AuditChangeDaoES implements IAuditChangeDao {
             String indexName = auditChange.getIndexName();
             String recordType = auditChange.getRecordType();
 
-            IndexResponse ir = esClient.prepareIndex(indexName, recordType + PARENT)
-                    .setSource(om.writeValueAsBytes(auditChange))
+//            IndexResponse ir = esClient.prepareIndex(indexName, recordType + PARENT)
+//                    .setSource(om.writeValueAsBytes(auditChange))
+//                    .setRouting(auditChange.getName())
+//                    .execute()
+//                    .actionGet();
+//
+//            if (log.isDebugEnabled())
+//                log.debug("Added parent [" + ir.getId() + "] to " + indexName + "/" + recordType + PARENT);
+//            String parent = ir.getId();
+//            auditChange.setSearchKey(parent);
+
+            String what = auditChange.getWhat();
+            Map<String, Object> indexMe = om.readValue(om.readTree(what).toString(), Map.class);
+            if (!what.contains(auditChange.getName()))
+                indexMe.put("auditKey", auditChange.getName());
+
+            IndexResponse ir = esClient.prepareIndex(indexName, recordType)
+                    .setSource(indexMe)
                     .setRouting(auditChange.getName())
                     .execute()
                     .actionGet();
 
+            auditChange.setSearchKey(ir.getId());
             if (log.isDebugEnabled())
-                log.debug("Added parent [" + ir.getId() + "] to " + indexName + "/" + recordType + PARENT);
-            String parent = ir.getId();
-            auditChange.setParent(parent);
-
-            IndexResponse cr = esClient.prepareIndex(indexName, recordType)
-                    .setSource(auditChange.getWhat())
-                    .setRouting(auditChange.getName())
-                    .setParent(parent)
-                    .execute()
-                    .actionGet();
-
-            auditChange.setChild(cr.getId());
-            if (log.isDebugEnabled())
-                log.debug("Added child [" + cr.getId() + "] to " + indexName + "/" + recordType);
+                log.debug("Added child [" + ir.getId() + "] to " + indexName + "/" + recordType);
             return auditChange;
         } catch (IOException e) {
             log.fatal("*** Error saving [" + auditChange.getIndexName() + "], [" + auditChange.getRecordType() + "]", e);
@@ -109,40 +111,40 @@ public class AuditChangeDaoES implements IAuditChangeDao {
 
         if (log.isDebugEnabled()) {
             if (dr.isNotFound())
-                log.debug("Didn't find the child to remove [" + existingIndexKey + "] from " + indexName + "/" + recordType);
+                log.debug("Didn't find the document to remove [" + existingIndexKey + "] from " + indexName + "/" + recordType);
             else
-                log.debug("Removed child [" + existingIndexKey + "] from " + indexName + "/" + recordType);
+                log.debug("Removed document [" + existingIndexKey + "] from " + indexName + "/" + recordType);
         }
 
 
-        dr = esClient.prepareDelete(indexName, recordType + PARENT, header.getSearchKey())
-                .setRouting(header.getAuditKey())
-                .execute()
-                .actionGet();
-
-        if (log.isDebugEnabled()) {
-            if (dr.isNotFound())
-                log.debug("Didn't find the parent to remove [" + existingIndexKey + "] from " + indexName + "/" + recordType + PARENT);
-            else
-                log.debug("Removed parent [" + header.getSearchKey() + "] from " + indexName + "/" + recordType + PARENT);
-        }
+//        dr = esClient.prepareDelete(indexName, recordType + PARENT, header.getSearchKey())
+//                .setRouting(header.getAuditKey())
+//                .execute()
+//                .actionGet();
+//
+//        if (log.isDebugEnabled()) {
+//            if (dr.isNotFound())
+//                log.debug("Didn't find the parent to remove [" + existingIndexKey + "] from " + indexName + "/" + recordType + PARENT);
+//            else
+//                log.debug("Removed parent [" + header.getSearchKey() + "] from " + indexName + "/" + recordType + PARENT);
+//        }
     }
 
-    @Override
-    public void update(IAuditHeader header, @NotNull @NotEmpty String existingKey, String what) {
-        delete(header, existingKey);
-
-        IndexRequestBuilder update = esClient.
-                prepareIndex(header.getIndexName(), header.getDataType(), existingKey)
-                .setRouting(header.getAuditKey())
-                .setOperationThreaded(false);
-
-        IndexResponse ur = update.setSource(what).
-                execute().
-                actionGet();
-
-        if (log.isDebugEnabled())
-            log.debug("Updated [" + existingKey + "] for " + header + " to version " + ur.getVersion());
-
-    }
+//    @Override
+//    public void update(IAuditHeader header, @NotNull IAuditLog what) {
+//        delete(header, what.getKey());
+//
+//        IndexRequestBuilder update = esClient.
+//                prepareIndex(header.getIndexName(), header.getDataType(), existingKey)
+//                .setRouting(header.getAuditKey())
+//                .setOperationThreaded(false);
+//
+//        IndexResponse ur = update.setSource(what).
+//                execute().
+//                actionGet();
+//
+//        if (log.isDebugEnabled())
+//            log.debug("Updated [" + existingKey + "] for " + header + " to version " + ur.getVersion());
+//
+//    }
 }

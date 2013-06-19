@@ -33,13 +33,9 @@ public interface IAuditChange {
 
     public String getId();
 
-    public void setChild(String child);
+    public void setSearchKey(String parent);
 
-    public void setParent(String parent);
-
-    public String getParent();
-
-    public String getChild();
+    public String getSearchKey();
 
     void setEvent(String event);
 

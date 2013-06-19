@@ -61,6 +61,19 @@ public class TestElasticSearch {
     @Autowired
     IAuditChangeDao alRepo;
 
+    @Test
+    public void testMappingJson() throws Exception {
+        String escWhat = "{\"house\": \"house\"}";
+        ObjectMapper om = new ObjectMapper();
+
+        Map<String, Object> indexMe = new HashMap<String, Object>(40);
+        indexMe.put("auditKey", "abc");
+        Map<String, Object> what = om.readValue(escWhat, Map.class);
+        indexMe.put("what", what);
+        log.info(indexMe.get("What"));
+
+
+    }
 
     @Test
     public void testJson() {
@@ -84,8 +97,6 @@ public class TestElasticSearch {
         name.put("last", "Sixpack");
 
 
-        name.put("first", "Joe");
-        name.put("last", "Sixpack");
         auditChange.setWhat(name.toString());
 
         try {
@@ -154,11 +165,8 @@ public class TestElasticSearch {
 
         auditChange = alRepo.save(auditChange);
         assertNotNull(auditChange);
-        String childID = auditChange.getChild();
-        String parentID = auditChange.getParent();
-        assertNotNull(childID);
+        String parentID = auditChange.getSearchKey();
         assertNotNull(parentID);
-        assertNotSame(childID, parentID);
 
         // Retrieve parent from Lucene
         byte[] parent = alRepo.findOne(auditHeader, parentID, true);
@@ -170,7 +178,7 @@ public class TestElasticSearch {
         // Occasionally findOne() fails for unknown reasons. I think it's down to the time between writing the "what"
         //              and reading it back, hence the Thread.sleep
         Thread.sleep(3000);
-        byte[] child = alRepo.findOne(auditHeader, childID);
+        byte[] child = alRepo.findOne(auditHeader, parentID);
 
         assertNotNull("No bytes returned", child);
 

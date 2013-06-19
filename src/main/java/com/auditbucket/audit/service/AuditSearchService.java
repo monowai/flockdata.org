@@ -29,14 +29,13 @@ public class AuditSearchService {
     }
 
     @Transactional
-    IAuditChange updateSearchableChange(IAuditHeader header, String existingKey, DateTime dateWhen, String what) {
+    IAuditChange updateSearchableChange(IAuditHeader header, String existingKey, DateTime dateWhen, String what, String event) {
         if (header.getFortress().isIgnoreSearchEngine())
             return null;
         if (existingKey != null)
             auditChange.delete(header, existingKey);
 
-        // Only happen if the fortress was previously not creating searchable key values
-        return createSearchableChange(header, dateWhen, what, "Update");
+        return createSearchableChange(header, dateWhen, what, event);
     }
 
     @Transactional
@@ -58,9 +57,4 @@ public class AuditSearchService {
 
     }
 
-    @Transactional
-    public void update(IAuditHeader auditHeader, String key, String what) {
-        auditChange.update(auditHeader, key, what);
-
-    }
 }

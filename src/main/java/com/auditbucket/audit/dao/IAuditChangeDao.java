@@ -24,6 +24,4 @@ public interface IAuditChangeDao {
 
     void delete(IAuditHeader header, String existingIndexKey);
 
-    void update(IAuditHeader header, String existingKey, String what);
-
 }

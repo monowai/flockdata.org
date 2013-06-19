@@ -65,26 +65,15 @@ public class AuditChange implements IAuditChange {
         return id;
     }
 
-    private String child;
+    private String searchKey;
 
     @JsonIgnore
-    public void setChild(String child) {
-        this.child = child;
+    public void setSearchKey(String searchKey) {
+        this.searchKey = searchKey;
     }
 
-    public String getChild() {
-        return child;
-    }
-
-    private String parent;
-
-    @JsonIgnore
-    public void setParent(String parent) {
-        this.parent = parent;
-    }
-
-    public String getParent() {
-        return parent;
+    public String getSearchKey() {
+        return searchKey;
     }
 
 

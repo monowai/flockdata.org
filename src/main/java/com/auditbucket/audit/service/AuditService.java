@@ -212,14 +212,14 @@ public class AuditService {
 
         boolean setHeader = false;
 
-
         IFortress fortress = header.getFortress();
         IFortressUser fUser = fortressService.getFortressUser(fortress, input.getFortressUser().toLowerCase(), true);
 
         // Spin the following off in to a separate thread?
-        String childKey = null, parentKey = null;
+        String searchKey = null;
         IAuditLog lastChange = auditDAO.getLastChange(header.getId());
         String event = input.getEventType();
+
         DateTime dateWhen;
         if (input.getWhen() == null)
             dateWhen = new DateTime();
@@ -246,16 +246,15 @@ public class AuditService {
             if (fortress.isAccumulatingChanges()) {
                 IAuditChange change = searchService.createSearchableChange(header, dateWhen, input.getWhat(), event);
                 if (change != null)
-                    childKey = change.getChild();
+                    searchKey = change.getSearchKey();
             } else {
                 // Update instead of Create
-                childKey = lastChange.getKey(); // Key does not change in this mode
+                searchKey = lastChange.getSearchKey(); // Key does not change in this mode
 
-                IAuditChange change = searchService.updateSearchableChange(header, childKey, dateWhen, input.getWhat());
+                IAuditChange change = searchService.updateSearchableChange(header, searchKey, dateWhen, input.getWhat(), event);
                 if (change != null) {
                     setHeader = true;
-                    childKey = change.getChild();
-                    parentKey = change.getParent();
+                    searchKey = change.getSearchKey();
                 }
             }
         } else { // Creating a new log
@@ -264,8 +263,7 @@ public class AuditService {
             setHeader = true;
             IAuditChange change = searchService.createSearchableChange(header, dateWhen, input.getWhat(), event);
             if (change != null) {
-                childKey = change.getChild();
-                parentKey = change.getParent();
+                searchKey = change.getSearchKey();
             }
         }
 
@@ -278,15 +276,15 @@ public class AuditService {
             }
 
             header.setLastUser(fUser);
-            if (parentKey != null)
-                header.setSearchKey(parentKey);
+            if (searchKey != null)
+                header.setSearchKey(searchKey);
             header = auditDAO.save(header, input.getTxRef());
         }
 
         AuditLog al = new AuditLog(header, fUser, dateWhen, event, input.getWhat());
         if (input.getTxRef() != null)
             al.setTxRef(input.getTxRef());
-        al.setKey(childKey);
+        al.setKey(searchKey);
         auditDAO.save(al);
         input.setStatus(LogStatus.OK);
         return input;
@@ -354,27 +352,32 @@ public class AuditService {
      * @param headerKey UID of the header
      * @return the modified header record or null if no header exists.
      */
+    @Transactional
     public IAuditHeader cancelLastLog(String headerKey) {
         IAuditHeader auditHeader = getValidHeader(headerKey);
         IAuditLog auditLog = getLastChange(auditHeader);
         if (auditHeader.getFortress().isAccumulatingChanges())
             // If adding, then we need to remove the ES document
-            searchService.delete(auditHeader, auditLog.getKey());
+            searchService.delete(auditHeader, auditLog.getSearchKey());
 
         auditDAO.delete(auditLog);
+        searchService.delete(auditHeader, auditLog.getSearchKey());
 
-        auditLog = getLastChange(auditHeader);
-        if (auditLog == null)
+        IAuditLog lastChange = getLastChange(auditHeader);
+        if (lastChange == null)
             return null;
 
         auditHeader = auditDAO.fetch(auditHeader);
 
-        auditHeader.setLastUser(fortressService.getFortressUser(auditHeader.getFortress(), auditLog.getWho().getName()));
+        auditHeader.setLastUser(fortressService.getFortressUser(auditHeader.getFortress(), lastChange.getWho().getName()));
         auditHeader = auditDAO.save(auditHeader);
 
         // Sync the update to elastic search.
-        if (!auditHeader.getFortress().isIgnoreSearchEngine())
-            searchService.update(auditHeader, auditLog.getKey(), auditLog.getWhat());
+        if (!auditHeader.getFortress().isIgnoreSearchEngine()) {
+            IAuditChange change = searchService.createSearchableChange(auditHeader, new DateTime(lastChange.getWhen()), lastChange.getWhat(), lastChange.getEvent());
+            if (change != null)
+                auditHeader.setSearchKey(change.getSearchKey());
+        }
 
         return auditHeader;
     }

@@ -96,7 +96,7 @@ public class AuditLog implements IAuditLog {
     }
 
     @JsonIgnore
-    public String getKey() {
+    public String getSearchKey() {
         return changeKey;
     }
 

@@ -21,7 +21,6 @@ public interface IAuditLog {
     public abstract Date getWhen();
 
     /**
-     *
      * @return UTC time that this record was created
      */
     public abstract Date getSysWhen();
@@ -40,7 +39,7 @@ public interface IAuditLog {
     /**
      * @return unique identifier to the search index key
      */
-    public String getKey();
+    public String getSearchKey();
 
     public String getWhat();
 
