@@ -48,6 +48,7 @@ public class AuditSearchService {
         IAuditChange thisChange = new AuditChange(header);
         thisChange.setEvent(event);
         thisChange.setWhat(what);
+        thisChange.setWho(header.getLastUser().getName());
         if (dateWhen != null)
             thisChange.setWhen(dateWhen.toDate());
         thisChange = auditChange.save(thisChange);

@@ -23,7 +23,6 @@ import java.util.Map;
  */
 @Repository("esAuditChange")
 public class AuditChangeDaoES implements IAuditChangeDao {
-    public static final String PARENT = "_parent";
     @Autowired
     private Client esClient;
 
@@ -40,21 +39,12 @@ public class AuditChangeDaoES implements IAuditChangeDao {
             String indexName = auditChange.getIndexName();
             String recordType = auditChange.getRecordType();
 
-//            IndexResponse ir = esClient.prepareIndex(indexName, recordType + PARENT)
-//                    .setSource(om.writeValueAsBytes(auditChange))
-//                    .setRouting(auditChange.getName())
-//                    .execute()
-//                    .actionGet();
-//
-//            if (log.isDebugEnabled())
-//                log.debug("Added parent [" + ir.getId() + "] to " + indexName + "/" + recordType + PARENT);
-//            String parent = ir.getId();
-//            auditChange.setSearchKey(parent);
 
             String what = auditChange.getWhat();
             Map<String, Object> indexMe = om.readValue(om.readTree(what).toString(), Map.class);
             if (!what.contains(auditChange.getName()))
                 indexMe.put("auditKey", auditChange.getName());
+            indexMe.put("who", auditChange.getWho());
 
             IndexResponse ir = esClient.prepareIndex(indexName, recordType)
                     .setSource(indexMe)
@@ -69,6 +59,25 @@ public class AuditChangeDaoES implements IAuditChangeDao {
         } catch (IOException e) {
             log.fatal("*** Error saving [" + auditChange.getIndexName() + "], [" + auditChange.getRecordType() + "]", e);
             throw new RuntimeException(e);
+        }
+
+    }
+
+    @Override
+    public void delete(IAuditHeader header, String existingIndexKey) {
+        String indexName = header.getIndexName();
+        String recordType = header.getDataType();
+
+        DeleteResponse dr = esClient.prepareDelete(indexName, recordType, existingIndexKey)
+                .setRouting(header.getAuditKey())
+                .execute()
+                .actionGet();
+
+        if (log.isDebugEnabled()) {
+            if (dr.isNotFound())
+                log.debug("Didn't find the document to remove [" + existingIndexKey + "] from " + indexName + "/" + recordType);
+            else
+                log.debug("Removed document [" + existingIndexKey + "] from " + indexName + "/" + recordType);
         }
 
     }
@@ -91,53 +100,4 @@ public class AuditChangeDaoES implements IAuditChangeDao {
         return null;
     }
 
-
-    @Override
-    public void delete(IAuditHeader header, String existingIndexKey) {
-        String indexName = header.getIndexName();
-        String recordType = header.getDataType();
-
-        DeleteResponse dr = esClient.prepareDelete(indexName, recordType, existingIndexKey)
-                .setRouting(header.getAuditKey())
-                .execute()
-                .actionGet();
-
-        if (log.isDebugEnabled()) {
-            if (dr.isNotFound())
-                log.debug("Didn't find the document to remove [" + existingIndexKey + "] from " + indexName + "/" + recordType);
-            else
-                log.debug("Removed document [" + existingIndexKey + "] from " + indexName + "/" + recordType);
-        }
-
-
-//        dr = esClient.prepareDelete(indexName, recordType + PARENT, header.getSearchKey())
-//                .setRouting(header.getAuditKey())
-//                .execute()
-//                .actionGet();
-//
-//        if (log.isDebugEnabled()) {
-//            if (dr.isNotFound())
-//                log.debug("Didn't find the parent to remove [" + existingIndexKey + "] from " + indexName + "/" + recordType + PARENT);
-//            else
-//                log.debug("Removed parent [" + header.getSearchKey() + "] from " + indexName + "/" + recordType + PARENT);
-//        }
-    }
-
-//    @Override
-//    public void update(IAuditHeader header, @NotNull IAuditLog what) {
-//        delete(header, what.getKey());
-//
-//        IndexRequestBuilder update = esClient.
-//                prepareIndex(header.getIndexName(), header.getDataType(), existingKey)
-//                .setRouting(header.getAuditKey())
-//                .setOperationThreaded(false);
-//
-//        IndexResponse ur = update.setSource(what).
-//                execute().
-//                actionGet();
-//
-//        if (log.isDebugEnabled())
-//            log.debug("Updated [" + existingKey + "] for " + header + " to version " + ur.getVersion());
-//
-//    }
 }

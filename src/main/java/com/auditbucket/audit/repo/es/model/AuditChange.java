@@ -25,6 +25,7 @@ public class AuditChange implements IAuditChange {
     private String fortressName;
     private String companyName;
     private String event;
+    private String who;
     @Version
     private Long version;
 
@@ -92,6 +93,11 @@ public class AuditChange implements IAuditChange {
         return name;
     }
 
+    @Override
+    public String getWho() {
+        return this.who;
+    }
+
     public void setName(String who) {
         this.name = who;
     }
@@ -107,6 +113,11 @@ public class AuditChange implements IAuditChange {
 
     public void setWhen(Date when) {
         this.when = when;
+    }
+
+    @Override
+    public void setWho(String name) {
+        this.who = name;
     }
 
     public String getFortressName() {

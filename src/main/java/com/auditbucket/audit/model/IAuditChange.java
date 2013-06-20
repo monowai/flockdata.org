@@ -15,6 +15,8 @@ public interface IAuditChange {
 
     public String getName();
 
+    public String getWho();
+
     public String getFortressName();
 
     public String getCompanyName();
@@ -41,4 +43,5 @@ public interface IAuditChange {
 
     void setWhen(Date date);
 
+    void setWho(String name);
 }
