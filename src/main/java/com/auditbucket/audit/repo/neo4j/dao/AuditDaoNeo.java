@@ -5,15 +5,18 @@ import com.auditbucket.audit.bean.AuditTXResult;
 import com.auditbucket.audit.dao.IAuditDao;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
+import com.auditbucket.audit.model.IAuditWhen;
 import com.auditbucket.audit.model.ITxRef;
 import com.auditbucket.audit.repo.neo4j.AuditHeaderRepo;
 import com.auditbucket.audit.repo.neo4j.AuditLogRepo;
 import com.auditbucket.audit.repo.neo4j.model.AuditHeader;
 import com.auditbucket.audit.repo.neo4j.model.AuditLog;
+import com.auditbucket.audit.repo.neo4j.model.AuditWhen;
 import com.auditbucket.audit.repo.neo4j.model.TxRef;
 import com.auditbucket.registration.model.ICompany;
+import org.hibernate.validator.constraints.NotEmpty;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.conversion.EndResult;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
@@ -66,7 +69,7 @@ public class AuditDaoNeo implements IAuditDao {
 
     @Override
     public IAuditHeader findHeader(String key, boolean inflate) {
-        IAuditHeader header = auditRepo.findByPropertyValue(AuditHeader.UUID_KEY, key);
+        IAuditHeader header = auditRepo.findByUID(key);
         if (inflate) {
             fetch(header);
         }
@@ -91,14 +94,14 @@ public class AuditDaoNeo implements IAuditDao {
     @Override
     public IAuditHeader fetch(IAuditHeader header) {
         template.fetch(header);
-        template.fetch(header.getTxTags());
+        //template.fetch(header.getTxTags());
         template.fetch(header.getFortress());
 
         return header;
     }
 
     @Override
-    public ITxRef findTxTag(String userTag, ICompany company, boolean fetchHeaders) {
+    public ITxRef findTxTag(@NotNull @NotEmpty String userTag, @NotNull ICompany company, boolean fetchHeaders) {
         ITxRef txRef = auditRepo.findTxTag(userTag, company.getId());
         return txRef;
     }
@@ -136,9 +139,7 @@ public class AuditDaoNeo implements IAuditDao {
     }
 
     public Set<IAuditLog> getAuditLogs(Long auditHeaderID) {
-        IAuditHeader header = auditRepo.findOne(auditHeaderID);
-        template.fetch(header);
-        return header.getAuditLogs();
+        return auditLogRepo.findAuditLogs(auditHeaderID);
     }
 
     @Override
@@ -152,46 +153,12 @@ public class AuditDaoNeo implements IAuditDao {
         auditRepo.delete((AuditHeader) auditHeader);
     }
 
-    public Map<String, Object> findByTransactionx(ITxRef txRef) {
-        //ExecutionEngine engine = new ExecutionEngine( template.getGraphDatabaseService());
-        if (txRef.getHeaders().size() == 0)
-            template.fetch(txRef);
-
-        //template.fetch(txRef.getHeaders());
-        if (txRef.getHeaders().size() == 0)
-            return null;
-        Collection<Long> keys = new ArrayList<Long>(10);
-        for (IAuditHeader iAuditHeader : txRef.getHeaders()) {
-            keys.add(iAuditHeader.getId());
-        }
-        EndResult<Map<String, Object>> logs = auditLogRepo.findLogs(keys, txRef.getName());
-        Iterator<Map<String, Object>> rows = logs.iterator();
-
-        List<AuditTXResult> simpleResult = new ArrayList<AuditTXResult>();
-        int i = 1;
-        //Result<Map<String, Object>> results =
-        while (rows.hasNext()) {
-            Map<String, Object> row = rows.next();
-            IAuditLog log = template.convert(row.get("log"), AuditLog.class);
-
-            AuditTXResult aresult = new AuditTXResult(log);
-            simpleResult.add(aresult);
-            i++;
-        }
-        Map<String, Object> result = new HashMap<String, Object>(i);
-        result.put("txRef", txRef.getName());
-        result.put("logs", simpleResult);
-
-        return result;
-    }
-
     public Map<String, Object> findByTransaction(ITxRef txRef) {
         //Example showing how to use cypher and extract
 
         String findByTagRef = "start tag =node({txRef}) " +
-                "              match tag-[:txIncludes]->audit<-[logs:changed]-fortressUser " +
-                "              where logs.txRef! = tag.name " +
-                "             return logs " +
+                "              match tag-[:txIncludes]->auditLog<-[logs:logged]-audit " +
+                "             return logs, audit, auditLog " +
                 "           order by logs.sysWhen";
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("txRef", txRef.getId());
@@ -208,17 +175,16 @@ public class AuditDaoNeo implements IAuditDao {
         //Result<Map<String, Object>> results =
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
-            IAuditLog log = template.convert(row.get("logs"), AuditLog.class);
-            IAuditHeader audit = headers.get(log.getHeader().getId());
+            IAuditWhen when = template.convert(row.get("logs"), AuditWhen.class);
+            IAuditLog log = template.convert(row.get("auditLog"), AuditLog.class);
+            IAuditHeader audit = template.convert(row.get("audit"), AuditHeader.class);
 
             if (audit == null) {
                 audit = template.findOne(log.getHeader().getId(), AuditHeader.class);
                 template.fetch(log.getWho());
-                //template.fetch(audit.getFortress());
                 headers.put(audit.getId(), audit);
             }
-            simpleResult.add(new AuditTXResult(audit, log));
-            //aResult[i] = new AuditTXResult(tag, audit, logs);
+            simpleResult.add(new AuditTXResult(audit, log, when));
             i++;
 
         }
@@ -227,5 +193,13 @@ public class AuditDaoNeo implements IAuditDao {
         result.put("logs", simpleResult);
 
         return result;
+    }
+
+    @Override
+    public void addChange(IAuditHeader header, IAuditLog al, DateTime dateWhen) {
+        AuditWhen aWhen = new AuditWhen(header, al, dateWhen.getMillis());
+        template.save(aWhen);
+        header.getAuditKey();
+
     }
 }

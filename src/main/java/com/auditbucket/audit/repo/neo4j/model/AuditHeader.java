@@ -2,8 +2,7 @@ package com.auditbucket.audit.repo.neo4j.model;
 
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.model.IAuditHeader;
-import com.auditbucket.audit.model.IAuditLog;
-import com.auditbucket.audit.model.ITxRef;
+import com.auditbucket.audit.model.IAuditWhen;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.model.IFortressUser;
 import com.auditbucket.registration.repo.neo4j.model.Fortress;
@@ -26,7 +25,7 @@ import java.util.UUID;
  * Date: 14/04/13
  * Time: 10:56 AM
  */
-@NodeEntity
+@NodeEntity(useShortNames = true)
 public class AuditHeader implements IAuditHeader {
 
     @GraphId
@@ -42,13 +41,11 @@ public class AuditHeader implements IAuditHeader {
     @Fetch
     private Fortress fortress;
 
-    @RelatedToVia(elementClass = AuditLog.class, type = "changed", direction = Direction.INCOMING)
-    private Set<IAuditLog> auditLogs = null;
-
-    @RelatedTo(elementClass = TxRef.class, type = "txIncludes", direction = Direction.INCOMING)
-    private Set<ITxRef> txTags = null;
+    @RelatedToVia(elementClass = AuditWhen.class, type = "logged", direction = Direction.OUTGOING)
+    private Set<IAuditWhen> auditWhen = new HashSet<IAuditWhen>();
 
     public static final String UUID_KEY = "auditKey";
+
     @Indexed(indexName = UUID_KEY, unique = true)
     private String auditKey;
 
@@ -187,8 +184,8 @@ public class AuditHeader implements IAuditHeader {
 
     @Override
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Set<IAuditLog> getAuditLogs() {
-        return auditLogs;
+    public Set<IAuditWhen> getAuditLogs() {
+        return auditWhen;
     }
 
     @JsonIgnore
@@ -201,20 +198,6 @@ public class AuditHeader implements IAuditHeader {
         return this.searchKey;
     }
 
-
-    @Override
-    public void addTxTag(ITxRef tag) {
-        if (tag == null)
-            return;
-        getTxTags().add(tag);
-    }
-
-    @JsonIgnore
-    public Set<ITxRef> getTxTags() {
-        if (txTags == null)
-            txTags = new HashSet<ITxRef>();
-        return txTags;
-    }
 
     @Override
     @JsonInclude(JsonInclude.Include.NON_NULL)

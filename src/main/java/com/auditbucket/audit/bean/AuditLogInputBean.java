@@ -101,8 +101,10 @@ public class AuditLogInputBean {
     public void setTxRef(String txRef) {
         if (txRef != null && txRef.equals(""))
             this.txRef = null;
-        else
+        else {
             this.txRef = txRef;
+            setTransactional(true);
+        }
     }
 
     public void setMessage(String message) {

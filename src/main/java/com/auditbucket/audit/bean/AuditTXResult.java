@@ -2,6 +2,7 @@ package com.auditbucket.audit.bean;
 
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
+import com.auditbucket.audit.model.IAuditWhen;
 
 
 /**
@@ -17,17 +18,16 @@ public class AuditTXResult {
     private String dataType;
     private String clientRef;
     private Long lastSystemChange;
+    private Long fortressWhen = 0l;
 
     private IAuditLog auditLog;
 
-    public AuditTXResult() {
+    private AuditTXResult() {
     }
 
-    public AuditTXResult(IAuditLog log) {
-        this(null, log);
-    }
 
-    public AuditTXResult(IAuditHeader header, IAuditLog log) {
+    public AuditTXResult(IAuditHeader header, IAuditLog log, IAuditWhen when) {
+        this.fortressWhen = when.getFortressWhen();
         if (header == null)
             header = log.getHeader();
         this.auditKey = header.getAuditKey();
@@ -38,7 +38,6 @@ public class AuditTXResult {
         this.lastSystemChange = header.getLastUpdated();
         this.auditLog = log;
     }
-
 
     public Object getAuditLog() {
         return auditLog;

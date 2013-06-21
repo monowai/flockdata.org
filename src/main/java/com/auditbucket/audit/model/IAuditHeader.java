@@ -54,7 +54,7 @@ public interface IAuditHeader {
      */
     void bumpUpdate();
 
-    Set<IAuditLog> getAuditLogs();
+    Set<IAuditWhen> getAuditLogs();
 
     void setSearchKey(String parentKey);
 
@@ -63,9 +63,7 @@ public interface IAuditHeader {
      */
     public String getSearchKey();
 
-    void addTxTag(ITxRef tag);
-
-    Set<ITxRef> getTxTags();
+    //Set<ITxRef> getTxTags();
 
     String getClientRef();
 

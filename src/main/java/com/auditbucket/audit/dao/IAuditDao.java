@@ -5,6 +5,7 @@ import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.audit.model.ITxRef;
 import com.auditbucket.registration.model.ICompany;
+import org.joda.time.DateTime;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
@@ -69,4 +70,6 @@ public interface IAuditDao {
     public ITxRef beginTransaction(String id, ICompany company);
 
     public Map<String, Object> findByTransaction(ITxRef txRef);
+
+    void addChange(IAuditHeader header, IAuditLog al, DateTime dateWhen);
 }

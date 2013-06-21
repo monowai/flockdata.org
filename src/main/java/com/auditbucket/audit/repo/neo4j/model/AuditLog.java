@@ -2,12 +2,17 @@ package com.auditbucket.audit.repo.neo4j.model;
 
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
+import com.auditbucket.audit.model.ITxRef;
 import com.auditbucket.registration.model.IFortressUser;
 import com.auditbucket.registration.repo.neo4j.model.FortressUser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.springframework.data.neo4j.annotation.*;
+import org.neo4j.graphdb.Direction;
+import org.springframework.data.neo4j.annotation.GraphId;
+import org.springframework.data.neo4j.annotation.Indexed;
+import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.annotation.RelatedTo;
 
 import java.util.Date;
 
@@ -16,32 +21,28 @@ import java.util.Date;
  * Date: 15/04/13
  * Time: 5:57 AM
  */
-@RelationshipEntity(type = "changed", useShortNames = true)
+@NodeEntity(useShortNames = true)
 public class AuditLog implements IAuditLog {
-
-    @StartNode
-    private FortressUser madeBy;
-
-    @Indexed(indexName = "changeHeader")
-    @EndNode
-    private AuditHeader auditHeader;
-
     @GraphId
     private Long id;
+
+    @RelatedTo(elementClass = FortressUser.class, type = "changed", direction = Direction.INCOMING, enforceTargetType = true)
+    private FortressUser madeBy;
+
+    @RelatedTo(elementClass = TxRef.class, type = "txIncludes", direction = Direction.INCOMING, enforceTargetType = true)
+    private ITxRef txRef;
+
+
     private long sysWhen;
     private String comment;
 
     private String what;
     private String event;
 
-    @Indexed(indexName = "changedWhen")
     private Long when = 0l;
 
     @Indexed(indexName = "esKey")
     private String changeKey;
-
-    @Indexed(indexName = "txRef")
-    private String txRef;
 
 
     protected AuditLog() {
@@ -52,7 +53,7 @@ public class AuditLog implements IAuditLog {
     public AuditLog(IAuditHeader header, IFortressUser madeBy, DateTime when, String event, String what) {
         this();
         this.madeBy = (FortressUser) madeBy;
-        auditHeader = (AuditHeader) header;
+        //auditHeader = (AuditHeader) header;
         if (when != null) {
             this.when = when.getMillis();
         } else {
@@ -65,7 +66,8 @@ public class AuditLog implements IAuditLog {
 
     @JsonIgnore
     public IAuditHeader getHeader() {
-        return auditHeader;
+        //return auditHeader;
+        return null;
     }
 
     @JsonIgnore
@@ -113,7 +115,7 @@ public class AuditLog implements IAuditLog {
         return what;
     }
 
-    public void setTxRef(String txRef) {
+    public void setTxRef(ITxRef txRef) {
         this.txRef = txRef;
     }
 }

@@ -21,6 +21,9 @@ public interface AuditHeaderRepo extends GraphRepository<AuditHeader> {
             "return audit")
     AuditHeader findByClientRef(String clientRef, String fortress, String company);
 
+    @Query(elementClass = AuditHeader.class, value = "start audit=node:auditKey(auditKey = {0} ) return audit")
+    AuditHeader findByUID(String uid);
+
     @Query(elementClass = AuditHeader.class, value = "start n=node:company({1} ) " +
             "   MATCH company-[:validTag]->ct " +
             "   where ct.name in [{0}]" +

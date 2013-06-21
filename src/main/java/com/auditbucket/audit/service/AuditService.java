@@ -134,7 +134,6 @@ public class AuditService {
             txTag = beginTransaction();
 
         ah = new AuditHeader(fu, inputBean);
-        ah.addTxTag(txTag);
         ah = auditDAO.save(ah, inputBean);
 
         if (txTag != null)
@@ -266,15 +265,17 @@ public class AuditService {
                 searchKey = change.getSearchKey();
             }
         }
-
-        if (setHeader) {
-            ITxRef txRef;
-            if (input.isTransactional() && input.getTxRef() == null) {
+        ITxRef txRef = null;
+        if (input.isTransactional()) {
+            if (input.getTxRef() == null) {
                 txRef = beginTransaction();
                 input.setTxRef(txRef.getName());
-                header.addTxTag(txRef);
+            } else {
+                txRef = beginTransaction(input.getTxRef());
             }
+        }
 
+        if (setHeader) {
             header.setLastUser(fUser);
             if (searchKey != null)
                 header.setSearchKey(searchKey);
@@ -283,9 +284,10 @@ public class AuditService {
 
         AuditLog al = new AuditLog(header, fUser, dateWhen, event, input.getWhat());
         if (input.getTxRef() != null)
-            al.setTxRef(input.getTxRef());
+            al.setTxRef(txRef);
         al.setKey(searchKey);
         auditDAO.save(al);
+        auditDAO.addChange(header, al, dateWhen);
         input.setStatus(LogStatus.OK);
         return input;
 
@@ -330,7 +332,6 @@ public class AuditService {
         securityHelper.isValidUser();
         IAuditHeader auditHeader = getValidHeader(headerKey);
         return auditDAO.getAuditLogs(auditHeader.getId());
-
     }
 
     public Set<IAuditLog> getAuditLogs(String headerKey, Date from, Date to) {
