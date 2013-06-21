@@ -197,7 +197,7 @@ public class AuditDaoNeo implements IAuditDao {
 
     @Override
     public void addChange(IAuditHeader header, IAuditLog al, DateTime dateWhen) {
-        AuditWhen aWhen = new AuditWhen(header, al, dateWhen.getMillis());
+        AuditWhen aWhen = new AuditWhen(header, al);
         template.save(aWhen);
         header.getAuditKey();
 

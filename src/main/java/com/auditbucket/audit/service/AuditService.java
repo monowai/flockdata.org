@@ -282,7 +282,7 @@ public class AuditService {
             header = auditDAO.save(header, input.getTxRef());
         }
 
-        AuditLog al = new AuditLog(header, fUser, dateWhen, event, input.getWhat());
+        AuditLog al = new AuditLog(fUser, dateWhen, event, input.getWhat());
         if (input.getTxRef() != null)
             al.setTxRef(txRef);
         al.setKey(searchKey);

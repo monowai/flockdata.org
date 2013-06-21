@@ -36,7 +36,7 @@ public class AuditHeaderInputBean {
         this.fortressUser = fortressUser;
         this.recordType = recordType;
         this.callerRef = callerRef;
-        this.txRef = txRef;
+        setTxRef(txRef);
 
     }
 
@@ -95,6 +95,8 @@ public class AuditHeaderInputBean {
 
     public void setTxRef(String txRef) {
         this.txRef = txRef;
+        if (txRef != null && !txRef.isEmpty())
+            setIsTransactional(true);
     }
 
     public void setLastMessage(String lastMessage) {

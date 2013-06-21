@@ -1,15 +1,13 @@
-package com.auditbucket.test.unit;
+package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.bean.AuditLogInputBean;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
-import com.auditbucket.audit.repo.neo4j.model.TxRef;
 import com.auditbucket.audit.service.AuditService;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.model.ISystemUser;
-import com.auditbucket.registration.repo.neo4j.model.Company;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import org.apache.commons.logging.Log;
@@ -71,20 +69,6 @@ public class TestTxReference {
     private String uid = "mike@monowai.com";
     Authentication authA = new UsernamePasswordAuthenticationToken(uid, "user1");
 
-    @Test
-    public void testTxStatus() {
-        TxRef tx = new TxRef("abc", new Company(""));
-
-        // Current status should be created
-        assertEquals(TxRef.TxStatus.TX_CREATED, tx.getTxStatus());
-        TxRef.TxStatus previous = tx.commit();
-        assertEquals(TxRef.TxStatus.TX_COMMITTED, tx.getTxStatus());
-        assertEquals(TxRef.TxStatus.TX_CREATED, previous);
-        previous = tx.rollback();
-        assertEquals(TxRef.TxStatus.TX_ROLLBACK, tx.getTxStatus());
-        assertEquals(TxRef.TxStatus.TX_COMMITTED, previous);
-
-    }
 
     @Test
     public void testAuthorisedToViewTransaction() {

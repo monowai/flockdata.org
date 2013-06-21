@@ -1,5 +1,9 @@
 package com.auditbucket.registration.bean;
 
+import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.validation.constraints.NotNull;
+
 /**
  * User: mike
  * Date: 12/06/13
@@ -31,16 +35,14 @@ public class FortressInputBean {
      * @param ignoreSearchEngine should this fortress use a search engine?
      */
     public FortressInputBean(String name, boolean accumulateChanges, boolean ignoreSearchEngine) {
-        this.accumulateChanges = accumulateChanges;
-        this.ignoreSearchEngine = ignoreSearchEngine;
-
+        this(name);
         setAccumulateChanges(accumulateChanges);
+        setIgnoreSearchEngine(ignoreSearchEngine);
 
-        this.name = name;
     }
 
 
-    public FortressInputBean(String name) {
+    public FortressInputBean(@NotNull @NotEmpty String name) {
         this.name = name;
     }
 

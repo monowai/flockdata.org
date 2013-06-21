@@ -27,8 +27,8 @@ public interface AuditLogRepo extends GraphRepository<AuditLog> {
     Set<IAuditLog> getAuditLogs(Long auditHeaderID, Long from, Long to);
 
     @Query(elementClass = AuditLog.class, value = "start audit=node({0}) " +
-            "   MATCH audit-[:logged]->auditLog " +
-            "return auditLog")
+            "   MATCH audit-[l:logged]->auditLog " +
+            "return auditLog  order by l.sysWhen desc")
     Set<IAuditLog> findAuditLogs(Long auditHeaderID);
 
 //    @Query(value = "start audit=node({0}) " +

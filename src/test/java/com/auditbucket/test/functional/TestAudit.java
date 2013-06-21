@@ -1,4 +1,4 @@
-package com.auditbucket.test.unit;
+package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.bean.AuditLogInputBean;

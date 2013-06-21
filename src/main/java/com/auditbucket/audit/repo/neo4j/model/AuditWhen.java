@@ -32,15 +32,13 @@ public class AuditWhen implements IAuditWhen {
     protected AuditWhen() {
     }
 
-    public AuditWhen(IAuditHeader header, IAuditLog log, Long fortressWhen) {
+    public AuditWhen(IAuditHeader header, IAuditLog log) {
+        this();
         this.auditHeader = (AuditHeader) header;
         this.auditLog = (AuditLog) log;
-        sysWhen = log.getSysWhen().getTime();
-        if (fortressWhen == 0l)
-            this.fortressWhen = sysWhen;
-        else
-            this.fortressWhen = fortressWhen;
-
+        // ToDo: denormalisation here; storing the times in the relationships and the node
+        this.sysWhen = log.getSysWhen().getTime();
+        this.fortressWhen = log.getWhen().getTime();
     }
 
 
@@ -51,7 +49,6 @@ public class AuditWhen implements IAuditWhen {
     public Long getFortressWhen() {
         return fortressWhen;
     }
-
 
     void setSysWhen(Long sysWhen) {
         this.sysWhen = sysWhen;

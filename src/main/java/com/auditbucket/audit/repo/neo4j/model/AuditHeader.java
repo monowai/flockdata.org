@@ -183,7 +183,7 @@ public class AuditHeader implements IAuditHeader {
     }
 
     @Override
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonIgnore
     public Set<IAuditWhen> getAuditLogs() {
         return auditWhen;
     }

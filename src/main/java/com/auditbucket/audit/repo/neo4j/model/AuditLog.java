@@ -50,12 +50,13 @@ public class AuditLog implements IAuditLog {
         sysWhen = now.toDate().getTime();
     }
 
-    public AuditLog(IAuditHeader header, IFortressUser madeBy, DateTime when, String event, String what) {
+    public AuditLog(IFortressUser madeBy, DateTime fortressWhen, String event, String what) {
         this();
+        sysWhen = DateTime.now().getMillis();
+
         this.madeBy = (FortressUser) madeBy;
-        //auditHeader = (AuditHeader) header;
-        if (when != null) {
-            this.when = when.getMillis();
+        if (fortressWhen != null && fortressWhen.getMillis() != 0) {
+            this.when = fortressWhen.getMillis();
         } else {
             this.when = sysWhen;
         }

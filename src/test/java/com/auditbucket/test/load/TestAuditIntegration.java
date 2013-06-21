@@ -1,4 +1,4 @@
-package com.auditbucket.test.integration;
+package com.auditbucket.test.load;
 
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.bean.AuditLogInputBean;
