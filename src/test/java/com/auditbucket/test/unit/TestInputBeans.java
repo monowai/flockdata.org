@@ -5,6 +5,11 @@ import com.auditbucket.audit.repo.neo4j.model.TxRef;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.repo.neo4j.model.Company;
 import com.auditbucket.registration.repo.neo4j.model.Fortress;
+import com.auditbucket.test.functional.TestAudit;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.minidev.json.JSONValue;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.elasticsearch.common.joda.time.DateTime;
 import org.junit.Test;
 
@@ -17,6 +22,7 @@ import static org.junit.Assert.assertFalse;
  * Time: 5:02 AM
  */
 public class TestInputBeans {
+    private Log log = LogFactory.getLog(TestAudit.class);
 
     @Test
     public void testTxStatus() {
@@ -74,4 +80,14 @@ public class TestInputBeans {
         assertFalse(aib.isTransactional());
 
     }
+
+    @Test
+    public void testEscapedJson() {
+        String test = JSONValue.escape("{\"name\": \"value\"}");
+        JSONValue.isValidJson(test);
+        ObjectMapper om = new ObjectMapper();
+
+
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.auditbucket.audit.service;
 
+import com.auditbucket.audit.bean.SearchDocumentBean;
 import com.auditbucket.audit.dao.IAuditChangeDao;
 import com.auditbucket.audit.dao.IAuditQueryDao;
 import com.auditbucket.audit.model.IAuditChange;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 /**
  * User: mike
@@ -32,7 +34,7 @@ public class AuditSearchService {
     }
 
     @Transactional
-    IAuditChange updateSearchableChange(IAuditHeader header, String existingKey, DateTime dateWhen, String what, String event) {
+    IAuditChange updateSearchableChange(IAuditHeader header, String existingKey, DateTime dateWhen, Map<String, Object> what, String event) {
         if (header.getFortress().isIgnoreSearchEngine())
             return null;
         if (existingKey != null)
@@ -42,7 +44,7 @@ public class AuditSearchService {
     }
 
     @Transactional
-    public IAuditChange createSearchableChange(IAuditHeader header, DateTime dateWhen, @NotEmpty @NotNull String what, String event) {
+    IAuditChange createSearchableChange(IAuditHeader header, DateTime dateWhen, Map<String, Object> what, String event) {
         if (header.getFortress().isIgnoreSearchEngine())
             return null;
         IAuditChange thisChange = new AuditChange(header);
@@ -61,4 +63,7 @@ public class AuditSearchService {
 
     }
 
+    public IAuditChange createSearchableChange(SearchDocumentBean searchDocumentBean) {
+        return createSearchableChange(searchDocumentBean.getAuditHeader(), searchDocumentBean.getDateTime(), searchDocumentBean.getWhat(), searchDocumentBean.getEvent());
+    }
 }

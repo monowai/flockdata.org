@@ -1,6 +1,7 @@
 package com.auditbucket.audit.model;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * User: mike
@@ -9,9 +10,9 @@ import java.util.Date;
  */
 public interface IAuditChange {
 
-    public void setWhat(String what);
+    public void setWhat(Map<String, Object> what);
 
-    public String getWhat();
+    public Map<String, Object> getWhat();
 
     public String getName();
 

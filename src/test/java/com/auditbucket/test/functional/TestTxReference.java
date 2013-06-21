@@ -56,6 +56,8 @@ public class TestTxReference {
     private Neo4jTemplate template;
 
     private Log log = LogFactory.getLog(TestAudit.class);
+    String escJsonA = "{\"blah\":1}";
+    String escJsonB = "{\"blah\":2}";
 
     @Rollback(false)
     @BeforeTransaction
@@ -71,7 +73,7 @@ public class TestTxReference {
 
 
     @Test
-    public void testAuthorisedToViewTransaction() {
+    public void testAuthorisedToViewTransaction() throws Exception {
         ISystemUser suABC = regService.registerSystemUser(new RegistrationBean("ABC", "mike@monowai.com", "bah"));
         ISystemUser suCBA = regService.registerSystemUser(new RegistrationBean("CBA", "null@monowai.com", "bah"));
 
@@ -86,7 +88,7 @@ public class TestTxReference {
         String abcTxRef = abcHeader.getTxRef();
         assertNotNull(abcTxRef);
 
-        AuditLogInputBean abcLog = new AuditLogInputBean(abcKey, "charlie", DateTime.now(), "some change");
+        AuditLogInputBean abcLog = new AuditLogInputBean(abcKey, "charlie", DateTime.now(), escJsonA);
         abcLog.setTxRef(abcHeader.getTxRef());
         assertEquals("ABC Log Not Created", AuditService.LogStatus.OK, auditService.createLog(abcLog).getLogStatus());
 
@@ -99,7 +101,7 @@ public class TestTxReference {
         String cbaTxRef = cbaHeader.getTxRef();
         assertNotNull(cbaTxRef);
 
-        AuditLogInputBean cbaLog = new AuditLogInputBean(cbaKey, "charlie", DateTime.now(), "some change");
+        AuditLogInputBean cbaLog = new AuditLogInputBean(cbaKey, "charlie", DateTime.now(), escJsonA);
         cbaLog.setTxRef(cbaHeader.getTxRef());
         assertEquals("CBA Log Not Created", AuditService.LogStatus.OK, auditService.createLog(cbaLog).getLogStatus());
 
@@ -113,7 +115,7 @@ public class TestTxReference {
         assertNull(auditService.findTx(cbaTxRef));
 
         // WHat happens if ABC tries to use CBA's TX Ref.
-        abcHeader = new AuditHeaderInputBean(fortressABC.getName(), "wally", "TestAudit", new Date(), "asdfdsaf", cbaTxRef);
+        abcHeader = new AuditHeaderInputBean(fortressABC.getName(), "wally", "TestAudit", new Date(), escJsonA, cbaTxRef);
         AuditHeaderInputBean result = auditService.createHeader(abcHeader);
         assertNotNull(result);
         // It works because TX References have only to be unique for a company
@@ -124,7 +126,7 @@ public class TestTxReference {
     }
 
     @Test
-    public void testTxCommits() {
+    public void testTxCommits() throws Exception {
         String company = "Monowai";
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         IFortress fortressA = fortressService.registerFortress("auditTest");
@@ -136,10 +138,10 @@ public class TestTxReference {
         IAuditHeader header = auditService.getHeader(key, true);
         assertNotNull(header);
         //assertEquals(1, header.getTxTags().size());
-        AuditLogInputBean alb = new AuditLogInputBean(key, "charlie", DateTime.now(), "some change");
+        AuditLogInputBean alb = new AuditLogInputBean(key, "charlie", DateTime.now(), escJsonA);
         alb.setTxRef(aBean.getTxRef());
         auditService.createLog(alb);
-        alb = new AuditLogInputBean(key, "harry", DateTime.now(), "some other");
+        alb = new AuditLogInputBean(key, "harry", DateTime.now(), escJsonB);
         alb.setTxRef(aBean.getTxRef());
         String txStart = aBean.getTxRef();
 
@@ -152,7 +154,7 @@ public class TestTxReference {
         assertEquals(2, logs.size());
 
         // Create a new Log for a different transaction
-        alb = new AuditLogInputBean(key, "mikey", DateTime.now(), "some change");
+        alb = new AuditLogInputBean(key, "mikey", DateTime.now(), escJsonA);
         alb.setTransactional(true);
         assertNull(alb.getTxRef());
         alb.setTxRef("");

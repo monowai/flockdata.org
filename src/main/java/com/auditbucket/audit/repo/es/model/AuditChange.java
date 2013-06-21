@@ -8,6 +8,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * User: mike
@@ -19,7 +20,7 @@ public class AuditChange implements IAuditChange {
     @Id
     private String id;
     private String recordType;
-    private String what;
+    private Map<String, Object> what;
     private String name;
     private Date when;
     private String fortressName;
@@ -49,12 +50,12 @@ public class AuditChange implements IAuditChange {
 
     @Override
     @JsonIgnore
-    public String getWhat() {
+    public Map<String, Object> getWhat() {
         return what;
     }
 
     @Override
-    public void setWhat(String what) {
+    public void setWhat(Map<String, Object> what) {
         this.what = what;
     }
 

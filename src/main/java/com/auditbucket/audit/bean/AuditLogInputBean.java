@@ -1,7 +1,11 @@
 package com.auditbucket.audit.bean;
 
 import com.auditbucket.audit.service.AuditService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTime;
+
+import java.io.IOException;
+import java.util.Map;
 
 /**
  * User: mike
@@ -9,7 +13,7 @@ import org.joda.time.DateTime;
  * Time: 7:41 PM
  */
 public class AuditLogInputBean {
-    //'{"eventType":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10","what":"{name: 22}"}'
+    //'{"eventType":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10","jsonWhat":"{name: 22}"}'
     String auditKey;
     String eventType;
     String fortressUser;
@@ -17,23 +21,39 @@ public class AuditLogInputBean {
     private Boolean isTransactional = false;
     String when;
     String what;
+    Map<String, Object> mWhat;
     String yourRef;
     private String comment;
     private String message;
     private AuditService.LogStatus logStatus;
 
+    static final ObjectMapper om = new ObjectMapper();
+
     public AuditLogInputBean() {
     }
 
-    public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String what) {
+    /**
+     * @param auditKey     -guid
+     * @param fortressUser -user name recognisable in the fortress
+     * @param when         -fortress view of DateTime
+     * @param jsonWhat     -escaped JSON
+     */
+    public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String jsonWhat) throws IOException {
         this.auditKey = auditKey;
         this.fortressUser = fortressUser;
         this.when = when.toString();
-        this.what = what;
+        setWhat(jsonWhat);
     }
 
-    public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String what, String event) {
-        this(auditKey, fortressUser, when, what);
+    /**
+     * @param auditKey     -guid
+     * @param fortressUser -user name recognisable in the fortress
+     * @param when         -fortress view of DateTime
+     * @param jsonWhat     -escaped JSON
+     * @param event        -how the caller would like to catalog this change (create, update etc)
+     */
+    public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String jsonWhat, String event) throws IOException {
+        this(auditKey, fortressUser, when, jsonWhat);
         this.eventType = event;
     }
 
@@ -69,11 +89,16 @@ public class AuditLogInputBean {
         this.when = when;
     }
 
-    public String getWhat() {
+    public Map<String, Object> getWhat() {
+        return mWhat;
+    }
+
+    public String getWhatAsText() {
         return what;
     }
 
-    public void setWhat(String what) {
+    public void setWhat(String what) throws IOException {
+        mWhat = om.readValue(om.readTree(what).toString(), Map.class);
         this.what = what;
     }
 

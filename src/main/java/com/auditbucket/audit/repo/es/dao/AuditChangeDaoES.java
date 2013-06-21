@@ -13,7 +13,6 @@ import org.elasticsearch.client.Client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -35,31 +34,24 @@ public class AuditChangeDaoES implements IAuditChangeDao {
      * @return key value of the child document
      */
     public IAuditChange save(IAuditChange auditChange) {
-        try {
-            String indexName = auditChange.getIndexName();
-            String recordType = auditChange.getRecordType();
+        String indexName = auditChange.getIndexName();
+        String recordType = auditChange.getRecordType();
 
 
-            String what = auditChange.getWhat();
-            Map<String, Object> indexMe = om.readValue(om.readTree(what).toString(), Map.class);
-            if (!what.contains(auditChange.getName()))
-                indexMe.put("auditKey", auditChange.getName());
-            indexMe.put("who", auditChange.getWho());
+        Map<String, Object> indexMe = auditChange.getWhat();
+        indexMe.put("auditKey", auditChange.getName());
+        indexMe.put("who", auditChange.getWho());
 
-            IndexResponse ir = esClient.prepareIndex(indexName, recordType)
-                    .setSource(indexMe)
-                    .setRouting(auditChange.getName())
-                    .execute()
-                    .actionGet();
+        IndexResponse ir = esClient.prepareIndex(indexName, recordType)
+                .setSource(indexMe)
+                .setRouting(auditChange.getName())
+                .execute()
+                .actionGet();
 
-            auditChange.setSearchKey(ir.getId());
-            if (log.isDebugEnabled())
-                log.debug("Added Document [" + ir.getId() + "] to " + indexName + "/" + recordType);
-            return auditChange;
-        } catch (IOException e) {
-            log.fatal("*** Error saving [" + auditChange.getIndexName() + "], [" + auditChange.getRecordType() + "]", e);
-            throw new RuntimeException(e);
-        }
+        auditChange.setSearchKey(ir.getId());
+        if (log.isDebugEnabled())
+            log.debug("Added Document [" + ir.getId() + "] to " + indexName + "/" + recordType);
+        return auditChange;
 
     }
 

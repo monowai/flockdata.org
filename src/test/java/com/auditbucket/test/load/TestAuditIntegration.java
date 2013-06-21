@@ -83,7 +83,7 @@ public class TestAuditIntegration {
     }
 
     @Test
-    public void testHeader() {
+    public void testHeader() throws Exception {
 
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         regService.registerSystemUser(new RegistrationBean(hummingbird, gina, "bah"));
@@ -129,7 +129,7 @@ public class TestAuditIntegration {
     }
 
     @Test
-    public void testLastChanged() {
+    public void testLastChanged() throws Exception {
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         // Create a second log record in order to workout who last change the AuditHeader
         SecurityContextHolder.getContext().setAuthentication(authMike);
@@ -149,7 +149,7 @@ public class TestAuditIntegration {
      * test that we find the correct number of changes between a range of dates for a given header
      */
     @Test
-    public void testInRange() {
+    public void testInRange() throws Exception {
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         // Create a second log record in order to workout who last change the AuditHeader
         SecurityContextHolder.getContext().setAuthentication(authMike);
@@ -189,7 +189,7 @@ public class TestAuditIntegration {
     }
 
     @Test
-    public void testCancelLastChange() {
+    public void testCancelLastChange() throws Exception {
         // For use in compensating transaction cases only
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         SecurityContextHolder.getContext().setAuthentication(authMike);
@@ -219,7 +219,7 @@ public class TestAuditIntegration {
 
     }
 
-    private void createLogRecords(Authentication auth, String auditHeader, String textToUse, double recordsToCreate) {
+    private void createLogRecords(Authentication auth, String auditHeader, String textToUse, double recordsToCreate) throws Exception {
         int i = 0;
         SecurityContextHolder.getContext().setAuthentication(auth);
         String action = "Create";

@@ -2,6 +2,7 @@ package com.auditbucket.audit.service;
 
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.bean.AuditLogInputBean;
+import com.auditbucket.audit.bean.SearchDocumentBean;
 import com.auditbucket.audit.dao.IAuditDao;
 import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
@@ -17,7 +18,6 @@ import com.auditbucket.registration.model.ISystemUser;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.SystemUserService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
@@ -61,8 +62,6 @@ public class AuditService {
     private AuditSearchService searchService;
 
     private Log log = LogFactory.getLog(AuditService.class);
-
-    private ObjectMapper om = new ObjectMapper();
 
     @Transactional
     public ITxRef beginTransaction() {
@@ -226,8 +225,8 @@ public class AuditService {
             dateWhen = new DateTime(input.getWhen());
 
         if (lastChange != null) {
-            // Find the change data
-            if (lastChange.getWhat().equals(input.getWhat())) {
+            // Neo4j won't store the map, so we store the raw escaped JSON text
+            if (lastChange.getWhat().equals(input.getWhatAsText())) {
                 if (log.isDebugEnabled())
                     log.debug("Ignoring a change we already have");
                 input.setStatus(LogStatus.IGNORE);
@@ -282,7 +281,7 @@ public class AuditService {
             header = auditDAO.save(header, input.getTxRef());
         }
 
-        AuditLog al = new AuditLog(fUser, dateWhen, event, input.getWhat());
+        AuditLog al = new AuditLog(fUser, dateWhen, event, input.getWhatAsText());
         if (input.getTxRef() != null)
             al.setTxRef(txRef);
         al.setKey(searchKey);
@@ -354,7 +353,7 @@ public class AuditService {
      * @return the modified header record or null if no header exists.
      */
     @Transactional
-    public IAuditHeader cancelLastLog(String headerKey) {
+    public IAuditHeader cancelLastLog(String headerKey) throws IOException {
         IAuditHeader auditHeader = getValidHeader(headerKey);
         IAuditLog auditLog = getLastChange(auditHeader);
         if (auditHeader.getFortress().isAccumulatingChanges())
@@ -377,7 +376,7 @@ public class AuditService {
 
         // Sync the update to elastic search.
         if (!auditHeader.getFortress().isIgnoreSearchEngine()) {
-            IAuditChange change = searchService.createSearchableChange(auditHeader, new DateTime(lastChange.getWhen()), lastChange.getWhat(), lastChange.getEvent());
+            IAuditChange change = searchService.createSearchableChange(new SearchDocumentBean(auditHeader, new DateTime(lastChange.getWhen()), lastChange.getWhat(), lastChange.getEvent()));
             if (change != null)
                 auditHeader.setSearchKey(change.getSearchKey());
         }

@@ -16,7 +16,6 @@ import com.auditbucket.registration.repo.neo4j.model.FortressUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.elasticsearch.action.get.GetResponse;
@@ -73,7 +72,7 @@ public class TestElasticSearch {
     }
 
     @Test
-    public void testJson() {
+    public void testJson() throws Exception {
         // Basic JSON/ES tests to figure our what is going on
 
         IFortress fortress = new Fortress(new FortressInputBean("fortress"), new Company("Monowai"));
@@ -87,17 +86,14 @@ public class TestElasticSearch {
         auditChange.setEvent("Create");
         auditChange.setWhen(new Date());
 // What changed?
-        ObjectMapper om = new ObjectMapper();
-        ObjectNode name = om.createObjectNode();
         //name.asToken();
+        ObjectMapper om = new ObjectMapper();
+        Map<String, Object> name = new HashMap<String, Object>();
         name.put("first", "Joe");
         name.put("last", "Sixpack");
-
-
-        auditChange.setWhat(name.toString());
+        auditChange.setWhat(name);
 
         try {
-            log.info(om.writeValueAsString(auditChange));
 
             // Elasticsearch
             Node node = nodeBuilder().local(true).node();
@@ -152,11 +148,11 @@ public class TestElasticSearch {
         auditChange.setVersion(System.currentTimeMillis());
         ObjectMapper om = new ObjectMapper();
 
-        Map<String, String> node = new HashMap<String, String>();
+        Map<String, Object> node = new HashMap<String, Object>();
         node.put("first", "Joe");
         node.put("last", "Sixpack");
 
-        auditChange.setWhat(om.writeValueAsString(node));
+        auditChange.setWhat(node);
 
         auditChange = alRepo.save(auditChange);
         assertNotNull(auditChange);

@@ -9,7 +9,6 @@ import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
-import net.minidev.json.JSONObject;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -69,11 +68,6 @@ public class TestAudit {
     private String uid = "mike@monowai.com";
     Authentication authA = new UsernamePasswordAuthenticationToken(uid, "user1");
 
-    @Test
-    public void testEscapedJson() {
-        String test = JSONObject.escape("{\"name\": \"value\"}");
-        log.info(test);
-    }
 
     @Test
     public void testClientRef() {
@@ -109,7 +103,7 @@ public class TestAudit {
     }
 
     @Test
-    public void testHeader() {
+    public void testHeader() throws Exception {
 
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         IFortress fo = fortressService.registerFortress("auditTest");
@@ -131,7 +125,7 @@ public class TestAudit {
         log.info("Start-");
         watch.start();
         while (i < max) {
-            auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{blah:" + i + "}"));
+            auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + i + "}"));
             i++;
         }
         watch.stop();
@@ -146,7 +140,7 @@ public class TestAudit {
      * Ensure duplicate logs are not created when content data has not changed
      */
     @Test
-    public void testDupeLog() {
+    public void testDupeLog() throws Exception {
 
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         IFortress fo = fortressService.registerFortress("auditTest");
@@ -168,7 +162,7 @@ public class TestAudit {
         watch.start();
         while (i < max) {
             // Same "what" text so should only be one auditLogCount record
-            auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{blah: 0}"));
+            auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 0}"));
             i++;
         }
         watch.stop();
@@ -183,7 +177,7 @@ public class TestAudit {
      * Ensures that the eventtype gets set to the correct default for create and update.
      */
     @Test
-    public void testEventType() {
+    public void testEventType() throws Exception {
 
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         IFortress fo = fortressService.registerFortress("auditTest");
@@ -198,12 +192,12 @@ public class TestAudit {
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));
 
-        auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{blah: 0}"));
+        auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 0}"));
         IAuditLog log = auditService.getLastChange(ahKey);
         assertNotNull(log);
         assertEquals(IAuditLog.CREATE, log.getEvent()); // log event default
 
-        auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{blah: 1}"));
+        auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 1}"));
         IAuditLog change = auditService.getLastChange(ahKey);
         assertNotNull(change);
         assertFalse(change.equals(log));
@@ -211,7 +205,7 @@ public class TestAudit {
     }
 
     @Test
-    public void testFortressLogCount() {
+    public void testFortressLogCount() throws Exception {
 
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         IFortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
