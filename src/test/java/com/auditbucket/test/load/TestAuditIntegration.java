@@ -105,7 +105,7 @@ public class TestAuditIntegration {
         assertNotNull(fortressService.getFortressUser(fortHS, "harry", true));
         assertNull(fortressService.getFortressUser(fortWP, "wallyz", false));
 
-        double max = 10d;
+        double max = 2000d;
         StopWatch watch = new StopWatch();
         watch.start();
 
@@ -232,39 +232,75 @@ public class TestAuditIntegration {
         assertEquals(recordsToCreate, (double) auditService.getAuditLogCount(auditHeader));
     }
 
-    public void testBigLoad() {
+    @Test
+    public void testBigLoad() throws Exception {
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         SecurityContextHolder.getContext().setAuthentication(authMike);
-        int max = 2000;
-
-        int i = 641;
+        int fortressCount = 20;
+        int auditCount = 1000;
+        int logCount = 5;
+        String escJson = "{\"who\":";
+        int fortress = 1;
         ArrayList<Long> list = new ArrayList<Long>();
-        while (i < max) {
-            String fortressName = "bulkload" + i;
-            IFortress fortress = fortressService.registerFortress(fortressName);
-            auditService.createHeader(new AuditHeaderInputBean(fortress.getName(), i + "olivia@sunnybell.com", "Company", new Date(), "ABC1"));
-            list.add(fortress.getId());
-            i++;
-        }
-        log.info("Created data set");
-
-        int maxSearch = 500;
         StopWatch watch = new StopWatch();
         watch.start();
-        i = 0;
-        do {
-            assertNotNull(auditService.findByName(list.get(i), "Company", "ABC1"));
-            i = i + 10;
-        } while (i <= maxSearch);
+        double splits = 0;
+        while (fortress <= fortressCount) {
 
-        i = 0;
-        do {
-            assertNotNull(auditService.findByName(list.get(i), "Company", "ABC1"));
-            i = i + 12;
-        } while (i <= maxSearch);
+            String fortressName = "bulkload" + fortress;
+            IFortress iFortress = fortressService.registerFortress(new FortressInputBean(fortressName, false));
+            int audit = 1;
+            while (audit <= auditCount) {
+                AuditHeaderInputBean aib = new AuditHeaderInputBean(iFortress.getName(), fortress + "olivia@sunnybell.com", "Company", new Date(), "ABC" + audit);
+                aib = auditService.createHeader(aib);
+                int log = 1;
+                while (log <= logCount) {
+                    auditService.createLog(new AuditLogInputBean(aib.getAuditKey(), aib.getFortressUser(), new DateTime(), escJson + fortress + "}"));
+                    log++;
+                }
+                audit++;
+            }
+            watch.split();
 
+            log.info(iFortress.getName() + " took " + (watch.getSplitTime() / 1000d));
+            splits = splits + watch.getSplitTime();
+            watch.reset();
+            watch.start();
+            list.add(iFortress.getId());
+            fortress++;
+
+        }
+
+        log.info("Created data set");
+        double sub = splits / 1000d;
+        log.info("Created data set in " + sub + " fortress avg = " + sub / fortressCount + " avg seconds per row " + sub / (fortressCount * auditCount * logCount) + " rows per second " + (fortressCount * auditCount * logCount) / sub);
+        watch.reset();
+        watch.start();
+
+        int searchLoops = 2;
+        int search = 0;
+        int totalSearchRequests = 0;
+        watch.split();
+        do {
+            fortress = 0;
+            do {
+                int x = 1;
+                do {
+                    int random = (int) (Math.random() * ((auditCount) + 1));
+                    if (random == 0)
+                        random = 1;
+                    assertNotNull("ABC" + random, auditService.findByName(list.get(fortress), "Company", "ABC" + random));
+                    totalSearchRequests++;
+                    x++;
+                } while (x < auditCount);
+                fortress++;
+            } while (fortress < fortressCount);
+            search++;
+        } while (search < searchLoops);
+
+        watch.stop();
         double end = watch.getTime() / 1000d;
-        log.info("End " + end + " avg = " + end / max);
+        log.info("Total Search Requests = " + totalSearchRequests + ". Total time for searches " + end + " avg requests per second = " + totalSearchRequests / end);
 
 
     }
