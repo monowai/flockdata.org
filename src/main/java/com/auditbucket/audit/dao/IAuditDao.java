@@ -22,8 +22,6 @@ public interface IAuditDao {
 
     public IAuditHeader save(IAuditHeader auditHeader, AuditHeaderInputBean inputBean);
 
-    public IAuditHeader save(IAuditHeader auditHeader, String txTag);
-
     public IAuditLog save(IAuditLog auditLog);
 
     public ITxRef save(ITxRef tagRef);

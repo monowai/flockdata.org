@@ -13,8 +13,8 @@
         <org.aspectj-version>1.6.12</org.aspectj-version>
         <org.slf4j-version>1.6.1</org.slf4j-version>
         <!--http://repo.springsource.org/libs-snapshot/org/springframework/data/spring-data-neo4j/-->
-        <org.springdata.neo4j>2.2.1.RELEASE</org.springdata.neo4j>
-        <!--<org.springdata.neo4j>2.3.0.M1</org.springdata.neo4j>-->
+        <!--<org.springdata.neo4j>2.2.1.RELEASE</org.springdata.neo4j>-->
+        <org.springdata.neo4j>2.3.0.M1</org.springdata.neo4j>
         <org.springsecurity-version>3.1.1.RELEASE</org.springsecurity-version>
 
         <jackson.version>2.2.1</jackson.version>

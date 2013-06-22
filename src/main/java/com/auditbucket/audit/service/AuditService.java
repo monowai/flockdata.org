@@ -271,7 +271,7 @@ public class AuditService {
             header.setLastUser(fUser);
             if (searchKey != null)
                 header.setSearchKey(searchKey);
-            header = auditDAO.save(header, input.getTxRef());
+            header = auditDAO.save(header);
         }
 
         AuditLog al = new AuditLog(fUser, dateWhen, event, input.getWhatAsText());
@@ -377,11 +377,6 @@ public class AuditService {
         return auditHeader;
     }
 
-
-    protected String calcDelta(String what) {
-        return null;
-    }
-
     public int getAuditLogCount(String headerKey) {
         IAuditHeader auditHeader = getValidHeader(headerKey);
         return auditDAO.getLogCount(auditHeader.getId());
@@ -397,7 +392,7 @@ public class AuditService {
         ISystemUser sysUser = sysUserService.findByName(userName);
 
         if (!header.getFortress().getCompany().getId().equals(sysUser.getCompany().getId())) {
-            throw new SecurityException("Not authorised to retrieve change records");
+            throw new SecurityException("Not authorised to work with this audit record");
         }
         return header;
 

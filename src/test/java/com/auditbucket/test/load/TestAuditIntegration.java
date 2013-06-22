@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.data.neo4j.support.node.Neo4jHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -60,7 +59,6 @@ public class TestAuditIntegration {
 
     @Autowired
     private Neo4jTemplate template;
-
     private Logger log = LoggerFactory.getLogger(TestAuditIntegration.class);
 
     private String monowai = "Monowai";
@@ -72,14 +70,13 @@ public class TestAuditIntegration {
     Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
     Authentication authGina = new UsernamePasswordAuthenticationToken(gina, "user1");
 
-
     @Rollback(false)
     @BeforeTransaction
     public void cleanUpGraph() {
         // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
         // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
         SecurityContextHolder.getContext().setAuthentication(authMike);
-        Neo4jHelper.cleanDb(template);
+        //Neo4jHelper.cleanDb(template);
     }
 
     @Test
@@ -232,11 +229,12 @@ public class TestAuditIntegration {
         assertEquals(recordsToCreate, (double) auditService.getAuditLogCount(auditHeader));
     }
 
+    @Test
     public void testBigLoad() throws Exception {
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         SecurityContextHolder.getContext().setAuthentication(authMike);
         int fortressCount = 20;
-        int auditCount = 10;
+        int auditCount = 100;
         int logCount = 5;
         String escJson = "{\"who\":";
         int fortress = 1;
@@ -244,9 +242,10 @@ public class TestAuditIntegration {
         StopWatch watch = new StopWatch();
         watch.start();
         double splits = 0;
+        log.info("FortressCount: " + fortressCount + " AuditCount: " + auditCount + " LogCount: " + logCount);
         while (fortress <= fortressCount) {
 
-            String fortressName = "bulkload" + fortress;
+            String fortressName = "bulkloada" + fortress;
             IFortress iFortress = fortressService.registerFortress(new FortressInputBean(fortressName, false));
             int audit = 1;
             while (audit <= auditCount) {
@@ -267,7 +266,6 @@ public class TestAuditIntegration {
             watch.start();
             list.add(iFortress.getId());
             fortress++;
-
         }
 
         log.info("Created data set");
@@ -300,7 +298,5 @@ public class TestAuditIntegration {
         watch.stop();
         double end = watch.getTime() / 1000d;
         log.info("Total Search Requests = " + totalSearchRequests + ". Total time for searches " + end + " avg requests per second = " + totalSearchRequests / end);
-
-
     }
 }

@@ -46,12 +46,6 @@ public class AuditDaoNeo implements IAuditDao {
         return auditRepo.save((AuditHeader) auditHeader);
     }
 
-    @Override
-    public IAuditHeader save(IAuditHeader auditHeader, String txTag) {
-        auditHeader.bumpUpdate();
-        return auditRepo.save((AuditHeader) auditHeader);
-    }
-
 
     @Override
     public IAuditLog save(IAuditLog auditLog) {
@@ -108,7 +102,7 @@ public class AuditDaoNeo implements IAuditDao {
 
     @Override
     public IAuditHeader save(IAuditHeader auditHeader) {
-        return save(auditHeader, (String) null);
+        return template.save(auditHeader);
     }
 
     @Override

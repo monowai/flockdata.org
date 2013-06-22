@@ -6,7 +6,6 @@ import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.audit.model.ITxRef;
 import com.auditbucket.audit.service.AuditService;
-import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
@@ -38,9 +37,6 @@ public class AuditEP {
 
     @Autowired
     CompanyService companyService;
-
-    @Autowired
-    SecurityHelper securityHelper;
 
     @RequestMapping(value = "/ping", method = RequestMethod.GET)
     @ResponseBody
