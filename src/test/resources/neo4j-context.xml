@@ -26,17 +26,17 @@ http://www.springframework.org/schema/tx/spring-tx.xsd">
     <tx:annotation-driven mode="proxy"/>
 
     <!--Embedded config-->
-    <!--<neo4j:config storeDirectory="./target/data/neo4j/"/>-->
+    <neo4j:config storeDirectory="./target/data/neo4j/"/>
 
     <!--<neo4j:config graphDatabaseService="graphDatabaseService"/>-->
     <!--<bean id="graphDatabaseService" class="org.neo4j.test.ImpermanentGraphDatabase" />-->
 
     <!--RestAPI Config-->
     <!--If using over the REST api you can not clear down the database, so don't call Neo4jHelper.cleanDb(..) -->
-    <neo4j:config graphDatabaseService="graphDatabaseService"/>
-    <bean id="graphDatabaseService" class="org.springframework.data.neo4j.rest.SpringRestGraphDatabase">
-        <constructor-arg value="http://localhost:7474/db/data/"/>
-    </bean>
+    <!--<neo4j:config graphDatabaseService="graphDatabaseService"/>-->
+    <!--<bean id="graphDatabaseService" class="org.springframework.data.neo4j.rest.SpringRestGraphDatabase">-->
+    <!--<constructor-arg value="http://localhost:7474/db/data/"/>-->
+    <!--</bean>-->
 
 
 </beans>
