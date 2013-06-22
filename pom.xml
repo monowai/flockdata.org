@@ -9,13 +9,13 @@
     <version>1.0.0-BUILD-SNAPSHOT</version>
     <properties>
         <java-version>1.6</java-version>
-        <org.springframework-version>3.2.2.RELEASE</org.springframework-version>
+        <org.springframework-version>3.2.3.RELEASE</org.springframework-version>
         <org.aspectj-version>1.6.12</org.aspectj-version>
         <org.slf4j-version>1.6.1</org.slf4j-version>
         <!--http://repo.springsource.org/libs-snapshot/org/springframework/data/spring-data-neo4j/-->
         <org.springdata.neo4j>2.2.1.RELEASE</org.springdata.neo4j>
         <!--<org.springdata.neo4j>2.3.0.M1</org.springdata.neo4j>-->
-        <org.springsecurity-version>3.1.0.RELEASE</org.springsecurity-version>
+        <org.springsecurity-version>3.1.1.RELEASE</org.springsecurity-version>
 
         <jackson.version>2.2.1</jackson.version>
     </properties>
@@ -50,6 +50,7 @@
             <artifactId>spring-security-config</artifactId>
             <version>${org.springsecurity-version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
@@ -74,42 +75,7 @@
             <version>${org.aspectj-version}</version>
         </dependency>
 
-        <!-- Logging -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${org.slf4j-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <version>${org.slf4j-version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>${org.slf4j-version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.16</version>
-            <scope>runtime</scope>
-        </dependency>
 
-        <!-- @Inject -->
-        <dependency>
-            <groupId>javax.inject</groupId>
-            <artifactId>javax.inject</artifactId>
-            <version>1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kohsuke</groupId>
-            <artifactId>github-api</artifactId>
-            <version>1.38</version>
-        </dependency>
         <!-- Servlet -->
         <dependency>
             <groupId>org.apache.tomcat</groupId>
@@ -118,9 +84,15 @@
             <scope>provided</scope>
         </dependency>
 
+        <!--Jackson-->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
             <version>${jackson.version}</version>
         </dependency>
 
@@ -131,6 +103,13 @@
             <version>2.2</version>
         </dependency>
 
+        <!--logging-->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${org.slf4j-version}</version>
+            <scope>runtime</scope>
+        </dependency>
         <!-- Test -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -145,31 +124,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>xmlunit</groupId>
-            <artifactId>xmlunit</artifactId>
-            <version>1.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.persistence</groupId>
-            <artifactId>persistence-api</artifactId>
-            <version>1.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.jayway.jsonpath</groupId>
-            <artifactId>json-path</artifactId>
-            <version>0.8.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-library</artifactId>
-            <version>1.3</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-neo4j</artifactId>
             <version>${org.springdata.neo4j}</version>
@@ -179,6 +133,7 @@
             <artifactId>spring-data-neo4j-rest</artifactId>
             <version>${org.springdata.neo4j}</version>
         </dependency>
+
         <!--sd-Neo4J advanced mapping-->
         <dependency>
             <groupId>org.springframework.data</groupId>
@@ -186,16 +141,19 @@
             <version>${org.springdata.neo4j}</version>
         </dependency>
 
+        <!--3rd party-->
         <dependency>
             <groupId>fr.pilato.spring</groupId>
             <artifactId>spring-elasticsearch</artifactId>
             <version>0.1.0</version>
         </dependency>
+
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
+            <groupId>org.kohsuke</groupId>
+            <artifactId>github-api</artifactId>
+            <version>1.38</version>
         </dependency>
+
     </dependencies>
     <repositories>
         <!-- For testing against latest Spring snapshots -->
@@ -210,6 +168,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+
         <!-- For developing against latest Spring milestones -->
         <repository>
             <id>org.springframework.maven.milestone</id>

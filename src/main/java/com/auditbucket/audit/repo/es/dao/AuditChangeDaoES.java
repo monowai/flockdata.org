@@ -4,12 +4,12 @@ import com.auditbucket.audit.dao.IAuditChangeDao;
 import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -27,7 +27,7 @@ public class AuditChangeDaoES implements IAuditChangeDao {
 
     ObjectMapper om = new ObjectMapper();
 
-    private Log log = LogFactory.getLog(AuditChangeDaoES.class);
+    private Logger log = LoggerFactory.getLogger(AuditChangeDaoES.class);
 
     /**
      * @param auditChange object containing changes

@@ -18,10 +18,10 @@ import com.auditbucket.registration.model.ISystemUser;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.SystemUserService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,7 +61,7 @@ public class AuditService {
     @Autowired
     private AuditSearchService searchService;
 
-    private Log log = LogFactory.getLog(AuditService.class);
+    private Logger log = LoggerFactory.getLogger(AuditService.class);
 
     @Transactional
     public ITxRef beginTransaction() {

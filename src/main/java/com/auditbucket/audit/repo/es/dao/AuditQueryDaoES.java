@@ -1,10 +1,10 @@
 package com.auditbucket.audit.repo.es.dao;
 
 import com.auditbucket.audit.dao.IAuditQueryDao;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -19,7 +19,7 @@ public class AuditQueryDaoES implements IAuditQueryDao {
     @Autowired
     private Client client;
 
-    private Log log = LogFactory.getLog(AuditQueryDaoES.class);
+    private Logger log = LoggerFactory.getLogger(AuditQueryDaoES.class);
 
     @Override
     public long getHitCount(String index) {

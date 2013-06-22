@@ -10,11 +10,11 @@ import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import org.apache.commons.lang.time.StopWatch;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.data.neo4j.support.node.Neo4jHelper;
@@ -53,7 +53,7 @@ public class TestAudit {
     @Autowired
     private Neo4jTemplate template;
 
-    private Log log = LogFactory.getLog(TestAudit.class);
+    private Logger log = LoggerFactory.getLogger(TestAudit.class);
 
     @Rollback(false)
     @BeforeTransaction

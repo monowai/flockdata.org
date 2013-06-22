@@ -16,8 +16,6 @@ import com.auditbucket.registration.repo.neo4j.model.FortressUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
@@ -25,6 +23,8 @@ import org.elasticsearch.node.Node;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -45,7 +45,7 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 public class TestElasticSearch {
     private String uid = "mike@monowai.com";
     Authentication auth = new UsernamePasswordAuthenticationToken(uid, "user1");
-    private Log log = LogFactory.getLog(TestElasticSearch.class);
+    private Logger log = LoggerFactory.getLogger(TestElasticSearch.class);
 
     @Autowired
     RegistrationService regService;
@@ -68,7 +68,7 @@ public class TestElasticSearch {
         indexMe.put("auditKey", "abc");
         Map<String, Object> what = om.readValue(escWhat, Map.class);
         indexMe.put("what", what);
-        log.info(indexMe.get("What"));
+        log.info(indexMe.get("what").toString());
     }
 
     @Test

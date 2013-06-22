@@ -10,11 +10,11 @@ import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.model.ISystemUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.data.neo4j.support.node.Neo4jHelper;
@@ -55,7 +55,7 @@ public class TestTxReference {
     @Autowired
     private Neo4jTemplate template;
 
-    private Log log = LogFactory.getLog(TestAudit.class);
+    private Logger log = LoggerFactory.getLogger(TestAudit.class);
     String escJsonA = "{\"blah\":1}";
     String escJsonB = "{\"blah\":2}";
 
@@ -90,7 +90,7 @@ public class TestTxReference {
 
         AuditLogInputBean abcLog = new AuditLogInputBean(abcKey, "charlie", DateTime.now(), escJsonA);
         abcLog.setTxRef(abcHeader.getTxRef());
-        assertEquals("ABC Log Not Created", AuditService.LogStatus.OK, auditService.createLog(abcLog).getLogStatus());
+        assertEquals("ABC Logger Not Created", AuditService.LogStatus.OK, auditService.createLog(abcLog).getLogStatus());
 
 // CBA data
         SecurityContextHolder.getContext().setAuthentication(authCBA);
@@ -103,7 +103,7 @@ public class TestTxReference {
 
         AuditLogInputBean cbaLog = new AuditLogInputBean(cbaKey, "charlie", DateTime.now(), escJsonA);
         cbaLog.setTxRef(cbaHeader.getTxRef());
-        assertEquals("CBA Log Not Created", AuditService.LogStatus.OK, auditService.createLog(cbaLog).getLogStatus());
+        assertEquals("CBA Logger Not Created", AuditService.LogStatus.OK, auditService.createLog(cbaLog).getLogStatus());
 
         // CBA Caller can not see the ABC transaction
         assertNotNull(auditService.findTx(cbaTxRef));
@@ -153,7 +153,7 @@ public class TestTxReference {
         assertNotNull(logs);
         assertEquals(2, logs.size());
 
-        // Create a new Log for a different transaction
+        // Create a new Logger for a different transaction
         alb = new AuditLogInputBean(key, "mikey", DateTime.now(), escJsonA);
         alb.setTransactional(true);
         assertNull(alb.getTxRef());

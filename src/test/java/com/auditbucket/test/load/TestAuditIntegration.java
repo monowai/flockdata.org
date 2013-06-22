@@ -13,11 +13,11 @@ import com.auditbucket.registration.model.IFortressUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import org.apache.commons.lang.time.StopWatch;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.data.neo4j.support.node.Neo4jHelper;
@@ -61,7 +61,7 @@ public class TestAuditIntegration {
     @Autowired
     private Neo4jTemplate template;
 
-    private Log log = LogFactory.getLog(TestAuditIntegration.class);
+    private Logger log = LoggerFactory.getLogger(TestAuditIntegration.class);
 
     private String monowai = "Monowai";
     private String hummingbird = "Hummingbird";
@@ -115,7 +115,7 @@ public class TestAuditIntegration {
             Thread.sleep(5000l);
         } catch (InterruptedException e) {
 
-            log.error(e);
+            log.error(e.getMessage());
         }
         Long hitCount = auditSearchService.getHitCount("hummingbird.*");
 
@@ -237,7 +237,7 @@ public class TestAuditIntegration {
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         SecurityContextHolder.getContext().setAuthentication(authMike);
         int fortressCount = 20;
-        int auditCount = 1000;
+        int auditCount = 10;
         int logCount = 5;
         String escJson = "{\"who\":";
         int fortress = 1;
