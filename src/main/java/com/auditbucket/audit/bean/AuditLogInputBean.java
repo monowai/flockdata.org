@@ -15,10 +15,10 @@ import java.util.Map;
 public class AuditLogInputBean {
     //'{"eventType":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10","jsonWhat":"{name: 22}"}'
     String auditKey;
-    String eventType;
-    String fortressUser;
     private String txRef;
     private Boolean isTransactional = false;
+    String fortressUser;
+    String eventType;
     String when;
     String what;
     Map<String, Object> mWhat;
@@ -29,7 +29,11 @@ public class AuditLogInputBean {
 
     static final ObjectMapper om = new ObjectMapper();
 
-    public AuditLogInputBean() {
+    protected AuditLogInputBean() {
+    }
+
+    public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String jsonWhat) throws IOException {
+        this(auditKey, fortressUser, when, jsonWhat, false);
     }
 
     /**
@@ -38,10 +42,12 @@ public class AuditLogInputBean {
      * @param when         -fortress view of DateTime
      * @param jsonWhat     -escaped JSON
      */
-    public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String jsonWhat) throws IOException {
+    public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String jsonWhat, Boolean isTransactional) throws IOException {
         this.auditKey = auditKey;
         this.fortressUser = fortressUser;
-        this.when = when.toString();
+        if (when != null)
+            this.when = when.toString();
+        setTransactional(isTransactional);
         setWhat(jsonWhat);
     }
 
@@ -55,6 +61,11 @@ public class AuditLogInputBean {
     public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String jsonWhat, String event) throws IOException {
         this(auditKey, fortressUser, when, jsonWhat);
         this.eventType = event;
+    }
+
+    public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String jsonWhat, String event, String txName) throws IOException {
+        this(auditKey, fortressUser, when, jsonWhat, event);
+        this.setTxRef(txName);
     }
 
     public String getAuditKey() {

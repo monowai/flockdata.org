@@ -123,26 +123,19 @@ public class AuditService {
 
         // Create fortressUser if missing
         IFortressUser fu = fortressService.getFortressUser(iFortress, inputBean.getFortressUser(), true);
-        ITxRef txTag = null;
-        // Prefer the user supplied, though the transaction will have to belong to the callers company
-        if (inputBean.getTxRef() != null)
-            // Joining an existing transaction
-            txTag = beginTransaction(inputBean.getTxRef());
-        else if (inputBean.isTransactional())
-            // New transaction
-            txTag = beginTransaction();
 
         ah = new AuditHeader(fu, inputBean);
         ah = auditDAO.save(ah, inputBean);
 
-        if (txTag != null)
-            inputBean.setTxRef(txTag.getName());
-        else if (inputBean.isTransactional())
-            return null;
-
         if (log.isDebugEnabled())
             log.debug("Audit Header created:" + ah.getId() + " key=[" + ah.getAuditKey() + "]");
         inputBean.setAuditKey(ah.getAuditKey());
+        if (inputBean.getAuditLog() != null) {
+            AuditLogInputBean logBean = inputBean.getAuditLog();
+            logBean.setAuditKey(ah.getAuditKey());
+            inputBean.setAuditLog(createLog(logBean));
+        }
+
         return inputBean;
 
     }

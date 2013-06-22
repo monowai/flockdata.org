@@ -1,5 +1,7 @@
 package com.auditbucket.audit.bean;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 import java.util.Date;
 
 /**
@@ -9,34 +11,23 @@ import java.util.Date;
  */
 public class AuditHeaderInputBean {
     private String auditKey;
-    private String txRef;
     private String callerRef;
     private String fortress;
     private String fortressUser;
     private String recordType;
     private Date when;
-    private Boolean isTransactional = false;
     private String lastMessage;
+    private AuditLogInputBean auditLog;
 
     AuditHeaderInputBean() {
     }
 
     public AuditHeaderInputBean(String fortress, String fortressUser, String recordType, Date when, String callerRef) {
-        this(fortress, fortressUser, recordType, when, callerRef, false);
-    }
-
-    public AuditHeaderInputBean(String fortress, String fortressUser, String recordType, Date when, String callerRef, Boolean transactional) {
-        this(fortress, fortressUser, recordType, when, callerRef, (String) null);
-        isTransactional = transactional;
-    }
-
-    public AuditHeaderInputBean(String fortress, String fortressUser, String recordType, Date when, String callerRef, String txRef) {
         this.when = when;
         this.fortress = fortress;
         this.fortressUser = fortressUser;
         this.recordType = recordType;
         this.callerRef = callerRef;
-        setTxRef(txRef);
 
     }
 
@@ -89,25 +80,19 @@ public class AuditHeaderInputBean {
         this.callerRef = callerRef;
     }
 
-    public String getTxRef() {
-        return txRef;
-    }
-
-    public void setTxRef(String txRef) {
-        this.txRef = txRef;
-        if (txRef != null && !txRef.isEmpty())
-            setIsTransactional(true);
-    }
-
     public void setLastMessage(String lastMessage) {
         this.lastMessage = lastMessage;
     }
 
-    public boolean isTransactional() {
-        return isTransactional;
+    protected void setIsTransactional(Boolean transactional) {
     }
 
-    protected void setIsTransactional(Boolean transactional) {
-        this.isTransactional = transactional;
+    public void setAuditLog(AuditLogInputBean auditLog) {
+        this.auditLog = auditLog;
+    }
+
+    @JsonIgnore
+    public AuditLogInputBean getAuditLog() {
+        return auditLog;
     }
 }

@@ -1,6 +1,7 @@
 package com.auditbucket.test.unit;
 
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
+import com.auditbucket.audit.bean.AuditLogInputBean;
 import com.auditbucket.audit.repo.neo4j.model.TxRef;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.repo.neo4j.model.Company;
@@ -59,23 +60,19 @@ public class TestInputBeans {
     }
 
     @Test
-    public void testAuditInputBean() {
+    public void testAuditInputBean() throws Exception {
         AuditHeaderInputBean aib = new AuditHeaderInputBean("fortress", "user", "booking", DateTime.now().toDate(), "myRef");
         assertNull(aib.getAuditKey());
-        assertFalse(aib.isTransactional());
         aib.setAuditKey("AbC");
         assertNotNull(aib.getAuditKey());
 
-        aib = new AuditHeaderInputBean("fortress", "user", "booking", DateTime.now().toDate(), "myRef", true);
-        assertTrue(aib.isTransactional());
-        assertNull(aib.getTxRef());
-
         // NonNull tx ref sets the inputBean to be transactional
-        aib = new AuditHeaderInputBean("fortress", "user", "booking", DateTime.now().toDate(), "myRef", "txref");
-        assertTrue(aib.isTransactional());
+        String what = "{\"abc\":0}";
+        AuditLogInputBean alb = new AuditLogInputBean("aaa", "user", null, what, "", "txreftest");
+        assertTrue(alb.isTransactional());
 
-        aib = new AuditHeaderInputBean("fortress", "user", "booking", DateTime.now().toDate(), "myRef", (String) null);
-        assertFalse(aib.isTransactional());
+        alb = new AuditLogInputBean("aaa", "user", null, what);
+        assertFalse(alb.isTransactional());
 
     }
 

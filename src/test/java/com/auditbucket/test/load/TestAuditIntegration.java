@@ -166,7 +166,7 @@ public class TestAuditIntegration {
         int i = 0;
         while (i < max) {
             workingDate = workingDate.plusDays(1);
-            assertEquals(AuditService.LogStatus.OK, auditService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", workingDate, what + i + "\"}", null)).getLogStatus());
+            assertEquals(AuditService.LogStatus.OK, auditService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", workingDate, what + i + "\"}")).getLogStatus());
 
             log.info("Created " + i + " new count =" + auditService.getAuditLogCount(auditHeader.getAuditKey()));
             i++;
@@ -200,8 +200,8 @@ public class TestAuditIntegration {
         String ahWP = auditService.createHeader(inputBean).getAuditKey();
 
         IAuditHeader auditHeader = auditService.getHeader(ahWP);
-        auditService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", firstDate, what + 1 + "\"}", null));
-        auditService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}", null));
+        auditService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", firstDate, what + 1 + "\"}"));
+        auditService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}"));
         Set<IAuditLog> logs = auditService.getAuditLogs(auditHeader.getAuditKey());
         assertEquals(2, logs.size());
         auditHeader = auditService.getHeader(ahWP);
@@ -232,7 +232,6 @@ public class TestAuditIntegration {
         assertEquals(recordsToCreate, (double) auditService.getAuditLogCount(auditHeader));
     }
 
-    @Test
     public void testBigLoad() throws Exception {
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         SecurityContextHolder.getContext().setAuthentication(authMike);

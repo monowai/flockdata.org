@@ -224,5 +224,31 @@ public class TestAudit {
         // ToDo: How to count the ElasticSearch audit hits. Currently this code is just for exercising the code.
     }
 
+    @Test
+    public void testHeaderWithLogChange() throws Exception {
+        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        IFortress fo = fortressService.registerFortress("auditTest");
 
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "9999");
+        AuditLogInputBean logBean = new AuditLogInputBean(null, "wally", DateTime.now(), "{\"blah\":0}");
+        inputBean.setAuditLog(logBean);
+        inputBean = auditService.createHeader(inputBean);
+        assertNotNull(inputBean);
+        assertNotNull(inputBean.getAuditKey());
+        assertEquals(1, auditService.getAuditLogCount(inputBean.getAuditKey()));
+    }
+
+    @Test
+    public void testHeaderWithLogChangeTransactional() throws Exception {
+        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        IFortress fo = fortressService.registerFortress("auditTest");
+
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "9999");
+        AuditLogInputBean logBean = new AuditLogInputBean(null, "wally", DateTime.now(), "{\"blah\":0}");
+        inputBean.setAuditLog(logBean);
+        inputBean = auditService.createHeader(inputBean);
+        assertNotNull(inputBean);
+        assertNotNull(inputBean.getAuditKey());
+        assertEquals(1, auditService.getAuditLogCount(inputBean.getAuditKey()));
+    }
 }
