@@ -229,7 +229,6 @@ public class TestAuditIntegration {
         assertEquals(recordsToCreate, (double) auditService.getAuditLogCount(auditHeader));
     }
 
-    @Test
     public void testBigLoad() throws Exception {
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         SecurityContextHolder.getContext().setAuthentication(authMike);
