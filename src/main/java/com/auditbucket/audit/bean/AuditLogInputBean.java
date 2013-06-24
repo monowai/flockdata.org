@@ -108,9 +108,9 @@ public class AuditLogInputBean {
         return what;
     }
 
-    public void setWhat(String what) throws IOException {
-        mWhat = om.readValue(om.readTree(what).toString(), Map.class);
-        this.what = what;
+    public void setWhat(String jsonWhat) throws IOException {
+        mWhat = om.readValue(om.readTree(jsonWhat).toString(), Map.class);
+        this.what = jsonWhat;
     }
 
     public String getComment() {
