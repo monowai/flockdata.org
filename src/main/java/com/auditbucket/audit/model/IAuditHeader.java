@@ -11,7 +11,7 @@ public interface IAuditHeader {
 
     public abstract IFortress getFortress();
 
-    public abstract String getDataType();
+    public abstract String getDocumentType();
 
     /**
      * @return Global Unique ID

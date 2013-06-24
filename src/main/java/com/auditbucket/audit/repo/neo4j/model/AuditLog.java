@@ -9,10 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.neo4j.graphdb.Direction;
-import org.springframework.data.neo4j.annotation.GraphId;
-import org.springframework.data.neo4j.annotation.Indexed;
-import org.springframework.data.neo4j.annotation.NodeEntity;
-import org.springframework.data.neo4j.annotation.RelatedTo;
+import org.springframework.data.neo4j.annotation.*;
 
 import java.util.Date;
 
@@ -27,6 +24,7 @@ public class AuditLog implements IAuditLog {
     private Long id;
 
     @RelatedTo(elementClass = FortressUser.class, type = "changed", direction = Direction.INCOMING, enforceTargetType = true)
+    @Fetch
     private FortressUser madeBy;
 
     @RelatedTo(elementClass = TxRef.class, type = "txIncludes", direction = Direction.INCOMING, enforceTargetType = true)
@@ -37,12 +35,12 @@ public class AuditLog implements IAuditLog {
     private String comment;
 
     private String what;
-    private String event;
+    private String name;
 
     private Long when = 0l;
 
     @Indexed(indexName = "esKey")
-    private String changeKey;
+    private String searchKey;
 
 
     protected AuditLog() {
@@ -61,7 +59,7 @@ public class AuditLog implements IAuditLog {
             this.when = sysWhen;
         }
 
-        this.event = event;
+        this.name = event + ":" + madeBy.getName();
         this.what = what;
     }
 
@@ -100,15 +98,18 @@ public class AuditLog implements IAuditLog {
 
     @JsonIgnore
     public String getSearchKey() {
-        return changeKey;
+        return searchKey;
     }
 
-    public void setKey(String key) {
-        this.changeKey = key;
+    public void setSearchKey(String key) {
+        this.searchKey = key;
     }
 
-    public String getEvent() {
-        return event;
+    /**
+     * @return the name of the event that caused this change
+     */
+    public String getName() {
+        return name;
     }
 
 

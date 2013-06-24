@@ -8,7 +8,7 @@
     <!--https://github.com/dadoonet/spring-elasticsearch/blob/master/README.md-->
 
     <elasticsearch:node id="esNode" settingsFile="esclient.properties"/>
-    <elasticsearch:client node="esNode" id="esClient" name="elasticsearch_monowai" settingsFile="esclient.properties"/>
+    <elasticsearch:client node="esNode" id="esClient" name="es_auditbucket" settingsFile="esclient.properties"/>
 
 
 </beans>

@@ -53,7 +53,7 @@ public class AuditHeader implements IAuditHeader {
     private String name;
     private long dateCreated;
 
-    private String dataType;
+    private String documentType;
     private String clientRef;
 
     private long fortressDate;
@@ -69,7 +69,7 @@ public class AuditHeader implements IAuditHeader {
 
     public AuditHeader(@NotNull IFortressUser createdBy, @NotNull AuditHeaderInputBean auditInput) {
         this();
-        String eventType = auditInput.getRecordType();
+        String documentType = auditInput.getDocumentType();
         clientRef = auditInput.getCallerRef();
         Date when = auditInput.getWhen();
         if (when == null)
@@ -80,8 +80,8 @@ public class AuditHeader implements IAuditHeader {
         this.createdBy = (FortressUser) createdBy;
         this.lastWho = (FortressUser) createdBy;
         this.fortress = (Fortress) createdBy.getFortress();
-        this.dataType = (eventType != null ? eventType.toLowerCase() : "");
-        this.name = (clientRef == null ? null : (eventType + "." + clientRef).toLowerCase());
+        this.documentType = (documentType != null ? documentType.toLowerCase() : "");
+        this.name = (clientRef == null ? documentType : (this.documentType + "." + clientRef).toLowerCase());
 
 
     }
@@ -111,8 +111,8 @@ public class AuditHeader implements IAuditHeader {
 
     @Override
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getDataType() {
-        return dataType;
+    public String getDocumentType() {
+        return documentType;
     }
 
     @Override

@@ -34,7 +34,12 @@ public interface IAuditLog {
      */
     public void setComment(String comment);
 
-    public void setKey(String changeKey);
+    /**
+     * Document primary key as stored in search engine
+     *
+     * @param changeKey unique key
+     */
+    public void setSearchKey(String changeKey);
 
     /**
      * @return unique identifier to the search index key
@@ -43,7 +48,7 @@ public interface IAuditLog {
 
     public String getWhat();
 
-    String getEvent();
+    String getName();
 
     public void setTxRef(ITxRef txRef);
 

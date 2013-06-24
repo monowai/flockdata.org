@@ -31,7 +31,7 @@ public class AuditTXResult {
         if (header == null)
             header = log.getHeader();
         this.auditKey = header.getAuditKey();
-        this.dataType = header.getDataType();
+        this.dataType = header.getDocumentType();
         this.clientRef = header.getClientRef();
         this.fortressName = header.getFortress().getName();
         this.fortressKey = header.getFortress().getFortressKey();

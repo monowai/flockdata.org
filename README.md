@@ -92,7 +92,7 @@ curl -u mike:123 -X PUT  http://localhost:8080/ab/fortress/MyFortressName
 ```
 ### Create an Audit Header for the Fortress
 ```
-curl -u mike:123 -X PUT http://localhost:8080/ab/audit/header/new/ -d '"fortress":"MyFortressName", "fortressUser": "yoursystemuser", "recordType":"Company","when":"2012-11-10", yourRef:"123"}'
+curl -u mike:123 -X PUT http://localhost:8080/ab/audit/header/new/ -d '"fortress":"MyFortressName", "fortressUser": "yoursystemuser", "documentType":"Company","when":"2012-11-10", yourRef:"123"}'
 ```
 Result code is the Audit Key that your system can store and must use to create log records and use for queries in the next section
 

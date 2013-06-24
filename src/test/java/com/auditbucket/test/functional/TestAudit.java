@@ -195,13 +195,13 @@ public class TestAudit {
         auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 0}"));
         IAuditLog log = auditService.getLastChange(ahKey);
         assertNotNull(log);
-        assertEquals(IAuditLog.CREATE, log.getEvent()); // log event default
+        assertEquals(IAuditLog.CREATE, log.getName()); // log event default
 
         auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 1}"));
         IAuditLog change = auditService.getLastChange(ahKey);
         assertNotNull(change);
         assertFalse(change.equals(log));
-        assertEquals(IAuditLog.UPDATE, change.getEvent());  // log event default
+        assertEquals(IAuditLog.UPDATE, change.getName());  // log event default
     }
 
     @Test

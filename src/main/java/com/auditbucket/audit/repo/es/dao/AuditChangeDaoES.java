@@ -3,7 +3,6 @@ package com.auditbucket.audit.repo.es.dao;
 import com.auditbucket.audit.dao.IAuditChangeDao;
 import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
@@ -25,8 +24,6 @@ public class AuditChangeDaoES implements IAuditChangeDao {
     @Autowired
     private Client esClient;
 
-    ObjectMapper om = new ObjectMapper();
-
     private Logger log = LoggerFactory.getLogger(AuditChangeDaoES.class);
 
     /**
@@ -35,22 +32,22 @@ public class AuditChangeDaoES implements IAuditChangeDao {
      */
     public IAuditChange save(IAuditChange auditChange) {
         String indexName = auditChange.getIndexName();
-        String recordType = auditChange.getRecordType();
+        String documentType = auditChange.getDocumentType();
 
 
         Map<String, Object> indexMe = auditChange.getWhat();
-        indexMe.put("auditKey", auditChange.getName());
+        indexMe.put("auditKey", auditChange.getAuditKey());
         indexMe.put("who", auditChange.getWho());
 
-        IndexResponse ir = esClient.prepareIndex(indexName, recordType)
+        IndexResponse ir = esClient.prepareIndex(indexName, documentType)
                 .setSource(indexMe)
-                .setRouting(auditChange.getName())
+                .setRouting(auditChange.getAuditKey())
                 .execute()
                 .actionGet();
 
         auditChange.setSearchKey(ir.getId());
         if (log.isDebugEnabled())
-            log.debug("Added Document [" + ir.getId() + "] to " + indexName + "/" + recordType);
+            log.debug("Added Document [" + ir.getId() + "] to " + indexName + "/" + documentType);
         return auditChange;
 
     }
@@ -58,8 +55,11 @@ public class AuditChangeDaoES implements IAuditChangeDao {
     @Override
     public void delete(IAuditHeader header, String existingIndexKey) {
         String indexName = header.getIndexName();
-        String recordType = header.getDataType();
+        String recordType = header.getDocumentType();
 
+//        if ( findOne(header, existingIndexKey)== null)
+//            return;
+//
         DeleteResponse dr = esClient.prepareDelete(indexName, recordType, existingIndexKey)
                 .setRouting(header.getAuditKey())
                 .execute()
@@ -76,18 +76,18 @@ public class AuditChangeDaoES implements IAuditChangeDao {
 
     public byte[] findOne(IAuditHeader header, String id) {
         String indexName = header.getIndexName();
-        String recordType = header.getDataType();
+        String documentType = header.getDocumentType();
         if (log.isDebugEnabled())
-            log.debug("Looking for [" + id + "] in " + indexName + "/" + recordType);
+            log.debug("Looking for [" + id + "] in " + indexName + "/" + documentType);
 
-        GetResponse response = esClient.prepareGet(indexName, recordType, id)
+        GetResponse response = esClient.prepareGet(indexName, documentType, id)
                 .setRouting(header.getAuditKey())
                 .execute()
                 .actionGet();
 
         if (response != null && response.isExists() && !response.isSourceEmpty())
             return response.getSourceAsBytes();
-        log.info("Unable to find response data for [" + id + "] in " + indexName + "/" + recordType);
+        log.info("Unable to find response data for [" + id + "] in " + indexName + "/" + documentType);
 
         return null;
     }

@@ -47,9 +47,7 @@ public class AuditSearchService {
     IAuditChange createSearchableChange(IAuditHeader header, DateTime dateWhen, Map<String, Object> what, String event) {
         if (header.getFortress().isIgnoreSearchEngine())
             return null;
-        IAuditChange thisChange = new AuditChange(header);
-        thisChange.setEvent(event);
-        thisChange.setWhat(what);
+        IAuditChange thisChange = new AuditChange(header, event, what);
         thisChange.setWho(header.getLastUser().getName());
         if (dateWhen != null)
             thisChange.setWhen(dateWhen.toDate());

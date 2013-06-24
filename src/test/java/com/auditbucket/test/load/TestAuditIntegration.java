@@ -229,6 +229,7 @@ public class TestAuditIntegration {
         assertEquals(recordsToCreate, (double) auditService.getAuditLogCount(auditHeader));
     }
 
+    @Test
     public void testBigLoad() throws Exception {
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         SecurityContextHolder.getContext().setAuthentication(authMike);
@@ -245,7 +246,7 @@ public class TestAuditIntegration {
         while (fortress <= fortressCount) {
 
             String fortressName = "bulkloada" + fortress;
-            IFortress iFortress = fortressService.registerFortress(new FortressInputBean(fortressName, false));
+            IFortress iFortress = fortressService.registerFortress(new FortressInputBean(fortressName, false, false));
             int audit = 1;
             while (audit <= auditCount) {
                 AuditHeaderInputBean aib = new AuditHeaderInputBean(iFortress.getName(), fortress + "olivia@sunnybell.com", "Company", new Date(), "ABC" + audit);

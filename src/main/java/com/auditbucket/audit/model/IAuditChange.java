@@ -14,8 +14,6 @@ public interface IAuditChange {
 
     public Map<String, Object> getWhat();
 
-    public String getName();
-
     public String getWho();
 
     public String getFortressName();
@@ -32,7 +30,7 @@ public interface IAuditChange {
 
     public Long getVersion();
 
-    public String getRecordType();
+    public String getName();
 
     public String getId();
 
@@ -40,9 +38,14 @@ public interface IAuditChange {
 
     public String getSearchKey();
 
-    void setEvent(String event);
+    void setName(String event);
 
     void setWhen(Date date);
 
     void setWho(String name);
+
+    String getAuditKey();
+
+    String getDocumentType();
+
 }

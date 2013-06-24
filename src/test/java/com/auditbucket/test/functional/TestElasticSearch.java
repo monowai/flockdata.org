@@ -83,7 +83,7 @@ public class TestElasticSearch {
 
         AuditChange auditChange = new AuditChange(auditHeader);
 
-        auditChange.setEvent("Create");
+        auditChange.setName("Create");
         auditChange.setWhen(new Date());
 // What changed?
         //name.asToken();
@@ -143,7 +143,7 @@ public class TestElasticSearch {
 
         IAuditChange auditChange = new AuditChange(auditHeader);
 
-        auditChange.setEvent("Create");
+        auditChange.setName("Create");
         auditChange.setWhen(new Date());
         auditChange.setVersion(System.currentTimeMillis());
         ObjectMapper om = new ObjectMapper();

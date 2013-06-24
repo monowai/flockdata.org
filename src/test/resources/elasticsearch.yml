@@ -1,5 +1,5 @@
 # http://www.elasticsearch.org/guide/reference/java-api/client/
 
-#cluster.name: elasticsearch_monowai
+#cluster.name: es_auditbucket
 #path.logs=/Users/mike/Documents/var/log/elasticsearch
 #path.data=/Users/mike/Documents/var/data/elasticsearch

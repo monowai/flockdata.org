@@ -112,7 +112,7 @@ public class AuditService {
 
         // Idempotent check
         if (inputBean.getCallerRef() != null)
-            ah = findByName(iFortress.getId(), inputBean.getRecordType(), inputBean.getCallerRef());
+            ah = findByName(iFortress.getId(), inputBean.getDocumentType(), inputBean.getCallerRef());
 
         if (ah != null) {
             if (log.isDebugEnabled())
@@ -233,16 +233,16 @@ public class AuditService {
                 setHeader = true;
                 auditDAO.removeLastChange(header);
             }
-
+            header.setLastUser(fUser);
             if (fortress.isAccumulatingChanges()) {
+                // Accumulate all changes in search engine
                 IAuditChange change = searchService.createSearchableChange(header, dateWhen, input.getWhat(), event);
                 if (change != null)
                     searchKey = change.getSearchKey();
             } else {
-                // Update instead of Create
-                searchKey = lastChange.getSearchKey(); // Key does not change in this mode
+                // Update search engine instead of Create
 
-                IAuditChange change = searchService.updateSearchableChange(header, searchKey, dateWhen, input.getWhat(), event);
+                IAuditChange change = searchService.updateSearchableChange(header, lastChange.getSearchKey(), dateWhen, input.getWhat(), event);
                 if (change != null) {
                     setHeader = true;
                     searchKey = change.getSearchKey();
@@ -277,7 +277,7 @@ public class AuditService {
         AuditLog al = new AuditLog(fUser, dateWhen, event, input.getWhatAsText());
         if (input.getTxRef() != null)
             al.setTxRef(txRef);
-        al.setKey(searchKey);
+        al.setSearchKey(searchKey);
         auditDAO.save(al);
         auditDAO.addChange(header, al, dateWhen);
         input.setStatus(LogStatus.OK);
@@ -338,9 +338,10 @@ public class AuditService {
 
 
     /**
-     * This can be used in compensating transactions to roll back the last change if the caller decides a rollback
-     * is required after the log has been written. If there are no IAuditLog records left, then the header will also
-     * be removed and the headerKey will be invalid hence forth.
+     * This could be used toa assist in compensating transactions to roll back the last change
+     * if the caller decides a rollback is required after the log has been written.
+     * If there are no IAuditLog records left, then the header will also be removed and the
+     * AB headerKey will be forever invalid.
      *
      * @param headerKey UID of the header
      * @return the modified header record or null if no header exists.
@@ -349,11 +350,8 @@ public class AuditService {
     public IAuditHeader cancelLastLog(String headerKey) throws IOException {
         IAuditHeader auditHeader = getValidHeader(headerKey);
         IAuditLog auditLog = getLastChange(auditHeader);
-        if (auditHeader.getFortress().isAccumulatingChanges())
-            // If adding, then we need to remove the ES document
-            searchService.delete(auditHeader, auditLog.getSearchKey());
-
         auditDAO.delete(auditLog);
+
         String searchKey = auditLog.getSearchKey();
         if (searchKey != null)
             searchService.delete(auditHeader, searchKey);
@@ -363,20 +361,28 @@ public class AuditService {
             return null;
 
         auditHeader = auditDAO.fetch(auditHeader);
-
         auditHeader.setLastUser(fortressService.getFortressUser(auditHeader.getFortress(), lastChange.getWho().getName()));
         auditHeader = auditDAO.save(auditHeader);
 
         // Sync the update to elastic search.
         if (!auditHeader.getFortress().isIgnoreSearchEngine()) {
-            IAuditChange change = searchService.createSearchableChange(new SearchDocumentBean(auditHeader, new DateTime(lastChange.getWhen()), lastChange.getWhat(), lastChange.getEvent()));
-            if (change != null)
-                auditHeader.setSearchKey(change.getSearchKey());
+            // Rebuilt the search record
+            IAuditChange change = searchService.createSearchableChange(new SearchDocumentBean(auditHeader, new DateTime(lastChange.getWhen()), lastChange.getWhat(), lastChange.getName()));
+            if (change != null) {
+                lastChange.setSearchKey(change.getSearchKey());
+                auditDAO.save(lastChange);
+            }
         }
 
         return auditHeader;
     }
 
+    /**
+     * counts the number of audit logs that exist for the given header
+     *
+     * @param headerKey GUID
+     * @return count
+     */
     public int getAuditLogCount(String headerKey) {
         IAuditHeader auditHeader = getValidHeader(headerKey);
         return auditDAO.getLogCount(auditHeader.getId());

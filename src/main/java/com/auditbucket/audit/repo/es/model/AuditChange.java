@@ -19,14 +19,14 @@ public class AuditChange implements IAuditChange {
     // ToDo: Figure out naming standard for system variables
     @Id
     private String id;
-    private String recordType;
+    private String documentType;
     private Map<String, Object> what;
-    private String name;
     private Date when;
     private String fortressName;
     private String companyName;
-    private String event;
+    private String name;
     private String who;
+    private String auditKey;
     @Version
     private Long version;
 
@@ -40,12 +40,19 @@ public class AuditChange implements IAuditChange {
     public AuditChange(IAuditHeader header) {
         this();
         setName(header.getAuditKey());
-        this.recordType = header.getDataType();
+        this.auditKey = header.getAuditKey();
+        this.documentType = header.getDocumentType();
         setFortress(header.getFortress());
         this.indexName = header.getIndexName();
     }
 
     public AuditChange() {
+    }
+
+    public AuditChange(IAuditHeader header, String event, Map<String, Object> what) {
+        this(header);
+        this.name = event;
+        this.what = what;
     }
 
     @Override
@@ -144,24 +151,19 @@ public class AuditChange implements IAuditChange {
     }
 
     @JsonIgnore
-    public String getEvent() {
-        return event;
-    }
-
-    public void setEvent(String event) {
-        this.event = event;
-    }
-
-    @JsonIgnore
     public Long getVersion() {
         return version;
     }
 
-    public String getRecordType() {
-        return recordType;
+    public String getDocumentType() {
+        return documentType;
     }
 
-    protected void setRecordType(String recordType) {
-        this.recordType = recordType;
+    protected void setDocumentType(String documentType) {
+        this.documentType = documentType;
+    }
+
+    public String getAuditKey() {
+        return auditKey;
     }
 }
