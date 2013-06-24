@@ -131,8 +131,10 @@ public class AuditService {
             log.debug("Audit Header created:" + ah.getId() + " key=[" + ah.getAuditKey() + "]");
         inputBean.setAuditKey(ah.getAuditKey());
         if (inputBean.getAuditLog() != null) {
+            // Creating an initial change record
             AuditLogInputBean logBean = inputBean.getAuditLog();
             logBean.setAuditKey(ah.getAuditKey());
+            logBean.setFortressUser(inputBean.getFortressUser());
             inputBean.setAuditLog(createLog(logBean));
         }
 
