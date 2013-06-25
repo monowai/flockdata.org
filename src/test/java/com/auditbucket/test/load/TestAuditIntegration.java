@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
+import org.springframework.data.neo4j.support.node.Neo4jHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -76,7 +77,7 @@ public class TestAuditIntegration {
         // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
         // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
         SecurityContextHolder.getContext().setAuthentication(authMike);
-        //Neo4jHelper.cleanDb(template);
+        Neo4jHelper.cleanDb(template);
     }
 
     @Test
@@ -106,8 +107,8 @@ public class TestAuditIntegration {
         StopWatch watch = new StopWatch();
         watch.start();
 
-        createLogRecords(authMike, ahWP, what + "\"}", 20);
-        createLogRecords(authGina, ahHS, what + "\"}", 40);
+        createLogRecords(authMike, ahWP, what, 20);
+        createLogRecords(authGina, ahHS, what, 40);
         try {
             Thread.sleep(5000l);
         } catch (InterruptedException e) {
@@ -219,11 +220,8 @@ public class TestAuditIntegration {
     private void createLogRecords(Authentication auth, String auditHeader, String textToUse, double recordsToCreate) throws Exception {
         int i = 0;
         SecurityContextHolder.getContext().setAuthentication(auth);
-        String action = "Create";
         while (i < recordsToCreate) {
-            if (i == 1)
-                action = "Update";
-            auditService.createLog(new AuditLogInputBean(auditHeader, "wally", new DateTime(), textToUse + i + "}", action));
+            auditService.createLog(new AuditLogInputBean(auditHeader, "wally", new DateTime(), textToUse + i + "\"}", (String) null));
             i++;
         }
         assertEquals(recordsToCreate, (double) auditService.getAuditLogCount(auditHeader));
@@ -233,8 +231,8 @@ public class TestAuditIntegration {
     public void testBigLoad() throws Exception {
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         SecurityContextHolder.getContext().setAuthentication(authMike);
-        int fortressCount = 20;
-        int auditCount = 100;
+        int fortressCount = 2;
+        int auditCount = 10;
         int logCount = 5;
         String escJson = "{\"who\":";
         int fortress = 1;

@@ -49,12 +49,12 @@ public class AuditHeader implements IAuditHeader {
     @Indexed(indexName = UUID_KEY, unique = true)
     private String auditKey;
 
-    @Indexed(indexName = "clientRef")
+    @Indexed(indexName = "callerRef")
     private String name;
     private long dateCreated;
 
     private String documentType;
-    private String clientRef;
+    private String callerRef;
 
     private long fortressDate;
     long lastUpdated = 0;
@@ -70,7 +70,7 @@ public class AuditHeader implements IAuditHeader {
     public AuditHeader(@NotNull IFortressUser createdBy, @NotNull AuditHeaderInputBean auditInput) {
         this();
         String documentType = auditInput.getDocumentType();
-        clientRef = auditInput.getCallerRef();
+        callerRef = auditInput.getCallerRef();
         Date when = auditInput.getWhen();
         if (when == null)
             fortressDate = dateCreated;
@@ -81,7 +81,7 @@ public class AuditHeader implements IAuditHeader {
         this.lastWho = (FortressUser) createdBy;
         this.fortress = (Fortress) createdBy.getFortress();
         this.documentType = (documentType != null ? documentType.toLowerCase() : "");
-        this.name = (clientRef == null ? documentType : (this.documentType + "." + clientRef).toLowerCase());
+        this.name = (callerRef == null ? documentType : (this.documentType + "." + callerRef).toLowerCase());
 
 
     }
@@ -201,7 +201,7 @@ public class AuditHeader implements IAuditHeader {
 
     @Override
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getClientRef() {
-        return this.clientRef;  //To change body of implemented methods use File | Settings | File Templates.
+    public String getCallerRef() {
+        return this.callerRef;  //To change body of implemented methods use File | Settings | File Templates.
     }
 }

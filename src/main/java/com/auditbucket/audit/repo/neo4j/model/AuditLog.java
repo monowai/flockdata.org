@@ -6,12 +6,16 @@ import com.auditbucket.audit.model.ITxRef;
 import com.auditbucket.registration.model.IFortressUser;
 import com.auditbucket.registration.repo.neo4j.model.FortressUser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.*;
 
+import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * User: mike
@@ -30,6 +34,7 @@ public class AuditLog implements IAuditLog {
     @RelatedTo(elementClass = TxRef.class, type = "txIncludes", direction = Direction.INCOMING, enforceTargetType = true)
     private ITxRef txRef;
 
+    static ObjectMapper om = new ObjectMapper();
 
     private long sysWhen;
     private String comment;
@@ -115,8 +120,26 @@ public class AuditLog implements IAuditLog {
         return name;
     }
 
-    public String getWhat() {
+    @JsonIgnore
+    public String getJsonWhat() {
         return jsonWhat;
+    }
+
+    private Map<String, Object> mWhat;
+
+    public Map<String, Object> getWhat() {
+        if (jsonWhat == null)
+            return null;
+
+        if (mWhat != null)
+            return mWhat;
+        try {
+            mWhat = om.readValue(jsonWhat, Map.class);
+        } catch (IOException e) {
+            mWhat = new HashMap<String, Object>();
+            mWhat.put("what", jsonWhat);
+        }
+        return mWhat;
     }
 
     public void setTxRef(ITxRef txRef) {

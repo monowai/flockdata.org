@@ -46,7 +46,7 @@ public interface IAuditLog {
      */
     public String getSearchKey();
 
-    public String getWhat();
+    public String getJsonWhat();
 
     String getName();
 

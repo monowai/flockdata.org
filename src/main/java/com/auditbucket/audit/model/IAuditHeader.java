@@ -65,6 +65,6 @@ public interface IAuditHeader {
 
     //Set<ITxRef> getTxTags();
 
-    String getClientRef();
+    String getCallerRef();
 
 }

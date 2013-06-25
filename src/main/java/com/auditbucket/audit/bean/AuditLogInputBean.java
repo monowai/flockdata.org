@@ -14,14 +14,14 @@ import java.util.Map;
  * Time: 7:41 PM
  */
 public class AuditLogInputBean {
-    //'{"eventType":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10","what":"{name: 22}"}'
+    //'{"event":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10","what":"{name: 22}"}'
     private AuditService.LogStatus logStatus;
-    String auditKey;
-    String yourRef;
-    private String txRef;
     private Boolean isTransactional = false;
+    String auditKey;
+    private String txRef;
+    String callerRef;
     String fortressUser;
-    String eventType;
+    String event;
     String when;
     String what;
     Map<String, Object> mapWhat;
@@ -61,7 +61,7 @@ public class AuditLogInputBean {
      */
     public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String what, String event) throws IOException {
         this(auditKey, fortressUser, when, what);
-        this.eventType = event;
+        this.event = event;
     }
 
     public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String what, String event, String txName) throws IOException {
@@ -77,12 +77,12 @@ public class AuditLogInputBean {
         this.auditKey = auditKey;
     }
 
-    public String getEventType() {
-        return eventType;
+    public String getEvent() {
+        return event;
     }
 
-    public void setEventType(String eventType) {
-        this.eventType = eventType;
+    public void setEvent(String event) {
+        this.event = event;
     }
 
     public String getFortressUser() {
@@ -123,12 +123,12 @@ public class AuditLogInputBean {
         this.comment = comment;
     }
 
-    public String getYourRef() {
-        return yourRef;
+    public String getCallerRef() {
+        return callerRef;
     }
 
-    public void setYourRef(String yourRef) {
-        this.yourRef = yourRef;
+    public void setCallerRef(String callerRef) {
+        this.callerRef = callerRef;
     }
 
 

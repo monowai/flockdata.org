@@ -15,11 +15,11 @@ import java.util.Set;
  */
 public interface AuditHeaderRepo extends GraphRepository<AuditHeader> {
 
-    @Query(elementClass = AuditHeader.class, value = "start audit=node:clientRef(name = {0} ) " +
+    @Query(elementClass = AuditHeader.class, value = "start audit=node:callerRef(name = {0} ) " +
             "   match audit<-[:audit]-fortress<-[:owns]-company " +
             "   where fortress.name= {1} and company.name ={2}" +
             "return audit")
-    AuditHeader findByClientRef(String clientRef, String fortress, String company);
+    AuditHeader findByCallerRef(String callerRef, String fortress, String company);
 
     @Query(elementClass = AuditHeader.class, value = "start audit=node:auditKey(auditKey = {0} ) return audit")
     AuditHeader findByUID(String uid);

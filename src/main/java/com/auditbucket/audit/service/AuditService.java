@@ -138,6 +138,7 @@ public class AuditService {
             AuditLogInputBean logBean = inputBean.getAuditLog();
             logBean.setAuditKey(ah.getAuditKey());
             logBean.setFortressUser(inputBean.getFortressUser());
+            logBean.setCallerRef(ah.getCallerRef());
             inputBean.setAuditLog(createLog(logBean));
         }
 
@@ -166,7 +167,7 @@ public class AuditService {
         return ah;
     }
 
-    public IAuditHeader findByName(Long fortressID, @NotEmpty @NotNull String recordType, @NotEmpty @NotNull String clientRef) {
+    public IAuditHeader findByName(Long fortressID, @NotEmpty @NotNull String recordType, @NotEmpty @NotNull String callerRef) {
         String userName = securityHelper.getLoggedInUser();
 
         ISystemUser su = sysUserService.findByName(userName);
@@ -177,13 +178,13 @@ public class AuditService {
         if (!fortress.getCompany().getId().equals(su.getCompany().getId()))
             throw new SecurityException("User is not authorised to work with requested Fortress");
 
-        String key = (recordType.trim() + DOT + clientRef.trim());
-        return auditDAO.findHeaderByClientRef(key, fortress.getName(), fortress.getCompany().getName());
+        String key = (recordType.trim() + DOT + callerRef.trim());
+        return auditDAO.findHeaderByCallerRef(key, fortress.getName(), fortress.getCompany().getName());
     }
 
     @Transactional
     public AuditLogInputBean createLog(AuditLogInputBean input) {
-        // ToDo: Find by yourRef()
+        // ToDo: Find by callerRef()
         IAuditHeader header = getHeader(input.getAuditKey());
         if (header == null) {
             input.setStatus(LogStatus.NOT_FOUND);
@@ -215,7 +216,7 @@ public class AuditService {
         // Spin the following off in to a separate thread?
         String searchKey = null;
         IAuditLog lastChange = auditDAO.getLastChange(header.getId());
-        String event = input.getEventType();
+        String event = input.getEvent();
 
         DateTime dateWhen;
         if (input.getWhen() == null)
@@ -227,7 +228,7 @@ public class AuditService {
             // Neo4j won't store the map, so we store the raw escaped JSON text
 
             try {
-                if (isSame(lastChange.getWhat(), input.getWhat())) {
+                if (isSame(lastChange.getJsonWhat(), input.getWhat())) {
                     if (log.isDebugEnabled())
                         log.debug("Ignoring a change we already have");
                     input.setStatus(LogStatus.IGNORE);
@@ -393,7 +394,7 @@ public class AuditService {
         // Sync the update to elastic search.
         if (!auditHeader.getFortress().isIgnoreSearchEngine()) {
             // Rebuilt the search record
-            IAuditChange change = searchService.createSearchableChange(new SearchDocumentBean(auditHeader, new DateTime(lastChange.getWhen()), lastChange.getWhat(), lastChange.getName()));
+            IAuditChange change = searchService.createSearchableChange(new SearchDocumentBean(auditHeader, new DateTime(lastChange.getWhen()), lastChange.getJsonWhat(), lastChange.getName()));
             if (change != null) {
                 lastChange.setSearchKey(change.getSearchKey());
                 auditDAO.save(lastChange);

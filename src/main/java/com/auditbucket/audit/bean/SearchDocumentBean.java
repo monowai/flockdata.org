@@ -23,7 +23,7 @@ public class SearchDocumentBean {
         this.auditHeader = auditHeader;
         this.dateTime = dateTime;
         this.event = event;
-        om.readValue(om.readTree(what).toString(), Map.class);
+        om.readValue(what, Map.class);
     }
 
 

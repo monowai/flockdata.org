@@ -70,7 +70,7 @@ public class TestAudit {
 
 
     @Test
-    public void testClientRef() {
+    public void testMakeByCallerRef() {
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         IFortress fortressA = fortressService.registerFortress("auditTest");
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new Date(), "ABC123");
