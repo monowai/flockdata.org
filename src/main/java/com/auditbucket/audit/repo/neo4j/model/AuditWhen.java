@@ -22,7 +22,7 @@ public class AuditWhen implements IAuditWhen {
     @StartNode
     private AuditHeader auditHeader;
 
-    @Indexed(indexName = "sysWhen")
+    @Indexed(indexName = "sysWhen", numeric = true)
     private Long sysWhen = 0l;
 
     @Indexed(indexName = "fortressWhen")

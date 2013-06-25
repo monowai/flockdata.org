@@ -1,10 +1,11 @@
 package com.auditbucket.audit.repo.es.dao;
 
-import com.auditbucket.audit.dao.IAuditChangeDao;
+import com.auditbucket.audit.dao.IAuditSearchDao;
 import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
@@ -20,11 +21,11 @@ import java.util.Map;
  * Time: 12:00 PM
  */
 @Repository("esAuditChange")
-public class AuditChangeDaoES implements IAuditChangeDao {
+public class AuditSearchDaoES implements IAuditSearchDao {
     @Autowired
     private Client esClient;
 
-    private Logger log = LoggerFactory.getLogger(AuditChangeDaoES.class);
+    private Logger log = LoggerFactory.getLogger(AuditSearchDaoES.class);
 
     /**
      * @param auditChange object containing changes
@@ -35,13 +36,11 @@ public class AuditChangeDaoES implements IAuditChangeDao {
         String documentType = auditChange.getDocumentType();
 
 
-        Map<String, Object> indexMe = auditChange.getWhat();
-        indexMe.put("auditKey", auditChange.getAuditKey());
-        indexMe.put("who", auditChange.getWho());
+        Map<String, Object> indexMe = getIndexDocument(auditChange);
 
         IndexResponse ir = esClient.prepareIndex(indexName, documentType)
                 .setSource(indexMe)
-                .setRouting(auditChange.getAuditKey())
+                .setRouting(auditChange.getRoutingKey())
                 .execute()
                 .actionGet();
 
@@ -52,14 +51,19 @@ public class AuditChangeDaoES implements IAuditChangeDao {
 
     }
 
+    private Map<String, Object> getIndexDocument(IAuditChange auditChange) {
+        Map<String, Object> indexMe = auditChange.getWhat();
+        indexMe.put("auditKey", auditChange.getAuditKey());
+        indexMe.put("who", auditChange.getWho());
+        indexMe.put("docType", auditChange.getDocumentType());
+        return indexMe;
+    }
+
     @Override
     public void delete(IAuditHeader header, String existingIndexKey) {
         String indexName = header.getIndexName();
         String recordType = header.getDocumentType();
 
-//        if ( findOne(header, existingIndexKey)== null)
-//            return;
-//
         DeleteResponse dr = esClient.prepareDelete(indexName, recordType, existingIndexKey)
                 .setRouting(header.getAuditKey())
                 .execute()
@@ -74,9 +78,35 @@ public class AuditChangeDaoES implements IAuditChangeDao {
 
     }
 
+    @Override
+    public void update(IAuditChange change) {
+
+        Map<String, Object> indexMe = getIndexDocument(change);
+
+        IndexRequestBuilder update = esClient
+                .prepareIndex(change.getIndexName(), change.getDocumentType(), change.getSearchKey())
+                .setRouting(change.getRoutingKey())
+                .setOperationThreaded(false);
+
+        IndexResponse ur = update.setSource(indexMe).
+                execute().
+                actionGet();
+
+
+        if (log.isDebugEnabled())
+            log.debug("Updated [" + change.getSearchKey() + "] for " + change + " to version " + ur.getVersion());
+
+    }
+
+    public byte[] findOne(IAuditHeader header) {
+        return findOne(header, null);
+    }
+
     public byte[] findOne(IAuditHeader header, String id) {
         String indexName = header.getIndexName();
         String documentType = header.getDocumentType();
+        if (id == null)
+            id = header.getSearchKey();
         if (log.isDebugEnabled())
             log.debug("Looking for [" + id + "] in " + indexName + "/" + documentType);
 

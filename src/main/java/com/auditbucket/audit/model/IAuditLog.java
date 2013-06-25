@@ -3,6 +3,7 @@ package com.auditbucket.audit.model;
 import com.auditbucket.registration.model.IFortressUser;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * User: mike
@@ -54,5 +55,5 @@ public interface IAuditLog {
 
     String getEvent();
 
-    //public abstract ITag getTag();
+    Map<String, Object> getWhat();
 }

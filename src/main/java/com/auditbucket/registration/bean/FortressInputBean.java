@@ -5,25 +5,33 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 /**
- * User: mike
+ * Represents the input to create a fortress
+ * Default behaviour is
+ * not to accumulate each change as a separate document
+ * index document changes in the search engine
+ * <p/>
  * Date: 12/06/13
  * Time: 12:04 PM
  */
 public class FortressInputBean {
     private String name;
     private Boolean accumulateChanges = false;
-    private Boolean ignoreSearchEngine = true;
+    private Boolean ignoreSearchEngine = false;
     private String message = null;
     private String fortressKey = null;
 
     protected FortressInputBean() {
     }
 
+    /**
+     * implies that the fortress will *not* ignore the search engine
+     *
+     * @param name              Company unique name for the fortress
+     * @param accumulateChanges accumulate the changes in the search engine rather than update
+     */
     public FortressInputBean(String name, boolean accumulateChanges) {
         this.accumulateChanges = accumulateChanges;
-        if (accumulateChanges)
-            ignoreSearchEngine = false;
-
+        ignoreSearchEngine = false;
         this.name = name;
     }
 

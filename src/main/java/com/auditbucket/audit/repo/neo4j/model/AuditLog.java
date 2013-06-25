@@ -45,7 +45,7 @@ public class AuditLog implements IAuditLog {
 
     private Long when = 0l;
 
-    @Indexed(indexName = "esKey")
+    @Indexed(indexName = "searchKey")
     private String searchKey;
 
 

@@ -1,7 +1,7 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
-import com.auditbucket.audit.dao.IAuditChangeDao;
+import com.auditbucket.audit.dao.IAuditSearchDao;
 import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.repo.es.model.AuditChange;
@@ -37,7 +37,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -57,7 +58,7 @@ public class TestElasticSearch {
     AuditSearchService searchService;
 
     @Autowired
-    IAuditChangeDao alRepo;
+    IAuditSearchDao alRepo;
 
     @Test
     public void testMappingJson() throws Exception {
@@ -172,22 +173,5 @@ public class TestElasticSearch {
         assertEquals("Sixpack", ac.get("last"));
 
     }
-
-
-    @Test
-    public void testFortressDefaults() {
-        FortressInputBean fortress = new FortressInputBean("");
-        // Object Defaults
-        assertFalse(fortress.getAccumulateChanges());
-        assertTrue(fortress.getIgnoreSearchEngine());
-        fortress = new FortressInputBean("", true);
-        assertTrue(fortress.getAccumulateChanges());
-        assertFalse(fortress.getIgnoreSearchEngine());
-        fortress = new FortressInputBean("", false);
-        assertFalse(fortress.getAccumulateChanges());
-        assertTrue(fortress.getIgnoreSearchEngine());
-
-    }
-
 
 }

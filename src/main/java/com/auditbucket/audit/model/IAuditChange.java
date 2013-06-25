@@ -46,6 +46,8 @@ public interface IAuditChange {
 
     String getAuditKey();
 
+    String getRoutingKey();
+
     String getDocumentType();
 
 }

@@ -69,6 +69,11 @@ public class AuditLogInputBean {
         this.setTxRef(txName);
     }
 
+    public AuditLogInputBean(String fortressUser, DateTime when, String what) throws IOException {
+        this(null, fortressUser, when, what);
+
+    }
+
     public String getAuditKey() {
         return auditKey;
     }

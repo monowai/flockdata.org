@@ -16,7 +16,7 @@ public class CompanyUser implements ICompanyUser {
     @Indexed(indexName = "companyUserName")
     private String name = null;
 
-    @RelatedTo(elementClass = Company.class, type = "companyUser", direction = Direction.OUTGOING)
+    @RelatedTo(elementClass = Company.class, type = "works", direction = Direction.OUTGOING)
     ICompany company;
 
 //    @RelatedTo (elementClass = SystemUser.class, type ="isA", direction = Direction.INCOMING)

@@ -58,6 +58,8 @@ public class AuditHeader implements IAuditHeader {
 
     private long fortressDate;
     long lastUpdated = 0;
+
+    @Indexed(indexName = "searchKey")
     String searchKey = null;
 
     AuditHeader() {

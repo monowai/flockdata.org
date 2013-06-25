@@ -5,7 +5,6 @@ import com.auditbucket.audit.bean.AuditLogInputBean;
 import com.auditbucket.audit.repo.neo4j.model.TxRef;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.repo.neo4j.model.Company;
-import com.auditbucket.registration.repo.neo4j.model.Fortress;
 import com.auditbucket.test.functional.TestAudit;
 import org.elasticsearch.common.joda.time.DateTime;
 import org.junit.Test;
@@ -43,19 +42,24 @@ public class TestInputBeans {
         Company c = new Company("test");
 
         FortressInputBean fib = new FortressInputBean("ABC");
-        assertTrue(fib.getIgnoreSearchEngine());
+        assertFalse(fib.getIgnoreSearchEngine());
         assertFalse(fib.getAccumulateChanges());
         fib.setAccumulateChanges(true);
         // Setting accumulate changes turns on search engine tracking
         assertTrue(fib.getAccumulateChanges());
         assertFalse(fib.getIgnoreSearchEngine());
 
+        fib = new FortressInputBean("ABC", false);
+        assertFalse(fib.getAccumulateChanges());
+        assertFalse(fib.getIgnoreSearchEngine());
 
-        Fortress f = new Fortress(fib, c);
-        assertTrue(f.isAccumulatingChanges());
-        assertFalse(f.isIgnoreSearchEngine());
+        fib = new FortressInputBean("ABC", true);
+        assertTrue(fib.getAccumulateChanges());
+        assertFalse(fib.getIgnoreSearchEngine());
 
-        //AuditHeader ah = new AuditHeader()
+        fib = new FortressInputBean("ABC", false, false);
+        assertFalse(fib.getAccumulateChanges());
+        assertFalse(fib.getIgnoreSearchEngine());
 
     }
 

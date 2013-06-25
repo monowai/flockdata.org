@@ -1,9 +1,14 @@
 package com.auditbucket.registration.repo.neo4j.model;
 
 import com.auditbucket.registration.model.ICompany;
+import com.auditbucket.registration.model.ICompanyUser;
+import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.annotation.RelatedTo;
+
+import java.util.Set;
 
 @NodeEntity
 public class Company implements ICompany {
@@ -13,8 +18,8 @@ public class Company implements ICompany {
     @Indexed(unique = true, indexName = "companyName")
     String name;
 
-//	@RelatedTo (elementClass = CompanyUser.class, type="companyUser", direction= Direction.INCOMING)
-//	Set<ICompanyUser> companyUsers;
+    @RelatedTo(elementClass = CompanyUser.class, type = "works", direction = Direction.INCOMING)
+    private Set<ICompanyUser> companyUsers;
 
 //	@RelatedTo (elementClass = SystemUser.class, type="administers", direction= Direction.INCOMING)
 //	Set<ISystemUser> admins;

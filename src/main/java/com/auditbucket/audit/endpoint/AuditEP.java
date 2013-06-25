@@ -42,7 +42,7 @@ public class AuditEP {
     @ResponseBody
     public String get() throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/ping
-        return "Ping";
+        return "Ping!";
     }
 
     @RequestMapping(value = "/header/new", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
@@ -63,7 +63,7 @@ public class AuditEP {
         }
     }
 
-    @RequestMapping(value = "/log/new", consumes = "application/json", produces = "application/json", method = RequestMethod.PUT)
+    @RequestMapping(value = "/log/new", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @ResponseBody
     public ResponseEntity<AuditLogInputBean> createLog(@RequestBody AuditLogInputBean input) throws Exception {
@@ -198,7 +198,7 @@ public class AuditEP {
 
     }
 
-    @RequestMapping(value = "/{auditKey}/lastchange", method = RequestMethod.GET)
+    @RequestMapping(value = "/{auditKey}/lastchange", produces = "application/json", method = RequestMethod.GET)
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @ResponseBody
     public ResponseEntity<IAuditLog> getLastChange(@PathVariable("auditKey") String auditKey) throws Exception {

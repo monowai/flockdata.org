@@ -44,6 +44,7 @@ public class AuditChange implements IAuditChange {
         this.documentType = header.getDocumentType();
         setFortress(header.getFortress());
         this.indexName = header.getIndexName();
+        this.searchKey = header.getSearchKey();
     }
 
     public AuditChange() {
@@ -165,5 +166,9 @@ public class AuditChange implements IAuditChange {
 
     public String getAuditKey() {
         return auditKey;
+    }
+
+    public String getRoutingKey() {
+        return getAuditKey();
     }
 }
