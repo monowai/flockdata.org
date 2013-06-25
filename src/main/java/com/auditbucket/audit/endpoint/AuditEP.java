@@ -173,14 +173,14 @@ public class AuditEP {
         }
     }
 
-    @RequestMapping(value = "/find/{fortress}/{recordType}/{clientRef}", method = RequestMethod.GET)
+    @RequestMapping(value = "/find/{fortress}/{recordType}/{callerRef}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<IAuditHeader> getByClientRef(@PathVariable("fortress") String fortress,
                                                        @PathVariable("recordType") String recordType,
-                                                       @PathVariable("clientRef") String clientRef) throws Exception {
+                                                       @PathVariable("callerRef") String callerRef) throws Exception {
         try {
             IFortress f = fortressService.find(fortress);
-            IAuditHeader result = auditService.findByName(f.getId(), recordType, clientRef);
+            IAuditHeader result = auditService.findByName(f.getId(), recordType, callerRef);
             return new ResponseEntity<IAuditHeader>(result, HttpStatus.OK);
 
         } catch (IllegalArgumentException e) {
