@@ -18,6 +18,8 @@ import com.auditbucket.registration.model.ISystemUser;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.SystemUserService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -62,6 +64,7 @@ public class AuditService {
     private AuditSearchService searchService;
 
     private Logger log = LoggerFactory.getLogger(AuditService.class);
+    static final ObjectMapper om = new ObjectMapper();
 
     @Transactional
     public ITxRef beginTransaction() {
@@ -180,13 +183,14 @@ public class AuditService {
 
     @Transactional
     public AuditLogInputBean createLog(AuditLogInputBean input) {
+        // ToDo: Find by yourRef()
         IAuditHeader header = getHeader(input.getAuditKey());
         if (header == null) {
             input.setStatus(LogStatus.NOT_FOUND);
             return input;
         }
 
-        if (input.getWhat() == null || input.getWhat().isEmpty()) {
+        if (input.getMapWhat() == null || input.getMapWhat().isEmpty()) {
             input.setStatus(LogStatus.IGNORE);
             return input;
         }
@@ -221,10 +225,17 @@ public class AuditService {
 
         if (lastChange != null) {
             // Neo4j won't store the map, so we store the raw escaped JSON text
-            if (lastChange.getWhat().equals(input.getWhatAsText())) {
-                if (log.isDebugEnabled())
-                    log.debug("Ignoring a change we already have");
-                input.setStatus(LogStatus.IGNORE);
+
+            try {
+                if (isSame(lastChange.getWhat(), input.getWhat())) {
+                    if (log.isDebugEnabled())
+                        log.debug("Ignoring a change we already have");
+                    input.setStatus(LogStatus.IGNORE);
+                    return input;
+                }
+            } catch (IOException e) {
+                input.setStatus(LogStatus.ILLEGAL_ARGUMENT);
+                input.setMessage("Error comparing JSON data: " + e.getMessage());
                 return input;
             }
             if (event == null)
@@ -238,13 +249,13 @@ public class AuditService {
             header.setLastUser(fUser);
             if (fortress.isAccumulatingChanges()) {
                 // Accumulate all changes in search engine
-                IAuditChange change = searchService.createSearchableChange(header, dateWhen, input.getWhat(), event);
+                IAuditChange change = searchService.createSearchableChange(header, dateWhen, input.getMapWhat(), event);
                 if (change != null)
                     searchKey = change.getSearchKey();
             } else {
                 // Update search engine instead of Create
 
-                IAuditChange change = searchService.updateSearchableChange(header, lastChange.getSearchKey(), dateWhen, input.getWhat(), event);
+                IAuditChange change = searchService.updateSearchableChange(header, lastChange.getSearchKey(), dateWhen, input.getMapWhat(), event);
                 if (change != null) {
                     setHeader = true;
                     searchKey = change.getSearchKey();
@@ -254,7 +265,7 @@ public class AuditService {
             if (event == null)
                 event = IAuditLog.CREATE;
             setHeader = true;
-            IAuditChange change = searchService.createSearchableChange(header, dateWhen, input.getWhat(), event);
+            IAuditChange change = searchService.createSearchableChange(header, dateWhen, input.getMapWhat(), event);
             if (change != null) {
                 searchKey = change.getSearchKey();
             }
@@ -276,15 +287,28 @@ public class AuditService {
             header = auditDAO.save(header);
         }
 
-        AuditLog al = new AuditLog(fUser, dateWhen, event, input.getWhatAsText());
+        IAuditLog al = new AuditLog(fUser, dateWhen, event, input.getWhat());
         if (input.getTxRef() != null)
             al.setTxRef(txRef);
         al.setSearchKey(searchKey);
-        auditDAO.save(al);
+        al = auditDAO.save(al);
         auditDAO.addChange(header, al, dateWhen);
         input.setStatus(LogStatus.OK);
         return input;
 
+    }
+
+    private boolean isSame(String jsonWhat, String jsonOther) throws IOException {
+        if (jsonWhat == null || jsonOther == null)
+            return false;
+
+        if (jsonWhat.length() != jsonOther.length())
+            return false;
+
+        // Compare values
+        JsonNode compareTo = om.readTree(jsonWhat);
+        JsonNode other = om.readTree(jsonOther);
+        return compareTo.equals(other);
     }
 
     public ITxRef findTx(String txRef) {

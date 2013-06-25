@@ -33,8 +33,9 @@ public class AuditLog implements IAuditLog {
 
     private long sysWhen;
     private String comment;
+    private String event;
 
-    private String what;
+    private String jsonWhat;
     private String name;
 
     private Long when = 0l;
@@ -48,7 +49,7 @@ public class AuditLog implements IAuditLog {
         sysWhen = now.toDate().getTime();
     }
 
-    public AuditLog(IFortressUser madeBy, DateTime fortressWhen, String event, String what) {
+    public AuditLog(IFortressUser madeBy, DateTime fortressWhen, String event, String jsonWhat) {
         this();
         sysWhen = DateTime.now().getMillis();
 
@@ -58,10 +59,11 @@ public class AuditLog implements IAuditLog {
         } else {
             this.when = sysWhen;
         }
-
+        this.event = event;
         this.name = event + ":" + madeBy.getName();
-        this.what = what;
+        this.jsonWhat = jsonWhat;
     }
+
 
     @JsonIgnore
     public IAuditHeader getHeader() {
@@ -108,16 +110,20 @@ public class AuditLog implements IAuditLog {
     /**
      * @return the name of the event that caused this change
      */
+    @JsonIgnore
     public String getName() {
         return name;
     }
 
-
     public String getWhat() {
-        return what;
+        return jsonWhat;
     }
 
     public void setTxRef(ITxRef txRef) {
         this.txRef = txRef;
+    }
+
+    public String getEvent() {
+        return event;
     }
 }

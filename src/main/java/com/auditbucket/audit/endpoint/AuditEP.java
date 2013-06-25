@@ -45,11 +45,11 @@ public class AuditEP {
         return "Ping";
     }
 
-    @RequestMapping(value = "/header/new", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
+    @RequestMapping(value = "/header/new", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @ResponseBody
     public ResponseEntity<AuditHeaderInputBean> createHeader(@RequestBody AuditHeaderInputBean input) throws Exception {
-        // curl -u mike:123 -X PUT http://localhost:8080/ab/audit/header/new/ -d '"fortress":"MyFortressName", "fortressUser": "yoursystemuser", "recordType":"Company","when":"2012-11-10"}'
+        // curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab/audit/header/new/ -d '"fortress":"MyFortressName", "fortressUser": "yoursystemuser", "documentType":"Company","when":"2012-11-10"}'
         try {
             input = auditService.createHeader(input);
             input.setLastMessage("OK");
@@ -63,30 +63,37 @@ public class AuditEP {
         }
     }
 
-    @RequestMapping(value = "/log/new", consumes = "application/json", method = RequestMethod.PUT)
+    @RequestMapping(value = "/log/new", consumes = "application/json", produces = "application/json", method = RequestMethod.PUT)
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @ResponseBody
-    public ResponseEntity<String> createLog(@RequestBody AuditLogInputBean input) throws Exception {
+    public ResponseEntity<AuditLogInputBean> createLog(@RequestBody AuditLogInputBean input) throws Exception {
         // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/audit/log/new -d '{"eventType":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10", "what": "{\"name\": \"val\"}" }'
         try {
 
             input = auditService.createLog(input);
             AuditService.LogStatus ls = input.getLogStatus();
             if (ls.equals(AuditService.LogStatus.FORBIDDEN))
-                return new ResponseEntity<String>("", HttpStatus.FORBIDDEN);
-            else if (ls.equals(AuditService.LogStatus.NOT_FOUND))
-                return new ResponseEntity<String>("Illegal Audit Key", HttpStatus.NOT_FOUND);
-            else if (ls.equals(AuditService.LogStatus.IGNORE))
-                return new ResponseEntity<String>("Ignoring request to change as the 'what' has not changed", HttpStatus.NOT_MODIFIED);
-            else if (ls.equals(AuditService.LogStatus.ILLEGAL_ARGUMENT))
-                return new ResponseEntity<String>(input.getMessage(), HttpStatus.NO_CONTENT);
+                return new ResponseEntity<AuditLogInputBean>(input, HttpStatus.FORBIDDEN);
+            else if (ls.equals(AuditService.LogStatus.NOT_FOUND)) {
+                input.setMessage("Illegal audit key");
+                return new ResponseEntity<AuditLogInputBean>(input, HttpStatus.NOT_FOUND);
+            } else if (ls.equals(AuditService.LogStatus.IGNORE)) {
+                input.setMessage("Ignoring request to change as the 'what' has not changed");
+                return new ResponseEntity<AuditLogInputBean>(input, HttpStatus.NOT_MODIFIED);
+            } else if (ls.equals(AuditService.LogStatus.ILLEGAL_ARGUMENT)) {
+                return new ResponseEntity<AuditLogInputBean>(input, HttpStatus.NO_CONTENT);
+            }
 
-
-            return new ResponseEntity<String>("OK", HttpStatus.OK);
+            return new ResponseEntity<AuditLogInputBean>(input, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            input.setMessage(e.getMessage());
+            return new ResponseEntity<AuditLogInputBean>(input, HttpStatus.BAD_REQUEST);
         } catch (SecurityException e) {
-            return new ResponseEntity<String>(e.getMessage(), HttpStatus.FORBIDDEN);
+            input.setMessage(e.getMessage());
+            return new ResponseEntity<AuditLogInputBean>(input, HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            input.setMessage(e.getMessage());
+            return new ResponseEntity<AuditLogInputBean>(input, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -183,7 +190,6 @@ public class AuditEP {
         }
     }
 
-
     @RequestMapping(value = "/{auditKey}/logs", method = RequestMethod.GET)
     @ResponseBody
     public Set<IAuditLog> getAuditLogs(@PathVariable("auditKey") String auditKey) throws Exception {
@@ -191,7 +197,6 @@ public class AuditEP {
         return auditService.getAuditLogs(auditKey);
 
     }
-
 
     @RequestMapping(value = "/{auditKey}/lastchange", method = RequestMethod.GET)
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -208,6 +213,4 @@ public class AuditEP {
         }
 
     }
-
-
 }

@@ -52,5 +52,7 @@ public interface IAuditLog {
 
     public void setTxRef(ITxRef txRef);
 
+    String getEvent();
+
     //public abstract ITag getTag();
 }

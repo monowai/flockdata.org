@@ -156,16 +156,12 @@ public class TestAudit {
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));
         int i = 0;
         double max = 10d;
-        StopWatch watch = new StopWatch();
 
-
-        watch.start();
         while (i < max) {
             // Same "what" text so should only be one auditLogCount record
-            auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 0}"));
+            auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"name\": \"8888\", \"thing\": {\"m\": \"happy\"}}"));
             i++;
         }
-        watch.stop();
         assertEquals(1d, (double) auditService.getAuditLogCount(ahKey));
         Set<IAuditLog> logs = auditService.getAuditLogs(ahKey);
         assertNotNull(logs);
@@ -195,13 +191,13 @@ public class TestAudit {
         auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 0}"));
         IAuditLog log = auditService.getLastChange(ahKey);
         assertNotNull(log);
-        assertEquals(IAuditLog.CREATE, log.getName()); // log event default
+        assertEquals(IAuditLog.CREATE, log.getEvent()); // log event default
 
         auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 1}"));
         IAuditLog change = auditService.getLastChange(ahKey);
         assertNotNull(change);
         assertFalse(change.equals(log));
-        assertEquals(IAuditLog.UPDATE, change.getName());  // log event default
+        assertEquals(IAuditLog.UPDATE, change.getEvent());  // log event default
     }
 
     @Test

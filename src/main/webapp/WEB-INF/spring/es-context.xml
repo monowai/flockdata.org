@@ -7,8 +7,8 @@
 
     <!--https://github.com/dadoonet/spring-elasticsearch/blob/master/README.md-->
 
-    <elasticsearch:node id="esNode" settingsFile="esclient.properties"/>
-    <elasticsearch:client node="esNode" id="esClient" name="es_auditbucket" settingsFile="esclient.properties"/>
+    <elasticsearch:node id="esNode" settingsFile="esclient.yml"/>
+    <elasticsearch:client node="esNode" id="esClient" name="es_auditbucket" settingsFile="esclient.yml"/>
 
 
 </beans>

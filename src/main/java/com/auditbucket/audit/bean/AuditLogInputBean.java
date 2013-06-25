@@ -1,6 +1,7 @@
 package com.auditbucket.audit.bean;
 
 import com.auditbucket.audit.service.AuditService;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTime;
 
@@ -13,58 +14,58 @@ import java.util.Map;
  * Time: 7:41 PM
  */
 public class AuditLogInputBean {
-    //'{"eventType":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10","jsonWhat":"{name: 22}"}'
+    //'{"eventType":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10","what":"{name: 22}"}'
+    private AuditService.LogStatus logStatus;
     String auditKey;
+    String yourRef;
     private String txRef;
     private Boolean isTransactional = false;
     String fortressUser;
     String eventType;
     String when;
     String what;
-    Map<String, Object> mWhat;
-    String yourRef;
+    Map<String, Object> mapWhat;
     private String comment;
     private String message;
-    private AuditService.LogStatus logStatus;
 
     static final ObjectMapper om = new ObjectMapper();
 
     protected AuditLogInputBean() {
     }
 
-    public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String jsonWhat) throws IOException {
-        this(auditKey, fortressUser, when, jsonWhat, false);
+    public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String what) throws IOException {
+        this(auditKey, fortressUser, when, what, false);
     }
 
     /**
      * @param auditKey     -guid
      * @param fortressUser -user name recognisable in the fortress
      * @param when         -fortress view of DateTime
-     * @param jsonWhat     -escaped JSON
+     * @param what         -escaped JSON
      */
-    public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String jsonWhat, Boolean isTransactional) throws IOException {
+    public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String what, Boolean isTransactional) throws IOException {
         this.auditKey = auditKey;
         this.fortressUser = fortressUser;
         if (when != null)
             this.when = when.toString();
         setTransactional(isTransactional);
-        setWhat(jsonWhat);
+        setWhat(what);
     }
 
     /**
      * @param auditKey     -guid
      * @param fortressUser -user name recognisable in the fortress
      * @param when         -fortress view of DateTime
-     * @param jsonWhat     -escaped JSON
+     * @param what         -escaped JSON
      * @param event        -how the caller would like to catalog this change (create, update etc)
      */
-    public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String jsonWhat, String event) throws IOException {
-        this(auditKey, fortressUser, when, jsonWhat);
+    public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String what, String event) throws IOException {
+        this(auditKey, fortressUser, when, what);
         this.eventType = event;
     }
 
-    public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String jsonWhat, String event, String txName) throws IOException {
-        this(auditKey, fortressUser, when, jsonWhat, event);
+    public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String what, String event, String txName) throws IOException {
+        this(auditKey, fortressUser, when, what, event);
         this.setTxRef(txName);
     }
 
@@ -100,16 +101,17 @@ public class AuditLogInputBean {
         this.when = when;
     }
 
-    public Map<String, Object> getWhat() {
-        return mWhat;
+    @JsonIgnore
+    public Map<String, Object> getMapWhat() {
+        return mapWhat;
     }
 
-    public String getWhatAsText() {
+    public String getWhat() {
         return what;
     }
 
     public void setWhat(String jsonWhat) throws IOException {
-        mWhat = om.readValue(om.readTree(jsonWhat).toString(), Map.class);
+        mapWhat = om.readValue(om.readTree(jsonWhat).toString(), Map.class);
         this.what = jsonWhat;
     }
 
@@ -167,5 +169,10 @@ public class AuditLogInputBean {
 
     public AuditService.LogStatus getLogStatus() {
         return this.logStatus;
+    }
+
+    public void setMapWhat(Map<String, Object> whatMap) {
+        this.mapWhat = whatMap;
+
     }
 }

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ControllerAdvice
 public class GlobalControllerExceptionHandler {
 
-    @ExceptionHandler(value = {MissingServletRequestParameterException.class, HttpMessageNotReadableException.class})
+    @ExceptionHandler(value = {MissingServletRequestParameterException.class, HttpMessageNotReadableException.class, Exception.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     ResponseEntity<Object> handleConflict(Exception ex) {
         return new ResponseEntity<Object>(ex.getMessage(), HttpStatus.BAD_REQUEST);

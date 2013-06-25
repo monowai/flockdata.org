@@ -253,7 +253,7 @@ public class TestAuditIntegration {
                 aib = auditService.createHeader(aib);
                 int log = 1;
                 while (log <= logCount) {
-                    auditService.createLog(new AuditLogInputBean(aib.getAuditKey(), aib.getFortressUser(), new DateTime(), escJson + fortress + "}"));
+                    auditService.createLog(new AuditLogInputBean(aib.getAuditKey(), aib.getFortressUser(), new DateTime(), escJson + log + "}"));
                     log++;
                 }
                 audit++;

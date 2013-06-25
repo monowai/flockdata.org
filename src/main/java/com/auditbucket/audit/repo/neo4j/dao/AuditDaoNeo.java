@@ -172,12 +172,6 @@ public class AuditDaoNeo implements IAuditDao {
             IAuditWhen when = template.convert(row.get("logs"), AuditWhen.class);
             IAuditLog log = template.convert(row.get("auditLog"), AuditLog.class);
             IAuditHeader audit = template.convert(row.get("audit"), AuditHeader.class);
-
-            if (audit == null) {
-                audit = template.findOne(log.getHeader().getId(), AuditHeader.class);
-                template.fetch(log.getWho());
-                headers.put(audit.getId(), audit);
-            }
             simpleResult.add(new AuditTXResult(audit, log, when));
             i++;
 
