@@ -116,7 +116,7 @@ public class TestRegistration {
 
 
     @Test
-    public void testCypherQuery() {
+    public void testCompanyUsers() {
         createCompanyUsers("mike", 10);
         Iterable<ICompanyUser> users = companyService.getUsers(testCompanyName);
         assertTrue(users.iterator().hasNext());
