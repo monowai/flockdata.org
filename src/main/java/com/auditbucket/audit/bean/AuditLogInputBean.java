@@ -14,19 +14,18 @@ import java.util.Map;
  * Time: 7:41 PM
  */
 public class AuditLogInputBean {
-    //'{"event":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10","what":"{name: 22}"}'
-    private AuditService.LogStatus logStatus;
+    private AuditService.LogStatus abStatus;
+    private String abMessage;
     private Boolean isTransactional = false;
     String auditKey;
     private String txRef;
+    private String comment;
     String callerRef;
     String fortressUser;
     String event;
     String when;
     String what;
     Map<String, Object> mapWhat;
-    private String comment;
-    private String message;
 
     static final ObjectMapper om = new ObjectMapper();
 
@@ -150,13 +149,16 @@ public class AuditLogInputBean {
         }
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setAbMessage(String abMessage) {
+        this.abMessage = abMessage;
 
     }
 
-    public String getMessage() {
-        return message;
+    /**
+     * @return auditBucket service response message
+     */
+    public String getAbMessage() {
+        return abMessage;
     }
 
     public void setTransactional(Boolean isTransactional) {
@@ -168,12 +170,12 @@ public class AuditLogInputBean {
     }
 
     public void setStatus(AuditService.LogStatus logStatus) {
-        this.logStatus = logStatus;
+        this.abStatus = logStatus;
 
     }
 
-    public AuditService.LogStatus getLogStatus() {
-        return this.logStatus;
+    public AuditService.LogStatus getAbStatus() {
+        return this.abStatus;
     }
 
     public void setMapWhat(Map<String, Object> whatMap) {

@@ -71,14 +71,14 @@ public class AuditEP {
         try {
 
             input = auditService.createLog(input);
-            AuditService.LogStatus ls = input.getLogStatus();
+            AuditService.LogStatus ls = input.getAbStatus();
             if (ls.equals(AuditService.LogStatus.FORBIDDEN))
                 return new ResponseEntity<AuditLogInputBean>(input, HttpStatus.FORBIDDEN);
             else if (ls.equals(AuditService.LogStatus.NOT_FOUND)) {
-                input.setMessage("Illegal audit key");
+                input.setAbMessage("Illegal audit key");
                 return new ResponseEntity<AuditLogInputBean>(input, HttpStatus.NOT_FOUND);
             } else if (ls.equals(AuditService.LogStatus.IGNORE)) {
-                input.setMessage("Ignoring request to change as the 'what' has not changed");
+                input.setAbMessage("Ignoring request to change as the 'what' has not changed");
                 return new ResponseEntity<AuditLogInputBean>(input, HttpStatus.NOT_MODIFIED);
             } else if (ls.equals(AuditService.LogStatus.ILLEGAL_ARGUMENT)) {
                 return new ResponseEntity<AuditLogInputBean>(input, HttpStatus.NO_CONTENT);
@@ -86,13 +86,13 @@ public class AuditEP {
 
             return new ResponseEntity<AuditLogInputBean>(input, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
-            input.setMessage(e.getMessage());
+            input.setAbMessage(e.getMessage());
             return new ResponseEntity<AuditLogInputBean>(input, HttpStatus.BAD_REQUEST);
         } catch (SecurityException e) {
-            input.setMessage(e.getMessage());
+            input.setAbMessage(e.getMessage());
             return new ResponseEntity<AuditLogInputBean>(input, HttpStatus.FORBIDDEN);
         } catch (Exception e) {
-            input.setMessage(e.getMessage());
+            input.setAbMessage(e.getMessage());
             return new ResponseEntity<AuditLogInputBean>(input, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

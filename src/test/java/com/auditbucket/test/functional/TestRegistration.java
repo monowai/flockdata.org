@@ -167,7 +167,7 @@ public class TestRegistration {
 
         assertNotNull(systemUserService.findByName(adminName));
         assertNull(systemUserService.findByName(userName));
-        // System registration are not automatically company registration
+        // SystemId registration are not automatically company registration
         //assertEquals(1, company.getCompanyUserCount());
         assertNotNull(companyService.getAdminUser(company, adminName));
         assertNull(companyService.getAdminUser(company, userName));

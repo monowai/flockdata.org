@@ -54,6 +54,9 @@ public class TestAudit {
     private Neo4jTemplate template;
 
     private Logger log = LoggerFactory.getLogger(TestAudit.class);
+    private String company = "Monowai";
+    private String email = "mike@monowai.com";
+    Authentication authA = new UsernamePasswordAuthenticationToken(email, "user1");
 
     @Rollback(false)
     @BeforeTransaction
@@ -64,14 +67,9 @@ public class TestAudit {
         Neo4jHelper.cleanDb(template);
     }
 
-    private String company = "Monowai";
-    private String uid = "mike@monowai.com";
-    Authentication authA = new UsernamePasswordAuthenticationToken(uid, "user1");
-
-
     @Test
-    public void testMakeByCallerRef() {
-        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+    public void callerRefAuthzExcep() {
+        regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
         IFortress fortressA = fortressService.registerFortress("auditTest");
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new Date(), "ABC123");
         String key = auditService.createHeader(inputBean).getAuditKey();
@@ -103,9 +101,9 @@ public class TestAudit {
     }
 
     @Test
-    public void testHeader() throws Exception {
+    public void createHeaderTimeLogs() throws Exception {
 
-        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
         IFortress fo = fortressService.registerFortress("auditTest");
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", new Date(), "ABC123");
@@ -140,9 +138,9 @@ public class TestAudit {
      * Ensure duplicate logs are not created when content data has not changed
      */
     @Test
-    public void testDupeLog() throws Exception {
+    public void noDuplicateLogs() throws Exception {
 
-        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
         IFortress fo = fortressService.registerFortress("auditTest");
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "9999");
@@ -175,7 +173,7 @@ public class TestAudit {
     @Test
     public void testEventType() throws Exception {
 
-        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
         IFortress fo = fortressService.registerFortress("auditTest");
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "YYY");
@@ -203,7 +201,7 @@ public class TestAudit {
     @Test
     public void testFortressLogCount() throws Exception {
 
-        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
         IFortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "YYY");
         auditService.createHeader(inputBean);
@@ -222,7 +220,7 @@ public class TestAudit {
 
     @Test
     public void testHeaderWithLogChange() throws Exception {
-        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
         IFortress fo = fortressService.registerFortress("auditTest");
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "9999");
@@ -236,7 +234,7 @@ public class TestAudit {
 
     @Test
     public void testHeaderWithLogChangeTransactional() throws Exception {
-        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
         IFortress fo = fortressService.registerFortress("auditTest");
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "9999");

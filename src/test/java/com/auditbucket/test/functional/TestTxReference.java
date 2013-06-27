@@ -86,7 +86,7 @@ public class TestTxReference {
         AuditLogInputBean abcLog = abcHeader.getAuditLog();
         assertNotNull(abcLog);
 
-        assertEquals("ABC Logger Not Created", AuditService.LogStatus.OK, abcLog.getLogStatus());
+        assertEquals("ABC Logger Not Created", AuditService.LogStatus.OK, abcLog.getAbStatus());
         String abcTxRef = abcLog.getTxRef();
         assertNotNull(abcTxRef);
 
@@ -97,7 +97,7 @@ public class TestTxReference {
         String cbaKey = auditService.createHeader(cbaHeader).getAuditKey();
 
         AuditLogInputBean cbaLog = new AuditLogInputBean(cbaKey, "charlie", DateTime.now(), escJsonA, true);
-        assertEquals("CBA Logger Not Created", AuditService.LogStatus.OK, auditService.createLog(cbaLog).getLogStatus());
+        assertEquals("CBA Logger Not Created", AuditService.LogStatus.OK, auditService.createLog(cbaLog).getAbStatus());
         String cbaTxRef = cbaLog.getTxRef();
         assertNotNull(cbaTxRef);
 

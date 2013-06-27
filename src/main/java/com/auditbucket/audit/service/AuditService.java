@@ -133,9 +133,9 @@ public class AuditService {
         if (log.isDebugEnabled())
             log.debug("Audit Header created:" + ah.getId() + " key=[" + ah.getAuditKey() + "]");
         inputBean.setAuditKey(ah.getAuditKey());
-        if (inputBean.getAuditLog() != null) {
+        AuditLogInputBean logBean = inputBean.getAuditLog();
+        if (logBean != null) {
             // Creating an initial change record
-            AuditLogInputBean logBean = inputBean.getAuditLog();
             logBean.setAuditKey(ah.getAuditKey());
             logBean.setFortressUser(inputBean.getFortressUser());
             logBean.setCallerRef(ah.getCallerRef());
@@ -203,7 +203,7 @@ public class AuditService {
         }
 
         if (input.getFortressUser() == null) {
-            input.setMessage("Fortress User not supplied");
+            input.setAbMessage("Fortress User not supplied");
             input.setStatus(LogStatus.ILLEGAL_ARGUMENT);
             return input;
         }
@@ -237,7 +237,7 @@ public class AuditService {
                 }
             } catch (IOException e) {
                 input.setStatus(LogStatus.ILLEGAL_ARGUMENT);
-                input.setMessage("Error comparing JSON data: " + e.getMessage());
+                input.setAbMessage("Error comparing JSON data: " + e.getMessage());
                 return input;
             }
             if (event == null)
