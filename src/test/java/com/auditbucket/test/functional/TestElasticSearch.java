@@ -6,6 +6,7 @@ import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.repo.es.model.AuditChange;
 import com.auditbucket.audit.repo.neo4j.model.AuditHeader;
+import com.auditbucket.audit.repo.neo4j.model.DocumentType;
 import com.auditbucket.audit.service.AuditSearchService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.IFortress;
@@ -80,7 +81,7 @@ public class TestElasticSearch {
         fortress.setIgnoreSearchEngine(false);
         IFortressUser fu = new FortressUser(fortress, uid);
         AuditHeaderInputBean hib = new AuditHeaderInputBean("fortress", "Test", "Test", new DateTime().toDate(), "testRef");
-        IAuditHeader auditHeader = new AuditHeader(fu, hib);
+        IAuditHeader auditHeader = new AuditHeader(fu, hib, new DocumentType("TestJson", fu.getFortress().getCompany()));
 
         AuditChange auditChange = new AuditChange(auditHeader);
 
@@ -140,7 +141,7 @@ public class TestElasticSearch {
         fortress.setIgnoreSearchEngine(false);
         IFortressUser fu = new FortressUser(fortress, uid);
         AuditHeaderInputBean hib = new AuditHeaderInputBean("fortress", "Test", "Test", new DateTime().toDate(), "testRef");
-        IAuditHeader auditHeader = new AuditHeader(fu, hib);
+        IAuditHeader auditHeader = new AuditHeader(fu, hib, new DocumentType("TestJson", fu.getFortress().getCompany()));
 
         IAuditChange auditChange = new AuditChange(auditHeader);
 

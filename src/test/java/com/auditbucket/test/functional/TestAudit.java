@@ -2,6 +2,7 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.bean.AuditLogInputBean;
+import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.audit.service.AuditService;
 import com.auditbucket.registration.bean.FortressInputBean;
@@ -177,12 +178,13 @@ public class TestAudit {
         IFortress fo = fortressService.registerFortress("auditTest");
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "YYY");
-        String ahKey = auditService.createHeader(inputBean).getAuditKey();
-
+        inputBean = auditService.createHeader(inputBean);
+        String ahKey = inputBean.getAuditKey();
         assertNotNull(ahKey);
-        log.info(ahKey);
 
-        assertNotNull(auditService.getHeader(ahKey));
+        IAuditHeader header = auditService.getHeader(inputBean.getAuditKey());
+        assertNotNull(header.getDocumentType());
+
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));
 

@@ -4,10 +4,7 @@ import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.bean.AuditLogInputBean;
 import com.auditbucket.audit.bean.SearchDocumentBean;
 import com.auditbucket.audit.dao.IAuditDao;
-import com.auditbucket.audit.model.IAuditChange;
-import com.auditbucket.audit.model.IAuditHeader;
-import com.auditbucket.audit.model.IAuditLog;
-import com.auditbucket.audit.model.ITxRef;
+import com.auditbucket.audit.model.*;
 import com.auditbucket.audit.repo.neo4j.model.AuditHeader;
 import com.auditbucket.audit.repo.neo4j.model.AuditLog;
 import com.auditbucket.helper.SecurityHelper;
@@ -18,6 +15,7 @@ import com.auditbucket.registration.model.ISystemUser;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.SystemUserService;
+import com.auditbucket.registration.service.TagService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -56,6 +54,9 @@ public class AuditService {
 
     @Autowired
     IAuditDao auditDAO;
+
+    @Autowired
+    TagService tagService;
 
     @Autowired
     private SecurityHelper securityHelper;
@@ -126,8 +127,9 @@ public class AuditService {
 
         // Create fortressUser if missing
         IFortressUser fu = fortressService.getFortressUser(iFortress, inputBean.getFortressUser(), true);
+        IDocumentType documentType = tagService.resolveDocType(inputBean.getDocumentType());
 
-        ah = new AuditHeader(fu, inputBean);
+        ah = new AuditHeader(fu, inputBean, documentType);
         ah = auditDAO.save(ah, inputBean);
 
         if (log.isDebugEnabled())

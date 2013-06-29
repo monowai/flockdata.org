@@ -3,18 +3,19 @@ package com.auditbucket.audit.repo.neo4j.model;
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditWhen;
+import com.auditbucket.audit.model.IDocumentType;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.model.IFortressUser;
 import com.auditbucket.registration.repo.neo4j.model.Fortress;
 import com.auditbucket.registration.repo.neo4j.model.FortressUser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.*;
 
-import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -41,6 +42,10 @@ public class AuditHeader implements IAuditHeader {
     @Fetch
     private Fortress fortress;
 
+    @RelatedTo(type = "classifies", direction = Direction.INCOMING)
+    @Fetch
+    private DocumentType documentType;
+
     @RelatedToVia(elementClass = AuditWhen.class, type = "logged", direction = Direction.OUTGOING)
     private Set<IAuditWhen> auditWhen = new HashSet<IAuditWhen>();
 
@@ -53,7 +58,7 @@ public class AuditHeader implements IAuditHeader {
     private String name;
     private long dateCreated;
 
-    private String documentType;
+    //private String documentType;
     private String callerRef;
 
     private long fortressDate;
@@ -69,9 +74,9 @@ public class AuditHeader implements IAuditHeader {
         this.lastUpdated = dateCreated;
     }
 
-    public AuditHeader(@NotNull IFortressUser createdBy, @NotNull AuditHeaderInputBean auditInput) {
+    public AuditHeader(@NotEmpty IFortressUser createdBy, @NotEmpty AuditHeaderInputBean auditInput, @NotEmpty IDocumentType documentType) {
         this();
-        String documentType = auditInput.getDocumentType();
+        this.documentType = (DocumentType) documentType;
         callerRef = auditInput.getCallerRef();
         Date when = auditInput.getWhen();
         if (when == null)
@@ -82,8 +87,8 @@ public class AuditHeader implements IAuditHeader {
         this.createdBy = (FortressUser) createdBy;
         this.lastWho = (FortressUser) createdBy;
         this.fortress = (Fortress) createdBy.getFortress();
-        this.documentType = (documentType != null ? documentType.toLowerCase() : "");
-        this.name = (callerRef == null ? documentType : (this.documentType + "." + callerRef).toLowerCase());
+        String docType = (documentType != null ? documentType.getName().toLowerCase() : "");
+        this.name = (callerRef == null ? docType : (docType + "." + callerRef).toLowerCase());
 
 
     }
@@ -114,7 +119,7 @@ public class AuditHeader implements IAuditHeader {
     @Override
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getDocumentType() {
-        return documentType;
+        return documentType.getName();
     }
 
     @Override

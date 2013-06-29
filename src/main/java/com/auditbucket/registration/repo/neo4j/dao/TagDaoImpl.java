@@ -1,6 +1,10 @@
 package com.auditbucket.registration.repo.neo4j.dao;
 
+import com.auditbucket.audit.model.IDocumentType;
+import com.auditbucket.audit.repo.neo4j.DocumentTypeRepo;
+import com.auditbucket.audit.repo.neo4j.model.DocumentType;
 import com.auditbucket.registration.dao.TagDaoI;
+import com.auditbucket.registration.model.ICompany;
 import com.auditbucket.registration.model.ITag;
 import com.auditbucket.registration.repo.neo4j.TagRepository;
 import com.auditbucket.registration.repo.neo4j.model.Tag;
@@ -18,6 +22,9 @@ public class TagDaoImpl implements TagDaoI {
     @Autowired
     TagRepository tagRepo;
 
+    @Autowired
+    DocumentTypeRepo documentTypeRepo;
+
     public ITag save(ITag tag) {
         Tag tagToCreate;
         if ((tag instanceof Tag))
@@ -33,5 +40,15 @@ public class TagDaoImpl implements TagDaoI {
         if (tagName == null || id == null)
             throw new IllegalArgumentException("Null can not be used to find a tag ");
         return tagRepo.findCompanyTag(tagName, id);
+    }
+
+    @Override
+    public IDocumentType findOrCreate(String documentType, ICompany company) {
+        IDocumentType result = documentTypeRepo.findCompanyDocType(documentType, company.getId());
+        if (result == null) {
+            result = documentTypeRepo.save(new DocumentType(documentType, company));
+        }
+        return result;
+
     }
 }
