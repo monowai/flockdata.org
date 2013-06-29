@@ -14,4 +14,6 @@ public interface ITag {
     void setCompany(ICompany company);
 
     void setName(String floppy);
+
+    Long getId();
 }

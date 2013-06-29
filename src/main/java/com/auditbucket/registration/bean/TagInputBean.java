@@ -2,6 +2,8 @@ package com.auditbucket.registration.bean;
 
 import com.auditbucket.registration.model.ICompany;
 import com.auditbucket.registration.model.ITag;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * User: mike
@@ -10,7 +12,9 @@ import com.auditbucket.registration.model.ITag;
  */
 public class TagInputBean implements ITag {
 
+    @NotEmpty
     private ICompany company;
+    @NotEmpty
     private String name;
 
     public TagInputBean() {
@@ -34,6 +38,12 @@ public class TagInputBean implements ITag {
     @Override
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    @JsonIgnore
+    public Long getId() {
+        return null;
     }
 
     @Override

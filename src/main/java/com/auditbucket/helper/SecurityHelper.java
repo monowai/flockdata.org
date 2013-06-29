@@ -1,5 +1,6 @@
 package com.auditbucket.helper;
 
+import com.auditbucket.registration.model.ICompany;
 import com.auditbucket.registration.model.ISystemUser;
 import com.auditbucket.registration.service.SystemUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,5 +58,15 @@ public class SecurityHelper {
 
     public ISystemUser getSysUser(String loginName) {
         return sysUserService.findByName(loginName);
+    }
+
+    public ICompany getCompany() {
+        String userName = getLoggedInUser();
+        ISystemUser su = sysUserService.findByName(userName);
+
+        if (su == null)
+            throw new SecurityException("Not authorised");
+
+        return su.getCompany();
     }
 }

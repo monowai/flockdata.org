@@ -4,9 +4,7 @@ import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.ITagValue;
 import com.auditbucket.registration.model.ITag;
 import com.auditbucket.registration.repo.neo4j.model.Tag;
-import org.springframework.data.neo4j.annotation.EndNode;
-import org.springframework.data.neo4j.annotation.RelationshipEntity;
-import org.springframework.data.neo4j.annotation.StartNode;
+import org.springframework.data.neo4j.annotation.*;
 
 /**
  * User: mike
@@ -16,13 +14,26 @@ import org.springframework.data.neo4j.annotation.StartNode;
 
 @RelationshipEntity(type = "tagValue")
 public class AuditTagValue implements ITagValue {
+    @GraphId
+    Long id;
+
     @StartNode
     Tag tag;
 
     @EndNode
     AuditHeader auditHeader;
 
+    @Indexed(indexName = "tagValue")
     String tagValue;
+
+    protected AuditTagValue() {
+    }
+
+    public AuditTagValue(ITag tag, IAuditHeader header, String tagValue) {
+        this.tag = (Tag) tag;
+        this.auditHeader = (AuditHeader) header;
+        this.tagValue = tagValue;
+    }
 
     @Override
     public ITag getTag() {

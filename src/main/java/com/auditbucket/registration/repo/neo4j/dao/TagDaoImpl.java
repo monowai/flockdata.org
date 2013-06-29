@@ -30,6 +30,8 @@ public class TagDaoImpl implements TagDaoI {
 
     @Override
     public ITag findOne(String tagName, Long id) {
+        if (tagName == null || id == null)
+            throw new IllegalArgumentException("Null can not be used to find a tag ");
         return tagRepo.findCompanyTag(tagName, id);
     }
 }
