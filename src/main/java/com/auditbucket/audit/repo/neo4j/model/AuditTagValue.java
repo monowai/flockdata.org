@@ -18,9 +18,11 @@ public class AuditTagValue implements ITagValue {
     Long id;
 
     @StartNode
+    @Fetch
     Tag tag;
 
     @EndNode
+
     AuditHeader auditHeader;
 
     @Indexed(indexName = "tagValue")
@@ -47,5 +49,9 @@ public class AuditTagValue implements ITagValue {
     @Override
     public String getTagValue() {
         return tagValue;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public void setTagValue(String tagValue) {
+        this.tagValue = tagValue;
     }
 }

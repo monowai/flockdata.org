@@ -53,6 +53,9 @@ public class AuditService {
     SystemUserService sysUserService;
 
     @Autowired
+    AuditTagService auditTagService;
+
+    @Autowired
     IAuditDao auditDAO;
 
     @Autowired
@@ -131,6 +134,9 @@ public class AuditService {
 
         ah = new AuditHeader(fu, inputBean, documentType);
         ah = auditDAO.save(ah, inputBean);
+        //ToDo: set tag values
+        Map<String, String> userTags = inputBean.getTagValues();
+        auditTagService.createTagValues(userTags, ah);
 
         if (log.isDebugEnabled())
             log.debug("Audit Header created:" + ah.getId() + " key=[" + ah.getAuditKey() + "]");
@@ -331,6 +337,11 @@ public class AuditService {
     public Set<IAuditHeader> findTxHeaders(String txName) {
         ITxRef txRef = findTx(txName, true);
         return txRef.getHeaders();
+    }
+
+    @Transactional
+    public void updateHeader(IAuditHeader auditHeader) {
+        auditDAO.save(auditHeader);
     }
 
     public enum LogStatus {

@@ -29,7 +29,10 @@ public class TagService {
             return input;
 
         // Check security access
-        input.setCompany(securityHelper.getCompany());
+        if (input.getCompany() == null) {
+            ICompany company = securityHelper.getCompany();
+            input.setCompany(company);
+        }
 
         // Check exists
         ITag existingTag = tagDao.findOne(input.getName(), input.getCompany().getId());

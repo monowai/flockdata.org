@@ -36,4 +36,16 @@ public class AuditTagDao implements IAuditTagDao {
     public Set<ITagValue> find(ITag tagName, String tagValue) {
         return auditTagRepo.findTagValues(tagName.getId(), tagValue);
     }
+
+    @Override
+    public Set<ITagValue> getAuditTags(IAuditHeader ah) {
+        return auditTagRepo.findAuditTags(ah.getId());
+    }
+
+    public void update(Set<ITagValue> newValues) {
+        //Set<ITagValue> existingTags = header.getTagValues();
+        for (ITagValue iTagValue : newValues) {
+            auditTagRepo.save((AuditTagValue) iTagValue);
+        }
+    }
 }

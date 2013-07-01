@@ -8,6 +8,7 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.bean.AuditTagInputBean;
+import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.ITagValue;
 import com.auditbucket.audit.service.AuditService;
 import com.auditbucket.audit.service.AuditTagService;
@@ -36,8 +37,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.Set;
+import java.util.*;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
@@ -123,6 +123,48 @@ public class TestAuditTags {
         // Behaviour - Can't add the same tagValue twice for the same combo
         tags = auditTagService.findTagValues(tagInput.getName(), "!!!");
         assertEquals(1, tags.size());
+    }
+
+    @Test
+    public void tagValueCRUD() throws Exception {
+        ISystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        fortressService.registerFortress("ABC");
+
+        ICompany iCompany = iSystemUser.getCompany();
+        ITag tagInput = new TagInputBean(iCompany, "FLOP");
+
+        ITag result = tagService.processTag(tagInput);
+        assertNotNull(result);
+        AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new Date(), "abc");
+        Map<String, String> tagValues = new HashMap<String, String>();
+        tagValues.put("TagA", "AAAA");
+        tagValues.put("TagB", "BBBB");
+        tagValues.put("TagC", "CCCC");
+        tagValues.put("TagD", "DDDD");
+        aib.setTagValues(tagValues);
+        aib = auditService.createHeader(aib);
+        IAuditHeader auditHeader = auditService.getHeader(aib.getAuditKey(), true);
+        Set<ITagValue> tagSet = auditHeader.getTagValues();
+        assertNotNull(tagSet);
+        assertEquals(4, tagSet.size());
+        assertEquals(0, auditTagService.findTagValues("TagC", "!!Twee!!").size());
+        // Remove a single tag
+        Iterator<ITagValue> iterator = tagSet.iterator();
+        while (iterator.hasNext()) {
+            ITagValue value = iterator.next();
+            if (value.getTag().getName().equals("TagB"))
+                iterator.remove();
+            if (value.getTag().getName().equals("TagC"))
+                value.setTagValue("!!Twee!!");
+        }
+
+        assertEquals(3, tagSet.size());
+        auditService.updateHeader(auditHeader);
+        auditHeader = auditService.getHeader(aib.getAuditKey(), true);
+        tagSet = auditHeader.getTagValues();
+        assertNotNull(tagSet);
+        assertEquals(3, tagSet.size());
+        assertNotNull(auditTagService.findTagValues("TagC", "!!Twee!!"));
     }
 
 }

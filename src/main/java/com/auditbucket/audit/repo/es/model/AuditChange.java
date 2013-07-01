@@ -168,6 +168,7 @@ public class AuditChange implements IAuditChange {
         return auditKey;
     }
 
+    @JsonIgnore
     public String getRoutingKey() {
         return getAuditKey();
     }

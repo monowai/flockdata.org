@@ -67,4 +67,7 @@ public interface IAuditHeader {
 
     String getCallerRef();
 
+    public Set<ITagValue> getTagValues();
+
+    void setTagValues(Set<ITagValue> modifiedSet);
 }

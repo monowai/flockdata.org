@@ -141,6 +141,13 @@
             <version>${org.springdata.neo4j}</version>
         </dependency>
 
+        <!--<dependency>-->
+        <!--<groupId>org.neo4j</groupId>-->
+        <!--<artifactId>neo4j-kernel</artifactId>-->
+        <!--<version>1.9</version>-->
+        <!--<scope>test</scope>-->
+        <!--</dependency>-->
+
         <!--3rd party-->
         <dependency>
             <groupId>fr.pilato.spring</groupId>

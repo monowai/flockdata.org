@@ -3,6 +3,8 @@ package com.auditbucket.audit.bean;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * User: mike
@@ -18,6 +20,7 @@ public class AuditHeaderInputBean {
     private Date when;
     private String lastMessage;
     private AuditLogInputBean auditLog;
+    private Map<String, String> tagValues = new HashMap<String, String>();
 
     AuditHeaderInputBean() {
     }
@@ -94,5 +97,13 @@ public class AuditHeaderInputBean {
     @JsonIgnore
     public AuditLogInputBean getAuditLog() {
         return auditLog;
+    }
+
+    public Map<String, String> getTagValues() {
+        return tagValues;
+    }
+
+    public void setTagValues(Map<String, String> tagValues) {
+        this.tagValues = tagValues;
     }
 }

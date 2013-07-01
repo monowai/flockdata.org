@@ -15,4 +15,8 @@ public interface IAuditTagDao {
     ITagValue save(ITag tagName, IAuditHeader header, String tagValue);
 
     Set<ITagValue> find(ITag tagName, String tagValue);
+
+    Set<ITagValue> getAuditTags(IAuditHeader ah);
+
+    void update(Set<ITagValue> modifiedSet);
 }

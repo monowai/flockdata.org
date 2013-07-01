@@ -6,11 +6,13 @@ import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.ITagValue;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.TagInputBean;
+import com.auditbucket.registration.model.ICompany;
 import com.auditbucket.registration.model.ITag;
 import com.auditbucket.registration.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -50,5 +52,37 @@ public class AuditTagService {
         if (tag == null)
             return null;
         return auditTagDao.find(tag, tagValue);
+    }
+
+    /**
+     * Will associate the supplied userTags with the AuditHeader
+     *
+     * @param userTags Key/Value pair of tags. Tag will be created if missing
+     * @param ah       Header to associate userTags with
+     */
+    public void createTagValues(Map<String, String> userTags, IAuditHeader ah) {
+        if ((userTags == null) || userTags.isEmpty())
+            return;
+
+        // Set<ITagValue> existingTags = auditTagDao.getAuditTags(ah);
+        ICompany company = ah.getFortress().getCompany();
+
+        for (String key : userTags.keySet()) {
+            //AuditTagInputBean tagInput = new AuditTagInputBean(key, ah.getAuditKey(), userTags.get(key));
+            ITag tag = tagService.processTag(new TagInputBean(company, key));
+            auditTagDao.save(tag, ah, userTags.get(key));
+        }
+    }
+
+    public Set<ITagValue> findAuditTags(String auditKey) {
+        IAuditHeader header = auditService.getHeader(auditKey);
+        return auditTagDao.getAuditTags(header);
+
+    }
+
+    public void updateTagValues(Set<ITagValue> newValues) {
+
+        auditTagDao.update(newValues);
+
     }
 }

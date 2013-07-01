@@ -16,4 +16,5 @@ public interface ITagValue {
 
     public String getTagValue();
 
+    public void setTagValue(String tagValue);
 }

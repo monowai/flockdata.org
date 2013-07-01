@@ -90,6 +90,7 @@ public class AuditDaoNeo implements IAuditDao {
         template.fetch(header);
         //template.fetch(header.getTxTags());
         template.fetch(header.getFortress());
+        template.fetch(header.getTagValues());
 
         return header;
     }

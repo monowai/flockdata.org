@@ -4,6 +4,7 @@ import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditWhen;
 import com.auditbucket.audit.model.IDocumentType;
+import com.auditbucket.audit.model.ITagValue;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.model.IFortressUser;
 import com.auditbucket.registration.repo.neo4j.model.Fortress;
@@ -45,6 +46,9 @@ public class AuditHeader implements IAuditHeader {
     @RelatedTo(type = "classifies", direction = Direction.INCOMING)
     @Fetch
     private DocumentType documentType;
+
+    @RelatedToVia(elementClass = AuditTagValue.class, type = "tagValue", direction = Direction.INCOMING)
+    private Set<ITagValue> tagValues;
 
     @RelatedToVia(elementClass = AuditWhen.class, type = "logged", direction = Direction.OUTGOING)
     private Set<IAuditWhen> auditWhen = new HashSet<IAuditWhen>();
@@ -210,5 +214,13 @@ public class AuditHeader implements IAuditHeader {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getCallerRef() {
         return this.callerRef;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public Set<ITagValue> getTagValues() {
+        return tagValues;
+    }
+
+    public void setTagValues(Set<ITagValue> tagValues) {
+        this.tagValues = tagValues;
     }
 }

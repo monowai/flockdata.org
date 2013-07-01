@@ -16,4 +16,7 @@ public interface AuditTagRepo extends GraphRepository<AuditTagValue> {
 
     @Query(elementClass = AuditTagValue.class, value = "start tag=node({0}) match tag-[tags:tagValue]->auditHeader where tags.tagValue={1} return tags")
     Set<ITagValue> findTagValues(Long tagId, String tagValue);
+
+    @Query(elementClass = AuditTagValue.class, value = "start audit = node({0}) match audit<-[tags:tagValue]-tag return tags")
+    Set<ITagValue> findAuditTags(Long auditId);
 }
