@@ -119,7 +119,7 @@ public class AuditService {
 
         // Idempotent check
         if (inputBean.getCallerRef() != null)
-            ah = findByName(iFortress.getId(), inputBean.getDocumentType(), inputBean.getCallerRef());
+            ah = findByCallerRef(iFortress.getId(), inputBean.getDocumentType(), inputBean.getCallerRef());
 
         if (ah != null) {
             if (log.isDebugEnabled())
@@ -134,12 +134,13 @@ public class AuditService {
 
         ah = new AuditHeader(fu, inputBean, documentType);
         ah = auditDAO.save(ah, inputBean);
-        //ToDo: set tag values
+
         Map<String, String> userTags = inputBean.getTagValues();
         auditTagService.createTagValues(userTags, ah);
 
         if (log.isDebugEnabled())
             log.debug("Audit Header created:" + ah.getId() + " key=[" + ah.getAuditKey() + "]");
+
         inputBean.setAuditKey(ah.getAuditKey());
         AuditLogInputBean logBean = inputBean.getAuditLog();
         if (logBean != null) {
@@ -175,7 +176,15 @@ public class AuditService {
         return ah;
     }
 
-    public IAuditHeader findByName(Long fortressID, @NotEmpty @NotNull String recordType, @NotEmpty @NotNull String callerRef) {
+    private IAuditHeader findByCallerRef(String fortress, String documentType, String callerRef) {
+        IFortress iFortress = fortressService.find(fortress);
+        if (iFortress == null)
+            return null;
+
+        return findByCallerRef(iFortress.getId(), documentType, callerRef);
+    }
+
+    public IAuditHeader findByCallerRef(Long fortressID, String documentType, String callerRef) {
         String userName = securityHelper.getLoggedInUser();
 
         ISystemUser su = sysUserService.findByName(userName);
@@ -186,14 +195,22 @@ public class AuditService {
         if (!fortress.getCompany().getId().equals(su.getCompany().getId()))
             throw new SecurityException("User is not authorised to work with requested Fortress");
 
-        String key = (recordType.trim() + DOT + callerRef.trim());
-        return auditDAO.findHeaderByCallerRef(key, fortress.getName(), fortress.getCompany().getName());
+        return auditDAO.findHeaderByCallerRef(fortress.getId(), documentType, callerRef.trim());
     }
+
 
     @Transactional
     public AuditLogInputBean createLog(AuditLogInputBean input) {
-        // ToDo: Find by callerRef()
-        IAuditHeader header = getHeader(input.getAuditKey());
+        String auditKey = input.getAuditKey();
+        IAuditHeader header;
+
+        if (auditKey == null || auditKey.equals("")) {
+            header = findByCallerRef(input.getFortress(), input.getDocumentType(), input.getCallerRef());
+            if (header != null)
+                input.setAuditKey(header.getAuditKey());
+        } else
+            header = getHeader(input.getAuditKey());
+
         if (header == null) {
             input.setStatus(LogStatus.NOT_FOUND);
             return input;
@@ -304,6 +321,7 @@ public class AuditService {
         return input;
 
     }
+
 
     private boolean isSame(String jsonWhat, String jsonOther) throws IOException {
         if (jsonWhat == null || jsonOther == null)

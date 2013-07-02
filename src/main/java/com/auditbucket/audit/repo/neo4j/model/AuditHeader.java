@@ -58,11 +58,11 @@ public class AuditHeader implements IAuditHeader {
     @Indexed(indexName = UUID_KEY, unique = true)
     private String auditKey;
 
-    @Indexed(indexName = "callerRef")
     private String name;
+
     private long dateCreated;
 
-    //private String documentType;
+    @Indexed(indexName = "callerRef")
     private String callerRef;
 
     private long fortressDate;
@@ -82,6 +82,9 @@ public class AuditHeader implements IAuditHeader {
         this();
         this.documentType = (DocumentType) documentType;
         callerRef = auditInput.getCallerRef();
+        if (callerRef != null)
+            callerRef = callerRef.toLowerCase();
+
         Date when = auditInput.getWhen();
         if (when == null)
             fortressDate = dateCreated;
@@ -91,7 +94,7 @@ public class AuditHeader implements IAuditHeader {
         this.createdBy = (FortressUser) createdBy;
         this.lastWho = (FortressUser) createdBy;
         this.fortress = (Fortress) createdBy.getFortress();
-        String docType = (documentType != null ? documentType.getName().toLowerCase() : "");
+        String docType = (documentType != null ? getDocumentType() : "");
         this.name = (callerRef == null ? docType : (docType + "." + callerRef).toLowerCase());
 
 
@@ -122,8 +125,11 @@ public class AuditHeader implements IAuditHeader {
 
     @Override
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    /**
+     * returns lower case representation of the documentType.name
+     */
     public String getDocumentType() {
-        return documentType.getName();
+        return documentType.getName().toLowerCase();
     }
 
     @Override

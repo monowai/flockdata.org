@@ -180,7 +180,7 @@ public class AuditEP {
                                                        @PathVariable("callerRef") String callerRef) throws Exception {
         try {
             IFortress f = fortressService.find(fortress);
-            IAuditHeader result = auditService.findByName(f.getId(), recordType, callerRef);
+            IAuditHeader result = auditService.findByCallerRef(f.getId(), recordType, callerRef);
             return new ResponseEntity<IAuditHeader>(result, HttpStatus.OK);
 
         } catch (IllegalArgumentException e) {

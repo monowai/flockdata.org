@@ -59,7 +59,7 @@ public class TagService {
     @Transactional
     public IDocumentType resolveDocType(String documentType) {
         if (documentType == null) {
-            throw new IllegalArgumentException("Documentype/Company cannot be null");
+            throw new IllegalArgumentException("DocumentType cannot be null");
         }
         ICompany company = securityHelper.getCompany();
         if (company == null)

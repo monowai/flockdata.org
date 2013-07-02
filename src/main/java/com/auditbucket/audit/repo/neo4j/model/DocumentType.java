@@ -20,7 +20,7 @@ public class DocumentType implements IDocumentType {
     @GraphId
     Long id;
 
-    @RelatedTo(elementClass = Company.class, type = "classifies", direction = Direction.INCOMING)
+    @RelatedTo(elementClass = Company.class, type = "documents", direction = Direction.INCOMING)
     private ICompany company;
 
     @Indexed(indexName = "documentTypeName")

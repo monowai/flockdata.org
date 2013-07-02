@@ -16,6 +16,8 @@ import com.auditbucket.audit.repo.neo4j.model.TxRef;
 import com.auditbucket.registration.model.ICompany;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
@@ -39,6 +41,7 @@ public class AuditDaoNeo implements IAuditDao {
 
     @Autowired
     Neo4jTemplate template;
+    private Logger log = LoggerFactory.getLogger(AuditDaoNeo.class);
 
     @Override
     public IAuditHeader save(IAuditHeader auditHeader, AuditHeaderInputBean inputBean) {
@@ -70,11 +73,12 @@ public class AuditDaoNeo implements IAuditDao {
         return header;
     }
 
-    public IAuditHeader findHeaderByCallerRef(@NotNull String callerRef, @NotNull String fortressName, @NotNull String companyName) {
-
+    public IAuditHeader findHeaderByCallerRef(Long fortressId, @NotNull String documentType, @NotNull String callerRef) {
+        if (log.isDebugEnabled())
+            log.debug("findByCallerRef fortress [" + fortressId + "] docType[" + documentType + "], callerRef[" + callerRef.toLowerCase() + "]");
         // This is pretty crappy, but Neo4J will throw an exception the first time you try to search if no index is in place.
         if (template.getGraphDatabaseService().index().existsForNodes("callerRef"))
-            return auditRepo.findByCallerRef(callerRef.toLowerCase(), fortressName, companyName);
+            return auditRepo.findByCallerRef(fortressId, documentType, callerRef.toLowerCase());
 
         return null;
     }
@@ -160,8 +164,6 @@ public class AuditDaoNeo implements IAuditDao {
 
         Iterator<Map<String, Object>> rows;
         Result<Map<String, Object>> exResult = template.query(findByTagRef, params);
-
-        Map<Long, IAuditHeader> headers = new HashMap<Long, IAuditHeader>();
 
         rows = exResult.iterator();
 

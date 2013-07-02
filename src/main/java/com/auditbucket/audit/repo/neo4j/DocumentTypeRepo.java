@@ -1,6 +1,5 @@
 package com.auditbucket.audit.repo.neo4j;
 
-import com.auditbucket.audit.model.IDocumentType;
 import com.auditbucket.audit.repo.neo4j.model.DocumentType;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
@@ -11,10 +10,10 @@ import org.springframework.data.neo4j.repository.GraphRepository;
  * Time: 10:20 AM
  */
 public interface DocumentTypeRepo extends GraphRepository<DocumentType> {
-    @Query(elementClass = DocumentType.class, value = "start n=node({1}) " +
+    @Query(elementClass = DocumentType.class, value = "start n=node({0}) " +
             "   MATCH n-[:documents]->documentType " +
-            "   where documentType.name ={0} " +
+            "   where documentType.name ={1} " +
             "  return documentType")
-    IDocumentType findCompanyDocType(String tagName, Long companyId);
+    DocumentType findCompanyDocType(Long companyId, String tagName);
 
 }

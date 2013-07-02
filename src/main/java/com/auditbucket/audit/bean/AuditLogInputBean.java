@@ -20,11 +20,16 @@ public class AuditLogInputBean {
     String auditKey;
     private String txRef;
     private String comment;
-    String callerRef;
     String fortressUser;
     String event;
     String when;
     String what;
+
+    // Required to support location by Caller Ref
+    String documentType;
+    String callerRef;
+    String fortress;
+
     Map<String, Object> mapWhat;
 
     static final ObjectMapper om = new ObjectMapper();
@@ -135,6 +140,12 @@ public class AuditLogInputBean {
         this.callerRef = callerRef;
     }
 
+    public void setCallerRef(String fortress, String documentType, String callerRef) {
+        this.callerRef = callerRef;
+        this.documentType = documentType;
+        this.fortress = fortress;
+    }
+
 
     public String getTxRef() {
         return txRef;
@@ -181,5 +192,13 @@ public class AuditLogInputBean {
     public void setMapWhat(Map<String, Object> whatMap) {
         this.mapWhat = whatMap;
 
+    }
+
+    public String getDocumentType() {
+        return documentType;
+    }
+
+    public String getFortress() {
+        return fortress;
     }
 }

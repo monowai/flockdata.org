@@ -87,4 +87,11 @@ public class Fortress implements IFortress {
             ignoreSearchEngine = false;
     }
 
+    @Override
+    public String toString() {
+        return "Fortress{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

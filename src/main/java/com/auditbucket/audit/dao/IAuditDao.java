@@ -55,7 +55,7 @@ public interface IAuditDao {
 
     void delete(IAuditHeader auditHeader);
 
-    IAuditHeader findHeaderByCallerRef(String clientRef, String fortressName, String companyName);
+    IAuditHeader findHeaderByCallerRef(Long fortressId, String documentType, String callerRef);
 
     public void removeLastChange(IAuditHeader header);
 

@@ -44,7 +44,7 @@ public class TagDaoImpl implements TagDaoI {
 
     @Override
     public IDocumentType findOrCreate(String documentType, ICompany company) {
-        IDocumentType result = documentTypeRepo.findCompanyDocType(documentType, company.getId());
+        IDocumentType result = documentTypeRepo.findCompanyDocType(company.getId(), documentType);
         if (result == null) {
             result = documentTypeRepo.save(new DocumentType(documentType, company));
         }

@@ -284,7 +284,7 @@ public class TestAuditIntegration {
                     int random = (int) (Math.random() * ((auditCount) + 1));
                     if (random == 0)
                         random = 1;
-                    assertNotNull("ABC" + random, auditService.findByName(list.get(fortress), "Company", "ABC" + random));
+                    assertNotNull("ABC" + random, auditService.findByCallerRef(list.get(fortress), "Company", "ABC" + random));
                     totalSearchRequests++;
                     x++;
                 } while (x < auditCount);

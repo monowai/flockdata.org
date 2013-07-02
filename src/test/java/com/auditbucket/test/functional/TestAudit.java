@@ -87,13 +87,13 @@ public class TestAudit {
 
         SecurityContextHolder.getContext().setAuthentication(authA);
 
-        assertNotNull(auditService.findByName(fortressA.getId(), "TestAudit", "ABC123"));
-        assertNotNull(auditService.findByName(fortressA.getId(), "TestAudit", "abc123"));
-        assertNull(auditService.findByName(fortressA.getId(), "TestAudit", "123ABC"));
+        assertNotNull(auditService.findByCallerRef(fortressA.getId(), "TestAudit", "ABC123"));
+        assertNotNull(auditService.findByCallerRef(fortressA.getId(), "TestAudit", "abc123"));
+        assertNull(auditService.findByCallerRef(fortressA.getId(), "TestAudit", "123ABC"));
         // Test non external user can't do this
         SecurityContextHolder.getContext().setAuthentication(authB);
         try {
-            assertNull(auditService.findByName(fortressA.getId(), "TestAudit", "ABC123"));
+            assertNull(auditService.findByCallerRef(fortressA.getId(), "TestAudit", "ABC123"));
             fail("Security exception not thrown");
         } catch (SecurityException se) {
 
@@ -114,7 +114,7 @@ public class TestAudit {
         log.info(ahKey);
 
         assertNotNull(auditService.getHeader(ahKey));
-        assertNotNull(auditService.findByName(fo.getId(), "TestAudit", "ABC123"));
+        assertNotNull(auditService.findByCallerRef(fo.getId(), "TestAudit", "ABC123"));
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));
 
@@ -247,4 +247,23 @@ public class TestAudit {
         assertNotNull(inputBean.getAuditKey());
         assertEquals(1, auditService.getAuditLogCount(inputBean.getAuditKey()));
     }
+
+    @Test
+    public void updateByCallerRef() throws Exception {
+        regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
+        IFortress fortressA = fortressService.registerFortress("auditTest" + System.currentTimeMillis());
+        log.info(fortressA.toString());
+        String docType = "TestAuditX";
+        String callerRef = "ABC123X";
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", docType, new Date(), callerRef);
+        String key = auditService.createHeader(inputBean).getAuditKey();
+        AuditLogInputBean alb = new AuditLogInputBean("logTest", new DateTime(), "{\"blah\":" + 0 + "}");
+        alb.setCallerRef(fortressA.getName(), docType, callerRef);
+        alb = auditService.createLog(alb);
+        assertNotNull(alb);
+        assertEquals(key, alb.getAuditKey());
+
+
+    }
+
 }
