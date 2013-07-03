@@ -1,10 +1,10 @@
-package com.auditbucket.audit.repo.neo4j.model;
-
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditWhen;
 import com.auditbucket.audit.model.IDocumentType;
 import com.auditbucket.audit.model.ITagValue;
+import com.auditbucket.audit.repo.neo4j.model.AuditTagValue;
+import com.auditbucket.audit.repo.neo4j.model.AuditWhen;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.model.IFortressUser;
 import com.auditbucket.registration.repo.neo4j.model.Fortress;
@@ -21,6 +21,11 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+
+/**
+ * copyright
+ */
+package com.auditbucket.audit.repo.neo4j.model;
 
 /**
  * User: mike

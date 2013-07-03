@@ -249,7 +249,7 @@ public class TestAudit {
     }
 
     @Test
-    public void updateByCallerRef() throws Exception {
+    public void updateByCallerRefNoAuditKey() throws Exception {
         regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
         IFortress fortressA = fortressService.registerFortress("auditTest" + System.currentTimeMillis());
         log.info(fortressA.toString());
