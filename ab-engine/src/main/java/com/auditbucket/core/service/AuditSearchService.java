@@ -21,6 +21,7 @@ package com.auditbucket.core.service;
 
 import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
+import com.auditbucket.search.AuditChange;
 import com.auditbucket.search.SearchDocumentBean;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,9 @@ import java.util.Map;
 @Service
 public class AuditSearchService {
     public IAuditChange createSearchableChange(IAuditHeader header, DateTime dateWhen, Map<String, Object> mapWhat, String event) {
+        if (header.getFortress().isIgnoreSearchEngine())
+            return null;
+
         return null;
     }
 
@@ -50,6 +54,7 @@ public class AuditSearchService {
     }
 
     public IAuditChange createSearchableChange(SearchDocumentBean searchDocumentBean) {
+
         return null;
     }
 
@@ -64,4 +69,13 @@ public class AuditSearchService {
     public Long getHitCount(String s) {
         return null;
     }
+
+    private IAuditChange getAuditChange(IAuditHeader header, DateTime dateWhen, Map<String, Object> what, String event) {
+        IAuditChange thisChange = new AuditChange(header, event, what);
+        thisChange.setWho(header.getLastUser().getName());
+        if (dateWhen != null)
+            thisChange.setWhen(dateWhen.toDate());
+        return thisChange;
+    }
+
 }

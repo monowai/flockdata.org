@@ -23,16 +23,12 @@ import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditSearchDao;
 import com.auditbucket.dao.IAuditQueryDao;
-import com.auditbucket.search.SearchDocumentBean;
-import com.auditbucket.search.model.AuditChange;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
-import java.util.Map;
 
 /**
  * User: mike
@@ -53,38 +49,25 @@ public class AbSearchService {
     }
 
     @Transactional
-    IAuditChange updateSearchableChange(IAuditHeader header, DateTime dateWhen, Map<String, Object> what, String event) {
-        if (header.getFortress().isIgnoreSearchEngine())
-            return null;
-        if (header.getSearchKey() != null) {
-            IAuditChange change = getAuditChange(header, dateWhen, what, event);
-            auditSearch.update(change);
-            return change;
+    IAuditChange updateSearchableChange(IAuditChange thisChange) {
+        if (thisChange.getSearchKey() != null) {
+            auditSearch.update(thisChange);
+            return thisChange;
         } else {
             // Why would we have a missing search document? Probably because the fortress
             //  went from non searchable to searchable.
-            IAuditChange change = createSearchableChange(header, dateWhen, what, event);
+            //ToDo: looks dodgy
+            IAuditChange change = createSearchableChange(thisChange);
             if (change != null)
-                header.setSearchKey(change.getSearchKey());
+                change.setSearchKey(change.getSearchKey());
             return change;
         }
     }
 
 
     @Transactional
-    IAuditChange createSearchableChange(IAuditHeader header, DateTime dateWhen, Map<String, Object> what, String event) {
-        if (header.getFortress().isIgnoreSearchEngine())
-            return null;
-        IAuditChange thisChange = getAuditChange(header, dateWhen, what, event);
+    IAuditChange createSearchableChange(IAuditChange thisChange) {
         thisChange = auditSearch.save(thisChange);
-        return thisChange;
-    }
-
-    private IAuditChange getAuditChange(IAuditHeader header, DateTime dateWhen, Map<String, Object> what, String event) {
-        IAuditChange thisChange = new AuditChange(header, event, what);
-        thisChange.setWho(header.getLastUser().getName());
-        if (dateWhen != null)
-            thisChange.setWhen(dateWhen.toDate());
         return thisChange;
     }
 
@@ -94,9 +77,9 @@ public class AbSearchService {
 
     }
 
-    public IAuditChange createSearchableChange(SearchDocumentBean searchDocumentBean) {
-        return createSearchableChange(searchDocumentBean.getAuditHeader(), searchDocumentBean.getDateTime(), searchDocumentBean.getWhat(), searchDocumentBean.getEvent());
-    }
+//    public IAuditChange createSearchableChange(SearchDocumentBean searchDocumentBean) {
+//        return createSearchableChange(searchDocumentBean.getAuditHeader(), searchDocumentBean.getDateTime(), searchDocumentBean.getWhat(), searchDocumentBean.getEvent());
+//    }
 
     public byte[] findOne(IAuditHeader header) {
         return auditSearch.findOne(header);
