@@ -1,0 +1,5 @@
+# http://www.elasticsearch.org/guide/reference/java-api/client/
+
+cluster.name: test_auditbucket
+#path.logs=/Users/mike/Documents/var/log/elasticsearch
+#path.data=/Users/mike/Documents/var/data/elasticsearch
