@@ -26,7 +26,7 @@ import com.auditbucket.registration.model.ITag;
 import java.util.Set;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 28/06/13
  * Time: 9:55 AM
  */

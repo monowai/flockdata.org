@@ -23,7 +23,7 @@ import com.auditbucket.core.registration.repo.neo4j.model.SystemId;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 27/06/13
  * Time: 12:24 PM
  */

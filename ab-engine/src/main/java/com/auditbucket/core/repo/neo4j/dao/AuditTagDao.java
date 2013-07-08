@@ -32,7 +32,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Set;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 28/06/13
  * Time: 11:07 AM
  */

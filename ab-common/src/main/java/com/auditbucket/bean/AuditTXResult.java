@@ -25,7 +25,7 @@ import com.auditbucket.audit.model.IAuditWhen;
 
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 16/06/13
  * Time: 6:12 PM
  */

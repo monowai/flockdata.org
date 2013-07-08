@@ -21,7 +21,7 @@ package com.auditbucket.registration.model;
 
 /**
  * Created with IntelliJ IDEA.
- * User: mike
+ * User: Mike Holdsworth
  * Date: 6/04/13
  * Time: 11:02
  */

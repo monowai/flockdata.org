@@ -43,7 +43,7 @@ import java.util.UUID;
 
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 14/04/13
  * Time: 10:56 AM
  */

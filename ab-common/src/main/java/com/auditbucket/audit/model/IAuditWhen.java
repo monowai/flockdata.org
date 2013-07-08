@@ -20,7 +20,7 @@
 package com.auditbucket.audit.model;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 21/06/13
  * Time: 1:21 PM
  */

@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 22/06/13
  * Time: 6:28 AM
  */
@@ -39,12 +39,16 @@ public class SearchDocumentBean {
     private static final ObjectMapper om = new ObjectMapper();
 
     public SearchDocumentBean(IAuditHeader auditHeader, DateTime dateTime, String what, String event) throws IOException {
+        this(auditHeader, dateTime, om.readValue(what, Map.class), event);
+    }
+
+    public SearchDocumentBean(IAuditHeader auditHeader, DateTime dateTime, Map<String, Object> what, String event) {
         this.auditHeader = auditHeader;
         this.dateTime = dateTime;
         this.event = event;
-        om.readValue(what, Map.class);
-    }
+        this.what = what;
 
+    }
 
     public IAuditHeader getAuditHeader() {
         return auditHeader;

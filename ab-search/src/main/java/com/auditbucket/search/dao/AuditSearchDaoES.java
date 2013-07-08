@@ -35,7 +35,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Map;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 26/04/13
  * Time: 12:00 PM
  */
@@ -55,7 +55,7 @@ public class AuditSearchDaoES implements IAuditSearchDao {
         String documentType = auditChange.getDocumentType();
 
 
-        Map<String, Object> indexMe = getIndexDocument(auditChange);
+        Map<String, Object> indexMe = makeIndexDocument(auditChange);
 
         IndexResponse ir = esClient.prepareIndex(indexName, documentType)
                 .setSource(indexMe)
@@ -70,7 +70,13 @@ public class AuditSearchDaoES implements IAuditSearchDao {
 
     }
 
-    private Map<String, Object> getIndexDocument(IAuditChange auditChange) {
+    /**
+     * Converts a user requested auditChange in to a standardised document to index
+     *
+     * @param auditChange change
+     * @return document to index
+     */
+    private Map<String, Object> makeIndexDocument(IAuditChange auditChange) {
         Map<String, Object> indexMe = auditChange.getWhat();
         indexMe.put("auditKey", auditChange.getAuditKey());
         indexMe.put("who", auditChange.getWho());
@@ -84,6 +90,9 @@ public class AuditSearchDaoES implements IAuditSearchDao {
     public void delete(IAuditHeader header, String existingIndexKey) {
         String indexName = header.getIndexName();
         String recordType = header.getDocumentType();
+
+        if (existingIndexKey == null)
+            existingIndexKey = header.getSearchKey();
 
         DeleteResponse dr = esClient.prepareDelete(indexName, recordType, existingIndexKey)
                 .setRouting(header.getAuditKey())
@@ -102,7 +111,7 @@ public class AuditSearchDaoES implements IAuditSearchDao {
     @Override
     public void update(IAuditChange change) {
 
-        Map<String, Object> indexMe = getIndexDocument(change);
+        Map<String, Object> indexMe = makeIndexDocument(change);
 
         IndexRequestBuilder update = esClient
                 .prepareIndex(change.getIndexName(), change.getDocumentType(), change.getSearchKey())

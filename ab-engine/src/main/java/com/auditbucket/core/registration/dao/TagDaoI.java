@@ -24,7 +24,7 @@ import com.auditbucket.registration.model.ICompany;
 import com.auditbucket.registration.model.ITag;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 26/06/13
  * Time: 8:12 PM
  */

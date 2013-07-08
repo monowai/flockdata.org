@@ -31,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.validation.constraints.NotNull;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 18/06/13
  * Time: 2:03 PM
  */
@@ -76,10 +76,6 @@ public class AbSearchService {
         auditSearch.delete(auditHeader, key);
 
     }
-
-//    public IAuditChange createSearchableChange(SearchDocumentBean searchDocumentBean) {
-//        return createSearchableChange(searchDocumentBean.getAuditHeader(), searchDocumentBean.getDateTime(), searchDocumentBean.getWhat(), searchDocumentBean.getEvent());
-//    }
 
     public byte[] findOne(IAuditHeader header) {
         return auditSearch.findOne(header);

@@ -23,11 +23,24 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 21/04/13
  * Time: 7:44 PM
  */
 public interface IAuditChange {
+    /**
+     * @return search keys unique document identifier
+     */
+    public String getSearchKey();
+
+    public void setSearchKey(String parent);
+
+    /**
+     * primary key of the Audit record that this document belongs to
+     *
+     * @return GUID
+     */
+    String getAuditKey();
 
     public void setWhat(Map<String, Object> what);
 
@@ -35,6 +48,9 @@ public interface IAuditChange {
 
     public Map<String, Object> getTagValues();
 
+    /**
+     * @return who made this change
+     */
     public String getWho();
 
     public String getFortressName();
@@ -45,27 +61,13 @@ public interface IAuditChange {
 
     public Date getWhen();
 
-    public void setId(String id);
-
     public void setVersion(long version);
 
     public Long getVersion();
 
-    public String getName();
-
-    public String getId();
-
-    public void setSearchKey(String parent);
-
-    public String getSearchKey();
-
-    void setName(String event);
-
     void setWhen(Date date);
 
     void setWho(String name);
-
-    String getAuditKey();
 
     String getRoutingKey();
 

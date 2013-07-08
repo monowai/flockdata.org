@@ -34,7 +34,7 @@ import static junit.framework.Assert.*;
 import static org.junit.Assert.assertFalse;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 22/06/13
  * Time: 5:02 AM
  */

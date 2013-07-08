@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 26/06/13
  * Time: 8:33 PM
  */

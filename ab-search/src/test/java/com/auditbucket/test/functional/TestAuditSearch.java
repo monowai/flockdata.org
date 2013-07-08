@@ -32,7 +32,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 26/06/13
  * Time: 8:35 AM
  */

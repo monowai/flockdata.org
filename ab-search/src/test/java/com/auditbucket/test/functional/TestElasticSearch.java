@@ -81,7 +81,7 @@ public class TestElasticSearch {
 //
         AuditChange auditChange = new AuditChange();
 //
-        auditChange.setName("Create");
+        //auditChange.setName("Create");
         auditChange.setWhen(new Date());
 //// What changed?
         ObjectMapper om = new ObjectMapper();
@@ -100,8 +100,9 @@ public class TestElasticSearch {
 
             // Write the object to Lucene
             IndexResponse ir =
-                    client.prepareIndex(indexKey, auditChange.getName())
+                    client.prepareIndex(indexKey, auditChange.getWho())
                             .setSource(om.writeValueAsString(auditChange))
+                            .setRouting(auditChange.getRoutingKey())
                             .execute()
                             .actionGet();
 
@@ -109,7 +110,8 @@ public class TestElasticSearch {
             log.info(ir.getId());
 
             // Retrieve from Lucene
-            GetResponse response = client.prepareGet(indexKey, auditChange.getName(), ir.getId())
+            GetResponse response = client.prepareGet(indexKey, auditChange.getWho(), ir.getId())
+                    .setRouting(auditChange.getRoutingKey())
                     .execute()
                     .actionGet();
             assertNotNull(response);
@@ -140,7 +142,7 @@ public class TestElasticSearch {
 
         IAuditChange auditChange = new AuditChange();
         String auditKey = "auditHeader.getAuditKey()";
-        auditChange.setName("Create");
+
         auditChange.setWhen(new Date());
         auditChange.setVersion(System.currentTimeMillis());
         ObjectMapper om = new ObjectMapper();

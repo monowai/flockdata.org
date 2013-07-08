@@ -51,7 +51,7 @@ import java.util.Map;
 import static junit.framework.Assert.*;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 14/06/13
  * Time: 10:41 AM
  */

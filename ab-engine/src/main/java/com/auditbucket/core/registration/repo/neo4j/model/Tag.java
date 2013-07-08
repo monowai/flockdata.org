@@ -28,7 +28,7 @@ import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 26/06/13
  * Time: 8:35 PM
  */

@@ -24,13 +24,16 @@ import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.ITagValue;
 import com.auditbucket.registration.model.IFortress;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.joda.time.DateTime;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * User: mike
+ * Encapsulates the parameters necessary to index an audit change
+ * <p/>
+ * User: Mike Holdsworth
  * Date: 25/04/13
  * Time: 4:33 PM
  */
@@ -42,7 +45,6 @@ public class AuditChange implements IAuditChange {
     private Date when;
     private String fortressName;
     private String companyName;
-    private String name;
     private String who;
     private String auditKey;
     private Map<String, Object> tagValues = new HashMap<String, Object>();
@@ -57,9 +59,8 @@ public class AuditChange implements IAuditChange {
      */
     public AuditChange(IAuditHeader header) {
         this();
-        setName(header.getAuditKey());
         this.auditKey = header.getAuditKey();
-        this.documentType = header.getDocumentType();
+        setDocumentType(header.getDocumentType());
         setFortress(header.getFortress());
         this.indexName = header.getIndexName();
         this.searchKey = header.getSearchKey();
@@ -72,10 +73,15 @@ public class AuditChange implements IAuditChange {
     public AuditChange() {
     }
 
-    public AuditChange(IAuditHeader header, String event, Map<String, Object> what) {
-        this(header);
-        this.name = event;
-        this.what = what;
+    public AuditChange(SearchDocumentBean documentBean) {
+        this(documentBean.getAuditHeader());
+        //this.name = documentBean.getEvent();
+        this.what = documentBean.getWhat();
+        setWho(documentBean.getAuditHeader().getLastUser().getName());
+        DateTime dateWhen = documentBean.getDateTime();
+        if (dateWhen != null)
+            setWhen(dateWhen.toDate());
+
     }
 
     @Override
@@ -87,14 +93,6 @@ public class AuditChange implements IAuditChange {
     @Override
     public void setWhat(Map<String, Object> what) {
         this.what = what;
-    }
-
-    /**
-     * @return Unique key in the index
-     */
-    @JsonIgnore
-    public String getId() {
-        return id;
     }
 
     private String searchKey;
@@ -109,19 +107,10 @@ public class AuditChange implements IAuditChange {
     }
 
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-
     private void setFortress(IFortress fortress) {
         this.setFortressName(fortress.getName());
         this.setCompanyName(fortress.getCompany().getName());
 
-    }
-
-    public String getName() {
-        return name;
     }
 
     @Override
@@ -129,9 +118,6 @@ public class AuditChange implements IAuditChange {
         return this.who;
     }
 
-    public void setName(String who) {
-        this.name = who;
-    }
 
     public Date getWhen() {
         return when;

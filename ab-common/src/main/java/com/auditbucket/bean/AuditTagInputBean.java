@@ -22,7 +22,7 @@ package com.auditbucket.bean;
 import javax.validation.constraints.NotNull;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 28/06/13
  * Time: 9:58 AM
  */

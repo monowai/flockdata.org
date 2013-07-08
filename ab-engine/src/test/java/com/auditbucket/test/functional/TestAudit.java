@@ -53,7 +53,7 @@ import java.util.Set;
 import static junit.framework.Assert.*;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 15/04/13
  * Time: 6:43 AM
  */

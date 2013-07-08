@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 12/06/13
  * Time: 12:38 PM
  */

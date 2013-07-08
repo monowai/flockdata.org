@@ -22,7 +22,7 @@ package com.auditbucket.core.registration.dao;
 import com.auditbucket.registration.model.ISystem;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 26/06/13
  * Time: 8:12 PM
  */

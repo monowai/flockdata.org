@@ -27,7 +27,7 @@ import com.auditbucket.registration.model.IFortress;
 
 /**
  * Created with IntelliJ IDEA.
- * User: mike
+ * User: Mike Holdsworth
  * Date: 13/04/13
  * Time: 3:56 PM
  * To change this template use File | Settings | File Templates.

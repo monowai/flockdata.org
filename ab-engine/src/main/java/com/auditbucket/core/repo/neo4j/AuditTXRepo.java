@@ -25,7 +25,7 @@ import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 14/06/13
  * Time: 10:12 AM
  */

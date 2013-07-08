@@ -20,7 +20,7 @@
 package com.auditbucket.test.functional;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 27/06/13
  * Time: 4:49 PM
  */
@@ -63,7 +63,7 @@ import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 26/06/13
  * Time: 8:11 AM
  */

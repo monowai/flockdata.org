@@ -26,7 +26,7 @@ import com.auditbucket.registration.model.ITag;
 import org.springframework.data.neo4j.annotation.*;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 26/06/13
  * Time: 12:59 PM
  */

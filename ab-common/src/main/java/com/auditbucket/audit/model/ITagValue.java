@@ -22,7 +22,7 @@ package com.auditbucket.audit.model;
 import com.auditbucket.registration.model.ITag;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 26/06/13
  * Time: 12:52 PM
  */

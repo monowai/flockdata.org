@@ -19,15 +19,36 @@
 
 package com.auditbucket.audit.model;
 
+import com.sun.istack.internal.Nullable;
+
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 26/04/13
  * Time: 12:26 PM
  */
 public interface IAuditSearchDao {
+    /**
+     * creates a search document for the first time
+     *
+     * @param auditChange values to create from
+     * @return the search document created from the auditChange
+     */
     IAuditChange save(IAuditChange auditChange);
 
+    /**
+     * Rewrites an existing document
+     *
+     * @param auditChange values to update from
+     */
     void update(IAuditChange auditChange);
+
+    /**
+     * locates a document by AuditHeader.searchKey
+     *
+     * @param header auditHeader
+     * @return document context as bytes
+     */
+    public byte[] findOne(IAuditHeader header);
 
     /**
      * Locates a specific key monitored by the header.
@@ -40,13 +61,13 @@ public interface IAuditSearchDao {
     byte[] findOne(IAuditHeader header, String id);
 
     /**
-     * locates a document by AuditHeader.searchKey
+     * Removes a search document. Most of the time, the searchKey in the header
+     * is sufficient. However if you are tracking EVERY change in the search engine, then you
+     * can delete a specific instance
      *
-     * @param header auditHeader
-     * @return document context as bytes
+     * @param header           IAuditHeader that the change belongs to
+     * @param existingIndexKey searchKey for the header to remove. if NULL, defaults to header.getSearchKey()
      */
-    public byte[] findOne(IAuditHeader header);
-
-    void delete(IAuditHeader header, String existingIndexKey);
+    void delete(IAuditHeader header, @Nullable String existingIndexKey);
 
 }

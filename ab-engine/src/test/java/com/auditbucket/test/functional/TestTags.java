@@ -46,7 +46,7 @@ import org.springframework.transaction.annotation.Transactional;
 import static junit.framework.Assert.*;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 26/06/13
  * Time: 8:11 AM
  */

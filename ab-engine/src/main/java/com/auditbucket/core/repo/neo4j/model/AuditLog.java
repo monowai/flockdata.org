@@ -37,7 +37,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 15/04/13
  * Time: 5:57 AM
  */

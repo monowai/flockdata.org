@@ -28,7 +28,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 17/04/13
  * Time: 10:11 PM
  */

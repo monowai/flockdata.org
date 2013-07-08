@@ -54,14 +54,13 @@ import java.util.UUID;
 
 /**
  * Created with IntelliJ IDEA.
- * User: mike
+ * User: Mike Holdsworth
  * Date: 8/04/13
  * To change this template use File | Settings | File Templates.
  */
 
 @Service
 public class AuditService {
-    public static final String DOT = ".";
     @Autowired
     FortressService fortressService;
 
@@ -295,18 +294,18 @@ public class AuditService {
             header.setLastUser(fUser);
             if (fortress.isAccumulatingChanges()) {
                 // Accumulate all changes in search engine
-                IAuditChange change = searchService.createSearchableChange(header, dateWhen, input.getMapWhat(), event);
+                IAuditChange change = searchService.createSearchableChange(new SearchDocumentBean(header, dateWhen, input.getMapWhat(), event));
                 if (change != null)
                     searchKey = change.getSearchKey();
             } else {
                 // Update search engine instead of Create
-                searchService.updateSearchableChange(header, dateWhen, input.getMapWhat(), event);
+                searchService.updateSearchableChange(new SearchDocumentBean(header, dateWhen, input.getMapWhat(), event));
             }
         } else { // first ever log for the header
             if (event == null)
                 event = IAuditLog.CREATE;
             updateHeader = true;
-            IAuditChange change = searchService.createSearchableChange(header, dateWhen, input.getMapWhat(), event);
+            IAuditChange change = searchService.createSearchableChange(new SearchDocumentBean(header, dateWhen, input.getMapWhat(), event));
             if (change != null) {
                 searchKey = change.getSearchKey();
             }
@@ -447,7 +446,8 @@ public class AuditService {
                 }
             } else {
                 // Update against the Audit Header only by reindexing the search document
-                searchService.updateSearchableChange(auditHeader, new DateTime(newLastChange.getWhen()), newLastChange.getWhat(), newLastChange.getEvent());
+                SearchDocumentBean sd = new SearchDocumentBean(auditHeader, new DateTime(newLastChange.getWhen()), newLastChange.getWhat(), newLastChange.getEvent());
+                searchService.updateSearchableChange(sd);
 
             }
         }

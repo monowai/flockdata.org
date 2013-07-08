@@ -28,7 +28,7 @@ import org.springframework.data.neo4j.repository.GraphRepository;
 import java.util.Set;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 14/04/13
  * Time: 8:00 PM
  */

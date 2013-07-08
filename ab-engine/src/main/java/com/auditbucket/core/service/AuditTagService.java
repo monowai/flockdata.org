@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 27/06/13
  * Time: 5:07 PM
  */

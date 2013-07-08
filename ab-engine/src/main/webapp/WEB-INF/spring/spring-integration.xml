@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2012-2013 "Monowai Developments Limited"
+  ~
+  ~ This file is part of AuditBucket.
+  ~
+  ~ AuditBucket is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ AuditBucket is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<beans:beans xmlns:int="http://www.springframework.org/schema/integration"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:int-stream="http://www.springframework.org/schema/integration/stream"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+
+
+		http://www.springframework.org/schema/integration
+		http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/integration/stream
+		http://www.springframework.org/schema/integration/stream/spring-integration-stream.xsd">
+
+    <int:annotation-config/>
+
+    <int:gateway id="ab-search" service-interface="com.auditbucket.core.service.AuditSearchService"/>
+
+    <int:channel id="orders"/>
+    <int:channel id="drinks"/>
+    <int:channel id="coldDrinks">
+        <int:queue capacity="10"/>
+    </int:channel>
+    <int:channel id="hotDrinks">
+        <int:queue capacity="10"/>
+    </int:channel>
+    <int:channel id="coldDrinkBarista"/>
+    <int:channel id="hotDrinkBarista"/>
+    <int:channel id="preparedDrinks"/>
+
+    <int:bridge input-channel="coldDrinks" output-channel="coldDrinkBarista">
+        <int:poller fixed-delay="1000"/>
+    </int:bridge>
+
+    <int:bridge input-channel="hotDrinks" output-channel="hotDrinkBarista">
+        <int:poller fixed-delay="1000"/>
+    </int:bridge>
+
+    <int-stream:stdout-channel-adapter id="deliveries"/>
+
+</beans:beans>

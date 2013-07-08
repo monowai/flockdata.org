@@ -25,7 +25,7 @@ import com.auditbucket.registration.model.IFortressUser;
 import java.util.List;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 20/04/13
  * Time: 6:31 PM
  */

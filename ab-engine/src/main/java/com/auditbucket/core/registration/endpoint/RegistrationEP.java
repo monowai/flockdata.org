@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 1/05/13
  * Time: 8:23 PM
  */

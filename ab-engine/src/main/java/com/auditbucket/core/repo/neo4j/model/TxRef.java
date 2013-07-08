@@ -34,7 +34,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 14/06/13
  * Time: 9:34 AM
  */

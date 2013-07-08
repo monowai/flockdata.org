@@ -26,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.neo4j.annotation.*;
 
 /**
- * User: mike
+ * User: Mike Holdsworth
  * Date: 26/05/13
  * Time: 4:12 PM
  */
