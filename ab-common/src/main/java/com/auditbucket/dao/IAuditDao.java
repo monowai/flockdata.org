@@ -22,7 +22,6 @@ package com.auditbucket.dao;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.audit.model.ITxRef;
-import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.registration.model.ICompany;
 import org.joda.time.DateTime;
 
@@ -37,7 +36,7 @@ import java.util.Set;
  */
 public interface IAuditDao {
 
-    public IAuditHeader save(IAuditHeader auditHeader, AuditHeaderInputBean inputBean);
+    public IAuditHeader save(IAuditHeader auditHeader);
 
     public IAuditLog save(IAuditLog auditLog);
 
@@ -79,8 +78,6 @@ public interface IAuditDao {
     IAuditHeader fetch(IAuditHeader header);
 
     ITxRef findTxTag(String txTag, ICompany company, boolean fetchHeaders);
-
-    IAuditHeader save(IAuditHeader auditHeader);
 
     public ITxRef beginTransaction(String id, ICompany company);
 

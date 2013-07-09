@@ -150,8 +150,8 @@ public class AuditService {
         IFortressUser fu = fortressService.getFortressUser(iFortress, inputBean.getFortressUser(), true);
         IDocumentType documentType = tagService.resolveDocType(inputBean.getDocumentType());
 
-        ah = new AuditHeader(fu, inputBean, documentType);
-        ah = auditDAO.save(ah, inputBean);
+
+        ah = auditDAO.save(new AuditHeader(fu, inputBean, documentType));
 
         Map<String, String> userTags = inputBean.getTagValues();
         auditTagService.createTagValues(userTags, ah);
@@ -215,7 +215,6 @@ public class AuditService {
 
         return auditDAO.findHeaderByCallerRef(fortress.getId(), documentType, callerRef.trim());
     }
-
 
     @Transactional
     public AuditLogInputBean createLog(AuditLogInputBean input) {

@@ -23,12 +23,13 @@ import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditSearchDao;
 import com.auditbucket.dao.IAuditQueryDao;
-import org.hibernate.validator.constraints.NotEmpty;
+import com.auditbucket.search.endpoint.IElasticSearchEP;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.integration.annotation.MessageEndpoint;
+import org.springframework.integration.annotation.Payload;
+import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.validation.constraints.NotNull;
 
 /**
  * User: Mike Holdsworth
@@ -36,7 +37,8 @@ import javax.validation.constraints.NotNull;
  * Time: 2:03 PM
  */
 @Service
-public class AbSearchService {
+@MessageEndpoint
+public class AbSearchService implements IElasticSearchEP {
     @Autowired
     private IAuditSearchDao auditSearch;
 
@@ -49,14 +51,21 @@ public class AbSearchService {
     }
 
     @Transactional
-    IAuditChange updateSearchableChange(IAuditChange thisChange) {
+    @ServiceActivator(inputChannel = "esMake", outputChannel = "searchOutput")
+    public IAuditChange createSearchableChange(@Payload IAuditChange thisChange) {
+        thisChange = auditSearch.save(thisChange);
+        return thisChange;
+    }
+
+    @Transactional
+    @ServiceActivator(inputChannel = "esUpdate", outputChannel = "searchOutput")
+    public IAuditChange updateSearchableChange(IAuditChange thisChange) {
         if (thisChange.getSearchKey() != null) {
             auditSearch.update(thisChange);
             return thisChange;
         } else {
             // Why would we have a missing search document? Probably because the fortress
             //  went from non searchable to searchable.
-            //ToDo: looks dodgy
             IAuditChange change = createSearchableChange(thisChange);
             if (change != null)
                 change.setSearchKey(change.getSearchKey());
@@ -66,14 +75,9 @@ public class AbSearchService {
 
 
     @Transactional
-    IAuditChange createSearchableChange(IAuditChange thisChange) {
-        thisChange = auditSearch.save(thisChange);
-        return thisChange;
-    }
-
-    @Transactional
-    public void delete(IAuditHeader auditHeader, @NotNull @NotEmpty String key) {
-        auditSearch.delete(auditHeader, key);
+    @ServiceActivator(inputChannel = "esDelete")
+    public void delete(IAuditHeader auditHeader) {
+        auditSearch.delete(auditHeader, null);
 
     }
 

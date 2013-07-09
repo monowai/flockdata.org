@@ -31,7 +31,9 @@
     <context:component-scan base-package="com.auditbucket.search"/>
     <!-- Root Context: defines shared resources visible to all other web components -->
 
-    <import resource="./es-context.xml"/>
     <import resource="./spring-security.xml"/>
+    <import resource="./es-context.xml"/>
+    <import resource="./spring-integration.xml"/>
+
 
 </beans>

@@ -23,7 +23,6 @@ import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.audit.model.IAuditWhen;
 import com.auditbucket.audit.model.ITxRef;
-import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditTXResult;
 import com.auditbucket.core.repo.neo4j.AuditHeaderRepo;
 import com.auditbucket.core.repo.neo4j.AuditLogRepo;
@@ -63,11 +62,10 @@ public class AuditDaoNeo implements IAuditDao {
     private Logger log = LoggerFactory.getLogger(AuditDaoNeo.class);
 
     @Override
-    public IAuditHeader save(IAuditHeader auditHeader, AuditHeaderInputBean inputBean) {
+    public IAuditHeader save(IAuditHeader auditHeader) {
         auditHeader.bumpUpdate();
         return auditRepo.save((AuditHeader) auditHeader);
     }
-
 
     @Override
     public IAuditLog save(IAuditLog auditLog) {
@@ -124,10 +122,6 @@ public class AuditDaoNeo implements IAuditDao {
         return txRef;
     }
 
-    @Override
-    public IAuditHeader save(IAuditHeader auditHeader) {
-        return template.save(auditHeader);
-    }
 
     @Override
     public ITxRef beginTransaction(String id, ICompany company) {

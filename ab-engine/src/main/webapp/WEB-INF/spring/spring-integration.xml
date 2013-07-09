@@ -18,43 +18,39 @@
   ~ along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<beans:beans xmlns:int="http://www.springframework.org/schema/integration"
-             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             xmlns:beans="http://www.springframework.org/schema/beans"
-             xmlns:int-stream="http://www.springframework.org/schema/integration/stream"
-             xsi:schemaLocation="http://www.springframework.org/schema/beans
-		http://www.springframework.org/schema/beans/spring-beans.xsd
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:int-http="http://www.springframework.org/schema/integration/http"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/integration
+       http://www.springframework.org/schema/integration/spring-integration.xsd http://www.springframework.org/schema/integration/http
+	   http://www.springframework.org/schema/integration/http/spring-integration-http.xsd">
 
 
-		http://www.springframework.org/schema/integration
-		http://www.springframework.org/schema/integration/spring-integration.xsd
-		http://www.springframework.org/schema/integration/stream
-		http://www.springframework.org/schema/integration/stream/spring-integration-stream.xsd">
+    <int:gateway id="searchGateway"
+                 service-interface="com.auditbucket.core.service.AuditSearchService"
 
-    <int:annotation-config/>
+                 default-request-channel="searchMake"/>
 
-    <int:gateway id="ab-search" service-interface="com.auditbucket.core.service.AuditSearchService"/>
+    <int-http:outbound-gateway request-channel="searchMake"
+                               url="http://localhost:8080/abs/esMake"
+                               http-method="POST"/>
 
-    <int:channel id="orders"/>
-    <int:channel id="drinks"/>
-    <int:channel id="coldDrinks">
+    <int:channel id="audit"/>
+    <int:channel id="auditLog"/>
+    <int:channel id="auditOutput">
         <int:queue capacity="10"/>
     </int:channel>
-    <int:channel id="hotDrinks">
+
+
+    <int:channel id="searchMake"/>
+    <int:channel id="searchDelete"/>
+    <int:channel id="searchUpdate"/>
+    <int:channel id="searchOutput">
         <int:queue capacity="10"/>
     </int:channel>
-    <int:channel id="coldDrinkBarista"/>
-    <int:channel id="hotDrinkBarista"/>
-    <int:channel id="preparedDrinks"/>
 
-    <int:bridge input-channel="coldDrinks" output-channel="coldDrinkBarista">
-        <int:poller fixed-delay="1000"/>
-    </int:bridge>
 
-    <int:bridge input-channel="hotDrinks" output-channel="hotDrinkBarista">
-        <int:poller fixed-delay="1000"/>
-    </int:bridge>
-
-    <int-stream:stdout-channel-adapter id="deliveries"/>
-
-</beans:beans>
+</beans>
