@@ -19,7 +19,8 @@
 
 package com.auditbucket.audit.model;
 
-import java.util.Date;
+import org.joda.time.DateTime;
+
 import java.util.Map;
 
 /**
@@ -59,13 +60,9 @@ public interface IAuditChange {
 
     public String getIndexName();
 
-    public Date getWhen();
+    public Long getWhen();
 
-    public void setVersion(long version);
-
-    public Long getVersion();
-
-    void setWhen(Date date);
+    void setWhen(DateTime date);
 
     void setWho(String name);
 

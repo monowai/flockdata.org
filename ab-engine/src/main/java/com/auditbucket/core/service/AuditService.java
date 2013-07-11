@@ -34,7 +34,8 @@ import com.auditbucket.registration.model.ICompany;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.model.IFortressUser;
 import com.auditbucket.registration.model.ISystemUser;
-import com.auditbucket.search.SearchDocumentBean;
+import com.auditbucket.search.AuditChange;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -293,18 +294,25 @@ public class AuditService {
             header.setLastUser(fUser);
             if (fortress.isAccumulatingChanges()) {
                 // Accumulate all changes in search engine
-                IAuditChange change = searchService.createSearchableChange(new SearchDocumentBean(header, dateWhen, input.getMapWhat(), event));
+                IAuditChange change = searchService.createSearchableChange(new AuditChange(header, input.getMapWhat(), event, dateWhen));
                 if (change != null)
                     searchKey = change.getSearchKey();
             } else {
                 // Update search engine instead of Create
-                searchService.updateSearchableChange(new SearchDocumentBean(header, dateWhen, input.getMapWhat(), event));
+                searchService.updateSearchableChange(new AuditChange(header, input.getMapWhat(), event, dateWhen));
             }
         } else { // first ever log for the header
             if (event == null)
                 event = IAuditLog.CREATE;
             updateHeader = true;
-            IAuditChange change = searchService.createSearchableChange(new SearchDocumentBean(header, dateWhen, input.getMapWhat(), event));
+            AuditChange sd = new AuditChange(header, input.getMapWhat(), event, dateWhen);
+            try {
+                log.info(om.writeValueAsString(sd));
+            } catch (JsonProcessingException e) {
+
+                log.error(e.getMessage());
+            }
+            IAuditChange change = searchService.createSearchableChange(sd);
             if (change != null) {
                 searchKey = change.getSearchKey();
             }
@@ -437,7 +445,7 @@ public class AuditService {
                 searchService.delete(auditHeader, searchKey);
 
                 // Rebuild the search record
-                IAuditChange change = searchService.createSearchableChange(new SearchDocumentBean(auditHeader, new DateTime(newLastChange.getWhen()), newLastChange.getJsonWhat(), newLastChange.getName()));
+                IAuditChange change = searchService.createSearchableChange(new AuditChange(auditHeader, newLastChange.getWhat(), newLastChange.getName(), new DateTime(newLastChange.getWhen())));
                 if (change != null) {
                     // When accumulating the searchkey is against the logs
                     newLastChange.setSearchKey(change.getSearchKey());
@@ -445,7 +453,7 @@ public class AuditService {
                 }
             } else {
                 // Update against the Audit Header only by reindexing the search document
-                SearchDocumentBean sd = new SearchDocumentBean(auditHeader, new DateTime(newLastChange.getWhen()), newLastChange.getWhat(), newLastChange.getEvent());
+                IAuditChange sd = new AuditChange(auditHeader, newLastChange.getWhat(), newLastChange.getEvent(), new DateTime(newLastChange.getWhen()));
                 searchService.updateSearchableChange(sd);
 
             }

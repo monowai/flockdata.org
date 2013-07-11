@@ -19,8 +19,6 @@
 
 package com.auditbucket.audit.model;
 
-import com.sun.istack.internal.Nullable;
-
 /**
  * User: Mike Holdsworth
  * Date: 26/04/13
@@ -68,6 +66,6 @@ public interface IAuditSearchDao {
      * @param header           IAuditHeader that the change belongs to
      * @param existingIndexKey searchKey for the header to remove. if NULL, defaults to header.getSearchKey()
      */
-    void delete(IAuditHeader header, @Nullable String existingIndexKey);
+    void delete(IAuditHeader header, String existingIndexKey);
 
 }

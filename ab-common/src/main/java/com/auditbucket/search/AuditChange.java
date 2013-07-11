@@ -26,7 +26,6 @@ import com.auditbucket.registration.model.IFortress;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTime;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,10 +41,11 @@ public class AuditChange implements IAuditChange {
     private String id;
     private String documentType;
     private Map<String, Object> what;
-    private Date when;
+    private Long when;
     private String fortressName;
     private String companyName;
     private String who;
+    private String event;
     private String auditKey;
     private Map<String, Object> tagValues = new HashMap<String, Object>();
     private Long version;
@@ -64,6 +64,7 @@ public class AuditChange implements IAuditChange {
         setFortress(header.getFortress());
         this.indexName = header.getIndexName();
         this.searchKey = header.getSearchKey();
+        this.who = header.getLastUser().getName();
         if (header.getTagValues() != null)
             for (ITagValue tagValue : header.getTagValues()) {
                 tagValues.put(tagValue.getTag().getName(), tagValue.getTagValue());
@@ -73,19 +74,14 @@ public class AuditChange implements IAuditChange {
     public AuditChange() {
     }
 
-    public AuditChange(SearchDocumentBean documentBean) {
-        this(documentBean.getAuditHeader());
-        //this.name = documentBean.getEvent();
-        this.what = documentBean.getWhat();
-        setWho(documentBean.getAuditHeader().getLastUser().getName());
-        DateTime dateWhen = documentBean.getDateTime();
-        if (dateWhen != null)
-            setWhen(dateWhen.toDate());
-
+    public AuditChange(IAuditHeader header, Map<String, Object> mapWhat, String event, DateTime when) {
+        this(header);
+        this.what = mapWhat;
+        this.event = event;
+        setWhen(when);
     }
 
     @Override
-    @JsonIgnore
     public Map<String, Object> getWhat() {
         return what;
     }
@@ -97,7 +93,6 @@ public class AuditChange implements IAuditChange {
 
     private String searchKey;
 
-    @JsonIgnore
     public void setSearchKey(String searchKey) {
         this.searchKey = searchKey;
     }
@@ -105,7 +100,6 @@ public class AuditChange implements IAuditChange {
     public String getSearchKey() {
         return searchKey;
     }
-
 
     private void setFortress(IFortress fortress) {
         this.setFortressName(fortress.getName());
@@ -118,18 +112,17 @@ public class AuditChange implements IAuditChange {
         return this.who;
     }
 
-
-    public Date getWhen() {
+    public Long getWhen() {
         return when;
     }
 
-    @Override
-    public void setVersion(long version) {
-        this.version = version;
+    public String getEvent() {
+        return event;
     }
 
-    public void setWhen(Date when) {
-        this.when = when;
+    public void setWhen(DateTime when) {
+        if (when != null)
+            this.when = when.getMillis();
     }
 
     @Override
@@ -141,7 +134,6 @@ public class AuditChange implements IAuditChange {
         return fortressName;
     }
 
-    @JsonIgnore
     public String getIndexName() {
         return indexName;
     }
@@ -157,11 +149,6 @@ public class AuditChange implements IAuditChange {
 
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
-    }
-
-    @JsonIgnore
-    public Long getVersion() {
-        return version;
     }
 
     public String getDocumentType() {

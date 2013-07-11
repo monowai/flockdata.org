@@ -194,15 +194,15 @@ public class AuditHeader implements IAuditHeader {
     /**
      * @return Date created in the fortress
      */
-    public Date getFortressDate() {
-        return new Date(fortressDate);
+    public Long getFortressDate() {
+        return fortressDate;
     }
 
     /**
      * @return date created in AuditBucket
      */
-    public Date getDateCreated() {
-        return new Date(dateCreated);
+    public Long getDateCreated() {
+        return dateCreated;
     }
 
     @Override
@@ -242,6 +242,7 @@ public class AuditHeader implements IAuditHeader {
         return this.callerRef;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
+    @JsonIgnore
     public Set<ITagValue> getTagValues() {
         return tagValues;
     }

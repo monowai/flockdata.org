@@ -31,10 +31,6 @@
     </appender>
 
     <!-- 3rdparty Loggers -->
-    <logger name="org.springframework">
-        <level value="error"/>
-    </logger>
-
     <logger name="org.elasticsearch">
         <level value="info"/>
     </logger>
@@ -58,9 +54,17 @@
     <logger name="org.auditbucket">
         <level value="debug"/>
     </logger>
+    <logger name="org.springframework">
+        <level value="error"/>
+    </logger>
+
+
+    <logger name="org.springframework.integration">
+        <level value="debug"/>
+    </logger>
 
     <logger name="org.springframework.data">
-        <level value="debug"/>
+        <level value="info"/>
     </logger>
 
     <!-- Root Logger -->

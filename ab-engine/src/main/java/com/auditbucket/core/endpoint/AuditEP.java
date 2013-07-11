@@ -31,9 +31,6 @@ import com.auditbucket.registration.model.IFortress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.integration.annotation.MessageEndpoint;
-import org.springframework.integration.annotation.ServiceActivator;
-import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -47,9 +44,9 @@ import java.util.Set;
  * Date: 1/05/13
  * Time: 8:23 PM
  */
-@Controller
-@RequestMapping("/")
-@MessageEndpoint
+//@Controller
+//@RequestMapping("/")
+//@MessageEndpoint
 public class AuditEP {
     @Autowired
     AuditService auditService;
@@ -70,7 +67,7 @@ public class AuditEP {
     @RequestMapping(value = "/header/new", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @ResponseBody
-    @ServiceActivator(inputChannel = "audit", outputChannel = "auditOutput")
+    //@ServiceActivator(inputChannel = "audit", outputChannel = "auditOutput")
     public ResponseEntity<AuditHeaderInputBean> createHeader(@RequestBody AuditHeaderInputBean input) throws Exception {
         // curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab/audit/header/new/ -d '"fortress":"MyFortressName", "fortressUser": "yoursystemuser", "documentType":"Company","when":"2012-11-10"}'
         try {
@@ -89,7 +86,7 @@ public class AuditEP {
     @RequestMapping(value = "/log/new", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @ResponseBody
-    @ServiceActivator(inputChannel = "auditLog", outputChannel = "auditOutput")
+    //@ServiceActivator(inputChannel = "auditLog", outputChannel = "auditOutput")
     public ResponseEntity<AuditLogInputBean> createLog(@RequestBody AuditLogInputBean input) throws Exception {
         // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/audit/log/new -d '{"eventType":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10", "what": "{\"name\": \"val\"}" }'
         try {

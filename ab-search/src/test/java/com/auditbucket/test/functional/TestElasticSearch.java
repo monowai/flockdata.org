@@ -27,6 +27,7 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.node.Node;
+import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -39,7 +40,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -82,7 +82,7 @@ public class TestElasticSearch {
         AuditChange auditChange = new AuditChange();
 //
         //auditChange.setName("Create");
-        auditChange.setWhen(new Date());
+        auditChange.setWhen(new DateTime());
 //// What changed?
         ObjectMapper om = new ObjectMapper();
         Map<String, Object> name = new HashMap<String, Object>();
@@ -143,8 +143,7 @@ public class TestElasticSearch {
         IAuditChange auditChange = new AuditChange();
         String auditKey = "auditHeader.getAuditKey()";
 
-        auditChange.setWhen(new Date());
-        auditChange.setVersion(System.currentTimeMillis());
+        auditChange.setWhen(new DateTime());
         ObjectMapper om = new ObjectMapper();
 
         Map<String, Object> node = new HashMap<String, Object>();

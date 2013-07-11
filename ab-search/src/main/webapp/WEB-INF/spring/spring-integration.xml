@@ -30,23 +30,28 @@
 		http://www.springframework.org/schema/integration/http
 		http://www.springframework.org/schema/integration/http/spring-integration-http.xsd">
 
-    <int-http:inbound-gateway request-channel="esMake"
-                              name="/esMake"
-                              supported-methods="POST"/>
-
-    <int-http:inbound-gateway request-channel="esUpdate"
-                              name="/esUpdate"
-                              supported-methods="POST"/>
-
-    <int-http:inbound-gateway request-channel="esDelete"
-                              name="/esDelete"
-                              supported-methods="POST"/>
-
     <int:annotation-config/>
+    <beans:bean class="org.springframework.integration.http.inbound.UriPathHandlerMapping"/>
 
-    <int:channel id="esMake"/>
-    <int:channel id="esUpdate"/>
-    <int:channel id="esDelete"/>
+    <int-http:inbound-gateway request-channel="esMake"
+                              path="/api/esMake"
+                              request-payload-type="com.auditbucket.search.AuditChange"
+                              supported-methods="POST"/>
+
+    <!--<int-http:inbound-gateway request-channel="esUpdate"-->
+    <!--path="/api/esUpdate"-->
+    <!--request-payload-type="com.auditbucket.search.AuditChange"-->
+    <!--supported-methods="POST"/>-->
+
+    <!--<int-http:inbound-gateway request-channel="esDelete"-->
+    <!--name="/esDelete"-->
+    <!--supported-methods="POST"/>-->
+    <int:json-to-object-transformer input-channel="esMake" type="com.auditbucket.search.AuditChange"/>
+
+
+    <int:channel id="esMake" datatype="com.auditbucket.search.AuditChange"/>
+    <!--<int:channel id="esUpdate" datatype="com.auditbucket.search.AuditChange"/>-->
+    <!--<int:channel id="esDelete"/>-->
 
 
     <int:channel id="searchOutput">

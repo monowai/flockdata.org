@@ -28,25 +28,37 @@
        http://www.springframework.org/schema/integration/spring-integration.xsd http://www.springframework.org/schema/integration/http
 	   http://www.springframework.org/schema/integration/http/spring-integration-http.xsd">
 
-
+    <int:annotation-config/>
     <int:gateway id="searchGateway"
                  service-interface="com.auditbucket.core.service.AuditSearchService"
-
+                 default-reply-channel="searchOutput"
                  default-request-channel="searchMake"/>
 
     <int-http:outbound-gateway request-channel="searchMake"
-                               url="http://localhost:8080/abs/esMake"
-                               http-method="POST"/>
+                               url="http://localhost:8081/abs/esMake"
+                               extract-request-payload="true"
+                               expected-response-type="com.auditbucket.audit.model.IAuditChange"/>
 
-    <int:channel id="audit"/>
-    <int:channel id="auditLog"/>
-    <int:channel id="auditOutput">
-        <int:queue capacity="10"/>
-    </int:channel>
+    <int-http:outbound-gateway request-channel="searchUpdate"
+                               url="http://localhost:8081/abs/esUpdate"
+                               extract-request-payload="true"
+                               expected-response-type="com.auditbucket.audit.model.IAuditChange"/>
 
+    <bean id="jsonConverter"
+          class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+        <property name="supportedMediaTypes" value="application/json"/>
+    </bean>
+
+    <int:object-to-json-transformer id="oToJson" input-channel="searchMake" output-channel="searchMake"/>
 
     <int:channel id="searchMake"/>
-    <int:channel id="searchDelete"/>
+    <!--<int:channel id="audit"/>-->
+    <!--<int:channel id="auditLog"/>-->
+    <!--<int:channel id="auditOutput">-->
+    <!--<int:queue capacity="10"/>-->
+    <!--</int:channel>-->
+
+    <!--<int:channel id="searchDelete"/>-->
     <int:channel id="searchUpdate"/>
     <int:channel id="searchOutput">
         <int:queue capacity="10"/>

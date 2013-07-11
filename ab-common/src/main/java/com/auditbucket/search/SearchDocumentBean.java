@@ -32,29 +32,29 @@ import java.util.Map;
  * Time: 6:28 AM
  */
 public class SearchDocumentBean {
-    private IAuditHeader auditHeader;
-    private DateTime dateTime;
+    //private IAuditHeader auditHeader;
+    private Long dateTime;
     private Map<String, Object> what;
     private String event;
     private static final ObjectMapper om = new ObjectMapper();
+
+    public SearchDocumentBean() {
+    }
 
     public SearchDocumentBean(IAuditHeader auditHeader, DateTime dateTime, String what, String event) throws IOException {
         this(auditHeader, dateTime, om.readValue(what, Map.class), event);
     }
 
     public SearchDocumentBean(IAuditHeader auditHeader, DateTime dateTime, Map<String, Object> what, String event) {
-        this.auditHeader = auditHeader;
-        this.dateTime = dateTime;
+        //this.auditHeader = auditHeader;
+        this.dateTime = dateTime.getMillis();
         this.event = event;
         this.what = what;
 
     }
 
-    public IAuditHeader getAuditHeader() {
-        return auditHeader;
-    }
 
-    public DateTime getDateTime() {
+    public Long getDateTime() {
         return dateTime;
     }
 

@@ -36,17 +36,26 @@
     </listener>
 
     <!--Registration service handler-->
+    <!--<servlet>-->
+    <!--<servlet-name>searchDispatcher</servlet-name>-->
+    <!--<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>-->
+    <!--<load-on-startup>2</load-on-startup>-->
+    <!--</servlet>-->
+
+    <!--<servlet-mapping>-->
+    <!--<servlet-name>searchDispatcher</servlet-name>-->
+    <!--<url-pattern>/abs/*</url-pattern>-->
+    <!--</servlet-mapping>-->
     <servlet>
-        <servlet-name>searchDispatcher</servlet-name>
+        <servlet-name>apiDispatcher</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <load-on-startup>2</load-on-startup>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>searchDispatcher</servlet-name>
-        <url-pattern>/abs/*</url-pattern>
+        <servlet-name>apiDispatcher</servlet-name>
+        <url-pattern>/*</url-pattern>
     </servlet-mapping>
-
 
     <!-- Spring Security -->
     <filter>

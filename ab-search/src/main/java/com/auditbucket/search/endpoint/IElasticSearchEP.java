@@ -34,9 +34,9 @@ public interface IElasticSearchEP {
     @Gateway(requestChannel = "esMake", replyChannel = "searchOutput")
     public IAuditChange createSearchableChange(@Payload IAuditChange thisChange);
 
-    @Gateway(requestChannel = "esUpdate", replyChannel = "searchOutput")
+    //@Gateway(requestChannel = "esUpdate", replyChannel = "searchOutput")
     public IAuditChange updateSearchableChange(@Payload IAuditChange thisChange);
 
-    @Gateway(requestChannel = "esDelete")
+    //@Gateway(requestChannel = "esDelete")
     public void delete(@Payload IAuditHeader auditHeader);
 }

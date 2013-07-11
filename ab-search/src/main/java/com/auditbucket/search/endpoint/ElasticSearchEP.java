@@ -19,6 +19,7 @@
 
 package com.auditbucket.search.endpoint;
 
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -30,11 +31,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * Time: 10:03 AM
  */
 @RequestMapping("/")
+@Controller
 public class ElasticSearchEP {
     @RequestMapping(value = "/ping", method = RequestMethod.GET)
     @ResponseBody
     String ping() throws Exception {
-        // curl -u mike:123 -X GET http://localhost:8080/ab/audit/ping
+        // curl -u mike:123 -X GET http://localhost:8080/abs/ping
         return "Ping!";
     }
 

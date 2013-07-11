@@ -21,7 +21,6 @@ package com.auditbucket.core.service;
 
 import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
-import com.auditbucket.search.SearchDocumentBean;
 import org.springframework.integration.annotation.Gateway;
 
 /**
@@ -30,13 +29,12 @@ import org.springframework.integration.annotation.Gateway;
  * Date: 6/07/13
  * Time: 2:31 PM
  */
-
 public interface AuditSearchService {
     @Gateway(requestChannel = "searchMake")
-    public IAuditChange createSearchableChange(SearchDocumentBean searchDocumentBean);
+    public IAuditChange createSearchableChange(IAuditChange searchDocumentBean);
 
     @Gateway(requestChannel = "searchUpdate")
-    public void updateSearchableChange(SearchDocumentBean sd);
+    public void updateSearchableChange(IAuditChange sd);
 
     public void delete(IAuditHeader auditHeader, String searchKey);
 
