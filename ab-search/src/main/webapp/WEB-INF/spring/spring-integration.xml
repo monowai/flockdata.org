@@ -35,22 +35,24 @@
 
     <int-http:inbound-gateway request-channel="esMake"
                               path="/api/esMake"
+                              reply-channel="searchOutput"
                               request-payload-type="com.auditbucket.search.AuditChange"
                               supported-methods="POST"/>
 
-    <!--<int-http:inbound-gateway request-channel="esUpdate"-->
-    <!--path="/api/esUpdate"-->
-    <!--request-payload-type="com.auditbucket.search.AuditChange"-->
-    <!--supported-methods="POST"/>-->
+    <int-http:inbound-gateway request-channel="esUpdate"
+                              path="/api/esUpdate"
+                              request-payload-type="com.auditbucket.search.AuditChange"
+                              reply-channel="searchOutput"
+                              supported-methods="POST"/>
 
     <!--<int-http:inbound-gateway request-channel="esDelete"-->
     <!--name="/esDelete"-->
     <!--supported-methods="POST"/>-->
     <int:json-to-object-transformer input-channel="esMake" type="com.auditbucket.search.AuditChange"/>
-
+    <int:json-to-object-transformer input-channel="esUpdate" type="com.auditbucket.search.AuditChange"/>
 
     <int:channel id="esMake" datatype="com.auditbucket.search.AuditChange"/>
-    <!--<int:channel id="esUpdate" datatype="com.auditbucket.search.AuditChange"/>-->
+    <int:channel id="esUpdate" datatype="com.auditbucket.search.AuditChange"/>
     <!--<int:channel id="esDelete"/>-->
 
 

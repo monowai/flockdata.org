@@ -58,7 +58,7 @@ public class AbSearchService implements IElasticSearchEP {
     }
 
     @Transactional
-    //@ServiceActivator(inputChannel = "esUpdate", outputChannel = "searchOutput")
+    @ServiceActivator(inputChannel = "esUpdate", outputChannel = "searchOutput")
     public IAuditChange updateSearchableChange(IAuditChange thisChange) {
         if (thisChange.getSearchKey() != null) {
             auditSearch.update(thisChange);

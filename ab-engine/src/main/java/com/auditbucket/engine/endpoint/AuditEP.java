@@ -31,6 +31,8 @@ import com.auditbucket.registration.model.IFortress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.integration.annotation.MessageEndpoint;
+import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -44,9 +46,9 @@ import java.util.Set;
  * Date: 1/05/13
  * Time: 8:23 PM
  */
-//@Controller
-//@RequestMapping("/")
-//@MessageEndpoint
+@Controller
+@RequestMapping("/")
+@MessageEndpoint
 public class AuditEP {
     @Autowired
     AuditService auditService;
