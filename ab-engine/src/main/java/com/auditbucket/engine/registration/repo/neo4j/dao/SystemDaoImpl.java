@@ -17,26 +17,32 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.test.functional;
+package com.auditbucket.engine.registration.repo.neo4j.dao;
 
-import com.auditbucket.engine.registration.bean.FortressInputBean;
-import com.auditbucket.engine.registration.repo.neo4j.model.Company;
-import com.auditbucket.engine.registration.repo.neo4j.model.Fortress;
-import com.auditbucket.engine.service.GitHandler;
-import com.auditbucket.registration.model.IFortress;
+import com.auditbucket.engine.registration.dao.SystemDaoI;
+import com.auditbucket.engine.registration.repo.neo4j.SystemRepository;
+import com.auditbucket.engine.registration.repo.neo4j.model.SystemId;
+import com.auditbucket.registration.model.ISystem;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 /**
- * Created with IntelliJ IDEA.
  * User: Mike Holdsworth
- * Date: 13/04/13
- * Time: 3:56 PM
- * To change this template use File | Settings | File Templates.
+ * Date: 26/06/13
+ * Time: 8:33 PM
  */
-public class TestGitHub {
-    public void testConnect() {
-        GitHandler gh = new GitHandler();
-        IFortress fortress = new Fortress(new FortressInputBean("monowai"), new Company("Monowai Dev"));
-        gh.initHandler(fortress);
-        gh.deleteRepo(fortress);
+@Repository
+public class SystemDaoImpl implements SystemDaoI {
+
+    @Autowired
+    SystemRepository sysRepo;
+
+    public ISystem save(ISystem system) {
+        return sysRepo.save((SystemId) system);
+    }
+
+    @Override
+    public ISystem findOne(String name) {
+        return null;
     }
 }

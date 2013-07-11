@@ -30,7 +30,7 @@
 
     <int:annotation-config/>
     <int:gateway id="searchGateway"
-                 service-interface="com.auditbucket.core.service.AuditSearchService"
+                 service-interface="com.auditbucket.engine.service.AuditSearchService"
                  default-reply-channel="searchOutput"
                  default-request-channel="searchMake"/>
 
@@ -52,17 +52,17 @@
     <int:object-to-json-transformer id="oToJson" input-channel="searchMake" output-channel="searchMake"/>
 
     <int:channel id="searchMake"/>
-    <!--<int:channel id="audit"/>-->
-    <!--<int:channel id="auditLog"/>-->
-    <!--<int:channel id="auditOutput">-->
-    <!--<int:queue capacity="10"/>-->
-    <!--</int:channel>-->
-
     <!--<int:channel id="searchDelete"/>-->
     <int:channel id="searchUpdate"/>
     <int:channel id="searchOutput">
         <int:queue capacity="10"/>
     </int:channel>
+
+    <!--<int:channel id="audit"/>-->
+    <!--<int:channel id="auditLog"/>-->
+    <!--<int:channel id="auditOutput">-->
+    <!--<int:queue capacity="10"/>-->
+    <!--</int:channel>-->
 
 
 </beans>

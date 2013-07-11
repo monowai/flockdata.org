@@ -19,11 +19,11 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.core.registration.bean.RegistrationBean;
-import com.auditbucket.core.registration.bean.TagInputBean;
-import com.auditbucket.core.registration.service.FortressService;
-import com.auditbucket.core.registration.service.RegistrationService;
-import com.auditbucket.core.registration.service.TagService;
+import com.auditbucket.engine.registration.bean.RegistrationBean;
+import com.auditbucket.engine.registration.bean.TagInputBean;
+import com.auditbucket.engine.registration.service.FortressService;
+import com.auditbucket.engine.registration.service.RegistrationService;
+import com.auditbucket.engine.registration.service.TagService;
 import com.auditbucket.registration.model.ICompany;
 import com.auditbucket.registration.model.ISystemUser;
 import com.auditbucket.registration.model.ITag;

@@ -17,26 +17,26 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.test.functional;
+package com.auditbucket.engine.endpoint;
 
-import com.auditbucket.engine.registration.bean.FortressInputBean;
-import com.auditbucket.engine.registration.repo.neo4j.model.Company;
-import com.auditbucket.engine.registration.repo.neo4j.model.Fortress;
-import com.auditbucket.engine.service.GitHandler;
-import com.auditbucket.registration.model.IFortress;
+import com.auditbucket.audit.model.IAuditChange;
+import com.auditbucket.audit.model.IAuditHeader;
+import org.springframework.integration.annotation.Gateway;
+import org.springframework.integration.annotation.Payload;
 
 /**
- * Created with IntelliJ IDEA.
  * User: Mike Holdsworth
- * Date: 13/04/13
- * Time: 3:56 PM
- * To change this template use File | Settings | File Templates.
+ * Date: 7/07/13
+ * Time: 8:54 AM
  */
-public class TestGitHub {
-    public void testConnect() {
-        GitHandler gh = new GitHandler();
-        IFortress fortress = new Fortress(new FortressInputBean("monowai"), new Company("Monowai Dev"));
-        gh.initHandler(fortress);
-        gh.deleteRepo(fortress);
-    }
+public interface AuditSearchGateway {
+
+    @Gateway(requestChannel = "searchMake", replyChannel = "searchOutput")
+    public IAuditChange createSearchableChange(@Payload IAuditChange thisChange);
+
+    @Gateway(requestChannel = "searchUpdate", replyChannel = "searchOutput")
+    public IAuditChange updateSearchableChange(@Payload IAuditChange thisChange);
+
+    @Gateway(requestChannel = "searchDelete")
+    public void delete(@Payload IAuditHeader auditHeader);
 }

@@ -38,8 +38,8 @@ http://www.springframework.org/schema/tx/spring-tx.xsd">
     <context:spring-configured/>
 
     <!-- Controllers etc to look for -->
-    <neo4j:repositories base-package="com.auditbucket.core.registration.repo.neo4j"/>
-    <neo4j:repositories base-package="com.auditbucket.core.repo.neo4j"/>
+    <neo4j:repositories base-package="com.auditbucket.engine.registration.repo.neo4j"/>
+    <neo4j:repositories base-package="com.auditbucket.engine.repo.neo4j"/>
 
     <!--ToDo: Transaction Management -->
     <tx:annotation-driven mode="proxy"/>

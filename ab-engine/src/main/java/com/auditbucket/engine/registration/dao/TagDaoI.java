@@ -17,26 +17,22 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.test.functional;
+package com.auditbucket.engine.registration.dao;
 
-import com.auditbucket.engine.registration.bean.FortressInputBean;
-import com.auditbucket.engine.registration.repo.neo4j.model.Company;
-import com.auditbucket.engine.registration.repo.neo4j.model.Fortress;
-import com.auditbucket.engine.service.GitHandler;
-import com.auditbucket.registration.model.IFortress;
+import com.auditbucket.audit.model.IDocumentType;
+import com.auditbucket.registration.model.ICompany;
+import com.auditbucket.registration.model.ITag;
 
 /**
- * Created with IntelliJ IDEA.
  * User: Mike Holdsworth
- * Date: 13/04/13
- * Time: 3:56 PM
- * To change this template use File | Settings | File Templates.
+ * Date: 26/06/13
+ * Time: 8:12 PM
  */
-public class TestGitHub {
-    public void testConnect() {
-        GitHandler gh = new GitHandler();
-        IFortress fortress = new Fortress(new FortressInputBean("monowai"), new Company("Monowai Dev"));
-        gh.initHandler(fortress);
-        gh.deleteRepo(fortress);
-    }
+public interface TagDaoI {
+    ITag save(ITag tag);
+
+    ITag findOne(String tagName, Long id);
+
+    IDocumentType findOrCreate(String documentType, ICompany company);
+
 }

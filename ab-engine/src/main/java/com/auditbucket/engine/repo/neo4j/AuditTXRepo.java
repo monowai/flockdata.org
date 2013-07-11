@@ -17,26 +17,20 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.test.functional;
+package com.auditbucket.engine.repo.neo4j;
 
-import com.auditbucket.engine.registration.bean.FortressInputBean;
-import com.auditbucket.engine.registration.repo.neo4j.model.Company;
-import com.auditbucket.engine.registration.repo.neo4j.model.Fortress;
-import com.auditbucket.engine.service.GitHandler;
-import com.auditbucket.registration.model.IFortress;
+import com.auditbucket.audit.model.ITxRef;
+import com.auditbucket.engine.repo.neo4j.model.TxRef;
+import org.springframework.data.neo4j.annotation.Query;
+import org.springframework.data.neo4j.repository.GraphRepository;
 
 /**
- * Created with IntelliJ IDEA.
  * User: Mike Holdsworth
- * Date: 13/04/13
- * Time: 3:56 PM
- * To change this template use File | Settings | File Templates.
+ * Date: 14/06/13
+ * Time: 10:12 AM
  */
-public class TestGitHub {
-    public void testConnect() {
-        GitHandler gh = new GitHandler();
-        IFortress fortress = new Fortress(new FortressInputBean("monowai"), new Company("Monowai Dev"));
-        gh.initHandler(fortress);
-        gh.deleteRepo(fortress);
-    }
+public interface AuditTXRepo extends GraphRepository<AuditTXRepo> {
+    @Query(elementClass = TxRef.class, value = "start header=node({0}) match header<-[cw:changed|created]-byUser return cw")
+    ITxRef getTxRef(Long auditHeaderID);
+
 }

@@ -17,26 +17,22 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.test.functional;
+package com.auditbucket.engine.repo.neo4j;
 
-import com.auditbucket.engine.registration.bean.FortressInputBean;
-import com.auditbucket.engine.registration.repo.neo4j.model.Company;
-import com.auditbucket.engine.registration.repo.neo4j.model.Fortress;
-import com.auditbucket.engine.service.GitHandler;
-import com.auditbucket.registration.model.IFortress;
+import com.auditbucket.engine.repo.neo4j.model.DocumentType;
+import org.springframework.data.neo4j.annotation.Query;
+import org.springframework.data.neo4j.repository.GraphRepository;
 
 /**
- * Created with IntelliJ IDEA.
  * User: Mike Holdsworth
- * Date: 13/04/13
- * Time: 3:56 PM
- * To change this template use File | Settings | File Templates.
+ * Date: 30/06/13
+ * Time: 10:20 AM
  */
-public class TestGitHub {
-    public void testConnect() {
-        GitHandler gh = new GitHandler();
-        IFortress fortress = new Fortress(new FortressInputBean("monowai"), new Company("Monowai Dev"));
-        gh.initHandler(fortress);
-        gh.deleteRepo(fortress);
-    }
+public interface DocumentTypeRepo extends GraphRepository<DocumentType> {
+    @Query(elementClass = DocumentType.class, value = "start n=node({0}) " +
+            "   MATCH n-[:documents]->documentType " +
+            "   where documentType.name ={1} " +
+            "  return documentType")
+    DocumentType findCompanyDocType(Long companyId, String tagName);
+
 }

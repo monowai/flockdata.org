@@ -17,26 +17,23 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.test.functional;
+package com.auditbucket.engine.registration.repo.neo4j;
 
-import com.auditbucket.engine.registration.bean.FortressInputBean;
-import com.auditbucket.engine.registration.repo.neo4j.model.Company;
 import com.auditbucket.engine.registration.repo.neo4j.model.Fortress;
-import com.auditbucket.engine.service.GitHandler;
+import com.auditbucket.engine.registration.repo.neo4j.model.FortressUser;
 import com.auditbucket.registration.model.IFortress;
+import org.springframework.data.neo4j.annotation.Query;
+import org.springframework.data.neo4j.repository.GraphRepository;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Mike Holdsworth
- * Date: 13/04/13
- * Time: 3:56 PM
- * To change this template use File | Settings | File Templates.
- */
-public class TestGitHub {
-    public void testConnect() {
-        GitHandler gh = new GitHandler();
-        IFortress fortress = new Fortress(new FortressInputBean("monowai"), new Company("Monowai Dev"));
-        gh.initHandler(fortress);
-        gh.deleteRepo(fortress);
-    }
+import java.util.List;
+
+
+public interface FortressRepository extends GraphRepository<Fortress> {
+
+    @Query(value = "start fortress=node({0}) match fortress-[:fortressUser]->fu where fu.name = {1} return fu")
+    FortressUser getFortressUser(Long fortressId, String userName);
+
+    @Query(elementClass = Fortress.class, value = "start company=node({0}) match company-[:owns]->f return f")
+    List<IFortress> findCompanyFortresses(Long companyID);
+
 }
