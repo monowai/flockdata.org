@@ -21,8 +21,8 @@ package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.ITagValue;
-import com.auditbucket.engine.registration.repo.neo4j.model.Tag;
 import com.auditbucket.registration.model.ITag;
+import com.auditbucket.registration.repo.neo4j.model.Tag;
 import org.springframework.data.neo4j.annotation.*;
 
 /**

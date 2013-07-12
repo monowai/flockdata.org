@@ -21,8 +21,8 @@ package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.ITxRef;
-import com.auditbucket.engine.registration.repo.neo4j.model.Company;
 import com.auditbucket.registration.model.ICompany;
+import com.auditbucket.registration.repo.neo4j.model.Company;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.validator.constraints.NotBlank;
 import org.joda.time.DateTime;

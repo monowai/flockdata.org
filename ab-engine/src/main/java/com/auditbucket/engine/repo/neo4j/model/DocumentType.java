@@ -20,8 +20,8 @@
 package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.audit.model.IDocumentType;
-import com.auditbucket.engine.registration.repo.neo4j.model.Company;
 import com.auditbucket.registration.model.ICompany;
+import com.auditbucket.registration.repo.neo4j.model.Company;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;

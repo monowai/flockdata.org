@@ -23,11 +23,11 @@ import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.ITagValue;
 import com.auditbucket.bean.AuditTagInputBean;
 import com.auditbucket.dao.IAuditTagDao;
-import com.auditbucket.engine.registration.bean.TagInputBean;
-import com.auditbucket.engine.registration.service.TagService;
 import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.ICompany;
 import com.auditbucket.registration.model.ITag;
+import com.auditbucket.registration.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

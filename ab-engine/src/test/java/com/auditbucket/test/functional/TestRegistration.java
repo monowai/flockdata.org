@@ -19,16 +19,16 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.engine.registration.bean.FortressInputBean;
-import com.auditbucket.engine.registration.bean.RegistrationBean;
-import com.auditbucket.engine.registration.repo.neo4j.model.Company;
-import com.auditbucket.engine.registration.repo.neo4j.model.CompanyUser;
-import com.auditbucket.engine.registration.repo.neo4j.model.Fortress;
-import com.auditbucket.engine.registration.service.CompanyService;
-import com.auditbucket.engine.registration.service.FortressService;
-import com.auditbucket.engine.registration.service.RegistrationService;
-import com.auditbucket.engine.registration.service.SystemUserService;
+import com.auditbucket.registration.bean.FortressInputBean;
+import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.*;
+import com.auditbucket.registration.repo.neo4j.model.Company;
+import com.auditbucket.registration.repo.neo4j.model.CompanyUser;
+import com.auditbucket.registration.repo.neo4j.model.Fortress;
+import com.auditbucket.registration.service.CompanyService;
+import com.auditbucket.registration.service.FortressService;
+import com.auditbucket.registration.service.RegistrationService;
+import com.auditbucket.registration.service.SystemUserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.neo4j.graphdb.PropertyContainer;

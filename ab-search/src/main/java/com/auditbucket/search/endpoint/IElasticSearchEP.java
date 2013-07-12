@@ -19,8 +19,9 @@
 
 package com.auditbucket.search.endpoint;
 
-import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
+import com.auditbucket.search.AuditChange;
+import com.auditbucket.search.SearchResult;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.Payload;
 import org.springframework.stereotype.Component;
@@ -31,11 +32,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public interface IElasticSearchEP {
-    @Gateway(requestChannel = "esMake", replyChannel = "searchOutput")
-    public IAuditChange createSearchableChange(@Payload IAuditChange thisChange);
-
-    //@Gateway(requestChannel = "esUpdate", replyChannel = "searchOutput")
-    public IAuditChange updateSearchableChange(@Payload IAuditChange thisChange);
+    @Gateway(requestChannel = "searchRequest", replyChannel = "searchReply")
+    public SearchResult createSearchableChange(AuditChange thisChange);
 
     //@Gateway(requestChannel = "esDelete")
     public void delete(@Payload IAuditHeader auditHeader);

@@ -24,6 +24,7 @@ import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.ITagValue;
 import com.auditbucket.registration.model.IFortress;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.joda.time.DateTime;
 
 import java.util.HashMap;
@@ -134,6 +135,7 @@ public class AuditChange implements IAuditChange {
         return fortressName;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getIndexName() {
         return indexName;
     }

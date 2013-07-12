@@ -24,10 +24,10 @@ import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.audit.model.ITxRef;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
-import com.auditbucket.engine.registration.service.CompanyService;
-import com.auditbucket.engine.registration.service.FortressService;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.registration.model.IFortress;
+import com.auditbucket.registration.service.CompanyService;
+import com.auditbucket.registration.service.FortressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -80,7 +80,7 @@ public class AuditEP {
             input.setLastMessage(e.getMessage());
             return new ResponseEntity<AuditHeaderInputBean>(input, HttpStatus.BAD_REQUEST);
         } catch (SecurityException e) {
-            input.setLastMessage(e.getMessage());
+            input.setLastMessage("Forbidden Request " + e.getMessage());
             return new ResponseEntity<AuditHeaderInputBean>(input, HttpStatus.FORBIDDEN);
         }
     }

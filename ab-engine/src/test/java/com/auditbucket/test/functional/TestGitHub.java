@@ -19,11 +19,11 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.engine.registration.bean.FortressInputBean;
-import com.auditbucket.engine.registration.repo.neo4j.model.Company;
-import com.auditbucket.engine.registration.repo.neo4j.model.Fortress;
 import com.auditbucket.engine.service.GitHandler;
+import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.IFortress;
+import com.auditbucket.registration.repo.neo4j.model.Company;
+import com.auditbucket.registration.repo.neo4j.model.Fortress;
 
 /**
  * Created with IntelliJ IDEA.

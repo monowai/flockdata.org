@@ -19,14 +19,14 @@
 
 package com.auditbucket.search.service;
 
-import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditSearchDao;
 import com.auditbucket.dao.IAuditQueryDao;
+import com.auditbucket.search.AuditChange;
+import com.auditbucket.search.SearchResult;
 import com.auditbucket.search.endpoint.IElasticSearchEP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.annotation.MessageEndpoint;
-import org.springframework.integration.annotation.Payload;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,28 +51,15 @@ public class AbSearchService implements IElasticSearchEP {
     }
 
     @Transactional
-    @ServiceActivator(inputChannel = "esMake", outputChannel = "searchOutput")
-    public IAuditChange createSearchableChange(@Payload IAuditChange thisChange) {
-        thisChange = auditSearch.save(thisChange);
-        return thisChange;
-    }
-
-    @Transactional
-    @ServiceActivator(inputChannel = "esUpdate", outputChannel = "searchOutput")
-    public IAuditChange updateSearchableChange(IAuditChange thisChange) {
+    @ServiceActivator(inputChannel = "searchRequest", outputChannel = "searchReply")
+    public SearchResult createSearchableChange(AuditChange thisChange) {
         if (thisChange.getSearchKey() != null) {
             auditSearch.update(thisChange);
-            return thisChange;
+            return new SearchResult(thisChange);
         } else {
-            // Why would we have a missing search document? Probably because the fortress
-            //  went from non searchable to searchable.
-            IAuditChange change = createSearchableChange(thisChange);
-            if (change != null)
-                change.setSearchKey(change.getSearchKey());
-            return change;
+            return new SearchResult(auditSearch.save(thisChange));
         }
     }
-
 
     @Transactional
     //@ServiceActivator(inputChannel = "esDelete")

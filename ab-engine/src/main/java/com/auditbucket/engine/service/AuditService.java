@@ -19,14 +19,13 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.audit.model.*;
+import com.auditbucket.audit.model.IAuditHeader;
+import com.auditbucket.audit.model.IAuditLog;
+import com.auditbucket.audit.model.IDocumentType;
+import com.auditbucket.audit.model.ITxRef;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.dao.IAuditDao;
-import com.auditbucket.engine.registration.service.CompanyService;
-import com.auditbucket.engine.registration.service.FortressService;
-import com.auditbucket.engine.registration.service.SystemUserService;
-import com.auditbucket.engine.registration.service.TagService;
 import com.auditbucket.engine.repo.neo4j.model.AuditHeader;
 import com.auditbucket.engine.repo.neo4j.model.AuditLog;
 import com.auditbucket.helper.SecurityHelper;
@@ -34,7 +33,12 @@ import com.auditbucket.registration.model.ICompany;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.model.IFortressUser;
 import com.auditbucket.registration.model.ISystemUser;
+import com.auditbucket.registration.service.CompanyService;
+import com.auditbucket.registration.service.FortressService;
+import com.auditbucket.registration.service.SystemUserService;
+import com.auditbucket.registration.service.TagService;
 import com.auditbucket.search.AuditChange;
+import com.auditbucket.search.SearchResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -294,12 +298,12 @@ public class AuditService {
             header.setLastUser(fUser);
             if (fortress.isAccumulatingChanges()) {
                 // Accumulate all changes in search engine
-                IAuditChange change = searchService.createSearchableChange(new AuditChange(header, input.getMapWhat(), event, dateWhen));
+                SearchResult change = searchService.makeChangeSearchable(new AuditChange(header, input.getMapWhat(), event, dateWhen));
                 if (change != null)
                     searchKey = change.getSearchKey();
             } else {
                 // Update search engine instead of Create
-                searchService.updateSearchableChange(new AuditChange(header, input.getMapWhat(), event, dateWhen));
+                searchService.makeChangeSearchable(new AuditChange(header, input.getMapWhat(), event, dateWhen));
             }
         } else { // first ever log for the header
             if (event == null)
@@ -312,7 +316,7 @@ public class AuditService {
 
                 log.error(e.getMessage());
             }
-            IAuditChange change = searchService.createSearchableChange(sd);
+            SearchResult change = searchService.makeChangeSearchable(sd);
             if (change != null) {
                 searchKey = change.getSearchKey();
             }
@@ -445,7 +449,7 @@ public class AuditService {
                 searchService.delete(auditHeader, searchKey);
 
                 // Rebuild the search record
-                IAuditChange change = searchService.createSearchableChange(new AuditChange(auditHeader, newLastChange.getWhat(), newLastChange.getName(), new DateTime(newLastChange.getWhen())));
+                SearchResult change = searchService.makeChangeSearchable(new AuditChange(auditHeader, newLastChange.getWhat(), newLastChange.getName(), new DateTime(newLastChange.getWhen())));
                 if (change != null) {
                     // When accumulating the searchkey is against the logs
                     newLastChange.setSearchKey(change.getSearchKey());
@@ -453,8 +457,7 @@ public class AuditService {
                 }
             } else {
                 // Update against the Audit Header only by reindexing the search document
-                IAuditChange sd = new AuditChange(auditHeader, newLastChange.getWhat(), newLastChange.getEvent(), new DateTime(newLastChange.getWhen()));
-                searchService.updateSearchableChange(sd);
+                searchService.makeChangeSearchable(new AuditChange(auditHeader, newLastChange.getWhat(), newLastChange.getEvent(), new DateTime(newLastChange.getWhen())));
 
             }
         }

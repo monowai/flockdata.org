@@ -19,6 +19,8 @@
 
 package com.auditbucket.bean;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -111,10 +113,12 @@ public class AuditHeaderInputBean {
         this.auditLog = auditLog;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public AuditLogInputBean getAuditLog() {
         return auditLog;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Map<String, String> getTagValues() {
         return tagValues;
     }

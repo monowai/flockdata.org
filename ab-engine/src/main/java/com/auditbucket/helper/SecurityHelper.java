@@ -19,9 +19,9 @@
 
 package com.auditbucket.helper;
 
-import com.auditbucket.engine.registration.service.SystemUserService;
 import com.auditbucket.registration.model.ICompany;
 import com.auditbucket.registration.model.ISystemUser;
+import com.auditbucket.registration.service.SystemUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

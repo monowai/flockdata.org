@@ -59,7 +59,7 @@
     </logger>
 
     <logger name="org.springframework">
-        <level value="error"/>
+        <level value="trace"/>
     </logger>
 
 
