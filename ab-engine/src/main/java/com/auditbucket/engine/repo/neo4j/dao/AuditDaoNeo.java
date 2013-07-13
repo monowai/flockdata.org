@@ -109,7 +109,6 @@ public class AuditDaoNeo implements IAuditDao {
     @Override
     public IAuditHeader fetch(IAuditHeader header) {
         template.fetch(header);
-        //template.fetch(header.getTxTags());
         template.fetch(header.getFortress());
         template.fetch(header.getTagValues());
 
@@ -117,7 +116,7 @@ public class AuditDaoNeo implements IAuditDao {
     }
 
     @Override
-    public ITxRef findTxTag(@NotNull @NotEmpty String userTag, @NotNull ICompany company, boolean fetchHeaders) {
+    public ITxRef findTxTag(@NotEmpty String userTag, @NotNull ICompany company, boolean fetchHeaders) {
         ITxRef txRef = auditRepo.findTxTag(userTag, company.getId());
         return txRef;
     }

@@ -102,7 +102,7 @@ public class TestElasticSearch {
             IndexResponse ir =
                     client.prepareIndex(indexKey, auditChange.getWho())
                             .setSource(om.writeValueAsString(auditChange))
-                            .setRouting(auditChange.getRoutingKey())
+                            .setRouting(auditChange.getAuditKey())
                             .execute()
                             .actionGet();
 
@@ -111,7 +111,7 @@ public class TestElasticSearch {
 
             // Retrieve from Lucene
             GetResponse response = client.prepareGet(indexKey, auditChange.getWho(), ir.getId())
-                    .setRouting(auditChange.getRoutingKey())
+                    .setRouting(auditChange.getAuditKey())
                     .execute()
                     .actionGet();
             assertNotNull(response);

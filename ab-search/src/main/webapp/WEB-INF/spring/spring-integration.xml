@@ -35,20 +35,24 @@
     <int-http:inbound-gateway request-channel="searchRequest"
                               reply-channel="searchReply"
                               path="/api/esMake"
-                              message-converters="jsonConverter"
                               request-payload-type="com.auditbucket.search.AuditChange"
                               supported-methods="POST"/>
 
-    <beans:bean id="jsonConverter"
-                class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
-        <beans:property name="supportedMediaTypes" value="application/json"/>
-    </beans:bean>
 
-    <!--<int:json-to-object-transformer id = "jsonToObject" input-channel="searchRequest" type="com.auditbucket.search.AuditChange"/>-->
-    <int:object-to-json-transformer id="objectToJson" input-channel="searchRequest"/>
+    <int:gateway id="searchGateway"
+                 service-interface="com.auditbucket.search.service.IAbSearchResult"/>
+    <int-http:outbound-gateway auto-startup="true"
+                               request-channel="searchResult"
+                               url="http://localhost:8080/ab/api/searchResult"/>
+
+
+    <int:json-to-object-transformer id="jsonToObject" input-channel="searchRequest"
+                                    type="com.auditbucket.search.AuditChange"/>
+    <int:object-to-json-transformer id="objectToJson" input-channel="searchReply" output-channel="searchResult"/>
 
     <int:channel id="searchRequest"/>
     <!--<int:channel id="esDelete"/>-->
     <int:channel id="searchReply"/>
+    <int:channel id="searchResult"/>
 
 </beans:beans>

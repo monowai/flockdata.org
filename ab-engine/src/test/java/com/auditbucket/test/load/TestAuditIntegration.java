@@ -23,8 +23,8 @@ import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
-import com.auditbucket.engine.service.AuditSearchService;
 import com.auditbucket.engine.service.AuditService;
+import com.auditbucket.engine.service.IAuditSearchService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.IFortress;
@@ -69,7 +69,7 @@ public class TestAuditIntegration {
     AuditService auditService;
 
     @Autowired
-    AuditSearchService auditSearchService;
+    IAuditSearchService auditSearchService;
 
     @Autowired
     RegistrationService regService;

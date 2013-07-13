@@ -59,7 +59,7 @@ public class AuditSearchDaoES implements IAuditSearchDao {
 
         IndexResponse ir = esClient.prepareIndex(indexName, documentType)
                 .setSource(indexMe)
-                .setRouting(auditChange.getRoutingKey())
+                .setRouting(auditChange.getAuditKey())
                 .execute()
                 .actionGet();
 
@@ -115,7 +115,7 @@ public class AuditSearchDaoES implements IAuditSearchDao {
 
         IndexRequestBuilder update = esClient
                 .prepareIndex(change.getIndexName(), change.getDocumentType(), change.getSearchKey())
-                .setRouting(change.getRoutingKey())
+                .setRouting(change.getAuditKey())
                 .setOperationThreaded(false);
 
         IndexResponse ur = update.setSource(indexMe).

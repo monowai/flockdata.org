@@ -47,6 +47,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -88,7 +89,7 @@ public class AuditService {
     private SecurityHelper securityHelper;
 
     @Autowired
-    private AuditSearchService searchService;
+    private IAuditSearchService searchService;
 
     private Logger log = LoggerFactory.getLogger(AuditService.class);
     static final ObjectMapper om = new ObjectMapper();
@@ -123,7 +124,7 @@ public class AuditService {
      *
      * @return unique primary key to be used for subsequent log calls
      */
-    @Transactional
+    //@Transactional
     public AuditHeaderInputBean createHeader(AuditHeaderInputBean inputBean) {
         String userName = securityHelper.getLoggedInUser();
         ISystemUser su = sysUserService.findByName(userName);
@@ -154,9 +155,11 @@ public class AuditService {
         // Create fortressUser if missing
         IFortressUser fu = fortressService.getFortressUser(iFortress, inputBean.getFortressUser(), true);
         IDocumentType documentType = tagService.resolveDocType(inputBean.getDocumentType());
+        ah = new AuditHeader(fu, inputBean, documentType);
+        inputBean.setAuditKey(ah.getAuditKey());
 
-
-        ah = auditDAO.save(new AuditHeader(fu, inputBean, documentType));
+        // Future from here on.....
+        ah = auditDAO.save(ah);
 
         Map<String, String> userTags = inputBean.getTagValues();
         auditTagService.createTagValues(userTags, ah);
@@ -164,14 +167,14 @@ public class AuditService {
         if (log.isDebugEnabled())
             log.debug("Audit Header created:" + ah.getId() + " key=[" + ah.getAuditKey() + "]");
 
-        inputBean.setAuditKey(ah.getAuditKey());
+
         AuditLogInputBean logBean = inputBean.getAuditLog();
         if (logBean != null) {
-            // Creating an initial change record
             logBean.setAuditKey(ah.getAuditKey());
             logBean.setFortressUser(inputBean.getFortressUser());
             logBean.setCallerRef(ah.getCallerRef());
-            inputBean.setAuditLog(createLog(logBean));
+            // Creating an initial change record
+            inputBean.setAuditLog(createLog(ah, logBean));
         }
 
         return inputBean;
@@ -221,7 +224,20 @@ public class AuditService {
         return auditDAO.findHeaderByCallerRef(fortress.getId(), documentType, callerRef.trim());
     }
 
-    @Transactional
+    @ServiceActivator(inputChannel = "searchResult")
+    public void handleSearchResult(SearchResult searchResult) {
+        String auditKey = searchResult.getAuditKey();
+        if (log.isDebugEnabled())
+            log.debug("Updating from search record =[" + searchResult.getAuditKey() + "] searchKey=[" + searchResult.getSearchKey() + "]");
+        IAuditHeader header = auditDAO.findHeader(auditKey);
+        if (header == null)
+//            throw new IllegalArgumentException("Audit Key could not be found for [" + searchResult + "]");
+            return;
+        header.setSearchKey(searchResult.getSearchKey());
+        auditDAO.save(header);
+    }
+
+    //    @Transactional
     public AuditLogInputBean createLog(AuditLogInputBean input) {
         String auditKey = input.getAuditKey();
         IAuditHeader header;
@@ -238,6 +254,11 @@ public class AuditService {
             return input;
         }
 
+        return createLog(header, input);
+    }
+
+    //    @Transactional
+    AuditLogInputBean createLog(IAuditHeader header, AuditLogInputBean input) {
         if (input.getMapWhat() == null || input.getMapWhat().isEmpty()) {
             input.setStatus(AuditLogInputBean.LogStatus.IGNORE);
             return input;
@@ -296,30 +317,20 @@ public class AuditService {
                 auditDAO.removeLastChange(header);
             }
             header.setLastUser(fUser);
-            if (fortress.isAccumulatingChanges()) {
-                // Accumulate all changes in search engine
-                SearchResult change = searchService.makeChangeSearchable(new AuditChange(header, input.getMapWhat(), event, dateWhen));
-                if (change != null)
-                    searchKey = change.getSearchKey();
-            } else {
-                // Update search engine instead of Create
-                searchService.makeChangeSearchable(new AuditChange(header, input.getMapWhat(), event, dateWhen));
-            }
+            searchService.makeChangeSearchable(new AuditChange(header, input.getMapWhat(), event, dateWhen));
         } else { // first ever log for the header
             if (event == null)
                 event = IAuditLog.CREATE;
             updateHeader = true;
             AuditChange sd = new AuditChange(header, input.getMapWhat(), event, dateWhen);
-            try {
-                log.info(om.writeValueAsString(sd));
-            } catch (JsonProcessingException e) {
-
-                log.error(e.getMessage());
+            if (log.isTraceEnabled()) {
+                try {
+                    log.trace(om.writeValueAsString(sd));
+                } catch (JsonProcessingException e) {
+                    log.error(e.getMessage());
+                }
             }
-            SearchResult change = searchService.makeChangeSearchable(sd);
-            if (change != null) {
-                searchKey = change.getSearchKey();
-            }
+            searchService.makeChangeSearchable(sd);
         }
         ITxRef txRef = null;
         if (input.isTransactional()) {
@@ -333,16 +344,14 @@ public class AuditService {
 
         if (updateHeader) {
             header.setLastUser(fUser);
-            if (searchKey != null)
-                header.setSearchKey(searchKey);
             header = auditDAO.save(header);
         }
 
         IAuditLog al = new AuditLog(fUser, dateWhen, event, input.getWhat());
         if (input.getTxRef() != null)
             al.setTxRef(txRef);
-        if (accumulatingChanges)
-            al.setSearchKey(searchKey);
+//        if (accumulatingChanges)
+//            al.setSearchKey(searchKey);
 
         al = auditDAO.save(al);
         auditDAO.addChange(header, al, dateWhen);
@@ -350,7 +359,6 @@ public class AuditService {
         return input;
 
     }
-
 
     private boolean isSame(String jsonWhat, String jsonOther) throws IOException {
         if (jsonWhat == null || jsonOther == null)

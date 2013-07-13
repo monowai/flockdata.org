@@ -29,35 +29,34 @@
 	   http://www.springframework.org/schema/integration/http/spring-integration-http.xsd">
 
     <int:annotation-config/>
+    <bean class="org.springframework.integration.http.inbound.UriPathHandlerMapping"/>
     <int:gateway id="searchGateway"
-                 default-reply-channel="searchReply"
-                 default-request-channel="searchRequest"
-                 service-interface="com.auditbucket.engine.service.AuditSearchService"/>
+                 service-interface="com.auditbucket.engine.service.IAuditSearchService"/>
 
-    <int-http:outbound-gateway request-channel="searchRequest"
-                               reply-channel="searchReply"
-                               expected-response-type="com.auditbucket.search.SearchResult"
+    <int-http:outbound-gateway auto-startup="true"
+                               request-channel="sendRequest"
                                url="http://localhost:8081/abs/api/esMake"
                                extract-request-payload="true"/>
 
-    <int:object-to-json-transformer id="oToJson" input-channel="searchRequest"/>
+    <int-http:inbound-gateway request-channel="searchResult"
+                              request-payload-type="com.auditbucket.search.SearchResult"
+                              path="/api/searchResult"
+                              supported-methods="POST"/>
 
-    <bean id="jsonConverter"
-          class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
-        <property name="supportedMediaTypes" value="application/json"/>
-    </bean>
+    <int:object-to-json-transformer auto-startup="true"
+                                    id="objectToJson" input-channel="searchRequest"
+                                    output-channel="sendRequest">
+    </int:object-to-json-transformer>
 
-
-    <!--<int:json-to-object-transformer id="jsonToO" input-channel="searchReply" type="com.auditbucket.search.SearchResult" />-->
+    <!--<int:json-to-object-transformer input-channel="searchReply"-->
+    <!--auto-startup="true"-->
+    <!--id="jsonToObject" output-channel="searchResult"-->
+    <!--type="com.auditbucket.search.SearchResult">-->
+    <!--</int:json-to-object-transformer>-->
 
     <int:channel id="searchRequest"/>
-    <int:channel id="searchReply"/>
-
-    <!--<int:channel id="audit"/>-->
-    <!--<int:channel id="auditLog"/>-->
-    <!--<int:channel id="auditOutput">-->
-    <!--<int:queue capacity="10"/>-->
-    <!--</int:channel>-->
-
+    <int:channel id="sendRequest"/>
+    <int:channel id="searchResult"/>
+    <int:channel id="searchResult"/>
 
 </beans>

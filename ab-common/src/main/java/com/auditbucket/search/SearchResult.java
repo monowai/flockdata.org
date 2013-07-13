@@ -61,4 +61,13 @@ public class SearchResult {
     public String getDocumentType() {
         return documentType;
     }
+
+    @Override
+    public String toString() {
+        return "SearchResult{" +
+                "auditKey='" + auditKey + '\'' +
+                ", fortress='" + fortress + '\'' +
+                ", documentType='" + documentType + '\'' +
+                '}';
+    }
 }

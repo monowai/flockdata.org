@@ -143,11 +143,11 @@ public class AuditHeader implements IAuditHeader {
         return name;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    @Override
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     /**
      * returns lower case representation of the documentType.name
      */
+    @Override
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getDocumentType() {
         return documentType.getName().toLowerCase();
     }

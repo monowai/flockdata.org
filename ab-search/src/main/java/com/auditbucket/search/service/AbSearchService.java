@@ -45,20 +45,24 @@ public class AbSearchService implements IElasticSearchEP {
     @Autowired
     private IAuditQueryDao auditQuery;
 
+    @Autowired
+    private IAbSearchResult searchResult;
 
     public Long getHitCount(String index) {
         return auditQuery.getHitCount(index);
     }
 
-    @Transactional
-    @ServiceActivator(inputChannel = "searchRequest", outputChannel = "searchReply")
-    public SearchResult createSearchableChange(AuditChange thisChange) {
+    //    @Transactional
+    @ServiceActivator(inputChannel = "searchRequest")
+    public void createSearchableChange(AuditChange thisChange) {
+        SearchResult result;
         if (thisChange.getSearchKey() != null) {
             auditSearch.update(thisChange);
-            return new SearchResult(thisChange);
+            result = new SearchResult(thisChange);
         } else {
-            return new SearchResult(auditSearch.save(thisChange));
+            result = new SearchResult(auditSearch.save(thisChange));
         }
+        searchResult.handleSearchResult(result);
     }
 
     @Transactional

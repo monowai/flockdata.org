@@ -55,19 +55,19 @@
         <level value="debug"/>
     </logger>
     <logger name="org.springframework">
-        <level value="trace"/>
+        <level value="error"/>
     </logger>
 
     <logger name="org.neo4j">
-        <level value="debug"/>
+        <level value="trace"/>
     </logger>
 
     <logger name="org.springframework.integration">
-        <level value="debug"/>
+        <level value="error"/>
     </logger>
 
     <logger name="org.springframework.data">
-        <level value="debug"/>
+        <level value="error"/>
     </logger>
 
     <!-- Root Logger -->

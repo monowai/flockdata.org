@@ -17,23 +17,29 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.search.endpoint;
+package com.auditbucket.engine.service;
 
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.search.AuditChange;
+import com.auditbucket.search.SearchResult;
 import org.springframework.integration.annotation.Gateway;
-import org.springframework.integration.annotation.Payload;
-import org.springframework.stereotype.Component;
 
 /**
+ * Facades the call to the underlying auditbucket-search implementation.
  * User: Mike Holdsworth
- * Since: 9/07/13
+ * Date: 6/07/13
+ * Time: 2:31 PM
  */
-@Component
-public interface IElasticSearchEP {
-    @Gateway(requestChannel = "searchRequest", replyChannel = "searchReply")
-    public void createSearchableChange(AuditChange thisChange);
+public interface IAuditSearchService {
+    @Gateway(requestChannel = "searchRequest")
+    public SearchResult makeChangeSearchable(AuditChange searchDocumentBean);
 
-    //@Gateway(requestChannel = "esDelete")
-    public void delete(@Payload IAuditHeader auditHeader);
+    public void delete(IAuditHeader auditHeader, String searchKey);
+
+    public byte[] findOne(IAuditHeader auditHeader, String searchKey);
+
+    public byte[] findOne(IAuditHeader auditHeader);
+
+    public Long getHitCount(String s);
+
 }

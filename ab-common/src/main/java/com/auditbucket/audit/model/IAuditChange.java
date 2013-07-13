@@ -66,8 +66,6 @@ public interface IAuditChange {
 
     void setWho(String name);
 
-    String getRoutingKey();
-
     String getDocumentType();
 
 }

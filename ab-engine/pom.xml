@@ -29,6 +29,9 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>war</packaging>
     <artifactId>ab-engine</artifactId>
+    <properties>
+        <neo4j.version>1.9</neo4j.version>
+    </properties>
 
     <dependencies>
         <!-- Spring -->
@@ -102,6 +105,12 @@
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-neo4j-rest</artifactId>
             <version>${org.springdata.neo4j}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.neo4j.app</groupId>
+            <artifactId>neo4j-server</artifactId>
+            <version>${neo4j.version}</version>
+            <classifier>static-web</classifier>
         </dependency>
 
         <!--sd-Neo4J advanced mapping-->

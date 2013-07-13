@@ -58,6 +58,16 @@
         <url-pattern>/audit/*</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>apiDispatcher</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>apiDispatcher</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
 
     <!-- Spring Security -->
     <filter>
