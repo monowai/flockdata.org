@@ -22,6 +22,8 @@ package com.auditbucket.search;
 import com.auditbucket.audit.model.IAuditChange;
 
 /**
+ * Object to tie the keys between ab-engine and ab-search so that ab-engine can keep the document up-to-date
+ *
  * User: Mike Holdsworth
  * Since: 12/07/13
  */
@@ -46,18 +48,34 @@ public class SearchResult {
         this(thisChange.getAuditKey(), thisChange.getFortressName(), thisChange.getSearchKey(), thisChange.getDocumentType());
     }
 
+    /**
+     * GUID for the auditKey
+     * @return string
+     */
     public String getAuditKey() {
         return auditKey;
     }
 
+    /**
+     * name of the fortress that owns the auditKey
+     * @return string
+     */
     public String getFortress() {
         return fortress;
     }
 
+    /**
+     * GUID for the search document
+     * @return string
+     */
     public String getSearchKey() {
         return searchKey;
     }
 
+    /**
+     * useful for external caller to know what type of document was indexed
+     * @return
+     */
     public String getDocumentType() {
         return documentType;
     }

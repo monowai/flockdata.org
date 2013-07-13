@@ -224,13 +224,23 @@ public class AuditService {
         return auditDAO.findHeaderByCallerRef(fortress.getId(), documentType, callerRef.trim());
     }
 
+    /**
+     * Callback handler that is invoked from ab-search. This routine ties the generated search document ID
+     *   with the auditHeader
+     *
+     *   On completion of this, an outbound message should be posted so that the caller can be made aware(?)
+     *
+     * @param searchResult contains keys to tie the search to the audit
+     */
     @ServiceActivator(inputChannel = "searchResult")
     public void handleSearchResult(SearchResult searchResult) {
         String auditKey = searchResult.getAuditKey();
         if (log.isDebugEnabled())
             log.debug("Updating from search record =[" + searchResult.getAuditKey() + "] searchKey=[" + searchResult.getSearchKey() + "]");
         IAuditHeader header = auditDAO.findHeader(auditKey);
-        // ToDO: Why is this NULL?? Not committed on another thread I believe
+        // ToDO: Why is this NULL?? Not committed on another thread I believe.
+        // https://github.com/monowai/auditbucket/issues/8
+
         if (header == null)
 //            throw new IllegalArgumentException("Audit Key could not be found for [" + searchResult + "]");
             return;
@@ -238,6 +248,11 @@ public class AuditService {
         auditDAO.save(header);
     }
 
+    /**
+     * Looks up the header from input and creates a log record
+     * @param input log details
+     * @return populated log information with any error messages
+     */
     @Transactional
     public AuditLogInputBean createLog(AuditLogInputBean input) {
         String auditKey = input.getAuditKey();
@@ -258,6 +273,13 @@ public class AuditService {
         return createLog(header, input);
     }
 
+    /**
+     * Creates an audit log record for the supplied header from the supplied input
+     *
+     * @param header auditHeader the caller is authorised to work with
+     * @param input  auditLog details containing the data to log
+     * @return populated log information with any error messages
+     */
     @Transactional
     AuditLogInputBean createLog(IAuditHeader header, AuditLogInputBean input) {
         if (input.getMapWhat() == null || input.getMapWhat().isEmpty()) {
@@ -283,6 +305,7 @@ public class AuditService {
         IFortressUser fUser = fortressService.getFortressUser(fortress, input.getFortressUser().toLowerCase(), true);
 
         // Spin the following off in to a separate thread?
+        // https://github.com/monowai/auditbucket/issues/7
         IAuditLog lastChange = auditDAO.getLastChange(header.getId());
         String event = input.getEvent();
         Boolean searchActive = fortress.isSearchActive();
@@ -294,7 +317,6 @@ public class AuditService {
 
         if (lastChange != null) {
             // Neo4j won't store the map, so we store the raw escaped JSON text
-
             try {
                 if (isSame(lastChange.getJsonWhat(), input.getWhat())) {
                     if (log.isDebugEnabled())
