@@ -51,7 +51,7 @@ public class Fortress implements IFortress {
 
     public Fortress(FortressInputBean fortressInputBean, ICompany ownedBy) {
         setName(fortressInputBean.getName());
-        setIgnoreSearchEngine(fortressInputBean.getIgnoreSearchEngine());
+        setIgnoreSearchEngine(fortressInputBean.getSearchActive());
         setAccumulatingChanges(fortressInputBean.getAccumulateChanges());
         setCompany(ownedBy);
         fortressKey = UUID.randomUUID();
@@ -91,7 +91,7 @@ public class Fortress implements IFortress {
     }
 
     @Override
-    public Boolean isIgnoreSearchEngine() {
+    public Boolean isSearchActive() {
         return ignoreSearchEngine;
     }
 

@@ -30,6 +30,7 @@
     <!-- Root Context: defines shared resources visible to all other web components -->
 
     <import resource="neo4j-context.xml"/>
+    <import resource="spring-integration.xml"/>
     <import resource="spring-security.xml"/>
 
     <!--<context:component-scan base-package="com.auditbucket" />-->

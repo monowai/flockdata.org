@@ -63,6 +63,7 @@ public class AbSearchService implements IElasticSearchEP {
             result = new SearchResult(auditSearch.save(thisChange));
         }
         searchResult.handleSearchResult(result);
+
     }
 
     @Transactional

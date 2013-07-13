@@ -41,6 +41,7 @@
 
     <int:gateway id="searchGateway"
                  service-interface="com.auditbucket.search.service.IAbSearchResult"/>
+
     <int-http:outbound-gateway auto-startup="true"
                                request-channel="searchResult"
                                url="http://localhost:8080/ab/api/searchResult"/>

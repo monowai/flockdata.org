@@ -21,8 +21,6 @@ package com.auditbucket.registration.bean;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.constraints.NotNull;
-
 /**
  * Represents the input to create a fortress
  * Default behaviour is
@@ -35,7 +33,7 @@ import javax.validation.constraints.NotNull;
 public class FortressInputBean {
     private String name;
     private Boolean accumulateChanges = false;
-    private Boolean ignoreSearchEngine = false;
+    private Boolean searchActive = false;
     private String message = null;
     private String fortressKey = null;
 
@@ -43,33 +41,34 @@ public class FortressInputBean {
     }
 
     /**
-     * implies that the fortress will *not* ignore the search engine
+     * The fortress will *not* ignore the search engine
+     * changes will not be accumulated
      *
      * @param name              Company unique name for the fortress
      * @param accumulateChanges accumulate the changes in the search engine rather than update
      */
     public FortressInputBean(String name, boolean accumulateChanges) {
         this.accumulateChanges = accumulateChanges;
-        ignoreSearchEngine = false;
+        searchActive = false;
         this.name = name;
     }
 
     /**
-     * Setting AccumulateChanges to true will force the fortress to set ignoreSearchEngine to false
+     * Setting AccumulateChanges to true will force the fortress to set searchActive to false
      *
-     * @param name               company unique name for the fortress
-     * @param accumulateChanges  should the search engine accumulate each modification as a separate document?
-     * @param ignoreSearchEngine should this fortress use a search engine?
+     * @param name              company unique name for the fortress
+     * @param accumulateChanges should the search engine accumulate each modification as a separate document?
+     * @param searchActive      should this fortress use a search engine?
      */
-    public FortressInputBean(String name, boolean accumulateChanges, boolean ignoreSearchEngine) {
+    public FortressInputBean(String name, boolean accumulateChanges, boolean searchActive) {
         this(name);
         setAccumulateChanges(accumulateChanges);
-        setIgnoreSearchEngine(ignoreSearchEngine);
+        setSearchActive(searchActive);
 
     }
 
 
-    public FortressInputBean(@NotNull @NotEmpty String name) {
+    public FortressInputBean(@NotEmpty String name) {
         this.name = name;
     }
 
@@ -88,15 +87,15 @@ public class FortressInputBean {
     public void setAccumulateChanges(Boolean accumulateChanges) {
         this.accumulateChanges = accumulateChanges;
         if (this.accumulateChanges)
-            this.ignoreSearchEngine = false;
+            this.searchActive = false;
     }
 
-    public Boolean getIgnoreSearchEngine() {
-        return ignoreSearchEngine;
+    public Boolean getSearchActive() {
+        return searchActive;
     }
 
-    public void setIgnoreSearchEngine(Boolean ignoreSearchEngine) {
-        this.ignoreSearchEngine = ignoreSearchEngine;
+    public void setSearchActive(Boolean searchActive) {
+        this.searchActive = searchActive;
     }
 
     public void setMessage(String message) {

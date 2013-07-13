@@ -112,7 +112,6 @@
             <version>${neo4j.version}</version>
             <classifier>static-web</classifier>
         </dependency>
-
         <!--sd-Neo4J advanced mapping-->
         <dependency>
             <groupId>org.springframework.data</groupId>

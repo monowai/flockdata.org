@@ -22,12 +22,14 @@ package com.auditbucket.search.service;
 import com.auditbucket.search.SearchResult;
 import org.springframework.integration.annotation.Gateway;
 
+import java.util.concurrent.Future;
+
 /**
  * User: Mike Holdsworth
  * Since: 13/07/13
  */
 public interface IAbSearchResult {
     @Gateway(requestChannel = "searchReply")
-    void handleSearchResult(SearchResult searchResult);
+    Future<Void> handleSearchResult(SearchResult searchResult);
 
 }

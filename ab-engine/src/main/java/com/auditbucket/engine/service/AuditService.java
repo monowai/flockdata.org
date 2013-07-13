@@ -124,7 +124,7 @@ public class AuditService {
      *
      * @return unique primary key to be used for subsequent log calls
      */
-    //@Transactional
+    @Transactional
     public AuditHeaderInputBean createHeader(AuditHeaderInputBean inputBean) {
         String userName = securityHelper.getLoggedInUser();
         ISystemUser su = sysUserService.findByName(userName);
@@ -230,6 +230,7 @@ public class AuditService {
         if (log.isDebugEnabled())
             log.debug("Updating from search record =[" + searchResult.getAuditKey() + "] searchKey=[" + searchResult.getSearchKey() + "]");
         IAuditHeader header = auditDAO.findHeader(auditKey);
+        // ToDO: Why is this NULL?? Not committed on another thread I believe
         if (header == null)
 //            throw new IllegalArgumentException("Audit Key could not be found for [" + searchResult + "]");
             return;
@@ -237,7 +238,7 @@ public class AuditService {
         auditDAO.save(header);
     }
 
-    //    @Transactional
+    @Transactional
     public AuditLogInputBean createLog(AuditLogInputBean input) {
         String auditKey = input.getAuditKey();
         IAuditHeader header;
@@ -257,7 +258,7 @@ public class AuditService {
         return createLog(header, input);
     }
 
-    //    @Transactional
+    @Transactional
     AuditLogInputBean createLog(IAuditHeader header, AuditLogInputBean input) {
         if (input.getMapWhat() == null || input.getMapWhat().isEmpty()) {
             input.setStatus(AuditLogInputBean.LogStatus.IGNORE);
@@ -282,11 +283,9 @@ public class AuditService {
         IFortressUser fUser = fortressService.getFortressUser(fortress, input.getFortressUser().toLowerCase(), true);
 
         // Spin the following off in to a separate thread?
-        String searchKey = null;
         IAuditLog lastChange = auditDAO.getLastChange(header.getId());
         String event = input.getEvent();
-        boolean accumulatingChanges = fortress.isAccumulatingChanges();
-
+        Boolean searchActive = fortress.isSearchActive();
         DateTime dateWhen;
         if (input.getWhen() == null)
             dateWhen = new DateTime();
@@ -317,7 +316,8 @@ public class AuditService {
                 auditDAO.removeLastChange(header);
             }
             header.setLastUser(fUser);
-            searchService.makeChangeSearchable(new AuditChange(header, input.getMapWhat(), event, dateWhen));
+            if (searchActive)
+                searchService.makeChangeSearchable(new AuditChange(header, input.getMapWhat(), event, dateWhen));
         } else { // first ever log for the header
             if (event == null)
                 event = IAuditLog.CREATE;
@@ -330,7 +330,8 @@ public class AuditService {
                     log.error(e.getMessage());
                 }
             }
-            searchService.makeChangeSearchable(sd);
+            if (searchActive)
+                searchService.makeChangeSearchable(sd);
         }
         ITxRef txRef = null;
         if (input.isTransactional()) {
@@ -451,7 +452,7 @@ public class AuditService {
         auditHeader = auditDAO.save(auditHeader);
         boolean accumulatingFortress = auditHeader.getFortress().isAccumulatingChanges();
         // Sync the update to elastic search.
-        if (!auditHeader.getFortress().isIgnoreSearchEngine()) {
+        if (auditHeader.getFortress().isSearchActive()) {
             String searchKey = (accumulatingFortress ? logToDelete.getSearchKey() : auditHeader.getSearchKey());
             if (accumulatingFortress) {
                 searchService.delete(auditHeader, searchKey);
