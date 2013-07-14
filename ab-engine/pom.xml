@@ -111,6 +111,16 @@
             <artifactId>neo4j-server</artifactId>
             <version>${neo4j.version}</version>
             <classifier>static-web</classifier>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-access</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!--sd-Neo4J advanced mapping-->
         <dependency>

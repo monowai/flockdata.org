@@ -63,11 +63,11 @@
     </logger>
 
     <logger name="org.springframework.integration">
-        <level value="error"/>
+        <level value="info"/>
     </logger>
 
     <logger name="org.springframework.data">
-        <level value="error"/>
+        <level value="info"/>
     </logger>
 
     <!-- Root Logger -->
