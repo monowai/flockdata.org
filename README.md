@@ -91,4 +91,4 @@ This is one of your computer systems that you want to audit
 curl -u mike:123 -H "Content-Type:application/json" -X PUT  http://localhost:8080/ab/profiles/fortress/new -d '{"name": "SearchNA","ignoreSearchEngine": false}'
 ```
 
-Please review the [[Audit Service Calls|Audit Service Calls]] for further information and detailed syntax
+Please review the [Audit Service Calls](https://github.com/monowai/auditbucket/wiki/Audit-Service-Calls) for further information and detailed syntax
