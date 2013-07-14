@@ -88,25 +88,7 @@ curl -u mike:123 -X GET http://localhost:8080/ab/profiles/me
 ### Create an Application Fortress 
 This is one of your computer systems that you want to audit
 ```
-curl -u mike:123 -X PUT  http://localhost:8080/ab/fortress/MyFortressName
-```
-### Create an Audit Header for the Fortress
-```
-curl -u mike:123 -X PUT http://localhost:8080/ab/audit/header/new/ -d '"fortress":"MyFortressName", "fortressUser": "yoursystemuser", "documentType":"Company","when":"2012-11-10", callerRef:"123"}'
-```
-Result code is the Audit Key that your system can store and must use to create log records and use for queries in the next section
-
-### Create a Log for the audit header
-```
-curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/audit/log/new -d '{"event":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10", "what": "{\"name\": \"val\"}" }'
-```
-### View information for the Audit Key
-```
-curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
+curl -u mike:123 -H "Content-Type:application/json" -X PUT  http://localhost:8080/ab/profiles/fortress/new -d '{"name": "SearchNA","ignoreSearchEngine": false}'
 ```
 
-### View logs associated with the audit key
-```
-curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}/logs
-```
-
+Please review the [[Audit Service Calls|Audit Service Calls]] for further information and detailed syntax
