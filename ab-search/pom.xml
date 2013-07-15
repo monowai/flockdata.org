@@ -149,6 +149,12 @@
             <artifactId>ab-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!--<dependency>-->
+        <!--<groupId>com.monowai</groupId>-->
+        <!--<artifactId>ab-engine</artifactId>-->
+        <!--<version>${project.version}</version>-->
+        <!--<scope>test</scope>-->
+        <!--</dependency>-->
 
     </dependencies>
     <build>

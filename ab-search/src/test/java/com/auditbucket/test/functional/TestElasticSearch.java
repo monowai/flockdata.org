@@ -72,15 +72,16 @@ public class TestElasticSearch {
     @Test
     public void testJson() throws Exception {
         // Basic JSON/ES tests to figure our what is going on
-
+        // ToDo: the following should be uncommented, but the POM dependancy can't be resolved
+        //          in the current POM configuration
 //        IFortress fortress = new Fortress(new FortressInputBean("fortress"), new Company("Monowai"));
 //        fortress.setIgnoreSearchEngine(false);
 //        IFortressUser fu = new FortressUser(fortress, uid);
 //        AuditHeaderInputBean hib = new AuditHeaderInputBean("fortress", "Test", "Test", new DateTime().toDate(), "testRef");
 //        IAuditHeader auditHeader = new AuditHeader(fu, hib, new DocumentType("TestJson", fu.getFortress().getCompany()));
-//
+
         AuditChange auditChange = new AuditChange();
-//
+
         //auditChange.setName("Create");
         auditChange.setWhen(new DateTime());
 //// What changed?
@@ -133,6 +134,8 @@ public class TestElasticSearch {
 
         SecurityContextHolder.getContext().setAuthentication(auth);
         // As per JSON test, except this time we're doing it all via Spring.
+        // ToDo: the following should be uncommented, but the POM dependancy can't be resolved
+        //          in the current POM configuration
 
 //        IFortress fortress = new Fortress(new FortressInputBean("fortress"), new Company("Monowai"));
 //        fortress.setIgnoreSearchEngine(false);
@@ -158,6 +161,7 @@ public class TestElasticSearch {
         assertNotNull(searchKey);
 
         // Retrieve parent from Lucene
+        //ToDo: uncomment the code below and get this working
 //        byte[] parent = alRepo.findOne(auditHeader, searchKey);
 //
 //        assertNotNull(parent);
