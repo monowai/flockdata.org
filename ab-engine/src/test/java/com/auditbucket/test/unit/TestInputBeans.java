@@ -62,22 +62,14 @@ public class TestInputBeans {
 
         FortressInputBean fib = new FortressInputBean("ABC");
         assertFalse(fib.getSearchActive());
-        assertFalse(fib.getAccumulateChanges());
-        fib.setAccumulateChanges(true);
-        // Setting accumulate changes turns on search engine tracking
-        assertTrue(fib.getAccumulateChanges());
-        assertFalse(fib.getSearchActive());
 
         fib = new FortressInputBean("ABC", false);
-        assertFalse(fib.getAccumulateChanges());
         assertFalse(fib.getSearchActive());
 
         fib = new FortressInputBean("ABC", true);
-        assertTrue(fib.getAccumulateChanges());
-        assertFalse(fib.getSearchActive());
+        assertTrue(fib.getSearchActive());
 
-        fib = new FortressInputBean("ABC", false, false);
-        assertFalse(fib.getAccumulateChanges());
+        fib = new FortressInputBean("ABC", false);
         assertFalse(fib.getSearchActive());
 
     }

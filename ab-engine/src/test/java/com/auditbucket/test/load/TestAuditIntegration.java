@@ -258,7 +258,7 @@ public class TestAuditIntegration {
         while (fortress <= fortressCount) {
 
             String fortressName = "bulkloada" + fortress;
-            IFortress iFortress = fortressService.registerFortress(new FortressInputBean(fortressName, false, false));
+            IFortress iFortress = fortressService.registerFortress(new FortressInputBean(fortressName, false));
             int audit = 1;
             while (audit <= auditCount) {
                 AuditHeaderInputBean aib = new AuditHeaderInputBean(iFortress.getName(), fortress + "olivia@sunnybell.com", "Company", new Date(), "ABC" + audit);

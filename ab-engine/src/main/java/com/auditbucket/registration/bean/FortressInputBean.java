@@ -32,7 +32,6 @@ import org.hibernate.validator.constraints.NotEmpty;
  */
 public class FortressInputBean {
     private String name;
-    private Boolean accumulateChanges = false;
     private Boolean searchActive = false;
     private String message = null;
     private String fortressKey = null;
@@ -44,29 +43,14 @@ public class FortressInputBean {
      * The fortress will *not* ignore the search engine
      * changes will not be accumulated
      *
-     * @param name              Company unique name for the fortress
-     * @param accumulateChanges accumulate the changes in the search engine rather than update
+     * @param name         Company unique name for the fortress
+     * @param searchActive accumulate the changes in the search engine rather than update
      */
-    public FortressInputBean(String name, boolean accumulateChanges) {
-        this.accumulateChanges = accumulateChanges;
-        searchActive = false;
+    public FortressInputBean(String name, boolean searchActive) {
+        //this.accumulateChanges = searchActive;
+        this.searchActive = searchActive;
         this.name = name;
     }
-
-    /**
-     * Setting AccumulateChanges to true will force the fortress to set searchActive to false
-     *
-     * @param name              company unique name for the fortress
-     * @param accumulateChanges should the search engine accumulate each modification as a separate document?
-     * @param searchActive      should this fortress use a search engine?
-     */
-    public FortressInputBean(String name, boolean accumulateChanges, boolean searchActive) {
-        this(name);
-        setAccumulateChanges(accumulateChanges);
-        setSearchActive(searchActive);
-
-    }
-
 
     public FortressInputBean(@NotEmpty String name) {
         this.name = name;
@@ -78,16 +62,6 @@ public class FortressInputBean {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Boolean getAccumulateChanges() {
-        return accumulateChanges;
-    }
-
-    public void setAccumulateChanges(Boolean accumulateChanges) {
-        this.accumulateChanges = accumulateChanges;
-        if (this.accumulateChanges)
-            this.searchActive = false;
     }
 
     public Boolean getSearchActive() {

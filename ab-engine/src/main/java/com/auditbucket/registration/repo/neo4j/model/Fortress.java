@@ -52,7 +52,6 @@ public class Fortress implements IFortress {
     public Fortress(FortressInputBean fortressInputBean, ICompany ownedBy) {
         setName(fortressInputBean.getName());
         setIgnoreSearchEngine(fortressInputBean.getSearchActive());
-        setAccumulatingChanges(fortressInputBean.getAccumulateChanges());
         setCompany(ownedBy);
         fortressKey = UUID.randomUUID();
     }
