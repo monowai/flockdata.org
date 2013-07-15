@@ -448,25 +448,28 @@ public class AuditService {
         auditHeader = auditDAO.fetch(auditHeader);
         auditHeader.setLastUser(fortressService.getFortressUser(auditHeader.getFortress(), newLastChange.getWho().getName()));
         auditHeader = auditDAO.save(auditHeader);
-        boolean accumulatingFortress = auditHeader.getFortress().isAccumulatingChanges();
+        // MKH Removed accumulating fortress. Can't see a need to accumulate old versions of a document
+        //     in the search engine.
+
+        //boolean accumulatingFortress = auditHeader.getFortress().isAccumulatingChanges();
         // Sync the update to elastic search.
         if (auditHeader.getFortress().isSearchActive()) {
-            String searchKey = (accumulatingFortress ? logToDelete.getSearchKey() : auditHeader.getSearchKey());
-            if (accumulatingFortress) {
-                //searchService.delete(auditHeader, searchKey);
+            //String searchKey = (accumulatingFortress ? logToDelete.getSearchKey() : auditHeader.getSearchKey());
+//            if (accumulatingFortress) {
+            //searchService.delete(auditHeader, searchKey);
 
-                // Rebuild the search record
+            // Rebuild the search record
 //                SearchResult change = searchService.makeChangeSearchable(new AuditChange(auditHeader, newLastChange.getWhat(), newLastChange.getName(), new DateTime(newLastChange.getWhen())));
 //                if (change != null) {
 //                    // When accumulating the searchkey is against the logs
 //                    newLastChange.setSearchKey(change.getSearchKey());
 //                    auditDAO.save(newLastChange);
 //                }
-            } else {
-                // Update against the Audit Header only by reindexing the search document
-                searchService.makeChangeSearchable(new AuditChange(auditHeader, newLastChange.getWhat(), newLastChange.getEvent(), new DateTime(newLastChange.getWhen())));
+//            } else {
+            // Update against the Audit Header only by reindexing the search document
+            searchService.makeChangeSearchable(new AuditChange(auditHeader, newLastChange.getWhat(), newLastChange.getEvent(), new DateTime(newLastChange.getWhen())));
 
-            }
+            //          }
         }
 
         return auditHeader;
