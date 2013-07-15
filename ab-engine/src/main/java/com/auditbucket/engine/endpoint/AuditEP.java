@@ -25,11 +25,9 @@ import com.auditbucket.audit.model.ITxRef;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.engine.service.AuditService;
-import com.auditbucket.engine.service.SearchVo;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -75,9 +73,9 @@ public class AuditEP {
     public ResponseEntity<AuditHeaderInputBean> createHeader(@RequestBody AuditHeaderInputBean input) throws Exception {
         // curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab/audit/header/new/ -d '"fortress":"MyFortressName", "fortressUser": "yoursystemuser", "documentType":"Company","when":"2012-11-10"}'
         try {
-        	SearchVo searchVo  = auditService.createHeader2(input);
-        	input=searchVo.getAuditHeaderInputBean();
-            auditService.triggerSearch(searchVo.getAuditChange());
+            auditService.createHeader(input);
+            //input=searchVo.getAuditHeaderInputBean();
+            //auditService.triggerSearch(searchVo.getAuditChange());
             input.setLastMessage("OK");
             return new ResponseEntity<AuditHeaderInputBean>(input, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
@@ -90,7 +88,7 @@ public class AuditEP {
     }
 
     @RequestMapping(value = "/log/new", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+//    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @ResponseBody
     //@ServiceActivator(inputChannel = "auditLog", outputChannel = "auditOutput")
     public ResponseEntity<AuditLogInputBean> createLog(@RequestBody AuditLogInputBean input) throws Exception {
@@ -148,7 +146,7 @@ public class AuditEP {
     }
 
     @RequestMapping(value = "/tx/{txRef}/headers", produces = "application/json", method = RequestMethod.GET)
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+//    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getAuditTxHeaders(@PathVariable("txRef") String txRef) throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}

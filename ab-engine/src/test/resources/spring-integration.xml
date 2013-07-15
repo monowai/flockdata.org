@@ -38,8 +38,7 @@
                                url="http://localhost:8081/abs/api/esMake"
                                extract-request-payload="true"/>
 
-    <int-http:inbound-gateway request-channel="searchResult"
-                              request-payload-type="com.auditbucket.search.SearchResult"
+    <int-http:inbound-gateway request-channel="searchReply"
                               path="/api/searchResult"
                               supported-methods="POST"/>
 
@@ -48,15 +47,14 @@
                                     output-channel="sendRequest">
     </int:object-to-json-transformer>
 
-    <!--<int:json-to-object-transformer input-channel="searchReply"-->
-    <!--auto-startup="true"-->
-    <!--id="jsonToObject" output-channel="searchResult"-->
-    <!--type="com.auditbucket.search.SearchResult">-->
-    <!--</int:json-to-object-transformer>-->
+    <int:json-to-object-transformer input-channel="searchReply"
+                                    auto-startup="true"
+                                    id="jsonToObject" output-channel="searchResult"
+                                    type="com.auditbucket.search.SearchResult">
+    </int:json-to-object-transformer>
 
     <int:channel id="searchRequest"/>
     <int:channel id="sendRequest"/>
-    <int:channel id="searchResult"/>
     <int:channel id="searchResult"/>
 
 </beans>
