@@ -49,6 +49,8 @@ public interface IAuditChange {
 
     public Map<String, Object> getTagValues();
 
+    //public void setTagValues(Map<String, Object> tagValues);
+
     /**
      * @return who made this change
      */

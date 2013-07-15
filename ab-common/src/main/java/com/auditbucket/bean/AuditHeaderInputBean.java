@@ -39,7 +39,7 @@ public class AuditHeaderInputBean {
     private Date when;
     private String lastMessage;
     private AuditLogInputBean auditLog;
-    private Map<String, String> tagValues = new HashMap<String, String>();
+    private Map<String, Object> tagValues = new HashMap<String, Object>();
 
     AuditHeaderInputBean() {
     }
@@ -119,11 +119,11 @@ public class AuditHeaderInputBean {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Map<String, String> getTagValues() {
+    public Map<String, Object> getTagValues() {
         return tagValues;
     }
 
-    public void setTagValues(Map<String, String> tagValues) {
+    public void setTagValues(Map<String, Object> tagValues) {
         this.tagValues = tagValues;
     }
 }

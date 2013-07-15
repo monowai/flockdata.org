@@ -29,6 +29,7 @@ import org.joda.time.DateTime;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Encapsulates the parameters necessary to index an audit change
@@ -66,9 +67,10 @@ public class AuditChange implements IAuditChange {
         this.indexName = header.getIndexName();
         this.searchKey = header.getSearchKey();
         this.who = header.getLastUser().getName();
-        if (header.getTagValues() != null)
-            for (ITagValue tagValue : header.getTagValues()) {
-                tagValues.put(tagValue.getTag().getName(), tagValue.getTagValue());
+        Set<ITagValue> tags = header.getTagValues();
+        if (tags != null)
+            for (ITagValue tagValue : tags) {
+                this.tagValues.put(tagValue.getTag().getName(), tagValue.getTagValue());
             }
     }
 
@@ -165,6 +167,9 @@ public class AuditChange implements IAuditChange {
         return auditKey;
     }
 
+    public void setTagValues(Map<String, Object> tagValues) {
+        this.tagValues = tagValues;
+    }
 
     public Map<String, Object> getTagValues() {
         return tagValues;

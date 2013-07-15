@@ -155,7 +155,7 @@ public class TestAuditTags {
         ITag result = tagService.processTag(tagInput);
         assertNotNull(result);
         AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new Date(), "abc");
-        Map<String, String> tagValues = new HashMap<String, String>();
+        Map<String, Object> tagValues = new HashMap<String, Object>();
         tagValues.put("TagA", "AAAA");
         tagValues.put("TagB", "BBBB");
         tagValues.put("TagC", "CCCC");

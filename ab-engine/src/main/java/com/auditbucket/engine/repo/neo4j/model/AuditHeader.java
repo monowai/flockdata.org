@@ -36,10 +36,7 @@ import org.joda.time.DateTimeZone;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.*;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 
 /**
@@ -114,6 +111,7 @@ public class AuditHeader implements IAuditHeader {
         this.createdBy = (FortressUser) createdBy;
         this.lastWho = (FortressUser) createdBy;
         this.fortress = (Fortress) createdBy.getFortress();
+
         String docType = (documentType != null ? getDocumentType() : "");
         this.name = (callerRef == null ? docType : (docType + "." + callerRef).toLowerCase());
 
@@ -247,7 +245,12 @@ public class AuditHeader implements IAuditHeader {
         return tagValues;
     }
 
-    public void setTagValues(Set<ITagValue> tagValues) {
-        this.tagValues = tagValues;
+    public Map<String, Object> getTagMap() {
+        Map<String, Object> result = new HashMap<String, Object>();
+        if (tagValues != null)
+            for (ITagValue tagValue : tagValues) {
+                result.put(tagValue.getTag().getName(), tagValue.getTagValue());
+            }
+        return result;
     }
 }

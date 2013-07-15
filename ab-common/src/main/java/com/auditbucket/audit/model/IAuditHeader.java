@@ -22,6 +22,7 @@ package com.auditbucket.audit.model;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.model.IFortressUser;
 
+import java.util.Map;
 import java.util.Set;
 
 public interface IAuditHeader {
@@ -82,11 +83,9 @@ public interface IAuditHeader {
      */
     public String getSearchKey();
 
-    //Set<ITxRef> getTxTags();
-
     String getCallerRef();
 
     public Set<ITagValue> getTagValues();
 
-    void setTagValues(Set<ITagValue> modifiedSet);
+    Map<String, Object> getTagMap();
 }

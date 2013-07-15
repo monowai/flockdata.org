@@ -161,8 +161,9 @@ public class AuditService {
         // Future from here on.....
         ah = auditDAO.save(ah);
 
-        Map<String, String> userTags = inputBean.getTagValues();
+        Map<String, Object> userTags = inputBean.getTagValues();
         auditTagService.createTagValues(userTags, ah);
+
 
         if (log.isDebugEnabled())
             log.debug("Audit Header created:" + ah.getId() + " key=[" + ah.getAuditKey() + "]");
@@ -174,7 +175,7 @@ public class AuditService {
             logBean.setFortressUser(inputBean.getFortressUser());
             logBean.setCallerRef(ah.getCallerRef());
             // Creating an initial change record
-            inputBean.setAuditLog(createLog(ah, logBean));
+            inputBean.setAuditLog(createLog(ah, logBean, userTags));
         }
 
         return inputBean;
@@ -225,7 +226,7 @@ public class AuditService {
             return input;
         }
 
-        return createLog(header, input);
+        return createLog(header, input, header.getTagMap());
     }
 
     /**
@@ -236,7 +237,7 @@ public class AuditService {
      * @return populated log information with any error messages
      */
     @Transactional
-    AuditLogInputBean createLog(IAuditHeader header, AuditLogInputBean input) {
+    AuditLogInputBean createLog(IAuditHeader header, AuditLogInputBean input, Map<String, Object> tagValues) {
         if (input.getMapWhat() == null || input.getMapWhat().isEmpty()) {
             input.setStatus(AuditLogInputBean.LogStatus.IGNORE);
             return input;
@@ -293,13 +294,16 @@ public class AuditService {
                 auditDAO.removeLastChange(header);
             }
             header.setLastUser(fUser);
+            AuditChange sd = new AuditChange(header, input.getMapWhat(), event, dateWhen);
+            sd.setTagValues(tagValues);
             if (searchActive)
-                searchService.makeChangeSearchable(new AuditChange(header, input.getMapWhat(), event, dateWhen));
+                searchService.makeChangeSearchable(sd);
         } else { // first ever log for the header
             if (event == null)
                 event = IAuditLog.CREATE;
             updateHeader = true;
             AuditChange sd = new AuditChange(header, input.getMapWhat(), event, dateWhen);
+            sd.setTagValues(tagValues);
             if (log.isTraceEnabled()) {
                 try {
                     log.trace(om.writeValueAsString(sd));

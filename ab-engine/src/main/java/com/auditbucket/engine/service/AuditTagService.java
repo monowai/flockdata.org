@@ -79,17 +79,15 @@ public class AuditTagService {
      * @param userTags Key/Value pair of tags. Tag will be created if missing
      * @param ah       Header to associate userTags with
      */
-    public void createTagValues(Map<String, String> userTags, IAuditHeader ah) {
+    public void createTagValues(Map<String, Object> userTags, IAuditHeader ah) {
         if ((userTags == null) || userTags.isEmpty())
             return;
 
-        // Set<ITagValue> existingTags = auditTagDao.getAuditTags(ah);
         ICompany company = ah.getFortress().getCompany();
 
         for (String key : userTags.keySet()) {
-            //AuditTagInputBean tagInput = new AuditTagInputBean(key, ah.getAuditKey(), userTags.get(key));
             ITag tag = tagService.processTag(new TagInputBean(company, key));
-            auditTagDao.save(tag, ah, userTags.get(key));
+            auditTagDao.save(tag, ah, userTags.get(key).toString());
         }
     }
 
