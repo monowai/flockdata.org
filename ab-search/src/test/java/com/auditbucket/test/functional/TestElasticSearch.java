@@ -19,10 +19,14 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.audit.model.IAuditChange;
-import com.auditbucket.audit.model.IAuditSearchDao;
-import com.auditbucket.search.AuditChange;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
@@ -39,16 +43,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
+import com.auditbucket.audit.model.IAuditChange;
+import com.auditbucket.audit.model.IAuditSearchDao;
+import com.auditbucket.search.AuditChange;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:root-context.xml")
+@ContextConfiguration({"classpath:root-context.xml","file:src/main/webapp/WEB-INF/spring/spring-integration.xml"})
 public class TestElasticSearch {
     private String uid = "mike@monowai.com";
     Authentication auth = new UsernamePasswordAuthenticationToken(uid, "user1");
@@ -72,19 +73,22 @@ public class TestElasticSearch {
     @Test
     public void testJson() throws Exception {
         // Basic JSON/ES tests to figure our what is going on
-        // ToDo: the following should be uncommented, but the POM dependancy can't be resolved
-        //          in the current POM configuration
+
 //        IFortress fortress = new Fortress(new FortressInputBean("fortress"), new Company("Monowai"));
 //        fortress.setIgnoreSearchEngine(false);
 //        IFortressUser fu = new FortressUser(fortress, uid);
 //        AuditHeaderInputBean hib = new AuditHeaderInputBean("fortress", "Test", "Test", new DateTime().toDate(), "testRef");
 //        IAuditHeader auditHeader = new AuditHeader(fu, hib, new DocumentType("TestJson", fu.getFortress().getCompany()));
-
+//
         AuditChange auditChange = new AuditChange();
-
+//
         //auditChange.setName("Create");
         auditChange.setWhen(new DateTime());
-//// What changed?
+
+        // Add Who Parameter because it's used in creating the Document in ES as a Type .  
+        auditChange.setWho("Who");
+        
+        //// What changed?
         ObjectMapper om = new ObjectMapper();
         Map<String, Object> name = new HashMap<String, Object>();
         name.put("first", "Joe");
@@ -97,7 +101,7 @@ public class TestElasticSearch {
             // Elasticsearch
             Node node = nodeBuilder().local(true).node();
             Client client = node.client();
-            String indexKey = (auditChange.getIndexName());
+            String indexKey = auditChange.getIndexName() ==null ? "indexkey" : auditChange.getIndexName();
 
             // Write the object to Lucene
             IndexResponse ir =
@@ -129,13 +133,12 @@ public class TestElasticSearch {
         }
 
     }
-
+    
+    
     public void testViaSpringData() throws Exception {
 
         SecurityContextHolder.getContext().setAuthentication(auth);
         // As per JSON test, except this time we're doing it all via Spring.
-        // ToDo: the following should be uncommented, but the POM dependancy can't be resolved
-        //          in the current POM configuration
 
 //        IFortress fortress = new Fortress(new FortressInputBean("fortress"), new Company("Monowai"));
 //        fortress.setIgnoreSearchEngine(false);
@@ -144,24 +147,23 @@ public class TestElasticSearch {
 //        IAuditHeader auditHeader = new AuditHeader(fu, hib, new DocumentType("TestJson", fu.getFortress().getCompany()));
 
         IAuditChange auditChange = new AuditChange();
-        String auditKey = "auditHeader.getAuditKey()";
-
-        auditChange.setWhen(new DateTime());
-        ObjectMapper om = new ObjectMapper();
-
-        Map<String, Object> node = new HashMap<String, Object>();
-        node.put("first", "Joe");
-        node.put("last", "Sixpack");
-
-        auditChange.setWhat(node);
-
+//        String auditKey = "auditHeader.getAuditKey()";
+//
+//        auditChange.setWhen(new DateTime());
+//        ObjectMapper om = new ObjectMapper();
+//
+//        Map<String, Object> node = new HashMap<String, Object>();
+//        node.put("first", "Joe");
+//        node.put("last", "Sixpack");
+//
+//        auditChange.setWhat(node);
+        
         auditChange = alRepo.save(auditChange);
         assertNotNull(auditChange);
         String searchKey = auditChange.getSearchKey();
         assertNotNull(searchKey);
 
         // Retrieve parent from Lucene
-        //ToDo: uncomment the code below and get this working
 //        byte[] parent = alRepo.findOne(auditHeader, searchKey);
 //
 //        assertNotNull(parent);
