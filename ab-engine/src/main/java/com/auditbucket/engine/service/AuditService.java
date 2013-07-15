@@ -118,6 +118,75 @@ public class AuditService {
         return (tx == null ? null : auditDAO.findByTransaction(tx));
     }
 
+    
+    /**
+     * Creates a fortress specific header for the caller. FortressUser is automatically
+     * created if it does not exist.
+     *
+     * @return unique primary key to be used for subsequent log calls
+     */
+    @Transactional
+    public SearchVo createHeader2(AuditHeaderInputBean inputBean) {
+    	SearchVo searchVo = new SearchVo();
+        String userName = securityHelper.getLoggedInUser();
+        ISystemUser su = sysUserService.findByName(userName);
+
+        if (su == null)
+            throw new SecurityException("Not authorised");
+
+        ICompany company = su.getCompany();
+        String fortress = inputBean.getFortress();
+        // ToDo: Improve cypher query
+        IFortress iFortress = companyService.getCompanyFortress(company, fortress);
+        if (iFortress == null)
+            throw new IllegalArgumentException("Unable to find the fortress [" + fortress + "] for the company [" + su.getCompany().getName() + "]");
+
+        IAuditHeader ah = null;
+
+        // Idempotent check
+        if (inputBean.getCallerRef() != null)
+            ah = findByCallerRef(iFortress.getId(), inputBean.getDocumentType(), inputBean.getCallerRef());
+
+        if (ah != null) {
+            if (log.isDebugEnabled())
+                log.debug("Existing header record found by Caller Ref [" + inputBean.getCallerRef() + "] found [" + ah.getAuditKey() + "]");
+            inputBean.setAuditKey(ah.getAuditKey());
+            searchVo.setAuditHeaderInputBean(inputBean);
+            return searchVo;
+        }
+
+        // Create fortressUser if missing
+        IFortressUser fu = fortressService.getFortressUser(iFortress, inputBean.getFortressUser(), true);
+        IDocumentType documentType = tagService.resolveDocType(inputBean.getDocumentType());
+        ah = new AuditHeader(fu, inputBean, documentType);
+        inputBean.setAuditKey(ah.getAuditKey());
+
+        // Future from here on.....
+        ah = auditDAO.save(ah);
+
+        Map<String, String> userTags = inputBean.getTagValues();
+        auditTagService.createTagValues(userTags, ah);
+
+        if (log.isDebugEnabled())
+            log.debug("Audit Header created:" + ah.getId() + " key=[" + ah.getAuditKey() + "]");
+
+
+        AuditLogInputBean logBean = inputBean.getAuditLog();
+        if (logBean != null) {
+            logBean.setAuditKey(ah.getAuditKey());
+            logBean.setFortressUser(inputBean.getFortressUser());
+            logBean.setCallerRef(ah.getCallerRef());
+            // Creating an initial change record
+            AuditLogVo auditLogVo = createLog2(ah, logBean);
+            inputBean.setAuditLog(auditLogVo.getAuditLogInputBean());
+            searchVo.setAuditChange(auditLogVo.getAuditChange());
+        }
+        searchVo.setAuditHeaderInputBean(inputBean);
+        return searchVo;
+
+    }
+
+    
     /**
      * Creates a fortress specific header for the caller. FortressUser is automatically
      * created if it does not exist.
@@ -382,6 +451,132 @@ public class AuditService {
         return input;
 
     }
+    
+    /**
+     * Creates an audit log record for the supplied header from the supplied input
+     *
+     * @param header auditHeader the caller is authorised to work with
+     * @param input  auditLog details containing the data to log
+     * @return populated log information with any error messages
+     */
+    @Transactional
+    AuditLogVo createLog2(IAuditHeader header, AuditLogInputBean input) {
+    	AuditLogVo auditLogVo = new AuditLogVo();
+        if (input.getMapWhat() == null || input.getMapWhat().isEmpty()) {
+            input.setStatus(AuditLogInputBean.LogStatus.IGNORE);
+            auditLogVo.setAuditLogInputBean(input);
+            return auditLogVo;
+        }
+
+        String user = securityHelper.getUserName(false, false);
+        if (user == null) {
+            input.setStatus(AuditLogInputBean.LogStatus.FORBIDDEN);
+            auditLogVo.setAuditLogInputBean(input);
+            return auditLogVo;
+        }
+
+        if (input.getFortressUser() == null) {
+            input.setAbMessage("Fortress User not supplied");
+            input.setStatus(AuditLogInputBean.LogStatus.ILLEGAL_ARGUMENT);
+            auditLogVo.setAuditLogInputBean(input);
+            return auditLogVo;
+        }
+
+        boolean updateHeader = false;
+
+        IFortress fortress = header.getFortress();
+        IFortressUser fUser = fortressService.getFortressUser(fortress, input.getFortressUser().toLowerCase(), true);
+
+        // Spin the following off in to a separate thread?
+        // https://github.com/monowai/auditbucket/issues/7
+        IAuditLog lastChange = auditDAO.getLastChange(header.getId());
+        String event = input.getEvent();
+        Boolean searchActive = fortress.isSearchActive();
+        DateTime dateWhen;
+        if (input.getWhen() == null)
+            dateWhen = new DateTime();
+        else
+            dateWhen = new DateTime(input.getWhen());
+
+        if (lastChange != null) {
+            // Neo4j won't store the map, so we store the raw escaped JSON text
+            try {
+                if (isSame(lastChange.getJsonWhat(), input.getWhat())) {
+                    if (log.isDebugEnabled())
+                        log.debug("Ignoring a change we already have");
+                    input.setStatus(AuditLogInputBean.LogStatus.IGNORE);
+                    auditLogVo.setAuditLogInputBean(input);
+                    return auditLogVo;
+                }
+            } catch (IOException e) {
+                input.setStatus(AuditLogInputBean.LogStatus.ILLEGAL_ARGUMENT);
+                input.setAbMessage("Error comparing JSON data: " + e.getMessage());
+                auditLogVo.setAuditLogInputBean(input);
+                return auditLogVo;
+            }
+            if (event == null)
+                event = IAuditLog.UPDATE;
+
+            // Graph who did this for future analysis
+            if (header.getLastUser() != null && !header.getLastUser().getId().equals(fUser.getId())) {
+                updateHeader = true;
+                auditDAO.removeLastChange(header);
+            }
+            header.setLastUser(fUser);
+            if (searchActive)
+            {
+            	//searchService.makeChangeSearchable();
+            	auditLogVo.setAuditChange(new AuditChange(header, input.getMapWhat(), event, dateWhen));
+            }
+                
+        } else { // first ever log for the header
+            if (event == null)
+                event = IAuditLog.CREATE;
+            updateHeader = true;
+            AuditChange sd = new AuditChange(header, input.getMapWhat(), event, dateWhen);
+            if (log.isTraceEnabled()) {
+                try {
+                    log.trace(om.writeValueAsString(sd));
+                } catch (JsonProcessingException e) {
+                    log.error(e.getMessage());
+                }
+            }
+            if (searchActive)
+            {
+            	//searchService.makeChangeSearchable(sd);
+            	auditLogVo.setAuditChange(new AuditChange(header, input.getMapWhat(), event, dateWhen));
+            }
+                
+        }
+        ITxRef txRef = null;
+        if (input.isTransactional()) {
+            if (input.getTxRef() == null) {
+                txRef = beginTransaction();
+                input.setTxRef(txRef.getName());
+            } else {
+                txRef = beginTransaction(input.getTxRef());
+            }
+        }
+
+        if (updateHeader) {
+            header.setLastUser(fUser);
+            header = auditDAO.save(header);
+        }
+
+        IAuditLog al = new AuditLog(fUser, dateWhen, event, input.getWhat());
+        if (input.getTxRef() != null)
+            al.setTxRef(txRef);
+//        if (accumulatingChanges)
+//            al.setSearchKey(searchKey);
+
+        al = auditDAO.save(al);
+        auditDAO.addChange(header, al, dateWhen);
+        input.setStatus(AuditLogInputBean.LogStatus.OK);
+        auditLogVo.setAuditLogInputBean(input);
+        return auditLogVo;
+
+    }
+    
 
     private boolean isSame(String jsonWhat, String jsonOther) throws IOException {
         if (jsonWhat == null || jsonOther == null)
@@ -522,5 +717,11 @@ public class AuditService {
         return header;
 
     }
+
+	public void triggerSearch(AuditChange auditChange) {
+		 if(auditChange!=null)
+		searchService.makeChangeSearchable(auditChange);
+		
+	}
 
 }
