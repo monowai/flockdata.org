@@ -25,9 +25,11 @@ import com.auditbucket.audit.model.ITxRef;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.engine.service.AuditService;
+import com.auditbucket.engine.service.SearchVo;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -67,13 +69,15 @@ public class AuditEP {
     }
 
     @RequestMapping(value = "/header/new", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    //@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @ResponseBody
     //@ServiceActivator(inputChannel = "audit", outputChannel = "auditOutput")
     public ResponseEntity<AuditHeaderInputBean> createHeader(@RequestBody AuditHeaderInputBean input) throws Exception {
         // curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab/audit/header/new/ -d '"fortress":"MyFortressName", "fortressUser": "yoursystemuser", "documentType":"Company","when":"2012-11-10"}'
         try {
-            input = auditService.createHeader(input);
+        	SearchVo searchVo  = auditService.createHeader2(input);
+        	input=searchVo.getAuditHeaderInputBean();
+            auditService.triggerSearch(searchVo.getAuditChange());
             input.setLastMessage("OK");
             return new ResponseEntity<AuditHeaderInputBean>(input, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
