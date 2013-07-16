@@ -70,4 +70,5 @@ public interface IAuditChange {
 
     String getDocumentType();
 
+    String getCallerRef();
 }

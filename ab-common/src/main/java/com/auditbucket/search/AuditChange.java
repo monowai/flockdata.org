@@ -49,6 +49,7 @@ public class AuditChange implements IAuditChange {
     private String who;
     private String event;
     private String auditKey;
+    private String callerRef;
     private Map<String, Object> tagValues = new HashMap<String, Object>();
     private Long version;
 
@@ -66,6 +67,7 @@ public class AuditChange implements IAuditChange {
         setFortress(header.getFortress());
         this.indexName = header.getIndexName();
         this.searchKey = header.getSearchKey();
+        this.callerRef = header.getCallerRef();
         this.who = header.getLastUser().getName();
         Set<ITagValue> tags = header.getTagValues();
         if (tags != null)
@@ -74,13 +76,14 @@ public class AuditChange implements IAuditChange {
             }
     }
 
-    public AuditChange() {
+    protected AuditChange() {
     }
 
     public AuditChange(IAuditHeader header, Map<String, Object> mapWhat, String event, DateTime when) {
         this(header);
         this.what = mapWhat;
         this.event = event;
+
         setWhen(when);
     }
 
@@ -173,5 +176,9 @@ public class AuditChange implements IAuditChange {
 
     public Map<String, Object> getTagValues() {
         return tagValues;
+    }
+
+    public String getCallerRef() {
+        return callerRef;
     }
 }

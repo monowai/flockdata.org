@@ -81,7 +81,7 @@ public class AuditSearchDaoES implements IAuditSearchDao {
         indexMe.put("auditKey", auditChange.getAuditKey());
         indexMe.put("who", auditChange.getWho());
         indexMe.put("docType", auditChange.getDocumentType());
-
+        indexMe.put("callerRef", auditChange.getCallerRef());
         indexMe.put("tags", auditChange.getTagValues());
         return indexMe;
     }

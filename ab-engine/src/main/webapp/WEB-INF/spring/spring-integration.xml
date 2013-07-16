@@ -26,7 +26,8 @@
        http://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.springframework.org/schema/integration
        http://www.springframework.org/schema/integration/spring-integration.xsd http://www.springframework.org/schema/integration/http
-	   http://www.springframework.org/schema/integration/http/spring-integration-http.xsd">
+	   http://www.springframework.org/schema/integration/http/spring-integration-http.xsd
+">
 
     <int:annotation-config/>
     <bean class="org.springframework.integration.http.inbound.UriPathHandlerMapping"/>
@@ -53,6 +54,8 @@
                                     id="jsonToObject" output-channel="searchResult"
                                     type="com.auditbucket.search.SearchResult">
     </int:json-to-object-transformer>
+
+    <!--<stream:stderr-channel-adapter channel="errorChannel" append-newline="true" />-->
 
     <int:channel id="searchRequest"/>
     <int:channel id="sendRequest"/>
