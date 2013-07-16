@@ -44,7 +44,7 @@
 
     <int-http:outbound-gateway auto-startup="true"
                                request-channel="searchResult"
-                               url="http://localhost:8080/ab/api/searchResult"/>
+                               url="${outbound_url_ab_engine_search_result}"/>
 
 
     <int:json-to-object-transformer id="jsonToObject" input-channel="searchRequest"
