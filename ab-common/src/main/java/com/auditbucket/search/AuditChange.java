@@ -76,7 +76,7 @@ public class AuditChange implements IAuditChange {
             }
     }
 
-    protected AuditChange() {
+    public AuditChange() {
     }
 
     public AuditChange(IAuditHeader header, Map<String, Object> mapWhat, String event, DateTime when) {
