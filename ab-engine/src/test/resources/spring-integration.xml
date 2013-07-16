@@ -35,7 +35,7 @@
 
     <int-http:outbound-gateway auto-startup="true"
                                request-channel="sendRequest"
-                               url="http://localhost:8081/abs/api/esMake"
+                               url="${outbound_url_ab_search}"
                                extract-request-payload="true"/>
 
     <int-http:inbound-gateway request-channel="searchReply"
