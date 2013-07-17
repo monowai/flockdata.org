@@ -24,6 +24,7 @@ import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.audit.model.ITxRef;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
+import com.auditbucket.bean.AuditResultBean;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.service.CompanyService;
@@ -67,30 +68,26 @@ public class AuditEP {
     }
 
     @RequestMapping(value = "/header/new", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
-    //@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @ResponseBody
-    //@ServiceActivator(inputChannel = "audit", outputChannel = "auditOutput")
-    public ResponseEntity<AuditHeaderInputBean> createHeader(@RequestBody AuditHeaderInputBean input) throws Exception {
+    public ResponseEntity<AuditResultBean> createHeader(@RequestBody AuditHeaderInputBean input) throws Exception {
         // curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab/audit/header/new/ -d '"fortress":"MyFortressName", "fortressUser": "yoursystemuser", "documentType":"Company","when":"2012-11-10"}'
         try {
-            auditService.createHeader(input);
+            AuditResultBean auditResultBean = auditService.createHeader(input);
             //input=searchVo.getAuditHeaderInputBean();
             //auditService.triggerSearch(searchVo.getAuditChange());
-            input.setLastMessage("OK");
-            return new ResponseEntity<AuditHeaderInputBean>(input, HttpStatus.OK);
+            auditResultBean.setStatus("OK");
+            return new ResponseEntity<AuditResultBean>(auditResultBean, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             input.setLastMessage(e.getMessage());
-            return new ResponseEntity<AuditHeaderInputBean>(input, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<AuditResultBean>((AuditResultBean) null, HttpStatus.BAD_REQUEST);
         } catch (SecurityException e) {
             input.setLastMessage("Forbidden Request " + e.getMessage());
-            return new ResponseEntity<AuditHeaderInputBean>(input, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<AuditResultBean>((AuditResultBean) null, HttpStatus.FORBIDDEN);
         }
     }
 
     @RequestMapping(value = "/log/new", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
-//    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @ResponseBody
-    //@ServiceActivator(inputChannel = "auditLog", outputChannel = "auditOutput")
     public ResponseEntity<AuditLogInputBean> createLog(@RequestBody AuditLogInputBean input) throws Exception {
         // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/audit/log/new -d '{"eventType":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10", "what": "{\"name\": \"val\"}" }'
         try {

@@ -23,6 +23,7 @@ import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
+import com.auditbucket.bean.AuditResultBean;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.engine.service.IAuditSearchService;
 import com.auditbucket.registration.bean.FortressInputBean;
@@ -262,10 +263,10 @@ public class TestAuditIntegration {
             int audit = 1;
             while (audit <= auditCount) {
                 AuditHeaderInputBean aib = new AuditHeaderInputBean(iFortress.getName(), fortress + "olivia@sunnybell.com", "Company", new Date(), "ABC" + audit);
-                aib = auditService.createHeader(aib);
+                AuditResultBean arb = auditService.createHeader(aib);
                 int log = 1;
                 while (log <= logCount) {
-                    auditService.createLog(new AuditLogInputBean(aib.getAuditKey(), aib.getFortressUser(), new DateTime(), escJson + log + "}"));
+                    auditService.createLog(new AuditLogInputBean(arb.getAuditKey(), aib.getFortressUser(), new DateTime(), escJson + log + "}"));
                     log++;
                 }
                 audit++;

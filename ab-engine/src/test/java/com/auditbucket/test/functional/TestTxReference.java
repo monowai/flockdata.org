@@ -23,6 +23,7 @@ import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
+import com.auditbucket.bean.AuditResultBean;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.IFortress;
@@ -101,12 +102,12 @@ public class TestTxReference {
         AuditHeaderInputBean abcHeader = new AuditHeaderInputBean(fortressABC.getName(), "wally", "TestAudit", new Date(), "ABC123");
         abcHeader.setAuditLog(new AuditLogInputBean(null, "charlie", DateTime.now(), escJsonA, true));
 
-        abcHeader = auditService.createHeader(abcHeader);
-        AuditLogInputBean abcLog = abcHeader.getAuditLog();
-        assertNotNull(abcLog);
-
-        assertEquals("ABC Logger Not Created", AuditLogInputBean.LogStatus.OK, abcLog.getAbStatus());
-        String abcTxRef = abcLog.getTxRef();
+        AuditResultBean resultBean = auditService.createHeader(abcHeader);
+//        AuditLogInputBean abcLog = resultBean.getAuditLog();
+//        assertNotNull(abcLog);
+//
+//        assertEquals("ABC Logger Not Created", AuditLogInputBean.LogStatus.OK, abcLog.getAbStatus());
+        String abcTxRef = resultBean.getTxReference();
         assertNotNull(abcTxRef);
 
 // CBA data
@@ -132,7 +133,7 @@ public class TestTxReference {
         // WHat happens if ABC tries to use CBA's TX Ref.
         abcHeader = new AuditHeaderInputBean(fortressABC.getName(), "wally", "TestAudit", new Date(), "ZZZAAA");
         abcHeader.setAuditLog(new AuditLogInputBean(null, "wally", DateTime.now(), escJsonA, null, cbaTxRef));
-        AuditHeaderInputBean result = auditService.createHeader(abcHeader);
+        AuditResultBean result = auditService.createHeader(abcHeader);
         assertNotNull(result);
         // It works because TX References have only to be unique for a company
         //      ab generated references are GUIDs, but the caller is allowed to define their own transaction

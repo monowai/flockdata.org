@@ -28,6 +28,7 @@ package com.auditbucket.test.functional;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.ITagValue;
 import com.auditbucket.bean.AuditHeaderInputBean;
+import com.auditbucket.bean.AuditResultBean;
 import com.auditbucket.bean.AuditTagInputBean;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.engine.service.AuditTagService;
@@ -119,10 +120,10 @@ public class TestAuditTags {
 
         ITag result = tagService.processTag(tagInput);
         assertNotNull(result);
-        AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new Date(), "abc");
-        aib = auditService.createHeader(aib);
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new Date(), "abc");
+        AuditResultBean resultBean = auditService.createHeader(inputBean);
 
-        AuditTagInputBean auditTag = new AuditTagInputBean(null, aib.getAuditKey(), "!!!");
+        AuditTagInputBean auditTag = new AuditTagInputBean(null, resultBean.getAuditKey(), "!!!");
         try {
             auditTagService.processTag(auditTag);
             fail("No null argument exception detected");
@@ -130,7 +131,7 @@ public class TestAuditTags {
             // This should have happened
         }
         // First auditTag created
-        auditTag = new AuditTagInputBean(tagInput.getName(), aib.getAuditKey(), "!!!");
+        auditTag = new AuditTagInputBean(tagInput.getName(), resultBean.getAuditKey(), "!!!");
 
         auditTagService.processTag(auditTag);
         assertNotNull(auditTag);
@@ -161,8 +162,8 @@ public class TestAuditTags {
         tagValues.put("TagC", "CCCC");
         tagValues.put("TagD", "DDDD");
         aib.setTagValues(tagValues);
-        aib = auditService.createHeader(aib);
-        IAuditHeader auditHeader = auditService.getHeader(aib.getAuditKey(), true);
+        AuditResultBean resultBean = auditService.createHeader(aib);
+        IAuditHeader auditHeader = auditService.getHeader(resultBean.getAuditKey(), true);
         Set<ITagValue> tagSet = auditHeader.getTagValues();
         assertNotNull(tagSet);
         assertEquals(4, tagSet.size());
@@ -179,7 +180,7 @@ public class TestAuditTags {
 
         assertEquals(3, tagSet.size());
         auditService.updateHeader(auditHeader);
-        auditHeader = auditService.getHeader(aib.getAuditKey(), true);
+        auditHeader = auditService.getHeader(resultBean.getAuditKey(), true);
         tagSet = auditHeader.getTagValues();
         assertNotNull(tagSet);
         assertEquals(3, tagSet.size());
