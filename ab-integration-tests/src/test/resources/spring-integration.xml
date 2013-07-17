@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2012-2013 "Monowai Developments Limited"
+  ~
+  ~ This file is part of AuditBucket.
+  ~
+  ~ AuditBucket is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ AuditBucket is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:int-http="http://www.springframework.org/schema/integration/http"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/integration
+       http://www.springframework.org/schema/integration/spring-integration.xsd http://www.springframework.org/schema/integration/http
+	   http://www.springframework.org/schema/integration/http/spring-integration-http.xsd
+">
+
+    <int:annotation-config/>
+    <bean class="org.springframework.integration.http.inbound.UriPathHandlerMapping"/>
+    <int:gateway id="searchGateway"
+                 service-interface="com.auditbucket.engine.service.IAuditSearchService"/>
+
+    <int-http:outbound-gateway auto-startup="true"
+                               request-channel="sendRequest"
+                               url="${outbound_url_ab_search}"
+                               extract-request-payload="true"/>
+
+    <int-http:inbound-gateway request-channel="searchResult"
+                              request-payload-type="com.auditbucket.search.SearchResult"
+                              path="/api/searchResult"
+                              supported-methods="POST"/>
+
+    <int:object-to-json-transformer auto-startup="true"
+                                    id="objectToJson" input-channel="searchRequest"
+                                    output-channel="sendRequest">
+    </int:object-to-json-transformer>
+
+    <int:json-to-object-transformer input-channel="searchReply"
+                                    auto-startup="true"
+                                    id="jsonToObject" output-channel="searchResult"
+                                    type="com.auditbucket.search.SearchResult">
+    </int:json-to-object-transformer>
+
+    <!--<stream:stderr-channel-adapter channel="errorChannel" append-newline="true" />-->
+
+    <int:channel id="searchRequest"/>
+    <int:channel id="sendRequest"/>
+    <int:channel id="searchReply"/>
+    <int:channel id="searchResult"/>
+
+</beans>

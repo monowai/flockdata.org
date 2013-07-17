@@ -36,6 +36,11 @@
             <version>4.8.2</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>3.2.2.RELEASE</version>
+        </dependency>
     </dependencies>
 
     <profiles>
@@ -88,7 +93,7 @@
                             <configuration>
                                 <home>${project.build.directory}/catalina-base</home>
                                 <properties>
-                                    <cargo.servlet.port>8085</cargo.servlet.port>
+                                    <cargo.servlet.port>9081</cargo.servlet.port>
                                     <cargo.rmi.port>8086</cargo.rmi.port>
                                     <cargo.tomcat.ajp.port>8087</cargo.tomcat.ajp.port>
                                 </properties>
