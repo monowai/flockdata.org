@@ -23,6 +23,7 @@ import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
+import com.auditbucket.bean.AuditResultBean;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
@@ -199,11 +200,11 @@ public class TestAudit {
         IFortress fo = fortressService.registerFortress("auditTest");
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "YYY");
-        inputBean = auditService.createHeader(inputBean);
-        String ahKey = inputBean.getAuditKey();
+        AuditResultBean resultBean = auditService.createHeader(inputBean);
+        String ahKey = resultBean.getAuditKey();
         assertNotNull(ahKey);
 
-        IAuditHeader header = auditService.getHeader(inputBean.getAuditKey());
+        IAuditHeader header = auditService.getHeader(resultBean.getAuditKey());
         assertNotNull(header.getDocumentType());
 
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
@@ -227,8 +228,8 @@ public class TestAudit {
         regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
         IFortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "YYY");
-        auditService.createHeader(inputBean);
-        String ahKey = inputBean.getAuditKey();
+        AuditResultBean resultBean = auditService.createHeader(inputBean);
+        String ahKey = resultBean.getAuditKey();
 
         assertNotNull(ahKey);
         log.info(ahKey);
@@ -249,10 +250,10 @@ public class TestAudit {
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "9999");
         AuditLogInputBean logBean = new AuditLogInputBean(null, "wally", DateTime.now(), "{\"blah\":0}");
         inputBean.setAuditLog(logBean);
-        inputBean = auditService.createHeader(inputBean);
-        assertNotNull(inputBean);
-        assertNotNull(inputBean.getAuditKey());
-        assertEquals(1, auditService.getAuditLogCount(inputBean.getAuditKey()));
+        AuditResultBean resultBean = auditService.createHeader(inputBean);
+        assertNotNull(resultBean);
+        assertNotNull(resultBean.getAuditKey());
+        assertEquals(1, auditService.getAuditLogCount(resultBean.getAuditKey()));
     }
 
     @Test
@@ -263,10 +264,10 @@ public class TestAudit {
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "9999");
         AuditLogInputBean logBean = new AuditLogInputBean(null, "wally", DateTime.now(), "{\"blah\":0}");
         inputBean.setAuditLog(logBean);
-        inputBean = auditService.createHeader(inputBean);
-        assertNotNull(inputBean);
-        assertNotNull(inputBean.getAuditKey());
-        assertEquals(1, auditService.getAuditLogCount(inputBean.getAuditKey()));
+        AuditResultBean resultBean = auditService.createHeader(inputBean);
+        assertNotNull(resultBean);
+        assertNotNull(resultBean.getAuditKey());
+        assertEquals(1, auditService.getAuditLogCount(resultBean.getAuditKey()));
     }
 
     @Test

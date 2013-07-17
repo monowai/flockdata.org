@@ -25,6 +25,7 @@ import com.auditbucket.audit.model.IDocumentType;
 import com.auditbucket.audit.model.ITxRef;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
+import com.auditbucket.bean.AuditResultBean;
 import com.auditbucket.dao.IAuditDao;
 import com.auditbucket.engine.repo.neo4j.model.AuditHeader;
 import com.auditbucket.engine.repo.neo4j.model.AuditLog;
@@ -125,7 +126,7 @@ public class AuditService {
      * @return unique primary key to be used for subsequent log calls
      */
     @Transactional
-    public AuditHeaderInputBean createHeader(AuditHeaderInputBean inputBean) {
+    public AuditResultBean createHeader(AuditHeaderInputBean inputBean) {
         String userName = securityHelper.getLoggedInUser();
         ISystemUser su = sysUserService.findByName(userName);
 
@@ -149,7 +150,10 @@ public class AuditService {
             if (log.isDebugEnabled())
                 log.debug("Existing header record found by Caller Ref [" + inputBean.getCallerRef() + "] found [" + ah.getAuditKey() + "]");
             inputBean.setAuditKey(ah.getAuditKey());
-            return inputBean;
+
+            AuditResultBean arb = new AuditResultBean(ah, null);
+            arb.setStatus("Existing audit record found and is being returned");
+            return arb;
         }
 
         // Create fortressUser if missing
@@ -175,10 +179,11 @@ public class AuditService {
             logBean.setFortressUser(inputBean.getFortressUser());
             logBean.setCallerRef(ah.getCallerRef());
             // Creating an initial change record
-            inputBean.setAuditLog(createLog(ah, logBean, userTags));
+            logBean = createLog(ah, logBean, userTags);
+            AuditResultBean arb = new AuditResultBean(ah, logBean.getTxRef());
+            return arb;
         }
-
-        return inputBean;
+        return new AuditResultBean(ah, null);
 
     }
 

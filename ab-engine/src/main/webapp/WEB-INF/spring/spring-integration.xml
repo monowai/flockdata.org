@@ -36,7 +36,7 @@
 
     <int-http:outbound-gateway auto-startup="true"
                                request-channel="sendRequest"
-                               url="${outbound_url_ab_search}"
+                               url="${absearch.make}"
                                extract-request-payload="true"/>
 
     <int-http:inbound-gateway request-channel="searchResult"
