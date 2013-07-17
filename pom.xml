@@ -28,6 +28,7 @@
         <module>ab-common</module>
         <module>ab-engine</module>
         <module>ab-search</module>
+        <module>ab-integration-tests</module>
     </modules>
     <packaging>pom</packaging>
     <version>1.0.0-BUILD-SNAPSHOT</version>
