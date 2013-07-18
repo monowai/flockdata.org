@@ -35,6 +35,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.KeyStore;
 import java.util.Date;
 
 import static junit.framework.Assert.assertEquals;
@@ -81,6 +82,7 @@ public class AuditIntegrationTests {
         JestClientFactory factory = new JestClientFactory();
         factory.setClientConfig(clientConfig);
         client = factory.getObject();
+        //client.execute(new DeleteIndex.Builder("monowai.audittest").build());
     }
     @Rollback(false)
     @BeforeTransaction
@@ -147,13 +149,13 @@ public class AuditIntegrationTests {
                     "}  "+
                     "}  "+
                     "}";
-        Search search = new Search.Builder(query)
-                .addIndex("monowai.audittest")
-                .build();
+            Search search = new Search.Builder(query)
+                    .addIndex("monowai.audittest")
+                    .build();
 
-        JestResult result = client.execute(search);
-        int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
-        Assert.assertEquals(nbrResult, 1);
+            JestResult result = client.execute(search);
+            int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
+            Assert.assertEquals(nbrResult, 1);
 
         }
     }
