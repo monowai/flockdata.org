@@ -8,9 +8,17 @@ import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
+import io.searchbox.client.JestClient;
+import io.searchbox.client.JestClientFactory;
+import io.searchbox.client.JestResult;
+import io.searchbox.client.config.ClientConfig;
+import io.searchbox.core.Search;
+import io.searchbox.indices.DeleteIndex;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -64,7 +72,16 @@ public class AuditIntegrationTests {
     private String emailB = "mark@null.com";
     Authentication authA = new UsernamePasswordAuthenticationToken(email, "user1");
     Authentication authB = new UsernamePasswordAuthenticationToken(emailB, "user1");
+    JestClient client;
+    @Before
+    public void cleanupElasticSearch() throws Exception {
+        ClientConfig clientConfig = new ClientConfig.Builder("http://localhost:9200").multiThreaded(true).build();
 
+        // Construct a new Jest client according to configuration via factory
+        JestClientFactory factory = new JestClientFactory();
+        factory.setClientConfig(clientConfig);
+        client = factory.getObject();
+    }
     @Rollback(false)
     @BeforeTransaction
     public void cleanUpGraph() {
@@ -113,6 +130,36 @@ public class AuditIntegrationTests {
         // Test that we get the expected number of log events
         assertEquals(max, (double) auditService.getAuditLogCount(ahKey));
 
+        // Putting asserts On elasticsearch
 
+        ClientConfig clientConfig = new ClientConfig.Builder("http://localhost:9200").multiThreaded(true).build();
+
+        // Construct a new Jest client according to configuration via factory
+        JestClientFactory factory = new JestClientFactory();
+        factory.setClientConfig(clientConfig);
+        JestClient client = factory.getObject();
+        for(int k=0;k<10;k++){
+            String query = "{" +
+                    "    \"query\": {  " +
+                    " \"query_string\" : { " +
+                    "  \"default_field\" : \"blah\", " +
+                    "  \"query\" : \""+k+"\" " +
+                    "}  "+
+                    "}  "+
+                    "}";
+        Search search = new Search.Builder(query)
+                .addIndex("monowai.audittest")
+                .build();
+
+        JestResult result = client.execute(search);
+        int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
+        Assert.assertEquals(nbrResult, 1);
+
+        }
+    }
+
+    @After
+    public void shutDownElasticSearch() throws Exception {
+        client.shutdownClient();
     }
 }
