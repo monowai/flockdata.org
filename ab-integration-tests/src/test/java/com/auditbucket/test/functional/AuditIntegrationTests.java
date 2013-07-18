@@ -82,7 +82,7 @@ public class AuditIntegrationTests {
         JestClientFactory factory = new JestClientFactory();
         factory.setClientConfig(clientConfig);
         client = factory.getObject();
-        //client.execute(new DeleteIndex.Builder("monowai.audittest").build());
+        client.execute(new DeleteIndex.Builder("monowai.audittest").build());
     }
     @Rollback(false)
     @BeforeTransaction
@@ -91,11 +91,6 @@ public class AuditIntegrationTests {
         // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
         SecurityContextHolder.getContext().setAuthentication(authA);
         Neo4jHelper.cleanDb(template);
-    }
-
-    @Test
-    public void testCreateLogHeaderWithSearchActivated(){
-        Assert.assertTrue(true);
     }
 
     @Test
@@ -109,7 +104,7 @@ public class AuditIntegrationTests {
 
         assertNotNull(ahKey);
         log.info(ahKey);
-        Thread.sleep(5000);
+
 //        byte[] docs = alRepo.findOne(auditService.getHeader(ahKey));
 //        assertNotNull(docs);
         assertNotNull(auditService.getHeader(ahKey));
@@ -132,14 +127,8 @@ public class AuditIntegrationTests {
         // Test that we get the expected number of log events
         assertEquals(max, (double) auditService.getAuditLogCount(ahKey));
 
+        Thread.sleep(5000);
         // Putting asserts On elasticsearch
-
-        ClientConfig clientConfig = new ClientConfig.Builder("http://localhost:9200").multiThreaded(true).build();
-
-        // Construct a new Jest client according to configuration via factory
-        JestClientFactory factory = new JestClientFactory();
-        factory.setClientConfig(clientConfig);
-        JestClient client = factory.getObject();
         for(int k=0;k<10;k++){
             String query = "{" +
                     "    \"query\": {  " +
