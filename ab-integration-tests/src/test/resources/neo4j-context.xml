@@ -44,7 +44,7 @@ http://www.springframework.org/schema/data/neo4j/spring-neo4j.xsd http://www.spr
     <!--Enables remote shell (but kind of corrupts logging) -->
     <bean id="graphDatabaseService" class="org.neo4j.kernel.EmbeddedGraphDatabase" destroy-method="shutdown">
         <!--<constructor-arg index="0" value="${com.mycompany.neo4jDataDir}"/>-->
-        <constructor-arg index="0" value="D:\\TEMP\\target\\data\\neo4j\\"/>
+        <constructor-arg index="0" value="${neo4j.datastore}"/>
         <constructor-arg index="1">
             <map>
                 <entry key="allow_store_upgrade" value="true"/>

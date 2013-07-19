@@ -89,7 +89,7 @@ public class TestAuditIntegration {
 
     private Logger log = LoggerFactory.getLogger(TestAuditIntegration.class);
     private String company = "Monowai";
-    private String email = "mike@monowai.com";
+    private String email = "test@ab.com";
     private String emailB = "mark@null.com";
     Authentication authA = new UsernamePasswordAuthenticationToken(email, "user1");
     JestClient client;

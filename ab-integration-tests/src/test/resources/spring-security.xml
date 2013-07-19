@@ -28,7 +28,7 @@
 
 
     <http auto-config="true" use-expressions="true">
-        <intercept-url pattern="/com/auditbucket/core/registration/model" access="permitAll"/>
+        <intercept-url pattern="/com/auditbucket/registration/model" access="permitAll"/>
         <http-basic/>
     </http>
 

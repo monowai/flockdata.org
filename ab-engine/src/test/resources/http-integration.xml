@@ -34,11 +34,11 @@
                  service-interface="com.auditbucket.engine.service.IAbSearchGateway"/>
 
     <int-http:outbound-gateway auto-startup="true"
-                               request-channel="sendRequest"
+                               request-channel="sendRequest" reply-timeout="4000"
                                url="${absearch.make}"
                                extract-request-payload="true"/>
 
-    <int-http:inbound-gateway request-channel="searchReply"
+    <int-http:inbound-gateway request-channel="searchReply" reply-timeout="2000"
                               path="/api/searchResult"
                               supported-methods="POST"/>
 

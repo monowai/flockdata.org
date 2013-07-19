@@ -115,6 +115,7 @@
                     <plugin>
                         <groupId>org.codehaus.cargo</groupId>
                         <artifactId>cargo-maven2-plugin</artifactId>
+                        <version>1.4.2</version>
                         <configuration>
                             <container>
                                 <containerId>tomcat7x</containerId>
@@ -129,8 +130,8 @@
                                 <properties>
                                     <!--Does this port have to align with ab-search/config.properties?-->
                                     <cargo.servlet.port>9081</cargo.servlet.port>
-                                    <cargo.rmi.port>8086</cargo.rmi.port>
-                                    <cargo.tomcat.ajp.port>8087</cargo.tomcat.ajp.port>
+                                    <cargo.rmi.port>9086</cargo.rmi.port>
+                                    <cargo.tomcat.ajp.port>9087</cargo.tomcat.ajp.port>
                                 </properties>
                             </configuration>
                             <deployables>
