@@ -19,14 +19,10 @@
 
 package com.auditbucket.test.functional;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
+import com.auditbucket.audit.model.IAuditChange;
+import com.auditbucket.audit.model.IAuditSearchDao;
+import com.auditbucket.search.AuditChange;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
@@ -43,13 +39,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.auditbucket.audit.model.IAuditChange;
-import com.auditbucket.audit.model.IAuditSearchDao;
-import com.auditbucket.search.AuditChange;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({"classpath:root-context.xml","file:src/main/webapp/WEB-INF/spring/spring-integration.xml"})
+@ContextConfiguration({"classpath:root-context.xml", "file:src/main/webapp/WEB-INF/spring/http-integration.xml"})
 public class TestElasticSearch {
     private String uid = "mike@monowai.com";
     Authentication auth = new UsernamePasswordAuthenticationToken(uid, "user1");
@@ -87,7 +86,7 @@ public class TestElasticSearch {
 
         // Add Who Parameter because it's used in creating the Document in ES as a Type .  
         auditChange.setWho("Who");
-        
+
         //// What changed?
         ObjectMapper om = new ObjectMapper();
         Map<String, Object> name = new HashMap<String, Object>();
@@ -101,7 +100,7 @@ public class TestElasticSearch {
             // Elasticsearch
             Node node = nodeBuilder().local(true).node();
             Client client = node.client();
-            String indexKey = auditChange.getIndexName() ==null ? "indexkey" : auditChange.getIndexName();
+            String indexKey = auditChange.getIndexName() == null ? "indexkey" : auditChange.getIndexName();
 
             // Write the object to Lucene
             IndexResponse ir =
@@ -133,8 +132,8 @@ public class TestElasticSearch {
         }
 
     }
-    
-    
+
+
     public void testViaSpringData() throws Exception {
 
         SecurityContextHolder.getContext().setAuthentication(auth);
@@ -157,7 +156,7 @@ public class TestElasticSearch {
 //        node.put("last", "Sixpack");
 //
 //        auditChange.setWhat(node);
-        
+
         auditChange = alRepo.save(auditChange);
         assertNotNull(auditChange);
         String searchKey = auditChange.getSearchKey();

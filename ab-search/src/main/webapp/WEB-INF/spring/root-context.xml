@@ -29,11 +29,14 @@
     <context:component-scan base-package="com.auditbucket.search"/>
     <!-- Root Context: defines shared resources visible to all other web components -->
 
-    <context:property-placeholder location="classpath:/ab-search-config.properties"/>
+    <context:property-placeholder location="classpath:/config.properties"/>
 
     <import resource="./spring-security.xml"/>
     <import resource="./es-context.xml"/>
-    <import resource="./spring-integration.xml"/>
+    <!--externalise the http as a configuration variable for deployment configuration
+        i.e. http, rabbit, rmi etc -->
+    <!--<import resource="${integration}-integration.xml"/>-->
+    <import resource="http-integration.xml"/>
 
 
 </beans>

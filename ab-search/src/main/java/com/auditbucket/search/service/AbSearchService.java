@@ -46,7 +46,7 @@ public class AbSearchService implements IElasticSearchEP {
     private IAuditQueryDao auditQuery;
 
     @Autowired
-    private IAbSearchResult searchResult;
+    private IAbEngineGateway searchResult;
 
     public Long getHitCount(String index) {
         return auditQuery.getHitCount(index);

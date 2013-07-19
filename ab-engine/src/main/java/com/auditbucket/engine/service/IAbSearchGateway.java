@@ -23,7 +23,6 @@ import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.search.AuditChange;
 import com.auditbucket.search.SearchResult;
 import org.springframework.integration.annotation.Gateway;
-import org.springframework.scheduling.annotation.Async;
 
 import java.util.concurrent.Future;
 
@@ -33,8 +32,8 @@ import java.util.concurrent.Future;
  * Date: 6/07/13
  * Time: 2:31 PM
  */
-public interface IAuditSearchGateway {
-    @Async
+public interface IAbSearchGateway {
+
     @Gateway(requestChannel = "searchRequest")
     public Future<SearchResult> makeChangeSearchable(AuditChange searchDocumentBean);
 

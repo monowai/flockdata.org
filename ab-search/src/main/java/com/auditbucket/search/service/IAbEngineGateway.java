@@ -28,7 +28,7 @@ import java.util.concurrent.Future;
  * User: Mike Holdsworth
  * Since: 13/07/13
  */
-public interface IAbSearchResult {
+public interface IAbEngineGateway {
     @Gateway(requestChannel = "searchReply")
     Future<Void> handleSearchResult(SearchResult searchResult);
 
