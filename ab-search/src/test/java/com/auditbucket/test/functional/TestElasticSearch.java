@@ -48,7 +48,7 @@ import static junit.framework.Assert.assertNotNull;
 import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({"classpath:root-context.xml", "file:src/main/webapp/WEB-INF/spring/http-integration.xml"})
+@ContextConfiguration({"classpath:root-context.xml"})
 public class TestElasticSearch {
     private String uid = "mike@monowai.com";
     Authentication auth = new UsernamePasswordAuthenticationToken(uid, "user1");

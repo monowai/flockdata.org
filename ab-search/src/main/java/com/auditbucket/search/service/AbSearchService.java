@@ -45,8 +45,8 @@ public class AbSearchService implements IElasticSearchEP {
     @Autowired
     private IAuditQueryDao auditQuery;
 
-    @Autowired
-    private IAbEngineGateway searchResult;
+    @Autowired(required = false)
+    private IAbEngineGateway engineGateway;
 
     public Long getHitCount(String index) {
         return auditQuery.getHitCount(index);
@@ -62,7 +62,7 @@ public class AbSearchService implements IElasticSearchEP {
         } else {
             result = new SearchResult(auditSearch.save(thisChange));
         }
-        searchResult.handleSearchResult(result);
+        engineGateway.handleSearchResult(result);
 
     }
 
