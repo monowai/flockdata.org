@@ -301,8 +301,10 @@ public class AuditService {
                 input.setAbMessage("Error comparing JSON data: " + e.getMessage());
                 return input;
             }
-            if (event == null)
+            if (event == null) {
                 event = IAuditLog.UPDATE;
+                input.setEvent(event);
+            }
 
             // Graph who did this for future analysis
             if (header.getLastUser() != null && !header.getLastUser().getId().equals(fUser.getId())) {
@@ -313,8 +315,11 @@ public class AuditService {
             sd = new AuditChange(header, input.getMapWhat(), event, dateWhen);
             sd.setTagValues(tagValues);
         } else { // first ever log for the header
-            if (event == null)
+            if (event == null) {
                 event = IAuditLog.CREATE;
+                input.setEvent(event);
+            }
+
             headerModified = true;
             header.setLastUser(fUser);
             sd = new AuditChange(header, input.getMapWhat(), event, dateWhen);
