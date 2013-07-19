@@ -21,6 +21,7 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
+import com.auditbucket.bean.AuditResultBean;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
@@ -54,6 +55,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 import static junit.framework.Assert.assertEquals;
@@ -70,7 +72,7 @@ import static org.junit.Assert.assertNull;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 @Transactional
-public class AuditIntegrationTests {
+public class TestAuditIntegration {
 
     @Autowired
     AuditService auditService;
@@ -85,17 +87,16 @@ public class AuditIntegrationTests {
     private Neo4jTemplate template;
 
 
-    private Logger log = LoggerFactory.getLogger(AuditIntegrationTests.class);
+    private Logger log = LoggerFactory.getLogger(TestAuditIntegration.class);
     private String company = "Monowai";
     private String email = "mike@monowai.com";
     private String emailB = "mark@null.com";
     Authentication authA = new UsernamePasswordAuthenticationToken(email, "user1");
-    Authentication authB = new UsernamePasswordAuthenticationToken(emailB, "user1");
     JestClient client;
 
     @Before
     public void cleanupElasticSearch() throws Exception {
-        ClientConfig clientConfig = new ClientConfig.Builder("http://localhost:9200").multiThreaded(true).build();
+        ClientConfig clientConfig = new ClientConfig.Builder("http://localhost:9201").multiThreaded(true).build();
 
         // Construct a new Jest client according to configuration via factory
         JestClientFactory factory = new JestClientFactory();
@@ -189,6 +190,78 @@ public class AuditIntegrationTests {
         watch.stop();
         log.info("End " + watch.getTime() / 1000d + " avg = " + (watch.getTime() / 1000d) / max);
 
+    }
+
+    @Test
+    public void stressWithHighVolume() throws Exception {
+        regService.registerSystemUser(new RegistrationBean("TestAudit", "mike", "bah"));
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        int fortressCount = 2;
+        int auditCount = 20;
+        int logCount = 10;
+        String escJson = "{\"who\":";
+        int fortress = 1;
+        ArrayList<Long> list = new ArrayList<Long>();
+        StopWatch watch = new StopWatch();
+        watch.start();
+        double splits = 0;
+        log.info("FortressCount: " + fortressCount + " AuditCount: " + auditCount + " LogCount: " + logCount);
+        while (fortress <= fortressCount) {
+
+            String fortressName = "bulkloada" + fortress;
+            IFortress iFortress = fortressService.registerFortress(new FortressInputBean(fortressName, true));
+            int audit = 1;
+            log.info("Starting run for " + fortressName);
+            while (audit <= auditCount) {
+                AuditHeaderInputBean aib = new AuditHeaderInputBean(iFortress.getName(), fortress + "olivia@sunnybell.com", "Company", new Date(), "ABC" + audit);
+                AuditResultBean arb = auditService.createHeader(aib);
+                int log = 1;
+                while (log <= logCount) {
+                    auditService.createLog(new AuditLogInputBean(arb.getAuditKey(), aib.getFortressUser(), new DateTime(), escJson + log + "}"));
+                    log++;
+                }
+                audit++;
+            }
+            watch.split();
+
+            log.info(iFortress.getName() + " took " + (watch.getSplitTime() / 1000d));
+            splits = splits + watch.getSplitTime();
+            watch.reset();
+            watch.start();
+            list.add(iFortress.getId());
+            fortress++;
+        }
+
+        log.info("Created data set");
+        double sub = splits / 1000d;
+        log.info("Created data set in " + sub + " fortress avg = " + sub / fortressCount + " avg seconds per row " + sub / (fortressCount * auditCount * logCount) + " rows per second " + (fortressCount * auditCount * logCount) / sub);
+        watch.reset();
+        watch.start();
+
+        int searchLoops = 2;
+        int search = 0;
+        int totalSearchRequests = 0;
+        watch.split();
+        do {
+            fortress = 0;
+            do {
+                int x = 1;
+                do {
+                    int random = (int) (Math.random() * ((auditCount) + 1));
+                    if (random == 0)
+                        random = 1;
+                    junit.framework.Assert.assertNotNull("ABC" + random, auditService.findByCallerRef(list.get(fortress), "Company", "ABC" + random));
+                    totalSearchRequests++;
+                    x++;
+                } while (x < auditCount);
+                fortress++;
+            } while (fortress < fortressCount);
+            search++;
+        } while (search < searchLoops);
+
+        watch.stop();
+        double end = watch.getTime() / 1000d;
+        log.info("Total Search Requests = " + totalSearchRequests + ". Total time for searches " + end + " avg requests per second = " + totalSearchRequests / end);
     }
 
     @After

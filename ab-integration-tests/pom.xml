@@ -85,9 +85,9 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <version>2.12</version>
                         <configuration>
-                            <excludes>
-                                <exclude>**/*IntegrationTests.java</exclude>
-                            </excludes>
+                            <!--<excludes>-->
+                            <!--<exclude>**/*IntegrationTests.java</exclude>-->
+                            <!--</excludes>-->
                             <junitArtifactName>junit:junit</junitArtifactName>
                             <argLine>-Xmx512m</argLine>
                         </configuration>
@@ -102,9 +102,9 @@
                                     <excludes>
                                         <exclude>**/Abstract*.java</exclude>
                                     </excludes>
-                                    <includes>
-                                        <include>**/*Test*.java</include>
-                                    </includes>
+                                    <!--<includes>-->
+                                    <!--<include>**/*Test*.java</include>-->
+                                    <!--</includes>-->
                                     <junitArtifactName>junit:junit</junitArtifactName>
                                     <argLine>-Xmx512m</argLine>
                                 </configuration>
@@ -127,6 +127,7 @@
                             <configuration>
                                 <home>${project.build.directory}/catalina-base</home>
                                 <properties>
+                                    <!--Does this port have to align with ab-search/config.properties?-->
                                     <cargo.servlet.port>9081</cargo.servlet.port>
                                     <cargo.rmi.port>8086</cargo.rmi.port>
                                     <cargo.tomcat.ajp.port>8087</cargo.tomcat.ajp.port>

@@ -43,10 +43,11 @@ http://www.springframework.org/schema/tx/spring-tx.xsd">
 
     <!--ToDo: Transaction Management -->
     <tx:annotation-driven mode="proxy"/>
+    <tx:annotation-driven mode="aspectj"/>
 
     <!--Embedded config-->
     <neo4j:config storeDirectory="./target/data/neo4j/"/>
-    <tx:annotation-driven mode="aspectj"/>
+
 
     <!--<neo4j:config graphDatabaseService="graphDatabaseService"/>-->
     <!--<bean id="graphDatabaseService" class="org.neo4j.test.ImpermanentGraphDatabase" />-->

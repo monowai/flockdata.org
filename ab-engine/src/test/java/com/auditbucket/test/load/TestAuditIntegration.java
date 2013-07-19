@@ -23,16 +23,14 @@ import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
-import com.auditbucket.bean.AuditResultBean;
 import com.auditbucket.engine.service.AuditService;
-import com.auditbucket.engine.service.IAuditSearchGateway;
+import com.auditbucket.engine.service.IAbSearchGateway;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.model.IFortressUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
-import com.auditbucket.test.functional.JsonValues;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -41,7 +39,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.data.neo4j.support.node.Neo4jHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -51,7 +48,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Set;
 
@@ -71,7 +67,7 @@ public class TestAuditIntegration {
     AuditService auditService;
 
     @Autowired
-    IAuditSearchGateway auditSearchService;
+    IAbSearchGateway auditSearchService;
 
     @Autowired
     RegistrationService regService;
@@ -98,7 +94,7 @@ public class TestAuditIntegration {
         // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
         // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
         SecurityContextHolder.getContext().setAuthentication(authMike);
-        Neo4jHelper.cleanDb(template);
+//        Neo4jHelper.cleanDb(template);
     }
 
     @Test
@@ -243,74 +239,5 @@ public class TestAuditIntegration {
         assertEquals(recordsToCreate, (double) auditService.getAuditLogCount(auditHeader));
     }
 
-    @Test
-    public void testBigLoad() throws Exception {
-        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
-        SecurityContextHolder.getContext().setAuthentication(authMike);
-        int fortressCount = 2;
-        int auditCount = 10;
-        int logCount = 5;
-        String escJson = "{\"who\":";
-        int fortress = 1;
-        ArrayList<Long> list = new ArrayList<Long>();
-        StopWatch watch = new StopWatch();
-        watch.start();
-        double splits = 0;
-        log.info("FortressCount: " + fortressCount + " AuditCount: " + auditCount + " LogCount: " + logCount);
-        while (fortress <= fortressCount) {
 
-            String fortressName = "bulkloada" + fortress;
-            IFortress iFortress = fortressService.registerFortress(new FortressInputBean(fortressName, true));
-            int audit = 1;
-            while (audit <= auditCount) {
-                AuditHeaderInputBean aib = new AuditHeaderInputBean(iFortress.getName(), fortress + "olivia@sunnybell.com", "Company", new Date(), "ABC" + audit);
-                AuditResultBean arb = auditService.createHeader(aib);
-                int log = 1;
-                while (log <= logCount) {
-                    auditService.createLog(new AuditLogInputBean(arb.getAuditKey(), aib.getFortressUser(), new DateTime(), JsonValues.getBigJsonText(log)));
-                    log++;
-                }
-                audit++;
-            }
-            watch.split();
-
-            log.info(iFortress.getName() + " took " + (watch.getSplitTime() / 1000d));
-            splits = splits + watch.getSplitTime();
-            watch.reset();
-            watch.start();
-            list.add(iFortress.getId());
-            fortress++;
-        }
-
-        log.info("Created data set");
-        double sub = splits / 1000d;
-        log.info("Created data set in " + sub + " fortress avg = " + sub / fortressCount + " avg seconds per row " + sub / (fortressCount * auditCount * logCount) + " rows per second " + (fortressCount * auditCount * logCount) / sub);
-        watch.reset();
-        watch.start();
-
-        int searchLoops = 2;
-        int search = 0;
-        int totalSearchRequests = 0;
-        watch.split();
-        do {
-            fortress = 0;
-            do {
-                int x = 1;
-                do {
-                    int random = (int) (Math.random() * ((auditCount) + 1));
-                    if (random == 0)
-                        random = 1;
-                    assertNotNull("ABC" + random, auditService.findByCallerRef(list.get(fortress), "Company", "ABC" + random));
-                    totalSearchRequests++;
-                    x++;
-                } while (x < auditCount);
-                fortress++;
-            } while (fortress < fortressCount);
-            search++;
-        } while (search < searchLoops);
-
-        watch.stop();
-        double end = watch.getTime() / 1000d;
-        log.info("Total Search Requests = " + totalSearchRequests + ". Total time for searches " + end + " avg requests per second = " + totalSearchRequests / end);
-    }
 }
