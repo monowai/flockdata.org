@@ -286,7 +286,7 @@ public class AuditService {
             dateWhen = new DateTime();
         else
             dateWhen = new DateTime(input.getWhen());
-
+        AuditChange sd;
         if (lastChange != null) {
             // Neo4j won't store the map, so we store the raw escaped JSON text
             try {
@@ -310,16 +310,14 @@ public class AuditService {
                 auditDAO.removeLastChange(header);
             }
             header.setLastUser(fUser);
-            AuditChange sd = new AuditChange(header, input.getMapWhat(), event, dateWhen);
+            sd = new AuditChange(header, input.getMapWhat(), event, dateWhen);
             sd.setTagValues(tagValues);
-            if (searchActive)
-                searchGateway.makeChangeSearchable(sd);
         } else { // first ever log for the header
             if (event == null)
                 event = IAuditLog.CREATE;
             headerModified = true;
             header.setLastUser(fUser);
-            AuditChange sd = new AuditChange(header, input.getMapWhat(), event, dateWhen);
+            sd = new AuditChange(header, input.getMapWhat(), event, dateWhen);
             sd.setTagValues(tagValues);
             if (log.isTraceEnabled()) {
                 try {
@@ -328,8 +326,6 @@ public class AuditService {
                     log.error(e.getMessage());
                 }
             }
-            if (searchActive)
-                searchGateway.makeChangeSearchable(sd);
         }
 
         if (headerModified) {
@@ -343,6 +339,9 @@ public class AuditService {
 
         al = auditDAO.save(al);
         auditDAO.addChange(header, al, dateWhen);
+
+        if (searchActive)
+            searchGateway.makeChangeSearchable(sd);
         input.setStatus(AuditLogInputBean.LogStatus.OK);
         return input;
 
