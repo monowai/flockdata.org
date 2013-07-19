@@ -1,4 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2012-2013 "Monowai Developments Limited"
+  ~
+  ~ This file is part of AuditBucket.
+  ~
+  ~ AuditBucket is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ AuditBucket is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -84,7 +103,7 @@
                                         <exclude>**/Abstract*.java</exclude>
                                     </excludes>
                                     <includes>
-                                        <include>**/*IntegrationTests.java</include>
+                                        <include>**/*Test*.java</include>
                                     </includes>
                                     <junitArtifactName>junit:junit</junitArtifactName>
                                     <argLine>-Xmx512m</argLine>
@@ -100,7 +119,9 @@
                             <container>
                                 <containerId>tomcat7x</containerId>
                                 <zipUrlInstaller>
-                                    <url>http://archive.apache.org/dist/tomcat/tomcat-7/v7.0.30/bin/apache-tomcat-7.0.30.zip</url>
+                                    <url>
+                                        http://archive.apache.org/dist/tomcat/tomcat-7/v7.0.30/bin/apache-tomcat-7.0.30.zip
+                                    </url>
                                 </zipUrlInstaller>
                             </container>
                             <configuration>
@@ -125,50 +146,6 @@
                                 <outputLocation>${project.build.directory}/tomcat-packaged</outputLocation>
                             </packager>
                         </configuration>
-                            <executions>
-                                <execution>
-                                    <id>start-server</id>
-                                    <phase>pre-integration-test</phase>
-                                    <goals>
-                                        <goal>start</goal>
-                                    </goals>
-                                </execution>
-                                <execution>
-                                    <id>stop-server</id>
-                                    <phase>post-integration-test</phase>
-                                    <goals>
-                                        <goal>stop</goal>
-                                    </goals>
-                                </execution>
-                            </executions>
-                    </plugin>
-
-                   <!-- <plugin>
-                        <groupId>org.codehaus.cargo</groupId>
-                        <artifactId>cargo-maven2-plugin</artifactId>
-                        <configuration>
-                            <container>
-                                <containerId>jetty6x</containerId>
-                                <type>embedded</type>
-                            </container>
-                            <configuration>
-                                <type>standalone</type>
-                                <properties>
-                                    <cargo.servlet.port>8085</cargo.servlet.port>
-                                </properties>
-                                <deployables>
-                                    <deployable>
-                                        <groupId>com.monowai</groupId>
-                                        <artifactId>ab-search</artifactId>
-                                        <type>war</type>
-                                        <pingURL>http://localhost:8085/ab-search/</pingURL>
-                                        <properties>
-                                            <context>ab-search</context>
-                                        </properties>
-                                    </deployable>
-                                </deployables>
-                            </configuration>
-                        </configuration>
                         <executions>
                             <execution>
                                 <id>start-server</id>
@@ -185,7 +162,51 @@
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin>-->
+                    </plugin>
+
+                    <!-- <plugin>
+                         <groupId>org.codehaus.cargo</groupId>
+                         <artifactId>cargo-maven2-plugin</artifactId>
+                         <configuration>
+                             <container>
+                                 <containerId>jetty6x</containerId>
+                                 <type>embedded</type>
+                             </container>
+                             <configuration>
+                                 <type>standalone</type>
+                                 <properties>
+                                     <cargo.servlet.port>8085</cargo.servlet.port>
+                                 </properties>
+                                 <deployables>
+                                     <deployable>
+                                         <groupId>com.monowai</groupId>
+                                         <artifactId>ab-search</artifactId>
+                                         <type>war</type>
+                                         <pingURL>http://localhost:8085/ab-search/</pingURL>
+                                         <properties>
+                                             <context>ab-search</context>
+                                         </properties>
+                                     </deployable>
+                                 </deployables>
+                             </configuration>
+                         </configuration>
+                         <executions>
+                             <execution>
+                                 <id>start-server</id>
+                                 <phase>pre-integration-test</phase>
+                                 <goals>
+                                     <goal>start</goal>
+                                 </goals>
+                             </execution>
+                             <execution>
+                                 <id>stop-server</id>
+                                 <phase>post-integration-test</phase>
+                                 <goals>
+                                     <goal>stop</goal>
+                                 </goals>
+                             </execution>
+                         </executions>
+                     </plugin>-->
                 </plugins>
             </build>
         </profile>

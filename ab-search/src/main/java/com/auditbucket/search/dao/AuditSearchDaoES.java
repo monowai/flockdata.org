@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -45,6 +46,28 @@ public class AuditSearchDaoES implements IAuditSearchDao {
     private Client esClient;
 
     private Logger log = LoggerFactory.getLogger(AuditSearchDaoES.class);
+
+    /**
+     * Converts a user requested auditChange in to a standardised document to index
+     *
+     * @param auditChange change
+     * @return document to index
+     */
+    private Map<String, Object> makeIndexDocument(IAuditChange auditChange) {
+        Map<String, Object> indexMe = new HashMap<String, Object>();
+        indexMe.put("what", auditChange.getWhat());
+        indexMe.put("auditKey", auditChange.getAuditKey());
+        indexMe.put("who", auditChange.getWho());
+        indexMe.put("lastEvent", auditChange.getEvent());
+        indexMe.put("when", auditChange.getWhen());
+        indexMe.put("fortress", auditChange.getFortressName());
+        indexMe.put("docType", auditChange.getDocumentType());
+        indexMe.put("callerRef", auditChange.getCallerRef());
+        indexMe.put("tags", auditChange.getTagValues());
+
+        return indexMe;
+    }
+
 
     /**
      * @param auditChange object containing changes
@@ -68,22 +91,6 @@ public class AuditSearchDaoES implements IAuditSearchDao {
             log.debug("Added Document [" + ir.getId() + "] to " + indexName + "/" + documentType);
         return auditChange;
 
-    }
-
-    /**
-     * Converts a user requested auditChange in to a standardised document to index
-     *
-     * @param auditChange change
-     * @return document to index
-     */
-    private Map<String, Object> makeIndexDocument(IAuditChange auditChange) {
-        Map<String, Object> indexMe = auditChange.getWhat();
-        indexMe.put("auditKey", auditChange.getAuditKey());
-        indexMe.put("who", auditChange.getWho());
-        indexMe.put("docType", auditChange.getDocumentType());
-        indexMe.put("callerRef", auditChange.getCallerRef());
-        indexMe.put("tags", auditChange.getTagValues());
-        return indexMe;
     }
 
     @Override

@@ -33,7 +33,7 @@ import java.util.concurrent.Future;
  * Date: 6/07/13
  * Time: 2:31 PM
  */
-public interface IAuditSearchService {
+public interface IAuditSearchGateway {
     @Async
     @Gateway(requestChannel = "searchRequest")
     public Future<SearchResult> makeChangeSearchable(AuditChange searchDocumentBean);

@@ -90,7 +90,7 @@ public class AuditService {
     private SecurityHelper securityHelper;
 
     @Autowired
-    private IAuditSearchService searchService;
+    private IAuditSearchGateway searchGateway;
 
     private Logger log = LoggerFactory.getLogger(AuditService.class);
     static final ObjectMapper om = new ObjectMapper();
@@ -260,12 +260,23 @@ public class AuditService {
             return input;
         }
 
-        boolean updateHeader = false;
+        boolean headerModified = false;
 
         IFortress fortress = header.getFortress();
         IFortressUser fUser = fortressService.getFortressUser(fortress, input.getFortressUser().toLowerCase(), true);
 
-        // Spin the following off in to a separate thread?
+// Transactions checks
+        ITxRef txRef = null;
+        if (input.isTransactional()) {
+            if (input.getTxRef() == null) {
+                txRef = beginTransaction();
+                input.setTxRef(txRef.getName());
+            } else {
+                txRef = beginTransaction(input.getTxRef());
+            }
+        }
+
+//ToDo: Look at spin the following off in to a separate thread?
         // https://github.com/monowai/auditbucket/issues/7
         IAuditLog lastChange = auditDAO.getLastChange(header.getId());
         String event = input.getEvent();
@@ -295,18 +306,19 @@ public class AuditService {
 
             // Graph who did this for future analysis
             if (header.getLastUser() != null && !header.getLastUser().getId().equals(fUser.getId())) {
-                updateHeader = true;
+                headerModified = true;
                 auditDAO.removeLastChange(header);
             }
             header.setLastUser(fUser);
             AuditChange sd = new AuditChange(header, input.getMapWhat(), event, dateWhen);
             sd.setTagValues(tagValues);
             if (searchActive)
-                searchService.makeChangeSearchable(sd);
+                searchGateway.makeChangeSearchable(sd);
         } else { // first ever log for the header
             if (event == null)
                 event = IAuditLog.CREATE;
-            updateHeader = true;
+            headerModified = true;
+            header.setLastUser(fUser);
             AuditChange sd = new AuditChange(header, input.getMapWhat(), event, dateWhen);
             sd.setTagValues(tagValues);
             if (log.isTraceEnabled()) {
@@ -317,28 +329,17 @@ public class AuditService {
                 }
             }
             if (searchActive)
-                searchService.makeChangeSearchable(sd);
-        }
-        ITxRef txRef = null;
-        if (input.isTransactional()) {
-            if (input.getTxRef() == null) {
-                txRef = beginTransaction();
-                input.setTxRef(txRef.getName());
-            } else {
-                txRef = beginTransaction(input.getTxRef());
-            }
+                searchGateway.makeChangeSearchable(sd);
         }
 
-        if (updateHeader) {
+        if (headerModified) {
             header.setLastUser(fUser);
             header = auditDAO.save(header);
         }
 
-        IAuditLog al = new AuditLog(fUser, dateWhen, event, input.getWhat());
+        IAuditLog al = new AuditLog(fUser, dateWhen, input);
         if (input.getTxRef() != null)
             al.setTxRef(txRef);
-//        if (accumulatingChanges)
-//            al.setSearchKey(searchKey);
 
         al = auditDAO.save(al);
         auditDAO.addChange(header, al, dateWhen);
@@ -465,10 +466,10 @@ public class AuditService {
         if (auditHeader.getFortress().isSearchActive()) {
             //String searchKey = (accumulatingFortress ? logToDelete.getSearchKey() : auditHeader.getSearchKey());
 //            if (accumulatingFortress) {
-            //searchService.delete(auditHeader, searchKey);
+            //searchGateway.delete(auditHeader, searchKey);
 
             // Rebuild the search record
-//                SearchResult change = searchService.makeChangeSearchable(new AuditChange(auditHeader, newLastChange.getWhat(), newLastChange.getName(), new DateTime(newLastChange.getWhen())));
+//                SearchResult change = searchGateway.makeChangeSearchable(new AuditChange(auditHeader, newLastChange.getWhat(), newLastChange.getName(), new DateTime(newLastChange.getWhen())));
 //                if (change != null) {
 //                    // When accumulating the searchkey is against the logs
 //                    newLastChange.setSearchKey(change.getSearchKey());
@@ -476,7 +477,7 @@ public class AuditService {
 //                }
 //            } else {
             // Update against the Audit Header only by reindexing the search document
-            searchService.makeChangeSearchable(new AuditChange(auditHeader, newLastChange.getWhat(), newLastChange.getEvent(), new DateTime(newLastChange.getWhen())));
+            searchGateway.makeChangeSearchable(new AuditChange(auditHeader, newLastChange.getWhat(), newLastChange.getEvent(), new DateTime(newLastChange.getWhen())));
 
             //          }
         }

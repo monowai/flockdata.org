@@ -22,6 +22,7 @@ package com.auditbucket.engine.repo.neo4j.model;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.audit.model.ITxRef;
+import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.registration.model.IFortressUser;
 import com.auditbucket.registration.repo.neo4j.model.FortressUser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -73,19 +74,19 @@ public class AuditLog implements IAuditLog {
         sysWhen = now.toDate().getTime();
     }
 
-    public AuditLog(IFortressUser madeBy, DateTime fortressWhen, String event, String jsonWhat) {
+    public AuditLog(IFortressUser madeBy, DateTime fortressWhen, AuditLogInputBean inputBean) {
         this();
-        sysWhen = DateTime.now().getMillis();
-
         this.madeBy = (FortressUser) madeBy;
         if (fortressWhen != null && fortressWhen.getMillis() != 0) {
             this.when = fortressWhen.getMillis();
         } else {
             this.when = sysWhen;
         }
+        String event = inputBean.getEvent();
         this.event = event;
         this.name = event + ":" + madeBy.getName();
-        this.jsonWhat = jsonWhat;
+        this.jsonWhat = inputBean.getWhat();
+        this.comment = inputBean.getComment();
     }
 
 

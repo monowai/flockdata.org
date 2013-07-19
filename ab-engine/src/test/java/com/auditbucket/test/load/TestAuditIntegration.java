@@ -25,13 +25,14 @@ import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditResultBean;
 import com.auditbucket.engine.service.AuditService;
-import com.auditbucket.engine.service.IAuditSearchService;
+import com.auditbucket.engine.service.IAuditSearchGateway;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.IFortress;
 import com.auditbucket.registration.model.IFortressUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
+import com.auditbucket.test.functional.JsonValues;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -70,7 +71,7 @@ public class TestAuditIntegration {
     AuditService auditService;
 
     @Autowired
-    IAuditSearchService auditSearchService;
+    IAuditSearchGateway auditSearchService;
 
     @Autowired
     RegistrationService regService;
@@ -259,14 +260,14 @@ public class TestAuditIntegration {
         while (fortress <= fortressCount) {
 
             String fortressName = "bulkloada" + fortress;
-            IFortress iFortress = fortressService.registerFortress(new FortressInputBean(fortressName, false));
+            IFortress iFortress = fortressService.registerFortress(new FortressInputBean(fortressName, true));
             int audit = 1;
             while (audit <= auditCount) {
                 AuditHeaderInputBean aib = new AuditHeaderInputBean(iFortress.getName(), fortress + "olivia@sunnybell.com", "Company", new Date(), "ABC" + audit);
                 AuditResultBean arb = auditService.createHeader(aib);
                 int log = 1;
                 while (log <= logCount) {
-                    auditService.createLog(new AuditLogInputBean(arb.getAuditKey(), aib.getFortressUser(), new DateTime(), escJson + log + "}"));
+                    auditService.createLog(new AuditLogInputBean(arb.getAuditKey(), aib.getFortressUser(), new DateTime(), JsonValues.getBigJsonText(log)));
                     log++;
                 }
                 audit++;

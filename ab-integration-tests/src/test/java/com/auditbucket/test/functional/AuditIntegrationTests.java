@@ -1,3 +1,22 @@
+/*
+ * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ *
+ * This file is part of AuditBucket.
+ *
+ * AuditBucket is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AuditBucket is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.auditbucket.test.functional;
 
 import com.auditbucket.bean.AuditHeaderInputBean;
@@ -35,7 +54,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.KeyStore;
 import java.util.Date;
 
 import static junit.framework.Assert.assertEquals;
@@ -74,6 +92,7 @@ public class AuditIntegrationTests {
     Authentication authA = new UsernamePasswordAuthenticationToken(email, "user1");
     Authentication authB = new UsernamePasswordAuthenticationToken(emailB, "user1");
     JestClient client;
+
     @Before
     public void cleanupElasticSearch() throws Exception {
         ClientConfig clientConfig = new ClientConfig.Builder("http://localhost:9200").multiThreaded(true).build();
@@ -84,6 +103,7 @@ public class AuditIntegrationTests {
         client = factory.getObject();
         client.execute(new DeleteIndex.Builder("monowai.audittest").build());
     }
+
     @Rollback(false)
     @BeforeTransaction
     public void cleanUpGraph() {
@@ -95,9 +115,8 @@ public class AuditIntegrationTests {
 
     @Test
     public void createHeaderTimeLogsWithSearchActivated() throws Exception {
-
         regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
-        IFortress fo = fortressService.registerFortress(new FortressInputBean("auditTest",true));
+        IFortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", new Date(), "ABC123");
         String ahKey = auditService.createHeader(inputBean).getAuditKey();
@@ -118,7 +137,7 @@ public class AuditIntegrationTests {
         log.info("Start-");
         watch.start();
         while (i < max) {
-            AuditLogInputBean auditLogInputBean = auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + i + "}"));
+            auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + i + "}"));
             i++;
         }
         watch.stop();
@@ -129,14 +148,14 @@ public class AuditIntegrationTests {
 
         Thread.sleep(5000);
         // Putting asserts On elasticsearch
-        for(int k=0;k<10;k++){
+        for (int k = 0; k < 10; k++) {
             String query = "{" +
-                    "    \"query\": {  " +
-                    " \"query_string\" : { " +
-                    "  \"default_field\" : \"blah\", " +
-                    "  \"query\" : \""+k+"\" " +
-                    "}  "+
-                    "}  "+
+                    "   \"query\": {  " +
+                    "\"query_string\" : { " +
+                    " \"default_field\" :\"blah\", " +
+                    " \"query\" :\"" + k + "\" " +
+                    "}  " +
+                    "}  " +
                     "}";
             Search search = new Search.Builder(query)
                     .addIndex("monowai.audittest")
@@ -149,8 +168,33 @@ public class AuditIntegrationTests {
         }
     }
 
+    @Test
+    public void bigJsonText() throws Exception {
+        regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
+        IFortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
+
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", new Date(), "ABC123");
+        String ahKey = auditService.createHeader(inputBean).getAuditKey();
+
+        int i = 0;
+        double max = 10d;
+        StopWatch watch = new StopWatch();
+        log.info("Start-");
+        watch.start();
+        while (i < max) {
+            String what = null;//getBigJsonText(i);
+            auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), what));
+            i++;
+        }
+        watch.stop();
+        log.info("End " + watch.getTime() / 1000d + " avg = " + (watch.getTime() / 1000d) / max);
+
+    }
+
     @After
     public void shutDownElasticSearch() throws Exception {
         client.shutdownClient();
     }
+
+
 }
