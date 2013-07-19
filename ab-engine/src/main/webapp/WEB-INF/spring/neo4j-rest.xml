@@ -28,7 +28,7 @@ http://www.springframework.org/schema/beans/spring-beans.xsd
 http://www.springframework.org/schema/data/neo4j
 http://www.springframework.org/schema/data/neo4j/spring-neo4j.xsd">
 
-    <!--RestAPI Config. Hit Neo4J over a REST API-->
+    <!--Hit Neo4J over a REST API-->
     <!--If using over the REST api you can not clear down the database, so don't call Neo4jHelper.cleanDb(..) -->
     <neo4j:config graphDatabaseService="graphDatabaseService"/>
     <bean id="graphDatabaseService" class="org.springframework.data.neo4j.rest.SpringRestGraphDatabase">

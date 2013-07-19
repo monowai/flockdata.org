@@ -34,7 +34,7 @@
     <context:property-placeholder location="classpath:/config.properties"/>
 
     <import resource="spring-security.xml"/>
-    <import resource="neo4j-embedded.xml"/>
+    <import resource="neo4j-context.xml"/>
     <import resource="http-integration.xml"/>
 
 
