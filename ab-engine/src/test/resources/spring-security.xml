@@ -32,7 +32,7 @@
     <!--<form-login />-->
     <!--</http>-->
 
-    <!--<global-method-security secured-annotations="enabled" />-->
+    <global-method-security secured-annotations="enabled"/>
 
     <authentication-manager>
         <authentication-provider>

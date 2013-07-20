@@ -171,17 +171,20 @@ public class TestAudit {
 
         assertNotNull(ahKey);
         log.info(ahKey);
-        //String json = "{\"name\": \"8888\", \"thing\": {\"m\": \"happy\"}}";
-        String json = TestJson.getBigJsonText(0);  // This text is large and is compressed
+        // Irrespective of the order of the fields, we see it as the same.
+        String jsonA = "{\"name\": \"8888\", \"thing\": {\"m\": \"happy\"}}";
+        String jsonB = "{\"thing\": {\"m\": \"happy\"},\"name\": \"8888\"}";
+
 
         assertNotNull(auditService.getHeader(ahKey));
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));
         int i = 0;
         double max = 10d;
-
+        String json;
         while (i < max) {
             // Same "what" text so should only be one auditLogCount record
+            json = (i % 2 == 0 ? jsonA : jsonB);
             auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), json));
             i++;
         }

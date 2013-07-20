@@ -281,11 +281,7 @@ public class AuditService {
         IAuditLog lastChange = auditDAO.getLastChange(header.getId());
         String event = input.getEvent();
         Boolean searchActive = fortress.isSearchActive();
-        DateTime dateWhen;
-        if (input.getWhen() == null)
-            dateWhen = new DateTime(DateTimeZone.UTC);
-        else
-            dateWhen = new DateTime(input.getWhen(), DateTimeZone.UTC);
+        DateTime dateWhen = (input.getWhen() == null ? new DateTime(DateTimeZone.UTC) : new DateTime(input.getWhen(), DateTimeZone.UTC));
 
         AuditChange sd; // Document that will be indexed
 
