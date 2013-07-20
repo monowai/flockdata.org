@@ -163,6 +163,7 @@ public class TestAuditIntegration {
                     .build();
 
             JestResult result = client.execute(search);
+            assertNotNull(result);
             int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
             Assert.assertEquals(nbrResult, 1);
 
@@ -182,8 +183,9 @@ public class TestAuditIntegration {
         StopWatch watch = new StopWatch();
         log.info("Start-");
         watch.start();
+        String what = "{\"name\":\"hello\"}";
         while (i < max) {
-            String what = null;//getBigJsonText(i);
+
             auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), what));
             i++;
         }
