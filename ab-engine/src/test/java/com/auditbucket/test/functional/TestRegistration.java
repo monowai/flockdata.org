@@ -139,9 +139,6 @@ public class TestRegistration {
         createCompanyUsers("mike", 10);
         Iterable<ICompanyUser> users = companyService.getUsers(testCompanyName);
         assertTrue(users.iterator().hasNext());
-        for (ICompanyUser friend : users) {
-            System.out.println(friend.getName());
-        }
     }
 
     @Test
