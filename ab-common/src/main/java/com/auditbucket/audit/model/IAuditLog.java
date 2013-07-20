@@ -75,4 +75,6 @@ public interface IAuditLog {
     String getEvent();
 
     Map<String, Object> getWhat();
+
+    void setJsonWhat(String compressedJson);
 }

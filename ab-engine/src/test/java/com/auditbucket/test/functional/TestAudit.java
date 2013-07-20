@@ -161,7 +161,7 @@ public class TestAudit {
      * Ensure duplicate logs are not created when content data has not changed
      */
     @Test
-    public void noDuplicateLogs() throws Exception {
+    public void noDuplicateLogsWithCompression() throws Exception {
 
         regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
         IFortress fo = fortressService.registerFortress("auditTest");
@@ -171,6 +171,8 @@ public class TestAudit {
 
         assertNotNull(ahKey);
         log.info(ahKey);
+        //String json = "{\"name\": \"8888\", \"thing\": {\"m\": \"happy\"}}";
+        String json = TestJson.getBigJsonText(0);  // This text is large and is compressed
 
         assertNotNull(auditService.getHeader(ahKey));
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
@@ -180,7 +182,7 @@ public class TestAudit {
 
         while (i < max) {
             // Same "what" text so should only be one auditLogCount record
-            auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"name\": \"8888\", \"thing\": {\"m\": \"happy\"}}"));
+            auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), json));
             i++;
         }
         assertEquals(1d, (double) auditService.getAuditLogCount(ahKey));

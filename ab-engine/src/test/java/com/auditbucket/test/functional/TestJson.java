@@ -19,11 +19,55 @@
 
 package com.auditbucket.test.functional;
 
+import com.auditbucket.helper.CompressionHelper;
+import com.auditbucket.helper.CompressionResult;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Test;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+
 /**
  * User: Mike Holdsworth
  * Since: 18/07/13
  */
 public class TestJson {
+    @Test
+    public void compressLotsOfBytes() throws Exception {
+        String json = getBigJsonText(99);
+        System.out.println("Before Comppression" + json.getBytes().length);
+
+        CompressionResult result = CompressionHelper.compress(json);
+        System.out.println("Compressed " + result.length());
+        assertEquals(CompressionResult.Method.GZIP, result.getMethod());
+
+        String uncompressed = CompressionHelper.decompress(result);
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode compareTo = mapper.readTree(json);
+        JsonNode other = mapper.readTree(uncompressed);
+        assertTrue(compareTo.equals(other));
+    }
+
+    @Test
+    public void simpleTextRemainsUncompressed() throws Exception {
+        String json = "{\"colname\": \"tinytext.......................\"}";
+        System.out.println("Before Comppression" + json.getBytes().length);
+
+        CompressionResult result = CompressionHelper.compress(json);
+        assertEquals(CompressionResult.Method.NONE, result.getMethod());
+        System.out.println("Compressed " + result.length());
+
+        String uncompressed = CompressionHelper.decompress(result);
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode compareTo = mapper.readTree(json);
+        JsonNode other = mapper.readTree(uncompressed);
+        assertTrue(compareTo.equals(other));
+
+    }
+
     public static String getBigJsonText(int i) {
         return "{\n" +
                 "   \"trainprofiles\": [\n" +

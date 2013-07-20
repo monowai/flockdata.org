@@ -23,6 +23,8 @@ import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.audit.model.ITxRef;
 import com.auditbucket.bean.AuditLogInputBean;
+import com.auditbucket.helper.CompressionHelper;
+import com.auditbucket.helper.CompressionResult;
 import com.auditbucket.registration.model.IFortressUser;
 import com.auditbucket.registration.repo.neo4j.model.FortressUser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -60,7 +62,8 @@ public class AuditLog implements IAuditLog {
     private String comment;
     private String event;
 
-    private String jsonWhat;
+    private byte[] what;
+    private boolean compressed = false;
     private String name;
 
     private Long when = 0l;
@@ -85,7 +88,10 @@ public class AuditLog implements IAuditLog {
         String event = inputBean.getEvent();
         this.event = event;
         this.name = event + ":" + madeBy.getName();
-        this.jsonWhat = inputBean.getWhat();
+        CompressionResult result = CompressionHelper.compress(inputBean.getWhat());
+        this.what = result.getBytes();
+        this.compressed = result.isCompressed();
+
         this.comment = inputBean.getComment();
     }
 
@@ -142,22 +148,26 @@ public class AuditLog implements IAuditLog {
 
     @JsonIgnore
     public String getJsonWhat() {
-        return jsonWhat;
+        return CompressionHelper.decompress(what, compressed);
+    }
+
+    public void setJsonWhat(String what) {
+        CompressionResult result = CompressionHelper.compress(what);
+        this.what = result.getAsBytes();
+        this.compressed = result.getMethod() == CompressionResult.Method.GZIP;
     }
 
     private Map<String, Object> mWhat;
 
     public Map<String, Object> getWhat() {
-        if (jsonWhat == null)
-            return null;
 
         if (mWhat != null)
             return mWhat;
         try {
-            mWhat = om.readValue(jsonWhat, Map.class);
+            mWhat = om.readValue(CompressionHelper.decompress(what, isCompressed()), Map.class);
         } catch (IOException e) {
             mWhat = new HashMap<String, Object>();
-            mWhat.put("what", jsonWhat);
+            mWhat.put("what", "{}");
         }
         return mWhat;
     }
@@ -168,5 +178,9 @@ public class AuditLog implements IAuditLog {
 
     public String getEvent() {
         return event;
+    }
+
+    public boolean isCompressed() {
+        return compressed;
     }
 }

@@ -45,6 +45,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -283,13 +284,14 @@ public class AuditService {
         Boolean searchActive = fortress.isSearchActive();
         DateTime dateWhen;
         if (input.getWhen() == null)
-            dateWhen = new DateTime();
+            dateWhen = new DateTime(DateTimeZone.UTC);
         else
-            dateWhen = new DateTime(input.getWhen());
+            dateWhen = new DateTime(input.getWhen(), DateTimeZone.UTC);
         AuditChange sd;
         if (lastChange != null) {
             // Neo4j won't store the map, so we store the raw escaped JSON text
             try {
+                // KVStore.getWhat()
                 if (isSame(lastChange.getJsonWhat(), input.getWhat())) {
                     if (log.isDebugEnabled())
                         log.debug("Ignoring a change we already have");
@@ -341,7 +343,7 @@ public class AuditService {
         IAuditLog al = new AuditLog(fUser, dateWhen, input);
         if (input.getTxRef() != null)
             al.setTxRef(txRef);
-
+        al.setJsonWhat(input.getWhat());
         al = auditDAO.save(al);
         auditDAO.addChange(header, al, dateWhen);
 
@@ -373,16 +375,16 @@ public class AuditService {
         auditDAO.save(header);
     }
 
-    private boolean isSame(String jsonWhat, String jsonOther) throws IOException {
-        if (jsonWhat == null || jsonOther == null)
+    private boolean isSame(String jsonThis, String jsonThat) throws IOException {
+        if (jsonThis == null || jsonThat == null)
             return false;
 
-        if (jsonWhat.length() != jsonOther.length())
+        if (jsonThis.length() != jsonThat.length())
             return false;
 
         // Compare values
-        JsonNode compareTo = om.readTree(jsonWhat);
-        JsonNode other = om.readTree(jsonOther);
+        JsonNode compareTo = om.readTree(jsonThis);
+        JsonNode other = om.readTree(jsonThat);
         return compareTo.equals(other);
     }
 
@@ -465,25 +467,10 @@ public class AuditService {
         // MKH Removed accumulating fortress. Can't see a need to accumulate old versions of a document
         //     in the search engine.
 
-        //boolean accumulatingFortress = auditHeader.getFortress().isAccumulatingChanges();
         // Sync the update to elastic search.
         if (auditHeader.getFortress().isSearchActive()) {
-            //String searchKey = (accumulatingFortress ? logToDelete.getSearchKey() : auditHeader.getSearchKey());
-//            if (accumulatingFortress) {
-            //searchGateway.delete(auditHeader, searchKey);
-
-            // Rebuild the search record
-//                SearchResult change = searchGateway.makeChangeSearchable(new AuditChange(auditHeader, newLastChange.getWhat(), newLastChange.getName(), new DateTime(newLastChange.getWhen())));
-//                if (change != null) {
-//                    // When accumulating the searchkey is against the logs
-//                    newLastChange.setSearchKey(change.getSearchKey());
-//                    auditDAO.save(newLastChange);
-//                }
-//            } else {
             // Update against the Audit Header only by reindexing the search document
             searchGateway.makeChangeSearchable(new AuditChange(auditHeader, newLastChange.getWhat(), newLastChange.getEvent(), new DateTime(newLastChange.getWhen())));
-
-            //          }
         }
 
         return auditHeader;
