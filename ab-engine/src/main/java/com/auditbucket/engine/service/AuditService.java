@@ -260,6 +260,13 @@ public class AuditService {
             input.setStatus(AuditLogInputBean.LogStatus.ILLEGAL_ARGUMENT);
             return input;
         }
+        try {
+            // Normalise and JSON'ise the what argument that has probably just been
+            //  placed in to the instance variable
+            input.setWhat(input.getWhat());
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Unable to pass what text as JSON object", e);
+        }
 
         boolean headerModified = false;
 
@@ -267,15 +274,7 @@ public class AuditService {
         IFortressUser fUser = fortressService.getFortressUser(fortress, input.getFortressUser().toLowerCase(), true);
 
 // Transactions checks
-        ITxRef txRef = null;
-        if (input.isTransactional()) {
-            if (input.getTxRef() == null) {
-                txRef = beginTransaction();
-                input.setTxRef(txRef.getName());
-            } else {
-                txRef = beginTransaction(input.getTxRef());
-            }
-        }
+        ITxRef txRef = handleTxRef(input);
 
 //ToDo: Look at spin the following off in to a separate thread?
         // https://github.com/monowai/auditbucket/issues/7
@@ -287,7 +286,9 @@ public class AuditService {
             dateWhen = new DateTime(DateTimeZone.UTC);
         else
             dateWhen = new DateTime(input.getWhen(), DateTimeZone.UTC);
-        AuditChange sd;
+
+        AuditChange sd; // Document that will be indexed
+
         if (lastChange != null) {
             // Neo4j won't store the map, so we store the raw escaped JSON text
             try {
@@ -352,6 +353,19 @@ public class AuditService {
         input.setStatus(AuditLogInputBean.LogStatus.OK);
         return input;
 
+    }
+
+    private ITxRef handleTxRef(AuditLogInputBean input) {
+        ITxRef txRef = null;
+        if (input.isTransactional()) {
+            if (input.getTxRef() == null) {
+                txRef = beginTransaction();
+                input.setTxRef(txRef.getName());
+            } else {
+                txRef = beginTransaction(input.getTxRef());
+            }
+        }
+        return txRef;
     }
 
     /**

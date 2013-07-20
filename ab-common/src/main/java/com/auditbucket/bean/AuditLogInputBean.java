@@ -140,8 +140,8 @@ public class AuditLogInputBean {
     public void setWhat(String jsonWhat) throws IOException {
         if (jsonWhat == null)
             return;
-        mapWhat = om.readValue(om.readTree(jsonWhat).toString(), Map.class);
-        this.what = jsonWhat;
+        what = om.readTree(jsonWhat).toString();
+        mapWhat = om.readValue(what, Map.class);
     }
 
     public String getComment() {
