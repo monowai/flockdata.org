@@ -197,7 +197,7 @@ public class TestAuditIntegration {
     @Test
     public void stressWithHighVolume() throws Exception {
         regService.registerSystemUser(new RegistrationBean("TestAudit", "mike", "bah"));
-        SecurityContextHolder.getContext().setAuthentication(authA);
+        //SecurityContextHolder.getContext().setAuthentication(authA);
         int fortressCount = 2;
         int auditCount = 20;
         int logCount = 10;
@@ -264,6 +264,17 @@ public class TestAuditIntegration {
         watch.stop();
         double end = watch.getTime() / 1000d;
         log.info("Total Search Requests = " + totalSearchRequests + ". Total time for searches " + end + " avg requests per second = " + totalSearchRequests / end);
+    }
+
+    @Test
+    public void testSearchUpdate() {
+        // Create auditHeader
+        // Create fortress Log for 10 Jan with unique text
+        // Check that we can find the text in ES
+        // Create a Log for 9 Jan with unique text
+        // Check that we can't find the 9 Jan unique value in the search engine
+        // Assert there are 2 logs
+
     }
 
     @After

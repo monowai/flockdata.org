@@ -19,6 +19,7 @@
 
 package com.auditbucket.test.functional;
 
+import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.helper.CompressionResult;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -36,12 +37,18 @@ public class TestJson {
     @Test
     public void compressLotsOfBytes() throws Exception {
         String json = getBigJsonText(99);
-        System.out.println("Before Comppression" + json.getBytes().length);
+        System.out.println("Pretty JSON          - " + json.getBytes().length);
+        AuditLogInputBean log = new AuditLogInputBean("", "", null, json);
+        System.out.println("JSON Node (unpretty) - " + log.getWhat().getBytes().length);
 
         CompressionResult result = CompressionHelper.compress(json);
-        System.out.println("Compressed " + result.length());
+        System.out.println("Compress Pretty      - " + result.length());
+        result = CompressionHelper.compress(log.getWhat());
+        System.out.println("Compressed JSON      - " + result.length());
+
         assertEquals(CompressionResult.Method.GZIP, result.getMethod());
 
+        json = getBigJsonText(99);
         String uncompressed = CompressionHelper.decompress(result);
 
         ObjectMapper mapper = new ObjectMapper();
