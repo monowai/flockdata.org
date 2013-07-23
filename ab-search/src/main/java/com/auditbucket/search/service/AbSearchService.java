@@ -62,6 +62,8 @@ public class AbSearchService implements IElasticSearchEP {
         } else {
             result = new SearchResult(auditSearch.save(thisChange));
         }
+        // Used to tie the fact that the doc was updated back to the engine
+        result.setSysWhen(thisChange.getSysWhen());
         engineGateway.handleSearchResult(result);
 
     }

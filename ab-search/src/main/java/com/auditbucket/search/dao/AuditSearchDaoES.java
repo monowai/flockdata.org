@@ -50,20 +50,20 @@ public class AuditSearchDaoES implements IAuditSearchDao {
     /**
      * Converts a user requested auditChange in to a standardised document to index
      *
-     * @param auditChange change
+     * @param auditChange incoming
      * @return document to index
      */
     private Map<String, Object> makeIndexDocument(IAuditChange auditChange) {
         Map<String, Object> indexMe = new HashMap<String, Object>();
-        indexMe.put("what", auditChange.getWhat());
-        indexMe.put("auditKey", auditChange.getAuditKey());
-        indexMe.put("who", auditChange.getWho());
-        indexMe.put("lastEvent", auditChange.getEvent());
-        indexMe.put("when", auditChange.getWhen());
-        indexMe.put("fortress", auditChange.getFortressName());
-        indexMe.put("docType", auditChange.getDocumentType());
-        indexMe.put("callerRef", auditChange.getCallerRef());
-        indexMe.put("tags", auditChange.getTagValues());
+        indexMe.put("@what", auditChange.getWhat());
+        indexMe.put("@auditKey", auditChange.getAuditKey());
+        indexMe.put("@who", auditChange.getWho());
+        indexMe.put("@lastEvent", auditChange.getEvent());
+        indexMe.put("@when", auditChange.getWhen());
+        indexMe.put("@fortress", auditChange.getFortressName());
+        indexMe.put("@docType", auditChange.getDocumentType());
+        indexMe.put("@callerRef", auditChange.getCallerRef());
+        indexMe.put("@tags", auditChange.getTagValues());
 
         return indexMe;
     }
@@ -116,22 +116,42 @@ public class AuditSearchDaoES implements IAuditSearchDao {
     }
 
     @Override
-    public void update(IAuditChange change) {
+    public void update(IAuditChange incoming) {
 
-        Map<String, Object> indexMe = makeIndexDocument(change);
+        Map<String, Object> indexMe = makeIndexDocument(incoming);
 
+        GetResponse response =
+                esClient.prepareGet(incoming.getIndexName(),
+                        incoming.getDocumentType(),
+                        incoming.getSearchKey())
+                        .setRouting(incoming.getAuditKey())
+                        .execute()
+                        .actionGet();
+        if (response.isExists() && !response.isSourceEmpty()) {
+            // Messages can be sent out of sequence
+            // Check to ensure we don't accidentally overwrite a more current
+            // document with an older one. We assume the calling fortress understands
+            // what the most recent doc is.
+            Object o = response.getSource().get("@when");
+            if (o != null) {
+                Long existingWhen = (Long) o;
+                if (existingWhen > incoming.getWhen())
+                    return; // Don't overwrite the most current doc!
+            }
+        }
+
+        // Update the existing document with the incoming change
         IndexRequestBuilder update = esClient
-                .prepareIndex(change.getIndexName(), change.getDocumentType(), change.getSearchKey())
-                .setRouting(change.getAuditKey())
-                .setOperationThreaded(false);
+                .prepareIndex(incoming.getIndexName(), incoming.getDocumentType(), incoming.getSearchKey())
+                .setRouting(incoming.getAuditKey());
 
+        // ToDo: Do we care about waiting for the response? I doubt it.
         IndexResponse ur = update.setSource(indexMe).
                 execute().
                 actionGet();
 
-
         if (log.isDebugEnabled())
-            log.debug("Updated [" + change.getSearchKey() + "] for " + change + " to version " + ur.getVersion());
+            log.debug("Updated [" + incoming.getSearchKey() + "] for " + incoming + " to version " + ur.getVersion());
 
     }
 

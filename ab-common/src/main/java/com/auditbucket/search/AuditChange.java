@@ -54,6 +54,7 @@ public class AuditChange implements IAuditChange {
     private Long version;
 
     private String indexName;
+    private long sysWhen;
 
     /**
      * extracts relevant header records to be used in indexing
@@ -180,5 +181,13 @@ public class AuditChange implements IAuditChange {
 
     public String getCallerRef() {
         return callerRef;
+    }
+
+    public void setSysWhen(long sysWhen) {
+        this.sysWhen = sysWhen;
+    }
+
+    public long getSysWhen() {
+        return sysWhen;
     }
 }

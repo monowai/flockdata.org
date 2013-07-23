@@ -47,6 +47,9 @@ public class AuditWhen implements IAuditWhen {
     @Indexed(indexName = "fortressWhen")
     private Long fortressWhen = 0l;
 
+    @Indexed(indexName = "searchIndex")
+    private boolean indexed = false;
+
 
     protected AuditWhen() {
     }
@@ -85,5 +88,13 @@ public class AuditWhen implements IAuditWhen {
 
     public void setChange(AuditLog auditLog) {
         this.auditLog = auditLog;
+    }
+
+    public boolean isIndexed() {
+        return indexed;
+    }
+
+    public void setIsIndexed() {
+        this.indexed = true;
     }
 }

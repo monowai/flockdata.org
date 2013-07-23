@@ -19,10 +19,7 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.audit.model.IAuditHeader;
-import com.auditbucket.audit.model.IAuditLog;
-import com.auditbucket.audit.model.IDocumentType;
-import com.auditbucket.audit.model.ITxRef;
+import com.auditbucket.audit.model.*;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditResultBean;
@@ -344,8 +341,11 @@ public class AuditService {
         al = auditDAO.save(al);
         auditDAO.addChange(header, al, dateWhen);
 
-        if (searchActive)
+        if (searchActive) {
+            // Used to reconcile that the change was actually indexed
+            sd.setSysWhen(al.getSysWhen().getTime());
             searchGateway.makeChangeSearchable(sd);
+        }
         input.setStatus(AuditLogInputBean.LogStatus.OK);
         return input;
 
@@ -379,10 +379,20 @@ public class AuditService {
             log.debug("Updating from search record =[" + searchResult + "]");
         IAuditHeader header = auditDAO.findHeader(auditKey);
 
-        if (header == null)
+        if (header == null) {
+            log.info("Audit Key could not be found for [" + searchResult + "]");
             throw new IllegalArgumentException("Audit Key could not be found for [" + searchResult + "]");
+        }
         header.setSearchKey(searchResult.getSearchKey());
         auditDAO.save(header);
+        IAuditWhen when = auditDAO.getChange(header.getId(), searchResult.getSysWhen());
+        // Another thread may have processed this so save an update
+        if (when != null && !when.isIndexed()) {
+            // We need to know that the change we requested to index has been
+            // indexed.
+            when.setIsIndexed();
+            auditDAO.save(when);
+        }
     }
 
     private boolean isSame(String jsonThis, String jsonThat) throws IOException {

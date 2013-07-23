@@ -145,6 +145,12 @@ public class AuditDaoNeo implements IAuditDao {
         return log;
     }
 
+    public IAuditWhen getChange(Long auditHeaderID, long sysWhen) {
+        IAuditWhen log = auditLogRepo.getChange(auditHeaderID, sysWhen);
+        return log;
+    }
+
+
     public Set<IAuditLog> getAuditLogs(Long auditLogID, Date from, Date to) {
         return auditLogRepo.getAuditLogs(auditLogID, from.getTime(), to.getTime());
     }
@@ -204,5 +210,10 @@ public class AuditDaoNeo implements IAuditDao {
         template.save(aWhen);
         header.getAuditKey();
 
+    }
+
+    @Override
+    public void save(IAuditWhen log) {
+        template.save((AuditWhen) log);
     }
 }

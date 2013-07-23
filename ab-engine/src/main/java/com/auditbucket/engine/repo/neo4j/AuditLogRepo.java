@@ -21,6 +21,7 @@ package com.auditbucket.engine.repo.neo4j;
 
 import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.engine.repo.neo4j.model.AuditLog;
+import com.auditbucket.engine.repo.neo4j.model.AuditWhen;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
@@ -49,6 +50,9 @@ public interface AuditLogRepo extends GraphRepository<AuditLog> {
             "   MATCH audit-[l:logged]->auditLog " +
             "return auditLog  order by l.sysWhen desc")
     Set<IAuditLog> findAuditLogs(Long auditHeaderID);
+
+    @Query(elementClass = AuditWhen.class, value = "start header=node({0}) match header-[log:logged]->auditLog where log.sysWhen = {1} return log ")
+    AuditWhen getChange(Long auditHeaderID, long sysWhen);
 
 //    @Query(value = "start audit=node({0}) " +
 //            "match audit-[log:changed]-fortressUser " +

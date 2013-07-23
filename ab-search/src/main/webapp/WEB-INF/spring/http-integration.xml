@@ -43,6 +43,7 @@
                  service-interface="com.auditbucket.search.service.IAbEngineGateway"/>
 
     <int-http:outbound-gateway auto-startup="true"
+                               reply-timeout="1000"
                                request-channel="searchResult"
                                url="${abengine.result}"/>
 

@@ -23,12 +23,13 @@ import com.auditbucket.audit.model.IAuditChange;
 
 /**
  * Object to tie the keys between ab-engine and ab-search so that ab-engine can keep the document up-to-date
- *
+ * <p/>
  * User: Mike Holdsworth
  * Since: 12/07/13
  */
 public class SearchResult {
     private String auditKey, fortress, searchKey, documentType;
+    private long sysWhen;
 
     protected SearchResult() {
     }
@@ -37,19 +38,22 @@ public class SearchResult {
         throw new RuntimeException(what);
     }
 
-    public SearchResult(String auditKey, String fortress, String searchKey, String documentType) {
+    SearchResult(String auditKey, String fortress, String searchKey, String documentType) {
         this.auditKey = auditKey;
         this.fortress = fortress;
         this.searchKey = searchKey;
         this.documentType = documentType;
+
     }
 
     public SearchResult(IAuditChange thisChange) {
         this(thisChange.getAuditKey(), thisChange.getFortressName(), thisChange.getSearchKey(), thisChange.getDocumentType());
+        this.sysWhen = thisChange.getWhen();
     }
 
     /**
      * GUID for the auditKey
+     *
      * @return string
      */
     public String getAuditKey() {
@@ -58,6 +62,7 @@ public class SearchResult {
 
     /**
      * name of the fortress that owns the auditKey
+     *
      * @return string
      */
     public String getFortress() {
@@ -66,6 +71,7 @@ public class SearchResult {
 
     /**
      * GUID for the search document
+     *
      * @return string
      */
     public String getSearchKey() {
@@ -74,6 +80,7 @@ public class SearchResult {
 
     /**
      * useful for external caller to know what type of document was indexed
+     *
      * @return
      */
     public String getDocumentType() {
@@ -87,5 +94,13 @@ public class SearchResult {
                 ", fortress='" + fortress + '\'' +
                 ", documentType='" + documentType + '\'' +
                 '}';
+    }
+
+    public long getSysWhen() {
+        return sysWhen;
+    }
+
+    public void setSysWhen(long sysWhen) {
+        this.sysWhen = sysWhen;
     }
 }

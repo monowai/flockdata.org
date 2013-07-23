@@ -30,6 +30,13 @@ public interface IAuditWhen {
 
     public IAuditHeader getAuditHeader();
 
+    public boolean isIndexed();
+
+    /**
+     * flags this audit as having been indexed at some point.
+     */
+    public void setIsIndexed();
+
     public Long getSysWhen();
 
     public Long getFortressWhen();
