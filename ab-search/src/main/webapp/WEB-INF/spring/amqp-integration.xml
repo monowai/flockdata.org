@@ -62,7 +62,7 @@
     		input-channel="searchRequest"
             output-channel="searchRequestIn"
             type="com.auditbucket.search.AuditChange"/>
-            
+
     <int:object-to-json-transformer id="objectToJson"  input-channel="searchReply" output-channel="searchResult"/>
 
     <int:channel id="searchRequest"/>
