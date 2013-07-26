@@ -56,6 +56,8 @@ public interface IAuditChange {
      */
     public String getWho();
 
+    public Long getSysWhen();
+
     public String getFortressName();
 
     public String getCompanyName();

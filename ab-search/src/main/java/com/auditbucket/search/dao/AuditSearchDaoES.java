@@ -60,6 +60,10 @@ public class AuditSearchDaoES implements IAuditSearchDao {
         indexMe.put("@who", auditChange.getWho());
         indexMe.put("@lastEvent", auditChange.getEvent());
         indexMe.put("@when", auditChange.getWhen());
+        indexMe.put("@timestamp", auditChange.getSysWhen()); // Kibana should be able to search on this
+        // as a date string.
+        // https://github.com/monowai/auditbucket/issues/21
+
         indexMe.put("@fortress", auditChange.getFortressName());
         indexMe.put("@docType", auditChange.getDocumentType());
         indexMe.put("@callerRef", auditChange.getCallerRef());
@@ -67,7 +71,6 @@ public class AuditSearchDaoES implements IAuditSearchDao {
 
         return indexMe;
     }
-
 
     /**
      * @param auditChange object containing changes
@@ -128,11 +131,11 @@ public class AuditSearchDaoES implements IAuditSearchDao {
                         .execute()
                         .actionGet();
         if (response.isExists() && !response.isSourceEmpty()) {
-            // Messages can be sent out of sequence
+            // Messages can be received out of sequence
             // Check to ensure we don't accidentally overwrite a more current
             // document with an older one. We assume the calling fortress understands
             // what the most recent doc is.
-            Object o = response.getSource().get("@when");
+            Object o = response.getSource().get("@when"); // Users view of WHEN, not AuditBuckets!
             if (o != null) {
                 Long existingWhen = (Long) o;
                 if (existingWhen > incoming.getWhen())
@@ -174,8 +177,8 @@ public class AuditSearchDaoES implements IAuditSearchDao {
 
         if (response != null && response.isExists() && !response.isSourceEmpty())
             return response.getSourceAsBytes();
-        log.info("Unable to find response data for [" + id + "] in " + indexName + "/" + documentType);
 
+        log.info("Unable to find response data for [" + id + "] in " + indexName + "/" + documentType);
         return null;
     }
 

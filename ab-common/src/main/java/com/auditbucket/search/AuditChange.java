@@ -187,7 +187,7 @@ public class AuditChange implements IAuditChange {
         this.sysWhen = sysWhen;
     }
 
-    public long getSysWhen() {
+    public Long getSysWhen() {
         return sysWhen;
     }
 }
