@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2012-2013 "Monowai Developments Limited"
+  ~
+  ~ This file is part of AuditBucket.
+  ~
+  ~ AuditBucket is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ AuditBucket is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int-amqp="http://www.springframework.org/schema/integration/amqp"
+       xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xmlns:int-stream="http://www.springframework.org/schema/integration/stream"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        /amqp
+	                    http://www.springframework.org/schema/integration/amqp/spring-integration-amqp.xsd
+		                http://www.springframework.org/schema/integration
+
+		                http://www.springframework.org/schema/integration/stream
+		                http://www.springframework.org/schema/integration/stream/spring-integration-stream.xsd
+		                http://www.springframework.org/schema/rabbit
+		                http://www.springframework.org/schema/rabbit/spring-rabbit.xsd">
+
+    <rabbit:connection-factory id="connectionFactory" host="${rabbit.host}" port="${rabbit.port}"/>
+
+    <rabbit:template id="amqpTemplate" connection-factory="connectionFactory"/>
+
+    <rabbit:admin connection-factory="connectionFactory"/>
+
+    <rabbit:queue name="search.test.queue"/>
+    <rabbit:queue name="engine.test.queue"/>
+
+    <rabbit:direct-exchange name="search.test.exchange">
+        <rabbit:bindings>
+            <rabbit:binding queue="search.test.queue" key="search.test.binding"/>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+
+    <rabbit:direct-exchange name="engine.test.exchange">
+        <rabbit:bindings>
+            <rabbit:binding queue="engine.test.queue" key="engine.test.binding"/>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+
+</beans>
