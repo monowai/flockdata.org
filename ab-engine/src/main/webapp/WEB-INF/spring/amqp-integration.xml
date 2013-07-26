@@ -40,13 +40,13 @@
     <int:gateway id="searchGateway"
                  service-interface="com.auditbucket.engine.service.IAbSearchGateway"/>
 
-	<!-- RabbitMQ CONFIGURATION  -->
-	<import resource="amqp-rabbit.xml"/>
-    
+    <!-- RabbitMQ CONFIGURATION  -->
+    <import resource="amqp-rabbit.xml"/>
+
     <!-- from RabbitMq to Ab-engine-->
     <int-amqp:inbound-gateway id="inboundGateway"
                               request-channel="searchResult"
-                              queue-names="engine.test.queue"
+                              queue-names="ab.engine.queue"
                               concurrent-consumers="100"
                               connection-factory="connectionFactory"
                               message-converter="jsonToSearchResultConverter"
@@ -59,23 +59,23 @@
     </int:json-to-object-transformer>
 
 
-	<int-amqp:outbound-gateway 
-					   request-channel="sendRequest"
-                       exchange-name="search.test.exchange"
-                       routing-key="search.test.binding"
-                       amqp-template="amqpTemplate"/>
-                       
-    <int:object-to-json-transformer   auto-startup="true"
-	                                  id="objectToJson"
-                                      input-channel="searchRequest"
-	                                  output-channel="sendRequest"
-                                      content-type="text/x-json">
-    </int:object-to-json-transformer> 
-    
+    <int-amqp:outbound-gateway
+            request-channel="sendRequest"
+            exchange-name="ab.search.exchange"
+            routing-key="ab.search.binding"
+            amqp-template="amqpTemplate"/>
+
+    <int:object-to-json-transformer auto-startup="true"
+                                    id="objectToJson"
+                                    input-channel="searchRequest"
+                                    output-channel="sendRequest"
+                                    content-type="text/x-json">
+    </int:object-to-json-transformer>
+
     <int:channel id="searchRequest"/>
     <int:channel id="sendRequest"/>
     <int:channel id="searchReply"/>
     <int:channel id="searchResult"/>
-    
-	
+
+
 </beans>

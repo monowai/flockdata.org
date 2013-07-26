@@ -33,37 +33,37 @@
 		                http://www.springframework.org/schema/integration/stream/spring-integration-stream.xsd
 		                http://www.springframework.org/schema/rabbit
 		                http://www.springframework.org/schema/rabbit/spring-rabbit.xsd">
- 	<int:annotation-config/>
-	<!-- RabbitMQ CONFIGURATION  -->
-	<import resource="amqp-rabbit.xml"/>
+    <int:annotation-config/>
+    <!-- RabbitMQ CONFIGURATION  -->
+    <import resource="amqp-rabbit.xml"/>
 
-	<int-amqp:inbound-gateway
-	    id="inboundGateway"
-		request-channel="searchRequest"
-        reply-channel="searchReply"
-		queue-names="search.test.queue"
-		concurrent-consumers="1"
-		connection-factory="connectionFactory" 
-		message-converter="byteArrayToStringConverter"
-		/>
+    <int-amqp:inbound-gateway
+            id="inboundGateway"
+            request-channel="searchRequest"
+            reply-channel="searchReply"
+            queue-names="ab.search.queue"
+            concurrent-consumers="1"
+            connection-factory="connectionFactory"
+            message-converter="byteArrayToStringConverter"
+            />
 
     <int:gateway id="searchGateway"
                  service-interface="com.auditbucket.search.service.IAbEngineGateway"/>
-                 
-    <int-amqp:outbound-gateway 
-					   request-channel="searchResult"
-                       exchange-name="engine.test.exchange"
-                       routing-key="engine.test.binding"
-                       amqp-template="amqpTemplate"/>
-                               
+
+    <int-amqp:outbound-gateway
+            request-channel="searchResult"
+            exchange-name="ab.engine.exchange"
+            routing-key="ab.engine.binding"
+            amqp-template="amqpTemplate"/>
+
 
     <int:json-to-object-transformer
-    		id="jsonToObject"
-    		input-channel="searchRequest"
+            id="jsonToObject"
+            input-channel="searchRequest"
             output-channel="searchRequestIn"
             type="com.auditbucket.search.AuditChange"/>
 
-    <int:object-to-json-transformer id="objectToJson"  input-channel="searchReply" output-channel="searchResult"/>
+    <int:object-to-json-transformer id="objectToJson" input-channel="searchReply" output-channel="searchResult"/>
 
     <int:channel id="searchRequest"/>
     <int:channel id="searchRequestIn"/>

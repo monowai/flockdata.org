@@ -39,7 +39,7 @@
     <!-- from RabbitMq to Ab-engine-->
     <int-amqp:inbound-gateway id="inboundGateway"
                               request-channel="searchResult"
-                              queue-names="engine.test.queue"
+                              queue-names="ab.engine.test.queue"
                               concurrent-consumers="100"
                               connection-factory="connectionFactory"
                               message-converter="jsonToSearchResultConverter"
