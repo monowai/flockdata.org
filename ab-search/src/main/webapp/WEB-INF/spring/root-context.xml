@@ -36,7 +36,7 @@
     <!--externalise the http as a configuration variable for deployment configuration
         i.e. http, rabbit, rmi etc -->
     <!--<import resource="${integration}-integration.xml"/>-->
-    <import resource="http-integration.xml"/>
+    <import resource="amqp-integration.xml"/>
 
 
 </beans>

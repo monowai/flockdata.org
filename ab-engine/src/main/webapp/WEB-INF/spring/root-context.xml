@@ -35,7 +35,7 @@
 
     <import resource="spring-security.xml"/>
     <import resource="neo4j-context.xml"/>
-    <import resource="http-integration.xml"/>
+    <import resource="amqp-integration.xml"/>
 
 
 </beans>
