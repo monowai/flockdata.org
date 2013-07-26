@@ -164,6 +164,7 @@ public class TestAuditIntegration {
 
             JestResult result = client.execute(search);
             assertNotNull(result);
+            assertNotNull(result.getJsonObject());
             int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
             Assert.assertEquals(nbrResult, 1);
 
@@ -196,7 +197,7 @@ public class TestAuditIntegration {
 
     @Test
     public void stressWithHighVolume() throws Exception {
-        regService.registerSystemUser(new RegistrationBean("TestAudit", "mike", "bah"));
+        regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
         //SecurityContextHolder.getContext().setAuthentication(authA);
         int fortressCount = 2;
         int auditCount = 20;
