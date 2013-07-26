@@ -380,16 +380,14 @@ public class AuditService {
         IAuditHeader header = auditDAO.findHeader(auditKey);
 
         if (header == null) {
-            log.info("Audit Key could not be found for [" + searchResult + "]");
-            throw new IllegalArgumentException("Audit Key could not be found for [" + searchResult + "]");
+            log.error("Audit Key could not be found for [" + searchResult + "]");
         }
         header.setSearchKey(searchResult.getSearchKey());
         auditDAO.save(header);
         IAuditWhen when = auditDAO.getChange(header.getId(), searchResult.getSysWhen());
         // Another thread may have processed this so save an update
         if (when != null && !when.isIndexed()) {
-            // We need to know that the change we requested to index has been
-            // indexed.
+            // We need to know that the change we requested to index has been indexed.
             when.setIsIndexed();
             auditDAO.save(when);
         }
