@@ -30,6 +30,6 @@ import java.util.concurrent.Future;
  */
 public interface IAbEngineGateway {
     @Gateway(requestChannel = "searchReply")
-    Future<Void> handleSearchResult(SearchResult searchResult);
+    void handleSearchResult(SearchResult searchResult);
 
 }
