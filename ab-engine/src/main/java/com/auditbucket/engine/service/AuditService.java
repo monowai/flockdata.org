@@ -381,6 +381,7 @@ public class AuditService {
 
         if (header == null) {
             log.error("Audit Key could not be found for [" + searchResult + "]");
+            return;
         }
         header.setSearchKey(searchResult.getSearchKey());
         auditDAO.save(header);

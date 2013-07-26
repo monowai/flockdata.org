@@ -23,9 +23,8 @@
        xmlns:rabbit="http://www.springframework.org/schema/rabbit"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                         http://www.springframework.org/schema/beans/spring-beans.xsd
-                        /amqp
-	                    http://www.springframework.org/schema/integration/amqp/spring-integration-amqp.xsd
-		                http://www.springframework.org/schema/integration
+
+	                    /schema/integration
 
 		                http://www.springframework.org/schema/integration/stream
 		                http://www.springframework.org/schema/integration/stream/spring-integration-stream.xsd
