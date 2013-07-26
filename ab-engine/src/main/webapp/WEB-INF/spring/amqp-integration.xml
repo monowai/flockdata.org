@@ -49,13 +49,13 @@
                               queue-names="engine.test.queue"
                               concurrent-consumers="100"
                               connection-factory="connectionFactory"
+                              message-converter="jsonToSearchResultConverter"
             />
-
 
     <int:json-to-object-transformer input-channel="searchReply"
                                     auto-startup="true"
                                     id="jsonToObject" output-channel="searchResult"
-                                    type="com.auditbucket.search.SearchResult" order="0">
+                                    type="com.auditbucket.search.SearchResult">
     </int:json-to-object-transformer>
 
 

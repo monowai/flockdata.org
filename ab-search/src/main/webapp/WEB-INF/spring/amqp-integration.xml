@@ -40,12 +40,13 @@
 	<int-amqp:inbound-gateway
 	    id="inboundGateway"
 		request-channel="searchRequest"
+        reply-channel="searchReply"
 		queue-names="search.test.queue"
 		concurrent-consumers="1"
 		connection-factory="connectionFactory" 
 		message-converter="byteArrayToStringConverter"
 		/>
-    <!--reply-channel="searchReply"            -->
+
     <int:gateway id="searchGateway"
                  service-interface="com.auditbucket.search.service.IAbEngineGateway"/>
                  
@@ -54,8 +55,8 @@
                        exchange-name="engine.test.exchange"
                        routing-key="engine.test.binding"
                        amqp-template="amqpTemplate"/>
-                       
                                
+
     <int:json-to-object-transformer
     		id="jsonToObject"
     		input-channel="searchRequest"
@@ -66,7 +67,6 @@
 
     <int:channel id="searchRequest"/>
     <int:channel id="searchRequestIn"/>
-
     <int:channel id="searchReply"/>
     <int:channel id="searchResult"/>
 

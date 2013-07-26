@@ -34,9 +34,9 @@ public class SearchResult {
     protected SearchResult() {
     }
 
-    public SearchResult(String what) {
-        throw new RuntimeException(what);
-    }
+//    public SearchResult(String what) {
+//        throw new RuntimeException(what);
+//    }
 
     SearchResult(String auditKey, String fortress, String searchKey, String documentType) {
         this.auditKey = auditKey;
