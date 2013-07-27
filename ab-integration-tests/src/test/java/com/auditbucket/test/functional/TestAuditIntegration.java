@@ -169,6 +169,7 @@ public class TestAuditIntegration {
             JestResult result = client.execute(search);
             assertNotNull(result);
             assertNotNull(result.getJsonObject());
+            assertNotNull(result.getJsonObject().getAsJsonObject("hits"));
             assertNotNull(result.getJsonObject().getAsJsonObject("hits").get("total"));
             int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
             Assert.assertEquals(nbrResult, 1);
