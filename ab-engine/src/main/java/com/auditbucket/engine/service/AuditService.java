@@ -277,7 +277,8 @@ public class AuditService {
 
 //ToDo: Look at spin the following off in to a separate thread?
         // https://github.com/monowai/auditbucket/issues/7
-        IAuditLog lastChange = auditDAO.getLastChange(header.getId());
+        IAuditWhen lastWhen = auditDAO.getLastChange(header.getId());
+        IAuditLog lastChange = (lastWhen != null ? lastWhen.getAuditLog() : null);
         String event = input.getEvent();
         Boolean searchActive = fortress.isSearchActive();
         DateTime dateWhen = (input.getWhen() == null ? new DateTime(DateTimeZone.UTC) : new DateTime(input.getWhen(), DateTimeZone.UTC));
@@ -439,12 +440,12 @@ public class AuditService {
     }
 
 
-    public IAuditLog getLastChange(String headerKey) {
+    public IAuditWhen getLastChange(String headerKey) {
         IAuditHeader ah = getValidHeader(headerKey);
         return getLastChange(ah);
     }
 
-    public IAuditLog getLastChange(IAuditHeader auditHeader) {
+    public IAuditWhen getLastChange(IAuditHeader auditHeader) {
         return auditDAO.getLastChange(auditHeader.getId());
     }
 
@@ -477,14 +478,17 @@ public class AuditService {
     @Transactional
     public IAuditHeader cancelLastLog(String headerKey) throws IOException {
         IAuditHeader auditHeader = getValidHeader(headerKey);
-        IAuditLog logToDelete = getLastChange(auditHeader);
-        auditDAO.delete(logToDelete);
-
-        IAuditLog newLastChange = getLastChange(auditHeader);
-        if (newLastChange == null)
-            // No Log records exist. Delete the header??
+        IAuditWhen whenToDelete = getLastChange(auditHeader);
+        if (whenToDelete == null)
             return null;
 
+        auditDAO.delete(whenToDelete.getAuditLog());
+
+        IAuditWhen newLastWhen = getLastChange(auditHeader);
+        if (newLastWhen == null)
+            // No Log records exist. Delete the header??
+            return null;
+        IAuditLog newLastChange = newLastWhen.getAuditLog();
         auditHeader = auditDAO.fetch(auditHeader);
         auditHeader.setLastUser(fortressService.getFortressUser(auditHeader.getFortress(), newLastChange.getWho().getName()));
         auditHeader = auditDAO.save(auditHeader);

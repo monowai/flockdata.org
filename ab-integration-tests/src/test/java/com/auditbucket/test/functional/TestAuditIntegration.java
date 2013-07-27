@@ -19,6 +19,9 @@
 
 package com.auditbucket.test.functional;
 
+import com.auditbucket.audit.model.IAuditHeader;
+import com.auditbucket.audit.model.IAuditLog;
+import com.auditbucket.audit.model.IAuditWhen;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditResultBean;
@@ -210,6 +213,7 @@ public class TestAuditIntegration {
         watch.start();
         double splits = 0;
         log.info("FortressCount: " + fortressCount + " AuditCount: " + auditCount + " LogCount: " + logCount);
+        log.info("We will be expecting a total of " + (auditCount * logCount * (fortress + 1)) + " messages to be handled");
         while (fortress <= fortressCount) {
 
             String fortressName = "bulkloada" + fortress;
@@ -245,7 +249,9 @@ public class TestAuditIntegration {
         int searchLoops = 2;
         int search = 0;
         int totalSearchRequests = 0;
+        Thread.sleep(3000); // give things a chance to update
         watch.split();
+
         do {
             fortress = 0;
             do {
@@ -254,7 +260,11 @@ public class TestAuditIntegration {
                     int random = (int) (Math.random() * ((auditCount) + 1));
                     if (random == 0)
                         random = 1;
-                    junit.framework.Assert.assertNotNull("ABC" + random, auditService.findByCallerRef(list.get(fortress), "Company", "ABC" + random));
+                    IAuditHeader header = auditService.findByCallerRef(list.get(fortress), "Company", "ABC" + random);
+                    assertNotNull("ABC" + random, header);
+                    IAuditWhen when = auditService.getLastChange(header);
+                    assertNotNull(when.getAuditLog());
+                    assertEquals("fortress " + fortress + " run " + x + " header " + header.getAuditKey(), true, when.isIndexed());
                     totalSearchRequests++;
                     x++;
                 } while (x < auditCount);

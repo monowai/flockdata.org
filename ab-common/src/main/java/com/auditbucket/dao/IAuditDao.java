@@ -62,7 +62,7 @@ public interface IAuditDao {
      */
     public int getLogCount(Long id);
 
-    public IAuditLog getLastChange(Long auditHeaderID);
+    public IAuditWhen getLastChange(Long auditHeaderID);
 
     /**
      * locates a specific change in auditBucket.

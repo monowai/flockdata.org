@@ -139,11 +139,11 @@ public class AuditDaoNeo implements IAuditDao {
         return auditLogRepo.getLogCount(id);
     }
 
-    public IAuditLog getLastChange(Long auditHeaderID) {
-        IAuditLog log = auditLogRepo.getLastChange(auditHeaderID);
-        if (log != null)
-            template.fetch(log.getWho());
-        return log;
+    public IAuditWhen getLastChange(Long auditHeaderID) {
+        IAuditWhen when = auditLogRepo.getLastChange(auditHeaderID);
+        if (when != null)
+            template.fetch(when.getAuditLog());
+        return when;
     }
 
     public IAuditWhen getChange(Long auditHeaderID, long sysWhen) {

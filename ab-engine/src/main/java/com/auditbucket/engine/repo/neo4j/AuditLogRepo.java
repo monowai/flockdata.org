@@ -40,8 +40,8 @@ public interface AuditLogRepo extends GraphRepository<AuditLog> {
     @Query(elementClass = AuditLog.class, value = "start header=node({0}) match header-[cw:changed|created]-byUser return cw")
     Set<IAuditLog> getAuditLogs(Long auditHeaderID);
 
-    @Query(elementClass = AuditLog.class, value = "start header=node({0}) match header-[log:logged]->auditLog return auditLog order by log.sysWhen DESC limit 1")
-    AuditLog getLastChange(Long auditHeaderID);
+    @Query(elementClass = AuditLog.class, value = "start header=node({0}) match header-[log:logged]->auditLog return log order by log.sysWhen DESC limit 1")
+    AuditWhen getLastChange(Long auditHeaderID);
 
     @Query(elementClass = AuditLog.class, value = "start header=node({0}) match header-[log:logged]->auditLog where log.fortressWhen >= {1} and log.fortressWhen <= {2} return auditLog ")
     Set<IAuditLog> getAuditLogs(Long auditHeaderID, Long from, Long to);

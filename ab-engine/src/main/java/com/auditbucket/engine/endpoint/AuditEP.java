@@ -21,6 +21,7 @@ package com.auditbucket.engine.endpoint;
 
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
+import com.auditbucket.audit.model.IAuditWhen;
 import com.auditbucket.audit.model.ITxRef;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
@@ -232,7 +233,10 @@ public class AuditEP {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/c27ec2e5-2e17-4855-be18-bd8f82249157/logs
         try {
             IAuditHeader header = auditService.getHeader(auditKey);
-            return new ResponseEntity<IAuditLog>(auditService.getLastChange(header), HttpStatus.OK);
+            IAuditWhen when = auditService.getLastChange(header);
+            if (when != null)
+                return new ResponseEntity<IAuditLog>(when.getAuditLog(), HttpStatus.OK);
+            return new ResponseEntity<IAuditLog>((IAuditLog) null, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<IAuditLog>((IAuditLog) null, HttpStatus.NOT_FOUND);
         } catch (SecurityException e) {
