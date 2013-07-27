@@ -36,10 +36,7 @@ import io.searchbox.core.Search;
 import io.searchbox.indices.DeleteIndex;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,17 +89,21 @@ public class TestAuditIntegration {
     private String email = "test@ab.com";
     private String emailB = "mark@null.com";
     Authentication authA = new UsernamePasswordAuthenticationToken(email, "user1");
-    JestClient client;
+    static int fortressCount = 2;
+    static JestClient client;
 
-    @Before
-    public void cleanupElasticSearch() throws Exception {
-        ClientConfig clientConfig = new ClientConfig.Builder("http://localhost:9201").multiThreaded(true).build();
+    @BeforeClass
+    public static void cleanupElasticSearch() throws Exception {
+        ClientConfig clientConfig = new ClientConfig.Builder("http://localhost:9200").multiThreaded(true).build();
 
         // Construct a new Jest client according to configuration via factory
         JestClientFactory factory = new JestClientFactory();
         factory.setClientConfig(clientConfig);
         client = factory.getObject();
         client.execute(new DeleteIndex.Builder("monowai.audittest").build());
+        for(int i=1;i<fortressCount+1;i++){
+            client.execute(new DeleteIndex.Builder("testaudit.bulkloada"+i).build());
+        }
     }
 
     @Rollback(false)
@@ -192,14 +193,13 @@ public class TestAuditIntegration {
         }
         watch.stop();
         log.info("End " + watch.getTime() / 1000d + " avg = " + (watch.getTime() / 1000d) / max);
-
+        Thread.sleep(30000);
     }
 
     @Test
     public void stressWithHighVolume() throws Exception {
         regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
         //SecurityContextHolder.getContext().setAuthentication(authA);
-        int fortressCount = 2;
         int auditCount = 20;
         int logCount = 10;
         String escJson = "{\"who\":";
@@ -265,6 +265,7 @@ public class TestAuditIntegration {
         watch.stop();
         double end = watch.getTime() / 1000d;
         log.info("Total Search Requests = " + totalSearchRequests + ". Total time for searches " + end + " avg requests per second = " + totalSearchRequests / end);
+        Thread.sleep(30000);
     }
 
     @Test
@@ -278,8 +279,8 @@ public class TestAuditIntegration {
 
     }
 
-    @After
-    public void shutDownElasticSearch() throws Exception {
+    @AfterClass
+    public static void shutDownElasticSearch() throws Exception {
         client.shutdownClient();
     }
 
