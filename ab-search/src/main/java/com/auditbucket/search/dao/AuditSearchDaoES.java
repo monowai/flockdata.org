@@ -22,6 +22,8 @@ package com.auditbucket.search.dao;
 import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditSearchDao;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
@@ -116,6 +118,24 @@ public class AuditSearchDaoES implements IAuditSearchDao {
                 log.debug("Removed document [" + existingIndexKey + "] from " + indexName + "/" + recordType);
         }
 
+    }
+
+    @Override
+    public Map<String, Object> ping() {
+        Map<String, Object> results = new HashMap<String, Object>();
+        ClusterHealthRequest request = new ClusterHealthRequest();
+        ClusterHealthResponse response = esClient.admin().cluster().health(request).actionGet();
+        if (response == null) {
+            results.put("status", "error!");
+            return results;
+        }
+        results.put("abStatus", "ok");
+        results.put("health", response.getStatus().name());
+        results.put("dataNodes", response.getNumberOfDataNodes());
+        results.put("nodes", response.getNumberOfNodes());
+        results.put("clusterName", response.getClusterName());
+
+        return results;
     }
 
     @Override

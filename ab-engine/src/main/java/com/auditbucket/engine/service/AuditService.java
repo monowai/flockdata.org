@@ -52,10 +52,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -92,6 +89,13 @@ public class AuditService {
 
     private Logger log = LoggerFactory.getLogger(AuditService.class);
     static final ObjectMapper om = new ObjectMapper();
+
+    public Map<String, String> getHealth() {
+        Map<String, String> healthResults = new HashMap<>();
+        healthResults.put("ab-engine", auditDAO.ping());
+        return healthResults;
+
+    }
 
     @Transactional
     public ITxRef beginTransaction() {
@@ -166,7 +170,6 @@ public class AuditService {
         Map<String, Object> userTags = inputBean.getTagValues();
         auditTagService.createTagValues(userTags, ah);
 
-
         if (log.isDebugEnabled())
             log.debug("Audit Header created:" + ah.getId() + " key=[" + ah.getAuditKey() + "]");
 
@@ -178,8 +181,7 @@ public class AuditService {
             logBean.setCallerRef(ah.getCallerRef());
             // Creating an initial change record
             logBean = createLog(ah, logBean, userTags);
-            AuditResultBean arb = new AuditResultBean(ah, logBean.getTxRef());
-            return arb;
+            return new AuditResultBean(ah, logBean.getTxRef());
         }
         return new AuditResultBean(ah, null);
 

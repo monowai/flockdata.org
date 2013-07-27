@@ -37,6 +37,10 @@ public class AuditResultBean {
     protected AuditResultBean() {
     }
 
+    public AuditResultBean(String statusMessage) {
+        this.status = statusMessage;
+    }
+
     public AuditResultBean(String fortressName, String documentType, String callerRef, String auditKey, String txReference) {
         this.fortressName = fortressName;
         this.documentType = documentType;

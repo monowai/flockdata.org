@@ -64,6 +64,16 @@ public interface IAuditDao {
 
     public IAuditLog getLastChange(Long auditHeaderID);
 
+    /**
+     * locates a specific change in auditBucket.
+     * <p/>
+     * This is used when syncing a change between ab-search and ab-engine, or to
+     * reprocess changes that may not have been sync'd
+     *
+     * @param auditHeaderID PK
+     * @param sysWhen       time auditBucket processed the change
+     * @return the change for an exact match
+     */
     public IAuditWhen getChange(Long auditHeaderID, long sysWhen);
 
     Set<IAuditLog> getAuditLogs(Long headerKey, Date from, Date to);
@@ -89,4 +99,6 @@ public interface IAuditDao {
     void addChange(IAuditHeader header, IAuditLog al, DateTime dateWhen);
 
     void save(IAuditWhen log);
+
+    String ping();
 }

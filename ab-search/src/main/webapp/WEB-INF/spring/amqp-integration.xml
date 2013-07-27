@@ -42,7 +42,10 @@
             request-channel="searchRequest"
             reply-channel="searchReply"
             queue-names="ab.search.queue"
-            concurrent-consumers="100"
+            concurrent-consumers="10"
+            shutdown-timeout="3000"
+            tx-size="3"
+            prefetch-count="3"
             connection-factory="connectionFactory"
             message-converter="byteArrayToStringConverter"
             />

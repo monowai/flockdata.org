@@ -34,6 +34,7 @@ import com.auditbucket.engine.repo.neo4j.model.TxRef;
 import com.auditbucket.registration.model.ICompany;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
+import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -146,8 +147,7 @@ public class AuditDaoNeo implements IAuditDao {
     }
 
     public IAuditWhen getChange(Long auditHeaderID, long sysWhen) {
-        IAuditWhen log = auditLogRepo.getChange(auditHeaderID, sysWhen);
-        return log;
+        return auditLogRepo.getChange(auditHeaderID, sysWhen);
     }
 
 
@@ -215,5 +215,16 @@ public class AuditDaoNeo implements IAuditDao {
     @Override
     public void save(IAuditWhen log) {
         template.save((AuditWhen) log);
+    }
+
+    @Override
+    public String ping() {
+        Map<String, Object> ab = new HashMap<String, Object>();
+        ab.put("name", "AuditBucket");
+        Node abNode = template.getGraphDatabase().getOrCreateNode("system", "name", "AuditBucket", ab);
+        if (abNode == null) {
+            return "Neo4J has problems";
+        }
+        return "Neo4J is OK";
     }
 }

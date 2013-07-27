@@ -19,6 +19,8 @@
 
 package com.auditbucket.audit.model;
 
+import java.util.Map;
+
 /**
  * User: Mike Holdsworth
  * Date: 26/04/13
@@ -68,4 +70,5 @@ public interface IAuditSearchDao {
      */
     void delete(IAuditHeader header, String existingIndexKey);
 
+    Map<String, Object> ping();
 }

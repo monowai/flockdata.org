@@ -19,10 +19,15 @@
 
 package com.auditbucket.search.endpoint;
 
+import com.auditbucket.search.service.AbSearchService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.Map;
 
 /**
  * ElasticSearch input end-point
@@ -33,6 +38,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/")
 @Controller
 public class ElasticSearchEP {
+    @Autowired
+    AbSearchService searchService;
+
     @RequestMapping(value = "/ping", method = RequestMethod.GET)
     @ResponseBody
     String ping() throws Exception {
@@ -40,5 +48,11 @@ public class ElasticSearchEP {
         return "Ping!";
     }
 
+    @RequestMapping(value = "/health", produces = "application/json", method = RequestMethod.GET)
+    @ResponseBody
+    public Map<String, String> getHealth() throws Exception {
+        // curl -u mike:123 -X GET http://localhost:8080/ab/audit/ping
+        return searchService.getHealth();
+    }
 
 }

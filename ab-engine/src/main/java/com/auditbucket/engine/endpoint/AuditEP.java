@@ -64,25 +64,30 @@ public class AuditEP {
     @ResponseBody
     public String get() throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/ping
-        return "Ping!";
+        return "Pong!";
+    }
+
+    @RequestMapping(value = "/health", method = RequestMethod.GET)
+    @ResponseBody
+    public Map<String, String> getHealth() throws Exception {
+        return auditService.getHealth();
     }
 
     @RequestMapping(value = "/header/new", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<AuditResultBean> createHeader(@RequestBody AuditHeaderInputBean input) throws Exception {
         // curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab/audit/header/new/ -d '"fortress":"MyFortressName", "fortressUser": "yoursystemuser", "documentType":"Company","when":"2012-11-10"}'
+        AuditResultBean auditResultBean;
         try {
-            AuditResultBean auditResultBean = auditService.createHeader(input);
-            //input=searchVo.getAuditHeaderInputBean();
-            //auditService.triggerSearch(searchVo.getAuditChange());
+            auditResultBean = auditService.createHeader(input);
             auditResultBean.setStatus("OK");
             return new ResponseEntity<AuditResultBean>(auditResultBean, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
-            input.setLastMessage(e.getMessage());
-            return new ResponseEntity<AuditResultBean>((AuditResultBean) null, HttpStatus.BAD_REQUEST);
+            auditResultBean = new AuditResultBean(e.getMessage());
+            return new ResponseEntity<AuditResultBean>(auditResultBean, HttpStatus.BAD_REQUEST);
         } catch (SecurityException e) {
-            input.setLastMessage("Forbidden Request " + e.getMessage());
-            return new ResponseEntity<AuditResultBean>((AuditResultBean) null, HttpStatus.FORBIDDEN);
+            auditResultBean = new AuditResultBean("Forbidden Request " + e.getMessage());
+            return new ResponseEntity<AuditResultBean>(auditResultBean, HttpStatus.FORBIDDEN);
         }
     }
 

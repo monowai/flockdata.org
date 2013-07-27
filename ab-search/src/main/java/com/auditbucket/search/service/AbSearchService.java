@@ -31,6 +31,9 @@ import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * User: Mike Holdsworth
  * Date: 18/06/13
@@ -81,5 +84,9 @@ public class AbSearchService implements IElasticSearchEP {
 
     public byte[] findOne(IAuditHeader header, String id) {
         return auditSearch.findOne(header, id);
+    }
+
+    public Map<String, String> getHealth() {
+        return auditSearch.ping();
     }
 }
