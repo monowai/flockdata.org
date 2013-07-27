@@ -94,15 +94,15 @@ public class TestAuditIntegration {
 
     @BeforeClass
     public static void cleanupElasticSearch() throws Exception {
-        ClientConfig clientConfig = new ClientConfig.Builder("http://localhost:9200").multiThreaded(true).build();
+        ClientConfig clientConfig = new ClientConfig.Builder("http://localhost:9201").multiThreaded(true).build();
 
         // Construct a new Jest client according to configuration via factory
         JestClientFactory factory = new JestClientFactory();
         factory.setClientConfig(clientConfig);
         client = factory.getObject();
         client.execute(new DeleteIndex.Builder("monowai.audittest").build());
-        for(int i=1;i<fortressCount+1;i++){
-            client.execute(new DeleteIndex.Builder("testaudit.bulkloada"+i).build());
+        for (int i = 1; i < fortressCount + 1; i++) {
+            client.execute(new DeleteIndex.Builder("testaudit.bulkloada" + i).build());
         }
     }
 
@@ -166,6 +166,7 @@ public class TestAuditIntegration {
             JestResult result = client.execute(search);
             assertNotNull(result);
             assertNotNull(result.getJsonObject());
+            assertNotNull(result.getJsonObject().getAsJsonObject("hits").get("total"));
             int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
             Assert.assertEquals(nbrResult, 1);
 
@@ -200,7 +201,7 @@ public class TestAuditIntegration {
     public void stressWithHighVolume() throws Exception {
         regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
         //SecurityContextHolder.getContext().setAuthentication(authA);
-        int auditCount = 20;
+        int auditCount = 2;
         int logCount = 10;
         String escJson = "{\"who\":";
         int fortress = 1;

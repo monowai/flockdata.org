@@ -86,7 +86,7 @@ public class AbSearchService implements IElasticSearchEP {
         return auditSearch.findOne(header, id);
     }
 
-    public Map<String, String> getHealth() {
+    public Map<String, Object> getHealth() {
         return auditSearch.ping();
     }
 }

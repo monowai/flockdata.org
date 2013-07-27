@@ -378,7 +378,7 @@ public class AuditService {
     public void handleSearchResult(SearchResult searchResult) {
         String auditKey = searchResult.getAuditKey();
         if (log.isDebugEnabled())
-            log.debug("Updating from search record =[" + searchResult + "]");
+            log.debug("Updating from search auditKey =[" + searchResult + "]");
         IAuditHeader header = auditDAO.findHeader(auditKey);
 
         if (header == null) {
@@ -387,6 +387,9 @@ public class AuditService {
         }
         header.setSearchKey(searchResult.getSearchKey());
         auditDAO.save(header);
+        if (log.isDebugEnabled())
+            log.debug("Updated from search auditKey =[" + searchResult + "]");
+
         IAuditWhen when = auditDAO.getChange(header.getId(), searchResult.getSysWhen());
         // Another thread may have processed this so save an update
         if (when != null && !when.isIndexed()) {

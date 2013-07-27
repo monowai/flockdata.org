@@ -50,7 +50,7 @@ public class ElasticSearchEP {
 
     @RequestMapping(value = "/health", produces = "application/json", method = RequestMethod.GET)
     @ResponseBody
-    public Map<String, String> getHealth() throws Exception {
+    public Map<String, Object> getHealth() throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/ping
         return searchService.getHealth();
     }
