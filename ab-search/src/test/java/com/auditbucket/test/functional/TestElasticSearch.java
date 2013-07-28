@@ -21,6 +21,7 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.model.AuditSearchDao;
 import com.auditbucket.audit.model.SearchChange;
+import com.auditbucket.search.AuditSearchChange;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
@@ -78,7 +79,7 @@ public class TestElasticSearch {
 //        AuditHeaderInputBean hib = new AuditHeaderInputBean("fortress", "Test", "Test", new DateTime().toDate(), "testRef");
 //        AuditHeader auditHeader = new AuditHeader(fu, hib, new DocumentType("TestJson", fu.getFortress().getCompany()));
 //
-        com.auditbucket.search.SearchChange auditChange = new com.auditbucket.search.SearchChange();
+        AuditSearchChange auditChange = new AuditSearchChange();
 //
         //auditChange.setName("Create");
         auditChange.setWhen(new DateTime());
@@ -119,7 +120,7 @@ public class TestElasticSearch {
                     .actionGet();
             assertNotNull(response);
 
-            com.auditbucket.search.SearchChange found = om.readValue(response.getSourceAsBytes(), com.auditbucket.search.SearchChange.class);
+            AuditSearchChange found = om.readValue(response.getSourceAsBytes(), AuditSearchChange.class);
             assertNotNull(found);
             assertEquals(0, auditChange.getWhen().compareTo(found.getWhen()));
 
@@ -144,7 +145,7 @@ public class TestElasticSearch {
 //        AuditHeaderInputBean hib = new AuditHeaderInputBean("fortress", "Test", "Test", new DateTime().toDate(), "testRef");
 //        AuditHeader auditHeader = new AuditHeader(fu, hib, new DocumentType("TestJson", fu.getFortress().getCompany()));
 
-        SearchChange auditChange = new com.auditbucket.search.SearchChange();
+        SearchChange auditChange = new AuditSearchChange();
 //        String auditKey = "auditHeader.getAuditKey()";
 //
 //        auditChange.setWhen(new DateTime());

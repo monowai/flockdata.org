@@ -37,7 +37,7 @@ import java.util.Set;
  * Date: 25/04/13
  * Time: 4:33 PM
  */
-public class SearchChange implements com.auditbucket.audit.model.SearchChange {
+public class AuditSearchChange implements com.auditbucket.audit.model.SearchChange {
     // ToDo: Figure out naming standard for system variables
     private String id;
     private String documentType;
@@ -60,7 +60,7 @@ public class SearchChange implements com.auditbucket.audit.model.SearchChange {
      *
      * @param header auditHeader details (owner of this change)
      */
-    public SearchChange(AuditHeader header) {
+    public AuditSearchChange(AuditHeader header) {
         this();
         this.auditKey = header.getAuditKey();
         setDocumentType(header.getDocumentType());
@@ -76,10 +76,10 @@ public class SearchChange implements com.auditbucket.audit.model.SearchChange {
             }
     }
 
-    public SearchChange() {
+    public AuditSearchChange() {
     }
 
-    public SearchChange(AuditHeader header, Map<String, Object> mapWhat, String event, DateTime when) {
+    public AuditSearchChange(AuditHeader header, Map<String, Object> mapWhat, String event, DateTime when) {
         this(header);
         this.what = mapWhat;
         this.event = event;
@@ -182,7 +182,7 @@ public class SearchChange implements com.auditbucket.audit.model.SearchChange {
         return callerRef;
     }
 
-    public void setSysWhen(long sysWhen) {
+    public void setSysWhen(Long sysWhen) {
         this.sysWhen = sysWhen;
     }
 

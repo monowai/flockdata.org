@@ -35,7 +35,7 @@ import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.SystemUserService;
 import com.auditbucket.registration.service.TagService;
-import com.auditbucket.search.SearchChange;
+import com.auditbucket.search.AuditSearchChange;
 import com.auditbucket.search.SearchResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -311,7 +311,7 @@ public class AuditService {
                 auditDAO.removeLastChange(header);
             }
             header.setLastUser(fUser);
-            sd = new SearchChange(header, input.getMapWhat(), event, fortressWhen);
+            sd = new AuditSearchChange(header, input.getMapWhat(), event, fortressWhen);
             sd.setTagValues(tagValues);
         } else { // first ever log for the header
             if (event == null) {
@@ -321,7 +321,7 @@ public class AuditService {
 
             headerModified = true;
             header.setLastUser(fUser);
-            sd = new SearchChange(header, input.getMapWhat(), event, fortressWhen);
+            sd = new AuditSearchChange(header, input.getMapWhat(), event, fortressWhen);
             sd.setTagValues(tagValues);
             if (log.isTraceEnabled()) {
                 try {
@@ -498,7 +498,7 @@ public class AuditService {
         // Sync the update to elastic search.
         if (auditHeader.getFortress().isSearchActive()) {
             // Update against the Audit Header only by reindexing the search document
-            searchGateway.makeChangeSearchable(new SearchChange(auditHeader, newLastChange.getWhat(), newLastChange.getEvent(), new DateTime(auditLog.getFortressWhen())));
+            searchGateway.makeChangeSearchable(new AuditSearchChange(auditHeader, newLastChange.getWhat(), newLastChange.getEvent(), new DateTime(auditLog.getFortressWhen())));
         }
 
         return auditHeader;

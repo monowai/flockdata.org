@@ -20,7 +20,7 @@
 package com.auditbucket.search.endpoint;
 
 import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.search.SearchChange;
+import com.auditbucket.search.AuditSearchChange;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.Payload;
 import org.springframework.stereotype.Component;
@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
 @Component
 public interface IElasticSearchEP {
     @Gateway(requestChannel = "searchRequest", replyChannel = "searchReply")
-    public void createSearchableChange(SearchChange thisChange);
+    public void createSearchableChange(AuditSearchChange thisChange);
 
     //@Gateway(requestChannel = "esDelete")
     public void delete(@Payload AuditHeader auditHeader);

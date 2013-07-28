@@ -75,4 +75,8 @@ public interface SearchChange {
     String getCallerRef();
 
     String getEvent();
+
+    void setTagValues(Map<String, Object> tagValues);
+
+    public void setSysWhen(Long sysWhen);
 }

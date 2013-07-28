@@ -20,7 +20,8 @@
 package com.auditbucket.engine.service;
 
 import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.search.SearchChange;
+import com.auditbucket.audit.model.SearchChange;
+import com.auditbucket.search.AuditSearchChange;
 import com.auditbucket.search.SearchResult;
 import org.springframework.integration.annotation.Gateway;
 
