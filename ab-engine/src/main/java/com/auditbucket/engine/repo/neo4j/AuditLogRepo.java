@@ -20,6 +20,7 @@
 package com.auditbucket.engine.repo.neo4j;
 
 import com.auditbucket.audit.model.AuditChange;
+import com.auditbucket.audit.model.AuditLog;
 import com.auditbucket.engine.repo.neo4j.model.AuditChangeNode;
 import com.auditbucket.engine.repo.neo4j.model.AuditLogRelationship;
 import org.springframework.data.neo4j.annotation.Query;
@@ -40,16 +41,16 @@ public interface AuditLogRepo extends GraphRepository<AuditChangeNode> {
     @Query(elementClass = AuditChangeNode.class, value = "start header=node({0}) match header-[cw:changed|created]-byUser return cw")
     Set<AuditChange> getAuditLogs(Long auditHeaderID);
 
-    @Query(elementClass = AuditChangeNode.class, value = "start header=node({0}) match header-[log:logged]->auditLog return log order by log.sysWhen DESC limit 1")
+    @Query(elementClass = AuditLogRelationship.class, value = "start header=node({0}) match header-[log:logged]->auditLog return log order by log.sysWhen DESC limit 1")
     AuditLogRelationship getLastChange(Long auditHeaderID);
 
     @Query(elementClass = AuditChangeNode.class, value = "start header=node({0}) match header-[log:logged]->auditLog where log.fortressWhen >= {1} and log.fortressWhen <= {2} return auditLog ")
     Set<AuditChange> getAuditLogs(Long auditHeaderID, Long from, Long to);
 
-    @Query(elementClass = AuditChangeNode.class, value = "start audit=node({0}) " +
+    @Query(elementClass = AuditLogRelationship.class, value = "start audit=node({0}) " +
             "   MATCH audit-[l:logged]->auditLog " +
-            "return auditLog  order by l.sysWhen desc")
-    Set<AuditChange> findAuditLogs(Long auditHeaderID);
+            "return l order by l.fortressWhen desc")
+    Set<AuditLog> findAuditLogs(Long auditHeaderID);
 
     @Query(elementClass = AuditLogRelationship.class, value = "start header=node({0}) match header-[log:logged]->auditLog where log.sysWhen = {1} return log ")
     AuditLogRelationship getChange(Long auditHeaderID, long sysWhen);

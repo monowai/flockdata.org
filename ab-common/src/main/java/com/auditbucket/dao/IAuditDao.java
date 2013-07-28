@@ -39,7 +39,7 @@ public interface IAuditDao {
 
     public AuditHeader save(AuditHeader auditHeader);
 
-    public TxRef save(TxRef tagRef);
+    public AuditChange save(FortressUser fUser, AuditLogInputBean input, TxRef tagRef);
 
     /**
      * @param key GUID
@@ -76,7 +76,7 @@ public interface IAuditDao {
 
     Set<AuditChange> getAuditLogs(Long headerKey, Date from, Date to);
 
-    Set<AuditChange> getAuditLogs(Long auditHeaderID);
+    Set<AuditLog> getAuditLogs(Long auditHeaderID);
 
     void delete(AuditChange auditLog);
 
@@ -94,7 +94,7 @@ public interface IAuditDao {
 
     public Map<String, Object> findByTransaction(TxRef txRef);
 
-    AuditLog addChange(AuditHeader header, AuditChange al, DateTime fortressWhen);
+    AuditLog addLog(AuditHeader header, AuditChange al, DateTime fortressWhen);
 
     void save(AuditLog log);
 

@@ -220,7 +220,7 @@ public class AuditEP {
 
     @RequestMapping(value = "/{auditKey}/logs", method = RequestMethod.GET)
     @ResponseBody
-    public Set<AuditChange> getAuditLogs(@PathVariable("auditKey") String auditKey) throws Exception {
+    public Set<AuditLog> getAuditLogs(@PathVariable("auditKey") String auditKey) throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/c27ec2e5-2e17-4855-be18-bd8f82249157/logs
         return auditService.getAuditLogs(auditKey);
 
@@ -229,18 +229,18 @@ public class AuditEP {
     @RequestMapping(value = "/{auditKey}/lastchange", produces = "application/json", method = RequestMethod.GET)
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @ResponseBody
-    public ResponseEntity<AuditChange> getLastChange(@PathVariable("auditKey") String auditKey) throws Exception {
+    public ResponseEntity<AuditLog> getLastChange(@PathVariable("auditKey") String auditKey) throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/c27ec2e5-2e17-4855-be18-bd8f82249157/logs
         try {
             AuditHeader header = auditService.getHeader(auditKey);
             AuditLog when = auditService.getLastChange(header);
             if (when != null)
-                return new ResponseEntity<AuditChange>(when.getAuditChange(), HttpStatus.OK);
-            return new ResponseEntity<AuditChange>((AuditChange) null, HttpStatus.OK);
+                return new ResponseEntity<AuditLog>(when, HttpStatus.OK);
+            return new ResponseEntity<AuditLog>((AuditLog) null, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<AuditChange>((AuditChange) null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<AuditLog>((AuditLog) null, HttpStatus.NOT_FOUND);
         } catch (SecurityException e) {
-            return new ResponseEntity<AuditChange>((AuditChange) null, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<AuditLog>((AuditLog) null, HttpStatus.FORBIDDEN);
         }
 
     }

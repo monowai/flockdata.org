@@ -190,7 +190,7 @@ public class TestAudit {
             i++;
         }
         assertEquals(1d, (double) auditService.getAuditLogCount(ahKey));
-        Set<AuditChange> logs = auditService.getAuditLogs(ahKey);
+        Set<AuditLog> logs = auditService.getAuditLogs(ahKey);
         assertNotNull(logs);
         assertFalse(logs.isEmpty());
         assertEquals(1, logs.size());

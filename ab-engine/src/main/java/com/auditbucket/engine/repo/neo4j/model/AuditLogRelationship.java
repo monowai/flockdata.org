@@ -38,6 +38,7 @@ public class AuditLogRelationship implements AuditLog {
     private Long id;
 
     @EndNode
+    @Fetch
     private AuditChangeNode auditChange;
 
     @StartNode
@@ -82,7 +83,6 @@ public class AuditLogRelationship implements AuditLog {
         this.sysWhen = sysWhen;
     }
 
-    @JsonIgnore
     public AuditChange getAuditChange() {
         return auditChange;
     }

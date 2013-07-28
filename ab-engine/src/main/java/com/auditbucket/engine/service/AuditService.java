@@ -334,8 +334,8 @@ public class AuditService {
             header = auditDAO.save(header);
         }
 
-        AuditChange change = auditDAO.save(fUser, input);
-        AuditLog log = auditDAO.addChange(header, change, fortressWhen);
+        AuditChange change = auditDAO.save(fUser, input, txRef);
+        AuditLog log = auditDAO.addLog(header, change, fortressWhen);
 
         if (searchActive) {
             // Used to reconcile that the change was actually indexed
@@ -357,6 +357,7 @@ public class AuditService {
                 txRef = beginTransaction(input.getTxRef());
             }
         }
+
         return txRef;
     }
 
@@ -442,7 +443,7 @@ public class AuditService {
         return auditDAO.getLastChange(auditHeader.getId());
     }
 
-    public Set<AuditChange> getAuditLogs(String headerKey) {
+    public Set<AuditLog> getAuditLogs(String headerKey) {
         securityHelper.isValidUser();
         AuditHeader auditHeader = getValidHeader(headerKey);
         return auditDAO.getAuditLogs(auditHeader.getId());

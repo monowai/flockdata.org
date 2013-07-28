@@ -39,16 +39,16 @@ public class AuditTXResult {
     private Long lastSystemChange;
     private Long fortressWhen = 0l;
 
-    private AuditChange auditLog;
+    private AuditLog auditLog;
 
     private AuditTXResult() {
     }
 
 
-    public AuditTXResult(AuditHeader header, AuditChange log, AuditLog when) {
-        this.fortressWhen = when.getFortressWhen();
+    public AuditTXResult(AuditHeader header, AuditChange change, AuditLog log) {
+        this.fortressWhen = log.getFortressWhen();
         if (header == null)
-            header = log.getHeader();
+            header = change.getHeader();
         this.auditKey = header.getAuditKey();
         this.documentType = header.getDocumentType();
         this.callerRef = header.getCallerRef();

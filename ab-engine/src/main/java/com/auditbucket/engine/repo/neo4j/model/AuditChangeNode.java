@@ -70,15 +70,14 @@ public class AuditChangeNode implements AuditChange {
 
     }
 
-    public AuditChangeNode(FortressUser madeBy, AuditLogInputBean inputBean) {
+    public AuditChangeNode(FortressUser madeBy, AuditLogInputBean inputBean, TxRef txRef) {
         this();
         this.madeBy = (FortressUserNode) madeBy;
 
         String event = inputBean.getEvent();
         this.event = event;
         this.name = event + ":" + madeBy.getName();
-        if (inputBean.getTxRef() != null)
-            setTxRef(txRef);
+        setTxRef(txRef);
 
         CompressionResult result = CompressionHelper.compress(inputBean.getWhat());
         this.what = result.getBytes();

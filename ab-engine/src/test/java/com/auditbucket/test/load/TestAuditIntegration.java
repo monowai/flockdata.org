@@ -183,7 +183,7 @@ public class TestAuditIntegration {
             i++;
         }
 
-        Set<AuditChange> aLogs = auditService.getAuditLogs(auditHeader.getAuditKey());
+        Set<AuditLog> aLogs = auditService.getAuditLogs(auditHeader.getAuditKey());
         assertEquals(max, aLogs.size());
 
         AuditLog lastLog = auditService.getLastChange(auditHeader.getAuditKey());
@@ -214,7 +214,7 @@ public class TestAuditIntegration {
         AuditHeader auditHeader = auditService.getHeader(ahWP);
         auditService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", firstDate, what + 1 + "\"}"));
         auditService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}"));
-        Set<AuditChange> logs = auditService.getAuditLogs(auditHeader.getAuditKey());
+        Set<AuditLog> logs = auditService.getAuditLogs(auditHeader.getAuditKey());
         assertEquals(2, logs.size());
         auditHeader = auditService.getHeader(ahWP);
         compareUser(auditHeader, "isabella@sunnybell.com");

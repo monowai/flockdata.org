@@ -151,7 +151,7 @@ public class AuditDaoNeo implements IAuditDao {
         return auditLogRepo.getAuditLogs(auditLogID, from.getTime(), to.getTime());
     }
 
-    public Set<AuditChange> getAuditLogs(Long auditHeaderID) {
+    public Set<AuditLog> getAuditLogs(Long auditHeaderID) {
         return auditLogRepo.findAuditLogs(auditHeaderID);
     }
 
@@ -186,10 +186,10 @@ public class AuditDaoNeo implements IAuditDao {
         //Result<Map<String, Object>> results =
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
-            AuditLog when = template.convert(row.get("logs"), AuditLogRelationship.class);
-            AuditChange log = template.convert(row.get("auditLog"), AuditChangeNode.class);
+            AuditLog log = template.convert(row.get("logs"), AuditLogRelationship.class);
+            AuditChange change = template.convert(row.get("auditLog"), AuditChangeNode.class);
             AuditHeader audit = template.convert(row.get("audit"), AuditHeaderNode.class);
-            simpleResult.add(new AuditTXResult(audit, log, when));
+            simpleResult.add(new AuditTXResult(audit, change, log));
             i++;
 
         }
@@ -201,7 +201,7 @@ public class AuditDaoNeo implements IAuditDao {
     }
 
     @Override
-    public AuditLog addChange(AuditHeader header, AuditChange al, DateTime fortressWhen) {
+    public AuditLog addLog(AuditHeader header, AuditChange al, DateTime fortressWhen) {
         AuditLogRelationship aWhen = new AuditLogRelationship(header, al, fortressWhen);
         return template.save(aWhen);
 
@@ -225,7 +225,12 @@ public class AuditDaoNeo implements IAuditDao {
 
     @Override
     public AuditChange save(FortressUser fUser, AuditLogInputBean input) {
-        AuditChange auditChange = new AuditChangeNode(fUser, input);
+        return save(fUser, input, null);
+    }
+
+    @Override
+    public AuditChange save(FortressUser fUser, AuditLogInputBean input, TxRef txRef) {
+        AuditChange auditChange = new AuditChangeNode(fUser, input, txRef);
         return template.save(auditChange);
     }
 
