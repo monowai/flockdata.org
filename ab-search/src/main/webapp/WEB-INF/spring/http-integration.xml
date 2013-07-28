@@ -40,7 +40,7 @@
 
 
     <int:gateway id="searchGateway"
-                 service-interface="com.auditbucket.search.service.IAbEngineGateway"/>
+                 service-interface="com.auditbucket.search.service.AbEngineGateway"/>
 
     <int-http:outbound-gateway auto-startup="true"
                                reply-timeout="1000"

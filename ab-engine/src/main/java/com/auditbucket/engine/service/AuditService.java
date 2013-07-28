@@ -85,7 +85,7 @@ public class AuditService {
     private SecurityHelper securityHelper;
 
     @Autowired
-    private IAbSearchGateway searchGateway;
+    private AbSearchGateway searchGateway;
 
     private Logger log = LoggerFactory.getLogger(AuditService.class);
     static final ObjectMapper om = new ObjectMapper();

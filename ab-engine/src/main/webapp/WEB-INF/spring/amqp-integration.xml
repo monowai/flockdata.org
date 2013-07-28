@@ -38,7 +38,7 @@
     <int:annotation-config/>
 
     <int:gateway id="searchGateway"
-                 service-interface="com.auditbucket.engine.service.IAbSearchGateway"/>
+                 service-interface="com.auditbucket.engine.service.AbSearchGateway"/>
 
     <!-- RabbitMQ CONFIGURATION  -->
     <import resource="amqp-rabbit.xml"/>

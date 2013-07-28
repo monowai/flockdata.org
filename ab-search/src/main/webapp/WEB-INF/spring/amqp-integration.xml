@@ -51,7 +51,7 @@
             />
 
     <int:gateway id="searchGateway"
-                 service-interface="com.auditbucket.search.service.IAbEngineGateway"/>
+                 service-interface="com.auditbucket.search.service.AbEngineGateway"/>
 
     <int-amqp:outbound-gateway
             request-channel="searchResult"

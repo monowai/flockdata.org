@@ -17,19 +17,23 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.search.service;
+package com.auditbucket.search.endpoint;
 
-import com.auditbucket.search.SearchResult;
+import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.search.AuditSearchChange;
 import org.springframework.integration.annotation.Gateway;
-
-import java.util.concurrent.Future;
+import org.springframework.integration.annotation.Payload;
+import org.springframework.stereotype.Component;
 
 /**
  * User: Mike Holdsworth
- * Since: 13/07/13
+ * Since: 9/07/13
  */
-public interface IAbEngineGateway {
-    @Gateway(requestChannel = "searchReply")
-    void handleSearchResult(SearchResult searchResult);
+@Component
+public interface ElasticSearchGateway {
+    @Gateway(requestChannel = "searchRequest", replyChannel = "searchReply")
+    public void createSearchableChange(AuditSearchChange thisChange);
 
+    //@Gateway(requestChannel = "esDelete")
+    public void delete(@Payload AuditHeader auditHeader);
 }

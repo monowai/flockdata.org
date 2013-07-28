@@ -24,7 +24,7 @@ import com.auditbucket.audit.model.AuditSearchDao;
 import com.auditbucket.dao.IAuditQueryDao;
 import com.auditbucket.search.AuditSearchChange;
 import com.auditbucket.search.SearchResult;
-import com.auditbucket.search.endpoint.IElasticSearchEP;
+import com.auditbucket.search.endpoint.ElasticSearchGateway;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.ServiceActivator;
@@ -38,7 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @MessageEndpoint
-public class AbSearchServiceAmqp implements IElasticSearchEP {
+public class AbSearchServiceAmqp implements ElasticSearchGateway {
     @Autowired
     private AuditSearchDao auditSearch;
 
@@ -46,7 +46,7 @@ public class AbSearchServiceAmqp implements IElasticSearchEP {
     private IAuditQueryDao auditQuery;
 
     @Autowired(required = false)
-    private IAbEngineGateway engineGateway;
+    private AbEngineGateway engineGateway;
 
     public Long getHitCount(String index) {
         return auditQuery.getHitCount(index);

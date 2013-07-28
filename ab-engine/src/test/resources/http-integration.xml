@@ -32,7 +32,7 @@
     <int:annotation-config/>
     <bean class="org.springframework.integration.http.inbound.UriPathHandlerMapping"/>
     <int:gateway id="searchGateway"
-                 service-interface="com.auditbucket.engine.service.IAbSearchGateway"/>
+                 service-interface="com.auditbucket.engine.service.AbSearchGateway"/>
 
     <int-http:outbound-gateway auto-startup="true"
                                request-channel="sendRequest" reply-timeout="4000"
