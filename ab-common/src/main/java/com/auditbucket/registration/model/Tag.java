@@ -22,7 +22,7 @@ package com.auditbucket.registration.model;
 /**
  * User: Mike Holdsworth
  * Date: 15/06/13
- * Time: 9:11 AM
+ * Time: 9:11 PM
  */
 public interface Tag {
 

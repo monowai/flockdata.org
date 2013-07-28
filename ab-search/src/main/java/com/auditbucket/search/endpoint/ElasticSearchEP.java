@@ -33,7 +33,7 @@ import java.util.Map;
  * ElasticSearch input end-point
  * User: Mike Holdsworth
  * Date: 7/07/13
- * Time: 10:03 AM
+ * Time: 10:03 PM
  */
 @RequestMapping("/")
 @Controller
