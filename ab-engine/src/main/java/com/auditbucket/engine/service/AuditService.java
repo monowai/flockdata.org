@@ -24,8 +24,8 @@ import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditResultBean;
 import com.auditbucket.dao.IAuditDao;
+import com.auditbucket.engine.repo.neo4j.model.AuditChange;
 import com.auditbucket.engine.repo.neo4j.model.AuditHeader;
-import com.auditbucket.engine.repo.neo4j.model.AuditLog;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.ICompany;
 import com.auditbucket.registration.model.IFortress;
@@ -35,7 +35,7 @@ import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.SystemUserService;
 import com.auditbucket.registration.service.TagService;
-import com.auditbucket.search.AuditChange;
+import com.auditbucket.search.SearchChange;
 import com.auditbucket.search.SearchResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -277,13 +277,13 @@ public class AuditService {
 
 //ToDo: Look at spin the following off in to a separate thread?
         // https://github.com/monowai/auditbucket/issues/7
-        IAuditWhen lastWhen = auditDAO.getLastChange(header.getId());
-        IAuditLog lastChange = (lastWhen != null ? lastWhen.getAuditLog() : null);
+        IAuditLog lastWhen = auditDAO.getLastChange(header.getId());
+        IAuditChange lastChange = (lastWhen != null ? lastWhen.getAuditChange() : null);
         String event = input.getEvent();
         Boolean searchActive = fortress.isSearchActive();
         DateTime dateWhen = (input.getWhen() == null ? new DateTime(DateTimeZone.UTC) : new DateTime(input.getWhen(), DateTimeZone.UTC));
 
-        AuditChange sd; // Document that will be indexed
+        SearchChange sd; // Document that will be indexed
 
         if (lastChange != null) {
             // Neo4j won't store the map, so we store the raw escaped JSON text
@@ -301,7 +301,7 @@ public class AuditService {
                 return input;
             }
             if (event == null) {
-                event = IAuditLog.UPDATE;
+                event = IAuditChange.UPDATE;
                 input.setEvent(event);
             }
 
@@ -311,17 +311,17 @@ public class AuditService {
                 auditDAO.removeLastChange(header);
             }
             header.setLastUser(fUser);
-            sd = new AuditChange(header, input.getMapWhat(), event, dateWhen);
+            sd = new SearchChange(header, input.getMapWhat(), event, dateWhen);
             sd.setTagValues(tagValues);
         } else { // first ever log for the header
             if (event == null) {
-                event = IAuditLog.CREATE;
+                event = IAuditChange.CREATE;
                 input.setEvent(event);
             }
 
             headerModified = true;
             header.setLastUser(fUser);
-            sd = new AuditChange(header, input.getMapWhat(), event, dateWhen);
+            sd = new SearchChange(header, input.getMapWhat(), event, dateWhen);
             sd.setTagValues(tagValues);
             if (log.isTraceEnabled()) {
                 try {
@@ -337,7 +337,7 @@ public class AuditService {
             header = auditDAO.save(header);
         }
 
-        IAuditLog al = new AuditLog(fUser, dateWhen, input);
+        IAuditChange al = new AuditChange(fUser, dateWhen, input);
         if (input.getTxRef() != null)
             al.setTxRef(txRef);
         al.setJsonWhat(input.getWhat());
@@ -391,7 +391,7 @@ public class AuditService {
         if (log.isDebugEnabled())
             log.debug("Updated from search auditKey =[" + searchResult + "]");
 
-        IAuditWhen when = auditDAO.getChange(header.getId(), searchResult.getSysWhen());
+        IAuditLog when = auditDAO.getChange(header.getId(), searchResult.getSysWhen());
         // Another thread may have processed this so save an update
         if (when != null && !when.isIndexed()) {
             // We need to know that the change we requested to index has been indexed.
@@ -440,28 +440,28 @@ public class AuditService {
     }
 
 
-    public IAuditWhen getLastChange(String headerKey) {
+    public IAuditLog getLastChange(String headerKey) {
         IAuditHeader ah = getValidHeader(headerKey);
         return getLastChange(ah);
     }
 
-    public IAuditWhen getLastChange(IAuditHeader auditHeader) {
+    public IAuditLog getLastChange(IAuditHeader auditHeader) {
         return auditDAO.getLastChange(auditHeader.getId());
     }
 
-    public Set<IAuditLog> getAuditLogs(String headerKey) {
+    public Set<IAuditChange> getAuditLogs(String headerKey) {
         securityHelper.isValidUser();
         IAuditHeader auditHeader = getValidHeader(headerKey);
         return auditDAO.getAuditLogs(auditHeader.getId());
     }
 
-    public Set<IAuditLog> getAuditLogs(String headerKey, Date from, Date to) {
+    public Set<IAuditChange> getAuditLogs(String headerKey, Date from, Date to) {
         securityHelper.isValidUser();
         IAuditHeader auditHeader = getValidHeader(headerKey);
         return getAuditLogs(auditHeader, from, to);
     }
 
-    protected Set<IAuditLog> getAuditLogs(IAuditHeader auditHeader, Date from, Date to) {
+    protected Set<IAuditChange> getAuditLogs(IAuditHeader auditHeader, Date from, Date to) {
         return auditDAO.getAuditLogs(auditHeader.getId(), from, to);
     }
 
@@ -469,7 +469,7 @@ public class AuditService {
     /**
      * This could be used toa assist in compensating transactions to roll back the last change
      * if the caller decides a rollback is required after the log has been written.
-     * If there are no IAuditLog records left, then the header will also be removed and the
+     * If there are no IAuditChange records left, then the header will also be removed and the
      * AB headerKey will be forever invalid.
      *
      * @param headerKey UID of the header
@@ -478,17 +478,17 @@ public class AuditService {
     @Transactional
     public IAuditHeader cancelLastLog(String headerKey) throws IOException {
         IAuditHeader auditHeader = getValidHeader(headerKey);
-        IAuditWhen whenToDelete = getLastChange(auditHeader);
+        IAuditLog whenToDelete = getLastChange(auditHeader);
         if (whenToDelete == null)
             return null;
 
-        auditDAO.delete(whenToDelete.getAuditLog());
+        auditDAO.delete(whenToDelete.getAuditChange());
 
-        IAuditWhen newLastWhen = getLastChange(auditHeader);
+        IAuditLog newLastWhen = getLastChange(auditHeader);
         if (newLastWhen == null)
             // No Log records exist. Delete the header??
             return null;
-        IAuditLog newLastChange = newLastWhen.getAuditLog();
+        IAuditChange newLastChange = newLastWhen.getAuditChange();
         auditHeader = auditDAO.fetch(auditHeader);
         auditHeader.setLastUser(fortressService.getFortressUser(auditHeader.getFortress(), newLastChange.getWho().getName()));
         auditHeader = auditDAO.save(auditHeader);
@@ -498,7 +498,7 @@ public class AuditService {
         // Sync the update to elastic search.
         if (auditHeader.getFortress().isSearchActive()) {
             // Update against the Audit Header only by reindexing the search document
-            searchGateway.makeChangeSearchable(new AuditChange(auditHeader, newLastChange.getWhat(), newLastChange.getEvent(), new DateTime(newLastChange.getWhen())));
+            searchGateway.makeChangeSearchable(new SearchChange(auditHeader, newLastChange.getWhat(), newLastChange.getEvent(), new DateTime(newLastChange.getWhen())));
         }
 
         return auditHeader;

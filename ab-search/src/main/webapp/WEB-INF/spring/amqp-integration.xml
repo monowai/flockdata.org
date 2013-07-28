@@ -64,7 +64,7 @@
             id="jsonToObject"
             input-channel="searchRequest"
             output-channel="searchRequestIn"
-            type="com.auditbucket.search.AuditChange"/>
+            type="com.auditbucket.search.SearchChange"/>
 
     <int:object-to-json-transformer id="objectToJson" input-channel="searchReply" output-channel="searchResult"/>
 

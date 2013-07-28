@@ -20,16 +20,16 @@
 package com.auditbucket.engine.repo.neo4j.dao;
 
 import com.auditbucket.audit.model.IAuditHeader;
+import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditLog;
-import com.auditbucket.audit.model.IAuditWhen;
 import com.auditbucket.audit.model.ITxRef;
 import com.auditbucket.bean.AuditTXResult;
 import com.auditbucket.dao.IAuditDao;
 import com.auditbucket.engine.repo.neo4j.AuditHeaderRepo;
 import com.auditbucket.engine.repo.neo4j.AuditLogRepo;
+import com.auditbucket.engine.repo.neo4j.model.AuditChange;
 import com.auditbucket.engine.repo.neo4j.model.AuditHeader;
 import com.auditbucket.engine.repo.neo4j.model.AuditLog;
-import com.auditbucket.engine.repo.neo4j.model.AuditWhen;
 import com.auditbucket.engine.repo.neo4j.model.TxRef;
 import com.auditbucket.registration.model.ICompany;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -69,8 +69,8 @@ public class AuditDaoNeo implements IAuditDao {
     }
 
     @Override
-    public IAuditLog save(IAuditLog auditLog) {
-        return template.save((AuditLog) auditLog);
+    public IAuditChange save(IAuditChange auditLog) {
+        return template.save((AuditChange) auditLog);
     }
 
     public ITxRef save(ITxRef tagRef) {
@@ -139,29 +139,29 @@ public class AuditDaoNeo implements IAuditDao {
         return auditLogRepo.getLogCount(id);
     }
 
-    public IAuditWhen getLastChange(Long auditHeaderID) {
-        IAuditWhen when = auditLogRepo.getLastChange(auditHeaderID);
+    public IAuditLog getLastChange(Long auditHeaderID) {
+        IAuditLog when = auditLogRepo.getLastChange(auditHeaderID);
         if (when != null)
-            template.fetch(when.getAuditLog());
+            template.fetch(when.getAuditChange());
         return when;
     }
 
-    public IAuditWhen getChange(Long auditHeaderID, long sysWhen) {
+    public IAuditLog getChange(Long auditHeaderID, long sysWhen) {
         return auditLogRepo.getChange(auditHeaderID, sysWhen);
     }
 
 
-    public Set<IAuditLog> getAuditLogs(Long auditLogID, Date from, Date to) {
+    public Set<IAuditChange> getAuditLogs(Long auditLogID, Date from, Date to) {
         return auditLogRepo.getAuditLogs(auditLogID, from.getTime(), to.getTime());
     }
 
-    public Set<IAuditLog> getAuditLogs(Long auditHeaderID) {
+    public Set<IAuditChange> getAuditLogs(Long auditHeaderID) {
         return auditLogRepo.findAuditLogs(auditHeaderID);
     }
 
     @Override
-    public void delete(IAuditLog auditLog) {
-        auditLogRepo.delete((AuditLog) auditLog);
+    public void delete(IAuditChange auditLog) {
+        auditLogRepo.delete((AuditChange) auditLog);
     }
 
     @Override
@@ -190,8 +190,8 @@ public class AuditDaoNeo implements IAuditDao {
         //Result<Map<String, Object>> results =
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
-            IAuditWhen when = template.convert(row.get("logs"), AuditWhen.class);
-            IAuditLog log = template.convert(row.get("auditLog"), AuditLog.class);
+            IAuditLog when = template.convert(row.get("logs"), AuditLog.class);
+            IAuditChange log = template.convert(row.get("auditLog"), AuditChange.class);
             IAuditHeader audit = template.convert(row.get("audit"), AuditHeader.class);
             simpleResult.add(new AuditTXResult(audit, log, when));
             i++;
@@ -205,16 +205,16 @@ public class AuditDaoNeo implements IAuditDao {
     }
 
     @Override
-    public void addChange(IAuditHeader header, IAuditLog al, DateTime dateWhen) {
-        AuditWhen aWhen = new AuditWhen(header, al);
+    public void addChange(IAuditHeader header, IAuditChange al, DateTime dateWhen) {
+        AuditLog aWhen = new AuditLog(header, al);
         template.save(aWhen);
         header.getAuditKey();
 
     }
 
     @Override
-    public void save(IAuditWhen log) {
-        template.save((AuditWhen) log);
+    public void save(IAuditLog log) {
+        template.save((AuditLog) log);
     }
 
     @Override

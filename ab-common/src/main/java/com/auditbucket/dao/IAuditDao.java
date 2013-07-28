@@ -19,9 +19,9 @@
 
 package com.auditbucket.dao;
 
+import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
-import com.auditbucket.audit.model.IAuditWhen;
 import com.auditbucket.audit.model.ITxRef;
 import com.auditbucket.registration.model.ICompany;
 import org.joda.time.DateTime;
@@ -39,7 +39,7 @@ public interface IAuditDao {
 
     public IAuditHeader save(IAuditHeader auditHeader);
 
-    public IAuditLog save(IAuditLog auditLog);
+    public IAuditChange save(IAuditChange auditLog);
 
     public ITxRef save(ITxRef tagRef);
 
@@ -62,7 +62,7 @@ public interface IAuditDao {
      */
     public int getLogCount(Long id);
 
-    public IAuditWhen getLastChange(Long auditHeaderID);
+    public IAuditLog getLastChange(Long auditHeaderID);
 
     /**
      * locates a specific change in auditBucket.
@@ -74,13 +74,13 @@ public interface IAuditDao {
      * @param sysWhen       time auditBucket processed the change
      * @return the change for an exact match
      */
-    public IAuditWhen getChange(Long auditHeaderID, long sysWhen);
+    public IAuditLog getChange(Long auditHeaderID, long sysWhen);
 
-    Set<IAuditLog> getAuditLogs(Long headerKey, Date from, Date to);
+    Set<IAuditChange> getAuditLogs(Long headerKey, Date from, Date to);
 
-    Set<IAuditLog> getAuditLogs(Long auditHeaderID);
+    Set<IAuditChange> getAuditLogs(Long auditHeaderID);
 
-    void delete(IAuditLog auditLog);
+    void delete(IAuditChange auditLog);
 
     void delete(IAuditHeader auditHeader);
 
@@ -96,9 +96,9 @@ public interface IAuditDao {
 
     public Map<String, Object> findByTransaction(ITxRef txRef);
 
-    void addChange(IAuditHeader header, IAuditLog al, DateTime dateWhen);
+    void addChange(IAuditHeader header, IAuditChange al, DateTime dateWhen);
 
-    void save(IAuditWhen log);
+    void save(IAuditLog log);
 
     String ping();
 }

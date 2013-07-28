@@ -19,60 +19,62 @@
 
 package com.auditbucket.audit.model;
 
-import org.joda.time.DateTime;
+import com.auditbucket.registration.model.IFortressUser;
 
+import java.util.Date;
 import java.util.Map;
 
 /**
  * User: Mike Holdsworth
- * Date: 21/04/13
- * Time: 7:44 PM
+ * Date: 15/04/13
+ * Time: 5:49 AM
  */
 public interface IAuditChange {
+
+    String CREATE = "Create";
+    String UPDATE = "Update";
+
+    public abstract IAuditHeader getHeader();
+
+    public abstract IFortressUser getWho();
+
+    public abstract Date getWhen();
+
     /**
-     * @return search keys unique document identifier
+     * @return UTC time that this record was created
+     */
+    public abstract Date getSysWhen();
+
+    public String getComment();
+
+    /**
+     * optional comment
+     *
+     * @param comment searchable.
+     */
+    public void setComment(String comment);
+
+    /**
+     * Document primary key as stored in search engine
+     *
+     * @param changeKey unique key
+     */
+    public void setSearchKey(String changeKey);
+
+    /**
+     * @return unique identifier to the search index key
      */
     public String getSearchKey();
 
-    public void setSearchKey(String parent);
+    public String getJsonWhat();
 
-    /**
-     * primary key of the Audit record that this document belongs to
-     *
-     * @return GUID
-     */
-    String getAuditKey();
+    String getName();
 
-    public void setWhat(Map<String, Object> what);
-
-    public Map<String, Object> getWhat();
-
-    public Map<String, Object> getTagValues();
-
-    //public void setTagValues(Map<String, Object> tagValues);
-
-    /**
-     * @return who made this change
-     */
-    public String getWho();
-
-    public Long getSysWhen();
-
-    public String getFortressName();
-
-    public String getCompanyName();
-
-    public String getIndexName();
-
-    public Long getWhen();
-
-    void setWhen(DateTime date);
-
-    void setWho(String name);
-
-    String getDocumentType();
-
-    String getCallerRef();
+    public void setTxRef(ITxRef txRef);
 
     String getEvent();
+
+    Map<String, Object> getWhat();
+
+    void setJsonWhat(String compressedJson);
 }

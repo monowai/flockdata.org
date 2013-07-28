@@ -35,7 +35,7 @@
     <int-http:inbound-gateway request-channel="searchRequest"
                               reply-channel="searchReply"
                               path="/api/esMake"
-                              request-payload-type="com.auditbucket.search.AuditChange"
+                              request-payload-type="com.auditbucket.search.SearchChange"
                               supported-methods="POST"/>
 
 
@@ -49,7 +49,7 @@
 
 
     <int:json-to-object-transformer id="jsonToObject" input-channel="searchRequest"
-                                    type="com.auditbucket.search.AuditChange"/>
+                                    type="com.auditbucket.search.SearchChange"/>
     <int:object-to-json-transformer id="objectToJson" input-channel="searchReply" output-channel="searchResult"/>
 
     <int:channel id="searchRequest"/>

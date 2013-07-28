@@ -20,7 +20,7 @@
 package com.auditbucket.test.load;
 
 import com.auditbucket.audit.model.IAuditHeader;
-import com.auditbucket.audit.model.IAuditLog;
+import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.engine.service.AuditService;
@@ -182,10 +182,10 @@ public class TestAuditIntegration {
             i++;
         }
 
-        Set<IAuditLog> aLogs = auditService.getAuditLogs(auditHeader.getAuditKey());
+        Set<IAuditChange> aLogs = auditService.getAuditLogs(auditHeader.getAuditKey());
         assertEquals(max, aLogs.size());
 
-        IAuditLog lastChange = auditService.getLastChange(auditHeader.getAuditKey()).getAuditLog();
+        IAuditChange lastChange = auditService.getLastChange(auditHeader.getAuditKey()).getAuditChange();
         assertNotNull(lastChange);
         assertEquals(workingDate.toDate(), lastChange.getWhen());
         auditHeader = auditService.getHeader(ahWP);
@@ -193,7 +193,7 @@ public class TestAuditIntegration {
 
         DateTime then = workingDate.minusDays(4);
         log.info("Searching between " + then.toDate() + " and " + workingDate.toDate());
-        Set<IAuditLog> logs = auditService.getAuditLogs(auditHeader.getAuditKey(), then.toDate(), workingDate.toDate());
+        Set<IAuditChange> logs = auditService.getAuditLogs(auditHeader.getAuditKey(), then.toDate(), workingDate.toDate());
         assertEquals(5, logs.size());
 
     }
@@ -212,7 +212,7 @@ public class TestAuditIntegration {
         IAuditHeader auditHeader = auditService.getHeader(ahWP);
         auditService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", firstDate, what + 1 + "\"}"));
         auditService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}"));
-        Set<IAuditLog> logs = auditService.getAuditLogs(auditHeader.getAuditKey());
+        Set<IAuditChange> logs = auditService.getAuditLogs(auditHeader.getAuditKey());
         assertEquals(2, logs.size());
         auditHeader = auditService.getHeader(ahWP);
         compareUser(auditHeader, "isabella@sunnybell.com");

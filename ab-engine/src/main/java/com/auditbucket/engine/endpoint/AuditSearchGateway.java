@@ -19,7 +19,7 @@
 
 package com.auditbucket.engine.endpoint;
 
-import com.auditbucket.audit.model.IAuditChange;
+import com.auditbucket.audit.model.ISearchChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.Payload;
@@ -32,7 +32,7 @@ import org.springframework.integration.annotation.Payload;
 public interface AuditSearchGateway {
 
     @Gateway(requestChannel = "searchRequest")
-    public IAuditChange createSearchableChange(@Payload IAuditChange thisChange);
+    public ISearchChange createSearchableChange(@Payload ISearchChange thisChange);
 
     @Gateway(requestChannel = "searchDelete")
     public void delete(@Payload IAuditHeader auditHeader);

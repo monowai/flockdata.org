@@ -20,8 +20,8 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.model.IAuditHeader;
+import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditLog;
-import com.auditbucket.audit.model.IAuditWhen;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditResultBean;
@@ -190,7 +190,7 @@ public class TestAudit {
             i++;
         }
         assertEquals(1d, (double) auditService.getAuditLogCount(ahKey));
-        Set<IAuditLog> logs = auditService.getAuditLogs(ahKey);
+        Set<IAuditChange> logs = auditService.getAuditLogs(ahKey);
         assertNotNull(logs);
         assertFalse(logs.isEmpty());
         assertEquals(1, logs.size());
@@ -217,16 +217,16 @@ public class TestAudit {
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));
 
         auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 0}"));
-        IAuditWhen when = auditService.getLastChange(ahKey);
+        IAuditLog when = auditService.getLastChange(ahKey);
         assertNotNull(when);
-        assertEquals(IAuditLog.CREATE, when.getAuditLog().getEvent()); // log event default
+        assertEquals(IAuditChange.CREATE, when.getAuditChange().getEvent()); // log event default
 
         auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 1}"));
-        IAuditWhen whenB = auditService.getLastChange(ahKey);
+        IAuditLog whenB = auditService.getLastChange(ahKey);
         assertNotNull(whenB);
 
         assertFalse(whenB.equals(when));
-        assertEquals(IAuditLog.UPDATE, whenB.getAuditLog().getEvent());  // log event default
+        assertEquals(IAuditChange.UPDATE, whenB.getAuditChange().getEvent());  // log event default
     }
 
     @Test

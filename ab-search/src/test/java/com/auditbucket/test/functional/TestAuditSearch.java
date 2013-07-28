@@ -61,9 +61,10 @@ public class TestAuditSearch {
     private String company = "Monowai";
     private String uid = "mike@monowai.com";
     Authentication authA = new UsernamePasswordAuthenticationToken(uid, "user1");
+
     @Test
     public void testSearchKeysForNonAccumulatingFortresses() throws Exception {
-    	Assert.assertTrue(true);
+        Assert.assertTrue(true);
 //        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
 //        IFortress fo = fortressService.registerFortress(new FortressInputBean("testSearchCancel", false));
 //
@@ -82,12 +83,12 @@ public class TestAuditSearch {
 //            auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + i + "}"));
 //            i++;
 //        }
-//        Set<IAuditLog> logs = auditService.getAuditLogs(ahKey);
-//        Iterator<IAuditLog> it = logs.iterator();
+//        Set<IAuditChange> logs = auditService.getAuditLogs(ahKey);
+//        Iterator<IAuditChange> it = logs.iterator();
 //        assertNotNull(logs);
 //        assertEquals(max, logs.size());
 //        while (it.hasNext()) {
-//            IAuditLog next = it.next();
+//            IAuditChange next = it.next();
 //            assertNull(next.getSearchKey());
 //        }
 //        byte[] parent = searchService.findOne(auditHeader, auditHeader.getSearchKey());

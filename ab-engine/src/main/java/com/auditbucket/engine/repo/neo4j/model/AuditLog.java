@@ -19,168 +19,82 @@
 
 package com.auditbucket.engine.repo.neo4j.model;
 
+import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
-import com.auditbucket.audit.model.ITxRef;
-import com.auditbucket.bean.AuditLogInputBean;
-import com.auditbucket.helper.CompressionHelper;
-import com.auditbucket.helper.CompressionResult;
-import com.auditbucket.registration.model.IFortressUser;
-import com.auditbucket.registration.repo.neo4j.model.FortressUser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.*;
-
-import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * User: Mike Holdsworth
- * Date: 15/04/13
- * Time: 5:57 AM
+ * Date: 26/05/13
+ * Time: 4:12 PM
  */
-@NodeEntity(useShortNames = true)
+@RelationshipEntity(type = "logged")
 public class AuditLog implements IAuditLog {
     @GraphId
     private Long id;
 
-    @RelatedTo(elementClass = FortressUser.class, type = "changed", direction = Direction.INCOMING, enforceTargetType = true)
-    @Fetch
-    private FortressUser madeBy;
+    @EndNode
+    private AuditChange auditChange;
 
-    @RelatedTo(elementClass = TxRef.class, type = "txIncludes", direction = Direction.INCOMING, enforceTargetType = true)
-    private ITxRef txRef;
+    @StartNode
+    private AuditHeader auditHeader;
 
-    static ObjectMapper om = new ObjectMapper();
+    @Indexed(indexName = "sysWhen", numeric = true)
+    private Long sysWhen = 0l;
 
-    private long sysWhen;
-    private String comment;
-    private String event;
+    @Indexed(indexName = "fortressWhen")
+    private Long fortressWhen = 0l;
 
-    private byte[] what;
-    private boolean compressed = false;
-    private String name;
-
-    private Long when = 0l;
-
-    @Indexed(indexName = "searchKey")
-    private String searchKey;
+    @Indexed(indexName = "searchIndex")
+    private boolean indexed = false;
 
 
     protected AuditLog() {
-        DateTime now = new DateTime().toDateTime(DateTimeZone.UTC);
-        sysWhen = now.toDate().getTime();
     }
 
-    public AuditLog(IFortressUser madeBy, DateTime fortressWhen, AuditLogInputBean inputBean) {
+    public AuditLog(IAuditHeader header, IAuditChange log) {
         this();
-        this.madeBy = (FortressUser) madeBy;
-        if (fortressWhen != null && fortressWhen.getMillis() != 0) {
-            this.when = fortressWhen.getMillis();
-        } else {
-            this.when = sysWhen;
-        }
-        String event = inputBean.getEvent();
-        this.event = event;
-        this.name = event + ":" + madeBy.getName();
-        CompressionResult result = CompressionHelper.compress(inputBean.getWhat());
-        this.what = result.getBytes();
-        this.compressed = result.isCompressed();
-
-        this.comment = inputBean.getComment();
+        this.auditHeader = (AuditHeader) header;
+        this.auditChange = (AuditChange) log;
+        // ToDo: denormalisation here; storing the times in the relationships and the node
+        this.sysWhen = log.getSysWhen().getTime();
+        this.fortressWhen = log.getWhen().getTime();
     }
 
 
-    @JsonIgnore
-    public IAuditHeader getHeader() {
-        //return auditHeader;
-        return null;
+    public Long getSysWhen() {
+        return sysWhen;
+    }
+
+    public Long getFortressWhen() {
+        return fortressWhen;
+    }
+
+    void setSysWhen(Long sysWhen) {
+        this.sysWhen = sysWhen;
     }
 
     @JsonIgnore
-    public long getId() {
-        return id;
-    }
-
-
-    public IFortressUser getWho() {
-        return madeBy;
-    }
-
-    public Date getWhen() {
-        return new Date(when);
-    }
-
-    public Date getSysWhen() {
-        return new Date(sysWhen);
-    }
-
-    @Override
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
+    public IAuditChange getAuditChange() {
+        return auditChange;
     }
 
     @JsonIgnore
-    public String getSearchKey() {
-        return searchKey;
+    public IAuditHeader getAuditHeader() {
+        return auditHeader;
     }
 
-    public void setSearchKey(String key) {
-        this.searchKey = key;
+    public void setChange(AuditChange auditLog) {
+        this.auditChange = auditLog;
     }
 
-    /**
-     * @return the name of the event that caused this change
-     */
-    @JsonIgnore
-    public String getName() {
-        return name;
+    public boolean isIndexed() {
+        return indexed;
     }
 
-    @JsonIgnore
-    public String getJsonWhat() {
-        return CompressionHelper.decompress(what, compressed);
-    }
-
-    public void setJsonWhat(String what) {
-        CompressionResult result = CompressionHelper.compress(what);
-        this.what = result.getAsBytes();
-        this.compressed = result.getMethod() == CompressionResult.Method.GZIP;
-    }
-
-    private Map<String, Object> mWhat;
-
-    public Map<String, Object> getWhat() {
-
-        if (mWhat != null)
-            return mWhat;
-        try {
-            mWhat = om.readValue(CompressionHelper.decompress(what, isCompressed()), Map.class);
-        } catch (IOException e) {
-            mWhat = new HashMap<String, Object>();
-            mWhat.put("what", "{}");
-        }
-        return mWhat;
-    }
-
-    public void setTxRef(ITxRef txRef) {
-        this.txRef = txRef;
-    }
-
-    public String getEvent() {
-        return event;
-    }
-
-    public boolean isCompressed() {
-        return compressed;
+    public void setIsIndexed() {
+        this.indexed = true;
     }
 }

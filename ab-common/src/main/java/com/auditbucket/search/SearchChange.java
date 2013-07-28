@@ -19,7 +19,7 @@
 
 package com.auditbucket.search;
 
-import com.auditbucket.audit.model.IAuditChange;
+import com.auditbucket.audit.model.ISearchChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.ITagValue;
 import com.auditbucket.registration.model.IFortress;
@@ -32,13 +32,13 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Encapsulates the parameters necessary to index an audit change
+ * Encapsulates the parameters necessary to make an audit event searchable
  * <p/>
  * User: Mike Holdsworth
  * Date: 25/04/13
  * Time: 4:33 PM
  */
-public class AuditChange implements IAuditChange {
+public class SearchChange implements ISearchChange {
     // ToDo: Figure out naming standard for system variables
     private String id;
     private String documentType;
@@ -61,7 +61,7 @@ public class AuditChange implements IAuditChange {
      *
      * @param header auditHeader details (owner of this change)
      */
-    public AuditChange(IAuditHeader header) {
+    public SearchChange(IAuditHeader header) {
         this();
         this.auditKey = header.getAuditKey();
         setDocumentType(header.getDocumentType());
@@ -77,10 +77,10 @@ public class AuditChange implements IAuditChange {
             }
     }
 
-    public AuditChange() {
+    public SearchChange() {
     }
 
-    public AuditChange(IAuditHeader header, Map<String, Object> mapWhat, String event, DateTime when) {
+    public SearchChange(IAuditHeader header, Map<String, Object> mapWhat, String event, DateTime when) {
         this(header);
         this.what = mapWhat;
         this.event = event;

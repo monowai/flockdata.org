@@ -74,7 +74,7 @@ public interface IAuditHeader {
      */
     void bumpUpdate();
 
-    Set<IAuditWhen> getAuditLogs();
+    Set<IAuditLog> getAuditLogs();
 
     void setSearchKey(String parentKey);
 

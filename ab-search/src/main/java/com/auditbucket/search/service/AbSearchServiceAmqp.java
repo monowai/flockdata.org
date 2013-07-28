@@ -22,10 +22,9 @@ package com.auditbucket.search.service;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditSearchDao;
 import com.auditbucket.dao.IAuditQueryDao;
-import com.auditbucket.search.AuditChange;
+import com.auditbucket.search.SearchChange;
 import com.auditbucket.search.SearchResult;
 import com.auditbucket.search.endpoint.IElasticSearchEP;
-import com.auditbucket.search.service.IAbEngineGateway;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.ServiceActivator;
@@ -55,7 +54,7 @@ public class AbSearchServiceAmqp implements IElasticSearchEP {
 
     //    @Transactional
     @ServiceActivator(inputChannel = "searchRequestIn")
-    public void createSearchableChange(AuditChange thisChange) {
+    public void createSearchableChange(SearchChange thisChange) {
         SearchResult result;
         if (thisChange.getSearchKey() != null) {
             auditSearch.update(thisChange);

@@ -19,62 +19,25 @@
 
 package com.auditbucket.audit.model;
 
-import com.auditbucket.registration.model.IFortressUser;
-
-import java.util.Date;
-import java.util.Map;
-
 /**
  * User: Mike Holdsworth
- * Date: 15/04/13
- * Time: 5:49 AM
+ * Date: 21/06/13
+ * Time: 1:21 PM
  */
 public interface IAuditLog {
 
-    String CREATE = "Create";
-    String UPDATE = "Update";
+    public IAuditChange getAuditChange();
 
-    public abstract IAuditHeader getHeader();
+    public IAuditHeader getAuditHeader();
 
-    public abstract IFortressUser getWho();
-
-    public abstract Date getWhen();
+    public boolean isIndexed();
 
     /**
-     * @return UTC time that this record was created
+     * flags this audit as having been indexed at some point.
      */
-    public abstract Date getSysWhen();
+    public void setIsIndexed();
 
-    public String getComment();
+    public Long getSysWhen();
 
-    /**
-     * optional comment
-     *
-     * @param comment searchable.
-     */
-    public void setComment(String comment);
-
-    /**
-     * Document primary key as stored in search engine
-     *
-     * @param changeKey unique key
-     */
-    public void setSearchKey(String changeKey);
-
-    /**
-     * @return unique identifier to the search index key
-     */
-    public String getSearchKey();
-
-    public String getJsonWhat();
-
-    String getName();
-
-    public void setTxRef(ITxRef txRef);
-
-    String getEvent();
-
-    Map<String, Object> getWhat();
-
-    void setJsonWhat(String compressedJson);
+    public Long getFortressWhen();
 }

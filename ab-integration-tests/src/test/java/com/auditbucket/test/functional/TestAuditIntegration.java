@@ -21,7 +21,6 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
-import com.auditbucket.audit.model.IAuditWhen;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditResultBean;
@@ -263,8 +262,8 @@ public class TestAuditIntegration {
                         random = 1;
                     IAuditHeader header = auditService.findByCallerRef(list.get(fortress), "Company", "ABC" + random);
                     assertNotNull("ABC" + random, header);
-                    IAuditWhen when = auditService.getLastChange(header);
-                    assertNotNull(when.getAuditLog());
+                    IAuditLog when = auditService.getLastChange(header);
+                    assertNotNull(when.getAuditChange());
                     assertEquals("fortress " + fortress + " run " + x + " header " + header.getAuditKey(), true, when.isIndexed());
                     totalSearchRequests++;
                     x++;

@@ -22,7 +22,7 @@ package com.auditbucket.search.service;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditSearchDao;
 import com.auditbucket.dao.IAuditQueryDao;
-import com.auditbucket.search.AuditChange;
+import com.auditbucket.search.SearchChange;
 import com.auditbucket.search.SearchResult;
 import com.auditbucket.search.endpoint.IElasticSearchEP;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,6 @@ import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -57,7 +56,7 @@ public class AbSearchService implements IElasticSearchEP {
 
     //    @Transactional
     @ServiceActivator(inputChannel = "searchRequest")
-    public void createSearchableChange(AuditChange thisChange) {
+    public void createSearchableChange(SearchChange thisChange) {
         SearchResult result;
         if (thisChange.getSearchKey() != null) {
             auditSearch.update(thisChange);

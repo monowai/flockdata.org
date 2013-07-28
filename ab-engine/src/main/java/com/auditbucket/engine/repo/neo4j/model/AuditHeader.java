@@ -20,7 +20,7 @@
 package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.audit.model.IAuditHeader;
-import com.auditbucket.audit.model.IAuditWhen;
+import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.audit.model.IDocumentType;
 import com.auditbucket.audit.model.ITagValue;
 import com.auditbucket.bean.AuditHeaderInputBean;
@@ -67,8 +67,8 @@ public class AuditHeader implements IAuditHeader {
     @RelatedToVia(elementClass = AuditTagValue.class, type = "tagValue", direction = Direction.INCOMING)
     private Set<ITagValue> tagValues;
 
-    @RelatedToVia(elementClass = AuditWhen.class, type = "logged", direction = Direction.OUTGOING)
-    private Set<IAuditWhen> auditWhen = new HashSet<IAuditWhen>();
+    @RelatedToVia(elementClass = AuditLog.class, type = "logged", direction = Direction.OUTGOING)
+    private Set<IAuditLog> auditWhen = new HashSet<IAuditLog>();
 
     public static final String UUID_KEY = "auditKey";
 
@@ -219,7 +219,7 @@ public class AuditHeader implements IAuditHeader {
 
     @Override
     @JsonIgnore
-    public Set<IAuditWhen> getAuditLogs() {
+    public Set<IAuditLog> getAuditLogs() {
         return auditWhen;
     }
 

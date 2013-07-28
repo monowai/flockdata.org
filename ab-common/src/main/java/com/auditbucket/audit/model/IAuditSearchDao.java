@@ -33,14 +33,14 @@ public interface IAuditSearchDao {
      * @param auditChange values to create from
      * @return the search document created from the auditChange
      */
-    IAuditChange save(IAuditChange auditChange);
+    ISearchChange save(ISearchChange auditChange);
 
     /**
      * Rewrites an existing document
      *
      * @param auditChange values to update from
      */
-    void update(IAuditChange auditChange);
+    void update(ISearchChange auditChange);
 
     /**
      * locates a document by AuditHeader.searchKey

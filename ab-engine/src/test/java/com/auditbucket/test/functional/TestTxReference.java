@@ -19,8 +19,8 @@
 
 package com.auditbucket.test.functional;
 
+import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
-import com.auditbucket.audit.model.IAuditLog;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditResultBean;
@@ -103,7 +103,7 @@ public class TestTxReference {
         abcHeader.setAuditLog(new AuditLogInputBean(null, "charlie", DateTime.now(), escJsonA, true));
 
         AuditResultBean resultBean = auditService.createHeader(abcHeader);
-//        AuditLogInputBean abcLog = resultBean.getAuditLog();
+//        AuditLogInputBean abcLog = resultBean.getAuditChange();
 //        assertNotNull(abcLog);
 //
 //        assertEquals("ABC Logger Not Created", AuditLogInputBean.LogStatus.OK, abcLog.getAbStatus());
@@ -169,7 +169,7 @@ public class TestTxReference {
         Map<String, Object> result = auditService.findByTXRef(txStart);
         assertNotNull(result);
         assertEquals(tagRef, result.get("txRef"));
-        Collection<IAuditLog> logs = (Collection<IAuditLog>) result.get("logs");
+        Collection<IAuditChange> logs = (Collection<IAuditChange>) result.get("logs");
         assertNotNull(logs);
         assertEquals(2, logs.size());
 
@@ -188,14 +188,14 @@ public class TestTxReference {
         result = auditService.findByTXRef(txStart);
         assertNotNull(result);
         assertEquals(tagRef, result.get("txRef"));
-        logs = (Collection<IAuditLog>) result.get("logs");
+        logs = (Collection<IAuditChange>) result.get("logs");
         assertNotNull(logs);
         assertEquals(2, logs.size());
 
         result = auditService.findByTXRef(txEnd);
         assertNotNull(result);
         assertEquals(txEnd, result.get("txRef"));
-        logs = (Collection<IAuditLog>) result.get("logs");
+        logs = (Collection<IAuditChange>) result.get("logs");
         assertNotNull(logs);
         assertEquals(1, logs.size());
 

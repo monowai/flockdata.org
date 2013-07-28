@@ -19,7 +19,7 @@
 
 package com.auditbucket.search;
 
-import com.auditbucket.audit.model.IAuditChange;
+import com.auditbucket.audit.model.ISearchChange;
 
 /**
  * Object to tie the keys between ab-engine and ab-search so that ab-engine can keep the document up-to-date
@@ -46,7 +46,7 @@ public class SearchResult {
 
     }
 
-    public SearchResult(IAuditChange thisChange) {
+    public SearchResult(ISearchChange thisChange) {
         this(thisChange.getAuditKey(), thisChange.getFortressName(), thisChange.getSearchKey(), thisChange.getDocumentType());
         this.sysWhen = thisChange.getWhen();
     }

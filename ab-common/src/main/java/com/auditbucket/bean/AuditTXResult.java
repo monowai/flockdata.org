@@ -19,9 +19,9 @@
 
 package com.auditbucket.bean;
 
+import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditLog;
-import com.auditbucket.audit.model.IAuditWhen;
 
 
 /**
@@ -39,13 +39,13 @@ public class AuditTXResult {
     private Long lastSystemChange;
     private Long fortressWhen = 0l;
 
-    private IAuditLog auditLog;
+    private IAuditChange auditLog;
 
     private AuditTXResult() {
     }
 
 
-    public AuditTXResult(IAuditHeader header, IAuditLog log, IAuditWhen when) {
+    public AuditTXResult(IAuditHeader header, IAuditChange log, IAuditLog when) {
         this.fortressWhen = when.getFortressWhen();
         if (header == null)
             header = log.getHeader();

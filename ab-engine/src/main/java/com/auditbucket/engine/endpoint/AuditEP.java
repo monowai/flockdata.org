@@ -20,8 +20,8 @@
 package com.auditbucket.engine.endpoint;
 
 import com.auditbucket.audit.model.IAuditHeader;
+import com.auditbucket.audit.model.IAuditChange;
 import com.auditbucket.audit.model.IAuditLog;
-import com.auditbucket.audit.model.IAuditWhen;
 import com.auditbucket.audit.model.ITxRef;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
@@ -220,7 +220,7 @@ public class AuditEP {
 
     @RequestMapping(value = "/{auditKey}/logs", method = RequestMethod.GET)
     @ResponseBody
-    public Set<IAuditLog> getAuditLogs(@PathVariable("auditKey") String auditKey) throws Exception {
+    public Set<IAuditChange> getAuditLogs(@PathVariable("auditKey") String auditKey) throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/c27ec2e5-2e17-4855-be18-bd8f82249157/logs
         return auditService.getAuditLogs(auditKey);
 
@@ -229,18 +229,18 @@ public class AuditEP {
     @RequestMapping(value = "/{auditKey}/lastchange", produces = "application/json", method = RequestMethod.GET)
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @ResponseBody
-    public ResponseEntity<IAuditLog> getLastChange(@PathVariable("auditKey") String auditKey) throws Exception {
+    public ResponseEntity<IAuditChange> getLastChange(@PathVariable("auditKey") String auditKey) throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/c27ec2e5-2e17-4855-be18-bd8f82249157/logs
         try {
             IAuditHeader header = auditService.getHeader(auditKey);
-            IAuditWhen when = auditService.getLastChange(header);
+            IAuditLog when = auditService.getLastChange(header);
             if (when != null)
-                return new ResponseEntity<IAuditLog>(when.getAuditLog(), HttpStatus.OK);
-            return new ResponseEntity<IAuditLog>((IAuditLog) null, HttpStatus.OK);
+                return new ResponseEntity<IAuditChange>(when.getAuditChange(), HttpStatus.OK);
+            return new ResponseEntity<IAuditChange>((IAuditChange) null, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<IAuditLog>((IAuditLog) null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<IAuditChange>((IAuditChange) null, HttpStatus.NOT_FOUND);
         } catch (SecurityException e) {
-            return new ResponseEntity<IAuditLog>((IAuditLog) null, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<IAuditChange>((IAuditChange) null, HttpStatus.FORBIDDEN);
         }
 
     }

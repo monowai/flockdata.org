@@ -19,7 +19,7 @@
 
 package com.auditbucket.search.dao;
 
-import com.auditbucket.audit.model.IAuditChange;
+import com.auditbucket.audit.model.ISearchChange;
 import com.auditbucket.audit.model.IAuditHeader;
 import com.auditbucket.audit.model.IAuditSearchDao;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
@@ -55,7 +55,7 @@ public class AuditSearchDaoES implements IAuditSearchDao {
      * @param auditChange incoming
      * @return document to index
      */
-    private Map<String, Object> makeIndexDocument(IAuditChange auditChange) {
+    private Map<String, Object> makeIndexDocument(ISearchChange auditChange) {
         Map<String, Object> indexMe = new HashMap<String, Object>();
         indexMe.put("@what", auditChange.getWhat());
         indexMe.put("@auditKey", auditChange.getAuditKey());
@@ -78,7 +78,7 @@ public class AuditSearchDaoES implements IAuditSearchDao {
      * @param auditChange object containing changes
      * @return key value of the child document
      */
-    public IAuditChange save(IAuditChange auditChange) {
+    public ISearchChange save(ISearchChange auditChange) {
         String indexName = auditChange.getIndexName();
         String documentType = auditChange.getDocumentType();
 
@@ -139,7 +139,7 @@ public class AuditSearchDaoES implements IAuditSearchDao {
     }
 
     @Override
-    public void update(IAuditChange incoming) {
+    public void update(ISearchChange incoming) {
 
         Map<String, Object> indexMe = makeIndexDocument(incoming);
 
