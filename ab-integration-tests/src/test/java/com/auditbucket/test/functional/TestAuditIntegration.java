@@ -203,7 +203,7 @@ public class TestAuditIntegration {
     @Test
     public void stressWithHighVolume() throws Exception {
         regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
-        //SecurityContextHolder.getContext().setAuthentication(authA);
+        //SecurityContextHolder.getContext().setAuthentication(authMike);
         int auditCount = 2;
         int logCount = 10;
         String escJson = "{\"who\":";
