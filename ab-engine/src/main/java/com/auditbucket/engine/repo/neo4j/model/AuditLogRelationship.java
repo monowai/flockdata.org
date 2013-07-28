@@ -23,6 +23,7 @@ import com.auditbucket.audit.model.AuditChange;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditLog;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.joda.time.DateTime;
 import org.springframework.data.neo4j.annotation.*;
 
 /**
@@ -54,13 +55,12 @@ public class AuditLogRelationship implements AuditLog {
     protected AuditLogRelationship() {
     }
 
-    public AuditLogRelationship(AuditHeader header, AuditChange log) {
+    public AuditLogRelationship(AuditHeader header, AuditChange log, DateTime fortressWhen) {
         this();
         this.auditHeader = (AuditHeaderNode) header;
         this.auditChange = (AuditChangeNode) log;
-        // ToDo: denormalisation here; storing the times in the relationships and the node
-        this.sysWhen = log.getSysWhen().getTime();
-        this.fortressWhen = log.getWhen().getTime();
+        this.sysWhen = System.currentTimeMillis();
+        this.fortressWhen = fortressWhen.getMillis();
     }
 
 

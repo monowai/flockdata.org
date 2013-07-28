@@ -21,6 +21,7 @@ package com.auditbucket.test.load;
 
 import com.auditbucket.audit.model.AuditChange;
 import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.audit.model.AuditLog;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.engine.service.AuditService;
@@ -185,9 +186,10 @@ public class TestAuditIntegration {
         Set<AuditChange> aLogs = auditService.getAuditLogs(auditHeader.getAuditKey());
         assertEquals(max, aLogs.size());
 
-        AuditChange lastChange = auditService.getLastChange(auditHeader.getAuditKey()).getAuditChange();
+        AuditLog lastLog = auditService.getLastChange(auditHeader.getAuditKey());
+        AuditChange lastChange = lastLog.getAuditChange();
         assertNotNull(lastChange);
-        assertEquals(workingDate.toDate(), lastChange.getWhen());
+        assertEquals(workingDate.toDate(), new Date(lastLog.getFortressWhen()));
         auditHeader = auditService.getHeader(ahWP);
         assertEquals(max, auditService.getAuditLogCount(auditHeader.getAuditKey()));
 

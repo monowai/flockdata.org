@@ -205,10 +205,9 @@ public class AuditDaoNeo implements IAuditDao {
     }
 
     @Override
-    public void addChange(AuditHeader header, AuditChange al, DateTime dateWhen) {
-        AuditLogRelationship aWhen = new AuditLogRelationship(header, al);
-        template.save(aWhen);
-        header.getAuditKey();
+    public AuditLog addChange(AuditHeader header, AuditChange al, DateTime fortressWhen) {
+        AuditLogRelationship aWhen = new AuditLogRelationship(header, al, fortressWhen);
+        return template.save(aWhen);
 
     }
 

@@ -38,13 +38,6 @@ public interface AuditChange {
 
     public abstract FortressUser getWho();
 
-    public abstract Date getWhen();
-
-    /**
-     * @return UTC time that this record was created
-     */
-    public abstract Date getSysWhen();
-
     public String getComment();
 
     /**

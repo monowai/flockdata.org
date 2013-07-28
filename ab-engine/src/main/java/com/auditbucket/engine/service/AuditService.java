@@ -281,7 +281,7 @@ public class AuditService {
         AuditChange lastChange = (lastWhen != null ? lastWhen.getAuditChange() : null);
         String event = input.getEvent();
         Boolean searchActive = fortress.isSearchActive();
-        DateTime dateWhen = (input.getWhen() == null ? new DateTime(DateTimeZone.UTC) : new DateTime(input.getWhen(), DateTimeZone.UTC));
+        DateTime fortressWhen = (input.getWhen() == null ? new DateTime(DateTimeZone.UTC) : new DateTime(input.getWhen(), DateTimeZone.UTC));
 
         SearchChange sd; // Document that will be indexed
 
@@ -311,7 +311,7 @@ public class AuditService {
                 auditDAO.removeLastChange(header);
             }
             header.setLastUser(fUser);
-            sd = new SearchChange(header, input.getMapWhat(), event, dateWhen);
+            sd = new SearchChange(header, input.getMapWhat(), event, fortressWhen);
             sd.setTagValues(tagValues);
         } else { // first ever log for the header
             if (event == null) {
@@ -321,7 +321,7 @@ public class AuditService {
 
             headerModified = true;
             header.setLastUser(fUser);
-            sd = new SearchChange(header, input.getMapWhat(), event, dateWhen);
+            sd = new SearchChange(header, input.getMapWhat(), event, fortressWhen);
             sd.setTagValues(tagValues);
             if (log.isTraceEnabled()) {
                 try {
@@ -337,16 +337,16 @@ public class AuditService {
             header = auditDAO.save(header);
         }
 
-        AuditChange al = new AuditChangeNode(fUser, dateWhen, input);
+        AuditChange change = new AuditChangeNode(fUser, fortressWhen, input);
         if (input.getTxRef() != null)
-            al.setTxRef(txRef);
-        al.setJsonWhat(input.getWhat());
-        al = auditDAO.save(al);
-        auditDAO.addChange(header, al, dateWhen);
+            change.setTxRef(txRef);
+        change.setJsonWhat(input.getWhat());
+        change = auditDAO.save(change);
+        AuditLog log = auditDAO.addChange(header, change, fortressWhen);
 
         if (searchActive) {
             // Used to reconcile that the change was actually indexed
-            sd.setSysWhen(al.getSysWhen().getTime());
+            sd.setSysWhen(log.getSysWhen());
             searchGateway.makeChangeSearchable(sd);
         }
         input.setStatus(AuditLogInputBean.LogStatus.OK);
@@ -484,11 +484,11 @@ public class AuditService {
 
         auditDAO.delete(whenToDelete.getAuditChange());
 
-        AuditLog newLastWhen = getLastChange(auditHeader);
-        if (newLastWhen == null)
+        AuditLog auditLog = getLastChange(auditHeader);
+        if (auditLog == null)
             // No Log records exist. Delete the header??
             return null;
-        AuditChange newLastChange = newLastWhen.getAuditChange();
+        AuditChange newLastChange = auditLog.getAuditChange();
         auditHeader = auditDAO.fetch(auditHeader);
         auditHeader.setLastUser(fortressService.getFortressUser(auditHeader.getFortress(), newLastChange.getWho().getName()));
         auditHeader = auditDAO.save(auditHeader);
@@ -498,7 +498,7 @@ public class AuditService {
         // Sync the update to elastic search.
         if (auditHeader.getFortress().isSearchActive()) {
             // Update against the Audit Header only by reindexing the search document
-            searchGateway.makeChangeSearchable(new SearchChange(auditHeader, newLastChange.getWhat(), newLastChange.getEvent(), new DateTime(newLastChange.getWhen())));
+            searchGateway.makeChangeSearchable(new SearchChange(auditHeader, newLastChange.getWhat(), newLastChange.getEvent(), new DateTime(auditLog.getFortressWhen())));
         }
 
         return auditHeader;

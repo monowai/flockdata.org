@@ -96,7 +96,7 @@ public interface IAuditDao {
 
     public Map<String, Object> findByTransaction(TxRef txRef);
 
-    void addChange(AuditHeader header, AuditChange al, DateTime dateWhen);
+    AuditLog addChange(AuditHeader header, AuditChange al, DateTime fortressWhen);
 
     void save(AuditLog log);
 

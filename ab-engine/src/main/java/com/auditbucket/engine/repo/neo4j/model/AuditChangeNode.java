@@ -35,7 +35,6 @@ import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.*;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -110,14 +109,6 @@ public class AuditChangeNode implements AuditChange {
 
     public FortressUser getWho() {
         return madeBy;
-    }
-
-    public Date getWhen() {
-        return new Date(when);
-    }
-
-    public Date getSysWhen() {
-        return new Date(sysWhen);
     }
 
     @Override
