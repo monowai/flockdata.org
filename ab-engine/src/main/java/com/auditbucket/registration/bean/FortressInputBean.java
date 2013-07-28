@@ -27,7 +27,7 @@ import org.hibernate.validator.constraints.NotEmpty;
  * not to accumulate each change as a separate document
  * index document changes in the search engine
  * <p/>
- * Date: 12/06/13
+ * Date: 15/06/13
  * Time: 12:04 PM
  */
 public class FortressInputBean {

@@ -20,8 +20,11 @@
 package com.auditbucket.registration.model;
 
 /**
+ * This ain't being used at this stage. Reserving to use as a Root node for an applications
+ * data set. i.e. AuditBucket
+ * <p/>
  * User: Mike Holdsworth
- * Date: 14/06/13
+ * Date: 15/06/13
  * Time: 9:11 AM
  */
 public interface ISystem {
