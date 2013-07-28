@@ -19,10 +19,9 @@
 
 package com.auditbucket.engine.repo.neo4j.dao;
 
-import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.audit.model.AuditChange;
-import com.auditbucket.audit.model.AuditLog;
-import com.auditbucket.audit.model.TxRef;
+import com.auditbucket.audit.model.*;
+import com.auditbucket.bean.AuditHeaderInputBean;
+import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditTXResult;
 import com.auditbucket.dao.IAuditDao;
 import com.auditbucket.engine.repo.neo4j.AuditHeaderRepo;
@@ -32,6 +31,7 @@ import com.auditbucket.engine.repo.neo4j.model.AuditHeaderNode;
 import com.auditbucket.engine.repo.neo4j.model.AuditLogRelationship;
 import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
 import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.FortressUser;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.neo4j.graphdb.Node;
@@ -68,10 +68,6 @@ public class AuditDaoNeo implements IAuditDao {
         return auditRepo.save((AuditHeaderNode) auditHeader);
     }
 
-    @Override
-    public AuditChange save(AuditChange auditLog) {
-        return template.save((AuditChangeNode) auditLog);
-    }
 
     public TxRef save(TxRef tagRef) {
         return template.save((TxRefNode) tagRef);
@@ -225,5 +221,17 @@ public class AuditDaoNeo implements IAuditDao {
             return "Neo4J has problems";
         }
         return "Neo4J is OK";
+    }
+
+    @Override
+    public AuditChange save(FortressUser fUser, AuditLogInputBean input) {
+        AuditChange auditChange = new AuditChangeNode(fUser, input);
+        return template.save(auditChange);
+    }
+
+    @Override
+    public AuditHeader save(FortressUser fu, AuditHeaderInputBean inputBean, DocumentType documentType) {
+        AuditHeader ah = new AuditHeaderNode(fu, inputBean, documentType);
+        return save(ah);
     }
 }

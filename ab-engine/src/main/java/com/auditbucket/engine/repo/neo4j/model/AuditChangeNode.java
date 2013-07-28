@@ -19,8 +19,8 @@
 
 package com.auditbucket.engine.repo.neo4j.model;
 
-import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditChange;
+import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.TxRef;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.helper.CompressionHelper;
@@ -29,8 +29,6 @@ import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.*;
 
@@ -57,7 +55,6 @@ public class AuditChangeNode implements AuditChange {
 
     static ObjectMapper om = new ObjectMapper();
 
-    private long sysWhen;
     private String comment;
     private String event;
 
@@ -65,32 +62,27 @@ public class AuditChangeNode implements AuditChange {
     private boolean compressed = false;
     private String name;
 
-    private Long when = 0l;
-
     @Indexed(indexName = "searchKey")
     private String searchKey;
 
 
     protected AuditChangeNode() {
-        DateTime now = new DateTime().toDateTime(DateTimeZone.UTC);
-        sysWhen = now.toDate().getTime();
+
     }
 
-    public AuditChangeNode(FortressUser madeBy, DateTime fortressWhen, AuditLogInputBean inputBean) {
+    public AuditChangeNode(FortressUser madeBy, AuditLogInputBean inputBean) {
         this();
         this.madeBy = (FortressUserNode) madeBy;
-        if (fortressWhen != null && fortressWhen.getMillis() != 0) {
-            this.when = fortressWhen.getMillis();
-        } else {
-            this.when = sysWhen;
-        }
+
         String event = inputBean.getEvent();
         this.event = event;
         this.name = event + ":" + madeBy.getName();
+        if (inputBean.getTxRef() != null)
+            setTxRef(txRef);
+
         CompressionResult result = CompressionHelper.compress(inputBean.getWhat());
         this.what = result.getBytes();
         this.compressed = result.isCompressed();
-
         this.comment = inputBean.getComment();
     }
 

@@ -19,11 +19,11 @@
 
 package com.auditbucket.dao;
 
-import com.auditbucket.audit.model.AuditChange;
-import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.audit.model.AuditLog;
-import com.auditbucket.audit.model.TxRef;
+import com.auditbucket.audit.model.*;
+import com.auditbucket.bean.AuditHeaderInputBean;
+import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.FortressUser;
 import org.joda.time.DateTime;
 
 import java.util.Date;
@@ -38,8 +38,6 @@ import java.util.Set;
 public interface IAuditDao {
 
     public AuditHeader save(AuditHeader auditHeader);
-
-    public AuditChange save(AuditChange auditLog);
 
     public TxRef save(TxRef tagRef);
 
@@ -101,4 +99,8 @@ public interface IAuditDao {
     void save(AuditLog log);
 
     String ping();
+
+    AuditChange save(FortressUser fUser, AuditLogInputBean input);
+
+    AuditHeader save(FortressUser fu, AuditHeaderInputBean inputBean, DocumentType documentType);
 }

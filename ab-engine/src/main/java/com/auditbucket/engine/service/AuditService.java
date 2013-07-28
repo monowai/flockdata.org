@@ -24,8 +24,6 @@ import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditResultBean;
 import com.auditbucket.dao.IAuditDao;
-import com.auditbucket.engine.repo.neo4j.model.AuditChangeNode;
-import com.auditbucket.engine.repo.neo4j.model.AuditHeaderNode;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
@@ -161,11 +159,10 @@ public class AuditService {
         // Create fortressUser if missing
         FortressUser fu = fortressService.getFortressUser(iFortress, inputBean.getFortressUser(), true);
         DocumentType documentType = tagService.resolveDocType(inputBean.getDocumentType());
-        ah = new AuditHeaderNode(fu, inputBean, documentType);
-        inputBean.setAuditKey(ah.getAuditKey());
 
         // Future from here on.....
-        ah = auditDAO.save(ah);
+        ah = auditDAO.save(fu, inputBean, documentType);
+        inputBean.setAuditKey(ah.getAuditKey());
 
         Map<String, Object> userTags = inputBean.getTagValues();
         auditTagService.createTagValues(userTags, ah);
@@ -337,11 +334,7 @@ public class AuditService {
             header = auditDAO.save(header);
         }
 
-        AuditChange change = new AuditChangeNode(fUser, fortressWhen, input);
-        if (input.getTxRef() != null)
-            change.setTxRef(txRef);
-        change.setJsonWhat(input.getWhat());
-        change = auditDAO.save(change);
+        AuditChange change = auditDAO.save(fUser, input);
         AuditLog log = auditDAO.addChange(header, change, fortressWhen);
 
         if (searchActive) {

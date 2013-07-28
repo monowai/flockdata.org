@@ -24,6 +24,7 @@ import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditLog;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.springframework.data.neo4j.annotation.*;
 
 /**
@@ -53,14 +54,19 @@ public class AuditLogRelationship implements AuditLog {
 
 
     protected AuditLogRelationship() {
+        DateTime now = new DateTime().toDateTime(DateTimeZone.UTC);
+        this.sysWhen = now.getMillis();
     }
 
     public AuditLogRelationship(AuditHeader header, AuditChange log, DateTime fortressWhen) {
         this();
         this.auditHeader = (AuditHeaderNode) header;
         this.auditChange = (AuditChangeNode) log;
-        this.sysWhen = System.currentTimeMillis();
-        this.fortressWhen = fortressWhen.getMillis();
+        if (fortressWhen != null && fortressWhen.getMillis() != 0) {
+            this.fortressWhen = fortressWhen.getMillis();
+        } else {
+            this.fortressWhen = sysWhen;
+        }
     }
 
 
