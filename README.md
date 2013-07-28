@@ -1,9 +1,9 @@
-auditbucket  - Event Sourcing Service
+auditbucket  - Data Tracking Service
 ===========
 
 Welcome to AuditBucket. This service enables you to store data information changes in a standalone service
 
-It represents my exploration in to NoSQL technologies and Spring. Notable projects that have combined to deliver this functionality include
+It represents an exploration in to NoSQL technologies and Spring. Notable projects that have combined to deliver this functionality include
 
 * [spring-elasticsearch](https://github.com/dadoonet/spring-elasticsearch)
 * [elasticsearch](https://github.com/elasticsearch/elasticsearch)
@@ -15,12 +15,14 @@ The basic principal is quite straight forward and is based on ideas I've had for
 ## Executive Summary
 We need to keep track of information. We are producing more information faster now that at any time in history. Examining patterns in information offers significant business value and insight.
 
-Auditing is often seen as a low value "we'll get to it later" approach in a lot of systems. Applications are concerned with what changed internally at best and tracking no history of changes other than "who last changed it" at worst. This is often not enough when forensic levels of anlaysis may be required and can expose companies to unnecessary risk.
+Auditing is often seen as a low value "we'll get to it later" approach in a lot of systems. Applications are concerned with what changed internally at best and tracking no history of changes other than "who last changed it" at worst. This is often not enough when forensic levels of anlaysis may be required and can expose companies to unnecessary risk. 
 
 AuditBucket looks at the problem as an opportunity. Enabling the tracking of changes in information occuring across your applications offers a view of what is going on at the information coalface of your business.
 
+Typically archival projects are run to get eliminate "old" data from transacton systems. AuditBucket enables this information to be preserved and explored in new and exciting ways.
+
 ### How does it work?
-Look under the hood of an application and you'll see that it send information over APIs. By tapping in to these APIs "versions" of the information being changed can be logged in AuditBucket for future analysis and tracking trends freeing your processing systems up from the administrative burdon of carrying such information. 
+Look under the hood of an application and you'll see that it sends information over APIs. By tapping in to these APIs "versions" of the information being changed can be logged in AuditBucket for future analysis and tracking trends freeing your processing systems up from the administrative burdon of carrying such information. 
 
 ## What is it good for?
 
@@ -31,6 +33,9 @@ Look under the hood of an application and you'll see that it send information ov
 * Free text searching of data changes
 * Keeping the auditing information out of your transaction processing system
 
+## Freetext Search
+By integrating the "latest" version of data being changed in ElasticSearch, you have powerful enterprise class way of searching all your computer systems for any data value. Like a google search for your proprietary information.
+
 ## How does it work?
 
 REST and JSON.
@@ -40,15 +45,21 @@ Fortresses, Audith Headers and logs are stored in a graph to enable efficient an
 Additionally the "what" data that changed in your system is stored in ElasticSearch (Lucene) so that you can perform free text queries against your systems data!
 
 ## Where's it at?
-Very much alpha state. Functionally the API is still undergoing refinement and very little attention has been made to optimizing code or the use of the underlying libraries. I'm getting to that as I can.
+Entering beta state. Functionally the API continues to undergo refinement and very little attention has been made to optimizing code or the use of the underlying libraries. That said, the product has integration stress tests that show things performing very well indeed.
 
 Currently, you can run this as a service and create Audit Headers and associated Audit Logs. I'll soon be uploading some example PostMan scripts. The EndPoints package contain the Audit and Registration interfaces
-
-In the meantime, perhaps it's best to treat this as an example in using the technology stack and structuring a project to take advantage of it. 
 
 I hope to finalise the API over the coming few weeks and would welcome feedback and assistance on acheiving this.
 
 ## How to use
+
+AuditBucket is two services
+* ab-engine - catalogs all changes in a Graph database
+* ab-search - records the latest version of a document audited by ab-engine
+
+Typically you only interact with ab-engine. A REST api exists for bother services. You can use an integration layer to control communication between the two, or configure them to talk via RabbitMQ.
+
+ab-search can be configured to talk to your ElasticSearch cluster and is basically a microservice to support this activity. 
 
 Get the source
 ```
