@@ -7,8 +7,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.UnsupportedEncodingException;
 
-
-
 /**
  * Convert ByteArrays to String.
  */
@@ -22,7 +20,7 @@ public class ByteArrayToStringConverter extends SimpleMessageConverter {
         final Object content = super.fromMessage(message);
         try {
             if (content instanceof byte[]) {
-                return new String((byte[])content, DEFAULT_CHARSET);
+                return new String((byte[]) content, DEFAULT_CHARSET);
             }
         } catch (final UnsupportedEncodingException e) {
             throw new MessageConversionException("failed to convert text-based Message content", e);

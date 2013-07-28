@@ -29,7 +29,7 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
 
 /**
  * User: Mike Holdsworth
- * Date: 26/06/13
+ * Date: 29/06/13
  * Time: 8:35 PM
  */
 @NodeEntity

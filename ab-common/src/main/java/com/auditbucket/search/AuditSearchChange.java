@@ -35,7 +35,7 @@ import java.util.Set;
  * <p/>
  * User: Mike Holdsworth
  * Date: 25/04/13
- * Time: 4:33 PM
+ * Time: 9:33 PM
  */
 public class AuditSearchChange implements com.auditbucket.audit.model.SearchChange {
     // ToDo: Figure out naming standard for system variables

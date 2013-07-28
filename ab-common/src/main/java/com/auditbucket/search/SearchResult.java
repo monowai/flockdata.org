@@ -23,7 +23,7 @@ package com.auditbucket.search;
  * Object to tie the keys between ab-engine and ab-search so that ab-engine can keep the document up-to-date
  * <p/>
  * User: Mike Holdsworth
- * Since: 12/07/13
+ * Since: 13/07/13
  */
 public class SearchResult {
     private String auditKey, fortress, searchKey, documentType;
