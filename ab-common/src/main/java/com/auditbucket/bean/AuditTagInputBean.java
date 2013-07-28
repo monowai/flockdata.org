@@ -24,7 +24,7 @@ import javax.validation.constraints.NotNull;
 /**
  * User: Mike Holdsworth
  * Date: 28/06/13
- * Time: 9:58 AM
+ * Time: 9:58 PM
  */
 public class AuditTagInputBean {
     @NotNull

@@ -34,7 +34,7 @@ import java.util.Set;
 /**
  * User: Mike Holdsworth
  * Date: 28/06/13
- * Time: 11:07 AM
+ * Time: 11:07 PM
  */
 @Repository("auditTagDAO")
 public class AuditTagDao implements IAuditTagDao {

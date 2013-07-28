@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  * User: Mike Holdsworth
- * Since: 17/07/13
+ * Since: 11/05/13
  */
 public class AuditResultBean {
     private String status;
