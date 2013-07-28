@@ -19,11 +19,11 @@
 
 package com.auditbucket.registration.repo.neo4j;
 
-import com.auditbucket.registration.repo.neo4j.model.CompanyUser;
+import com.auditbucket.registration.repo.neo4j.model.CompanyUserNode;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
 
-public interface CompanyUserRepository extends GraphRepository<CompanyUser> {
+public interface CompanyUserRepository extends GraphRepository<CompanyUserNode> {
 
 
 }

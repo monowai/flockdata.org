@@ -20,7 +20,7 @@
 package com.auditbucket.registration.endpoint;
 
 import com.auditbucket.registration.bean.RegistrationBean;
-import com.auditbucket.registration.model.ISystemUser;
+import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -49,20 +49,20 @@ public class RegistrationEP {
     @RequestMapping(value = "/register", consumes = "application/json", method = RequestMethod.PUT)
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @ResponseBody
-    public ResponseEntity<ISystemUser> register(@RequestBody RegistrationBean regBean) throws Exception {
+    public ResponseEntity<SystemUser> register(@RequestBody RegistrationBean regBean) throws Exception {
         // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/profiles/register -d '{"name":"mikey", "companyName":"Monowai Dev","password":"whocares"}'
-        ISystemUser su = regService.registerSystemUser(regBean);
+        SystemUser su = regService.registerSystemUser(regBean);
         if (su == null)
-            return new ResponseEntity<ISystemUser>(su, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<SystemUser>(su, HttpStatus.INTERNAL_SERVER_ERROR);
 
-        return new ResponseEntity<ISystemUser>(su, HttpStatus.CREATED);
+        return new ResponseEntity<SystemUser>(su, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/me", method = RequestMethod.GET)
     @ResponseBody
-    public ISystemUser get() throws Exception {
+    public SystemUser get() throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/profiles/me
-        ISystemUser result = regService.getSystemUser();
+        SystemUser result = regService.getSystemUser();
 
         return result;
     }

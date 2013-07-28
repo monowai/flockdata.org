@@ -17,23 +17,22 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.audit.model;
-
-import com.auditbucket.registration.model.ITag;
+package com.auditbucket.registration.model;
 
 /**
  * User: Mike Holdsworth
- * Date: 26/06/13
- * Time: 12:52 PM
+ * Date: 14/06/13
+ * Time: 9:11 AM
  */
-public interface ITagValue {
+public interface Tag {
 
-    public ITag getTag();
+    public String getName();
 
-    //ToDo - should this be a taggable interface?
-    public IAuditHeader getHeader();
+    public Company getCompany();
 
-    public String getTagValue();
+    void setCompany(Company company);
 
-    public void setTagValue(String tagValue);
+    void setName(String floppy);
+
+    Long getId();
 }

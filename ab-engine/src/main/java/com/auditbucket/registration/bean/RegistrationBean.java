@@ -19,19 +19,19 @@
 
 package com.auditbucket.registration.bean;
 
-import com.auditbucket.registration.model.ICompany;
-import com.auditbucket.registration.model.ISystemUser;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.SystemUser;
 
 /**
  * User: Mike Holdsworth
  * Date: 14/05/13
  * Time: 5:53 PM
  */
-public class RegistrationBean implements ISystemUser {
+public class RegistrationBean implements SystemUser {
     private String name;
     private String password;
     private String companyName;
-    private ICompany company;
+    private Company company;
 
     public RegistrationBean() {
     }
@@ -65,11 +65,11 @@ public class RegistrationBean implements ISystemUser {
     }
 
     @Override
-    public ICompany getCompany() {
+    public Company getCompany() {
         return this.company;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void setCompany(ICompany company) {
+    public void setCompany(Company company) {
         this.company = company;
     }
 }

@@ -19,7 +19,7 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.audit.model.IAuditHeader;
+import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.search.SearchChange;
 import com.auditbucket.search.SearchResult;
 import org.springframework.integration.annotation.Gateway;
@@ -37,11 +37,11 @@ public interface IAbSearchGateway {
     @Gateway(requestChannel = "searchRequest")
     public Future<SearchResult> makeChangeSearchable(SearchChange searchDocumentBean);
 
-    public void delete(IAuditHeader auditHeader, String searchKey);
+    public void delete(AuditHeader auditHeader, String searchKey);
 
-    public byte[] findOne(IAuditHeader auditHeader, String searchKey);
+    public byte[] findOne(AuditHeader auditHeader, String searchKey);
 
-    public byte[] findOne(IAuditHeader auditHeader);
+    public byte[] findOne(AuditHeader auditHeader);
 
     public Long getHitCount(String s);
 

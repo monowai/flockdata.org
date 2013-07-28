@@ -19,11 +19,11 @@
 
 package com.auditbucket.dao;
 
-import com.auditbucket.audit.model.IAuditChange;
-import com.auditbucket.audit.model.IAuditHeader;
-import com.auditbucket.audit.model.IAuditLog;
-import com.auditbucket.audit.model.ITxRef;
-import com.auditbucket.registration.model.ICompany;
+import com.auditbucket.audit.model.AuditChange;
+import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.audit.model.AuditLog;
+import com.auditbucket.audit.model.TxRef;
+import com.auditbucket.registration.model.Company;
 import org.joda.time.DateTime;
 
 import java.util.Date;
@@ -37,24 +37,24 @@ import java.util.Set;
  */
 public interface IAuditDao {
 
-    public IAuditHeader save(IAuditHeader auditHeader);
+    public AuditHeader save(AuditHeader auditHeader);
 
-    public IAuditChange save(IAuditChange auditLog);
+    public AuditChange save(AuditChange auditLog);
 
-    public ITxRef save(ITxRef tagRef);
+    public TxRef save(TxRef tagRef);
 
     /**
      * @param key GUID
      * @return AuditHeader in "default" state
      */
-    public IAuditHeader findHeader(String key);
+    public AuditHeader findHeader(String key);
 
     /**
      * @param key     GUID
      * @param inflate should all relationships be loaded
      * @return header in inflated or "default" state
      */
-    public IAuditHeader findHeader(String key, boolean inflate);
+    public AuditHeader findHeader(String key, boolean inflate);
 
     /**
      * @param id audit Header PK
@@ -62,7 +62,7 @@ public interface IAuditDao {
      */
     public int getLogCount(Long id);
 
-    public IAuditLog getLastChange(Long auditHeaderID);
+    public AuditLog getLastChange(Long auditHeaderID);
 
     /**
      * locates a specific change in auditBucket.
@@ -74,31 +74,31 @@ public interface IAuditDao {
      * @param sysWhen       time auditBucket processed the change
      * @return the change for an exact match
      */
-    public IAuditLog getChange(Long auditHeaderID, long sysWhen);
+    public AuditLog getChange(Long auditHeaderID, long sysWhen);
 
-    Set<IAuditChange> getAuditLogs(Long headerKey, Date from, Date to);
+    Set<AuditChange> getAuditLogs(Long headerKey, Date from, Date to);
 
-    Set<IAuditChange> getAuditLogs(Long auditHeaderID);
+    Set<AuditChange> getAuditLogs(Long auditHeaderID);
 
-    void delete(IAuditChange auditLog);
+    void delete(AuditChange auditLog);
 
-    void delete(IAuditHeader auditHeader);
+    void delete(AuditHeader auditHeader);
 
-    IAuditHeader findHeaderByCallerRef(Long fortressId, String documentType, String callerRef);
+    AuditHeader findHeaderByCallerRef(Long fortressId, String documentType, String callerRef);
 
-    public void removeLastChange(IAuditHeader header);
+    public void removeLastChange(AuditHeader header);
 
-    IAuditHeader fetch(IAuditHeader header);
+    AuditHeader fetch(AuditHeader header);
 
-    ITxRef findTxTag(String txTag, ICompany company, boolean fetchHeaders);
+    TxRef findTxTag(String txTag, Company company, boolean fetchHeaders);
 
-    public ITxRef beginTransaction(String id, ICompany company);
+    public TxRef beginTransaction(String id, Company company);
 
-    public Map<String, Object> findByTransaction(ITxRef txRef);
+    public Map<String, Object> findByTransaction(TxRef txRef);
 
-    void addChange(IAuditHeader header, IAuditChange al, DateTime dateWhen);
+    void addChange(AuditHeader header, AuditChange al, DateTime dateWhen);
 
-    void save(IAuditLog log);
+    void save(AuditLog log);
 
     String ping();
 }

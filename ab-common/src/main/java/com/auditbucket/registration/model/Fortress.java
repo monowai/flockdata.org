@@ -19,7 +19,8 @@
 
 package com.auditbucket.registration.model;
 
-public interface ICompany {
+
+public interface Fortress {
 
     public abstract Long getId();
 
@@ -27,4 +28,22 @@ public interface ICompany {
 
     public abstract void setName(String name);
 
+    public abstract Company getCompany();
+
+    public abstract void setCompany(Company ownedBy);
+
+    public String getFortressKey();
+
+    /**
+     * Are changes logged against this fortress accumulated or updated in the search engine
+     *
+     * @return boolean
+     */
+    public Boolean isAccumulatingChanges();
+
+    public Boolean isSearchActive();
+
+    public void setAccumulatingChanges(Boolean accumulateChanges);
+
+    public void setIgnoreSearchEngine(Boolean ignoreSearchEngine);
 }

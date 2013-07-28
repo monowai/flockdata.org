@@ -19,14 +19,14 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.audit.model.IAuditHeader;
-import com.auditbucket.audit.model.ITagValue;
+import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.audit.model.TagValue;
 import com.auditbucket.bean.AuditTagInputBean;
 import com.auditbucket.dao.IAuditTagDao;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.TagInputBean;
-import com.auditbucket.registration.model.ICompany;
-import com.auditbucket.registration.model.ITag;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -54,50 +54,50 @@ public class AuditTagService {
     IAuditTagDao auditTagDao;
 
     public void processTag(AuditTagInputBean tagInput) {
-        //ICompany company = securityHelper.getCompany();
+        //Company company = securityHelper.getCompany();
         String tagValue = tagInput.getValue();
-        Set<ITagValue> existing = findTagValues(tagInput.getTagName(), tagInput.getValue());
+        Set<TagValue> existing = findTagValues(tagInput.getTagName(), tagInput.getValue());
         if (existing != null && existing.size() == 1)
             // We already have this tagged so get out of here
             return;
 
-        ITag tag = tagService.processTag(new TagInputBean(tagInput.getTagName()));
-        IAuditHeader header = auditService.getHeader(tagInput.getAuditKey());
+        Tag tag = tagService.processTag(new TagInputBean(tagInput.getTagName()));
+        AuditHeader header = auditService.getHeader(tagInput.getAuditKey());
         auditTagDao.save(tag, header, tagValue);
     }
 
-    public Set<ITagValue> findTagValues(String tagName, String tagValue) {
-        ITag tag = tagService.findTag(tagName);
+    public Set<TagValue> findTagValues(String tagName, String tagValue) {
+        Tag tag = tagService.findTag(tagName);
         if (tag == null)
             return null;
         return auditTagDao.find(tag, tagValue);
     }
 
     /**
-     * Will associate the supplied userTags with the AuditHeader
+     * Will associate the supplied userTags with the AuditHeaderNode
      *
-     * @param userTags Key/Value pair of tags. Tag will be created if missing
+     * @param userTags Key/Value pair of tags. TagNode will be created if missing
      * @param ah       Header to associate userTags with
      */
-    public void createTagValues(Map<String, Object> userTags, IAuditHeader ah) {
+    public void createTagValues(Map<String, Object> userTags, AuditHeader ah) {
         if ((userTags == null) || userTags.isEmpty())
             return;
 
-        ICompany company = ah.getFortress().getCompany();
+        Company company = ah.getFortress().getCompany();
 
         for (String key : userTags.keySet()) {
-            ITag tag = tagService.processTag(new TagInputBean(company, key));
+            Tag tag = tagService.processTag(new TagInputBean(company, key));
             auditTagDao.save(tag, ah, userTags.get(key).toString());
         }
     }
 
-    public Set<ITagValue> findAuditTags(String auditKey) {
-        IAuditHeader header = auditService.getHeader(auditKey);
+    public Set<TagValue> findAuditTags(String auditKey) {
+        AuditHeader header = auditService.getHeader(auditKey);
         return auditTagDao.getAuditTags(header);
 
     }
 
-    public void updateTagValues(Set<ITagValue> newValues) {
+    public void updateTagValues(Set<TagValue> newValues) {
 
         auditTagDao.update(newValues);
 

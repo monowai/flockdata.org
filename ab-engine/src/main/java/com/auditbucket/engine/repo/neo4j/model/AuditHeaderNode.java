@@ -19,15 +19,15 @@
 
 package com.auditbucket.engine.repo.neo4j.model;
 
-import com.auditbucket.audit.model.IAuditHeader;
-import com.auditbucket.audit.model.IAuditLog;
-import com.auditbucket.audit.model.IDocumentType;
-import com.auditbucket.audit.model.ITagValue;
+import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.audit.model.AuditLog;
+import com.auditbucket.audit.model.DocumentType;
+import com.auditbucket.audit.model.TagValue;
 import com.auditbucket.bean.AuditHeaderInputBean;
-import com.auditbucket.registration.model.IFortress;
-import com.auditbucket.registration.model.IFortressUser;
-import com.auditbucket.registration.repo.neo4j.model.Fortress;
-import com.auditbucket.registration.repo.neo4j.model.FortressUser;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.FortressUser;
+import com.auditbucket.registration.repo.neo4j.model.FortressNode;
+import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -45,30 +45,30 @@ import java.util.*;
  * Time: 10:56 AM
  */
 @NodeEntity(useShortNames = true)
-public class AuditHeader implements IAuditHeader {
+public class AuditHeaderNode implements AuditHeader {
 
     @GraphId
     private Long id;
 
-    @RelatedTo(elementClass = FortressUser.class, type = "created", direction = Direction.INCOMING, enforceTargetType = true)
-    private FortressUser createdBy;
+    @RelatedTo(elementClass = FortressUserNode.class, type = "created", direction = Direction.INCOMING, enforceTargetType = true)
+    private FortressUserNode createdBy;
 
-    @RelatedTo(elementClass = FortressUser.class, type = "lastChanged", direction = Direction.OUTGOING)
-    private FortressUser lastWho;
+    @RelatedTo(elementClass = FortressUserNode.class, type = "lastChanged", direction = Direction.OUTGOING)
+    private FortressUserNode lastWho;
 
-    @RelatedTo(elementClass = Fortress.class, type = "audit", direction = Direction.INCOMING)
+    @RelatedTo(elementClass = FortressNode.class, type = "audit", direction = Direction.INCOMING)
     @Fetch
-    private Fortress fortress;
+    private FortressNode fortress;
 
     @RelatedTo(type = "classifies", direction = Direction.INCOMING)
     @Fetch
-    private DocumentType documentType;
+    private DocumentTypeNode documentType;
 
-    @RelatedToVia(elementClass = AuditTagValue.class, type = "tagValue", direction = Direction.INCOMING)
-    private Set<ITagValue> tagValues;
+    @RelatedToVia(elementClass = AuditTagRelationship.class, type = "tagValue", direction = Direction.INCOMING)
+    private Set<TagValue> tagValues;
 
-    @RelatedToVia(elementClass = AuditLog.class, type = "logged", direction = Direction.OUTGOING)
-    private Set<IAuditLog> auditWhen = new HashSet<IAuditLog>();
+    @RelatedToVia(elementClass = AuditLogRelationship.class, type = "logged", direction = Direction.OUTGOING)
+    private Set<AuditLog> auditWhen = new HashSet<AuditLog>();
 
     public static final String UUID_KEY = "auditKey";
 
@@ -88,16 +88,16 @@ public class AuditHeader implements IAuditHeader {
     @Indexed(indexName = "searchKey")
     String searchKey = null;
 
-    AuditHeader() {
+    AuditHeaderNode() {
         auditKey = UUID.randomUUID().toString();
         DateTime now = new DateTime().toDateTime(DateTimeZone.UTC);
         this.dateCreated = now.toDate().getTime();
         this.lastUpdated = dateCreated;
     }
 
-    public AuditHeader(@NotEmpty IFortressUser createdBy, @NotEmpty AuditHeaderInputBean auditInput, @NotEmpty IDocumentType documentType) {
+    public AuditHeaderNode(@NotEmpty FortressUser createdBy, @NotEmpty AuditHeaderInputBean auditInput, @NotEmpty DocumentType documentType) {
         this();
-        this.documentType = (DocumentType) documentType;
+        this.documentType = (DocumentTypeNode) documentType;
         callerRef = auditInput.getCallerRef();
         if (callerRef != null)
             callerRef = callerRef.toLowerCase();
@@ -108,9 +108,9 @@ public class AuditHeader implements IAuditHeader {
         else
             fortressDate = when.getTime();
 
-        this.createdBy = (FortressUser) createdBy;
-        this.lastWho = (FortressUser) createdBy;
-        this.fortress = (Fortress) createdBy.getFortress();
+        this.createdBy = (FortressUserNode) createdBy;
+        this.lastWho = (FortressUserNode) createdBy;
+        this.fortress = (FortressNode) createdBy.getFortress();
 
         String docType = (documentType != null ? getDocumentType() : "");
         this.name = (callerRef == null ? docType : (docType + "." + callerRef).toLowerCase());
@@ -131,7 +131,7 @@ public class AuditHeader implements IAuditHeader {
 
     @Override
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public IFortress getFortress() {
+    public Fortress getFortress() {
         return fortress;
     }
 
@@ -152,7 +152,7 @@ public class AuditHeader implements IAuditHeader {
 
     @Override
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public IFortressUser getLastUser() {
+    public FortressUser getLastUser() {
         return lastWho;
     }
 
@@ -161,19 +161,19 @@ public class AuditHeader implements IAuditHeader {
     }
 
     @Override
-    public void setLastUser(IFortressUser user) {
-        lastWho = (FortressUser) user;
+    public void setLastUser(FortressUser user) {
+        lastWho = (FortressUserNode) user;
     }
 
     @Override
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public IFortressUser getCreatedBy() {
+    public FortressUser getCreatedBy() {
         return createdBy;
     }
 
     @Override
-    public void setCreatedUser(IFortressUser user) {
-        createdBy = (FortressUser) user;
+    public void setCreatedUser(FortressUser user) {
+        createdBy = (FortressUserNode) user;
     }
 
     private void setDateCreated(Date dateCreated) {
@@ -205,7 +205,7 @@ public class AuditHeader implements IAuditHeader {
 
     @Override
     public String toString() {
-        return "AuditHeader{" +
+        return "AuditHeaderNode{" +
                 "id=" + id +
                 ", auditKey='" + auditKey + '\'' +
                 ", name='" + name + '\'' +
@@ -219,7 +219,7 @@ public class AuditHeader implements IAuditHeader {
 
     @Override
     @JsonIgnore
-    public Set<IAuditLog> getAuditLogs() {
+    public Set<AuditLog> getAuditLogs() {
         return auditWhen;
     }
 
@@ -241,14 +241,14 @@ public class AuditHeader implements IAuditHeader {
     }
 
     @JsonIgnore
-    public Set<ITagValue> getTagValues() {
+    public Set<TagValue> getTagValues() {
         return tagValues;
     }
 
     public Map<String, Object> getTagMap() {
         Map<String, Object> result = new HashMap<String, Object>();
         if (tagValues != null)
-            for (ITagValue tagValue : tagValues) {
+            for (TagValue tagValue : tagValues) {
                 result.put(tagValue.getTag().getName(), tagValue.getTagValue());
             }
         return result;

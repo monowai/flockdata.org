@@ -19,19 +19,19 @@
 
 package com.auditbucket.engine.repo.neo4j.dao;
 
-import com.auditbucket.audit.model.IAuditHeader;
-import com.auditbucket.audit.model.IAuditChange;
-import com.auditbucket.audit.model.IAuditLog;
-import com.auditbucket.audit.model.ITxRef;
+import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.audit.model.AuditChange;
+import com.auditbucket.audit.model.AuditLog;
+import com.auditbucket.audit.model.TxRef;
 import com.auditbucket.bean.AuditTXResult;
 import com.auditbucket.dao.IAuditDao;
 import com.auditbucket.engine.repo.neo4j.AuditHeaderRepo;
 import com.auditbucket.engine.repo.neo4j.AuditLogRepo;
-import com.auditbucket.engine.repo.neo4j.model.AuditChange;
-import com.auditbucket.engine.repo.neo4j.model.AuditHeader;
-import com.auditbucket.engine.repo.neo4j.model.AuditLog;
-import com.auditbucket.engine.repo.neo4j.model.TxRef;
-import com.auditbucket.registration.model.ICompany;
+import com.auditbucket.engine.repo.neo4j.model.AuditChangeNode;
+import com.auditbucket.engine.repo.neo4j.model.AuditHeaderNode;
+import com.auditbucket.engine.repo.neo4j.model.AuditLogRelationship;
+import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
+import com.auditbucket.registration.model.Company;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.neo4j.graphdb.Node;
@@ -63,35 +63,35 @@ public class AuditDaoNeo implements IAuditDao {
     private Logger log = LoggerFactory.getLogger(AuditDaoNeo.class);
 
     @Override
-    public IAuditHeader save(IAuditHeader auditHeader) {
+    public AuditHeader save(AuditHeader auditHeader) {
         auditHeader.bumpUpdate();
-        return auditRepo.save((AuditHeader) auditHeader);
+        return auditRepo.save((AuditHeaderNode) auditHeader);
     }
 
     @Override
-    public IAuditChange save(IAuditChange auditLog) {
-        return template.save((AuditChange) auditLog);
+    public AuditChange save(AuditChange auditLog) {
+        return template.save((AuditChangeNode) auditLog);
     }
 
-    public ITxRef save(ITxRef tagRef) {
-        return template.save((TxRef) tagRef);
+    public TxRef save(TxRef tagRef) {
+        return template.save((TxRefNode) tagRef);
     }
 
 
-    public IAuditHeader findHeader(String key) {
+    public AuditHeader findHeader(String key) {
         return findHeader(key, false);
     }
 
     @Override
-    public IAuditHeader findHeader(String key, boolean inflate) {
-        IAuditHeader header = auditRepo.findByUID(key);
+    public AuditHeader findHeader(String key, boolean inflate) {
+        AuditHeader header = auditRepo.findByUID(key);
         if (inflate) {
             fetch(header);
         }
         return header;
     }
 
-    public IAuditHeader findHeaderByCallerRef(Long fortressId, @NotNull String documentType, @NotNull String callerRef) {
+    public AuditHeader findHeaderByCallerRef(Long fortressId, @NotNull String documentType, @NotNull String callerRef) {
         if (log.isDebugEnabled())
             log.debug("findByCallerRef fortress [" + fortressId + "] docType[" + documentType + "], callerRef[" + callerRef.toLowerCase() + "]");
         // This is pretty crappy, but Neo4J will throw an exception the first time you try to search if no index is in place.
@@ -102,13 +102,13 @@ public class AuditDaoNeo implements IAuditDao {
     }
 
     @Override
-    public void removeLastChange(IAuditHeader header) {
+    public void removeLastChange(AuditHeader header) {
         // Remove the lastChange relationship
         template.deleteRelationshipBetween(header, header.getLastUser(), "lastChanged");
     }
 
     @Override
-    public IAuditHeader fetch(IAuditHeader header) {
+    public AuditHeader fetch(AuditHeader header) {
         template.fetch(header);
         template.fetch(header.getFortress());
         template.fetch(header.getTagValues());
@@ -117,18 +117,18 @@ public class AuditDaoNeo implements IAuditDao {
     }
 
     @Override
-    public ITxRef findTxTag(@NotEmpty String userTag, @NotNull ICompany company, boolean fetchHeaders) {
-        ITxRef txRef = auditRepo.findTxTag(userTag, company.getId());
+    public TxRef findTxTag(@NotEmpty String userTag, @NotNull Company company, boolean fetchHeaders) {
+        TxRef txRef = auditRepo.findTxTag(userTag, company.getId());
         return txRef;
     }
 
 
     @Override
-    public ITxRef beginTransaction(String id, ICompany company) {
+    public TxRef beginTransaction(String id, Company company) {
 
-        ITxRef tag = findTxTag(id, company, false);
+        TxRef tag = findTxTag(id, company, false);
         if (tag == null) {
-            tag = new TxRef(id, company);
+            tag = new TxRefNode(id, company);
             template.save(tag);
         }
         return tag;
@@ -139,38 +139,38 @@ public class AuditDaoNeo implements IAuditDao {
         return auditLogRepo.getLogCount(id);
     }
 
-    public IAuditLog getLastChange(Long auditHeaderID) {
-        IAuditLog when = auditLogRepo.getLastChange(auditHeaderID);
+    public AuditLog getLastChange(Long auditHeaderID) {
+        AuditLog when = auditLogRepo.getLastChange(auditHeaderID);
         if (when != null)
             template.fetch(when.getAuditChange());
         return when;
     }
 
-    public IAuditLog getChange(Long auditHeaderID, long sysWhen) {
+    public AuditLog getChange(Long auditHeaderID, long sysWhen) {
         return auditLogRepo.getChange(auditHeaderID, sysWhen);
     }
 
 
-    public Set<IAuditChange> getAuditLogs(Long auditLogID, Date from, Date to) {
+    public Set<AuditChange> getAuditLogs(Long auditLogID, Date from, Date to) {
         return auditLogRepo.getAuditLogs(auditLogID, from.getTime(), to.getTime());
     }
 
-    public Set<IAuditChange> getAuditLogs(Long auditHeaderID) {
+    public Set<AuditChange> getAuditLogs(Long auditHeaderID) {
         return auditLogRepo.findAuditLogs(auditHeaderID);
     }
 
     @Override
-    public void delete(IAuditChange auditLog) {
-        auditLogRepo.delete((AuditChange) auditLog);
+    public void delete(AuditChange auditLog) {
+        auditLogRepo.delete((AuditChangeNode) auditLog);
     }
 
     @Override
-    public void delete(IAuditHeader auditHeader) {
+    public void delete(AuditHeader auditHeader) {
         //ToDo: Remove all the logs
-        auditRepo.delete((AuditHeader) auditHeader);
+        auditRepo.delete((AuditHeaderNode) auditHeader);
     }
 
-    public Map<String, Object> findByTransaction(ITxRef txRef) {
+    public Map<String, Object> findByTransaction(TxRef txRef) {
         //Example showing how to use cypher and extract
 
         String findByTagRef = "start tag =node({txRef}) " +
@@ -190,9 +190,9 @@ public class AuditDaoNeo implements IAuditDao {
         //Result<Map<String, Object>> results =
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
-            IAuditLog when = template.convert(row.get("logs"), AuditLog.class);
-            IAuditChange log = template.convert(row.get("auditLog"), AuditChange.class);
-            IAuditHeader audit = template.convert(row.get("audit"), AuditHeader.class);
+            AuditLog when = template.convert(row.get("logs"), AuditLogRelationship.class);
+            AuditChange log = template.convert(row.get("auditLog"), AuditChangeNode.class);
+            AuditHeader audit = template.convert(row.get("audit"), AuditHeaderNode.class);
             simpleResult.add(new AuditTXResult(audit, log, when));
             i++;
 
@@ -205,16 +205,16 @@ public class AuditDaoNeo implements IAuditDao {
     }
 
     @Override
-    public void addChange(IAuditHeader header, IAuditChange al, DateTime dateWhen) {
-        AuditLog aWhen = new AuditLog(header, al);
+    public void addChange(AuditHeader header, AuditChange al, DateTime dateWhen) {
+        AuditLogRelationship aWhen = new AuditLogRelationship(header, al);
         template.save(aWhen);
         header.getAuditKey();
 
     }
 
     @Override
-    public void save(IAuditLog log) {
-        template.save((AuditLog) log);
+    public void save(AuditLog log) {
+        template.save((AuditLogRelationship) log);
     }
 
     @Override

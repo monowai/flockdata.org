@@ -19,8 +19,8 @@
 
 package com.auditbucket.registration.dao;
 
-import com.auditbucket.registration.model.ICompany;
-import com.auditbucket.registration.model.ISystemUser;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.SystemUser;
 
 /**
  * User: Mike Holdsworth
@@ -28,9 +28,9 @@ import com.auditbucket.registration.model.ISystemUser;
  * Time: 6:31 PM
  */
 public interface RegistrationDaoI {
-    public ISystemUser save(ISystemUser systemUser);
+    public SystemUser save(SystemUser systemUser);
 
-    public ISystemUser findByPropertyValue(String name, Object value);
+    public SystemUser findByPropertyValue(String name, Object value);
 
-    ISystemUser save(ICompany company, String userName, String password);
+    SystemUser save(Company company, String userName, String password);
 }

@@ -43,7 +43,7 @@ public class FortressInputBean {
      * The fortress will *not* ignore the search engine
      * changes will not be accumulated
      *
-     * @param name         Company unique name for the fortress
+     * @param name         CompanyNode unique name for the fortress
      * @param searchActive accumulate the changes in the search engine rather than update
      */
     public FortressInputBean(String name, boolean searchActive) {

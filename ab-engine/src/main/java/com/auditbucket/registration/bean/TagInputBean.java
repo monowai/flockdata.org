@@ -19,8 +19,8 @@
 
 package com.auditbucket.registration.bean;
 
-import com.auditbucket.registration.model.ICompany;
-import com.auditbucket.registration.model.ITag;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.Tag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -29,10 +29,10 @@ import org.hibernate.validator.constraints.NotEmpty;
  * Date: 26/06/13
  * Time: 1:20 PM
  */
-public class TagInputBean implements ITag {
+public class TagInputBean implements Tag {
 
     @NotEmpty
-    private ICompany company;
+    private Company company;
     @NotEmpty
     private String name;
 
@@ -44,7 +44,7 @@ public class TagInputBean implements ITag {
         this.name = tagName;
     }
 
-    public TagInputBean(ICompany company, String tagName) {
+    public TagInputBean(Company company, String tagName) {
         this(tagName);
         this.company = company;
     }
@@ -66,12 +66,12 @@ public class TagInputBean implements ITag {
     }
 
     @Override
-    public ICompany getCompany() {
+    public Company getCompany() {
         return company;
     }
 
     @Override
-    public void setCompany(ICompany company) {
+    public void setCompany(Company company) {
         this.company = company;
     }
 }

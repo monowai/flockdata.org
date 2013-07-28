@@ -17,32 +17,18 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.audit.model;
-
-import com.auditbucket.registration.model.ICompany;
-
-import java.util.Set;
+package com.auditbucket.registration.model;
 
 /**
+ * Created with IntelliJ IDEA.
  * User: Mike Holdsworth
- * Date: 14/06/13
- * Time: 9:11 AM
+ * Date: 6/04/13
+ * Time: 11:02
  */
-public interface ITxRef {
 
-    public String getName();
 
-    public ICompany getCompany();
+public interface SystemUser {
+    public abstract String getName();
 
-    public Set<IAuditHeader> getHeaders();
-
-    Long getId();
-
-    public TxStatus getTxStatus();
-
-    public long getTxDate();
-
-    enum TxStatus {
-        TX_CREATED, TX_ROLLBACK, TX_COMMITTED;
-    }
+    public abstract Company getCompany();
 }

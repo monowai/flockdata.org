@@ -19,15 +19,15 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.audit.model.IAuditHeader;
-import com.auditbucket.audit.model.IAuditLog;
+import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.audit.model.AuditLog;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditResultBean;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
-import com.auditbucket.registration.model.IFortress;
+import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import io.searchbox.client.JestClient;
@@ -120,7 +120,7 @@ public class TestAuditIntegration {
     @Test
     public void createHeaderTimeLogsWithSearchActivated() throws Exception {
         regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
-        IFortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
+        Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", new Date(), "ABC123");
         String ahKey = auditService.createHeader(inputBean).getAuditKey();
@@ -179,7 +179,7 @@ public class TestAuditIntegration {
     @Test
     public void bigJsonText() throws Exception {
         regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
-        IFortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
+        Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", new Date(), "ABC123");
         String ahKey = auditService.createHeader(inputBean).getAuditKey();
@@ -217,11 +217,11 @@ public class TestAuditIntegration {
         while (fortress <= fortressCount) {
 
             String fortressName = "bulkloada" + fortress;
-            IFortress iFortress = fortressService.registerFortress(new FortressInputBean(fortressName, true));
+            Fortress iFortress = fortressService.registerFortress(new FortressInputBean(fortressName, true));
             int audit = 1;
             log.info("Starting run for " + fortressName);
             while (audit <= auditCount) {
-                AuditHeaderInputBean aib = new AuditHeaderInputBean(iFortress.getName(), fortress + "olivia@sunnybell.com", "Company", new Date(), "ABC" + audit);
+                AuditHeaderInputBean aib = new AuditHeaderInputBean(iFortress.getName(), fortress + "olivia@sunnybell.com", "CompanyNode", new Date(), "ABC" + audit);
                 AuditResultBean arb = auditService.createHeader(aib);
                 int log = 1;
                 while (log <= logCount) {
@@ -260,9 +260,9 @@ public class TestAuditIntegration {
                     int random = (int) (Math.random() * ((auditCount) + 1));
                     if (random == 0)
                         random = 1;
-                    IAuditHeader header = auditService.findByCallerRef(list.get(fortress), "Company", "ABC" + random);
+                    AuditHeader header = auditService.findByCallerRef(list.get(fortress), "CompanyNode", "ABC" + random);
                     assertNotNull("ABC" + random, header);
-                    IAuditLog when = auditService.getLastChange(header);
+                    AuditLog when = auditService.getLastChange(header);
                     assertNotNull(when.getAuditChange());
                     assertEquals("fortress " + fortress + " run " + x + " header " + header.getAuditKey(), true, when.isIndexed());
                     totalSearchRequests++;

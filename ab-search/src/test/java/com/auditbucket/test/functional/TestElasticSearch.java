@@ -19,9 +19,8 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.audit.model.ISearchChange;
-import com.auditbucket.audit.model.IAuditSearchDao;
-import com.auditbucket.search.SearchChange;
+import com.auditbucket.audit.model.AuditSearchDao;
+import com.auditbucket.audit.model.SearchChange;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
@@ -55,7 +54,7 @@ public class TestElasticSearch {
     private Logger log = LoggerFactory.getLogger(TestElasticSearch.class);
 
     @Autowired
-    IAuditSearchDao alRepo;
+    AuditSearchDao alRepo;
 
     @Test
     public void testMappingJson() throws Exception {
@@ -73,13 +72,13 @@ public class TestElasticSearch {
     public void testJson() throws Exception {
         // Basic JSON/ES tests to figure our what is going on
 
-//        IFortress fortress = new Fortress(new FortressInputBean("fortress"), new Company("Monowai"));
+//        Fortress fortress = new Fortress(new FortressInputBean("fortress"), new Company("Monowai"));
 //        fortress.setIgnoreSearchEngine(false);
-//        IFortressUser fu = new FortressUser(fortress, uid);
+//        FortressUser fu = new FortressUser(fortress, uid);
 //        AuditHeaderInputBean hib = new AuditHeaderInputBean("fortress", "Test", "Test", new DateTime().toDate(), "testRef");
-//        IAuditHeader auditHeader = new AuditHeader(fu, hib, new DocumentType("TestJson", fu.getFortress().getCompany()));
+//        AuditHeader auditHeader = new AuditHeader(fu, hib, new DocumentType("TestJson", fu.getFortress().getCompany()));
 //
-        SearchChange auditChange = new SearchChange();
+        com.auditbucket.search.SearchChange auditChange = new com.auditbucket.search.SearchChange();
 //
         //auditChange.setName("Create");
         auditChange.setWhen(new DateTime());
@@ -120,7 +119,7 @@ public class TestElasticSearch {
                     .actionGet();
             assertNotNull(response);
 
-            SearchChange found = om.readValue(response.getSourceAsBytes(), SearchChange.class);
+            com.auditbucket.search.SearchChange found = om.readValue(response.getSourceAsBytes(), com.auditbucket.search.SearchChange.class);
             assertNotNull(found);
             assertEquals(0, auditChange.getWhen().compareTo(found.getWhen()));
 
@@ -139,13 +138,13 @@ public class TestElasticSearch {
         SecurityContextHolder.getContext().setAuthentication(auth);
         // As per JSON test, except this time we're doing it all via Spring.
 
-//        IFortress fortress = new Fortress(new FortressInputBean("fortress"), new Company("Monowai"));
+//        Fortress fortress = new Fortress(new FortressInputBean("fortress"), new Company("Monowai"));
 //        fortress.setIgnoreSearchEngine(false);
-//        IFortressUser fu = new FortressUser(fortress, uid);
+//        FortressUser fu = new FortressUser(fortress, uid);
 //        AuditHeaderInputBean hib = new AuditHeaderInputBean("fortress", "Test", "Test", new DateTime().toDate(), "testRef");
-//        IAuditHeader auditHeader = new AuditHeader(fu, hib, new DocumentType("TestJson", fu.getFortress().getCompany()));
+//        AuditHeader auditHeader = new AuditHeader(fu, hib, new DocumentType("TestJson", fu.getFortress().getCompany()));
 
-        ISearchChange auditChange = new SearchChange();
+        SearchChange auditChange = new com.auditbucket.search.SearchChange();
 //        String auditKey = "auditHeader.getAuditKey()";
 //
 //        auditChange.setWhen(new DateTime());

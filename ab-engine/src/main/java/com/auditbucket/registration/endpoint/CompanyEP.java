@@ -20,9 +20,9 @@
 package com.auditbucket.registration.endpoint;
 
 import com.auditbucket.helper.SecurityHelper;
-import com.auditbucket.registration.model.ICompany;
-import com.auditbucket.registration.model.IFortress;
-import com.auditbucket.registration.model.ISystemUser;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,10 +60,10 @@ public class CompanyEP {
     @RequestMapping(value = "/{companyName}/fortresses", method = RequestMethod.GET)
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @ResponseBody
-    public List<IFortress> register(@PathVariable("companyName") String companyName) throws Exception {
+    public List<Fortress> register(@PathVariable("companyName") String companyName) throws Exception {
         // curl -u mike:123 -X GET  http://localhost:8080/ab/company/Monowai/fortresses
-        List<IFortress> results = null;
-        ICompany company = companyService.findByName(companyName);
+        List<Fortress> results = null;
+        Company company = companyService.findByName(companyName);
         if (company == null)
             return results;
 
@@ -72,18 +72,18 @@ public class CompanyEP {
 
     @RequestMapping(value = "/{companyName}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<ICompany> getCompany(@PathVariable("companyName") String companyName) throws Exception {
+    public ResponseEntity<Company> getCompany(@PathVariable("companyName") String companyName) throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/company/Monowai
-        ICompany company = companyService.findByName(companyName);
+        Company company = companyService.findByName(companyName);
         if (company == null)
-            return new ResponseEntity<ICompany>(company, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<Company>(company, HttpStatus.NOT_FOUND);
 
-        ISystemUser sysUser = securityHelper.getSysUser(true);
+        SystemUser sysUser = securityHelper.getSysUser(true);
         if (!sysUser.getCompany().getId().equals(company.getId())) {
             // Not Authorised
-            return new ResponseEntity<ICompany>(company, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<Company>(company, HttpStatus.FORBIDDEN);
         } else {
-            return new ResponseEntity<ICompany>(company, HttpStatus.OK);
+            return new ResponseEntity<Company>(company, HttpStatus.OK);
         }
     }
 

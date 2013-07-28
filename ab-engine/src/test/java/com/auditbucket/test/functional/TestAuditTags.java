@@ -25,8 +25,8 @@ package com.auditbucket.test.functional;
  * Time: 4:49 PM
  */
 
-import com.auditbucket.audit.model.IAuditHeader;
-import com.auditbucket.audit.model.ITagValue;
+import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.audit.model.TagValue;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditResultBean;
 import com.auditbucket.bean.AuditTagInputBean;
@@ -34,10 +34,10 @@ import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.engine.service.AuditTagService;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
-import com.auditbucket.registration.model.ICompany;
-import com.auditbucket.registration.model.IFortress;
-import com.auditbucket.registration.model.ISystemUser;
-import com.auditbucket.registration.model.ITag;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
@@ -108,17 +108,17 @@ public class TestAuditTags {
 
     @Test
     public void tagAuditRecords() {
-        ISystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         assertNotNull(iSystemUser);
 
-        IFortress fortress = fortressService.registerFortress("ABC");
+        Fortress fortress = fortressService.registerFortress("ABC");
         assertNotNull(fortress);
 
-        ICompany iCompany = iSystemUser.getCompany();
+        Company iCompany = iSystemUser.getCompany();
 
-        ITag tagInput = new TagInputBean(iCompany, "FLOP");
+        Tag tagInput = new TagInputBean(iCompany, "FLOP");
 
-        ITag result = tagService.processTag(tagInput);
+        Tag result = tagService.processTag(tagInput);
         assertNotNull(result);
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new Date(), "abc");
         AuditResultBean resultBean = auditService.createHeader(inputBean);
@@ -136,7 +136,7 @@ public class TestAuditTags {
         auditTagService.processTag(auditTag);
         assertNotNull(auditTag);
 
-        Set<ITagValue> tags = auditTagService.findTagValues(tagInput.getName(), "!!!");
+        Set<TagValue> tags = auditTagService.findTagValues(tagInput.getName(), "!!!");
         assertEquals(1, tags.size());
 
         auditTagService.processTag(auditTag);
@@ -147,13 +147,13 @@ public class TestAuditTags {
 
     @Test
     public void tagValueCRUD() throws Exception {
-        ISystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         fortressService.registerFortress("ABC");
 
-        ICompany iCompany = iSystemUser.getCompany();
-        ITag tagInput = new TagInputBean(iCompany, "FLOP");
+        Company iCompany = iSystemUser.getCompany();
+        Tag tagInput = new TagInputBean(iCompany, "FLOP");
 
-        ITag result = tagService.processTag(tagInput);
+        Tag result = tagService.processTag(tagInput);
         assertNotNull(result);
         AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new Date(), "abc");
         Map<String, Object> tagValues = new HashMap<String, Object>();
@@ -163,15 +163,15 @@ public class TestAuditTags {
         tagValues.put("TagD", "DDDD");
         aib.setTagValues(tagValues);
         AuditResultBean resultBean = auditService.createHeader(aib);
-        IAuditHeader auditHeader = auditService.getHeader(resultBean.getAuditKey(), true);
-        Set<ITagValue> tagSet = auditHeader.getTagValues();
+        AuditHeader auditHeader = auditService.getHeader(resultBean.getAuditKey(), true);
+        Set<TagValue> tagSet = auditHeader.getTagValues();
         assertNotNull(tagSet);
         assertEquals(4, tagSet.size());
         assertEquals(0, auditTagService.findTagValues("TagC", "!!Twee!!").size());
         // Remove a single tag
-        Iterator<ITagValue> iterator = tagSet.iterator();
+        Iterator<TagValue> iterator = tagSet.iterator();
         while (iterator.hasNext()) {
-            ITagValue value = iterator.next();
+            TagValue value = iterator.next();
             if (value.getTag().getName().equals("TagB"))
                 iterator.remove();
             if (value.getTag().getName().equals("TagC"))

@@ -17,22 +17,27 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.registration.model;
+package com.auditbucket.audit.model;
 
 /**
  * User: Mike Holdsworth
- * Date: 14/06/13
- * Time: 9:11 AM
+ * Date: 21/06/13
+ * Time: 1:21 PM
  */
-public interface ITag {
+public interface AuditLog {
 
-    public String getName();
+    public AuditChange getAuditChange();
 
-    public ICompany getCompany();
+    public AuditHeader getAuditHeader();
 
-    void setCompany(ICompany company);
+    public boolean isIndexed();
 
-    void setName(String floppy);
+    /**
+     * flags this audit as having been indexed at some point.
+     */
+    public void setIsIndexed();
 
-    Long getId();
+    public Long getSysWhen();
+
+    public Long getFortressWhen();
 }

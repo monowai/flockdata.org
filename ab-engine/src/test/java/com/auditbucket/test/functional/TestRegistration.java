@@ -22,9 +22,9 @@ package com.auditbucket.test.functional;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.*;
-import com.auditbucket.registration.repo.neo4j.model.Company;
-import com.auditbucket.registration.repo.neo4j.model.CompanyUser;
-import com.auditbucket.registration.repo.neo4j.model.Fortress;
+import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
+import com.auditbucket.registration.repo.neo4j.model.CompanyUserNode;
+import com.auditbucket.registration.repo.neo4j.model.FortressNode;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
@@ -46,6 +46,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.System;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -89,8 +90,8 @@ public class TestRegistration {
 
     }
 
-    private IFortress createFortress(String name, ICompany ownedBy) {
-        IFortress fortress = new Fortress(new FortressInputBean(name), ownedBy);
+    private Fortress createFortress(String name, Company ownedBy) {
+        Fortress fortress = new FortressNode(new FortressInputBean(name), ownedBy);
         fortress = fortressService.save(fortress);
         assertNotNull(fortress);
         return fortress;
@@ -99,10 +100,10 @@ public class TestRegistration {
     String testCompanyName = "testco";
 
     private void createCompanyUsers(String userNamePrefix, int count) {
-        ICompany company = companyService.save(new Company(testCompanyName));
+        Company company = companyService.save(new CompanyNode(testCompanyName));
         int i = 1;
         while (i <= count) {
-            ICompanyUser test = new CompanyUser(userNamePrefix + i + "@sunnybell.com", company);
+            CompanyUser test = new CompanyUserNode(userNamePrefix + i + "@sunnybell.com", company);
 
             test = companyService.save(test);
             assertNotNull(test);
@@ -115,7 +116,7 @@ public class TestRegistration {
     public void findByName() {
         createCompanyUsers("MTest", 3);
         String name = "mtest2@sunnybell.com";
-        ICompanyUser p = companyService.getCompanyUser(testCompanyName, name);
+        CompanyUser p = companyService.getCompanyUser(testCompanyName, name);
         assertNotNull(p);
         assertEquals(name, p.getName());
 
@@ -125,7 +126,7 @@ public class TestRegistration {
         int i = 1;
 
         while (i <= count) {
-            ICompany test = new Company();
+            Company test = new CompanyNode();
             test.setName(testCompanyName + i);
             test = companyService.save(test);
             assertNotNull(test);
@@ -137,7 +138,7 @@ public class TestRegistration {
     @Test
     public void testCompanyUsers() {
         createCompanyUsers("mike", 10);
-        Iterable<ICompanyUser> users = companyService.getUsers(testCompanyName);
+        Iterable<CompanyUser> users = companyService.getUsers(testCompanyName);
         assertTrue(users.iterator().hasNext());
     }
 
@@ -162,23 +163,23 @@ public class TestRegistration {
 
         // Create the company.
         SecurityContextHolder.getContext().setAuthentication(null);
-        ISystemUser systemUser = registrationService.registerSystemUser(new RegistrationBean(companyName, adminName, "password"));
+        SystemUser systemUser = registrationService.registerSystemUser(new RegistrationBean(companyName, adminName, "password"));
         assertNotNull(systemUser);
 
         // Assume the user has now logged in.
         SecurityContextHolder.getContext().setAuthentication(auth);
-        ICompanyUser nonAdmin = registrationService.addCompanyUser(userName, companyName);
+        CompanyUser nonAdmin = registrationService.addCompanyUser(userName, companyName);
         assertNotNull(nonAdmin);
 
-        IFortress fortress = fortressService.registerFortress("auditbucket");
+        Fortress fortress = fortressService.registerFortress("auditbucket");
         assertNotNull(fortress);
 
-        List<IFortress> fortressList = fortressService.findFortresses(companyName);
+        List<Fortress> fortressList = fortressService.findFortresses(companyName);
         assertNotNull(fortressList);
         assertEquals(1, fortressList.size());
 
 
-        ICompany company = companyService.findByName(companyName);
+        Company company = companyService.findByName(companyName);
         assertNotNull(company);
 
         assertNotNull(systemUserService.findByName(adminName));
@@ -189,7 +190,7 @@ public class TestRegistration {
         assertNull(companyService.getAdminUser(company, userName));
 
         // Add fortress User
-        IFortressUser fu = fortressService.addFortressUser(fortress.getId(), "useRa");
+        FortressUser fu = fortressService.addFortressUser(fortress.getId(), "useRa");
         assertNotNull(fu);
         fu = fortressService.addFortressUser(fortress.getId(), "uAerb");
         assertNotNull(fu);

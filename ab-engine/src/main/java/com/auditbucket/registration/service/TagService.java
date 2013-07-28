@@ -19,11 +19,11 @@
 
 package com.auditbucket.registration.service;
 
-import com.auditbucket.audit.model.IDocumentType;
+import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.dao.TagDaoI;
-import com.auditbucket.registration.model.ICompany;
-import com.auditbucket.registration.model.ITag;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,18 +43,18 @@ public class TagService {
     private TagDaoI tagDao;
 
     @Transactional
-    public ITag processTag(ITag input) {
+    public Tag processTag(Tag input) {
         if (input == null)
             return input;
 
         // Check security access
         if (input.getCompany() == null) {
-            ICompany company = securityHelper.getCompany();
+            Company company = securityHelper.getCompany();
             input.setCompany(company);
         }
 
         // Check exists
-        ITag existingTag = tagDao.findOne(input.getName(), input.getCompany().getId());
+        Tag existingTag = tagDao.findOne(input.getName(), input.getCompany().getId());
         if (existingTag != null)
             return existingTag;
 
@@ -62,8 +62,8 @@ public class TagService {
         return tagDao.save(input);
     }
 
-    public ITag findTag(String tagName) {
-        ICompany company = securityHelper.getCompany();
+    public Tag findTag(String tagName) {
+        Company company = securityHelper.getCompany();
         if (company == null)
             return null;
         return tagDao.findOne(tagName, company.getId());
@@ -73,14 +73,14 @@ public class TagService {
      * finds or creates a Document Type for the caller's company
      *
      * @param documentType name of the document
-     * @return created IDocumentType
+     * @return created DocumentType
      */
     @Transactional
-    public IDocumentType resolveDocType(String documentType) {
+    public DocumentType resolveDocType(String documentType) {
         if (documentType == null) {
-            throw new IllegalArgumentException("DocumentType cannot be null");
+            throw new IllegalArgumentException("DocumentTypeNode cannot be null");
         }
-        ICompany company = securityHelper.getCompany();
+        Company company = securityHelper.getCompany();
         if (company == null)
             return null;
 

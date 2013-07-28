@@ -17,18 +17,23 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.registration.model;
+package com.auditbucket.audit.model;
+
+import com.auditbucket.registration.model.Tag;
 
 /**
- * Created with IntelliJ IDEA.
  * User: Mike Holdsworth
- * Date: 6/04/13
- * Time: 11:02
+ * Date: 26/06/13
+ * Time: 12:52 PM
  */
+public interface TagValue {
 
+    public Tag getTag();
 
-public interface ISystemUser {
-    public abstract String getName();
+    //ToDo - should this be a taggable interface?
+    public AuditHeader getHeader();
 
-    public abstract ICompany getCompany();
+    public String getTagValue();
+
+    public void setTagValue(String tagValue);
 }

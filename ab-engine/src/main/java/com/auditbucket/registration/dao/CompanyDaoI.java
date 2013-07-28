@@ -19,10 +19,10 @@
 
 package com.auditbucket.registration.dao;
 
-import com.auditbucket.registration.model.ICompany;
-import com.auditbucket.registration.model.ICompanyUser;
-import com.auditbucket.registration.model.IFortress;
-import com.auditbucket.registration.model.ISystemUser;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.CompanyUser;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.SystemUser;
 
 /**
  * User: Mike Holdsworth
@@ -30,17 +30,17 @@ import com.auditbucket.registration.model.ISystemUser;
  * Time: 6:31 PM
  */
 public interface CompanyDaoI {
-    public ICompany save(ICompany systemUser);
+    public Company save(Company systemUser);
 
-    public ICompanyUser save(ICompanyUser companyUser);
+    public CompanyUser save(CompanyUser companyUser);
 
-    public ICompany findByPropertyValue(String name, Object value);
+    public Company findByPropertyValue(String name, Object value);
 
-    public ICompanyUser getCompanyUser(Long id, String userName);
+    public CompanyUser getCompanyUser(Long id, String userName);
 
-    public IFortress getFortress(Long id, String fortressName);
+    public Fortress getFortress(Long id, String fortressName);
 
-    public ISystemUser getAdminUser(Long id, String name);
+    public SystemUser getAdminUser(Long id, String name);
 
-    public Iterable<ICompanyUser> getCompanyUsers(String companyName);
+    public Iterable<CompanyUser> getCompanyUsers(String companyName);
 }

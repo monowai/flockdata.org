@@ -19,35 +19,40 @@
 
 package com.auditbucket.registration.repo.neo4j.model;
 
-import com.auditbucket.registration.model.IFortress;
-import com.auditbucket.registration.model.IFortressUser;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.CompanyUser;
 import org.neo4j.graphdb.Direction;
-import org.springframework.data.neo4j.annotation.*;
+import org.springframework.data.neo4j.annotation.GraphId;
+import org.springframework.data.neo4j.annotation.Indexed;
+import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.annotation.RelatedTo;
+
+import java.util.Set;
 
 @NodeEntity
-
-
-public class FortressUser implements IFortressUser {
+public class CompanyNode implements Company {
     @GraphId
     Long id;
 
-    @RelatedTo(elementClass = Fortress.class, type = "fortressUser", direction = Direction.INCOMING)
-    private IFortress fortress;
+    @Indexed(unique = true, indexName = "companyName")
+    String name;
 
-    @Indexed(indexName = "fortressUser")
-    @Fetch
-    private String name = null;
+    @RelatedTo(elementClass = CompanyUserNode.class, type = "works", direction = Direction.INCOMING)
+    private Set<CompanyUser> companyUsers;
 
-    protected FortressUser() {
+//	@RelatedTo (elementClass = SystemUserNode.class, type="administers", direction= Direction.INCOMING)
+//	Set<SystemUser> admins;
+
+//	@RelatedTo (elementClass = FortressNode.class, type="owns")
+//	Set<Fortress>fortresses;
+
+    public CompanyNode(String companyName) {
+        setName(companyName);
     }
 
-    public FortressUser(IFortress fortress, String fortressUserName) {
-        setName(fortressUserName);
-        setFortress(fortress);
+    public CompanyNode() {
     }
 
-    @JsonIgnore
     public Long getId() {
         return id;
     }
@@ -57,25 +62,15 @@ public class FortressUser implements IFortressUser {
     }
 
     public void setName(String name) {
-        this.name = name.toLowerCase();
+        this.name = name;
     }
 
-    @JsonIgnore
-    public IFortress getFortress() {
-        return fortress;
-    }
-
-    public void setFortress(IFortress fortress) {
-        this.fortress = fortress;
-    }
 
     @Override
     public String toString() {
-        return "FortressUser{" +
+        return "CompanyNode{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 '}';
     }
-
-
 }

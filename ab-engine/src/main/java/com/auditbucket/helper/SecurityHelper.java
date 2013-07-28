@@ -19,8 +19,8 @@
 
 package com.auditbucket.helper;
 
-import com.auditbucket.registration.model.ICompany;
-import com.auditbucket.registration.model.ISystemUser;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.SystemUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -57,14 +57,14 @@ public class SecurityHelper {
                 return null;
 
         if (isSysUser) {
-            ISystemUser su = getSysUser(a.getName());
+            SystemUser su = getSysUser(a.getName());
             if (su == null)
                 throw new IllegalArgumentException("Not authorised");
         }
         return a.getName();
     }
 
-    public ISystemUser getSysUser(boolean exceptionOnNull) {
+    public SystemUser getSysUser(boolean exceptionOnNull) {
         Authentication a = SecurityContextHolder.getContext().getAuthentication();
         if (a == null)
             if (exceptionOnNull)
@@ -75,13 +75,13 @@ public class SecurityHelper {
         return sysUserService.findByName(a.getName());
     }
 
-    public ISystemUser getSysUser(String loginName) {
+    public SystemUser getSysUser(String loginName) {
         return sysUserService.findByName(loginName);
     }
 
-    public ICompany getCompany() {
+    public Company getCompany() {
         String userName = getLoggedInUser();
-        ISystemUser su = sysUserService.findByName(userName);
+        SystemUser su = sysUserService.findByName(userName);
 
         if (su == null)
             throw new SecurityException("Not authorised");

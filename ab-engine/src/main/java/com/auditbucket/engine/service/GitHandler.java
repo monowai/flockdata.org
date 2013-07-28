@@ -19,7 +19,7 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.registration.model.IFortress;
+import com.auditbucket.registration.model.Fortress;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
 
@@ -37,7 +37,7 @@ public class GitHandler {
     private GitHub github = null;
     private GHRepository repo;
 
-    public void initHandler(IFortress fortress) {
+    public void initHandler(Fortress fortress) {
 
         try {
             github = GitHub.connect();
@@ -51,7 +51,7 @@ public class GitHandler {
 
     }
 
-    public void deleteRepo(IFortress fortress) {
+    public void deleteRepo(Fortress fortress) {
         try {
             repo.delete();
 
@@ -62,7 +62,7 @@ public class GitHandler {
         }
     }
 
-    private GHRepository findRepo(IFortress fortress) throws IOException {
+    private GHRepository findRepo(Fortress fortress) throws IOException {
 
         try {
             return github.getRepository("monowai/" + fortress.getFortressKey());
@@ -71,7 +71,7 @@ public class GitHandler {
         }
     }
 
-    private GHRepository createRepo(IFortress fortress) throws IOException {
+    private GHRepository createRepo(Fortress fortress) throws IOException {
         String folder = "/Users/mike/git"; //fortress.getRepo();
         // Should only need to do this once, when registering a fortress
 

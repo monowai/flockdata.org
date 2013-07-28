@@ -66,14 +66,14 @@ public class TestAuditSearch {
     public void testSearchKeysForNonAccumulatingFortresses() throws Exception {
         Assert.assertTrue(true);
 //        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
-//        IFortress fo = fortressService.registerFortress(new FortressInputBean("testSearchCancel", false));
+//        Fortress fo = fortressService.registerFortress(new FortressInputBean("testSearchCancel", false));
 //
 //        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", new Date(), "ABC123");
 //        inputBean.setAuditLog(new AuditLogInputBean("wally", new DateTime(), "{\"blah\":" + 0 + "}"));
 //        String ahKey = auditService.createHeader(inputBean).getAuditKey();
 //
 //        assertNotNull(ahKey);
-//        IAuditHeader auditHeader = auditService.getHeader(ahKey);
+//        AuditHeader auditHeader = auditService.getHeader(ahKey);
 //        assertNotNull(auditService.getHeader(ahKey));
 //        assertNotNull(auditHeader.getSearchKey());
 //
@@ -83,12 +83,12 @@ public class TestAuditSearch {
 //            auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + i + "}"));
 //            i++;
 //        }
-//        Set<IAuditChange> logs = auditService.getAuditLogs(ahKey);
-//        Iterator<IAuditChange> it = logs.iterator();
+//        Set<AuditChange> logs = auditService.getAuditLogs(ahKey);
+//        Iterator<AuditChange> it = logs.iterator();
 //        assertNotNull(logs);
 //        assertEquals(max, logs.size());
 //        while (it.hasNext()) {
-//            IAuditChange next = it.next();
+//            AuditChange next = it.next();
 //            assertNull(next.getSearchKey());
 //        }
 //        byte[] parent = searchService.findOne(auditHeader, auditHeader.getSearchKey());

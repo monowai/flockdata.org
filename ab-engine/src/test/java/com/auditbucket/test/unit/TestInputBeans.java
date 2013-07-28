@@ -19,12 +19,12 @@
 
 package com.auditbucket.test.unit;
 
-import com.auditbucket.audit.model.ITxRef;
+import com.auditbucket.audit.model.TxRef;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
-import com.auditbucket.engine.repo.neo4j.model.TxRef;
+import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
 import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.repo.neo4j.model.Company;
+import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -43,22 +43,22 @@ public class TestInputBeans {
 
     @Test
     public void testTxStatus() {
-        TxRef tx = new TxRef("abc", new Company(""));
+        TxRefNode tx = new TxRefNode("abc", new CompanyNode(""));
 
         // Current status should be created
-        assertEquals(ITxRef.TxStatus.TX_CREATED, tx.getTxStatus());
-        TxRef.TxStatus previous = tx.commit();
-        assertEquals(ITxRef.TxStatus.TX_COMMITTED, tx.getTxStatus());
-        assertEquals(ITxRef.TxStatus.TX_CREATED, previous);
+        assertEquals(TxRef.TxStatus.TX_CREATED, tx.getTxStatus());
+        TxRefNode.TxStatus previous = tx.commit();
+        assertEquals(TxRef.TxStatus.TX_COMMITTED, tx.getTxStatus());
+        assertEquals(TxRef.TxStatus.TX_CREATED, previous);
         previous = tx.rollback();
-        assertEquals(ITxRef.TxStatus.TX_ROLLBACK, tx.getTxStatus());
-        assertEquals(ITxRef.TxStatus.TX_COMMITTED, previous);
+        assertEquals(TxRef.TxStatus.TX_ROLLBACK, tx.getTxStatus());
+        assertEquals(TxRef.TxStatus.TX_COMMITTED, previous);
 
     }
 
     @Test
     public void testFortressInputBean() {
-        Company c = new Company("test");
+        CompanyNode c = new CompanyNode("test");
 
         FortressInputBean fib = new FortressInputBean("ABC");
         assertFalse(fib.getSearchActive());

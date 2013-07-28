@@ -19,10 +19,10 @@
 
 package com.auditbucket.engine.repo.neo4j.model;
 
-import com.auditbucket.audit.model.IAuditHeader;
-import com.auditbucket.audit.model.ITagValue;
-import com.auditbucket.registration.model.ITag;
-import com.auditbucket.registration.repo.neo4j.model.Tag;
+import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.audit.model.TagValue;
+import com.auditbucket.registration.model.Tag;
+import com.auditbucket.registration.repo.neo4j.model.TagNode;
 import org.springframework.data.neo4j.annotation.*;
 
 /**
@@ -32,36 +32,36 @@ import org.springframework.data.neo4j.annotation.*;
  */
 
 @RelationshipEntity(type = "tagValue")
-public class AuditTagValue implements ITagValue {
+public class AuditTagRelationship implements TagValue {
     @GraphId
     Long id;
 
     @StartNode
     @Fetch
-    Tag tag;
+    TagNode tag;
 
     @EndNode
 
-    AuditHeader auditHeader;
+    AuditHeaderNode auditHeader;
 
     @Indexed(indexName = "tagValue")
     String tagValue;
 
-    protected AuditTagValue() {
+    protected AuditTagRelationship() {
     }
 
-    public AuditTagValue(ITag tag, IAuditHeader header, String tagValue) {
-        this.tag = (Tag) tag;
-        this.auditHeader = (AuditHeader) header;
+    public AuditTagRelationship(Tag tag, AuditHeader header, String tagValue) {
+        this.tag = (TagNode) tag;
+        this.auditHeader = (AuditHeaderNode) header;
         this.tagValue = tagValue;
     }
 
     @Override
-    public ITag getTag() {
+    public Tag getTag() {
         return tag;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public IAuditHeader getHeader() {
+    public AuditHeader getHeader() {
         return auditHeader;  //To change body of implemented methods use File | Settings | File Templates.
     }
 

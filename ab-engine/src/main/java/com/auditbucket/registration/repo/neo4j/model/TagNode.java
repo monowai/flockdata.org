@@ -17,11 +17,10 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.engine.repo.neo4j.model;
+package com.auditbucket.registration.repo.neo4j.model;
 
-import com.auditbucket.audit.model.IDocumentType;
-import com.auditbucket.registration.model.ICompany;
-import com.auditbucket.registration.repo.neo4j.model.Company;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.Tag;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
@@ -30,34 +29,51 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
 
 /**
  * User: Mike Holdsworth
- * Date: 30/06/13
- * Time: 10:02 AM
+ * Date: 26/06/13
+ * Time: 8:35 PM
  */
 @NodeEntity
-public class DocumentType implements IDocumentType {
-
+public class TagNode implements Tag {
     @GraphId
-    Long id;
+    Long Id;
 
-    @RelatedTo(elementClass = Company.class, type = "documents", direction = Direction.INCOMING)
-    private ICompany company;
+    @RelatedTo(elementClass = CompanyNode.class, type = "tags", direction = Direction.INCOMING)
+    Company company;
 
-    @Indexed(indexName = "documentTypeName")
+    @Indexed(indexName = "tagName")
     private String name;
 
-    protected DocumentType() {
+    protected TagNode() {
     }
 
-    public DocumentType(String documentTypeName, ICompany company) {
-        this.name = documentTypeName;
-        this.company = company;
+    public TagNode(Tag tag) {
+        this.company = tag.getCompany();
+        this.name = tag.getName();
     }
 
+
+    @Override
     public String getName() {
         return name;
     }
 
-    public ICompany getCompany() {
-        return company;
+    @Override
+    public Company getCompany() {
+        return company;  //To change body of implemented methods use File | Settings | File Templates.
     }
+
+    @Override
+    public void setCompany(Company company) {
+        this.company = company;
+    }
+
+    @Override
+    public void setName(String floppy) {
+        this.name = floppy;
+    }
+
+    public Long getId() {
+        return Id;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
 }

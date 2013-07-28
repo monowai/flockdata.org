@@ -19,13 +19,13 @@
 
 package com.auditbucket.registration.repo.neo4j.model;
 
-import com.auditbucket.registration.model.ICompany;
-import com.auditbucket.registration.model.ISystemUser;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.SystemUser;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.*;
 
 @NodeEntity
-public class SystemUser implements ISystemUser {
+public class SystemUserNode implements SystemUser {
     @GraphId
     Long id;
 
@@ -36,18 +36,18 @@ public class SystemUser implements ISystemUser {
 
     private String openUID;
 
-//    @RelatedTo (elementClass = CompanyUser.class, type ="isA", direction = Direction.INCOMING)
-//    private ICompanyUser companyUser;
+//    @RelatedTo (elementClass = CompanyUserNode.class, type ="isA", direction = Direction.INCOMING)
+//    private CompanyUser companyUser;
 
     @Fetch
-    @RelatedTo(elementClass = Company.class, type = "administers", direction = Direction.OUTGOING)
-    private Company company;
+    @RelatedTo(elementClass = CompanyNode.class, type = "administers", direction = Direction.OUTGOING)
+    private CompanyNode company;
 
 
-    protected SystemUser() {
+    protected SystemUserNode() {
     }
 
-    public SystemUser(String name, String password, ICompany company, boolean admin) {
+    public SystemUserNode(String name, String password, Company company, boolean admin) {
         setName(name);
         setPassword(password);
 
@@ -80,20 +80,20 @@ public class SystemUser implements ISystemUser {
         this.openUID = openUID;
     }
 
-//    public ICompanyUser getCompanyUser() {
+//    public CompanyUser getCompanyUser() {
 //        return companyUser;
 //    }
 //
-//    public void setCompanyUser(ICompanyUser companyUser) {
+//    public void setCompanyUser(CompanyUser companyUser) {
 //        this.companyUser = companyUser;
 //    }
 
-    public ICompany getCompany() {
+    public Company getCompany() {
         return company;
     }
 
-    public void setAdministers(ICompany company) {
-        this.company = (Company) company;
+    public void setAdministers(Company company) {
+        this.company = (CompanyNode) company;
     }
 
 

@@ -24,12 +24,12 @@ import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.dao.CompanyDaoI;
 import com.auditbucket.registration.dao.FortressDaoI;
-import com.auditbucket.registration.model.ICompany;
-import com.auditbucket.registration.model.IFortress;
-import com.auditbucket.registration.model.IFortressUser;
-import com.auditbucket.registration.model.ISystemUser;
-import com.auditbucket.registration.repo.neo4j.model.Fortress;
-import com.auditbucket.registration.repo.neo4j.model.FortressUser;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.FortressUser;
+import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.repo.neo4j.model.FortressNode;
+import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,22 +56,22 @@ public class FortressService {
     @Autowired
     private SecurityHelper securityHelper;
 
-    public IFortress getFortress(Long id) {
+    public Fortress getFortress(Long id) {
         return fortressDao.findOne(id);
     }
 
-    public IFortressUser getUser(Long id) {
+    public FortressUser getUser(Long id) {
         return fortressDao.findOneUser(id);
     }
 
-    public IFortress find(String fortressName) {
-        ICompany ownedBy = getCompany();
+    public Fortress find(String fortressName) {
+        Company ownedBy = getCompany();
         return companyDao.getFortress(ownedBy.getId(), fortressName);
     }
 
-    private ICompany getCompany() {
+    private Company getCompany() {
         String userName = securityHelper.getUserName(true, false);
-        ISystemUser su = sysUserService.findByName(userName);
+        SystemUser su = sysUserService.findByName(userName);
         if (su == null) {
             throw new SecurityException("Invalid user or password");
         }
@@ -79,7 +79,7 @@ public class FortressService {
     }
 
     @Transactional
-    public IFortress save(IFortress fortress) {
+    public Fortress save(Fortress fortress) {
         return fortressDao.save(fortress);
     }
 
@@ -88,72 +88,72 @@ public class FortressService {
      * @param fortressUser user to locate
      * @return fortressUser identity, or creates it if it is not found
      */
-    public IFortressUser getFortressUser(IFortress fortress, String fortressUser) {
+    public FortressUser getFortressUser(Fortress fortress, String fortressUser) {
         return getFortressUser(fortress, fortressUser, true);
     }
 
-    public IFortressUser getFortressUser(IFortress fortress, String fortressUser, boolean createIfMissing) {
+    public FortressUser getFortressUser(Fortress fortress, String fortressUser, boolean createIfMissing) {
         if (fortressUser == null || fortress == null)
-            throw new IllegalArgumentException("Don't go throwing null in here [" + (fortressUser == null ? "FortressUser]" : "Fortress]"));
+            throw new IllegalArgumentException("Don't go throwing null in here [" + (fortressUser == null ? "FortressUserNode]" : "FortressNode]"));
 
-        IFortressUser fu = fortressDao.getFortressUser(fortress.getId(), fortressUser);
+        FortressUser fu = fortressDao.getFortressUser(fortress.getId(), fortressUser);
         if (createIfMissing && fu == null)
             fu = addFortressUser(fortress.getId(), fortressUser);
         return fu;
     }
 
     @Transactional
-    public IFortressUser save(IFortressUser fortressUser) {
+    public FortressUser save(FortressUser fortressUser) {
         return fortressDao.save(fortressUser);
     }
 
     @Transactional
-    public IFortressUser addFortressUser(Long fortressId, String fortressUser) {
-        IFortress fortress = getFortress(fortressId);
+    public FortressUser addFortressUser(Long fortressId, String fortressUser) {
+        Fortress fortress = getFortress(fortressId);
         if (fortress == null)
             throw new IllegalArgumentException("Unable to find requested fortress");
 
 
-        ICompany company = fortress.getCompany();
+        Company company = fortress.getCompany();
         // this should never happen
         if (company == null)
             throw new IllegalArgumentException("[" + fortress.getName() + "] has no owner");
 
         registrationService.isAdminUser(company, "Unable to find requested fortress");
 
-        IFortressUser user = new FortressUser(fortress, fortressUser);
+        FortressUser user = new FortressUserNode(fortress, fortressUser);
         return save(user);
 
     }
 
     @Transactional
-    public IFortress registerFortress(FortressInputBean fib) {
-        ICompany company = getCompany();
+    public Fortress registerFortress(FortressInputBean fib) {
+        Company company = getCompany();
 
-        IFortress fortress = companyService.getFortress(company, fib.getName());
+        Fortress fortress = companyService.getFortress(company, fib.getName());
         if (fortress != null) {
             // Already associated, get out of here
             return fortress;
         }
 
-        fortress = new Fortress(fib, company);
+        fortress = new FortressNode(fib, company);
         return save(fortress);
 
     }
 
     @Transactional
-    public IFortress registerFortress(String fortressName) {
+    public Fortress registerFortress(String fortressName) {
         FortressInputBean fb = new FortressInputBean(fortressName, false);
         return registerFortress(fb);
     }
 
-    private ICompany getCompany(long fortressId) {
+    private Company getCompany(long fortressId) {
         return getFortress(fortressId).getCompany();
 
     }
 
-    public List<IFortress> findFortresses(String companyName) {
-        ICompany company = companyService.findByName(companyName);
+    public List<Fortress> findFortresses(String companyName) {
+        Company company = companyService.findByName(companyName);
         if (company == null)
             return null;      //ToDo: what kind of error page to return?
         if (companyService.getAdminUser(company, securityHelper.getUserName(true, true)) != null)

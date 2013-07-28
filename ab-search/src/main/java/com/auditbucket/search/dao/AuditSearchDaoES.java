@@ -19,9 +19,9 @@
 
 package com.auditbucket.search.dao;
 
-import com.auditbucket.audit.model.ISearchChange;
-import com.auditbucket.audit.model.IAuditHeader;
-import com.auditbucket.audit.model.IAuditSearchDao;
+import com.auditbucket.audit.model.AuditSearchDao;
+import com.auditbucket.audit.model.SearchChange;
+import com.auditbucket.audit.model.AuditHeader;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
@@ -43,7 +43,7 @@ import java.util.Map;
  * Time: 12:00 PM
  */
 @Repository("esAuditChange")
-public class AuditSearchDaoES implements IAuditSearchDao {
+public class AuditSearchDaoES implements AuditSearchDao {
     @Autowired
     private Client esClient;
 
@@ -55,7 +55,7 @@ public class AuditSearchDaoES implements IAuditSearchDao {
      * @param auditChange incoming
      * @return document to index
      */
-    private Map<String, Object> makeIndexDocument(ISearchChange auditChange) {
+    private Map<String, Object> makeIndexDocument(SearchChange auditChange) {
         Map<String, Object> indexMe = new HashMap<String, Object>();
         indexMe.put("@what", auditChange.getWhat());
         indexMe.put("@auditKey", auditChange.getAuditKey());
@@ -78,7 +78,7 @@ public class AuditSearchDaoES implements IAuditSearchDao {
      * @param auditChange object containing changes
      * @return key value of the child document
      */
-    public ISearchChange save(ISearchChange auditChange) {
+    public SearchChange save(SearchChange auditChange) {
         String indexName = auditChange.getIndexName();
         String documentType = auditChange.getDocumentType();
 
@@ -99,7 +99,7 @@ public class AuditSearchDaoES implements IAuditSearchDao {
     }
 
     @Override
-    public void delete(IAuditHeader header, String existingIndexKey) {
+    public void delete(AuditHeader header, String existingIndexKey) {
         String indexName = header.getIndexName();
         String recordType = header.getDocumentType();
 
@@ -139,7 +139,7 @@ public class AuditSearchDaoES implements IAuditSearchDao {
     }
 
     @Override
-    public void update(ISearchChange incoming) {
+    public void update(SearchChange incoming) {
 
         Map<String, Object> indexMe = makeIndexDocument(incoming);
 
@@ -178,11 +178,11 @@ public class AuditSearchDaoES implements IAuditSearchDao {
 
     }
 
-    public byte[] findOne(IAuditHeader header) {
+    public byte[] findOne(AuditHeader header) {
         return findOne(header, null);
     }
 
-    public byte[] findOne(IAuditHeader header, String id) {
+    public byte[] findOne(AuditHeader header, String id) {
         String indexName = header.getIndexName();
         String documentType = header.getDocumentType();
         if (id == null)

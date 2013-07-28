@@ -19,8 +19,8 @@
 
 package com.auditbucket.search.service;
 
-import com.auditbucket.audit.model.IAuditHeader;
-import com.auditbucket.audit.model.IAuditSearchDao;
+import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.audit.model.AuditSearchDao;
 import com.auditbucket.dao.IAuditQueryDao;
 import com.auditbucket.search.SearchChange;
 import com.auditbucket.search.SearchResult;
@@ -42,7 +42,7 @@ import java.util.Map;
 @MessageEndpoint
 public class AbSearchService implements IElasticSearchEP {
     @Autowired
-    private IAuditSearchDao auditSearch;
+    private AuditSearchDao auditSearch;
 
     @Autowired
     private IAuditQueryDao auditQuery;
@@ -72,16 +72,16 @@ public class AbSearchService implements IElasticSearchEP {
 
     @Transactional
     //@ServiceActivator(inputChannel = "esDelete")
-    public void delete(IAuditHeader auditHeader) {
+    public void delete(AuditHeader auditHeader) {
         auditSearch.delete(auditHeader, null);
 
     }
 
-    public byte[] findOne(IAuditHeader header) {
+    public byte[] findOne(AuditHeader header) {
         return auditSearch.findOne(header);
     }
 
-    public byte[] findOne(IAuditHeader header, String id) {
+    public byte[] findOne(AuditHeader header, String id) {
         return auditSearch.findOne(header, id);
     }
 

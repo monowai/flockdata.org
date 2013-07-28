@@ -19,9 +19,9 @@
 
 package com.auditbucket.registration.dao;
 
-import com.auditbucket.audit.model.IDocumentType;
-import com.auditbucket.registration.model.ICompany;
-import com.auditbucket.registration.model.ITag;
+import com.auditbucket.audit.model.DocumentType;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.Tag;
 
 /**
  * User: Mike Holdsworth
@@ -29,10 +29,10 @@ import com.auditbucket.registration.model.ITag;
  * Time: 8:12 PM
  */
 public interface TagDaoI {
-    ITag save(ITag tag);
+    Tag save(Tag tag);
 
-    ITag findOne(String tagName, Long id);
+    Tag findOne(String tagName, Long id);
 
-    IDocumentType findOrCreate(String documentType, ICompany company);
+    DocumentType findOrCreate(String documentType, Company company);
 
 }

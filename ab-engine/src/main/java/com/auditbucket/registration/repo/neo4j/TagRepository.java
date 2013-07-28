@@ -19,7 +19,7 @@
 
 package com.auditbucket.registration.repo.neo4j;
 
-import com.auditbucket.registration.repo.neo4j.model.Tag;
+import com.auditbucket.registration.repo.neo4j.model.TagNode;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
@@ -29,10 +29,10 @@ import org.springframework.data.neo4j.repository.GraphRepository;
  * Time: 8:35 PM
  */
 
-public interface TagRepository extends GraphRepository<Tag> {
+public interface TagRepository extends GraphRepository<TagNode> {
     @Query(value = "start n=node({1}) " +
             "   MATCH n-[:tags]->tag " +
             "   where tag.name ={0} " +
             "  return tag")
-    Tag findCompanyTag(String tagName, Long companyId);
+    TagNode findCompanyTag(String tagName, Long companyId);
 }

@@ -19,10 +19,9 @@
 
 package com.auditbucket.search;
 
-import com.auditbucket.audit.model.ISearchChange;
-import com.auditbucket.audit.model.IAuditHeader;
-import com.auditbucket.audit.model.ITagValue;
-import com.auditbucket.registration.model.IFortress;
+import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.audit.model.TagValue;
+import com.auditbucket.registration.model.Fortress;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.joda.time.DateTime;
@@ -38,7 +37,7 @@ import java.util.Set;
  * Date: 25/04/13
  * Time: 4:33 PM
  */
-public class SearchChange implements ISearchChange {
+public class SearchChange implements com.auditbucket.audit.model.SearchChange {
     // ToDo: Figure out naming standard for system variables
     private String id;
     private String documentType;
@@ -61,7 +60,7 @@ public class SearchChange implements ISearchChange {
      *
      * @param header auditHeader details (owner of this change)
      */
-    public SearchChange(IAuditHeader header) {
+    public SearchChange(AuditHeader header) {
         this();
         this.auditKey = header.getAuditKey();
         setDocumentType(header.getDocumentType());
@@ -70,9 +69,9 @@ public class SearchChange implements ISearchChange {
         this.searchKey = header.getSearchKey();
         this.callerRef = header.getCallerRef();
         this.who = header.getLastUser().getName();
-        Set<ITagValue> tags = header.getTagValues();
+        Set<TagValue> tags = header.getTagValues();
         if (tags != null)
-            for (ITagValue tagValue : tags) {
+            for (TagValue tagValue : tags) {
                 this.tagValues.put(tagValue.getTag().getName(), tagValue.getTagValue());
             }
     }
@@ -80,7 +79,7 @@ public class SearchChange implements ISearchChange {
     public SearchChange() {
     }
 
-    public SearchChange(IAuditHeader header, Map<String, Object> mapWhat, String event, DateTime when) {
+    public SearchChange(AuditHeader header, Map<String, Object> mapWhat, String event, DateTime when) {
         this(header);
         this.what = mapWhat;
         this.event = event;
@@ -108,7 +107,7 @@ public class SearchChange implements ISearchChange {
         return searchKey;
     }
 
-    private void setFortress(IFortress fortress) {
+    private void setFortress(Fortress fortress) {
         this.setFortressName(fortress.getName());
         this.setCompanyName(fortress.getCompany().getName());
 

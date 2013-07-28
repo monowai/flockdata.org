@@ -24,13 +24,13 @@ import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditResultBean;
 import com.auditbucket.dao.IAuditDao;
-import com.auditbucket.engine.repo.neo4j.model.AuditChange;
-import com.auditbucket.engine.repo.neo4j.model.AuditHeader;
+import com.auditbucket.engine.repo.neo4j.model.AuditChangeNode;
+import com.auditbucket.engine.repo.neo4j.model.AuditHeaderNode;
 import com.auditbucket.helper.SecurityHelper;
-import com.auditbucket.registration.model.ICompany;
-import com.auditbucket.registration.model.IFortress;
-import com.auditbucket.registration.model.IFortressUser;
-import com.auditbucket.registration.model.ISystemUser;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.FortressUser;
+import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.SystemUserService;
@@ -98,31 +98,31 @@ public class AuditService {
     }
 
     @Transactional
-    public ITxRef beginTransaction() {
+    public TxRef beginTransaction() {
         return beginTransaction(UUID.randomUUID().toString());
     }
 
     @Transactional
-    ITxRef beginTransaction(String id) {
+    TxRef beginTransaction(String id) {
         String userName = securityHelper.getLoggedInUser();
-        ISystemUser su = sysUserService.findByName(userName);
+        SystemUser su = sysUserService.findByName(userName);
 
         if (su == null)
             throw new SecurityException("Not authorised");
 
-        ICompany company = su.getCompany();
+        Company company = su.getCompany();
         return auditDAO.beginTransaction(id, company);
 
     }
 
     @Transactional
     public Map<String, Object> findByTXRef(String txRef) {
-        ITxRef tx = findTx(txRef);
+        TxRef tx = findTx(txRef);
         return (tx == null ? null : auditDAO.findByTransaction(tx));
     }
 
     /**
-     * Creates a fortress specific header for the caller. FortressUser is automatically
+     * Creates a fortress specific header for the caller. FortressUserNode is automatically
      * created if it does not exist.
      *
      * @return unique primary key to be used for subsequent log calls
@@ -130,19 +130,19 @@ public class AuditService {
     @Transactional
     public AuditResultBean createHeader(AuditHeaderInputBean inputBean) {
         String userName = securityHelper.getLoggedInUser();
-        ISystemUser su = sysUserService.findByName(userName);
+        SystemUser su = sysUserService.findByName(userName);
 
         if (su == null)
             throw new SecurityException("Not authorised");
 
-        ICompany company = su.getCompany();
+        Company company = su.getCompany();
         String fortress = inputBean.getFortress();
         // ToDo: Improve cypher query
-        IFortress iFortress = companyService.getCompanyFortress(company, fortress);
+        Fortress iFortress = companyService.getCompanyFortress(company, fortress);
         if (iFortress == null)
             throw new IllegalArgumentException("Unable to find the fortress [" + fortress + "] for the company [" + su.getCompany().getName() + "]");
 
-        IAuditHeader ah = null;
+        AuditHeader ah = null;
 
         // Idempotent check
         if (inputBean.getCallerRef() != null)
@@ -159,9 +159,9 @@ public class AuditService {
         }
 
         // Create fortressUser if missing
-        IFortressUser fu = fortressService.getFortressUser(iFortress, inputBean.getFortressUser(), true);
-        IDocumentType documentType = tagService.resolveDocType(inputBean.getDocumentType());
-        ah = new AuditHeader(fu, inputBean, documentType);
+        FortressUser fu = fortressService.getFortressUser(iFortress, inputBean.getFortressUser(), true);
+        DocumentType documentType = tagService.resolveDocType(inputBean.getDocumentType());
+        ah = new AuditHeaderNode(fu, inputBean, documentType);
         inputBean.setAuditKey(ah.getAuditKey());
 
         // Future from here on.....
@@ -187,24 +187,24 @@ public class AuditService {
 
     }
 
-    public IAuditHeader getHeader(@NotNull @NotEmpty String key) {
+    public AuditHeader getHeader(@NotNull @NotEmpty String key) {
         return getHeader(key, false);
     }
 
-    public IAuditHeader getHeader(@NotNull @NotEmpty String key, boolean inflate) {
+    public AuditHeader getHeader(@NotNull @NotEmpty String key, boolean inflate) {
         String userName = securityHelper.getLoggedInUser();
 
-        ISystemUser su = sysUserService.findByName(userName);
+        SystemUser su = sysUserService.findByName(userName);
         if (su == null)
             throw new SecurityException("Not authorised");
 
 
-        IAuditHeader ah = auditDAO.findHeader(key, inflate);
+        AuditHeader ah = auditDAO.findHeader(key, inflate);
         if (ah == null)
             throw new IllegalArgumentException("Unable to find key [" + key + "]");
 
         if (!(ah.getFortress().getCompany().getId().equals(su.getCompany().getId())))
-            throw new SecurityException("Company mismatch. [" + su.getName() + "] working for [" + su.getCompany().getName() + "] cannot write audit records for [" + ah.getFortress().getCompany().getName() + "]");
+            throw new SecurityException("CompanyNode mismatch. [" + su.getName() + "] working for [" + su.getCompany().getName() + "] cannot write audit records for [" + ah.getFortress().getCompany().getName() + "]");
         return ah;
     }
 
@@ -217,7 +217,7 @@ public class AuditService {
     @Transactional
     public AuditLogInputBean createLog(AuditLogInputBean input) {
         String auditKey = input.getAuditKey();
-        IAuditHeader header;
+        AuditHeader header;
 
         if (auditKey == null || auditKey.equals("")) {
             header = findByCallerRef(input.getFortress(), input.getDocumentType(), input.getCallerRef());
@@ -242,7 +242,7 @@ public class AuditService {
      * @return populated log information with any error messages
      */
     @Transactional
-    AuditLogInputBean createLog(IAuditHeader header, AuditLogInputBean input, Map<String, Object> tagValues) {
+    AuditLogInputBean createLog(AuditHeader header, AuditLogInputBean input, Map<String, Object> tagValues) {
         if (input.getMapWhat() == null || input.getMapWhat().isEmpty()) {
             input.setStatus(AuditLogInputBean.LogStatus.IGNORE);
             return input;
@@ -255,7 +255,7 @@ public class AuditService {
         }
 
         if (input.getFortressUser() == null) {
-            input.setAbMessage("Fortress User not supplied");
+            input.setAbMessage("FortressNode User not supplied");
             input.setStatus(AuditLogInputBean.LogStatus.ILLEGAL_ARGUMENT);
             return input;
         }
@@ -269,16 +269,16 @@ public class AuditService {
 
         boolean headerModified = false;
 
-        IFortress fortress = header.getFortress();
-        IFortressUser fUser = fortressService.getFortressUser(fortress, input.getFortressUser().toLowerCase(), true);
+        Fortress fortress = header.getFortress();
+        FortressUser fUser = fortressService.getFortressUser(fortress, input.getFortressUser().toLowerCase(), true);
 
 // Transactions checks
-        ITxRef txRef = handleTxRef(input);
+        TxRef txRef = handleTxRef(input);
 
 //ToDo: Look at spin the following off in to a separate thread?
         // https://github.com/monowai/auditbucket/issues/7
-        IAuditLog lastWhen = auditDAO.getLastChange(header.getId());
-        IAuditChange lastChange = (lastWhen != null ? lastWhen.getAuditChange() : null);
+        AuditLog lastWhen = auditDAO.getLastChange(header.getId());
+        AuditChange lastChange = (lastWhen != null ? lastWhen.getAuditChange() : null);
         String event = input.getEvent();
         Boolean searchActive = fortress.isSearchActive();
         DateTime dateWhen = (input.getWhen() == null ? new DateTime(DateTimeZone.UTC) : new DateTime(input.getWhen(), DateTimeZone.UTC));
@@ -301,7 +301,7 @@ public class AuditService {
                 return input;
             }
             if (event == null) {
-                event = IAuditChange.UPDATE;
+                event = AuditChange.UPDATE;
                 input.setEvent(event);
             }
 
@@ -315,7 +315,7 @@ public class AuditService {
             sd.setTagValues(tagValues);
         } else { // first ever log for the header
             if (event == null) {
-                event = IAuditChange.CREATE;
+                event = AuditChange.CREATE;
                 input.setEvent(event);
             }
 
@@ -337,7 +337,7 @@ public class AuditService {
             header = auditDAO.save(header);
         }
 
-        IAuditChange al = new AuditChange(fUser, dateWhen, input);
+        AuditChange al = new AuditChangeNode(fUser, dateWhen, input);
         if (input.getTxRef() != null)
             al.setTxRef(txRef);
         al.setJsonWhat(input.getWhat());
@@ -354,8 +354,8 @@ public class AuditService {
 
     }
 
-    private ITxRef handleTxRef(AuditLogInputBean input) {
-        ITxRef txRef = null;
+    private TxRef handleTxRef(AuditLogInputBean input) {
+        TxRef txRef = null;
         if (input.isTransactional()) {
             if (input.getTxRef() == null) {
                 txRef = beginTransaction();
@@ -380,7 +380,7 @@ public class AuditService {
         String auditKey = searchResult.getAuditKey();
         if (log.isDebugEnabled())
             log.debug("Updating from search auditKey =[" + searchResult + "]");
-        IAuditHeader header = auditDAO.findHeader(auditKey);
+        AuditHeader header = auditDAO.findHeader(auditKey);
 
         if (header == null) {
             log.error("Audit Key could not be found for [" + searchResult + "]");
@@ -391,7 +391,7 @@ public class AuditService {
         if (log.isDebugEnabled())
             log.debug("Updated from search auditKey =[" + searchResult + "]");
 
-        IAuditLog when = auditDAO.getChange(header.getId(), searchResult.getSysWhen());
+        AuditLog when = auditDAO.getChange(header.getId(), searchResult.getSysWhen());
         // Another thread may have processed this so save an update
         if (when != null && !when.isIndexed()) {
             // We need to know that the change we requested to index has been indexed.
@@ -413,55 +413,55 @@ public class AuditService {
         return compareTo.equals(other);
     }
 
-    public ITxRef findTx(String txRef) {
+    public TxRef findTx(String txRef) {
         return findTx(txRef, false);
     }
 
-    public ITxRef findTx(String txRef, boolean fetchHeaders) {
+    public TxRef findTx(String txRef, boolean fetchHeaders) {
         String userName = securityHelper.getLoggedInUser();
-        ISystemUser su = sysUserService.findByName(userName);
+        SystemUser su = sysUserService.findByName(userName);
 
         if (su == null)
             throw new SecurityException("Not authorised");
-        ITxRef tx = auditDAO.findTxTag(txRef, su.getCompany(), fetchHeaders);
+        TxRef tx = auditDAO.findTxTag(txRef, su.getCompany(), fetchHeaders);
         if (tx == null)
             return null;
         return tx;
     }
 
-    public Set<IAuditHeader> findTxHeaders(String txName) {
-        ITxRef txRef = findTx(txName, true);
+    public Set<AuditHeader> findTxHeaders(String txName) {
+        TxRef txRef = findTx(txName, true);
         return txRef.getHeaders();
     }
 
     @Transactional
-    public void updateHeader(IAuditHeader auditHeader) {
+    public void updateHeader(AuditHeader auditHeader) {
         auditDAO.save(auditHeader);
     }
 
 
-    public IAuditLog getLastChange(String headerKey) {
-        IAuditHeader ah = getValidHeader(headerKey);
+    public AuditLog getLastChange(String headerKey) {
+        AuditHeader ah = getValidHeader(headerKey);
         return getLastChange(ah);
     }
 
-    public IAuditLog getLastChange(IAuditHeader auditHeader) {
+    public AuditLog getLastChange(AuditHeader auditHeader) {
         return auditDAO.getLastChange(auditHeader.getId());
     }
 
-    public Set<IAuditChange> getAuditLogs(String headerKey) {
+    public Set<AuditChange> getAuditLogs(String headerKey) {
         securityHelper.isValidUser();
-        IAuditHeader auditHeader = getValidHeader(headerKey);
+        AuditHeader auditHeader = getValidHeader(headerKey);
         return auditDAO.getAuditLogs(auditHeader.getId());
     }
 
-    public Set<IAuditChange> getAuditLogs(String headerKey, Date from, Date to) {
+    public Set<AuditChange> getAuditLogs(String headerKey, Date from, Date to) {
         securityHelper.isValidUser();
-        IAuditHeader auditHeader = getValidHeader(headerKey);
+        AuditHeader auditHeader = getValidHeader(headerKey);
         return getAuditLogs(auditHeader, from, to);
     }
 
-    protected Set<IAuditChange> getAuditLogs(IAuditHeader auditHeader, Date from, Date to) {
+    protected Set<AuditChange> getAuditLogs(AuditHeader auditHeader, Date from, Date to) {
         return auditDAO.getAuditLogs(auditHeader.getId(), from, to);
     }
 
@@ -469,26 +469,26 @@ public class AuditService {
     /**
      * This could be used toa assist in compensating transactions to roll back the last change
      * if the caller decides a rollback is required after the log has been written.
-     * If there are no IAuditChange records left, then the header will also be removed and the
+     * If there are no AuditChange records left, then the header will also be removed and the
      * AB headerKey will be forever invalid.
      *
      * @param headerKey UID of the header
      * @return the modified header record or null if no header exists.
      */
     @Transactional
-    public IAuditHeader cancelLastLog(String headerKey) throws IOException {
-        IAuditHeader auditHeader = getValidHeader(headerKey);
-        IAuditLog whenToDelete = getLastChange(auditHeader);
+    public AuditHeader cancelLastLog(String headerKey) throws IOException {
+        AuditHeader auditHeader = getValidHeader(headerKey);
+        AuditLog whenToDelete = getLastChange(auditHeader);
         if (whenToDelete == null)
             return null;
 
         auditDAO.delete(whenToDelete.getAuditChange());
 
-        IAuditLog newLastWhen = getLastChange(auditHeader);
+        AuditLog newLastWhen = getLastChange(auditHeader);
         if (newLastWhen == null)
             // No Log records exist. Delete the header??
             return null;
-        IAuditChange newLastChange = newLastWhen.getAuditChange();
+        AuditChange newLastChange = newLastWhen.getAuditChange();
         auditHeader = auditDAO.fetch(auditHeader);
         auditHeader.setLastUser(fortressService.getFortressUser(auditHeader.getFortress(), newLastChange.getWho().getName()));
         auditHeader = auditDAO.save(auditHeader);
@@ -511,18 +511,18 @@ public class AuditService {
      * @return count
      */
     public int getAuditLogCount(String headerKey) {
-        IAuditHeader auditHeader = getValidHeader(headerKey);
+        AuditHeader auditHeader = getValidHeader(headerKey);
         return auditDAO.getLogCount(auditHeader.getId());
 
     }
 
-    private IAuditHeader getValidHeader(String headerKey) {
-        IAuditHeader header = auditDAO.findHeader(headerKey);
+    private AuditHeader getValidHeader(String headerKey) {
+        AuditHeader header = auditDAO.findHeader(headerKey);
         if (header == null) {
             throw new IllegalArgumentException("No audit header for [" + headerKey + "]");
         }
         String userName = securityHelper.getLoggedInUser();
-        ISystemUser sysUser = sysUserService.findByName(userName);
+        SystemUser sysUser = sysUserService.findByName(userName);
 
         if (!header.getFortress().getCompany().getId().equals(sysUser.getCompany().getId())) {
             throw new SecurityException("Not authorised to work with this audit record");
@@ -531,24 +531,24 @@ public class AuditService {
 
     }
 
-    private IAuditHeader findByCallerRef(String fortress, String documentType, String callerRef) {
-        IFortress iFortress = fortressService.find(fortress);
+    private AuditHeader findByCallerRef(String fortress, String documentType, String callerRef) {
+        Fortress iFortress = fortressService.find(fortress);
         if (iFortress == null)
             return null;
 
         return findByCallerRef(iFortress.getId(), documentType, callerRef);
     }
 
-    public IAuditHeader findByCallerRef(Long fortressID, String documentType, String callerRef) {
+    public AuditHeader findByCallerRef(Long fortressID, String documentType, String callerRef) {
         String userName = securityHelper.getLoggedInUser();
 
-        ISystemUser su = sysUserService.findByName(userName);
+        SystemUser su = sysUserService.findByName(userName);
         if (su == null)
             throw new SecurityException("Not authorised");
 
-        IFortress fortress = fortressService.getFortress(fortressID);
+        Fortress fortress = fortressService.getFortress(fortressID);
         if (!fortress.getCompany().getId().equals(su.getCompany().getId()))
-            throw new SecurityException("User is not authorised to work with requested Fortress");
+            throw new SecurityException("User is not authorised to work with requested FortressNode");
 
         return auditDAO.findHeaderByCallerRef(fortress.getId(), documentType, callerRef.trim());
     }

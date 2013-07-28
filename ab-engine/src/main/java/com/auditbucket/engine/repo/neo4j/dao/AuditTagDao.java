@@ -19,12 +19,12 @@
 
 package com.auditbucket.engine.repo.neo4j.dao;
 
-import com.auditbucket.audit.model.IAuditHeader;
-import com.auditbucket.audit.model.ITagValue;
+import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.audit.model.TagValue;
 import com.auditbucket.dao.IAuditTagDao;
 import com.auditbucket.engine.repo.neo4j.AuditTagRepo;
-import com.auditbucket.engine.repo.neo4j.model.AuditTagValue;
-import com.auditbucket.registration.model.ITag;
+import com.auditbucket.engine.repo.neo4j.model.AuditTagRelationship;
+import com.auditbucket.registration.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
@@ -45,26 +45,26 @@ public class AuditTagDao implements IAuditTagDao {
     AuditTagRepo auditTagRepo;
 
     @Override
-    public ITagValue save(ITag tagName, IAuditHeader header, String tagValue) {
-        AuditTagValue atv = new AuditTagValue(tagName, header, tagValue);
+    public TagValue save(Tag tagName, AuditHeader header, String tagValue) {
+        AuditTagRelationship atv = new AuditTagRelationship(tagName, header, tagValue);
         return template.save(atv);
 
     }
 
     @Override
-    public Set<ITagValue> find(ITag tagName, String tagValue) {
+    public Set<TagValue> find(Tag tagName, String tagValue) {
         return auditTagRepo.findTagValues(tagName.getId(), tagValue);
     }
 
     @Override
-    public Set<ITagValue> getAuditTags(IAuditHeader ah) {
+    public Set<TagValue> getAuditTags(AuditHeader ah) {
         return auditTagRepo.findAuditTags(ah.getId());
     }
 
-    public void update(Set<ITagValue> newValues) {
-        //Set<ITagValue> existingTags = header.getTagValues();
-        for (ITagValue iTagValue : newValues) {
-            auditTagRepo.save((AuditTagValue) iTagValue);
+    public void update(Set<TagValue> newValues) {
+        //Set<TagValue> existingTags = header.getTagValues();
+        for (TagValue iTagValue : newValues) {
+            auditTagRepo.save((AuditTagRelationship) iTagValue);
         }
     }
 }

@@ -19,10 +19,10 @@
 
 package com.auditbucket.engine.repo.neo4j.model;
 
-import com.auditbucket.audit.model.IAuditHeader;
-import com.auditbucket.audit.model.ITxRef;
-import com.auditbucket.registration.model.ICompany;
-import com.auditbucket.registration.repo.neo4j.model.Company;
+import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.audit.model.TxRef;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.validator.constraints.NotBlank;
 import org.joda.time.DateTime;
@@ -39,17 +39,17 @@ import java.util.Set;
  * Time: 9:34 AM
  */
 @NodeEntity
-public class TxRef implements ITxRef {
+public class TxRefNode implements TxRef {
 
     @GraphId
     private Long id;
 
     @Fetch
-    @RelatedTo(elementClass = Company.class, type = "txTag", direction = Direction.INCOMING)
-    private Company company;
+    @RelatedTo(elementClass = CompanyNode.class, type = "txTag", direction = Direction.INCOMING)
+    private CompanyNode company;
 
-    @RelatedTo(elementClass = AuditHeader.class, type = "txIncludes")
-    private Set<IAuditHeader> auditHeaders;
+    @RelatedTo(elementClass = AuditHeaderNode.class, type = "txIncludes")
+    private Set<AuditHeader> auditHeaders;
 
     @Indexed(numeric = false, indexName = "tagName")
     private String name;
@@ -66,12 +66,12 @@ public class TxRef implements ITxRef {
         return txDate;
     }
 
-    protected TxRef() {
+    protected TxRefNode() {
     }
 
-    public TxRef(@NotNull @NotBlank String tagName, @NotNull ICompany company) {
+    public TxRefNode(@NotNull @NotBlank String tagName, @NotNull Company company) {
         this.name = tagName;
-        this.company = (Company) company;
+        this.company = (CompanyNode) company;
         setStatus(TxStatus.TX_CREATED);
 
     }
@@ -83,13 +83,13 @@ public class TxRef implements ITxRef {
 
     @Override
     @JsonIgnore
-    public ICompany getCompany() {
+    public Company getCompany() {
         return company;
     }
 
     @Override
     @JsonIgnore
-    public Set<IAuditHeader> getHeaders() {
+    public Set<AuditHeader> getHeaders() {
         return auditHeaders;
     }
 
@@ -116,7 +116,7 @@ public class TxRef implements ITxRef {
 
     @Override
     public String toString() {
-        return "TxRef{" +
+        return "TxRefNode{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", txStatus=" + txStatus +

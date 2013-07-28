@@ -19,16 +19,13 @@
 
 package com.auditbucket.registration.model;
 
-public interface IFortressUser {
+public interface CompanyUser {
+
+    public abstract void setCompany(Company company);
 
     public abstract String getName();
 
     public abstract void setName(String name);
 
-    public IFortress getFortress();
 
-    public void setFortress(IFortress fortress);
-
-
-    public Long getId();
 }

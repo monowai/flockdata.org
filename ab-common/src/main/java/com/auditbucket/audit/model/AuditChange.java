@@ -19,7 +19,7 @@
 
 package com.auditbucket.audit.model;
 
-import com.auditbucket.registration.model.IFortressUser;
+import com.auditbucket.registration.model.FortressUser;
 
 import java.util.Date;
 import java.util.Map;
@@ -29,14 +29,14 @@ import java.util.Map;
  * Date: 15/04/13
  * Time: 5:49 AM
  */
-public interface IAuditChange {
+public interface AuditChange {
 
     String CREATE = "Create";
     String UPDATE = "Update";
 
-    public abstract IAuditHeader getHeader();
+    public abstract AuditHeader getHeader();
 
-    public abstract IFortressUser getWho();
+    public abstract FortressUser getWho();
 
     public abstract Date getWhen();
 
@@ -70,7 +70,7 @@ public interface IAuditChange {
 
     String getName();
 
-    public void setTxRef(ITxRef txRef);
+    public void setTxRef(TxRef txRef);
 
     String getEvent();
 

@@ -20,11 +20,11 @@
 package com.auditbucket.registration.repo.neo4j.dao;
 
 import com.auditbucket.registration.dao.RegistrationDaoI;
-import com.auditbucket.registration.model.ICompany;
-import com.auditbucket.registration.model.IFortressUser;
-import com.auditbucket.registration.model.ISystemUser;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.FortressUser;
+import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.repo.neo4j.SystemUserRepository;
-import com.auditbucket.registration.repo.neo4j.model.SystemUser;
+import com.auditbucket.registration.repo.neo4j.model.SystemUserNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -40,21 +40,21 @@ public class RegistrationDaoImpl implements RegistrationDaoI {
     SystemUserRepository suRepo;
 
     @Override
-    public ISystemUser save(ISystemUser systemUser) {
-        return suRepo.save((SystemUser) systemUser);
+    public SystemUser save(SystemUser systemUser) {
+        return suRepo.save((SystemUserNode) systemUser);
     }
 
-    public ISystemUser findByPropertyValue(String name, Object value) {
+    public SystemUser findByPropertyValue(String name, Object value) {
         return suRepo.findByPropertyValue(name, value);
     }
 
     @Override
-    public ISystemUser save(ICompany company, String userName, String password) {
-        SystemUser su = new SystemUser(userName, password, company, true);
+    public SystemUser save(Company company, String userName, String password) {
+        SystemUserNode su = new SystemUserNode(userName, password, company, true);
         return save(su);
     }
 
-    public IFortressUser getFortressUser(String userName, String fortressName, String fortressUser) {
+    public FortressUser getFortressUser(String userName, String fortressName, String fortressUser) {
         return suRepo.getFortressUser(userName, fortressName, fortressUser);
     }
 }

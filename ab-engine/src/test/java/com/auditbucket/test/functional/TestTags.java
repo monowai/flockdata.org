@@ -21,9 +21,9 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
-import com.auditbucket.registration.model.ICompany;
-import com.auditbucket.registration.model.ISystemUser;
-import com.auditbucket.registration.model.ITag;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
@@ -83,12 +83,12 @@ public class TestTags {
 
     @org.junit.Test
     public void tagCreationAndSecurity() throws Exception {
-        ISystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         assertNotNull(iSystemUser);
 
-        ICompany iCompany = iSystemUser.getCompany();
+        Company iCompany = iSystemUser.getCompany();
 
-        ITag tagInput = new TagInputBean(iCompany, "FLOP");
+        Tag tagInput = new TagInputBean(iCompany, "FLOP");
         tagInput = tagService.processTag(tagInput);
         assertNotNull(tagInput);
         assertNotNull(tagInput.getCompany());
@@ -110,17 +110,17 @@ public class TestTags {
 
     @Test
     public void tagUpdate() throws Exception {
-        ISystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         assertNotNull(iSystemUser);
 
-        ICompany iCompany = iSystemUser.getCompany();
+        Company iCompany = iSystemUser.getCompany();
 
-        ITag tagInput = new TagInputBean(iCompany, "FLOP");
+        Tag tagInput = new TagInputBean(iCompany, "FLOP");
         tagInput = tagService.processTag(tagInput);
         assertNotNull(tagInput);
         assertNotNull(tagInput.getCompany());
         assertNull(tagService.findTag("ABC"));
-        ITag result = tagService.findTag("FLOP");
+        Tag result = tagService.findTag("FLOP");
         result.setName("FLOPPY");
         result = tagService.processTag(result);
         assertEquals("FLOPPY", result.getName());

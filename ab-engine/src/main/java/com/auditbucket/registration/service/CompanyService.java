@@ -21,10 +21,10 @@ package com.auditbucket.registration.service;
 
 
 import com.auditbucket.registration.dao.CompanyDaoI;
-import com.auditbucket.registration.model.ICompany;
-import com.auditbucket.registration.model.ICompanyUser;
-import com.auditbucket.registration.model.IFortress;
-import com.auditbucket.registration.model.ISystemUser;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.CompanyUser;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.SystemUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,48 +36,48 @@ public class CompanyService {
     private CompanyDaoI companyDao;
 
 
-    public ICompany findByName(String companyName) {
+    public Company findByName(String companyName) {
         return companyDao.findByPropertyValue("name", companyName);
     }
 
-    public ICompanyUser getCompanyUser(ICompany company, String userName) {
+    public CompanyUser getCompanyUser(Company company, String userName) {
         return companyDao.getCompanyUser(company.getId(), userName);
 
     }
 
-    public ICompanyUser getCompanyUser(String companyName, String userName) {
-        ICompany company = findByName(companyName);
+    public CompanyUser getCompanyUser(String companyName, String userName) {
+        Company company = findByName(companyName);
         if (company == null)
             return null;
         return companyDao.getCompanyUser(company.getId(), userName);
 
     }
 
-    public IFortress getCompanyFortress(ICompany company, String fortressName) {
+    public Fortress getCompanyFortress(Company company, String fortressName) {
         return companyDao.getFortress(company.getId(), fortressName);
     }
 
 
-    public ICompany save(ICompany company) {
+    public Company save(Company company) {
         return companyDao.save(company);
     }
 
 
-    public Iterable<ICompanyUser> getUsers(String companyName) {
+    public Iterable<CompanyUser> getUsers(String companyName) {
         return companyDao.getCompanyUsers(companyName);
     }
 
 
-    public IFortress getFortress(ICompany company, String name) {
+    public Fortress getFortress(Company company, String name) {
         return companyDao.getFortress(company.getId(), name);
     }
 
-    public ISystemUser getAdminUser(ICompany company, String name) {
+    public SystemUser getAdminUser(Company company, String name) {
         return companyDao.getAdminUser(company.getId(), name);
     }
 
 
-    public ICompanyUser save(ICompanyUser companyUser) {
+    public CompanyUser save(CompanyUser companyUser) {
         return companyDao.save(companyUser);
     }
 

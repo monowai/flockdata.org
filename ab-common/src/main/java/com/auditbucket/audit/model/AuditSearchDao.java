@@ -26,21 +26,21 @@ import java.util.Map;
  * Date: 26/04/13
  * Time: 12:26 PM
  */
-public interface IAuditSearchDao {
+public interface AuditSearchDao {
     /**
      * creates a search document for the first time
      *
      * @param auditChange values to create from
      * @return the search document created from the auditChange
      */
-    ISearchChange save(ISearchChange auditChange);
+    SearchChange save(SearchChange auditChange);
 
     /**
      * Rewrites an existing document
      *
      * @param auditChange values to update from
      */
-    void update(ISearchChange auditChange);
+    void update(SearchChange auditChange);
 
     /**
      * locates a document by AuditHeader.searchKey
@@ -48,7 +48,7 @@ public interface IAuditSearchDao {
      * @param header auditHeader
      * @return document context as bytes
      */
-    public byte[] findOne(IAuditHeader header);
+    public byte[] findOne(AuditHeader header);
 
     /**
      * Locates a specific key monitored by the header.
@@ -58,17 +58,17 @@ public interface IAuditSearchDao {
      *
      * @return found audit change or null if none
      */
-    byte[] findOne(IAuditHeader header, String id);
+    byte[] findOne(AuditHeader header, String id);
 
     /**
      * Removes a search document. Most of the time, the searchKey in the header
      * is sufficient. However if you are tracking EVERY change in the search engine, then you
      * can delete a specific instance
      *
-     * @param header           IAuditHeader that the change belongs to
+     * @param header           AuditHeader that the change belongs to
      * @param existingIndexKey searchKey for the header to remove. if NULL, defaults to header.getSearchKey()
      */
-    void delete(IAuditHeader header, String existingIndexKey);
+    void delete(AuditHeader header, String existingIndexKey);
 
     Map<String, Object> ping();
 }

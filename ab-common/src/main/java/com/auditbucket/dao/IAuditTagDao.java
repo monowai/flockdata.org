@@ -19,9 +19,9 @@
 
 package com.auditbucket.dao;
 
-import com.auditbucket.audit.model.IAuditHeader;
-import com.auditbucket.audit.model.ITagValue;
-import com.auditbucket.registration.model.ITag;
+import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.audit.model.TagValue;
+import com.auditbucket.registration.model.Tag;
 
 import java.util.Set;
 
@@ -31,11 +31,11 @@ import java.util.Set;
  * Time: 9:55 AM
  */
 public interface IAuditTagDao {
-    ITagValue save(ITag tagName, IAuditHeader header, String tagValue);
+    TagValue save(Tag tagName, AuditHeader header, String tagValue);
 
-    Set<ITagValue> find(ITag tagName, String tagValue);
+    Set<TagValue> find(Tag tagName, String tagValue);
 
-    Set<ITagValue> getAuditTags(IAuditHeader ah);
+    Set<TagValue> getAuditTags(AuditHeader ah);
 
-    void update(Set<ITagValue> modifiedSet);
+    void update(Set<TagValue> modifiedSet);
 }

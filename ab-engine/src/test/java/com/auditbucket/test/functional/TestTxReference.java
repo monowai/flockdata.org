@@ -19,15 +19,15 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.audit.model.IAuditChange;
-import com.auditbucket.audit.model.IAuditHeader;
+import com.auditbucket.audit.model.AuditChange;
+import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditResultBean;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.registration.bean.RegistrationBean;
-import com.auditbucket.registration.model.IFortress;
-import com.auditbucket.registration.model.ISystemUser;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import org.joda.time.DateTime;
@@ -91,14 +91,14 @@ public class TestTxReference {
 
     @Test
     public void testAuthorisedToViewTransaction() throws Exception {
-        ISystemUser suABC = regService.registerSystemUser(new RegistrationBean("ABC", "mike@monowai.com", "bah"));
-        ISystemUser suCBA = regService.registerSystemUser(new RegistrationBean("CBA", "null@monowai.com", "bah"));
+        SystemUser suABC = regService.registerSystemUser(new RegistrationBean("ABC", "mike@monowai.com", "bah"));
+        SystemUser suCBA = regService.registerSystemUser(new RegistrationBean("CBA", "null@monowai.com", "bah"));
 
         Authentication authABC = new UsernamePasswordAuthenticationToken(suABC.getName(), "user1");
         Authentication authCBA = new UsernamePasswordAuthenticationToken(suCBA.getName(), "user1");
 
 // ABC Data
-        IFortress fortressABC = fortressService.registerFortress("abcTest");
+        Fortress fortressABC = fortressService.registerFortress("abcTest");
         AuditHeaderInputBean abcHeader = new AuditHeaderInputBean(fortressABC.getName(), "wally", "TestAudit", new Date(), "ABC123");
         abcHeader.setAuditLog(new AuditLogInputBean(null, "charlie", DateTime.now(), escJsonA, true));
 
@@ -112,7 +112,7 @@ public class TestTxReference {
 
 // CBA data
         SecurityContextHolder.getContext().setAuthentication(authCBA);
-        IFortress fortressCBA = fortressService.registerFortress("cbaTest");
+        Fortress fortressCBA = fortressService.registerFortress("cbaTest");
         AuditHeaderInputBean cbaHeader = new AuditHeaderInputBean(fortressCBA.getName(), "wally", "TestAudit", new Date(), "ABC123");
         String cbaKey = auditService.createHeader(cbaHeader).getAuditKey();
 
@@ -146,13 +146,13 @@ public class TestTxReference {
     public void testTxCommits() throws Exception {
         String company = "Monowai";
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
-        IFortress fortressA = fortressService.registerFortress("auditTest");
+        Fortress fortressA = fortressService.registerFortress("auditTest");
         String tagRef = "MyTXTag";
         AuditHeaderInputBean aBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new Date(), "ABC123");
 
         String key = auditService.createHeader(aBean).getAuditKey();
         assertNotNull(key);
-        IAuditHeader header = auditService.getHeader(key, true);
+        AuditHeader header = auditService.getHeader(key, true);
         assertNotNull(header);
         //assertEquals(1, header.getTxTags().size());
         AuditLogInputBean alb = new AuditLogInputBean(key, "charlie", DateTime.now(), escJsonA, null, tagRef);
@@ -169,7 +169,7 @@ public class TestTxReference {
         Map<String, Object> result = auditService.findByTXRef(txStart);
         assertNotNull(result);
         assertEquals(tagRef, result.get("txRef"));
-        Collection<IAuditChange> logs = (Collection<IAuditChange>) result.get("logs");
+        Collection<AuditChange> logs = (Collection<AuditChange>) result.get("logs");
         assertNotNull(logs);
         assertEquals(2, logs.size());
 
@@ -188,14 +188,14 @@ public class TestTxReference {
         result = auditService.findByTXRef(txStart);
         assertNotNull(result);
         assertEquals(tagRef, result.get("txRef"));
-        logs = (Collection<IAuditChange>) result.get("logs");
+        logs = (Collection<AuditChange>) result.get("logs");
         assertNotNull(logs);
         assertEquals(2, logs.size());
 
         result = auditService.findByTXRef(txEnd);
         assertNotNull(result);
         assertEquals(txEnd, result.get("txRef"));
-        logs = (Collection<IAuditChange>) result.get("logs");
+        logs = (Collection<AuditChange>) result.get("logs");
         assertNotNull(logs);
         assertEquals(1, logs.size());
 

@@ -17,33 +17,32 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.registration.model;
+package com.auditbucket.audit.model;
 
+import com.auditbucket.registration.model.Company;
 
-public interface IFortress {
+import java.util.Set;
 
-    public abstract Long getId();
+/**
+ * User: Mike Holdsworth
+ * Date: 14/06/13
+ * Time: 9:11 AM
+ */
+public interface TxRef {
 
-    public abstract String getName();
+    public String getName();
 
-    public abstract void setName(String name);
+    public Company getCompany();
 
-    public abstract ICompany getCompany();
+    public Set<AuditHeader> getHeaders();
 
-    public abstract void setCompany(ICompany ownedBy);
+    Long getId();
 
-    public String getFortressKey();
+    public TxStatus getTxStatus();
 
-    /**
-     * Are changes logged against this fortress accumulated or updated in the search engine
-     *
-     * @return boolean
-     */
-    public Boolean isAccumulatingChanges();
+    public long getTxDate();
 
-    public Boolean isSearchActive();
-
-    public void setAccumulatingChanges(Boolean accumulateChanges);
-
-    public void setIgnoreSearchEngine(Boolean ignoreSearchEngine);
+    enum TxStatus {
+        TX_CREATED, TX_ROLLBACK, TX_COMMITTED;
+    }
 }

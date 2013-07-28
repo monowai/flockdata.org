@@ -19,14 +19,14 @@
 
 package com.auditbucket.engine.repo.neo4j.model;
 
-import com.auditbucket.audit.model.IAuditHeader;
-import com.auditbucket.audit.model.IAuditChange;
-import com.auditbucket.audit.model.ITxRef;
+import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.audit.model.AuditChange;
+import com.auditbucket.audit.model.TxRef;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.helper.CompressionResult;
-import com.auditbucket.registration.model.IFortressUser;
-import com.auditbucket.registration.repo.neo4j.model.FortressUser;
+import com.auditbucket.registration.model.FortressUser;
+import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTime;
@@ -45,16 +45,16 @@ import java.util.Map;
  * Time: 5:57 AM
  */
 @NodeEntity(useShortNames = true)
-public class AuditChange implements IAuditChange {
+public class AuditChangeNode implements AuditChange {
     @GraphId
     private Long id;
 
-    @RelatedTo(elementClass = FortressUser.class, type = "changed", direction = Direction.INCOMING, enforceTargetType = true)
+    @RelatedTo(elementClass = FortressUserNode.class, type = "changed", direction = Direction.INCOMING, enforceTargetType = true)
     @Fetch
-    private FortressUser madeBy;
+    private FortressUserNode madeBy;
 
-    @RelatedTo(elementClass = TxRef.class, type = "txIncludes", direction = Direction.INCOMING, enforceTargetType = true)
-    private ITxRef txRef;
+    @RelatedTo(elementClass = TxRefNode.class, type = "txIncludes", direction = Direction.INCOMING, enforceTargetType = true)
+    private TxRef txRef;
 
     static ObjectMapper om = new ObjectMapper();
 
@@ -72,14 +72,14 @@ public class AuditChange implements IAuditChange {
     private String searchKey;
 
 
-    protected AuditChange() {
+    protected AuditChangeNode() {
         DateTime now = new DateTime().toDateTime(DateTimeZone.UTC);
         sysWhen = now.toDate().getTime();
     }
 
-    public AuditChange(IFortressUser madeBy, DateTime fortressWhen, AuditLogInputBean inputBean) {
+    public AuditChangeNode(FortressUser madeBy, DateTime fortressWhen, AuditLogInputBean inputBean) {
         this();
-        this.madeBy = (FortressUser) madeBy;
+        this.madeBy = (FortressUserNode) madeBy;
         if (fortressWhen != null && fortressWhen.getMillis() != 0) {
             this.when = fortressWhen.getMillis();
         } else {
@@ -97,7 +97,7 @@ public class AuditChange implements IAuditChange {
 
 
     @JsonIgnore
-    public IAuditHeader getHeader() {
+    public AuditHeader getHeader() {
         //return auditHeader;
         return null;
     }
@@ -108,7 +108,7 @@ public class AuditChange implements IAuditChange {
     }
 
 
-    public IFortressUser getWho() {
+    public FortressUser getWho() {
         return madeBy;
     }
 
@@ -172,7 +172,7 @@ public class AuditChange implements IAuditChange {
         return mWhat;
     }
 
-    public void setTxRef(ITxRef txRef) {
+    public void setTxRef(TxRef txRef) {
         this.txRef = txRef;
     }
 

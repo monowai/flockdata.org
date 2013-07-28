@@ -19,7 +19,7 @@
 
 package com.auditbucket.bean;
 
-import com.auditbucket.audit.model.IAuditHeader;
+import com.auditbucket.audit.model.AuditHeader;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
@@ -49,7 +49,7 @@ public class AuditResultBean {
         this.txReference = txReference;
     }
 
-    public AuditResultBean(IAuditHeader input, String txReference) {
+    public AuditResultBean(AuditHeader input, String txReference) {
         this(input.getFortress().getName(), input.getDocumentType(), input.getCallerRef(), input.getAuditKey(), txReference);
     }
 

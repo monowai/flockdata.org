@@ -28,7 +28,7 @@ import java.util.Map;
  * Date: 21/04/13
  * Time: 7:44 PM
  */
-public interface ISearchChange {
+public interface SearchChange {
     /**
      * @return search keys unique document identifier
      */

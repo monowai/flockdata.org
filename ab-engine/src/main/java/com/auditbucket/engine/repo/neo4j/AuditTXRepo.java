@@ -19,8 +19,8 @@
 
 package com.auditbucket.engine.repo.neo4j;
 
-import com.auditbucket.audit.model.ITxRef;
-import com.auditbucket.engine.repo.neo4j.model.TxRef;
+import com.auditbucket.audit.model.TxRef;
+import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
@@ -30,7 +30,7 @@ import org.springframework.data.neo4j.repository.GraphRepository;
  * Time: 10:12 AM
  */
 public interface AuditTXRepo extends GraphRepository<AuditTXRepo> {
-    @Query(elementClass = TxRef.class, value = "start header=node({0}) match header<-[cw:changed|created]-byUser return cw")
-    ITxRef getTxRef(Long auditHeaderID);
+    @Query(elementClass = TxRefNode.class, value = "start header=node({0}) match header<-[cw:changed|created]-byUser return cw")
+    TxRef getTxRef(Long auditHeaderID);
 
 }

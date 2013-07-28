@@ -21,8 +21,8 @@ package com.auditbucket.registration.endpoint;
 
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.model.IFortress;
-import com.auditbucket.registration.model.IFortressUser;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,20 +52,20 @@ public class FortressEP {
 
     @RequestMapping(value = "/{fortressName}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<IFortress> getFortresses(@PathVariable("fortressName") String fortressName) throws Exception {
+    public ResponseEntity<Fortress> getFortresses(@PathVariable("fortressName") String fortressName) throws Exception {
         // curl -u mike:123 -X GET  http://localhost:8080/ab/fortress/ABC
-        IFortress fortress = fortressService.find(fortressName);
+        Fortress fortress = fortressService.find(fortressName);
         if (fortress == null)
-            return new ResponseEntity<IFortress>(fortress, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<Fortress>(fortress, HttpStatus.NOT_FOUND);
         else
-            return new ResponseEntity<IFortress>(fortress, HttpStatus.OK);
+            return new ResponseEntity<Fortress>(fortress, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/new", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
     @Transactional
     @ResponseBody
     public ResponseEntity<FortressInputBean> addFortresses(@RequestBody FortressInputBean fortressInputBean) throws Exception {
-        IFortress fortress = fortressService.registerFortress(fortressInputBean);
+        Fortress fortress = fortressService.registerFortress(fortressInputBean);
 
         if (fortress == null) {
             fortressInputBean.setMessage("Unable to create fortress");
@@ -80,14 +80,14 @@ public class FortressEP {
 
     @RequestMapping(value = "/{fortressName}/{user}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<IFortressUser> getFortressUsers(@PathVariable("fortressName") String fortressName, @PathVariable("userName") String userName) throws Exception {
-        IFortressUser result = null;
-        IFortress fortress = fortressService.find(fortressName);
+    public ResponseEntity<FortressUser> getFortressUsers(@PathVariable("fortressName") String fortressName, @PathVariable("userName") String userName) throws Exception {
+        FortressUser result = null;
+        Fortress fortress = fortressService.find(fortressName);
 
         if (fortress == null) {
-            return new ResponseEntity<IFortressUser>(result, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<FortressUser>(result, HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<IFortressUser>(fortressService.getFortressUser(fortress, userName), HttpStatus.OK);
+        return new ResponseEntity<FortressUser>(fortressService.getFortressUser(fortress, userName), HttpStatus.OK);
     }
 
 }

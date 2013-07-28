@@ -22,12 +22,12 @@ package com.auditbucket.registration.service;
 
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.RegistrationBean;
-import com.auditbucket.registration.model.ICompany;
-import com.auditbucket.registration.model.ICompanyUser;
-import com.auditbucket.registration.model.ISystemUser;
-import com.auditbucket.registration.repo.neo4j.model.Company;
-import com.auditbucket.registration.repo.neo4j.model.CompanyUser;
-import com.auditbucket.registration.repo.neo4j.model.SystemUser;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.CompanyUser;
+import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
+import com.auditbucket.registration.repo.neo4j.model.CompanyUserNode;
+import com.auditbucket.registration.repo.neo4j.model.SystemUserNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,18 +44,18 @@ public class RegistrationService {
     @Autowired
     private SecurityHelper securityHelper;
 
-    private static ISystemUser GUEST = new SystemUser("Guest", null, null, false);
+    private static SystemUser GUEST = new SystemUserNode("Guest", null, null, false);
 
     @Transactional
-    public ISystemUser registerSystemUser(RegistrationBean regBean) {
-        ISystemUser systemUser = systemUserService.findByName(regBean.getName());
+    public SystemUser registerSystemUser(RegistrationBean regBean) {
+        SystemUser systemUser = systemUserService.findByName(regBean.getName());
 
         if (systemUser != null)
             return systemUser;
 
-        ICompany company = companyService.findByName(regBean.getCompanyName());
+        Company company = companyService.findByName(regBean.getCompanyName());
         if (company == null) {
-            company = new Company(regBean.getCompanyName());
+            company = new CompanyNode(regBean.getCompanyName());
             company = companyService.save(company);
         }
         regBean.setCompany(company);
@@ -66,41 +66,41 @@ public class RegistrationService {
     }
 
     @Transactional
-    public ICompanyUser addCompanyUser(String companyUser, String companyName) {
+    public CompanyUser addCompanyUser(String companyUser, String companyName) {
         String systemUser = securityHelper.isValidUser();
-        ICompany company = companyService.findByName(companyName);
+        Company company = companyService.findByName(companyName);
 
         if (company == null) {
-            throw new IllegalArgumentException("Company does not exist");
+            throw new IllegalArgumentException("CompanyNode does not exist");
         }
 
         isAdminUser(company, "[" + systemUser + "] is not authorised to add company user records for [" + companyName + "]");
 
-        ICompanyUser iCompanyUser = companyService.getCompanyUser(company, companyUser);
+        CompanyUser iCompanyUser = companyService.getCompanyUser(company, companyUser);
         if (iCompanyUser == null) {
-            iCompanyUser = companyService.save(new CompanyUser(companyUser, company));
+            iCompanyUser = companyService.save(new CompanyUserNode(companyUser, company));
         }
 
         return iCompanyUser;
     }
 
 
-    public ISystemUser isAdminUser(ICompany company, String message) {
+    public SystemUser isAdminUser(Company company, String message) {
         String systemUser = securityHelper.isValidUser();
-        ISystemUser adminUser = companyService.getAdminUser(company, systemUser);
+        SystemUser adminUser = companyService.getAdminUser(company, systemUser);
         if (adminUser == null)
             throw new IllegalArgumentException(message);
         return adminUser;
     }
 
     /**
-     * @return currently logged-in ISystemUser or Guest if anonymous
+     * @return currently logged-in SystemUser or Guest if anonymous
      */
-    public ISystemUser getSystemUser() {
+    public SystemUser getSystemUser() {
         String systemUser = securityHelper.getUserName(false, false);
         if (systemUser == null)
             return GUEST;
-        ISystemUser iSystemUser = systemUserService.findByName(systemUser);
+        SystemUser iSystemUser = systemUserService.findByName(systemUser);
         if (iSystemUser == null) {
             return GUEST;
         } else {

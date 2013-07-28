@@ -19,25 +19,16 @@
 
 package com.auditbucket.audit.model;
 
+import com.auditbucket.registration.model.Company;
+
 /**
  * User: Mike Holdsworth
- * Date: 21/06/13
- * Time: 1:21 PM
+ * Date: 30/06/13
+ * Time: 10:06 AM
  */
-public interface IAuditLog {
+public interface DocumentType {
 
-    public IAuditChange getAuditChange();
+    public String getName();
 
-    public IAuditHeader getAuditHeader();
-
-    public boolean isIndexed();
-
-    /**
-     * flags this audit as having been indexed at some point.
-     */
-    public void setIsIndexed();
-
-    public Long getSysWhen();
-
-    public Long getFortressWhen();
+    public Company getCompany();
 }

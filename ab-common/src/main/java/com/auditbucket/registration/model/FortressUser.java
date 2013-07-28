@@ -17,18 +17,18 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.audit.model;
+package com.auditbucket.registration.model;
 
-import com.auditbucket.registration.model.ICompany;
+public interface FortressUser {
 
-/**
- * User: Mike Holdsworth
- * Date: 30/06/13
- * Time: 10:06 AM
- */
-public interface IDocumentType {
+    public abstract String getName();
 
-    public String getName();
+    public abstract void setName(String name);
 
-    public ICompany getCompany();
+    public Fortress getFortress();
+
+    public void setFortress(Fortress fortress);
+
+
+    public Long getId();
 }

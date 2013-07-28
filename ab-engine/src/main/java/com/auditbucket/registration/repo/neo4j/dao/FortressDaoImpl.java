@@ -20,12 +20,12 @@
 package com.auditbucket.registration.repo.neo4j.dao;
 
 import com.auditbucket.registration.dao.FortressDaoI;
-import com.auditbucket.registration.model.IFortress;
-import com.auditbucket.registration.model.IFortressUser;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.repo.neo4j.FortressRepository;
 import com.auditbucket.registration.repo.neo4j.FortressUserRepository;
-import com.auditbucket.registration.repo.neo4j.model.Fortress;
-import com.auditbucket.registration.repo.neo4j.model.FortressUser;
+import com.auditbucket.registration.repo.neo4j.model.FortressNode;
+import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
@@ -45,17 +45,17 @@ public class FortressDaoImpl implements FortressDaoI {
     private FortressUserRepository fortressUserRepo;
 
     @Override
-    public IFortress save(IFortress fortress) {
-        return fortressRepo.save((Fortress) fortress);
+    public Fortress save(Fortress fortress) {
+        return fortressRepo.save((FortressNode) fortress);
     }
 
     @Override
-    public IFortress findByPropertyValue(String name, Object value) {
+    public Fortress findByPropertyValue(String name, Object value) {
         return fortressRepo.findByPropertyValue(name, value);
     }
 
     @Override
-    public IFortress findOne(Long id) {
+    public Fortress findOne(Long id) {
         return fortressRepo.findOne(id);
     }
 
@@ -63,15 +63,15 @@ public class FortressDaoImpl implements FortressDaoI {
     Neo4jTemplate template;
 
     @Override
-    public IFortressUser getFortressUser(Long id, String name) {
-        IFortressUser fu = fortressRepo.getFortressUser(id, name);
+    public FortressUser getFortressUser(Long id, String name) {
+        FortressUser fu = fortressRepo.getFortressUser(id, name);
         if (fu != null)
             template.fetch(fu.getFortress());
         return fu;
     }
 
     @Override
-    public List<IFortress> findFortresses(Long companyID) {
+    public List<Fortress> findFortresses(Long companyID) {
 
 //        TraversalDescription td = Traversal.description()
 //                .breadthFirst()
@@ -84,13 +84,13 @@ public class FortressDaoImpl implements FortressDaoI {
     }
 
     @Override
-    public IFortressUser findOneUser(Long id) {
+    public FortressUser findOneUser(Long id) {
         return fortressUserRepo.findOne(id);
     }
 
     @Override
-    public IFortressUser save(IFortressUser fortressUser) {
-        return fortressUserRepo.save((FortressUser) fortressUser);
+    public FortressUser save(FortressUser fortressUser) {
+        return fortressUserRepo.save((FortressUserNode) fortressUser);
     }
 
 

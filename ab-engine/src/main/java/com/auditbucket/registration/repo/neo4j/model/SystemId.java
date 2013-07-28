@@ -19,8 +19,7 @@
 
 package com.auditbucket.registration.repo.neo4j.model;
 
-import com.auditbucket.registration.model.ISystem;
-import com.auditbucket.registration.model.ISystemUser;
+import com.auditbucket.registration.model.*;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
@@ -39,8 +38,8 @@ public class SystemId implements ISystem {
     @GraphId
     Long Id;
 
-    @RelatedTo(elementClass = SystemUser.class, type = "administers", direction = Direction.OUTGOING)
-    Set<ISystemUser> systemUsers;
+    @RelatedTo(elementClass = SystemUserNode.class, type = "administers", direction = Direction.OUTGOING)
+    Set<SystemUser> systemUsers;
 
     @Indexed(indexName = "systemName")
     private String name;
@@ -62,7 +61,7 @@ public class SystemId implements ISystem {
         return Id;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Set<ISystemUser> getSystemUsers() {
+    public Set<SystemUser> getSystemUsers() {
         return systemUsers;
     }
 

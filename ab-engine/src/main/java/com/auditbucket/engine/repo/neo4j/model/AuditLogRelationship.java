@@ -19,9 +19,9 @@
 
 package com.auditbucket.engine.repo.neo4j.model;
 
-import com.auditbucket.audit.model.IAuditChange;
-import com.auditbucket.audit.model.IAuditHeader;
-import com.auditbucket.audit.model.IAuditLog;
+import com.auditbucket.audit.model.AuditChange;
+import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.audit.model.AuditLog;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.neo4j.annotation.*;
 
@@ -31,15 +31,15 @@ import org.springframework.data.neo4j.annotation.*;
  * Time: 4:12 PM
  */
 @RelationshipEntity(type = "logged")
-public class AuditLog implements IAuditLog {
+public class AuditLogRelationship implements AuditLog {
     @GraphId
     private Long id;
 
     @EndNode
-    private AuditChange auditChange;
+    private AuditChangeNode auditChange;
 
     @StartNode
-    private AuditHeader auditHeader;
+    private AuditHeaderNode auditHeader;
 
     @Indexed(indexName = "sysWhen", numeric = true)
     private Long sysWhen = 0l;
@@ -51,13 +51,13 @@ public class AuditLog implements IAuditLog {
     private boolean indexed = false;
 
 
-    protected AuditLog() {
+    protected AuditLogRelationship() {
     }
 
-    public AuditLog(IAuditHeader header, IAuditChange log) {
+    public AuditLogRelationship(AuditHeader header, AuditChange log) {
         this();
-        this.auditHeader = (AuditHeader) header;
-        this.auditChange = (AuditChange) log;
+        this.auditHeader = (AuditHeaderNode) header;
+        this.auditChange = (AuditChangeNode) log;
         // ToDo: denormalisation here; storing the times in the relationships and the node
         this.sysWhen = log.getSysWhen().getTime();
         this.fortressWhen = log.getWhen().getTime();
@@ -77,16 +77,16 @@ public class AuditLog implements IAuditLog {
     }
 
     @JsonIgnore
-    public IAuditChange getAuditChange() {
+    public AuditChange getAuditChange() {
         return auditChange;
     }
 
     @JsonIgnore
-    public IAuditHeader getAuditHeader() {
+    public AuditHeader getAuditHeader() {
         return auditHeader;
     }
 
-    public void setChange(AuditChange auditLog) {
+    public void setChange(AuditChangeNode auditLog) {
         this.auditChange = auditLog;
     }
 

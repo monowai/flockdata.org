@@ -21,9 +21,9 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.engine.service.GitHandler;
 import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.model.IFortress;
-import com.auditbucket.registration.repo.neo4j.model.Company;
-import com.auditbucket.registration.repo.neo4j.model.Fortress;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
+import com.auditbucket.registration.repo.neo4j.model.FortressNode;
 
 /**
  * Created with IntelliJ IDEA.
@@ -35,7 +35,7 @@ import com.auditbucket.registration.repo.neo4j.model.Fortress;
 public class TestGitHub {
     public void testConnect() {
         GitHandler gh = new GitHandler();
-        IFortress fortress = new Fortress(new FortressInputBean("monowai"), new Company("Monowai Dev"));
+        Fortress fortress = new FortressNode(new FortressInputBean("monowai"), new CompanyNode("Monowai Dev"));
         gh.initHandler(fortress);
         gh.deleteRepo(fortress);
     }

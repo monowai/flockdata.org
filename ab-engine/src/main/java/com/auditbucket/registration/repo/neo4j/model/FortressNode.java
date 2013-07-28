@@ -20,8 +20,8 @@
 package com.auditbucket.registration.repo.neo4j.model;
 
 import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.model.ICompany;
-import com.auditbucket.registration.model.IFortress;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.Fortress;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.*;
@@ -29,7 +29,7 @@ import org.springframework.data.neo4j.annotation.*;
 import java.util.UUID;
 
 @NodeEntity
-public class Fortress implements IFortress {
+public class FortressNode implements Fortress {
 
     private UUID fortressKey;
 
@@ -41,15 +41,15 @@ public class Fortress implements IFortress {
 
     @Fetch
     @RelatedTo(type = "owns", direction = Direction.INCOMING)
-    Company company;
+    CompanyNode company;
 
     private Boolean accumulatingChanges = false;
     private Boolean ignoreSearchEngine = true;
 
-    public Fortress() {
+    public FortressNode() {
     }
 
-    public Fortress(FortressInputBean fortressInputBean, ICompany ownedBy) {
+    public FortressNode(FortressInputBean fortressInputBean, Company ownedBy) {
         setName(fortressInputBean.getName());
         setIgnoreSearchEngine(fortressInputBean.getSearchActive());
         setCompany(ownedBy);
@@ -75,13 +75,13 @@ public class Fortress implements IFortress {
 
     @Override
     @JsonIgnore
-    public ICompany getCompany() {
+    public Company getCompany() {
         return company;
     }
 
     @Override
-    public void setCompany(ICompany ownedBy) {
-        this.company = (Company) ownedBy;
+    public void setCompany(Company ownedBy) {
+        this.company = (CompanyNode) ownedBy;
 
     }
 
@@ -107,7 +107,7 @@ public class Fortress implements IFortress {
 
     @Override
     public String toString() {
-        return "Fortress{" +
+        return "FortressNode{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 '}';

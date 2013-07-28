@@ -19,17 +19,17 @@
 
 package com.auditbucket.audit.model;
 
-import com.auditbucket.registration.model.IFortress;
-import com.auditbucket.registration.model.IFortressUser;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.FortressUser;
 
 import java.util.Map;
 import java.util.Set;
 
-public interface IAuditHeader {
+public interface AuditHeader {
 
     public abstract Long getId();
 
-    public abstract IFortress getFortress();
+    public abstract Fortress getFortress();
 
     public abstract String getDocumentType();
 
@@ -41,23 +41,23 @@ public interface IAuditHeader {
     /**
      * @return last fortress user to modify this record
      */
-    public IFortressUser getLastUser();
+    public FortressUser getLastUser();
 
     public long getLastUpdated();
 
-    public void setLastUser(IFortressUser user);
+    public void setLastUser(FortressUser user);
 
     /**
      * @return fortress user who create the record
      */
-    public IFortressUser getCreatedBy();
+    public FortressUser getCreatedBy();
 
     /**
      * Who created this record
      *
      * @param user Fortress User who created this record
      */
-    public void setCreatedUser(IFortressUser user);
+    public void setCreatedUser(FortressUser user);
 
     /**
      * @return the index name to use for subsequent changes
@@ -74,7 +74,7 @@ public interface IAuditHeader {
      */
     void bumpUpdate();
 
-    Set<IAuditLog> getAuditLogs();
+    Set<AuditLog> getAuditLogs();
 
     void setSearchKey(String parentKey);
 
@@ -85,7 +85,7 @@ public interface IAuditHeader {
 
     String getCallerRef();
 
-    public Set<ITagValue> getTagValues();
+    public Set<TagValue> getTagValues();
 
     Map<String, Object> getTagMap();
 }
