@@ -74,7 +74,7 @@ public interface IAuditDao {
      */
     public AuditLog getChange(Long auditHeaderID, long sysWhen);
 
-    Set<AuditChange> getAuditLogs(Long headerKey, Date from, Date to);
+    Set<AuditLog> getAuditLogs(Long headerKey, Date from, Date to);
 
     Set<AuditLog> getAuditLogs(Long auditHeaderID);
 

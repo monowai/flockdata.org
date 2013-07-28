@@ -38,14 +38,14 @@ public interface AuditLogRepo extends GraphRepository<AuditChangeNode> {
     @Query(value = "start auditHeader=node({0}) match auditHeader-[cw:logged]->auditLog return count(cw)")
     int getLogCount(Long auditHeaderID);
 
-    @Query(elementClass = AuditChangeNode.class, value = "start header=node({0}) match header-[cw:changed|created]-byUser return cw")
-    Set<AuditChange> getAuditLogs(Long auditHeaderID);
+//    @Query(elementClass = AuditChangeNode.class, value = "start header=node({0}) match header-[cw:changed|created]-byUser return cw")
+//    Set<AuditChange> getAuditLogs(Long auditHeaderID);
 
     @Query(elementClass = AuditLogRelationship.class, value = "start header=node({0}) match header-[log:logged]->auditLog return log order by log.sysWhen DESC limit 1")
     AuditLogRelationship getLastChange(Long auditHeaderID);
 
-    @Query(elementClass = AuditChangeNode.class, value = "start header=node({0}) match header-[log:logged]->auditLog where log.fortressWhen >= {1} and log.fortressWhen <= {2} return auditLog ")
-    Set<AuditChange> getAuditLogs(Long auditHeaderID, Long from, Long to);
+    @Query(elementClass = AuditLogRelationship.class, value = "start header=node({0}) match header-[log:logged]->auditLog where log.fortressWhen >= {1} and log.fortressWhen <= {2} return log ")
+    Set<AuditLog> getAuditLogs(Long auditHeaderID, Long from, Long to);
 
     @Query(elementClass = AuditLogRelationship.class, value = "start audit=node({0}) " +
             "   MATCH audit-[l:logged]->auditLog " +

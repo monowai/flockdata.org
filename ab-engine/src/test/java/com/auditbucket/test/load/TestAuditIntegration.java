@@ -177,7 +177,7 @@ public class TestAuditIntegration {
         int i = 0;
         while (i < max) {
             workingDate = workingDate.plusDays(1);
-            assertEquals(AuditLogInputBean.LogStatus.OK, auditService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", workingDate, what + i + "\"}")).getAbStatus());
+            assertEquals("Loop count " + i, AuditLogInputBean.LogStatus.OK, auditService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", workingDate, what + i + "\"}")).getAbStatus());
 
             log.info("Created " + i + " new count =" + auditService.getAuditLogCount(auditHeader.getAuditKey()));
             i++;
@@ -195,7 +195,7 @@ public class TestAuditIntegration {
 
         DateTime then = workingDate.minusDays(4);
         log.info("Searching between " + then.toDate() + " and " + workingDate.toDate());
-        Set<AuditChange> logs = auditService.getAuditLogs(auditHeader.getAuditKey(), then.toDate(), workingDate.toDate());
+        Set<AuditLog> logs = auditService.getAuditLogs(auditHeader.getAuditKey(), then.toDate(), workingDate.toDate());
         assertEquals(5, logs.size());
 
     }

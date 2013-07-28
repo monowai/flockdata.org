@@ -147,7 +147,7 @@ public class AuditDaoNeo implements IAuditDao {
     }
 
 
-    public Set<AuditChange> getAuditLogs(Long auditLogID, Date from, Date to) {
+    public Set<AuditLog> getAuditLogs(Long auditLogID, Date from, Date to) {
         return auditLogRepo.getAuditLogs(auditLogID, from.getTime(), to.getTime());
     }
 

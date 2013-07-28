@@ -221,7 +221,7 @@ public class AuditService {
             if (header != null)
                 input.setAuditKey(header.getAuditKey());
         } else
-            header = getHeader(input.getAuditKey());
+            header = getHeader(input.getAuditKey(), true);
 
         if (header == null) {
             input.setStatus(AuditLogInputBean.LogStatus.NOT_FOUND);
@@ -449,13 +449,13 @@ public class AuditService {
         return auditDAO.getAuditLogs(auditHeader.getId());
     }
 
-    public Set<AuditChange> getAuditLogs(String headerKey, Date from, Date to) {
+    public Set<AuditLog> getAuditLogs(String headerKey, Date from, Date to) {
         securityHelper.isValidUser();
         AuditHeader auditHeader = getValidHeader(headerKey);
         return getAuditLogs(auditHeader, from, to);
     }
 
-    protected Set<AuditChange> getAuditLogs(AuditHeader auditHeader, Date from, Date to) {
+    protected Set<AuditLog> getAuditLogs(AuditHeader auditHeader, Date from, Date to) {
         return auditDAO.getAuditLogs(auditHeader.getId(), from, to);
     }
 
