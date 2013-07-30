@@ -97,7 +97,7 @@ public class TestAuditIntegration {
 
     @BeforeClass
     public static void cleanupElasticSearch() throws Exception {
-        ClientConfig clientConfig = new ClientConfig.Builder("http://localhost:9201").multiThreaded(true).build();
+        ClientConfig clientConfig = new ClientConfig.Builder("http://localhost:9200").multiThreaded(false).build();
 
         // Construct a new Jest client according to configuration via factory
         JestClientFactory factory = new JestClientFactory();
@@ -285,6 +285,7 @@ public class TestAuditIntegration {
                     try {
                         tx = graphDatabaseService.beginTx();
                         auditService.createLog(new AuditLogInputBean(arb.getAuditKey(), aib.getFortressUser(), new DateTime(), escJson + log + "}"));
+                        tx.success();
                     } finally {
                         tx.finish();
                     }
