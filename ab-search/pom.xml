@@ -227,8 +227,8 @@
                 </executions>
                 <configuration>
                     <server>tomcat-development-server</server>
-                    <port>9081</port>
-                    <ajpPort>9087</ajpPort>
+                    <port>8081</port>
+                    <ajpPort>8087</ajpPort>
                     <path>/${project.artifactId}</path>
                     <warRunDependencies>
                         <warRunDependency>
