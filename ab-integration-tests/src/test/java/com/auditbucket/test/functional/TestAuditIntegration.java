@@ -40,6 +40,8 @@ import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
 import org.junit.*;
 import org.junit.runner.RunWith;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,29 +72,28 @@ import static org.junit.Assert.assertNull;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
-@Transactional
 public class TestAuditIntegration {
 
+    static int fortressCount = 2;
+    static JestClient client;
     @Autowired
     AuditService auditService;
-
     @Autowired
     RegistrationService regService;
-
     @Autowired
     FortressService fortressService;
 
     @Autowired
+    private GraphDatabaseService graphDatabaseService;
+    @Autowired
     private Neo4jTemplate template;
-
 
     private Logger log = LoggerFactory.getLogger(TestAuditIntegration.class);
     private String company = "Monowai";
     private String email = "test@ab.com";
     private String emailB = "mark@null.com";
     Authentication authA = new UsernamePasswordAuthenticationToken(email, "user1");
-    static int fortressCount = 2;
-    static JestClient client;
+
 
     @BeforeClass
     public static void cleanupElasticSearch() throws Exception {
@@ -108,6 +109,11 @@ public class TestAuditIntegration {
         }
     }
 
+    @AfterClass
+    public static void shutDownElasticSearch() throws Exception {
+        client.shutdownClient();
+    }
+
     @Rollback(false)
     @BeforeTransaction
     public void cleanUpGraph() {
@@ -119,11 +125,24 @@ public class TestAuditIntegration {
 
     @Test
     public void createHeaderTimeLogsWithSearchActivated() throws Exception {
+        double max = 10d;
+        String ahKey = null;
+        log.info("createHeaderTimeLogsWithSearchActivated started");
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        Transaction tx = null;
         regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
         Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", new Date(), "ABC123");
-        String ahKey = auditService.createHeader(inputBean).getAuditKey();
+        AuditResultBean auditResult = null;
+        try {
+            tx = graphDatabaseService.beginTx();
+            auditResult = auditService.createHeader(inputBean);
+            tx.success();
+        } finally {
+            tx.finish();
+        }
+        ahKey = auditResult.getAuditKey();
 
         assertNotNull(ahKey);
         log.info(ahKey);
@@ -136,16 +155,23 @@ public class TestAuditIntegration {
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));
 
         int i = 0;
-        double max = 10d;
+
         StopWatch watch = new StopWatch();
         log.info("Start-");
         watch.start();
         while (i < max) {
-            auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + i + "}"));
+            try {
+                tx = graphDatabaseService.beginTx();
+                auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + i + "}"));
+                tx.success();
+            } finally {
+                tx.finish();
+            }
             i++;
         }
         watch.stop();
         log.info("End " + watch.getTime() / 1000d + " avg = " + (watch.getTime() / 1000d) / max);
+
 
         // Test that we get the expected number of log events
         assertEquals(max, (double) auditService.getAuditLogCount(ahKey));
@@ -174,15 +200,28 @@ public class TestAuditIntegration {
             Assert.assertEquals(nbrResult, 1);
 
         }
+
     }
 
     @Test
     public void bigJsonText() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        Neo4jHelper.cleanDb(graphDatabaseService, true);
+        Transaction tx = null;
+        log.info("bigJsonText started");
         regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
         Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", new Date(), "ABC123");
-        String ahKey = auditService.createHeader(inputBean).getAuditKey();
+        AuditResultBean auditResultBean = null;
+        try {
+            tx = graphDatabaseService.beginTx();
+            auditResultBean = auditService.createHeader(inputBean);
+            tx.success();
+        } finally {
+            tx.finish();
+        }
+        String ahKey = auditResultBean.getAuditKey();
 
         int i = 0;
         double max = 10d;
@@ -191,17 +230,27 @@ public class TestAuditIntegration {
         watch.start();
         String what = "{\"name\":\"hello\"}";
         while (i < max) {
+            try {
+                tx = graphDatabaseService.beginTx();
+                auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), what));
+                tx.success();
+            } finally {
+                tx.finish();
+            }
 
-            auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), what));
             i++;
         }
         watch.stop();
         log.info("End " + watch.getTime() / 1000d + " avg = " + (watch.getTime() / 1000d) / max);
         Thread.sleep(30000);
+
     }
 
     @Test
     public void stressWithHighVolume() throws Exception {
+        log.info("stressWithHighVolume started");
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        Neo4jHelper.cleanDb(graphDatabaseService, true);
         regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
         //SecurityContextHolder.getContext().setAuthentication(authMike);
         int auditCount = 2;
@@ -222,10 +271,23 @@ public class TestAuditIntegration {
             log.info("Starting run for " + fortressName);
             while (audit <= auditCount) {
                 AuditHeaderInputBean aib = new AuditHeaderInputBean(iFortress.getName(), fortress + "olivia@sunnybell.com", "CompanyNode", new Date(), "ABC" + audit);
-                AuditResultBean arb = auditService.createHeader(aib);
+                Transaction tx = null;
+                AuditResultBean arb = null;
+                try {
+                    tx = graphDatabaseService.beginTx();
+                    arb = auditService.createHeader(aib);
+                    tx.success();
+                } finally {
+                    tx.finish();
+                }
                 int log = 1;
                 while (log <= logCount) {
-                    auditService.createLog(new AuditLogInputBean(arb.getAuditKey(), aib.getFortressUser(), new DateTime(), escJson + log + "}"));
+                    try {
+                        tx = graphDatabaseService.beginTx();
+                        auditService.createLog(new AuditLogInputBean(arb.getAuditKey(), aib.getFortressUser(), new DateTime(), escJson + log + "}"));
+                    } finally {
+                        tx.finish();
+                    }
                     log++;
                 }
                 audit++;
@@ -249,7 +311,7 @@ public class TestAuditIntegration {
         int searchLoops = 2;
         int search = 0;
         int totalSearchRequests = 0;
-        Thread.sleep(3000); // give things a chance to update
+        Thread.sleep(10000); // give things a chance to update
         watch.split();
 
         do {
@@ -277,22 +339,7 @@ public class TestAuditIntegration {
         double end = watch.getTime() / 1000d;
         log.info("Total Search Requests = " + totalSearchRequests + ". Total time for searches " + end + " avg requests per second = " + totalSearchRequests / end);
         Thread.sleep(30000);
-    }
 
-    @Test
-    public void testSearchUpdate() {
-        // Create auditHeader
-        // Create fortress Log for 10 Jan with unique text
-        // Check that we can find the text in ES
-        // Create a Log for 9 Jan with unique text
-        // Check that we can't find the 9 Jan unique value in the search engine
-        // Assert there are 2 logs
-
-    }
-
-    @AfterClass
-    public static void shutDownElasticSearch() throws Exception {
-        client.shutdownClient();
     }
 
 
