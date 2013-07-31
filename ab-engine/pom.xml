@@ -326,9 +326,9 @@
                             <warRunDependencies>
                                 <warRunDependency>
                                     <dependency>
-                                        <groupId>${pom.groupId}</groupId>
-                                        <artifactId>${pom.artifactId}</artifactId>
-                                        <version>${pom.version}</version>
+                                        <groupId>${project.groupId}</groupId>
+                                        <artifactId>${project.artifactId}</artifactId>
+                                        <version>${project.version}</version>
                                         <type>war</type>
                                     </dependency>
                                     <contextPath>/${project.artifactId}</contextPath>
@@ -350,8 +350,8 @@
                     <warRunDependencies>
                         <warRunDependency>
                             <dependency>
-                                <groupId>${pom.groupId}</groupId>
-                                <artifactId>${pom.artifactId}</artifactId>
+                                <groupId>${project.groupId}</groupId>
+                                <artifactId>${project.artifactId}</artifactId>
                                 <version>${project.version}</version>
                                 <type>war</type>
                             </dependency>
