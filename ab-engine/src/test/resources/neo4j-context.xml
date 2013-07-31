@@ -34,20 +34,31 @@ http://www.springframework.org/schema/data/neo4j/spring-neo4j.xsd
 http://www.springframework.org/schema/tx
 http://www.springframework.org/schema/tx/spring-tx.xsd">
 
-    <context:annotation-config/>
-    <context:spring-configured/>
-    <context:component-scan base-package="com.auditbucket"/>
 
     <!-- Controllers etc to look for -->
     <neo4j:repositories base-package="com.auditbucket"/>
 
-    <!--ToDo: Transaction Management -->
-    <tx:annotation-driven mode="proxy"/>
-    <tx:annotation-driven mode="aspectj"/>
+
+    <neo4j:config graphDatabaseService="graphDatabaseService"/>
+    <!--Enables remote shell -->
+    <bean id="graphDatabaseService" class="org.neo4j.kernel.EmbeddedGraphDatabase" destroy-method="shutdown">
+        <constructor-arg index="0" value="${neo4j.datastore}"/>
+        <constructor-arg index="1">
+            <map>
+                <entry key="allow_store_upgrade" value="true"/>
+                <entry key="enable_remote_shell" value="true"/>
+            </map>
+        </constructor-arg>
+    </bean>
+
+    <bean id="transactionManager"
+          class="org.springframework.data.neo4j.config.JtaTransactionManagerFactoryBean">
+        <constructor-arg ref="graphDatabaseService"/>
+    </bean>
+
+    <tx:annotation-driven mode="proxy" transaction-manager="transactionManager"/>
 
     <!--Embedded config-->
-    <neo4j:config storeDirectory="./target/data/neo4j/"/>
-
 
     <!--<neo4j:config graphDatabaseService="graphDatabaseService"/>-->
     <!--<bean id="graphDatabaseService" class="org.neo4j.test.ImpermanentGraphDatabase" />-->

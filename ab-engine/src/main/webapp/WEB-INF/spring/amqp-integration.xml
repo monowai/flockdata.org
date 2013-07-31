@@ -47,7 +47,7 @@
     <int-amqp:inbound-gateway id="inboundGateway"
                               auto-startup="true"
                               request-channel="searchResult"
-                              queue-names="ab.engine.queue"
+                              queue-names="ab-engine.queue"
                               shutdown-timeout="3000"
                               concurrent-consumers="10"
                               connection-factory="connectionFactory"

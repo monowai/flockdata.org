@@ -42,7 +42,6 @@ public class TagService {
     @Autowired
     private TagDaoI tagDao;
 
-    @Transactional
     public Tag processTag(Tag input) {
         if (input == null)
             return input;
@@ -75,7 +74,6 @@ public class TagService {
      * @param documentType name of the document
      * @return created DocumentType
      */
-    @Transactional
     public DocumentType resolveDocType(String documentType) {
         if (documentType == null) {
             throw new IllegalArgumentException("DocumentTypeNode cannot be null");

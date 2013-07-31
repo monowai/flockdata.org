@@ -58,7 +58,6 @@ public class CompanyEP {
 
 
     @RequestMapping(value = "/{companyName}/fortresses", method = RequestMethod.GET)
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @ResponseBody
     public List<Fortress> register(@PathVariable("companyName") String companyName) throws Exception {
         // curl -u mike:123 -X GET  http://localhost:8080/ab/company/Monowai/fortresses

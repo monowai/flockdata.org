@@ -34,6 +34,9 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.neo4j.graphdb.Direction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.annotation.*;
 
 import java.util.*;
@@ -46,6 +49,8 @@ import java.util.*;
  */
 @NodeEntity(useShortNames = true)
 public class AuditHeaderNode implements AuditHeader {
+    @Transient
+    private Logger log = LoggerFactory.getLogger(AuditHeaderNode.class);
 
     @GraphId
     private Long id;
@@ -183,10 +188,15 @@ public class AuditHeaderNode implements AuditHeader {
     @Override
     @JsonIgnore
     public String getIndexName() {
-        if (fortress != null)
+        if (fortress != null && fortress.getCompany() != null) {
             return new StringBuilder().append(fortress.getCompany().getName().toLowerCase()).append(".").append(fortress.getName().toLowerCase()).toString();
-        else
+        } else {
+
+            if (log.isErrorEnabled()) {
+                log.error("IndexName could not be identified. AuditHeader [" + getAuditKey() + "]" + " Company=[" + fortress.getCompany() + "] fortress=[" + fortress.getName() + "]");
+            }
             return null;
+        }
     }
 
     /**

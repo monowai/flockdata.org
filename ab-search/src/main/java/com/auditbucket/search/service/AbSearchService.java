@@ -70,8 +70,6 @@ public class AbSearchService implements ElasticSearchGateway {
 
     }
 
-    @Transactional
-    //@ServiceActivator(inputChannel = "esDelete")
     public void delete(AuditHeader auditHeader) {
         auditSearch.delete(auditHeader, null);
 

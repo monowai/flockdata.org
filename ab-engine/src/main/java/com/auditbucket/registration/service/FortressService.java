@@ -23,7 +23,7 @@ package com.auditbucket.registration.service;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.dao.CompanyDaoI;
-import com.auditbucket.registration.dao.FortressDaoI;
+import com.auditbucket.registration.dao.FortressDao;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
@@ -37,9 +37,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@Transactional
 public class FortressService {
     @Autowired
-    private FortressDaoI fortressDao;
+    private FortressDao fortressDao;
 
     @Autowired
     private CompanyService companyService;
@@ -78,7 +79,6 @@ public class FortressService {
         return su.getCompany();
     }
 
-    @Transactional
     public Fortress save(Fortress fortress) {
         return fortressDao.save(fortress);
     }
@@ -102,12 +102,10 @@ public class FortressService {
         return fu;
     }
 
-    @Transactional
     public FortressUser save(FortressUser fortressUser) {
         return fortressDao.save(fortressUser);
     }
 
-    @Transactional
     public FortressUser addFortressUser(Long fortressId, String fortressUser) {
         Fortress fortress = getFortress(fortressId);
         if (fortress == null)
@@ -126,7 +124,6 @@ public class FortressService {
 
     }
 
-    @Transactional
     public Fortress registerFortress(FortressInputBean fib) {
         Company company = getCompany();
 
@@ -141,7 +138,6 @@ public class FortressService {
 
     }
 
-    @Transactional
     public Fortress registerFortress(String fortressName) {
         FortressInputBean fb = new FortressInputBean(fortressName, false);
         return registerFortress(fb);

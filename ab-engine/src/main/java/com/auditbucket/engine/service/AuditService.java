@@ -48,7 +48,6 @@ import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.*;
 
@@ -60,6 +59,7 @@ import java.util.*;
  */
 
 @Service
+@Transactional
 public class AuditService {
     @Autowired
     FortressService fortressService;
@@ -89,18 +89,16 @@ public class AuditService {
     static final ObjectMapper om = new ObjectMapper();
 
     public Map<String, String> getHealth() {
-        Map<String, String> healthResults = new HashMap<>();
+        Map<String, String> healthResults = new HashMap<String, String>();
         healthResults.put("ab-engine", auditDAO.ping());
         return healthResults;
 
     }
 
-    @Transactional
     public TxRef beginTransaction() {
         return beginTransaction(UUID.randomUUID().toString());
     }
 
-    @Transactional
     TxRef beginTransaction(String id) {
         String userName = securityHelper.getLoggedInUser();
         SystemUser su = sysUserService.findByName(userName);
@@ -113,7 +111,6 @@ public class AuditService {
 
     }
 
-    @Transactional
     public Map<String, Object> findByTXRef(String txRef) {
         TxRef tx = findTx(txRef);
         return (tx == null ? null : auditDAO.findByTransaction(tx));
@@ -125,7 +122,6 @@ public class AuditService {
      *
      * @return unique primary key to be used for subsequent log calls
      */
-    @Transactional
     public AuditResultBean createHeader(AuditHeaderInputBean inputBean) {
         String userName = securityHelper.getLoggedInUser();
         SystemUser su = sysUserService.findByName(userName);
@@ -184,11 +180,11 @@ public class AuditService {
 
     }
 
-    public AuditHeader getHeader(@NotNull @NotEmpty String key) {
+    public AuditHeader getHeader(@NotEmpty String key) {
         return getHeader(key, false);
     }
 
-    public AuditHeader getHeader(@NotNull @NotEmpty String key, boolean inflate) {
+    public AuditHeader getHeader(@NotEmpty String key, boolean inflate) {
         String userName = securityHelper.getLoggedInUser();
 
         SystemUser su = sysUserService.findByName(userName);
@@ -211,7 +207,6 @@ public class AuditService {
      * @param input log details
      * @return populated log information with any error messages
      */
-    @Transactional
     public AuditLogInputBean createLog(AuditLogInputBean input) {
         String auditKey = input.getAuditKey();
         AuditHeader header;
@@ -238,7 +233,6 @@ public class AuditService {
      * @param input  auditLog details containing the data to log
      * @return populated log information with any error messages
      */
-    @Transactional
     AuditLogInputBean createLog(AuditHeader header, AuditLogInputBean input, Map<String, Object> tagValues) {
         if (input.getMapWhat() == null || input.getMapWhat().isEmpty()) {
             input.setStatus(AuditLogInputBean.LogStatus.IGNORE);
@@ -370,6 +364,7 @@ public class AuditService {
      * @param searchResult contains keys to tie the search to the audit
      */
     @ServiceActivator(inputChannel = "searchResult")
+    //@Transactional (propagation = Propagation.REQUIRED)
     public void handleSearchResult(SearchResult searchResult) {
         String auditKey = searchResult.getAuditKey();
         if (log.isDebugEnabled())
@@ -380,11 +375,12 @@ public class AuditService {
             log.error("Audit Key could not be found for [" + searchResult + "]");
             return;
         }
-        header.setSearchKey(searchResult.getSearchKey());
-        auditDAO.save(header);
-        if (log.isDebugEnabled())
-            log.debug("Updated from search auditKey =[" + searchResult + "]");
-
+        if (header.getSearchKey() == null) {
+            header.setSearchKey(searchResult.getSearchKey());
+            auditDAO.save(header);
+            if (log.isTraceEnabled())
+                log.trace("Updated from search auditKey =[" + searchResult + "]");
+        }
         AuditLog when = auditDAO.getChange(header.getId(), searchResult.getSysWhen());
         // Another thread may have processed this so save an update
         if (when != null && !when.isIndexed()) {
@@ -428,7 +424,6 @@ public class AuditService {
         return txRef.getHeaders();
     }
 
-    @Transactional
     public void updateHeader(AuditHeader auditHeader) {
         auditDAO.save(auditHeader);
     }
@@ -469,7 +464,6 @@ public class AuditService {
      * @param headerKey UID of the header
      * @return the modified header record or null if no header exists.
      */
-    @Transactional
     public AuditHeader cancelLastLog(String headerKey) throws IOException {
         AuditHeader auditHeader = getValidHeader(headerKey);
         AuditLog whenToDelete = getLastChange(auditHeader);

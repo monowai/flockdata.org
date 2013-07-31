@@ -19,7 +19,7 @@
 
 package com.auditbucket.registration.repo.neo4j.dao;
 
-import com.auditbucket.registration.dao.FortressDaoI;
+import com.auditbucket.registration.dao.FortressDao;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.repo.neo4j.FortressRepository;
@@ -38,7 +38,7 @@ import java.util.List;
  * Time: 10:29 PM
  */
 @Repository
-public class FortressDaoImpl implements FortressDaoI {
+public class FortressDaoNeo implements FortressDao {
     @Autowired
     private FortressRepository fortressRepo;
     @Autowired

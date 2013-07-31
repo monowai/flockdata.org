@@ -29,7 +29,7 @@ import java.util.List;
  * Date: 20/04/13
  * Time: 6:31 PM
  */
-public interface FortressDaoI {
+public interface FortressDao {
     public Fortress save(Fortress fortress);
 
     public Fortress findByPropertyValue(String name, Object value);

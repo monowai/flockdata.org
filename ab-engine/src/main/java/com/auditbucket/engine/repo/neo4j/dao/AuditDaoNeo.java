@@ -41,6 +41,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
@@ -68,11 +70,9 @@ public class AuditDaoNeo implements IAuditDao {
         return auditRepo.save((AuditHeaderNode) auditHeader);
     }
 
-
     public TxRef save(TxRef tagRef) {
         return template.save((TxRefNode) tagRef);
     }
-
 
     public AuditHeader findHeader(String key) {
         return findHeader(key, false);
@@ -103,7 +103,6 @@ public class AuditDaoNeo implements IAuditDao {
         template.deleteRelationshipBetween(header, header.getLastUser(), "lastChanged");
     }
 
-    @Override
     public AuditHeader fetch(AuditHeader header) {
         template.fetch(header);
         template.fetch(header.getFortress());
@@ -207,7 +206,6 @@ public class AuditDaoNeo implements IAuditDao {
 
     }
 
-    @Override
     public void save(AuditLog log) {
         template.save((AuditLogRelationship) log);
     }

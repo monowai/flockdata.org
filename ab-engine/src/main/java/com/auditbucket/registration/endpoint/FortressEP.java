@@ -62,7 +62,6 @@ public class FortressEP {
     }
 
     @RequestMapping(value = "/new", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
-    @Transactional
     @ResponseBody
     public ResponseEntity<FortressInputBean> addFortresses(@RequestBody FortressInputBean fortressInputBean) throws Exception {
         Fortress fortress = fortressService.registerFortress(fortressInputBean);

@@ -47,7 +47,6 @@ public class RegistrationEP {
     RegistrationService regService;
 
     @RequestMapping(value = "/register", consumes = "application/json", method = RequestMethod.PUT)
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @ResponseBody
     public ResponseEntity<SystemUser> register(@RequestBody RegistrationBean regBean) throws Exception {
         // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/profiles/register -d '{"name":"mikey", "companyName":"Monowai Dev","password":"whocares"}'

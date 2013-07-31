@@ -38,7 +38,10 @@ import io.searchbox.core.Search;
 import io.searchbox.indices.DeleteIndex;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
@@ -54,7 +57,6 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -97,7 +99,7 @@ public class TestAuditIntegration {
 
     @BeforeClass
     public static void cleanupElasticSearch() throws Exception {
-        ClientConfig clientConfig = new ClientConfig.Builder("http://localhost:9200").multiThreaded(false).build();
+        ClientConfig clientConfig = new ClientConfig.Builder("http://localhost:9201").multiThreaded(false).build();
 
         // Construct a new Jest client according to configuration via factory
         JestClientFactory factory = new JestClientFactory();
@@ -123,7 +125,7 @@ public class TestAuditIntegration {
         Neo4jHelper.cleanDb(template);
     }
 
-    @Test
+    //@Test
     public void createHeaderTimeLogsWithSearchActivated() throws Exception {
         double max = 10d;
         String ahKey = null;
@@ -204,49 +206,6 @@ public class TestAuditIntegration {
     }
 
     @Test
-    public void bigJsonText() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(authA);
-        Neo4jHelper.cleanDb(graphDatabaseService, true);
-        Transaction tx = null;
-        log.info("bigJsonText started");
-        regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
-        Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
-
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", new Date(), "ABC123");
-        AuditResultBean auditResultBean = null;
-        try {
-            tx = graphDatabaseService.beginTx();
-            auditResultBean = auditService.createHeader(inputBean);
-            tx.success();
-        } finally {
-            tx.finish();
-        }
-        String ahKey = auditResultBean.getAuditKey();
-
-        int i = 0;
-        double max = 10d;
-        StopWatch watch = new StopWatch();
-        log.info("Start-");
-        watch.start();
-        String what = "{\"name\":\"hello\"}";
-        while (i < max) {
-            try {
-                tx = graphDatabaseService.beginTx();
-                auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), what));
-                tx.success();
-            } finally {
-                tx.finish();
-            }
-
-            i++;
-        }
-        watch.stop();
-        log.info("End " + watch.getTime() / 1000d + " avg = " + (watch.getTime() / 1000d) / max);
-        Thread.sleep(30000);
-
-    }
-
-    @Test
     public void stressWithHighVolume() throws Exception {
         log.info("stressWithHighVolume started");
         SecurityContextHolder.getContext().setAuthentication(authA);
@@ -258,9 +217,13 @@ public class TestAuditIntegration {
         String escJson = "{\"who\":";
         int fortress = 1;
         ArrayList<Long> list = new ArrayList<Long>();
+        auditService.getHealth();// wake up the auditService??
+        Thread.sleep(1000);
+
         StopWatch watch = new StopWatch();
         watch.start();
         double splits = 0;
+        int sleepCount = logCount * 0;
         log.info("FortressCount: " + fortressCount + " AuditCount: " + auditCount + " LogCount: " + logCount);
         log.info("We will be expecting a total of " + (auditCount * logCount * (fortress + 1)) + " messages to be handled");
         while (fortress <= fortressCount) {
@@ -291,12 +254,13 @@ public class TestAuditIntegration {
                     }
                     log++;
                 }
+                Thread.sleep(sleepCount);
                 audit++;
             }
             watch.split();
 
-            log.info(iFortress.getName() + " took " + (watch.getSplitTime() / 1000d));
-            splits = splits + watch.getSplitTime();
+            log.info(iFortress.getName() + " took " + ((watch.getSplitTime() - sleepCount) / 1000d));
+            splits = splits + (watch.getSplitTime() - sleepCount);
             watch.reset();
             watch.start();
             list.add(iFortress.getId());
@@ -312,7 +276,7 @@ public class TestAuditIntegration {
         int searchLoops = 2;
         int search = 0;
         int totalSearchRequests = 0;
-        Thread.sleep(10000); // give things a chance to update
+        Thread.sleep(10000); // give things a final chance to update
         watch.split();
 
         do {
@@ -339,7 +303,7 @@ public class TestAuditIntegration {
         watch.stop();
         double end = watch.getTime() / 1000d;
         log.info("Total Search Requests = " + totalSearchRequests + ". Total time for searches " + end + " avg requests per second = " + totalSearchRequests / end);
-        Thread.sleep(30000);
+
 
     }
 

@@ -32,7 +32,12 @@ http://www.springframework.org/schema/data/neo4j/spring-neo4j.xsd http://www.spr
 
     <context:annotation-config/>
     <context:spring-configured/>
-    <tx:annotation-driven mode="proxy"/>
+
+    <bean id="transactionManager"
+          class="org.springframework.data.neo4j.config.JtaTransactionManagerFactoryBean">
+        <constructor-arg ref="graphDatabaseService"/>
+    </bean>
+    <tx:annotation-driven mode="proxy" transaction-manager="transactionManager"/>
 
     <!-- Controllers etc to look for -->
     <neo4j:repositories base-package="com.auditbucket.registration.repo.neo4j"/>

@@ -34,8 +34,12 @@ import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,10 +48,12 @@ import org.springframework.data.neo4j.support.node.Neo4jHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.annotation.NotTransactional;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
+import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
@@ -77,24 +83,39 @@ public class TestAudit {
     @Autowired
     private Neo4jTemplate template;
 
+    @Autowired
+    private GraphDatabaseService graphDatabaseService;
+
+
     private Logger log = LoggerFactory.getLogger(TestAudit.class);
     private String monowai = "Monowai";
-    private String mike = "mike@monowai.com";
+    private String mike = "test@ab.com";
     private String mark = "mark@null.com";
     Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
     Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "user1");
     private String hummingbird = "Hummingbird";
     String what = "{\"house\": \"house";
 
+    @Before
+    public void setSecurity() {
+        SecurityContextHolder.getContext().setAuthentication(authMike);
+    }
 
-    @Rollback(false)
     @BeforeTransaction
+    @Rollback(false)
     public void cleanUpGraph() {
         // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
         // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-        SecurityContextHolder.getContext().setAuthentication(authMike);
-        Neo4jHelper.cleanDb(template);
+        Transaction tx = graphDatabaseService.beginTx();
+        try {
+
+            Neo4jHelper.cleanDb(template);
+            tx.success();
+        } finally {
+            tx.finish();
+        }
     }
+
 
     @Test
     public void callerRefAuthzExcep() {
@@ -211,11 +232,12 @@ public class TestAudit {
         Fortress fo = fortressService.registerFortress("auditTest");
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "YYY");
+
         AuditResultBean resultBean = auditService.createHeader(inputBean);
         String ahKey = resultBean.getAuditKey();
         assertNotNull(ahKey);
 
-        AuditHeader header = auditService.getHeader(resultBean.getAuditKey());
+        AuditHeader header = auditService.getHeader(ahKey);
         assertNotNull(header.getDocumentType());
 
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));

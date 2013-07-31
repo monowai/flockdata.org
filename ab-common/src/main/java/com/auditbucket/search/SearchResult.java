@@ -19,6 +19,8 @@
 
 package com.auditbucket.search;
 
+import java.util.Date;
+
 /**
  * Object to tie the keys between ab-engine and ab-search so that ab-engine can keep the document up-to-date
  * <p/>
@@ -89,6 +91,7 @@ public class SearchResult {
     public String toString() {
         return "SearchResult{" +
                 "auditKey='" + auditKey + '\'' +
+                ", sysWhen='" + sysWhen + '\'' +
                 ", fortress='" + fortress + '\'' +
                 ", documentType='" + documentType + '\'' +
                 '}';
