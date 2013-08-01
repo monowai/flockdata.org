@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,7 +63,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
         indexMe.put("@who", auditChange.getWho());
         indexMe.put("@lastEvent", auditChange.getEvent());
         indexMe.put("@when", auditChange.getWhen());
-        indexMe.put("@timestamp", auditChange.getSysWhen()); // Kibana should be able to search on this
+        indexMe.put("@timestamp", new Date(auditChange.getSysWhen())); // Kibana should be able to search on this
         // as a date string.
         // https://github.com/monowai/auditbucket/issues/21
 
