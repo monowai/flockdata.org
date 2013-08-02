@@ -22,6 +22,8 @@ package com.auditbucket.search.dao;
 import com.auditbucket.audit.model.AuditSearchDao;
 import com.auditbucket.audit.model.SearchChange;
 import com.auditbucket.audit.model.AuditHeader;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
@@ -29,6 +31,10 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.joda.time.Chronology;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +56,18 @@ public class AuditSearchDaoES implements AuditSearchDao {
 
     private Logger log = LoggerFactory.getLogger(AuditSearchDaoES.class);
 
+    private String makeIndexJson(SearchChange auditChange) {
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> index = makeIndexDocument(auditChange);
+        try {
+            return mapper.writeValueAsString(index);
+        } catch (JsonProcessingException e) {
+
+            log.error(e.getMessage());
+        }
+        return null;
+    }
+
     /**
      * Converts a user requested auditChange in to a standardised document to index
      *
@@ -64,7 +82,6 @@ public class AuditSearchDaoES implements AuditSearchDao {
         indexMe.put("@lastEvent", auditChange.getEvent());
         indexMe.put("@when", auditChange.getWhen());
         indexMe.put("@timestamp", new Date(auditChange.getSysWhen())); // Kibana should be able to search on this
-        // as a date string.
         // https://github.com/monowai/auditbucket/issues/21
 
         indexMe.put("@fortress", auditChange.getFortressName());
@@ -84,10 +101,10 @@ public class AuditSearchDaoES implements AuditSearchDao {
         String documentType = auditChange.getDocumentType();
 
 
-        Map<String, Object> indexMe = makeIndexDocument(auditChange);
-
+        //Map<String, Object> indexMe = makeIndexDocument(auditChange);
+        String source = makeIndexJson(auditChange);
         IndexResponse ir = esClient.prepareIndex(indexName, documentType)
-                .setSource(indexMe)
+                .setSource(source)
                 .setRouting(auditChange.getAuditKey())
                 .execute()
                 .actionGet();
@@ -142,7 +159,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
     @Override
     public void update(SearchChange incoming) {
 
-        Map<String, Object> indexMe = makeIndexDocument(incoming);
+        String source = makeIndexJson(incoming);
 
         GetResponse response =
                 esClient.prepareGet(incoming.getIndexName(),
@@ -170,7 +187,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
                 .setRouting(incoming.getAuditKey());
 
         // ToDo: Do we care about waiting for the response? I doubt it.
-        IndexResponse ur = update.setSource(indexMe).
+        IndexResponse ur = update.setSource(source).
                 execute().
                 actionGet();
 
