@@ -72,8 +72,8 @@ public class AuditHeaderNode implements AuditHeader {
     @RelatedToVia(elementClass = AuditTagRelationship.class, type = "tagValue", direction = Direction.INCOMING)
     private Set<TagValue> tagValues;
 
-    @RelatedToVia(elementClass = AuditLogRelationship.class, type = "logged", direction = Direction.OUTGOING)
-    private Set<AuditLog> auditWhen = new HashSet<AuditLog>();
+//    @RelatedToVia(elementClass = AuditLogRelationship.class, type = "logged", direction = Direction.OUTGOING)
+//    private Set<AuditLog> auditWhen = new HashSet<AuditLog>();
 
     public static final String UUID_KEY = "auditKey";
 
@@ -227,11 +227,11 @@ public class AuditHeaderNode implements AuditHeader {
         lastUpdated = System.currentTimeMillis();
     }
 
-    @Override
-    @JsonIgnore
-    public Set<AuditLog> getAuditLogs() {
-        return auditWhen;
-    }
+//    @Override
+//    @JsonIgnore
+//    public Set<AuditLog> getAuditLogs() {
+//        return auditWhen;
+//    }
 
     @JsonIgnore
     public void setSearchKey(String parentKey) {

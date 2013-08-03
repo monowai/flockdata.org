@@ -49,6 +49,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
     private String event;
     private String auditKey;
     private String callerRef;
+    private Long logId;
     private Map<String, Object> tagValues = new HashMap<String, Object>();
     private Long version;
 
@@ -186,7 +187,27 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
         this.sysWhen = sysWhen;
     }
 
+    @Override
+    public void setLogId(Long id) {
+        this.logId = id;
+
+    }
+
+    @Override
+    public Long getLogId() {
+        return logId;
+    }
+
     public Long getSysWhen() {
         return sysWhen;
+    }
+
+    @Override
+    public String toString() {
+        return "AuditSearchChange{" +
+                "fortressName='" + fortressName + '\'' +
+                ", documentType='" + documentType + '\'' +
+                ", auditKey='" + auditKey + '\'' +
+                '}';
     }
 }

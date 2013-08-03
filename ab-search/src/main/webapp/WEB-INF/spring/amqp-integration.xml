@@ -42,16 +42,16 @@
             request-channel="searchRequest"
             reply-channel="searchReply"
             queue-names="ab-search.queue"
-            concurrent-consumers="50"
+            concurrent-consumers="100"
             shutdown-timeout="3000"
             prefetch-count="3"
             connection-factory="connectionFactory"
             message-converter="jsonToAuditSearchChangeConverter"
             />
 
-    <int:gateway id="searchGateway"
+    <int:gateway id="searchGateway" async-executor="taskExecutor"
                  service-interface="com.auditbucket.search.service.AbEngineGateway"/>
-
+    <!--async-executor="taskExecutor"-->
     <int-amqp:outbound-gateway
             request-channel="searchResult"
             exchange-name="ab.engine.exchange"

@@ -22,8 +22,10 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:integration="http://www.springframework.org/schema/integration"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd">
 
     <context:spring-configured/>
     <context:annotation-config/>
@@ -36,6 +38,20 @@
     <import resource="spring-security.xml"/>
     <import resource="neo4j-context.xml"/>
     <import resource="amqp-integration.xml"/>
+    <task:annotation-driven executor="taskExecutor"/>
+    <!--<bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ConcurrentTaskExecutor" >-->
+    <!--<property name="concurrentExecutor" ref="threadPoolExecutor"/>-->
+    <!--</bean>-->
+    <!--<bean id="threadPoolExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" >-->
+    <!--<property name="corePoolSize" value="10" />-->
+    <!--<property name="maxPoolSize" value="10" />-->
+    <!--<property name="queueCapacity" value="-1" />-->
+    <!--</bean>-->
 
+    <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
+        <property name="corePoolSize" value="20"/>
+        <property name="maxPoolSize" value="100"/>
+        <!--<property name="queueCapacity" value="-1" />-->
+    </bean>
 
 </beans>

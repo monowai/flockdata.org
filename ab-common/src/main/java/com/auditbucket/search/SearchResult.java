@@ -30,6 +30,7 @@ import java.util.Date;
 public class SearchResult {
     private String auditKey, fortress, searchKey, documentType;
     private long sysWhen;
+    private Long logId;
 
     protected SearchResult() {
     }
@@ -103,5 +104,13 @@ public class SearchResult {
 
     public void setSysWhen(long sysWhen) {
         this.sysWhen = sysWhen;
+    }
+
+    public Long getLogId() {
+        return logId;
+    }
+
+    public void setLogId(Long logId) {
+        this.logId = logId;
     }
 }

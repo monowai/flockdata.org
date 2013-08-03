@@ -53,6 +53,11 @@ public class AuditHeaderInputBean {
 
     }
 
+    public AuditHeaderInputBean(String name, String s, String companyNode, Date date) {
+        this(name, s, companyNode, date, null);
+
+    }
+
     public void setAuditKey(String auditKey) {
         this.auditKey = auditKey;
     }

@@ -45,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -85,7 +86,7 @@ public class AuditService {
     @Autowired
     private AbSearchGateway searchGateway;
 
-    private Logger log = LoggerFactory.getLogger(AuditService.class);
+    private Logger logger = LoggerFactory.getLogger(AuditService.class);
     static final ObjectMapper om = new ObjectMapper();
 
     public Map<String, String> getHealth() {
@@ -143,8 +144,8 @@ public class AuditService {
             ah = findByCallerRef(iFortress.getId(), inputBean.getDocumentType(), inputBean.getCallerRef());
 
         if (ah != null) {
-            if (log.isDebugEnabled())
-                log.debug("Existing header record found by Caller Ref [" + inputBean.getCallerRef() + "] found [" + ah.getAuditKey() + "]");
+            if (logger.isDebugEnabled())
+                logger.debug("Existing header record found by Caller Ref [" + inputBean.getCallerRef() + "] found [" + ah.getAuditKey() + "]");
             inputBean.setAuditKey(ah.getAuditKey());
 
             AuditResultBean arb = new AuditResultBean(ah, null);
@@ -163,8 +164,8 @@ public class AuditService {
         Map<String, Object> userTags = inputBean.getTagValues();
         auditTagService.createTagValues(userTags, ah);
 
-        if (log.isDebugEnabled())
-            log.debug("Audit Header created:" + ah.getId() + " key=[" + ah.getAuditKey() + "]");
+        if (logger.isDebugEnabled())
+            logger.debug("Audit Header created:" + ah.getId() + " key=[" + ah.getAuditKey() + "]");
 
 
         AuditLogInputBean logBean = inputBean.getAuditLog();
@@ -281,8 +282,8 @@ public class AuditService {
             try {
                 // KVStore.getWhat()
                 if (isSame(lastChange.getJsonWhat(), input.getWhat())) {
-                    if (log.isDebugEnabled())
-                        log.debug("Ignoring a change we already have");
+                    if (logger.isDebugEnabled())
+                        logger.debug("Ignoring a change we already have");
                     input.setStatus(AuditLogInputBean.LogStatus.IGNORE);
                     return input;
                 }
@@ -314,11 +315,11 @@ public class AuditService {
             header.setLastUser(fUser);
             sd = new AuditSearchChange(header, input.getMapWhat(), event, fortressWhen);
             sd.setTagValues(tagValues);
-            if (log.isTraceEnabled()) {
+            if (logger.isTraceEnabled()) {
                 try {
-                    log.trace(om.writeValueAsString(sd));
+                    logger.trace(om.writeValueAsString(sd));
                 } catch (JsonProcessingException e) {
-                    log.error(e.getMessage());
+                    logger.error(e.getMessage());
                 }
             }
         }
@@ -334,6 +335,7 @@ public class AuditService {
         if (searchActive) {
             // Used to reconcile that the change was actually indexed
             sd.setSysWhen(log.getSysWhen());
+            sd.setLogId(log.getId());
             searchGateway.makeChangeSearchable(sd);
         }
         input.setStatus(AuditLogInputBean.LogStatus.OK);
@@ -364,29 +366,30 @@ public class AuditService {
      * @param searchResult contains keys to tie the search to the audit
      */
     @ServiceActivator(inputChannel = "searchResult")
-    //@Transactional (propagation = Propagation.REQUIRED)
     public void handleSearchResult(SearchResult searchResult) {
         String auditKey = searchResult.getAuditKey();
-        if (log.isDebugEnabled())
-            log.debug("Updating from search auditKey =[" + searchResult + "]");
+        if (logger.isTraceEnabled())
+            logger.trace("Updating from search auditKey =[" + searchResult + "]");
         AuditHeader header = auditDAO.findHeader(auditKey);
 
         if (header == null) {
-            log.error("Audit Key could not be found for [" + searchResult + "]");
+            logger.error("Audit Key could not be found for [" + searchResult + "]");
             return;
         }
         if (header.getSearchKey() == null) {
             header.setSearchKey(searchResult.getSearchKey());
             auditDAO.save(header);
-            if (log.isTraceEnabled())
-                log.trace("Updated from search auditKey =[" + searchResult + "]");
+            if (logger.isTraceEnabled())
+                logger.trace("Updated from search auditKey =[" + searchResult + "]");
         }
-        AuditLog when = auditDAO.getChange(header.getId(), searchResult.getSysWhen());
+        AuditLog when = auditDAO.getChange(searchResult.getLogId());
         // Another thread may have processed this so save an update
         if (when != null && !when.isIndexed()) {
             // We need to know that the change we requested to index has been indexed.
             when.setIsIndexed();
             auditDAO.save(when);
+        } else {
+            logger.info("Skipping " + when);
         }
     }
 

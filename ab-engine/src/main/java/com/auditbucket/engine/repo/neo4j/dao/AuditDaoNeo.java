@@ -41,8 +41,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
@@ -141,11 +139,6 @@ public class AuditDaoNeo implements IAuditDao {
         return when;
     }
 
-    public AuditLog getChange(Long auditHeaderID, long sysWhen) {
-        return auditLogRepo.getChange(auditHeaderID, sysWhen);
-    }
-
-
     public Set<AuditLog> getAuditLogs(Long auditLogID, Date from, Date to) {
         return auditLogRepo.getAuditLogs(auditLogID, from.getTime(), to.getTime());
     }
@@ -201,8 +194,7 @@ public class AuditDaoNeo implements IAuditDao {
 
     @Override
     public AuditLog addLog(AuditHeader header, AuditChange al, DateTime fortressWhen) {
-        AuditLogRelationship aWhen = new AuditLogRelationship(header, al, fortressWhen);
-        return template.save(aWhen);
+        return template.save(new AuditLogRelationship(header, al, fortressWhen));
 
     }
 
@@ -236,5 +228,10 @@ public class AuditDaoNeo implements IAuditDao {
     public AuditHeader save(FortressUser fu, AuditHeaderInputBean inputBean, DocumentType documentType) {
         AuditHeader ah = new AuditHeaderNode(fu, inputBean, documentType);
         return save(ah);
+    }
+
+    @Override
+    public AuditLog getChange(Long logId) {
+        return template.findOne(logId, AuditLogRelationship.class);
     }
 }

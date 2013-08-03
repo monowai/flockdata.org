@@ -64,6 +64,7 @@ import java.util.Date;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
  * Created by IntelliJ IDEA.
@@ -90,7 +91,7 @@ public class TestAuditIntegration {
     @Autowired
     private Neo4jTemplate template;
 
-    private Logger log = LoggerFactory.getLogger(TestAuditIntegration.class);
+    private Logger logger = LoggerFactory.getLogger(TestAuditIntegration.class);
     private String company = "Monowai";
     private String email = "test@ab.com";
     private String emailB = "mark@null.com";
@@ -125,11 +126,11 @@ public class TestAuditIntegration {
         Neo4jHelper.cleanDb(template);
     }
 
-    //@Test
+    //    @Test
     public void createHeaderTimeLogsWithSearchActivated() throws Exception {
         double max = 10d;
         String ahKey = null;
-        log.info("createHeaderTimeLogsWithSearchActivated started");
+        logger.info("createHeaderTimeLogsWithSearchActivated started");
         SecurityContextHolder.getContext().setAuthentication(authA);
         Transaction tx = null;
         regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
@@ -147,7 +148,7 @@ public class TestAuditIntegration {
         ahKey = auditResult.getAuditKey();
 
         assertNotNull(ahKey);
-        log.info(ahKey);
+        logger.info(ahKey);
 
 //        byte[] docs = alRepo.findOne(auditService.getHeader(ahKey));
 //        assertNotNull(docs);
@@ -159,7 +160,7 @@ public class TestAuditIntegration {
         int i = 0;
 
         StopWatch watch = new StopWatch();
-        log.info("Start-");
+        logger.info("Start-");
         watch.start();
         while (i < max) {
             try {
@@ -172,7 +173,7 @@ public class TestAuditIntegration {
             i++;
         }
         watch.stop();
-        log.info("End " + watch.getTime() / 1000d + " avg = " + (watch.getTime() / 1000d) / max);
+        logger.info("End " + watch.getTime() / 1000d + " avg = " + (watch.getTime() / 1000d) / max);
 
 
         // Test that we get the expected number of log events
@@ -207,51 +208,36 @@ public class TestAuditIntegration {
 
     @Test
     public void stressWithHighVolume() throws Exception {
-        log.info("stressWithHighVolume started");
+        logger.info("stressWithHighVolume started");
         SecurityContextHolder.getContext().setAuthentication(authA);
         Neo4jHelper.cleanDb(graphDatabaseService, true);
         regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
         //SecurityContextHolder.getContext().setAuthentication(authMike);
         int auditCount = 2;
-        int logCount = 10;
+        int logCount = 2000;
         String escJson = "{\"who\":";
         int fortress = 1;
         ArrayList<Long> list = new ArrayList<Long>();
-        auditService.getHealth();// wake up the auditService??
-        Thread.sleep(1000);
 
         StopWatch watch = new StopWatch();
         watch.start();
         double splits = 0;
         int sleepCount = logCount * 0;
-        log.info("FortressCount: " + fortressCount + " AuditCount: " + auditCount + " LogCount: " + logCount);
-        log.info("We will be expecting a total of " + (auditCount * logCount * (fortress + 1)) + " messages to be handled");
+        logger.info("FortressCount: " + fortressCount + " AuditCount: " + auditCount + " LogCount: " + logCount);
+        logger.info("We will be expecting a total of " + (auditCount * logCount * (fortress + 1)) + " messages to be handled");
         while (fortress <= fortressCount) {
 
             String fortressName = "bulkloada" + fortress;
             Fortress iFortress = fortressService.registerFortress(new FortressInputBean(fortressName, true));
             int audit = 1;
-            log.info("Starting run for " + fortressName);
+            logger.info("Starting run for " + fortressName);
             while (audit <= auditCount) {
                 AuditHeaderInputBean aib = new AuditHeaderInputBean(iFortress.getName(), fortress + "olivia@sunnybell.com", "CompanyNode", new Date(), "ABC" + audit);
-                Transaction tx = null;
-                AuditResultBean arb = null;
-                try {
-                    tx = graphDatabaseService.beginTx();
-                    arb = auditService.createHeader(aib);
-                    tx.success();
-                } finally {
-                    tx.finish();
-                }
+                AuditResultBean arb = auditService.createHeader(aib);
+                //arb = auditService.createHeader(aib);
                 int log = 1;
                 while (log <= logCount) {
-                    try {
-                        tx = graphDatabaseService.beginTx();
-                        auditService.createLog(new AuditLogInputBean(arb.getAuditKey(), aib.getFortressUser(), new DateTime(), escJson + log + "}"));
-                        tx.success();
-                    } finally {
-                        tx.finish();
-                    }
+                    auditService.createLog(new AuditLogInputBean(arb.getAuditKey(), aib.getFortressUser(), new DateTime(), escJson + log + "}"));
                     log++;
                 }
                 Thread.sleep(sleepCount);
@@ -259,7 +245,7 @@ public class TestAuditIntegration {
             }
             watch.split();
 
-            log.info(iFortress.getName() + " took " + ((watch.getSplitTime() - sleepCount) / 1000d));
+            logger.info(iFortress.getName() + " took " + ((watch.getSplitTime() - sleepCount) / 1000d) + " rows per second " + ((watch.getSplitTime() - sleepCount) / 1000d) / (logCount + 2));
             splits = splits + (watch.getSplitTime() - sleepCount);
             watch.reset();
             watch.start();
@@ -267,16 +253,16 @@ public class TestAuditIntegration {
             fortress++;
         }
 
-        log.info("Created data set");
+        logger.info("Created data set");
         double sub = splits / 1000d;
-        log.info("Created data set in " + sub + " fortress avg = " + sub / fortressCount + " avg seconds per row " + sub / (fortressCount * auditCount * logCount) + " rows per second " + (fortressCount * auditCount * logCount) / sub);
+        logger.info("Created data set in " + sub + " fortress avg = " + sub / fortressCount + " avg seconds per row " + sub / (fortressCount * auditCount * logCount) + " rows per second " + (fortressCount * auditCount * logCount) / sub);
         watch.reset();
         watch.start();
 
         int searchLoops = 2;
         int search = 0;
         int totalSearchRequests = 0;
-        Thread.sleep(10000); // give things a final chance to update
+        Thread.sleep(20000); // give things a final chance to complete
         watch.split();
 
         do {
@@ -291,7 +277,8 @@ public class TestAuditIntegration {
                     assertNotNull("ABC" + random, header);
                     AuditLog when = auditService.getLastChange(header);
                     assertNotNull(when.getAuditChange());
-                    assertEquals("fortress " + fortress + " run " + x + " header " + header.getAuditKey(), true, when.isIndexed());
+                    logger.info(header.getAuditKey() + "-" + when.isIndexed());
+                    assertTrue("fortress " + fortress + " run " + x + " header " + header.getAuditKey(), when.isIndexed());
                     totalSearchRequests++;
                     x++;
                 } while (x < auditCount);
@@ -302,7 +289,7 @@ public class TestAuditIntegration {
 
         watch.stop();
         double end = watch.getTime() / 1000d;
-        log.info("Total Search Requests = " + totalSearchRequests + ". Total time for searches " + end + " avg requests per second = " + totalSearchRequests / end);
+        logger.info("Total Search Requests = " + totalSearchRequests + ". Total time for searches " + end + " avg requests per second = " + totalSearchRequests / end);
 
 
     }

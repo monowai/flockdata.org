@@ -21,7 +21,13 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-3.0.xsd
+       http://www.springframework.org/schema/task
+       http://www.springframework.org/schema/task/spring-task.xsd">
 
     <context:spring-configured/>
     <!--<context:annotation-config/>-->
@@ -37,6 +43,13 @@
         i.e. http, rabbit, rmi etc -->
     <!--<import resource="${integration}-integration.xml"/>-->
     <import resource="amqp-integration.xml"/>
+
+    <task:annotation-driven executor="taskExecutor"/>
+    <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
+        <property name="corePoolSize" value="20"/>
+        <property name="maxPoolSize" value="100"/>
+        <!--<property name="queueCapacity" value="-1" />-->
+    </bean>
 
 
 </beans>

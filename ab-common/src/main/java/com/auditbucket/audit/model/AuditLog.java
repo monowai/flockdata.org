@@ -40,4 +40,7 @@ public interface AuditLog {
     public Long getSysWhen();
 
     public Long getFortressWhen();
+
+    Long getId();
+
 }

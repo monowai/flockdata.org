@@ -37,9 +37,9 @@
 ">
     <int:annotation-config/>
 
-    <int:gateway id="searchGateway"
+    <int:gateway id="searchGateway" async-executor="taskExecutor"
                  service-interface="com.auditbucket.engine.service.AbSearchGateway"/>
-
+    <!--async-executor="taskExecutor"-->
     <!-- RabbitMQ CONFIGURATION  -->
     <import resource="amqp-rabbit.xml"/>
 
@@ -49,11 +49,8 @@
                               request-channel="searchResult"
                               queue-names="ab-engine.queue"
                               concurrent-consumers="100"
-                              tx-size="3"
-                              prefetch-count="5"
                               connection-factory="connectionFactory"
-                              message-converter="jsonToSearchResultConverter"
-            />
+                              message-converter="jsonToSearchResultConverter"/>
 
     <int:json-to-object-transformer input-channel="searchReply"
                                     auto-startup="true"

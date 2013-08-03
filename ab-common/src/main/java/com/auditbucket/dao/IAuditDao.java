@@ -62,18 +62,6 @@ public interface IAuditDao {
 
     public AuditLog getLastChange(Long auditHeaderID);
 
-    /**
-     * locates a specific change in auditBucket.
-     * <p/>
-     * This is used when syncing a change between ab-search and ab-engine, or to
-     * reprocess changes that may not have been sync'd
-     *
-     * @param auditHeaderID PK
-     * @param sysWhen       time auditBucket processed the change
-     * @return the change for an exact match
-     */
-    public AuditLog getChange(Long auditHeaderID, long sysWhen);
-
     Set<AuditLog> getAuditLogs(Long headerKey, Date from, Date to);
 
     Set<AuditLog> getAuditLogs(Long auditHeaderID);
@@ -103,4 +91,6 @@ public interface IAuditDao {
     AuditChange save(FortressUser fUser, AuditLogInputBean input);
 
     AuditHeader save(FortressUser fu, AuditHeaderInputBean inputBean, DocumentType documentType);
+
+    AuditLog getChange(Long logId);
 }

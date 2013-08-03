@@ -103,4 +103,17 @@ public class AuditLogRelationship implements AuditLog {
     public void setIsIndexed() {
         this.indexed = true;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    @Override
+    public String toString() {
+        return "AuditLogRelationship{" +
+                "id=" + id +
+                ", sysWhen=" + sysWhen +
+                ", indexed=" + indexed +
+                '}';
+    }
 }

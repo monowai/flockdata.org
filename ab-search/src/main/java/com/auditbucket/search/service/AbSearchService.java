@@ -25,6 +25,8 @@ import com.auditbucket.dao.IAuditQueryDao;
 import com.auditbucket.search.AuditSearchChange;
 import com.auditbucket.search.SearchResult;
 import com.auditbucket.search.endpoint.ElasticSearchGateway;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.ServiceActivator;
@@ -50,13 +52,18 @@ public class AbSearchService implements ElasticSearchGateway {
     @Autowired(required = false)
     private AbEngineGateway engineGateway;
 
+    private Logger logger = LoggerFactory.getLogger(ElasticSearchGateway.class);
+
     public Long getHitCount(String index) {
         return auditQuery.getHitCount(index);
     }
 
-    //    @Transactional
+    @Transactional
     @ServiceActivator(inputChannel = "searchRequest")
     public void createSearchableChange(AuditSearchChange thisChange) {
+        if (logger.isDebugEnabled())
+            logger.debug("searchRequest received for " + thisChange);
+
         SearchResult result;
         if (thisChange.getSearchKey() != null) {
             auditSearch.update(thisChange);
@@ -65,6 +72,7 @@ public class AbSearchService implements ElasticSearchGateway {
             result = new SearchResult(auditSearch.save(thisChange));
         }
         // Used to tie the fact that the doc was updated back to the engine
+        result.setLogId(thisChange.getLogId());
         result.setSysWhen(thisChange.getSysWhen());
         engineGateway.handleSearchResult(result);
 

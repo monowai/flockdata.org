@@ -37,7 +37,7 @@
 ">
     <int:annotation-config/>
 
-    <int:gateway id="searchGateway"
+    <int:gateway id="searchGateway" async-executor="taskExecutor"
                  service-interface="com.auditbucket.engine.service.AbSearchGateway"/>
 
     <!-- RabbitMQ CONFIGURATION  -->
@@ -51,8 +51,7 @@
                               shutdown-timeout="3000"
                               concurrent-consumers="10"
                               connection-factory="connectionFactory"
-                              message-converter="jsonToSearchResultConverter"
-            />
+                              message-converter="jsonToSearchResultConverter"/>
 
     <int:json-to-object-transformer input-channel="searchReply"
                                     auto-startup="true"
@@ -61,18 +60,19 @@
     </int:json-to-object-transformer>
 
 
-    <int-amqp:outbound-gateway
-            request-channel="sendRequest"
-            exchange-name="ab.search.exchange"
-            routing-key="ab.search.binding"
-            amqp-template="amqpTemplate"/>
-
     <int:object-to-json-transformer auto-startup="true"
                                     id="objectToJson"
                                     input-channel="searchRequest"
                                     output-channel="sendRequest"
                                     content-type="text/x-json">
     </int:object-to-json-transformer>
+
+    <int-amqp:outbound-gateway
+            request-channel="sendRequest"
+            exchange-name="ab.search.exchange"
+            routing-key="ab.search.binding"
+            amqp-template="amqpTemplate"/>
+
 
     <int:channel id="searchRequest"/>
     <int:channel id="sendRequest"/>

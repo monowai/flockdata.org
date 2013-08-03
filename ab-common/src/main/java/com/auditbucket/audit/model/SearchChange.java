@@ -79,4 +79,8 @@ public interface SearchChange {
     void setTagValues(Map<String, Object> tagValues);
 
     public void setSysWhen(Long sysWhen);
+
+    void setLogId(Long id);
+
+    Long getLogId();
 }

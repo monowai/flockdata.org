@@ -52,9 +52,6 @@ public interface AuditLogRepo extends GraphRepository<AuditChangeNode> {
             "return l order by l.fortressWhen desc")
     Set<AuditLog> findAuditLogs(Long auditHeaderID);
 
-    @Query(elementClass = AuditLogRelationship.class, value = "start header=node({0}) match header-[log:logged]->auditLog where log.sysWhen = {1} return log ")
-    AuditLogRelationship getChange(Long auditHeaderID, long sysWhen);
-
 //    @Query(value = "start audit=node({0}) " +
 //            "match audit-[log:changed]-fortressUser " +
 //            "where log.txRef! = {1} " +

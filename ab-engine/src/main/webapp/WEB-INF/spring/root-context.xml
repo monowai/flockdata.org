@@ -22,8 +22,9 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
     <context:spring-configured/>
     <context:annotation-config/>
@@ -36,6 +37,14 @@
     <import resource="spring-security.xml"/>
     <import resource="neo4j-context.xml"/>
     <import resource="amqp-integration.xml"/>
+
+    <task:annotation-driven executor="taskExecutor"/>
+    <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="5"/>
+        <property name="threadGroupName" value="ab-search"/>
+        <property name="daemon" value="true"/>
+        <property name="queueCapacity" value="-1"/>
+    </bean>
 
 
 </beans>
