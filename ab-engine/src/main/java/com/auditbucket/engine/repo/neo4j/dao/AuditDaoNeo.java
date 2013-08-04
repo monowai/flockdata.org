@@ -60,7 +60,7 @@ public class AuditDaoNeo implements IAuditDao {
 
     @Autowired
     Neo4jTemplate template;
-    private Logger log = LoggerFactory.getLogger(AuditDaoNeo.class);
+    private Logger logger = LoggerFactory.getLogger(AuditDaoNeo.class);
 
     @Override
     public AuditHeader save(AuditHeader auditHeader) {
@@ -86,8 +86,8 @@ public class AuditDaoNeo implements IAuditDao {
     }
 
     public AuditHeader findHeaderByCallerRef(Long fortressId, @NotNull String documentType, @NotNull String callerRef) {
-        if (log.isDebugEnabled())
-            log.debug("findByCallerRef fortress [" + fortressId + "] docType[" + documentType + "], callerRef[" + callerRef.toLowerCase() + "]");
+        if (logger.isDebugEnabled())
+            logger.debug("findByCallerRef fortress [" + fortressId + "] docType[" + documentType + "], callerRef[" + callerRef.toLowerCase() + "]");
         // This is pretty crappy, but Neo4J will throw an exception the first time you try to search if no index is in place.
         if (template.getGraphDatabaseService().index().existsForNodes("callerRef"))
             return auditRepo.findByCallerRef(fortressId, documentType, callerRef.toLowerCase());
@@ -134,8 +134,12 @@ public class AuditDaoNeo implements IAuditDao {
 
     public AuditLog getLastChange(Long auditHeaderID) {
         AuditLog when = auditLogRepo.getLastChange(auditHeaderID);
-        if (when != null)
+        if (when != null) {
             template.fetch(when.getAuditChange());
+            if (logger.isDebugEnabled())
+                logger.debug("Last Change " + when);
+        }
+
         return when;
     }
 
@@ -198,8 +202,8 @@ public class AuditDaoNeo implements IAuditDao {
 
     }
 
-    public void save(AuditLog log) {
-        template.save((AuditLogRelationship) log);
+    public AuditLog save(AuditLog log) {
+        return template.save((AuditLogRelationship) log);
     }
 
     @Override
@@ -233,5 +237,10 @@ public class AuditDaoNeo implements IAuditDao {
     @Override
     public AuditLog getChange(Long logId) {
         return template.findOne(logId, AuditLogRelationship.class);
+    }
+
+    @Override
+    public AuditHeader getHeader(Long id) {
+        return template.findOne(id, AuditHeaderNode.class);
     }
 }

@@ -213,8 +213,8 @@ public class TestAuditIntegration {
         Neo4jHelper.cleanDb(graphDatabaseService, true);
         regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
         //SecurityContextHolder.getContext().setAuthentication(authMike);
-        int auditCount = 2;
-        int logCount = 2000;
+        int auditCount = 2000;
+        int logCount = 2;
         String escJson = "{\"who\":";
         int fortress = 1;
         ArrayList<Long> list = new ArrayList<Long>();
@@ -245,7 +245,7 @@ public class TestAuditIntegration {
             }
             watch.split();
 
-            logger.info(iFortress.getName() + " took " + ((watch.getSplitTime() - sleepCount) / 1000d) + " rows per second " + ((watch.getSplitTime() - sleepCount) / 1000d) / (logCount + 2));
+            logger.info(iFortress.getName() + " took " + ((watch.getSplitTime() - sleepCount) / 1000d) + "  process time per row " + ((watch.getSplitTime() - sleepCount) / 1000d) / (logCount + 2));
             splits = splits + (watch.getSplitTime() - sleepCount);
             watch.reset();
             watch.start();
@@ -262,7 +262,7 @@ public class TestAuditIntegration {
         int searchLoops = 2;
         int search = 0;
         int totalSearchRequests = 0;
-        Thread.sleep(20000); // give things a final chance to complete
+        Thread.sleep(5000); // give things a final chance to complete
         watch.split();
 
         do {
@@ -275,9 +275,10 @@ public class TestAuditIntegration {
                         random = 1;
                     AuditHeader header = auditService.findByCallerRef(list.get(fortress), "CompanyNode", "ABC" + random);
                     assertNotNull("ABC" + random, header);
+                    assertNotNull("Looks like ab-search is not sending back results", header.getSearchKey());
                     AuditLog when = auditService.getLastChange(header);
                     assertNotNull(when.getAuditChange());
-                    logger.info(header.getAuditKey() + "-" + when.isIndexed());
+                    logger.info(header.getAuditKey() + " - " + when);
                     assertTrue("fortress " + fortress + " run " + x + " header " + header.getAuditKey(), when.isIndexed());
                     totalSearchRequests++;
                     x++;

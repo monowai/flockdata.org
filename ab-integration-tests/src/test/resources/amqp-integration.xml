@@ -37,7 +37,7 @@
 ">
     <int:annotation-config/>
 
-    <int:gateway id="searchGateway" async-executor="taskExecutor"
+    <int:gateway id="searchGateway"
                  service-interface="com.auditbucket.engine.service.AbSearchGateway"/>
     <!--async-executor="taskExecutor"-->
     <!-- RabbitMQ CONFIGURATION  -->

@@ -49,7 +49,7 @@
             message-converter="jsonToAuditSearchChangeConverter"
             />
 
-    <int:gateway id="searchGateway" async-executor="taskExecutor"
+    <int:gateway id="searchGateway"
                  service-interface="com.auditbucket.search.service.AbEngineGateway"/>
     <!--async-executor="taskExecutor"-->
     <int-amqp:outbound-gateway

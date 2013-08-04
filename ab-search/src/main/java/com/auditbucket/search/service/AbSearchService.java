@@ -30,10 +30,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.channels.AsynchronousChannel;
 import java.util.Map;
+import java.util.concurrent.Future;
 
 /**
  * User: Mike Holdsworth
@@ -61,8 +64,8 @@ public class AbSearchService implements ElasticSearchGateway {
     @Transactional
     @ServiceActivator(inputChannel = "searchRequest")
     public void createSearchableChange(AuditSearchChange thisChange) {
-        if (logger.isDebugEnabled())
-            logger.debug("searchRequest received for " + thisChange);
+        if (logger.isTraceEnabled())
+            logger.trace("searchRequest received for " + thisChange);
 
         SearchResult result;
         if (thisChange.getSearchKey() != null) {
@@ -74,8 +77,11 @@ public class AbSearchService implements ElasticSearchGateway {
         // Used to tie the fact that the doc was updated back to the engine
         result.setLogId(thisChange.getLogId());
         result.setSysWhen(thisChange.getSysWhen());
-        engineGateway.handleSearchResult(result);
 
+        if (logger.isDebugEnabled())
+            logger.debug("dispatching searchResult to ab-engine " + result);
+
+        engineGateway.handleSearchResult(result);
     }
 
     public void delete(AuditHeader auditHeader) {

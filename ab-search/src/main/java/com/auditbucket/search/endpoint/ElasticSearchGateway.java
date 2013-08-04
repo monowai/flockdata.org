@@ -23,7 +23,10 @@ import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.search.AuditSearchChange;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.Payload;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+
+import java.util.concurrent.Future;
 
 /**
  * User: Mike Holdsworth

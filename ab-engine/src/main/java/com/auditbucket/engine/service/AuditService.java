@@ -296,6 +296,9 @@ public class AuditService {
                 event = AuditChange.UPDATE;
                 input.setEvent(event);
             }
+            // How to block while waiting for the indexed result to come back - what if it doesn't??
+            while (header.getSearchKey() == null)
+                header = getHeader(header.getId());
 
             // Graph who did this for future analysis
             if (header.getLastUser() != null && !header.getLastUser().getId().equals(fUser.getId())) {
@@ -343,6 +346,10 @@ public class AuditService {
 
     }
 
+    private AuditHeader getHeader(Long id) {
+        return auditDAO.getHeader(id);
+    }
+
     private TxRef handleTxRef(AuditLogInputBean input) {
         TxRef txRef = null;
         if (input.isTransactional()) {
@@ -386,8 +393,11 @@ public class AuditService {
         // Another thread may have processed this so save an update
         if (when != null && !when.isIndexed()) {
             // We need to know that the change we requested to index has been indexed.
+            if (logger.isDebugEnabled())
+                logger.debug("Updating index status for " + when);
             when.setIsIndexed();
             auditDAO.save(when);
+
         } else {
             logger.info("Skipping " + when);
         }

@@ -84,7 +84,7 @@ public interface IAuditDao {
 
     AuditLog addLog(AuditHeader header, AuditChange al, DateTime fortressWhen);
 
-    void save(AuditLog log);
+    AuditLog save(AuditLog log);
 
     String ping();
 
@@ -93,4 +93,6 @@ public interface IAuditDao {
     AuditHeader save(FortressUser fu, AuditHeaderInputBean inputBean, DocumentType documentType);
 
     AuditLog getChange(Long logId);
+
+    AuditHeader getHeader(Long id);
 }
