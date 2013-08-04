@@ -297,8 +297,7 @@ public class AuditService {
                 input.setEvent(event);
             }
             // How to block while waiting for the indexed result to come back - what if it doesn't??
-            while (header.getSearchKey() == null)
-                header = getHeader(header.getId());
+            header = waitOnHeader(header);
 
             // Graph who did this for future analysis
             if (header.getLastUser() != null && !header.getLastUser().getId().equals(fUser.getId())) {
@@ -346,6 +345,25 @@ public class AuditService {
 
     }
 
+    private AuditHeader waitOnHeader(AuditHeader header) {
+        int timeOut = 50;
+        int i = 0;
+        while (header.getSearchKey() == null && i < timeOut) {
+            i++;
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+
+                logger.error(e.getMessage());
+            }
+            header = getHeader(header.getId());
+        }
+        if (header.getSearchKey() == null)
+            logger.error("Timeout waiting for the initial search document to be created " + header.getAuditKey());
+        return header;
+
+    }
+
     private AuditHeader getHeader(Long id) {
         return auditDAO.getHeader(id);
     }
@@ -372,6 +390,7 @@ public class AuditService {
      *
      * @param searchResult contains keys to tie the search to the audit
      */
+    @Transactional
     @ServiceActivator(inputChannel = "searchResult")
     public void handleSearchResult(SearchResult searchResult) {
         String auditKey = searchResult.getAuditKey();

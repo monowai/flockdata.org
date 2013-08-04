@@ -1,7 +1,7 @@
 package com.auditbucket.engine.service;
 
 import com.auditbucket.search.SearchResult;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.support.converter.MessageConversionException;
 import org.springframework.amqp.support.converter.SimpleMessageConverter;
@@ -26,9 +26,8 @@ public class JsonToSearchResultConverter extends SimpleMessageConverter {
                 ObjectMapper mapper = new ObjectMapper();
                 SearchResult searchResult = mapper.readValue(((String) content).getBytes(), SearchResult.class);
                 return searchResult;
-        }
-        }
-        catch (IOException e1) {
+            }
+        } catch (IOException e1) {
             throw new MessageConversionException("failed to convert text-based Message content", e1);
         }
         return content;

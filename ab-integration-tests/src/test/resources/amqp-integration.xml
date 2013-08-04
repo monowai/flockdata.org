@@ -46,6 +46,7 @@
     <!-- from RabbitMq to Ab-engine-->
     <int-amqp:inbound-gateway id="inboundGateway"
                               auto-startup="true"
+                              receive-timeout="0"
                               request-channel="searchResult"
                               queue-names="ab-engine.queue"
                               concurrent-consumers="100"
@@ -61,6 +62,7 @@
 
     <int-amqp:outbound-gateway
             request-channel="sendRequest"
+            reply-timeout="0"
             exchange-name="ab.search.exchange"
             routing-key="ab.search.binding"
             amqp-template="amqpTemplate"/>

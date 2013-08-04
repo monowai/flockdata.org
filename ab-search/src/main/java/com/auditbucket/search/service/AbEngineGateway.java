@@ -21,6 +21,7 @@ package com.auditbucket.search.service;
 
 import com.auditbucket.search.SearchResult;
 import org.springframework.integration.annotation.Gateway;
+import org.springframework.scheduling.annotation.Async;
 
 import java.util.concurrent.Future;
 

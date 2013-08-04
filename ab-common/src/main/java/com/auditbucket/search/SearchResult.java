@@ -29,7 +29,6 @@ import java.util.Date;
  */
 public class SearchResult {
     private String auditKey, fortress, searchKey, documentType;
-    private long sysWhen;
     private Long logId;
 
     protected SearchResult() {
@@ -49,7 +48,6 @@ public class SearchResult {
 
     public SearchResult(com.auditbucket.audit.model.SearchChange thisChange) {
         this(thisChange.getAuditKey(), thisChange.getFortressName(), thisChange.getSearchKey(), thisChange.getDocumentType());
-        this.sysWhen = thisChange.getWhen();
     }
 
     /**
@@ -92,18 +90,10 @@ public class SearchResult {
     public String toString() {
         return "SearchResult{" +
                 "auditKey='" + auditKey + '\'' +
-                ", sysWhen='" + sysWhen + '\'' +
+                ", logId='" + logId + '\'' +
                 ", fortress='" + fortress + '\'' +
                 ", documentType='" + documentType + '\'' +
                 '}';
-    }
-
-    public long getSysWhen() {
-        return sysWhen;
-    }
-
-    public void setSysWhen(long sysWhen) {
-        this.sysWhen = sysWhen;
     }
 
     public Long getLogId() {

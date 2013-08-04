@@ -111,7 +111,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
 
         auditChange.setSearchKey(ir.getId());
         if (log.isDebugEnabled())
-            log.debug("Added Document [" + ir.getId() + "] to " + indexName + "/" + documentType);
+            log.debug("Added Document [" + auditChange.getAuditKey() + "], logId=" + auditChange.getLogId() + " searchId [" + ir.getId() + "] to " + indexName + "/" + documentType);
         return auditChange;
 
     }
@@ -192,7 +192,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
                 actionGet();
 
         if (log.isDebugEnabled())
-            log.debug("Updated [" + incoming.getSearchKey() + "] for " + incoming + " to version " + ur.getVersion());
+            log.debug("Updated [" + incoming.getSearchKey() + "] logId=" + incoming.getLogId() + " for " + incoming + " to version " + ur.getVersion());
 
     }
 

@@ -21,6 +21,7 @@ package com.auditbucket.search.endpoint;
 
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.search.AuditSearchChange;
+import com.auditbucket.search.SearchResult;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.Payload;
 import org.springframework.scheduling.annotation.Async;
@@ -34,7 +35,7 @@ import java.util.concurrent.Future;
  */
 @Component
 public interface ElasticSearchGateway {
-    @Gateway(requestChannel = "searchRequest", replyChannel = "searchReply")
+    @Gateway(requestChannel = "searchRequest")
     public void createSearchableChange(AuditSearchChange thisChange);
 
     //@Gateway(requestChannel = "esDelete")

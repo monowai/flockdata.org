@@ -36,8 +36,8 @@
 		                http://www.springframework.org/schema/rabbit/spring-rabbit.xsd
 ">
     <int:annotation-config/>
-
-    <int:gateway id="searchGateway" async-executor="taskExecutor"
+    <!--async-executor="taskExecutor"-->
+    <int:gateway id="searchGateway"
                  service-interface="com.auditbucket.engine.service.AbSearchGateway"/>
 
     <!-- RabbitMQ CONFIGURATION  -->
@@ -49,7 +49,7 @@
                               request-channel="searchResult"
                               queue-names="ab-engine.queue"
                               shutdown-timeout="3000"
-                              concurrent-consumers="10"
+                              concurrent-consumers="100"
                               connection-factory="connectionFactory"
                               message-converter="jsonToSearchResultConverter"/>
 

@@ -61,7 +61,6 @@ public class AbSearchService implements ElasticSearchGateway {
         return auditQuery.getHitCount(index);
     }
 
-    @Transactional
     @ServiceActivator(inputChannel = "searchRequest")
     public void createSearchableChange(AuditSearchChange thisChange) {
         if (logger.isTraceEnabled())
@@ -76,12 +75,12 @@ public class AbSearchService implements ElasticSearchGateway {
         }
         // Used to tie the fact that the doc was updated back to the engine
         result.setLogId(thisChange.getLogId());
-        result.setSysWhen(thisChange.getSysWhen());
 
         if (logger.isDebugEnabled())
             logger.debug("dispatching searchResult to ab-engine " + result);
 
         engineGateway.handleSearchResult(result);
+
     }
 
     public void delete(AuditHeader auditHeader) {

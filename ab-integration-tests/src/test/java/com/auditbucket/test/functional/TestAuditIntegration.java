@@ -213,8 +213,8 @@ public class TestAuditIntegration {
         Neo4jHelper.cleanDb(graphDatabaseService, true);
         regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
         //SecurityContextHolder.getContext().setAuthentication(authMike);
-        int auditCount = 2000;
-        int logCount = 2;
+        int auditCount = 1;
+        int logCount = 10;
         String escJson = "{\"who\":";
         int fortress = 1;
         ArrayList<Long> list = new ArrayList<Long>();
@@ -234,13 +234,12 @@ public class TestAuditIntegration {
             while (audit <= auditCount) {
                 AuditHeaderInputBean aib = new AuditHeaderInputBean(iFortress.getName(), fortress + "olivia@sunnybell.com", "CompanyNode", new Date(), "ABC" + audit);
                 AuditResultBean arb = auditService.createHeader(aib);
-                //arb = auditService.createHeader(aib);
                 int log = 1;
                 while (log <= logCount) {
                     auditService.createLog(new AuditLogInputBean(arb.getAuditKey(), aib.getFortressUser(), new DateTime(), escJson + log + "}"));
                     log++;
                 }
-                Thread.sleep(sleepCount);
+                //Thread.sleep(sleepCount);
                 audit++;
             }
             watch.split();
@@ -262,7 +261,7 @@ public class TestAuditIntegration {
         int searchLoops = 2;
         int search = 0;
         int totalSearchRequests = 0;
-        Thread.sleep(5000); // give things a final chance to complete
+        Thread.sleep(10000); // give things a final chance to complete
         watch.split();
 
         do {
@@ -279,7 +278,7 @@ public class TestAuditIntegration {
                     AuditLog when = auditService.getLastChange(header);
                     assertNotNull(when.getAuditChange());
                     logger.info(header.getAuditKey() + " - " + when);
-                    assertTrue("fortress " + fortress + " run " + x + " header " + header.getAuditKey(), when.isIndexed());
+                    assertTrue("fortress " + fortress + " run " + x + " header " + header.getAuditKey() + " - " + when.getId(), when.isIndexed());
                     totalSearchRequests++;
                     x++;
                 } while (x < auditCount);
