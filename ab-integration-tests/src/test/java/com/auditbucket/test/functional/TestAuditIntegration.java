@@ -223,6 +223,7 @@ public class TestAuditIntegration {
         watch.start();
         double splits = 0;
         int sleepCount = logCount * 0;
+
         logger.info("FortressCount: " + fortressCount + " AuditCount: " + auditCount + " LogCount: " + logCount);
         logger.info("We will be expecting a total of " + (auditCount * logCount * (fortress + 1)) + " messages to be handled");
         while (fortress <= fortressCount) {
@@ -232,11 +233,19 @@ public class TestAuditIntegration {
             int audit = 1;
             logger.info("Starting run for " + fortressName);
             while (audit <= auditCount) {
+                boolean searchChecked = false;
+                boolean searchWorking = true;
                 AuditHeaderInputBean aib = new AuditHeaderInputBean(iFortress.getName(), fortress + "olivia@sunnybell.com", "CompanyNode", new Date(), "ABC" + audit);
                 AuditResultBean arb = auditService.createHeader(aib);
                 int log = 1;
-                while (log <= logCount) {
+                while (log <= logCount && searchWorking) {
                     auditService.createLog(new AuditLogInputBean(arb.getAuditKey(), aib.getFortressUser(), new DateTime(), escJson + log + "}"));
+                    if (!searchChecked) {
+                        searchChecked = true;
+                        AuditHeader auditHeader = auditService.getHeader(arb.getAuditKey(), false);
+                        searchWorking = auditHeader.getSearchKey() != null;
+                    }
+                    assertTrue("Search reply not received from ab-search", searchWorking);
                     log++;
                 }
                 //Thread.sleep(sleepCount);
