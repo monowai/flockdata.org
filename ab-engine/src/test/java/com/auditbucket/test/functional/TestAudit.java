@@ -229,7 +229,7 @@ public class TestAudit {
     public void testEventType() throws Exception {
 
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
-        Fortress fo = fortressService.registerFortress("auditTest");
+        Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new Date(), "YYY");
 
@@ -400,7 +400,7 @@ public class TestAudit {
         SecurityContextHolder.getContext().setAuthentication(authMike);
 
         int max = 10;
-        Fortress fortWP = fortressService.registerFortress("wportfolio");
+        Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
         DateTime dt = new DateTime().toDateTime();
         DateTime firstDate = dt.minusDays(max);
         DateTime workingDate = firstDate.toDateTime();
@@ -439,7 +439,7 @@ public class TestAudit {
         // For use in compensating transaction cases only
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         SecurityContextHolder.getContext().setAuthentication(authMike);
-        Fortress fortWP = fortressService.registerFortress("wportfolio");
+        Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
         DateTime dt = new DateTime().toDateTime();
         DateTime firstDate = dt.minusDays(2);
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", firstDate.toDate(), "ABC1");

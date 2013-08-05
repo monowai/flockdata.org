@@ -138,8 +138,15 @@ public class FortressService {
 
     }
 
+    /**
+     * Creates a fortress with the supplied name and will ignore any requests
+     * to create Search Documents.
+     *
+     * @param fortressName company unique name
+     * @return created fortress
+     */
     public Fortress registerFortress(String fortressName) {
-        FortressInputBean fb = new FortressInputBean(fortressName, false);
+        FortressInputBean fb = new FortressInputBean(fortressName, true);
         return registerFortress(fb);
     }
 

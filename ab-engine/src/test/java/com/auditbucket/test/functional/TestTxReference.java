@@ -25,6 +25,7 @@ import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditResultBean;
 import com.auditbucket.engine.service.AuditService;
+import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
@@ -146,7 +147,7 @@ public class TestTxReference {
     public void testTxCommits() throws Exception {
         String company = "Monowai";
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
-        Fortress fortressA = fortressService.registerFortress("auditTest");
+        Fortress fortressA = fortressService.registerFortress(new FortressInputBean("auditTest", true));
         String tagRef = "MyTXTag";
         AuditHeaderInputBean aBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new Date(), "ABC123");
 
