@@ -228,7 +228,7 @@ public class TestAuditIntegration {
         while (fortress <= fortressCount) {
 
             String fortressName = "bulkloada" + fortress;
-            Fortress iFortress = fortressService.registerFortress(new FortressInputBean(fortressName, true));
+            Fortress iFortress = fortressService.registerFortress(new FortressInputBean(fortressName, false));
             int audit = 1;
             logger.info("Starting run for " + fortressName);
             while (audit <= auditCount) {
