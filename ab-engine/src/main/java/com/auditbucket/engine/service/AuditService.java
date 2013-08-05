@@ -297,7 +297,8 @@ public class AuditService {
                 input.setEvent(event);
             }
             // How to block while waiting for the indexed result to come back - what if it doesn't??
-            header = waitOnHeader(header);
+            if (searchActive)
+                header = waitOnHeader(header);
 
             // Graph who did this for future analysis
             if (header.getLastUser() != null && !header.getLastUser().getId().equals(fUser.getId())) {

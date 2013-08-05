@@ -154,7 +154,7 @@ public class TestAudit {
     public void createHeaderTimeLogs() throws Exception {
 
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
-        Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest"));
+        Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", new Date(), "ABC123");
         String ahKey = auditService.createHeader(inputBean).getAuditKey();

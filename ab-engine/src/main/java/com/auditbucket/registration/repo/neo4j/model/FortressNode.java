@@ -51,7 +51,7 @@ public class FortressNode implements Fortress {
 
     public FortressNode(FortressInputBean fortressInputBean, Company ownedBy) {
         setName(fortressInputBean.getName());
-        setIgnoreSearchEngine(fortressInputBean.getSearchActive());
+        setIgnoreSearchEngine(fortressInputBean.getIgnoreSearch());
         setCompany(ownedBy);
         fortressKey = UUID.randomUUID();
     }
@@ -91,7 +91,7 @@ public class FortressNode implements Fortress {
 
     @Override
     public Boolean isSearchActive() {
-        return ignoreSearchEngine;
+        return !ignoreSearchEngine;
     }
 
     public void setIgnoreSearchEngine(Boolean ignoreSearchEngine) {

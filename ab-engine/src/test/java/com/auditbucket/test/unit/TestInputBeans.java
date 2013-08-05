@@ -61,16 +61,16 @@ public class TestInputBeans {
         CompanyNode c = new CompanyNode("test");
 
         FortressInputBean fib = new FortressInputBean("ABC");
-        assertFalse(fib.getSearchActive());
+        assertFalse(fib.getIgnoreSearch());
 
         fib = new FortressInputBean("ABC", false);
-        assertFalse(fib.getSearchActive());
+        assertFalse(fib.getIgnoreSearch());
 
         fib = new FortressInputBean("ABC", true);
-        assertTrue(fib.getSearchActive());
+        assertTrue(fib.getIgnoreSearch());
 
         fib = new FortressInputBean("ABC", false);
-        assertFalse(fib.getSearchActive());
+        assertFalse(fib.getIgnoreSearch());
 
     }
 

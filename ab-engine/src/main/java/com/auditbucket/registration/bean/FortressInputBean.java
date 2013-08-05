@@ -32,7 +32,7 @@ import org.hibernate.validator.constraints.NotEmpty;
  */
 public class FortressInputBean {
     private String name;
-    private Boolean searchActive = false;
+    private Boolean ignoreSearch = false;
     private String message = null;
     private String fortressKey = null;
 
@@ -43,12 +43,12 @@ public class FortressInputBean {
      * The fortress will *not* ignore the search engine
      * changes will not be accumulated
      *
-     * @param name         CompanyNode unique name for the fortress
-     * @param searchActive accumulate the changes in the search engine rather than update
+     * @param name               CompanyNode unique name for the fortress
+     * @param ignoreSearchEngine accumulate the changes in the search engine rather than update
      */
-    public FortressInputBean(String name, boolean searchActive) {
-        //this.accumulateChanges = searchActive;
-        this.searchActive = searchActive;
+    public FortressInputBean(String name, boolean ignoreSearchEngine) {
+        //this.accumulateChanges = ignoreSearchEngine;
+        this.ignoreSearch = ignoreSearchEngine;
         this.name = name;
     }
 
@@ -64,12 +64,12 @@ public class FortressInputBean {
         this.name = name;
     }
 
-    public Boolean getSearchActive() {
-        return searchActive;
+    public Boolean getIgnoreSearch() {
+        return ignoreSearch;
     }
 
-    public void setSearchActive(Boolean searchActive) {
-        this.searchActive = searchActive;
+    public void setIgnoreSearch(Boolean ignoreSearch) {
+        this.ignoreSearch = ignoreSearch;
     }
 
     public void setMessage(String message) {
