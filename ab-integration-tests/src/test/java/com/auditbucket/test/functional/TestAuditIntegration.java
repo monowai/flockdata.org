@@ -214,7 +214,7 @@ public class TestAuditIntegration {
         regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
         //SecurityContextHolder.getContext().setAuthentication(authMike);
         int auditCount = 1;
-        int logCount = 10;
+        int logCount = 1000;
         String escJson = "{\"who\":";
         int fortress = 1;
         ArrayList<Long> list = new ArrayList<Long>();
@@ -233,7 +233,7 @@ public class TestAuditIntegration {
             int audit = 1;
             logger.info("Starting run for " + fortressName);
             while (audit <= auditCount) {
-                boolean searchChecked = false;
+                boolean searchChecked = true;//ToDo: false
                 boolean searchWorking = true;
                 AuditHeaderInputBean aib = new AuditHeaderInputBean(iFortress.getName(), fortress + "olivia@sunnybell.com", "CompanyNode", new Date(), "ABC" + audit);
                 AuditResultBean arb = auditService.createHeader(aib);

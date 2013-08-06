@@ -35,7 +35,7 @@ import java.util.concurrent.Future;
 public interface AbSearchGateway {
 
     @Gateway(requestChannel = "sendRequest")
-    public Future<SearchResult> makeChangeSearchable(SearchChange searchDocumentBean);
+    public void makeChangeSearchable(SearchChange searchDocumentBean);
 
     public void delete(AuditHeader auditHeader, String searchKey);
 

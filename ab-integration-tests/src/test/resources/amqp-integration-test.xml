@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2012-2013 "Monowai Developments Limited"
+  ~
+  ~ This file is part of AuditBucket.
+  ~
+  ~ AuditBucket is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ AuditBucket is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:int-amqp="http://www.springframework.org/schema/integration/amqp"
+       xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xmlns:int-stream="http://www.springframework.org/schema/integration/stream"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/integration/amqp
+	                    http://www.springframework.org/schema/integration/amqp/spring-integration-amqp.xsd
+		                http://www.springframework.org/schema/integration
+		                http://www.springframework.org/schema/integration/spring-integration.xsd
+		                http://www.springframework.org/schema/integration/stream
+		                http://www.springframework.org/schema/integration/stream/spring-integration-stream.xsd
+		                http://www.springframework.org/schema/rabbit
+		                http://www.springframework.org/schema/rabbit/spring-rabbit.xsd
+">
+    <int:annotation-config/>
+    <!--async-executor="taskExecutor"-->
+    <int:gateway id="searchGateway"
+                 service-interface="com.auditbucket.engine.service.AbSearchGateway"/>
+
+    <!-- RabbitMQ CONFIGURATION  -->
+    <import resource="amqp-rabbit-test.xml"/>
+
+    <!-- from RabbitMq to Ab-engine-->
+    <int-amqp:inbound-gateway id="inboundGateway"
+                              request-channel="searchResult"
+                              queue-names="ab-engine.queue"
+                              shutdown-timeout="3000"
+                              concurrent-consumers="100"
+                              connection-factory="connectionFactory"
+                              message-converter="jsonToSearchResultConverter"/>
+
+    <int:json-to-object-transformer input-channel="searchReply"
+                                    id="jsonToObject" output-channel="searchResult"
+                                    type="com.auditbucket.search.SearchResult">
+    </int:json-to-object-transformer>
+
+    <int:object-to-json-transformer id="objectToJson"
+                                    input-channel="sendRequest"
+                                    output-channel="makeSearchRequest"
+                                    content-type="application/json">
+    </int:object-to-json-transformer>
+
+    <int-amqp:outbound-gateway request-channel="makeSearchRequest"
+                               routing-key="ab.search.binding"
+                               exchange-name="ab.search.exchange"
+                               amqp-template="amqpTemplate"/>
+
+    <!--reply-channel="searchReply"-->
+    <!--<int:gateway id="abSearchGateway"-->
+    <!--service-interface="com.auditbucket.engine.service.AbSearchGateway"/>-->
+
+
+    <int:channel id="makeSearchRequest">
+        <int:dispatcher task-executor="taskExecutor"/>
+    </int:channel>
+    <int:channel id="sendRequest"/>
+    <int:channel id="searchReply"/>
+    <int:channel id="searchResult"/>
+
+
+</beans>

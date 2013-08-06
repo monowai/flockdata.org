@@ -45,7 +45,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.annotation.ServiceActivator;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -118,7 +117,7 @@ public class AuditService {
     }
 
     /**
-     * Creates a fortress specific header for the caller. FortressUserNode is automatically
+     * Creates a fortress specific auditHeader for the caller. FortressUserNode is automatically
      * created if it does not exist.
      *
      * @return unique primary key to be used for subsequent log calls
@@ -145,7 +144,7 @@ public class AuditService {
 
         if (ah != null) {
             if (logger.isDebugEnabled())
-                logger.debug("Existing header record found by Caller Ref [" + inputBean.getCallerRef() + "] found [" + ah.getAuditKey() + "]");
+                logger.debug("Existing auditHeader record found by Caller Ref [" + inputBean.getCallerRef() + "] found [" + ah.getAuditKey() + "]");
             inputBean.setAuditKey(ah.getAuditKey());
 
             AuditResultBean arb = new AuditResultBean(ah, null);
@@ -203,7 +202,7 @@ public class AuditService {
     }
 
     /**
-     * Looks up the header from input and creates a log record
+     * Looks up the auditHeader from input and creates a log record
      *
      * @param input log details
      * @return populated log information with any error messages
@@ -228,7 +227,7 @@ public class AuditService {
     }
 
     /**
-     * Creates an audit log record for the supplied header from the supplied input
+     * Creates an audit log record for the supplied auditHeader from the supplied input
      *
      * @param header auditHeader the caller is authorised to work with
      * @param input  auditLog details containing the data to log
@@ -308,7 +307,7 @@ public class AuditService {
             header.setLastUser(fUser);
             sd = new AuditSearchChange(header, input.getMapWhat(), event, fortressWhen);
             sd.setTagValues(tagValues);
-        } else { // first ever log for the header
+        } else { // first ever log for the auditHeader
             if (event == null) {
                 event = AuditChange.CREATE;
                 input.setEvent(event);
@@ -346,10 +345,11 @@ public class AuditService {
 
     }
 
-    private AuditHeader waitOnHeader(AuditHeader header) {
+    private AuditHeader waitOnHeader(AuditHeader auditHeader) {
+
         int timeOut = 100;
         int i = 0;
-        while (header.getSearchKey() == null && i < timeOut) {
+        while (auditHeader.getSearchKey() == null && i < timeOut) {
             i++;
             try {
                 Thread.sleep(200);
@@ -357,11 +357,11 @@ public class AuditService {
 
                 logger.error(e.getMessage());
             }
-            header = getHeader(header.getId());
+            auditHeader = getHeader(auditHeader.getId());
         }
-        if (header.getSearchKey() == null)
-            logger.error("Timeout waiting for the initial search document to be created " + header.getAuditKey());
-        return header;
+        if (auditHeader.getSearchKey() == null)
+            logger.error("Timeout waiting for the initial search document to be created " + auditHeader.getAuditKey());
+        return auditHeader;
 
     }
 
@@ -391,7 +391,6 @@ public class AuditService {
      *
      * @param searchResult contains keys to tie the search to the audit
      */
-    @Transactional
     @ServiceActivator(inputChannel = "searchResult")
     public void handleSearchResult(SearchResult searchResult) {
         String auditKey = searchResult.getAuditKey();
@@ -491,11 +490,11 @@ public class AuditService {
     /**
      * This could be used toa assist in compensating transactions to roll back the last change
      * if the caller decides a rollback is required after the log has been written.
-     * If there are no AuditChange records left, then the header will also be removed and the
+     * If there are no AuditChange records left, then the auditHeader will also be removed and the
      * AB headerKey will be forever invalid.
      *
-     * @param headerKey UID of the header
-     * @return the modified header record or null if no header exists.
+     * @param headerKey UID of the auditHeader
+     * @return the modified auditHeader record or null if no auditHeader exists.
      */
     public AuditHeader cancelLastLog(String headerKey) throws IOException {
         AuditHeader auditHeader = getValidHeader(headerKey);
@@ -507,7 +506,7 @@ public class AuditService {
 
         AuditLog auditLog = getLastChange(auditHeader);
         if (auditLog == null)
-            // No Log records exist. Delete the header??
+            // No Log records exist. Delete the auditHeader??
             return null;
         AuditChange newLastChange = auditLog.getAuditChange();
         auditHeader = auditDAO.fetch(auditHeader);
@@ -526,7 +525,7 @@ public class AuditService {
     }
 
     /**
-     * counts the number of audit logs that exist for the given header
+     * counts the number of audit logs that exist for the given auditHeader
      *
      * @param headerKey GUID
      * @return count
@@ -540,7 +539,7 @@ public class AuditService {
     private AuditHeader getValidHeader(String headerKey) {
         AuditHeader header = auditDAO.findHeader(headerKey);
         if (header == null) {
-            throw new IllegalArgumentException("No audit header for [" + headerKey + "]");
+            throw new IllegalArgumentException("No audit auditHeader for [" + headerKey + "]");
         }
         String userName = securityHelper.getLoggedInUser();
         SystemUser sysUser = sysUserService.findByName(userName);

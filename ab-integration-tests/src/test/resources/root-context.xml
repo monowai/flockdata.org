@@ -36,8 +36,8 @@
     <context:property-placeholder location="classpath:config.properties"/>
 
     <import resource="spring-security.xml"/>
-    <import resource="neo4j-context.xml"/>
-    <import resource="amqp-integration.xml"/>
+    <import resource="neo4j-context-test.xml"/>
+    <import resource="amqp-integration-test.xml"/>
 
     <task:annotation-driven executor="taskExecutor"/>
     <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ConcurrentTaskExecutor">

@@ -136,8 +136,8 @@ public class AuditDaoNeo implements IAuditDao {
         AuditLog when = auditLogRepo.getLastChange(auditHeaderID);
         if (when != null) {
             template.fetch(when.getAuditChange());
-            if (logger.isDebugEnabled())
-                logger.debug("Last Change " + when);
+            if (logger.isTraceEnabled())
+                logger.trace("Last Change " + when);
         }
 
         return when;

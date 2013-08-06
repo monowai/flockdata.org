@@ -30,9 +30,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.concurrent.Future;
 
 /**
  * User: Mike Holdsworth
@@ -72,10 +74,17 @@ public class AbSearchService implements ElasticSearchGateway {
         // Used to tie the fact that the doc was updated back to the engine
         result.setLogId(thisChange.getLogId());
 
+        handleResult(result);
+
+    }
+
+    @Async
+    private Future<Void> handleResult(SearchResult result) {
         if (logger.isDebugEnabled())
             logger.debug("dispatching searchResult to ab-engine " + result);
 
         engineGateway.handleSearchResult(result);
+        return null;
     }
 
     public void delete(AuditHeader auditHeader) {

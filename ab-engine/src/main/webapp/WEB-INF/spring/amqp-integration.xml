@@ -45,7 +45,6 @@
 
     <!-- from RabbitMq to Ab-engine-->
     <int-amqp:inbound-gateway id="inboundGateway"
-                              auto-startup="true"
                               request-channel="searchResult"
                               queue-names="ab-engine.queue"
                               shutdown-timeout="3000"
@@ -54,27 +53,33 @@
                               message-converter="jsonToSearchResultConverter"/>
 
     <int:json-to-object-transformer input-channel="searchReply"
-                                    auto-startup="true"
                                     id="jsonToObject" output-channel="searchResult"
                                     type="com.auditbucket.search.SearchResult">
     </int:json-to-object-transformer>
 
-
-    <int:object-to-json-transformer auto-startup="true"
-                                    id="objectToJson"
+    <int:object-to-json-transformer id="objectToJson"
                                     input-channel="sendRequest"
                                     output-channel="makeSearchRequest"
-                                    content-type="text/x-json">
+                                    content-type="application/json">
     </int:object-to-json-transformer>
 
     <int-amqp:outbound-gateway
             request-channel="makeSearchRequest"
-            exchange-name="ab.search.exchange"
+            reply-channel="nullChannel"
             routing-key="ab.search.binding"
+            exchange-name="ab.search.exchange"
             amqp-template="amqpTemplate"/>
 
+    <!--reply-channel="searchReply"-->
+    <int:gateway id="abSearchGateway"
+                 service-interface="com.auditbucket.engine.service.AbSearchGateway"/>
 
-    <int:channel id="makeSearchRequest"/>
+    <!--<int:outbound-channel-adapter id="idMakeSearch" channel="sendRequest" ref="abSearchGateway" >-->
+    <!--</int:outbound-channel-adapter>-->
+
+    <int:channel id="makeSearchRequest">
+        <int:dispatcher task-executor="taskExecutor"/>
+    </int:channel>
     <int:channel id="sendRequest"/>
     <int:channel id="searchReply"/>
     <int:channel id="searchResult"/>

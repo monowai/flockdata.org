@@ -24,7 +24,10 @@ import com.auditbucket.search.AuditSearchChange;
 import com.auditbucket.search.SearchResult;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.Payload;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+
+import javax.validation.constraints.Future;
 
 /**
  * User: Mike Holdsworth
@@ -32,7 +35,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public interface ElasticSearchGateway {
-    @Gateway(requestChannel = "makeSearchRequest")
+    @Gateway(requestChannel = "sendRequest")
     public void createSearchableChange(AuditSearchChange thisChange);
 
     //@Gateway(requestChannel = "esDelete")
