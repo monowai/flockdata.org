@@ -37,7 +37,7 @@
 ">
     <int:annotation-config/>
     <!--async-executor="taskExecutor"-->
-    <int:gateway id="searchGateway"
+    <int:gateway id="searchGateway" async-executor="taskExecutor"
                  service-interface="com.auditbucket.engine.service.AbSearchGateway"/>
 
     <!-- RabbitMQ CONFIGURATION  -->
@@ -78,7 +78,9 @@
     </int:channel>
     <int:channel id="sendRequest"/>
     <int:channel id="searchReply"/>
-    <int:channel id="searchResult"/>
+    <int:channel id="searchResult">
+        <int:dispatcher task-executor="taskExecutor"/>
+    </int:channel>
 
 
 </beans>

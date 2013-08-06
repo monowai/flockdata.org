@@ -70,7 +70,6 @@
             exchange-name="ab.search.exchange"
             amqp-template="amqpTemplate"/>
 
-    <!--reply-channel="searchReply"-->
     <int:gateway id="abSearchGateway"
                  service-interface="com.auditbucket.engine.service.AbSearchGateway"/>
 
@@ -82,7 +81,9 @@
     </int:channel>
     <int:channel id="sendRequest"/>
     <int:channel id="searchReply"/>
-    <int:channel id="searchResult"/>
+    <int:channel id="searchResult">
+        <int:dispatcher task-executor="taskExecutor"/>
+    </int:channel>
 
 
 </beans>

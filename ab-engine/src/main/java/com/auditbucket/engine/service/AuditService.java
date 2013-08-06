@@ -45,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -333,16 +334,20 @@ public class AuditService {
 
         AuditChange change = auditDAO.save(fUser, input, txRef);
         AuditLog log = auditDAO.addLog(header, change, fortressWhen);
-
-        if (searchActive) {
-            // Used to reconcile that the change was actually indexed
-            sd.setSysWhen(log.getSysWhen());
-            sd.setLogId(log.getId());
-            searchGateway.makeChangeSearchable(sd);
-        }
         input.setStatus(AuditLogInputBean.LogStatus.OK);
+
+        if (searchActive)
+            makeChangeSearchable(sd, log);
+
         return input;
 
+    }
+
+    private void makeChangeSearchable(SearchChange sd, AuditLog log) {
+        // Used to reconcile that the change was actually indexed
+        sd.setSysWhen(log.getSysWhen());
+        sd.setLogId(log.getId());
+        searchGateway.makeChangeSearchable(sd);
     }
 
     private AuditHeader waitOnHeader(AuditHeader auditHeader) {

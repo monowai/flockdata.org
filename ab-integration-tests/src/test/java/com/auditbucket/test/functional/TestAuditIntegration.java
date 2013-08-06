@@ -214,7 +214,7 @@ public class TestAuditIntegration {
         regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
         //SecurityContextHolder.getContext().setAuthentication(authMike);
         int auditCount = 1;
-        int logCount = 1000;
+        int logCount = 50;
         String escJson = "{\"who\":";
         int fortress = 1;
         ArrayList<Long> list = new ArrayList<Long>();
@@ -222,10 +222,12 @@ public class TestAuditIntegration {
         StopWatch watch = new StopWatch();
         watch.start();
         double splits = 0;
-        int sleepCount = logCount * 0;
+        int sleepCount;  // Discount all the time we spent sleeping
 
         logger.info("FortressCount: " + fortressCount + " AuditCount: " + auditCount + " LogCount: " + logCount);
         logger.info("We will be expecting a total of " + (auditCount * logCount * (fortress + 1)) + " messages to be handled");
+
+        sleepCount = 0;
         while (fortress <= fortressCount) {
 
             String fortressName = "bulkloada" + fortress;
@@ -233,7 +235,7 @@ public class TestAuditIntegration {
             int audit = 1;
             logger.info("Starting run for " + fortressName);
             while (audit <= auditCount) {
-                boolean searchChecked = true;//ToDo: false
+                boolean searchChecked = false;
                 boolean searchWorking = true;
                 AuditHeaderInputBean aib = new AuditHeaderInputBean(iFortress.getName(), fortress + "olivia@sunnybell.com", "CompanyNode", new Date(), "ABC" + audit);
                 AuditResultBean arb = auditService.createHeader(aib);
@@ -252,8 +254,10 @@ public class TestAuditIntegration {
                         }
                         logger.info("Wait for search got to " + i);
                         searchWorking = auditHeader.getSearchKey() != null;
+                        assertTrue("Search reply not received from ab-search", searchWorking);
+                        sleepCount = sleepCount + 400 * i;
                     }
-                    assertTrue("Search reply not received from ab-search", searchWorking);
+
                     log++;
                 }
                 //Thread.sleep(sleepCount);
@@ -273,13 +277,12 @@ public class TestAuditIntegration {
         double sub = splits / 1000d;
         logger.info("Created data set in " + sub + " fortress avg = " + sub / fortressCount + " avg seconds per row " + sub / (fortressCount * auditCount * logCount) + " rows per second " + (fortressCount * auditCount * logCount) / sub);
         watch.reset();
-        watch.start();
 
-        int searchLoops = 2;
+        int searchLoops = 200;
         int search = 0;
         int totalSearchRequests = 0;
-        Thread.sleep(10000); // give things a final chance to complete
-        watch.split();
+        Thread.sleep(5000); // give things a final chance to complete
+        watch.start();
 
         do {
             fortress = 0;
