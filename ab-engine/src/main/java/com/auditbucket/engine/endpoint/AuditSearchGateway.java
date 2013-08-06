@@ -31,7 +31,7 @@ import org.springframework.integration.annotation.Payload;
  */
 public interface AuditSearchGateway {
 
-    @Gateway(requestChannel = "searchRequest")
+    @Gateway(requestChannel = "makeSearchRequest")
     public SearchChange createSearchableChange(@Payload SearchChange thisChange);
 
     @Gateway(requestChannel = "searchDelete")

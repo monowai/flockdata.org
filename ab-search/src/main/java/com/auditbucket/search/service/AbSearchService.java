@@ -30,13 +30,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.ServiceActivator;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.channels.AsynchronousChannel;
 import java.util.Map;
-import java.util.concurrent.Future;
 
 /**
  * User: Mike Holdsworth
@@ -61,7 +57,7 @@ public class AbSearchService implements ElasticSearchGateway {
         return auditQuery.getHitCount(index);
     }
 
-    @ServiceActivator(inputChannel = "searchRequest")
+    @ServiceActivator(inputChannel = "makeSearchRequest") // Subscriber
     public void createSearchableChange(AuditSearchChange thisChange) {
         if (logger.isTraceEnabled())
             logger.trace("searchRequest received for " + thisChange);
@@ -80,7 +76,6 @@ public class AbSearchService implements ElasticSearchGateway {
             logger.debug("dispatching searchResult to ab-engine " + result);
 
         engineGateway.handleSearchResult(result);
-
     }
 
     public void delete(AuditHeader auditHeader) {

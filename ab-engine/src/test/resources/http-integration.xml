@@ -35,7 +35,7 @@
                  service-interface="com.auditbucket.engine.service.AbSearchGateway"/>
 
     <int-http:outbound-gateway auto-startup="true"
-                               request-channel="sendRequest" reply-timeout="4000"
+                               request-channel="makeSearchRequest" reply-timeout="4000"
                                url="${absearch.make}"
                                extract-request-payload="true"/>
 
@@ -44,8 +44,8 @@
                               supported-methods="POST"/>
 
     <int:object-to-json-transformer auto-startup="true"
-                                    id="objectToJson" input-channel="searchRequest"
-                                    output-channel="sendRequest">
+                                    id="objectToJson" input-channel="sendRequest"
+                                    output-channel="makeSearchRequest">
     </int:object-to-json-transformer>
 
     <int:json-to-object-transformer input-channel="searchReply"

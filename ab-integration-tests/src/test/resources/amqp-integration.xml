@@ -46,7 +46,6 @@
     <!-- from RabbitMq to Ab-engine-->
     <int-amqp:inbound-gateway id="inboundGateway"
                               auto-startup="true"
-                              receive-timeout="0"
                               request-channel="searchResult"
                               queue-names="ab-engine.queue"
                               concurrent-consumers="100"
@@ -61,20 +60,19 @@
 
 
     <int-amqp:outbound-gateway
-            request-channel="sendRequest"
-            reply-timeout="0"
+            request-channel="makeSearchRequest"
             exchange-name="ab.search.exchange"
             routing-key="ab.search.binding"
             amqp-template="amqpTemplate"/>
 
     <int:object-to-json-transformer auto-startup="true"
                                     id="objectToJson"
-                                    input-channel="searchRequest"
-                                    output-channel="sendRequest"
+                                    input-channel="sendRequest"
+                                    output-channel="makeSearchRequest"
                                     content-type="text/x-json">
     </int:object-to-json-transformer>
 
-    <int:channel id="searchRequest"/>
+    <int:channel id="makeSearchRequest"/>
     <int:channel id="sendRequest"/>
     <int:channel id="searchReply"/>
     <int:channel id="searchResult"/>

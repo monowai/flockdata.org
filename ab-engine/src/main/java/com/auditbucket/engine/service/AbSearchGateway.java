@@ -21,10 +21,8 @@ package com.auditbucket.engine.service;
 
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.SearchChange;
-import com.auditbucket.search.AuditSearchChange;
 import com.auditbucket.search.SearchResult;
 import org.springframework.integration.annotation.Gateway;
-import org.springframework.scheduling.annotation.Async;
 
 import java.util.concurrent.Future;
 
@@ -36,7 +34,7 @@ import java.util.concurrent.Future;
  */
 public interface AbSearchGateway {
 
-    @Gateway(requestChannel = "searchRequest")
+    @Gateway(requestChannel = "sendRequest")
     public Future<SearchResult> makeChangeSearchable(SearchChange searchDocumentBean);
 
     public void delete(AuditHeader auditHeader, String searchKey);

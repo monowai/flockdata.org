@@ -242,7 +242,15 @@ public class TestAuditIntegration {
                     auditService.createLog(new AuditLogInputBean(arb.getAuditKey(), aib.getFortressUser(), new DateTime(), escJson + log + "}"));
                     if (!searchChecked) {
                         searchChecked = true;
+
+                        int i = 0;
                         AuditHeader auditHeader = auditService.getHeader(arb.getAuditKey(), false);
+                        while (auditHeader.getSearchKey() == null && i < 50) {
+                            auditHeader = auditService.getHeader(arb.getAuditKey(), false);
+                            Thread.sleep(400);
+                            i++;
+                        }
+                        logger.info("Wait for search got to " + i);
                         searchWorking = auditHeader.getSearchKey() != null;
                     }
                     assertTrue("Search reply not received from ab-search", searchWorking);

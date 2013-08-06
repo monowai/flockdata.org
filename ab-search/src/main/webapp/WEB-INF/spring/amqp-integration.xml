@@ -39,7 +39,7 @@
 
     <int-amqp:inbound-gateway
             id="inboundGateway"
-            request-channel="searchRequest"
+            request-channel="makeSearchRequest"
             queue-names="ab-search.queue"
             concurrent-consumers="100"
             shutdown-timeout="3000"
@@ -57,16 +57,9 @@
             routing-key="ab.engine.binding"
             amqp-template="amqpTemplate"/>
 
-
-    <!--<int:json-to-object-transformer
-            id="jsonToObject"
-            input-channel="searchRequest"
-            output-channel="searchRequestIn"
-            type="com.auditbucket.search.AuditSearchChange"/>-->
-
     <int:object-to-json-transformer id="objectToJson" input-channel="searchReply" output-channel="searchResult"/>
 
-    <int:channel id="searchRequest"/>
+    <int:channel id="makeSearchRequest"/>
     <int:channel id="searchReply"/>
     <int:channel id="searchResult"/>
 

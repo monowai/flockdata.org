@@ -347,7 +347,7 @@ public class AuditService {
     }
 
     private AuditHeader waitOnHeader(AuditHeader header) {
-        int timeOut = 50;
+        int timeOut = 100;
         int i = 0;
         while (header.getSearchKey() == null && i < timeOut) {
             i++;
