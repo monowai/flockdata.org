@@ -297,7 +297,7 @@ public class TestAuditIntegration {
                     assertNotNull("Looks like ab-search is not sending back results", header.getSearchKey());
                     AuditLog when = auditService.getLastChange(header);
                     assertNotNull(when.getAuditChange());
-                    logger.info(header.getAuditKey() + " - " + when);
+                    //logger.info(header.getAuditKey() + " - " + when);
                     assertTrue("fortress " + fortress + " run " + x + " header " + header.getAuditKey() + " - " + when.getId(), when.isIndexed());
                     totalSearchRequests++;
                     x++;
