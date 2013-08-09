@@ -46,9 +46,6 @@
             connection-factory="connectionFactory"
             message-converter="jsonToAuditSearchChangeConverter"
             />
-    <!--reply-channel="searchReply"-->
-    <int:gateway id="searchGateway" default-reply-channel="nullChannel"
-                 service-interface="com.auditbucket.search.service.AbEngineGateway"/>
 
     <!--async-executor="taskExecutor"-->
     <int-amqp:outbound-gateway
@@ -57,14 +54,5 @@
             routing-key="ab.engine.binding"
             amqp-template="amqpTemplate"/>
 
-    <int:object-to-json-transformer id="objectToJson" input-channel="searchReply" output-channel="searchResult"/>
-
-
-    <int:channel id="makeSearchRequest"/>
-
-    <int:channel id="searchReply"/>
-    <int:channel id="searchResult">
-        <int:dispatcher task-executor="taskExecutor"/>
-    </int:channel>
 
 </beans>

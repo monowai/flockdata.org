@@ -51,6 +51,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.Future;
 
 /**
  * Created with IntelliJ IDEA.
@@ -397,7 +398,7 @@ public class AuditService {
      * @param searchResult contains keys to tie the search to the audit
      */
     @ServiceActivator(inputChannel = "searchResult")
-    public void handleSearchResult(SearchResult searchResult) {
+    public Future<Void> handleSearchResult(SearchResult searchResult) {
         String auditKey = searchResult.getAuditKey();
         if (logger.isTraceEnabled())
             logger.trace("Updating from search auditKey =[" + searchResult + "]");
@@ -405,7 +406,7 @@ public class AuditService {
 
         if (header == null) {
             logger.error("Audit Key could not be found for [" + searchResult + "]");
-            return;
+            return null;
         }
         if (header.getSearchKey() == null) {
             header.setSearchKey(searchResult.getSearchKey());
@@ -425,6 +426,7 @@ public class AuditService {
         } else {
             logger.info("Skipping " + when);
         }
+        return null;
     }
 
     private boolean isSame(String jsonThis, String jsonThat) throws IOException {

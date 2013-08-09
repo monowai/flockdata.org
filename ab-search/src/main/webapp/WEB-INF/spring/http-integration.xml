@@ -32,29 +32,19 @@
     <int:annotation-config/>
     <beans:bean class="org.springframework.integration.http.inbound.UriPathHandlerMapping"/>
 
-    <int-http:inbound-gateway request-channel="searchRequest"
-                              reply-channel="searchReply"
+    <int-http:inbound-gateway request-channel="makeSearchRequest"
+                              reply-channel="nullChannel"
                               path="/api/esMake"
                               request-payload-type="com.auditbucket.search.AuditSearchChange"
                               supported-methods="POST"/>
 
 
-    <int:gateway id="searchGateway"
-                 service-interface="com.auditbucket.search.service.AbEngineGateway"/>
-
-    <int-http:outbound-gateway auto-startup="true"
-                               reply-timeout="1000"
+    <int-http:outbound-gateway reply-timeout="1000"
                                request-channel="searchResult"
+                               reply-channel="nullChannel"
+                               http-method="POST"
                                url="${abengine.result}"/>
 
-
-    <int:json-to-object-transformer id="jsonToObject" input-channel="searchRequest"
-                                    type="com.auditbucket.search.AuditSearchChange"/>
-    <int:object-to-json-transformer id="objectToJson" input-channel="searchReply" output-channel="searchResult"/>
-
-    <int:channel id="searchRequest"/>
-    <!--<int:channel id="esDelete"/>-->
-    <int:channel id="searchReply"/>
-    <int:channel id="searchResult"/>
+    <!--reply-channel="searchReply"-->
 
 </beans:beans>

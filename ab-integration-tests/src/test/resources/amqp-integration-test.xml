@@ -36,12 +36,9 @@
 		                http://www.springframework.org/schema/rabbit/spring-rabbit.xsd
 ">
     <int:annotation-config/>
-    <!--async-executor="taskExecutor"-->
-    <int:gateway id="searchGateway" async-executor="taskExecutor"
-                 service-interface="com.auditbucket.engine.service.AbSearchGateway"/>
 
     <!-- RabbitMQ CONFIGURATION  -->
-    <import resource="amqp-rabbit-test.xml"/>
+    <import resource="amqp-rabbit.xml"/>
 
     <!-- from RabbitMq to Ab-engine-->
     <int-amqp:inbound-gateway id="inboundGateway"
@@ -52,35 +49,12 @@
                               connection-factory="connectionFactory"
                               message-converter="jsonToSearchResultConverter"/>
 
-    <int:json-to-object-transformer input-channel="searchReply"
-                                    id="jsonToObject" output-channel="searchResult"
-                                    type="com.auditbucket.search.SearchResult">
-    </int:json-to-object-transformer>
-
-    <int:object-to-json-transformer id="objectToJson"
-                                    input-channel="sendRequest"
-                                    output-channel="makeSearchRequest"
-                                    content-type="application/json">
-    </int:object-to-json-transformer>
-
-    <int-amqp:outbound-gateway request-channel="makeSearchRequest"
-                               routing-key="ab.search.binding"
-                               exchange-name="ab.search.exchange"
-                               amqp-template="amqpTemplate"/>
-
-    <!--reply-channel="searchReply"-->
-    <!--<int:gateway id="abSearchGateway"-->
-    <!--service-interface="com.auditbucket.engine.service.AbSearchGateway"/>-->
-
-
-    <int:channel id="makeSearchRequest">
-        <int:dispatcher task-executor="taskExecutor"/>
-    </int:channel>
-    <int:channel id="sendRequest"/>
-    <int:channel id="searchReply"/>
-    <int:channel id="searchResult">
-        <int:dispatcher task-executor="taskExecutor"/>
-    </int:channel>
+    <int-amqp:outbound-gateway
+            request-channel="makeSearchRequest"
+            reply-channel="nullChannel"
+            routing-key="ab.search.binding"
+            exchange-name="ab.search.exchange"
+            amqp-template="amqpTemplate"/>
 
 
 </beans>

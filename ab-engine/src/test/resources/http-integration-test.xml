@@ -30,32 +30,17 @@
 	   http://www.springframework.org/schema/integration/http/spring-integration-http.xsd">
 
     <int:annotation-config/>
-    <bean class="org.springframework.integration.http.inbound.UriPathHandlerMapping"/>
-    <int:gateway id="searchGateway"
-                 service-interface="com.auditbucket.engine.service.AbSearchGateway"/>
 
-    <int-http:outbound-gateway auto-startup="true"
-                               request-channel="makeSearchRequest" reply-timeout="4000"
+    <bean class="org.springframework.integration.http.inbound.UriPathHandlerMapping"/>
+
+    <int-http:outbound-gateway request-channel="makeSearchRequest"
+                               reply-channel="nullChannel"
                                url="${absearch.make}"
                                extract-request-payload="true"/>
 
-    <int-http:inbound-gateway request-channel="searchReply" reply-timeout="2000"
+    <int-http:inbound-gateway request-channel="searchResult"
                               path="/api/searchResult"
+                              request-payload-type="com.auditbucket.search.SearchResult"
                               supported-methods="POST"/>
-
-    <int:object-to-json-transformer auto-startup="true"
-                                    id="objectToJson" input-channel="sendRequest"
-                                    output-channel="makeSearchRequest">
-    </int:object-to-json-transformer>
-
-    <int:json-to-object-transformer input-channel="searchReply"
-                                    auto-startup="true"
-                                    id="jsonToObject" output-channel="searchResult"
-                                    type="com.auditbucket.search.SearchResult">
-    </int:json-to-object-transformer>
-
-    <int:channel id="searchRequest"/>
-    <int:channel id="sendRequest"/>
-    <int:channel id="searchResult"/>
 
 </beans>

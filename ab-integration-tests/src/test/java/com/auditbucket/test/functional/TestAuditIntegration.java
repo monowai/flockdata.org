@@ -214,7 +214,7 @@ public class TestAuditIntegration {
         regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
         //SecurityContextHolder.getContext().setAuthentication(authMike);
         int auditCount = 1;
-        int logCount = 50;
+        int logCount = 2000;
         String escJson = "{\"who\":";
         int fortress = 1;
         ArrayList<Long> list = new ArrayList<Long>();
