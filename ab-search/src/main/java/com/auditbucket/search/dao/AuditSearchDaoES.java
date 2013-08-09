@@ -24,6 +24,7 @@ import com.auditbucket.audit.model.SearchChange;
 import com.auditbucket.audit.model.AuditHeader;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
@@ -81,13 +82,14 @@ public class AuditSearchDaoES implements AuditSearchDao {
         indexMe.put("@who", auditChange.getWho());
         indexMe.put("@lastEvent", auditChange.getEvent());
         indexMe.put("@when", auditChange.getWhen());
-        indexMe.put("@timestamp", new Date(auditChange.getSysWhen())); // Kibana should be able to search on this
+        indexMe.put("@timestamp", new Date(auditChange.getSysWhen()));
         // https://github.com/monowai/auditbucket/issues/21
 
         indexMe.put("@fortress", auditChange.getFortressName());
         indexMe.put("@docType", auditChange.getDocumentType());
         indexMe.put("@callerRef", auditChange.getCallerRef());
-        indexMe.put("@tags", auditChange.getTagValues());
+        if (auditChange.getTagValues() != null)
+            indexMe.put("@tags", auditChange.getTagValues());
 
         return indexMe;
     }
@@ -100,8 +102,6 @@ public class AuditSearchDaoES implements AuditSearchDao {
         String indexName = auditChange.getIndexName();
         String documentType = auditChange.getDocumentType();
 
-
-        //Map<String, Object> indexMe = makeIndexDocument(auditChange);
         String source = makeIndexJson(auditChange);
         IndexResponse ir = esClient.prepareIndex(indexName, documentType)
                 .setSource(source)
@@ -173,7 +173,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
             // Check to ensure we don't accidentally overwrite a more current
             // document with an older one. We assume the calling fortress understands
             // what the most recent doc is.
-            Object o = response.getSource().get("@when"); // Users view of WHEN, not AuditBuckets!
+            Object o = response.getSource().get("@when"); // fortress view of WHEN, not AuditBuckets!
             if (o != null) {
                 Long existingWhen = (Long) o;
                 if (existingWhen > incoming.getWhen())
@@ -186,13 +186,13 @@ public class AuditSearchDaoES implements AuditSearchDao {
                 .prepareIndex(incoming.getIndexName(), incoming.getDocumentType(), incoming.getSearchKey())
                 .setRouting(incoming.getAuditKey());
 
-        // ToDo: Do we care about waiting for the response? I doubt it.
-        IndexResponse ur = update.setSource(source).
-                execute().
-                actionGet();
+        ListenableActionFuture<IndexResponse> ur = update.setSource(source).
+                execute();
 
-        if (log.isDebugEnabled())
-            log.debug("Updated [" + incoming.getSearchKey() + "] logId=" + incoming.getLogId() + " for " + incoming + " to version " + ur.getVersion());
+        if (log.isDebugEnabled()) {
+            IndexResponse indexResponse = ur.actionGet();
+            log.debug("Updated [" + incoming.getSearchKey() + "] logId=" + incoming.getLogId() + " for " + incoming + " to version " + indexResponse.getVersion());
+        }
 
     }
 

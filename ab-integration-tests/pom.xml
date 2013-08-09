@@ -143,6 +143,9 @@
                                         http://archive.apache.org/dist/tomcat/tomcat-7/v7.0.30/bin/apache-tomcat-7.0.30.zip
                                     </url>
                                 </zipUrlInstaller>
+                                <systemProperties>
+                                    <int.method>amqp</int.method>
+                                </systemProperties>
                             </container>
                             <configuration>
                                 <home>${project.build.directory}/catalina-base</home>

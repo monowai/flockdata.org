@@ -42,7 +42,7 @@
     <import resource="spring-security.xml"/>
     <import resource="neo4j-context.xml"/>
     <import resource="transformation.xml"/>
-    <import resource="amqp-integration.xml"/>
+    <import resource="${int.method}-integration.xml"/>
 
     <task:annotation-driven executor="taskExecutor"/>
 

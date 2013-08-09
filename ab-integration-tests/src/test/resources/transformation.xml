@@ -37,7 +37,6 @@
                                     type="com.auditbucket.search.SearchResult">
     </int:json-to-object-transformer>
 
-
     <int:object-to-json-transformer id="objectToJson"
                                     input-channel="sendRequest"
                                     output-channel="makeSearchRequest"
@@ -49,9 +48,8 @@
     </int:channel>
 
     <int:channel id="searchResult">
-        <!--Enabling taskexecutor resulted in transformation failure under http-->
-        <!--disabling it causes neo4j errors to occur with __type__ in a relationship class -->
-        <!--<int:dispatcher task-executor="taskExecutor"/>-->
+        <!--disabling task-executor causes neo4j errors to occur with __type__ in a relationship class -->
+        <int:dispatcher task-executor="taskExecutor"/>
     </int:channel>
     <int:channel id="sendRequest"/>
     <int:channel id="searchReply"/>

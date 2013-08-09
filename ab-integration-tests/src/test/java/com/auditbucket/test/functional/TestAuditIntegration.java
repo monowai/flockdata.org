@@ -44,7 +44,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +66,6 @@ import static org.junit.Assert.assertNull;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
- * Created by IntelliJ IDEA.
  * User: nabil
  * Date: 16/07/13
  * Time: 22:51
@@ -92,9 +90,7 @@ public class TestAuditIntegration {
     private Neo4jTemplate template;
 
     private Logger logger = LoggerFactory.getLogger(TestAuditIntegration.class);
-    private String company = "Monowai";
     private String email = "test@ab.com";
-    private String emailB = "mark@null.com";
     Authentication authA = new UsernamePasswordAuthenticationToken(email, "user1");
 
 
@@ -126,33 +122,27 @@ public class TestAuditIntegration {
         Neo4jHelper.cleanDb(template);
     }
 
-    //    @Test
+    @Test
     public void createHeaderTimeLogsWithSearchActivated() throws Exception {
-        double max = 10d;
-        String ahKey = null;
+        int max = 10;
+        String ahKey;
         logger.info("createHeaderTimeLogsWithSearchActivated started");
         SecurityContextHolder.getContext().setAuthentication(authA);
-        Transaction tx = null;
+        String company = "Monowai";
         regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
-        Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
+        Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", false));
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", new Date(), "ABC123");
-        AuditResultBean auditResult = null;
-        try {
-            tx = graphDatabaseService.beginTx();
-            auditResult = auditService.createHeader(inputBean);
-            tx.success();
-        } finally {
-            tx.finish();
-        }
+        AuditResultBean auditResult;
+        auditResult = auditService.createHeader(inputBean);
         ahKey = auditResult.getAuditKey();
 
         assertNotNull(ahKey);
-        logger.info(ahKey);
 
 //        byte[] docs = alRepo.findOne(auditService.getHeader(ahKey));
 //        assertNotNull(docs);
-        assertNotNull(auditService.getHeader(ahKey));
+        AuditHeader auditHeader = auditService.getHeader(ahKey);
+        assertNotNull(auditHeader);
         assertNotNull(auditService.findByCallerRef(fo.getId(), "TestAudit", "ABC123"));
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));
@@ -163,13 +153,7 @@ public class TestAuditIntegration {
         logger.info("Start-");
         watch.start();
         while (i < max) {
-            try {
-                tx = graphDatabaseService.beginTx();
-                auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + i + "}"));
-                tx.success();
-            } finally {
-                tx.finish();
-            }
+            auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + i + "}"));
             i++;
         }
         watch.stop();
@@ -177,32 +161,30 @@ public class TestAuditIntegration {
 
 
         // Test that we get the expected number of log events
-        assertEquals(max, (double) auditService.getAuditLogCount(ahKey));
+        assertEquals(max, auditService.getAuditLogCount(ahKey));
 
         Thread.sleep(5000);
         // Putting asserts On elasticsearch
-        for (int k = 0; k < 10; k++) {
-            String query = "{" +
-                    "   \"query\": {  " +
-                    "\"query_string\" : { " +
-                    " \"default_field\" :\"blah\", " +
-                    " \"query\" :\"" + k + "\" " +
-                    "}  " +
-                    "}  " +
-                    "}";
-            Search search = new Search.Builder(query)
-                    .addIndex("monowai.audittest")
-                    .build();
+        String query = "{" +
+                "   \"query\": {  " +
+                "\"query_string\" : { " +
+                " \"default_field\" :\"@what.blah\", " +
+                " \"query\" :\"*\" " +
+                "}  " +
+                "}  " +
+                "}";
+        Search search = new Search.Builder(query)
+                .addIndex(auditHeader.getIndexName())
+                .build();
 
-            JestResult result = client.execute(search);
-            assertNotNull(result);
-            assertNotNull(result.getJsonObject());
-            assertNotNull(result.getJsonObject().getAsJsonObject("hits"));
-            assertNotNull(result.getJsonObject().getAsJsonObject("hits").get("total"));
-            int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
-            Assert.assertEquals(nbrResult, 1);
-
-        }
+        JestResult result = client.execute(search);
+        assertNotNull(result);
+        assertNotNull(result.getJsonObject());
+        assertNotNull(result.getJsonObject().getAsJsonObject("hits"));
+        assertNotNull(result.getJsonObject().getAsJsonObject("hits").get("total"));
+        int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
+        // Only the last change is indexed, so there should be one result
+        Assert.assertEquals(1, nbrResult);
 
     }
 
@@ -214,7 +196,7 @@ public class TestAuditIntegration {
         regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
         //SecurityContextHolder.getContext().setAuthentication(authMike);
         int auditCount = 1;
-        int logCount = 1000;
+        int logCount = 10;
         String escJson = "{\"who\":";
         int fortress = 1;
         ArrayList<Long> list = new ArrayList<Long>();
@@ -257,10 +239,8 @@ public class TestAuditIntegration {
                         assertTrue("Search reply not received from ab-search", searchWorking);
                         sleepCount = sleepCount + 400 * i;
                     }
-
                     log++;
                 }
-                //Thread.sleep(sleepCount);
                 audit++;
             }
             watch.split();
@@ -278,6 +258,11 @@ public class TestAuditIntegration {
         logger.info("Created data set in " + sub + " fortress avg = " + sub / fortressCount + " avg seconds per row " + sub / (fortressCount * auditCount * logCount) + " rows per second " + (fortressCount * auditCount * logCount) / sub);
         watch.reset();
 
+        doSearchTests(auditCount, list, watch);
+    }
+
+    private void doSearchTests(int auditCount, ArrayList<Long> list, StopWatch watch) throws Exception {
+        int fortress;
         int searchLoops = 200;
         int search = 0;
         int totalSearchRequests = 0;
@@ -299,6 +284,7 @@ public class TestAuditIntegration {
                     assertNotNull(when.getAuditChange());
                     //logger.info(header.getAuditKey() + " - " + when);
                     assertTrue("fortress " + fortress + " run " + x + " header " + header.getAuditKey() + " - " + when.getId(), when.isIndexed());
+                    doESCheck(header.getIndexName(), header.getAuditKey());
                     totalSearchRequests++;
                     x++;
                 } while (x < auditCount);
@@ -310,8 +296,29 @@ public class TestAuditIntegration {
         watch.stop();
         double end = watch.getTime() / 1000d;
         logger.info("Total Search Requests = " + totalSearchRequests + ". Total time for searches " + end + " avg requests per second = " + totalSearchRequests / end);
+    }
 
+    private void doESCheck(String index, String auditKey) throws Exception {
+        // There should only ever be one document for a given AuditKey.
+        // Let's assert that
+        String query = "{\n" +
+                "    query: {\n" +
+                "          query_string : {\n" +
+                "              \"query\" : \"" + auditKey + "\"\n" +
+                "           }\n" +
+                "      }\n" +
+                "}";
+        Search search = new Search.Builder(query)
+                .addIndex(index)
+                .build();
 
+        JestResult result = client.execute(search);
+        assertNotNull(result);
+        assertNotNull(result.getJsonObject());
+        assertNotNull(result.getJsonObject().getAsJsonObject("hits"));
+        assertNotNull(result.getJsonObject().getAsJsonObject("hits").get("total"));
+        int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
+        Assert.assertEquals(nbrResult, 1);
     }
 
 
