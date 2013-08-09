@@ -50,7 +50,8 @@
 
     <int:channel id="searchResult">
         <!--Enabling taskexecutor resulted in transformation failure under http-->
-        <int:dispatcher task-executor="taskExecutor"/>
+        <!--disabling it causes neo4j errors to occur with __type__ in a relationship class -->
+        <!--<int:dispatcher task-executor="taskExecutor"/>-->
     </int:channel>
     <int:channel id="sendRequest"/>
     <int:channel id="searchReply"/>
