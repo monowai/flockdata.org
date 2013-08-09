@@ -42,6 +42,9 @@ Thumbs.db
 
 #IDE Files
 .idea/
+.classpath
+.project
+.settings/
 *.iml
 target/
 data/
