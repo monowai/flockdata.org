@@ -276,7 +276,7 @@ public class AuditService {
         Boolean searchActive = fortress.isSearchActive();
         DateTime fortressWhen = (input.getWhen() == null ? new DateTime(DateTimeZone.UTC) : new DateTime(input.getWhen(), DateTimeZone.UTC));
 
-        SearchChange sd; // Document that will be indexed
+        SearchChange searchDocument; // Document that will be indexed
 
         if (lastChange != null) {
             // Neo4j won't store the map, so we store the raw escaped JSON text
@@ -297,7 +297,6 @@ public class AuditService {
                 event = AuditChange.UPDATE;
                 input.setEvent(event);
             }
-            // How to block while waiting for the indexed result to come back - what if it doesn't??
             if (searchActive)
                 header = waitOnHeader(header);
 
@@ -307,8 +306,8 @@ public class AuditService {
                 auditDAO.removeLastChange(header);
             }
             header.setLastUser(fUser);
-            sd = new AuditSearchChange(header, input.getMapWhat(), event, fortressWhen);
-            sd.setTagValues(tagValues);
+            searchDocument = new AuditSearchChange(header, input.getMapWhat(), event, fortressWhen);
+            searchDocument.setTagValues(tagValues);
         } else { // first ever log for the auditHeader
             if (event == null) {
                 event = AuditChange.CREATE;
@@ -317,11 +316,11 @@ public class AuditService {
 
             headerModified = true;
             header.setLastUser(fUser);
-            sd = new AuditSearchChange(header, input.getMapWhat(), event, fortressWhen);
-            sd.setTagValues(tagValues);
+            searchDocument = new AuditSearchChange(header, input.getMapWhat(), event, fortressWhen);
+            searchDocument.setTagValues(tagValues);
             if (logger.isTraceEnabled()) {
                 try {
-                    logger.trace(om.writeValueAsString(sd));
+                    logger.trace(om.writeValueAsString(searchDocument));
                 } catch (JsonProcessingException e) {
                     logger.error(e.getMessage());
                 }
@@ -334,19 +333,19 @@ public class AuditService {
         }
 
         AuditChange change = auditDAO.save(fUser, input, txRef);
-        AuditLog log = auditDAO.addLog(header, change, fortressWhen);
+        AuditLog auditLog = auditDAO.addLog(header, change, fortressWhen);
         input.setStatus(AuditLogInputBean.LogStatus.OK);
 
-        if (searchActive)
-            makeChangeSearchable(sd, log);
+        if (searchActive && !header.isSearchSuppressed())
+            makeChangeSearchable(searchDocument, auditLog);
 
         return input;
 
     }
 
     private void makeChangeSearchable(SearchChange sd, AuditLog log) {
-        // Used to reconcile that the change was actually indexed
         sd.setSysWhen(log.getSysWhen());
+        // Used to reconcile that the change was actually indexed
         sd.setLogId(log.getId());
         searchGateway.makeChangeSearchable(sd);
     }
@@ -355,6 +354,9 @@ public class AuditService {
 
         int timeOut = 100;
         int i = 0;
+        if (auditHeader.isSearchSuppressed())
+            return auditHeader; // Nothing to wait for as we're suppressing searches for this header
+
         while (auditHeader.getSearchKey() == null && i < timeOut) {
             i++;
             try {

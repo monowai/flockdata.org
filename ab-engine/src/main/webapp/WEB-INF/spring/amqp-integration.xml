@@ -45,7 +45,7 @@
                               request-channel="searchResult"
                               queue-names="ab-engine.queue"
                               shutdown-timeout="3000"
-                              concurrent-consumers="100"
+                              concurrent-consumers="125"
                               connection-factory="connectionFactory"
                               message-converter="jsonToSearchResultConverter"/>
 

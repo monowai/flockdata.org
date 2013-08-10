@@ -222,6 +222,7 @@ public class AuditLogInputBean {
         return fortress;
     }
 
+
     public enum LogStatus {
         IGNORE, OK, FORBIDDEN, NOT_FOUND, ILLEGAL_ARGUMENT
     }

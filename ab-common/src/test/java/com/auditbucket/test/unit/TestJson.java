@@ -17,17 +17,16 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.test.functional;
+package com.auditbucket.test.unit;
 
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.helper.CompressionResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Assert;
 import org.junit.Test;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
 
 /**
  * User: Mike Holdsworth
@@ -46,7 +45,7 @@ public class TestJson {
         result = CompressionHelper.compress(log.getWhat());
         System.out.println("Compressed JSON      - " + result.length());
 
-        assertEquals(CompressionResult.Method.GZIP, result.getMethod());
+        Assert.assertEquals(CompressionResult.Method.GZIP, result.getMethod());
 
         json = getBigJsonText(99);
         String uncompressed = CompressionHelper.decompress(result);
@@ -54,7 +53,7 @@ public class TestJson {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode compareTo = mapper.readTree(json);
         JsonNode other = mapper.readTree(uncompressed);
-        assertTrue(compareTo.equals(other));
+        Assert.assertTrue(compareTo.equals(other));
     }
 
     @Test
@@ -63,7 +62,7 @@ public class TestJson {
         System.out.println("Before Comppression" + json.getBytes().length);
 
         CompressionResult result = CompressionHelper.compress(json);
-        assertEquals(CompressionResult.Method.NONE, result.getMethod());
+        Assert.assertEquals(CompressionResult.Method.NONE, result.getMethod());
         System.out.println("Compressed " + result.length());
 
         String uncompressed = CompressionHelper.decompress(result);
@@ -71,7 +70,7 @@ public class TestJson {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode compareTo = mapper.readTree(json);
         JsonNode other = mapper.readTree(uncompressed);
-        assertTrue(compareTo.equals(other));
+        Assert.assertTrue(compareTo.equals(other));
 
     }
 

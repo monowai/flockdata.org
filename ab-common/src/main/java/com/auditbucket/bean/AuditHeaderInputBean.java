@@ -39,7 +39,9 @@ public class AuditHeaderInputBean {
     private Date when;
     private String lastMessage;
     private AuditLogInputBean auditLog;
+    private boolean searchSuppressed;
     private Map<String, Object> tagValues = new HashMap<String, Object>();
+    private boolean suppressSearch;
 
     AuditHeaderInputBean() {
     }
@@ -130,5 +132,13 @@ public class AuditHeaderInputBean {
 
     public void setTagValues(Map<String, Object> tagValues) {
         this.tagValues = tagValues;
+    }
+
+    public void setSuppressSearch(boolean suppressSearch) {
+        this.suppressSearch = suppressSearch;
+    }
+
+    public boolean isSuppressSearch() {
+        return suppressSearch;
     }
 }

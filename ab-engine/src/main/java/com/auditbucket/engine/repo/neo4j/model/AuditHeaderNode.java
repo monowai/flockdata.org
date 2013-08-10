@@ -93,6 +93,8 @@ public class AuditHeaderNode implements AuditHeader {
     @Indexed(indexName = "searchKey")
     String searchKey = null;
 
+    private boolean searchSuppressed;
+
     AuditHeaderNode() {
         auditKey = UUID.randomUUID().toString();
         DateTime now = new DateTime().toDateTime(DateTimeZone.UTC);
@@ -116,11 +118,10 @@ public class AuditHeaderNode implements AuditHeader {
         this.createdBy = (FortressUserNode) createdBy;
         this.lastWho = (FortressUserNode) createdBy;
         this.fortress = (FortressNode) createdBy.getFortress();
+        this.suppressSearch(auditInput.isSuppressSearch());
 
         String docType = (documentType != null ? getDocumentType() : "");
         this.name = (callerRef == null ? docType : (docType + "." + callerRef).toLowerCase());
-
-
     }
 
 
@@ -227,11 +228,20 @@ public class AuditHeaderNode implements AuditHeader {
         lastUpdated = System.currentTimeMillis();
     }
 
-//    @Override
-//    @JsonIgnore
-//    public Set<AuditLog> getAuditLogs() {
-//        return auditWhen;
-//    }
+    /**
+     * if set to true, then this change will not be indexed in the search engine
+     * even if the fortress allows it
+     *
+     * @param searchSuppressed boolean
+     */
+    public void suppressSearch(boolean searchSuppressed) {
+        this.searchSuppressed = searchSuppressed;
+
+    }
+
+    public boolean isSearchSuppressed() {
+        return searchSuppressed;
+    }
 
     @JsonIgnore
     public void setSearchKey(String parentKey) {

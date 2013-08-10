@@ -74,7 +74,9 @@ public interface AuditHeader {
      */
     void bumpUpdate();
 
-    //Set<AuditLog> getAuditLogs();
+    public boolean isSearchSuppressed();
+
+    public void suppressSearch(boolean searchSuppressed);
 
     void setSearchKey(String parentKey);
 

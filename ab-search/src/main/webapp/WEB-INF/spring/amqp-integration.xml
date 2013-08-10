@@ -41,7 +41,7 @@
             id="inboundGateway"
             request-channel="makeSearchRequest"
             queue-names="ab-search.queue"
-            concurrent-consumers="100"
+            concurrent-consumers="250"
             shutdown-timeout="3000"
             connection-factory="connectionFactory"
             message-converter="jsonToAuditSearchChangeConverter"
