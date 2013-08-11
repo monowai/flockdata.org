@@ -47,8 +47,6 @@ public class AuditTXResult {
 
     public AuditTXResult(AuditHeader header, AuditChange change, AuditLog log) {
         this.fortressWhen = log.getFortressWhen();
-        if (header == null)
-            header = change.getHeader();
         this.auditKey = header.getAuditKey();
         this.documentType = header.getDocumentType();
         this.callerRef = header.getCallerRef();

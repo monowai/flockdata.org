@@ -48,6 +48,7 @@ import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
@@ -92,8 +93,9 @@ public class AuditService {
     private Logger logger = LoggerFactory.getLogger(AuditService.class);
     static final ObjectMapper om = new ObjectMapper();
 
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public Map<String, String> getHealth() {
-        Map<String, String> healthResults = new HashMap<String, String>();
+        Map<String, String> healthResults = new HashMap<>();
         healthResults.put("ab-engine", auditDAO.ping());
         return healthResults;
 
@@ -184,10 +186,12 @@ public class AuditService {
 
     }
 
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public AuditHeader getHeader(@NotEmpty String key) {
         return getHeader(key, false);
     }
 
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public AuditHeader getHeader(@NotEmpty String key, boolean inflate) {
         String userName = securityHelper.getLoggedInUser();
 
@@ -360,6 +364,7 @@ public class AuditService {
 
     }
 
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     private AuditHeader getHeader(Long id) {
         return auditDAO.getHeader(id);
     }
@@ -456,11 +461,13 @@ public class AuditService {
         auditDAO.save(auditHeader);
     }
 
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public AuditLog getLastAuditLog(String headerKey) {
         AuditHeader ah = getValidHeader(headerKey);
         return getLastAuditLog(ah);
     }
 
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public AuditLog getLastAuditLog(AuditHeader auditHeader) {
         return auditDAO.getLastAuditLog(auditHeader.getId());
     }
@@ -537,6 +544,7 @@ public class AuditService {
      * @param headerKey GUID
      * @return count
      */
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public int getAuditLogCount(String headerKey) {
         AuditHeader auditHeader = getValidHeader(headerKey);
         return auditDAO.getLogCount(auditHeader.getId());
