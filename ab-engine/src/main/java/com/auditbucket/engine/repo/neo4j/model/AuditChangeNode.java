@@ -21,6 +21,7 @@ package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.audit.model.AuditChange;
 import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.audit.model.AuditLog;
 import com.auditbucket.audit.model.TxRef;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.helper.CompressionHelper;
@@ -65,6 +66,12 @@ public class AuditChangeNode implements AuditChange {
     @Indexed(indexName = "searchKey")
     private String searchKey;
 
+    @RelatedTo(type = "previousChange", direction = Direction.INCOMING)
+    private AuditChangeNode previousChange;
+
+    @Fetch
+    @RelatedToVia(type = "logged", direction = Direction.INCOMING)
+    AuditLogRelationship auditLog;
 
     protected AuditChangeNode() {
 
@@ -137,6 +144,21 @@ public class AuditChangeNode implements AuditChange {
         CompressionResult result = CompressionHelper.compress(what);
         this.what = result.getAsBytes();
         this.compressed = result.getMethod() == CompressionResult.Method.GZIP;
+    }
+
+    @Override
+    public void setPreviousChange(AuditChange previousChange) {
+        this.previousChange = (AuditChangeNode) previousChange;
+    }
+
+    @Override
+    public AuditChange getPreviousChange() {
+        return previousChange;
+    }
+
+    @Override
+    public AuditLog getAuditLog() {
+        return auditLog;
     }
 
     private Map<String, Object> mWhat;

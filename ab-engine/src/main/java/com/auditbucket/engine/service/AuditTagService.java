@@ -41,8 +41,6 @@ import java.util.Set;
  */
 @Service
 public class AuditTagService {
-    @Autowired
-    AuditService auditService;
 
     @Autowired
     TagService tagService;
@@ -53,7 +51,7 @@ public class AuditTagService {
     @Autowired
     IAuditTagDao auditTagDao;
 
-    public void processTag(AuditTagInputBean tagInput) {
+    public void processTag(AuditHeader header, AuditTagInputBean tagInput) {
         //Company company = securityHelper.getCompany();
         String tagValue = tagInput.getValue();
         Set<TagValue> existing = findTagValues(tagInput.getTagName(), tagInput.getValue());
@@ -62,7 +60,6 @@ public class AuditTagService {
             return;
 
         Tag tag = tagService.processTag(new TagInputBean(tagInput.getTagName()));
-        AuditHeader header = auditService.getHeader(tagInput.getAuditKey());
         auditTagDao.save(tag, header, tagValue);
     }
 
@@ -91,8 +88,7 @@ public class AuditTagService {
         }
     }
 
-    public Set<TagValue> findAuditTags(String auditKey) {
-        AuditHeader header = auditService.getHeader(auditKey);
+    public Set<TagValue> findAuditTags(AuditHeader header) {
         return auditTagDao.getAuditTags(header);
 
     }

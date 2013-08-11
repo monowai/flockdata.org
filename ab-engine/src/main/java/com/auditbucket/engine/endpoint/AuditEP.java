@@ -19,8 +19,8 @@
 
 package com.auditbucket.engine.endpoint;
 
-import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditChange;
+import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditLog;
 import com.auditbucket.audit.model.TxRef;
 import com.auditbucket.bean.AuditHeaderInputBean;
@@ -35,8 +35,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -224,18 +222,18 @@ public class AuditEP {
 
     @RequestMapping(value = "/{auditKey}/lastchange", produces = "application/json", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<AuditLog> getLastChange(@PathVariable("auditKey") String auditKey) throws Exception {
+    public ResponseEntity<AuditChange> getLastChange(@PathVariable("auditKey") String auditKey) throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/c27ec2e5-2e17-4855-be18-bd8f82249157/logs
         try {
-            AuditHeader header = auditService.getHeader(auditKey);
-            AuditLog when = auditService.getLastChange(header);
-            if (when != null)
-                return new ResponseEntity<AuditLog>(when, HttpStatus.OK);
-            return new ResponseEntity<AuditLog>((AuditLog) null, HttpStatus.OK);
+            AuditHeader header = auditService.getHeader(auditKey, true);
+            if (header != null)
+                return new ResponseEntity<AuditChange>((AuditChange) header.getLastChange(), HttpStatus.OK);
+
+            return new ResponseEntity<AuditChange>((AuditChange) null, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<AuditLog>((AuditLog) null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<AuditChange>((AuditChange) null, HttpStatus.NOT_FOUND);
         } catch (SecurityException e) {
-            return new ResponseEntity<AuditLog>((AuditLog) null, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<AuditChange>((AuditChange) null, HttpStatus.FORBIDDEN);
         }
 
     }

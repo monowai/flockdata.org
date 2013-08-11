@@ -19,10 +19,7 @@
 
 package com.auditbucket.engine.repo.neo4j.model;
 
-import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.audit.model.AuditLog;
-import com.auditbucket.audit.model.DocumentType;
-import com.auditbucket.audit.model.TagValue;
+import com.auditbucket.audit.model.*;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
@@ -71,6 +68,9 @@ public class AuditHeaderNode implements AuditHeader {
 
     @RelatedToVia(elementClass = AuditTagRelationship.class, type = "tagValue", direction = Direction.INCOMING)
     private Set<TagValue> tagValues;
+
+    @RelatedTo(type = "lastChange", direction = Direction.OUTGOING)
+    private AuditChangeNode lastChange;
 
 //    @RelatedToVia(elementClass = AuditLogRelationship.class, type = "logged", direction = Direction.OUTGOING)
 //    private Set<AuditLog> auditWhen = new HashSet<AuditLog>();
@@ -272,5 +272,14 @@ public class AuditHeaderNode implements AuditHeader {
                 result.put(tagValue.getTag().getName(), tagValue.getTagValue());
             }
         return result;
+    }
+
+    @Override
+    public void setLastChange(AuditChange change) {
+        this.lastChange = (AuditChangeNode) change;
+    }
+
+    public AuditChange getLastChange() {
+        return this.lastChange;
     }
 }

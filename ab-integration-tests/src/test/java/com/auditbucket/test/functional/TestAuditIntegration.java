@@ -20,7 +20,6 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.audit.model.AuditLog;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditResultBean;
@@ -231,7 +230,7 @@ public class TestAuditIntegration {
         Neo4jHelper.cleanDb(graphDatabaseService, true);
         regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
         //SecurityContextHolder.getContext().setAuthentication(authMike);
-        int auditMax = 50;
+        int auditMax = 10;
         int logMax = 10;
         int fortress = 1;
         String simpleJson = "{\"who\":";
@@ -281,7 +280,7 @@ public class TestAuditIntegration {
             } // Audit headers finished with
             watch.split();
             double fortressRunTime = (watch.getSplitTime() - auditSleepCount) / 1000d;
-            logger.info("*** " + iFortress.getName() + " took " + fortressRunTime + "  avg processing time per row " + f.format(fortressRunTime / rows) + ". Rows per second " + f.format(rows / fortressRunTime));
+            logger.info("*** " + iFortress.getName() + " took " + fortressRunTime + "  avg processing time for [" + rows + "] RPS= " + f.format(fortressRunTime / rows) + ". Rows per second " + f.format(rows / fortressRunTime));
 
             splitTotals = splitTotals + fortressRunTime;
             totalRows = totalRows + rows;
@@ -333,13 +332,15 @@ public class TestAuditIntegration {
                     int random = (int) (Math.random() * ((auditCount) + 1));
                     if (random == 0)
                         random = 1;
-                    AuditHeader header = auditService.findByCallerRef(list.get(fortress), "CompanyNode", "ABC" + random);
+
+                    AuditHeader header = auditService.findByCallerRefFull(list.get(fortress), "CompanyNode", "ABC" + random);
                     assertNotNull("ABC" + random, header);
                     assertNotNull("Looks like ab-search is not sending back results", header.getSearchKey());
-                    AuditLog when = auditService.getLastChange(header);
-                    assertNotNull(when.getAuditChange());
+                    //AuditLog when = auditService.getLastAuditLog(header);
+                    assertNotNull(header.getLastChange());
+
                     //logger.info(header.getAuditKey() + " - " + when);
-                    assertTrue("fortress " + fortress + " run " + x + " header " + header.getAuditKey() + " - " + when.getId(), when.isIndexed());
+                    assertTrue("fortress " + fortress + " run " + x + " header " + header.getAuditKey() + " - " + header.getLastChange().getAuditLog().getId(), header.getLastChange().getAuditLog().isIndexed());
                     doESCheck(header.getIndexName(), header.getAuditKey());
                     totalSearchRequests++;
                     x++;

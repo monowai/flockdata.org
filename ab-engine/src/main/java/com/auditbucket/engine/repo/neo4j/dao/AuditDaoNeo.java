@@ -95,12 +95,6 @@ public class AuditDaoNeo implements IAuditDao {
         return null;
     }
 
-    @Override
-    public void removeLastChange(AuditHeader header) {
-        // Remove the lastChange relationship
-        template.deleteRelationshipBetween(header, header.getLastUser(), "lastChanged");
-    }
-
     public AuditHeader fetch(AuditHeader header) {
         template.fetch(header);
         template.fetch(header.getFortress());
@@ -132,8 +126,8 @@ public class AuditDaoNeo implements IAuditDao {
         return auditLogRepo.getLogCount(id);
     }
 
-    public AuditLog getLastChange(Long auditHeaderID) {
-        AuditLog when = auditLogRepo.getLastChange(auditHeaderID);
+    public AuditLog getLastAuditLog(Long auditHeaderID) {
+        AuditLog when = auditLogRepo.getLastAuditLog(auditHeaderID);
         if (when != null) {
             template.fetch(when.getAuditChange());
             if (logger.isTraceEnabled())
@@ -219,12 +213,13 @@ public class AuditDaoNeo implements IAuditDao {
 
     @Override
     public AuditChange save(FortressUser fUser, AuditLogInputBean input) {
-        return save(fUser, input, null);
+        return save(fUser, input, null, null);
     }
 
     @Override
-    public AuditChange save(FortressUser fUser, AuditLogInputBean input, TxRef txRef) {
+    public AuditChange save(FortressUser fUser, AuditLogInputBean input, TxRef txRef, AuditChange previousChange) {
         AuditChange auditChange = new AuditChangeNode(fUser, input, txRef);
+        auditChange.setPreviousChange(previousChange);
         return template.save(auditChange);
     }
 
@@ -242,5 +237,10 @@ public class AuditDaoNeo implements IAuditDao {
     @Override
     public AuditHeader getHeader(Long id) {
         return template.findOne(id, AuditHeaderNode.class);
+    }
+
+    @Override
+    public AuditChange fetch(AuditChange lastChange) {
+        return template.fetch(lastChange);
     }
 }

@@ -90,4 +90,8 @@ public interface AuditHeader {
     public Set<TagValue> getTagValues();
 
     Map<String, Object> getTagMap();
+
+    void setLastChange(AuditChange change);
+
+    public AuditChange getLastChange();
 }

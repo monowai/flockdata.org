@@ -35,7 +35,6 @@ import com.auditbucket.registration.service.RegistrationService;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -48,19 +47,16 @@ import org.springframework.data.neo4j.support.node.Neo4jHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.annotation.NotTransactional;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.Set;
 
 import static junit.framework.Assert.*;
-import static junit.framework.Assert.assertEquals;
 
 /**
  * User: Mike Holdsworth
@@ -87,13 +83,12 @@ public class TestAudit {
     private GraphDatabaseService graphDatabaseService;
 
 
-    private Logger log = LoggerFactory.getLogger(TestAudit.class);
+    private Logger logger = LoggerFactory.getLogger(TestAudit.class);
     private String monowai = "Monowai";
     private String mike = "test@ab.com";
     private String mark = "mark@null.com";
     Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
     Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "user1");
-    private String hummingbird = "Hummingbird";
     String what = "{\"house\": \"house";
 
     @Before
@@ -116,6 +111,20 @@ public class TestAudit {
         }
     }
 
+    @Test
+    public void logChangeByCallerRefNoAuditKey() throws Exception {
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
+        Fortress fortressA = fortressService.registerFortress("auditTest");
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new Date(), "ABC123");
+        assertNotNull(auditService.createHeader(inputBean));
+
+        AuditLogInputBean aib = new AuditLogInputBean("wally", new DateTime(), "{\"blah\":" + 1 + "}");
+        aib.setCallerRef(fortressA.getName(), "TestAudit", "ABC123");
+        AuditLogInputBean input = auditService.createLog(aib);
+        assertNotNull(input.getAuditKey());
+
+
+    }
 
     @Test
     public void callerRefAuthzExcep() {
@@ -138,14 +147,28 @@ public class TestAudit {
 
         assertNotNull(auditService.findByCallerRef(fortressA.getId(), "TestAudit", "ABC123"));
         assertNotNull(auditService.findByCallerRef(fortressA.getId(), "TestAudit", "abc123"));
-        assertNull(auditService.findByCallerRef(fortressA.getId(), "TestAudit", "123ABC"));
+        assertNull("Security - shouldn't be able to see this header", auditService.findByCallerRef(fortressA.getId(), "TestAudit", "123ABC"));
         // Test non external user can't do this
         SecurityContextHolder.getContext().setAuthentication(authB);
         try {
             assertNull(auditService.findByCallerRef(fortressA.getId(), "TestAudit", "ABC123"));
             fail("Security exception not thrown");
+
         } catch (SecurityException se) {
 
+        }
+        try {
+            assertNull(auditService.getHeader(key));
+            fail("Security exception not thrown");
+
+        } catch (SecurityException se) {
+
+        }
+
+        try {
+            assertNull("Should have returned an error message", auditService.getHeader("Illegal Key"));
+            fail("Illegal Argument Excepiton not thrown");
+        } catch (IllegalArgumentException e) {
         }
 
     }
@@ -160,7 +183,7 @@ public class TestAudit {
         String ahKey = auditService.createHeader(inputBean).getAuditKey();
 
         assertNotNull(ahKey);
-        log.info(ahKey);
+        logger.info(ahKey);
 
         assertNotNull(auditService.getHeader(ahKey));
         assertNotNull(auditService.findByCallerRef(fo.getId(), "TestAudit", "ABC123"));
@@ -170,14 +193,14 @@ public class TestAudit {
         int i = 0;
         double max = 10d;
         StopWatch watch = new StopWatch();
-        log.info("Start-");
+        logger.info("Start-");
         watch.start();
         while (i < max) {
             auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + i + "}"));
             i++;
         }
         watch.stop();
-        log.info("End " + watch.getTime() / 1000d + " avg = " + (watch.getTime() / 1000d) / max);
+        logger.info("End " + watch.getTime() / 1000d + " avg = " + (watch.getTime() / 1000d) / max);
 
         // Test that we get the expected number of log events
         assertEquals(max, (double) auditService.getAuditLogCount(ahKey));
@@ -197,7 +220,7 @@ public class TestAudit {
         String ahKey = auditService.createHeader(inputBean).getAuditKey();
 
         assertNotNull(ahKey);
-        log.info(ahKey);
+        logger.info(ahKey);
         // Irrespective of the order of the fields, we see it as the same.
         String jsonA = "{\"name\": \"8888\", \"thing\": {\"m\": \"happy\"}}";
         String jsonB = "{\"thing\": {\"m\": \"happy\"},\"name\": \"8888\"}";
@@ -244,12 +267,12 @@ public class TestAudit {
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));
 
         auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 0}"));
-        AuditLog when = auditService.getLastChange(ahKey);
+        AuditLog when = auditService.getLastAuditLog(ahKey);
         assertNotNull(when);
         assertEquals(AuditChange.CREATE, when.getAuditChange().getEvent()); // log event default
 
         auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 1}"));
-        AuditLog whenB = auditService.getLastChange(ahKey);
+        AuditLog whenB = auditService.getLastAuditLog(ahKey);
         assertNotNull(whenB);
 
         assertFalse(whenB.equals(when));
@@ -266,14 +289,13 @@ public class TestAudit {
         String ahKey = resultBean.getAuditKey();
 
         assertNotNull(ahKey);
-        log.info(ahKey);
+        logger.info(ahKey);
 
         assertNotNull(auditService.getHeader(ahKey));
 
         auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 0}"));
-        auditService.getLastChange(ahKey);
         auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 1}"));
-        // ToDo: How to count the ElasticSearch audit hits. Currently this code is just for exercising the code.
+        assertEquals(2, auditService.getAuditLogCount(resultBean.getAuditKey()));
     }
 
     @Test
@@ -308,7 +330,7 @@ public class TestAudit {
     public void updateByCallerRefNoAuditKeyMultipleClients() throws Exception {
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         Fortress fortressA = fortressService.registerFortress("auditTest" + System.currentTimeMillis());
-        log.info(fortressA.toString());
+        logger.info(fortressA.toString());
         String docType = "TestAuditX";
         String callerRef = "ABC123X";
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", docType, new Date(), callerRef);
@@ -336,6 +358,7 @@ public class TestAudit {
     public void testHeader() throws Exception {
 
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
+        String hummingbird = "Hummingbird";
         regService.registerSystemUser(new RegistrationBean(hummingbird, mark, "bah"));
         //Monowai/Mike
         SecurityContextHolder.getContext().setAuthentication(authMike);
@@ -365,10 +388,10 @@ public class TestAudit {
             Thread.sleep(5000l);
         } catch (InterruptedException e) {
 
-            log.error(e.getMessage());
+            logger.error(e.getMessage());
         }
         watch.stop();
-        log.info("End " + watch.getTime() / 1000d + " avg = " + (watch.getTime() / 1000d) / max);
+        logger.info("End " + watch.getTime() / 1000d + " avg = " + (watch.getTime() / 1000d) / max);
 
 
     }
@@ -383,9 +406,21 @@ public class TestAudit {
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "wally", "CompanyNode", new Date(), "ZZZZ");
         String ahWP = auditService.createHeader(inputBean).getAuditKey();
         AuditHeader auditKey = auditService.getHeader(ahWP);
-        auditService.createLog(new AuditLogInputBean(auditKey.getAuditKey(), "olivia@sunnybell.com", new DateTime(), what + "\"}", "Update"));
+        auditService.createLog(new AuditLogInputBean(auditKey.getAuditKey(), "olivia@sunnybell.com", new DateTime(), what + "1\"}", "Update"));
         auditKey = auditService.getHeader(ahWP);
         FortressUser fu = fortressService.getUser(auditKey.getLastUser().getId());
+        assertEquals("olivia@sunnybell.com", fu.getName());
+
+        auditService.createLog(new AuditLogInputBean(auditKey.getAuditKey(), "harry@sunnybell.com", new DateTime(), what + "2\"}", "Update"));
+        auditKey = auditService.getHeader(ahWP);
+
+        fu = fortressService.getUser(auditKey.getLastUser().getId());
+        assertEquals("harry@sunnybell.com", fu.getName());
+
+        auditService.createLog(new AuditLogInputBean(auditKey.getAuditKey(), "olivia@sunnybell.com", new DateTime(), what + "3\"}", "Update"));
+        auditKey = auditService.getHeader(ahWP);
+
+        fu = fortressService.getUser(auditKey.getLastUser().getId());
         assertEquals("olivia@sunnybell.com", fu.getName());
 
     }
@@ -413,14 +448,14 @@ public class TestAudit {
             workingDate = workingDate.plusDays(1);
             assertEquals("Loop count " + i, AuditLogInputBean.LogStatus.OK, auditService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", workingDate, what + i + "\"}")).getAbStatus());
 
-            log.info("Created " + i + " new count =" + auditService.getAuditLogCount(auditHeader.getAuditKey()));
+            logger.info("Created " + i + " new count =" + auditService.getAuditLogCount(auditHeader.getAuditKey()));
             i++;
         }
 
         Set<AuditLog> aLogs = auditService.getAuditLogs(auditHeader.getAuditKey());
         assertEquals(max, aLogs.size());
 
-        AuditLog lastLog = auditService.getLastChange(auditHeader.getAuditKey());
+        AuditLog lastLog = auditService.getLastAuditLog(auditHeader.getAuditKey());
         AuditChange lastChange = lastLog.getAuditChange();
         assertNotNull(lastChange);
         assertEquals(workingDate.toDate(), new Date(lastLog.getFortressWhen()));
@@ -428,7 +463,7 @@ public class TestAudit {
         assertEquals(max, auditService.getAuditLogCount(auditHeader.getAuditKey()));
 
         DateTime then = workingDate.minusDays(4);
-        log.info("Searching between " + then.toDate() + " and " + workingDate.toDate());
+        logger.info("Searching between " + then.toDate() + " and " + workingDate.toDate());
         Set<AuditLog> logs = auditService.getAuditLogs(auditHeader.getAuditKey(), then.toDate(), workingDate.toDate());
         assertEquals(5, logs.size());
 
@@ -452,11 +487,12 @@ public class TestAudit {
         assertEquals(2, logs.size());
         auditHeader = auditService.getHeader(ahWP);
         compareUser(auditHeader, "isabella@sunnybell.com");
-        auditHeader = auditService.cancelLastLog(auditHeader.getAuditKey());
+        auditHeader = auditService.cancelLastLogSync(auditHeader.getAuditKey());
+
         assertNotNull(auditHeader);
         compareUser(auditHeader, "olivia@sunnybell.com");
-        auditHeader = auditService.cancelLastLog(auditHeader.getAuditKey());
-        assertNull(auditHeader);
+        auditHeader = auditService.cancelLastLogSync(auditHeader.getAuditKey());
+        assertNotNull(auditHeader);
     }
 
     private void compareUser(AuditHeader header, String userName) {

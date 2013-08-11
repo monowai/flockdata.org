@@ -70,4 +70,10 @@ public interface AuditChange {
     Map<String, Object> getWhat();
 
     void setJsonWhat(String compressedJson);
+
+    void setPreviousChange(AuditChange previousChange);
+
+    AuditChange getPreviousChange();
+
+    AuditLog getAuditLog();
 }
