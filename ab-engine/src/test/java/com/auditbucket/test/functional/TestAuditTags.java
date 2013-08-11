@@ -122,10 +122,11 @@ public class TestAuditTags {
         assertNotNull(result);
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new Date(), "abc");
         AuditResultBean resultBean = auditService.createHeader(inputBean);
+        AuditHeader header = auditService.getHeader(resultBean.getAuditKey());
 
         AuditTagInputBean auditTag = new AuditTagInputBean(null, resultBean.getAuditKey(), "!!!");
         try {
-            auditTagService.processTag(auditTag);
+            auditTagService.processTag(header, auditTag);
             fail("No null argument exception detected");
         } catch (IllegalArgumentException ie) {
             // This should have happened
@@ -133,13 +134,13 @@ public class TestAuditTags {
         // First auditTag created
         auditTag = new AuditTagInputBean(tagInput.getName(), resultBean.getAuditKey(), "!!!");
 
-        auditTagService.processTag(auditTag);
+        auditTagService.processTag(header, auditTag);
         assertNotNull(auditTag);
 
         Set<TagValue> tags = auditTagService.findTagValues(tagInput.getName(), "!!!");
         assertEquals(1, tags.size());
 
-        auditTagService.processTag(auditTag);
+        auditTagService.processTag(header, auditTag);
         // Behaviour - Can't add the same tagValue twice for the same combo
         tags = auditTagService.findTagValues(tagInput.getName(), "!!!");
         assertEquals(1, tags.size());

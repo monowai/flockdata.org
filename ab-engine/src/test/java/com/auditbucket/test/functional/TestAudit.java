@@ -35,7 +35,6 @@ import com.auditbucket.registration.service.RegistrationService;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -48,19 +47,16 @@ import org.springframework.data.neo4j.support.node.Neo4jHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.annotation.NotTransactional;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.Set;
 
 import static junit.framework.Assert.*;
-import static junit.framework.Assert.assertEquals;
 
 /**
  * User: Mike Holdsworth
@@ -244,12 +240,12 @@ public class TestAudit {
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));
 
         auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 0}"));
-        AuditLog when = auditService.getLastChange(ahKey);
+        AuditLog when = auditService.getLastAuditLog(ahKey);
         assertNotNull(when);
         assertEquals(AuditChange.CREATE, when.getAuditChange().getEvent()); // log event default
 
         auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 1}"));
-        AuditLog whenB = auditService.getLastChange(ahKey);
+        AuditLog whenB = auditService.getLastAuditLog(ahKey);
         assertNotNull(whenB);
 
         assertFalse(whenB.equals(when));
@@ -271,7 +267,7 @@ public class TestAudit {
         assertNotNull(auditService.getHeader(ahKey));
 
         auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 0}"));
-        auditService.getLastChange(ahKey);
+        auditService.getLastAuditLog(ahKey);
         auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 1}"));
         // ToDo: How to count the ElasticSearch audit hits. Currently this code is just for exercising the code.
     }
@@ -420,7 +416,7 @@ public class TestAudit {
         Set<AuditLog> aLogs = auditService.getAuditLogs(auditHeader.getAuditKey());
         assertEquals(max, aLogs.size());
 
-        AuditLog lastLog = auditService.getLastChange(auditHeader.getAuditKey());
+        AuditLog lastLog = auditService.getLastAuditLog(auditHeader.getAuditKey());
         AuditChange lastChange = lastLog.getAuditChange();
         assertNotNull(lastChange);
         assertEquals(workingDate.toDate(), new Date(lastLog.getFortressWhen()));
@@ -452,11 +448,12 @@ public class TestAudit {
         assertEquals(2, logs.size());
         auditHeader = auditService.getHeader(ahWP);
         compareUser(auditHeader, "isabella@sunnybell.com");
-        auditHeader = auditService.cancelLastLog(auditHeader.getAuditKey());
+        auditHeader = auditService.cancelLastLogSync(auditHeader.getAuditKey());
+
         assertNotNull(auditHeader);
         compareUser(auditHeader, "olivia@sunnybell.com");
-        auditHeader = auditService.cancelLastLog(auditHeader.getAuditKey());
-        assertNull(auditHeader);
+        auditHeader = auditService.cancelLastLogSync(auditHeader.getAuditKey());
+        assertNotNull(auditHeader);
     }
 
     private void compareUser(AuditHeader header, String userName) {

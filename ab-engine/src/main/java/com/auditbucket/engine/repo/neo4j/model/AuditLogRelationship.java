@@ -38,7 +38,6 @@ public class AuditLogRelationship implements AuditLog {
     private Long id;
 
     @EndNode
-    @Fetch
     private AuditChangeNode auditChange;
 
     @StartNode

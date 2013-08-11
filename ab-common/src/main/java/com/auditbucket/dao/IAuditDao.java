@@ -39,8 +39,6 @@ public interface IAuditDao {
 
     public AuditHeader save(AuditHeader auditHeader);
 
-    public AuditChange save(FortressUser fUser, AuditLogInputBean input, TxRef tagRef);
-
     /**
      * @param key GUID
      * @return AuditHeader in "default" state
@@ -60,7 +58,7 @@ public interface IAuditDao {
      */
     public int getLogCount(Long id);
 
-    public AuditLog getLastChange(Long auditHeaderID);
+    public AuditLog getLastAuditLog(Long auditHeaderID);
 
     Set<AuditLog> getAuditLogs(Long headerKey, Date from, Date to);
 
@@ -88,11 +86,15 @@ public interface IAuditDao {
 
     String ping();
 
-    AuditChange save(FortressUser fUser, AuditLogInputBean input);
+    public AuditChange save(FortressUser fUser, AuditLogInputBean input, TxRef tagRef, AuditChange lastChange);
+
+    public AuditChange save(FortressUser fUser, AuditLogInputBean input);
 
     AuditHeader save(FortressUser fu, AuditHeaderInputBean inputBean, DocumentType documentType);
 
     AuditLog getChange(Long logId);
 
     AuditHeader getHeader(Long id);
+
+    AuditChange fetch(AuditChange lastChange);
 }
