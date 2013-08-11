@@ -231,7 +231,7 @@ public class TestAuditIntegration {
         regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
         //SecurityContextHolder.getContext().setAuthentication(authMike);
         int auditMax = 10;
-        int logMax = 40;
+        int logMax = 10;
         int fortress = 1;
         String simpleJson = "{\"who\":";
         ArrayList<Long> list = new ArrayList<Long>();
