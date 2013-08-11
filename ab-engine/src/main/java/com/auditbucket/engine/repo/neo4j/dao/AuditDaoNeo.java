@@ -95,12 +95,6 @@ public class AuditDaoNeo implements IAuditDao {
         return null;
     }
 
-    @Override
-    public void removeLastChange(AuditHeader header) {
-        // Remove the lastChange relationship
-        template.deleteRelationshipBetween(header, header.getLastUser(), "lastChanged");
-    }
-
     public AuditHeader fetch(AuditHeader header) {
         template.fetch(header);
         template.fetch(header.getFortress());

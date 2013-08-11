@@ -39,7 +39,7 @@
 
         <org.springframework-version>3.2.3.RELEASE</org.springframework-version>
 
-        <org.aspectj-version>1.7.2</org.aspectj-version>
+        <org.aspectj-version>1.7.3</org.aspectj-version>
         <org.slf4j-version>1.6.1</org.slf4j-version>
         <org.springdata.neo4j>2.3.0.M1</org.springdata.neo4j>
         <!--<org.springdata.neo4j>2.2.1.RELEASE</org.springdata.neo4j>-->

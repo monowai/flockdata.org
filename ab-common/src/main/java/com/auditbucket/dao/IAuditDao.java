@@ -70,8 +70,6 @@ public interface IAuditDao {
 
     AuditHeader findHeaderByCallerRef(Long fortressId, String documentType, String callerRef);
 
-    public void removeLastChange(AuditHeader header);
-
     AuditHeader fetch(AuditHeader header);
 
     TxRef findTxTag(String txTag, Company company, boolean fetchHeaders);
