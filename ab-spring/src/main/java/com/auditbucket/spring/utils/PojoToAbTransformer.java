@@ -8,13 +8,6 @@ import com.auditbucket.spring.annotations.Auditable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
-/**
- * Created with IntelliJ IDEA.
- * User: nabil
- * Date: 14/08/13
- * Time: 11:57
- * To change this template use File | Settings | File Templates.
- */
 public class PojoToAbTransformer {
 
     public static AuditHeaderInputBean transformToAbFormat(Object pojo) throws IllegalAccessException {
