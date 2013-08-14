@@ -183,7 +183,6 @@ public class TestAudit {
         String ahKey = auditService.createHeader(inputBean).getAuditKey();
 
         assertNotNull(ahKey);
-        logger.info(ahKey);
 
         assertNotNull(auditService.getHeader(ahKey));
         assertNotNull(auditService.findByCallerRef(fo.getId(), "TestAudit", "ABC123"));
@@ -220,7 +219,6 @@ public class TestAudit {
         String ahKey = auditService.createHeader(inputBean).getAuditKey();
 
         assertNotNull(ahKey);
-        logger.info(ahKey);
         // Irrespective of the order of the fields, we see it as the same.
         String jsonA = "{\"name\": \"8888\", \"thing\": {\"m\": \"happy\"}}";
         String jsonB = "{\"thing\": {\"m\": \"happy\"},\"name\": \"8888\"}";
@@ -289,8 +287,6 @@ public class TestAudit {
         String ahKey = resultBean.getAuditKey();
 
         assertNotNull(ahKey);
-        logger.info(ahKey);
-
         assertNotNull(auditService.getHeader(ahKey));
 
         auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 0}"));
@@ -330,7 +326,6 @@ public class TestAudit {
     public void updateByCallerRefNoAuditKeyMultipleClients() throws Exception {
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         Fortress fortressA = fortressService.registerFortress("auditTest" + System.currentTimeMillis());
-        logger.info(fortressA.toString());
         String docType = "TestAuditX";
         String callerRef = "ABC123X";
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", docType, new Date(), callerRef);
@@ -447,8 +442,6 @@ public class TestAudit {
         while (i < max) {
             workingDate = workingDate.plusDays(1);
             assertEquals("Loop count " + i, AuditLogInputBean.LogStatus.OK, auditService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", workingDate, what + i + "\"}")).getAbStatus());
-
-            logger.info("Created " + i + " new count =" + auditService.getAuditLogCount(auditHeader.getAuditKey()));
             i++;
         }
 

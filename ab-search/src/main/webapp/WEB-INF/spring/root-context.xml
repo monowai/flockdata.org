@@ -40,7 +40,7 @@
 
     <import resource="spring-security.xml"/>
     <import resource="es-context.xml"/>
-    <import resource="transformation.xml"/>
+    <import resource="integration.xml"/>
     <import resource="${int.method}-integration.xml"/>
 
     <task:annotation-driven executor="taskExecutor"/>

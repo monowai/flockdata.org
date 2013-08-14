@@ -21,12 +21,15 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:task="http://www.springframework.org/schema/task"
        xmlns:int="http://www.springframework.org/schema/integration"
 
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-		http://www.springframework.org/schema/integration
-		http://www.springframework.org/schema/integration/spring-integration.xsd">
+       http://www.springframework.org/schema/task
+	   http://www.springframework.org/schema/task/spring-task.xsd
+	   http://www.springframework.org/schema/integration
+	   http://www.springframework.org/schema/integration/spring-integration.xsd">
 
     <int:gateway id="engineGateway"
                  service-interface="com.auditbucket.search.service.AbEngineGateway"/>
@@ -42,7 +45,22 @@
 
     <int:channel id="makeSearchRequest"/>
     <int:channel id="searchReply"/>
+
     <int:channel id="searchResult">
         <int:dispatcher task-executor="taskExecutor"/>
     </int:channel>
+
+    <task:executor id="qPoolTaskExecutor" pool-size="10"/>
+
+    <bean id="qExecutor" class="org.springframework.scheduling.concurrent.ConcurrentTaskExecutor">
+        <property name="concurrentExecutor" ref="threadPoolExecutor"/>
+    </bean>
+    <bean id="qThreadPoolExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <!--<property name="corePoolSize" value="20"/>-->
+        <!--<property name="maxPoolSize" value="250"/>-->
+        <property name="keepAliveSeconds" value="5"/>
+        <property name="allowCoreThreadTimeOut" value="true"/>
+        <property name="queueCapacity" value="-1"/>
+    </bean>
+
 </beans>

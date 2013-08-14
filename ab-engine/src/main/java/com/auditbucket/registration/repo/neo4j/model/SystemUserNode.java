@@ -63,7 +63,6 @@ public class SystemUserNode implements SystemUser {
         this.name = name.toLowerCase();
     }
 
-
     public String getPassword() {
         return password;
     }
@@ -79,14 +78,6 @@ public class SystemUserNode implements SystemUser {
     public void setOpenUID(String openUID) {
         this.openUID = openUID;
     }
-
-//    public CompanyUser getCompanyUser() {
-//        return companyUser;
-//    }
-//
-//    public void setCompanyUser(CompanyUser companyUser) {
-//        this.companyUser = companyUser;
-//    }
 
     public Company getCompany() {
         return company;

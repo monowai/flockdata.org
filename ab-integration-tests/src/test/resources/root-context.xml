@@ -40,10 +40,12 @@
 
     <import resource="spring-security.xml"/>
     <import resource="neo4j-context-test.xml"/>
-    <import resource="transformation.xml"/>
-    <import resource="amqp-integration-test.xml"/>
+    <import resource="integration.xml"/>
+    <import resource="${int.method}-integration-test.xml"/>
 
     <task:annotation-driven executor="taskExecutor"/>
+
+
     <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ConcurrentTaskExecutor">
         <property name="concurrentExecutor" ref="threadPoolExecutor"/>
     </bean>

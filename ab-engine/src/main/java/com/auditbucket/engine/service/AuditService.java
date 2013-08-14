@@ -29,6 +29,7 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.repo.neo4j.model.FortressNode;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.SystemUserService;
@@ -129,8 +130,7 @@ public class AuditService {
      * @return unique primary key to be used for subsequent log calls
      */
     public AuditResultBean createHeader(AuditHeaderInputBean inputBean) {
-        String userName = securityHelper.getLoggedInUser();
-        SystemUser su = sysUserService.findByName(userName);
+        SystemUser su = sysUserService.findByName(securityHelper.getLoggedInUser());
 
         if (su == null)
             throw new SecurityException("Not authorised");
@@ -140,7 +140,7 @@ public class AuditService {
         // ToDo: Improve cypher query
         Fortress iFortress = companyService.getCompanyFortress(company, fortress);
         if (iFortress == null)
-            throw new IllegalArgumentException("Unable to find the fortress [" + fortress + "] for the company [" + su.getCompany().getName() + "]");
+            throw new IllegalArgumentException("Unable to find the fortress [" + fortress + "] for the company [" + company.getName() + "]");
 
         AuditHeader ah = null;
 
@@ -241,7 +241,6 @@ public class AuditService {
      * @param input       auditLog details containing the data to log
      * @return populated log information with any error messages
      */
-    @Async
     private AuditLogInputBean createLog(AuditHeader auditHeader, AuditLogInputBean input, Map<String, Object> tagValues) {
         if (input.getMapWhat() == null || input.getMapWhat().isEmpty()) {
             input.setStatus(AuditLogInputBean.LogStatus.IGNORE);
@@ -488,6 +487,13 @@ public class AuditService {
         return auditDAO.getAuditLogs(auditHeader.getId(), from, to);
     }
 
+    /**
+     * blocks until the header has been cancelled
+     *
+     * @param headerKey UID of the Header
+     * @return AuditHeader
+     * @throws IOException
+     */
     public AuditHeader cancelLastLogSync(String headerKey) throws IOException {
         Future<AuditHeader> futureHeader = cancelLastLog(headerKey);
         try {
@@ -505,7 +511,7 @@ public class AuditService {
      * AB headerKey will be forever invalid.
      *
      * @param headerKey UID of the auditHeader
-     * @return the modified auditHeader record or null if no auditHeader exists.
+     * @return Future<AuditHeader> record or null if no auditHeader exists.
      */
     @Async
     public Future<AuditHeader> cancelLastLog(String headerKey) throws IOException {
@@ -579,7 +585,7 @@ public class AuditService {
     }
 
     /**
-     * inflates the search result with dependencies inflated
+     * inflates the search result with dependencies populated
      *
      * @param fortressID   PK
      * @param documentType Class of doc
@@ -596,19 +602,23 @@ public class AuditService {
         return result;
     }
 
+    /**
+     * @param fortressID   fortress to search
+     * @param documentType class of document
+     * @param callerRef    fortress primary key
+     * @return AuditHeader or NULL.
+     */
     public AuditHeader findByCallerRef(Long fortressID, String documentType, String callerRef) {
         String userName = securityHelper.getLoggedInUser();
 
         SystemUser su = sysUserService.findByName(userName);
         if (su == null)
-            throw new SecurityException("Not authorised");
+            throw new SecurityException(userName + " is not authorised");
 
         Fortress fortress = fortressService.getFortress(fortressID);
         if (!fortress.getCompany().getId().equals(su.getCompany().getId()))
-            throw new SecurityException("User is not authorised to work with requested FortressNode");
+            throw new SecurityException(userName + " is not authorised to work with requested FortressNode");
 
         return auditDAO.findHeaderByCallerRef(fortress.getId(), documentType, callerRef.trim());
     }
-
-
 }

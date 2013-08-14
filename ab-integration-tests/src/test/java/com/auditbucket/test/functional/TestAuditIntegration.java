@@ -123,7 +123,7 @@ public class TestAuditIntegration {
         Neo4jHelper.cleanDb(template);
     }
 
-    @Test
+    //@Test
     public void createHeaderTimeLogsWithSearchActivated() throws Exception {
         int max = 10;
         String ahKey;
@@ -140,8 +140,6 @@ public class TestAuditIntegration {
 
         assertNotNull(ahKey);
 
-//        byte[] docs = alRepo.findOne(auditService.getHeader(ahKey));
-//        assertNotNull(docs);
         AuditHeader auditHeader = auditService.getHeader(ahKey);
         assertNotNull(auditHeader);
         assertNotNull(auditService.findByCallerRef(fo.getId(), "TestAudit", "ABC123"));
@@ -192,7 +190,7 @@ public class TestAuditIntegration {
      *
      * @throws Exception
      */
-    @Test
+    //@Test
     public void suppressIndexingOnDemand() throws Exception {
         String escJson = "{\"who\":";
         SecurityContextHolder.getContext().setAuthentication(authA);
@@ -263,8 +261,8 @@ public class TestAuditIntegration {
                 int log = 1;
                 while (log <= logMax) {
                     //String escJson = Helper.getBigJsonText(log);
-
                     //auditService.createLog(new AuditLogInputBean(arb.getAuditKey(), aib.getFortressUser(), new DateTime(), escJson ));
+
                     auditService.createLog(new AuditLogInputBean(arb.getAuditKey(), aib.getFortressUser(), new DateTime(), simpleJson + log + "}"));
                     if (!searchChecked) {
                         searchChecked = true;
