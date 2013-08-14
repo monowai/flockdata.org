@@ -11,6 +11,13 @@
 
     <artifactId>ab-spring</artifactId>
     <dependencies>
+
+        <dependency>
+            <groupId>com.monowai</groupId>
+            <artifactId>ab-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>

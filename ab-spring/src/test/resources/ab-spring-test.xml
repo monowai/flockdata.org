@@ -26,5 +26,4 @@
     </util:map>
 
     <bean id="simpleAuditedService" class="com.auditbucket.spring.service.SimpleAuditedService"/>
-    <bean id="auditAspect" class="com.auditbucket.spring.annotations.AuditAspect"/>
 </beans>

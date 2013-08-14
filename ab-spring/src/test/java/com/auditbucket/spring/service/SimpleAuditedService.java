@@ -33,7 +33,9 @@ public class SimpleAuditedService {
     public static class Customer {
         @AuditKey
         private Long id;
+
         private String name;
+
         @AuditClientRef
         private String email;
 
