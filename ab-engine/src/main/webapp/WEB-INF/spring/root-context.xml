@@ -41,10 +41,11 @@
 
     <import resource="spring-security.xml"/>
     <import resource="neo4j-context.xml"/>
-    <import resource="transformation.xml"/>
+    <import resource="integration.xml"/>
     <import resource="${int.method}-integration.xml"/>
 
     <task:annotation-driven executor="taskExecutor"/>
+    <task:executor id="executor" pool-size="20"/>
 
     <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ConcurrentTaskExecutor">
         <property name="concurrentExecutor" ref="threadPoolExecutor"/>

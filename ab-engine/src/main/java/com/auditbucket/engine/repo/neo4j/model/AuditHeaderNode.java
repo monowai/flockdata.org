@@ -72,9 +72,6 @@ public class AuditHeaderNode implements AuditHeader {
     @RelatedTo(type = "lastChange", direction = Direction.OUTGOING)
     private AuditChangeNode lastChange;
 
-//    @RelatedToVia(elementClass = AuditLogRelationship.class, type = "logged", direction = Direction.OUTGOING)
-//    private Set<AuditLog> auditWhen = new HashSet<AuditLog>();
-
     public static final String UUID_KEY = "auditKey";
 
     @Indexed(indexName = UUID_KEY, unique = true)

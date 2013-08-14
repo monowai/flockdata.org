@@ -20,7 +20,6 @@
 package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.audit.model.AuditChange;
-import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditLog;
 import com.auditbucket.audit.model.TxRef;
 import com.auditbucket.bean.AuditLogInputBean;
@@ -31,6 +30,7 @@ import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.graphdb.Direction;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.annotation.*;
 
 import java.io.IOException;
@@ -40,10 +40,11 @@ import java.util.Map;
 /**
  * User: Mike Holdsworth
  * Date: 15/04/13
- * Time: 5:57 AM
+ * Time: 5:57 PM
  */
 @NodeEntity(useShortNames = true)
 public class AuditChangeNode implements AuditChange {
+    public static final String COLON = ":";
     @GraphId
     private Long id;
 
@@ -54,7 +55,7 @@ public class AuditChangeNode implements AuditChange {
     @RelatedTo(elementClass = TxRefNode.class, type = "txIncludes", direction = Direction.INCOMING, enforceTargetType = true)
     private TxRef txRef;
 
-    static ObjectMapper om = new ObjectMapper();
+    static ObjectMapper objectMapper = new ObjectMapper();
 
     private String comment;
     private String event;
@@ -63,8 +64,6 @@ public class AuditChangeNode implements AuditChange {
     private boolean compressed = false;
     private String name;
 
-    @Indexed(indexName = "searchKey")
-    private String searchKey;
 
     @RelatedTo(type = "previousChange", direction = Direction.INCOMING)
     private AuditChangeNode previousChange;
@@ -83,7 +82,7 @@ public class AuditChangeNode implements AuditChange {
 
         String event = inputBean.getEvent();
         this.event = event;
-        this.name = event + ":" + madeBy.getName();
+        this.name = new StringBuilder().append(event).append(COLON).append(madeBy.getName()).toString();
         setTxRef(txRef);
 
         CompressionResult result = CompressionHelper.compress(inputBean.getWhat());
@@ -92,18 +91,10 @@ public class AuditChangeNode implements AuditChange {
         this.comment = inputBean.getComment();
     }
 
-
-    @JsonIgnore
-    public AuditHeader getHeader() {
-        //return auditHeader;
-        return null;
-    }
-
     @JsonIgnore
     public long getId() {
         return id;
     }
-
 
     public FortressUser getWho() {
         return madeBy;
@@ -116,15 +107,6 @@ public class AuditChangeNode implements AuditChange {
 
     public void setComment(String comment) {
         this.comment = comment;
-    }
-
-    @JsonIgnore
-    public String getSearchKey() {
-        return searchKey;
-    }
-
-    public void setSearchKey(String key) {
-        this.searchKey = key;
     }
 
     /**
@@ -161,6 +143,7 @@ public class AuditChangeNode implements AuditChange {
         return auditLog;
     }
 
+    @Transient
     private Map<String, Object> mWhat;
 
     public Map<String, Object> getWhat() {
@@ -168,9 +151,9 @@ public class AuditChangeNode implements AuditChange {
         if (mWhat != null)
             return mWhat;
         try {
-            mWhat = om.readValue(CompressionHelper.decompress(what, isCompressed()), Map.class);
+            mWhat = objectMapper.readValue(CompressionHelper.decompress(what, isCompressed()), Map.class);
         } catch (IOException e) {
-            mWhat = new HashMap<String, Object>();
+            mWhat = new HashMap<>();
             mWhat.put("what", "{}");
         }
         return mWhat;
@@ -184,7 +167,7 @@ public class AuditChangeNode implements AuditChange {
         return event;
     }
 
-    public boolean isCompressed() {
+    private boolean isCompressed() {
         return compressed;
     }
 }

@@ -34,8 +34,6 @@ public interface AuditChange {
     String CREATE = "Create";
     String UPDATE = "Update";
 
-    public abstract AuditHeader getHeader();
-
     public abstract FortressUser getWho();
 
     public String getComment();
@@ -46,18 +44,6 @@ public interface AuditChange {
      * @param comment searchable.
      */
     public void setComment(String comment);
-
-    /**
-     * Document primary key as stored in search engine
-     *
-     * @param changeKey unique key
-     */
-    public void setSearchKey(String changeKey);
-
-    /**
-     * @return unique identifier to the search index key
-     */
-    public String getSearchKey();
 
     public String getJsonWhat();
 

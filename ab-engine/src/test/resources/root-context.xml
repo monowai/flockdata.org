@@ -37,8 +37,8 @@
     <context:property-placeholder location="classpath:/config.properties"/>
 
     <import resource="neo4j-context.xml"/>
-    <import resource="transformation.xml"/>
-    <import resource="http-integration-test.xml"/>
+    <import resource="integration.xml"/>
+    <import resource="${int.method}-integration-test.xml"/>
     <import resource="spring-security.xml"/>
 
     <task:annotation-driven executor="taskExecutor"/>
