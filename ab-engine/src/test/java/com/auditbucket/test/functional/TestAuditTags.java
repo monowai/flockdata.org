@@ -188,4 +188,41 @@ public class TestAuditTags {
         assertNotNull(auditTagService.findTagValues("TagC", "!!Twee!!"));
     }
 
+    @Test
+    public void nullTagValueCRUD() throws Exception {
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        fortressService.registerFortress("ABC");
+
+        Company iCompany = iSystemUser.getCompany();
+        Tag tagInput = new TagInputBean(iCompany, "FLOP");
+
+        Tag result = tagService.processTag(tagInput);
+        assertNotNull(result);
+        AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new Date(), "abc");
+        Map<String, Object> tagValues = new HashMap<String, Object>();
+        tagValues.put("TagA", null);
+        tagValues.put("TagB", null);
+        tagValues.put("TagC", null);
+        tagValues.put("TagD", "DDDD");
+        aib.setTagValues(tagValues);
+        AuditResultBean resultBean = auditService.createHeader(aib);
+        AuditHeader auditHeader = auditService.getHeader(resultBean.getAuditKey(), true);
+        Set<TagValue> tagSet = auditHeader.getTagValues();
+        assertNotNull(tagSet);
+        assertEquals(4, tagSet.size());
+
+        auditService.updateHeader(auditHeader);
+        auditHeader = auditService.getHeader(resultBean.getAuditKey(), true);
+        tagSet = auditHeader.getTagValues();
+        assertNotNull(tagSet);
+        Set<AuditHeader> headers = auditTagService.findTagAudits("TagA");
+        assertNotNull(headers);
+        assertEquals(auditHeader.getAuditKey(), headers.iterator().next().getAuditKey());
+        headers = auditTagService.findTagAudits("TagC");
+        assertNotNull(headers);
+        assertEquals(auditHeader.getAuditKey(), headers.iterator().next().getAuditKey());
+        headers = auditTagService.findTagAudits("TagD");
+        assertNotNull(headers);
+        assertEquals(auditHeader.getAuditKey(), headers.iterator().next().getAuditKey());
+    }
 }

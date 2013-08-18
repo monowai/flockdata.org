@@ -29,6 +29,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
+ * Handles management of a companies tags.
+ * All tags belong to the company across their fortresses
+ * <p/>
  * User: Mike Holdsworth
  * Date: 29/06/13
  * Time: 12:53 PM

@@ -23,6 +23,7 @@ import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.TagValue;
 import com.auditbucket.dao.IAuditTagDao;
 import com.auditbucket.engine.repo.neo4j.AuditTagRepo;
+import com.auditbucket.engine.repo.neo4j.model.AuditHeaderNode;
 import com.auditbucket.engine.repo.neo4j.model.AuditTagRelationship;
 import com.auditbucket.registration.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,16 +46,25 @@ public class AuditTagDao implements IAuditTagDao {
     AuditTagRepo auditTagRepo;
 
     @Override
-    public TagValue save(Tag tagName, AuditHeader header, String tagValue) {
-        AuditTagRelationship atv = new AuditTagRelationship(tagName, header, tagValue);
+    public TagValue save(AuditHeader header, Tag tagName, Object tagValue) {
+        AuditTagRelationship atv = new AuditTagRelationship(tagName, header, (tagValue == null ? "" : tagValue));
         return template.save(atv);
-
     }
 
     @Override
     public Set<TagValue> find(Tag tagName, String tagValue) {
+        if (tagName == null)
+            return null;
         return auditTagRepo.findTagValues(tagName.getId(), tagValue);
     }
+
+    @Override
+    public Set<AuditHeader> findTagAudits(Tag tagName) {
+        if (tagName == null)
+            return null;
+        return auditTagRepo.findTagAudits(tagName.getId());
+    }
+
 
     @Override
     public Set<TagValue> getAuditTags(AuditHeader ah) {
@@ -62,7 +72,6 @@ public class AuditTagDao implements IAuditTagDao {
     }
 
     public void update(Set<TagValue> newValues) {
-        //Set<TagValue> existingTags = header.getTagValues();
         for (TagValue iTagValue : newValues) {
             auditTagRepo.save((AuditTagRelationship) iTagValue);
         }

@@ -43,7 +43,7 @@ public class AuditHeaderInputBean {
     private Map<String, Object> tagValues = new HashMap<String, Object>();
     private boolean suppressSearch;
 
-    AuditHeaderInputBean() {
+    public AuditHeaderInputBean() {
     }
 
     public AuditHeaderInputBean(String fortress, String fortressUser, String documentType, Date when, String callerRef) {

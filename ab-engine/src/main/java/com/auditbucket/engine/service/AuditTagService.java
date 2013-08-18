@@ -60,7 +60,7 @@ public class AuditTagService {
             return;
 
         Tag tag = tagService.processTag(new TagInputBean(tagInput.getTagName()));
-        auditTagDao.save(tag, header, tagValue);
+        auditTagDao.save(header, tag, tagValue);
     }
 
     public Set<TagValue> findTagValues(String tagName, String tagValue) {
@@ -68,6 +68,13 @@ public class AuditTagService {
         if (tag == null)
             return null;
         return auditTagDao.find(tag, tagValue);
+    }
+
+    public Set<AuditHeader> findTagAudits(String tagName) {
+        Tag tag = tagService.findTag(tagName);
+        if (tag == null)
+            return null;
+        return auditTagDao.findTagAudits(tag);
     }
 
     /**
@@ -84,7 +91,8 @@ public class AuditTagService {
 
         for (String key : userTags.keySet()) {
             Tag tag = tagService.processTag(new TagInputBean(company, key));
-            auditTagDao.save(tag, ah, userTags.get(key).toString());
+            Object keyValue = userTags.get(key);
+            auditTagDao.save(ah, tag, keyValue);
         }
     }
 
