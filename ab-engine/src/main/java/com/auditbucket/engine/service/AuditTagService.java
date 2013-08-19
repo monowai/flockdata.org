@@ -22,7 +22,7 @@ package com.auditbucket.engine.service;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.TagValue;
 import com.auditbucket.bean.AuditTagInputBean;
-import com.auditbucket.dao.IAuditTagDao;
+import com.auditbucket.dao.AuditTagDao;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
@@ -49,7 +49,7 @@ public class AuditTagService {
     SecurityHelper securityHelper;
 
     @Autowired
-    IAuditTagDao auditTagDao;
+    AuditTagDao auditTagDao;
 
     public void processTag(AuditHeader header, AuditTagInputBean tagInput) {
         //Company company = securityHelper.getCompany();

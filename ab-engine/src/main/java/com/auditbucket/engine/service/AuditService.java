@@ -23,13 +23,12 @@ import com.auditbucket.audit.model.*;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditResultBean;
-import com.auditbucket.dao.IAuditDao;
+import com.auditbucket.dao.AuditDao;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.registration.repo.neo4j.model.FortressNode;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.SystemUserService;
@@ -80,7 +79,7 @@ public class AuditService {
     AuditTagService auditTagService;
 
     @Autowired
-    IAuditDao auditDAO;
+    AuditDao auditDAO;
 
     @Autowired
     TagService tagService;

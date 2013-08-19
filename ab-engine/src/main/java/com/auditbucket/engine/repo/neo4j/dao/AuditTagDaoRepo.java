@@ -21,9 +21,7 @@ package com.auditbucket.engine.repo.neo4j.dao;
 
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.TagValue;
-import com.auditbucket.dao.IAuditTagDao;
 import com.auditbucket.engine.repo.neo4j.AuditTagRepo;
-import com.auditbucket.engine.repo.neo4j.model.AuditHeaderNode;
 import com.auditbucket.engine.repo.neo4j.model.AuditTagRelationship;
 import com.auditbucket.registration.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +36,7 @@ import java.util.Set;
  * Time: 11:07 PM
  */
 @Repository("auditTagDAO")
-public class AuditTagDao implements IAuditTagDao {
+public class AuditTagDaoRepo implements com.auditbucket.dao.AuditTagDao {
     @Autowired
     Neo4jTemplate template;
 
@@ -47,7 +45,7 @@ public class AuditTagDao implements IAuditTagDao {
 
     @Override
     public TagValue save(AuditHeader header, Tag tagName, Object tagValue) {
-        AuditTagRelationship atv = new AuditTagRelationship(tagName, header, (tagValue == null ? "" : tagValue));
+        AuditTagRelationship atv = new AuditTagRelationship(tagName, header, tagValue);
         return template.save(atv);
     }
 

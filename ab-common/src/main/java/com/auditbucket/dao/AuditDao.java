@@ -35,7 +35,7 @@ import java.util.Set;
  * Date: 21/04/13
  * Time: 7:56 PM
  */
-public interface IAuditDao {
+public interface AuditDao {
 
     public AuditHeader save(AuditHeader auditHeader);
 

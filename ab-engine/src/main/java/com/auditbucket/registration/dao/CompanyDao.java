@@ -17,27 +17,30 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.dao;
+package com.auditbucket.registration.dao;
 
-import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.audit.model.TagValue;
-import com.auditbucket.registration.model.Tag;
-
-import java.util.Set;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.CompanyUser;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.SystemUser;
 
 /**
  * User: Mike Holdsworth
- * Date: 28/06/13
- * Time: 9:55 PM
+ * Date: 20/04/13
+ * Time: 6:31 PM
  */
-public interface IAuditTagDao {
-    TagValue save(AuditHeader header, Tag tagName, Object tagValue);
+public interface CompanyDao {
+    public Company save(Company systemUser);
 
-    Set<TagValue> find(Tag tagName, String tagValue);
+    public CompanyUser save(CompanyUser companyUser);
 
-    Set<AuditHeader> findTagAudits(Tag tagName);
+    public Company findByPropertyValue(String name, Object value);
 
-    Set<TagValue> getAuditTags(AuditHeader ah);
+    public CompanyUser getCompanyUser(Long id, String userName);
 
-    void update(Set<TagValue> modifiedSet);
+    public Fortress getFortress(Long id, String fortressName);
+
+    public SystemUser getAdminUser(Long id, String name);
+
+    public Iterable<CompanyUser> getCompanyUsers(String companyName);
 }

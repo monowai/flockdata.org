@@ -22,7 +22,7 @@ package com.auditbucket.registration.service;
 
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.dao.CompanyDaoI;
+import com.auditbucket.registration.dao.CompanyDao;
 import com.auditbucket.registration.dao.FortressDao;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
@@ -52,7 +52,7 @@ public class FortressService {
     private SystemUserService sysUserService;
 
     @Autowired
-    private CompanyDaoI companyDao;
+    private CompanyDao companyDao;
 
     @Autowired
     private SecurityHelper securityHelper;

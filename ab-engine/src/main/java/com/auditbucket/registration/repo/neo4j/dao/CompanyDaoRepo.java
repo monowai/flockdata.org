@@ -19,7 +19,7 @@
 
 package com.auditbucket.registration.repo.neo4j.dao;
 
-import com.auditbucket.registration.dao.CompanyDaoI;
+import com.auditbucket.registration.dao.CompanyDao;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.CompanyUser;
 import com.auditbucket.registration.model.Fortress;
@@ -37,7 +37,7 @@ import org.springframework.stereotype.Repository;
  * Time: 10:05 PM
  */
 @Repository
-public class CompanyDaoImpl implements CompanyDaoI {
+public class CompanyDaoRepo implements CompanyDao {
     @Autowired
     private CompanyRepository companyRepo;
 

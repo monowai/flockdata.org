@@ -23,7 +23,7 @@ import com.auditbucket.audit.model.*;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditTXResult;
-import com.auditbucket.dao.IAuditDao;
+import com.auditbucket.dao.AuditDao;
 import com.auditbucket.engine.repo.neo4j.AuditHeaderRepo;
 import com.auditbucket.engine.repo.neo4j.AuditLogRepo;
 import com.auditbucket.engine.repo.neo4j.model.AuditChangeNode;
@@ -51,7 +51,7 @@ import java.util.*;
  * Time: 8:00 PM
  */
 @Repository("auditDAO")
-public class AuditDaoNeo implements IAuditDao {
+public class AuditDaoNeo implements AuditDao {
     @Autowired
     AuditHeaderRepo auditRepo;
 

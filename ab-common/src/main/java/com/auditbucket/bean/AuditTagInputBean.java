@@ -40,7 +40,10 @@ public class AuditTagInputBean {
     public AuditTagInputBean(String tagName, String auditKey, String value) {
         this.tagName = tagName;
         this.auditKey = auditKey;
-        this.value = value;
+        if (value == null)
+            this.value = tagName;
+        else
+            this.value = value;
     }
 
     public String getAuditKey() {

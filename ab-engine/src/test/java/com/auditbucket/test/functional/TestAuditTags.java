@@ -168,7 +168,7 @@ public class TestAuditTags {
         Set<TagValue> tagSet = auditHeader.getTagValues();
         assertNotNull(tagSet);
         assertEquals(4, tagSet.size());
-        assertEquals(0, auditTagService.findTagValues("TagC", "!!Twee!!").size());
+        assertEquals(0, auditTagService.findTagValues("TagC", "!!Twee!!").size());//
         // Remove a single tag
         Iterator<TagValue> iterator = tagSet.iterator();
         while (iterator.hasNext()) {

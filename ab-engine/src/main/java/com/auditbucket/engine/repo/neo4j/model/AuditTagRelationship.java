@@ -52,8 +52,7 @@ public class AuditTagRelationship implements TagValue {
     public AuditTagRelationship(Tag tag, AuditHeader header, Object tagValue) {
         this.tag = (TagNode) tag;
         this.auditHeader = (AuditHeaderNode) header;
-        if (tagValue == null)
-            this.tagValue = tag.getName();
+        this.tagValue = tagValue;
     }
 
     @Override

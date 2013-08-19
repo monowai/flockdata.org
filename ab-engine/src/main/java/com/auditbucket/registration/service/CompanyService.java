@@ -20,7 +20,7 @@
 package com.auditbucket.registration.service;
 
 
-import com.auditbucket.registration.dao.CompanyDaoI;
+import com.auditbucket.registration.dao.CompanyDao;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.CompanyUser;
 import com.auditbucket.registration.model.Fortress;
@@ -33,7 +33,7 @@ public class CompanyService {
 
 
     @Autowired
-    private CompanyDaoI companyDao;
+    private CompanyDao companyDao;
 
 
     public Company findByName(String companyName) {
