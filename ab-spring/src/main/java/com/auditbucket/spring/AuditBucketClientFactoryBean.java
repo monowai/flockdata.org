@@ -9,6 +9,11 @@ public class AuditBucketClientFactoryBean extends AuditBucketAbstractClientFacto
 	
 	@Override
 	protected AbClient buildClient() throws Exception {
-		return null;
+		return new AbClient(properties.get("server.name").toString(),
+                            properties.get("ab.apikey").toString(),
+                            properties.get("ab.username").toString(),
+                            properties.get("ab.password").toString(),
+                            properties.get("fortress.name").toString());
+
 	}
 }
