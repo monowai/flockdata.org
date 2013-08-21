@@ -154,6 +154,17 @@ public class AuditService {
 
             AuditResultBean arb = new AuditResultBean(ah, null);
             arb.setStatus("Existing audit record found and is being returned");
+            AuditLogInputBean logBean = inputBean.getAuditLog();
+
+            if (logBean != null) {
+                logBean.setAuditKey(ah.getAuditKey());
+                logBean.setFortressUser(inputBean.getFortressUser());
+                logBean.setCallerRef(ah.getCallerRef());
+                // Creating an initial change record
+                logBean = createLog(ah, logBean, inputBean.getTagValues());
+                return new AuditResultBean(ah, logBean.getTxRef());
+            }
+
             return arb;
         }
 
@@ -278,6 +289,8 @@ public class AuditService {
                     if (logger.isDebugEnabled())
                         logger.debug("Ignoring a change we already have");
                     input.setStatus(AuditLogInputBean.LogStatus.IGNORE);
+                    if (input.isForceReindex()) // Caller is recreating the search index
+                        handleSearch(auditHeader, input, tagValues, searchActive, fortressWhen, lastChange.getAuditLog());
                     return input;
                 }
             } catch (IOException e) {
@@ -416,7 +429,8 @@ public class AuditService {
             auditDAO.save(when);
 
         } else {
-            logger.info("Skipping " + when);
+            if (logger.isDebugEnabled())
+                logger.debug("Skipping " + when);
         }
         return null;
     }

@@ -51,6 +51,7 @@ public class AuditLogInputBean {
     Map<String, Object> mapWhat;
 
     static final ObjectMapper om = new ObjectMapper();
+    private boolean forceReindex;
 
     protected AuditLogInputBean() {
     }
@@ -220,6 +221,14 @@ public class AuditLogInputBean {
 
     public String getFortress() {
         return fortress;
+    }
+
+    public boolean isForceReindex() {
+        return forceReindex;
+    }
+
+    public void setForceReindex(boolean forceReindex) {
+        this.forceReindex = forceReindex;
     }
 
 

@@ -141,4 +141,5 @@ public class AuditHeaderInputBean {
     public boolean isSuppressSearch() {
         return suppressSearch;
     }
+
 }

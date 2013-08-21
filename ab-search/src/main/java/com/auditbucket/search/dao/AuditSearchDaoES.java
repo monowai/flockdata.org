@@ -19,9 +19,9 @@
 
 package com.auditbucket.search.dao;
 
+import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditSearchDao;
 import com.auditbucket.audit.model.SearchChange;
-import com.auditbucket.audit.model.AuditHeader;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.action.ListenableActionFuture;
@@ -32,10 +32,7 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.joda.time.Chronology;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
+import org.elasticsearch.indices.IndexMissingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,65 +53,6 @@ public class AuditSearchDaoES implements AuditSearchDao {
     private Client esClient;
 
     private Logger log = LoggerFactory.getLogger(AuditSearchDaoES.class);
-
-    private String makeIndexJson(SearchChange auditChange) {
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> index = makeIndexDocument(auditChange);
-        try {
-            return mapper.writeValueAsString(index);
-        } catch (JsonProcessingException e) {
-
-            log.error(e.getMessage());
-        }
-        return null;
-    }
-
-    /**
-     * Converts a user requested auditChange in to a standardised document to index
-     *
-     * @param auditChange incoming
-     * @return document to index
-     */
-    private Map<String, Object> makeIndexDocument(SearchChange auditChange) {
-        Map<String, Object> indexMe = new HashMap<String, Object>();
-        indexMe.put("@what", auditChange.getWhat());
-        indexMe.put("@auditKey", auditChange.getAuditKey());
-        indexMe.put("@who", auditChange.getWho());
-        indexMe.put("@lastEvent", auditChange.getEvent());
-        indexMe.put("@when", auditChange.getWhen());
-        indexMe.put("@timestamp", new Date(auditChange.getSysWhen()));
-        // https://github.com/monowai/auditbucket/issues/21
-
-        indexMe.put("@fortress", auditChange.getFortressName());
-        indexMe.put("@docType", auditChange.getDocumentType());
-        indexMe.put("@callerRef", auditChange.getCallerRef());
-        if (auditChange.getTagValues() != null)
-            indexMe.put("@tags", auditChange.getTagValues());
-
-        return indexMe;
-    }
-
-    /**
-     * @param auditChange object containing changes
-     * @return key value of the child document
-     */
-    public SearchChange save(SearchChange auditChange) {
-        String indexName = auditChange.getIndexName();
-        String documentType = auditChange.getDocumentType();
-
-        String source = makeIndexJson(auditChange);
-        IndexResponse ir = esClient.prepareIndex(indexName, documentType)
-                .setSource(source)
-                .setRouting(auditChange.getAuditKey())
-                .execute()
-                .actionGet();
-
-        auditChange.setSearchKey(ir.getId());
-        if (log.isDebugEnabled())
-            log.debug("Added Document [" + auditChange.getAuditKey() + "], logId=" + auditChange.getLogId() + " searchId [" + ir.getId() + "] to " + indexName + "/" + documentType);
-        return auditChange;
-
-    }
 
     @Override
     public void delete(AuditHeader header, String existingIndexKey) {
@@ -138,22 +76,29 @@ public class AuditSearchDaoES implements AuditSearchDao {
 
     }
 
-    @Override
-    public Map<String, Object> ping() {
-        Map<String, Object> results = new HashMap<String, Object>();
-        ClusterHealthRequest request = new ClusterHealthRequest();
-        ClusterHealthResponse response = esClient.admin().cluster().health(request).actionGet();
-        if (response == null) {
-            results.put("status", "error!");
-            return results;
-        }
-        results.put("abStatus", "ok");
-        results.put("health", response.getStatus().name());
-        results.put("dataNodes", response.getNumberOfDataNodes());
-        results.put("nodes", response.getNumberOfNodes());
-        results.put("clusterName", response.getClusterName());
+    /**
+     * @param auditChange object containing changes
+     * @return key value of the child document
+     */
+    public SearchChange save(SearchChange auditChange) {
+        String indexName = auditChange.getIndexName();
+        String documentType = auditChange.getDocumentType();
 
-        return results;
+        String source = makeIndexJson(auditChange);
+        IndexRequestBuilder irb = esClient.prepareIndex(indexName, documentType)
+                .setSource(source)
+                .setRouting(auditChange.getAuditKey());
+
+        // Rebuilding a document after a reindex - preserving the unique key.
+        if (auditChange.getSearchKey() != null)
+            irb.setId(auditChange.getSearchKey());
+
+        IndexResponse ir = irb.execute().actionGet();
+        auditChange.setSearchKey(ir.getId());
+        if (log.isDebugEnabled())
+            log.debug("Added Document [" + auditChange.getAuditKey() + "], logId=" + auditChange.getLogId() + " searchId [" + ir.getId() + "] to " + indexName + "/" + documentType);
+        return auditChange;
+
     }
 
     @Override
@@ -161,37 +106,47 @@ public class AuditSearchDaoES implements AuditSearchDao {
 
         String source = makeIndexJson(incoming);
 
-        GetResponse response =
-                esClient.prepareGet(incoming.getIndexName(),
-                        incoming.getDocumentType(),
-                        incoming.getSearchKey())
-                        .setRouting(incoming.getAuditKey())
-                        .execute()
-                        .actionGet();
-        if (response.isExists() && !response.isSourceEmpty()) {
-            // Messages can be received out of sequence
-            // Check to ensure we don't accidentally overwrite a more current
-            // document with an older one. We assume the calling fortress understands
-            // what the most recent doc is.
-            Object o = response.getSource().get("@when"); // fortress view of WHEN, not AuditBuckets!
-            if (o != null) {
-                Long existingWhen = (Long) o;
-                if (existingWhen > incoming.getWhen())
-                    return; // Don't overwrite the most current doc!
+        try {
+            GetResponse response =
+                    esClient.prepareGet(incoming.getIndexName(),
+                            incoming.getDocumentType(),
+                            incoming.getSearchKey())
+                            .setRouting(incoming.getAuditKey())
+                            .execute()
+                            .actionGet();
+            if (response.isExists() && !response.isSourceEmpty()) {
+                // Messages can be received out of sequence
+                // Check to ensure we don't accidentally overwrite a more current
+                // document with an older one. We assume the calling fortress understands
+                // what the most recent doc is.
+                Object o = response.getSource().get("@when"); // fortress view of WHEN, not AuditBuckets!
+                if (o != null) {
+                    Long existingWhen = (Long) o;
+                    if (existingWhen > incoming.getWhen())
+                        return; // Don't overwrite the most current doc!
+                }
+            } else {
+                // No response, to a search key we expect to exist. Create a new one
+                // Likely to be in response to rebuilding an ES index from Graph data.
+                save(incoming);
+                return;
             }
-        }
 
-        // Update the existing document with the incoming change
-        IndexRequestBuilder update = esClient
-                .prepareIndex(incoming.getIndexName(), incoming.getDocumentType(), incoming.getSearchKey())
-                .setRouting(incoming.getAuditKey());
+            // Update the existing document with the incoming change
+            IndexRequestBuilder update = esClient
+                    .prepareIndex(incoming.getIndexName(), incoming.getDocumentType(), incoming.getSearchKey())
+                    .setRouting(incoming.getAuditKey());
 
-        ListenableActionFuture<IndexResponse> ur = update.setSource(source).
-                execute();
+            ListenableActionFuture<IndexResponse> ur = update.setSource(source).
+                    execute();
 
-        if (log.isDebugEnabled()) {
-            IndexResponse indexResponse = ur.actionGet();
-            log.debug("Updated [" + incoming.getSearchKey() + "] logId=" + incoming.getLogId() + " for " + incoming + " to version " + indexResponse.getVersion());
+            if (log.isDebugEnabled()) {
+                IndexResponse indexResponse = ur.actionGet();
+                log.debug("Updated [" + incoming.getSearchKey() + "] logId=" + incoming.getLogId() + " for " + incoming + " to version " + indexResponse.getVersion());
+            }
+        } catch (IndexMissingException e) { // administrator must have deleted it, but we think it still exists
+            log.info("Attempt to update non-existent index [" + incoming.getIndexName() + "]. Moving to create it");
+            save(incoming);
         }
 
     }
@@ -220,4 +175,58 @@ public class AuditSearchDaoES implements AuditSearchDao {
         return null;
     }
 
+    @Override
+    public Map<String, Object> ping() {
+        Map<String, Object> results = new HashMap<>();
+        ClusterHealthRequest request = new ClusterHealthRequest();
+        ClusterHealthResponse response = esClient.admin().cluster().health(request).actionGet();
+        if (response == null) {
+            results.put("status", "error!");
+            return results;
+        }
+        results.put("abStatus", "ok");
+        results.put("health", response.getStatus().name());
+        results.put("dataNodes", response.getNumberOfDataNodes());
+        results.put("nodes", response.getNumberOfNodes());
+        results.put("clusterName", response.getClusterName());
+
+        return results;
+    }
+
+    private String makeIndexJson(SearchChange auditChange) {
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> index = makeIndexDocument(auditChange);
+        try {
+            return mapper.writeValueAsString(index);
+        } catch (JsonProcessingException e) {
+
+            log.error(e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Converts a user requested auditChange in to a standardised document to index
+     *
+     * @param auditChange incoming
+     * @return document to index
+     */
+    private Map<String, Object> makeIndexDocument(SearchChange auditChange) {
+        Map<String, Object> indexMe = new HashMap<>();
+        indexMe.put("@what", auditChange.getWhat());
+        indexMe.put("@auditKey", auditChange.getAuditKey());
+        indexMe.put("@who", auditChange.getWho());
+        indexMe.put("@lastEvent", auditChange.getEvent());
+        indexMe.put("@when", auditChange.getWhen());
+        indexMe.put("@timestamp", new Date(auditChange.getSysWhen()));
+        // https://github.com/monowai/auditbucket/issues/21
+
+        indexMe.put("@fortress", auditChange.getFortressName());
+        indexMe.put("@docType", auditChange.getDocumentType());
+        indexMe.put("@callerRef", auditChange.getCallerRef());
+        if (auditChange.getTagValues() != null)
+            indexMe.put("@tags", auditChange.getTagValues());
+
+        return indexMe;
+    }
 }
