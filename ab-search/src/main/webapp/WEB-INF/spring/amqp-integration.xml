@@ -43,6 +43,7 @@
             queue-names="ab-search.queue"
             concurrent-consumers="250"
             shutdown-timeout="3000"
+            receive-timeout="${request.timeout}"
             connection-factory="connectionFactory"
             message-converter="jsonToAuditSearchChangeConverter"
             />
@@ -51,6 +52,7 @@
     <int-amqp:outbound-gateway
             request-channel="searchResult"
             exchange-name="ab.engine.exchange"
+            reply-timeout="${reply.timeout}"
             routing-key="ab.engine.binding"
             amqp-template="amqpTemplate"/>
 

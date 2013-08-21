@@ -45,6 +45,7 @@
                               request-channel="searchResult"
                               queue-names="ab-engine.queue"
                               shutdown-timeout="3000"
+                              receive-timeout="200"
                               concurrent-consumers="100"
                               connection-factory="connectionFactory"
                               message-converter="jsonToSearchResultConverter"/>
@@ -53,6 +54,7 @@
             request-channel="makeSearchRequest"
             reply-channel="nullChannel"
             routing-key="ab.search.binding"
+            reply-timeout="200"
             exchange-name="ab.search.exchange"
             amqp-template="amqpTemplate"/>
 

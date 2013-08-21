@@ -35,6 +35,8 @@
     <int-http:inbound-gateway request-channel="makeSearchRequest"
                               reply-channel="nullChannel"
                               path="/api/esMake"
+                              reply-timeout="${reply.timeout}"
+                              request-timeout="${request.timeout}"
                               request-payload-type="com.auditbucket.search.AuditSearchChange"
                               supported-methods="POST"/>
 

@@ -35,11 +35,14 @@
 
     <int-http:outbound-gateway request-channel="makeSearchRequest"
                                reply-channel="nullChannel"
+                               reply-timeout="${reply.timeout}"
                                url="${absearch.make}"
                                extract-request-payload="true"/>
 
     <int-http:inbound-gateway request-channel="searchResult"
                               path="/api/searchResult"
+                              reply-timeout="${reply.timeout}"
+                              request-timeout="${request.timeout}"
                               request-payload-type="com.auditbucket.search.SearchResult"
                               supported-methods="POST"/>
 
