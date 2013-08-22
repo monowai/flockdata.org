@@ -8,5 +8,5 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = {
         "classpath:ab-context.xml"
 })
-public class AbstractABTest {
+public abstract class AbstractABTest {
 }
