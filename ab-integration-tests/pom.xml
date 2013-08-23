@@ -144,7 +144,7 @@
                                     </url>
                                 </zipUrlInstaller>
                                 <systemProperties>
-                                    <int.method>amqp</int.method>
+                                    <ab.integration>amqp</ab.integration>
                                 </systemProperties>
                             </container>
                             <configuration>
