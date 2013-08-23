@@ -1,6 +1,7 @@
 package com.auditbucket.spring.utils;
 
 import com.auditbucket.bean.AuditHeaderInputBean;
+import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.spring.annotations.AuditClientRef;
 import com.auditbucket.spring.annotations.AuditKey;
 import com.auditbucket.spring.annotations.Auditable;
@@ -41,5 +42,10 @@ public class PojoToAbTransformer {
             }
         }
         return auditHeaderInputBean;
+    }
+
+    public static AuditLogInputBean transformToAbLogFormat(Object pojo) throws IllegalAccessException {
+        // TODO @Nabil must Implement this ASAP
+        return null;
     }
 }

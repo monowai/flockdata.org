@@ -1,36 +1,48 @@
 package com.auditbucket.spring;
 
-/**
- * Created with IntelliJ IDEA.
- * User: nabil
- * Date: 11/08/13
- * Time: 13:56
- * To change this template use File | Settings | File Templates.
- */
-public abstract class AbClient {
+import com.auditbucket.bean.AuditHeaderInputBean;
+import com.auditbucket.bean.AuditLogInputBean;
+import com.auditbucket.bean.AuditResultBean;
+import com.auditbucket.spring.utils.PojoToAbTransformer;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
 
-        public abstract String get() throws Exception ;
+public class AbClient {
+    private String serverName;
+    private String apiKey;
+    private String userName;
+    private String password;
+    private String forteressName;
 
-        public abstract java.util.Map<String, String> getHealth() throws Exception ;
+    public AbClient(String serverName, String apiKey, String userName, String password, String forteressName) {
+        this.serverName = serverName;
+        this.apiKey = apiKey;
+        this.userName = userName;
+        this.password = password;
+        this.forteressName = forteressName;
+    }
 
-        public abstract void createHeader() throws Exception ;
+    public AuditResultBean createAuditHeader(Object pojo) throws IllegalAccessException {
+        AuditHeaderInputBean auditHeaderInputBean = PojoToAbTransformer.transformToAbFormat(pojo);
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new MappingJacksonHttpMessageConverter());
+        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
-        public abstract void createLog() throws Exception ;
+        ResponseEntity response = restTemplate.postForObject(serverName + "/header/new", auditHeaderInputBean, ResponseEntity.class);
+        // TODO dependeing on  response.getStatusCode() we must throw or not a specific AB exception
+        return (AuditResultBean) response.getBody();
+    }
 
-        public abstract void getAuditTxLogs(String txRef) throws Exception ;
+    public AuditLogInputBean createLogHeader(Object pojo) throws IllegalAccessException {
+        AuditLogInputBean auditLogInputBean = PojoToAbTransformer.transformToAbLogFormat(pojo);
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new MappingJacksonHttpMessageConverter());
+        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
-        public abstract void getAuditTxHeaders(String txRef) throws Exception ;
-
-        public abstract void getAuditTx( String txRef) throws Exception ;
-
-        public abstract void getAudit(String auditKey) throws Exception ;
-
-        public abstract void getByClientRef(String fortress,
-                                                           String recordType,
-                                                          String callerRef) throws Exception;
-
-        public abstract void getAuditLogs(String auditKey) throws Exception ;
-
-        public abstract void getLastChange(String auditKey) ;
-
+        ResponseEntity response = restTemplate.postForObject(serverName + "/log/new", auditLogInputBean, ResponseEntity.class);
+        // TODO depending on  response.getStatusCode() we must throw or not a specific AB exception
+        return (AuditLogInputBean) response.getBody();
+    }
 }
