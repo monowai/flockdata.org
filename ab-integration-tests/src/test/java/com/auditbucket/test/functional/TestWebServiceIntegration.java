@@ -19,42 +19,29 @@
 
 package com.auditbucket.test.functional;
 
-import io.searchbox.client.JestClient;
-import io.searchbox.client.JestClientFactory;
-import io.searchbox.client.config.ClientConfig;
-import io.searchbox.indices.DeleteIndex;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
+import com.auditbucket.bean.AuditHeaderInputBean;
+import com.auditbucket.bean.AuditLogInputBean;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicHttpEntityEnclosingRequest;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HttpRequestExecutor;
-import org.junit.BeforeClass;
+import org.joda.time.DateTime;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.data.neo4j.support.node.Neo4jHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
+import java.util.Date;
 
 /**
  * User: Mike Holdsworth
@@ -70,6 +57,46 @@ public class TestWebServiceIntegration {
     private Logger logger = LoggerFactory.getLogger(TestAuditIntegration.class);
     private String email = "test@ab.com";
     Authentication authA = new UsernamePasswordAuthenticationToken(email, "user1");
+
+    public void jsonReadFiles() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        ObjectMapper mapper = new ObjectMapper();
+        String filename = "/tmp/new-trainprofiles.json";
+        InputStream is = new FileInputStream(filename);
+        JsonNode node = mapper.readTree(is);
+
+        System.out.println("node Count = " + node.size());
+        HttpClient httpclient = new DefaultHttpClient();
+        String url = "http://localhost:8080/ab-engine/audit/header/new";
+        for (JsonNode profile : node.elements().next()) {
+            HttpPost auditPost = new HttpPost(url);
+            auditPost.addHeader("content-type", "application/json");
+            auditPost.addHeader("Authorization", "Basic bWlrZToxMjM=");
+            AuditHeaderInputBean inputBean = new AuditHeaderInputBean("capacity", "system", "TrainProfile", new Date(), profile.get("profileID").asText());
+            AuditLogInputBean log = new AuditLogInputBean("system", new DateTime(), profile.toString());
+            inputBean.setAuditLog(log);
+            log.setForceReindex(true);
+            StringEntity json = new StringEntity(mapper.writeValueAsString(inputBean));
+            auditPost.setEntity(json);
+            HttpResponse response = httpclient.execute(auditPost);
+
+            BufferedReader br = new BufferedReader(
+                    new InputStreamReader((response.getEntity().getContent())));
+
+            String output;
+            System.out.println("Output from Server .... \n");
+            while ((output = br.readLine()) != null) {
+                System.out.println(output);
+            }
+        }
+
+    }
+
+    @Test
+    public void expiryDate() {
+        DateTime dt = new DateTime(99999999);
+        System.out.println(dt);
+    }
 
     //@Test
     public void mkh() throws Exception {
