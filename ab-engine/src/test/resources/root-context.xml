@@ -38,7 +38,7 @@
 
     <import resource="neo4j-context.xml"/>
     <import resource="integration.xml"/>
-    <import resource="${int.method}-integration-test.xml"/>
+    <import resource="${ab.integration}-integration-test.xml"/>
     <import resource="spring-security.xml"/>
 
     <task:annotation-driven executor="taskExecutor"/>
