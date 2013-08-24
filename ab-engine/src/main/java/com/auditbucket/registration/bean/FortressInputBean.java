@@ -21,6 +21,9 @@ package com.auditbucket.registration.bean;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import java.util.Locale;
+import java.util.TimeZone;
+
 /**
  * Represents the input to create a fortress
  * Default behaviour is
@@ -36,7 +39,6 @@ public class FortressInputBean {
     private String message = null;
     private String fortressKey = null;
     private String timeZone = null;
-    private String locale = null;
     private String languageTag;
 
 
@@ -90,8 +92,17 @@ public class FortressInputBean {
         return timeZone;
     }
 
-    public String getLocale() {
-        return locale;
+    /**
+     * setting an illegal timezone will fall back to GMT.
+     *
+     * @param timeZone timeZone you require
+     */
+    public void setTimeZone(String timeZone) {
+        if (timeZone != null) {
+            if (!TimeZone.getTimeZone(timeZone).getID().equals(timeZone))
+                throw new IllegalArgumentException(timeZone + " was not recognized");
+            this.timeZone = timeZone;
+        }
     }
 
     /**
@@ -105,6 +116,12 @@ public class FortressInputBean {
     }
 
     public void setLanguageTag(String languageTag) {
-        this.languageTag = languageTag;
+        if (languageTag != null) {
+            if ("und".equals(Locale.forLanguageTag(languageTag).toLanguageTag()))
+                throw new IllegalArgumentException(languageTag + " was not recognized");
+            this.languageTag = languageTag;
+        }
     }
+
+
 }
