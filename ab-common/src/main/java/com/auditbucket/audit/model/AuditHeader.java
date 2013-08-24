@@ -43,6 +43,11 @@ public interface AuditHeader {
      */
     public FortressUser getLastUser();
 
+    /**
+     * Last updated by AuditBucket
+     *
+     * @return long representing the date in UTC
+     */
     public long getLastUpdated();
 
     public void setLastUser(FortressUser user);
@@ -73,6 +78,16 @@ public interface AuditHeader {
      * alters the lastChange value
      */
     void bumpUpdate();
+
+    /**
+     * @return date this was created in fortress timezone
+     */
+    public Long getFortressCreated();
+
+    /**
+     * @return date created in AuditBucket in UTC
+     */
+    public Long getABCreated();
 
     public boolean isSearchSuppressed();
 

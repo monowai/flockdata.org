@@ -504,4 +504,20 @@ public class TestAudit {
         assertEquals(recordsToCreate, (double) auditService.getAuditLogCount(auditHeader));
     }
 
+    @Test
+    public void dateLocaleTest() {
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
+        SecurityContextHolder.getContext().setAuthentication(authMike);
+        Fortress fortress = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
+        assertNotNull(fortress.getLanguageTag());
+        assertNotNull(fortress.getTimeZone());
+
+        //DateTime dt = new DateTime().toDateTime();
+        //DateTime firstDate = dt.minusDays(2);
+        //AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortress.getName(), "olivia@sunnybell.com", "CompanyNode", firstDate.toDate(), "ABC1");
+        //String ahWP = auditService.createHeader(inputBean).getAuditKey();
+
+
+    }
+
 }

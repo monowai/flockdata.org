@@ -26,6 +26,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.*;
 
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.UUID;
 
 @NodeEntity
@@ -45,14 +47,28 @@ public class FortressNode implements Fortress {
 
     private Boolean accumulatingChanges = false;
     private Boolean ignoreSearchEngine = true;
+    private String timeZone;
+    private String languageTag;
 
-    public FortressNode() {
+    protected FortressNode() {
     }
 
     public FortressNode(FortressInputBean fortressInputBean, Company ownedBy) {
         setName(fortressInputBean.getName());
         setIgnoreSearchEngine(fortressInputBean.getIgnoreSearch());
         setCompany(ownedBy);
+        if (fortressInputBean.getTimeZone() != null) {
+            this.timeZone = fortressInputBean.getTimeZone();
+            if (TimeZone.getTimeZone(timeZone) == null)
+                throw new IllegalArgumentException(fortressInputBean.getTimeZone() + " is not a valid TimeZone. If you don't know a timezone to set, leave this null and the system default will be used.");
+        } else {
+            getTimeZone();
+        }
+        if (fortressInputBean.getLanguageTag() != null)
+            this.languageTag = fortressInputBean.getLanguageTag();
+        else
+            getLanguageTag();
+
         fortressKey = UUID.randomUUID();
     }
 
@@ -111,5 +127,22 @@ public class FortressNode implements Fortress {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 '}';
+    }
+
+    public String getTimeZone() {
+        if (this.timeZone == null)
+            this.timeZone = TimeZone.getDefault().getID();
+        return timeZone;
+    }
+
+    @Override
+    public String getLanguageTag() {
+        if (this.languageTag == null)
+            this.languageTag = Locale.getDefault().toLanguageTag();
+        return this.languageTag;
+    }
+
+    public void setTimeZone(String timeZone) {
+        this.timeZone = timeZone;
     }
 }

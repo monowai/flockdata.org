@@ -27,6 +27,8 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.springframework.data.neo4j.annotation.*;
 
+import java.util.TimeZone;
+
 /**
  * User: Mike Holdsworth
  * Date: 26/05/13
@@ -65,7 +67,8 @@ public class AuditLogRelationship implements AuditLog {
         if (fortressWhen != null && fortressWhen.getMillis() != 0) {
             this.fortressWhen = fortressWhen.getMillis();
         } else {
-            this.fortressWhen = sysWhen;
+            // "now" in the fortress default timezone
+            this.fortressWhen = new DateTime(sysWhen, DateTimeZone.forTimeZone(TimeZone.getTimeZone(header.getFortress().getTimeZone()))).getMillis();
         }
     }
 

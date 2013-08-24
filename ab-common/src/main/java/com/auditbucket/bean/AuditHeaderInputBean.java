@@ -46,17 +46,16 @@ public class AuditHeaderInputBean {
     public AuditHeaderInputBean() {
     }
 
-    public AuditHeaderInputBean(String fortress, String fortressUser, String documentType, Date when, String callerRef) {
-        this.when = when;
+    public AuditHeaderInputBean(String fortress, String fortressUser, String documentType, Date fortressWhen, String callerRef) {
+        this.when = fortressWhen;
         this.fortress = fortress;
         this.fortressUser = fortressUser;
         this.documentType = documentType;
         this.callerRef = callerRef;
-
     }
 
-    public AuditHeaderInputBean(String name, String s, String companyNode, Date date) {
-        this(name, s, companyNode, date, null);
+    public AuditHeaderInputBean(String name, String s, String companyNode, Date fortressWhen) {
+        this(name, s, companyNode, fortressWhen, null);
 
     }
 
@@ -68,6 +67,11 @@ public class AuditHeaderInputBean {
         return this.auditKey;
     }
 
+    /**
+     * Fortress Timezone when
+     *
+     * @return when in the fortress this was created
+     */
     public Date getWhen() {
         return when;
     }

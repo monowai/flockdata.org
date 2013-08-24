@@ -35,6 +35,10 @@ public class FortressInputBean {
     private Boolean ignoreSearch = false;
     private String message = null;
     private String fortressKey = null;
+    private String timeZone = null;
+    private String locale = null;
+    private String languageTag;
+
 
     protected FortressInputBean() {
     }
@@ -80,5 +84,27 @@ public class FortressInputBean {
     public void setFortressKey(String fortressKey) {
         this.fortressKey = fortressKey;
 
+    }
+
+    public String getTimeZone() {
+        return timeZone;
+    }
+
+    public String getLocale() {
+        return locale;
+    }
+
+    /**
+     * IETF BCP 47 language tag to use for this fortress.
+     * Defaults to server system default.
+     *
+     * @return Language tag to be used for Locale conversions
+     */
+    public String getLanguageTag() {
+        return languageTag;
+    }
+
+    public void setLanguageTag(String languageTag) {
+        this.languageTag = languageTag;
     }
 }
