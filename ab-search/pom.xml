@@ -115,12 +115,6 @@
             <version>1.9.9</version>
         </dependency>
 
-        <!--<dependency>-->
-        <!--<groupId>com.jackson.core</groupId>-->
-        <!--<artifactId>jackson-databind</artifactId>-->
-        <!--<version>${jackson.version}</version>-->
-        <!--</dependency>-->
-
         <!-- Servlet -->
         <dependency>
             <groupId>org.apache.tomcat</groupId>

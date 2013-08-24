@@ -138,14 +138,14 @@
                     <artifactId>logback-access</artifactId>
                 </exclusion>
             </exclusions>
-            <scope>test</scope>
+            <!--<scope>test</scope>-->
         </dependency>
         <!--sd-Neo4J advanced mapping-->
-        <!--<dependency>-->
-        <!--<groupId>org.springframework.data</groupId>-->
-        <!--<artifactId>spring-data-neo4j-aspects</artifactId>-->
-        <!--<version>${org.springdata.neo4j}</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-neo4j-aspects</artifactId>
+            <version>${org.springdata.neo4j}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.aspectj</groupId>
