@@ -48,7 +48,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.System;
 import java.util.List;
+import java.util.TimeZone;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.fail;
 import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -204,7 +208,49 @@ public class TestRegistration {
         assertNull(fu);
         fu = fortressService.getFortressUser(fortress, "usera");
         assertNotNull(fu);
+    }
 
+    @Test
+    public void fortressTZLocaleChecks() {
+        registrationService.registerSystemUser(new RegistrationBean("Monowai", uid, "bah"));
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        // Null fortress
+        Fortress fortressNull = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
+        assertNotNull(fortressNull.getLanguageTag());
+        assertNotNull(fortressNull.getTimeZone());
+
+        String testTimezone = TimeZone.getTimeZone("GMT").getID();
+        assertNotNull(testTimezone);
+
+        String languageTag = "en-GB";
+        FortressInputBean fib = new FortressInputBean("uk-wp", true);
+        fib.setLanguageTag(languageTag);
+        fib.setTimeZone(testTimezone);
+        Fortress custom = fortressService.registerFortress(fib);
+        assertEquals(languageTag, custom.getLanguageTag());
+        assertEquals(testTimezone, custom.getTimeZone());
+
+        try {
+            FortressInputBean fibError = new FortressInputBean("uk-wp", true);
+            fibError.setTimeZone("Rubbish!");
+            fail("No exception thrown for an illegal timezone");
+        } catch (IllegalArgumentException e) {
+            // This is what we expected
+        }
+
+        try {
+            FortressInputBean fibError = new FortressInputBean("uk-wp", true);
+            fibError.setLanguageTag("Rubbish!");
+            fail("No exception thrown for an illegal languageTag");
+        } catch (IllegalArgumentException e) {
+            // This is what we expected
+        }
+        FortressInputBean fibNullSetter = new FortressInputBean("uk-wp", true);
+        fibNullSetter.setLanguageTag(null);
+        fibNullSetter.setTimeZone(null);
+        Fortress fResult = fortressService.registerFortress(fibNullSetter);
+        assertNotNull(fResult.getLanguageTag());
+        assertNotNull(fResult.getTimeZone());
 
     }
 
