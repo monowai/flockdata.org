@@ -260,7 +260,7 @@ public class AuditHeaderNode implements AuditHeader {
     @Override
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getCallerRef() {
-        return this.callerRef;  //To change body of implemented methods use File | Settings | File Templates.
+        return this.callerRef;
     }
 
     public void setTagValues(Set<TagValue> tagValues) {
@@ -289,5 +289,11 @@ public class AuditHeaderNode implements AuditHeader {
     @JsonIgnore
     public AuditChange getLastChange() {
         return this.lastChange;
+    }
+
+    @Override
+    public void addTagValue(TagValue tagValue) {
+        this.tagValues.add(tagValue);
+
     }
 }

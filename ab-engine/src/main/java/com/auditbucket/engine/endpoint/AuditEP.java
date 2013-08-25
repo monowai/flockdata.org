@@ -26,6 +26,7 @@ import com.auditbucket.audit.model.TxRef;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditResultBean;
+import com.auditbucket.bean.AuditSummaryBean;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;
@@ -212,11 +213,22 @@ public class AuditEP {
         }
     }
 
-    @RequestMapping(value = "/{auditKey}/logs", method = RequestMethod.GET)
+    @RequestMapping(value = "/{auditKey}/logs", produces = "application/json", method = RequestMethod.GET)
     @ResponseBody
     public Set<AuditLog> getAuditLogs(@PathVariable("auditKey") String auditKey) throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/c27ec2e5-2e17-4855-be18-bd8f82249157/logs
         return auditService.getAuditLogs(auditKey);
+
+    }
+
+    @RequestMapping(value = "/{auditKey}/summary", produces = "application/json", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<AuditSummaryBean> getAuditSummary(@PathVariable("auditKey") String auditKey) throws Exception {
+
+        AuditHeader header = auditService.getHeader(auditKey, true);
+        header.getTagMap();
+        Set<AuditLog> changes = auditService.getAuditLogs(header.getId());
+        return new ResponseEntity<>(new AuditSummaryBean(header, changes), HttpStatus.OK);
 
     }
 

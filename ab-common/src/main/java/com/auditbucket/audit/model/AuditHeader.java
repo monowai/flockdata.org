@@ -111,4 +111,6 @@ public interface AuditHeader {
     void setLastChange(AuditChange change);
 
     public AuditChange getLastChange();
+
+    void addTagValue(TagValue save);
 }

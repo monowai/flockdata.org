@@ -39,12 +39,12 @@ public class AuditLogRelationship implements AuditLog {
     @GraphId
     private Long id;
 
+    @StartNode
+    private AuditHeaderNode auditHeader;
+
     @EndNode
     @Fetch
     private AuditChangeNode auditChange;
-
-    @StartNode
-    private AuditHeaderNode auditHeader;
 
     @Indexed(indexName = "sysWhen", numeric = true)
     private Long sysWhen = 0l;
@@ -54,7 +54,6 @@ public class AuditLogRelationship implements AuditLog {
 
     @Indexed(indexName = "searchIndex")
     private boolean indexed = false;
-
 
     protected AuditLogRelationship() {
         DateTime now = new DateTime().toDateTime(DateTimeZone.UTC);

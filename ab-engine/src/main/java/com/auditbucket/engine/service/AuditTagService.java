@@ -92,7 +92,7 @@ public class AuditTagService {
         for (String key : userTags.keySet()) {
             Tag tag = tagService.processTag(new TagInputBean(company, key));
             String keyValue = userTags.get(key);
-            auditTagDao.save(ah, tag, keyValue);
+            ah.addTagValue(auditTagDao.save(ah, tag, keyValue));
         }
     }
 

@@ -98,7 +98,7 @@ public class AuditDaoNeo implements AuditDao {
         template.fetch(header.getTagValues());
         template.fetch(header.getLastChange());
         template.fetch(header.getCreatedBy());
-        //template.fetch(header.getLastChange());
+        template.fetch(header.getLastUser());
 
         return header;
     }

@@ -204,11 +204,9 @@ public class AuditService {
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public AuditHeader getHeader(@NotEmpty String key, boolean inflate) {
         String userName = securityHelper.getLoggedInUser();
-
         SystemUser su = sysUserService.findByName(userName);
         if (su == null)
             throw new SecurityException("Not authorised");
-
 
         AuditHeader ah = auditDAO.findHeader(key, inflate);
         if (ah == null)
@@ -643,5 +641,9 @@ public class AuditService {
 
     private AuditChange getLastChange(Long id) {
         return auditDAO.getLastChange(id);
+    }
+
+    public Set<AuditLog> getAuditLogs(Long id) {
+        return auditDAO.getAuditLogs(id);
     }
 }
