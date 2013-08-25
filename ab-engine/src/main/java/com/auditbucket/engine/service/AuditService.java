@@ -176,7 +176,7 @@ public class AuditService {
         ah = auditDAO.save(fu, inputBean, documentType);
         inputBean.setAuditKey(ah.getAuditKey());
 
-        Map<String, Object> userTags = inputBean.getTagValues();
+        Map<String, String> userTags = inputBean.getTagValues();
         auditTagService.createTagValues(userTags, ah);
 
         if (logger.isDebugEnabled())
@@ -249,9 +249,10 @@ public class AuditService {
      *
      * @param auditHeader auditHeader the caller is authorised to work with
      * @param input       auditLog details containing the data to log
+     * @param tagValues
      * @return populated log information with any error messages
      */
-    private AuditLogInputBean createLog(AuditHeader auditHeader, AuditLogInputBean input, Map<String, Object> tagValues) {
+    private AuditLogInputBean createLog(AuditHeader auditHeader, AuditLogInputBean input, Map<String, String> tagValues) {
         if (input.getMapWhat() == null || input.getMapWhat().isEmpty()) {
             input.setStatus(AuditLogInputBean.LogStatus.IGNORE);
             return input;
@@ -273,10 +274,10 @@ public class AuditService {
 
 //ToDo: Look at spin the following off in to a separate thread?
         // https://github.com/monowai/auditbucket/issues/7
-        if (auditHeader.getLastChange() != null) {
-            auditDAO.fetch(auditHeader.getLastChange());
-        }
-        AuditChange lastChange = (auditHeader.getLastChange() != null ? auditHeader.getLastChange() : null);
+//        if (auditHeader.getLastChange() != null) {
+//            auditDAO.fetch(auditHeader.getLastChange());
+//        }
+        AuditChange lastChange = getLastChange(auditHeader.getId());//(auditHeader.getLastChange() != null ? auditHeader.getLastChange() : null);
         String event = input.getEvent();
         Boolean searchActive = fortress.isSearchActive();
         DateTime fortressWhen = (input.getWhen() == null ? new DateTime(DateTimeZone.UTC) : new DateTime(input.getWhen(), DateTimeZone.UTC));
@@ -328,7 +329,7 @@ public class AuditService {
     }
 
     @Async
-    private void handleSearch(AuditHeader auditHeader, AuditLogInputBean input, Map<String, Object> tagValues, Boolean searchActive, DateTime fortressWhen, AuditLog auditLog) {
+    private void handleSearch(AuditHeader auditHeader, AuditLogInputBean input, Map<String, String> tagValues, Boolean searchActive, DateTime fortressWhen, AuditLog auditLog) {
 
         SearchChange searchDocument;
         searchDocument = new AuditSearchChange(auditHeader, input.getMapWhat(), input.getEvent(), fortressWhen);
@@ -529,7 +530,7 @@ public class AuditService {
     @Async
     public Future<AuditHeader> cancelLastLog(String headerKey) throws IOException {
         AuditHeader auditHeader = getValidHeader(headerKey, true);
-        AuditChange lastChange = auditHeader.getLastChange();
+        AuditChange lastChange = getLastChange(auditHeader.getId());
         if (lastChange == null)
             return null;
         auditDAO.fetch(lastChange);
@@ -552,7 +553,7 @@ public class AuditService {
         // Sync the update to ab-search.
         if (auditHeader.getFortress().isSearchActive() && !auditHeader.isSearchSuppressed()) {
             // Update against the Audit Header only by re-indexing the search document
-            searchGateway.makeChangeSearchable(new AuditSearchChange(auditHeader, previousChange.getWhat(), previousChange.getEvent(), new DateTime(previousChange.getAuditLog().getFortressWhen())));
+            searchGateway.makeChangeSearchable(new AuditSearchChange(auditHeader, previousChange.getWhatMap(), previousChange.getEvent(), new DateTime(previousChange.getAuditLog().getFortressWhen())));
         }
         return new AsyncResult<>(auditHeader);
     }
@@ -609,7 +610,7 @@ public class AuditService {
         AuditHeader result = findByCallerRef(fortressID, documentType, callerRef);
         if (result != null) {
             auditDAO.fetch(result);
-            auditDAO.fetch(result.getLastChange());
+            //auditDAO.fetch(result.getLastChange());
 
         }
         return result;
@@ -622,16 +623,25 @@ public class AuditService {
      * @return AuditHeader or NULL.
      */
     public AuditHeader findByCallerRef(Long fortressID, String documentType, String callerRef) {
-        String userName = securityHelper.getLoggedInUser();
 
-        SystemUser su = sysUserService.findByName(userName);
+        SystemUser su = sysUserService.findByName(securityHelper.getLoggedInUser());
         if (su == null)
-            throw new SecurityException(userName + " is not authorised");
+            throw new SecurityException(securityHelper.getLoggedInUser() + " is not authorised");
 
         Fortress fortress = fortressService.getFortress(fortressID);
         if (!fortress.getCompany().getId().equals(su.getCompany().getId()))
-            throw new SecurityException(userName + " is not authorised to work with requested FortressNode");
+            throw new SecurityException(securityHelper.getLoggedInUser() + " is not authorised to work with requested FortressNode");
 
         return auditDAO.findHeaderByCallerRef(fortress.getId(), documentType, callerRef.trim());
+    }
+
+    public AuditChange getLastChange(String auditKey) {
+        AuditHeader audit = getValidHeader(auditKey);
+        return getLastChange(audit.getId());
+
+    }
+
+    private AuditChange getLastChange(Long id) {
+        return auditDAO.getLastChange(id);
     }
 }

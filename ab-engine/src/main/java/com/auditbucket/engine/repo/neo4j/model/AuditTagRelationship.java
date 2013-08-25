@@ -44,12 +44,12 @@ public class AuditTagRelationship implements TagValue {
     AuditHeaderNode auditHeader;
 
     @Indexed(indexName = "tagValue")
-    Object tagValue;
+    String tagValue;
 
     protected AuditTagRelationship() {
     }
 
-    public AuditTagRelationship(Tag tag, AuditHeader header, Object tagValue) {
+    public AuditTagRelationship(Tag tag, AuditHeader header, String tagValue) {
         this.tag = (TagNode) tag;
         this.auditHeader = (AuditHeaderNode) header;
         this.tagValue = tagValue;
@@ -65,11 +65,11 @@ public class AuditTagRelationship implements TagValue {
     }
 
     @Override
-    public Object getTagValue() {
+    public String getTagValue() {
         return tagValue;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void setTagValue(Object tagValue) {
+    public void setTagValue(String tagValue) {
         this.tagValue = tagValue;
     }
 }

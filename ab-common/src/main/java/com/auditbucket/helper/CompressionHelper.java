@@ -49,6 +49,8 @@ public class CompressionHelper {
 
     public static String decompress(CompressionResult result) {
         try {
+            if (result.getBytes() == null)
+                return null;
             if (result.getMethod().equals(CompressionResult.Method.NONE))
                 return new String(result.getBytes());
 

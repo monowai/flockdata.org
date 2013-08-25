@@ -40,7 +40,7 @@ public class AuditHeaderInputBean {
     private String lastMessage;
     private AuditLogInputBean auditLog;
     private boolean searchSuppressed;
-    private Map<String, Object> tagValues = new HashMap<String, Object>();
+    private Map<String, String> tagValues = new HashMap<>();
     private boolean suppressSearch;
 
     public AuditHeaderInputBean() {
@@ -130,11 +130,11 @@ public class AuditHeaderInputBean {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Map<String, Object> getTagValues() {
+    public Map<String, String> getTagValues() {
         return tagValues;
     }
 
-    public void setTagValues(Map<String, Object> tagValues) {
+    public void setTagValues(Map<String, String> tagValues) {
         this.tagValues = tagValues;
     }
 

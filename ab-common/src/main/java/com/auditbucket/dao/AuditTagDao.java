@@ -31,7 +31,7 @@ import java.util.Set;
  * Time: 9:55 PM
  */
 public interface AuditTagDao {
-    TagValue save(AuditHeader header, Tag tagName, Object tagValue);
+    void save(AuditHeader headerNode, Tag tagNode, String tagValue);
 
     Set<TagValue> find(Tag tagName, String tagValue);
 

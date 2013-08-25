@@ -32,6 +32,7 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -53,6 +54,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.Set;
 
@@ -486,6 +488,23 @@ public class TestAudit {
         compareUser(auditHeader, "olivia@sunnybell.com");
         auditHeader = auditService.cancelLastLogSync(auditHeader.getAuditKey());
         assertNotNull(auditHeader);
+    }
+
+    @Test
+    public void whatDataWorking() throws IOException {
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
+        SecurityContextHolder.getContext().setAuthentication(authMike);
+        Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", new Date(), "ABC1");
+        String ahWP = auditService.createHeader(inputBean).getAuditKey();
+
+        AuditHeader auditHeader = auditService.getHeader(ahWP);
+        auditService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", new DateTime(), what + 1 + "\"}"));
+        auditHeader = auditService.getHeader(ahWP, false); // Inflate the header on the server
+        AuditChange lastChange = auditService.getLastChange(auditHeader.getAuditKey());
+        assertNotNull(lastChange);
+        assertNotNull(lastChange.getJsonWhat());
+        assertTrue(lastChange.getWhatMap().containsKey("house"));
     }
 
     private void compareUser(AuditHeader header, String userName) {

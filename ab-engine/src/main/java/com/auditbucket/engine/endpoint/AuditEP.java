@@ -80,13 +80,13 @@ public class AuditEP {
         try {
             auditResultBean = auditService.createHeader(input);
             auditResultBean.setStatus("OK");
-            return new ResponseEntity<AuditResultBean>(auditResultBean, HttpStatus.OK);
+            return new ResponseEntity<>(auditResultBean, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             auditResultBean = new AuditResultBean(e.getMessage());
-            return new ResponseEntity<AuditResultBean>(auditResultBean, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(auditResultBean, HttpStatus.BAD_REQUEST);
         } catch (SecurityException e) {
             auditResultBean = new AuditResultBean("Forbidden Request " + e.getMessage());
-            return new ResponseEntity<AuditResultBean>(auditResultBean, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(auditResultBean, HttpStatus.FORBIDDEN);
         }
     }
 
@@ -99,27 +99,27 @@ public class AuditEP {
             input = auditService.createLog(input);
             AuditLogInputBean.LogStatus ls = input.getAbStatus();
             if (ls.equals(AuditLogInputBean.LogStatus.FORBIDDEN))
-                return new ResponseEntity<AuditLogInputBean>(input, HttpStatus.FORBIDDEN);
+                return new ResponseEntity<>(input, HttpStatus.FORBIDDEN);
             else if (ls.equals(AuditLogInputBean.LogStatus.NOT_FOUND)) {
                 input.setAbMessage("Illegal audit key");
-                return new ResponseEntity<AuditLogInputBean>(input, HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(input, HttpStatus.NOT_FOUND);
             } else if (ls.equals(AuditLogInputBean.LogStatus.IGNORE)) {
                 input.setAbMessage("Ignoring request to change as the 'what' has not changed");
-                return new ResponseEntity<AuditLogInputBean>(input, HttpStatus.NOT_MODIFIED);
+                return new ResponseEntity<>(input, HttpStatus.NOT_MODIFIED);
             } else if (ls.equals(AuditLogInputBean.LogStatus.ILLEGAL_ARGUMENT)) {
-                return new ResponseEntity<AuditLogInputBean>(input, HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>(input, HttpStatus.NO_CONTENT);
             }
 
-            return new ResponseEntity<AuditLogInputBean>(input, HttpStatus.OK);
+            return new ResponseEntity<>(input, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             input.setAbMessage(e.getMessage());
-            return new ResponseEntity<AuditLogInputBean>(input, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(input, HttpStatus.BAD_REQUEST);
         } catch (SecurityException e) {
             input.setAbMessage(e.getMessage());
-            return new ResponseEntity<AuditLogInputBean>(input, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(input, HttpStatus.FORBIDDEN);
         } catch (Exception e) {
             input.setAbMessage(e.getMessage());
-            return new ResponseEntity<AuditLogInputBean>(input, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(input, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -131,17 +131,17 @@ public class AuditEP {
         try {
             result = auditService.findByTXRef(txRef);
             if (result == null) {
-                result = new HashMap<String, Object>(1);
+                result = new HashMap<>(1);
                 result.put("txRef", "Not a valid transaction identifier");
-                return new ResponseEntity<Map>((Map) result, HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>((Map) result, HttpStatus.NOT_FOUND);
             }
 
             return new ResponseEntity<Map>(result, HttpStatus.OK);
 
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<Map>((Map) null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>((Map) null, HttpStatus.NOT_FOUND);
         } catch (SecurityException e) {
-            return new ResponseEntity<Map>((Map) null, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>((Map) null, HttpStatus.FORBIDDEN);
         }
     }
 
@@ -150,17 +150,17 @@ public class AuditEP {
     public ResponseEntity<Map<String, Object>> getAuditTxHeaders(@PathVariable("txRef") String txRef) throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
         Set<AuditHeader> headers;
-        Map<String, Object> result = new HashMap<String, Object>(2);
+        Map<String, Object> result = new HashMap<>(2);
         try {
             headers = auditService.findTxHeaders(txRef);
             result.put("txRef", txRef);
             result.put("headers", headers);
-            return new ResponseEntity<Map<String, Object>>(result, HttpStatus.OK);
+            return new ResponseEntity<>(result, HttpStatus.OK);
 
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<Map<String, Object>>(result, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
         } catch (SecurityException e) {
-            return new ResponseEntity<Map<String, Object>>(result, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(result, HttpStatus.FORBIDDEN);
         }
     }
 
@@ -171,12 +171,12 @@ public class AuditEP {
         TxRef result;
         try {
             result = auditService.findTx(txRef);
-            return new ResponseEntity<TxRef>(result, HttpStatus.OK);
+            return new ResponseEntity<>(result, HttpStatus.OK);
 
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<TxRef>((TxRef) null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>((TxRef) null, HttpStatus.NOT_FOUND);
         } catch (SecurityException e) {
-            return new ResponseEntity<TxRef>((TxRef) null, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>((TxRef) null, HttpStatus.FORBIDDEN);
         }
     }
 
@@ -185,13 +185,13 @@ public class AuditEP {
     public ResponseEntity<AuditHeader> getAudit(@PathVariable("auditKey") String auditKey) throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
         try {
-            AuditHeader result = auditService.getHeader(auditKey);
-            return new ResponseEntity<AuditHeader>(result, HttpStatus.OK);
+            AuditHeader result = auditService.getHeader(auditKey, true);
+            return new ResponseEntity<>(result, HttpStatus.OK);
 
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<AuditHeader>((AuditHeader) null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>((AuditHeader) null, HttpStatus.NOT_FOUND);
         } catch (SecurityException e) {
-            return new ResponseEntity<AuditHeader>((AuditHeader) null, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>((AuditHeader) null, HttpStatus.FORBIDDEN);
         }
     }
 
@@ -203,12 +203,12 @@ public class AuditEP {
         try {
             Fortress f = fortressService.find(fortress);
             AuditHeader result = auditService.findByCallerRef(f.getId(), recordType, callerRef);
-            return new ResponseEntity<AuditHeader>(result, HttpStatus.OK);
+            return new ResponseEntity<>(result, HttpStatus.OK);
 
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<AuditHeader>((AuditHeader) null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>((AuditHeader) null, HttpStatus.NOT_FOUND);
         } catch (SecurityException e) {
-            return new ResponseEntity<AuditHeader>((AuditHeader) null, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>((AuditHeader) null, HttpStatus.FORBIDDEN);
         }
     }
 
@@ -225,15 +225,15 @@ public class AuditEP {
     public ResponseEntity<AuditChange> getLastChange(@PathVariable("auditKey") String auditKey) throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/c27ec2e5-2e17-4855-be18-bd8f82249157/logs
         try {
-            AuditHeader header = auditService.getHeader(auditKey, true);
-            if (header != null)
-                return new ResponseEntity<AuditChange>((AuditChange) header.getLastChange(), HttpStatus.OK);
+            AuditChange changed = auditService.getLastChange(auditKey);
+            if (changed != null)
+                return new ResponseEntity<>(changed, HttpStatus.OK);
 
-            return new ResponseEntity<AuditChange>((AuditChange) null, HttpStatus.OK);
+            return new ResponseEntity<>((AuditChange) null, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<AuditChange>((AuditChange) null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>((AuditChange) null, HttpStatus.NOT_FOUND);
         } catch (SecurityException e) {
-            return new ResponseEntity<AuditChange>((AuditChange) null, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>((AuditChange) null, HttpStatus.FORBIDDEN);
         }
 
     }

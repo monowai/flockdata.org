@@ -55,15 +55,16 @@ public class AuditChangeNode implements AuditChange {
     @RelatedTo(elementClass = TxRefNode.class, type = "txIncludes", direction = Direction.INCOMING, enforceTargetType = true)
     private TxRef txRef;
 
+    @Transient
     static ObjectMapper objectMapper = new ObjectMapper();
 
     private String comment;
     private String event;
 
-    private byte[] what;
+    @Fetch
+    private byte[] whatBytes;
     private boolean compressed = false;
     private String name;
-
 
     @RelatedTo(type = "previousChange", direction = Direction.INCOMING)
     private AuditChangeNode previousChange;
@@ -84,10 +85,7 @@ public class AuditChangeNode implements AuditChange {
         this.event = event;
         this.name = new StringBuilder().append(event).append(COLON).append(madeBy.getName()).toString();
         setTxRef(txRef);
-
-        CompressionResult result = CompressionHelper.compress(inputBean.getWhat());
-        this.what = result.getBytes();
-        this.compressed = result.isCompressed();
+        setJsonWhat(inputBean.getWhat());
         this.comment = inputBean.getComment();
     }
 
@@ -119,12 +117,12 @@ public class AuditChangeNode implements AuditChange {
 
     @JsonIgnore
     public String getJsonWhat() {
-        return CompressionHelper.decompress(what, compressed);
+        return CompressionHelper.decompress(whatBytes, compressed);
     }
 
     public void setJsonWhat(String what) {
         CompressionResult result = CompressionHelper.compress(what);
-        this.what = result.getAsBytes();
+        this.whatBytes = result.getAsBytes();
         this.compressed = result.getMethod() == CompressionResult.Method.GZIP;
     }
 
@@ -134,29 +132,35 @@ public class AuditChangeNode implements AuditChange {
     }
 
     @Override
+    @JsonIgnore
     public AuditChange getPreviousChange() {
         return previousChange;
     }
 
     @Override
+    @JsonIgnore
     public AuditLog getAuditLog() {
         return auditLog;
     }
 
     @Transient
-    private Map<String, Object> mWhat;
+    private Map<String, Object> what;
 
-    public Map<String, Object> getWhat() {
+    public Map<String, Object> getWhatMap() {
 
-        if (mWhat != null)
-            return mWhat;
+        if (what != null)
+            return what;
         try {
-            mWhat = objectMapper.readValue(CompressionHelper.decompress(what, isCompressed()), Map.class);
+            if (whatBytes != null) {
+                what = objectMapper.readValue(CompressionHelper.decompress(whatBytes, isCompressed()), Map.class);
+                return what;
+            }
+
         } catch (IOException e) {
-            mWhat = new HashMap<>();
-            mWhat.put("what", "{}");
         }
-        return mWhat;
+        what = new HashMap<>();
+        what.put("empty", "{}");
+        return what;
     }
 
     public void setTxRef(TxRef txRef) {

@@ -95,4 +95,6 @@ public interface AuditDao {
     AuditHeader getHeader(Long id);
 
     AuditChange fetch(AuditChange lastChange);
+
+    AuditChange getLastChange(Long id);
 }

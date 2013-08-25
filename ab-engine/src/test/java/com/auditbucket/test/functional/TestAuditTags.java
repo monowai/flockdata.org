@@ -132,17 +132,17 @@ public class TestAuditTags {
             // This should have happened
         }
         // First auditTag created
-        auditTag = new AuditTagInputBean(tagInput.getName(), resultBean.getAuditKey(), "!!!");
+        auditTag = new AuditTagInputBean(tagInput.getName(), resultBean.getAuditKey(), "ABC");
 
         auditTagService.processTag(header, auditTag);
         assertNotNull(auditTag);
 
-        Set<TagValue> tags = auditTagService.findTagValues(tagInput.getName(), "!!!");
+        Set<TagValue> tags = auditTagService.findTagValues(tagInput.getName(), "ABC");
         assertEquals(1, tags.size());
 
         auditTagService.processTag(header, auditTag);
         // Behaviour - Can't add the same tagValue twice for the same combo
-        tags = auditTagService.findTagValues(tagInput.getName(), "!!!");
+        tags = auditTagService.findTagValues(tagInput.getName(), "ABC");
         assertEquals(1, tags.size());
     }
 
@@ -157,7 +157,7 @@ public class TestAuditTags {
         Tag result = tagService.processTag(tagInput);
         assertNotNull(result);
         AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new Date(), "abc");
-        Map<String, Object> tagValues = new HashMap<String, Object>();
+        Map<String, String> tagValues = new HashMap<>();
         tagValues.put("TagA", "AAAA");
         tagValues.put("TagB", "BBBB");
         tagValues.put("TagC", "CCCC");
@@ -199,7 +199,7 @@ public class TestAuditTags {
         Tag result = tagService.processTag(tagInput);
         assertNotNull(result);
         AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new Date(), "abc");
-        Map<String, Object> tagValues = new HashMap<String, Object>();
+        Map<String, String> tagValues = new HashMap<>();
         tagValues.put("TagA", null);
         tagValues.put("TagB", null);
         tagValues.put("TagC", null);

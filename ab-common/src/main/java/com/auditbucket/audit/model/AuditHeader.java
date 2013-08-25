@@ -102,9 +102,11 @@ public interface AuditHeader {
 
     String getCallerRef();
 
+    public void setTagValues(Set<TagValue> tagValues);
+
     public Set<TagValue> getTagValues();
 
-    Map<String, Object> getTagMap();
+    Map<String, String> getTagMap();
 
     void setLastChange(AuditChange change);
 

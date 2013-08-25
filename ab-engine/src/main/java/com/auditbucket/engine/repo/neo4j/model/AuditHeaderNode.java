@@ -263,13 +263,17 @@ public class AuditHeaderNode implements AuditHeader {
         return this.callerRef;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
+    public void setTagValues(Set<TagValue> tagValues) {
+        this.tagValues = tagValues;
+    }
+
     @JsonIgnore
     public Set<TagValue> getTagValues() {
         return tagValues;
     }
 
-    public Map<String, Object> getTagMap() {
-        Map<String, Object> result = new HashMap<String, Object>();
+    public Map<String, String> getTagMap() {
+        Map<String, String> result = new HashMap<>();
         if (tagValues != null)
             for (TagValue tagValue : tagValues) {
                 result.put(tagValue.getTag().getName(), tagValue.getTagValue());
@@ -282,6 +286,7 @@ public class AuditHeaderNode implements AuditHeader {
         this.lastChange = (AuditChangeNode) change;
     }
 
+    @JsonIgnore
     public AuditChange getLastChange() {
         return this.lastChange;
     }
