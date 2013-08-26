@@ -20,6 +20,7 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.audit.model.AuditLog;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditResultBean;
@@ -335,10 +336,11 @@ public class TestAuditIntegration {
                     assertNotNull("ABC" + random, header);
                     assertNotNull("Looks like ab-search is not sending back results", header.getSearchKey());
                     //AuditLog when = auditService.getLastAuditLog(header);
-                    assertNotNull(header.getLastChange());
+                    AuditLog auditLog = auditService.getLastAuditLog(header);
+                    assertNotNull(auditLog);
 
                     //logger.info(header.getAuditKey() + " - " + when);
-                    assertTrue("fortress " + fortress + " run " + x + " header " + header.getAuditKey() + " - " + header.getLastChange().getAuditLog().getId(), header.getLastChange().getAuditLog().isIndexed());
+                    assertTrue("fortress " + fortress + " run " + x + " header " + header.getAuditKey() + " - " + auditLog.getId(), auditLog.isIndexed());
                     doESCheck(header.getIndexName(), header.getAuditKey());
                     totalSearchRequests++;
                     x++;

@@ -225,17 +225,15 @@ public class AuditEP {
     @ResponseBody
     public ResponseEntity<AuditSummaryBean> getAuditSummary(@PathVariable("auditKey") String auditKey) throws Exception {
 
-        AuditHeader header = auditService.getHeader(auditKey, true);
-        header.getTagMap();
-        Set<AuditLog> changes = auditService.getAuditLogs(header.getId());
-        return new ResponseEntity<>(new AuditSummaryBean(header, changes), HttpStatus.OK);
+
+        return new ResponseEntity<>(auditService.getAuditSummary(auditKey), HttpStatus.OK);
 
     }
 
     @RequestMapping(value = "/{auditKey}/lastchange", produces = "application/json", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<AuditChange> getLastChange(@PathVariable("auditKey") String auditKey) throws Exception {
-        // curl -u mike:123 -X GET http://localhost:8080/ab/audit/c27ec2e5-2e17-4855-be18-bd8f82249157/logs
+        // curl -u mike:123 -X GET http://localhost:8080/ab/audit/c27ec2e5-2e17-4855-be18-bd8f82249157/lastchange
         try {
             AuditChange changed = auditService.getLastChange(auditKey);
             if (changed != null)

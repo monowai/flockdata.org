@@ -93,10 +93,8 @@ public class AuditDaoNeo implements AuditDao {
     }
 
     public AuditHeader fetch(AuditHeader header) {
-        template.fetch(header);
-        template.fetch(header.getFortress());
+        //template.fetch(header);
         template.fetch(header.getTagValues());
-        template.fetch(header.getLastChange());
         template.fetch(header.getCreatedBy());
         template.fetch(header.getLastUser());
 
@@ -129,9 +127,8 @@ public class AuditDaoNeo implements AuditDao {
     public AuditLog getLastAuditLog(Long auditHeaderID) {
         AuditLog when = auditLogRepo.getLastAuditLog(auditHeaderID);
         if (when != null) {
-            template.fetch(when.getAuditChange());
-            if (logger.isTraceEnabled())
-                logger.trace("Last Change " + when);
+            //template.fetch(when.getAuditChange());
+            logger.trace("Last Change {}", when);
         }
 
         return when;
@@ -224,7 +221,7 @@ public class AuditDaoNeo implements AuditDao {
     }
 
     @Override
-    public AuditHeader save(FortressUser fu, AuditHeaderInputBean inputBean, DocumentType documentType) {
+    public AuditHeader create(FortressUser fu, AuditHeaderInputBean inputBean, DocumentType documentType) {
         AuditHeader ah = new AuditHeaderNode(fu, inputBean, documentType);
         return save(ah);
     }
@@ -245,7 +242,18 @@ public class AuditDaoNeo implements AuditDao {
     }
 
     @Override
-    public AuditChange getLastChange(Long id) {
-        return auditLogRepo.findLastChange(id);
+    public AuditChange getLastChange(Long headerId) {
+        return auditLogRepo.findLastChange(headerId);
+    }
+
+    @Override
+    public void setLastChange(AuditHeader auditHeader, AuditChange toAdd, AuditChange toRemove) {
+        Node header = template.getNode(auditHeader.getId());
+        Node auditChange = template.getNode(toAdd.getId());
+        if (toRemove != null) {
+            Node previous = template.getNode(toRemove.getId());
+            template.deleteRelationshipBetween(header, previous, "lastChange");
+        }
+        template.createRelationshipBetween(header, auditChange, "lastChange", null);
     }
 }

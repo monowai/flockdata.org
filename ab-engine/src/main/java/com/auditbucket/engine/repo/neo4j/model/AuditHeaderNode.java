@@ -69,9 +69,6 @@ public class AuditHeaderNode implements AuditHeader {
     @RelatedToVia(elementClass = AuditTagRelationship.class, type = "tagValue", direction = Direction.INCOMING)
     private Set<TagValue> tagValues;
 
-    @RelatedTo(type = "lastChange", direction = Direction.OUTGOING)
-    private AuditChangeNode lastChange;
-
     public static final String UUID_KEY = "auditKey";
 
     @Indexed(indexName = UUID_KEY, unique = true)
@@ -178,15 +175,6 @@ public class AuditHeaderNode implements AuditHeader {
     }
 
     @Override
-    public void setCreatedUser(FortressUser user) {
-        createdBy = (FortressUserNode) user;
-    }
-
-    private void setDateCreated(Date dateCreated) {
-        this.dateCreated = dateCreated.getTime();
-    }
-
-    @Override
     @JsonIgnore
     public String getIndexName() {
         if (fortress != null && fortress.getCompany() != null) {
@@ -198,23 +186,6 @@ public class AuditHeaderNode implements AuditHeader {
             }
             return null;
         }
-    }
-
-    /**
-     * If not set by the caller, then the value is set to "now" in the Fortress.getTimeZone.
-     *
-     * @return Date created in the fortress
-     */
-    @Override
-    public Long getFortressCreated() {
-        return fortressDate;
-    }
-
-    /**
-     * @return when this was created in AuditBucket in UTC
-     */
-    public Long getABCreated() {
-        return dateCreated;
     }
 
     @Override
@@ -263,10 +234,6 @@ public class AuditHeaderNode implements AuditHeader {
         return this.callerRef;
     }
 
-    public void setTagValues(Set<TagValue> tagValues) {
-        this.tagValues = tagValues;
-    }
-
     @JsonIgnore
     public Set<TagValue> getTagValues() {
         return tagValues;
@@ -282,18 +249,13 @@ public class AuditHeaderNode implements AuditHeader {
     }
 
     @Override
-    public void setLastChange(AuditChange change) {
-        this.lastChange = (AuditChangeNode) change;
-    }
-
-    @JsonIgnore
-    public AuditChange getLastChange() {
-        return this.lastChange;
-    }
-
-    @Override
     public void addTagValue(TagValue tagValue) {
         this.tagValues.add(tagValue);
 
+    }
+
+    @Override
+    public long getWhenCreated() {
+        return dateCreated;
     }
 }

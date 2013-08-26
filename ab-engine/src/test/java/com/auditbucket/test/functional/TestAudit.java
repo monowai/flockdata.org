@@ -25,6 +25,7 @@ import com.auditbucket.audit.model.AuditLog;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditResultBean;
+import com.auditbucket.bean.AuditSummaryBean;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
@@ -56,6 +57,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Set;
 
 import static junit.framework.Assert.*;
@@ -422,6 +424,40 @@ public class TestAudit {
 
     }
 
+    @Test
+    public void outOfSequenceLogs() throws Exception {
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
+        // Create a second log record in order to workout who last change the AuditHeaderNode
+        SecurityContextHolder.getContext().setAuthentication(authMike);
+        DateTime dt = new DateTime().toDateTime();
+        DateTime earlyDate = dt.minusDays(2);
+
+        Fortress fortWP = fortressService.registerFortress("wportfolio");
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "wally", "CompanyNode", new Date(), "ZZZZ");
+        String ahWP = auditService.createHeader(inputBean).getAuditKey();
+        AuditHeader auditHeader = auditService.getHeader(ahWP);
+
+        // Create the future one first.
+        auditService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", new DateTime(), what + "1\"}", "Update"));
+        auditHeader = auditService.getHeader(ahWP);
+        FortressUser fu = fortressService.getUser(auditHeader.getLastUser().getId());
+        assertEquals("olivia@sunnybell.com", fu.getName());
+        AuditLog compareLog = auditService.getLastAuditLog(auditHeader);
+
+        // Load a historic record. This should not become "last"
+        auditService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "harry@sunnybell.com", earlyDate, what + "2\"}", "Update"));
+        auditHeader = auditService.getHeader(ahWP);
+
+        AuditLog lastLog = auditService.getLastAuditLog(auditHeader);
+        assertNotNull(lastLog);
+        assertEquals(compareLog.getId(), lastLog.getId());
+
+        fu = fortressService.getUser(auditHeader.getLastUser().getId());
+        assertEquals("olivia@sunnybell.com", fu.getName()); // The first one we created is the "last one"
+
+
+    }
+
     /**
      * test that we find the correct number of changes between a range of dates for a given header
      */
@@ -505,6 +541,35 @@ public class TestAudit {
         assertNotNull(lastChange);
         assertNotNull(lastChange.getJsonWhat());
         assertTrue(lastChange.getWhatMap().containsKey("house"));
+    }
+
+    @Test
+    public void auditSummaryWorking() throws Exception {
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
+        SecurityContextHolder.getContext().setAuthentication(authMike);
+        Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
+        DateTime dt = new DateTime().toDateTime();
+        DateTime firstDate = dt.minusDays(2);
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", firstDate.toDate(), "ABC1");
+        String ahWP = auditService.createHeader(inputBean).getAuditKey();
+
+        AuditHeader auditHeader = auditService.getHeader(ahWP);
+        auditService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", firstDate, what + 1 + "\"}"));
+        auditService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}"));
+
+        AuditSummaryBean auditSummary = auditService.getAuditSummary(ahWP);
+        assertNotNull(auditSummary);
+        assertEquals(ahWP, auditSummary.getHeader().getAuditKey());
+        assertNotNull(auditSummary.getHeader().getLastUser());
+        assertNotNull(auditSummary.getHeader().getCreatedBy());
+        assertNotNull(auditSummary.getHeader().getFortress());
+        assertEquals(2, auditSummary.getChanges().size());
+        for (AuditLog log : auditSummary.getChanges()) {
+            AuditChange change = log.getAuditChange();
+            assertNotNull(change.getEvent());
+            assertNotNull(change.getWho().getName());
+            assertTrue(change.getWhatMap().containsKey("house"));
+        }
     }
 
     private void compareUser(AuditHeader header, String userName) {

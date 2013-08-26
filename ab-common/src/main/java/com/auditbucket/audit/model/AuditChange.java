@@ -62,4 +62,6 @@ public interface AuditChange {
     AuditChange getPreviousChange();
 
     AuditLog getAuditLog();
+
+    long getId();
 }
