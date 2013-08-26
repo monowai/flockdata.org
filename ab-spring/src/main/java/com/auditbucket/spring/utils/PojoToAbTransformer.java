@@ -35,7 +35,7 @@ public class PojoToAbTransformer {
                             //auditHeaderInputBean.setAuditKey(field.get(pojo).toString());
                         }
                         if (fieldAnnotation instanceof AuditClientRef) {
-                            //auditHeaderInputBean.setCallerRef(field.get(pojo).toString());
+                            auditHeaderInputBean.setCallerRef(field.get(pojo).toString());
                         }
                     }
                 }

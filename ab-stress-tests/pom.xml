@@ -9,15 +9,66 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>ab-stress-tests</artifactId>
+    <repositories>
+        <repository>
+            <id>excilys</id>
+            <name>Excilys Repository</name>
+            <url>http://repository.excilys.com/content/groups/public</url>
+        </repository>
+    </repositories>
 
+    <pluginRepositories>
+        <pluginRepository>
+            <id>excilys</id>
+            <name>Excilys Repository</name>
+            <url>http://repository.excilys.com/content/groups/public</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <gatling.version>2.0.0-M3a</gatling.version>
+    </properties>
+
+    <artifactId>ab-stress-tests</artifactId>
     <build>
+        <plugins>
+            <plugin>
+                <groupId>io.gatling</groupId>
+                <artifactId>gatling-maven-plugin</artifactId>
+                <version>${gatling.version}</version>
+                <executions>
+                    <execution>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Default values -->
+                            <!--<configDir>src/test/resources</configDir>
+                            <dataFolder>src/test/resources/data</dataFolder>
+                            <resultsFolder>target/gatling/results</resultsFolder>
+                            <requestBodiesFolder>src/test/resources/request-bodies</requestBodiesFolder>
+                            <simulationsFolder>src/test/scala</simulationsFolder>
+                            <includes>
+                                <include>**/*.scala</include>
+                            </includes>-->
+                            <excludes>
+                                <exclude>advanced/*.scala</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+<!--    <build>
         <plugins>
 
             <plugin>
                 <groupId>com.excilys.ebi.gatling</groupId>
                 <artifactId>gatling-maven-plugin</artifactId>
-                <version>1.4.7</version>
+                <version>1.5.2</version>
                 <executions>
                     <execution>
                         <configuration>
@@ -32,31 +83,30 @@
                             <excludes>
                                 <exclude>advanced/*.scala</exclude>
                             </excludes>
-                            <!--    <noReports>false</noReports> -->
-                            <!-- 	<reportsOnly>false</reportsOnly> -->
-                            <!-- 	<simulationClass>foo.Bar</simulationClass> -->
-                            <!-- 	<jvmArgs> -->
-                            <!-- 	    <jvmArg>-DmyExtraParam=foo</jvmArg> -->
-                            <!-- 	</jvmArgs> -->
-                            <!--    <fork>true</fork> -->
-                            <!--    <propagateSystemProperties>true</propagateSystemProperties> -->
-                            <!-- 	<failOnError>true</failOnError> -->
+                            &lt;!&ndash;    <noReports>false</noReports> &ndash;&gt;
+                            &lt;!&ndash; 	<reportsOnly>false</reportsOnly> &ndash;&gt;
+                            &lt;!&ndash; 	<simulationClass>foo.Bar</simulationClass> &ndash;&gt;
+                            &lt;!&ndash; 	<jvmArgs> &ndash;&gt;
+                            &lt;!&ndash; 	    <jvmArg>-DmyExtraParam=foo</jvmArg> &ndash;&gt;
+                            &lt;!&ndash; 	</jvmArgs> &ndash;&gt;
+                            &lt;!&ndash;    <fork>true</fork> &ndash;&gt;
+                            &lt;!&ndash;    <propagateSystemProperties>true</propagateSystemProperties> &ndash;&gt;
+                            &lt;!&ndash; 	<failOnError>true</failOnError> &ndash;&gt;
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
-    </build>
+    </build>-->
 
-    <dependencies>
+        <dependencies>
+            <dependency>
+                <groupId>io.gatling.highcharts</groupId>
+                <artifactId>gatling-charts-highcharts</artifactId>
+                <version>${gatling.version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
 
-        <dependency>
-            <groupId>com.excilys.ebi.gatling.highcharts</groupId>
-            <artifactId>gatling-charts-highcharts</artifactId>
-            <version>1.4.7</version>
-            <scope>test</scope>
-        </dependency>
-
-    </dependencies>
 
 </project>
