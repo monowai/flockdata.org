@@ -21,7 +21,7 @@ package com.auditbucket.spring.xml;
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 
 public class AuditBucketNamespaceHandler extends NamespaceHandlerSupport {
-	public void init() {
+    public void init() {
         registerBeanDefinitionParser("client", new ClientBeanDefinitionParser());
-	}
+    }
 }

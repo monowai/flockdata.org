@@ -2,7 +2,6 @@ package com.auditbucket.demo.web;
 
 import com.auditbucket.demo.domain.Account;
 import com.auditbucket.demo.services.AccountService;
-import com.auditbucket.spring.AbClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,10 +36,9 @@ public class AccountController {
     @ResponseBody
     public ResponseEntity<String> update(@RequestBody Account account) {
         try {
-        accountService.saveAccount(account);
-        return new ResponseEntity<String>("Account Updated", HttpStatus.OK);
-        }
-        catch (IllegalAccessException e) {
+            accountService.saveAccount(account);
+            return new ResponseEntity<String>("Account Updated", HttpStatus.OK);
+        } catch (IllegalAccessException e) {
             return new ResponseEntity<String>("Log Auditing failed", HttpStatus.BAD_REQUEST);
         }
     }

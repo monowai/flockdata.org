@@ -18,7 +18,7 @@
                                reply-channel="nullChannel"
                                http-method="GET"
                                url="http://localhost:8080/ab-engine/audit/ping"
-                               />
+            />
 
     <int-http:outbound-gateway reply-timeout="1000"
                                request-channel="healthChannel"

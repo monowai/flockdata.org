@@ -13,24 +13,24 @@
                          http://www.springframework.org/schema/data/jpa
                          http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
 
-    <context:component-scan base-package="com.auditbucket.demo" annotation-config="true" />
+    <context:component-scan base-package="com.auditbucket.demo" annotation-config="true"/>
 
-    <jpa:repositories base-package="com.auditbucket.demo.repository" />
+    <jpa:repositories base-package="com.auditbucket.demo.repository"/>
 
     <context:property-placeholder location="classpath:config.properties"/>
-    <tx:annotation-driven transaction-manager="transactionManager" />
+    <tx:annotation-driven transaction-manager="transactionManager"/>
 
     <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-        <property name="entityManagerFactory" ref="entityManagerFactory" />
+        <property name="entityManagerFactory" ref="entityManagerFactory"/>
     </bean>
 
     <bean id="entityManagerFactory"
           class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-        <property name="packagesToScan" value="com.auditbucket.demo.domain" />
-        <property name="dataSource" ref="dataSource" />
+        <property name="packagesToScan" value="com.auditbucket.demo.domain"/>
+        <property name="dataSource" ref="dataSource"/>
         <property name="jpaVendorAdapter">
             <bean
-                    class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+                    class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"/>
         </property>
         <property name="jpaProperties">
             <props>
@@ -42,10 +42,10 @@
     </bean>
 
     <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <property name="driverClassName" value="${abdemo.db.driver}" />
-        <property name="url" value="${abdemo.db.url}" />
-        <property name="username" value="${abdemo.db.user}" />
-        <property name="password" value="${abdemo.db.password}" />
+        <property name="driverClassName" value="${abdemo.db.driver}"/>
+        <property name="url" value="${abdemo.db.url}"/>
+        <property name="username" value="${abdemo.db.user}"/>
+        <property name="password" value="${abdemo.db.password}"/>
     </bean>
     <import resource="ab-context.xml"/>
 </beans>
