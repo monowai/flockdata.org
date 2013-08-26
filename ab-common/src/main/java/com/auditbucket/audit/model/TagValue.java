@@ -33,7 +33,7 @@ public interface TagValue {
     //ToDo - should this be a taggable interface?
     public AuditHeader getHeader();
 
-    public Object getTagValue();
+    public String getTagValue();
 
-    public void setTagValue(Object tagValue);
+    public void setTagValue(String tagValue);
 }

@@ -17,27 +17,34 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.dao;
+package com.auditbucket.bean;
 
 import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.audit.model.TagValue;
-import com.auditbucket.registration.model.Tag;
+import com.auditbucket.audit.model.AuditLog;
 
 import java.util.Set;
 
 /**
  * User: Mike Holdsworth
- * Date: 28/06/13
- * Time: 9:55 PM
+ * Since: 25/08/13
  */
-public interface AuditTagDao {
-    TagValue save(AuditHeader auditHeader, Tag tag, String tagValue);
+public class AuditSummaryBean {
+    private AuditHeader header;
+    private Set<AuditLog> changes;
 
-    Set<TagValue> find(Tag tagName, String tagValue);
+    protected AuditSummaryBean() {
+    }
 
-    Set<AuditHeader> findTagAudits(Tag tagName);
+    public AuditSummaryBean(AuditHeader header, Set<AuditLog> changes) {
+        this.header = header;
+        this.changes = changes;
+    }
 
-    Set<TagValue> getAuditTags(AuditHeader ah);
+    public AuditHeader getHeader() {
+        return header;
+    }
 
-    void update(Set<TagValue> modifiedSet);
+    public Set<AuditLog> getChanges() {
+        return changes;
+    }
 }

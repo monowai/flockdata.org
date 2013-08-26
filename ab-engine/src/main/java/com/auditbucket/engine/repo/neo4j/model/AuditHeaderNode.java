@@ -101,24 +101,27 @@ public class AuditHeaderNode implements AuditHeader {
 
     public AuditHeaderNode(@NotEmpty FortressUser createdBy, @NotEmpty AuditHeaderInputBean auditInput, @NotEmpty DocumentType documentType) {
         this();
+        this.fortress = (FortressNode) createdBy.getFortress();
         this.documentType = (DocumentTypeNode) documentType;
+        String docType = (documentType != null ? getDocumentType() : "");
+        this.name = (callerRef == null ? docType : (docType + "." + callerRef).toLowerCase());
+
         callerRef = auditInput.getCallerRef();
         if (callerRef != null)
             callerRef = callerRef.toLowerCase();
 
         Date when = auditInput.getWhen();
+
         if (when == null)
-            fortressDate = dateCreated;
+            fortressDate = new DateTime(dateCreated, DateTimeZone.forTimeZone(TimeZone.getTimeZone(fortress.getTimeZone()))).getMillis();
         else
             fortressDate = when.getTime();
 
         this.createdBy = (FortressUserNode) createdBy;
         this.lastWho = (FortressUserNode) createdBy;
-        this.fortress = (FortressNode) createdBy.getFortress();
+
         this.suppressSearch(auditInput.isSuppressSearch());
 
-        String docType = (documentType != null ? getDocumentType() : "");
-        this.name = (callerRef == null ? docType : (docType + "." + callerRef).toLowerCase());
     }
 
 
@@ -198,16 +201,19 @@ public class AuditHeaderNode implements AuditHeader {
     }
 
     /**
+     * If not set by the caller, then the value is set to "now" in the Fortress.getTimeZone.
+     *
      * @return Date created in the fortress
      */
-    public Long getFortressDate() {
+    @Override
+    public Long getFortressCreated() {
         return fortressDate;
     }
 
     /**
-     * @return date created in AuditBucket
+     * @return when this was created in AuditBucket in UTC
      */
-    public Long getDateCreated() {
+    public Long getABCreated() {
         return dateCreated;
     }
 
@@ -222,7 +228,7 @@ public class AuditHeaderNode implements AuditHeader {
 
     @Override
     public void bumpUpdate() {
-        lastUpdated = System.currentTimeMillis();
+        lastUpdated = new DateTime().toDateTime(DateTimeZone.UTC).toDateTime().getMillis();
     }
 
     /**
@@ -254,7 +260,11 @@ public class AuditHeaderNode implements AuditHeader {
     @Override
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getCallerRef() {
-        return this.callerRef;  //To change body of implemented methods use File | Settings | File Templates.
+        return this.callerRef;
+    }
+
+    public void setTagValues(Set<TagValue> tagValues) {
+        this.tagValues = tagValues;
     }
 
     @JsonIgnore
@@ -262,8 +272,8 @@ public class AuditHeaderNode implements AuditHeader {
         return tagValues;
     }
 
-    public Map<String, Object> getTagMap() {
-        Map<String, Object> result = new HashMap<String, Object>();
+    public Map<String, String> getTagMap() {
+        Map<String, String> result = new HashMap<>();
         if (tagValues != null)
             for (TagValue tagValue : tagValues) {
                 result.put(tagValue.getTag().getName(), tagValue.getTagValue());
@@ -276,7 +286,14 @@ public class AuditHeaderNode implements AuditHeader {
         this.lastChange = (AuditChangeNode) change;
     }
 
+    @JsonIgnore
     public AuditChange getLastChange() {
         return this.lastChange;
+    }
+
+    @Override
+    public void addTagValue(TagValue tagValue) {
+        this.tagValues.add(tagValue);
+
     }
 }

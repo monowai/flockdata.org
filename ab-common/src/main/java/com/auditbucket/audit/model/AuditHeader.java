@@ -43,6 +43,11 @@ public interface AuditHeader {
      */
     public FortressUser getLastUser();
 
+    /**
+     * Last updated by AuditBucket
+     *
+     * @return long representing the date in UTC
+     */
     public long getLastUpdated();
 
     public void setLastUser(FortressUser user);
@@ -74,6 +79,16 @@ public interface AuditHeader {
      */
     void bumpUpdate();
 
+    /**
+     * @return date this was created in fortress timezone
+     */
+    public Long getFortressCreated();
+
+    /**
+     * @return date created in AuditBucket in UTC
+     */
+    public Long getABCreated();
+
     public boolean isSearchSuppressed();
 
     public void suppressSearch(boolean searchSuppressed);
@@ -87,11 +102,15 @@ public interface AuditHeader {
 
     String getCallerRef();
 
+    public void setTagValues(Set<TagValue> tagValues);
+
     public Set<TagValue> getTagValues();
 
-    Map<String, Object> getTagMap();
+    Map<String, String> getTagMap();
 
     void setLastChange(AuditChange change);
 
     public AuditChange getLastChange();
+
+    void addTagValue(TagValue save);
 }

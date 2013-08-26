@@ -53,7 +53,7 @@ public interface AuditChange {
 
     String getEvent();
 
-    Map<String, Object> getWhat();
+    Map<String, Object> getWhatMap();
 
     void setJsonWhat(String compressedJson);
 

@@ -47,7 +47,7 @@ public interface SearchChange {
 
     public Map<String, Object> getWhat();
 
-    public Map<String, Object> getTagValues();
+    public Map<String, String> getTagValues();
 
     //public void setTagValues(Map<String, Object> tagValues);
 
@@ -76,7 +76,7 @@ public interface SearchChange {
 
     String getEvent();
 
-    void setTagValues(Map<String, Object> tagValues);
+    void setTagValues(Map<String, String> tagValues);
 
     public void setSysWhen(Long sysWhen);
 

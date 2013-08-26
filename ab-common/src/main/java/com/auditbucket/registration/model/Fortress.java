@@ -46,4 +46,11 @@ public interface Fortress {
     public void setAccumulatingChanges(Boolean accumulateChanges);
 
     public void setIgnoreSearchEngine(Boolean ignoreSearchEngine);
+
+    /**
+     * @return default timzeone for this fortress
+     */
+    public String getTimeZone();
+
+    public String getLanguageTag();
 }

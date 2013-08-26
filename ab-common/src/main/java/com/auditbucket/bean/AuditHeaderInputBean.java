@@ -40,23 +40,22 @@ public class AuditHeaderInputBean {
     private String lastMessage;
     private AuditLogInputBean auditLog;
     private boolean searchSuppressed;
-    private Map<String, Object> tagValues = new HashMap<String, Object>();
+    private Map<String, String> tagValues = new HashMap<>();
     private boolean suppressSearch;
 
     public AuditHeaderInputBean() {
     }
 
-    public AuditHeaderInputBean(String fortress, String fortressUser, String documentType, Date when, String callerRef) {
-        this.when = when;
+    public AuditHeaderInputBean(String fortress, String fortressUser, String documentType, Date fortressWhen, String callerRef) {
+        this.when = fortressWhen;
         this.fortress = fortress;
         this.fortressUser = fortressUser;
         this.documentType = documentType;
         this.callerRef = callerRef;
-
     }
 
-    public AuditHeaderInputBean(String name, String s, String companyNode, Date date) {
-        this(name, s, companyNode, date, null);
+    public AuditHeaderInputBean(String name, String s, String companyNode, Date fortressWhen) {
+        this(name, s, companyNode, fortressWhen, null);
 
     }
 
@@ -68,6 +67,11 @@ public class AuditHeaderInputBean {
         return this.auditKey;
     }
 
+    /**
+     * Fortress Timezone when
+     *
+     * @return when in the fortress this was created
+     */
     public Date getWhen() {
         return when;
     }
@@ -126,11 +130,11 @@ public class AuditHeaderInputBean {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Map<String, Object> getTagValues() {
+    public Map<String, String> getTagValues() {
         return tagValues;
     }
 
-    public void setTagValues(Map<String, Object> tagValues) {
+    public void setTagValues(Map<String, String> tagValues) {
         this.tagValues = tagValues;
     }
 

@@ -50,7 +50,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
     private String auditKey;
     private String callerRef;
     private Long logId;
-    private Map<String, Object> tagValues = new HashMap<String, Object>();
+    private Map<String, String> tagValues = new HashMap<>();
     private Long version;
 
     private String indexName;
@@ -171,11 +171,11 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
         return auditKey;
     }
 
-    public void setTagValues(Map<String, Object> tagValues) {
+    public void setTagValues(Map<String, String> tagValues) {
         this.tagValues = tagValues;
     }
 
-    public Map<String, Object> getTagValues() {
+    public Map<String, String> getTagValues() {
         return tagValues;
     }
 

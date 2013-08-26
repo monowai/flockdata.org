@@ -44,8 +44,15 @@ public class AuditTagDaoRepo implements com.auditbucket.dao.AuditTagDao {
     AuditTagRepo auditTagRepo;
 
     @Override
-    public TagValue save(AuditHeader header, Tag tagName, Object tagValue) {
-        AuditTagRelationship atv = new AuditTagRelationship(tagName, header, tagValue);
+    public TagValue save(AuditHeader auditHeader, Tag tag, String tagValue) {
+        AuditTagRelationship atv = new AuditTagRelationship(tag, auditHeader, tagValue);
+        //Node headerNode = template.getNode(auditHeader.getId());
+        //Node tagNode = template.getNode(tag.getId());
+        //Primary exploration approach
+        //template.createRelationshipBetween(headerNode, tagNode, tagValue, null);
+
+        // Only keeping this so that we can efficiently find all the tags being used by a header/tag combo
+        // could be simplified to all tags attached to a single Tag node.
         return template.save(atv);
     }
 

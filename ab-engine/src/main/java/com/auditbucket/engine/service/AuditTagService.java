@@ -83,7 +83,7 @@ public class AuditTagService {
      * @param userTags Key/Value pair of tags. TagNode will be created if missing
      * @param ah       Header to associate userTags with
      */
-    public void createTagValues(Map<String, Object> userTags, AuditHeader ah) {
+    public void createTagValues(Map<String, String> userTags, AuditHeader ah) {
         if ((userTags == null) || userTags.isEmpty())
             return;
 
@@ -91,19 +91,9 @@ public class AuditTagService {
 
         for (String key : userTags.keySet()) {
             Tag tag = tagService.processTag(new TagInputBean(company, key));
-            Object keyValue = userTags.get(key);
-            auditTagDao.save(ah, tag, keyValue);
+            String keyValue = userTags.get(key);
+            ah.addTagValue(auditTagDao.save(ah, tag, keyValue));
         }
     }
 
-    public Set<TagValue> findAuditTags(AuditHeader header) {
-        return auditTagDao.getAuditTags(header);
-
-    }
-
-    public void updateTagValues(Set<TagValue> newValues) {
-
-        auditTagDao.update(newValues);
-
-    }
 }

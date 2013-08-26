@@ -50,9 +50,12 @@ public interface AuditLogRepo extends GraphRepository<AuditChangeNode> {
     Set<AuditLog> getAuditLogs(Long auditHeaderID, Long from, Long to);
 
     @Query(elementClass = AuditLogRelationship.class, value = "start audit=node({0}) " +
-            "   MATCH audit-[l:logged]->auditLog " +
-            "return l order by l.fortressWhen desc")
+            "   MATCH audit-[log:logged]->auditChange " +
+            "return log order by log.fortressWhen desc")
     Set<AuditLog> findAuditLogs(Long auditHeaderID);
+
+    @Query(value = "start auditHeader=node({0}) match auditHeader-[lc:lastChange]->auditChange return auditChange")
+    AuditChangeNode findLastChange(Long id);
 
 //    @Query(value = "start audit=node({0}) " +
 //            "match audit-[log:changed]-fortressUser " +

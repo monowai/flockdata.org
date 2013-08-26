@@ -26,9 +26,6 @@ package com.auditbucket.helper;
 public class CompressionResult {
     private Method method;
     private byte[] bytes;
-    private String value;
-    private byte[] asBytes;
-    private String asString;
 
     public int length() {
         return bytes.length;
@@ -45,7 +42,7 @@ public class CompressionResult {
 
 
     public enum Method {
-        NONE, GZIP;
+        NONE, GZIP
     }
 
     private CompressionResult() {
@@ -58,9 +55,7 @@ public class CompressionResult {
 
     public CompressionResult(byte[] bytes, boolean compressed) {
         this(bytes);
-        if (compressed)
-            this.method = Method.GZIP;
-        else
+        if (!compressed)
             this.method = Method.NONE;
     }
 

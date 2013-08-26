@@ -26,10 +26,7 @@ import com.auditbucket.bean.AuditTXResult;
 import com.auditbucket.dao.AuditDao;
 import com.auditbucket.engine.repo.neo4j.AuditHeaderRepo;
 import com.auditbucket.engine.repo.neo4j.AuditLogRepo;
-import com.auditbucket.engine.repo.neo4j.model.AuditChangeNode;
-import com.auditbucket.engine.repo.neo4j.model.AuditHeaderNode;
-import com.auditbucket.engine.repo.neo4j.model.AuditLogRelationship;
-import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
+import com.auditbucket.engine.repo.neo4j.model.*;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.FortressUser;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -99,6 +96,9 @@ public class AuditDaoNeo implements AuditDao {
         template.fetch(header);
         template.fetch(header.getFortress());
         template.fetch(header.getTagValues());
+        template.fetch(header.getLastChange());
+        template.fetch(header.getCreatedBy());
+        template.fetch(header.getLastUser());
 
         return header;
     }
@@ -242,5 +242,10 @@ public class AuditDaoNeo implements AuditDao {
     @Override
     public AuditChange fetch(AuditChange lastChange) {
         return template.fetch(lastChange);
+    }
+
+    @Override
+    public AuditChange getLastChange(Long id) {
+        return auditLogRepo.findLastChange(id);
     }
 }
