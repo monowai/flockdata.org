@@ -21,22 +21,28 @@ public class AccountController {
     @Autowired
     private AccountService accountService;
 
-    @Autowired
-    private AbClient abClient;
-
     @RequestMapping(value = "/save", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<String> save(@RequestBody Account account) {
-        accountService.saveAccount(account);
-        //abClient.createAuditHeader(account);
-        return new ResponseEntity<String>("Account Created", HttpStatus.OK);
+        try {
+            accountService.saveAccount(account);
+            return new ResponseEntity<String>("Account Created", HttpStatus.OK);
+        } catch (IllegalAccessException e) {
+            return new ResponseEntity<String>("Log Auditing failed", HttpStatus.BAD_REQUEST);
+        }
+
     }
 
     @RequestMapping(value = "/save", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<String> update(@RequestBody Account account) {
+        try {
         accountService.saveAccount(account);
         return new ResponseEntity<String>("Account Updated", HttpStatus.OK);
+        }
+        catch (IllegalAccessException e) {
+            return new ResponseEntity<String>("Log Auditing failed", HttpStatus.BAD_REQUEST);
+        }
     }
 
 }

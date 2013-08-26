@@ -17,16 +17,21 @@ import org.springframework.transaction.annotation.Transactional;
 public class AccountServiceTest {
 
     @Autowired
+    private AccountService accountService;
+
+    @Autowired
     private AccountRepository accountRepository;
 
     @Test
-    public void testSaveAccount(){
+    public void testSaveAccount() throws IllegalAccessException {
         Account account = new Account();
         account.setNrCompte("numAccount");
         account.setIban("iban");
         account.setRib("rib");
         account.setCodeAgence("codeagence");
-        accountRepository.save(account);
+        accountService.saveAccount(account);
         Assert.assertEquals(accountRepository.count(),1);
+        //org.codehaus.jackson.JsonProcessingException
+
     }
 }
