@@ -20,8 +20,18 @@ public class AccountController {
     @Autowired
     private AccountService accountService;
 
-    @RequestMapping(value = "/save", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
+    @RequestMapping(value = "/ping", method = RequestMethod.GET)
     @ResponseBody
+    public String get() throws Exception {
+        // curl -u mike:123 -X GET http://localhost:8080/ab/audit/ping
+        return "Pong!";
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/save",
+                    produces = "application/json",
+                    consumes = "application/json",
+                    method = RequestMethod.POST)
     public ResponseEntity<String> save(@RequestBody Account account) {
         try {
             accountService.saveAccount(account);
@@ -32,7 +42,7 @@ public class AccountController {
 
     }
 
-    @RequestMapping(value = "/save", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
+    @RequestMapping(value = "/update", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<String> update(@RequestBody Account account) {
         try {
