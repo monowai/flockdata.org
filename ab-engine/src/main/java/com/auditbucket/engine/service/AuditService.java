@@ -127,7 +127,7 @@ public class AuditService {
      *
      * @return unique primary key to be used for subsequent log calls
      */
-    protected AuditResultBean createHeader(AuditHeaderInputBean inputBean) {
+    public AuditResultBean createHeader(AuditHeaderInputBean inputBean) {
         SystemUser su = sysUserService.findByName(securityHelper.getLoggedInUser());
 
         if (su == null)
@@ -150,7 +150,7 @@ public class AuditService {
             logger.debug("Existing auditHeader record found by Caller Ref [{}] found [{}]", inputBean.getCallerRef(), ah.getAuditKey());
             inputBean.setAuditKey(ah.getAuditKey());
 
-            AuditResultBean arb = new AuditResultBean(ah, null);
+            AuditResultBean arb = new AuditResultBean(ah);
             arb.setStatus("Existing audit record found and is being returned");
             return arb;
         }
@@ -169,16 +169,16 @@ public class AuditService {
 
         logger.debug("Audit Header created:{} key=[{}]", ah.getId(), ah.getAuditKey());
 
-        return new AuditResultBean(ah, null);
+        return new AuditResultBean(ah);
 
     }
 
-    //@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public AuditHeader getHeader(@NotEmpty String key) {
         return getHeader(key, false);
     }
 
-    //@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public AuditHeader getHeader(@NotEmpty String key, boolean inflate) {
         String userName = securityHelper.getLoggedInUser();
         SystemUser su = sysUserService.findByName(userName);

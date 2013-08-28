@@ -46,7 +46,10 @@ public class AuditManagerService {
             logBean.setFortressUser(inputBean.getFortressUser());
             logBean.setCallerRef(resultBean.getCallerRef());
 
-            resultBean.setLogResult(createLog(inputBean.getAuditLog()));
+            AuditLogResultBean logResult = createLog(inputBean.getAuditLog());
+            logResult.setAuditKey(null);// Don't duplicate the text as it's in the header
+            logResult.setFortressUser(null);
+            resultBean.setLogResult(logResult);
         }
         return resultBean;
 

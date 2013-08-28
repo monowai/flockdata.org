@@ -22,6 +22,7 @@ package com.auditbucket.bean;
 import com.auditbucket.audit.model.SearchChange;
 import com.auditbucket.audit.model.TxRef;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  * User: Mike Holdsworth
@@ -40,16 +41,19 @@ public class AuditLogResultBean {
     private String txReference = null;
     private SearchChange searchDocument;
 
-
     public AuditLogResultBean(AuditLogInputBean input) {
         this.auditKey = input.getAuditKey();
         this.callerRef = input.getCallerRef();
         this.documentType = input.getDocumentType();
         this.fortress = input.getFortress();
         this.fortressUser = input.getFortressUser();
-        this.message = OK;
     }
 
+    public AuditLogInputBean.LogStatus getStatus() {
+        return status;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getMessage() {
         return message;
     }
@@ -58,6 +62,7 @@ public class AuditLogResultBean {
         this.message = message;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getAuditKey() {
         return auditKey;
     }
@@ -71,10 +76,12 @@ public class AuditLogResultBean {
             this.txReference = txReference.getName();
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getTxReference() {
         return txReference;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getFortressUser() {
         return fortressUser;
     }
@@ -83,6 +90,7 @@ public class AuditLogResultBean {
         this.fortressUser = fortressUser;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getCallerRef() {
         return callerRef;
     }
@@ -91,6 +99,7 @@ public class AuditLogResultBean {
         this.callerRef = callerRef;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getFortress() {
         return fortress;
     }
@@ -99,16 +108,13 @@ public class AuditLogResultBean {
         this.fortress = fortress;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getDocumentType() {
         return documentType;
     }
 
     public void setDocumentType(String documentType) {
         this.documentType = documentType;
-    }
-
-    public AuditLogInputBean.LogStatus getStatus() {
-        return status;
     }
 
     public void setStatus(AuditLogInputBean.LogStatus status) {

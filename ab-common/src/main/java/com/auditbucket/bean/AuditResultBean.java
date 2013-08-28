@@ -34,8 +34,6 @@ public class AuditResultBean {
     private String documentType;
     private String callerRef;
     private String auditKey;
-    private String txReference;
-    private String txRef;
     private AuditLogResultBean logResult;
 
     protected AuditResultBean() {
@@ -45,17 +43,16 @@ public class AuditResultBean {
         this.status = statusMessage;
     }
 
-    public AuditResultBean(String fortressName, String documentType, String callerRef, String auditKey, String txReference) {
+    public AuditResultBean(String fortressName, String documentType, String callerRef, String auditKey) {
         this.fortressName = fortressName;
         this.documentType = documentType;
         this.callerRef = callerRef;
         this.auditKey = auditKey;
-        this.txReference = txReference;
 
     }
 
-    public AuditResultBean(AuditHeader input, String txReference) {
-        this(input.getFortress().getName(), input.getDocumentType(), input.getCallerRef(), input.getAuditKey(), txReference);
+    public AuditResultBean(AuditHeader input) {
+        this(input.getFortress().getName(), input.getDocumentType(), input.getCallerRef(), input.getAuditKey());
         this.auditId = input.getId();
     }
 
