@@ -1,11 +1,8 @@
 package com.auditbucket.demo.repository;
 
-/**
- * Created with IntelliJ IDEA.
- * User: nabil
- * Date: 23/08/13
- * Time: 00:04
- * To change this template use File | Settings | File Templates.
- */
-public class AccountRepository {
+import com.auditbucket.demo.domain.Account;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface AccountRepository extends JpaRepository<Account, Long> {
+    public Account findByNrCompte(String nrCompte);
 }

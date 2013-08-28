@@ -14,53 +14,37 @@
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context.xsd">
 
+
     <!--
         - POJOs labeled with the @Controller and @Service annotations are auto-detected.
     -->
     <context:annotation-config/>
-
     <context:component-scan base-package="com.auditbucket.demo.web"/>
 
-    <mvc:annotation-driven conversion-service="conversionService"/>
+    <mvc:annotation-driven/>
 
-
-
-    <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
-    </bean>
-
-
-    <!--
-        - This bean resolves specific types of exceptions to corresponding logical
-        - view names for error views.
-    -->
-    <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
-        <!-- view name resolved using bean of type InternalResourceViewResolver (declared in mvc-view-config.xml) -->
-        <property name="defaultErrorView" value="exception"/>
-        <!-- results into 'WEB-INF/jsp/exception.jsp' -->
-        <property name="warnLogCategory" value="warn"/>
-        <!-- needed otherwise exceptions won't be logged anywhere -->
-        <property name="exceptionMappings">
-            <props>
-                <prop key="org.springframework.web.multipart.MaxUploadSizeExceededException">uploadFileSizeTooLarge</prop>
-            </props>
+    <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+        <!-- Define the HTTP Media types -->
+        <property name="mediaTypes">
+            <map>
+                <entry key="" value="text/html"/>
+                <entry key="html" value="text/html"/>
+                <entry key="xml" value="application/xml"/>
+                <entry key="json" value="application/json"/>
+            </map>
         </property>
-        <property name="order" value="1"/>
-    </bean>
-    <!-- todo why -->
-    <bean id="localeChangeInterceptor"
-          class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
-        <property name="paramName" value="lang" />
-    </bean>
 
-    <bean id="localeResolver"
-          class="org.springframework.web.servlet.i18n.CookieLocaleResolver" />
+        <!-- Activate the media type lookup (above) -->
+        <property name="favorPathExtension" value="true"/>
 
-    <bean id="handlerMapping"
-          class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
-        <property name="interceptors">
-            <ref bean="localeChangeInterceptor" />
+        <!-- Map regular requests to JSP pages -->
+        <property name="viewResolvers">
+            <list>
+                <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+                    <property name="prefix" value="/WEB-INF/jsp/"/>
+                    <property name="suffix" value=".jsp"/>
+                </bean>
+            </list>
         </property>
     </bean>
-
-
 </beans>
