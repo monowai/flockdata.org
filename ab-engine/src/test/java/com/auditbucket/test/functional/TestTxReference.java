@@ -23,7 +23,9 @@ import com.auditbucket.audit.model.AuditChange;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
+import com.auditbucket.bean.AuditLogResultBean;
 import com.auditbucket.bean.AuditResultBean;
+import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
@@ -66,6 +68,9 @@ public class TestTxReference {
     AuditService auditService;
 
     @Autowired
+    AuditManagerService auditManager;
+
+    @Autowired
     RegistrationService regService;
 
     @Autowired
@@ -103,22 +108,20 @@ public class TestTxReference {
         AuditHeaderInputBean abcHeader = new AuditHeaderInputBean(fortressABC.getName(), "wally", "TestAudit", new Date(), "ABC123");
         abcHeader.setAuditLog(new AuditLogInputBean(null, "charlie", DateTime.now(), escJsonA, true));
 
-        AuditResultBean resultBean = auditService.createHeader(abcHeader);
-//        AuditLogInputBean abcLog = resultBean.getAuditChange();
-//        assertNotNull(abcLog);
-//
-//        assertEquals("ABC Logger Not Created", AuditLogInputBean.LogStatus.OK, abcLog.getAbStatus());
-        String abcTxRef = resultBean.getTxReference();
+        AuditResultBean resultBean = auditManager.createHeader(abcHeader);
+        AuditLogResultBean logResultBean = resultBean.getLogResult();
+        assertNotNull(logResultBean);
+        String abcTxRef = logResultBean.getTxReference();
         assertNotNull(abcTxRef);
 
 // CBA data
         SecurityContextHolder.getContext().setAuthentication(authCBA);
         Fortress fortressCBA = fortressService.registerFortress("cbaTest");
         AuditHeaderInputBean cbaHeader = new AuditHeaderInputBean(fortressCBA.getName(), "wally", "TestAudit", new Date(), "ABC123");
-        String cbaKey = auditService.createHeader(cbaHeader).getAuditKey();
+        String cbaKey = auditManager.createHeader(cbaHeader).getAuditKey();
 
         AuditLogInputBean cbaLog = new AuditLogInputBean(cbaKey, "charlie", DateTime.now(), escJsonA, true);
-        assertEquals("CBA Logger Not Created", AuditLogInputBean.LogStatus.OK, auditService.createLog(cbaLog).getAbStatus());
+        assertEquals("CBA Logger Not Created", AuditLogInputBean.LogStatus.OK, auditManager.createLog(cbaLog).getStatus());
         String cbaTxRef = cbaLog.getTxRef();
         assertNotNull(cbaTxRef);
 
@@ -134,7 +137,7 @@ public class TestTxReference {
         // WHat happens if ABC tries to use CBA's TX Ref.
         abcHeader = new AuditHeaderInputBean(fortressABC.getName(), "wally", "TestAudit", new Date(), "ZZZAAA");
         abcHeader.setAuditLog(new AuditLogInputBean(null, "wally", DateTime.now(), escJsonA, null, cbaTxRef));
-        AuditResultBean result = auditService.createHeader(abcHeader);
+        AuditResultBean result = auditManager.createHeader(abcHeader);
         assertNotNull(result);
         // It works because TX References have only to be unique for a company
         //      ab generated references are GUIDs, but the caller is allowed to define their own transaction
@@ -151,14 +154,14 @@ public class TestTxReference {
         String tagRef = "MyTXTag";
         AuditHeaderInputBean aBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new Date(), "ABC123");
 
-        String key = auditService.createHeader(aBean).getAuditKey();
+        String key = auditManager.createHeader(aBean).getAuditKey();
         assertNotNull(key);
         AuditHeader header = auditService.getHeader(key, true);
         assertNotNull(header);
         //assertEquals(1, header.getTxTags().size());
         AuditLogInputBean alb = new AuditLogInputBean(key, "charlie", DateTime.now(), escJsonA, null, tagRef);
         assertTrue(alb.isTransactional());
-        String albTxRef = auditService.createLog(alb).getTxRef();
+        String albTxRef = auditManager.createLog(alb).getTxReference();
 
         alb = new AuditLogInputBean(key, "harry", DateTime.now(), escJsonB);
 
@@ -166,7 +169,7 @@ public class TestTxReference {
         alb.setTxRef(albTxRef);
         String txStart = albTxRef;
 
-        auditService.createLog(alb);
+        auditManager.createLog(alb);
         Map<String, Object> result = auditService.findByTXRef(txStart);
         assertNotNull(result);
         assertEquals(tagRef, result.get("txRef"));
@@ -181,8 +184,8 @@ public class TestTxReference {
         alb.setTxRef("");
         assertNull("Should be Null if it is blank", alb.getTxRef());
         assertTrue(alb.isTransactional());
-        alb = auditService.createLog(alb);
-        String txEnd = alb.getTxRef();
+        AuditLogResultBean arb = auditManager.createLog(alb);
+        String txEnd = arb.getTxReference();
         assertNotNull(txEnd);
         assertNotSame(txEnd, txStart);
 

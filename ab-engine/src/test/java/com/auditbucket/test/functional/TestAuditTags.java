@@ -30,6 +30,7 @@ import com.auditbucket.audit.model.TagValue;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditResultBean;
 import com.auditbucket.bean.AuditTagInputBean;
+import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.engine.service.AuditTagService;
 import com.auditbucket.registration.bean.RegistrationBean;
@@ -77,6 +78,9 @@ public class TestAuditTags {
     FortressService fortressService;
 
     @Autowired
+    AuditManagerService auditManager;
+
+    @Autowired
     AuditService auditService;
 
     @Autowired
@@ -121,7 +125,7 @@ public class TestAuditTags {
         Tag result = tagService.processTag(tagInput);
         assertNotNull(result);
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new Date(), "abc");
-        AuditResultBean resultBean = auditService.createHeader(inputBean);
+        AuditResultBean resultBean = auditManager.createHeader(inputBean);
         AuditHeader header = auditService.getHeader(resultBean.getAuditKey());
 
         AuditTagInputBean auditTag = new AuditTagInputBean(null, resultBean.getAuditKey(), "!!!");
@@ -163,7 +167,7 @@ public class TestAuditTags {
         tagValues.put("TagC", "CCCC");
         tagValues.put("TagD", "DDDD");
         aib.setTagValues(tagValues);
-        AuditResultBean resultBean = auditService.createHeader(aib);
+        AuditResultBean resultBean = auditManager.createHeader(aib);
         AuditHeader auditHeader = auditService.getHeader(resultBean.getAuditKey(), true);
         Set<TagValue> tagSet = auditHeader.getTagValues();
         assertNotNull(tagSet);
@@ -205,7 +209,7 @@ public class TestAuditTags {
         tagValues.put("TagC", null);
         tagValues.put("TagD", "DDDD");
         aib.setTagValues(tagValues);
-        AuditResultBean resultBean = auditService.createHeader(aib);
+        AuditResultBean resultBean = auditManager.createHeader(aib);
         AuditHeader auditHeader = auditService.getHeader(resultBean.getAuditKey(), true);
         Set<TagValue> tagSet = auditHeader.getTagValues();
         assertNotNull(tagSet);

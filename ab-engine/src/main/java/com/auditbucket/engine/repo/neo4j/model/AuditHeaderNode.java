@@ -19,7 +19,9 @@
 
 package com.auditbucket.engine.repo.neo4j.model;
 
-import com.auditbucket.audit.model.*;
+import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.audit.model.DocumentType;
+import com.auditbucket.audit.model.TagValue;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
@@ -49,14 +51,8 @@ public class AuditHeaderNode implements AuditHeader {
     @Transient
     private Logger log = LoggerFactory.getLogger(AuditHeaderNode.class);
 
-    @GraphId
-    private Long id;
-
-    @RelatedTo(elementClass = FortressUserNode.class, type = "created", direction = Direction.INCOMING, enforceTargetType = true)
-    private FortressUserNode createdBy;
-
-    @RelatedTo(elementClass = FortressUserNode.class, type = "lastChanged", direction = Direction.OUTGOING)
-    private FortressUserNode lastWho;
+    @Indexed(indexName = UUID_KEY, unique = true)
+    private String auditKey;
 
     @RelatedTo(elementClass = FortressNode.class, type = "audit", direction = Direction.INCOMING)
     @Fetch
@@ -66,23 +62,30 @@ public class AuditHeaderNode implements AuditHeader {
     @Fetch
     private DocumentTypeNode documentType;
 
+    @Indexed(indexName = "callerRef")
+    private String callerRef;
+
+    private long dateCreated;
+
+    long lastUpdated = 0;
+
+    @GraphId
+    private Long id;
+
+    @RelatedTo(elementClass = FortressUserNode.class, type = "created", direction = Direction.INCOMING, enforceTargetType = true)
+    private FortressUserNode createdBy;
+
+    @RelatedTo(elementClass = FortressUserNode.class, type = "lastChanged", direction = Direction.OUTGOING)
+    private FortressUserNode lastWho;
+
     @RelatedToVia(elementClass = AuditTagRelationship.class, type = "tagValue", direction = Direction.INCOMING)
     private Set<TagValue> tagValues;
 
     public static final String UUID_KEY = "auditKey";
 
-    @Indexed(indexName = UUID_KEY, unique = true)
-    private String auditKey;
-
     private String name;
 
-    private long dateCreated;
-
-    @Indexed(indexName = "callerRef")
-    private String callerRef;
-
     private long fortressDate;
-    long lastUpdated = 0;
 
     @Indexed(indexName = "searchKey")
     String searchKey = null;

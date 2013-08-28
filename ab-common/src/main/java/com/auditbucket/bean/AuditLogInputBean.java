@@ -52,6 +52,7 @@ public class AuditLogInputBean {
 
     static final ObjectMapper om = new ObjectMapper();
     private boolean forceReindex;
+    private Long auditId;
 
     protected AuditLogInputBean() {
     }
@@ -231,8 +232,27 @@ public class AuditLogInputBean {
         this.forceReindex = forceReindex;
     }
 
+    @JsonIgnore
+    public Long getAuditId() {
+        return auditId;
+    }
+
+    public void setAuditId(Long auditId) {
+        this.auditId = auditId;
+    }
+
 
     public enum LogStatus {
         IGNORE, OK, FORBIDDEN, NOT_FOUND, ILLEGAL_ARGUMENT
+    }
+
+    @Override
+    public String toString() {
+        return "AuditLogInputBean{" +
+                "event='" + event + '\'' +
+                ", documentType='" + documentType + '\'' +
+                ", callerRef='" + callerRef + '\'' +
+                ", auditKey='" + auditKey + '\'' +
+                '}';
     }
 }

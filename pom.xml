@@ -30,8 +30,8 @@
         <module>ab-search</module>
         <module>ab-integration-tests</module>
         <module>ab-spring</module>
-<!--        <module>ab-demo</module>
-        <module>ab-stress-tests</module>-->
+        <!--        <module>ab-demo</module>
+                <module>ab-stress-tests</module>-->
     </modules>
     <packaging>pom</packaging>
     <version>1.0.0-BUILD-SNAPSHOT</version>
@@ -39,13 +39,17 @@
         <java-version>1.7</java-version>
         <org.springframework-version>3.2.3.RELEASE</org.springframework-version>
         <org.aspectj-version>1.7.3</org.aspectj-version>
-        <org.slf4j-version>1.6.1</org.slf4j-version>
+        <org.slf4j-version>1.7.5</org.slf4j-version>
+        <!--<org.springdata.neo4j>2.2.2.RELEASE</org.springdata.neo4j>-->
         <org.springdata.neo4j>2.3.0.M1</org.springdata.neo4j>
         <org.springsecurity-version>3.1.4.RELEASE</org.springsecurity-version>
         <org.springintegration.version>2.2.3.RELEASE</org.springintegration.version>
+        <neo4j.version>1.9.2</neo4j.version>
         <jackson.version>2.2.2</jackson.version>
     </properties>
+    <repositories>
 
+    </repositories>
 
     <organization>
         <name>Monowai</name>

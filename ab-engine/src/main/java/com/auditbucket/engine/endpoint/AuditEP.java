@@ -23,10 +23,8 @@ import com.auditbucket.audit.model.AuditChange;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditLog;
 import com.auditbucket.audit.model.TxRef;
-import com.auditbucket.bean.AuditHeaderInputBean;
-import com.auditbucket.bean.AuditLogInputBean;
-import com.auditbucket.bean.AuditResultBean;
-import com.auditbucket.bean.AuditSummaryBean;
+import com.auditbucket.bean.*;
+import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;
@@ -55,6 +53,9 @@ public class AuditEP {
     AuditService auditService;
 
     @Autowired
+    AuditManagerService auditManager;
+
+    @Autowired
     FortressService fortressService;
 
     @Autowired
@@ -79,7 +80,7 @@ public class AuditEP {
         // curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab/audit/header/new/ -d '"fortress":"MyFortressName", "fortressUser": "yoursystemuser", "documentType":"CompanyNode","when":"2012-11-10"}'
         AuditResultBean auditResultBean;
         try {
-            auditResultBean = auditService.createHeader(input);
+            auditResultBean = auditManager.createHeader(input);
             auditResultBean.setStatus("OK");
             return new ResponseEntity<>(auditResultBean, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
@@ -93,34 +94,35 @@ public class AuditEP {
 
     @RequestMapping(value = "/log/new", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<AuditLogInputBean> createLog(@RequestBody AuditLogInputBean input) throws Exception {
+    public ResponseEntity<AuditLogResultBean> createLog(@RequestBody AuditLogInputBean input) throws Exception {
         // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/audit/log/new -d '{"eventType":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10", "what": "{\"name\": \"val\"}" }'
+        AuditLogResultBean resultBean = null;
         try {
 
-            input = auditService.createLog(input);
+            resultBean = auditManager.createLog(input);
             AuditLogInputBean.LogStatus ls = input.getAbStatus();
             if (ls.equals(AuditLogInputBean.LogStatus.FORBIDDEN))
-                return new ResponseEntity<>(input, HttpStatus.FORBIDDEN);
+                return new ResponseEntity<>(resultBean, HttpStatus.FORBIDDEN);
             else if (ls.equals(AuditLogInputBean.LogStatus.NOT_FOUND)) {
                 input.setAbMessage("Illegal audit key");
-                return new ResponseEntity<>(input, HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(resultBean, HttpStatus.NOT_FOUND);
             } else if (ls.equals(AuditLogInputBean.LogStatus.IGNORE)) {
                 input.setAbMessage("Ignoring request to change as the 'what' has not changed");
-                return new ResponseEntity<>(input, HttpStatus.NOT_MODIFIED);
+                return new ResponseEntity<>(resultBean, HttpStatus.NOT_MODIFIED);
             } else if (ls.equals(AuditLogInputBean.LogStatus.ILLEGAL_ARGUMENT)) {
-                return new ResponseEntity<>(input, HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>(resultBean, HttpStatus.NO_CONTENT);
             }
 
-            return new ResponseEntity<>(input, HttpStatus.OK);
+            return new ResponseEntity<>(resultBean, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             input.setAbMessage(e.getMessage());
-            return new ResponseEntity<>(input, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(resultBean, HttpStatus.BAD_REQUEST);
         } catch (SecurityException e) {
             input.setAbMessage(e.getMessage());
-            return new ResponseEntity<>(input, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(resultBean, HttpStatus.FORBIDDEN);
         } catch (Exception e) {
             input.setAbMessage(e.getMessage());
-            return new ResponseEntity<>(input, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(resultBean, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

@@ -20,10 +20,7 @@
 package com.auditbucket.engine.service;
 
 import com.auditbucket.audit.model.*;
-import com.auditbucket.bean.AuditHeaderInputBean;
-import com.auditbucket.bean.AuditLogInputBean;
-import com.auditbucket.bean.AuditResultBean;
-import com.auditbucket.bean.AuditSummaryBean;
+import com.auditbucket.bean.*;
 import com.auditbucket.dao.AuditDao;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
@@ -67,6 +64,7 @@ import java.util.concurrent.Future;
 @Service(value = "ab.AuditService")
 @Transactional
 public class AuditService {
+    public static final String EMPTY = "";
     @Autowired
     FortressService fortressService;
 
@@ -129,7 +127,7 @@ public class AuditService {
      *
      * @return unique primary key to be used for subsequent log calls
      */
-    public AuditResultBean createHeader(AuditHeaderInputBean inputBean) {
+    protected AuditResultBean createHeader(AuditHeaderInputBean inputBean) {
         SystemUser su = sysUserService.findByName(securityHelper.getLoggedInUser());
 
         if (su == null)
@@ -154,17 +152,6 @@ public class AuditService {
 
             AuditResultBean arb = new AuditResultBean(ah, null);
             arb.setStatus("Existing audit record found and is being returned");
-            AuditLogInputBean logBean = inputBean.getAuditLog();
-
-            if (logBean != null) {
-                logBean.setAuditKey(ah.getAuditKey());
-                logBean.setFortressUser(inputBean.getFortressUser());
-                logBean.setCallerRef(ah.getCallerRef());
-                // Creating an initial change record
-                logBean = createLog(ah, logBean, inputBean.getTagValues());
-                return new AuditResultBean(ah, logBean.getTxRef());
-            }
-
             return arb;
         }
 
@@ -180,34 +167,23 @@ public class AuditService {
 
         auditTagService.createTagValues(userTags, ah);
 
-        if (logger.isDebugEnabled())
-            logger.debug("Audit Header created:" + ah.getId() + " key=[" + ah.getAuditKey() + "]");
+        logger.debug("Audit Header created:{} key=[{}]", ah.getId(), ah.getAuditKey());
 
-
-        AuditLogInputBean logBean = inputBean.getAuditLog();
-        if (logBean != null) {
-            logBean.setAuditKey(ah.getAuditKey());
-            logBean.setFortressUser(inputBean.getFortressUser());
-            logBean.setCallerRef(ah.getCallerRef());
-            // Creating an initial change record
-            logBean = createLog(ah, logBean, userTags);
-            return new AuditResultBean(ah, logBean.getTxRef());
-        }
         return new AuditResultBean(ah, null);
 
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+    //@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public AuditHeader getHeader(@NotEmpty String key) {
         return getHeader(key, false);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+    //@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public AuditHeader getHeader(@NotEmpty String key, boolean inflate) {
         String userName = securityHelper.getLoggedInUser();
         SystemUser su = sysUserService.findByName(userName);
         if (su == null)
-            throw new SecurityException("Not authorised");
+            throw new SecurityException(userName + " Not authorised to retrieve headers");
 
         AuditHeader ah = auditDAO.findHeader(key, inflate);
         if (ah == null)
@@ -220,24 +196,31 @@ public class AuditService {
 
     /**
      * Looks up the auditHeader from input and creates a log record
+     * <p/>
+     * Only public to support AOP transactions. You should be calling this via #AuditManagerService.createLog
      *
      * @param input log details
      * @return populated log information with any error messages
      */
-    public AuditLogInputBean createLog(AuditLogInputBean input) {
-        String auditKey = input.getAuditKey();
+    public AuditLogResultBean createLog(AuditLogInputBean input) {
         AuditHeader header;
+        AuditLogResultBean resultBean = new AuditLogResultBean(input);
+        String auditKey = input.getAuditKey();
 
-        if (auditKey == null || auditKey.equals("")) {
-            header = findByCallerRef(input.getFortress(), input.getDocumentType(), input.getCallerRef());
-            if (header != null)
-                input.setAuditKey(header.getAuditKey());
+        if (input.getAuditId() == null) {
+            if (auditKey == null || auditKey.equals(EMPTY)) {
+                header = findByCallerRef(input.getFortress(), input.getDocumentType(), input.getCallerRef());
+                if (header != null)
+                    input.setAuditKey(header.getAuditKey());
+            } else
+                header = getHeader(auditKey, true);
         } else
-            header = getHeader(input.getAuditKey(), true);
+            header = getHeader(input.getAuditId());  // Only set internally by AuditBucket. Never rely on the caller
 
         if (header == null) {
-            input.setStatus(AuditLogInputBean.LogStatus.NOT_FOUND);
-            return input;
+            resultBean.setStatus(AuditLogInputBean.LogStatus.NOT_FOUND);
+            resultBean.setMessage("Unable to locate requested header");
+            return resultBean;
         }
 
         return createLog(header, input, header.getTagMap());
@@ -248,13 +231,15 @@ public class AuditService {
      *
      * @param auditHeader auditHeader the caller is authorised to work with
      * @param input       auditLog details containing the data to log
-     * @param tagValues
+     * @param tagValues   audit header tag set
      * @return populated log information with any error messages
      */
-    private AuditLogInputBean createLog(AuditHeader auditHeader, AuditLogInputBean input, Map<String, String> tagValues) {
+    private AuditLogResultBean createLog(AuditHeader auditHeader, AuditLogInputBean input, Map<String, String> tagValues) {
+        AuditLogResultBean resultBean = new AuditLogResultBean(input);
         if (input.getMapWhat() == null || input.getMapWhat().isEmpty()) {
-            input.setStatus(AuditLogInputBean.LogStatus.IGNORE);
-            return input;
+            resultBean.setStatus(AuditLogInputBean.LogStatus.IGNORE);
+            resultBean.setMessage("No 'what' information provided. Ignoring this request");
+            return resultBean;
         }
 
         try {
@@ -262,7 +247,8 @@ public class AuditService {
             //  placed in to the instance variable
             input.setWhat(input.getWhat());
         } catch (IOException e) {
-            throw new IllegalArgumentException("Unable to pass what text as JSON object", e);
+            logger.error("Json parsing exception {}", input.getWhat());
+            throw new IllegalArgumentException("Unable to pass What text as JSON object", e);
         }
 
         Fortress fortress = auditHeader.getFortress();
@@ -270,127 +256,136 @@ public class AuditService {
 
 // Transactions checks
         TxRef txRef = handleTxRef(input);
+        resultBean.setTxReference(txRef);
 
 //ToDo: Look at spin the following off in to a separate thread?
         // https://github.com/monowai/auditbucket/issues/7
-        AuditLog lastLog = null;
+        AuditLog existingLog = null;
         if (auditHeader.getLastUpdated() != auditHeader.getWhenCreated()) // Will there even be a change to find
-            lastLog = getLastAuditLog(auditHeader);//(auditHeader.getLastChange() != null ? auditHeader.getLastChange() : null);
+            existingLog = getLastAuditLog(auditHeader);//(auditHeader.getLastChange() != null ? auditHeader.getLastChange() : null);
 
-
-        String event = input.getEvent();
         Boolean searchActive = fortress.isSearchActive();
         DateTime fortressWhen = (input.getWhen() == null ? new DateTime(DateTimeZone.UTC) : new DateTime(input.getWhen(), DateTimeZone.UTC));
 
-        if (lastLog != null) {
+        if (existingLog != null) {
             // Neo4j won't store the map, so we store the raw escaped JSON text
             try {
                 // KVStore.getWhat()
-                if (isSame(lastLog.getAuditChange().getJsonWhat(), input.getWhat())) {
-                    if (logger.isDebugEnabled())
-                        logger.debug("Ignoring a change we already have");
+                if (isSame(existingLog.getAuditChange().getJsonWhat(), input.getWhat())) {
+                    logger.debug("Ignoring a change we already have {}", input);
                     input.setStatus(AuditLogInputBean.LogStatus.IGNORE);
-                    if (input.isForceReindex()) // Caller is recreating the search index
-                        handleSearch(auditHeader, input, tagValues, searchActive, fortressWhen, lastLog);
-                    return input;
+                    if (input.isForceReindex()) { // Caller is recreating the search index
+                        prepareSearchDocument(auditHeader, input, tagValues, searchActive, fortressWhen, existingLog);
+                        resultBean.setMessage("Ignoring a change we already have. Honouring request to re-index");
+                    } else
+                        resultBean.setMessage("Ignoring a change we already have");
+                    return resultBean;
                 }
             } catch (IOException e) {
                 input.setStatus(AuditLogInputBean.LogStatus.ILLEGAL_ARGUMENT);
-                input.setAbMessage("Error comparing JSON data: " + e.getMessage());
-                return input;
+                resultBean.setMessage("Error comparing JSON data: " + e.getMessage());
+                logger.error("Error comparing JSON Data", e);
+                return resultBean;
             }
-            if (event == null) {
-                event = AuditChange.UPDATE;
-                input.setEvent(event);
+            if (input.getEvent() == null) {
+                input.setEvent(AuditChange.UPDATE);
             }
             if (searchActive)
                 auditHeader = waitOnHeader(auditHeader);
 
+
         } else { // first ever log for the auditHeader
-            if (event == null) {
-                event = AuditChange.CREATE;
-                input.setEvent(event);
+            if (input.getEvent() == null) {
+                input.setEvent(AuditChange.CREATE);
             }
-        }
-        AuditChange lastChange = null;
-        if (lastLog != null)
-            lastChange = lastLog.getAuditChange();
-
-        AuditChange thisChange = auditDAO.save(thisFortressUser, input, txRef, lastChange);
-
-        if (lastChange == null) {
             auditHeader.setLastUser(thisFortressUser);
             auditHeader = auditDAO.save(auditHeader);
         }
+        AuditChange existingChange = null;
+        if (existingLog != null)
+            existingChange = existingLog.getAuditChange();
 
-        AuditLog thisLog = auditDAO.addLog(auditHeader, thisChange, fortressWhen);
-        boolean resetLastChange = (lastChange == null || lastLog.getFortressWhen() < thisLog.getFortressWhen());
+        AuditChange thisChange = auditDAO.save(thisFortressUser, input, txRef, existingChange);
 
-        if (resetLastChange) {
-            auditHeader.setLastUser(thisFortressUser);
-            auditHeader = auditDAO.save(auditHeader);
-            auditDAO.setLastChange(auditHeader, thisChange, lastChange);
-        }
+        AuditLog newLog = auditDAO.addLog(auditHeader, thisChange, fortressWhen);
+        boolean moreRecent = (existingChange == null || existingLog.getFortressWhen() < newLog.getFortressWhen());
 
         input.setStatus(AuditLogInputBean.LogStatus.OK);
 
-        handleSearch(auditHeader, input, tagValues, searchActive, fortressWhen, thisLog);
+        if (moreRecent) {
+            if (!auditHeader.getLastUser().getId().equals(thisFortressUser.getId())) {
+                auditHeader.setLastUser(thisFortressUser);
+                auditDAO.save(auditHeader);
+            }
 
-        return input;
+            auditDAO.setLastChange(auditHeader, thisChange, existingChange);
+
+            try {
+                resultBean.setSearchDocument(prepareSearchDocument(auditHeader, input, tagValues, searchActive, fortressWhen, newLog));
+            } catch (JsonProcessingException e) {
+                resultBean.setMessage("Error processing JSON document");
+                resultBean.setStatus(AuditLogInputBean.LogStatus.ILLEGAL_ARGUMENT);
+            }
+        }
+        return resultBean;
 
     }
 
-    @Async
-    private void handleSearch(AuditHeader auditHeader, AuditLogInputBean input, Map<String, String> tagValues, Boolean searchActive, DateTime fortressWhen, AuditLog auditLog) {
+
+    private SearchChange prepareSearchDocument(AuditHeader auditHeader, AuditLogInputBean input, Map<String, String> tagValues, Boolean searchActive, DateTime fortressWhen, AuditLog auditLog) throws JsonProcessingException {
 
         if (!searchActive || auditHeader.isSearchSuppressed())
-            return;
-
+            return null;
         SearchChange searchDocument;
         searchDocument = new AuditSearchChange(auditHeader, input.getMapWhat(), input.getEvent(), fortressWhen);
         searchDocument.setTagValues(tagValues);
         searchDocument.setWho(auditLog.getAuditChange().getWho().getName());
 
-        if (logger.isTraceEnabled()) {
-            try {
-                logger.trace(om.writeValueAsString(searchDocument));
-            } catch (JsonProcessingException e) {
-                logger.error(e.getMessage());
-            }
+        try {
+            logger.trace("JSON {}", om.writeValueAsString(searchDocument));
+        } catch (JsonProcessingException e) {
+            logger.error(e.getMessage());
+            throw (e);
         }
-        makeChangeSearchable(searchDocument, auditLog);
+        searchDocument.setSysWhen(auditLog.getSysWhen());
+        // Used to reconcile that the change was actually indexed
+        searchDocument.setLogId(auditLog.getId());
+        return searchDocument;
     }
 
-    private void makeChangeSearchable(SearchChange sd, AuditLog log) {
-        sd.setSysWhen(log.getSysWhen());
-        // Used to reconcile that the change was actually indexed
-        sd.setLogId(log.getId());
-        searchGateway.makeChangeSearchable(sd);
+    @Async
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public void makeChangeSearchable(SearchChange searchDocument) {
+        if (searchDocument == null)
+            return;
+        logger.debug("Indexing auditLog [{}]]", searchDocument.getLogId());
+        searchGateway.makeChangeSearchable(searchDocument);
     }
 
     private AuditHeader waitOnHeader(AuditHeader auditHeader) {
 
-        int timeOut = 100;
-        int i = 0;
         if (auditHeader.isSearchSuppressed() || auditHeader.getSearchKey() != null)
             return auditHeader; // Nothing to wait for as we're suppressing searches for this auditHeader
+
+        int timeOut = 100;
+        int i = 0;
 
         while (auditHeader.getSearchKey() == null && i < timeOut) {
             i++;
             try {
-                Thread.sleep(200);
+                Thread.sleep(50);
             } catch (InterruptedException e) {
                 logger.error(e.getMessage());
             }
             auditHeader = getHeader(auditHeader.getId());
         }
         if (auditHeader.getSearchKey() == null)
-            logger.error("Timeout waiting for the initial search document to be created " + auditHeader.getAuditKey());
+            logger.error("Timeout waiting for the initial search document to be created [{}]", auditHeader.getAuditKey());
         return auditHeader;
 
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+    //@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     private AuditHeader getHeader(Long id) {
         return auditDAO.getHeader(id);
     }
@@ -417,39 +412,40 @@ public class AuditService {
      *
      * @param searchResult contains keys to tie the search to the audit
      */
+    @Async
     @ServiceActivator(inputChannel = "searchResult")
-    public Future<Void> handleSearchResult(SearchResult searchResult) {
+    public void handleSearchResult(SearchResult searchResult) {
         String auditKey = searchResult.getAuditKey();
-        if (logger.isTraceEnabled())
-            logger.trace("Updating from search auditKey =[" + searchResult + "]");
+
+        logger.debug("Updating from search auditKey =[{}]", searchResult);
         AuditHeader header = auditDAO.findHeader(auditKey);
 
         if (header == null) {
-            logger.error("Audit Key could not be found for [" + searchResult + "]");
-            return null;
+            logger.error("Audit Key could not be found for [{}]", searchResult);
+            return;
         }
         AuditLog when = auditDAO.getChange(searchResult.getLogId());
+        if (when == null) {
+            logger.error("Illegal node requested from handleSearchResult [{}]", searchResult.getLogId());
+            return;
+        }
 
         if (header.getSearchKey() == null) {
             header.setSearchKey(searchResult.getSearchKey());
             auditDAO.save(header);
-            if (logger.isTraceEnabled())
-                logger.trace("Updated from search auditKey =[" + searchResult + "]");
+            logger.trace("Updated from search auditKey =[{}]", searchResult);
         }
 
         // Another thread may have processed this so save an update
         if (when != null && !when.isIndexed()) {
             // We need to know that the change we requested to index has been indexed.
-            if (logger.isDebugEnabled())
-                logger.debug("Updating index status for " + when);
+            logger.debug("Updating index status for {}", when);
             when.setIsIndexed();
             auditDAO.save(when);
 
         } else {
-            if (logger.isDebugEnabled())
-                logger.debug("Skipping " + when);
+            logger.debug("Skipping {}", when);
         }
-        return null;
     }
 
     private boolean isSame(String jsonThis, String jsonThat) throws IOException {
