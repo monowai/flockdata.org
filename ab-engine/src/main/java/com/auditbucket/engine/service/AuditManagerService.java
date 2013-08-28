@@ -29,6 +29,9 @@ import org.springframework.stereotype.Service;
 /**
  * Exists because calling makeChangeSearchable within the completed transaction
  * of auditService.createLog resulted in a "__TYPE__ not found" exception from Neo4J
+ * <p/>
+ * http://stackoverflow.com/questions/18072961/loosing-type-under-load
+ * <p/>
  * User: Mike Holdsworth
  * Since: 28/08/13
  */
