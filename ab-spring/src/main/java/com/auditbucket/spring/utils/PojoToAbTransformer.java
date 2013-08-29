@@ -4,15 +4,19 @@ import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.spring.annotations.AuditClientRef;
 import com.auditbucket.spring.annotations.AuditKey;
+import com.auditbucket.spring.annotations.AuditTag;
 import com.auditbucket.spring.annotations.Auditable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PojoToAbTransformer {
 
     public static AuditHeaderInputBean transformToAbFormat(Object pojo) throws IllegalAccessException {
         AuditHeaderInputBean auditHeaderInputBean = new AuditHeaderInputBean();
+        Map<String, String> tagValues = new HashMap<>();
         Class aClass = pojo.getClass();
         Annotation[] annotations = aClass.getAnnotations();
 
@@ -31,11 +35,25 @@ public class PojoToAbTransformer {
                     Annotation[] fieldAnnotations = field.getDeclaredAnnotations();
 
                     for (Annotation fieldAnnotation : fieldAnnotations) {
-                        if (fieldAnnotation instanceof AuditKey) {
-                            //auditHeaderInputBean.setAuditKey(field.get(pojo).toString());
-                        }
-                        if (fieldAnnotation instanceof AuditClientRef) {
-                            auditHeaderInputBean.setCallerRef(field.get(pojo).toString());
+                        if (field.get(pojo) != null) {
+                            if (fieldAnnotation instanceof AuditKey) {
+                                if (field.get(pojo) != null)
+                                    auditHeaderInputBean.setAuditKey(field.get(pojo).toString());
+                            }
+                            if (fieldAnnotation instanceof AuditClientRef) {
+                                if (field.get(pojo) != null)
+                                    auditHeaderInputBean.setCallerRef(field.get(pojo).toString());
+                            }
+
+                            if (fieldAnnotation instanceof AuditTag) {
+                                AuditTag auditTagAnnotation = (AuditTag) fieldAnnotation;
+                                if (auditTagAnnotation.name().equals("")) {
+                                    tagValues.put(field.getName(), field.get(pojo).toString());
+                                } else {
+                                    tagValues.put(auditTagAnnotation.name(), field.get(pojo).toString());
+                                }
+
+                            }
                         }
                     }
                 }
@@ -45,7 +63,6 @@ public class PojoToAbTransformer {
     }
 
     public static AuditLogInputBean transformToAbLogFormat(Object pojo) throws IllegalAccessException {
-        // TODO @Nabil must Implement this ASAP
         return null;
     }
 }

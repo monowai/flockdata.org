@@ -8,33 +8,27 @@
         <version>1.0.0-BUILD-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
-    <repositories>
-        <repository>
-            <id>excilys</id>
-            <name>Excilys Repository</name>
-            <url>http://repository.excilys.com/content/groups/public</url>
-        </repository>
-    </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>excilys</id>
-            <name>Excilys Repository</name>
-            <url>http://repository.excilys.com/content/groups/public</url>
-        </pluginRepository>
-    </pluginRepositories>
+    <groupId>com.monowai</groupId>
+    <artifactId>ab-stress-tests</artifactId>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <gatling.version>2.0.0-M3a</gatling.version>
+        <gatling.version>1.5.2</gatling.version>
     </properties>
 
-    <artifactId>ab-stress-tests</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>com.excilys.ebi.gatling.highcharts</groupId>
+            <artifactId>gatling-charts-highcharts</artifactId>
+            <version>${gatling.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
-                <groupId>io.gatling</groupId>
+                <groupId>com.excilys.ebi.gatling</groupId>
                 <artifactId>gatling-maven-plugin</artifactId>
                 <version>${gatling.version}</version>
                 <executions>
@@ -98,15 +92,6 @@
             </plugin>
         </plugins>
     </build>-->
-
-        <dependencies>
-            <dependency>
-                <groupId>io.gatling.highcharts</groupId>
-                <artifactId>gatling-charts-highcharts</artifactId>
-                <version>${gatling.version}</version>
-                <scope>test</scope>
-            </dependency>
-        </dependencies>
 
 
 </project>

@@ -3,6 +3,7 @@ package com.auditbucket.demo.services;
 import com.auditbucket.demo.domain.Account;
 import com.auditbucket.demo.repository.AccountRepository;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ public class AccountServiceTest {
     @Autowired
     private AccountRepository accountRepository;
 
+    @Ignore
     @Test
     public void testSaveAccount() throws IllegalAccessException {
         Account account = new Account();
