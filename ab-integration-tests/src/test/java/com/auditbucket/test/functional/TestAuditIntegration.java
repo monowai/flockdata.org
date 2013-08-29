@@ -20,9 +20,11 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.audit.model.AuditLog;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditResultBean;
+import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
@@ -43,6 +45,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +62,7 @@ import org.springframework.test.context.transaction.BeforeTransaction;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Set;
 
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -83,6 +87,8 @@ public class TestAuditIntegration {
     RegistrationService regService;
     @Autowired
     FortressService fortressService;
+    @Autowired
+    AuditManagerService auditManager;
 
     @Autowired
     private GraphDatabaseService graphDatabaseService;
@@ -92,7 +98,6 @@ public class TestAuditIntegration {
     private Logger logger = LoggerFactory.getLogger(TestAuditIntegration.class);
     private String email = "test@ab.com";
     Authentication authA = new UsernamePasswordAuthenticationToken(email, "user1");
-
 
     @BeforeClass
     public static void cleanupElasticSearch() throws Exception {
@@ -120,10 +125,18 @@ public class TestAuditIntegration {
         // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
         // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
         SecurityContextHolder.getContext().setAuthentication(authA);
-        Neo4jHelper.cleanDb(template);
+        Transaction tx = graphDatabaseService.beginTx();
+        try {
+
+            Neo4jHelper.cleanDb(template);
+            tx.success();
+        } finally {
+            tx.finish();
+        }
+
     }
 
-    //@Test
+    @Test
     public void createHeaderTimeLogsWithSearchActivated() throws Exception {
         int max = 10;
         String ahKey;
@@ -135,7 +148,7 @@ public class TestAuditIntegration {
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", new Date(), "ABC123");
         AuditResultBean auditResult;
-        auditResult = auditService.createHeader(inputBean);
+        auditResult = auditManager.createHeader(inputBean);
         ahKey = auditResult.getAuditKey();
 
         assertNotNull(ahKey);
@@ -152,7 +165,7 @@ public class TestAuditIntegration {
         logger.info("Start-");
         watch.start();
         while (i < max) {
-            auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + i + "}"));
+            auditManager.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + i + "}"));
             i++;
         }
         watch.stop();
@@ -190,7 +203,7 @@ public class TestAuditIntegration {
      *
      * @throws Exception
      */
-    //@Test
+    @Test
     public void suppressIndexingOnDemand() throws Exception {
         String escJson = "{\"who\":";
         SecurityContextHolder.getContext().setAuthentication(authA);
@@ -198,9 +211,9 @@ public class TestAuditIntegration {
         Fortress iFortress = fortressService.registerFortress(new FortressInputBean("suppress", false));
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new Date());
 
-        AuditResultBean indexedResult = auditService.createHeader(inputBean);
+        AuditResultBean indexedResult = auditManager.createHeader(inputBean);
         AuditHeader indexHeader = auditService.getHeader(indexedResult.getAuditKey());
-        auditService.createLog(new AuditLogInputBean(indexHeader.getAuditKey(), inputBean.getFortressUser(), new DateTime(), escJson + "\"andy\"}"));
+        auditManager.createLog(new AuditLogInputBean(indexHeader.getAuditKey(), inputBean.getFortressUser(), new DateTime(), escJson + "\"andy\"}"));
 
         waitForHeaderToUpdate(indexHeader);
         String indexName = indexHeader.getIndexName();
@@ -209,10 +222,10 @@ public class TestAuditIntegration {
 
         inputBean = new AuditHeaderInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new Date());
         inputBean.setSuppressSearch(true);
-        AuditResultBean noIndex = auditService.createHeader(inputBean);
+        AuditResultBean noIndex = auditManager.createHeader(inputBean);
         AuditHeader noIndexHeader = auditService.getHeader(noIndex.getAuditKey());
 
-        auditService.createLog(new AuditLogInputBean(noIndexHeader.getAuditKey(), inputBean.getFortressUser(), new DateTime(), escJson + "\"bob\"}"));
+        auditManager.createLog(new AuditLogInputBean(noIndexHeader.getAuditKey(), inputBean.getFortressUser(), new DateTime(), escJson + "\"bob\"}"));
         Thread.sleep(1000);
         // Bob's not there because we said we didn't want to index that header
         doESCheck(indexName, "bob", 0);
@@ -229,7 +242,7 @@ public class TestAuditIntegration {
         regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
         //SecurityContextHolder.getContext().setAuthentication(authMike);
         int auditMax = 10;
-        int logMax = 10;
+        int logMax = 20;
         int fortress = 1;
         String simpleJson = "{\"who\":";
         ArrayList<Long> list = new ArrayList<Long>();
@@ -247,30 +260,32 @@ public class TestAuditIntegration {
         while (fortress <= fortressMax) {
             String fortressName = "bulkloada" + fortress;
             int audit = 1;
-            long rows = 0;
+            long requests = 0;
             auditSleepCount = 0;
 
             Fortress iFortress = fortressService.registerFortress(new FortressInputBean(fortressName, false));
-            rows++;
+            requests++;
             logger.info("Starting run for " + fortressName);
             while (audit <= auditMax) {
                 boolean searchChecked = false;
                 AuditHeaderInputBean aib = new AuditHeaderInputBean(iFortress.getName(), fortress + "olivia@sunnybell.com", "CompanyNode", new Date(), "ABC" + audit);
-                AuditResultBean arb = auditService.createHeader(aib);
-                rows++;
+                AuditResultBean arb = auditManager.createHeader(aib);
+                requests++;
                 int log = 1;
                 while (log <= logMax) {
                     //String escJson = Helper.getBigJsonText(log);
                     //auditService.createLog(new AuditLogInputBean(arb.getAuditKey(), aib.getFortressUser(), new DateTime(), escJson ));
 
-                    auditService.createLog(new AuditLogInputBean(arb.getAuditKey(), aib.getFortressUser(), new DateTime(), simpleJson + log + "}"));
+                    auditManager.createLog(new AuditLogInputBean(arb.getAuditKey(), aib.getFortressUser(), new DateTime(), simpleJson + log + "}"));
+                    //Thread.sleep(100);
+                    requests++;
                     if (!searchChecked) {
                         searchChecked = true;
                         AuditHeader auditHeader = auditService.getHeader(arb.getAuditKey(), false);
-                        rows++;
+                        requests++;
                         int checkCount = waitForHeaderToUpdate(auditHeader);
                         auditSleepCount = auditSleepCount + (400 * checkCount);
-                        rows = rows + checkCount;
+                        requests = requests + checkCount;
                     } // searchCheck done
                     log++;
                 } // Logs created
@@ -278,20 +293,48 @@ public class TestAuditIntegration {
             } // Audit headers finished with
             watch.split();
             double fortressRunTime = (watch.getSplitTime() - auditSleepCount) / 1000d;
-            logger.info("*** " + iFortress.getName() + " took " + fortressRunTime + "  avg processing time for [" + rows + "] RPS= " + f.format(fortressRunTime / rows) + ". Rows per second " + f.format(rows / fortressRunTime));
+            logger.info("*** " + iFortress.getName() + " took " + fortressRunTime + "  avg processing time for [" + requests + "] RPS= " + f.format(fortressRunTime / requests) + ". Requests per second " + f.format(requests / fortressRunTime));
 
             splitTotals = splitTotals + fortressRunTime;
-            totalRows = totalRows + rows;
+            totalRows = totalRows + requests;
             watch.reset();
             watch.start();
             list.add(iFortress.getId());
             fortress++;
         }
 
-        logger.info("*** Created data set in " + f.format(splitTotals) + " fortress avg = " + f.format(splitTotals / fortressMax) + " avg processing time per row " + f.format(splitTotals / totalRows) + ". Rows per second " + f.format(totalRows / splitTotals));
+        logger.info("*** Created data set in " + f.format(splitTotals) + " fortress avg = " + f.format(splitTotals / fortressMax) + " avg processing time per request " + f.format(splitTotals / totalRows) + ". Requests per second " + f.format(totalRows / splitTotals));
         watch.reset();
+        Thread.sleep(5000); // give things a final chance to complete
 
+        validateLogsIndexed(list, auditMax, logMax);
         doSearchTests(auditMax, list, watch);
+    }
+
+    private void validateLogsIndexed(ArrayList<Long> list, int auditMax, int expectedLogCount) throws Exception {
+        logger.info("Validating logs are indexed");
+        int fortress = 1;
+        int audit = 1;
+        DecimalFormat f = new DecimalFormat("##.000");
+        while (fortress <= fortressMax) {
+            while (audit <= auditMax) {
+                AuditHeader header = auditService.findByCallerRefFull(list.get(fortress), "CompanyNode", "ABC" + audit);
+                StopWatch watch = new StopWatch();
+                watch.start();
+                Set<AuditLog> logs = auditService.getAuditLogs(header.getId());
+                watch.split();
+                assertNotNull(logs);
+                logger.info("retrieved [{}] logs in [{}] millis", logs.size(), f.format(watch.getSplitTime()));
+                assertEquals("Wrong number of logs returned", expectedLogCount, logs.size());
+                for (AuditLog log : logs) {
+                    assertEquals("logId [" + log.getId() + "] changeId[" + log.getAuditChange().getId() + "], event[ " + log.getAuditChange().getEvent() + "]", true, log.isIndexed());
+                }
+
+                audit++;
+            } // Audit headers finished with
+            fortress++;
+        }
+
     }
 
     private int waitForHeaderToUpdate(AuditHeader header) throws Exception {
@@ -319,7 +362,7 @@ public class TestAuditIntegration {
         int searchLoops = 200;
         int search = 0;
         int totalSearchRequests = 0;
-        Thread.sleep(5000); // give things a final chance to complete
+
         watch.start();
 
         do {
@@ -335,10 +378,11 @@ public class TestAuditIntegration {
                     assertNotNull("ABC" + random, header);
                     assertNotNull("Looks like ab-search is not sending back results", header.getSearchKey());
                     //AuditLog when = auditService.getLastAuditLog(header);
-                    assertNotNull(header.getLastChange());
+                    AuditLog auditLog = auditService.getLastAuditLog(header);
+                    assertNotNull(auditLog);
 
                     //logger.info(header.getAuditKey() + " - " + when);
-                    assertTrue("fortress " + fortress + " run " + x + " header " + header.getAuditKey() + " - " + header.getLastChange().getAuditLog().getId(), header.getLastChange().getAuditLog().isIndexed());
+                    assertTrue("fortress " + fortress + " run " + x + " header " + header.getAuditKey() + " - " + auditLog.getId(), auditLog.isIndexed());
                     doESCheck(header.getIndexName(), header.getAuditKey());
                     totalSearchRequests++;
                     x++;

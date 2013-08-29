@@ -23,11 +23,10 @@ import com.auditbucket.audit.model.AuditChange;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditLog;
 import com.auditbucket.audit.model.TxRef;
-import com.auditbucket.bean.AuditHeaderInputBean;
-import com.auditbucket.bean.AuditLogInputBean;
-import com.auditbucket.bean.AuditResultBean;
-import com.auditbucket.bean.AuditSummaryBean;
+import com.auditbucket.bean.*;
+import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
+import com.auditbucket.engine.service.EngineAdmin;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
@@ -35,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.integration.annotation.MessageEndpoint;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,11 +48,18 @@ import java.util.Set;
  * Time: 8:23 PM
  */
 @Controller
+@Component
 @RequestMapping("/")
 @MessageEndpoint
 public class AuditEP {
     @Autowired
     AuditService auditService;
+
+    @Autowired
+    EngineAdmin auditAdmin;
+
+    @Autowired
+    AuditManagerService auditManager;
 
     @Autowired
     FortressService fortressService;
@@ -70,7 +77,7 @@ public class AuditEP {
     @RequestMapping(value = "/health", method = RequestMethod.GET)
     @ResponseBody
     public Map<String, String> getHealth() throws Exception {
-        return auditService.getHealth();
+        return auditAdmin.getHealth();
     }
 
     @RequestMapping(value = "/header/new", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
@@ -79,7 +86,7 @@ public class AuditEP {
         // curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab/audit/header/new/ -d '"fortress":"MyFortressName", "fortressUser": "yoursystemuser", "documentType":"CompanyNode","when":"2012-11-10"}'
         AuditResultBean auditResultBean;
         try {
-            auditResultBean = auditService.createHeader(input);
+            auditResultBean = auditManager.createHeader(input);
             auditResultBean.setStatus("OK");
             return new ResponseEntity<>(auditResultBean, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
@@ -93,34 +100,35 @@ public class AuditEP {
 
     @RequestMapping(value = "/log/new", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<AuditLogInputBean> createLog(@RequestBody AuditLogInputBean input) throws Exception {
+    public ResponseEntity<AuditLogResultBean> createLog(@RequestBody AuditLogInputBean input) throws Exception {
         // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/audit/log/new -d '{"eventType":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10", "what": "{\"name\": \"val\"}" }'
+        AuditLogResultBean resultBean = null;
         try {
 
-            input = auditService.createLog(input);
+            resultBean = auditManager.createLog(input);
             AuditLogInputBean.LogStatus ls = input.getAbStatus();
             if (ls.equals(AuditLogInputBean.LogStatus.FORBIDDEN))
-                return new ResponseEntity<>(input, HttpStatus.FORBIDDEN);
+                return new ResponseEntity<>(resultBean, HttpStatus.FORBIDDEN);
             else if (ls.equals(AuditLogInputBean.LogStatus.NOT_FOUND)) {
                 input.setAbMessage("Illegal audit key");
-                return new ResponseEntity<>(input, HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(resultBean, HttpStatus.NOT_FOUND);
             } else if (ls.equals(AuditLogInputBean.LogStatus.IGNORE)) {
                 input.setAbMessage("Ignoring request to change as the 'what' has not changed");
-                return new ResponseEntity<>(input, HttpStatus.NOT_MODIFIED);
+                return new ResponseEntity<>(resultBean, HttpStatus.NOT_MODIFIED);
             } else if (ls.equals(AuditLogInputBean.LogStatus.ILLEGAL_ARGUMENT)) {
-                return new ResponseEntity<>(input, HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>(resultBean, HttpStatus.NO_CONTENT);
             }
 
-            return new ResponseEntity<>(input, HttpStatus.OK);
+            return new ResponseEntity<>(resultBean, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             input.setAbMessage(e.getMessage());
-            return new ResponseEntity<>(input, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(resultBean, HttpStatus.BAD_REQUEST);
         } catch (SecurityException e) {
             input.setAbMessage(e.getMessage());
-            return new ResponseEntity<>(input, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(resultBean, HttpStatus.FORBIDDEN);
         } catch (Exception e) {
             input.setAbMessage(e.getMessage());
-            return new ResponseEntity<>(input, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(resultBean, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -225,17 +233,15 @@ public class AuditEP {
     @ResponseBody
     public ResponseEntity<AuditSummaryBean> getAuditSummary(@PathVariable("auditKey") String auditKey) throws Exception {
 
-        AuditHeader header = auditService.getHeader(auditKey, true);
-        header.getTagMap();
-        Set<AuditLog> changes = auditService.getAuditLogs(header.getId());
-        return new ResponseEntity<>(new AuditSummaryBean(header, changes), HttpStatus.OK);
+
+        return new ResponseEntity<>(auditService.getAuditSummary(auditKey), HttpStatus.OK);
 
     }
 
     @RequestMapping(value = "/{auditKey}/lastchange", produces = "application/json", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<AuditChange> getLastChange(@PathVariable("auditKey") String auditKey) throws Exception {
-        // curl -u mike:123 -X GET http://localhost:8080/ab/audit/c27ec2e5-2e17-4855-be18-bd8f82249157/logs
+        // curl -u mike:123 -X GET http://localhost:8080/ab/audit/c27ec2e5-2e17-4855-be18-bd8f82249157/lastchange
         try {
             AuditChange changed = auditService.getLastChange(auditKey);
             if (changed != null)

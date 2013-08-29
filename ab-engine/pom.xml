@@ -29,11 +29,19 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>war</packaging>
     <artifactId>ab-engine</artifactId>
-    <properties>
-        <neo4j.version>1.9.2</neo4j.version>
-    </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${org.slf4j-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.1.1</version>
+            <scope>provided</scope>
+        </dependency>
         <!-- Spring -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -107,11 +115,11 @@
             <version>7.0.30</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-redis</artifactId>
-            <version>1.1.0.M1</version>
-        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>org.springframework.data</groupId>-->
+        <!--<artifactId>spring-data-redis</artifactId>-->
+        <!--<version>1.1.0.M1</version>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.springframework.data</groupId>
@@ -196,8 +204,23 @@
 
     </dependencies>
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
-
+            <plugin>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <packagingExcludes>WEB-INF/classes/log4j.xml</packagingExcludes>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -310,59 +333,59 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.tomcat.maven</groupId>
-                <artifactId>tomcat7-maven-plugin</artifactId>
-                <version>2.0</version>
-                <executions>
-                    <execution>
-                        <id>tomcat-run</id>
-                        <goals>
-                            <goal>exec-war-only</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <!-- optional only if you want to use a preconfigured server.xml file -->
-                            <!--
-                            <serverXml>src/main/tomcatconf/server.xml</serverXml>
-                            -->
-                            <warRunDependencies>
-                                <warRunDependency>
-                                    <dependency>
-                                        <groupId>${project.groupId}</groupId>
-                                        <artifactId>${project.artifactId}</artifactId>
-                                        <version>${project.version}</version>
-                                        <type>war</type>
-                                    </dependency>
-                                    <contextPath>/${project.artifactId}</contextPath>
+            <!--<plugin>-->
+            <!--<groupId>org.apache.tomcat.maven</groupId>-->
+            <!--<artifactId>tomcat7-maven-plugin</artifactId>-->
+            <!--<version>2.0</version>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<id>tomcat-run</id>-->
+            <!--<goals>-->
+            <!--<goal>exec-war-only</goal>-->
+            <!--</goals>-->
+            <!--<phase>package</phase>-->
+            <!--<configuration>-->
+            <!--&lt;!&ndash; optional only if you want to use a preconfigured server.xml file &ndash;&gt;-->
+            <!--&lt;!&ndash;-->
+            <!--<serverXml>src/main/tomcatconf/server.xml</serverXml>-->
+            <!--&ndash;&gt;-->
+            <!--<warRunDependencies>-->
+            <!--<warRunDependency>-->
+            <!--<dependency>-->
+            <!--<groupId>${project.groupId}</groupId>-->
+            <!--<artifactId>${project.artifactId}</artifactId>-->
+            <!--<version>${project.version}</version>-->
+            <!--<type>war</type>-->
+            <!--</dependency>-->
+            <!--<contextPath>/${project.artifactId}</contextPath>-->
 
-                                </warRunDependency>
-                            </warRunDependencies>
-                            <!-- naming is disable by default so use true to enable it -->
-                            <enableNaming>true</enableNaming>
+            <!--</warRunDependency>-->
+            <!--</warRunDependencies>-->
+            <!--&lt;!&ndash; naming is disable by default so use true to enable it &ndash;&gt;-->
+            <!--<enableNaming>true</enableNaming>-->
 
-                        </configuration>
-                    </execution>
-                </executions>
-                <configuration>
-                    <server>tomcat-development-server</server>
-                    <port>8080</port>
-                    <ajpPort>8087</ajpPort>
-                    <path>/${project.artifactId}</path>
+            <!--</configuration>-->
+            <!--</execution>-->
+            <!--</executions>-->
+            <!--<configuration>-->
+            <!--<server>tomcat-development-server</server>-->
+            <!--<port>8080</port>-->
+            <!--<ajpPort>8087</ajpPort>-->
+            <!--<path>/${project.artifactId}</path>-->
 
-                    <warRunDependencies>
-                        <warRunDependency>
-                            <dependency>
-                                <groupId>${project.groupId}</groupId>
-                                <artifactId>${project.artifactId}</artifactId>
-                                <version>${project.version}</version>
-                                <type>war</type>
-                            </dependency>
-                            <contextPath>/${project.artifactId}</contextPath>
-                        </warRunDependency>
-                    </warRunDependencies>
-                </configuration>
-            </plugin>
+            <!--<warRunDependencies>-->
+            <!--<warRunDependency>-->
+            <!--<dependency>-->
+            <!--<groupId>${project.groupId}</groupId>-->
+            <!--<artifactId>${project.artifactId}</artifactId>-->
+            <!--<version>${project.version}</version>-->
+            <!--<type>war</type>-->
+            <!--</dependency>-->
+            <!--<contextPath>/${project.artifactId}</contextPath>-->
+            <!--</warRunDependency>-->
+            <!--</warRunDependencies>-->
+            <!--</configuration>-->
+            <!--</plugin>-->
             <!--<plugin>-->
             <!--<groupId>de.thetaphi</groupId>-->
             <!--<artifactId>forbiddenapis</artifactId>-->

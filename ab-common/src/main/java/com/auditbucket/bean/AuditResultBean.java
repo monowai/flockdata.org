@@ -20,6 +20,7 @@
 package com.auditbucket.bean;
 
 import com.auditbucket.audit.model.AuditHeader;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
@@ -27,12 +28,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  * Since: 11/05/13
  */
 public class AuditResultBean {
+    private Long auditId;
     private String status;
     private String fortressName;
     private String documentType;
     private String callerRef;
     private String auditKey;
-    private String txReference;
+    private AuditLogResultBean logResult;
 
     protected AuditResultBean() {
     }
@@ -41,16 +43,17 @@ public class AuditResultBean {
         this.status = statusMessage;
     }
 
-    public AuditResultBean(String fortressName, String documentType, String callerRef, String auditKey, String txReference) {
+    public AuditResultBean(String fortressName, String documentType, String callerRef, String auditKey) {
         this.fortressName = fortressName;
         this.documentType = documentType;
         this.callerRef = callerRef;
         this.auditKey = auditKey;
-        this.txReference = txReference;
+
     }
 
-    public AuditResultBean(AuditHeader input, String txReference) {
-        this(input.getFortress().getName(), input.getDocumentType(), input.getCallerRef(), input.getAuditKey(), txReference);
+    public AuditResultBean(AuditHeader input) {
+        this(input.getFortress().getName(), input.getDocumentType(), input.getCallerRef(), input.getAuditKey());
+        this.auditId = input.getId();
     }
 
     public String getFortressName() {
@@ -82,10 +85,18 @@ public class AuditResultBean {
         this.status = status;
     }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getTxReference() {
-        return txReference;
+    @JsonIgnore
+    public Long getAuditId() {
+        return auditId;
     }
 
 
+    public void setLogResult(AuditLogResultBean logResult) {
+        this.logResult = logResult;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public AuditLogResultBean getLogResult() {
+        return logResult;
+    }
 }

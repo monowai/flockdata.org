@@ -23,8 +23,9 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:task="http://www.springframework.org/schema/task"
+
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 		http://www.springframework.org/schema/context
 		http://www.springframework.org/schema/context/spring-context-3.0.xsd
 		http://www.springframework.org/schema/task
@@ -36,22 +37,24 @@
     <context:component-scan base-package="com.auditbucket"/>
     <!-- Root Context: defines shared resources visible to all other web components -->
 
-    <context:property-placeholder location="classpath:config.properties"/>
+    <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true"
+                                  location="classpath:/config.properties,file:${ab.config}"/>
+
 
     <import resource="spring-security.xml"/>
     <import resource="neo4j-context-test.xml"/>
     <import resource="integration.xml"/>
-    <import resource="${int.method}-integration-test.xml"/>
+    <import resource="amqp-integration-test.xml"/>
 
     <task:annotation-driven executor="taskExecutor"/>
 
+    <task:executor id="executor" pool-size="20"/>
 
     <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ConcurrentTaskExecutor">
         <property name="concurrentExecutor" ref="threadPoolExecutor"/>
     </bean>
     <bean id="threadPoolExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-        <!--<property name="corePoolSize" value="20"/>-->
-        <!--<property name="maxPoolSize" value="250"/>-->
+        <property name="threadGroupName" value="ab-engine"/>
         <property name="keepAliveSeconds" value="5"/>
         <property name="allowCoreThreadTimeOut" value="true"/>
         <property name="queueCapacity" value="-1"/>

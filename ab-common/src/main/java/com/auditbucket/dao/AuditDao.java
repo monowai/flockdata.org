@@ -88,7 +88,7 @@ public interface AuditDao {
 
     public AuditChange save(FortressUser fUser, AuditLogInputBean input);
 
-    AuditHeader save(FortressUser fu, AuditHeaderInputBean inputBean, DocumentType documentType);
+    AuditHeader create(FortressUser fu, AuditHeaderInputBean inputBean, DocumentType documentType);
 
     AuditLog getChange(Long logId);
 
@@ -97,4 +97,6 @@ public interface AuditDao {
     AuditChange fetch(AuditChange lastChange);
 
     AuditChange getLastChange(Long id);
+
+    void setLastChange(AuditHeader auditHeader, AuditChange lastChange, AuditChange toRemove);
 }

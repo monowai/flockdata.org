@@ -58,13 +58,6 @@ public interface AuditHeader {
     public FortressUser getCreatedBy();
 
     /**
-     * Who created this record
-     *
-     * @param user Fortress User who created this record
-     */
-    public void setCreatedUser(FortressUser user);
-
-    /**
      * @return the index name to use for subsequent changes
      */
     public String getIndexName();
@@ -79,16 +72,6 @@ public interface AuditHeader {
      */
     void bumpUpdate();
 
-    /**
-     * @return date this was created in fortress timezone
-     */
-    public Long getFortressCreated();
-
-    /**
-     * @return date created in AuditBucket in UTC
-     */
-    public Long getABCreated();
-
     public boolean isSearchSuppressed();
 
     public void suppressSearch(boolean searchSuppressed);
@@ -102,15 +85,11 @@ public interface AuditHeader {
 
     String getCallerRef();
 
-    public void setTagValues(Set<TagValue> tagValues);
-
     public Set<TagValue> getTagValues();
 
     Map<String, String> getTagMap();
 
-    void setLastChange(AuditChange change);
-
-    public AuditChange getLastChange();
-
     void addTagValue(TagValue save);
+
+    long getWhenCreated();
 }

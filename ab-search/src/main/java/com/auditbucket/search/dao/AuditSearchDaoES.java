@@ -52,7 +52,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
     @Autowired
     private Client esClient;
 
-    private Logger log = LoggerFactory.getLogger(AuditSearchDaoES.class);
+    private Logger logger = LoggerFactory.getLogger(AuditSearchDaoES.class);
 
     @Override
     public void delete(AuditHeader header, String existingIndexKey) {
@@ -67,11 +67,11 @@ public class AuditSearchDaoES implements AuditSearchDao {
                 .execute()
                 .actionGet();
 
-        if (log.isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
             if (dr.isNotFound())
-                log.debug("Didn't find the document to remove [" + existingIndexKey + "] from " + indexName + "/" + recordType);
+                logger.debug("Didn't find the document to remove [" + existingIndexKey + "] from " + indexName + "/" + recordType);
             else
-                log.debug("Removed document [" + existingIndexKey + "] from " + indexName + "/" + recordType);
+                logger.debug("Removed document [" + existingIndexKey + "] from " + indexName + "/" + recordType);
         }
 
     }
@@ -95,8 +95,8 @@ public class AuditSearchDaoES implements AuditSearchDao {
 
         IndexResponse ir = irb.execute().actionGet();
         auditChange.setSearchKey(ir.getId());
-        if (log.isDebugEnabled())
-            log.debug("Added Document [" + auditChange.getAuditKey() + "], logId=" + auditChange.getLogId() + " searchId [" + ir.getId() + "] to " + indexName + "/" + documentType);
+        if (logger.isDebugEnabled())
+            logger.debug("Added Document [" + auditChange.getAuditKey() + "], logId=" + auditChange.getLogId() + " searchId [" + ir.getId() + "] to " + indexName + "/" + documentType);
         return auditChange;
 
     }
@@ -122,8 +122,10 @@ public class AuditSearchDaoES implements AuditSearchDao {
                 Object o = response.getSource().get("@when"); // fortress view of WHEN, not AuditBuckets!
                 if (o != null) {
                     Long existingWhen = (Long) o;
-                    if (existingWhen > incoming.getWhen())
+                    if (existingWhen > incoming.getWhen()) {
+                        logger.debug("ignoring a request to update as the existing document dated [{}] is newer than the incoming document dated [{}]", new Date(existingWhen), new Date(incoming.getWhen()));
                         return; // Don't overwrite the most current doc!
+                    }
                 }
             } else {
                 // No response, to a search key we expect to exist. Create a new one
@@ -140,12 +142,12 @@ public class AuditSearchDaoES implements AuditSearchDao {
             ListenableActionFuture<IndexResponse> ur = update.setSource(source).
                     execute();
 
-            if (log.isDebugEnabled()) {
+            if (logger.isDebugEnabled()) {
                 IndexResponse indexResponse = ur.actionGet();
-                log.debug("Updated [" + incoming.getSearchKey() + "] logId=" + incoming.getLogId() + " for " + incoming + " to version " + indexResponse.getVersion());
+                logger.debug("Updated [" + incoming.getSearchKey() + "] logId=" + incoming.getLogId() + " for " + incoming + " to version " + indexResponse.getVersion());
             }
         } catch (IndexMissingException e) { // administrator must have deleted it, but we think it still exists
-            log.info("Attempt to update non-existent index [" + incoming.getIndexName() + "]. Moving to create it");
+            logger.info("Attempt to update non-existent index [" + incoming.getIndexName() + "]. Moving to create it");
             save(incoming);
         }
 
@@ -160,8 +162,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
         String documentType = header.getDocumentType();
         if (id == null)
             id = header.getSearchKey();
-        if (log.isDebugEnabled())
-            log.debug("Looking for [" + id + "] in " + indexName + "/" + documentType);
+        logger.debug("Looking for [{}] in {}", id, indexName + documentType);
 
         GetResponse response = esClient.prepareGet(indexName, documentType, id)
                 .setRouting(header.getAuditKey())
@@ -171,7 +172,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
         if (response != null && response.isExists() && !response.isSourceEmpty())
             return response.getSourceAsBytes();
 
-        log.info("Unable to find response data for [" + id + "] in " + indexName + "/" + documentType);
+        logger.info("Unable to find response data for [" + id + "] in " + indexName + "/" + documentType);
         return null;
     }
 
@@ -200,7 +201,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
             return mapper.writeValueAsString(index);
         } catch (JsonProcessingException e) {
 
-            log.error(e.getMessage());
+            logger.error(e.getMessage());
         }
         return null;
     }

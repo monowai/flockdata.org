@@ -26,11 +26,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.joda.time.DateTime;
-import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +38,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Date;
 
 /**
@@ -89,42 +90,5 @@ public class TestWebServiceIntegration {
                 System.out.println(output);
             }
         }
-
     }
-
-    @Test
-    public void expiryDate() {
-        DateTime dt = new DateTime(99999999);
-        System.out.println(dt);
-    }
-
-    //@Test
-    public void mkh() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(authA);
-//        Neo4jHelper.cleanDb(graphDatabaseService, true);
-
-        HttpClient httpclient = new DefaultHttpClient();
-        String url = "http://localhost:8080/ab-engine/profiles/register";
-        HttpPut register = new HttpPut(url);
-        register.addHeader("content-type", "application/json");
-        StringEntity json = new StringEntity("{\n" +
-                "  \"name\":\"mike\",\n" +
-                "  \"companyName\":\"Monowai\",\n" +
-                "  \"password\":\"aa\"\n" +
-                "}");
-
-        register.setEntity(json);
-
-        HttpResponse response = httpclient.execute(register);
-
-        BufferedReader br = new BufferedReader(
-                new InputStreamReader((response.getEntity().getContent())));
-
-        String output;
-        System.out.println("Output from Server .... \n");
-        while ((output = br.readLine()) != null) {
-            System.out.println(output);
-        }
-    }
-
 }
