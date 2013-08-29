@@ -37,11 +37,9 @@ public class PojoToAbTransformer {
                     for (Annotation fieldAnnotation : fieldAnnotations) {
                         if (field.get(pojo) != null) {
                             if (fieldAnnotation instanceof AuditKey) {
-                                if (field.get(pojo) != null)
                                     auditHeaderInputBean.setAuditKey(field.get(pojo).toString());
                             }
                             if (fieldAnnotation instanceof AuditClientRef) {
-                                if (field.get(pojo) != null)
                                     auditHeaderInputBean.setCallerRef(field.get(pojo).toString());
                             }
 
