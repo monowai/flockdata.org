@@ -20,9 +20,9 @@
 package com.auditbucket.search.endpoint;
 
 import com.auditbucket.search.service.AbSearchService;
+import com.auditbucket.search.service.SearchAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -41,6 +41,9 @@ public class ElasticSearchEP {
     @Autowired
     AbSearchService searchService;
 
+    @Autowired
+    SearchAdmin searchAdmin;
+
     @RequestMapping(value = "/ping", method = RequestMethod.GET)
     @ResponseBody
     String ping() throws Exception {
@@ -52,7 +55,7 @@ public class ElasticSearchEP {
     @ResponseBody
     public Map<String, Object> getHealth() throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/ping
-        return searchService.getHealth();
+        return searchAdmin.getHealth();
     }
 
 }

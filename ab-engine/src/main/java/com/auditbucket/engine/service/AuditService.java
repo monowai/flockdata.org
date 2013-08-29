@@ -50,7 +50,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -92,13 +95,6 @@ public class AuditService {
     private Logger logger = LoggerFactory.getLogger(AuditService.class);
     static final ObjectMapper om = new ObjectMapper();
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-    public Map<String, String> getHealth() {
-        Map<String, String> healthResults = new HashMap<>();
-        healthResults.put("ab-engine", auditDAO.ping());
-        return healthResults;
-
-    }
 
     public TxRef beginTransaction() {
         return beginTransaction(UUID.randomUUID().toString());

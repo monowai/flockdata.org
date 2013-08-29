@@ -26,6 +26,7 @@ import com.auditbucket.audit.model.TxRef;
 import com.auditbucket.bean.*;
 import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
+import com.auditbucket.engine.service.EngineAdmin;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
@@ -33,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.integration.annotation.MessageEndpoint;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,11 +48,15 @@ import java.util.Set;
  * Time: 8:23 PM
  */
 @Controller
+@Component
 @RequestMapping("/")
 @MessageEndpoint
 public class AuditEP {
     @Autowired
     AuditService auditService;
+
+    @Autowired
+    EngineAdmin auditAdmin;
 
     @Autowired
     AuditManagerService auditManager;
@@ -71,7 +77,7 @@ public class AuditEP {
     @RequestMapping(value = "/health", method = RequestMethod.GET)
     @ResponseBody
     public Map<String, String> getHealth() throws Exception {
-        return auditService.getHealth();
+        return auditAdmin.getHealth();
     }
 
     @RequestMapping(value = "/header/new", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)

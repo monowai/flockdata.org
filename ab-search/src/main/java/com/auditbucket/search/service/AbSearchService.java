@@ -33,7 +33,6 @@ import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
 import java.util.concurrent.Future;
 
 /**
@@ -80,9 +79,7 @@ public class AbSearchService implements ElasticSearchGateway {
 
     @Async
     private Future<Void> handleResult(SearchResult result) {
-        if (logger.isDebugEnabled())
-            logger.debug("dispatching searchResult to ab-engine " + result);
-
+        logger.debug("dispatching searchResult to ab-engine {}", result);
         engineGateway.handleSearchResult(result);
         return null;
     }
@@ -100,7 +97,5 @@ public class AbSearchService implements ElasticSearchGateway {
         return auditSearch.findOne(header, id);
     }
 
-    public Map<String, Object> getHealth() {
-        return auditSearch.ping();
-    }
+
 }
