@@ -36,7 +36,7 @@ import org.springframework.stereotype.Repository;
  * Time: 8:33 PM
  */
 @Repository
-public class TagDaoImpl implements TagDaoI {
+public class TagDao implements TagDaoI {
 
     @Autowired
     TagRepository tagRepo;

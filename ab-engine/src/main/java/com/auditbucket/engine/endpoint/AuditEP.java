@@ -234,7 +234,7 @@ public class AuditEP {
     public ResponseEntity<AuditSummaryBean> getAuditSummary(@PathVariable("auditKey") String auditKey) throws Exception {
 
 
-        return new ResponseEntity<>(auditService.getAuditSummary(auditKey), HttpStatus.OK);
+        return new ResponseEntity<>(auditManager.getAuditSummary(auditKey), HttpStatus.OK);
 
     }
 

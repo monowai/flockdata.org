@@ -32,18 +32,19 @@ public class AuditTagInputBean {
     @NotNull
     private String auditKey;
     @NotNull
-    private String value;
+    private String type;
 
-    public AuditTagInputBean() {
+    protected AuditTagInputBean() {
     }
 
-    public AuditTagInputBean(String tagName, String auditKey, String value) {
-        this.tagName = tagName;
+    public AuditTagInputBean(String auditKey, String tagName, String type) {
         this.auditKey = auditKey;
-        if (value == null)
-            this.value = tagName;
+        this.tagName = tagName;
+        // Stragetically this should be a named relationship
+        if (type == null)
+            this.type = "general";
         else
-            this.value = value;
+            this.type = type;
     }
 
     public String getAuditKey() {
@@ -54,7 +55,7 @@ public class AuditTagInputBean {
         return tagName;
     }
 
-    public String getValue() {
-        return value;
+    public String getType() {
+        return type;
     }
 }

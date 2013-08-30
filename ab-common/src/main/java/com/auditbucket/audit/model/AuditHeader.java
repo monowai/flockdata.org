@@ -89,7 +89,7 @@ public interface AuditHeader {
 
     Map<String, String> getTagMap();
 
-    void addTagValue(TagValue save);
-
     long getWhenCreated();
+
+    void setTags(Set<TagValue> auditTags);
 }

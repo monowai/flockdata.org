@@ -43,6 +43,14 @@
 
     <task:annotation-driven executor="taskExecutor"/>
 
+    <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true"
+                                  location="classpath:/config.properties"/>
+
+    <!--<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">-->
+    <!--&lt;!&ndash; config the location(s) of the properties file(s) here &ndash;&gt;-->
+    <!--<property name="nullValue" value="@null" />-->
+    <!--</bean>-->
+
     <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ConcurrentTaskExecutor">
         <property name="concurrentExecutor" ref="threadPoolExecutor"/>
     </bean>

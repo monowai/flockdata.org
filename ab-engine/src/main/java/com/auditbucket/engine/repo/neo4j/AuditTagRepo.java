@@ -35,13 +35,13 @@ import java.util.Set;
  */
 public interface AuditTagRepo extends GraphRepository<AuditTagRelationship> {
 
-    @Query(elementClass = AuditTagRelationship.class, value = "start tag=node({0}) match tag-[tags:tagValue]->auditHeader where tags.tagValue={1} return tags")
-    Set<TagValue> findTagValues(Long tagId, String tagValue);
+    @Query(elementClass = AuditTagRelationship.class, value = "start tag=node({0}) match tag-[tags:auditTag]->auditHeader where tags.tagType={1} return tags")
+    Set<TagValue> findTagValues(Long tagId, String tagType);
 
-    @Query(elementClass = AuditTagRelationship.class, value = "start audit = node({0}) match audit<-[tags:tagValue]-tag return tags")
+    @Query(elementClass = AuditTagRelationship.class, value = "start audit = node({0}) match audit<-[tags:auditTag]-() return tags")
     Set<TagValue> findAuditTags(Long auditId);
 
-    @Query(elementClass = AuditHeaderNode.class, value = "start tag=node({0}) match tag-[tags:tagValue]->auditHeaders return auditHeaders")
+    @Query(elementClass = AuditHeaderNode.class, value = "start tag=node({0}) match tag-[tags:auditTag]->auditHeaders return auditHeaders")
     Set<AuditHeader> findTagAudits(Long tagId);
 
 }

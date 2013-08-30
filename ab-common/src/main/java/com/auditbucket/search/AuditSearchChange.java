@@ -73,7 +73,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
         Set<TagValue> tags = header.getTagValues();
         if (tags != null)
             for (TagValue tagValue : tags) {
-                this.tagValues.put(tagValue.getTag().getName(), tagValue.getTagValue());
+                this.tagValues.put(tagValue.getTag().getName(), tagValue.getTagType());
             }
     }
 

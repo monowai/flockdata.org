@@ -660,8 +660,13 @@ public class AuditService {
 
     public AuditSummaryBean getAuditSummary(String auditKey) {
         AuditHeader header = getHeader(auditKey, true);
-        //header.getTagMap();
         Set<AuditLog> changes = getAuditLogs(header.getId());
         return new AuditSummaryBean(header, changes);
+    }
+
+    public Set<TagValue> getAuditTags(Long id) {
+        return auditTagService.findAuditTags(id);
+
+
     }
 }

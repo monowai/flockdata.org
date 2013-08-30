@@ -51,23 +51,23 @@ public class AuditTagService {
     @Autowired
     AuditTagDao auditTagDao;
 
-    public void processTag(AuditHeader header, AuditTagInputBean tagInput) {
+    public TagValue processTag(AuditHeader header, AuditTagInputBean tagInput) {
         //Company company = securityHelper.getCompany();
-        String tagValue = tagInput.getValue();
-        Set<TagValue> existing = findTagValues(tagInput.getTagName(), tagInput.getValue());
+        String type = tagInput.getType();
+        Set<TagValue> existing = findTagValues(tagInput.getTagName(), type);
         if (existing != null && existing.size() == 1)
             // We already have this tagged so get out of here
-            return;
+            return existing.iterator().next();
 
         Tag tag = tagService.processTag(new TagInputBean(tagInput.getTagName()));
-        auditTagDao.save(header, tag, tagValue);
+        return auditTagDao.save(header, tag, type);
     }
 
-    public Set<TagValue> findTagValues(String tagName, String tagValue) {
-        Tag tag = tagService.findTag(tagName);
+    public Set<TagValue> findTagValues(String name, String type) {
+        Tag tag = tagService.findTag(name);
         if (tag == null)
             return null;
-        return auditTagDao.find(tag, tagValue);
+        return auditTagDao.find(tag, type);
     }
 
     public Set<AuditHeader> findTagAudits(String tagName) {
@@ -79,6 +79,19 @@ public class AuditTagService {
 
     /**
      * Will associate the supplied userTags with the AuditHeaderNode
+     * <p/>
+     * The Key in the map will be treated as the tag name if the value == null
+     * Otherwise the key is treated as the tagType and the value is treated as the name.
+     * <p/>
+     * This approach allows you to use a simple tag for a document such as
+     * ClientID123 without having to describe the type (it will be created as a general type)
+     * <p/>
+     * likewise if providing Type/Name then you can associate the same name tag with multiple relationships types
+     * <p/>
+     * clientKey/ClientID123
+     * prospectKey/ClientID123
+     * <p/>
+     * If this scenario, ClientID123 is created as a single node with two relationships - clientKey and prospectKey
      *
      * @param userTags Key/Value pair of tags. TagNode will be created if missing
      * @param ah       Header to associate userTags with
@@ -89,11 +102,23 @@ public class AuditTagService {
 
         Company company = ah.getFortress().getCompany();
 
-        for (String key : userTags.keySet()) {
-            Tag tag = tagService.processTag(new TagInputBean(company, key));
-            String keyValue = userTags.get(key);
-            ah.addTagValue(auditTagDao.save(ah, tag, keyValue));
+        for (String tagType : userTags.keySet()) {
+            Tag tag;
+            String tagName = userTags.get(tagType);
+            if (tagName == null)
+                tag = tagService.processTag(new TagInputBean(company, tagType));
+            else
+                tag = tagService.processTag(new TagInputBean(company, tagName));
+
+            auditTagDao.save(ah, tag, tagType);
         }
     }
 
+    public Set<TagValue> findAuditTags(AuditHeader auditHeader) {
+        return auditTagDao.getAuditTags(auditHeader.getId());
+    }
+
+    public Set<TagValue> findAuditTags(Long id) {
+        return auditTagDao.getAuditTags(id);
+    }
 }

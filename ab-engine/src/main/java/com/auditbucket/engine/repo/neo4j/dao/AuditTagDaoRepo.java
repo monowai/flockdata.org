@@ -44,12 +44,13 @@ public class AuditTagDaoRepo implements com.auditbucket.dao.AuditTagDao {
     AuditTagRepo auditTagRepo;
 
     @Override
-    public TagValue save(AuditHeader auditHeader, Tag tag, String tagValue) {
-        AuditTagRelationship atv = new AuditTagRelationship(tag, auditHeader, tagValue);
+    public TagValue save(AuditHeader auditHeader, Tag tag, String type) {
+        // type should be the Neo4J Node type when V2 is released.
+        AuditTagRelationship atv = new AuditTagRelationship(auditHeader, tag, type);
         //Node headerNode = template.getNode(auditHeader.getId());
         //Node tagNode = template.getNode(tag.getId());
         //Primary exploration approach
-        //template.createRelationshipBetween(headerNode, tagNode, tagValue, null);
+        //template.createRelationshipBetween(headerNode, tagNode, type, null);
 
         // Only keeping this so that we can efficiently find all the tags being used by a header/tag combo
         // could be simplified to all tags attached to a single Tag node.
@@ -57,23 +58,23 @@ public class AuditTagDaoRepo implements com.auditbucket.dao.AuditTagDao {
     }
 
     @Override
-    public Set<TagValue> find(Tag tagName, String tagValue) {
+    public Set<TagValue> find(Tag tagName, String type) {
         if (tagName == null)
             return null;
-        return auditTagRepo.findTagValues(tagName.getId(), tagValue);
+        return auditTagRepo.findTagValues(tagName.getId(), type);
     }
 
     @Override
-    public Set<AuditHeader> findTagAudits(Tag tagName) {
-        if (tagName == null)
+    public Set<AuditHeader> findTagAudits(Tag tag) {
+        if (tag == null)
             return null;
-        return auditTagRepo.findTagAudits(tagName.getId());
+        return auditTagRepo.findTagAudits(tag.getId());
     }
 
 
     @Override
-    public Set<TagValue> getAuditTags(AuditHeader ah) {
-        return auditTagRepo.findAuditTags(ah.getId());
+    public Set<TagValue> getAuditTags(Long id) {
+        return auditTagRepo.findAuditTags(id);
     }
 
     public void update(Set<TagValue> newValues) {
@@ -81,4 +82,5 @@ public class AuditTagDaoRepo implements com.auditbucket.dao.AuditTagDao {
             auditTagRepo.save((AuditTagRelationship) iTagValue);
         }
     }
+
 }

@@ -78,7 +78,7 @@ public class AuditHeaderNode implements AuditHeader {
     @RelatedTo(elementClass = FortressUserNode.class, type = "lastChanged", direction = Direction.OUTGOING)
     private FortressUserNode lastWho;
 
-    @RelatedToVia(elementClass = AuditTagRelationship.class, type = "tagValue", direction = Direction.INCOMING)
+    @RelatedToVia(elementClass = AuditTagRelationship.class, type = "auditTag", direction = Direction.INCOMING)
     private Set<TagValue> tagValues;
 
     public static final String UUID_KEY = "auditKey";
@@ -246,19 +246,19 @@ public class AuditHeaderNode implements AuditHeader {
         Map<String, String> result = new HashMap<>();
         if (tagValues != null)
             for (TagValue tagValue : tagValues) {
-                result.put(tagValue.getTag().getName(), tagValue.getTagValue());
+                result.put(tagValue.getTagType(), tagValue.getTag().getName());
             }
         return result;
     }
 
     @Override
-    public void addTagValue(TagValue tagValue) {
-        this.tagValues.add(tagValue);
-
+    public long getWhenCreated() {
+        return dateCreated;
     }
 
     @Override
-    public long getWhenCreated() {
-        return dateCreated;
+    public void setTags(Set<TagValue> auditTags) {
+        this.tagValues = auditTags;
+
     }
 }

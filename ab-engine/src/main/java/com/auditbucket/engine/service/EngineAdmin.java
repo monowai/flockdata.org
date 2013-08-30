@@ -40,15 +40,32 @@ public class EngineAdmin {
     @Autowired
     AuditDao auditDAO;
 
-    @Value("${absearch.make}")
     String abSearch;
 
-    @Value("${rabbit.host}")
     String rabbitHost;
 
-    @Value("${rabbit.port}")
     String rabbitPort;
 
+    @Value("${rabbit.host:@null}")
+    protected void setRabbitHost(String rabbitHost) {
+        if ("@null".equals(rabbitHost)) this.rabbitHost = null;
+        else this.rabbitHost = rabbitHost;
+
+    }
+
+    @Value("${rabbit.port:@null}")
+    protected void setRabbitPort(String rabbitPort) {
+        if ("@null".equals(rabbitPort)) this.rabbitPort = null;
+        else this.rabbitPort = rabbitPort;
+
+    }
+
+    @Value("${absearch.make:@null}")
+    protected void setAbSearch(String absearchMake) {
+        if ("@null".equals(absearchMake)) this.abSearch = null;
+        else this.abSearch = absearchMake;
+
+    }
 
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public Map<String, String> getHealth() {

@@ -21,6 +21,7 @@ package com.auditbucket.registration.repo.neo4j.model;
 
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
@@ -58,6 +59,7 @@ public class TagNode implements Tag {
     }
 
     @Override
+    @JsonIgnore
     public Company getCompany() {
         return company;  //To change body of implemented methods use File | Settings | File Templates.
     }
@@ -72,8 +74,16 @@ public class TagNode implements Tag {
         this.name = floppy;
     }
 
+    @JsonIgnore
     public Long getId() {
         return Id;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
+    @Override
+    public String toString() {
+        return "TagNode{" +
+                "Id=" + Id +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

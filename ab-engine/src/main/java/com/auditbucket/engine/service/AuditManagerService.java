@@ -19,10 +19,8 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.bean.AuditHeaderInputBean;
-import com.auditbucket.bean.AuditLogInputBean;
-import com.auditbucket.bean.AuditLogResultBean;
-import com.auditbucket.bean.AuditResultBean;
+import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.bean.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -67,5 +65,12 @@ public class AuditManagerService {
 
         return resultBean;
 
+    }
+
+    public AuditSummaryBean getAuditSummary(String auditKey) {
+        AuditSummaryBean summary = auditService.getAuditSummary(auditKey);
+        AuditHeader header = summary.getHeader();
+        header.setTags(auditService.getAuditTags(header.getId()));
+        return summary;
     }
 }
