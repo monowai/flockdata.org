@@ -24,6 +24,7 @@ import com.auditbucket.audit.model.AuditLog;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditResultBean;
+import com.auditbucket.bean.AuditSummaryBean;
 import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.registration.bean.FortressInputBean;
@@ -65,6 +66,7 @@ import java.util.Date;
 import java.util.Set;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertSame;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
@@ -137,8 +139,38 @@ public class TestAuditIntegration {
     }
 
     @Test
+    public void immutableHeadersWithNoLogsAreIndexed() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        String company = "Monowai";
+        regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
+        Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", false));
+        Date now = new Date();
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", now, "ZZZ123");
+        inputBean.setEvent("immutableHeadersWithNoLogsAreIndexed");
+        AuditResultBean auditResult;
+        auditResult = auditManager.createHeader(inputBean);
+        Thread.sleep(2000);
+        AuditSummaryBean summary = auditManager.getAuditSummary(auditResult.getAuditKey());
+        assertNotNull(summary);
+        assertSame("Not change logs were expected", 0, summary.getChanges().size());
+        assertNotNull(summary.getHeader().getSearchKey());
+        // Check we can find the Event in ElasticSearch
+        doESCheck(summary.getHeader().getIndexName(), inputBean.getEvent(), 1);
+
+        // No Event, so should not be in elasticsearch
+        inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", now, "ZZZ999");
+        auditResult = auditManager.createHeader(inputBean);
+        summary = auditManager.getAuditSummary(auditResult.getAuditKey());
+        assertNotNull(summary);
+        assertSame("Not change logs were expected", 0, summary.getChanges().size());
+        assertNull(summary.getHeader().getSearchKey());
+        // Check we can find the Event in ElasticSearch
+        doESCheck(summary.getHeader().getIndexName(), "ZZZ999", 0);
+    }
+
+    @Test
     public void createHeaderTimeLogsWithSearchActivated() throws Exception {
-        int max = 10;
+        int max = 3;
         String ahKey;
         logger.info("createHeaderTimeLogsWithSearchActivated started");
         SecurityContextHolder.getContext().setAuthentication(authA);
@@ -241,8 +273,8 @@ public class TestAuditIntegration {
         Neo4jHelper.cleanDb(graphDatabaseService, true);
         regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
         //SecurityContextHolder.getContext().setAuthentication(authMike);
-        int auditMax = 10;
-        int logMax = 20;
+        int auditMax = 3;
+        int logMax = 5;
         int fortress = 1;
         String simpleJson = "{\"who\":";
         ArrayList<Long> list = new ArrayList<Long>();

@@ -48,6 +48,7 @@ import java.util.*;
  */
 @NodeEntity(useShortNames = true)
 public class AuditHeaderNode implements AuditHeader {
+
     @Transient
     private Logger log = LoggerFactory.getLogger(AuditHeaderNode.class);
 
@@ -66,6 +67,8 @@ public class AuditHeaderNode implements AuditHeader {
     private String callerRef;
 
     private long dateCreated;
+
+    private String event = null; // should only be set if this is an immutable header and no log events will be recorded
 
     long lastUpdated = 0;
 
@@ -119,6 +122,7 @@ public class AuditHeaderNode implements AuditHeader {
 
         this.createdBy = (FortressUserNode) createdBy;
         this.lastWho = (FortressUserNode) createdBy;
+        this.event = auditInput.getEvent();
 
         this.suppressSearch(auditInput.isSuppressSearch());
 
@@ -175,6 +179,12 @@ public class AuditHeaderNode implements AuditHeader {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public FortressUser getCreatedBy() {
         return createdBy;
+    }
+
+
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    public String getEvent() {
+        return event;
     }
 
     @Override
@@ -259,6 +269,11 @@ public class AuditHeaderNode implements AuditHeader {
     @Override
     public void setTags(Set<TagValue> auditTags) {
         this.tagValues = auditTags;
+    }
 
+    @Override
+    @JsonIgnore
+    public long getFortressDateCreated() {
+        return fortressDate;
     }
 }

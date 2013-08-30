@@ -157,6 +157,7 @@ public class AuditService {
 
         // Future from here on.....
         ah = auditDAO.create(fu, inputBean, documentType);
+        inputBean.setWhen(new Date(ah.getFortressDateCreated()));
         inputBean.setAuditKey(ah.getAuditKey());
 
         Map<String, String> userTags = inputBean.getTagValues();
