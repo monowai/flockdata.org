@@ -214,10 +214,13 @@ public class AuditSearchDaoES implements AuditSearchDao {
      */
     private Map<String, Object> makeIndexDocument(SearchChange auditChange) {
         Map<String, Object> indexMe = new HashMap<>();
-        indexMe.put("@what", auditChange.getWhat());
+        if (auditChange.getWhat() != null)
+            indexMe.put("@what", auditChange.getWhat());
+
         indexMe.put("@auditKey", auditChange.getAuditKey());
         indexMe.put("@who", auditChange.getWho());
-        indexMe.put("@lastEvent", auditChange.getEvent());
+        if (auditChange.getEvent() != null)
+            indexMe.put("@lastEvent", auditChange.getEvent());
         indexMe.put("@when", auditChange.getWhen());
         indexMe.put("@timestamp", new Date(auditChange.getSysWhen()));
         // https://github.com/monowai/auditbucket/issues/21

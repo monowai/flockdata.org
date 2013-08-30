@@ -246,7 +246,7 @@ public class AuditHeaderNode implements AuditHeader {
         Map<String, String> result = new HashMap<>();
         if (tagValues != null)
             for (TagValue tagValue : tagValues) {
-                result.put(tagValue.getTagType(), tagValue.getTag().getName());
+                result.put(tagValue.getTag().getName(), tagValue.getTagType());
             }
         return result;
     }

@@ -50,7 +50,8 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
     private String auditKey;
     private String callerRef;
     private Long logId;
-    private Map<String, String> tagValues = new HashMap<>();
+    // String, Object?
+    private Map<String, Object> tagValues = new HashMap<>();
     private Long version;
 
     private String indexName;
@@ -70,11 +71,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
         this.searchKey = header.getSearchKey();
         this.callerRef = header.getCallerRef();
         this.who = header.getLastUser().getName();
-        Set<TagValue> tags = header.getTagValues();
-        if (tags != null)
-            for (TagValue tagValue : tags) {
-                this.tagValues.put(tagValue.getTag().getName(), tagValue.getTagType());
-            }
+        setTags(header.getTagValues());
     }
 
     public AuditSearchChange() {
@@ -171,12 +168,15 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
         return auditKey;
     }
 
-    public void setTagValues(Map<String, String> tagValues) {
-        this.tagValues = tagValues;
+    public Map<String, Object> getTagValues() {
+        return tagValues;
     }
 
-    public Map<String, String> getTagValues() {
-        return tagValues;
+    private void setTags(Set<TagValue> tagSet) {
+        tagValues = new HashMap<>();
+        for (TagValue tag : tagSet) {
+            tagValues.put(tag.getTagType(), tag.getTag().getName());
+        }
     }
 
     public String getCallerRef() {

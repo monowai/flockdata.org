@@ -51,6 +51,13 @@ public class AuditManagerService {
             logResult.setAuditKey(null);// Don't duplicate the text as it's in the header
             logResult.setFortressUser(null);
             resultBean.setLogResult(logResult);
+        } else {
+            // Make header searchable - metadata only
+
+            if (inputBean.isImmutable()) {
+
+                auditService.makeHeaderSearchable(resultBean, inputBean.getEvent(), inputBean.getWhen());
+            }
         }
         return resultBean;
 
