@@ -38,11 +38,12 @@ class AccountOperationsSimulation extends Simulation {
         					.post("http://localhost:9090/account/save")
         					.headers(headers_4)
         					.body("""{
-                                       "nrCompte":"%s",
-                                       "rib":"123456789",
+                                       "accountNumber":"%s",
                                        "iban":"DDDEEEFF44444",
-                                       "codeAgence":"codeAgence"
+                                       "status":"STARTED"
                                      }""".format("${params}")).asJSON
+                            .check(status.is(200)
+                            .
         			)
         		.pause(2 seconds)
 	}

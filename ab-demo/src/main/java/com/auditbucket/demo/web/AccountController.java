@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.io.IOException;
+
 @Controller
 @RequestMapping(value = "/account")
 public class AccountController {
@@ -32,11 +34,13 @@ public class AccountController {
                     produces = "application/json",
                     consumes = "application/json",
                     method = RequestMethod.POST)
-    public ResponseEntity<String> save(@RequestBody Account account) {
+    public ResponseEntity save(@RequestBody Account account) {
         try {
-            accountService.saveAccount(account);
-            return new ResponseEntity<String>("Account Created", HttpStatus.OK);
+            Account accountDb = accountService.saveAccount(account);
+            return new ResponseEntity<Account>(accountDb, HttpStatus.OK);
         } catch (IllegalAccessException e) {
+            return new ResponseEntity<String>("Log Auditing failed", HttpStatus.BAD_REQUEST);
+        } catch (IOException e) {
             return new ResponseEntity<String>("Log Auditing failed", HttpStatus.BAD_REQUEST);
         }
 
@@ -46,9 +50,11 @@ public class AccountController {
     @ResponseBody
     public ResponseEntity<String> update(@RequestBody Account account) {
         try {
-            accountService.saveAccount(account);
+            accountService.updateAccount(account);
             return new ResponseEntity<String>("Account Updated", HttpStatus.OK);
         } catch (IllegalAccessException e) {
+            return new ResponseEntity<String>("Log Auditing failed", HttpStatus.BAD_REQUEST);
+        } catch (IOException e) {
             return new ResponseEntity<String>("Log Auditing failed", HttpStatus.BAD_REQUEST);
         }
     }
