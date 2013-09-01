@@ -26,7 +26,6 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Handles management of a companies tags.
@@ -45,23 +44,23 @@ public class TagService {
     @Autowired
     private TagDaoI tagDao;
 
-    public Tag processTag(Tag input) {
-        if (input == null)
-            return input;
+    public Tag processTag(Tag tag) {
+        if (tag == null)
+            return tag;
 
         // Check security access
-        if (input.getCompany() == null) {
+        if (tag.getCompany() == null) {
             Company company = securityHelper.getCompany();
-            input.setCompany(company);
+            tag.setCompany(company);
         }
 
         // Check exists
-        Tag existingTag = tagDao.findOne(input.getName(), input.getCompany().getId());
+        Tag existingTag = tagDao.findOne(tag.getName(), tag.getCompany().getId());
         if (existingTag != null)
             return existingTag;
 
         // audit change
-        return tagDao.save(input);
+        return tagDao.save(tag);
     }
 
     public Tag findTag(String tagName) {

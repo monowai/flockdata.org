@@ -139,7 +139,7 @@ public class AuditService {
         AuditHeader ah = null;
 
         // Idempotent check
-        if (inputBean.getCallerRef() != null)
+        if (inputBean.getCallerRef() != null && !inputBean.getCallerRef().equals(EMPTY))
             ah = findByCallerRef(iFortress.getId(), inputBean.getDocumentType(), inputBean.getCallerRef());
 
         if (ah != null) {
@@ -328,13 +328,13 @@ public class AuditService {
     }
 
 
-    private SearchChange prepareSearchDocument(AuditHeader auditHeader, AuditLogInputBean input, Map<String, String> tagValues, Boolean searchActive, DateTime fortressWhen, AuditLog auditLog) throws JsonProcessingException {
+    private SearchChange prepareSearchDocument(AuditHeader auditHeader, AuditLogInputBean logInput, Map<String, String> tagValues, Boolean searchActive, DateTime fortressWhen, AuditLog auditLog) throws JsonProcessingException {
 
         if (!searchActive || auditHeader.isSearchSuppressed())
             return null;
         SearchChange searchDocument;
-        searchDocument = new AuditSearchChange(auditHeader, input.getMapWhat(), input.getEvent(), fortressWhen);
-        searchDocument.setTagValues(tagValues);
+        searchDocument = new AuditSearchChange(auditHeader, logInput.getMapWhat(), logInput.getEvent(), fortressWhen);
+        //searchDocument.setTags(getAuditTags(auditHeader.getId()));
         searchDocument.setWho(auditLog.getAuditChange().getWho().getName());
 
         try {
@@ -420,16 +420,21 @@ public class AuditService {
             logger.error("Audit Key could not be found for [{}]", searchResult);
             return;
         }
-        AuditLog when = auditDAO.getChange(searchResult.getLogId());
-        if (when == null) {
-            logger.error("Illegal node requested from handleSearchResult [{}]", searchResult.getLogId());
-            return;
-        }
-
         if (header.getSearchKey() == null) {
             header.setSearchKey(searchResult.getSearchKey());
             auditDAO.save(header);
             logger.trace("Updated from search auditKey =[{}]", searchResult);
+        }
+
+        if (searchResult.getLogId() == null) {
+            // Indexing header meta data only
+            return;
+        }
+        // The change has been indexed
+        AuditLog when = auditDAO.getChange(searchResult.getLogId());
+        if (when == null) {
+            logger.error("Illegal node requested from handleSearchResult [{}]", searchResult.getLogId());
+            return;
         }
 
         // Another thread may have processed this so save an update
@@ -584,8 +589,8 @@ public class AuditService {
         return getValidHeader(headerKey, false);
     }
 
-    private AuditHeader getValidHeader(String headerKey, boolean infalte) {
-        AuditHeader header = auditDAO.findHeader(headerKey, infalte);
+    private AuditHeader getValidHeader(String headerKey, boolean inflate) {
+        AuditHeader header = auditDAO.findHeader(headerKey, inflate);
         if (header == null) {
             throw new IllegalArgumentException("No audit auditHeader for [" + headerKey + "]");
         }
@@ -660,8 +665,32 @@ public class AuditService {
 
     public AuditSummaryBean getAuditSummary(String auditKey) {
         AuditHeader header = getHeader(auditKey, true);
-        //header.getTagMap();
         Set<AuditLog> changes = getAuditLogs(header.getId());
         return new AuditSummaryBean(header, changes);
+    }
+
+    public Set<TagValue> getAuditTags(Long id) {
+        return auditTagService.findAuditTags(id);
+
+
+    }
+
+    @Async
+    public void makeHeaderSearchable(AuditResultBean resultBean, String event, Date when) {
+        AuditHeader header = getHeader(resultBean.getAuditId());
+        if (header.isSearchSuppressed() || !header.getFortress().isSearchActive())
+            return;
+
+        auditDAO.fetch(header);
+        if (when == null) {
+            when = new DateTime(System.currentTimeMillis()).toDate();
+        }
+
+        SearchChange searchDocument = new AuditSearchChange(header, null, event, new DateTime(when));
+
+        //Set<TagValue>tagSet = getAuditTags(header.getId());
+        //searchDocument.setTags(tagSet);
+        makeChangeSearchable(searchDocument);
+
     }
 }

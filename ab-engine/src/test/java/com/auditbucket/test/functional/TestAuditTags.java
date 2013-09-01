@@ -29,6 +29,7 @@ import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.TagValue;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditResultBean;
+import com.auditbucket.bean.AuditSummaryBean;
 import com.auditbucket.bean.AuditTagInputBean;
 import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
@@ -60,8 +61,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.*;
 import static org.junit.Assert.fail;
 
 /**
@@ -120,15 +120,15 @@ public class TestAuditTags {
 
         Company iCompany = iSystemUser.getCompany();
 
-        Tag tagInput = new TagInputBean(iCompany, "FLOP");
+        Tag flopTag = new TagInputBean(iCompany, "FLOP");
 
-        Tag result = tagService.processTag(tagInput);
+        Tag result = tagService.processTag(flopTag);
         assertNotNull(result);
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new Date(), "abc");
         AuditResultBean resultBean = auditManager.createHeader(inputBean);
         AuditHeader header = auditService.getHeader(resultBean.getAuditKey());
 
-        AuditTagInputBean auditTag = new AuditTagInputBean(null, resultBean.getAuditKey(), "!!!");
+        AuditTagInputBean auditTag = new AuditTagInputBean(resultBean.getAuditKey(), null, "!!!");
         try {
             auditTagService.processTag(header, auditTag);
             fail("No null argument exception detected");
@@ -136,17 +136,16 @@ public class TestAuditTags {
             // This should have happened
         }
         // First auditTag created
-        auditTag = new AuditTagInputBean(tagInput.getName(), resultBean.getAuditKey(), "ABC");
+        auditTag = new AuditTagInputBean(header.getAuditKey(), flopTag.getName(), "ABC");
 
-        auditTagService.processTag(header, auditTag);
-        assertNotNull(auditTag);
+        TagValue createdTag = auditTagService.processTag(header, auditTag);
 
-        Set<TagValue> tags = auditTagService.findTagValues(tagInput.getName(), "ABC");
-        assertEquals(1, tags.size());
+        Set<TagValue> tags = auditTagService.findTagValues(flopTag.getName(), "ABC");
+        assertEquals("Not found " + flopTag.getName(), 1, tags.size());
 
         auditTagService.processTag(header, auditTag);
         // Behaviour - Can't add the same tagValue twice for the same combo
-        tags = auditTagService.findTagValues(tagInput.getName(), "ABC");
+        tags = auditTagService.findTagValues(flopTag.getName(), "ABC");
         assertEquals(1, tags.size());
     }
 
@@ -162,10 +161,10 @@ public class TestAuditTags {
         assertNotNull(result);
         AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new Date(), "abc");
         Map<String, String> tagValues = new HashMap<>();
-        tagValues.put("TagA", "AAAA");
-        tagValues.put("TagB", "BBBB");
-        tagValues.put("TagC", "CCCC");
-        tagValues.put("TagD", "DDDD");
+        tagValues.put("AAAA", "TagA");
+        tagValues.put("BBBB", "TagB");
+        tagValues.put("CCCC", "TagC");
+        tagValues.put("DDDD", "TagD");
         aib.setTagValues(tagValues);
         AuditResultBean resultBean = auditManager.createHeader(aib);
         AuditHeader auditHeader = auditService.getHeader(resultBean.getAuditKey(), true);
@@ -180,7 +179,7 @@ public class TestAuditTags {
             if (value.getTag().getName().equals("TagB"))
                 iterator.remove();
             if (value.getTag().getName().equals("TagC"))
-                value.setTagValue("!!Twee!!");
+                value.setTagType("!!Twee!!");
         }
 
         assertEquals(3, tagSet.size());
@@ -204,10 +203,11 @@ public class TestAuditTags {
         assertNotNull(result);
         AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new Date(), "abc");
         Map<String, String> tagValues = new HashMap<>();
+        // In this scenario, the Tag name is the key if the value is null
         tagValues.put("TagA", null);
         tagValues.put("TagB", null);
         tagValues.put("TagC", null);
-        tagValues.put("TagD", "DDDD");
+        tagValues.put("DDDD", "TagD");
         aib.setTagValues(tagValues);
         AuditResultBean resultBean = auditManager.createHeader(aib);
         AuditHeader auditHeader = auditService.getHeader(resultBean.getAuditKey(), true);
@@ -216,11 +216,13 @@ public class TestAuditTags {
         assertEquals(4, tagSet.size());
 
         auditService.updateHeader(auditHeader);
-        auditHeader = auditService.getHeader(resultBean.getAuditKey(), true);
+        auditHeader = auditService.getHeader(auditHeader.getAuditKey(), true);
         tagSet = auditHeader.getTagValues();
         assertNotNull(tagSet);
         Set<AuditHeader> headers = auditTagService.findTagAudits("TagA");
         assertNotNull(headers);
+        assertNotSame(headers.size() + " Audit headers returned!", 0, headers.size());
+
         assertEquals(auditHeader.getAuditKey(), headers.iterator().next().getAuditKey());
         headers = auditTagService.findTagAudits("TagC");
         assertNotNull(headers);
@@ -229,4 +231,63 @@ public class TestAuditTags {
         assertNotNull(headers);
         assertEquals(auditHeader.getAuditKey(), headers.iterator().next().getAuditKey());
     }
+
+    @Test
+    public void duplicateTagNotCreated() throws Exception {
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        fortressService.registerFortress("ABC");
+
+        Company iCompany = iSystemUser.getCompany();
+        Tag tagInput = new TagInputBean(iCompany, "FLOP");
+
+        Tag result = tagService.processTag(tagInput);
+        assertNotNull(result);
+        AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new Date(), "abc");
+        Map<String, String> tagValues = new HashMap<>();
+        // This should create the same Tag object
+        tagValues.put("TagA", null);
+        tagValues.put("TagA", null);
+        tagValues.put("TagA", "");
+        aib.setTagValues(tagValues);
+        AuditResultBean resultBean = auditManager.createHeader(aib);
+        AuditHeader auditHeader = auditService.getHeader(resultBean.getAuditKey(), true);
+        Set<TagValue> tagSet = auditHeader.getTagValues();
+        assertNotNull(tagSet);
+        assertEquals(1, tagSet.size());
+        AuditSummaryBean summaryBean = auditManager.getAuditSummary(auditHeader.getAuditKey());
+        assertNotNull(summaryBean);
+        assertEquals(1, summaryBean.getHeader().getTagValues().size());
+
+    }
+
+    @Test
+    public void differentTagTypeSameTagName() {
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        fortressService.registerFortress("ABC");
+
+        Company iCompany = iSystemUser.getCompany();
+        Tag tagInput = new TagInputBean(iCompany, "FLOP");
+
+        Tag result = tagService.processTag(tagInput);
+        assertNotNull(result);
+        AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new Date(), "abc");
+        Map<String, String> tagValues = new HashMap<>();
+        // This should create the same Tag object
+        tagValues.put("Type1", "TagA");
+        tagValues.put("Type2", "TagA");
+        tagValues.put("Type3", "TagA");
+
+        aib.setTagValues(tagValues);
+        AuditResultBean resultBean = auditManager.createHeader(aib);
+        AuditHeader auditHeader = auditService.getHeader(resultBean.getAuditKey(), true);
+        Set<TagValue> tagSet = auditTagService.findAuditTags(auditHeader);
+        assertNotNull(tagSet);
+        assertEquals(3, tagSet.size());
+
+        AuditSummaryBean summaryBean = auditManager.getAuditSummary(auditHeader.getAuditKey());
+        assertNotNull(summaryBean);
+        assertEquals(3, summaryBean.getHeader().getTagValues().size());
+
+    }
+
 }

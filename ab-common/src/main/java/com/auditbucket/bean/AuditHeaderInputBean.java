@@ -42,6 +42,8 @@ public class AuditHeaderInputBean {
     private boolean searchSuppressed;
     private Map<String, String> tagValues = new HashMap<>();
     private boolean suppressSearch;
+    private boolean immutable;
+    private String event;
 
     public AuditHeaderInputBean() {
     }
@@ -146,4 +148,29 @@ public class AuditHeaderInputBean {
         return suppressSearch;
     }
 
+    public boolean isImmutable() {
+        return immutable;
+    }
+
+    /**
+     * Used when the header is the only thing that is ever indexed
+     *
+     * @param immutable default false
+     */
+    public void setImmutable(boolean immutable) {
+        this.immutable = immutable;
+    }
+
+    public String getEvent() {
+        return event;
+    }
+
+    /**
+     * only used if the header is a one off immutable event
+     *
+     * @param event user definable event for an immutable header
+     */
+    public void setEvent(String event) {
+        this.event = event;
+    }
 }

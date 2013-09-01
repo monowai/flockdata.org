@@ -23,6 +23,7 @@ import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.TagValue;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.repo.neo4j.model.TagNode;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.neo4j.annotation.*;
 
 /**
@@ -31,7 +32,7 @@ import org.springframework.data.neo4j.annotation.*;
  * Time: 12:59 PM
  */
 
-@RelationshipEntity(type = "tagValue")
+@RelationshipEntity(type = "auditTag")
 public class AuditTagRelationship implements TagValue {
     @GraphId
     Long id;
@@ -43,16 +44,16 @@ public class AuditTagRelationship implements TagValue {
     @EndNode
     AuditHeaderNode auditHeader;
 
-    @Indexed(indexName = "tagValue")
-    String tagValue;
+    @Indexed(indexName = "tagType")
+    String tagType;
 
     protected AuditTagRelationship() {
     }
 
-    public AuditTagRelationship(Tag tag, AuditHeader header, String tagValue) {
-        this.tag = (TagNode) tag;
+    public AuditTagRelationship(AuditHeader header, Tag tag, String tagType) {
         this.auditHeader = (AuditHeaderNode) header;
-        this.tagValue = tagValue;
+        this.tag = (TagNode) tag;
+        this.tagType = tagType;
     }
 
     @Override
@@ -60,16 +61,17 @@ public class AuditTagRelationship implements TagValue {
         return tag;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
+    @JsonIgnore
     public AuditHeader getHeader() {
         return auditHeader;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public String getTagValue() {
-        return tagValue;  //To change body of implemented methods use File | Settings | File Templates.
+    public String getTagType() {
+        return tagType;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void setTagValue(String tagValue) {
-        this.tagValue = tagValue;
+    public void setTagType(String tagType) {
+        this.tagType = tagType;
     }
 }

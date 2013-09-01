@@ -31,13 +31,14 @@ import java.util.Set;
  * Time: 9:55 PM
  */
 public interface AuditTagDao {
-    TagValue save(AuditHeader auditHeader, Tag tag, String tagValue);
+    TagValue save(AuditHeader auditHeader, Tag tag, String type);
 
-    Set<TagValue> find(Tag tagName, String tagValue);
+    Set<TagValue> find(Tag tagName, String type);
 
-    Set<AuditHeader> findTagAudits(Tag tagName);
+    Set<AuditHeader> findTagAudits(Tag tag);
 
-    Set<TagValue> getAuditTags(AuditHeader ah);
+    Set<TagValue> getAuditTags(Long id);
 
     void update(Set<TagValue> modifiedSet);
+
 }

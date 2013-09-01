@@ -19,10 +19,8 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.bean.AuditHeaderInputBean;
-import com.auditbucket.bean.AuditLogInputBean;
-import com.auditbucket.bean.AuditLogResultBean;
-import com.auditbucket.bean.AuditResultBean;
+import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.bean.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -53,6 +51,13 @@ public class AuditManagerService {
             logResult.setAuditKey(null);// Don't duplicate the text as it's in the header
             logResult.setFortressUser(null);
             resultBean.setLogResult(logResult);
+        } else {
+            // Make header searchable - metadata only
+
+            if (inputBean.isImmutable()) {
+
+                auditService.makeHeaderSearchable(resultBean, inputBean.getEvent(), inputBean.getWhen());
+            }
         }
         return resultBean;
 
@@ -67,5 +72,12 @@ public class AuditManagerService {
 
         return resultBean;
 
+    }
+
+    public AuditSummaryBean getAuditSummary(String auditKey) {
+        AuditSummaryBean summary = auditService.getAuditSummary(auditKey);
+        AuditHeader header = summary.getHeader();
+        header.setTags(auditService.getAuditTags(header.getId()));
+        return summary;
     }
 }
