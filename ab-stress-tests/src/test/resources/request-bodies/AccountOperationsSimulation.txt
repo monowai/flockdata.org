@@ -1,6 +1,0 @@
-{
-  "nrCompte":"nrCompte",
-  "rib":"123456789",
-  "iban":"DDDEEEFF44444",
-  "codeAgence":"codeAgence"
-}
