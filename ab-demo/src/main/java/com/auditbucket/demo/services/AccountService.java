@@ -1,6 +1,5 @@
 package com.auditbucket.demo.services;
 
-import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditResultBean;
 import com.auditbucket.demo.domain.Account;
 import com.auditbucket.demo.repository.AccountRepository;
@@ -23,7 +22,7 @@ public class AccountService {
     private AbClient abClient;
 
     public Account saveAccount(Account account) throws IllegalAccessException, IOException {
-        logger.info("Account Created : {}",account.getAccountNumber());
+        logger.info("Account Created : {}", account.getAccountNumber());
         AuditResultBean auditResultBean = abClient.createAuditHeader(account);
         account.setAuditKey(auditResultBean.getAuditKey());
         accountRepository.save(account);

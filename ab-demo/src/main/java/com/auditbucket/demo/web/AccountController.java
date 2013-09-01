@@ -31,9 +31,9 @@ public class AccountController {
 
     @ResponseBody
     @RequestMapping(value = "/save",
-                    produces = "application/json",
-                    consumes = "application/json",
-                    method = RequestMethod.POST)
+            produces = "application/json",
+            consumes = "application/json",
+            method = RequestMethod.POST)
     public ResponseEntity save(@RequestBody Account account) {
         try {
             Account accountDb = accountService.saveAccount(account);

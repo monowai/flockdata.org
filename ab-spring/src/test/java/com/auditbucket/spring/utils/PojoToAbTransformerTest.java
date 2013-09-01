@@ -36,7 +36,7 @@ public class PojoToAbTransformerTest {
     }
 
     @Test
-    public void testTransformPojoPrivateField() throws IllegalAccessException,IOException {
+    public void testTransformPojoPrivateField() throws IllegalAccessException, IOException {
         Pojo3 pojo3 = new Pojo3();
         pojo3.email = "email@email.com";
         pojo3.id = 1L;

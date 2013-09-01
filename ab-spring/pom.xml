@@ -70,9 +70,9 @@
             <version>${jackson.version}</version>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>org.codehaus.jackson</groupId>-->
-            <!--<artifactId>jackson-asl</artifactId>-->
-            <!--<version>0.9.5</version>-->
+        <!--<groupId>org.codehaus.jackson</groupId>-->
+        <!--<artifactId>jackson-asl</artifactId>-->
+        <!--<version>0.9.5</version>-->
         <!--</dependency>-->
 
         <dependency>
