@@ -14,6 +14,12 @@ class AccountOperationsSimulation extends Simulation {
         session.setAttribute("params", rnd.nextInt(100000))
       })
 
+      val chooseRandomStatus = exec((session) => {
+          session.setAttribute("status", rnd.nextInt(100000))
+        })
+
+
+
 	val httpConf = httpConfig
 			.baseURL("http://localhost:7474")
 			.acceptHeader("application/json, text/javascript, */*")
@@ -34,17 +40,29 @@ class AccountOperationsSimulation extends Simulation {
 	val scn = scenario("Account Operations Senario")
 	.during(5 minutes){
 	     exec(chooseRandomNodes)
+	     .exec(chooseRandomStatus)
 	     .exec(http("Create Account")
         					.post("http://localhost:9090/account/save")
         					.headers(headers_4)
         					.body("""{
-                                       "nrCompte":"%s",
-                                       "rib":"123456789",
+                                       "accountNumber":"%s",
                                        "iban":"DDDEEEFF44444",
-                                       "codeAgence":"codeAgence"
+                                       "status":"STARTED"
                                      }""".format("${params}")).asJSON
+                            .check(status.is(200))
         			)
         		.pause(2 seconds)
+        		.exec(http("Update Account")
+                         					.post("http://localhost:9090/account/update")
+                         					.headers(headers_4)
+                         					.body("""{
+                                                        "accountNumber":"%s",
+                                                        "iban":"DDDEEEFF44444",
+                                                        "status":"%s"
+                                                      }""".format("${params}","${status}")).asJSON
+                                             .check(status.is(200))
+                         			)
+                         		.pause(2 seconds)
 	}
 
 

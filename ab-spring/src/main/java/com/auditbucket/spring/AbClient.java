@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 
 public class AbClient {
@@ -29,13 +30,14 @@ public class AbClient {
         this.forteressName = forteressName;
     }
 
-    public AuditResultBean createAuditHeader(Object pojo) throws IllegalAccessException {
+    public AuditResultBean createAuditHeader(Object pojo) throws IllegalAccessException, IOException {
         AuditHeaderInputBean auditHeaderInputBean = PojoToAbTransformer.transformToAbFormat(pojo);
         auditHeaderInputBean.setFortress(forteressName);
         auditHeaderInputBean.setFortressUser(userName);
 
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+
         HttpHeaders httpHeaders = createHeaders(userName, password);
         HttpEntity<AuditHeaderInputBean> requestEntity = new HttpEntity<AuditHeaderInputBean>(auditHeaderInputBean, httpHeaders);
 
@@ -44,8 +46,9 @@ public class AbClient {
         return (AuditResultBean) response.getBody();
     }
 
-    public AuditLogInputBean createLogHeader(Object pojo) throws IllegalAccessException {
+    public AuditLogInputBean createLogHeader(Object pojo) throws IllegalAccessException, IOException {
         AuditLogInputBean auditLogInputBean = PojoToAbTransformer.transformToAbLogFormat(pojo);
+        auditLogInputBean.setFortressUser(userName);
         HttpHeaders httpHeaders = createHeaders(userName, password);
         HttpEntity<AuditLogInputBean> requestEntity = new HttpEntity<AuditLogInputBean>(auditLogInputBean, httpHeaders);
 

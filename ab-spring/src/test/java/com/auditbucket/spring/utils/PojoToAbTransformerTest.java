@@ -7,10 +7,12 @@ import com.auditbucket.spring.annotations.Auditable;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.IOException;
+
 public class PojoToAbTransformerTest {
 
     @Test
-    public void testTransformPojoPublicField() throws IllegalAccessException {
+    public void testTransformPojoPublicField() throws IllegalAccessException, IOException {
         Pojo1 pojo1 = new Pojo1();
         pojo1.email = "email@email.com";
         pojo1.id = 1L;
@@ -22,7 +24,7 @@ public class PojoToAbTransformerTest {
     }
 
     @Test
-    public void testTransformPojoPublicFieldWithCustomDocType() throws IllegalAccessException {
+    public void testTransformPojoPublicFieldWithCustomDocType() throws IllegalAccessException, IOException {
         Pojo2 pojo2 = new Pojo2();
         pojo2.email = "email@email.com";
         pojo2.id = 1L;
@@ -34,7 +36,7 @@ public class PojoToAbTransformerTest {
     }
 
     @Test
-    public void testTransformPojoPrivateField() throws IllegalAccessException {
+    public void testTransformPojoPrivateField() throws IllegalAccessException, IOException {
         Pojo3 pojo3 = new Pojo3();
         pojo3.email = "email@email.com";
         pojo3.id = 1L;
