@@ -49,6 +49,10 @@ public class AuditLogResultBean {
         this.fortressUser = input.getFortressUser();
     }
 
+    public AuditLogResultBean() {
+    }
+
+
     public AuditLogInputBean.LogStatus getStatus() {
         return status;
     }

@@ -2,6 +2,7 @@ package com.auditbucket.spring;
 
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
+import com.auditbucket.bean.AuditLogResultBean;
 import com.auditbucket.bean.AuditResultBean;
 import com.auditbucket.spring.utils.PojoToAbTransformer;
 import org.apache.commons.codec.binary.Base64;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -37,6 +39,7 @@ public class AbClient {
 
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+
         HttpHeaders httpHeaders = createHeaders(userName, password);
         HttpEntity<AuditHeaderInputBean> requestEntity = new HttpEntity<AuditHeaderInputBean>(auditHeaderInputBean, httpHeaders);
 

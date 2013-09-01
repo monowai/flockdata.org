@@ -69,11 +69,18 @@
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.version}</version>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.codehaus.jackson</groupId>-->
+            <!--<artifactId>jackson-asl</artifactId>-->
+            <!--<version>0.9.5</version>-->
+        <!--</dependency>-->
+
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-asl</artifactId>
-            <version>0.9.5</version>
+            <artifactId>jackson-core-asl</artifactId>
+            <version>1.9.13</version>
         </dependency>
+
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-mapper-asl</artifactId>
