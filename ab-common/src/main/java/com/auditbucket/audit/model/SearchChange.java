@@ -81,4 +81,5 @@ public interface SearchChange {
     Long getLogId();
 
 
+    Long getAuditId();
 }

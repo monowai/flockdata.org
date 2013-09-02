@@ -21,12 +21,18 @@ package com.auditbucket.engine.service;
 
 import com.auditbucket.dao.AuditDao;
 import com.auditbucket.helper.VersionHelper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,6 +51,8 @@ public class EngineAdmin {
     String rabbitHost;
 
     String rabbitPort;
+
+    private Logger logger = LoggerFactory.getLogger(EngineAdmin.class);
 
     @Value("${rabbit.host:@null}")
     protected void setRabbitHost(String rabbitHost) {
@@ -79,7 +87,7 @@ public class EngineAdmin {
         healthResults.put("config-file", config);
         String integration = System.getProperty("ab.integration");
         healthResults.put("ab.integration", integration);
-        if (integration.equalsIgnoreCase("http")) {
+        if ("http".equalsIgnoreCase(integration)) {
             healthResults.put("absearch.make", abSearch);
         } else {
             healthResults.put("rabbitmq.host", rabbitHost);
@@ -87,6 +95,19 @@ public class EngineAdmin {
         }
         return healthResults;
 
+    }
+
+    @PostConstruct
+    private void doHealth() {
+        ObjectMapper om = new ObjectMapper();
+        try {
+            ObjectWriter or = om.writerWithDefaultPrettyPrinter();
+            logger.info("\r\n" + or.writeValueAsString(getHealth()));
+
+        } catch (JsonProcessingException e) {
+
+            logger.error("doHealth", e);
+        }
     }
 
 }

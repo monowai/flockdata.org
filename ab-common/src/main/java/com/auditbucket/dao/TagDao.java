@@ -17,7 +17,7 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.registration.dao;
+package com.auditbucket.dao;
 
 import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.registration.model.Company;
@@ -28,7 +28,7 @@ import com.auditbucket.registration.model.Tag;
  * Date: 29/06/13
  * Time: 8:12 PM
  */
-public interface TagDaoI {
+public interface TagDao {
     Tag save(Tag tag);
 
     Tag findOne(String tagName, Long id);

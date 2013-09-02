@@ -13,7 +13,7 @@
     <auditbucket:client id="abClient" properties="ab-properties"/>
 
     <util:map id="ab-properties">
-        <entry key="server.name" value="http://localhost:9081/ab-engine"/>
+        <entry key="server.name" value="${ab.engine}"/>
         <entry key="ab.apikey" value="232efr-234-fffaa-3434d"/>
         <entry key="ab.username" value="mike"/>
         <entry key="ab.password" value="123"/>

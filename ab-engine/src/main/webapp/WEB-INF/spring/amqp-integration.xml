@@ -27,11 +27,7 @@
                         http://www.springframework.org/schema/integration/amqp
 	                    http://www.springframework.org/schema/integration/amqp/spring-integration-amqp.xsd
 		                http://www.springframework.org/schema/integration
-		                http://www.springframework.org/schema/integration/spring-integration.xsd
-		                http://www.springframework.org/schema/integration/stream
-		                http://www.springframework.org/schema/integration/stream/spring-integration-stream.xsd
-
-">
+		                http://www.springframework.org/schema/integration/spring-integration.xsd">
     <int:annotation-config/>
 
     <!-- RabbitMQ CONFIGURATION  -->
@@ -42,7 +38,7 @@
                               request-channel="searchResult"
                               queue-names="ab-engine.queue"
                               shutdown-timeout="3000"
-                              concurrent-consumers="125"
+                              concurrent-consumers="50" prefetch-count="10" task-executor="AMQPPoolTaskExecutor"
                               receive-timeout="${request.timeout}"
                               connection-factory="connectionFactory"
                               message-converter="jsonToSearchResultConverter"/>

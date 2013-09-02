@@ -19,7 +19,6 @@
 
 package com.auditbucket.registration.repo.neo4j.dao;
 
-import com.auditbucket.registration.dao.FortressDao;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.repo.neo4j.FortressRepository;
@@ -64,10 +63,11 @@ public class FortressDaoNeo implements FortressDao {
 
     @Override
     public FortressUser getFortressUser(Long id, String name) {
-        FortressUser fu = fortressRepo.getFortressUser(id, name);
-        if (fu != null)
-            template.fetch(fu.getFortress());
-        return fu;
+
+        if (template.getGraphDatabaseService().index().existsForNodes("fortressUser"))
+            return fortressRepo.getFortressUser(id, name);
+        return null;
+
     }
 
     @Override

@@ -20,11 +20,11 @@
 package com.auditbucket.registration.service;
 
 
-import com.auditbucket.registration.dao.CompanyDao;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.CompanyUser;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.repo.neo4j.dao.CompanyDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -69,6 +69,7 @@ public class CompanyService {
 
 
     public Fortress getFortress(Company company, String name) {
+
         return companyDao.getFortress(company.getId(), name);
     }
 

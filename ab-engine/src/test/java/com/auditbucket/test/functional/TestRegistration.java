@@ -29,6 +29,7 @@ import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.SystemUserService;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.neo4j.graphdb.PropertyContainer;
@@ -46,14 +47,15 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.System;
 import java.util.List;
 import java.util.TimeZone;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.fail;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
@@ -76,15 +78,16 @@ public class TestRegistration {
     @Autowired
     private Neo4jTemplate template;
 
-    String uid = "mike@sunnybell.com";
-    Authentication auth = new UsernamePasswordAuthenticationToken(uid, "user1");
+    String uid = "mike";
+    Authentication authA = new UsernamePasswordAuthenticationToken("mike", "123");
+    Authentication authB = new UsernamePasswordAuthenticationToken("harry", "123");
 
     @Rollback(false)
     @BeforeTransaction
     public void cleanUpGraph() {
         // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
         // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-        SecurityContextHolder.getContext().setAuthentication(auth);
+        SecurityContextHolder.getContext().setAuthentication(authA);
         Neo4jHelper.cleanDb(template);
     }
 
@@ -138,6 +141,27 @@ public class TestRegistration {
         }
     }
 
+    //@Test
+    public void companyFortressNameSearch() throws Exception {
+        String companyName = "Monowai";
+        String adminName = "mike";
+
+        // Create the company.
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        SystemUser systemUser = registrationService.registerSystemUser(new RegistrationBean(companyName, adminName, "password"));
+        assertNotNull(systemUser);
+
+        fortressService.registerFortress("fortressA");
+        fortressService.registerFortress("fortressB");
+        fortressService.registerFortress("fortressC");
+
+        int max = 10000;
+        for (int i = 0; i < max; i++) {
+            Assert.assertNotNull(fortressService.find("fortressA"));
+            Assert.assertNotNull(fortressService.find("fortressB"));
+            Assert.assertNotNull(fortressService.find("fortressC"));
+        }
+    }
 
     @Test
     public void testCompanyUsers() {
@@ -162,7 +186,7 @@ public class TestRegistration {
     @Test
     public void testRegistration() {
         String companyName = "Monowai";
-        String adminName = "mike@sunnybell.com";
+        String adminName = "mike";
         String userName = "gina@hummingbird.com";
 
         // Create the company.
@@ -171,7 +195,7 @@ public class TestRegistration {
         assertNotNull(systemUser);
 
         // Assume the user has now logged in.
-        SecurityContextHolder.getContext().setAuthentication(auth);
+        SecurityContextHolder.getContext().setAuthentication(authA);
         CompanyUser nonAdmin = registrationService.addCompanyUser(userName, companyName);
         assertNotNull(nonAdmin);
 
@@ -211,9 +235,27 @@ public class TestRegistration {
     }
 
     @Test
+    public void twoDifferentCompanyFortressSameName() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        registrationService.registerSystemUser(new RegistrationBean("companya", "mike", "123"));
+        Fortress fortressA = fortressService.registerFortress("fortress-same");
+        FortressUser fua = fortressService.addFortressUser(fortressA.getId(), "mike");
+
+        SecurityContextHolder.getContext().setAuthentication(authB);
+        registrationService.registerSystemUser(new RegistrationBean("companyb", "harry", "123"));
+        Fortress fortressB = fortressService.registerFortress("fortress-same");
+        FortressUser fub = fortressService.addFortressUser(fortressB.getId(), "mike");
+        FortressUser fudupe = fortressService.addFortressUser(fortressB.getId(), "mike");
+
+        assertNotSame("Fortress should be different", fortressA.getId(), fortressB.getId());
+        assertNotSame("FortressUsers should be different", fua.getId(), fub.getId());
+        assertNotSame("FortressUsers should be the same", fub.getId(), fudupe.getId());
+    }
+
+    @Test
     public void fortressTZLocaleChecks() {
         registrationService.registerSystemUser(new RegistrationBean("Monowai", uid, "bah"));
-        SecurityContextHolder.getContext().setAuthentication(auth);
+        SecurityContextHolder.getContext().setAuthentication(authA);
         // Null fortress
         Fortress fortressNull = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
         assertNotNull(fortressNull.getLanguageTag());

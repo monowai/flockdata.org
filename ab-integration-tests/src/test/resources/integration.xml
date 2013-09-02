@@ -21,13 +21,12 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:task="http://www.springframework.org/schema/task"
        xmlns:int="http://www.springframework.org/schema/integration"
 
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-       http://www.springframework.org/schema/task
-	   http://www.springframework.org/schema/task/spring-task.xsd
+
+
 	   http://www.springframework.org/schema/integration
 	   http://www.springframework.org/schema/integration/spring-integration.xsd">
 
@@ -51,13 +50,18 @@
     </int:channel>
 
     <int:channel id="searchResult">
-        <!--disabling task-executor causes neo4j errors to occur with __type__ in a relationship class -->
-        <int:dispatcher task-executor="taskExecutor"/>
+        <int:dispatcher task-executor="qExecutor"/>
     </int:channel>
     <int:channel id="sendRequest"/>
     <int:channel id="searchReply"/>
+    <int:channel id="errors"/>
 
-    <task:executor id="qPoolTaskExecutor" pool-size="10"/>
+
+    <int:service-activator id="abErrorLogger" input-channel="errors" ref="abloggingHandler"/>
+    <bean id="abloggingHandler" class="org.springframework.integration.handler.LoggingHandler">
+        <constructor-arg index="0" value="DEBUG"/>
+        <!-- <property name="loggerName" value="com.app.travelerpayments.loggingHandler"/> -->
+    </bean>
 
     <bean id="qExecutor" class="org.springframework.scheduling.concurrent.ConcurrentTaskExecutor">
         <property name="concurrentExecutor" ref="threadPoolExecutor"/>

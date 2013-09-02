@@ -38,6 +38,7 @@ import java.util.Set;
  * Time: 9:33 PM
  */
 public class AuditSearchChange implements com.auditbucket.audit.model.SearchChange {
+
     // ToDo: Figure out naming standard for system variables
     private String id;
     private String documentType;
@@ -53,6 +54,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
     // String, Object?
     private Map<String, Object> tagValues = new HashMap<>();
     private Long version;
+    private Long auditId;
 
     private String indexName;
     private long sysWhen;
@@ -65,6 +67,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
     public AuditSearchChange(AuditHeader header) {
         this();
         this.auditKey = header.getAuditKey();
+        this.auditId = header.getId();
         setDocumentType(header.getDocumentType());
         setFortress(header.getFortress());
         this.indexName = header.getIndexName();
@@ -196,6 +199,10 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
     @Override
     public Long getLogId() {
         return logId;
+    }
+
+    public Long getAuditId() {
+        return auditId;
     }
 
     public Long getSysWhen() {

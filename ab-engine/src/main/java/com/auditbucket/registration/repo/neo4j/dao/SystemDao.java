@@ -17,17 +17,31 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.registration.dao;
+package com.auditbucket.registration.repo.neo4j.dao;
 
 import com.auditbucket.registration.model.ISystem;
+import com.auditbucket.registration.repo.neo4j.SystemRepository;
+import com.auditbucket.registration.repo.neo4j.model.SystemId;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 /**
  * User: Mike Holdsworth
  * Date: 29/06/13
- * Time: 8:12 PM
+ * Time: 8:33 PM
  */
-public interface SystemDaoI {
-    ISystem save(ISystem system);
+@Repository
+public class SystemDao implements com.auditbucket.dao.SystemDao {
 
-    ISystem findOne(String name);
+    @Autowired
+    SystemRepository sysRepo;
+
+    public ISystem save(ISystem system) {
+        return sysRepo.save((SystemId) system);
+    }
+
+    @Override
+    public ISystem findOne(String name) {
+        return null;
+    }
 }

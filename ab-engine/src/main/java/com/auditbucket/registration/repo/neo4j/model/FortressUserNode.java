@@ -31,7 +31,8 @@ public class FortressUserNode implements FortressUser {
     Long id;
 
     @RelatedTo(elementClass = FortressNode.class, type = "fortressUser", direction = Direction.INCOMING)
-    private Fortress fortress;
+    @Fetch
+    private FortressNode fortress;
 
     @Indexed(indexName = "fortressUser")
     private String name = null;
@@ -63,7 +64,7 @@ public class FortressUserNode implements FortressUser {
     }
 
     public void setFortress(Fortress fortress) {
-        this.fortress = fortress;
+        this.fortress = (FortressNode) fortress;
     }
 
     @Override

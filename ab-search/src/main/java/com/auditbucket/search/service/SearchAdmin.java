@@ -21,10 +21,16 @@ package com.auditbucket.search.service;
 
 import com.auditbucket.audit.model.AuditSearchDao;
 import com.auditbucket.helper.VersionHelper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,13 +45,14 @@ public class SearchAdmin {
 
     @Value("${abengine.result}")
     String abEngine;
-    private Map<String, Object> health;
 
     @Value("${rabbit.host}")
     String rabbitHost;
 
     @Value("${rabbit.port}")
     String rabbitPort;
+
+    private Logger logger = LoggerFactory.getLogger(SearchAdmin.class);
 
     public Map<String, Object> getHealth() {
         String version = VersionHelper.getABVersion();
@@ -59,7 +66,7 @@ public class SearchAdmin {
         healthResults.put("config-file", config);
         String integration = System.getProperty("ab.integration");
         healthResults.put("ab.integration", integration);
-        if (integration.equalsIgnoreCase("http")) {
+        if ("http".equalsIgnoreCase(integration)) {
             healthResults.put("abengine.result", abEngine);
         } else {
             healthResults.put("rabbitmq.host", rabbitHost);
@@ -67,6 +74,18 @@ public class SearchAdmin {
         }
         return healthResults;
 
+    }
+
+    @PostConstruct
+    private void doHealth() {
+        ObjectMapper om = new ObjectMapper();
+        try {
+            ObjectWriter or = om.writerWithDefaultPrettyPrinter();
+            logger.info("\r\n" + or.writeValueAsString(getHealth()));
+        } catch (JsonProcessingException e) {
+
+            logger.error("doHealth", e);
+        }
     }
 
 

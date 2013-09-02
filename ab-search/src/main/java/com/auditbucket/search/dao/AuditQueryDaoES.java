@@ -19,7 +19,7 @@
 
 package com.auditbucket.search.dao;
 
-import com.auditbucket.dao.IAuditQueryDao;
+import com.auditbucket.dao.AuditQueryDao;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
@@ -33,7 +33,7 @@ import org.springframework.stereotype.Repository;
  * Time: 2:23 PM
  */
 @Repository
-public class AuditQueryDaoES implements IAuditQueryDao {
+public class AuditQueryDaoES implements AuditQueryDao {
 
     @Autowired
     private Client client;

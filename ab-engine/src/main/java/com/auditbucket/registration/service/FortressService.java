@@ -22,12 +22,12 @@ package com.auditbucket.registration.service;
 
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.dao.CompanyDao;
-import com.auditbucket.registration.dao.FortressDao;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.repo.neo4j.dao.CompanyDao;
+import com.auditbucket.registration.repo.neo4j.dao.FortressDao;
 import com.auditbucket.registration.repo.neo4j.model.FortressNode;
 import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
 import org.springframework.beans.factory.annotation.Autowired;

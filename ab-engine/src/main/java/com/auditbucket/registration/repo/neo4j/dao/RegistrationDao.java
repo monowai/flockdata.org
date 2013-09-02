@@ -19,13 +19,13 @@
 
 package com.auditbucket.registration.repo.neo4j.dao;
 
-import com.auditbucket.registration.dao.RegistrationDaoI;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.repo.neo4j.SystemUserRepository;
 import com.auditbucket.registration.repo.neo4j.model.SystemUserNode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -34,18 +34,23 @@ import org.springframework.stereotype.Repository;
  * Time: 6:40 PM
  */
 @Repository
-public class RegistrationDaoImpl implements RegistrationDaoI {
+public class RegistrationDao implements com.auditbucket.dao.RegistrationDao {
     @Autowired
     private
     SystemUserRepository suRepo;
+
+    @Autowired
+    Neo4jTemplate template;
 
     @Override
     public SystemUser save(SystemUser systemUser) {
         return suRepo.save((SystemUserNode) systemUser);
     }
 
-    public SystemUser findByPropertyValue(String name, Object value) {
-        return suRepo.findByPropertyValue(name, value);
+    public SystemUser findSysUserByName(String name) {
+        if (template.getGraphDatabaseService().index().existsForNodes("sysUserName"))
+            return suRepo.getSystemUser(name);
+        return null;
     }
 
     @Override

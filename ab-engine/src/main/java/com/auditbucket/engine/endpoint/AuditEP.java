@@ -34,7 +34,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.integration.annotation.MessageEndpoint;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,7 +47,6 @@ import java.util.Set;
  * Time: 8:23 PM
  */
 @Controller
-@Component
 @RequestMapping("/")
 @MessageEndpoint
 public class AuditEP {
@@ -67,21 +65,21 @@ public class AuditEP {
     @Autowired
     CompanyService companyService;
 
-    @RequestMapping(value = "/ping", method = RequestMethod.GET)
     @ResponseBody
+    @RequestMapping(value = "/ping", method = RequestMethod.GET)
     public String get() throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/ping
         return "Pong!";
     }
 
-    @RequestMapping(value = "/health", method = RequestMethod.GET)
     @ResponseBody
+    @RequestMapping(value = "/health", method = RequestMethod.GET)
     public Map<String, String> getHealth() throws Exception {
         return auditAdmin.getHealth();
     }
 
-    @RequestMapping(value = "/header/new", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
     @ResponseBody
+    @RequestMapping(value = "/header/new", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
     public ResponseEntity<AuditResultBean> createHeader(@RequestBody AuditHeaderInputBean input) throws Exception {
         // curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab/audit/header/new/ -d '"fortress":"MyFortressName", "fortressUser": "yoursystemuser", "documentType":"CompanyNode","when":"2012-11-10"}'
         AuditResultBean auditResultBean;
@@ -98,8 +96,8 @@ public class AuditEP {
         }
     }
 
-    @RequestMapping(value = "/log/new", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
     @ResponseBody
+    @RequestMapping(value = "/log/new", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
     public ResponseEntity<AuditLogResultBean> createLog(@RequestBody AuditLogInputBean input) throws Exception {
         // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/audit/log/new -d '{"eventType":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10", "what": "{\"name\": \"val\"}" }'
         AuditLogResultBean resultBean = null;
@@ -132,8 +130,8 @@ public class AuditEP {
         }
     }
 
-    @RequestMapping(value = "/tx/{txRef}/logs", produces = "application/json", method = RequestMethod.GET)
     @ResponseBody
+    @RequestMapping(value = "/tx/{txRef}/logs", produces = "application/json", method = RequestMethod.GET)
     public ResponseEntity<Map> getAuditTxLogs(@PathVariable("txRef") String txRef) throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
         Map<String, Object> result;
@@ -154,8 +152,8 @@ public class AuditEP {
         }
     }
 
-    @RequestMapping(value = "/tx/{txRef}/headers", produces = "application/json", method = RequestMethod.GET)
     @ResponseBody
+    @RequestMapping(value = "/tx/{txRef}/headers", produces = "application/json", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getAuditTxHeaders(@PathVariable("txRef") String txRef) throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
         Set<AuditHeader> headers;
@@ -173,8 +171,8 @@ public class AuditEP {
         }
     }
 
-    @RequestMapping(value = "/tx/{txRef}", produces = "application/json", method = RequestMethod.GET)
     @ResponseBody
+    @RequestMapping(value = "/tx/{txRef}", produces = "application/json", method = RequestMethod.GET)
     public ResponseEntity<TxRef> getAuditTx(@PathVariable("txRef") String txRef) throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
         TxRef result;
@@ -189,8 +187,8 @@ public class AuditEP {
         }
     }
 
-    @RequestMapping(value = "/{auditKey}", method = RequestMethod.GET)
     @ResponseBody
+    @RequestMapping(value = "/{auditKey}", method = RequestMethod.GET)
     public ResponseEntity<AuditHeader> getAudit(@PathVariable("auditKey") String auditKey) throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
         try {
@@ -204,8 +202,8 @@ public class AuditEP {
         }
     }
 
-    @RequestMapping(value = "/find/{fortress}/{recordType}/{callerRef}", method = RequestMethod.GET)
     @ResponseBody
+    @RequestMapping(value = "/find/{fortress}/{recordType}/{callerRef}", method = RequestMethod.GET)
     public ResponseEntity<AuditHeader> getByClientRef(@PathVariable("fortress") String fortress,
                                                       @PathVariable("recordType") String recordType,
                                                       @PathVariable("callerRef") String callerRef) throws Exception {
@@ -221,16 +219,16 @@ public class AuditEP {
         }
     }
 
-    @RequestMapping(value = "/{auditKey}/logs", produces = "application/json", method = RequestMethod.GET)
     @ResponseBody
+    @RequestMapping(value = "/{auditKey}/logs", produces = "application/json", method = RequestMethod.GET)
     public Set<AuditLog> getAuditLogs(@PathVariable("auditKey") String auditKey) throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/c27ec2e5-2e17-4855-be18-bd8f82249157/logs
         return auditService.getAuditLogs(auditKey);
 
     }
 
-    @RequestMapping(value = "/{auditKey}/summary", produces = "application/json", method = RequestMethod.GET)
     @ResponseBody
+    @RequestMapping(value = "/{auditKey}/summary", produces = "application/json", method = RequestMethod.GET)
     public ResponseEntity<AuditSummaryBean> getAuditSummary(@PathVariable("auditKey") String auditKey) throws Exception {
 
 
@@ -238,8 +236,8 @@ public class AuditEP {
 
     }
 
-    @RequestMapping(value = "/{auditKey}/lastchange", produces = "application/json", method = RequestMethod.GET)
     @ResponseBody
+    @RequestMapping(value = "/{auditKey}/lastchange", produces = "application/json", method = RequestMethod.GET)
     public ResponseEntity<AuditChange> getLastChange(@PathVariable("auditKey") String auditKey) throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/c27ec2e5-2e17-4855-be18-bd8f82249157/lastchange
         try {

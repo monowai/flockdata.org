@@ -19,30 +19,28 @@
 
 package com.auditbucket.registration.repo.neo4j.dao;
 
-import com.auditbucket.registration.dao.SystemDaoI;
-import com.auditbucket.registration.model.ISystem;
-import com.auditbucket.registration.repo.neo4j.SystemRepository;
-import com.auditbucket.registration.repo.neo4j.model.SystemId;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.FortressUser;
+
+import java.util.List;
 
 /**
  * User: Mike Holdsworth
- * Date: 29/06/13
- * Time: 8:33 PM
+ * Date: 20/04/13
+ * Time: 6:31 PM
  */
-@Repository
-public class SystemDaoImpl implements SystemDaoI {
+public interface FortressDao {
+    public Fortress save(Fortress fortress);
 
-    @Autowired
-    SystemRepository sysRepo;
+    public Fortress findByPropertyValue(String name, Object value);
 
-    public ISystem save(ISystem system) {
-        return sysRepo.save((SystemId) system);
-    }
+    public Fortress findOne(Long id);
 
-    @Override
-    public ISystem findOne(String name) {
-        return null;
-    }
+    public FortressUser getFortressUser(Long id, String name);
+
+    List<Fortress> findFortresses(Long companyID);
+
+    FortressUser findOneUser(Long id);
+
+    FortressUser save(FortressUser fortressUser);
 }

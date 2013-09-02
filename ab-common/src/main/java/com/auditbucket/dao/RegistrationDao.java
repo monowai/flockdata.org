@@ -17,30 +17,20 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.registration.dao;
+package com.auditbucket.dao;
 
-import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.model.FortressUser;
-
-import java.util.List;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.SystemUser;
 
 /**
  * User: Mike Holdsworth
  * Date: 20/04/13
  * Time: 6:31 PM
  */
-public interface FortressDao {
-    public Fortress save(Fortress fortress);
+public interface RegistrationDao {
+    public SystemUser save(SystemUser systemUser);
 
-    public Fortress findByPropertyValue(String name, Object value);
+    public SystemUser findSysUserByName(String name);
 
-    public Fortress findOne(Long id);
-
-    public FortressUser getFortressUser(Long id, String name);
-
-    List<Fortress> findFortresses(Long companyID);
-
-    FortressUser findOneUser(Long id);
-
-    FortressUser save(FortressUser fortressUser);
+    SystemUser save(Company company, String userName, String password);
 }

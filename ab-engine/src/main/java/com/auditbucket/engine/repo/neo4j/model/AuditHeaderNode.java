@@ -94,6 +94,7 @@ public class AuditHeaderNode implements AuditHeader {
     String searchKey = null;
 
     private boolean searchSuppressed;
+    private String indexName;
 
     AuditHeaderNode() {
         auditKey = UUID.randomUUID().toString();
@@ -109,6 +110,7 @@ public class AuditHeaderNode implements AuditHeader {
         String docType = (documentType != null ? getDocumentType() : "");
         this.name = (callerRef == null ? docType : (docType + "." + callerRef).toLowerCase());
 
+        indexName = new StringBuilder().append(createdBy.getFortress().getCompany().getName().toLowerCase()).append(".").append(fortress.getName().toLowerCase()).toString();
         callerRef = auditInput.getCallerRef();
         if (callerRef != null)
             callerRef = callerRef.toLowerCase();
@@ -190,15 +192,7 @@ public class AuditHeaderNode implements AuditHeader {
     @Override
     @JsonIgnore
     public String getIndexName() {
-        if (fortress != null && fortress.getCompany() != null) {
-            return new StringBuilder().append(fortress.getCompany().getName().toLowerCase()).append(".").append(fortress.getName().toLowerCase()).toString();
-        } else {
-
-            if (log.isErrorEnabled()) {
-                log.error("IndexName could not be identified. AuditHeader [" + getAuditKey() + "]" + " Company=[" + fortress.getCompany() + "] fortress=[" + fortress.getName() + "]");
-            }
-            return null;
-        }
+        return indexName;
     }
 
     @Override

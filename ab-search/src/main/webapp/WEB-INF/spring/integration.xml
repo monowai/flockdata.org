@@ -21,13 +21,12 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:task="http://www.springframework.org/schema/task"
        xmlns:int="http://www.springframework.org/schema/integration"
 
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-       http://www.springframework.org/schema/task
-	   http://www.springframework.org/schema/task/spring-task.xsd
+
+
 	   http://www.springframework.org/schema/integration
 	   http://www.springframework.org/schema/integration/spring-integration.xsd">
 
@@ -43,17 +42,24 @@
                                     input-channel="searchReply"
                                     output-channel="searchResult"/>
 
-    <int:channel id="makeSearchRequest"/>
-    <int:channel id="searchReply"/>
-
-    <int:channel id="searchResult">
-        <int:dispatcher task-executor="taskExecutor"/>
+    <int:channel id="makeSearchRequest">
+        <int:dispatcher task-executor="qExecutor"/>
     </int:channel>
+    <int:channel id="searchResult">
+        <int:dispatcher task-executor="qExecutor"/>
+    </int:channel>
+    <int:channel id="searchReply"/>
+    <int:channel id="errors"/>
 
-    <task:executor id="qPoolTaskExecutor" pool-size="10"/>
+    <int:service-activator id="abErrorLogger" input-channel="errors" ref="abloggingHandler"/>
+
+    <bean id="abloggingHandler" class="org.springframework.integration.handler.LoggingHandler">
+        <constructor-arg index="0" value="DEBUG"/>
+    </bean>
+
 
     <bean id="qExecutor" class="org.springframework.scheduling.concurrent.ConcurrentTaskExecutor">
-        <property name="concurrentExecutor" ref="threadPoolExecutor"/>
+        <property name="concurrentExecutor" ref="qThreadPoolExecutor"/>
     </bean>
     <bean id="qThreadPoolExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
         <!--<property name="corePoolSize" value="20"/>-->

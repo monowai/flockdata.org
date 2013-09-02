@@ -45,8 +45,6 @@ import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.data.neo4j.support.node.Neo4jHelper;
@@ -95,7 +93,7 @@ public class TestAuditTags {
     @Autowired
     private Neo4jTemplate template;
 
-    private Logger log = LoggerFactory.getLogger(TestAuditTags.class);
+    //private Logger log = LoggerFactory.getLogger(TestAuditTags.class);
 
     private String company = "Monowai";
     private String uid = "mike@monowai.com";
@@ -107,7 +105,8 @@ public class TestAuditTags {
         // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
         // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
         SecurityContextHolder.getContext().setAuthentication(authA);
-        Neo4jHelper.cleanDb(template);
+        if (!"http".equals(System.getProperty("neo4j")))
+            Neo4jHelper.cleanDb(template);
     }
 
     @Test
@@ -138,7 +137,7 @@ public class TestAuditTags {
         // First auditTag created
         auditTag = new AuditTagInputBean(header.getAuditKey(), flopTag.getName(), "ABC");
 
-        TagValue createdTag = auditTagService.processTag(header, auditTag);
+        auditTagService.processTag(header, auditTag);
 
         Set<TagValue> tags = auditTagService.findTagValues(flopTag.getName(), "ABC");
         assertEquals("Not found " + flopTag.getName(), 1, tags.size());

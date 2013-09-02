@@ -40,7 +40,7 @@
                               shutdown-timeout="3000"
                               channel-transacted="true"
                               receive-timeout="200"
-                              concurrent-consumers="100"
+                              concurrent-consumers="50" prefetch-count="10" task-executor="AMQPPoolTaskExecutor"
                               connection-factory="connectionFactory"
                               message-converter="jsonToSearchResultConverter"/>
 

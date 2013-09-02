@@ -19,8 +19,6 @@
 
 package com.auditbucket.search;
 
-import java.util.Date;
-
 /**
  * Object to tie the keys between ab-engine and ab-search so that ab-engine can keep the document up-to-date
  * <p/>
@@ -30,6 +28,7 @@ import java.util.Date;
 public class SearchResult {
     private String auditKey, fortress, searchKey, documentType;
     private Long logId;
+    private Long auditId;
 
     protected SearchResult() {
     }
@@ -38,8 +37,8 @@ public class SearchResult {
 //        throw new RuntimeException(what);
 //    }
 
-    SearchResult(String auditKey, String fortress, String searchKey, String documentType) {
-        this.auditKey = auditKey;
+    SearchResult(Long auditId, String fortress, String searchKey, String documentType) {
+        this.auditId = auditId;
         this.fortress = fortress;
         this.searchKey = searchKey;
         this.documentType = documentType;
@@ -47,7 +46,7 @@ public class SearchResult {
     }
 
     public SearchResult(com.auditbucket.audit.model.SearchChange thisChange) {
-        this(thisChange.getAuditKey(), thisChange.getFortressName(), thisChange.getSearchKey(), thisChange.getDocumentType());
+        this(thisChange.getAuditId(), thisChange.getFortressName(), thisChange.getSearchKey(), thisChange.getDocumentType());
     }
 
     /**
@@ -89,7 +88,7 @@ public class SearchResult {
     @Override
     public String toString() {
         return "SearchResult{" +
-                "auditKey='" + auditKey + '\'' +
+                "auditId='" + auditId + '\'' +
                 ", logId='" + logId + '\'' +
                 ", fortress='" + fortress + '\'' +
                 ", documentType='" + documentType + '\'' +
@@ -102,5 +101,13 @@ public class SearchResult {
 
     public void setLogId(Long logId) {
         this.logId = logId;
+    }
+
+    public Long getAuditId() {
+        return auditId;
+    }
+
+    public void setAuditId(Long auditId) {
+        this.auditId = auditId;
     }
 }

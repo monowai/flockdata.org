@@ -153,6 +153,7 @@ public class AuditService {
 
         // Create fortressUser if missing
         FortressUser fu = fortressService.getFortressUser(iFortress, inputBean.getFortressUser(), true);
+        fu.getFortress().setCompany(su.getCompany());
         DocumentType documentType = tagService.resolveDocType(inputBean.getDocumentType());
 
         // Future from here on.....
@@ -412,10 +413,9 @@ public class AuditService {
     @Async
     @ServiceActivator(inputChannel = "searchResult")
     public void handleSearchResult(SearchResult searchResult) {
-        String auditKey = searchResult.getAuditKey();
 
         logger.debug("Updating from search auditKey =[{}]", searchResult);
-        AuditHeader header = auditDAO.findHeader(auditKey);
+        AuditHeader header = auditDAO.getHeader(searchResult.getAuditId());
 
         if (header == null) {
             logger.error("Audit Key could not be found for [{}]", searchResult);

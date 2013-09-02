@@ -17,30 +17,17 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.registration.dao;
+package com.auditbucket.dao;
 
-import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.CompanyUser;
-import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.model.ISystem;
 
 /**
  * User: Mike Holdsworth
- * Date: 20/04/13
- * Time: 6:31 PM
+ * Date: 29/06/13
+ * Time: 8:12 PM
  */
-public interface CompanyDao {
-    public Company save(Company systemUser);
+public interface SystemDao {
+    ISystem save(ISystem system);
 
-    public CompanyUser save(CompanyUser companyUser);
-
-    public Company findByPropertyValue(String name, Object value);
-
-    public CompanyUser getCompanyUser(Long id, String userName);
-
-    public Fortress getFortress(Long id, String fortressName);
-
-    public SystemUser getAdminUser(Long id, String name);
-
-    public Iterable<CompanyUser> getCompanyUsers(String companyName);
+    ISystem findOne(String name);
 }

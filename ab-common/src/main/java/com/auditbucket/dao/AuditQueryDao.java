@@ -17,20 +17,13 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.registration.dao;
-
-import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.SystemUser;
+package com.auditbucket.dao;
 
 /**
  * User: Mike Holdsworth
- * Date: 20/04/13
- * Time: 6:31 PM
+ * Date: 28/04/13
+ * Time: 8:44 PM
  */
-public interface RegistrationDaoI {
-    public SystemUser save(SystemUser systemUser);
-
-    public SystemUser findByPropertyValue(String name, Object value);
-
-    SystemUser save(Company company, String userName, String password);
+public interface AuditQueryDao {
+    long getHitCount(String index);
 }

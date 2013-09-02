@@ -20,8 +20,8 @@
 package com.auditbucket.registration.service;
 
 import com.auditbucket.audit.model.DocumentType;
+import com.auditbucket.dao.TagDao;
 import com.auditbucket.helper.SecurityHelper;
-import com.auditbucket.registration.dao.TagDaoI;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +42,7 @@ public class TagService {
     private SecurityHelper securityHelper;
 
     @Autowired
-    private TagDaoI tagDao;
+    private TagDao tagDao;
 
     public Tag processTag(Tag tag) {
         if (tag == null)

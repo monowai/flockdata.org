@@ -22,12 +22,12 @@ package com.auditbucket.registration.repo.neo4j.dao;
 import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.engine.repo.neo4j.DocumentTypeRepo;
 import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
-import com.auditbucket.registration.dao.TagDaoI;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.repo.neo4j.TagRepository;
 import com.auditbucket.registration.repo.neo4j.model.TagNode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -36,13 +36,18 @@ import org.springframework.stereotype.Repository;
  * Time: 8:33 PM
  */
 @Repository
-public class TagDao implements TagDaoI {
+public class TagDao implements com.auditbucket.dao.TagDao {
 
+    public static final String DOCUMENT_TYPE = "documentTypeName";
     @Autowired
     TagRepository tagRepo;
 
     @Autowired
     DocumentTypeRepo documentTypeRepo;
+
+    @Autowired
+    Neo4jTemplate template;
+
 
     public Tag save(Tag tag) {
         TagNode tagToCreate;
@@ -63,7 +68,10 @@ public class TagDao implements TagDaoI {
 
     @Override
     public DocumentType findOrCreate(String documentType, Company company) {
-        DocumentType result = documentTypeRepo.findCompanyDocType(company.getId(), documentType);
+        DocumentType result = null;
+        if (template.getGraphDatabaseService().index().existsForNodes(DOCUMENT_TYPE))
+            result = documentTypeRepo.findCompanyDocType(company.getId(), documentType);
+
         if (result == null) {
             result = documentTypeRepo.save(new DocumentTypeNode(documentType, company));
         }

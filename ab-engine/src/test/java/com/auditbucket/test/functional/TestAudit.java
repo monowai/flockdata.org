@@ -37,7 +37,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,23 +98,17 @@ public class TestAudit {
         SecurityContextHolder.getContext().setAuthentication(authMike);
     }
 
-    @BeforeTransaction
     @Rollback(false)
+    @BeforeTransaction
     public void cleanUpGraph() {
         // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
         // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-        Transaction tx = graphDatabaseService.beginTx();
-        try {
-
+        if (!"http".equals(System.getProperty("neo4j")))
             Neo4jHelper.cleanDb(template);
-            tx.success();
-        } finally {
-            tx.finish();
-        }
     }
 
     @Test
-    public void logChangeByCallerRefNoAuditKey() throws Exception {
+    public void logChangeByCallerRefWithNullAuditKeyButKeyDoesExists() throws Exception {
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         Fortress fortressA = fortressService.registerFortress("auditTest");
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new Date(), "ABC123");
@@ -130,7 +123,7 @@ public class TestAudit {
     }
 
     @Test
-    public void callerRefAuthzExcep() {
+    public void locatingByCallerRefWillThrowAuthorizationException() {
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         Fortress fortressA = fortressService.registerFortress("auditTest");
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new Date(), "ABC123");
@@ -250,7 +243,7 @@ public class TestAudit {
      * Ensures that the event type gets set to the correct default for create and update.
      */
     @Test
-    public void testEventType() throws Exception {
+    public void defaultEventTypesAreHandled() throws Exception {
 
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
@@ -281,7 +274,7 @@ public class TestAudit {
     }
 
     @Test
-    public void testFortressLogCount() throws Exception {
+    public void correctLogCountsReturnedForAFortress() throws Exception {
 
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
@@ -353,7 +346,7 @@ public class TestAudit {
     }
 
     @Test
-    public void testHeader() throws Exception {
+    public void headersForDifferentCompaniesAreNotVisible() throws Exception {
 
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         String hummingbird = "Hummingbird";
@@ -395,7 +388,7 @@ public class TestAudit {
     }
 
     @Test
-    public void testLastChanged() throws Exception {
+    public void lastChangedWorks() throws Exception {
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         // Create a second log record in order to workout who last change the AuditHeaderNode
         SecurityContextHolder.getContext().setAuthentication(authMike);
@@ -424,7 +417,7 @@ public class TestAudit {
     }
 
     @Test
-    public void outOfSequenceLogs() throws Exception {
+    public void outOfSequenceLogsWorking() throws Exception {
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         // Create a second log record in order to workout who last change the AuditHeaderNode
         SecurityContextHolder.getContext().setAuthentication(authMike);
@@ -461,7 +454,7 @@ public class TestAudit {
      * test that we find the correct number of changes between a range of dates for a given header
      */
     @Test
-    public void testInRange() throws Exception {
+    public void logDateRangesWorking() throws Exception {
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         // Create a second log record in order to workout who last change the AuditHeaderNode
         SecurityContextHolder.getContext().setAuthentication(authMike);
@@ -500,7 +493,7 @@ public class TestAudit {
     }
 
     @Test
-    public void testCancelLastChange() throws Exception {
+    public void cancelLastChangeBehaves() throws Exception {
         // For use in compensating transaction cases only
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         SecurityContextHolder.getContext().setAuthentication(authMike);

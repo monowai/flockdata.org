@@ -21,7 +21,7 @@ package com.auditbucket.search.service;
 
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditSearchDao;
-import com.auditbucket.dao.IAuditQueryDao;
+import com.auditbucket.dao.AuditQueryDao;
 import com.auditbucket.search.AuditSearchChange;
 import com.auditbucket.search.SearchResult;
 import com.auditbucket.search.endpoint.ElasticSearchGateway;
@@ -47,7 +47,7 @@ public class AbSearchService implements ElasticSearchGateway {
     private AuditSearchDao auditSearch;
 
     @Autowired
-    private IAuditQueryDao auditQuery;
+    private AuditQueryDao auditQuery;
 
     @Autowired(required = false)
     private AbEngineGateway engineGateway;
@@ -72,7 +72,7 @@ public class AbSearchService implements ElasticSearchGateway {
         }
         // Used to tie the fact that the doc was updated back to the engine
         result.setLogId(thisChange.getLogId());
-
+        result.setAuditId(thisChange.getAuditId());
         handleResult(result);
 
     }

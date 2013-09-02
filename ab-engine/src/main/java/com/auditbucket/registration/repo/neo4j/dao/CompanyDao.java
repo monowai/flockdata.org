@@ -17,13 +17,30 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.dao;
+package com.auditbucket.registration.repo.neo4j.dao;
+
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.CompanyUser;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.SystemUser;
 
 /**
  * User: Mike Holdsworth
- * Date: 28/04/13
- * Time: 8:44 PM
+ * Date: 20/04/13
+ * Time: 6:31 PM
  */
-public interface IAuditQueryDao {
-    long getHitCount(String index);
+public interface CompanyDao {
+    public Company save(Company systemUser);
+
+    public CompanyUser save(CompanyUser companyUser);
+
+    public Company findByPropertyValue(String name, Object value);
+
+    public CompanyUser getCompanyUser(Long id, String userName);
+
+    public Fortress getFortress(Long id, String fortressName);
+
+    public SystemUser getAdminUser(Long id, String name);
+
+    public Iterable<CompanyUser> getCompanyUsers(String companyName);
 }
