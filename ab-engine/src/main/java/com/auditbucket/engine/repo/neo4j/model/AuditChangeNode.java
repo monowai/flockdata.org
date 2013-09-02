@@ -61,8 +61,8 @@ public class AuditChangeNode implements AuditChange {
     private String comment;
     private String event;
 
-    @Fetch
-    private byte[] whatBytes;
+    // Neo4J will not persist a byte[] over it's http interface. Probably fixed in V2, but not in our version
+    private String whatBytes;
     private boolean compressed = false;
     private String name;
 
@@ -117,12 +117,13 @@ public class AuditChangeNode implements AuditChange {
 
     @JsonIgnore
     public String getJsonWhat() {
-        return CompressionHelper.decompress(whatBytes, compressed);
+        return CompressionHelper.decompress(whatBytes.getBytes(), compressed);
     }
 
     public void setJsonWhat(String what) {
         CompressionResult result = CompressionHelper.compress(what);
-        this.whatBytes = result.getAsBytes();
+
+        this.whatBytes = new String(result.getAsBytes());
         this.compressed = result.getMethod() == CompressionResult.Method.GZIP;
     }
 
@@ -152,7 +153,7 @@ public class AuditChangeNode implements AuditChange {
             return what;
         try {
             if (whatBytes != null) {
-                what = objectMapper.readValue(CompressionHelper.decompress(whatBytes, isCompressed()), Map.class);
+                what = objectMapper.readValue(CompressionHelper.decompress(whatBytes.getBytes(), isCompressed()), Map.class);
                 return what;
             }
 
