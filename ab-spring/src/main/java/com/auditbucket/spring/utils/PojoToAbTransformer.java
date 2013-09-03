@@ -14,7 +14,34 @@ import java.util.Map;
 
 public class PojoToAbTransformer {
 
+    /**
+     * {
+     * "fortress":@auditFortress,
+     * "fortressUser": @auditUser,
+     * "documentType":@auditDocument or can be passed in during the event,
+     * "when": @auditDate,
+     *
+     * @param pojo
+     * @return
+     * @throws IllegalAccessException
+     * @throws IOException
+     * @Tags in the format of "Type"/"Value"
+     * "tagValues": { "TypeA": "Helos", "TypeB": "Tiger"},
+     * See AuditLog below
+     * "auditLog": {
+     * "when": "2012-11-12",
+     * "transactional": false,
+     * "what": "{\"999\": \"99\", \"thingy\": {\"status\": \"tweedle\"}}"
+     * }
+     * <p/>
+     * }
+     */
+
     public static AuditHeaderInputBean transformToAbFormat(Object pojo) throws IllegalAccessException, IOException {
+
+        //ToDo: AuditHeader is only called when the @AuditKey is null, otherwise it's a log
+        //ToDo:  caller does not determine this by ab-spring does.
+
         AuditHeaderInputBean auditHeaderInputBean = new AuditHeaderInputBean();
         AuditLogInputBean auditLogInputBean = new AuditLogInputBean("null", new DateTime(), null);
         Map<String, String> tagValues = new HashMap<String, String>();
@@ -39,6 +66,9 @@ public class PojoToAbTransformer {
                     // If NoAuditAnnotation
                     for (Annotation fieldAnnotation : fieldAnnotations) {
                         // The case when the value of field are not NULL
+                        // ToDo: When can we get the Fortress or DocumentType?
+                        // ToDo: should be an annotation around the service.method,
+                        // ToDo: i.e. @audit (docType="Booking", fortress="Fortress")
                         if (field.get(pojo) != null) {
                             if (fieldAnnotation instanceof AuditKey) {
                                 noAuditAnnotation = false;
@@ -49,6 +79,9 @@ public class PojoToAbTransformer {
                                 noAuditAnnotation = false;
                                 auditHeaderInputBean.setCallerRef(field.get(pojo).toString());
                             }
+
+                            // ToDo: AuditUser
+
 
                             if (fieldAnnotation instanceof AuditTag) {
                                 noAuditAnnotation = false;
@@ -65,14 +98,16 @@ public class PojoToAbTransformer {
 
                         } else {
                             // The case when the value of field are NULL
-                            // ONly What attribute is calculated
                             // because we can have TIME=t0 ==> status=STARTED || TIME=t1 ==> status=NULL
-                            if (fieldAnnotation instanceof AuditKey || fieldAnnotation instanceof AuditClientRef || fieldAnnotation instanceof AuditTag || fieldAnnotation instanceof NoAudit) {
+                            if (fieldAnnotation instanceof AuditKey || fieldAnnotation instanceof AuditTag || fieldAnnotation instanceof NoAudit) {
                                 noAuditAnnotation = false;
                             }
                         }
                     }
                     if (noAuditAnnotation) {
+                        // ToDo: This needs to assume nested objects and recursively look through them as well
+                        // ToDo: customer JSON transformer to serialize the entire object to JSON Node
+                        // and ignore the fields that are NoAudit, AuditKey.
                         mapWhat.put(field.getName(), field.get(pojo));
                     }
                 }
@@ -86,6 +121,23 @@ public class PojoToAbTransformer {
         return auditHeaderInputBean;
     }
 
+    /**
+     * Maps to the AuditLog event.
+     * {
+     * "auditKey": @auditKey,
+     * "when": @auditDate,
+     * "fortressUser": @auditUser,
+     * "comment": @canBePassedInDuringTheEvent or @auditComment,
+     * "transactional": @canBePassedInDuringTheEvent ,
+     *
+     * @param pojo
+     * @return
+     * @throws IllegalAccessException
+     * @throws IOException
+     * @What is EVERY other attribute and object that is not @audit* annotated
+     * "what": "{\"name\": \"99\", \"thing\": {\"status\": \"android\"}}"
+     * }
+     */
     public static AuditLogInputBean transformToAbLogFormat(Object pojo) throws IllegalAccessException, IOException {
         AuditLogInputBean auditLogInputBean = new AuditLogInputBean("null", new DateTime(), null);
         Map<String, Object> mapWhat = new HashMap<String, Object>();
@@ -106,6 +158,9 @@ public class PojoToAbTransformer {
                         if (field.get(pojo) != null) {
                             if (fieldAnnotation instanceof AuditKey) {
                                 auditLogInputBean.setAuditKey(field.get(pojo).toString());
+                            }
+                            if (fieldAnnotation instanceof AuditClientRef) {
+                                auditLogInputBean.setCallerRef(field.get(pojo).toString());
                             }
 
                             if (fieldAnnotation instanceof NoAudit) {
