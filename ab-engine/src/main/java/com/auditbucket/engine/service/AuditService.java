@@ -130,17 +130,30 @@ public class AuditService {
             throw new SecurityException("Not authorised");
 
         Company company = su.getCompany();
-        String fortress = inputBean.getFortress();
         // ToDo: Improve cypher query
-        Fortress iFortress = companyService.getCompanyFortress(company, fortress);
+        Fortress iFortress = companyService.getCompanyFortress(company, inputBean.getFortress());
         if (iFortress == null)
-            throw new IllegalArgumentException("Unable to find the fortress [" + fortress + "] for the company [" + company.getName() + "]");
+            throw new IllegalArgumentException("Unable to find the fortress [" + inputBean.getFortress() + "] for the company [" + company.getName() + "]");
 
-        AuditHeader ah = null;
-
-        // Idempotent check
+        Future<AuditHeader> futureHeader = null;
         if (inputBean.getCallerRef() != null && !inputBean.getCallerRef().equals(EMPTY))
-            ah = findByCallerRef(iFortress.getId(), inputBean.getDocumentType(), inputBean.getCallerRef());
+            futureHeader = findByCallerRefFuture(iFortress.getId(), inputBean.getDocumentType(), inputBean.getCallerRef());
+
+        // Create fortressUser if missing
+        FortressUser fu = fortressService.getFortressUser(iFortress, inputBean.getFortressUser(), true);
+        fu.getFortress().setCompany(su.getCompany());
+
+        AuditHeader ah;
+
+        try {
+            ah = futureHeader.get();
+        } catch (InterruptedException e) {
+            logger.error("waiting for future result", e);
+            return null;
+        } catch (ExecutionException e) {
+            logger.error("waiting for future result", e);
+            return null;
+        }
 
         if (ah != null) {
             logger.debug("Existing auditHeader record found by Caller Ref [{}] found [{}]", inputBean.getCallerRef(), ah.getAuditKey());
@@ -151,24 +164,22 @@ public class AuditService {
             return arb;
         }
 
-        // Create fortressUser if missing
-        FortressUser fu = fortressService.getFortressUser(iFortress, inputBean.getFortressUser(), true);
-        fu.getFortress().setCompany(su.getCompany());
         DocumentType documentType = tagService.resolveDocType(inputBean.getDocumentType());
-
         // Future from here on.....
         ah = auditDAO.create(fu, inputBean, documentType);
-        inputBean.setWhen(new Date(ah.getFortressDateCreated()));
-        inputBean.setAuditKey(ah.getAuditKey());
-
-        Map<String, String> userTags = inputBean.getTagValues();
-
-        auditTagService.createTagValues(userTags, ah);
+        handleTags(ah, inputBean.getTagValues());
 
         logger.debug("Audit Header created:{} key=[{}]", ah.getId(), ah.getAuditKey());
-
+        inputBean.setWhen(new Date(ah.getFortressDateCreated()));
+        inputBean.setAuditKey(ah.getAuditKey());
         return new AuditResultBean(ah);
 
+    }
+
+    @Async
+    private Future<Void> handleTags(AuditHeader ah, Map<String, String> tagValues) {
+        auditTagService.createTagValues(tagValues, ah);
+        return null;
     }
 
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
@@ -356,7 +367,7 @@ public class AuditService {
     public void makeChangeSearchable(SearchChange searchDocument) {
         if (searchDocument == null)
             return;
-        logger.debug("Indexing auditLog [{}]]", searchDocument.getLogId());
+        logger.debug("Indexing auditLog [{}]]", searchDocument);
         searchGateway.makeChangeSearchable(searchDocument);
     }
 
@@ -371,7 +382,7 @@ public class AuditService {
         while (auditHeader.getSearchKey() == null && i < timeOut) {
             i++;
             try {
-                Thread.sleep(50);
+                Thread.sleep(300);
             } catch (InterruptedException e) {
                 logger.error(e.getMessage());
             }
@@ -629,6 +640,12 @@ public class AuditService {
 
         }
         return result;
+    }
+
+    @Async
+    private Future<AuditHeader> findByCallerRefFuture(Long fortressId, String documentType, String callerRef) {
+        AuditHeader auditHeader = findByCallerRef(fortressId, documentType, callerRef);
+        return new AsyncResult<>(auditHeader);
     }
 
     /**

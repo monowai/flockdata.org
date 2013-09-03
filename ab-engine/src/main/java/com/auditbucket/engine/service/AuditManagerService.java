@@ -54,7 +54,7 @@ public class AuditManagerService {
         } else {
             // Make header searchable - metadata only
 
-            if (inputBean.getEvent() != null && !inputBean.getEvent().equals("")) {
+            if (inputBean.getEvent() != null && !"".equals(inputBean.getEvent())) {
                 auditService.makeHeaderSearchable(resultBean, inputBean.getEvent(), inputBean.getWhen());
             }
         }

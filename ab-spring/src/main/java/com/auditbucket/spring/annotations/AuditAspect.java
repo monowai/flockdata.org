@@ -18,13 +18,12 @@ public class AuditAspect {
     @Around(value = "@annotation(annotation)")
     public void createAuditHeader(final ProceedingJoinPoint joinPoint, final AuditHeader annotation) throws Throwable {
         try {
-            logger.info("createAuditHeader() is running!");
-            logger.info("hijacked method : " + joinPoint.getSignature().getName());
-            logger.info("hijacked arguments : " + Arrays.toString(joinPoint.getArgs()));
+            logger.debug("createAuditHeader() is running!");
+            logger.debug("hijacked method : {}", joinPoint.getSignature().getName());
+            logger.debug("hijacked arguments : {}", Arrays.toString(joinPoint.getArgs()));
             joinPoint.proceed();
-            logger.info("Around before is running!");
+            logger.debug("Around before is running!\r\n");
             joinPoint.proceed(); //continue on the intercepted method
-            System.out.println();
         } finally {
             logger.info("Around after is running!");
         }
@@ -33,15 +32,14 @@ public class AuditAspect {
     @Around(value = "@annotation(annotation)")
     public void createAuditLog(final ProceedingJoinPoint joinPoint, final AuditLog annotation) throws Throwable {
         try {
-            logger.info("createAuditLog() is running!");
-            logger.info("hijacked method : " + joinPoint.getSignature().getName());
-            logger.info("hijacked arguments : " + Arrays.toString(joinPoint.getArgs()));
+            logger.debug("createAuditLog() is running!");
+            logger.debug("hijacked method : {}", joinPoint.getSignature().getName());
+            logger.debug("hijacked arguments : {}", Arrays.toString(joinPoint.getArgs()));
             joinPoint.proceed();
-            logger.info("Around before is running!");
+            logger.debug("Around before is running!\r\n");
             joinPoint.proceed(); //continue on the intercepted method
-            System.out.println();
         } finally {
-            logger.info("Around after is running!");
+            logger.debug("Around after is running!");
         }
     }
 }

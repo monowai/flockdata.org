@@ -17,8 +17,8 @@ public class PojoToAbTransformer {
     public static AuditHeaderInputBean transformToAbFormat(Object pojo) throws IllegalAccessException, IOException {
         AuditHeaderInputBean auditHeaderInputBean = new AuditHeaderInputBean();
         AuditLogInputBean auditLogInputBean = new AuditLogInputBean("null", new DateTime(), null);
-        Map<String, String> tagValues = new HashMap<>();
-        Map<String, Object> mapWhat = new HashMap<>();
+        Map<String, String> tagValues = new HashMap<String, String>();
+        Map<String, Object> mapWhat = new HashMap<String, Object>();
         Class aClass = pojo.getClass();
         Annotation[] annotations = aClass.getAnnotations();
 
@@ -88,7 +88,7 @@ public class PojoToAbTransformer {
 
     public static AuditLogInputBean transformToAbLogFormat(Object pojo) throws IllegalAccessException, IOException {
         AuditLogInputBean auditLogInputBean = new AuditLogInputBean("null", new DateTime(), null);
-        Map<String, Object> mapWhat = new HashMap<>();
+        Map<String, Object> mapWhat = new HashMap<String, Object>();
 
         Class aClass = pojo.getClass();
         Annotation[] annotations = aClass.getAnnotations();
@@ -99,7 +99,7 @@ public class PojoToAbTransformer {
                 Field[] fields = aClass.getDeclaredFields();
                 for (Field field : fields) {
                     field.setAccessible(true);
-                    boolean noAuditAnnotation = true;
+                    boolean auditWhat = true;
                     Annotation[] fieldAnnotations = field.getDeclaredAnnotations();
                     for (Annotation fieldAnnotation : fieldAnnotations) {
                         // The case when the value of field are not NULL
@@ -109,15 +109,15 @@ public class PojoToAbTransformer {
                             }
 
                             if (fieldAnnotation instanceof NoAudit) {
-                                noAuditAnnotation = false;
+                                auditWhat = false;
                             }
                         } else {
                             if (fieldAnnotation instanceof AuditKey || fieldAnnotation instanceof AuditClientRef || fieldAnnotation instanceof AuditTag || fieldAnnotation instanceof NoAudit) {
-                                noAuditAnnotation = false;
+                                auditWhat = false;
                             }
                         }
                     }
-                    if (noAuditAnnotation) {
+                    if (auditWhat) {
                         mapWhat.put(field.getName(), field.get(pojo));
                     }
                 }
