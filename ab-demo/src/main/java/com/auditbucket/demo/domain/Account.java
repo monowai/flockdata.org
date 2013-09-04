@@ -1,6 +1,9 @@
 package com.auditbucket.demo.domain;
 
-import com.auditbucket.spring.annotations.*;
+import com.auditbucket.spring.annotations.AuditClientRef;
+import com.auditbucket.spring.annotations.AuditKey;
+import com.auditbucket.spring.annotations.AuditTag;
+import com.auditbucket.spring.annotations.Auditable;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,13 +17,13 @@ public class Account {
     // Technical Id
     @Id
     @GeneratedValue
-    @NoAudit
+    @AuditClientRef
     private long id;
 
     @AuditKey
     private String auditKey;
 
-    @AuditClientRef
+    @AuditTag
     private String accountNumber;
 
     @AuditTag

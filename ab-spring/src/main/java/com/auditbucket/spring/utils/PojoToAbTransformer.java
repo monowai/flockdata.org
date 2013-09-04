@@ -62,7 +62,7 @@ public class PojoToAbTransformer {
                 for (Field field : fields) {
                     field.setAccessible(true);
                     Annotation[] fieldAnnotations = field.getDeclaredAnnotations();
-                    boolean noAuditAnnotation = true;
+                    boolean auditWhat = true;
                     // If NoAuditAnnotation
                     for (Annotation fieldAnnotation : fieldAnnotations) {
                         // The case when the value of field are not NULL
@@ -71,12 +71,12 @@ public class PojoToAbTransformer {
                         // ToDo: i.e. @audit (docType="Booking", fortress="Fortress")
                         if (field.get(pojo) != null) {
                             if (fieldAnnotation instanceof AuditKey) {
-                                noAuditAnnotation = false;
+                                auditWhat = false;
                                 auditHeaderInputBean.setAuditKey(field.get(pojo).toString());
                             }
 
                             if (fieldAnnotation instanceof AuditClientRef) {
-                                noAuditAnnotation = false;
+                                auditWhat = false;
                                 auditHeaderInputBean.setCallerRef(field.get(pojo).toString());
                             }
 
@@ -84,7 +84,7 @@ public class PojoToAbTransformer {
 
 
                             if (fieldAnnotation instanceof AuditTag) {
-                                noAuditAnnotation = false;
+                                auditWhat = false;
                                 AuditTag auditTagAnnotation = (AuditTag) fieldAnnotation;
                                 if (auditTagAnnotation.name().equals("")) {
                                     tagValues.put(field.getName(), field.get(pojo).toString());
@@ -93,18 +93,18 @@ public class PojoToAbTransformer {
                                 }
                             }
                             if (fieldAnnotation instanceof NoAudit) {
-                                noAuditAnnotation = false;
+                                auditWhat = false;
                             }
 
                         } else {
                             // The case when the value of field are NULL
                             // because we can have TIME=t0 ==> status=STARTED || TIME=t1 ==> status=NULL
                             if (fieldAnnotation instanceof AuditKey || fieldAnnotation instanceof AuditTag || fieldAnnotation instanceof NoAudit) {
-                                noAuditAnnotation = false;
+                                auditWhat = false;
                             }
                         }
                     }
-                    if (noAuditAnnotation) {
+                    if (auditWhat) {
                         // ToDo: This needs to assume nested objects and recursively look through them as well
                         // ToDo: customer JSON transformer to serialize the entire object to JSON Node
                         // and ignore the fields that are NoAudit, AuditKey.

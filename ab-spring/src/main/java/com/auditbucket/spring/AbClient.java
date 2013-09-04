@@ -30,6 +30,10 @@ public class AbClient {
         this.forteressName = forteressName;
     }
 
+    // ToDo: Should only be one method - createAudit(). The creation of a Log happens if there is pojo data to
+    //       transmit beyond the AuditHeader Metadata - i.e. un-annotated fields. A header can have an optional Log associated
+    //       with it.
+
     public AuditResultBean createAuditHeader(Object pojo) throws IllegalAccessException, IOException {
         AuditHeaderInputBean auditHeaderInputBean = PojoToAbTransformer.transformToAbFormat(pojo);
         auditHeaderInputBean.setFortress(forteressName);
@@ -40,6 +44,8 @@ public class AbClient {
 
         HttpHeaders httpHeaders = createHeaders(userName, password);
         HttpEntity<AuditHeaderInputBean> requestEntity = new HttpEntity<AuditHeaderInputBean>(auditHeaderInputBean, httpHeaders);
+
+        // ToDo: audit/header/new is only called if @AuditKey is null, otherwise /audit/log/new is called
 
         ResponseEntity response = restTemplate.exchange(serverName + "/audit/header/new", HttpMethod.POST, requestEntity, AuditResultBean.class);
         // TODO dependeing on  response.getStatusCode() we must throw or not a specific AB exception
