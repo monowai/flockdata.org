@@ -24,6 +24,7 @@ import com.auditbucket.audit.model.TagValue;
 import com.auditbucket.engine.repo.neo4j.AuditTagRepo;
 import com.auditbucket.engine.repo.neo4j.model.AuditTagRelationship;
 import com.auditbucket.registration.model.Tag;
+import org.neo4j.graphdb.Node;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
@@ -47,10 +48,10 @@ public class AuditTagDaoRepo implements com.auditbucket.dao.AuditTagDao {
     public TagValue save(AuditHeader auditHeader, Tag tag, String type) {
         // type should be the Neo4J Node type when V2 is released.
         AuditTagRelationship atv = new AuditTagRelationship(auditHeader, tag, type);
-        //Node headerNode = template.getNode(auditHeader.getId());
-        //Node tagNode = template.getNode(tag.getId());
-        //Primary exploration approach
-        //template.createRelationshipBetween(headerNode, tagNode, type, null);
+        Node headerNode = template.getNode(auditHeader.getId());
+        Node tagNode = template.getNode(tag.getId());
+        //Primary exploration relationship
+        template.createRelationshipBetween(headerNode, tagNode, type, null);
 
         // Only keeping this so that we can efficiently find all the tags being used by a header/tag combo
         // could be simplified to all tags attached to a single Tag node.
