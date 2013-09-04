@@ -22,6 +22,7 @@ package com.auditbucket.test.functional;
 import com.auditbucket.audit.model.AuditChange;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditLog;
+import com.auditbucket.audit.model.AuditWhat;
 import com.auditbucket.bean.*;
 import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
@@ -36,7 +37,6 @@ import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,10 +80,6 @@ public class TestAudit {
 
     @Autowired
     private AuditManagerService auditManagerService;
-
-    @Autowired
-    private GraphDatabaseService graphDatabaseService;
-
 
     private Logger logger = LoggerFactory.getLogger(TestAudit.class);
     private String monowai = "Monowai";
@@ -375,12 +371,6 @@ public class TestAudit {
 
         createLogRecords(authMike, ahWP, what, 20);
         createLogRecords(authMark, ahHS, what, 40);
-        try {
-            Thread.sleep(5000l);
-        } catch (InterruptedException e) {
-
-            logger.error(e.getMessage());
-        }
         watch.stop();
         logger.info("End " + watch.getTime() / 1000d + " avg = " + (watch.getTime() / 1000d) / max);
 
@@ -529,10 +519,11 @@ public class TestAudit {
         AuditHeader auditHeader = auditService.getHeader(ahWP);
         auditManagerService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", new DateTime(), what + 1 + "\"}"));
         auditHeader = auditService.getHeader(ahWP, false); // Inflate the header on the server
-        AuditChange lastChange = auditService.getLastChange(auditHeader.getAuditKey());
-        assertNotNull(lastChange);
-        assertNotNull(lastChange.getJsonWhat());
-        assertTrue(lastChange.getWhatMap().containsKey("house"));
+        AuditLog lastLog = auditService.getLastLog(auditHeader.getAuditKey());
+        assertNotNull(lastLog);
+        assertNotNull(lastLog.getAuditChange().getWhat());
+        AuditWhat whatResult = auditService.getWhat(lastLog.getAuditChange());
+        assertTrue(whatResult.getWhatMap().containsKey("house"));
     }
 
     @Test
@@ -560,7 +551,8 @@ public class TestAudit {
             AuditChange change = log.getAuditChange();
             assertNotNull(change.getEvent());
             assertNotNull(change.getWho().getName());
-            assertTrue(change.getWhatMap().containsKey("house"));
+            AuditWhat whatResult = auditService.getWhat(change);
+            assertTrue(whatResult.getWhatMap().containsKey("house"));
         }
     }
 

@@ -40,12 +40,6 @@ public interface AuditDao {
     public AuditHeader save(AuditHeader auditHeader);
 
     /**
-     * @param key GUID
-     * @return AuditHeader in "default" state
-     */
-    public AuditHeader findHeader(String key);
-
-    /**
      * @param key     GUID
      * @param inflate should all relationships be loaded
      * @return header in inflated or "default" state
@@ -63,10 +57,6 @@ public interface AuditDao {
     Set<AuditLog> getAuditLogs(Long headerKey, Date from, Date to);
 
     Set<AuditLog> getAuditLogs(Long auditHeaderID);
-
-    void delete(AuditChange auditLog);
-
-    void delete(AuditHeader auditHeader);
 
     AuditHeader findHeaderByCallerRef(Long fortressId, String documentType, String callerRef);
 
@@ -90,13 +80,19 @@ public interface AuditDao {
 
     AuditHeader create(FortressUser fu, AuditHeaderInputBean inputBean, DocumentType documentType);
 
-    AuditLog getChange(Long logId);
+    AuditLog getLog(Long logId);
+
+    AuditWhat getWhat(Long whatId);
 
     AuditHeader getHeader(Long id);
 
     AuditChange fetch(AuditChange lastChange);
 
-    AuditChange getLastChange(Long id);
+    AuditLog getLastLog(Long headerId);
 
     void setLastChange(AuditHeader auditHeader, AuditChange lastChange, AuditChange toRemove);
+
+    String save(AuditChange change, String jsonText);
+
+    void fetch(AuditWhat what);
 }

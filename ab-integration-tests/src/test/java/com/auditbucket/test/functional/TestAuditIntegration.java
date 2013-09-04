@@ -274,10 +274,10 @@ public class TestAuditIntegration {
         Neo4jHelper.cleanDb(graphDatabaseService, true);
         regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
 
-        int auditMax = 2000;
-        int logMax = 3;
+        int auditMax = 10;
+        int logMax = 10;
         int fortress = 1;
-        fortressMax = 10;
+        //fortressMax = 10;
         String simpleJson = "{\"who\":";
         ArrayList<Long> list = new ArrayList<>();
 

@@ -26,10 +26,7 @@ import com.auditbucket.bean.AuditTXResult;
 import com.auditbucket.dao.AuditDao;
 import com.auditbucket.engine.repo.neo4j.AuditHeaderRepo;
 import com.auditbucket.engine.repo.neo4j.AuditLogRepo;
-import com.auditbucket.engine.repo.neo4j.model.AuditChangeNode;
-import com.auditbucket.engine.repo.neo4j.model.AuditHeaderNode;
-import com.auditbucket.engine.repo.neo4j.model.AuditLogRelationship;
-import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
+import com.auditbucket.engine.repo.neo4j.model.*;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.FortressUser;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -74,10 +71,6 @@ public class AuditDaoNeo implements AuditDao {
         return template.save((TxRefNode) tagRef);
     }
 
-    public AuditHeader findHeader(String key) {
-        return findHeader(key, false);
-    }
-
     @Override
     public AuditHeader findHeader(String key, boolean inflate) {
         AuditHeader header = auditRepo.findByUID(key);
@@ -105,6 +98,11 @@ public class AuditDaoNeo implements AuditDao {
         template.fetch(header.getLastUser());
 
         return header;
+    }
+
+    @Override
+    public void fetch(AuditWhat what) {
+        template.fetch(what);
     }
 
     @Override
@@ -146,17 +144,6 @@ public class AuditDaoNeo implements AuditDao {
 
     public Set<AuditLog> getAuditLogs(Long auditHeaderID) {
         return auditLogRepo.findAuditLogs(auditHeaderID);
-    }
-
-    @Override
-    public void delete(AuditChange auditLog) {
-        auditLogRepo.delete((AuditChangeNode) auditLog);
-    }
-
-    @Override
-    public void delete(AuditHeader auditHeader) {
-        //ToDo: Remove all the logs
-        auditRepo.delete((AuditHeaderNode) auditHeader);
     }
 
     public Map<String, Object> findByTransaction(TxRef txRef) {
@@ -233,13 +220,17 @@ public class AuditDaoNeo implements AuditDao {
     }
 
     @Override
-    public AuditLog getChange(Long logId) {
+    public AuditLog getLog(Long logId) {
         Relationship change = template.getRelationship(logId);
         if (change != null)
             return (AuditLog) template.getDefaultConverter().convert(change, AuditLogRelationship.class);
         //return template.findOne(logId, AuditLogRelationship.class);
-        return
-                null;
+        return null;
+    }
+
+    @Override
+    public AuditWhat getWhat(Long whatId) {
+        return template.findOne(whatId, AuditWhatNode.class);
     }
 
     @Override
@@ -253,9 +244,10 @@ public class AuditDaoNeo implements AuditDao {
     }
 
     @Override
-    public AuditChange getLastChange(Long headerId) {
-        return auditLogRepo.findLastChange(headerId);
+    public AuditLog getLastLog(Long headerId) {
+        return auditLogRepo.getLastAuditLog(headerId);
     }
+
 
     @Override
     public void setLastChange(AuditHeader auditHeader, AuditChange toAdd, AuditChange toRemove) {
@@ -271,4 +263,14 @@ public class AuditDaoNeo implements AuditDao {
         if (toRemove != null)
             logger.debug("Audit [{}], replaced Last Change relationship [{}] with [{}]", auditHeader.getId(), toRemove.getId(), auditChange.getId());
     }
+
+    @Override
+    public String save(AuditChange change, String jsonText) {
+        AuditWhatNode what = new AuditWhatNode();
+        what.setJsonWhat(jsonText);
+        change.setWhat(what);
+        change = template.save(change);
+        return change.getWhat().getId();
+    }
+
 }

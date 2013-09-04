@@ -19,7 +19,6 @@
 
 package com.auditbucket.engine.repo.neo4j;
 
-import com.auditbucket.audit.model.AuditChange;
 import com.auditbucket.audit.model.AuditLog;
 import com.auditbucket.engine.repo.neo4j.model.AuditChangeNode;
 import com.auditbucket.engine.repo.neo4j.model.AuditLogRelationship;
@@ -38,9 +37,6 @@ public interface AuditLogRepo extends GraphRepository<AuditChangeNode> {
     @Query(value = "start auditHeader=node({0}) match auditHeader-[cw:logged]->auditLog return count(cw)")
     int getLogCount(Long auditHeaderID);
 
-//    @Query(elementClass = AuditChangeNode.class, value = "start header=node({0}) match header-[cw:changed|created]-byUser return cw")
-//    Set<AuditChange> getAuditLogs(Long auditHeaderID);
-
     @Query(elementClass = AuditLogRelationship.class,
             value = "start header=node({0}) match header-[last:lastChange]->auditLog<-[log:logged]-header " +
                     "   return log")
@@ -54,12 +50,4 @@ public interface AuditLogRepo extends GraphRepository<AuditChangeNode> {
             "return log order by log.fortressWhen desc")
     Set<AuditLog> findAuditLogs(Long auditHeaderID);
 
-    @Query(value = "start auditHeader=node({0}) match auditHeader-[lc:lastChange]->auditChange return auditChange")
-    AuditChangeNode findLastChange(Long id);
-
-//    @Query(value = "start audit=node({0}) " +
-//            "match audit-[log:changed]-fortressUser " +
-//            "where log.txRef! = {1} " +
-//            "return audit, log order by log.sysWhen")
-//    EndResult<Map<String, Object>> findLogs(Collection<Long> headers, String txTagName);
 }

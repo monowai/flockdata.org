@@ -21,9 +21,6 @@ package com.auditbucket.audit.model;
 
 import com.auditbucket.registration.model.FortressUser;
 
-import java.util.Date;
-import java.util.Map;
-
 /**
  * User: Mike Holdsworth
  * Date: 15/04/13
@@ -45,17 +42,11 @@ public interface AuditChange {
      */
     public void setComment(String comment);
 
-    public String getJsonWhat();
-
     String getName();
 
     public void setTxRef(TxRef txRef);
 
     String getEvent();
-
-    Map<String, Object> getWhatMap();
-
-    void setJsonWhat(String compressedJson);
 
     void setPreviousChange(AuditChange previousChange);
 
@@ -64,4 +55,20 @@ public interface AuditChange {
     AuditLog getAuditLog();
 
     long getId();
+
+    AuditWhat getWhat();
+
+    void setWhat(AuditWhat what);
+
+    /**
+     * @return mechanism used to store the what text
+     */
+    public String getWhatStore();
+
+    /**
+     * defaults to Neo4j
+     *
+     * @param storage where to store
+     */
+    public void setWhatStore(String storage);
 }

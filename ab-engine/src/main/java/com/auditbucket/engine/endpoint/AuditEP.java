@@ -19,7 +19,6 @@
 
 package com.auditbucket.engine.endpoint;
 
-import com.auditbucket.audit.model.AuditChange;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditLog;
 import com.auditbucket.audit.model.TxRef;
@@ -230,27 +229,42 @@ public class AuditEP {
     @ResponseBody
     @RequestMapping(value = "/{auditKey}/summary", produces = "application/json", method = RequestMethod.GET)
     public ResponseEntity<AuditSummaryBean> getAuditSummary(@PathVariable("auditKey") String auditKey) throws Exception {
-
-
         return new ResponseEntity<>(auditManager.getAuditSummary(auditKey), HttpStatus.OK);
 
     }
 
     @ResponseBody
-    @RequestMapping(value = "/{auditKey}/lastchange", produces = "application/json", method = RequestMethod.GET)
-    public ResponseEntity<AuditChange> getLastChange(@PathVariable("auditKey") String auditKey) throws Exception {
+    @RequestMapping(value = "/{auditKey}/lastlog", produces = "application/json", method = RequestMethod.GET)
+    public ResponseEntity<AuditLog> getLastChange(@PathVariable("auditKey") String auditKey) throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/c27ec2e5-2e17-4855-be18-bd8f82249157/lastchange
         try {
-            AuditChange changed = auditService.getLastChange(auditKey);
+            AuditLog changed = auditService.getLastLog(auditKey);
             if (changed != null)
                 return new ResponseEntity<>(changed, HttpStatus.OK);
 
-            return new ResponseEntity<>((AuditChange) null, HttpStatus.OK);
+            return new ResponseEntity<>((AuditLog) null, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>((AuditChange) null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>((AuditLog) null, HttpStatus.NOT_FOUND);
         } catch (SecurityException e) {
-            return new ResponseEntity<>((AuditChange) null, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>((AuditLog) null, HttpStatus.FORBIDDEN);
         }
+    }
 
+    @ResponseBody
+    @RequestMapping(value = "/{auditKey}/{logId}/details", produces = "application/json", method = RequestMethod.GET)
+    public ResponseEntity<AuditLogDetailBean> getFullLog(@PathVariable("auditKey") String auditKey, @PathVariable("logId") Long logId) throws Exception {
+        try {
+
+            AuditLogDetailBean change = auditService.getFullDetail(auditKey, logId);
+
+            if (change != null)
+                return new ResponseEntity<>(change, HttpStatus.OK);
+
+            return new ResponseEntity<>((AuditLogDetailBean) null, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>((AuditLogDetailBean) null, HttpStatus.NOT_FOUND);
+        } catch (SecurityException e) {
+            return new ResponseEntity<>((AuditLogDetailBean) null, HttpStatus.FORBIDDEN);
+        }
     }
 }

@@ -44,6 +44,6 @@ http://www.springframework.org/schema/data/neo4j/spring-neo4j.xsd http://www.spr
     <neo4j:repositories base-package="com.auditbucket.engine.repo.neo4j"/>
 
     <!--NEO4J interface to use-->
-    <import resource="neo4j-rest.xml"/>
+    <import resource="neo4j-embedded.xml"/>
 
 </beans>

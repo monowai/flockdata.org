@@ -21,20 +21,16 @@ package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.audit.model.AuditChange;
 import com.auditbucket.audit.model.AuditLog;
+import com.auditbucket.audit.model.AuditWhat;
 import com.auditbucket.audit.model.TxRef;
 import com.auditbucket.bean.AuditLogInputBean;
-import com.auditbucket.helper.CompressionHelper;
-import com.auditbucket.helper.CompressionResult;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.annotation.*;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -55,14 +51,11 @@ public class AuditChangeNode implements AuditChange {
     @RelatedTo(elementClass = TxRefNode.class, type = "txIncludes", direction = Direction.INCOMING, enforceTargetType = true)
     private TxRef txRef;
 
-    @Transient
-    static ObjectMapper objectMapper = new ObjectMapper();
-
     private String comment;
     private String event;
+    private String storage = "Neo4J"; // ToDo: enum
 
     // Neo4J will not persist a byte[] over it's http interface. Probably fixed in V2, but not in our version
-    private byte[] whatBytes;
     private boolean compressed = false;
     private String name;
 
@@ -72,6 +65,9 @@ public class AuditChangeNode implements AuditChange {
     @Fetch
     @RelatedToVia(type = "logged", direction = Direction.INCOMING)
     AuditLogRelationship auditLog;
+
+    @RelatedTo(type = "auditWhat")
+    private AuditWhatNode auditWhat;
 
     protected AuditChangeNode() {
 
@@ -85,13 +81,22 @@ public class AuditChangeNode implements AuditChange {
         this.event = event;
         this.name = new StringBuilder().append(event).append(COLON).append(madeBy.getName()).toString();
         setTxRef(txRef);
-        setJsonWhat(inputBean.getWhat());
         this.comment = inputBean.getComment();
     }
 
     @JsonIgnore
     public long getId() {
         return id;
+    }
+
+    @Override
+    @JsonIgnore
+    public AuditWhat getWhat() {
+        return auditWhat;
+    }
+
+    public void setWhat(AuditWhat what) {
+        this.auditWhat = (AuditWhatNode) what;
     }
 
     public FortressUser getWho() {
@@ -115,18 +120,6 @@ public class AuditChangeNode implements AuditChange {
         return name;
     }
 
-    @JsonIgnore
-    public String getJsonWhat() {
-        return CompressionHelper.decompress(whatBytes, compressed);
-    }
-
-    public void setJsonWhat(String what) {
-        CompressionResult result = CompressionHelper.compress(what);
-
-        this.whatBytes = result.getAsBytes();
-        this.compressed = result.getMethod() == CompressionResult.Method.GZIP;
-    }
-
     @Override
     public void setPreviousChange(AuditChange previousChange) {
         this.previousChange = (AuditChangeNode) previousChange;
@@ -147,23 +140,6 @@ public class AuditChangeNode implements AuditChange {
     @Transient
     private Map<String, Object> what;
 
-    public Map<String, Object> getWhatMap() {
-
-        if (what != null)
-            return what;
-        try {
-            if (whatBytes != null) {
-                what = objectMapper.readValue(CompressionHelper.decompress(whatBytes, isCompressed()), Map.class);
-                return what;
-            }
-
-        } catch (IOException e) {
-        }
-        what = new HashMap<>();
-        what.put("empty", "{}");
-        return what;
-    }
-
     public void setTxRef(TxRef txRef) {
         this.txRef = txRef;
     }
@@ -174,5 +150,14 @@ public class AuditChangeNode implements AuditChange {
 
     private boolean isCompressed() {
         return compressed;
+    }
+
+    @JsonIgnore
+    public String getWhatStore() {
+        return storage;
+    }
+
+    public void setWhatStore(String storage) {
+        this.storage = storage;
     }
 }
