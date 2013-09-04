@@ -42,7 +42,7 @@ public class AbClient {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
-        HttpHeaders httpHeaders = createHeaders(userName, password);
+        HttpHeaders httpHeaders = setHeaders(userName, password);
         HttpEntity<AuditHeaderInputBean> requestEntity = new HttpEntity<AuditHeaderInputBean>(auditHeaderInputBean, httpHeaders);
 
         // ToDo: audit/header/new is only called if @AuditKey is null, otherwise /audit/log/new is called
@@ -52,10 +52,11 @@ public class AbClient {
         return (AuditResultBean) response.getBody();
     }
 
-    public AuditLogInputBean createLogHeader(Object pojo) throws IllegalAccessException, IOException {
+    public AuditLogInputBean createAuditLog(Object pojo) throws IllegalAccessException, IOException {
         AuditLogInputBean auditLogInputBean = PojoToAbTransformer.transformToAbLogFormat(pojo);
+        assert (auditLogInputBean.getAuditKey() != null);
         auditLogInputBean.setFortressUser(userName);
-        HttpHeaders httpHeaders = createHeaders(userName, password);
+        HttpHeaders httpHeaders = setHeaders(userName, password);
         HttpEntity<AuditLogInputBean> requestEntity = new HttpEntity<AuditLogInputBean>(auditLogInputBean, httpHeaders);
 
         RestTemplate restTemplate = new RestTemplate();
@@ -67,7 +68,7 @@ public class AbClient {
         return (AuditLogInputBean) response.getBody();
     }
 
-    private HttpHeaders createHeaders(final String username, final String password) {
+    private HttpHeaders setHeaders(final String username, final String password) {
         HttpHeaders headers = new HttpHeaders() {
             {
                 String auth = username + ":" + password;

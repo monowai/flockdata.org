@@ -139,7 +139,7 @@ public class PojoToAbTransformer {
      * }
      */
     public static AuditLogInputBean transformToAbLogFormat(Object pojo) throws IllegalAccessException, IOException {
-        AuditLogInputBean auditLogInputBean = new AuditLogInputBean("null", new DateTime(), null);
+        AuditLogInputBean auditLogInputBean = new AuditLogInputBean("mike", new DateTime(), null);
         Map<String, Object> mapWhat = new HashMap<String, Object>();
 
         Class aClass = pojo.getClass();

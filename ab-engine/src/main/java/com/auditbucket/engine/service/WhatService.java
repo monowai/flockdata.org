@@ -35,7 +35,7 @@ public class WhatService {
 
     public AuditWhat getWhat(AuditChange change) {
         // ToDo: this is a Neo4J what node store
-        if (change == null)
+        if (change == null || change.getWhat() == null)
             return null;
         String store = change.getWhatStore();
         if (store.equalsIgnoreCase("neo4j")) // ToDo: add Redis store support
@@ -54,8 +54,12 @@ public class WhatService {
     public boolean isSame(AuditChange compareFrom, String compareWith) {
         if (compareFrom == null)
             return false;
+        AuditWhat what = getWhat(compareFrom);
 
-        String jsonThis = getWhat(compareFrom).getWhat();
+        if (what == null)
+            return false;
+
+        String jsonThis = what.getWhat();
         if (jsonThis == null || compareWith == null)
             return false;
 

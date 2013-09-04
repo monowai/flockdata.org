@@ -33,7 +33,7 @@ public class AccountService {
         Account accountDb = accountRepository.findByAccountNumber(account.getAccountNumber());
         accountDb.setStatus(account.getStatus());
         accountRepository.save(accountDb);
-        abClient.createLogHeader(accountDb);
+        abClient.createAuditLog(accountDb);
     }
 
 }
