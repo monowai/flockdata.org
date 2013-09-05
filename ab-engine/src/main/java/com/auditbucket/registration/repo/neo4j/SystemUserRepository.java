@@ -27,7 +27,10 @@ import org.springframework.data.neo4j.repository.GraphRepository;
 
 public interface SystemUserRepository extends GraphRepository<SystemUserNode> {
 
-    @Query(elementClass = FortressUserNode.class, value = "start sysUser=node:sysUserName(name={0}) match sysUser-[:administers]->company-[:owns]->fortress<-[:fortressUser]-fortressUser where fortressUser.name ={2} and fortress.name={1} return fortressUser")
+    @Query(elementClass = FortressUserNode.class,
+            value = "start sysUser=node:sysUserName(name={0}) " +
+                    "        match sysUser-[:administers]->company-[:owns]->fortress<-[:fortressUser]-fortressUser " +
+                    "where fortressUser.name ={2} and fortress.name={1} return fortressUser")
     FortressUser getFortressUser(String userName, String fortressName, String fortressUser);
 
     @Query(value = "start sysUser=node:sysUserName(name={0}) return sysUser")

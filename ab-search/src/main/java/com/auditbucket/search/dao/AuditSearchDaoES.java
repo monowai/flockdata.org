@@ -22,6 +22,7 @@ package com.auditbucket.search.dao;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditSearchDao;
 import com.auditbucket.audit.model.SearchChange;
+import com.auditbucket.search.AuditSearchSchema;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.action.ListenableActionFuture;
@@ -49,6 +50,7 @@ import java.util.Map;
  */
 @Repository("esAuditChange")
 public class AuditSearchDaoES implements AuditSearchDao {
+
     @Autowired
     private Client esClient;
 
@@ -119,7 +121,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
                 // Check to ensure we don't accidentally overwrite a more current
                 // document with an older one. We assume the calling fortress understands
                 // what the most recent doc is.
-                Object o = response.getSource().get("@when"); // fortress view of WHEN, not AuditBuckets!
+                Object o = response.getSource().get(AuditSearchSchema.WHEN); // fortress view of WHEN, not AuditBuckets!
                 if (o != null) {
                     Long existingWhen = (Long) o;
                     if (existingWhen > incoming.getWhen()) {
@@ -215,21 +217,21 @@ public class AuditSearchDaoES implements AuditSearchDao {
     private Map<String, Object> makeIndexDocument(SearchChange auditChange) {
         Map<String, Object> indexMe = new HashMap<>();
         if (auditChange.getWhat() != null)
-            indexMe.put("@what", auditChange.getWhat());
+            indexMe.put(AuditSearchSchema.WHAT, auditChange.getWhat());
 
-        indexMe.put("@auditKey", auditChange.getAuditKey());
-        indexMe.put("@who", auditChange.getWho());
+        indexMe.put(AuditSearchSchema.AUDIT_KEY, auditChange.getAuditKey());
+        indexMe.put(AuditSearchSchema.WHO, auditChange.getWho());
         if (auditChange.getEvent() != null)
-            indexMe.put("@lastEvent", auditChange.getEvent());
-        indexMe.put("@when", auditChange.getWhen());
-        indexMe.put("@timestamp", new Date(auditChange.getSysWhen()));
+            indexMe.put(AuditSearchSchema.LAST_EVENT, auditChange.getEvent());
+        indexMe.put(AuditSearchSchema.WHEN, auditChange.getWhen());
+        indexMe.put(AuditSearchSchema.TIMESTAMP, new Date(auditChange.getSysWhen()));
         // https://github.com/monowai/auditbucket/issues/21
 
-        indexMe.put("@fortress", auditChange.getFortressName());
-        indexMe.put("@docType", auditChange.getDocumentType());
-        indexMe.put("@callerRef", auditChange.getCallerRef());
+        indexMe.put(AuditSearchSchema.FORTRESS, auditChange.getFortressName());
+        indexMe.put(AuditSearchSchema.DOC_TYPE, auditChange.getDocumentType());
+        indexMe.put(AuditSearchSchema.CALLER_REF, auditChange.getCallerRef());
         if (!auditChange.getTagValues().isEmpty())
-            indexMe.put("@tags", auditChange.getTagValues());
+            indexMe.put(AuditSearchSchema.TAGS, auditChange.getTagValues());
 
         return indexMe;
     }

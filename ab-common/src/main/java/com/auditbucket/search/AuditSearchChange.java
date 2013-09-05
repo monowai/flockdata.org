@@ -39,7 +39,6 @@ import java.util.Set;
  */
 public class AuditSearchChange implements com.auditbucket.audit.model.SearchChange {
 
-    // ToDo: Figure out naming standard for system variables
     private String id;
     private String documentType;
     private Map<String, Object> what;

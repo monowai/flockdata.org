@@ -34,6 +34,8 @@ import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -509,7 +511,7 @@ public class TestAudit {
     }
 
     @Test
-    public void whatDataWorking() throws IOException {
+    public void lastChangeDatesReconcileWithFortressInput() throws IOException {
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         SecurityContextHolder.getContext().setAuthentication(authMike);
         Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
@@ -524,6 +526,26 @@ public class TestAudit {
         assertNotNull(lastLog.getAuditChange().getWhat());
         AuditWhat whatResult = auditService.getWhat(lastLog.getAuditChange());
         assertTrue(whatResult.getWhatMap().containsKey("house"));
+    }
+
+    @Test
+    public void dateCreatedAndLastUpdated() throws Exception {
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
+        SecurityContextHolder.getContext().setAuthentication(authMike);
+        Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
+        DateTime fortressDateCreated = new DateTime().toDateTime();
+        Thread.sleep(500);
+        DateTime logTime = new DateTime().toDateTime();
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", fortressDateCreated.toDate(), "ABC1");
+        AuditLogInputBean auditLogInputBean = new AuditLogInputBean(mike, logTime, "{\"abx\": 1 }");
+        inputBean.setAuditLog(auditLogInputBean);
+        String ahWP = auditManagerService.createHeader(inputBean).getAuditKey();
+        AuditLog log = auditService.getLastAuditLog(ahWP);
+        assertEquals("Fortress modification date&time do not match", log.getFortressWhen().longValue(), logTime.getMillis());
+        AuditHeader header = auditService.getHeader(ahWP);
+        assertEquals(fortressDateCreated.getMillis(), header.getFortressDateCreated());
+        assertEquals("Fortress log time doesn't match", logTime.getMillis(), log.getFortressWhen().longValue());
+
     }
 
     @Test
