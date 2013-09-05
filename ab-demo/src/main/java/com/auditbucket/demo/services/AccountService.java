@@ -23,7 +23,12 @@ public class AccountService {
 
     public Account saveAccount(Account account) throws IllegalAccessException, IOException {
         logger.info("Account Created : {}", account.getAccountNumber());
-        AuditResultBean auditResultBean = abClient.createAuditHeader(account);
+        account = accountRepository.save(account); // Get the PK
+
+        AuditResultBean auditResultBean = abClient.createAuditHeader(account); // ToDo: @Async call
+        // ToDo: Following should be in a seperate method
+        // ToDo: AuditBucket should talk back to DemoApp via @Gateway so that the account can be updated with the AuditKey
+        // ToDo: and potential errors handled here in the client.
         account.setAuditKey(auditResultBean.getAuditKey());
         accountRepository.save(account);
         return account;

@@ -41,7 +41,7 @@ class AccountOperationsSimulation extends Simulation {
 
 
   val scn = scenario("Account Operations Scenario")
-    .during(2 minutes) {
+    .during(5 minutes) {
     exec(chooseRandomNodes)
       .exec(chooseRandomStatus)
       .exec(http("Create Account")
@@ -54,7 +54,7 @@ class AccountOperationsSimulation extends Simulation {
                                      }""".format("${params}")).asJSON
       .check(status.is(200))
     )
-      .pause(2 seconds)
+      //.pause(2 seconds)
       .exec(http("Update Account")
       .post("http://localhost:9090/account/update")
       .headers(headers_4)
@@ -69,7 +69,7 @@ class AccountOperationsSimulation extends Simulation {
   }
 
 
-  setUp(scn.users(20).ramp(100).protocolConfig(httpConf))
+  setUp(scn.users(10).ramp(15).protocolConfig(httpConf))
 
   class ABCounter(value: AtomicLong) {
     def this() = this(new AtomicLong(System.currentTimeMillis()))

@@ -251,7 +251,7 @@ public class AuditEP {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/{auditKey}/{logId}/details", produces = "application/json", method = RequestMethod.GET)
+    @RequestMapping(value = "/{auditKey}/{logId}", produces = "application/json", method = RequestMethod.GET)
     public ResponseEntity<AuditLogDetailBean> getFullLog(@PathVariable("auditKey") String auditKey, @PathVariable("logId") Long logId) throws Exception {
         try {
 
@@ -265,24 +265,6 @@ public class AuditEP {
             return new ResponseEntity<>((AuditLogDetailBean) null, HttpStatus.NOT_FOUND);
         } catch (SecurityException e) {
             return new ResponseEntity<>((AuditLogDetailBean) null, HttpStatus.FORBIDDEN);
-        }
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/{auditKey}/{logId}", produces = "application/json", method = RequestMethod.GET)
-    public ResponseEntity<AuditLog> getLog(@PathVariable("auditKey") String auditKey, @PathVariable("logId") Long logId) throws Exception {
-        try {
-
-            AuditLogDetailBean change = auditService.getFullDetail(auditKey, logId);
-
-            if (change != null)
-                return new ResponseEntity<>(change.getLog(), HttpStatus.OK);
-
-            return new ResponseEntity<>((AuditLog) null, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>((AuditLog) null, HttpStatus.NOT_FOUND);
-        } catch (SecurityException e) {
-            return new ResponseEntity<>((AuditLog) null, HttpStatus.FORBIDDEN);
         }
     }
 }

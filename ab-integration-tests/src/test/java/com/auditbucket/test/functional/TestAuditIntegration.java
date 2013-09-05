@@ -32,6 +32,7 @@ import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
+import com.auditbucket.search.AuditSearchSchema;
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.JestResult;
@@ -213,7 +214,7 @@ public class TestAuditIntegration {
         String query = "{" +
                 "   \"query\": {  " +
                 "\"query_string\" : { " +
-                " \"default_field\" :\"@what.blah\", " +
+                " \"default_field\" :\"" + AuditSearchSchema.WHAT + ".blah\", " +
                 " \"query\" :\"*\" " +
                 "}  " +
                 "}  " +
@@ -354,7 +355,7 @@ public class TestAuditIntegration {
         logger.info("Validating logs are indexed");
         int fortress = 1;
         int audit = 1;
-        DecimalFormat f = new DecimalFormat("##.000");
+        //DecimalFormat f = new DecimalFormat("##.000");
         while (fortress <= fortressMax) {
             while (audit <= auditMax) {
                 AuditHeader header = auditService.findByCallerRefFull(list.get(fortress), "CompanyNode", "ABC" + audit);

@@ -281,7 +281,7 @@ public class AuditService {
             existingLog = getLastAuditLog(auditHeader);//(auditHeader.getLastChange() != null ? auditHeader.getLastChange() : null);
 
         Boolean searchActive = fortress.isSearchActive();
-        DateTime fortressWhen = (input.getWhen() == null ? new DateTime(DateTimeZone.UTC) : new DateTime(input.getWhen(), DateTimeZone.UTC));
+        DateTime fortressWhen = (input.getWhen() == null ? new DateTime(fortress.getTimeZone()) : new DateTime(input.getWhen()));
 
         if (existingLog != null) {
             // Neo4j won't store the map, so we store the raw escaped JSON text

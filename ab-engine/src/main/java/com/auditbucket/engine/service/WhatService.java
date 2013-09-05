@@ -19,6 +19,7 @@ import java.io.IOException;
 @Service
 public class WhatService {
     static final ObjectMapper om = new ObjectMapper();
+    public static final String NEO4J = "neo4j";
     private Logger logger = LoggerFactory.getLogger(WhatService.class);
 
     @Autowired(required = false)
@@ -27,18 +28,20 @@ public class WhatService {
     public String logWhat(AuditChange change, String jsonText) {
         String store = change.getWhatStore();
         // ToDo: Enum?
-        if (store.equalsIgnoreCase("neo4j"))   // ToDo: add Redis store support
+        // ToDo: this is a Neo4J what node store
+        if (store.equalsIgnoreCase(NEO4J)) {   // ToDo: add Redis store support
             return auditDao.save(change, jsonText);
-        else
+        } else
+            // AuditChange will have to be saved with the remote store key
             return null;
     }
 
     public AuditWhat getWhat(AuditChange change) {
-        // ToDo: this is a Neo4J what node store
         if (change == null || change.getWhat() == null)
             return null;
         String store = change.getWhatStore();
-        if (store.equalsIgnoreCase("neo4j")) // ToDo: add Redis store support
+        // ToDo: this is a Neo4J what node store
+        if (store.equalsIgnoreCase(NEO4J)) // ToDo: add Redis store support
             return auditDao.getWhat(Long.parseLong(change.getWhat().getId()));
         else
             return null;
