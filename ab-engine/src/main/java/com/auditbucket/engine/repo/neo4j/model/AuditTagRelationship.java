@@ -20,7 +20,7 @@
 package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.audit.model.TagValue;
+import com.auditbucket.audit.model.AuditTag;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.repo.neo4j.model.TagNode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -33,7 +33,7 @@ import org.springframework.data.neo4j.annotation.*;
  */
 
 @RelationshipEntity(type = "auditTag")
-public class AuditTagRelationship implements TagValue {
+public class AuditTagRelationship implements AuditTag {
     @GraphId
     Long id;
 

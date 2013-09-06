@@ -19,6 +19,8 @@
 
 package com.auditbucket.bean;
 
+import com.auditbucket.audit.model.AuditEvent;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.Date;
@@ -43,6 +45,7 @@ public class AuditHeaderInputBean {
     private Map<String, String> tagValues = new HashMap<>();
     private boolean suppressSearch;
     private String event;
+    private AuditEvent eventObject;
 
     public AuditHeaderInputBean() {
     }
@@ -158,5 +161,14 @@ public class AuditHeaderInputBean {
      */
     public void setEvent(String event) {
         this.event = event;
+    }
+
+    @JsonIgnore
+    public AuditEvent getEventObject() {
+        return eventObject;
+    }
+
+    public void setEventObject(AuditEvent eventObject) {
+        this.eventObject = eventObject;
     }
 }

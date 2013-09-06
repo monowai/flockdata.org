@@ -60,7 +60,7 @@
     <int:service-activator id="abErrorLogger" input-channel="errors" ref="abloggingHandler"/>
     <bean id="abloggingHandler" class="org.springframework.integration.handler.LoggingHandler">
         <constructor-arg index="0" value="DEBUG"/>
-        <!-- <property name="loggerName" value="com.app.travelerpayments.loggingHandler"/> -->
+        <!-- <property eventName="loggerName" value="com.app.travelerpayments.loggingHandler"/> -->
     </bean>
 
     <bean id="qExecutor" class="org.springframework.scheduling.concurrent.ConcurrentTaskExecutor">

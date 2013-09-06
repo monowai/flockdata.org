@@ -17,28 +17,23 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.dao;
+package com.auditbucket.audit.model;
 
-import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.audit.model.AuditTag;
 import com.auditbucket.registration.model.Tag;
-
-import java.util.Set;
 
 /**
  * User: Mike Holdsworth
- * Date: 28/06/13
- * Time: 9:55 PM
+ * Date: 29/06/13
+ * Time: 12:52 PM
  */
-public interface AuditTagDao {
-    AuditTag save(AuditHeader auditHeader, Tag tag, String type);
+public interface AuditTag {
 
-    Set<AuditTag> find(Tag tagName, String type);
+    public Tag getTag();
 
-    Set<AuditHeader> findTagAudits(Tag tag);
+    //ToDo - should this be a taggable interface?
+    public AuditHeader getHeader();
 
-    Set<AuditTag> getAuditTags(Long id);
+    public String getTagType();
 
-    void update(Set<AuditTag> modifiedSet);
-
+    public void setTagType(String tagValue);
 }

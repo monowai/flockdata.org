@@ -37,6 +37,8 @@ import java.util.Set;
  */
 public interface AuditDao {
 
+    String ping();
+
     public AuditHeader save(AuditHeader auditHeader);
 
     /**
@@ -71,8 +73,6 @@ public interface AuditDao {
     AuditLog addLog(AuditHeader header, AuditChange al, DateTime fortressWhen);
 
     AuditLog save(AuditLog log);
-
-    String ping();
 
     public AuditChange save(FortressUser fUser, AuditLogInputBean input, TxRef tagRef, AuditChange lastChange);
 

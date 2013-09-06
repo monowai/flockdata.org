@@ -20,7 +20,7 @@
 package com.auditbucket.engine.service;
 
 import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.audit.model.TagValue;
+import com.auditbucket.audit.model.AuditTag;
 import com.auditbucket.bean.AuditTagInputBean;
 import com.auditbucket.dao.AuditTagDao;
 import com.auditbucket.helper.SecurityHelper;
@@ -51,10 +51,10 @@ public class AuditTagService {
     @Autowired
     AuditTagDao auditTagDao;
 
-    public TagValue processTag(AuditHeader header, AuditTagInputBean tagInput) {
+    public AuditTag processTag(AuditHeader header, AuditTagInputBean tagInput) {
         //Company company = securityHelper.getCompany();
         String type = tagInput.getType();
-        Set<TagValue> existing = findTagValues(tagInput.getTagName(), type);
+        Set<AuditTag> existing = findTagValues(tagInput.getTagName(), type);
         if (existing != null && existing.size() == 1)
             // We already have this tagged so get out of here
             return existing.iterator().next();
@@ -63,7 +63,7 @@ public class AuditTagService {
         return auditTagDao.save(header, tag, type);
     }
 
-    public Set<TagValue> findTagValues(String name, String type) {
+    public Set<AuditTag> findTagValues(String name, String type) {
         Tag tag = tagService.findTag(name);
         if (tag == null)
             return null;
@@ -114,11 +114,11 @@ public class AuditTagService {
         }
     }
 
-    public Set<TagValue> findAuditTags(AuditHeader auditHeader) {
+    public Set<AuditTag> findAuditTags(AuditHeader auditHeader) {
         return auditTagDao.getAuditTags(auditHeader.getId());
     }
 
-    public Set<TagValue> findAuditTags(Long id) {
+    public Set<AuditTag> findAuditTags(Long id) {
         return auditTagDao.getAuditTags(id);
     }
 }

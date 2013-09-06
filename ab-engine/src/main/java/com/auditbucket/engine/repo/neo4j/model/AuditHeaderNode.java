@@ -21,7 +21,7 @@ package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.DocumentType;
-import com.auditbucket.audit.model.TagValue;
+import com.auditbucket.audit.model.AuditTag;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
@@ -82,7 +82,7 @@ public class AuditHeaderNode implements AuditHeader {
     private FortressUserNode lastWho;
 
     @RelatedToVia(elementClass = AuditTagRelationship.class, type = "auditTag", direction = Direction.INCOMING)
-    private Set<TagValue> tagValues;
+    private Set<AuditTag> tagValues;
 
     public static final String UUID_KEY = "auditKey";
 
@@ -242,14 +242,14 @@ public class AuditHeaderNode implements AuditHeader {
     }
 
     @JsonIgnore
-    public Set<TagValue> getTagValues() {
+    public Set<AuditTag> getTagValues() {
         return tagValues;
     }
 
     public Map<String, String> getTagMap() {
         Map<String, String> result = new HashMap<>();
         if (tagValues != null)
-            for (TagValue tagValue : tagValues) {
+            for (AuditTag tagValue : tagValues) {
                 result.put(tagValue.getTag().getName(), tagValue.getTagType());
             }
         return result;
@@ -261,7 +261,7 @@ public class AuditHeaderNode implements AuditHeader {
     }
 
     @Override
-    public void setTags(Set<TagValue> auditTags) {
+    public void setTags(Set<AuditTag> auditTags) {
         this.tagValues = auditTags;
     }
 

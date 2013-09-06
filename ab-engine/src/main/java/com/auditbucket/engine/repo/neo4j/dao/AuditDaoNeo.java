@@ -209,6 +209,7 @@ public class AuditDaoNeo implements AuditDao {
     @Override
     public AuditChange save(FortressUser fUser, AuditLogInputBean input, TxRef txRef, AuditChange previousChange) {
         AuditChange auditChange = new AuditChangeNode(fUser, input, txRef);
+        auditChange.setEvent(input.getAuditEvent());
         auditChange.setPreviousChange(previousChange);
         return template.save(auditChange);
     }

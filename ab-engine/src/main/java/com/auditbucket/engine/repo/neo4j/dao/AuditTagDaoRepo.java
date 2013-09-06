@@ -20,7 +20,7 @@
 package com.auditbucket.engine.repo.neo4j.dao;
 
 import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.audit.model.TagValue;
+import com.auditbucket.audit.model.AuditTag;
 import com.auditbucket.engine.repo.neo4j.AuditTagRepo;
 import com.auditbucket.engine.repo.neo4j.model.AuditTagRelationship;
 import com.auditbucket.registration.model.Tag;
@@ -45,7 +45,7 @@ public class AuditTagDaoRepo implements com.auditbucket.dao.AuditTagDao {
     AuditTagRepo auditTagRepo;
 
     @Override
-    public TagValue save(AuditHeader auditHeader, Tag tag, String type) {
+    public AuditTag save(AuditHeader auditHeader, Tag tag, String type) {
         // type should be the Neo4J Node type when V2 is released.
         AuditTagRelationship atv = new AuditTagRelationship(auditHeader, tag, type);
         Node headerNode = template.getNode(auditHeader.getId());
@@ -59,7 +59,7 @@ public class AuditTagDaoRepo implements com.auditbucket.dao.AuditTagDao {
     }
 
     @Override
-    public Set<TagValue> find(Tag tagName, String type) {
+    public Set<AuditTag> find(Tag tagName, String type) {
         if (tagName == null)
             return null;
         return auditTagRepo.findTagValues(tagName.getId(), type);
@@ -74,12 +74,12 @@ public class AuditTagDaoRepo implements com.auditbucket.dao.AuditTagDao {
 
 
     @Override
-    public Set<TagValue> getAuditTags(Long id) {
+    public Set<AuditTag> getAuditTags(Long id) {
         return auditTagRepo.findAuditTags(id);
     }
 
-    public void update(Set<TagValue> newValues) {
-        for (TagValue iTagValue : newValues) {
+    public void update(Set<AuditTag> newValues) {
+        for (AuditTag iTagValue : newValues) {
             auditTagRepo.save((AuditTagRelationship) iTagValue);
         }
     }

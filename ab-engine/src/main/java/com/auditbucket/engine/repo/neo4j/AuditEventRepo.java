@@ -19,21 +19,30 @@
 
 package com.auditbucket.engine.repo.neo4j;
 
+import com.auditbucket.audit.model.AuditEvent;
+import com.auditbucket.engine.repo.neo4j.model.AuditEventNode;
+import com.auditbucket.engine.repo.neo4j.model.AuditTagRelationship;
 import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
+import java.util.Set;
+
 /**
  * User: Mike Holdsworth
- * Date: 30/06/13
- * Time: 10:20 AM
+ * Date: 28/06/13
+ * Time: 10:56 PM
  */
-public interface DocumentTypeRepo extends GraphRepository<DocumentTypeNode> {
-    @Query(elementClass = DocumentTypeNode.class,
-            value = "start company=node({0})" +
-                    "MATCH company-[:documents]->documentType " +
-                    "        where documentType.name ={1}" +
-                    "       return documentType")
-    DocumentTypeNode findCompanyDocType(Long companyId, String docName);
+public interface AuditEventRepo extends GraphRepository<AuditTagRelationship> {
 
+    @Query(elementClass = AuditEventNode.class, value = "start company=node({0})" +
+            "   match company-[:COMPANY_EVENT]->event " +
+            "   where event.code = {1}" +
+            "  return event")
+    AuditEventNode findCompanyEvent(Long companyId, String eventName);
+
+    @Query(elementClass = AuditEventNode.class, value = "start company=node({0})" +
+            "   match company-[:COMPANY_EVENT]->events " +
+            "  return events")
+    Set<AuditEvent> findCompanyEvents(Long id);
 }

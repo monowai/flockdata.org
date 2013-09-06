@@ -19,8 +19,9 @@
 
 package com.auditbucket.search;
 
+import com.auditbucket.audit.model.AuditEvent;
 import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.audit.model.TagValue;
+import com.auditbucket.audit.model.AuditTag;
 import com.auditbucket.registration.model.Fortress;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -174,9 +175,9 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
         return tagValues;
     }
 
-    private void setTags(Set<TagValue> tagSet) {
+    private void setTags(Set<AuditTag> tagSet) {
         tagValues = new HashMap<>();
-        for (TagValue tag : tagSet) {
+        for (AuditTag tag : tagSet) {
             tagValues.put(tag.getTagType(), tag.getTag().getName());
         }
     }

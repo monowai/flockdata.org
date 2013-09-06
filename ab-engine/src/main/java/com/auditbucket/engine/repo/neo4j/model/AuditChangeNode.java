@@ -19,10 +19,7 @@
 
 package com.auditbucket.engine.repo.neo4j.model;
 
-import com.auditbucket.audit.model.AuditChange;
-import com.auditbucket.audit.model.AuditLog;
-import com.auditbucket.audit.model.AuditWhat;
-import com.auditbucket.audit.model.TxRef;
+import com.auditbucket.audit.model.*;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
@@ -51,8 +48,11 @@ public class AuditChangeNode implements AuditChange {
     @RelatedTo(elementClass = TxRefNode.class, type = "txIncludes", direction = Direction.INCOMING, enforceTargetType = true)
     private TxRef txRef;
 
+    @RelatedTo(elementClass = AuditEventNode.class, type = "AUDIT_EVENT", direction = Direction.OUTGOING)
+    @Fetch
+    private AuditEventNode event;
+
     private String comment;
-    private String event;
     private String storage = "neo4j"; // ToDo: enum
 
     // Neo4J will not persist a byte[] over it's http interface. Probably fixed in V2, but not in our version
@@ -78,7 +78,6 @@ public class AuditChangeNode implements AuditChange {
         this.madeBy = (FortressUserNode) madeBy;
 
         String event = inputBean.getEvent();
-        this.event = event;
         this.name = new StringBuilder().append(event).append(COLON).append(madeBy.getName()).toString();
         setTxRef(txRef);
         this.comment = inputBean.getComment();
@@ -144,7 +143,7 @@ public class AuditChangeNode implements AuditChange {
         this.txRef = txRef;
     }
 
-    public String getEvent() {
+    public AuditEvent getEvent() {
         return event;
     }
 
@@ -161,5 +160,11 @@ public class AuditChangeNode implements AuditChange {
 
     public void setWhatStore(String storage) {
         this.storage = storage;
+    }
+
+    @Override
+    public void setEvent(AuditEvent event) {
+        this.event = (AuditEventNode) event;
+
     }
 }

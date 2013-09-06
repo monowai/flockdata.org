@@ -17,54 +17,55 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.registration.repo.neo4j.model;
+package com.auditbucket.engine.repo.neo4j.model;
 
+import com.auditbucket.audit.model.AuditEvent;
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.CompanyUser;
+import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.GraphId;
-import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
-import java.util.Set;
-
+/**
+ * User: Mike Holdsworth
+ * Since: 6/09/13
+ */
 @NodeEntity
-public class CompanyNode implements Company {
+public class AuditEventNode implements AuditEvent {
+
     @GraphId
-    Long id;
+    private Long id;
+    private String code;
 
-    @Indexed(unique = true, indexName = "companyName")
-    String name;
+    @RelatedTo(type = "COMPANY_EVENT", direction = Direction.INCOMING)
+    private CompanyNode company;
 
-    @RelatedTo(elementClass = CompanyUserNode.class, type = "works", direction = Direction.INCOMING)
-    private Set<CompanyUser> companyUsers;
-
-    public CompanyNode(String companyName) {
-        setName(companyName);
+    protected AuditEventNode() {
     }
 
-    public CompanyNode() {
+    public AuditEventNode(Company company, String eventName) {
+        this.company = (CompanyNode) company;
+        this.code = eventName;
     }
 
+    @JsonIgnore
     public Long getId() {
         return id;
     }
 
-    public String getName() {
-        return name;
+    public String getCode() {
+        return code;
     }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
 
     @Override
-    public String toString() {
-        return "CompanyNode{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
+    @JsonIgnore
+    public Company getCompany() {
+        return company;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }

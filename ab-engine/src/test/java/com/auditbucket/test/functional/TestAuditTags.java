@@ -26,7 +26,7 @@ package com.auditbucket.test.functional;
  */
 
 import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.audit.model.TagValue;
+import com.auditbucket.audit.model.AuditTag;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditResultBean;
 import com.auditbucket.bean.AuditSummaryBean;
@@ -139,7 +139,7 @@ public class TestAuditTags {
 
         auditTagService.processTag(header, auditTag);
 
-        Set<TagValue> tags = auditTagService.findTagValues(flopTag.getName(), "ABC");
+        Set<AuditTag> tags = auditTagService.findTagValues(flopTag.getName(), "ABC");
         assertEquals("Not found " + flopTag.getName(), 1, tags.size());
 
         auditTagService.processTag(header, auditTag);
@@ -167,14 +167,14 @@ public class TestAuditTags {
         aib.setTagValues(tagValues);
         AuditResultBean resultBean = auditManager.createHeader(aib);
         AuditHeader auditHeader = auditService.getHeader(resultBean.getAuditKey(), true);
-        Set<TagValue> tagSet = auditHeader.getTagValues();
+        Set<AuditTag> tagSet = auditHeader.getTagValues();
         assertNotNull(tagSet);
         assertEquals(4, tagSet.size());
         assertEquals(0, auditTagService.findTagValues("TagC", "!!Twee!!").size());//
         // Remove a single tag
-        Iterator<TagValue> iterator = tagSet.iterator();
+        Iterator<AuditTag> iterator = tagSet.iterator();
         while (iterator.hasNext()) {
-            TagValue value = iterator.next();
+            AuditTag value = iterator.next();
             if (value.getTag().getName().equals("TagB"))
                 iterator.remove();
             if (value.getTag().getName().equals("TagC"))
@@ -210,7 +210,7 @@ public class TestAuditTags {
         aib.setTagValues(tagValues);
         AuditResultBean resultBean = auditManager.createHeader(aib);
         AuditHeader auditHeader = auditService.getHeader(resultBean.getAuditKey(), true);
-        Set<TagValue> tagSet = auditHeader.getTagValues();
+        Set<AuditTag> tagSet = auditHeader.getTagValues();
         assertNotNull(tagSet);
         assertEquals(4, tagSet.size());
 
@@ -250,7 +250,7 @@ public class TestAuditTags {
         aib.setTagValues(tagValues);
         AuditResultBean resultBean = auditManager.createHeader(aib);
         AuditHeader auditHeader = auditService.getHeader(resultBean.getAuditKey(), true);
-        Set<TagValue> tagSet = auditHeader.getTagValues();
+        Set<AuditTag> tagSet = auditHeader.getTagValues();
         assertNotNull(tagSet);
         assertEquals(1, tagSet.size());
         AuditSummaryBean summaryBean = auditManager.getAuditSummary(auditHeader.getAuditKey());
@@ -279,7 +279,7 @@ public class TestAuditTags {
         aib.setTagValues(tagValues);
         AuditResultBean resultBean = auditManager.createHeader(aib);
         AuditHeader auditHeader = auditService.getHeader(resultBean.getAuditKey(), true);
-        Set<TagValue> tagSet = auditTagService.findAuditTags(auditHeader);
+        Set<AuditTag> tagSet = auditTagService.findAuditTags(auditHeader);
         assertNotNull(tagSet);
         assertEquals(3, tagSet.size());
 

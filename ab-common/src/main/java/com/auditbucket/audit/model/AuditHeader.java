@@ -86,13 +86,13 @@ public interface AuditHeader {
 
     String getCallerRef();
 
-    public Set<TagValue> getTagValues();
+    public Set<AuditTag> getTagValues();
 
     Map<String, String> getTagMap();
 
     long getWhenCreated();
 
-    void setTags(Set<TagValue> auditTags);
+    void setTags(Set<AuditTag> auditTags);
 
     @JsonIgnore
     long getFortressDateCreated();

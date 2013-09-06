@@ -46,7 +46,7 @@ public interface AuditChange {
 
     public void setTxRef(TxRef txRef);
 
-    String getEvent();
+    AuditEvent getEvent();
 
     void setPreviousChange(AuditChange previousChange);
 
@@ -71,4 +71,6 @@ public interface AuditChange {
      * @param storage where to store
      */
     public void setWhatStore(String storage);
+
+    void setEvent(AuditEvent event);
 }

@@ -19,6 +19,7 @@
 
 package com.auditbucket.bean;
 
+import com.auditbucket.audit.model.AuditEvent;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTime;
@@ -241,6 +242,15 @@ public class AuditLogInputBean {
         this.auditId = auditId;
     }
 
+    AuditEvent auditEvent;
+
+    public AuditEvent getAuditEvent() {
+        return auditEvent;
+    }
+
+    public void setAuditEvent(AuditEvent auditEvent) {
+        this.auditEvent = auditEvent;
+    }
 
     public enum LogStatus {
         IGNORE, OK, FORBIDDEN, NOT_FOUND, ILLEGAL_ARGUMENT

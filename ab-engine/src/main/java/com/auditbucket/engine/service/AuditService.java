@@ -37,7 +37,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +71,9 @@ public class AuditService {
 
     @Autowired
     CompanyService companyService;
+
+    @Autowired
+    AuditEventService auditEventService;
 
     @Autowired
     SystemUserService sysUserService;
@@ -291,7 +293,7 @@ public class AuditService {
                     logger.debug("Ignoring a change we already have {}", input);
                     input.setStatus(AuditLogInputBean.LogStatus.IGNORE);
                     if (input.isForceReindex()) { // Caller is recreating the search index
-                        prepareSearchDocument(auditHeader, input, tagValues, searchActive, fortressWhen, existingLog);
+                        prepareSearchDocument(auditHeader, input, existingLog.getAuditChange().getEvent(), searchActive, fortressWhen, existingLog);
                         resultBean.setMessage("Ignoring a change we already have. Honouring request to re-index");
                     } else
                         resultBean.setMessage("Ignoring a change we already have");
@@ -321,7 +323,10 @@ public class AuditService {
         if (existingLog != null)
             existingChange = existingLog.getAuditChange();
 
+        AuditEvent event = auditEventService.processEvent(input.getEvent());
+        input.setAuditEvent(event);
         AuditChange thisChange = auditDAO.save(thisFortressUser, input, txRef, existingChange);
+
         whatService.logWhat(thisChange, input.getWhat());
 
         AuditLog newLog = auditDAO.addLog(auditHeader, thisChange, fortressWhen);
@@ -338,7 +343,7 @@ public class AuditService {
             auditDAO.setLastChange(auditHeader, thisChange, existingChange);
 
             try {
-                resultBean.setSearchDocument(prepareSearchDocument(auditHeader, input, tagValues, searchActive, fortressWhen, newLog));
+                resultBean.setSearchDocument(prepareSearchDocument(auditHeader, input, event, searchActive, fortressWhen, newLog));
             } catch (JsonProcessingException e) {
                 resultBean.setMessage("Error processing JSON document");
                 resultBean.setStatus(AuditLogInputBean.LogStatus.ILLEGAL_ARGUMENT);
@@ -349,12 +354,12 @@ public class AuditService {
     }
 
 
-    private SearchChange prepareSearchDocument(AuditHeader auditHeader, AuditLogInputBean logInput, Map<String, String> tagValues, Boolean searchActive, DateTime fortressWhen, AuditLog auditLog) throws JsonProcessingException {
+    private SearchChange prepareSearchDocument(AuditHeader auditHeader, AuditLogInputBean logInput, AuditEvent event, Boolean searchActive, DateTime fortressWhen, AuditLog auditLog) throws JsonProcessingException {
 
         if (!searchActive || auditHeader.isSearchSuppressed())
             return null;
         SearchChange searchDocument;
-        searchDocument = new AuditSearchChange(auditHeader, logInput.getMapWhat(), logInput.getEvent(), fortressWhen);
+        searchDocument = new AuditSearchChange(auditHeader, logInput.getMapWhat(), event.getCode(), fortressWhen);
         //searchDocument.setTags(getAuditTags(auditHeader.getId()));
         searchDocument.setWho(auditLog.getAuditChange().getWho().getName());
 
@@ -576,7 +581,7 @@ public class AuditService {
         if (auditHeader.getFortress().isSearchActive() && !auditHeader.isSearchSuppressed()) {
             // Update against the Audit Header only by re-indexing the search document
             Map<String, Object> priorWhat = whatService.getWhat(priorChange).getWhatMap();
-            searchGateway.makeChangeSearchable(new AuditSearchChange(auditHeader, priorWhat, priorChange.getEvent(), new DateTime(priorChange.getAuditLog().getFortressWhen())));
+            searchGateway.makeChangeSearchable(new AuditSearchChange(auditHeader, priorWhat, priorChange.getEvent().getCode(), new DateTime(priorChange.getAuditLog().getFortressWhen())));
         }
         return new AsyncResult<>(auditHeader);
     }
@@ -678,7 +683,7 @@ public class AuditService {
         return new AuditSummaryBean(header, changes);
     }
 
-    public Set<TagValue> getAuditTags(Long id) {
+    public Set<AuditTag> getAuditTags(Long id) {
         return auditTagService.findAuditTags(id);
 
 
@@ -697,7 +702,7 @@ public class AuditService {
 
         SearchChange searchDocument = new AuditSearchChange(header, null, event, new DateTime(when));
 
-        //Set<TagValue>tagSet = getAuditTags(header.getId());
+        //Set<AuditTag>tagSet = getAuditTags(header.getId());
         //searchDocument.setTags(tagSet);
         makeChangeSearchable(searchDocument);
 

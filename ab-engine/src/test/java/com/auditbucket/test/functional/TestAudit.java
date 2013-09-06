@@ -34,8 +34,6 @@ import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -261,14 +259,15 @@ public class TestAudit {
         auditManagerService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 0}"));
         AuditLog when = auditService.getLastAuditLog(ahKey);
         assertNotNull(when);
-        assertEquals(AuditChange.CREATE, when.getAuditChange().getEvent()); // log event default
+        assertEquals(AuditChange.CREATE, when.getAuditChange().getEvent().getCode()); // log event default
 
         auditManagerService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 1}"));
         AuditLog whenB = auditService.getLastAuditLog(ahKey);
         assertNotNull(whenB);
 
         assertFalse(whenB.equals(when));
-        assertEquals(AuditChange.UPDATE, whenB.getAuditChange().getEvent());  // log event default
+        assertNotNull(whenB.getAuditChange().getEvent());
+        assertEquals(AuditChange.UPDATE, whenB.getAuditChange().getEvent().getCode());  // log event default
     }
 
     @Test
