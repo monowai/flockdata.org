@@ -113,8 +113,6 @@ public class AuditSearchDaoES implements AuditSearchDao {
         IndexResponse ir = irb.execute().actionGet();
         auditChange.setSearchKey(ir.getId());
 
-        // Mapping Found then use it
-
 
         if (logger.isDebugEnabled())
             logger.debug("Added Document [" + auditChange.getAuditKey() + "], logId=" + auditChange.getLogId() + " searchId [" + ir.getId() + "] to " + indexName + "/" + documentType);
