@@ -29,6 +29,7 @@ import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
+import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
@@ -98,6 +99,26 @@ public class AuditSearchDaoES implements AuditSearchDao {
             // create Index  and Set Mapping
             if(mappingEs != null){
             esClient.admin().indices().prepareCreate(indexName).addMapping(documentType,mappingEs).execute().actionGet();
+            }
+        }
+        else{
+            XContentBuilder mappingEs =  mapping(documentType);
+            // Test if Type exist
+            String[] indexNames = new String[1];
+            indexNames[0]=indexName;
+            String[] documentTypes = new String[1];
+            documentTypes[0]=documentType;
+
+            boolean hasType = esClient.admin().indices().typesExists(new TypesExistsRequest(indexNames,documentTypes)).actionGet().isExists();
+            if(!hasType){
+                // Type Don't exist Insert Mapping
+                if(mappingEs != null){
+                    esClient.admin().indices()
+                            .preparePutMapping(indexName)
+                            .setType(documentType)
+                            .setSource(mappingEs)
+                            .execute().actionGet();
+                }
             }
         }
 
@@ -260,34 +281,34 @@ public class AuditSearchDaoES implements AuditSearchDao {
                     .startObject()
                     .startObject(documentType)
                     .startObject("properties")
-                    .startObject("@auditKey") // @auditKey is not analyzed
+                    .startObject(AuditSearchSchema.AUDIT_KEY) // @auditKey is not analyzed
                     .field("type", "string")
                     .field("index", "no")
                     .endObject()
-                    .startObject("@callerRef") // @callerRef is not analyzed
+                    .startObject(AuditSearchSchema.CALLER_REF) // @callerRef is not analyzed
                     .field("type", "string")
                     .field("index", "no")
                     .endObject()
-                    .startObject("@docType")  // @docType
+                    .startObject(AuditSearchSchema.DOC_TYPE)  // @docType
                     .field("type", "string")
                     .endObject()
-                    .startObject("@fortress")   // @fortress
+                    .startObject(AuditSearchSchema.FORTRESS)   // @fortress
                     .field("type", "string")
                     .endObject()
-                    .startObject("@lastEvent")  //@lastEvent
+                    .startObject(AuditSearchSchema.LAST_EVENT)  //@lastEvent
                     .field("type", "string")
                     .endObject()
 //                    .startObject("@tags")     //@tags is dynamic so we don't init his mapping we choose the convention
 //                    .endObject()
-                    .startObject("@timestamp")
+                    .startObject(AuditSearchSchema.TIMESTAMP)
                     .field("type", "long")
                     .endObject()
 //                    .startObject("@what")    //@what is dynamic so we don't init his mapping we choose the convention
 //                    .endObject()
-                    .startObject("@when")      //@when
+                    .startObject(AuditSearchSchema.WHEN)      //@when
                     .field("type", "long")
                     .endObject()
-                    .startObject("@who")       //@who
+                    .startObject(AuditSearchSchema.WHO)       //@who
                     .field("type", "string")
                     .field("index", "no")
                     .endObject()
