@@ -25,23 +25,30 @@ import com.auditbucket.audit.model.SearchChange;
 import com.auditbucket.search.AuditSearchSchema;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.indices.IndexMissingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 /**
  * User: Mike Holdsworth
@@ -86,6 +93,16 @@ public class AuditSearchDaoES implements AuditSearchDao {
         String indexName = auditChange.getIndexName();
         String documentType = auditChange.getDocumentType();
 
+        // Test if index exist
+        boolean hasIndex = esClient.admin().indices().exists(new IndicesExistsRequest(indexName)).actionGet().isExists();
+        if(!hasIndex){
+            XContentBuilder mappingEs =  mapping(documentType);
+            // create Index  and Set Mapping
+            if(mappingEs != null){
+            esClient.admin().indices().prepareCreate(indexName).addMapping(documentType,mappingEs).execute().actionGet();
+            }
+        }
+
         String source = makeIndexJson(auditChange);
         IndexRequestBuilder irb = esClient.prepareIndex(indexName, documentType)
                 .setSource(source)
@@ -97,6 +114,10 @@ public class AuditSearchDaoES implements AuditSearchDao {
 
         IndexResponse ir = irb.execute().actionGet();
         auditChange.setSearchKey(ir.getId());
+
+        // Mapping Found then use it
+
+
         if (logger.isDebugEnabled())
             logger.debug("Added Document [" + auditChange.getAuditKey() + "], logId=" + auditChange.getLogId() + " searchId [" + ir.getId() + "] to " + indexName + "/" + documentType);
         return auditChange;
@@ -234,5 +255,52 @@ public class AuditSearchDaoES implements AuditSearchDao {
             indexMe.put(AuditSearchSchema.TAGS, auditChange.getTagValues());
 
         return indexMe;
+    }
+
+    private XContentBuilder mapping(String documentType) {
+        XContentBuilder xbMapping = null;
+        try {
+            xbMapping = jsonBuilder()
+                    .startObject()
+                    .startObject(documentType)
+                    .startObject("properties")
+                    .startObject("@auditKey") // @auditKey is not analyzed
+                    .field("type", "string")
+                    .field("index", "no")
+                    .endObject()
+                    .startObject("@callerRef") // @callerRef is not analyzed
+                    .field("type", "string")
+                    .field("index", "no")
+                    .endObject()
+                    .startObject("@docType")  // @docType
+                    .field("type", "string")
+                    .endObject()
+                    .startObject("@fortress")   // @fortress
+                    .field("type", "string")
+                    .endObject()
+                    .startObject("@lastEvent")  //@lastEvent
+                    .field("type", "string")
+                    .endObject()
+//                    .startObject("@tags")     //@tags is dynamic so we don't init his mapping we choose the convention
+//                    .endObject()
+                    .startObject("@timestamp")
+                    .field("type", "long")
+                    .endObject()
+//                    .startObject("@what")    //@what is dynamic so we don't init his mapping we choose the convention
+//                    .endObject()
+                    .startObject("@when")      //@when
+                    .field("type", "long")
+                    .endObject()
+                    .startObject("@who")       //@who
+                    .field("type", "string")
+                    .field("index", "no")
+                    .endObject()
+                    .endObject()
+                    .endObject()
+                    .endObject();
+        } catch (IOException e) {
+            return null;
+        }
+        return xbMapping;
     }
 }
