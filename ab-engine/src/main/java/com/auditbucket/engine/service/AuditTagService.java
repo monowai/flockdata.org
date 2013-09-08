@@ -30,6 +30,7 @@ import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +41,7 @@ import java.util.Set;
  * Time: 5:07 PM
  */
 @Service
+@Transactional
 public class AuditTagService {
 
     @Autowired

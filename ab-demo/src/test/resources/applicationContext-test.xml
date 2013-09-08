@@ -17,7 +17,9 @@
 
     <jpa:repositories base-package="com.auditbucket.demo.repository"/>
 
-    <context:property-placeholder location="classpath:config.properties"/>
+    <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true"
+                                  location="classpath:/config.properties,file:${ab.config}"/>
+
     <tx:annotation-driven transaction-manager="transactionManager"/>
 
     <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">

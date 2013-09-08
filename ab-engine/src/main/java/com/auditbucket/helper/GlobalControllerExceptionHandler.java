@@ -19,6 +19,8 @@
 
 package com.auditbucket.helper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -34,10 +36,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  */
 @ControllerAdvice
 public class GlobalControllerExceptionHandler {
+    private Logger logger = LoggerFactory.getLogger(GlobalControllerExceptionHandler.class);
 
     @ExceptionHandler(value = {MissingServletRequestParameterException.class, HttpMessageNotReadableException.class, Exception.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     ResponseEntity<Object> handleConflict(Exception ex) {
+        logger.error(ex.getMessage());
         return new ResponseEntity<Object>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 

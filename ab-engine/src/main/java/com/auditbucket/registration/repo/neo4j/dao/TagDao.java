@@ -26,6 +26,8 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.repo.neo4j.TagRepository;
 import com.auditbucket.registration.repo.neo4j.model.TagNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
@@ -48,6 +50,7 @@ public class TagDao implements com.auditbucket.dao.TagDao {
     @Autowired
     Neo4jTemplate template;
 
+    private Logger logger = LoggerFactory.getLogger(TagDao.class);
 
     public Tag save(Tag tag) {
         TagNode tagToCreate;
@@ -73,6 +76,7 @@ public class TagDao implements com.auditbucket.dao.TagDao {
             result = documentTypeRepo.findCompanyDocType(company.getId(), documentType);
 
         if (result == null) {
+            logger.debug("Creating document type {}", documentType);
             result = documentTypeRepo.save(new DocumentTypeNode(documentType, company));
         }
         return result;

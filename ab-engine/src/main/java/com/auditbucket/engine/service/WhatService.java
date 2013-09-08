@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 
@@ -17,6 +18,7 @@ import java.io.IOException;
  * Since: 4/09/13
  */
 @Service
+@Transactional
 public class WhatService {
     static final ObjectMapper om = new ObjectMapper();
     public static final String NEO4J = "neo4j";

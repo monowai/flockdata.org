@@ -31,4 +31,6 @@ public interface DocumentType {
     public String getName();
 
     public Company getCompany();
+
+    Long getId();
 }

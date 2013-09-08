@@ -22,6 +22,7 @@ package com.auditbucket.engine.repo.neo4j.model;
 import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
@@ -57,7 +58,14 @@ public class DocumentTypeNode implements DocumentType {
         return name;
     }
 
+    @JsonIgnore
     public Company getCompany() {
         return company;
+    }
+
+    @Override
+    @JsonIgnore
+    public Long getId() {
+        return id;
     }
 }

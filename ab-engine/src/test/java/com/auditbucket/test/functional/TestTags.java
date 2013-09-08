@@ -19,6 +19,7 @@
 
 package com.auditbucket.test.functional;
 
+import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
@@ -126,6 +127,19 @@ public class TestTags {
         assertEquals("FLOPPY", result.getName());
         assertNull(tagService.findTag("FLOP"));
         assertNotNull(tagService.findTag("FLOPPY"));
+
+    }
+
+    @Test
+    public void duplicateDocumentTypes() throws Exception {
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        assertNotNull(iSystemUser);
+
+        DocumentType dType = tagService.resolveDocType("ABC123");
+        assertNotNull(dType);
+        Long id = dType.getId();
+        dType = tagService.resolveDocType("ABC123");
+        assertEquals(id, dType.getId());
 
     }
 }

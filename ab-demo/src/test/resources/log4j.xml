@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!--
   ~ Copyright (c) 2012-2013 "Monowai Developments Limited"
   ~
@@ -28,47 +29,21 @@
             <param name="ConversionPattern" value="%-5p: %c - %m%n"/>
         </layout>
     </appender>
-
-    <!-- 3rdparty Loggers -->
-    <logger name="org.elasticsearch">
-        <level value="info"/>
-    </logger>
-
-    <logger name="org.apache.lucene">
-        <level value="info"/>
-    </logger>
-
     <logger name="org.hibernate">
         <level value="error"/>
-    </logger>
-
-    <logger name="netty">
-        <level value="error"/>
-    </logger>
-
-    <logger name="org.codehaus.jackson">
-        <level value="info"/>
-    </logger>
-
-    <logger name="org.springframework.integration">
-        <level value="info"/>
-    </logger>
-
-    <logger name="org.springframework.amqp">
-        <level value="info"/>
     </logger>
 
     <logger name="org.springframework">
         <level value="info"/>
     </logger>
-    <logger name="org.auditbucket">
-        <level value="info"/>
-    </logger>
 
+    <logger name="org.springframework.web">
+        <level value="debug"/>
+    </logger>
 
     <!-- Root Logger -->
     <root>
-        <priority value="info"/>
+        <priority value="DEBUG"/>
         <appender-ref ref="console"/>
     </root>
 

@@ -26,6 +26,7 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Handles management of a companies tags.
@@ -37,6 +38,7 @@ import org.springframework.stereotype.Service;
  */
 
 @Service
+@Transactional
 public class TagService {
     @Autowired
     private SecurityHelper securityHelper;

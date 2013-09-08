@@ -5,6 +5,8 @@ import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditResultBean;
 import com.auditbucket.spring.utils.PojoToAbTransformer;
 import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -22,12 +24,26 @@ public class AbClient {
     private String password;
     private String forteressName;
 
-    public AbClient(String serverName, String apiKey, String userName, String password, String forteressName) {
+    private Logger logger = LoggerFactory.getLogger(AbClient.class);
+
+    @Override
+    public String toString() {
+        return "AbClient{" +
+                "serverName='" + serverName + '\'' +
+                ", apiKey='" + apiKey + '\'' +
+                ", userName='" + userName + '\'' +
+                ", forteressName='" + forteressName + '\'' +
+                '}';
+    }
+
+    public AbClient(String serverName, String apiKey, String userName, String password, String fortressName) {
         this.serverName = serverName;
         this.apiKey = apiKey;
         this.userName = userName;
         this.password = password;
-        this.forteressName = forteressName;
+        this.forteressName = fortressName;
+        logger.info(this.toString());
+
     }
 
     // ToDo: Should only be one method - createAudit(). The creation of a Log happens if there is pojo data to
@@ -46,7 +62,7 @@ public class AbClient {
         HttpEntity<AuditHeaderInputBean> requestEntity = new HttpEntity<AuditHeaderInputBean>(auditHeaderInputBean, httpHeaders);
 
         // ToDo: audit/header/new is only called if @AuditKey is null, otherwise /audit/log/new is called
-
+        logger.debug("template {}", restTemplate.toString());
         ResponseEntity response = restTemplate.exchange(serverName + "/audit/header/new", HttpMethod.POST, requestEntity, AuditResultBean.class);
         // TODO dependeing on  response.getStatusCode() we must throw or not a specific AB exception
         return (AuditResultBean) response.getBody();
