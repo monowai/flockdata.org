@@ -59,6 +59,7 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 @Repository("esAuditChange")
 public class AuditSearchDaoES implements AuditSearchDao {
 
+    public static final String NOT_ANALYZED = "not_analyzed";
     @Autowired
     private Client esClient;
 
@@ -337,20 +338,21 @@ public class AuditSearchDaoES implements AuditSearchDao {
                     .startObject()
                     .startObject(documentType)
                     .startObject("properties")
-                    .startObject(AuditSearchSchema.AUDIT_KEY) // @auditKey is not analyzed
+                    .startObject(AuditSearchSchema.AUDIT_KEY) // keyword
                     .field("type", "string")
-                    .field("index", "not_analyzed")
+                    .field("index", NOT_ANALYZED)
                     .endObject()
-                    .startObject(AuditSearchSchema.CALLER_REF) // @callerRef is not analyzed
+                    .startObject(AuditSearchSchema.CALLER_REF) // keyword
                     .field("type", "string")
-                    .field("index", "not_analyzed")
+                    .field("index", NOT_ANALYZED)
                     .endObject()
-                    .startObject(AuditSearchSchema.DOC_TYPE)  // @docType
+                    .startObject(AuditSearchSchema.DOC_TYPE)  // keyword
                     .field("type", "string")
+                    .field("index", NOT_ANALYZED)
                     .endObject()
-                    .startObject(AuditSearchSchema.FORTRESS)   // @fortress
+                    .startObject(AuditSearchSchema.FORTRESS)   // keyword
                     .field("type", "string")
-                    .field("index", "not_analyzed")
+                    .field("index", NOT_ANALYZED)
                     .endObject()
                     .startObject(AuditSearchSchema.LAST_EVENT)  //@lastEvent
                     .field("type", "string")
@@ -382,7 +384,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
                     .endObject()
                     .startObject(AuditSearchSchema.WHO)       //@who
                     .field("type", "string")
-                    .field("index", "not_analyzed")
+                    .field("index", NOT_ANALYZED)
                     .endObject()
                     .endObject()
                     .endObject()
