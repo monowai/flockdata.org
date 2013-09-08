@@ -96,33 +96,32 @@ public class AuditSearchDaoES implements AuditSearchDao {
 
         // Test if index exist
         boolean hasIndex = esClient.admin().indices().exists(new IndicesExistsRequest(indexName)).actionGet().isExists();
-        if(!hasIndex){
-            XContentBuilder mappingEs =  mapping(documentType);
+        if (!hasIndex) {
+            XContentBuilder mappingEs = mapping(documentType);
             // create Index  and Set Mapping
-            if(mappingEs != null){
+            if (mappingEs != null) {
                 //Settings settings = Builder
+                logger.debug("Creating new index {} for document type {}", auditChange.getIndexName(), auditChange.getDocumentType());
                 String settingDefinition = settingDefinition();
-                if(settingDefinition!= null){
+                if (settingDefinition != null) {
                     Settings settings = ImmutableSettings.settingsBuilder().loadFromSource(settingDefinition).build();
-                    esClient.admin().indices().prepareCreate(indexName).addMapping(documentType,mappingEs).setSettings(settings).execute().actionGet();
-                }
-                else{
-                    esClient.admin().indices().prepareCreate(indexName).addMapping(documentType,mappingEs).execute().actionGet();
+                    esClient.admin().indices().prepareCreate(indexName).addMapping(documentType, mappingEs).setSettings(settings).execute().actionGet();
+                } else {
+                    esClient.admin().indices().prepareCreate(indexName).addMapping(documentType, mappingEs).execute().actionGet();
                 }
             }
-        }
-        else{
-            XContentBuilder mappingEs =  mapping(documentType);
+        } else {
+            XContentBuilder mappingEs = mapping(documentType);
             // Test if Type exist
             String[] indexNames = new String[1];
-            indexNames[0]=indexName;
+            indexNames[0] = indexName;
             String[] documentTypes = new String[1];
-            documentTypes[0]=documentType;
+            documentTypes[0] = documentType;
 
-            boolean hasType = esClient.admin().indices().typesExists(new TypesExistsRequest(indexNames,documentTypes)).actionGet().isExists();
-            if(!hasType){
+            boolean hasType = esClient.admin().indices().typesExists(new TypesExistsRequest(indexNames, documentTypes)).actionGet().isExists();
+            if (!hasType) {
                 // Type Don't exist ==> Insert Mapping
-                if(mappingEs != null){
+                if (mappingEs != null) {
                     esClient.admin().indices()
                             .preparePutMapping(indexName)
                             .setType(documentType)
@@ -284,50 +283,50 @@ public class AuditSearchDaoES implements AuditSearchDao {
         return indexMe;
     }
 
-    private String settingDefinition(){
-            try {
-                XContentBuilder setting = setting();
-                return setting.string();
-            } catch (IOException e) {
-                logger.error("Error in building settings for the ES index",e);
-            }
+    private String settingDefinition() {
+        try {
+            XContentBuilder setting = setting();
+            return setting.string();
+        } catch (IOException e) {
+            logger.error("Error in building settings for the ES index", e);
+        }
         return null;
     }
 
     private XContentBuilder setting() throws IOException {
         XContentBuilder xbMapping = jsonBuilder()
-                            .startObject()
-                            .startObject("analysis")
-                                .startObject("analyzer")
-                                    .startObject(AuditSearchSchema.NGRM_WHAT_CODE)
-                                        .field("tokenizer", AuditSearchSchema.NGRM_WHAT_CODE)
-                                    .endObject()
-                                    .startObject(AuditSearchSchema.NGRM_WHAT_NAME)
-                                        .field("tokenizer", AuditSearchSchema.NGRM_WHAT_NAME)
-                                    .endObject()
-                                    .startObject(AuditSearchSchema.NGRM_WHAT_DESCRIPTION)
-                                        .field("tokenizer", AuditSearchSchema.NGRM_WHAT_DESCRIPTION)
-                                    .endObject()
-                                .endObject()
-                                .startObject("tokenizer")
-                                    .startObject(AuditSearchSchema.NGRM_WHAT_CODE)
-                                        .field("type", "nGram")
-                                        .field("min_gram", AuditSearchSchema.NGRM_WHAT_CODE_MIN)
-                                        .field("max_gram", AuditSearchSchema.NGRM_WHAT_CODE_MAX)
-                                    .endObject()
-                                    .startObject(AuditSearchSchema.NGRM_WHAT_NAME)
-                                        .field("type", "nGram")
-                                        .field("min_gram", AuditSearchSchema.NGRM_WHAT_NAME_MIN)
-                                        .field("max_gram", AuditSearchSchema.NGRM_WHAT_NAME_MAX)
-                                    .endObject()
-                                    .startObject(AuditSearchSchema.NGRM_WHAT_DESCRIPTION)
-                                        .field("type", "nGram")
-                                        .field("min_gram", AuditSearchSchema.NGRM_WHAT_DESCRIPTION_MIN)
-                                        .field("max_gram", AuditSearchSchema.NGRM_WHAT_DESCRIPTION_MAX)
-                                    .endObject()
-                                .endObject()
-                            .endObject()
-                            .endObject();
+                .startObject()
+                .startObject("analysis")
+                .startObject("analyzer")
+                .startObject(AuditSearchSchema.NGRM_WHAT_CODE)
+                .field("tokenizer", AuditSearchSchema.NGRM_WHAT_CODE)
+                .endObject()
+                .startObject(AuditSearchSchema.NGRM_WHAT_NAME)
+                .field("tokenizer", AuditSearchSchema.NGRM_WHAT_NAME)
+                .endObject()
+                .startObject(AuditSearchSchema.NGRM_WHAT_DESCRIPTION)
+                .field("tokenizer", AuditSearchSchema.NGRM_WHAT_DESCRIPTION)
+                .endObject()
+                .endObject()
+                .startObject("tokenizer")
+                .startObject(AuditSearchSchema.NGRM_WHAT_CODE)
+                .field("type", "nGram")
+                .field("min_gram", AuditSearchSchema.NGRM_WHAT_CODE_MIN)
+                .field("max_gram", AuditSearchSchema.NGRM_WHAT_CODE_MAX)
+                .endObject()
+                .startObject(AuditSearchSchema.NGRM_WHAT_NAME)
+                .field("type", "nGram")
+                .field("min_gram", AuditSearchSchema.NGRM_WHAT_NAME_MIN)
+                .field("max_gram", AuditSearchSchema.NGRM_WHAT_NAME_MAX)
+                .endObject()
+                .startObject(AuditSearchSchema.NGRM_WHAT_DESCRIPTION)
+                .field("type", "nGram")
+                .field("min_gram", AuditSearchSchema.NGRM_WHAT_DESCRIPTION_MIN)
+                .field("max_gram", AuditSearchSchema.NGRM_WHAT_DESCRIPTION_MAX)
+                .endObject()
+                .endObject()
+                .endObject()
+                .endObject();
         return xbMapping;
     }
 
@@ -340,17 +339,18 @@ public class AuditSearchDaoES implements AuditSearchDao {
                     .startObject("properties")
                     .startObject(AuditSearchSchema.AUDIT_KEY) // @auditKey is not analyzed
                     .field("type", "string")
-                    .field("index", "no")
+                    .field("index", "not_analyzed")
                     .endObject()
                     .startObject(AuditSearchSchema.CALLER_REF) // @callerRef is not analyzed
                     .field("type", "string")
-                    .field("index", "no")
+                    .field("index", "not_analyzed")
                     .endObject()
                     .startObject(AuditSearchSchema.DOC_TYPE)  // @docType
                     .field("type", "string")
                     .endObject()
                     .startObject(AuditSearchSchema.FORTRESS)   // @fortress
                     .field("type", "string")
+                    .field("index", "not_analyzed")
                     .endObject()
                     .startObject(AuditSearchSchema.LAST_EVENT)  //@lastEvent
                     .field("type", "string")
@@ -382,7 +382,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
                     .endObject()
                     .startObject(AuditSearchSchema.WHO)       //@who
                     .field("type", "string")
-                    .field("index", "no")
+                    .field("index", "not_analyzed")
                     .endObject()
                     .endObject()
                     .endObject()

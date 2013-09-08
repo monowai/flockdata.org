@@ -17,9 +17,9 @@ public class AuditSearchSchema {
     public static final String WHO = "@who";
     public static final String AUDIT_KEY = "@auditKey";
 
-    public static final String WHAT_CODE = "code";
-    public static final String WHAT_NAME = "name";
-    public static final String WHAT_DESCRIPTION = "description";
+    public static final String WHAT_CODE = WHAT + ".code";
+    public static final String WHAT_NAME = WHAT + ".name";
+    public static final String WHAT_DESCRIPTION = WHAT + ".description";
 
     // Analyzer NGram Config Settings
     public static final String NGRM_WHAT_DESCRIPTION = "ngram_what_description";
@@ -27,12 +27,12 @@ public class AuditSearchSchema {
     public static final String NGRM_WHAT_NAME = "ngram_what_name";
 
     public static final String NGRM_WHAT_DESCRIPTION_MAX = "10";
-    public static final String NGRM_WHAT_DESCRIPTION_MIN = "2";
+    public static final String NGRM_WHAT_DESCRIPTION_MIN = "3";
 
     public static final String NGRM_WHAT_CODE_MAX = "5";
     public static final String NGRM_WHAT_CODE_MIN = "2";
 
-    public static final String NGRM_WHAT_NAME_MAX = "5";
-    public static final String NGRM_WHAT_NAME_MIN = "2";
+    public static final String NGRM_WHAT_NAME_MAX = "10";
+    public static final String NGRM_WHAT_NAME_MIN = "3";
 
 }
