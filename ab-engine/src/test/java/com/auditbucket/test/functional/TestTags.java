@@ -70,21 +70,23 @@ public class TestTags {
     private Neo4jTemplate template;
     private Logger log = LoggerFactory.getLogger(TestTags.class);
     private String company = "Monowai";
-    private String uid = "mike@monowai.com";
-    Authentication authA = new UsernamePasswordAuthenticationToken(uid, "user1");
+    private String mike = "mike@monowai.com";
+    private String mark = "mark@monowai.com";
+    Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
+    Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "user1");
 
     @Rollback(false)
     @BeforeTransaction
     public void cleanUpGraph() {
         // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
         // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-        SecurityContextHolder.getContext().setAuthentication(authA);
+        SecurityContextHolder.getContext().setAuthentication(authMike);
         Neo4jHelper.cleanDb(template);
     }
 
     @org.junit.Test
     public void tagCreationAndSecurity() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
         assertNotNull(iSystemUser);
 
         Company iCompany = iSystemUser.getCompany();
@@ -111,7 +113,7 @@ public class TestTags {
 
     @Test
     public void tagUpdate() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
         assertNotNull(iSystemUser);
 
         Company iCompany = iSystemUser.getCompany();
@@ -132,7 +134,7 @@ public class TestTags {
 
     @Test
     public void duplicateDocumentTypes() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
         assertNotNull(iSystemUser);
 
         DocumentType dType = tagService.resolveDocType("ABC123");
@@ -140,6 +142,14 @@ public class TestTags {
         Long id = dType.getId();
         dType = tagService.resolveDocType("ABC123");
         assertEquals(id, dType.getId());
+
+        // Company 2 gets a different tag with the same name
+        SecurityContextHolder.getContext().setAuthentication(authMark);
+        regService.registerSystemUser(new RegistrationBean("secondcompany", mark, "bah"));
+        dType = tagService.resolveDocType("ABC123");
+        assertNotNull(dType);
+        assertNotSame(id, dType.getId());
+
 
     }
 }
