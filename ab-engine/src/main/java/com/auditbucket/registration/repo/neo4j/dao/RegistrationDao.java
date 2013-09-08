@@ -24,9 +24,15 @@ import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.repo.neo4j.SystemUserRepository;
 import com.auditbucket.registration.repo.neo4j.model.SystemUserNode;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.index.Index;
+import org.neo4j.index.impl.lucene.LuceneIndex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
+
+import javax.annotation.Resource;
 
 /**
  * User: Mike Holdsworth
@@ -48,6 +54,7 @@ public class RegistrationDao implements com.auditbucket.dao.RegistrationDao {
     }
 
     public SystemUser findSysUserByName(String name) {
+
         if (template.getGraphDatabaseService().index().existsForNodes("sysUserName"))
             return suRepo.getSystemUser(name);
         return null;

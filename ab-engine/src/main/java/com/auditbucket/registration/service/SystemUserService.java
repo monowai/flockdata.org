@@ -25,6 +25,7 @@ import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.repo.neo4j.dao.RegistrationDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class SystemUserService {
@@ -43,6 +44,7 @@ public class SystemUserService {
         return regDao.getFortressUser(userName, fortressName, fortressUser);
     }
 
+    @Transactional
     public SystemUser save(RegistrationBean regBean) {
         return regDao.save(regBean.getCompany(), regBean.getName(), regBean.getPassword());
     }

@@ -139,16 +139,16 @@ public class AuditService {
 
         Company company = su.getCompany();
         // ToDo: Improve cypher query
-        Fortress iFortress = companyService.getCompanyFortress(company, inputBean.getFortress());
-        if (iFortress == null)
+        Fortress fortress = companyService.getCompanyFortress(company, inputBean.getFortress());
+        if (fortress == null)
             throw new IllegalArgumentException("Unable to find the fortress [" + inputBean.getFortress() + "] for the company [" + company.getName() + "]");
 
         Future<AuditHeader> futureHeader = null;
         if (inputBean.getCallerRef() != null && !inputBean.getCallerRef().equals(EMPTY))
-            futureHeader = findByCallerRefFuture(iFortress.getId(), inputBean.getDocumentType(), inputBean.getCallerRef());
+            futureHeader = findByCallerRefFuture(fortress.getId(), inputBean.getDocumentType(), inputBean.getCallerRef());
 
         // Create fortressUser if missing
-        FortressUser fu = fortressService.getFortressUser(iFortress, inputBean.getFortressUser(), true);
+        FortressUser fu = fortressService.getFortressUser(fortress, inputBean.getFortressUser(), true);
         fu.getFortress().setCompany(su.getCompany());
 
         AuditHeader ah = null;

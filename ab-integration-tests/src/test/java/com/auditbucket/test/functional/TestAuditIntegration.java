@@ -60,6 +60,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -81,6 +82,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
+//@Transactional
 public class TestAuditIntegration {
 
     static int fortressMax = 2;
@@ -131,14 +133,14 @@ public class TestAuditIntegration {
         SecurityContextHolder.getContext().setAuthentication(authA);
         if ("http".equals(System.getProperty("neo4j")))
             return;
-        Transaction tx = graphDatabaseService.beginTx();
-        try {
+        //Transaction tx = graphDatabaseService.beginTx();
+        //try {
 
-            Neo4jHelper.cleanDb(template);
-            tx.success();
-        } finally {
-            tx.finish();
-        }
+        Neo4jHelper.cleanDb(template);
+        //  tx.success();
+//        } finally {
+//            tx.finish();
+//        }
 
     }
 
