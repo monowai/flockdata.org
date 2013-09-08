@@ -23,6 +23,8 @@ public class AbClient {
     private String userName;
     private String password;
     private String forteressName;
+    private String NEW_LOG;
+    private String NEW_HEADER;
 
     private Logger logger = LoggerFactory.getLogger(AbClient.class);
 
@@ -42,6 +44,8 @@ public class AbClient {
         this.userName = userName;
         this.password = password;
         this.forteressName = fortressName;
+        this.NEW_LOG = this.serverName + "/audit/log/new";
+        this.NEW_HEADER = this.serverName + "/audit/header/new";
         logger.info(this.toString());
 
     }
@@ -63,7 +67,7 @@ public class AbClient {
 
         // ToDo: audit/header/new is only called if @AuditKey is null, otherwise /audit/log/new is called
         logger.debug("template {}", restTemplate.toString());
-        ResponseEntity response = restTemplate.exchange(serverName + "/audit/header/new", HttpMethod.POST, requestEntity, AuditResultBean.class);
+        ResponseEntity response = restTemplate.exchange(NEW_HEADER, HttpMethod.POST, requestEntity, AuditResultBean.class);
         // TODO dependeing on  response.getStatusCode() we must throw or not a specific AB exception
         return (AuditResultBean) response.getBody();
     }
@@ -78,7 +82,7 @@ public class AbClient {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
-        ResponseEntity response = restTemplate.exchange(serverName + "/audit/log/new", HttpMethod.POST, requestEntity, AuditLogInputBean.class);
+        ResponseEntity response = restTemplate.exchange(NEW_LOG, HttpMethod.POST, requestEntity, AuditLogInputBean.class);
 
         // TODO depending on  response.getStatusCode() we must throw or not a specific AB exception
         return (AuditLogInputBean) response.getBody();
