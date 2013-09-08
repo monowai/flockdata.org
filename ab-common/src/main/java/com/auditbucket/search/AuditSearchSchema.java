@@ -17,9 +17,9 @@ public class AuditSearchSchema {
     public static final String WHO = "@who";
     public static final String AUDIT_KEY = "@auditKey";
 
-    public static final String WHAT_CODE = WHAT + ".code";
-    public static final String WHAT_NAME = WHAT + ".name";
-    public static final String WHAT_DESCRIPTION = WHAT + ".description";
+    public static final String WHAT_CODE = "code";
+    public static final String WHAT_NAME = "name";
+    public static final String WHAT_DESCRIPTION = "description";
 
     // Analyzer NGram Config Settings
     public static final String NGRM_WHAT_DESCRIPTION = "ngram_what_description";
