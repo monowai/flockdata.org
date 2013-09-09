@@ -201,16 +201,16 @@ public class AuditDaoNeo implements AuditDao {
     @Override
     public String ping() {
 
-        Index<Node> index = graphDb.index().forNodes("sysUserName");
-        ((LuceneIndex<Node>) index).setCacheCapacity("name", 300);
-        index = graphDb.index().forNodes("documentTypeName");
-        ((LuceneIndex<Node>) index).setCacheCapacity("name", 300);
-        index = graphDb.index().forNodes(AuditHeaderNode.UUID_KEY);
-        ((LuceneIndex<Node>) index).setCacheCapacity("auditKey", 300);
-        index = graphDb.index().forNodes("callerRef");
-        ((LuceneIndex<Node>) index).setCacheCapacity("callerRef", 300);
+//        Index<Node> index = graphDb.index().forNodes("sysUserName");
+//        ((LuceneIndex<Node>) index).setCacheCapacity("name", 300);
+//        index = graphDb.index().forNodes("documentTypeName");
+//        ((LuceneIndex<Node>) index).setCacheCapacity("name", 300);
+//        index = graphDb.index().forNodes(AuditHeaderNode.UUID_KEY);
+//        ((LuceneIndex<Node>) index).setCacheCapacity("auditKey", 300);
+//        index = graphDb.index().forNodes("callerRef");
+//        ((LuceneIndex<Node>) index).setCacheCapacity("callerRef", 300);
 
-        Map<String, Object> ab = new HashMap<String, Object>();
+        Map<String, Object> ab = new HashMap<>();
         ab.put("name", "AuditBucket");
         Node abNode = template.getGraphDatabase().getOrCreateNode("system", "name", "AuditBucket", ab);
         if (abNode == null) {

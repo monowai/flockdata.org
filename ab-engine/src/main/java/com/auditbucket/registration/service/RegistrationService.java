@@ -34,7 +34,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
 public class RegistrationService {
 
     @Autowired
@@ -48,6 +47,7 @@ public class RegistrationService {
 
     private static SystemUser GUEST = new SystemUserNode("Guest", null, null, false);
 
+    //@Transactional
     public SystemUser registerSystemUser(RegistrationBean regBean) {
         SystemUser systemUser = systemUserService.findByName(regBean.getName());
 

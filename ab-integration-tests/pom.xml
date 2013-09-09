@@ -216,7 +216,7 @@
                                 <home>${project.build.directory}/catalina-base</home>
                                 <properties>
                                     <!--Does this port have to align with ab-search/config.properties?-->
-                                    <cargo.servlet.port>8081</cargo.servlet.port>
+                                    <cargo.servlet.port>9081</cargo.servlet.port>
                                     <cargo.rmi.port>9086</cargo.rmi.port>
                                     <cargo.tomcat.ajp.port>9087</cargo.tomcat.ajp.port>
                                 </properties>

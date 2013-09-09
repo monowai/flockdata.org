@@ -44,7 +44,7 @@ public class SystemUserService {
         return regDao.getFortressUser(userName, fortressName, fortressUser);
     }
 
-    @Transactional
+    //@Transactional
     public SystemUser save(RegistrationBean regBean) {
         return regDao.save(regBean.getCompany(), regBean.getName(), regBean.getPassword());
     }

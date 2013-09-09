@@ -59,6 +59,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.AfterTransaction;
 import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -133,14 +134,14 @@ public class TestAuditIntegration {
         SecurityContextHolder.getContext().setAuthentication(authA);
         if ("http".equals(System.getProperty("neo4j")))
             return;
-        //Transaction tx = graphDatabaseService.beginTx();
-        //try {
+        Transaction tx = graphDatabaseService.beginTx();
+        try {
 
-        Neo4jHelper.cleanDb(template);
-        //  tx.success();
-//        } finally {
-//            tx.finish();
-//        }
+            Neo4jHelper.cleanDb(template);
+            tx.success();
+        } finally {
+            tx.finish();
+        }
 
     }
 
@@ -274,7 +275,7 @@ public class TestAuditIntegration {
     public void stressWithHighVolume() throws Exception {
         logger.info("stressWithHighVolume started");
         SecurityContextHolder.getContext().setAuthentication(authA);
-        Neo4jHelper.cleanDb(graphDatabaseService, true);
+        //Neo4jHelper.cleanDb(graphDatabaseService, true);
         regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
 
         int auditMax = 10;

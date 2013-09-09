@@ -41,7 +41,7 @@ public class GlobalControllerExceptionHandler {
     @ExceptionHandler(value = {MissingServletRequestParameterException.class, HttpMessageNotReadableException.class, Exception.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     ResponseEntity<Object> handleConflict(Exception ex) {
-        logger.error(ex.getMessage());
+        logger.error(ex.getMessage(), ex.getStackTrace());
         return new ResponseEntity<Object>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
