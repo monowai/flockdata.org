@@ -75,7 +75,6 @@ public class EngineAdmin {
 
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public Map<String, String> getHealth() {
         String version = VersionHelper.getABVersion();
         Map<String, String> healthResults = new HashMap<>();

@@ -114,11 +114,13 @@ public class TestAuditIntegration {
         JestClientFactory factory = new JestClientFactory();
         factory.setClientConfig(clientConfig);
         client = factory.getObject();
+
+        client.execute(new DeleteIndex.Builder("testaudit.suppress").build());
         client.execute(new DeleteIndex.Builder("monowai.audittest").build());
-        client.execute(new DeleteIndex.Builder("monowai.suppress").build());
         for (int i = 1; i < fortressMax + 1; i++) {
             client.execute(new DeleteIndex.Builder("testaudit.bulkloada" + i).build());
         }
+
     }
 
     @AfterClass

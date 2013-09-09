@@ -41,6 +41,7 @@ import org.springframework.stereotype.Repository;
 public class TagDao implements com.auditbucket.dao.TagDao {
 
     public static final String DOCUMENT_TYPE = "documentTypeName";
+
     @Autowired
     TagRepository tagRepo;
 
