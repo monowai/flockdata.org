@@ -33,6 +33,7 @@ import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import org.apache.commons.lang.time.StopWatch;
+import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -545,6 +546,35 @@ public class TestAudit {
         assertEquals(fortressDateCreated.getMillis(), header.getFortressDateCreated());
         assertEquals("Fortress log time doesn't match", logTime.getMillis(), log.getFortressWhen().longValue());
 
+    }
+
+    @Test
+    public void missingLogDateGeneratesSystemDate() throws Exception {
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
+        SecurityContextHolder.getContext().setAuthentication(authMike);
+        Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
+        DateTime dt = new DateTime().toDateTime();
+        //dt = dt.minusDays(2);
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", dt.toDate(), "ABC1");
+        String ahWP = auditManagerService.createHeader(inputBean).getAuditKey();
+        AuditHeader auditHeader = auditService.getHeader(ahWP);
+
+        // Check that TimeZone information is used to correctly establish Now when not passed in a log
+        // No Date, so default to NOW in the Fortress Timezone
+        auditManagerService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", null, what + 1 + "\"}"));
+        auditManagerService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", null, what + 2 + "\"}"));
+        Set<AuditLog> logs = auditService.getAuditLogs(auditHeader.getId());
+        assertEquals("Logs with missing dates not correctly recorded", 2, logs.size());
+
+        // Same date should still log
+        DateMidnight dateMidnight = new DateTime().toDateMidnight();
+        auditManagerService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", dateMidnight.toDateTime(), what + 3 + "\"}"));
+        AuditLog thirdLog = auditService.getLastLog(ahWP);
+        auditManagerService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", dateMidnight.toDateTime(), what + 4 + "\"}"));
+        logs = auditService.getAuditLogs(auditHeader.getId());
+        assertEquals(4, logs.size());
+        AuditLog lastLog = auditService.getLastLog(ahWP);
+        assertNotSame("Last log in should be the last", lastLog.getAuditChange().getId(), thirdLog.getAuditChange().getId());
     }
 
     @Test

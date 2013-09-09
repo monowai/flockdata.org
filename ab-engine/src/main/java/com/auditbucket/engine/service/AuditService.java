@@ -37,6 +37,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -283,7 +284,7 @@ public class AuditService {
             existingLog = getLastAuditLog(auditHeader);//(auditHeader.getLastChange() != null ? auditHeader.getLastChange() : null);
 
         Boolean searchActive = fortress.isSearchActive();
-        DateTime fortressWhen = (input.getWhen() == null ? new DateTime(fortress.getTimeZone()) : new DateTime(input.getWhen()));
+        DateTime fortressWhen = (input.getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(input.getWhen()));
 
         if (existingLog != null) {
             // Neo4j won't store the map, so we store the raw escaped JSON text
@@ -330,7 +331,7 @@ public class AuditService {
         whatService.logWhat(thisChange, input.getWhat());
 
         AuditLog newLog = auditDAO.addLog(auditHeader, thisChange, fortressWhen);
-        boolean moreRecent = (existingChange == null || existingLog.getFortressWhen() < newLog.getFortressWhen());
+        boolean moreRecent = (existingChange == null || existingLog.getFortressWhen() <= newLog.getFortressWhen());
 
         input.setStatus(AuditLogInputBean.LogStatus.OK);
 
