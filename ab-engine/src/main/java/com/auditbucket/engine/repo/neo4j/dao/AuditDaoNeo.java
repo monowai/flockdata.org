@@ -29,14 +29,11 @@ import com.auditbucket.engine.repo.neo4j.AuditLogRepo;
 import com.auditbucket.engine.repo.neo4j.model.*;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.FortressUser;
-import com.auditbucket.registration.repo.neo4j.dao.TagDao;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.index.Index;
-import org.neo4j.index.impl.lucene.LuceneIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +41,6 @@ import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 import java.util.*;
@@ -227,8 +223,8 @@ public class AuditDaoNeo implements AuditDao {
     }
 
     @Override
-    public AuditHeader create(FortressUser fu, AuditHeaderInputBean inputBean, DocumentType documentType) {
-        AuditHeader ah = new AuditHeaderNode(fu, inputBean, documentType);
+    public AuditHeader create(String uid, FortressUser fu, AuditHeaderInputBean inputBean, DocumentType documentType) {
+        AuditHeader ah = new AuditHeaderNode(uid, fu, inputBean, documentType);
         return save(ah);
     }
 

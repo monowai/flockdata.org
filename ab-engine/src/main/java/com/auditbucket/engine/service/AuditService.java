@@ -27,10 +27,7 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.registration.service.CompanyService;
-import com.auditbucket.registration.service.FortressService;
-import com.auditbucket.registration.service.SystemUserService;
-import com.auditbucket.registration.service.TagService;
+import com.auditbucket.registration.service.*;
 import com.auditbucket.search.AuditSearchChange;
 import com.auditbucket.search.SearchResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -52,7 +49,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -100,13 +96,16 @@ public class AuditService {
     private Logger logger = LoggerFactory.getLogger(AuditService.class);
     static final ObjectMapper om = new ObjectMapper();
 
+    @Autowired
+    private KeyGenService keyGenService;
+
     public AuditWhat getWhat(AuditChange change) {
         return whatService.getWhat(change);
     }
 
 
     public TxRef beginTransaction() {
-        return beginTransaction(UUID.randomUUID().toString());
+        return beginTransaction(keyGenService.getUniqueKey());
     }
 
     TxRef beginTransaction(String id) {
@@ -175,8 +174,9 @@ public class AuditService {
         }
 
         DocumentType documentType = tagService.resolveDocType(inputBean.getDocumentType());
-        // Future from here on.....
-        ah = auditDAO.create(fu, inputBean, documentType);
+        // Snowflake?
+        String uid = keyGenService.getUniqueKey();
+        ah = auditDAO.create(uid, fu, inputBean, documentType);
         handleTags(ah, inputBean.getTagValues());
 
         logger.debug("Audit Header created:{} key=[{}]", ah.getId(), ah.getAuditKey());
@@ -185,6 +185,7 @@ public class AuditService {
         return new AuditResultBean(ah);
 
     }
+
 
     @Async
     private Future<Void> handleTags(AuditHeader ah, Map<String, String> tagValues) {

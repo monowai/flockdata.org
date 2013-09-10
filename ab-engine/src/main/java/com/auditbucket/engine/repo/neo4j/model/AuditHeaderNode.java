@@ -97,14 +97,15 @@ public class AuditHeaderNode implements AuditHeader {
     private String indexName;
 
     AuditHeaderNode() {
-        auditKey = UUID.randomUUID().toString();
+
         DateTime now = new DateTime().toDateTime(DateTimeZone.UTC);
         this.dateCreated = now.toDate().getTime();
         this.lastUpdated = dateCreated;
     }
 
-    public AuditHeaderNode(@NotEmpty FortressUser createdBy, @NotEmpty AuditHeaderInputBean auditInput, @NotEmpty DocumentType documentType) {
+    public AuditHeaderNode(String uniqueKey, @NotEmpty FortressUser createdBy, @NotEmpty AuditHeaderInputBean auditInput, @NotEmpty DocumentType documentType) {
         this();
+        auditKey = uniqueKey;
         this.fortress = (FortressNode) createdBy.getFortress();
         this.documentType = (DocumentTypeNode) documentType;
         String docType = (documentType != null ? getDocumentType() : "");
