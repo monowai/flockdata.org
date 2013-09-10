@@ -180,7 +180,7 @@ public class AuditService {
         handleTags(ah, inputBean.getTagValues());
 
         logger.debug("Audit Header created:{} key=[{}]", ah.getId(), ah.getAuditKey());
-        inputBean.setWhen(new Date(ah.getFortressDateCreated()));
+        inputBean.setWhen(ah.getFortressDateCreated().toDate());
         inputBean.setAuditKey(ah.getAuditKey());
         return new AuditResultBean(ah);
 

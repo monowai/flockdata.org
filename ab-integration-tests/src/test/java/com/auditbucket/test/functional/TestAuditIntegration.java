@@ -59,14 +59,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.AfterTransaction;
 import org.springframework.test.context.transaction.BeforeTransaction;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Set;
 
 import static junit.framework.Assert.assertEquals;
@@ -153,7 +150,7 @@ public class TestAuditIntegration {
         String company = "Monowai";
         regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
         Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", false));
-        Date now = new Date();
+        DateTime now = new DateTime();
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", now, "ZZZ123");
         inputBean.setEvent("immutableHeadersWithNoLogsAreIndexed");
         AuditResultBean auditResult;
@@ -187,7 +184,7 @@ public class TestAuditIntegration {
         regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
         Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", false));
 
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", new Date(), "ABC123");
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
         AuditResultBean auditResult;
         auditResult = auditManager.createHeader(inputBean);
         ahKey = auditResult.getAuditKey();
@@ -250,7 +247,7 @@ public class TestAuditIntegration {
         SecurityContextHolder.getContext().setAuthentication(authA);
         regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
         Fortress iFortress = fortressService.registerFortress(new FortressInputBean("suppress", false));
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new Date());
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
 
         AuditResultBean indexedResult = auditManager.createHeader(inputBean);
         AuditHeader indexHeader = auditService.getHeader(indexedResult.getAuditKey());
@@ -261,7 +258,7 @@ public class TestAuditIntegration {
         Thread.sleep(1000);
         doEsQuery(indexName, "andy");
 
-        inputBean = new AuditHeaderInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new Date());
+        inputBean = new AuditHeaderInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
         inputBean.setSuppressSearch(true);
         AuditResultBean noIndex = auditManager.createHeader(inputBean);
         AuditHeader noIndexHeader = auditService.getHeader(noIndex.getAuditKey());
@@ -309,7 +306,7 @@ public class TestAuditIntegration {
             logger.info("Starting run for " + fortressName);
             while (audit <= auditMax) {
                 boolean searchChecked = false;
-                AuditHeaderInputBean aib = new AuditHeaderInputBean(iFortress.getName(), fortress + "olivia@sunnybell.com", "CompanyNode", new Date(), "ABC" + audit);
+                AuditHeaderInputBean aib = new AuditHeaderInputBean(iFortress.getName(), fortress + "olivia@sunnybell.com", "CompanyNode", new DateTime(), "ABC" + audit);
                 AuditResultBean arb = auditManager.createHeader(aib);
                 requests++;
                 int log = 1;

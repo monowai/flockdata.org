@@ -73,7 +73,7 @@ public class TestWebServiceIntegration {
             HttpPost auditPost = new HttpPost(url);
             auditPost.addHeader("content-type", "application/json");
             auditPost.addHeader("Authorization", "Basic bWlrZToxMjM=");
-            AuditHeaderInputBean inputBean = new AuditHeaderInputBean("capacity", "system", "TrainProfile", new Date(), profile.get("profileID").asText());
+            AuditHeaderInputBean inputBean = new AuditHeaderInputBean("capacity", "system", "TrainProfile", new DateTime(), profile.get("profileID").asText());
             AuditLogInputBean log = new AuditLogInputBean("system", new DateTime(), profile.toString());
             inputBean.setAuditLog(log);
             log.setForceReindex(true);

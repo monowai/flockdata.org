@@ -83,7 +83,7 @@ public class TestInputBeans {
 
     @Test
     public void testAuditInputBean() throws Exception {
-        AuditHeaderInputBean aib = new AuditHeaderInputBean("fortress", "user", "booking", DateTime.now().toDate(), "myRef");
+        AuditHeaderInputBean aib = new AuditHeaderInputBean("fortress", "user", "booking", DateTime.now(), "myRef");
         assertNull(aib.getAuditKey());
         aib.setAuditKey("AbC");
         assertNotNull(aib.getAuditKey());

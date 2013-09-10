@@ -22,6 +22,7 @@ package com.auditbucket.audit.model;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.joda.time.DateTime;
 
 import java.util.Map;
 import java.util.Set;
@@ -95,5 +96,5 @@ public interface AuditHeader {
     void setTags(Set<AuditTag> auditTags);
 
     @JsonIgnore
-    long getFortressDateCreated();
+    DateTime getFortressDateCreated();
 }

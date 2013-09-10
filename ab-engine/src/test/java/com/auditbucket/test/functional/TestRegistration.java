@@ -291,8 +291,9 @@ public class TestRegistration {
         fibNullSetter.setLanguageTag(null);
         fibNullSetter.setTimeZone(null);
         Fortress fResult = fortressService.registerFortress(fibNullSetter);
-        assertNotNull(fResult.getLanguageTag());
-        assertNotNull(fResult.getTimeZone());
+        assertNotNull("Language not set to the default", fResult.getLanguageTag());
+        assertNotNull("TZ not set to the default", fResult.getTimeZone());
+
 
     }
 

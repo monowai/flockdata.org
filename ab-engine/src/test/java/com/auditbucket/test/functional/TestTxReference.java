@@ -105,7 +105,7 @@ public class TestTxReference {
 
 // ABC Data
         Fortress fortressABC = fortressService.registerFortress("abcTest");
-        AuditHeaderInputBean abcHeader = new AuditHeaderInputBean(fortressABC.getName(), "wally", "TestAudit", new Date(), "ABC123");
+        AuditHeaderInputBean abcHeader = new AuditHeaderInputBean(fortressABC.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
         abcHeader.setAuditLog(new AuditLogInputBean(null, "charlie", DateTime.now(), escJsonA, true));
 
         AuditResultBean resultBean = auditManager.createHeader(abcHeader);
@@ -117,7 +117,7 @@ public class TestTxReference {
 // CBA data
         SecurityContextHolder.getContext().setAuthentication(authCBA);
         Fortress fortressCBA = fortressService.registerFortress("cbaTest");
-        AuditHeaderInputBean cbaHeader = new AuditHeaderInputBean(fortressCBA.getName(), "wally", "TestAudit", new Date(), "ABC123");
+        AuditHeaderInputBean cbaHeader = new AuditHeaderInputBean(fortressCBA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
         String cbaKey = auditManager.createHeader(cbaHeader).getAuditKey();
 
         AuditLogInputBean cbaLog = new AuditLogInputBean(cbaKey, "charlie", DateTime.now(), escJsonA, true);
@@ -135,7 +135,7 @@ public class TestTxReference {
         assertNull(auditService.findTx(cbaTxRef));
 
         // WHat happens if ABC tries to use CBA's TX Ref.
-        abcHeader = new AuditHeaderInputBean(fortressABC.getName(), "wally", "TestAudit", new Date(), "ZZZAAA");
+        abcHeader = new AuditHeaderInputBean(fortressABC.getName(), "wally", "TestAudit", new DateTime(), "ZZZAAA");
         abcHeader.setAuditLog(new AuditLogInputBean(null, "wally", DateTime.now(), escJsonA, null, cbaTxRef));
         AuditResultBean result = auditManager.createHeader(abcHeader);
         assertNotNull(result);
@@ -152,7 +152,7 @@ public class TestTxReference {
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("auditTest", true));
         String tagRef = "MyTXTag";
-        AuditHeaderInputBean aBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new Date(), "ABC123");
+        AuditHeaderInputBean aBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
 
         String key = auditManager.createHeader(aBean).getAuditKey();
         assertNotNull(key);

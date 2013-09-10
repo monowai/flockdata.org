@@ -43,6 +43,7 @@ import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
+import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -123,7 +124,7 @@ public class TestAuditTags {
 
         Tag result = tagService.processTag(flopTag);
         assertNotNull(result);
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new Date(), "abc");
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         AuditResultBean resultBean = auditManager.createHeader(inputBean);
         AuditHeader header = auditService.getHeader(resultBean.getAuditKey());
 
@@ -158,7 +159,7 @@ public class TestAuditTags {
 
         Tag result = tagService.processTag(tagInput);
         assertNotNull(result);
-        AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new Date(), "abc");
+        AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         Map<String, String> tagValues = new HashMap<>();
         tagValues.put("AAAA", "TagA");
         tagValues.put("BBBB", "TagB");
@@ -200,7 +201,7 @@ public class TestAuditTags {
 
         Tag result = tagService.processTag(tagInput);
         assertNotNull(result);
-        AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new Date(), "abc");
+        AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         Map<String, String> tagValues = new HashMap<>();
         // In this scenario, the Tag name is the key if the value is null
         tagValues.put("TagA", null);
@@ -241,7 +242,7 @@ public class TestAuditTags {
 
         Tag result = tagService.processTag(tagInput);
         assertNotNull(result);
-        AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new Date(), "abc");
+        AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         Map<String, String> tagValues = new HashMap<>();
         // This should create the same Tag object
         tagValues.put("TagA", null);
@@ -269,7 +270,7 @@ public class TestAuditTags {
 
         Tag result = tagService.processTag(tagInput);
         assertNotNull(result);
-        AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new Date(), "abc");
+        AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         Map<String, String> tagValues = new HashMap<>();
         // This should create the same Tag object
         tagValues.put("Type1", "TagA");

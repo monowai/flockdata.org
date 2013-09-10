@@ -22,6 +22,7 @@ package com.auditbucket.bean;
 import com.auditbucket.audit.model.AuditEvent;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.joda.time.DateTime;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -50,15 +51,16 @@ public class AuditHeaderInputBean {
     public AuditHeaderInputBean() {
     }
 
-    public AuditHeaderInputBean(String fortress, String fortressUser, String documentType, Date fortressWhen, String callerRef) {
-        this.when = fortressWhen;
+    public AuditHeaderInputBean(String fortress, String fortressUser, String documentType, DateTime fortressWhen, String callerRef) {
+        if (fortressWhen != null)
+            this.when = fortressWhen.toDate();
         this.fortress = fortress;
         this.fortressUser = fortressUser;
         this.documentType = documentType;
         this.callerRef = callerRef;
     }
 
-    public AuditHeaderInputBean(String name, String s, String companyNode, Date fortressWhen) {
+    public AuditHeaderInputBean(String name, String s, String companyNode, DateTime fortressWhen) {
         this(name, s, companyNode, fortressWhen, null);
 
     }
@@ -76,8 +78,8 @@ public class AuditHeaderInputBean {
      *
      * @return when in the fortress this was created
      */
-    public Date getWhen() {
-        return when;
+    public DateTime getWhen() {
+        return new DateTime(when);
     }
 
     public void setWhen(Date when) {
