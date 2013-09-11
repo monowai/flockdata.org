@@ -52,8 +52,8 @@ public class AuditHeaderInputBean {
     }
 
     public AuditHeaderInputBean(String fortress, String fortressUser, String documentType, DateTime fortressWhen, String callerRef) {
-        if (fortressWhen != null)
-            this.when = fortressWhen.toDate();
+        //if (fortressWhen != null)
+        this.when = fortressWhen.toDate();
         this.fortress = fortress;
         this.fortressUser = fortressUser;
         this.documentType = documentType;
@@ -78,8 +78,8 @@ public class AuditHeaderInputBean {
      *
      * @return when in the fortress this was created
      */
-    public DateTime getWhen() {
-        return new DateTime(when);
+    public Date getWhen() {
+        return when;
     }
 
     public void setWhen(Date when) {

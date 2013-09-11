@@ -29,6 +29,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.joda.time.DateTime;
+import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,10 +60,11 @@ public class TestWebServiceIntegration {
     private String email = "test@ab.com";
     Authentication authA = new UsernamePasswordAuthenticationToken(email, "user1");
 
+    //@Test
     public void jsonReadFiles() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(authA);
         ObjectMapper mapper = new ObjectMapper();
-        String filename = "/tmp/new-trainprofiles.json";
+        String filename = "//tmp/new-trainprofiles.json";
         InputStream is = new FileInputStream(filename);
         JsonNode node = mapper.readTree(is);
 
@@ -73,8 +75,8 @@ public class TestWebServiceIntegration {
             HttpPost auditPost = new HttpPost(url);
             auditPost.addHeader("content-type", "application/json");
             auditPost.addHeader("Authorization", "Basic bWlrZToxMjM=");
-            AuditHeaderInputBean inputBean = new AuditHeaderInputBean("capacity", "system", "TrainProfile", new DateTime(), profile.get("profileID").asText());
-            AuditLogInputBean log = new AuditLogInputBean("system", new DateTime(), profile.toString());
+            AuditHeaderInputBean inputBean = new AuditHeaderInputBean("capacity", "system", "TrainProfile", DateTime.now(), profile.get("profileID").asText());
+            AuditLogInputBean log = new AuditLogInputBean("moira", null, profile.toString());
             inputBean.setAuditLog(log);
             log.setForceReindex(true);
             StringEntity json = new StringEntity(mapper.writeValueAsString(inputBean));

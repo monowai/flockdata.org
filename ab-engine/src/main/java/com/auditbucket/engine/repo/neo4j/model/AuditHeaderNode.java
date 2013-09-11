@@ -116,12 +116,12 @@ public class AuditHeaderNode implements AuditHeader {
         if (callerRef != null)
             callerRef = callerRef.toLowerCase();
 
-        DateTime when = auditInput.getWhen();
+        Date when = auditInput.getWhen();
 
         if (when == null)
             fortressDate = new DateTime(dateCreated, DateTimeZone.forTimeZone(TimeZone.getTimeZone(fortress.getTimeZone()))).getMillis();
         else
-            fortressDate = when.getMillis();
+            fortressDate = when.getTime();
 
         this.createdBy = (FortressUserNode) createdBy;
         this.lastWho = (FortressUserNode) createdBy;
