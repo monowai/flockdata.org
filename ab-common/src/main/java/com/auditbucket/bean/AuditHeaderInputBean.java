@@ -52,8 +52,8 @@ public class AuditHeaderInputBean {
     }
 
     public AuditHeaderInputBean(String fortress, String fortressUser, String documentType, DateTime fortressWhen, String callerRef) {
-        //if (fortressWhen != null)
-        this.when = fortressWhen.toDate();
+        if (fortressWhen != null)
+            this.when = fortressWhen.toDate();
         this.fortress = fortress;
         this.fortressUser = fortressUser;
         this.documentType = documentType;

@@ -38,6 +38,7 @@ public class AuditTagInputBean {
     }
 
     public AuditTagInputBean(String auditKey, String tagName, String type) {
+        this();
         this.auditKey = auditKey;
         this.tagName = tagName;
         // Stragetically this should be a named relationship

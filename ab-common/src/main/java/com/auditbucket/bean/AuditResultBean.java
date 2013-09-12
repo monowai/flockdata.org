@@ -40,10 +40,12 @@ public class AuditResultBean {
     }
 
     public AuditResultBean(String statusMessage) {
+        this();
         this.status = statusMessage;
     }
 
     public AuditResultBean(String fortressName, String documentType, String callerRef, String auditKey) {
+        this();
         this.fortressName = fortressName;
         this.documentType = documentType;
         this.callerRef = callerRef;

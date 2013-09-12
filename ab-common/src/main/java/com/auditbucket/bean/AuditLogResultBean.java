@@ -42,6 +42,7 @@ public class AuditLogResultBean {
     private SearchChange searchDocument;
 
     public AuditLogResultBean(AuditLogInputBean input) {
+        this();
         this.auditKey = input.getAuditKey();
         this.callerRef = input.getCallerRef();
         this.documentType = input.getDocumentType();

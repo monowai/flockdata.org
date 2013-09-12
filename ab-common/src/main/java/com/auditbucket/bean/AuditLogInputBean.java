@@ -69,6 +69,7 @@ public class AuditLogInputBean {
      * @param what         -escaped JSON
      */
     public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String what, Boolean isTransactional) throws IOException {
+        this();
         this.auditKey = auditKey;
         this.fortressUser = fortressUser;
         if (when != null)
@@ -210,11 +211,6 @@ public class AuditLogInputBean {
 
     public LogStatus getAbStatus() {
         return this.abStatus;
-    }
-
-    public void setMapWhat(Map<String, Object> whatMap) {
-        this.mapWhat = whatMap;
-
     }
 
     public String getDocumentType() {

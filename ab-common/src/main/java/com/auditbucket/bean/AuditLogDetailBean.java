@@ -13,6 +13,7 @@ public class AuditLogDetailBean {
     }
 
     public AuditLogDetailBean(AuditLog log, AuditWhat what) {
+        this();
         this.log = log;
         this.what = what;
 

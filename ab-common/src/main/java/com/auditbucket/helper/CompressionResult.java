@@ -49,6 +49,7 @@ public class CompressionResult {
     }
 
     public CompressionResult(byte[] bytes) {
+        this();
         method = Method.GZIP;
         this.bytes = bytes;
     }
@@ -61,6 +62,7 @@ public class CompressionResult {
 
 
     public CompressionResult(String value) {
+        this();
         method = Method.NONE;
         this.bytes = value.getBytes();
     }

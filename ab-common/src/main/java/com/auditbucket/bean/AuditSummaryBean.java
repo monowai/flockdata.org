@@ -36,6 +36,7 @@ public class AuditSummaryBean {
     }
 
     public AuditSummaryBean(AuditHeader header, Set<AuditLog> changes) {
+        this();
         this.header = header;
         this.changes = changes;
     }

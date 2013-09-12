@@ -483,6 +483,13 @@ public class TestAudit {
         logger.info("Searching between " + then.toDate() + " and " + workingDate.toDate());
         Set<AuditLog> logs = auditService.getAuditLogs(auditHeader.getAuditKey(), then.toDate(), workingDate.toDate());
         assertEquals(5, logs.size());
+        Long logId = logs.iterator().next().getId();
+        AuditLogDetailBean change = auditService.getFullDetail(auditHeader.getAuditKey(), logId);
+        assertNotNull(change);
+        assertNotNull(change.getLog());
+        assertNotNull(change.getWhat());
+        assertEquals(logId, change.getLog().getId());
+
 
     }
 
