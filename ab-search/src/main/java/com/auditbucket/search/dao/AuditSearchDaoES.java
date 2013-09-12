@@ -98,19 +98,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
         // Test if index exist
         boolean hasIndex = esClient.admin().indices().exists(new IndicesExistsRequest(indexName)).actionGet().isExists();
         if (!hasIndex) {
-            XContentBuilder mappingEs = mapping(documentType);
-            // create Index  and Set Mapping
-            if (mappingEs != null) {
-                //Settings settings = Builder
-                logger.debug("Creating new index {} for document type {}", auditChange.getIndexName(), auditChange.getDocumentType());
-                String settingDefinition = settingDefinition();
-                if (settingDefinition != null) {
-                    Settings settings = ImmutableSettings.settingsBuilder().loadFromSource(settingDefinition).build();
-                    esClient.admin().indices().prepareCreate(indexName).addMapping(documentType, mappingEs).setSettings(settings).execute().actionGet();
-                } else {
-                    esClient.admin().indices().prepareCreate(indexName).addMapping(documentType, mappingEs).execute().actionGet();
-                }
-            }
+            createIndex(indexName, documentType);
         } else {
             XContentBuilder mappingEs = mapping(documentType);
             // Test if Type exist
@@ -144,11 +132,26 @@ public class AuditSearchDaoES implements AuditSearchDao {
         IndexResponse ir = irb.execute().actionGet();
         auditChange.setSearchKey(ir.getId());
 
-
         if (logger.isDebugEnabled())
             logger.debug("Added Document [" + auditChange.getAuditKey() + "], logId=" + auditChange.getLogId() + " searchId [" + ir.getId() + "] to " + indexName + "/" + documentType);
         return auditChange;
 
+    }
+
+    private void createIndex(String indexName, String documentType) {
+        XContentBuilder mappingEs = mapping(documentType);
+        // create Index  and Set Mapping
+        if (mappingEs != null) {
+            //Settings settings = Builder
+            logger.debug("Creating new index {} for document type {}", indexName, documentType);
+            String settingDefinition = settingDefinition();
+            if (settingDefinition != null) {
+                Settings settings = ImmutableSettings.settingsBuilder().loadFromSource(settingDefinition).build();
+                esClient.admin().indices().prepareCreate(indexName).addMapping(documentType, mappingEs).setSettings(settings).execute().actionGet();
+            } else {
+                esClient.admin().indices().prepareCreate(indexName).addMapping(documentType, mappingEs).execute().actionGet();
+            }
+        }
     }
 
     @Override
@@ -278,6 +281,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
         indexMe.put(AuditSearchSchema.FORTRESS, auditChange.getFortressName());
         indexMe.put(AuditSearchSchema.DOC_TYPE, auditChange.getDocumentType());
         indexMe.put(AuditSearchSchema.CALLER_REF, auditChange.getCallerRef());
+        indexMe.put(AuditSearchSchema.CREATED, auditChange.getCreatedDate());
         if (!auditChange.getTagValues().isEmpty())
             indexMe.put(AuditSearchSchema.TAGS, auditChange.getTagValues());
 
@@ -295,7 +299,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
     }
 
     private XContentBuilder setting() throws IOException {
-        XContentBuilder xbMapping = jsonBuilder()
+        return jsonBuilder()
                 .startObject()
                 .startObject("analysis")
                 .startObject("analyzer")
@@ -328,11 +332,10 @@ public class AuditSearchDaoES implements AuditSearchDao {
                 .endObject()
                 .endObject()
                 .endObject();
-        return xbMapping;
     }
 
     private XContentBuilder mapping(String documentType) {
-        XContentBuilder xbMapping = null;
+        XContentBuilder xbMapping;
         try {
             xbMapping = jsonBuilder()
                     .startObject()
@@ -344,6 +347,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
                     .endObject()
                     .startObject(AuditSearchSchema.CALLER_REF) // keyword
                     .field("type", "string")
+                    .field("boost", "2.0")
                     .field("index", NOT_ANALYZED)
                     .endObject()
                     .startObject(AuditSearchSchema.DOC_TYPE)  // keyword
@@ -361,16 +365,20 @@ public class AuditSearchDaoES implements AuditSearchDao {
 //                    .field("analyzer", "standard")//@tags is dynamic so we don't init his mapping we choose the convention
 //                    .endObject()
                     .startObject(AuditSearchSchema.TIMESTAMP)
-                    .field("type", "long")
+                    .field("type", "date")
+                    .startObject(AuditSearchSchema.CREATED)
+                    .field("type", "date")
                     .endObject()
-                    .startObject("@what")    //@what is dynamic so we don't init his mapping we choose the convention
+                    .startObject(AuditSearchSchema.WHAT)    //@what is dynamic so we don't init his mapping we choose the convention
                     .startObject("properties")
                     .startObject(AuditSearchSchema.WHAT_CODE)
                     .field("type", "string")
+                    .field("boost", 2d)
                     .field("analyzer", AuditSearchSchema.NGRM_WHAT_CODE)
                     .endObject()
                     .startObject(AuditSearchSchema.WHAT_NAME)
                     .field("type", "string")
+                    .field("boost", 2d)
                     .field("analyzer", AuditSearchSchema.NGRM_WHAT_NAME)
                     .endObject()
                     .startObject(AuditSearchSchema.WHAT_DESCRIPTION)
@@ -380,7 +388,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
                     .endObject()
                     .endObject()
                     .startObject(AuditSearchSchema.WHEN)      //@when
-                    .field("type", "long")
+                    .field("type", "date")
                     .endObject()
                     .startObject(AuditSearchSchema.WHO)       //@who
                     .field("type", "string")

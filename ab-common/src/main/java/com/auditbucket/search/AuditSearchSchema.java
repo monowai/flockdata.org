@@ -16,6 +16,7 @@ public class AuditSearchSchema {
     public static final String LAST_EVENT = "@lastEvent";
     public static final String WHO = "@who";
     public static final String AUDIT_KEY = "@auditKey";
+    public static String CREATED = "@whenCreated"; // Date the document was first created
 
     public static final String WHAT_CODE = "code";
     public static final String WHAT_NAME = "name";
@@ -26,13 +27,14 @@ public class AuditSearchSchema {
     public static final String NGRM_WHAT_CODE = "ngram_what_code";
     public static final String NGRM_WHAT_NAME = "ngram_what_name";
 
-    public static final String NGRM_WHAT_DESCRIPTION_MAX = "10";
     public static final String NGRM_WHAT_DESCRIPTION_MIN = "3";
+    public static final String NGRM_WHAT_DESCRIPTION_MAX = "10";
 
-    public static final String NGRM_WHAT_CODE_MAX = "5";
     public static final String NGRM_WHAT_CODE_MIN = "2";
+    public static final String NGRM_WHAT_CODE_MAX = "5";
 
-    public static final String NGRM_WHAT_NAME_MAX = "10";
     public static final String NGRM_WHAT_NAME_MIN = "3";
+    public static final String NGRM_WHAT_NAME_MAX = "10";
+
 
 }

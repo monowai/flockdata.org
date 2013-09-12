@@ -19,7 +19,6 @@
 
 package com.auditbucket.search;
 
-import com.auditbucket.audit.model.AuditEvent;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditTag;
 import com.auditbucket.registration.model.Fortress;
@@ -58,6 +57,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
 
     private String indexName;
     private long sysWhen;
+    private Long createdDate;
 
     /**
      * extracts relevant header records to be used in indexing
@@ -74,6 +74,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
         this.searchKey = header.getSearchKey();
         this.callerRef = header.getCallerRef();
         this.who = header.getLastUser().getName();
+        this.createdDate = header.getWhenCreated(); // When created in AuditBucket
         setTags(header.getTagValues());
     }
 
@@ -203,6 +204,10 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
 
     public Long getAuditId() {
         return auditId;
+    }
+
+    public Long getCreatedDate() {
+        return createdDate;
     }
 
     public Long getSysWhen() {

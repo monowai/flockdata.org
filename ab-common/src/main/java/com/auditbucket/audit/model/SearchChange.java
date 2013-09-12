@@ -82,4 +82,6 @@ public interface SearchChange {
 
 
     Long getAuditId();
+
+    Long getCreatedDate();
 }
