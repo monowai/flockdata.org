@@ -33,6 +33,8 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.search.AuditSearchSchema;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.JestResult;
@@ -425,8 +427,10 @@ public class TestAuditIntegration {
 
                     //logger.info(header.getAuditKey() + " - " + when);
                     assertTrue("fortress " + fortress + " run " + x + " header " + header.getAuditKey() + " - " + auditLog.getId(), auditLog.isIndexed());
-                    doEsFieldQuery(header.getIndexName(), "@auditKey", header.getAuditKey(), 1);
+                    String result = doEsFieldQuery(header.getIndexName(), "@auditKey", header.getAuditKey(), 1);
                     totalSearchRequests++;
+                    validateResultFieds(result);
+
                     x++;
                 } while (x < auditCount);
                 fortress++;
@@ -439,11 +443,25 @@ public class TestAuditIntegration {
         logger.info("Total Search Requests = " + totalSearchRequests + ". Total time for searches " + end + " avg requests per second = " + totalSearchRequests / end);
     }
 
-    private boolean doEsQuery(String index, String queryString) throws Exception {
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    private void validateResultFieds(String result) throws Exception {
+        JsonNode node = objectMapper.readTree(result);
+
+        assertNotNull(node.get(AuditSearchSchema.CREATED));
+        assertNotNull(node.get(AuditSearchSchema.WHO));
+        assertNotNull(node.get(AuditSearchSchema.WHEN));
+        assertNotNull(node.get(AuditSearchSchema.AUDIT_KEY));
+        assertNotNull(node.get(AuditSearchSchema.DOC_TYPE));
+        assertNotNull(node.get(AuditSearchSchema.FORTRESS));
+
+    }
+
+    private String doEsQuery(String index, String queryString) throws Exception {
         return doEsQuery(index, queryString, 1);
     }
 
-    private boolean doEsQuery(String index, String queryString, int expectedHitCount) throws Exception {
+    private String doEsQuery(String index, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
         String query = "{\n" +
@@ -464,10 +482,12 @@ public class TestAuditIntegration {
         assertNotNull(result.getJsonObject().getAsJsonObject("hits").get("total"));
         int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
         Assert.assertEquals(result.getJsonString(), expectedHitCount, nbrResult);
-        return true;
+        return null;
+
+        //return result.getJsonString();
     }
 
-    private boolean doEsFieldQuery(String index, String field, String queryString, int expectedHitCount) throws Exception {
+    private String doEsFieldQuery(String index, String field, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
         String query = "{\n" +
@@ -490,7 +510,13 @@ public class TestAuditIntegration {
         assertNotNull(message, result.getJsonObject().getAsJsonObject("hits").get("total"));
         int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
         Assert.assertEquals(result.getJsonString(), expectedHitCount, nbrResult);
-        return true;
+        return result.getJsonObject()
+                .getAsJsonObject("hits")
+                .getAsJsonArray("hits")
+                .getAsJsonArray()
+                .iterator()
+                .next()
+                .getAsJsonObject().get("_source").toString();
     }
 
 }
