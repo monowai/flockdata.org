@@ -29,7 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -56,9 +55,9 @@ public class FortressEP {
         // curl -u mike:123 -X GET  http://localhost:8080/ab/fortress/ABC
         Fortress fortress = fortressService.find(fortressName);
         if (fortress == null)
-            return new ResponseEntity<Fortress>(fortress, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(fortress, HttpStatus.NOT_FOUND);
         else
-            return new ResponseEntity<Fortress>(fortress, HttpStatus.OK);
+            return new ResponseEntity<>(fortress, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/new", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
@@ -68,25 +67,25 @@ public class FortressEP {
 
         if (fortress == null) {
             fortressInputBean.setMessage("Unable to create fortress");
-            return new ResponseEntity<FortressInputBean>(fortressInputBean, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(fortressInputBean, HttpStatus.INTERNAL_SERVER_ERROR);
         } else {
             fortressInputBean.setFortressKey(fortress.getFortressKey());
-            return new ResponseEntity<FortressInputBean>(fortressInputBean, HttpStatus.CREATED);
+            return new ResponseEntity<>(fortressInputBean, HttpStatus.CREATED);
         }
 
     }
 
 
-    @RequestMapping(value = "/{fortressName}/{user}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{fortressName}/{userName}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<FortressUser> getFortressUsers(@PathVariable("fortressName") String fortressName, @PathVariable("userName") String userName) throws Exception {
         FortressUser result = null;
         Fortress fortress = fortressService.find(fortressName);
 
         if (fortress == null) {
-            return new ResponseEntity<FortressUser>(result, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<FortressUser>(fortressService.getFortressUser(fortress, userName), HttpStatus.OK);
+        return new ResponseEntity<>(fortressService.getFortressUser(fortress, userName), HttpStatus.OK);
     }
 
 }

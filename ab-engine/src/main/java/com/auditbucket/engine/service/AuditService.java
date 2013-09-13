@@ -147,7 +147,7 @@ public class AuditService {
         if (inputBean.getCallerRef() != null && !inputBean.getCallerRef().equals(EMPTY))
             futureHeader = findByCallerRefFuture(fortress.getId(), inputBean.getDocumentType(), inputBean.getCallerRef());
 
-        // Create fortressUser if missing
+        // Create thisFortressUser if missing
         FortressUser fu = fortressService.getFortressUser(fortress, inputBean.getFortressUser(), true);
         fu.getFortress().setCompany(su.getCompany());
 
@@ -242,19 +242,19 @@ public class AuditService {
             resultBean.setMessage("Unable to locate requested header");
             return resultBean;
         }
-
-        return createLog(header, input, header.getTagMap());
+        FortressUser thisFortressUser = fortressService.getFortressUser(header.getFortress(), input.getFortressUser(), true);
+        return createLog(header, input, thisFortressUser);
     }
 
     /**
      * Creates an audit log record for the supplied auditHeader from the supplied input
      *
-     * @param auditHeader auditHeader the caller is authorised to work with
-     * @param input       auditLog details containing the data to log
-     * @param tagValues   audit header tag set
+     * @param auditHeader      auditHeader the caller is authorised to work with
+     * @param input            auditLog details containing the data to log
+     * @param thisFortressUser audit header tag set
      * @return populated log information with any error messages
      */
-    private AuditLogResultBean createLog(AuditHeader auditHeader, AuditLogInputBean input, Map<String, String> tagValues) {
+    private AuditLogResultBean createLog(AuditHeader auditHeader, AuditLogInputBean input, FortressUser thisFortressUser) {
         AuditLogResultBean resultBean = new AuditLogResultBean(input);
         if (input.getMapWhat() == null || input.getMapWhat().isEmpty()) {
             resultBean.setStatus(AuditLogInputBean.LogStatus.IGNORE);
@@ -272,13 +272,12 @@ public class AuditService {
         }
 
         Fortress fortress = auditHeader.getFortress();
-        FortressUser thisFortressUser = fortressService.getFortressUser(fortress, input.getFortressUser().toLowerCase(), true);
 
-// Transactions checks
+        // Transactions checks
         TxRef txRef = handleTxRef(input);
         resultBean.setTxReference(txRef);
 
-//ToDo: Look at spin the following off in to a separate thread?
+        //ToDo: Look at spin the following off in to a separate thread?
         // https://github.com/monowai/auditbucket/issues/7
         AuditLog existingLog = null;
         if (auditHeader.getLastUpdated() != auditHeader.getWhenCreated()) // Will there even be a change to find

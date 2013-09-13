@@ -22,7 +22,7 @@ public class AccountService {
     private AbClient abClient;
 
     public Account saveAccount(Account account) throws IllegalAccessException, IOException {
-        logger.info("Account Created : {}", account.getAccountNumber());
+        logger.debug("Account Created : {}", account.getAccountNumber());
         account = accountRepository.save(account); // Get the PK
 
         AuditResultBean auditResultBean = abClient.createAuditHeader(account); // ToDo: @Async call

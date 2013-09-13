@@ -41,7 +41,7 @@ class AccountOperationsSimulation extends Simulation {
 
 
   val scn = scenario("Account Operations Scenario")
-    .during(5 minutes) {
+    .during(1 minutes) {
     exec(chooseRandomNodes)
       .exec(chooseRandomStatus)
       .exec(http("Create Account")

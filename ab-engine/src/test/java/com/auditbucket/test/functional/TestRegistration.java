@@ -35,6 +35,8 @@ import org.junit.runner.RunWith;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.IndexHits;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.data.neo4j.support.node.Neo4jHelper;
@@ -49,6 +51,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.TimeZone;
+import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
@@ -59,7 +62,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
-@Transactional
+//@Transactional
 public class TestRegistration {
 
 
@@ -77,6 +80,8 @@ public class TestRegistration {
 
     @Autowired
     private Neo4jTemplate template;
+
+    private Logger logger = LoggerFactory.getLogger(TestRegistration.class);
 
     String uid = "mike";
     Authentication authA = new UsernamePasswordAuthenticationToken("mike", "123");
@@ -141,7 +146,7 @@ public class TestRegistration {
         }
     }
 
-    //@Test
+    @Test
     public void companyFortressNameSearch() throws Exception {
         String companyName = "Monowai";
         String adminName = "mike";
@@ -155,7 +160,7 @@ public class TestRegistration {
         fortressService.registerFortress("fortressB");
         fortressService.registerFortress("fortressC");
 
-        int max = 10000;
+        int max = 100;
         for (int i = 0; i < max; i++) {
             Assert.assertNotNull(fortressService.find("fortressA"));
             Assert.assertNotNull(fortressService.find("fortressB"));
@@ -184,6 +189,7 @@ public class TestRegistration {
     }
 
     @Test
+    @Transactional
     public void testRegistration() {
         String companyName = "Monowai";
         String adminName = "mike";
@@ -218,19 +224,21 @@ public class TestRegistration {
         assertNull(companyService.getAdminUser(company, userName));
 
         // Add fortress User
-        FortressUser fu = fortressService.addFortressUser(fortress.getId(), "useRa");
+        FortressUser fu = fortressService.getFortressUser(fortress, "useRa");
         assertNotNull(fu);
-        fu = fortressService.addFortressUser(fortress.getId(), "uAerb");
+        fu = fortressService.getFortressUser(fortress, "uAerb");
         assertNotNull(fu);
-        fu = fortressService.addFortressUser(fortress.getId(), "Userc");
+        fu = fortressService.getFortressUser(fortress, "Userc");
         assertNotNull(fu);
 
         fortress = fortressService.find("auditbucket");
         assertNotNull(fortress);
 
-        fu = fortressService.getFortressUser(fortress, "useRa", false);
+        fu = fortressService.getFortressUser(fortress, "useRax", false);
         assertNull(fu);
-        fu = fortressService.getFortressUser(fortress, "usera");
+        fu = fortressService.getFortressUser(fortress, "userax");
+        assertNotNull(fu);
+        fu = fortressService.getFortressUser(fortress, "useRax");
         assertNotNull(fu);
     }
 
@@ -239,13 +247,13 @@ public class TestRegistration {
         SecurityContextHolder.getContext().setAuthentication(authA);
         registrationService.registerSystemUser(new RegistrationBean("companya", "mike", "123"));
         Fortress fortressA = fortressService.registerFortress("fortress-same");
-        FortressUser fua = fortressService.addFortressUser(fortressA.getId(), "mike");
+        FortressUser fua = fortressService.getFortressUser(fortressA, "mike");
 
         SecurityContextHolder.getContext().setAuthentication(authB);
         registrationService.registerSystemUser(new RegistrationBean("companyb", "harry", "123"));
         Fortress fortressB = fortressService.registerFortress("fortress-same");
-        FortressUser fub = fortressService.addFortressUser(fortressB.getId(), "mike");
-        FortressUser fudupe = fortressService.addFortressUser(fortressB.getId(), "mike");
+        FortressUser fub = fortressService.getFortressUser(fortressB, "mike");
+        FortressUser fudupe = fortressService.getFortressUser(fortressB, "mike");
 
         assertNotSame("Fortress should be different", fortressA.getId(), fortressB.getId());
         assertNotSame("FortressUsers should be different", fua.getId(), fub.getId());
@@ -297,4 +305,90 @@ public class TestRegistration {
 
     }
 
+    @Test
+    @Transactional
+    public void multipleFortressUserErrors() throws Exception {
+        Long uid;
+        String uname = "mike";
+        // Assume the user has now logged in.
+        registrationService.registerSystemUser(new RegistrationBean("TestCompany", uname, "password"));
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        CompanyUser nonAdmin = registrationService.addCompanyUser(uname, "TestCompany");
+        assertNotNull(nonAdmin);
+
+        Fortress fortress = fortressService.registerFortress("auditbucket");
+        assertNotNull(fortress);
+        FortressUser fu = fortressService.getFortressUser(fortress, uname);
+        assertNotNull(fu);
+        uid = fu.getId();
+        fu = fortressService.getFortressUser(fortress, "MIKE");
+        assertEquals(uid, fu.getId());
+        fu = fortressService.getFortressUser(fortress, "MikE");
+        assertEquals(uid, fu.getId());
+    }
+
+    @Test
+    @Transactional
+    //@Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void multipleFortressUserRequestsThreaded() throws Exception {
+        Long uid;
+        String uname = "mike";
+        // Assume the user has now logged in.
+        //org.neo4j.graphdb.Transaction t = graphDatabaseService.beginTx();
+        registrationService.registerSystemUser(new RegistrationBean("TestCompany", uname, "password"));
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        CompanyUser nonAdmin = registrationService.addCompanyUser(uname, "TestCompany");
+        assertNotNull(nonAdmin);
+
+        Fortress fortress = fortressService.registerFortress("auditbucket");
+        //t.success();
+        assertNotNull(fortress);
+
+        CountDownLatch latch = new CountDownLatch(3);
+        // Run threaded tests
+        Thread fu1 = new Thread(new FuAction(fortress, "mike", latch));
+        Thread fu2 = new Thread(new FuAction(fortress, "mike", latch));
+        Thread fu3 = new Thread(new FuAction(fortress, "mike", latch));
+
+        fu1.start();
+        fu2.start();
+        fu3.start();
+
+        latch.await();
+
+        // Check we only get one back
+        FortressUser fu = fortressService.getFortressUser(fortress, uname);
+        assertNotNull(fu);
+
+    }
+
+    class FuAction implements Runnable {
+        Fortress fortress;
+        String uname;
+        CountDownLatch latch;
+
+        public FuAction(Fortress fortress, String uname, CountDownLatch latch) {
+            logger.info("Preparing FuAction");
+            this.fortress = fortress;
+            this.uname = uname;
+            this.latch = latch;
+
+        }
+
+        public void run() {
+            logger.info("Running " + this);
+            int max = 100;
+            int i = 0;
+            try {
+                while (i < max) {
+                    fortressService.getFortressUser(fortress, uname);
+                    fortressService.getFortressUser(fortress, uname);
+                    i++;
+                }
+            } finally {
+                latch.countDown();
+            }
+
+        }
+    }
 }

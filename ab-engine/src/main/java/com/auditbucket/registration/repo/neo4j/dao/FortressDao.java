@@ -21,6 +21,7 @@ package com.auditbucket.registration.repo.neo4j.dao;
 
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
+import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
 
 import java.util.List;
 
@@ -30,6 +31,7 @@ import java.util.List;
  * Time: 6:31 PM
  */
 public interface FortressDao {
+
     public Fortress save(Fortress fortress);
 
     public Fortress findByPropertyValue(String name, Object value);
@@ -42,5 +44,5 @@ public interface FortressDao {
 
     FortressUser findOneUser(Long id);
 
-    FortressUser save(FortressUser fortressUser);
+    FortressUser save(Fortress fortress, String fortressUserName);
 }

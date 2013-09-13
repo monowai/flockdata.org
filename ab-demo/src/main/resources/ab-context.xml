@@ -17,7 +17,7 @@
         <entry key="ab.apikey" value="232efr-234-fffaa-3434d"/>
         <entry key="ab.username" value="mike"/>
         <entry key="ab.password" value="123"/>
-        <entry key="fortress.name" value="SearchNA"/>
+        <entry key="fortress.name" value="ab-demo"/>
     </util:map>
 
 </beans>

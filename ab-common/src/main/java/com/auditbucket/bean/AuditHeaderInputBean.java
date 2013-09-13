@@ -39,7 +39,7 @@ public class AuditHeaderInputBean {
     private String fortress;
     private String fortressUser;
     private String documentType;
-    private Date when;
+    private Date when = null;
     private String lastMessage;
     private AuditLogInputBean auditLog;
     private boolean searchSuppressed;

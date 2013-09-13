@@ -89,8 +89,8 @@ public class FortressDaoNeo implements FortressDao {
     }
 
     @Override
-    public FortressUser save(FortressUser fortressUser) {
-        return fortressUserRepo.save((FortressUserNode) fortressUser);
+    public FortressUser save(Fortress fortress, String fortressUserName) {
+        return fortressUserRepo.save(new FortressUserNode(fortress, fortressUserName));
     }
 
 

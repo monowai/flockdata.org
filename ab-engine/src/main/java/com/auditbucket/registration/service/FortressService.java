@@ -84,9 +84,15 @@ public class FortressService {
     }
 
     /**
+     * Returns an object representing the user in the supplied fortress. User is created
+     * if it does not exist
+     * <p/>
+     * FortressUser Name is deemed to always be unique and is converted to a lowercase trimmed
+     * string to enforce this
+     *
      * @param fortress     fortress to search
      * @param fortressUser user to locate
-     * @return fortressUser identity, or creates it if it is not found
+     * @return fortressUser identity
      */
     public FortressUser getFortressUser(Fortress fortress, String fortressUser) {
         return getFortressUser(fortress, fortressUser, true);
@@ -96,17 +102,14 @@ public class FortressService {
         if (fortressUser == null || fortress == null)
             throw new IllegalArgumentException("Don't go throwing null in here [" + (fortressUser == null ? "FortressUserNode]" : "FortressNode]"));
 
-        FortressUser fu = fortressDao.getFortressUser(fortress.getId(), fortressUser);
+        FortressUser fu = fortressDao.getFortressUser(fortress.getId(), fortressUser.toLowerCase());
         if (createIfMissing && fu == null)
-            fu = addFortressUser(fortress.getId(), fortressUser);
+            fu = addFortressUser(fortress.getId(), fortressUser.toLowerCase().trim());
         return fu;
     }
 
-    public FortressUser save(FortressUser fortressUser) {
-        return fortressDao.save(fortressUser);
-    }
+    private FortressUser addFortressUser(Long fortressId, String fortressUser) {
 
-    public FortressUser addFortressUser(Long fortressId, String fortressUser) {
         Fortress fortress = getFortress(fortressId);
         if (fortress == null)
             throw new IllegalArgumentException("Unable to find requested fortress");
@@ -118,9 +121,7 @@ public class FortressService {
             throw new IllegalArgumentException("[" + fortress.getName() + "] has no owner");
 
         registrationService.isAdminUser(company, "Unable to find requested fortress");
-
-        FortressUser user = new FortressUserNode(fortress, fortressUser);
-        return save(user);
+        return fortressDao.save(fortress, fortressUser);
 
     }
 
@@ -148,11 +149,6 @@ public class FortressService {
     public Fortress registerFortress(String fortressName) {
         FortressInputBean fb = new FortressInputBean(fortressName, true);
         return registerFortress(fb);
-    }
-
-    private Company getCompany(long fortressId) {
-        return getFortress(fortressId).getCompany();
-
     }
 
     public List<Fortress> findFortresses(String companyName) {
