@@ -17,13 +17,15 @@ public class Account {
     // Technical Id
     @Id
     @GeneratedValue
-    @AuditClientRef
+    //@AuditClientRef // This would normally be the client key but for testing purposes
+    // we want to always want to create in the audit system
     private long id;
 
     @AuditKey
     private String auditKey;
 
-    @AuditTag
+    //@AuditTag
+    @AuditClientRef
     private String accountNumber;
 
     @AuditTag

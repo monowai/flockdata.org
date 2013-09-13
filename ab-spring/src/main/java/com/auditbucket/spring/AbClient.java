@@ -58,6 +58,8 @@ public class AbClient {
         AuditHeaderInputBean auditHeaderInputBean = PojoToAbTransformer.transformToAbFormat(pojo);
         auditHeaderInputBean.setFortress(forteressName);
         auditHeaderInputBean.setFortressUser(userName);
+        // ToDo: Remove this - mike debug
+        //auditHeaderInputBean.setCallerRef(null);
 
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());

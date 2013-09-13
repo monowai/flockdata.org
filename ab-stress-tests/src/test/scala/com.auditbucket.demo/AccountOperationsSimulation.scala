@@ -47,29 +47,25 @@ class AccountOperationsSimulation extends Simulation {
       .exec(http("Create Account")
       .post("http://localhost:9090/account/save")
       .headers(headers_4)
-      .body( """{
-                                       "accountNumber":"%s",
-                                       "iban":"DDDEEEFF44444",
-                                       "status":"STARTED"
-                                     }""".format("${params}")).asJSON
+      .body( """{"accountNumber":"%s",
+                 "iban":"DDDEEEFF44444",
+                 "status":"STARTED"}""".format("${params}")).asJSON
       .check(status.is(200))
     )
       //.pause(2 seconds)
       .exec(http("Update Account")
       .post("http://localhost:9090/account/update")
       .headers(headers_4)
-      .body( """{
-                                                        "accountNumber":"%s",
-                                                        "iban":"DDDEEEFF44444",
-                                                        "status":"%s"
-                                                      }""".format("${params}", "${status}")).asJSON
+      .body( """{"accountNumber":"%s",
+                 "iban":"DDDEEEFF44444",
+                 "status":"%s"}""".format("${params}", "${status}")).asJSON
       .check(status.is(200))
     )
     //.pause(2 seconds)
   }
 
 
-  setUp(scn.users(10).ramp(15).protocolConfig(httpConf))
+  setUp(scn.users(1).ramp(3).protocolConfig(httpConf))
 
   class ABCounter(value: AtomicLong) {
     def this() = this(new AtomicLong(System.currentTimeMillis()))
