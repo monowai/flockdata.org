@@ -236,6 +236,7 @@ public class TestAudit {
         assertNotNull(logs);
         assertFalse(logs.isEmpty());
         assertEquals(1, logs.size());
+        logs.iterator().next().toString();
     }
 
     /**

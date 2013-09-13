@@ -366,6 +366,7 @@ public class TestRegistration {
         Fortress fortress;
         String uname;
         CountDownLatch latch;
+        boolean failure = false;
 
         public FuAction(Fortress fortress, String uname, CountDownLatch latch) {
             logger.info("Preparing FuAction");
@@ -373,6 +374,10 @@ public class TestRegistration {
             this.uname = uname;
             this.latch = latch;
 
+        }
+
+        public boolean isFailed() {
+            return failure;
         }
 
         public void run() {
@@ -385,6 +390,8 @@ public class TestRegistration {
                     fortressService.getFortressUser(fortress, uname);
                     i++;
                 }
+            } catch (Exception e) {
+                failure = true;
             } finally {
                 latch.countDown();
             }

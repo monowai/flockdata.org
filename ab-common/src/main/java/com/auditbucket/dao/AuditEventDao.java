@@ -39,7 +39,5 @@ public interface AuditEventDao {
 
     AuditEvent createEvent(Company company, String eventCode);
 
-    AuditEvent associate(AuditChange change, AuditEvent existingEvent, Company company);
-
     Set<AuditEvent> findCompanyEvents(Long id);
 }

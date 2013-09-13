@@ -19,7 +19,6 @@
 
 package com.auditbucket.engine.repo.neo4j.dao;
 
-import com.auditbucket.audit.model.AuditChange;
 import com.auditbucket.audit.model.AuditEvent;
 import com.auditbucket.dao.AuditEventDao;
 import com.auditbucket.engine.repo.neo4j.AuditEventRepo;
@@ -54,11 +53,6 @@ public class AuditEventDaoRepo implements AuditEventDao {
         AuditEventNode node = new AuditEventNode(company, eventCode);
 
         return template.save(node);
-    }
-
-    @Override
-    public AuditEvent associate(AuditChange change, AuditEvent existingEvent, Company company) {
-        return null;
     }
 
     @Override

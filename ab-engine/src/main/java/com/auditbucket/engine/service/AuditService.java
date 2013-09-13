@@ -256,6 +256,7 @@ public class AuditService {
      */
     private AuditLogResultBean createLog(AuditHeader auditHeader, AuditLogInputBean input, FortressUser thisFortressUser) {
         AuditLogResultBean resultBean = new AuditLogResultBean(input);
+        //ToDo: May want to track a "View" event which would not change the What data.
         if (input.getMapWhat() == null || input.getMapWhat().isEmpty()) {
             resultBean.setStatus(AuditLogInputBean.LogStatus.IGNORE);
             resultBean.setMessage("No 'what' information provided. Ignoring this request");

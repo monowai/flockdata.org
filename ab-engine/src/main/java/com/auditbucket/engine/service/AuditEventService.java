@@ -61,11 +61,6 @@ public class AuditEventService {
         return existingEvent;
     }
 
-    public AuditChange processEvent(AuditChange change, AuditEvent event) {
-        return null;
-    }
-
-
     public Set<AuditEvent> getCompanyEvents(Long id) {
         return auditEventDao.findCompanyEvents(id);
     }

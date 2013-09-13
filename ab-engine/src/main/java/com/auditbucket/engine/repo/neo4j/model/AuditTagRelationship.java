@@ -51,6 +51,7 @@ public class AuditTagRelationship implements AuditTag {
     }
 
     public AuditTagRelationship(AuditHeader header, Tag tag, String tagType) {
+        this();
         this.auditHeader = (AuditHeaderNode) header;
         this.tag = (TagNode) tag;
         this.tagType = tagType;
