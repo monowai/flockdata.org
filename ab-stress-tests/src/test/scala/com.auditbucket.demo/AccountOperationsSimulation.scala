@@ -52,7 +52,7 @@ class AccountOperationsSimulation extends Simulation {
                  "status":"STARTED"}""".format("${params}")).asJSON
       .check(status.is(200))
     )
-      //.pause(2 seconds)
+      .pause(.5 seconds)
       .exec(http("Update Account")
       .post("http://localhost:9090/account/update")
       .headers(headers_4)
@@ -61,7 +61,17 @@ class AccountOperationsSimulation extends Simulation {
                  "status":"%s"}""".format("${params}", "${status}")).asJSON
       .check(status.is(200))
     )
-    //.pause(2 seconds)
+      .exec(chooseRandomStatus)
+      .pause(.5 seconds)
+      .exec(http("Update Account")
+      .post("http://localhost:9090/account/update")
+      .headers(headers_4)
+      .body( """{"accountNumber":"%s",
+                 "iban":"DDDEEEFF44444",
+                 "status":"%s"}""".format("${params}", "${status}")).asJSON
+      .check(status.is(200))
+    )
+      .pause(.5 seconds)
   }
 
 
