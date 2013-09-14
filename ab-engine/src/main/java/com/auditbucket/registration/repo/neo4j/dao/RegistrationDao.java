@@ -48,25 +48,39 @@ public class RegistrationDao implements com.auditbucket.dao.RegistrationDao {
     @Autowired
     Neo4jTemplate template;
 
+    @Resource
+    GraphDatabaseService graphDb;
+
     @Override
     public SystemUser save(SystemUser systemUser) {
         return suRepo.save((SystemUserNode) systemUser);
     }
 
     public SystemUser findSysUserByName(String name) {
-
-        if (template.getGraphDatabaseService().index().existsForNodes("sysUserName"))
-            return suRepo.getSystemUser(name);
-        return null;
+        SystemUser result = null;
+        if (template.getGraphDatabaseService().index().existsForNodes("sysUserName")) {
+            result = suRepo.getSystemUser(name);
+        }
+        return result;
     }
 
     @Override
     public SystemUser save(Company company, String userName, String password) {
-        SystemUserNode su = new SystemUserNode(userName, password, company, true);
-        return save(su);
+        SystemUser su = new SystemUserNode(userName, password, company, true);
+        su = save(su);
+        return su;
     }
 
     public FortressUser getFortressUser(String userName, String fortressName, String fortressUser) {
         return suRepo.getFortressUser(userName, fortressName, fortressUser);
+    }
+
+    public void wireIndexes() {
+        //logger.info ( "Wiring indexes and caches...");
+        Index<Node> index;
+
+        index = graphDb.index().forNodes("sysUserName");
+        ((LuceneIndex<Node>) index).setCacheCapacity("name", 300);
+
     }
 }
