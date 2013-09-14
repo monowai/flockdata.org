@@ -102,6 +102,7 @@ public class AbClient {
         };
         headers.add("Content-Type", "application/json");
         headers.add("Accept", "application/json");
+        headers.add("Accept-Encoding", "gzip");
 
         return headers;
     }

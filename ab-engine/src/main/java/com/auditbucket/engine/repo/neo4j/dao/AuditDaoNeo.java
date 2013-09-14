@@ -29,11 +29,14 @@ import com.auditbucket.engine.repo.neo4j.AuditLogRepo;
 import com.auditbucket.engine.repo.neo4j.model.*;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.FortressUser;
+import com.auditbucket.registration.repo.neo4j.dao.TagDao;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.index.Index;
+import org.neo4j.index.impl.lucene.LuceneIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -283,29 +286,16 @@ public class AuditDaoNeo implements AuditDao {
     }
 
     // The below code seems to ruin Lucene indexes when running TestAuditIntegration
-//    @PostConstruct
-//    private void wireIndexesAndCaches() {
-//        logger.info ( "Wiring indexes and caches...");
-//        Index<Node> index;
-//
-//        index = graphDb.index().forNodes("callerRef");
-////        if ( template.getGraphDatabaseService().index().existsForNodes("callerRef")) {
-//            ((LuceneIndex<Node>) index).setCacheCapacity("callerRef", 300);
-//  //      }
-//
-//        index = graphDb.index().forNodes("sysUserName");
-////        if ( template.getGraphDatabaseService().index().existsForNodes("sysUserName")){
-//            ((LuceneIndex<Node>) index).setCacheCapacity("name", 300);
-//  //      }
-//
-//        index = graphDb.index().forNodes("documentTypeName");
-////        if ( template.getGraphDatabaseService().index().existsForNodes(TagDao.DOCUMENT_TYPE)){
-//
-//            ((LuceneIndex<Node>) index).setCacheCapacity("name", 300);
-//  //      }
-//        //index = graphDb.index().forNodes(AuditHeaderNode.UUID_KEY);
-//        //((LuceneIndex<Node>) index).setCacheCapacity("auditKey", 300);
-//
-//    }
+    public void wireIndexesAndCaches() {
+        logger.info("Wiring indexes and caches...");
+        Index<Node> index;
+
+        index = graphDb.index().forNodes("callerRef");
+        ((LuceneIndex<Node>) index).setCacheCapacity("callerRef", 300);
+        index = graphDb.index().forNodes("documentTypeName");
+        ((LuceneIndex<Node>) index).setCacheCapacity("name", 300);
+        index = graphDb.index().forNodes(AuditHeaderNode.UUID_KEY);
+        ((LuceneIndex<Node>) index).setCacheCapacity("auditKey", 300);
+    }
 
 }

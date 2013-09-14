@@ -361,7 +361,6 @@
 
                                 </warRunDependency>
                             </warRunDependencies>
-                            <!-- naming is disable by default so use true to enable it -->
                             <enableNaming>true</enableNaming>
 
                         </configuration>
@@ -372,7 +371,6 @@
                     <port>8080</port>
                     <ajpPort>8087</ajpPort>
                     <path>/${project.artifactId}</path>
-
                     <warRunDependencies>
                         <warRunDependency>
                             <dependency>

@@ -36,13 +36,15 @@ public interface AuditHeaderRepo extends GraphRepository<AuditHeaderNode> {
 
     @Query(elementClass = AuditHeaderNode.class, value =
             "start fortress = node({0}), " +
-                    " docType = node:documentTypeName(name={1}), " +
                     "   audit = node:callerRef(callerRef  ={2})  " +
                     "   match fortress-[:audit]->audit<-[:classifies]-docType " +
+                    "   where docType.name ={1}" +
                     "  return audit")
     AuditHeaderNode findByCallerRef(Long fortress, String docType, String callerRef);
 
-    @Query(elementClass = AuditHeaderNode.class, value = "start audit=node:auditKey(auditKey = {0} ) return audit")
+    @Query(elementClass = AuditHeaderNode.class, value =
+            "start audit=node:auditKey(auditKey = {0} ) " +
+                    " return audit")
     AuditHeaderNode findByUID(String uid);
 
     @Query(elementClass = AuditHeaderNode.class, value = "start n=node:company({1} ) " +

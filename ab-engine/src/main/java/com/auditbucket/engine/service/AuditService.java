@@ -140,6 +140,7 @@ public class AuditService {
         Company company = su.getCompany();
         // ToDo: Improve cypher query
         Fortress fortress = companyService.getCompanyFortress(company, inputBean.getFortress());
+        fortress.setCompany(company); // Saving fetching twice
         if (fortress == null)
             throw new IllegalArgumentException("Unable to find the fortress [" + inputBean.getFortress() + "] for the company [" + company.getName() + "]");
 
@@ -150,7 +151,7 @@ public class AuditService {
         // Create thisFortressUser if missing
         FortressUser fu = fortressService.getFortressUser(fortress, inputBean.getFortressUser(), true);
         fu.getFortress().setCompany(su.getCompany());
-
+        fu.setFortress(fortress);// Save fetching it twice
         AuditHeader ah = null;
 
         try {
@@ -698,7 +699,7 @@ public class AuditService {
             return;
 
         auditDAO.fetch(header);
-        if (when == null) {
+        if (when == null) { //ToDo - what is this doing here?
             when = new DateTime(System.currentTimeMillis()).toDate();
         }
 
@@ -725,5 +726,12 @@ public class AuditService {
         auditDAO.fetch(log.getAuditChange());
         AuditWhat what = whatService.getWhat(log.getAuditChange());
         return new AuditLogDetailBean(log, what);
+    }
+
+    //@Transactional (propagation = Propagation.SUPPORTS)
+    public void wireIndexes() {
+        //auditDAO.wireIndexesAndCaches();
+        //sysUserService.wireIndexes();
+
     }
 }

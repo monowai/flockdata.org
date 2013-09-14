@@ -30,12 +30,13 @@
 
     <rabbit:connection-factory id="connectionFactory"
                                host="${rabbit.host}"
-                               port="${rabbit.port}"
+                               port="${rabbit.port}" publisher-confirms="${rabbit.publisher.confirms}"
+                               publisher-returns="${rabbit.publisher.returns}"
                                executor="AMQPPoolTaskExecutor"/>
 
     <task:executor id="AMQPPoolTaskExecutor"
                    pool-size="${rabbit.consumerChannelCacheSize}"
-                   queue-capacity="1000"
+                   queue-capacity="${rabbit.task.capacity}"
                    rejection-policy="CALLER_RUNS"/>
 
     <rabbit:template id="amqpTemplate" connection-factory="connectionFactory"/>

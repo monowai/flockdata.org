@@ -125,6 +125,7 @@ public class TestRegistration {
     }
 
     @Test
+    @Transactional
     public void findByName() {
         createCompanyUsers("MTest", 3);
         String name = "mtest2@sunnybell.com";
@@ -147,6 +148,7 @@ public class TestRegistration {
     }
 
     @Test
+    @Transactional
     public void companyFortressNameSearch() throws Exception {
         String companyName = "Monowai";
         String adminName = "mike";
@@ -169,6 +171,7 @@ public class TestRegistration {
     }
 
     @Test
+    @Transactional
     public void testCompanyUsers() {
         createCompanyUsers("mike", 10);
         Iterable<CompanyUser> users = companyService.getUsers(testCompanyName);
@@ -257,7 +260,7 @@ public class TestRegistration {
 
         assertNotSame("Fortress should be different", fortressA.getId(), fortressB.getId());
         assertNotSame("FortressUsers should be different", fua.getId(), fub.getId());
-        assertNotSame("FortressUsers should be the same", fub.getId(), fudupe.getId());
+        assertNotSame("FortressUsers and should be the same", fub.getId(), fudupe.getId());
     }
 
     @Test

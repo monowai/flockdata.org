@@ -2,6 +2,8 @@ package com.auditbucket.demo.web;
 
 import com.auditbucket.demo.domain.Account;
 import com.auditbucket.demo.services.AccountService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +18,7 @@ import java.io.IOException;
 @Controller
 @RequestMapping(value = "/account")
 public class AccountController {
-    //private static final Logger LOGGER = LoggerFactory.getLogger(AccountController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccountController.class);
     @Autowired
     private AccountService accountService;
 
@@ -35,11 +37,11 @@ public class AccountController {
     public ResponseEntity save(@RequestBody Account account) {
         try {
             Account accountDb = accountService.saveAccount(account);
-            return new ResponseEntity<>(accountDb, HttpStatus.OK);
+            return new ResponseEntity<Account>(accountDb, HttpStatus.OK);
         } catch (IllegalAccessException e) {
-            return new ResponseEntity<>("Log Auditing failed", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<String>("Log Auditing failed", HttpStatus.BAD_REQUEST);
         } catch (IOException e) {
-            return new ResponseEntity<>("Log Auditing failed", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<String>("Log Auditing failed", HttpStatus.BAD_REQUEST);
         }
 
     }
@@ -49,11 +51,11 @@ public class AccountController {
     public ResponseEntity<String> update(@RequestBody Account account) {
         try {
             accountService.updateAccount(account);
-            return new ResponseEntity<>("Account Updated", HttpStatus.OK);
+            return new ResponseEntity<String>("Account Updated", HttpStatus.OK);
         } catch (IllegalAccessException e) {
-            return new ResponseEntity<>("Log Auditing failed", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<String>("Log Auditing failed", HttpStatus.BAD_REQUEST);
         } catch (IOException e) {
-            return new ResponseEntity<>("Log Auditing failed", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<String>("Log Auditing failed", HttpStatus.BAD_REQUEST);
         }
     }
 

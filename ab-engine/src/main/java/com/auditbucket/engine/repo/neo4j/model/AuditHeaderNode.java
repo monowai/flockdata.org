@@ -109,7 +109,7 @@ public class AuditHeaderNode implements AuditHeader {
         this.fortress = (FortressNode) createdBy.getFortress();
         this.documentType = (DocumentTypeNode) documentType;
         String docType = (documentType != null ? getDocumentType() : "");
-        this.name = (callerRef == null ? docType : (docType + "." + callerRef).toLowerCase());
+        this.name = (callerRef == null ? docType : (new StringBuilder().append(docType).append(".").append(callerRef).toString()).toLowerCase());
 
         indexName = new StringBuilder().append(createdBy.getFortress().getCompany().getName().toLowerCase()).append(".").append(fortress.getName().toLowerCase()).toString();
         callerRef = auditInput.getCallerRef();

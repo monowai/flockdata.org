@@ -95,4 +95,6 @@ public interface AuditDao {
     String save(AuditChange change, String jsonText);
 
     void fetch(AuditWhat what);
+
+    public void wireIndexesAndCaches();
 }

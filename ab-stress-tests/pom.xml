@@ -38,6 +38,8 @@
                             <goal>execute</goal>
                         </goals>
                         <configuration>
+                            <!--Want to be able to preserve results between cleans-->
+                            <reportsOnly>../../gatling/results</reportsOnly>
                             <!-- Default values -->
                             <!--<configDir>src/test/resources</configDir>
                             <dataFolder>src/test/resources/data</dataFolder>

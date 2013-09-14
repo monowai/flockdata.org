@@ -65,7 +65,7 @@ class AccountOperationsSimulation extends Simulation {
   }
 
 
-  setUp(scn.users(1).ramp(3).protocolConfig(httpConf))
+  setUp(scn.users(3).ramp(5).protocolConfig(httpConf))
 
   class ABCounter(value: AtomicLong) {
     def this() = this(new AtomicLong(System.currentTimeMillis()))

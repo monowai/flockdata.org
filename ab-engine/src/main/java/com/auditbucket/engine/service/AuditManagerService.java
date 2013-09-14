@@ -38,6 +38,8 @@ public class AuditManagerService {
     @Autowired
     AuditService auditService;
 
+    private boolean wiredIndexes;
+
     public AuditResultBean createHeader(AuditHeaderInputBean inputBean) {
         AuditResultBean resultBean = auditService.createHeader(inputBean);
         if (inputBean.getAuditLog() != null) {
@@ -57,6 +59,10 @@ public class AuditManagerService {
             if (inputBean.getEvent() != null && !"".equals(inputBean.getEvent())) {
                 auditService.makeHeaderSearchable(resultBean, inputBean.getEvent(), inputBean.getWhen());
             }
+        }
+        if (!wiredIndexes) {
+            auditService.wireIndexes();
+            wiredIndexes = true;
         }
         return resultBean;
 
