@@ -115,6 +115,7 @@ public class TestAuditIntegration {
         client = factory.getObject();
 
         client.execute(new DeleteIndex.Builder("testaudit.suppress").build());
+        client.execute(new DeleteIndex.Builder("testaudit.ngram").build());
         client.execute(new DeleteIndex.Builder("monowai.audittest").build());
         for (int i = 1; i < fortressMax + 1; i++) {
             client.execute(new DeleteIndex.Builder("testaudit.bulkloada" + i).build());
@@ -270,6 +271,32 @@ public class TestAuditIntegration {
         // Bob's not there because we said we didn't want to index that header
         doEsQuery(indexName, "bob", 0);
         doEsQuery(indexName, "andy");
+    }
+
+    @Test
+    public void testWhatIndexingDefaultAttributeWithNGram() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
+        Fortress iFortress = fortressService.registerFortress(new FortressInputBean("ngram", false));
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
+
+        AuditResultBean indexedResult = auditManager.createHeader(inputBean);
+        AuditHeader indexHeader = auditService.getHeader(indexedResult.getAuditKey());
+        String what ="{\"code\":\"AZERTY\",\"name\":\"Name\",\"description\":\"this is a description\"}";
+        auditManager.createLog(new AuditLogInputBean(indexHeader.getAuditKey(), inputBean.getFortressUser(), new DateTime(), what));
+
+        waitForHeaderToUpdate(indexHeader);
+        String indexName = indexHeader.getIndexName();
+        Thread.sleep(1000);
+
+        doEsTermQuery(indexName, "@what.description", "des", 1);
+        doEsTermQuery(indexName, "@what.description", "de", 0);
+        doEsTermQuery(indexName, "@what.description", "descripti", 1);
+        doEsTermQuery(indexName, "@what.description", "descriptio", 1);
+        doEsTermQuery(indexName, "@what.description", "description", 0);
+        doEsTermQuery(indexName, "@what.description", "is is a de", 1);
+        doEsTermQuery(indexName, "@what.description", "is is a des", 0);
+
     }
 
     @Test
@@ -485,6 +512,42 @@ public class TestAuditIntegration {
         return null;
 
         //return result.getJsonString();
+    }
+
+    private String doEsTermQuery(String index, String field, String queryString, int expectedHitCount) throws Exception{
+        // There should only ever be one document for a given AuditKey.
+        // Let's assert that
+        String query = "{\n" +
+                "    query: {\n" +
+                "          term : {\n" +
+                "              \"" + field + "\" : \"" + queryString + "\"\n" +
+                "           }\n" +
+                "      }\n" +
+                "}";
+        Search search = new Search.Builder(query)
+                .addIndex(index)
+                .build();
+
+        JestResult result = client.execute(search);
+        String message = index + " - " + field + " - " + queryString + (result == null ? "[noresult]" : "\r\n" + result.getJsonString());
+        assertNotNull(message, result);
+        assertNotNull(message, result.getJsonObject());
+        assertNotNull(message, result.getJsonObject().getAsJsonObject("hits"));
+        assertNotNull(message, result.getJsonObject().getAsJsonObject("hits").get("total"));
+        int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
+        Assert.assertEquals(result.getJsonString(), expectedHitCount, nbrResult);
+        if(nbrResult!=0) {
+        return result.getJsonObject()
+                .getAsJsonObject("hits")
+                .getAsJsonArray("hits")
+                .getAsJsonArray()
+                .iterator()
+                .next()
+                .getAsJsonObject().get("_source").toString();
+        }
+        else{
+            return null;
+        }
     }
 
     private String doEsFieldQuery(String index, String field, String queryString, int expectedHitCount) throws Exception {
