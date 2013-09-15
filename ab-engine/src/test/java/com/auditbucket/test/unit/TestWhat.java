@@ -47,6 +47,50 @@ public class TestWhat {
         //Then
         Assert.assertEquals(auditWhat.getId(), auditWhatTest.getId());
     }
+
+    @Test
+    public void testIsSameNeo4jStoreCompareNull() {
+        // Given
+        AuditChange compareFrom = new AuditChangeTest();
+        //When
+        boolean isSame = whatService.isSame(compareFrom, null);
+        //Then
+        Assert.assertFalse(isSame);
+    }
+
+    @Test
+    public void testIsSameNeo4jStoreCompareEmpty() {
+        // Given
+        AuditChange compareFrom = new AuditChangeTest();
+        //When
+        boolean isSame = whatService.isSame(compareFrom, "");
+        //Then
+        Assert.assertFalse(isSame);
+    }
+
+    //@Test
+    public void testIsSameNeo4jStoreTrue() {
+        // Given
+        AuditChange compareFrom = new AuditChangeTest();
+        Mockito.when(auditDao.getWhat(any(Long.class))).thenReturn(compareFrom.getWhat());
+        String compareWith = "";
+        //When
+        boolean isSame = whatService.isSame(compareFrom, compareWith);
+
+        //Then
+        Assert.assertTrue(isSame);
+    }
+
+    //@Test
+    public void testIsSameNeo4jStoreFalse() {
+        AuditChange compareFrom = new AuditChangeTest();
+
+        String compareWith = "";
+        boolean isSame = whatService.isSame(compareFrom, compareWith);
+
+    }
+
+
 }
 
 
