@@ -38,6 +38,8 @@ public class AccountService {
         Account accountDb = accountRepository.findByAccountNumber(account.getAccountNumber());
         accountDb.setStatus(account.getStatus());
         accountRepository.save(accountDb);
+        // ToDo: This log should happen after the updateAccount function is finished.
+        //      no need for programmer to invoke.
         abClient.createAuditLog(accountDb);
     }
 
