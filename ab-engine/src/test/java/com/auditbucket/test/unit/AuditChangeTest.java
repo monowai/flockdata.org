@@ -61,7 +61,7 @@ public class AuditChangeTest implements AuditChange {
 
     @Override
     public AuditWhat getWhat() {
-        return new AuditWhatTest();
+        return new AuditNullWhatTest();
     }
 
     @Override

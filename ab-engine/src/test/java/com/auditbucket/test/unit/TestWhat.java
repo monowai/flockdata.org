@@ -3,7 +3,6 @@ package com.auditbucket.test.unit;
 import com.auditbucket.audit.model.*;
 import com.auditbucket.dao.AuditDao;
 import com.auditbucket.engine.service.WhatService;
-import com.auditbucket.registration.model.FortressUser;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,7 +37,7 @@ public class TestWhat {
         //Given
         AuditChange change = new AuditChangeTest();
         String jsonText = "{\"json\":\"json\"}";
-        AuditWhat auditWhatTest = new AuditWhatTest();
+        AuditWhat auditWhatTest = new AuditNullWhatTest();
         Mockito.when(auditDao.getWhat(any(Long.class))).thenReturn(auditWhatTest);
 
         //When
@@ -49,7 +48,7 @@ public class TestWhat {
     }
 
     @Test
-    public void testIsSameNeo4jStoreCompareNull() {
+    public void testIsSameNeo4jStoreCompareWithNull() {
         // Given
         AuditChange compareFrom = new AuditChangeTest();
         //When
@@ -59,7 +58,7 @@ public class TestWhat {
     }
 
     @Test
-    public void testIsSameNeo4jStoreCompareEmpty() {
+    public void testIsSameNeo4jStoreCompareWithEmpty() {
         // Given
         AuditChange compareFrom = new AuditChangeTest();
         //When
@@ -67,6 +66,70 @@ public class TestWhat {
         //Then
         Assert.assertFalse(isSame);
     }
+
+    @Test
+    public void testIsSameNeo4jStoreCompareFromNull() {
+        // Given
+        AuditChange compareFrom = null;
+        //When
+        boolean isSame = whatService.isSame(compareFrom, "{}");
+        //Then
+        Assert.assertFalse(isSame);
+    }
+
+    @Test
+    public void testIsSameNeo4jStoreGetWhatNull() {
+        // Given
+        AuditChange compareFrom = new AuditChangeTest();
+        Mockito.when(auditDao.getWhat(any(Long.class))).thenReturn(null);
+        //When
+        boolean isSame = whatService.isSame(compareFrom, "{}");
+        //Then
+        Assert.assertFalse(isSame);
+    }
+
+    // test when auditWhat.getWhat() is null
+    @Test
+    public void testIsSameNeo4jStoreWhatNull() {
+        // Given
+        AuditChange compareFrom = new AuditChangeTest();
+        AuditNullWhatTest auditNullWhatTest = new AuditNullWhatTest();
+
+        Mockito.when(auditDao.getWhat(any(Long.class))).thenReturn(auditNullWhatTest);
+        //When
+        boolean isSame = whatService.isSame(compareFrom, "{}");
+        //Then
+        Assert.assertFalse(isSame);
+    }
+
+    // test when auditWhat.getWhat() is null
+    @Test
+    public void testIsSameNeo4jStoreWhatNotNullDifferentSize() {
+        // Given
+        AuditChange compareFrom = new AuditChangeTest();
+        AuditNotNullWhatTest auditNullWhatTest = new AuditNotNullWhatTest();
+
+        Mockito.when(auditDao.getWhat(any(Long.class))).thenReturn(auditNullWhatTest);
+        //When
+        boolean isSame = whatService.isSame(compareFrom, "{}");
+        //Then
+        Assert.assertFalse(isSame);
+    }
+
+    // test when auditWhat.getWhat() is null
+    @Test
+    public void testIsSameNeo4jStoreWhatNotNullSameSize() {
+        // Given
+        AuditChange compareFrom = new AuditChangeTest();
+        AuditNotNullWhatTest auditNullWhatTest = new AuditNotNullWhatTest();
+
+        Mockito.when(auditDao.getWhat(any(Long.class))).thenReturn(auditNullWhatTest);
+        //When
+        boolean isSame = whatService.isSame(compareFrom, "{\"who\":\"mike\"}");
+        //Then
+        Assert.assertTrue(isSame);
+    }
+
 
     //@Test
     public void testIsSameNeo4jStoreTrue() {

@@ -11,7 +11,7 @@ import java.util.Map;
  * Time: 22:24
  * To change this template use File | Settings | File Templates.
  */
-public class AuditWhatTest implements AuditWhat {
+public class AuditNotNullWhatTest implements AuditWhat {
     @Override
     public String getId() {
         return "1";
@@ -19,7 +19,7 @@ public class AuditWhatTest implements AuditWhat {
 
     @Override
     public String getWhat() {
-        return null;
+        return "{\"who\":\"mike\"}";
     }
 
     @Override
