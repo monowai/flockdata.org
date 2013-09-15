@@ -111,7 +111,7 @@ public class TestAuditTags {
     }
 
     @Test
-    public void tagAuditRecords() {
+    public void tagAuditRecords() throws Exception{
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         assertNotNull(iSystemUser);
 
@@ -261,7 +261,7 @@ public class TestAuditTags {
     }
 
     @Test
-    public void differentTagTypeSameTagName() {
+    public void differentTagTypeSameTagName() throws Exception{
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         fortressService.registerFortress("ABC");
 

@@ -16,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Random;
 
 public class AbClient {
     private String serverName;
@@ -25,8 +26,10 @@ public class AbClient {
     private String forteressName;
     private String NEW_LOG;
     private String NEW_HEADER;
+    Random rnd = new Random();
 
     private Logger logger = LoggerFactory.getLogger(AbClient.class);
+    private String user;
 
     @Override
     public String toString() {
@@ -57,7 +60,7 @@ public class AbClient {
     public AuditResultBean createAuditHeader(Object pojo) throws IllegalAccessException, IOException {
         AuditHeaderInputBean auditHeaderInputBean = PojoToAbTransformer.transformToAbFormat(pojo);
         auditHeaderInputBean.setFortress(forteressName);
-        auditHeaderInputBean.setFortressUser(userName);
+        auditHeaderInputBean.setFortressUser(getUser());
         // ToDo: Remove this - mike debug
         //auditHeaderInputBean.setCallerRef(null);
 
@@ -77,7 +80,7 @@ public class AbClient {
     public AuditLogInputBean createAuditLog(Object pojo) throws IllegalAccessException, IOException {
         AuditLogInputBean auditLogInputBean = PojoToAbTransformer.transformToAbLogFormat(pojo);
         assert (auditLogInputBean.getAuditKey() != null);
-        auditLogInputBean.setFortressUser(userName);
+        auditLogInputBean.setFortressUser(getUser());
         HttpHeaders httpHeaders = setHeaders(userName, password);
         HttpEntity<AuditLogInputBean> requestEntity = new HttpEntity<AuditLogInputBean>(auditLogInputBean, httpHeaders);
 
@@ -107,4 +110,8 @@ public class AbClient {
         return headers;
     }
 
+    public String getUser() {
+        int i = rnd.nextInt((100-1)+1);
+        return userName +i;
+    }
 }

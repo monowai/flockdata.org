@@ -24,6 +24,8 @@ import com.auditbucket.bean.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+
 /**
  * Exists because calling makeChangeSearchable within the completed transaction
  * of auditService.createLog resulted in a "__TYPE__ not found" exception from Neo4J
@@ -40,10 +42,13 @@ public class AuditManagerService {
 
     private boolean wiredIndexes;
 
-    public AuditResultBean createHeader(AuditHeaderInputBean inputBean) {
+    public AuditResultBean createHeader(AuditHeaderInputBean inputBean) throws IOException {
+        AuditLogInputBean logBean = inputBean.getAuditLog();
+        if ( logBean != null ) // Error as soon as we can
+            logBean.setWhat(logBean.getWhat());
+
         AuditResultBean resultBean = auditService.createHeader(inputBean);
         if (inputBean.getAuditLog() != null) {
-            AuditLogInputBean logBean = inputBean.getAuditLog();
             logBean.setAuditId(resultBean.getAuditId());
             logBean.setAuditKey(resultBean.getAuditKey());
             logBean.setFortressUser(inputBean.getFortressUser());
@@ -68,10 +73,9 @@ public class AuditManagerService {
 
     }
 
-    public AuditLogResultBean createLog(AuditLogInputBean auditLogInputBean) {
-
+    public AuditLogResultBean createLog(AuditLogInputBean auditLogInputBean) throws IOException {
         AuditLogResultBean resultBean = auditService.createLog(auditLogInputBean);
-
+        auditLogInputBean.setWhat(auditLogInputBean.getWhat());
         if (resultBean != null && resultBean.getStatus() == AuditLogInputBean.LogStatus.OK)
             auditService.makeChangeSearchable(resultBean.getSearchDocument());
 

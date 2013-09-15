@@ -122,7 +122,7 @@ public class TestAudit {
     }
 
     @Test
-    public void locatingByCallerRefWillThrowAuthorizationException() {
+    public void locatingByCallerRefWillThrowAuthorizationException() throws Exception{
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         Fortress fortressA = fortressService.registerFortress("auditTest");
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");

@@ -49,7 +49,7 @@ public class AuditLogInputBean {
     String callerRef;
     String fortress;
 
-    Map<String, Object> mapWhat;
+    Map<String, Object> mapWhat = null;
 
     static final ObjectMapper om = new ObjectMapper();
     private boolean forceReindex;
@@ -141,8 +141,9 @@ public class AuditLogInputBean {
         return what;
     }
 
+    // Will never update the map once set
     public void setWhat(String jsonWhat) throws IOException {
-        if (jsonWhat == null)
+        if (jsonWhat == null || !(mapWhat==null))
             return;
         what = om.readTree(jsonWhat).toString();
         mapWhat = om.readValue(what, Map.class);

@@ -131,23 +131,20 @@ public class AuditService {
      *
      * @return unique primary key to be used for subsequent log calls
      */
-    public AuditResultBean createHeader(AuditHeaderInputBean inputBean) {
+    AuditResultBean createHeader(AuditHeaderInputBean inputBean) {
         SystemUser su = sysUserService.findByName(securityHelper.getLoggedInUser());
 
         if (su == null)
             throw new SecurityException("Not authorised");
-
+        Future<AuditHeader> futureHeader = null;
         Company company = su.getCompany();
         // ToDo: Improve cypher query
         Fortress fortress = companyService.getCompanyFortress(company, inputBean.getFortress());
-        fortress.setCompany(company); // Saving fetching twice
-        if (fortress == null)
-            throw new IllegalArgumentException("Unable to find the fortress [" + inputBean.getFortress() + "] for the company [" + company.getName() + "]");
 
-        Future<AuditHeader> futureHeader = null;
         if (inputBean.getCallerRef() != null && !inputBean.getCallerRef().equals(EMPTY))
             futureHeader = findByCallerRefFuture(fortress.getId(), inputBean.getDocumentType(), inputBean.getCallerRef());
 
+        fortress.setCompany(company); // Saving fetching twice
         // Create thisFortressUser if missing
         FortressUser fu = fortressService.getFortressUser(fortress, inputBean.getFortressUser(), true);
         fu.getFortress().setCompany(su.getCompany());
@@ -223,7 +220,10 @@ public class AuditService {
      * @param input log details
      * @return populated log information with any error messages
      */
-    public AuditLogResultBean createLog(AuditLogInputBean input) {
+    AuditLogResultBean createLog(AuditLogInputBean input) {
+        // Fail as quickly as possible
+        //processWhatText(input);
+
         AuditHeader header;
         AuditLogResultBean resultBean = new AuditLogResultBean(input);
         String auditKey = input.getAuditKey();
@@ -262,15 +262,6 @@ public class AuditService {
             resultBean.setStatus(AuditLogInputBean.LogStatus.IGNORE);
             resultBean.setMessage("No 'what' information provided. Ignoring this request");
             return resultBean;
-        }
-
-        try {
-            // Normalise and JSON'ise the what argument that has probably just been
-            //  placed in to the instance variable
-            input.setWhat(input.getWhat());
-        } catch (IOException e) {
-            logger.error("Json parsing exception {}", input.getWhat());
-            throw new IllegalArgumentException("Unable to pass What text as JSON object", e);
         }
 
         Fortress fortress = auditHeader.getFortress();
@@ -354,6 +345,17 @@ public class AuditService {
         }
         return resultBean;
 
+    }
+
+    private void processWhatText(AuditLogInputBean input) {
+        try {
+            // Normalise and JSON'ise the what argument that has probably just been
+            //  placed in to the instance variable
+            input.setWhat(input.getWhat());
+        } catch (IOException e) {
+            logger.error("Json parsing exception {}", input.getWhat());
+            throw new IllegalArgumentException("Unable to pass What text as JSON object", e);
+        }
     }
 
 
