@@ -88,9 +88,9 @@ public class TestAudit {
     private String monowai = "Monowai";
     private String mike = "test@ab.com";
     private String mark = "mark@null.com";
-    Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
-    Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "user1");
-    String what = "{\"house\": \"house";
+    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
+    private Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "user1");
+    private String what = "{\"house\": \"house";
 
     @Before
     public void setSecurity() {
@@ -107,7 +107,7 @@ public class TestAudit {
     }
 
     @Test
-    public void logChangeByCallerRefWithNullAuditKeyButKeyDoesExists() throws Exception {
+    public void logChangeWithNullAuditKeyButCallerRefExists() throws Exception {
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         Fortress fortressA = fortressService.registerFortress("auditTest");
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
@@ -122,7 +122,7 @@ public class TestAudit {
     }
 
     @Test
-    public void locatingByCallerRefWillThrowAuthorizationException() throws Exception{
+    public void locatingByCallerRefWillThrowAuthorizationException() throws Exception {
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         Fortress fortressA = fortressService.registerFortress("auditTest");
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");

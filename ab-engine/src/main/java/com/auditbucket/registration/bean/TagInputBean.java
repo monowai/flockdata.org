@@ -36,7 +36,7 @@ public class TagInputBean implements Tag {
     @NotEmpty
     private String name;
 
-    public TagInputBean() {
+    private TagInputBean() {
     }
 
     public TagInputBean(String tagName) {

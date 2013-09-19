@@ -51,7 +51,7 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 @ContextConfiguration({"classpath:root-context.xml"})
 public class TestElasticSearch {
     private String uid = "mike@monowai.com";
-    Authentication auth = new UsernamePasswordAuthenticationToken(uid, "user1");
+    private Authentication auth = new UsernamePasswordAuthenticationToken(uid, "user1");
     private Logger log = LoggerFactory.getLogger(TestElasticSearch.class);
 
     @Autowired

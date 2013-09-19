@@ -22,14 +22,13 @@ package com.auditbucket.test.functional;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.*;
-import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
 import com.auditbucket.registration.repo.neo4j.model.CompanyUserNode;
-import com.auditbucket.registration.repo.neo4j.model.FortressNode;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.SystemUserService;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.neo4j.graphdb.PropertyContainer;
@@ -53,9 +52,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.CountDownLatch;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.fail;
+import static junit.framework.Assert.*;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -83,9 +80,8 @@ public class TestRegistration {
 
     private Logger logger = LoggerFactory.getLogger(TestRegistration.class);
 
-    String uid = "mike";
-    Authentication authA = new UsernamePasswordAuthenticationToken("mike", "123");
-    Authentication authB = new UsernamePasswordAuthenticationToken("harry", "123");
+    private Authentication authA = new UsernamePasswordAuthenticationToken("mike", "123");
+    private Authentication authB = new UsernamePasswordAuthenticationToken("harry", "123");
 
     @Rollback(false)
     @BeforeTransaction
@@ -102,17 +98,10 @@ public class TestRegistration {
 
     }
 
-    private Fortress createFortress(String name, Company ownedBy) {
-        Fortress fortress = new FortressNode(new FortressInputBean(name), ownedBy);
-        fortress = fortressService.save(fortress);
-        assertNotNull(fortress);
-        return fortress;
-    }
-
-    String testCompanyName = "testco";
+    private String testCompanyName = "testco";
 
     private void createCompanyUsers(String userNamePrefix, int count) {
-        Company company = companyService.save(new CompanyNode(testCompanyName));
+        Company company = companyService.save(testCompanyName);
         int i = 1;
         while (i <= count) {
             CompanyUser test = new CompanyUserNode(userNamePrefix + i + "@sunnybell.com", company);
@@ -133,18 +122,6 @@ public class TestRegistration {
         assertNotNull(p);
         assertEquals(name, p.getName());
 
-    }
-
-    private void createCompanies(int count) {
-        int i = 1;
-
-        while (i <= count) {
-            Company test = new CompanyNode();
-            test.setName(testCompanyName + i);
-            test = companyService.save(test);
-            assertNotNull(test);
-            i++;
-        }
     }
 
     @Test
@@ -218,6 +195,11 @@ public class TestRegistration {
 
         Company company = companyService.findByName(companyName);
         assertNotNull(company);
+        assertNotNull(company.getApiKey());
+        Long companyId = company.getId();
+        company = companyService.findByApiKey(company.getApiKey());
+        assertNotNull(company);
+        assertEquals(companyId, company.getId());
 
         assertNotNull(systemUserService.findByName(adminName));
         assertNull(systemUserService.findByName(userName));
@@ -265,6 +247,7 @@ public class TestRegistration {
 
     @Test
     public void fortressTZLocaleChecks() {
+        String uid = "mike";
         registrationService.registerSystemUser(new RegistrationBean("Monowai", uid, "bah"));
         SecurityContextHolder.getContext().setAuthentication(authA);
         // Null fortress
@@ -334,7 +317,6 @@ public class TestRegistration {
     @Transactional
     //@Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void multipleFortressUserRequestsThreaded() throws Exception {
-        Long uid;
         String uname = "mike";
         // Assume the user has now logged in.
         //org.neo4j.graphdb.Transaction t = graphDatabaseService.beginTx();
@@ -349,9 +331,13 @@ public class TestRegistration {
 
         CountDownLatch latch = new CountDownLatch(3);
         // Run threaded tests
-        Thread fu1 = new Thread(new FuAction(fortress, "mike", latch));
-        Thread fu2 = new Thread(new FuAction(fortress, "mike", latch));
-        Thread fu3 = new Thread(new FuAction(fortress, "mike", latch));
+        FuAction fua1 = new FuAction(fortress, "mike", latch);
+        FuAction fua2 = new FuAction(fortress, "mike", latch);
+        FuAction fua3 = new FuAction(fortress, "mike", latch);
+
+        Thread fu1 = new Thread(fua1);
+        Thread fu2 = new Thread(fua2);
+        Thread fu3 = new Thread(fua3);
 
         fu1.start();
         fu2.start();
@@ -362,6 +348,9 @@ public class TestRegistration {
         // Check we only get one back
         FortressUser fu = fortressService.getFortressUser(fortress, uname);
         assertNotNull(fu);
+        assertFalse(fua1.isFailed());
+        assertFalse(fua2.isFailed());
+        assertFalse(fua3.isFailed());
 
     }
 
@@ -369,7 +358,7 @@ public class TestRegistration {
         Fortress fortress;
         String uname;
         CountDownLatch latch;
-        boolean failure = false;
+        boolean failed = true;
 
         public FuAction(Fortress fortress, String uname, CountDownLatch latch) {
             logger.info("Preparing FuAction");
@@ -380,7 +369,7 @@ public class TestRegistration {
         }
 
         public boolean isFailed() {
-            return failure;
+            return failed;
         }
 
         public void run() {
@@ -394,10 +383,11 @@ public class TestRegistration {
                     i++;
                 }
             } catch (Exception e) {
-                failure = true;
+                failed = true;
             } finally {
                 latch.countDown();
             }
+            failed = false;
 
         }
     }

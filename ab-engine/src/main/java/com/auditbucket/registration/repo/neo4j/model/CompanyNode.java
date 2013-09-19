@@ -35,16 +35,26 @@ public class CompanyNode implements Company {
     Long id;
 
     @Indexed(unique = true, indexName = "companyName")
+    private
     String name;
+
+    @Indexed(indexName = "apiKey")
+    String apiKey;
 
     @RelatedTo(elementClass = CompanyUserNode.class, type = "works", direction = Direction.INCOMING)
     private Set<CompanyUser> companyUsers;
 
-    public CompanyNode(String companyName) {
-        setName(companyName);
+    protected CompanyNode() {
     }
 
-    public CompanyNode() {
+    public CompanyNode(String companyName) {
+        this(companyName, null);
+    }
+
+    public CompanyNode(String companyName, String apiKey) {
+        super();
+        setName(companyName);
+        this.apiKey = apiKey;
     }
 
     public Long getId() {
@@ -57,6 +67,16 @@ public class CompanyNode implements Company {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public void setApiKey(String apiKey) {
+        this.apiKey = apiKey;
+    }
+
+    @Override
+    public String getApiKey() {
+        return this.apiKey;
     }
 
 

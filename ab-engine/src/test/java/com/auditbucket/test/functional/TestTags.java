@@ -72,8 +72,8 @@ public class TestTags {
     private String company = "Monowai";
     private String mike = "mike@monowai.com";
     private String mark = "mark@monowai.com";
-    Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
-    Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "user1");
+    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
+    private Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "user1");
 
     @Rollback(false)
     @BeforeTransaction

@@ -98,7 +98,7 @@ public class TestAuditTags {
 
     private String company = "Monowai";
     private String uid = "mike@monowai.com";
-    Authentication authA = new UsernamePasswordAuthenticationToken(uid, "user1");
+    private Authentication authA = new UsernamePasswordAuthenticationToken(uid, "user1");
 
     @Rollback(false)
     @BeforeTransaction
@@ -111,7 +111,7 @@ public class TestAuditTags {
     }
 
     @Test
-    public void tagAuditRecords() throws Exception{
+    public void tagAuditRecords() throws Exception {
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         assertNotNull(iSystemUser);
 
@@ -261,7 +261,7 @@ public class TestAuditTags {
     }
 
     @Test
-    public void differentTagTypeSameTagName() throws Exception{
+    public void differentTagTypeSameTagName() throws Exception {
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         fortressService.registerFortress("ABC");
 

@@ -39,6 +39,7 @@ public class SystemId implements ISystem {
     Long Id;
 
     @RelatedTo(elementClass = SystemUserNode.class, type = "administers", direction = Direction.OUTGOING)
+    private
     Set<SystemUser> systemUsers;
 
     @Indexed(indexName = "systemName")

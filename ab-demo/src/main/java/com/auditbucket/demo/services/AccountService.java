@@ -13,7 +13,7 @@ import java.io.IOException;
 
 @Service
 public class AccountService {
-    public static final Logger logger = LoggerFactory.getLogger(AccountService.class);
+    private static final Logger logger = LoggerFactory.getLogger(AccountService.class);
 
     @Autowired
     AccountRepository accountRepository;

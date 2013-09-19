@@ -55,7 +55,7 @@ import java.util.*;
  */
 @Repository("auditDAO")
 public class AuditDaoNeo implements AuditDao {
-    public static final String LAST_CHANGE = "lastChange";
+    private static final String LAST_CHANGE = "lastChange";
     @Autowired
     AuditHeaderRepo auditRepo;
 
@@ -116,8 +116,7 @@ public class AuditDaoNeo implements AuditDao {
 
     @Override
     public TxRef findTxTag(@NotEmpty String userTag, @NotNull Company company, boolean fetchHeaders) {
-        TxRef txRef = auditRepo.findTxTag(userTag, company.getId());
-        return txRef;
+        return auditRepo.findTxTag(userTag, company.getId());
     }
 
 

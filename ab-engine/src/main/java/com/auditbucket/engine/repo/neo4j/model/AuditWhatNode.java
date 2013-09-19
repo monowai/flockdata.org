@@ -23,14 +23,16 @@ public class AuditWhatNode implements AuditWhat {
     private Long id;
 
     @JsonIgnore
+    private
     byte[] whatBytes;
 
-    Boolean compressed;
+    private Boolean compressed;
 
     @Transient
     private Map<String, Object> what;
 
     @Transient
+    private
     ObjectMapper objectMapper = new ObjectMapper();
 
     @Override

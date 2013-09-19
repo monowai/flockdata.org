@@ -37,7 +37,7 @@ public class KeyGenService {
         return getUniqueKey(METHOD.UUID);
     }
 
-    public String getUniqueKey(METHOD method) {
+    String getUniqueKey(METHOD method) {
         // Snowflake?
         if (method.equals(METHOD.SNOWFLAKE))
             return getSnowFlake();
@@ -46,6 +46,7 @@ public class KeyGenService {
             return getUUID();
     }
 
+    //ToDo: Implement!
     private String getSnowFlake() {
         return getUUID();
     }

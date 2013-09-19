@@ -20,8 +20,8 @@ import java.io.IOException;
 @Service
 @Transactional
 public class WhatService {
-    static final ObjectMapper om = new ObjectMapper();
-    public static final String NEO4J = "neo4j";
+    private static final ObjectMapper om = new ObjectMapper();
+    private static final String NEO4J = "neo4j";
     private Logger logger = LoggerFactory.getLogger(WhatService.class);
 
     @Autowired(required = false)

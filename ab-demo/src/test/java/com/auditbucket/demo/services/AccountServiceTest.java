@@ -22,7 +22,7 @@ import java.io.IOException;
 @ContextConfiguration(locations = {"classpath:applicationContext-test.xml"})
 public class AccountServiceTest {
 
-    public static Logger logger = LoggerFactory.getLogger(AccountServiceTest.class);
+    private static Logger logger = LoggerFactory.getLogger(AccountServiceTest.class);
     @Autowired
     private AccountService accountService;
     @Autowired

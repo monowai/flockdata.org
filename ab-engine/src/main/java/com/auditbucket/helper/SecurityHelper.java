@@ -75,7 +75,7 @@ public class SecurityHelper {
         return sysUserService.findByName(a.getName());
     }
 
-    public SystemUser getSysUser(String loginName) {
+    SystemUser getSysUser(String loginName) {
         return sysUserService.findByName(loginName);
     }
 

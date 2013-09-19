@@ -85,8 +85,8 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 //@Transactional
 public class TestAuditIntegration {
 
-    static int fortressMax = 2;
-    static JestClient client;
+    private static int fortressMax = 2;
+    private static JestClient client;
     @Autowired
     AuditService auditService;
     @Autowired
@@ -103,7 +103,7 @@ public class TestAuditIntegration {
 
     private Logger logger = LoggerFactory.getLogger(TestAuditIntegration.class);
     private String email = "test@ab.com";
-    Authentication authA = new UsernamePasswordAuthenticationToken(email, "user1");
+    private Authentication authA = new UsernamePasswordAuthenticationToken(email, "user1");
 
     @BeforeClass
     public static void cleanupElasticSearch() throws Exception {
@@ -282,7 +282,7 @@ public class TestAuditIntegration {
 
         AuditResultBean indexedResult = auditManager.createHeader(inputBean);
         AuditHeader indexHeader = auditService.getHeader(indexedResult.getAuditKey());
-        String what ="{\"code\":\"AZERTY\",\"name\":\"Name\",\"description\":\"this is a description\"}";
+        String what = "{\"code\":\"AZERTY\",\"name\":\"Name\",\"description\":\"this is a description\"}";
         auditManager.createLog(new AuditLogInputBean(indexHeader.getAuditKey(), inputBean.getFortressUser(), new DateTime(), what));
 
         waitForHeaderToUpdate(indexHeader);
@@ -514,7 +514,7 @@ public class TestAuditIntegration {
         //return result.getJsonString();
     }
 
-    private String doEsTermQuery(String index, String field, String queryString, int expectedHitCount) throws Exception{
+    private String doEsTermQuery(String index, String field, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
         String query = "{\n" +
@@ -536,16 +536,15 @@ public class TestAuditIntegration {
         assertNotNull(message, result.getJsonObject().getAsJsonObject("hits").get("total"));
         int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
         Assert.assertEquals(result.getJsonString(), expectedHitCount, nbrResult);
-        if(nbrResult!=0) {
-        return result.getJsonObject()
-                .getAsJsonObject("hits")
-                .getAsJsonArray("hits")
-                .getAsJsonArray()
-                .iterator()
-                .next()
-                .getAsJsonObject().get("_source").toString();
-        }
-        else{
+        if (nbrResult != 0) {
+            return result.getJsonObject()
+                    .getAsJsonObject("hits")
+                    .getAsJsonArray("hits")
+                    .getAsJsonArray()
+                    .iterator()
+                    .next()
+                    .getAsJsonObject().get("_source").toString();
+        } else {
             return null;
         }
     }

@@ -43,6 +43,9 @@ public class RegistrationService {
     private SystemUserService systemUserService;
 
     @Autowired
+    KeyGenService keyGenService;
+
+    @Autowired
     private SecurityHelper securityHelper;
 
     private static SystemUser GUEST = new SystemUserNode("Guest", null, null, false);
@@ -56,8 +59,7 @@ public class RegistrationService {
 
         Company company = companyService.findByName(regBean.getCompanyName());
         if (company == null) {
-            company = new CompanyNode(regBean.getCompanyName());
-            company = companyService.save(company);
+            company = companyService.save(regBean.getCompanyName());
         }
         regBean.setCompany(company);
         systemUser = systemUserService.save(regBean);
