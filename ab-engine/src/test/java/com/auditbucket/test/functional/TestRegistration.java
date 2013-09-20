@@ -245,7 +245,7 @@ public class TestRegistration {
 
         assertNotSame("Fortress should be different", fortressA.getId(), fortressB.getId());
         assertNotSame("FortressUsers should be different", fua.getId(), fub.getId());
-        assertNotSame("FortressUsers and should be the same", fub.getId(), fudupe.getId());
+        assertEquals("FortressUsers should be the same", fub.getId(), fudupe.getId());
     }
 
     @Test

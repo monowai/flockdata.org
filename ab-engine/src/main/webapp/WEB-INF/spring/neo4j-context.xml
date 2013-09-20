@@ -37,6 +37,8 @@ http://www.springframework.org/schema/data/neo4j/spring-neo4j.xsd http://www.spr
           class="org.springframework.data.neo4j.config.JtaTransactionManagerFactoryBean">
         <constructor-arg ref="graphDatabaseService"/>
     </bean>
+    <!--<context:load-time-weaver aspectj-weaving="on"  weaver-class="org.springframework.instrument.classloading.ReflectiveLoadTimeWeaver"/>-->
+    <!--<tx:annotation-driven mode="aspectj" transaction-manager="transactionManager" proxy-target-class="true"/>-->
     <tx:annotation-driven mode="proxy" transaction-manager="transactionManager"/>
 
     <!-- Controllers etc to look for -->

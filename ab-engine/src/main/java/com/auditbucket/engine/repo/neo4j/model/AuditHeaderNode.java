@@ -66,7 +66,7 @@ public class AuditHeaderNode implements AuditHeader {
     @Indexed(indexName = "callerRef")
     private String callerRef;
 
-    private long dateCreated;
+    private long dateCreated = 0;
 
     private String event = null; // should only be set if this is an immutable header and no log events will be recorded
 
