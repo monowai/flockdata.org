@@ -28,7 +28,6 @@ import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.SystemUserService;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.neo4j.graphdb.PropertyContainer;
@@ -52,14 +51,17 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.CountDownLatch;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.fail;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
-//@Transactional
+@Transactional
 public class TestRegistration {
 
 
@@ -171,7 +173,6 @@ public class TestRegistration {
     }
 
     @Test
-    @Transactional
     public void testRegistration() {
         String companyName = "Monowai";
         String adminName = "mike";
@@ -294,7 +295,7 @@ public class TestRegistration {
     }
 
     @Test
-    @Transactional
+//    @Transactional
     public void multipleFortressUserErrors() throws Exception {
         Long uid;
         String uname = "mike";
@@ -316,7 +317,7 @@ public class TestRegistration {
     }
 
     @Test
-    @Transactional
+    //@Transactional
     //@Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void multipleFortressUserRequestsThreaded() throws Exception {
         String uname = "mike";
