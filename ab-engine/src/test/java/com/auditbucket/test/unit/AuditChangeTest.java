@@ -12,9 +12,30 @@ import com.auditbucket.registration.model.FortressUser;
  * To change this template use File | Settings | File Templates.
  */
 public class AuditChangeTest implements AuditChange {
+    FortressUser who;
+    String comment, name;
+    TxRef txRef;
+    AuditChange previousChange;
+    AuditWhat what;
+    String storage;
+
+    public void setAuditLog(AuditLog auditLog) {
+        this.auditLog = auditLog;
+    }
+
+    AuditLog auditLog;
+
+    public AuditChangeTest(String storage){
+        this.storage=storage;
+    }
+
     @Override
     public FortressUser getWho() {
         return null;
+    }
+
+    public void setWho(FortressUser who) {
+        this.who = who;
     }
 
     @Override
@@ -31,8 +52,8 @@ public class AuditChangeTest implements AuditChange {
         return null;
     }
 
-    @Override
-    public void setTxRef(TxRef txRef) {
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
@@ -41,7 +62,7 @@ public class AuditChangeTest implements AuditChange {
     }
 
     @Override
-    public void setPreviousChange(AuditChange previousChange) {
+    public void setEvent(AuditEvent event) {
     }
 
     @Override
@@ -50,8 +71,12 @@ public class AuditChangeTest implements AuditChange {
     }
 
     @Override
+    public void setPreviousChange(AuditChange previousChange) {
+    }
+
+    @Override
     public AuditLog getAuditLog() {
-        return null;
+        return this.auditLog;
     }
 
     @Override
@@ -70,15 +95,27 @@ public class AuditChangeTest implements AuditChange {
 
     @Override
     public String getWhatStore() {
-        return WhatService.NEO4J;
+        return this.storage;
     }
 
     @Override
     public void setWhatStore(String storage) {
     }
 
+    public TxRef getTxRef() {
+        return txRef;
+    }
+
     @Override
-    public void setEvent(AuditEvent event) {
+    public void setTxRef(TxRef txRef) {
+    }
+
+    public String getStorage() {
+        return storage;
+    }
+
+    public void setStorage(String storage) {
+        this.storage = storage;
     }
 }
 

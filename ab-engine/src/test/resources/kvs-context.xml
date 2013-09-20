@@ -34,4 +34,9 @@
         </constructor-arg>
     </bean>
 
+    <!-- redis template definition -->
+    <bean id="redisTemplate"
+          class="org.springframework.data.redis.core.RedisTemplate"
+          p:connectionFactory-ref="jredisConnectionFactory"/>
+
 </beans>

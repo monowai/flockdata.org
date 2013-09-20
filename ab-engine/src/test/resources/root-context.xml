@@ -63,5 +63,5 @@
         <property name="queueCapacity" value="-1"/>
     </bean>
 
-
+    <import resource="kv-context.xml"/>
 </beans>

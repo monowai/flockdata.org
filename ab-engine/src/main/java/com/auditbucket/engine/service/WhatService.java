@@ -3,11 +3,14 @@ package com.auditbucket.engine.service;
 import com.auditbucket.audit.model.AuditChange;
 import com.auditbucket.audit.model.AuditWhat;
 import com.auditbucket.dao.AuditDao;
+import com.auditbucket.engine.repo.neo4j.model.AuditWhatNode;
+import com.auditbucket.engine.repo.redis.RedisRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,10 +25,15 @@ import java.io.IOException;
 public class WhatService {
     static final ObjectMapper om = new ObjectMapper();
     public static final String NEO4J = "neo4j";
+    public static final String REDIS = "redis";
+
     private Logger logger = LoggerFactory.getLogger(WhatService.class);
 
     @Autowired(required = false)
     AuditDao auditDao = null;
+
+    @Autowired
+    RedisRepository redisRepository;
 
     public String logWhat(AuditChange change, String jsonText) {
         String store = change.getWhatStore();
@@ -34,8 +42,13 @@ public class WhatService {
         if (store.equalsIgnoreCase(NEO4J)) {   // ToDo: add Redis store support
             return auditDao.save(change, jsonText);
         } else
+        {
             // AuditChange will have to be saved with the remote store key
+            AuditWhatNode what = new AuditWhatNode();
+            what.setJsonWhat(jsonText);
+            redisRepository.add(change.getAuditLog().getId(),what);
             return null;
+        }
     }
 
     public AuditWhat getWhat(AuditChange change) {
@@ -46,7 +59,9 @@ public class WhatService {
         if (store.equalsIgnoreCase(NEO4J)) // ToDo: add Redis store support
             return auditDao.getWhat(Long.parseLong(change.getWhat().getId()));
         else
-            return null;
+        {
+            return redisRepository.getValue(change.getAuditLog().getId());
+        }
     }
 
     /**
