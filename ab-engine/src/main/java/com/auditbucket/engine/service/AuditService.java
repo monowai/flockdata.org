@@ -215,7 +215,7 @@ public class AuditService {
      * @param input log details
      * @return populated log information with any error messages
      */
-    AuditLogResultBean createLog(AuditLogInputBean input) {
+    public AuditLogResultBean createLog(AuditLogInputBean input) {
         AuditHeader header;
         AuditLogResultBean resultBean = new AuditLogResultBean(input);
         String auditKey = input.getAuditKey();
@@ -247,7 +247,8 @@ public class AuditService {
      * @param thisFortressUser audit header tag set
      * @return populated log information with any error messages
      */
-    private AuditLogResultBean createLog(AuditHeader auditHeader, AuditLogInputBean input, FortressUser thisFortressUser) {
+    public AuditLogResultBean createLog(AuditHeader auditHeader, AuditLogInputBean input, FortressUser thisFortressUser) {
+        // Warning - making this private means it doesn't get a transaction!
         AuditLogResultBean resultBean = new AuditLogResultBean(input);
         //ToDo: May want to track a "View" event which would not change the What data.
         if (input.getMapWhat() == null || input.getMapWhat().isEmpty()) {
@@ -339,18 +340,6 @@ public class AuditService {
 
     }
 
-    private void processWhatText(AuditLogInputBean input) {
-        try {
-            // Normalise and JSON'ise the what argument that has probably just been
-            //  placed in to the instance variable
-            input.setWhat(input.getWhat());
-        } catch (IOException e) {
-            logger.error("Json parsing exception {}", input.getWhat());
-            throw new IllegalArgumentException("Unable to pass What text as JSON object", e);
-        }
-    }
-
-
     private SearchChange prepareSearchDocument(AuditHeader auditHeader, AuditLogInputBean logInput, AuditEvent event, Boolean searchActive, DateTime fortressWhen, AuditLog auditLog) throws JsonProcessingException {
 
         if (!searchActive || auditHeader.isSearchSuppressed())
@@ -373,7 +362,7 @@ public class AuditService {
     }
 
     @Async
-    @Transactional(propagation = Propagation.SUPPORTS)
+    //@Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void makeChangeSearchable(SearchChange searchDocument) {
         if (searchDocument == null)
             return;
@@ -433,6 +422,7 @@ public class AuditService {
      */
     @Async
     @ServiceActivator(inputChannel = "searchResult")
+    //@Transactional (propagation = Propagation.NOT_SUPPORTED)
     public void handleSearchResult(SearchResult searchResult) {
 
         logger.debug("Updating from search auditKey =[{}]", searchResult);

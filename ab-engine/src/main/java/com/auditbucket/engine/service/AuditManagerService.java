@@ -44,7 +44,7 @@ public class AuditManagerService {
 
     public AuditResultBean createHeader(AuditHeaderInputBean inputBean) throws IOException {
         AuditLogInputBean logBean = inputBean.getAuditLog();
-        if ( logBean != null ) // Error as soon as we can
+        if (logBean != null) // Error as soon as we can
             logBean.setWhat(logBean.getWhat());
 
         AuditResultBean resultBean = auditService.createHeader(inputBean);
@@ -74,8 +74,8 @@ public class AuditManagerService {
     }
 
     public AuditLogResultBean createLog(AuditLogInputBean auditLogInputBean) throws IOException {
-        AuditLogResultBean resultBean = auditService.createLog(auditLogInputBean);
         auditLogInputBean.setWhat(auditLogInputBean.getWhat());
+        AuditLogResultBean resultBean = auditService.createLog(auditLogInputBean);
         if (resultBean != null && resultBean.getStatus() == AuditLogInputBean.LogStatus.OK)
             auditService.makeChangeSearchable(resultBean.getSearchDocument());
 
