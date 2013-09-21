@@ -70,9 +70,7 @@ public class CompanyDaoRepo implements CompanyDao {
 
     @Override
     public Fortress getFortress(Long companyId, String fortressName) {
-        if (template.getGraphDatabaseService().index().existsForNodes(FORTRESS_NAME))
-            return companyRepo.getFortress(companyId, fortressName);
-        return null;
+        return companyRepo.getFortress(companyId, fortressName);
     }
 
     @Override

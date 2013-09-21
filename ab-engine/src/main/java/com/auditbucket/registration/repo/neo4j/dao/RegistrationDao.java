@@ -24,15 +24,9 @@ import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.repo.neo4j.SystemUserRepository;
 import com.auditbucket.registration.repo.neo4j.model.SystemUserNode;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.index.Index;
-import org.neo4j.index.impl.lucene.LuceneIndex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
-
-import javax.annotation.Resource;
 
 /**
  * User: Mike Holdsworth
@@ -47,9 +41,6 @@ public class RegistrationDao implements com.auditbucket.dao.RegistrationDao {
 
     @Autowired
     Neo4jTemplate template;
-
-    @Resource
-    GraphDatabaseService graphDb;
 
     @Override
     public SystemUser save(SystemUser systemUser) {
@@ -75,12 +66,5 @@ public class RegistrationDao implements com.auditbucket.dao.RegistrationDao {
         return suRepo.getFortressUser(userName, fortressName, fortressUser);
     }
 
-    public void wireIndexes() {
-        //logger.info ( "Wiring indexes and caches...");
-        Index<Node> index;
 
-        index = graphDb.index().forNodes("sysUserName");
-        ((LuceneIndex<Node>) index).setCacheCapacity("name", 300);
-
-    }
 }

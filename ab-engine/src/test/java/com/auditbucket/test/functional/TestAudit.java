@@ -102,7 +102,7 @@ public class TestAudit {
     public void cleanUpGraph() {
         // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
         // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-        if (!"http".equals(System.getProperty("neo4j")))
+        if (!"rest".equals(System.getProperty("neo4j")))
             Neo4jHelper.cleanDb(template);
     }
 

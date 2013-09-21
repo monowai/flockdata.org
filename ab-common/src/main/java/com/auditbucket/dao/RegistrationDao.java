@@ -34,5 +34,4 @@ public interface RegistrationDao {
 
     SystemUser save(Company company, String userName, String password);
 
-    public void wireIndexes();
 }

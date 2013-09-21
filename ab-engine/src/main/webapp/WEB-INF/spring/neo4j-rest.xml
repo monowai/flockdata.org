@@ -20,19 +20,13 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:neo4j="http://www.springframework.org/schema/data/neo4j"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-http://www.springframework.org/schema/beans/spring-beans.xsd
-
-
-http://www.springframework.org/schema/data/neo4j
-http://www.springframework.org/schema/data/neo4j/spring-neo4j.xsd">
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <!--Hit Neo4J over a REST API-->
     <!--If using over the REST api you can not clear down the database, so don't call Neo4jHelper.cleanDb(..) -->
-    <neo4j:config graphDatabaseService="graphDatabaseService"/>
     <bean id="graphDatabaseService" class="org.springframework.data.neo4j.rest.SpringRestGraphDatabase">
-        <constructor-arg value="${neo4j.url}"/>
+        <constructor-arg index="0" value="${neo4j.url}"/>
     </bean>
 
 

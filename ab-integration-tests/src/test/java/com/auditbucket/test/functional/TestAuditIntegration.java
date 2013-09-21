@@ -77,8 +77,6 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
-//@TransactionConfiguration(defaultRollback = true)
-//@Transactional
 public class TestAuditIntegration {
 
     private static int fortressMax = 2;
@@ -95,8 +93,6 @@ public class TestAuditIntegration {
     @Autowired
     WhatService whatService;
 
-    @Autowired
-    private GraphDatabaseService graphDatabaseService;
     @Autowired
     private Neo4jTemplate template;
 
@@ -133,18 +129,18 @@ public class TestAuditIntegration {
     public void cleanUpGraph() throws Exception {
         // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
         // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-        //cleanupElasticSearch();
-        SecurityContextHolder.getContext().setAuthentication(authA);
-        if ("http".equals(System.getProperty("neo4j")))
-            return;
-        Transaction tx = graphDatabaseService.beginTx();
-        try {
 
-            Neo4jHelper.cleanDb(template);
-            tx.success();
-        } finally {
-            tx.finish();
-        }
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        if ("rest".equals(System.getProperty("neo4j")))
+            return;
+//        Transaction tx = graphDatabaseService.beginTx();
+//        try {
+//
+        Neo4jHelper.cleanDb(template);
+//            tx.success();
+//        } finally {
+//            tx.finish();
+//        }
 
     }
 
@@ -153,13 +149,13 @@ public class TestAuditIntegration {
         SecurityContextHolder.getContext().setAuthentication(authA);
         String company = "Monowai";
         regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
-        Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", false));
+        Fortress fo = fortressService.registerFortress(new FortressInputBean("immutableHeadersWithNoLogsAreIndexed", false));
         DateTime now = new DateTime();
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", now, "ZZZ123");
         inputBean.setEvent("immutableHeadersWithNoLogsAreIndexed");
         AuditResultBean auditResult;
         auditResult = auditManager.createHeader(inputBean);
-        Thread.sleep(2000);
+        Thread.sleep(4000);
         AuditSummaryBean summary = auditManager.getAuditSummary(auditResult.getAuditKey());
         assertNotNull(summary);
         assertSame("change logs were not expected", 0, summary.getChanges().size());
@@ -186,7 +182,7 @@ public class TestAuditIntegration {
         SecurityContextHolder.getContext().setAuthentication(authA);
         String company = "Monowai";
         regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
-        Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", false));
+        Fortress fo = fortressService.registerFortress(new FortressInputBean("111", false));
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
         AuditResultBean auditResult;
@@ -211,11 +207,11 @@ public class TestAuditIntegration {
             i++;
         }
         watch.stop();
-
-        // Test that we get the expected number of log events
-        assertEquals(max, auditService.getAuditLogCount(ahKey));
-
         Thread.sleep(5000);
+        // Test that we get the expected number of log events
+        if (!"rest".equals(System.getProperty("neo4j"))) // Don't check if running over rest
+            assertEquals("This will fail if the DB is not cleared down, i.e. testing over REST", max, auditService.getAuditLogCount(ahKey));
+
         // Putting asserts On elasticsearch
         String query = "{" +
                 "   \"query\": {  " +

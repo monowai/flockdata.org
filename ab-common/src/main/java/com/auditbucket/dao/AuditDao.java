@@ -96,5 +96,4 @@ public interface AuditDao {
 
     void fetch(AuditWhat what);
 
-    public void wireIndexesAndCaches();
 }

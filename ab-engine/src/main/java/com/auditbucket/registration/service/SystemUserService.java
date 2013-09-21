@@ -50,8 +50,5 @@ public class SystemUserService {
         return regDao.save(regBean.getCompany(), regBean.getName(), regBean.getPassword());
     }
 
-    //@Transactional (propagation = Propagation.SUPPORTS)
-    public void wireIndexes() {
-        regDao.wireIndexes();
-    }
+
 }
