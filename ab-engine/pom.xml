@@ -308,10 +308,10 @@
                 <configuration>
                     <outxml>true</outxml>
                     <aspectLibraries>
-                        <aspectLibrary>
-                            <groupId>org.springframework</groupId>
-                            <artifactId>spring-aspects</artifactId>
-                        </aspectLibrary>
+                        <!--<aspectLibrary>-->
+                        <!--<groupId>org.springframework</groupId>-->
+                        <!--<artifactId>spring-aspects</artifactId>-->
+                        <!--</aspectLibrary>-->
                         <!--Throws a null pointer when enabled AspectJ config not yet complete?-->
                         <!--<aspectLibrary>-->
                         <!--<groupId>org.springframework.data</groupId>-->
