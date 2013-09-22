@@ -21,12 +21,10 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditLog;
-import com.auditbucket.bean.AuditHeaderInputBean;
-import com.auditbucket.bean.AuditLogInputBean;
-import com.auditbucket.bean.AuditResultBean;
-import com.auditbucket.bean.AuditSummaryBean;
+import com.auditbucket.bean.*;
 import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
+import com.auditbucket.engine.service.WhatService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
@@ -43,10 +41,7 @@ import io.searchbox.core.Search;
 import io.searchbox.indices.DeleteIndex;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
@@ -82,11 +77,10 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
-//@Transactional
 public class TestAuditIntegration {
 
-    static int fortressMax = 2;
-    static JestClient client;
+    private static int fortressMax = 2;
+    private static JestClient client;
     @Autowired
     AuditService auditService;
     @Autowired
@@ -97,15 +91,17 @@ public class TestAuditIntegration {
     AuditManagerService auditManager;
 
     @Autowired
-    private GraphDatabaseService graphDatabaseService;
+    WhatService whatService;
+
     @Autowired
     private Neo4jTemplate template;
 
     private Logger logger = LoggerFactory.getLogger(TestAuditIntegration.class);
     private String email = "test@ab.com";
-    Authentication authA = new UsernamePasswordAuthenticationToken(email, "user1");
+    private Authentication authA = new UsernamePasswordAuthenticationToken(email, "user1");
 
     @BeforeClass
+    @Rollback(false)
     public static void cleanupElasticSearch() throws Exception {
         ClientConfig clientConfig = new ClientConfig.Builder("http://localhost:9201").multiThreaded(false).build();
 
@@ -130,39 +126,40 @@ public class TestAuditIntegration {
 
     @Rollback(false)
     @BeforeTransaction
-    public void cleanUpGraph() {
+    public void cleanUpGraph() throws Exception {
         // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
         // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-        SecurityContextHolder.getContext().setAuthentication(authA);
-        if ("http".equals(System.getProperty("neo4j")))
-            return;
-        Transaction tx = graphDatabaseService.beginTx();
-        try {
 
-            Neo4jHelper.cleanDb(template);
-            tx.success();
-        } finally {
-            tx.finish();
-        }
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        if ("rest".equals(System.getProperty("neo4j")))
+            return;
+//        Transaction tx = graphDatabaseService.beginTx();
+//        try {
+//
+        Neo4jHelper.cleanDb(template);
+//            tx.success();
+//        } finally {
+//            tx.finish();
+//        }
 
     }
 
-    //@Test
+    @Test
     public void immutableHeadersWithNoLogsAreIndexed() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(authA);
         String company = "Monowai";
         regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
-        Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", false));
+        Fortress fo = fortressService.registerFortress(new FortressInputBean("immutableHeadersWithNoLogsAreIndexed", false));
         DateTime now = new DateTime();
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", now, "ZZZ123");
         inputBean.setEvent("immutableHeadersWithNoLogsAreIndexed");
         AuditResultBean auditResult;
         auditResult = auditManager.createHeader(inputBean);
-        Thread.sleep(2000);
+        Thread.sleep(4000);
         AuditSummaryBean summary = auditManager.getAuditSummary(auditResult.getAuditKey());
         assertNotNull(summary);
-        assertSame("Not change logs were expected", 0, summary.getChanges().size());
-        assertNotNull(summary.getHeader().getSearchKey());
+        assertSame("change logs were not expected", 0, summary.getChanges().size());
+        assertNotNull("Search record not received", summary.getHeader().getSearchKey());
         // Check we can find the Event in ElasticSearch
         doEsQuery(summary.getHeader().getIndexName(), inputBean.getEvent(), 1);
 
@@ -177,7 +174,7 @@ public class TestAuditIntegration {
         doEsQuery(summary.getHeader().getIndexName(), "ZZZ999", 0);
     }
 
-    //@Test
+    @Test
     public void createHeaderTimeLogsWithSearchActivated() throws Exception {
         int max = 3;
         String ahKey;
@@ -185,7 +182,7 @@ public class TestAuditIntegration {
         SecurityContextHolder.getContext().setAuthentication(authA);
         String company = "Monowai";
         regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
-        Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", false));
+        Fortress fo = fortressService.registerFortress(new FortressInputBean("111", false));
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
         AuditResultBean auditResult;
@@ -210,11 +207,11 @@ public class TestAuditIntegration {
             i++;
         }
         watch.stop();
-
-        // Test that we get the expected number of log events
-        assertEquals(max, auditService.getAuditLogCount(ahKey));
-
         Thread.sleep(5000);
+        // Test that we get the expected number of log events
+        if (!"rest".equals(System.getProperty("neo4j"))) // Don't check if running over rest
+            assertEquals("This will fail if the DB is not cleared down, i.e. testing over REST", max, auditService.getAuditLogCount(ahKey));
+
         // Putting asserts On elasticsearch
         String query = "{" +
                 "   \"query\": {  " +
@@ -252,13 +249,17 @@ public class TestAuditIntegration {
         Fortress iFortress = fortressService.registerFortress(new FortressInputBean("suppress", false));
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
 
+        //Transaction tx = getTransaction();
         AuditResultBean indexedResult = auditManager.createHeader(inputBean);
         AuditHeader indexHeader = auditService.getHeader(indexedResult.getAuditKey());
-        auditManager.createLog(new AuditLogInputBean(indexHeader.getAuditKey(), inputBean.getFortressUser(), new DateTime(), escJson + "\"andy\"}"));
+
+        AuditLogResultBean resultBean = auditManager.createLog(new AuditLogInputBean(indexHeader.getAuditKey(), inputBean.getFortressUser(), new DateTime(), escJson + "\"andy\"}"));
+        junit.framework.Assert.assertNotNull(resultBean);
 
         waitForHeaderToUpdate(indexHeader);
-        String indexName = indexHeader.getIndexName();
         Thread.sleep(1000);
+        String indexName = indexHeader.getIndexName();
+
         doEsQuery(indexName, "andy");
 
         inputBean = new AuditHeaderInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
@@ -275,6 +276,7 @@ public class TestAuditIntegration {
 
     @Test
     public void testWhatIndexingDefaultAttributeWithNGram() throws Exception {
+
         SecurityContextHolder.getContext().setAuthentication(authA);
         regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
         Fortress iFortress = fortressService.registerFortress(new FortressInputBean("ngram", false));
@@ -282,24 +284,31 @@ public class TestAuditIntegration {
 
         AuditResultBean indexedResult = auditManager.createHeader(inputBean);
         AuditHeader indexHeader = auditService.getHeader(indexedResult.getAuditKey());
-        String what ="{\"code\":\"AZERTY\",\"name\":\"Name\",\"description\":\"this is a description\"}";
+        String what = "{\"code\":\"AZERTY\",\"name\":\"NameText\",\"description\":\"this is a description\"}";
         auditManager.createLog(new AuditLogInputBean(indexHeader.getAuditKey(), inputBean.getFortressUser(), new DateTime(), what));
-
         waitForHeaderToUpdate(indexHeader);
         String indexName = indexHeader.getIndexName();
         Thread.sleep(1000);
 
-        doEsTermQuery(indexName, "@what.description", "des", 1);
-        doEsTermQuery(indexName, "@what.description", "de", 0);
-        doEsTermQuery(indexName, "@what.description", "descripti", 1);
-        doEsTermQuery(indexName, "@what.description", "descriptio", 1);
-        doEsTermQuery(indexName, "@what.description", "description", 0);
-        doEsTermQuery(indexName, "@what.description", "is is a de", 1);
-        doEsTermQuery(indexName, "@what.description", "is is a des", 0);
+        doEsTermQuery(indexName, AuditSearchSchema.WHAT + "." + AuditSearchSchema.WHAT_DESCRIPTION, "des", 1);
+        doEsTermQuery(indexName, AuditSearchSchema.WHAT + "." + AuditSearchSchema.WHAT_DESCRIPTION, "de", 0);
+        doEsTermQuery(indexName, AuditSearchSchema.WHAT + "." + AuditSearchSchema.WHAT_DESCRIPTION, "descripti", 1);
+        doEsTermQuery(indexName, AuditSearchSchema.WHAT + "." + AuditSearchSchema.WHAT_DESCRIPTION, "descriptio", 1);
+        doEsTermQuery(indexName, AuditSearchSchema.WHAT + "." + AuditSearchSchema.WHAT_DESCRIPTION, "description", 0);
+        doEsTermQuery(indexName, AuditSearchSchema.WHAT + "." + AuditSearchSchema.WHAT_DESCRIPTION, "is is a de", 1);
+        doEsTermQuery(indexName, AuditSearchSchema.WHAT + "." + AuditSearchSchema.WHAT_DESCRIPTION, "is is a des", 0);
+
+        doEsTermQuery(indexName, AuditSearchSchema.WHAT + "." + AuditSearchSchema.WHAT_NAME, "Name", 1);
+        doEsTermQuery(indexName, AuditSearchSchema.WHAT + "." + AuditSearchSchema.WHAT_NAME, "Nam", 1);
+        doEsTermQuery(indexName, AuditSearchSchema.WHAT + "." + AuditSearchSchema.WHAT_NAME, "NameText", 1);
+
+        doEsTermQuery(indexName, AuditSearchSchema.WHAT + "." + AuditSearchSchema.WHAT_CODE, "AZ", 1);
+        doEsTermQuery(indexName, AuditSearchSchema.WHAT + "." + AuditSearchSchema.WHAT_CODE, "AZER", 1);
+        doEsTermQuery(indexName, AuditSearchSchema.WHAT + "." + AuditSearchSchema.WHAT_CODE, "AZERTY", 0);
 
     }
 
-    @Test
+    @Ignore
     public void stressWithHighVolume() throws Exception {
         logger.info("stressWithHighVolume started");
         SecurityContextHolder.getContext().setAuthentication(authA);
@@ -508,13 +517,13 @@ public class TestAuditIntegration {
         assertNotNull(result.getJsonObject().getAsJsonObject("hits"));
         assertNotNull(result.getJsonObject().getAsJsonObject("hits").get("total"));
         int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
-        Assert.assertEquals(result.getJsonString(), expectedHitCount, nbrResult);
+        Assert.assertEquals(index + "\r\n" + result.getJsonString(), expectedHitCount, nbrResult);
         return null;
 
         //return result.getJsonString();
     }
 
-    private String doEsTermQuery(String index, String field, String queryString, int expectedHitCount) throws Exception{
+    private String doEsTermQuery(String index, String field, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
         String query = "{\n" +
@@ -536,16 +545,15 @@ public class TestAuditIntegration {
         assertNotNull(message, result.getJsonObject().getAsJsonObject("hits").get("total"));
         int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
         Assert.assertEquals(result.getJsonString(), expectedHitCount, nbrResult);
-        if(nbrResult!=0) {
-        return result.getJsonObject()
-                .getAsJsonObject("hits")
-                .getAsJsonArray("hits")
-                .getAsJsonArray()
-                .iterator()
-                .next()
-                .getAsJsonObject().get("_source").toString();
-        }
-        else{
+        if (nbrResult != 0) {
+            return result.getJsonObject()
+                    .getAsJsonObject("hits")
+                    .getAsJsonArray("hits")
+                    .getAsJsonArray()
+                    .iterator()
+                    .next()
+                    .getAsJsonObject().get("_source").toString();
+        } else {
             return null;
         }
     }

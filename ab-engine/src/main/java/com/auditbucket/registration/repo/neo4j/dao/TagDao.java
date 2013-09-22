@@ -40,7 +40,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class TagDao implements com.auditbucket.dao.TagDao {
 
-    public static final String DOCUMENT_TYPE = "documentTypeName";
+    private static final String DOCUMENT_TYPE = "documentTypeName";
 
     @Autowired
     TagRepository tagRepo;
@@ -72,9 +72,7 @@ public class TagDao implements com.auditbucket.dao.TagDao {
 
     @Override
     public DocumentType findOrCreate(String documentType, Company company) {
-        DocumentType result = null;
-        if (template.getGraphDatabaseService().index().existsForNodes(DOCUMENT_TYPE))
-            result = documentTypeRepo.findCompanyDocType(company.getId(), documentType);
+        DocumentType result = documentTypeRepo.findCompanyDocType(company.getId(), documentType);
 
         if (result == null) {
             logger.debug("Creating document type {}", documentType);

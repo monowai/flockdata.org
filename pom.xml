@@ -23,22 +23,24 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.monowai</groupId>
     <artifactId>auditbucket</artifactId>
-    <name>AuditBucket</name>
+    <name>auditbucket</name>
     <modules>
         <module>ab-common</module>
         <module>ab-engine</module>
         <module>ab-search</module>
         <module>ab-integration-tests</module>
         <module>ab-spring</module>
-        <module>ab-demo</module>
+        <module>ab-deploy</module>
+        <!--ToDo: Move to another POM, they are not part of AuditBucket-->
+        <!--<module>ab-demo</module>-->
         <!--<module>ab-stress-tests</module>-->
     </modules>
     <packaging>pom</packaging>
     <version>1.0.0-BUILD-SNAPSHOT</version>
     <properties>
         <java-version>1.7</java-version>
-        <org.springframework-version>3.2.3.RELEASE</org.springframework-version>
-        <org.aspectj-version>1.7.3</org.aspectj-version>
+        <org.springframework-version>3.2.4.RELEASE</org.springframework-version>
+        <org.aspectj-version>1.7.2</org.aspectj-version>
         <org.slf4j-version>1.7.5</org.slf4j-version>
         <!--<org.springdata.neo4j>2.2.2.RELEASE</org.springdata.neo4j>-->
         <org.springdata.neo4j>2.3.0.M1</org.springdata.neo4j>

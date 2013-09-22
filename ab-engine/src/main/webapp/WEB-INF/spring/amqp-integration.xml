@@ -38,7 +38,9 @@
                               request-channel="searchResult"
                               queue-names="ab-engine.queue"
                               shutdown-timeout="3000"
-                              concurrent-consumers="50" prefetch-count="10" task-executor="AMQPPoolTaskExecutor"
+                              concurrent-consumers="50"
+                              prefetch-count="10"
+                              task-executor="AMQPPoolTaskExecutor"
                               receive-timeout="${request.timeout}"
                               connection-factory="connectionFactory"
                               message-converter="jsonToSearchResultConverter"/>

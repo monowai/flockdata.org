@@ -5,11 +5,11 @@ import org.apache.commons.logging.LogFactory;
 
 import java.util.Properties;
 
-public abstract class AuditBucketAbstractFactoryBean {
+abstract class AuditBucketAbstractFactoryBean {
 
     protected final Log logger = LogFactory.getLog(getClass());
 
-    protected Properties properties;
+    Properties properties;
 
     public void setProperties(Properties properties) {
         this.properties = properties;

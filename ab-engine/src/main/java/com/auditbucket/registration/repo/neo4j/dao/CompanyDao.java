@@ -30,7 +30,7 @@ import com.auditbucket.registration.model.SystemUser;
  * Time: 6:31 PM
  */
 public interface CompanyDao {
-    public Company save(Company systemUser);
+    public Company update(Company systemUser);
 
     public CompanyUser save(CompanyUser companyUser);
 
@@ -43,4 +43,6 @@ public interface CompanyDao {
     public SystemUser getAdminUser(Long id, String name);
 
     public Iterable<CompanyUser> getCompanyUsers(String companyName);
+
+    Company create(String companyName, String uniqueKey);
 }

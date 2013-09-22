@@ -39,6 +39,7 @@ public class TagNode implements Tag {
     Long Id;
 
     @RelatedTo(elementClass = CompanyNode.class, type = "tags", direction = Direction.INCOMING)
+    private
     Company company;
 
     @Indexed(indexName = "tagName")

@@ -36,22 +36,22 @@ public class AuditLogInputBean {
     private LogStatus abStatus;
     private String abMessage;
     private Boolean isTransactional = false;
-    String auditKey;
+    private String auditKey;
     private String txRef;
     private String comment;
-    String fortressUser;
-    String event;
-    String when;
-    String what;
+    private String fortressUser;
+    private String event;
+    private String when;
+    private String what;
 
     // Required to support location by Caller Ref
-    String documentType;
-    String callerRef;
-    String fortress;
+    private String documentType;
+    private String callerRef;
+    private String fortress;
 
-    Map<String, Object> mapWhat = null;
+    private Map<String, Object> mapWhat = null;
 
-    static final ObjectMapper om = new ObjectMapper();
+    private static final ObjectMapper om = new ObjectMapper();
     private boolean forceReindex;
     private Long auditId;
 
@@ -143,7 +143,7 @@ public class AuditLogInputBean {
 
     // Will never update the map once set
     public void setWhat(String jsonWhat) throws IOException {
-        if (jsonWhat == null || !(mapWhat==null))
+        if (jsonWhat == null || !(mapWhat == null))
             return;
         what = om.readTree(jsonWhat).toString();
         mapWhat = om.readValue(what, Map.class);
@@ -239,7 +239,7 @@ public class AuditLogInputBean {
         this.auditId = auditId;
     }
 
-    AuditEvent auditEvent;
+    private AuditEvent auditEvent;
 
     public AuditEvent getAuditEvent() {
         return auditEvent;

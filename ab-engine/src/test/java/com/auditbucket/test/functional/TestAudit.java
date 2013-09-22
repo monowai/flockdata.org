@@ -88,9 +88,9 @@ public class TestAudit {
     private String monowai = "Monowai";
     private String mike = "test@ab.com";
     private String mark = "mark@null.com";
-    Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
-    Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "user1");
-    String what = "{\"house\": \"house";
+    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
+    private Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "user1");
+    private String what = "{\"house\": \"house";
 
     @Before
     public void setSecurity() {
@@ -102,12 +102,12 @@ public class TestAudit {
     public void cleanUpGraph() {
         // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
         // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-        if (!"http".equals(System.getProperty("neo4j")))
+        if (!"rest".equals(System.getProperty("neo4j")))
             Neo4jHelper.cleanDb(template);
     }
 
     @Test
-    public void logChangeByCallerRefWithNullAuditKeyButKeyDoesExists() throws Exception {
+    public void logChangeWithNullAuditKeyButCallerRefExists() throws Exception {
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         Fortress fortressA = fortressService.registerFortress("auditTest");
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
@@ -122,7 +122,7 @@ public class TestAudit {
     }
 
     @Test
-    public void locatingByCallerRefWillThrowAuthorizationException() throws Exception{
+    public void locatingByCallerRefWillThrowAuthorizationException() throws Exception {
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         Fortress fortressA = fortressService.registerFortress("auditTest");
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");

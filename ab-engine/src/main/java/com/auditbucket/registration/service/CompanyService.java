@@ -35,6 +35,9 @@ public class CompanyService {
     @Autowired
     private CompanyDao companyDao;
 
+    @Autowired
+    KeyGenService keyGenService;
+
 
     public Company findByName(String companyName) {
         return companyDao.findByPropertyValue("name", companyName);
@@ -57,12 +60,6 @@ public class CompanyService {
         return companyDao.getFortress(company.getId(), fortressName);
     }
 
-
-    public Company save(Company company) {
-        return companyDao.save(company);
-    }
-
-
     public Iterable<CompanyUser> getUsers(String companyName) {
         return companyDao.getCompanyUsers(companyName);
     }
@@ -82,4 +79,11 @@ public class CompanyService {
         return companyDao.save(companyUser);
     }
 
+    public Company save(String companyName) {
+        return companyDao.create(companyName, keyGenService.getUniqueKey());
+    }
+
+    public Company findByApiKey(String apiKey) {
+        return companyDao.findByPropertyValue("apiKey", apiKey);
+    }
 }

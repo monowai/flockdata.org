@@ -59,7 +59,7 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 @Repository("esAuditChange")
 public class AuditSearchDaoES implements AuditSearchDao {
 
-    public static final String NOT_ANALYZED = "not_analyzed";
+    private static final String NOT_ANALYZED = "not_analyzed";
     @Autowired
     private Client esClient;
 
@@ -341,60 +341,60 @@ public class AuditSearchDaoES implements AuditSearchDao {
                     .startObject()
                     .startObject(documentType)
                     .startObject("properties")
-                        .startObject(AuditSearchSchema.AUDIT_KEY) // keyword
-                            .field("type", "string")
-                            .field("index", NOT_ANALYZED)
-                        .endObject()
-                        .startObject(AuditSearchSchema.CALLER_REF) // keyword
-                            .field("type", "string")
-                            .field("boost", "2.0")
-                            .field("index", NOT_ANALYZED)
-                        .endObject()
-                        .startObject(AuditSearchSchema.DOC_TYPE)  // keyword
-                            .field("type", "string")
-                            .field("index", NOT_ANALYZED)
-                        .endObject()
-                        .startObject(AuditSearchSchema.FORTRESS)   // keyword
-                            .field("type", "string")
-                            .field("index", NOT_ANALYZED)
-                        .endObject()
-                        .startObject(AuditSearchSchema.LAST_EVENT)  //@lastEvent
-                            .field("type", "string")
-                        .endObject()
+                    .startObject(AuditSearchSchema.AUDIT_KEY) // keyword
+                    .field("type", "string")
+                    .field("index", NOT_ANALYZED)
+                    .endObject()
+                    .startObject(AuditSearchSchema.CALLER_REF) // keyword
+                    .field("type", "string")
+                    .field("boost", "2.0")
+                    .field("index", NOT_ANALYZED)
+                    .endObject()
+                    .startObject(AuditSearchSchema.DOC_TYPE)  // keyword
+                    .field("type", "string")
+                    .field("index", NOT_ANALYZED)
+                    .endObject()
+                    .startObject(AuditSearchSchema.FORTRESS)   // keyword
+                    .field("type", "string")
+                    .field("index", NOT_ANALYZED)
+                    .endObject()
+                    .startObject(AuditSearchSchema.LAST_EVENT)  //@lastEvent
+                    .field("type", "string")
+                    .endObject()
 //                    .startObject("@tags")
 //                    .field("analyzer", "standard")//@tags is dynamic so we don't init his mapping we choose the convention
 //                    .endObject()
-                        .startObject(AuditSearchSchema.TIMESTAMP)
-                            .field("type", "date")
-                        .endObject()
-                        .startObject(AuditSearchSchema.CREATED)
-                            .field("type", "date")
-                        .endObject()
-                        .startObject(AuditSearchSchema.WHAT)    //@what is dynamic so we don't init his mapping we choose the convention
-                            .startObject("properties")
-                                .startObject(AuditSearchSchema.WHAT_CODE)
-                                    .field("type", "string")
-                                    .field("boost", 2d)
-                                    .field("analyzer", AuditSearchSchema.NGRM_WHAT_CODE)
-                                .endObject()
-                                .startObject(AuditSearchSchema.WHAT_NAME)
-                                    .field("type", "string")
-                                    .field("boost", 2d)
-                                    .field("analyzer", AuditSearchSchema.NGRM_WHAT_NAME)
-                                .endObject()
-                                .startObject(AuditSearchSchema.WHAT_DESCRIPTION)
-                                    .field("type", "string")
-                                    .field("analyzer", AuditSearchSchema.NGRM_WHAT_DESCRIPTION)
-                                .endObject()
-                            .endObject()
-                        .endObject()
-                        .startObject(AuditSearchSchema.WHEN)      //@when
-                            .field("type", "date")
-                        .endObject()
-                        .startObject(AuditSearchSchema.WHO)       //@who
-                            .field("type", "string")
-                            .field("index", NOT_ANALYZED)
-                        .endObject()
+                    .startObject(AuditSearchSchema.TIMESTAMP)
+                    .field("type", "date")
+                    .endObject()
+                    .startObject(AuditSearchSchema.CREATED)
+                    .field("type", "date")
+                    .endObject()
+                    .startObject(AuditSearchSchema.WHAT)    //@what is dynamic so we don't init his mapping we choose the convention
+                    .startObject("properties")
+                    .startObject(AuditSearchSchema.WHAT_CODE)
+                    .field("type", "string")
+                    .field("boost", 2d)
+                    .field("analyzer", AuditSearchSchema.NGRM_WHAT_CODE)
+                    .endObject()
+                    .startObject(AuditSearchSchema.WHAT_NAME)
+                    .field("type", "string")
+                    .field("boost", 2d)
+                    .field("analyzer", AuditSearchSchema.NGRM_WHAT_NAME)
+                    .endObject()
+                    .startObject(AuditSearchSchema.WHAT_DESCRIPTION)
+                    .field("type", "string")
+                    .field("analyzer", AuditSearchSchema.NGRM_WHAT_DESCRIPTION)
+                    .endObject()
+                    .endObject()
+                    .endObject()
+                    .startObject(AuditSearchSchema.WHEN)      //@when
+                    .field("type", "date")
+                    .endObject()
+                    .startObject(AuditSearchSchema.WHO)       //@who
+                    .field("type", "string")
+                    .field("index", NOT_ANALYZED)
+                    .endObject()
                     .endObject()
                     .endObject()
                     .endObject();

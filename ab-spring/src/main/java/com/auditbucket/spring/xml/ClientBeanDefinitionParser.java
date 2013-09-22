@@ -29,7 +29,7 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
-public class ClientBeanDefinitionParser implements BeanDefinitionParser {
+class ClientBeanDefinitionParser implements BeanDefinitionParser {
     protected static final Log logger = LogFactory.getLog(ClientBeanDefinitionParser.class);
 
     /**
@@ -39,7 +39,7 @@ public class ClientBeanDefinitionParser implements BeanDefinitionParser {
      * @param properties
      * @return
      */
-    public static BeanDefinitionBuilder startClientBuilder(Class beanClass, String properties) {
+    private static BeanDefinitionBuilder startClientBuilder(Class beanClass, String properties) {
         BeanDefinitionBuilder nodeFactory = BeanDefinitionBuilder.rootBeanDefinition(beanClass);
 
         if (properties != null && properties.length() > 0) {
@@ -49,7 +49,7 @@ public class ClientBeanDefinitionParser implements BeanDefinitionParser {
         return nodeFactory;
     }
 
-    public static BeanDefinition buildClientDef(BeanDefinitionBuilder nodeFactory) {
+    private static BeanDefinition buildClientDef(BeanDefinitionBuilder nodeFactory) {
         return nodeFactory.getBeanDefinition();
     }
 

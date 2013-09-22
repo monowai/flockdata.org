@@ -12,7 +12,7 @@ import java.util.Arrays;
 @Component
 @Aspect
 public class AuditAspect {
-    public static Logger logger = LoggerFactory.getLogger(AuditAspect.class);
+    private static Logger logger = LoggerFactory.getLogger(AuditAspect.class);
 
 
     @Around(value = "@annotation(annotation)")

@@ -147,7 +147,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
         return indexName;
     }
 
-    public void setFortressName(String fortressName) {
+    void setFortressName(String fortressName) {
         this.fortressName = fortressName;
     }
 
@@ -156,7 +156,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
         return companyName;
     }
 
-    public void setCompanyName(String companyName) {
+    void setCompanyName(String companyName) {
         this.companyName = companyName;
     }
 
@@ -164,7 +164,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
         return documentType;
     }
 
-    protected void setDocumentType(String documentType) {
+    void setDocumentType(String documentType) {
         this.documentType = documentType;
     }
 

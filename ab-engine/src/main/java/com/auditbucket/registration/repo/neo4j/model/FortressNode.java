@@ -42,10 +42,12 @@ public class FortressNode implements Fortress {
     Long id;
 
     @Indexed(indexName = "fortressName")
+    private
     String name;
 
     //@Fetch
     @RelatedTo(type = "owns", direction = Direction.INCOMING)
+    private
     CompanyNode company;
 
     private Boolean accumulatingChanges = false;

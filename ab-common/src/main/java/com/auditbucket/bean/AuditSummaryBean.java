@@ -32,7 +32,7 @@ public class AuditSummaryBean {
     private AuditHeader header;
     private Set<AuditLog> changes;
 
-    protected AuditSummaryBean() {
+    private AuditSummaryBean() {
     }
 
     public AuditSummaryBean(AuditHeader header, Set<AuditLog> changes) {

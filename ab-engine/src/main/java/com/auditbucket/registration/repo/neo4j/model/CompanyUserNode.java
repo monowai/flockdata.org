@@ -36,6 +36,7 @@ public class CompanyUserNode implements CompanyUser {
     private String name = null;
 
     @RelatedTo(elementClass = CompanyNode.class, type = "works", direction = Direction.OUTGOING)
+    private
     Company company;
 
 //    @RelatedTo (elementClass = SystemUserNode.class, type ="isA", direction = Direction.INCOMING)

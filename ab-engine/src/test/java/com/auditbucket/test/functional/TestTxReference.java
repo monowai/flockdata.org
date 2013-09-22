@@ -79,8 +79,8 @@ public class TestTxReference {
     @Autowired
     private Neo4jTemplate template;
 
-    String escJsonA = "{\"blah\":1}";
-    String escJsonB = "{\"blah\":2}";
+    private String escJsonA = "{\"blah\":1}";
+    private String escJsonB = "{\"blah\":2}";
 
     @Rollback(false)
     @BeforeTransaction
@@ -92,7 +92,7 @@ public class TestTxReference {
     }
 
     private String uid = "mike@monowai.com";
-    Authentication authA = new UsernamePasswordAuthenticationToken(uid, "user1");
+    private Authentication authA = new UsernamePasswordAuthenticationToken(uid, "user1");
 
 
     @Test

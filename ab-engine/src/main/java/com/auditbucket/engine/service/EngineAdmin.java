@@ -46,11 +46,11 @@ public class EngineAdmin {
     @Autowired
     AuditDao auditDAO;
 
-    String abSearch;
+    private String abSearch;
 
-    String rabbitHost;
+    private String rabbitHost;
 
-    String rabbitPort;
+    private String rabbitPort;
 
     private Logger logger = LoggerFactory.getLogger(EngineAdmin.class);
 

@@ -62,7 +62,7 @@ import java.util.concurrent.Future;
 @Service(value = "ab.AuditService")
 @Transactional
 public class AuditService {
-    public static final String EMPTY = "";
+    private static final String EMPTY = "";
     @Autowired
     FortressService fortressService;
 
@@ -94,7 +94,7 @@ public class AuditService {
     private AbSearchGateway searchGateway;
 
     private Logger logger = LoggerFactory.getLogger(AuditService.class);
-    static final ObjectMapper om = new ObjectMapper();
+    private static final ObjectMapper om = new ObjectMapper();
 
     @Autowired
     private KeyGenService keyGenService;
@@ -104,7 +104,7 @@ public class AuditService {
     }
 
 
-    public TxRef beginTransaction() {
+    TxRef beginTransaction() {
         return beginTransaction(keyGenService.getUniqueKey());
     }
 
@@ -141,7 +141,7 @@ public class AuditService {
         // ToDo: Improve cypher query
         Fortress fortress = companyService.getCompanyFortress(company, inputBean.getFortress());
 
-        if (inputBean.getCallerRef() != null && !inputBean.getCallerRef().equals(EMPTY))
+        if (inputBean.getAuditKey() == null && inputBean.getCallerRef() != null && !inputBean.getCallerRef().equals(EMPTY))
             futureHeader = findByCallerRefFuture(fortress.getId(), inputBean.getDocumentType(), inputBean.getCallerRef());
 
         fortress.setCompany(company); // Saving fetching twice
@@ -149,11 +149,12 @@ public class AuditService {
         FortressUser fu = fortressService.getFortressUser(fortress, inputBean.getFortressUser(), true);
         fu.getFortress().setCompany(su.getCompany());
         fu.setFortress(fortress);// Save fetching it twice
+        inputBean.setAuditKey(keyGenService.getUniqueKey());
         AuditHeader ah = null;
 
         try {
             if (futureHeader != null)
-                ah = futureHeader.get();
+                ah = futureHeader.get(); // Idempotent check
         } catch (InterruptedException e) {
             logger.error("waiting for future result", e);
             return null;
@@ -171,24 +172,18 @@ public class AuditService {
             return arb;
         }
 
-        DocumentType documentType = tagService.resolveDocType(inputBean.getDocumentType());
-        // Snowflake?
-        String uid = keyGenService.getUniqueKey();
-        ah = auditDAO.create(uid, fu, inputBean, documentType);
-        handleTags(ah, inputBean.getTagValues());
-
-        logger.debug("Audit Header created:{} key=[{}]", ah.getId(), ah.getAuditKey());
+        ah = makeAuditHeader(inputBean, fu);
         inputBean.setWhen(ah.getFortressDateCreated().toDate());
-        inputBean.setAuditKey(ah.getAuditKey());
         return new AuditResultBean(ah);
 
     }
 
-
-    @Async
-    private Future<Void> handleTags(AuditHeader ah, Map<String, String> tagValues) {
-        auditTagService.createTagValues(tagValues, ah);
-        return null;
+    private AuditHeader makeAuditHeader(AuditHeaderInputBean inputBean, FortressUser fu) {
+        DocumentType documentType = tagService.resolveDocType(inputBean.getDocumentType());
+        AuditHeader ah = auditDAO.create(inputBean.getAuditKey(), fu, inputBean, documentType);
+        auditTagService.createTagValues(inputBean.getTagValues(), ah);
+        logger.debug("Audit Header created:{} key=[{}]", ah.getId(), ah.getAuditKey());
+        return ah;
     }
 
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
@@ -220,10 +215,7 @@ public class AuditService {
      * @param input log details
      * @return populated log information with any error messages
      */
-    AuditLogResultBean createLog(AuditLogInputBean input) {
-        // Fail as quickly as possible
-        //processWhatText(input);
-
+    public AuditLogResultBean createLog(AuditLogInputBean input) {
         AuditHeader header;
         AuditLogResultBean resultBean = new AuditLogResultBean(input);
         String auditKey = input.getAuditKey();
@@ -234,7 +226,7 @@ public class AuditService {
                 if (header != null)
                     input.setAuditKey(header.getAuditKey());
             } else
-                header = getHeader(auditKey, true);
+                header = getHeader(auditKey); // true??
         } else
             header = getHeader(input.getAuditId());  // Only set internally by AuditBucket. Never rely on the caller
 
@@ -255,7 +247,8 @@ public class AuditService {
      * @param thisFortressUser audit header tag set
      * @return populated log information with any error messages
      */
-    private AuditLogResultBean createLog(AuditHeader auditHeader, AuditLogInputBean input, FortressUser thisFortressUser) {
+    public AuditLogResultBean createLog(AuditHeader auditHeader, AuditLogInputBean input, FortressUser thisFortressUser) {
+        // Warning - making this private means it doesn't get a transaction!
         AuditLogResultBean resultBean = new AuditLogResultBean(input);
         //ToDo: May want to track a "View" event which would not change the What data.
         if (input.getMapWhat() == null || input.getMapWhat().isEmpty()) {
@@ -347,18 +340,6 @@ public class AuditService {
 
     }
 
-    private void processWhatText(AuditLogInputBean input) {
-        try {
-            // Normalise and JSON'ise the what argument that has probably just been
-            //  placed in to the instance variable
-            input.setWhat(input.getWhat());
-        } catch (IOException e) {
-            logger.error("Json parsing exception {}", input.getWhat());
-            throw new IllegalArgumentException("Unable to pass What text as JSON object", e);
-        }
-    }
-
-
     private SearchChange prepareSearchDocument(AuditHeader auditHeader, AuditLogInputBean logInput, AuditEvent event, Boolean searchActive, DateTime fortressWhen, AuditLog auditLog) throws JsonProcessingException {
 
         if (!searchActive || auditHeader.isSearchSuppressed())
@@ -381,7 +362,7 @@ public class AuditService {
     }
 
     @Async
-    @Transactional(propagation = Propagation.SUPPORTS)
+    //@Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void makeChangeSearchable(SearchChange searchDocument) {
         if (searchDocument == null)
             return;
@@ -441,6 +422,7 @@ public class AuditService {
      */
     @Async
     @ServiceActivator(inputChannel = "searchResult")
+    //@Transactional (propagation = Propagation.NOT_SUPPORTED)
     public void handleSearchResult(SearchResult searchResult) {
 
         logger.debug("Updating from search auditKey =[{}]", searchResult);
@@ -483,7 +465,7 @@ public class AuditService {
         return findTx(txRef, false);
     }
 
-    public TxRef findTx(String txRef, boolean fetchHeaders) {
+    TxRef findTx(String txRef, boolean fetchHeaders) {
         String userName = securityHelper.getLoggedInUser();
         SystemUser su = sysUserService.findByName(userName);
 
@@ -527,7 +509,7 @@ public class AuditService {
         return getAuditLogs(auditHeader, from, to);
     }
 
-    protected Set<AuditLog> getAuditLogs(AuditHeader auditHeader, Date from, Date to) {
+    Set<AuditLog> getAuditLogs(AuditHeader auditHeader, Date from, Date to) {
         return auditDAO.getAuditLogs(auditHeader.getId(), from, to);
     }
 
@@ -558,7 +540,7 @@ public class AuditService {
      * @return Future<AuditHeader> record or null if no auditHeader exists.
      */
     @Async
-    public Future<AuditHeader> cancelLastLog(String headerKey) throws IOException {
+    Future<AuditHeader> cancelLastLog(String headerKey) throws IOException {
         AuditHeader auditHeader = getValidHeader(headerKey, true);
         AuditLog currentLog = getLastLog(auditHeader.getId());
         if (currentLog == null)

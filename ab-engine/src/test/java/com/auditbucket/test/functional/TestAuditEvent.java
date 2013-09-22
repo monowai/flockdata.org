@@ -86,7 +86,7 @@ public class TestAuditEvent {
     private String monowai = "Monowai";
     private String mike = "test@ab.com";
     private String mark = "mark@null.com";
-    Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
+    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
     Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "user1");
     String what = "{\"house\": \"house";
 

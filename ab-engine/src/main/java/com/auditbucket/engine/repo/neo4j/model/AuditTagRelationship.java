@@ -39,12 +39,15 @@ public class AuditTagRelationship implements AuditTag {
 
     @StartNode
     @Fetch
+    private
     TagNode tag;
 
     @EndNode
+    private
     AuditHeaderNode auditHeader;
 
     @Indexed(indexName = "tagType")
+    private
     String tagType;
 
     protected AuditTagRelationship() {

@@ -9,7 +9,7 @@ import com.auditbucket.audit.model.AuditWhat;
  */
 public class AuditLogDetailBean {
 
-    protected AuditLogDetailBean() {
+    private AuditLogDetailBean() {
     }
 
     public AuditLogDetailBean(AuditLog log, AuditWhat what) {

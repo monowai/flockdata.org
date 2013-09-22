@@ -38,7 +38,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class CompanyDaoRepo implements CompanyDao {
-    public static final String FORTRESS_NAME = "fortressName";
+    private static final String FORTRESS_NAME = "fortressName";
     @Autowired
     private CompanyRepository companyRepo;
 
@@ -49,7 +49,7 @@ public class CompanyDaoRepo implements CompanyDao {
     Neo4jTemplate template;
 
     @Override
-    public Company save(Company company) {
+    public Company update(Company company) {
         return companyRepo.save((CompanyNode) company);
     }
 
@@ -70,9 +70,7 @@ public class CompanyDaoRepo implements CompanyDao {
 
     @Override
     public Fortress getFortress(Long companyId, String fortressName) {
-        if (template.getGraphDatabaseService().index().existsForNodes(FORTRESS_NAME))
-            return companyRepo.getFortress(companyId, fortressName);
-        return null;
+        return companyRepo.getFortress(companyId, fortressName);
     }
 
     @Override
@@ -83,5 +81,10 @@ public class CompanyDaoRepo implements CompanyDao {
     @Override
     public Iterable<CompanyUser> getCompanyUsers(String companyName) {
         return companyRepo.getCompanyUsers(companyName);
+    }
+
+    @Override
+    public Company create(String companyName, String uniqueKey) {
+        return companyRepo.save(new CompanyNode(companyName, uniqueKey));
     }
 }

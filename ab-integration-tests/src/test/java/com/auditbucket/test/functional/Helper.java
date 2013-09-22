@@ -23,7 +23,7 @@ package com.auditbucket.test.functional;
  * User: Mike Holdsworth
  * Since: 10/08/13
  */
-public class Helper {
+class Helper {
     public static String getBigJsonText(int i) {
         return "{\n" +
                 "   \"trainprofiles\": [\n" +

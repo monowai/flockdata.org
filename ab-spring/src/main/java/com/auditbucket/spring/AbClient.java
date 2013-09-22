@@ -26,7 +26,7 @@ public class AbClient {
     private String forteressName;
     private String NEW_LOG;
     private String NEW_HEADER;
-    Random rnd = new Random();
+    private Random rnd = new Random();
 
     private Logger logger = LoggerFactory.getLogger(AbClient.class);
     private String user;
@@ -110,8 +110,8 @@ public class AbClient {
         return headers;
     }
 
-    public String getUser() {
-        int i = rnd.nextInt((100-1)+1);
-        return userName +i;
+    String getUser() {
+        int i = rnd.nextInt((100 - 1) + 1);
+        return userName + i;
     }
 }

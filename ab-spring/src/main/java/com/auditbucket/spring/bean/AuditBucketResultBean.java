@@ -10,7 +10,7 @@ import com.auditbucket.bean.AuditResultBean;
  * Time: 23:18
  * To change this template use File | Settings | File Templates.
  */
-public class AuditBucketResultBean {
+class AuditBucketResultBean {
 
     private AuditResultBean auditResultBean;
     private AuditLogInputBean auditLogInputBean;

@@ -37,7 +37,7 @@ import java.util.Map;
  */
 @NodeEntity(useShortNames = true)
 public class AuditChangeNode implements AuditChange {
-    public static final String COLON = ":";
+    private static final String COLON = ":";
     @GraphId
     private Long id;
 
@@ -78,7 +78,7 @@ public class AuditChangeNode implements AuditChange {
         this.madeBy = (FortressUserNode) madeBy;
 
         String event = inputBean.getEvent();
-        this.name = new StringBuilder().append(event).append(COLON).append(madeBy.getName()).toString();
+        this.name = event + COLON + madeBy.getName();
         setTxRef(txRef);
         this.comment = inputBean.getComment();
     }

@@ -29,7 +29,6 @@ import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.repo.neo4j.dao.CompanyDao;
 import com.auditbucket.registration.repo.neo4j.dao.FortressDao;
 import com.auditbucket.registration.repo.neo4j.model.FortressNode;
-import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

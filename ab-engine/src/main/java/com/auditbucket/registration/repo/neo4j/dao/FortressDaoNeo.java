@@ -64,9 +64,7 @@ public class FortressDaoNeo implements FortressDao {
     @Override
     public FortressUser getFortressUser(Long id, String name) {
 
-        if (template.getGraphDatabaseService().index().existsForNodes("fortressUser"))
-            return fortressRepo.getFortressUser(id, name);
-        return null;
+        return fortressRepo.getFortressUser(id, name);
 
     }
 

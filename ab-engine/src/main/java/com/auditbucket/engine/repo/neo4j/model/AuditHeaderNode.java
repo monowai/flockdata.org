@@ -66,11 +66,11 @@ public class AuditHeaderNode implements AuditHeader {
     @Indexed(indexName = "callerRef")
     private String callerRef;
 
-    private long dateCreated;
+    private long dateCreated = 0;
 
     private String event = null; // should only be set if this is an immutable header and no log events will be recorded
 
-    long lastUpdated = 0;
+    private long lastUpdated = 0;
 
     @GraphId
     private Long id;
@@ -91,6 +91,7 @@ public class AuditHeaderNode implements AuditHeader {
     private long fortressDate;
 
     @Indexed(indexName = "searchKey")
+    private
     String searchKey = null;
 
     private boolean searchSuppressed;
@@ -109,9 +110,9 @@ public class AuditHeaderNode implements AuditHeader {
         this.fortress = (FortressNode) createdBy.getFortress();
         this.documentType = (DocumentTypeNode) documentType;
         String docType = (documentType != null ? getDocumentType() : "");
-        this.name = (callerRef == null ? docType : (new StringBuilder().append(docType).append(".").append(callerRef).toString()).toLowerCase());
+        this.name = (callerRef == null ? docType : (docType + "." + callerRef).toLowerCase());
 
-        indexName = new StringBuilder().append(createdBy.getFortress().getCompany().getName().toLowerCase()).append(".").append(fortress.getName().toLowerCase()).toString();
+        indexName = createdBy.getFortress().getCompany().getName().toLowerCase() + "." + fortress.getName().toLowerCase();
         callerRef = auditInput.getCallerRef();
         if (callerRef != null)
             callerRef = callerRef.toLowerCase();

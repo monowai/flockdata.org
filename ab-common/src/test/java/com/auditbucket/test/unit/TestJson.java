@@ -74,7 +74,7 @@ public class TestJson {
 
     }
 
-    public static String getBigJsonText(int i) {
+    private static String getBigJsonText(int i) {
         return "{\n" +
                 "   \"trainprofiles\": [\n" +
                 "        {\n" +

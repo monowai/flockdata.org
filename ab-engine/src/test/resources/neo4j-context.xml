@@ -42,8 +42,9 @@ http://www.springframework.org/schema/data/neo4j/spring-neo4j.xsd http://www.spr
     <!-- Controllers etc to look for -->
     <neo4j:repositories base-package="com.auditbucket.registration.repo.neo4j"/>
     <neo4j:repositories base-package="com.auditbucket.engine.repo.neo4j"/>
+    <neo4j:config graphDatabaseService="graphDatabaseService"/>
 
     <!--NEO4J interface to use-->
-    <import resource="neo4j-embedded.xml"/>
+    <import resource="neo4j-${neo4j}.xml"/>
 
 </beans>

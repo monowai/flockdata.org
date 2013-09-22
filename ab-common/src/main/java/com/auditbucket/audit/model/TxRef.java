@@ -43,6 +43,6 @@ public interface TxRef {
     public long getTxDate();
 
     enum TxStatus {
-        TX_CREATED, TX_ROLLBACK, TX_COMMITTED;
+        TX_CREATED, TX_ROLLBACK, TX_COMMITTED
     }
 }

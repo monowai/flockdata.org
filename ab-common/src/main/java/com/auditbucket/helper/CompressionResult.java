@@ -33,7 +33,10 @@ public class CompressionResult {
 
     public byte[] getAsBytes() {
         return bytes;
+    }
 
+    public String getAsString() {
+        return new String(bytes);
     }
 
     public boolean isCompressed() {

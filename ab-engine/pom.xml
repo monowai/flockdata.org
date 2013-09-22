@@ -60,6 +60,11 @@
             <artifactId>spring-webmvc</artifactId>
             <version>${org.springframework-version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-instrument</artifactId>
+            <version>${org.springframework-version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.security</groupId>
@@ -93,6 +98,16 @@
             <version>${org.springframework-version}</version>
         </dependency>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <version>${org.springframework-version}</version>
+        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>org.springframework</groupId>-->
+        <!--<artifactId>spring-aspects</artifactId>-->
+        <!--<version>${org.springframework-version}</version>-->
+        <!--</dependency>-->
+        <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
             <version>${org.springsecurity-version}</version>
@@ -115,6 +130,12 @@
             <version>7.0.30</version>
             <scope>provided</scope>
         </dependency>
+        <!--Needed for neo4j-aspects-->
+        <!--<dependency>-->
+        <!--<groupId>org.hibernate.javax.persistence</groupId>-->
+        <!--<artifactId>hibernate-jpa-2.0-api</artifactId>-->
+        <!--<version>1.0.1.Final</version>-->
+        <!--</dependency>-->
         <!--<dependency>-->
         <!--<groupId>org.springframework.data</groupId>-->
         <!--<artifactId>spring-data-redis</artifactId>-->
@@ -125,11 +146,24 @@
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-neo4j</artifactId>
             <version>${org.springdata.neo4j}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.neo4j</groupId>
+                    <artifactId>neo4j-community</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-neo4j-rest</artifactId>
             <version>${org.springdata.neo4j}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.neo4j</groupId>
+                    <artifactId>neo4j-community</artifactId>
+                </exclusion>
+            </exclusions>
+
         </dependency>
         <dependency>
             <groupId>org.neo4j.app</groupId>
@@ -156,12 +190,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjrt</artifactId>
-            <version>${org.aspectj-version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
             <version>${jackson.version}</version>
@@ -179,11 +207,6 @@
             <!--<scope>test</scope>-->
         </dependency>
 
-        <!--<dependency>-->
-        <!--<groupId>org.xerial.snappy</groupId>-->
-        <!--<artifactId>snappy-java</artifactId>-->
-        <!--<version>1.1.0-M3</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
@@ -254,48 +277,50 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>aspectj-maven-plugin</artifactId>
-                <!-- Have to use version 1.2 since version 1.3 does not appear to work with ITDs -->
-                <version>1.2</version>
-                <dependencies>
-                    <!-- You must use Maven 2.0.9 or above or these are ignored (see MNG-2972) -->
-                    <dependency>
-                        <groupId>org.aspectj</groupId>
-                        <artifactId>aspectjrt</artifactId>
-                        <version>${org.aspectj-version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.aspectj</groupId>
-                        <artifactId>aspectjtools</artifactId>
-                        <version>${org.aspectj-version}</version>
-                    </dependency>
-                </dependencies>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>compile</goal>
-                            <goal>test-compile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <outxml>true</outxml>
-                    <!--<aspectLibraries>-->
-                    <!--<aspectLibrary>-->
-                    <!--<groupId>org.springframework</groupId>-->
-                    <!--<artifactId>spring-aspects</artifactId>-->
-                    <!--</aspectLibrary>-->
-                    <!--<aspectLibrary>-->
-                    <!--<groupId>org.springframework.data</groupId>-->
-                    <!--<artifactId>spring-data-neo4j-aspects</artifactId>-->
-                    <!--</aspectLibrary>-->
-                    <!--</aspectLibraries>-->
-                    <source>${java-version}</source>
-                    <target>${java-version}</target>
-                </configuration>
-            </plugin>
+            <!--<plugin>-->
+            <!--<groupId>org.codehaus.mojo</groupId>-->
+            <!--<artifactId>aspectj-maven-plugin</artifactId>-->
+            <!--&lt;!&ndash; Have to use version 1.2 since version 1.3 does not appear to work with ITDs &ndash;&gt;-->
+            <!--<version>1.4</version>-->
+
+            <!--<dependencies>-->
+            <!--&lt;!&ndash; You must use Maven 2.0.9 or above or these are ignored (see MNG-2972) &ndash;&gt;-->
+            <!--<dependency>-->
+            <!--<groupId>org.aspectj</groupId>-->
+            <!--<artifactId>aspectjrt</artifactId>-->
+            <!--<version>${org.aspectj-version}</version>-->
+            <!--</dependency>-->
+            <!--<dependency>-->
+            <!--<groupId>org.aspectj</groupId>-->
+            <!--<artifactId>aspectjtools</artifactId>-->
+            <!--<version>${org.aspectj-version}</version>-->
+            <!--</dependency>-->
+            <!--</dependencies>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<goals>-->
+            <!--<goal>compile</goal>-->
+            <!--<goal>test-compile</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--</executions>-->
+            <!--<configuration>-->
+            <!--<outxml>true</outxml>-->
+            <!--<aspectLibraries>-->
+            <!--&lt;!&ndash;<aspectLibrary>&ndash;&gt;-->
+            <!--&lt;!&ndash;<groupId>org.springframework</groupId>&ndash;&gt;-->
+            <!--&lt;!&ndash;<artifactId>spring-aspects</artifactId>&ndash;&gt;-->
+            <!--&lt;!&ndash;</aspectLibrary>&ndash;&gt;-->
+            <!--&lt;!&ndash;Throws a null pointer when enabled AspectJ config not yet complete?&ndash;&gt;-->
+            <!--&lt;!&ndash;<aspectLibrary>&ndash;&gt;-->
+            <!--&lt;!&ndash;<groupId>org.springframework.data</groupId>&ndash;&gt;-->
+            <!--&lt;!&ndash;<artifactId>spring-data-neo4j-aspects</artifactId>&ndash;&gt;-->
+            <!--&lt;!&ndash;</aspectLibrary>&ndash;&gt;-->
+            <!--</aspectLibraries>-->
+            <!--<source>${java-version}</source>-->
+            <!--<target>${java-version}</target>-->
+            <!--</configuration>-->
+            <!--</plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
