@@ -41,11 +41,12 @@ public class FortressNode implements Fortress {
     @GraphId
     Long id;
 
-    @Indexed(indexName = "fortressName")
+    @Indexed(indexName = "fortressCode")
+    private String code;
+
     private
     String name;
 
-    //@Fetch
     @RelatedTo(type = "owns", direction = Direction.INCOMING)
     private
     CompanyNode company;
@@ -59,6 +60,7 @@ public class FortressNode implements Fortress {
     }
 
     public FortressNode(FortressInputBean fortressInputBean, Company ownedBy) {
+        this();
         setName(fortressInputBean.getName());
         setIgnoreSearchEngine(fortressInputBean.getIgnoreSearch());
         setCompany(ownedBy);
@@ -92,6 +94,7 @@ public class FortressNode implements Fortress {
 
     public void setName(String name) {
         this.name = name;
+        this.code = name.toLowerCase();
     }
 
     @Override

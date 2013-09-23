@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 LAUNCHD_NAME="com.auditbucket.search"
 FRIENDLY_NAME="AuditBucket Search Server"

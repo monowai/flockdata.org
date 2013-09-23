@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+
 FRIENDLY_NAME="AuditBucket Engine Server"
 LAUNCHD_NAME="com.auditbucket.engine"
 

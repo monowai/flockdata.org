@@ -27,6 +27,7 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditTag;
+import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditResultBean;
 import com.auditbucket.bean.AuditSummaryBean;
@@ -43,6 +44,7 @@ import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
+import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,6 +63,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 import static junit.framework.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
 /**
@@ -287,6 +291,22 @@ public class TestAuditTags {
         AuditSummaryBean summaryBean = auditManager.getAuditSummary(auditHeader.getAuditKey());
         assertNotNull(summaryBean);
         assertEquals(3, summaryBean.getHeader().getTagValues().size());
+
+    }
+
+    public void documentTypesWork() {
+        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        fortressService.registerFortress("ABC");
+
+        String docName = "CamelCaseDoc";
+        DocumentType docType = tagService.resolveDocType(docName);
+        assertNotNull(docType);
+        assertEquals(docName.toLowerCase(), docType.getCode());
+        assertEquals(docName, docType.getName());
+        // Should be finding by code which is always Lower
+        DocumentType sameDoc = tagService.resolveDocType(docType.getCode().toUpperCase());
+        Assert.assertNotNull(sameDoc);
+        assertSame(sameDoc.getId(), docType.getId());
 
     }
 

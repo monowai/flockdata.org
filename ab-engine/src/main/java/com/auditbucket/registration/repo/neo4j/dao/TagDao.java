@@ -72,7 +72,7 @@ public class TagDao implements com.auditbucket.dao.TagDao {
 
     @Override
     public DocumentType findOrCreate(String documentType, Company company) {
-        DocumentType result = documentTypeRepo.findCompanyDocType(company.getId(), documentType);
+        DocumentType result = documentTypeRepo.findCompanyDocType(company.getId(), documentType.toLowerCase());
 
         if (result == null) {
             logger.debug("Creating document type {}", documentType);

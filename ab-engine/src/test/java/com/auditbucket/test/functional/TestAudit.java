@@ -263,7 +263,8 @@ public class TestAudit {
         auditManagerService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 0}"));
         AuditLog when = auditService.getLastAuditLog(ahKey);
         assertNotNull(when);
-        assertEquals(AuditChange.CREATE, when.getAuditChange().getEvent().getCode()); // log event default
+        assertEquals(AuditChange.CREATE, when.getAuditChange().getEvent().getName()); // log event default
+        assertEquals(AuditChange.CREATE.toLowerCase(), when.getAuditChange().getEvent().getName().toLowerCase()); // log event default
 
         auditManagerService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 1}"));
         AuditLog whenB = auditService.getLastAuditLog(ahKey);
@@ -271,7 +272,7 @@ public class TestAudit {
 
         assertFalse(whenB.equals(when));
         assertNotNull(whenB.getAuditChange().getEvent());
-        assertEquals(AuditChange.UPDATE, whenB.getAuditChange().getEvent().getCode());  // log event default
+        assertEquals(AuditChange.UPDATE, whenB.getAuditChange().getEvent().getName());  // log event default
     }
 
     @Test

@@ -25,6 +25,7 @@ import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.GraphId;
+import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
@@ -37,7 +38,10 @@ public class AuditEventNode implements AuditEvent {
 
     @GraphId
     private Long id;
+
+    @Indexed(indexName = "eventCode")
     private String code;
+    private String name;
 
     @RelatedTo(type = "COMPANY_EVENT", direction = Direction.INCOMING)
     private CompanyNode company;
@@ -45,9 +49,11 @@ public class AuditEventNode implements AuditEvent {
     protected AuditEventNode() {
     }
 
-    public AuditEventNode(Company company, String eventName) {
+    public AuditEventNode(Company company, String event) {
+        this();
         this.company = (CompanyNode) company;
-        this.code = eventName;
+        this.code = event.toLowerCase();
+        this.name = event;
     }
 
     @JsonIgnore
@@ -55,6 +61,7 @@ public class AuditEventNode implements AuditEvent {
         return id;
     }
 
+    @JsonIgnore
     public String getCode() {
         return code;
     }
@@ -63,6 +70,11 @@ public class AuditEventNode implements AuditEvent {
     @JsonIgnore
     public Company getCompany() {
         return company;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     public void setCode(String code) {

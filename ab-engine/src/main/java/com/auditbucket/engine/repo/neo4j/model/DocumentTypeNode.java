@@ -43,14 +43,17 @@ public class DocumentTypeNode implements DocumentType {
     @RelatedTo(elementClass = CompanyNode.class, type = "documents", direction = Direction.INCOMING)
     private Company company;
 
-    @Indexed(indexName = "documentTypeName")
     private String name;
+
+    @Indexed(indexName = "documentTypeCode")
+    private String code;
 
     protected DocumentTypeNode() {
     }
 
     public DocumentTypeNode(String documentTypeName, Company company) {
         this.name = documentTypeName;
+        this.code = documentTypeName.toLowerCase();
         this.company = company;
     }
 
@@ -67,5 +70,11 @@ public class DocumentTypeNode implements DocumentType {
     @JsonIgnore
     public Long getId() {
         return id;
+    }
+
+    @Override
+    @JsonIgnore
+    public String getCode() {
+        return code;
     }
 }

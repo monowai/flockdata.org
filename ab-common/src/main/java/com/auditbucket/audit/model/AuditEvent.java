@@ -34,4 +34,6 @@ public interface AuditEvent {
     public String getCode();
 
     Company getCompany();
+
+    String getName();
 }

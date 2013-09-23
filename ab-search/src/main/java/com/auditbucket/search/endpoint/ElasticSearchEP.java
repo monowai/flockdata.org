@@ -47,14 +47,14 @@ public class ElasticSearchEP {
     @RequestMapping(value = "/ping", method = RequestMethod.GET)
     @ResponseBody
     String ping() throws Exception {
-        // curl -u mike:123 -X GET http://localhost:8080/abs/ping
-        return "Ping!";
+        // curl -u mike:123 -X GET http://localhost:9092/ab-search/admin/ping
+        return "Pong!";
     }
 
     @RequestMapping(value = "/health", produces = "application/json", method = RequestMethod.GET)
     @ResponseBody
     public Map<String, Object> getHealth() throws Exception {
-        // curl -u mike:123 -X GET http://localhost:8080/ab/audit/ping
+        // curl -u mike:123 -X GET http://localhost:9092/ab-search/admin/health
         return searchAdmin.getHealth();
     }
 

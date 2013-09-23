@@ -67,7 +67,8 @@ public class AuditEP {
     @ResponseBody
     @RequestMapping(value = "/ping", method = RequestMethod.GET)
     public String get() throws Exception {
-        // curl -u mike:123 -X GET http://localhost:8080/ab/audit/ping
+        // curl -u mike:123 -X GET http://auditbucketdemo.entiviti.com:9092/ab-search/api/ping
+
         return "Pong!";
     }
 
