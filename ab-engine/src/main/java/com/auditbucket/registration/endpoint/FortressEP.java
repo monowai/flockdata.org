@@ -53,7 +53,7 @@ public class FortressEP {
     @ResponseBody
     public ResponseEntity<Fortress> getFortresses(@PathVariable("fortressName") String fortressName) throws Exception {
         // curl -u mike:123 -X GET  http://localhost:8080/ab/fortress/ABC
-        Fortress fortress = fortressService.find(fortressName);
+        Fortress fortress = fortressService.findByName(fortressName);
         if (fortress == null)
             return new ResponseEntity<>(fortress, HttpStatus.NOT_FOUND);
         else
@@ -80,7 +80,7 @@ public class FortressEP {
     @ResponseBody
     public ResponseEntity<FortressUser> getFortressUsers(@PathVariable("fortressName") String fortressName, @PathVariable("userName") String userName) throws Exception {
         FortressUser result = null;
-        Fortress fortress = fortressService.find(fortressName);
+        Fortress fortress = fortressService.findByName(fortressName);
 
         if (fortress == null) {
             return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);

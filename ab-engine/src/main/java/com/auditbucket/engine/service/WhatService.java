@@ -27,12 +27,12 @@ public class WhatService {
     @Autowired(required = false)
     AuditDao auditDao = null;
 
-    public String logWhat(AuditChange change, String jsonText) {
+    public String logWhat(AuditChange change, String jsonText, int version) {
         String store = change.getWhatStore();
         // ToDo: Enum?
         // ToDo: this is a Neo4J what node store
         if (store.equalsIgnoreCase(NEO4J)) {   // ToDo: add Redis store support
-            return auditDao.save(change, jsonText);
+            return auditDao.save(change, jsonText, version);
         } else
             // AuditChange will have to be saved with the remote store key
             return null;

@@ -51,7 +51,7 @@ public class AuditTagDaoRepo implements com.auditbucket.dao.AuditTagDao {
         Node headerNode = template.getNode(auditHeader.getId());
         Node tagNode = template.getNode(tag.getId());
         //Primary exploration relationship
-        template.createRelationshipBetween(headerNode, tagNode, type, null);
+        template.createRelationshipBetween(tagNode, headerNode, type, null);
 
         // Only keeping this so that we can efficiently find all the tags being used by a header/tag combo
         // could be simplified to all tags attached to a single Tag node.

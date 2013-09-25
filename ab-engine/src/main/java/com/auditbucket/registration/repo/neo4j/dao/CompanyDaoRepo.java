@@ -69,9 +69,15 @@ public class CompanyDaoRepo implements CompanyDao {
     }
 
     @Override
-    public Fortress getFortress(Long companyId, String fortressName) {
-        return companyRepo.getFortress(companyId, fortressName);
+    public Fortress getFortressByName(Long companyId, String fortressName) {
+        return companyRepo.getFortressByName(companyId, fortressName);
     }
+
+    @Override
+    public Fortress getFortressByCode(Long companyId, String fortressCode) {
+        return companyRepo.getFortressByCode(companyId, fortressCode);
+    }
+
 
     @Override
     public SystemUser getAdminUser(Long id, String name) {
@@ -87,4 +93,5 @@ public class CompanyDaoRepo implements CompanyDao {
     public Company create(String companyName, String uniqueKey) {
         return companyRepo.save(new CompanyNode(companyName, uniqueKey));
     }
+
 }

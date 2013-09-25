@@ -73,7 +73,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
         this.indexName = header.getIndexName();
         this.searchKey = header.getSearchKey();
         this.callerRef = header.getCallerRef();
-        this.who = header.getLastUser().getName();
+        this.who = header.getLastUser().getCode();
         this.createdDate = header.getWhenCreated(); // When created in AuditBucket
         setTags(header.getTagValues());
     }

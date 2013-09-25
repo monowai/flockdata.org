@@ -20,8 +20,8 @@
 package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.audit.model.AuditTag;
+import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
@@ -33,9 +33,6 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.neo4j.graphdb.Direction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.annotation.*;
 
 import java.util.*;
@@ -49,8 +46,8 @@ import java.util.*;
 @NodeEntity(useShortNames = true)
 public class AuditHeaderNode implements AuditHeader {
 
-    @Transient
-    private Logger log = LoggerFactory.getLogger(AuditHeaderNode.class);
+    //@Transient
+    //private Logger log = LoggerFactory.getLogger(AuditHeaderNode.class);
 
     @Indexed(indexName = UUID_KEY, unique = true)
     private String auditKey;
@@ -78,7 +75,7 @@ public class AuditHeaderNode implements AuditHeader {
     @RelatedTo(elementClass = FortressUserNode.class, type = "created", direction = Direction.INCOMING, enforceTargetType = true)
     private FortressUserNode createdBy;
 
-    @RelatedTo(elementClass = FortressUserNode.class, type = "lastChanged", direction = Direction.OUTGOING)
+    @RelatedTo(elementClass = FortressUserNode.class, type = "lastChanged", direction = Direction.INCOMING)
     private FortressUserNode lastWho;
 
     @RelatedToVia(elementClass = AuditTagRelationship.class, type = "auditTag", direction = Direction.INCOMING)
@@ -112,7 +109,7 @@ public class AuditHeaderNode implements AuditHeader {
         String docType = (documentType != null ? getDocumentType() : "");
         this.name = (callerRef == null ? docType : (docType + "." + callerRef).toLowerCase());
 
-        indexName = createdBy.getFortress().getCompany().getName().toLowerCase() + "." + fortress.getName().toLowerCase();
+        indexName = createdBy.getFortress().getCompany().getCode() + "." + fortress.getCode();
         callerRef = auditInput.getCallerRef();
         if (callerRef != null)
             callerRef = callerRef.toLowerCase();

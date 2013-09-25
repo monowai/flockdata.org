@@ -348,6 +348,17 @@ public class TestAudit {
     }
 
     @Test
+    public void companyAndFortressWithSpaces() throws Exception {
+        regService.registerSystemUser(new RegistrationBean("Company With Space", mike, "bah"));
+        Fortress fortressA = fortressService.registerFortress("audit Test" + System.currentTimeMillis());
+        String docType = "TestAuditX";
+        String callerRef = "ABC123X";
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
+        String keyA = auditManagerService.createHeader(inputBean).getAuditKey();
+        assertNotNull(keyA);
+    }
+
+    @Test
     public void headersForDifferentCompaniesAreNotVisible() throws Exception {
 
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
@@ -396,19 +407,19 @@ public class TestAudit {
         auditManagerService.createLog(new AuditLogInputBean(auditKey.getAuditKey(), "olivia@sunnybell.com", new DateTime(), what + "1\"}", "Update"));
         auditKey = auditService.getHeader(ahWP);
         FortressUser fu = fortressService.getUser(auditKey.getLastUser().getId());
-        assertEquals("olivia@sunnybell.com", fu.getName());
+        assertEquals("olivia@sunnybell.com", fu.getCode());
 
         auditManagerService.createLog(new AuditLogInputBean(auditKey.getAuditKey(), "harry@sunnybell.com", new DateTime(), what + "2\"}", "Update"));
         auditKey = auditService.getHeader(ahWP);
 
         fu = fortressService.getUser(auditKey.getLastUser().getId());
-        assertEquals("harry@sunnybell.com", fu.getName());
+        assertEquals("harry@sunnybell.com", fu.getCode());
 
         auditManagerService.createLog(new AuditLogInputBean(auditKey.getAuditKey(), "olivia@sunnybell.com", new DateTime(), what + "3\"}", "Update"));
         auditKey = auditService.getHeader(ahWP);
 
         fu = fortressService.getUser(auditKey.getLastUser().getId());
-        assertEquals("olivia@sunnybell.com", fu.getName());
+        assertEquals("olivia@sunnybell.com", fu.getCode());
 
     }
 
@@ -429,7 +440,7 @@ public class TestAudit {
         auditManagerService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", new DateTime(), what + "1\"}", "Update"));
         auditHeader = auditService.getHeader(ahWP);
         FortressUser fu = fortressService.getUser(auditHeader.getLastUser().getId());
-        assertEquals("olivia@sunnybell.com", fu.getName());
+        assertEquals("olivia@sunnybell.com", fu.getCode());
         AuditLog compareLog = auditService.getLastAuditLog(auditHeader);
 
         // Load a historic record. This should not become "last"
@@ -441,7 +452,7 @@ public class TestAudit {
         assertEquals(compareLog.getId(), lastLog.getId());
 
         fu = fortressService.getUser(auditHeader.getLastUser().getId());
-        assertEquals("olivia@sunnybell.com", fu.getName()); // The first one we created is the "last one"
+        assertEquals("olivia@sunnybell.com", fu.getCode()); // The first one we created is the "last one"
 
 
     }
@@ -612,7 +623,7 @@ public class TestAudit {
         for (AuditLog log : auditSummary.getChanges()) {
             AuditChange change = log.getAuditChange();
             assertNotNull(change.getEvent());
-            assertNotNull(change.getWho().getName());
+            assertNotNull(change.getWho().getCode());
             AuditWhat whatResult = auditService.getWhat(change);
             assertTrue(whatResult.getWhatMap().containsKey("house"));
         }
@@ -650,7 +661,7 @@ public class TestAudit {
 
     private void compareUser(AuditHeader header, String userName) {
         FortressUser fu = fortressService.getUser(header.getLastUser().getId());
-        assertEquals(userName, fu.getName());
+        assertEquals(userName, fu.getCode());
 
     }
 

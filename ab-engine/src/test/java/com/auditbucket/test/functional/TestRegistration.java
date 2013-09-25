@@ -142,12 +142,16 @@ public class TestRegistration {
         fortressService.registerFortress("fortressA");
         fortressService.registerFortress("fortressB");
         fortressService.registerFortress("fortressC");
+        fortressService.registerFortress("Fortress Space Name");
 
         int max = 100;
         for (int i = 0; i < max; i++) {
-            Assert.assertNotNull(fortressService.find("fortressA"));
-            Assert.assertNotNull(fortressService.find("fortressB"));
-            Assert.assertNotNull(fortressService.find("fortressC"));
+            Assert.assertNotNull(fortressService.findByName("fortressA"));
+            Assert.assertNotNull(fortressService.findByName("fortressB"));
+            Assert.assertNotNull(fortressService.findByName("fortressC"));
+            Fortress fCode = fortressService.findByCode("fortressspacename");
+            Assert.assertNotNull(fCode);
+            assertEquals("Fortress Space Name", fCode.getName());
         }
     }
 
@@ -219,7 +223,7 @@ public class TestRegistration {
         fu = fortressService.getFortressUser(fortress, "Userc");
         assertNotNull(fu);
 
-        fortress = fortressService.find("auditbucket");
+        fortress = fortressService.findByName("auditbucket");
         assertNotNull(fortress);
 
         fu = fortressService.getFortressUser(fortress, "useRax", false);
@@ -246,6 +250,22 @@ public class TestRegistration {
         assertNotSame("Fortress should be different", fortressA.getId(), fortressB.getId());
         assertNotSame("FortressUsers should be different", fua.getId(), fub.getId());
         assertEquals("FortressUsers should be the same", fub.getId(), fudupe.getId());
+    }
+
+    @Test
+    public void companyNameCodeWithSpaces() {
+        String uid = "mike";
+        String name = "Monowai Developments";
+        SystemUser su = registrationService.registerSystemUser(new RegistrationBean(name, uid, "bah"));
+        assertNotNull(su);
+        Company company = companyService.findByName(name);
+        Assert.assertNotNull(company);
+        assertEquals(name.replaceAll("\\s", "").toLowerCase(), company.getCode());
+
+        Company comp = companyService.findByCode(company.getCode());
+        assertNotNull(comp);
+        assertEquals(comp.getId(), company.getId());
+
     }
 
     @Test
@@ -317,8 +337,6 @@ public class TestRegistration {
     }
 
     @Test
-    //@Transactional
-    //@Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void multipleFortressUserRequestsThreaded() throws Exception {
         String uname = "mike";
         // Assume the user has now logged in.

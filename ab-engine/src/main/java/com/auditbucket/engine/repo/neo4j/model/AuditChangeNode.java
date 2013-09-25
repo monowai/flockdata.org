@@ -59,7 +59,7 @@ public class AuditChangeNode implements AuditChange {
     private boolean compressed = false;
     private String name;
 
-    @RelatedTo(type = "previousChange", direction = Direction.INCOMING)
+    @RelatedTo(type = "previousChange", direction = Direction.OUTGOING)
     private AuditChangeNode previousChange;
 
     @Fetch
@@ -78,7 +78,7 @@ public class AuditChangeNode implements AuditChange {
         this.madeBy = (FortressUserNode) madeBy;
 
         String event = inputBean.getEvent();
-        this.name = event + COLON + madeBy.getName();
+        this.name = event + COLON + madeBy.getCode();
         setTxRef(txRef);
         this.comment = inputBean.getComment();
     }

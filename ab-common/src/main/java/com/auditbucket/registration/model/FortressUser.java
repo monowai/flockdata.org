@@ -21,9 +21,9 @@ package com.auditbucket.registration.model;
 
 public interface FortressUser {
 
-    public abstract String getName();
+    public abstract String getCode();
 
-    public abstract void setName(String name);
+    public abstract void setCode(String name);
 
     public Fortress getFortress();
 

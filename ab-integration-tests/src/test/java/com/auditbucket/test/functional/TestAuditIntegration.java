@@ -39,9 +39,12 @@ import io.searchbox.client.JestResult;
 import io.searchbox.client.config.ClientConfig;
 import io.searchbox.core.Search;
 import io.searchbox.indices.DeleteIndex;
+import junit.framework.*;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
 import org.junit.*;
+import org.junit.Assert;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
@@ -112,6 +115,8 @@ public class TestAuditIntegration {
 
         client.execute(new DeleteIndex.Builder("testaudit.suppress").build());
         client.execute(new DeleteIndex.Builder("testaudit.ngram").build());
+        client.execute(new DeleteIndex.Builder("companywithspace.audittest").build());
+
         client.execute(new DeleteIndex.Builder("monowai.audittest").build());
         for (int i = 1; i < fortressMax + 1; i++) {
             client.execute(new DeleteIndex.Builder("testaudit.bulkloada" + i).build());
@@ -133,15 +138,24 @@ public class TestAuditIntegration {
         SecurityContextHolder.getContext().setAuthentication(authA);
         if ("rest".equals(System.getProperty("neo4j")))
             return;
-//        Transaction tx = graphDatabaseService.beginTx();
-//        try {
-//
         Neo4jHelper.cleanDb(template);
-//            tx.success();
-//        } finally {
-//            tx.finish();
-//        }
 
+    }
+
+    @Test
+    public void companyAndFortressWithSpaces() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        regService.registerSystemUser(new RegistrationBean("Company With Space", email, "bah"));
+        Fortress fortressA = fortressService.registerFortress(new FortressInputBean("Audit Test", false));
+        String docType = "TestAuditX";
+        String callerRef = "ABC123X";
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
+
+        String ahKey = auditManager.createHeader(inputBean).getAuditKey();
+        junit.framework.Assert.assertNotNull(ahKey);
+        AuditHeader header = auditService.getHeader(ahKey);
+        auditManager.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + 1 + "}"));
+        doEsQuery(header.getIndexName(), ahKey);
     }
 
     @Test

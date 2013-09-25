@@ -31,18 +31,19 @@ public class FortressUserNode implements FortressUser {
     Long id;
 
     @RelatedTo(elementClass = FortressNode.class, type = "fortressUser", direction = Direction.INCOMING)
-    //@Fetch
     private FortressNode fortress;
 
     @Indexed(indexName = "fortressUser")
-    private String name = null;
+    private String code = null;
+
+    private String name;
 
     protected FortressUserNode() {
     }
 
     public FortressUserNode(Fortress fortress, String fortressUserName) {
-        super();
-        setName(fortressUserName);
+        this();
+        setCode(fortressUserName);
         setFortress(fortress);
     }
 
@@ -51,12 +52,14 @@ public class FortressUserNode implements FortressUser {
         return id;
     }
 
-    public String getName() {
-        return name;
+    @JsonIgnore
+    public String getCode() {
+        return code;
     }
 
-    public void setName(String name) {
-        this.name = name.toLowerCase();
+    public void setCode(String code) {
+        this.code = code.toLowerCase();
+        this.name = code;
     }
 
     @JsonIgnore
@@ -72,9 +75,12 @@ public class FortressUserNode implements FortressUser {
     public String toString() {
         return "FortressUserNode{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
+                ", name='" + code + '\'' +
                 '}';
     }
 
 
+    public String getName() {
+        return name;
+    }
 }

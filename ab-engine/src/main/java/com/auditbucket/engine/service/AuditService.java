@@ -313,8 +313,12 @@ public class AuditService {
         AuditEvent event = auditEventService.processEvent(input.getEvent());
         input.setAuditEvent(event);
         AuditChange thisChange = auditDAO.save(thisFortressUser, input, txRef, existingChange);
+        int version = 0;
+        if (existingChange != null) {
+            version = whatService.getWhat(existingChange).getVersion();
+        }
 
-        whatService.logWhat(thisChange, input.getWhat());
+        whatService.logWhat(thisChange, input.getWhat(), version);
 
         AuditLog newLog = auditDAO.addLog(auditHeader, thisChange, fortressWhen);
         boolean moreRecent = (existingChange == null || existingLog.getFortressWhen() <= newLog.getFortressWhen());
@@ -347,7 +351,7 @@ public class AuditService {
         SearchChange searchDocument;
         searchDocument = new AuditSearchChange(auditHeader, logInput.getMapWhat(), event.getCode(), fortressWhen);
         //searchDocument.setTags(getAuditTags(auditHeader.getId()));
-        searchDocument.setWho(auditLog.getAuditChange().getWho().getName());
+        searchDocument.setWho(auditLog.getAuditChange().getWho().getCode());
 
         try {
             logger.trace("JSON {}", om.writeValueAsString(searchDocument));
@@ -552,7 +556,7 @@ public class AuditService {
         if (priorChange != null) {
             auditDAO.setLastChange(auditHeader, priorChange, currentChange);
             auditDAO.fetch(priorChange);
-            auditHeader.setLastUser(fortressService.getFortressUser(auditHeader.getFortress(), priorChange.getWho().getName()));
+            auditHeader.setLastUser(fortressService.getFortressUser(auditHeader.getFortress(), priorChange.getWho().getCode()));
             auditHeader = auditDAO.save(auditHeader);
         } //else {
         // No changes left
@@ -606,7 +610,7 @@ public class AuditService {
     }
 
     private AuditHeader findByCallerRef(String fortress, String documentType, String callerRef) {
-        Fortress iFortress = fortressService.find(fortress);
+        Fortress iFortress = fortressService.findByName(fortress);
         if (iFortress == null)
             return null;
 

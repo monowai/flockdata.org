@@ -34,6 +34,20 @@ public class AuditWhatNode implements AuditWhat {
     @Transient
     private
     ObjectMapper objectMapper = new ObjectMapper();
+    private
+    int version;
+    private String name;
+
+    protected AuditWhatNode() {
+    }
+
+    public AuditWhatNode(int version) {
+        this();
+        if (version == 0)
+            version = 1;
+        this.version = version;
+        this.name = "version " + version;
+    }
 
     @Override
     @JsonIgnore
@@ -79,4 +93,7 @@ public class AuditWhatNode implements AuditWhat {
         this.compressed = result.getMethod() == CompressionResult.Method.GZIP;
     }
 
+    public int getVersion() {
+        return version;
+    }
 }

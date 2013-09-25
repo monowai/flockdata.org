@@ -208,7 +208,7 @@ public class AuditEP {
                                                       @PathVariable("recordType") String recordType,
                                                       @PathVariable("callerRef") String callerRef) throws Exception {
         try {
-            Fortress f = fortressService.find(fortress);
+            Fortress f = fortressService.findByName(fortress);
             AuditHeader result = auditService.findByCallerRef(f.getId(), recordType, callerRef);
             return new ResponseEntity<>(result, HttpStatus.OK);
 

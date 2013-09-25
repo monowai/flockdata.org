@@ -44,8 +44,8 @@ public class FortressNode implements Fortress {
     @Indexed(indexName = "fortressCode")
     private String code;
 
-    private
-    String name;
+    @Indexed(indexName = "fortressName")
+    private String name;
 
     @RelatedTo(type = "owns", direction = Direction.INCOMING)
     private
@@ -94,7 +94,7 @@ public class FortressNode implements Fortress {
 
     public void setName(String name) {
         this.name = name;
-        this.code = name.toLowerCase();
+        this.code = name.toLowerCase().replaceAll("\\s+", "");
     }
 
     @Override
@@ -152,5 +152,10 @@ public class FortressNode implements Fortress {
 
     public void setTimeZone(String timeZone) {
         this.timeZone = timeZone;
+    }
+
+    @JsonIgnore
+    public String getCode() {
+        return code;
     }
 }

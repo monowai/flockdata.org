@@ -53,7 +53,7 @@ public class DocumentTypeNode implements DocumentType {
 
     public DocumentTypeNode(String documentTypeName, Company company) {
         this.name = documentTypeName;
-        this.code = documentTypeName.toLowerCase();
+        this.code = documentTypeName.toLowerCase().replaceAll("\\s", "");
         this.company = company;
     }
 

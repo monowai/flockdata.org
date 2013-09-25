@@ -43,6 +43,10 @@ public class CompanyService {
         return companyDao.findByPropertyValue("name", companyName);
     }
 
+    public Company findByCode(String code) {
+        return companyDao.findByPropertyValue("code", code);
+    }
+
     public CompanyUser getCompanyUser(Company company, String userName) {
         return companyDao.getCompanyUser(company.getId(), userName);
 
@@ -57,7 +61,8 @@ public class CompanyService {
     }
 
     public Fortress getCompanyFortress(Company company, String fortressName) {
-        return companyDao.getFortress(company.getId(), fortressName);
+        return companyDao.getFortressByName(company.getId(), fortressName);
+        //return companyDao.getFortressByCode(company.getId(), fortressName.toLowerCase().replaceAll("\\s",""));
     }
 
     public Iterable<CompanyUser> getUsers(String companyName) {
@@ -67,7 +72,7 @@ public class CompanyService {
 
     public Fortress getFortress(Company company, String name) {
 
-        return companyDao.getFortress(company.getId(), name);
+        return companyDao.getFortressByName(company.getId(), name);
     }
 
     public SystemUser getAdminUser(Company company, String name) {
@@ -86,4 +91,6 @@ public class CompanyService {
     public Company findByApiKey(String apiKey) {
         return companyDao.findByPropertyValue("apiKey", apiKey);
     }
+
+
 }

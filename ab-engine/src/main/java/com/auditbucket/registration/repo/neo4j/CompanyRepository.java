@@ -40,9 +40,19 @@ public interface CompanyRepository extends GraphRepository<CompanyNode> {
                     "match company-[r:owns]->fortress " +
                     "where fortress.name ={1} " +
                     "return fortress")
-    FortressNode getFortress(Long companyId, String fortressName);
+    FortressNode getFortressByName(Long companyId, String fortressName);
 
-    @Query(elementClass = CompanyUserNode.class, value = "start company=node({0}) match company-[r:works]-companyUser where companyUser.name ={1} return companyUser")
+    @Query(elementClass = FortressNode.class, value =
+            "start company=node({0}) " +
+                    "match company-[r:owns]->fortress " +
+                    "where fortress.code ={1} " +
+                    "return fortress")
+    FortressNode getFortressByCode(Long companyId, String fortressCode);
+
+    @Query(elementClass = CompanyUserNode.class,
+            value = "start company=node({0}) " +
+                    "match company-[r:works]-companyUser " +
+                    "where companyUser.name ={1} return companyUser")
     CompanyUserNode getCompanyUser(long ID, String userName);
 
     @Query(elementClass = SystemUserNode.class, value = "start company=node({0}) match company-[r:administers]-systemUser where systemUser.name ={1} return systemUser")

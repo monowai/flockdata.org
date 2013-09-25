@@ -64,9 +64,14 @@ public class FortressService {
         return fortressDao.findOneUser(id);
     }
 
-    public Fortress find(String fortressName) {
+    public Fortress findByName(String fortressName) {
         Company ownedBy = getCompany();
-        return companyDao.getFortress(ownedBy.getId(), fortressName);
+        return companyDao.getFortressByName(ownedBy.getId(), fortressName);
+    }
+
+    public Fortress findByCode(String fortressCode) {
+        Company ownedBy = getCompany();
+        return companyDao.getFortressByCode(ownedBy.getId(), fortressCode);
     }
 
     private Company getCompany() {

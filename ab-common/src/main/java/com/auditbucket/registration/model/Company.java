@@ -30,4 +30,7 @@ public interface Company {
     public void setApiKey(String apiKey);
 
     String getApiKey();
+
+    public String getCode();
+
 }
