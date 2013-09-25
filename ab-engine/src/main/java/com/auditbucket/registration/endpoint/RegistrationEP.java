@@ -52,18 +52,17 @@ public class RegistrationEP {
         // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/profiles/register -d '{"name":"mikey", "companyName":"Monowai Dev","password":"whocares"}'
         SystemUser su = regService.registerSystemUser(regBean);
         if (su == null)
-            return new ResponseEntity<SystemUser>(su, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(su, HttpStatus.INTERNAL_SERVER_ERROR);
 
-        return new ResponseEntity<SystemUser>(su, HttpStatus.CREATED);
+        return new ResponseEntity<>(su, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/me", method = RequestMethod.GET)
     @ResponseBody
     public SystemUser get() throws Exception {
         // curl -u mike:123 -X GET http://localhost:8080/ab/profiles/me
-        SystemUser result = regService.getSystemUser();
 
-        return result;
+        return regService.getSystemUser();
     }
 
 

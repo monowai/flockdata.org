@@ -31,6 +31,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
+
 /**
  * User: Mike Holdsworth
  * Date: 20/04/13
@@ -76,6 +78,11 @@ public class CompanyDaoRepo implements CompanyDao {
     @Override
     public Fortress getFortressByCode(Long companyId, String fortressCode) {
         return companyRepo.getFortressByCode(companyId, fortressCode);
+    }
+
+    @Override
+    public Collection<Company> findCompanies(Long id) {
+        return companyRepo.getCompaniesForUser(id);
     }
 
 

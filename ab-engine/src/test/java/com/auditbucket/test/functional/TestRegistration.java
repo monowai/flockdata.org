@@ -47,6 +47,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.CountDownLatch;
@@ -164,10 +165,34 @@ public class TestRegistration {
     }
 
     @Test
+    public void companiesForUser() {
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        registrationService.registerSystemUser(new RegistrationBean("CompanyA", "mike", "whocares"));
+        Fortress fA = fortressService.registerFortress("FortressA");
+        Fortress fB = fortressService.registerFortress("FortressB");
+        Fortress fC = fortressService.registerFortress("FortressC");
+        fortressService.registerFortress("FortressC");// Forced duplicate should be ignore
+
+        Collection<Company> companies = companyService.findCompanies();
+        assertEquals(1, companies.size());
+
+        Collection<Fortress> fortresses = fortressService.findFortresses();
+        assertFalse(fortresses.isEmpty());
+        assertEquals(3, fortresses.size());
+
+        SecurityContextHolder.getContext().setAuthentication(authB);
+        registrationService.registerSystemUser(new RegistrationBean("CompanyB", "harry", "whocares"));
+
+        //Should be seeing different fortresses
+        assertNotSame(fA.getId(), fortressService.registerFortress("FortressA").getId());
+        assertNotSame(fB.getId(), fortressService.registerFortress("FortressB").getId());
+        assertNotSame(fC.getId(), fortressService.registerFortress("FortressC").getId());
+
+    }
+
+    @Test
     public void testFulltextIndex() {
         createCompanyUsers("mike", 3);
-
-
         Index<PropertyContainer> index = template.getIndex("companyUserName");
         IndexHits<PropertyContainer> indexHits = index.query("name", "Test*");
         for (PropertyContainer c : indexHits) {

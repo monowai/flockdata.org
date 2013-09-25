@@ -55,7 +55,7 @@ public class RegistrationService {
         SystemUser systemUser = systemUserService.findByName(regBean.getName());
 
         if (systemUser != null)
-            return systemUser;
+            return systemUser; // ToDo - throw RegistrationException
 
         Company company = companyService.findByName(regBean.getCompanyName());
         if (company == null) {

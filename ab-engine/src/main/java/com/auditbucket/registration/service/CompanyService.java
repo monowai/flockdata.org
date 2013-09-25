@@ -20,6 +20,7 @@
 package com.auditbucket.registration.service;
 
 
+import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.CompanyUser;
 import com.auditbucket.registration.model.Fortress;
@@ -27,6 +28,9 @@ import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.repo.neo4j.dao.CompanyDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Collection;
+import java.util.List;
 
 @Service
 public class CompanyService {
@@ -38,6 +42,8 @@ public class CompanyService {
     @Autowired
     KeyGenService keyGenService;
 
+    @Autowired
+    private SecurityHelper securityHelper;
 
     public Company findByName(String companyName) {
         return companyDao.findByPropertyValue("name", companyName);
@@ -93,4 +99,11 @@ public class CompanyService {
     }
 
 
+    public Collection<Company> findCompanies() {
+        SystemUser su = securityHelper.getSysUser(true);
+        if (su == null)
+            return null;
+
+        return companyDao.findCompanies(su.getId());
+    }
 }

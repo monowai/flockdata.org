@@ -59,6 +59,28 @@
     </servlet-mapping>
 
     <servlet>
+        <servlet-name>companyDispatcher</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>companyDispatcher</servlet-name>
+        <url-pattern>/company/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>fortressDispatcher</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>fortressDispatcher</servlet-name>
+        <url-pattern>/fortress/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>apiDispatcher</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <load-on-startup>2</load-on-startup>

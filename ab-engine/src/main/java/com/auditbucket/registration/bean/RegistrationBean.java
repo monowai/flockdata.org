@@ -21,6 +21,7 @@ package com.auditbucket.registration.bean;
 
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.SystemUser;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * User: Mike Holdsworth
@@ -67,6 +68,12 @@ public class RegistrationBean implements SystemUser {
     @Override
     public Company getCompany() {
         return this.company;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    @JsonIgnore
+    public Long getId() {
+        return null;
     }
 
     public void setCompany(Company company) {

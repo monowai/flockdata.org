@@ -31,4 +31,6 @@ public interface SystemUser {
     public abstract String getName();
 
     public abstract Company getCompany();
+
+    Long getId();
 }

@@ -83,6 +83,12 @@ public class SystemUserNode implements SystemUser {
         return company;
     }
 
+    @Override
+    public Long getId() {
+        return id;
+
+    }
+
     void setAdministers(Company company) {
         this.company = (CompanyNode) company;
     }

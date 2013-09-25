@@ -17,7 +17,7 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.registration.endpoint;
+package com.auditbucket.company;
 
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
@@ -29,13 +29,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -44,7 +43,7 @@ import java.util.List;
  * Time: 8:23 PM
  */
 @Controller
-@RequestMapping("/company/")
+@RequestMapping("/")
 public class CompanyEP {
 
     @Autowired
@@ -57,17 +56,12 @@ public class CompanyEP {
     SecurityHelper securityHelper;
 
 
-    @RequestMapping(value = "/{companyName}/fortresses", method = RequestMethod.GET)
+    @RequestMapping(value = "/list", produces = "application/json", method = RequestMethod.GET)
     @ResponseBody
-    public List<Fortress> register(@PathVariable("companyName") String companyName) throws Exception {
-        // curl -u mike:123 -X GET  http://localhost:8080/ab/company/Monowai/fortresses
-        List<Fortress> results = null;
-        Company company = companyService.findByName(companyName);
-        if (company == null)
-            return results;
-
-        return fortressService.findFortresses(companyName);
+    public Collection<Company> findCompanies() throws Exception {
+        return companyService.findCompanies();
     }
+
 
     @RequestMapping(value = "/{companyName}", method = RequestMethod.GET)
     @ResponseBody
@@ -75,14 +69,14 @@ public class CompanyEP {
         // curl -u mike:123 -X GET http://localhost:8080/ab/company/Monowai
         Company company = companyService.findByName(companyName);
         if (company == null)
-            return new ResponseEntity<Company>(company, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(company, HttpStatus.NOT_FOUND);
 
         SystemUser sysUser = securityHelper.getSysUser(true);
         if (!sysUser.getCompany().getId().equals(company.getId())) {
             // Not Authorised
-            return new ResponseEntity<Company>(company, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(company, HttpStatus.FORBIDDEN);
         } else {
-            return new ResponseEntity<Company>(company, HttpStatus.OK);
+            return new ResponseEntity<>(company, HttpStatus.OK);
         }
     }
 

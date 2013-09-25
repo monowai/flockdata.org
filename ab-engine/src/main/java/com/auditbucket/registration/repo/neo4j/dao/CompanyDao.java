@@ -24,6 +24,9 @@ import com.auditbucket.registration.model.CompanyUser;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 
+import java.util.Collection;
+import java.util.List;
+
 /**
  * User: Mike Holdsworth
  * Date: 20/04/13
@@ -47,4 +50,6 @@ public interface CompanyDao {
     Company create(String companyName, String uniqueKey);
 
     Fortress getFortressByCode(Long id, String fortressCode);
+
+    Collection<Company> findCompanies(Long id);
 }

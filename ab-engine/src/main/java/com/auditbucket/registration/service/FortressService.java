@@ -33,6 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -153,6 +155,14 @@ public class FortressService {
     public Fortress registerFortress(String fortressName) {
         FortressInputBean fb = new FortressInputBean(fortressName, true);
         return registerFortress(fb);
+    }
+
+    public Collection<Fortress> findFortresses() {
+        Company company = securityHelper.getCompany();
+        if (company == null)
+            return new ArrayList<>();
+        return fortressDao.findFortresses(company.getId());
+
     }
 
     public List<Fortress> findFortresses(String companyName) {
