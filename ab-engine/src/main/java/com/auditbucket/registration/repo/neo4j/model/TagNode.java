@@ -49,6 +49,7 @@ public class TagNode implements Tag {
     }
 
     public TagNode(Tag tag) {
+        this();
         this.company = tag.getCompany();
         this.name = tag.getName();
     }

@@ -22,6 +22,7 @@ package com.auditbucket.engine.service;
 import com.auditbucket.audit.model.*;
 import com.auditbucket.bean.*;
 import com.auditbucket.dao.AuditDao;
+import com.auditbucket.helper.AuditException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
@@ -131,7 +132,7 @@ public class AuditService {
      *
      * @return unique primary key to be used for subsequent log calls
      */
-    AuditResultBean createHeader(AuditHeaderInputBean inputBean) {
+    AuditResultBean createHeader(AuditHeaderInputBean inputBean) throws AuditException {
         SystemUser su = sysUserService.findByName(securityHelper.getLoggedInUser());
 
         if (su == null)
@@ -140,6 +141,9 @@ public class AuditService {
         Company company = su.getCompany();
         // ToDo: Improve cypher query
         Fortress fortress = companyService.getCompanyFortress(company, inputBean.getFortress());
+
+        if (fortress == null)
+            throw new AuditException(inputBean.getFortress() + " does not exist");
 
         if (inputBean.getAuditKey() == null && inputBean.getCallerRef() != null && !inputBean.getCallerRef().equals(EMPTY))
             futureHeader = findByCallerRefFuture(fortress.getId(), inputBean.getDocumentType(), inputBean.getCallerRef());

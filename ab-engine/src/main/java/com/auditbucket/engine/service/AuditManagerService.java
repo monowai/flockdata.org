@@ -21,6 +21,7 @@ package com.auditbucket.engine.service;
 
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.bean.*;
+import com.auditbucket.helper.AuditException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,7 +43,7 @@ public class AuditManagerService {
 
     private boolean wiredIndexes;
 
-    public AuditResultBean createHeader(AuditHeaderInputBean inputBean) throws IOException {
+    public AuditResultBean createHeader(AuditHeaderInputBean inputBean) throws AuditException, IOException {
         AuditLogInputBean logBean = inputBean.getAuditLog();
         if (logBean != null) // Error as soon as we can
             logBean.setWhat(logBean.getWhat());
