@@ -60,7 +60,7 @@
         <level value="info"/>
     </logger>
     <logger name="org.auditbucket">
-        <level value="info"/>
+        <level value="debug"/>
     </logger>
 
 

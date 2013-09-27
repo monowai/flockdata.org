@@ -93,14 +93,10 @@ public class AuditManagerService {
             resultBean.setLogResult(logResult);
         } else {
             // Make header searchable - metadata only
-
             if (inputBean.getEvent() != null && !"".equals(inputBean.getEvent())) {
+                // Tracking an event only
                 auditService.makeHeaderSearchable(resultBean, inputBean.getEvent(), inputBean.getWhen());
             }
-        }
-        if (!wiredIndexes) {
-            auditService.wireIndexes();
-            wiredIndexes = true;
         }
         return resultBean;
 

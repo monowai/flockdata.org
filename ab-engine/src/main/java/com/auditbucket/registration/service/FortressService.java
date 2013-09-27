@@ -179,4 +179,9 @@ public class FortressService {
         else
             return null; //NotAuth
     }
+
+    public void fetch(FortressUser lastUser) {
+        fortressDao.fetch(lastUser);
+
+    }
 }

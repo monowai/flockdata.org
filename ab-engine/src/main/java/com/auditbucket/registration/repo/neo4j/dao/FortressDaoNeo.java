@@ -91,5 +91,11 @@ public class FortressDaoNeo implements FortressDao {
         return fortressUserRepo.save(new FortressUserNode(fortress, fortressUserName));
     }
 
+    @Override
+    public void fetch(FortressUser lastUser) {
+        template.fetch(lastUser);
+
+    }
+
 
 }

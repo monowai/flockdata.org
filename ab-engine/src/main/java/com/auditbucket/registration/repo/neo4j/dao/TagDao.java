@@ -29,6 +29,7 @@ import com.auditbucket.registration.repo.neo4j.model.TagNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -64,6 +65,7 @@ public class TagDao implements com.auditbucket.dao.TagDao {
     }
 
     @Override
+    @Cacheable(value = "companyTag", unless = "#result == null")
     public Tag findOne(String tagName, Long id) {
         if (tagName == null || id == null)
             throw new IllegalArgumentException("Null can not be used to find a tag ");
@@ -71,6 +73,7 @@ public class TagDao implements com.auditbucket.dao.TagDao {
     }
 
     @Override
+    @Cacheable(value = "companyDocType", unless = "#result == null")
     public DocumentType findOrCreate(String documentType, Company company) {
         DocumentType result = documentTypeRepo.findCompanyDocType(company.getId(), documentType.toLowerCase().replaceAll("\\s", ""));
 

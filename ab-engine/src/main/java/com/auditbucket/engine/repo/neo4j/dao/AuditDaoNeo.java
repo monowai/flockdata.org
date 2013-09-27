@@ -233,11 +233,11 @@ public class AuditDaoNeo implements AuditDao {
     }
 
     @Override
+    @Cacheable(value = "auditLog")
     public AuditLog getLog(Long logId) {
         Relationship change = template.getRelationship(logId);
         if (change != null)
             return (AuditLog) template.getDefaultConverter().convert(change, AuditLogRelationship.class);
-        //return template.findOne(logId, AuditLogRelationship.class);
         return null;
     }
 

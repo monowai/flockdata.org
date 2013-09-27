@@ -76,7 +76,6 @@ public class SecurityHelper {
         return sysUserService.findByName(a.getName());
     }
 
-    @Cacheable(value = "sysUserNames", unless = "#result == null")
     SystemUser getSysUser(String loginName) {
         return sysUserService.findByName(loginName);
     }

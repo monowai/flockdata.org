@@ -39,15 +39,10 @@ import io.searchbox.client.JestResult;
 import io.searchbox.client.config.ClientConfig;
 import io.searchbox.core.Search;
 import io.searchbox.indices.DeleteIndex;
-import junit.framework.*;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
 import org.junit.*;
-import org.junit.Assert;
-import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -142,7 +137,7 @@ public class TestAuditIntegration {
 
     }
 
-    @Ignore
+    @Test
     public void companyAndFortressWithSpaces() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(authA);
         regService.registerSystemUser(new RegistrationBean("Company With Space", email, "bah"));
@@ -152,10 +147,11 @@ public class TestAuditIntegration {
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
 
         String ahKey = auditManager.createHeader(inputBean).getAuditKey();
-        junit.framework.Assert.assertNotNull(ahKey);
+        assertNotNull(ahKey);
         AuditHeader header = auditService.getHeader(ahKey);
         auditManager.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + 1 + "}"));
-        doEsQuery(header.getIndexName(), ahKey);
+        Thread.sleep(2000);
+        doEsQuery(header.getIndexName(), header.getAuditKey());
     }
 
     @Test

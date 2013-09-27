@@ -438,7 +438,6 @@ public class AuditService {
      */
     @Async
     @ServiceActivator(inputChannel = "searchResult")
-    //@Transactional (propagation = Propagation.NOT_SUPPORTED)
     public void handleSearchResult(SearchResult searchResult) {
 
         logger.debug("Updating from search auditKey =[{}]", searchResult);
@@ -639,11 +638,6 @@ public class AuditService {
      */
     public AuditHeader findByCallerRefFull(Long fortressID, String documentType, String callerRef) {
         AuditHeader result = findByCallerRef(fortressID, documentType, callerRef);
-        if (result != null) {
-            auditDAO.fetch(result);
-            //auditDAO.fetch(result.getLastChange());
-
-        }
         return result;
     }
 
@@ -698,15 +692,8 @@ public class AuditService {
         if (header.isSearchSuppressed() || !header.getFortress().isSearchActive())
             return;
 
-        auditDAO.fetch(header);
-        if (when == null) { //ToDo - what is this doing here?
-            when = new DateTime(System.currentTimeMillis()).toDate();
-        }
-
+        fortressService.fetch(header.getLastUser());
         SearchChange searchDocument = new AuditSearchChange(header, null, event, new DateTime(when));
-
-        //Set<AuditTag>tagSet = getAuditTags(header.getId());
-        //searchDocument.setTags(tagSet);
         makeChangeSearchable(searchDocument);
 
     }
@@ -728,10 +715,5 @@ public class AuditService {
         return new AuditLogDetailBean(log, what);
     }
 
-    //@Transactional (propagation = Propagation.SUPPORTS)
-    public void wireIndexes() {
-        //auditDAO.wireIndexesAndCaches();
-        //sysUserService.wireIndexes();
 
-    }
 }

@@ -45,4 +45,6 @@ public interface FortressDao {
     FortressUser findOneUser(Long id);
 
     FortressUser save(Fortress fortress, String fortressUserName);
+
+    void fetch(FortressUser lastUser);
 }
