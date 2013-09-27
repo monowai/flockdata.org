@@ -142,7 +142,7 @@ public class TestAuditIntegration {
 
     }
 
-    @Test
+    @Ignore
     public void companyAndFortressWithSpaces() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(authA);
         regService.registerSystemUser(new RegistrationBean("Company With Space", email, "bah"));
@@ -322,7 +322,7 @@ public class TestAuditIntegration {
 
     }
 
-    @Ignore
+    @Test
     public void stressWithHighVolume() throws Exception {
         logger.info("stressWithHighVolume started");
         SecurityContextHolder.getContext().setAuthentication(authA);
@@ -371,7 +371,7 @@ public class TestAuditIntegration {
                     requests++;
                     if (!searchChecked) {
                         searchChecked = true;
-                        AuditHeader auditHeader = auditService.getHeader(arb.getAuditKey(), false);
+                        AuditHeader auditHeader = auditService.getHeader(arb.getAuditKey());
                         requests++;
                         int checkCount = waitForHeaderToUpdate(auditHeader);
                         auditSleepCount = auditSleepCount + (400 * checkCount);
@@ -436,11 +436,11 @@ public class TestAuditIntegration {
         int i = 0;
         int timeout = 50;
 
-        AuditHeader auditHeader = auditService.getHeader(header.getAuditKey(), false);
+        AuditHeader auditHeader = auditService.getHeader(header.getAuditKey());
         if (auditHeader.getSearchKey() != null)
             return 0;
         while (auditHeader.getSearchKey() == null && i <= timeout) {
-            auditHeader = auditService.getHeader(header.getAuditKey(), false);
+            auditHeader = auditService.getHeader(header.getAuditKey());
             Thread.sleep(400);
             i++;
         }

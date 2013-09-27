@@ -39,6 +39,7 @@ import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -126,24 +127,30 @@ public class AuditService {
         return (tx == null ? null : auditDAO.findByTransaction(tx));
     }
 
+    public AuditResultBean createHeader(AuditHeaderInputBean inputBean) throws AuditException {
+        SystemUser su = sysUserService.findByName(securityHelper.getLoggedInUser());
+
+        if (su == null)
+            throw new SecurityException("Not authorised");
+
+        Company company = su.getCompany();
+        Fortress fortress = companyService.getCompanyFortress(company.getId(), inputBean.getFortress());
+
+        if (fortress == null)
+            throw new AuditException(inputBean.getFortress() + " does not exist");
+
+        return createHeader(inputBean, company, fortress);
+    }
+
     /**
      * Creates a fortress specific auditHeader for the caller. FortressUserNode is automatically
      * created if it does not exist.
      *
      * @return unique primary key to be used for subsequent log calls
      */
-    AuditResultBean createHeader(AuditHeaderInputBean inputBean) throws AuditException {
-        SystemUser su = sysUserService.findByName(securityHelper.getLoggedInUser());
-
-        if (su == null)
-            throw new SecurityException("Not authorised");
+    public AuditResultBean createHeader(AuditHeaderInputBean inputBean, Company company, Fortress fortress) throws AuditException {
         Future<AuditHeader> futureHeader = null;
-        Company company = su.getCompany();
         // ToDo: Improve cypher query
-        Fortress fortress = companyService.getCompanyFortress(company, inputBean.getFortress());
-
-        if (fortress == null)
-            throw new AuditException(inputBean.getFortress() + " does not exist");
 
         if (inputBean.getAuditKey() == null && inputBean.getCallerRef() != null && !inputBean.getCallerRef().equals(EMPTY))
             futureHeader = findByCallerRefFuture(fortress.getId(), inputBean.getDocumentType(), inputBean.getCallerRef());
@@ -151,7 +158,7 @@ public class AuditService {
         fortress.setCompany(company); // Saving fetching twice
         // Create thisFortressUser if missing
         FortressUser fu = fortressService.getFortressUser(fortress, inputBean.getFortressUser(), true);
-        fu.getFortress().setCompany(su.getCompany());
+        fu.getFortress().setCompany(company);
         fu.setFortress(fortress);// Save fetching it twice
         inputBean.setAuditKey(keyGenService.getUniqueKey());
         AuditHeader ah = null;
@@ -402,6 +409,7 @@ public class AuditService {
     }
 
     //@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+    @Cacheable(value = "auditHeaderId")
     private AuditHeader getHeader(Long id) {
         return auditDAO.getHeader(id);
     }

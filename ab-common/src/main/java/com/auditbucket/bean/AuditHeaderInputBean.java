@@ -47,6 +47,7 @@ public class AuditHeaderInputBean {
     private boolean suppressSearch;
     private String event;
     private AuditEvent eventObject;
+    private String apiKey;
 
     public AuditHeaderInputBean() {
     }
@@ -172,5 +173,13 @@ public class AuditHeaderInputBean {
 
     public void setEventObject(AuditEvent eventObject) {
         this.eventObject = eventObject;
+    }
+
+    public String getApiKey() {
+        return apiKey;
+    }
+
+    public void setApiKey(String apiKey) {
+        this.apiKey = apiKey;
     }
 }

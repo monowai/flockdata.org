@@ -30,6 +30,8 @@ import com.auditbucket.registration.repo.neo4j.dao.CompanyDao;
 import com.auditbucket.registration.repo.neo4j.dao.FortressDao;
 import com.auditbucket.registration.repo.neo4j.model.FortressNode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,6 +68,7 @@ public class FortressService {
         return fortressDao.findOneUser(id);
     }
 
+    @Cacheable(value = "fortressName", unless = "#result == null")
     public Fortress findByName(String fortressName) {
         Company ownedBy = getCompany();
         return companyDao.getFortressByName(ownedBy.getId(), fortressName);
@@ -85,6 +88,7 @@ public class FortressService {
         return su.getCompany();
     }
 
+    @CacheEvict(value = "fortressName", key = "#p0.id")
     public Fortress save(Fortress fortress) {
         return fortressDao.save(fortress);
     }
@@ -104,6 +108,7 @@ public class FortressService {
         return getFortressUser(fortress, fortressUser, true);
     }
 
+    @Cacheable(value = "fortressUser")
     public FortressUser getFortressUser(Fortress fortress, String fortressUser, boolean createIfMissing) {
         if (fortressUser == null || fortress == null)
             throw new IllegalArgumentException("Don't go throwing null in here [" + (fortressUser == null ? "FortressUserNode]" : "FortressNode]"));

@@ -36,6 +36,9 @@ import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
@@ -63,6 +66,9 @@ public class AuditDaoNeo implements AuditDao {
     private Logger logger = LoggerFactory.getLogger(AuditDaoNeo.class);
 
     @Override
+    @Caching(evict = {@CacheEvict(value = "auditHeaderId", key = "#p0.id"),
+            @CacheEvict(value = "auditKey", key = "#p0.auditKey")})
+
     public AuditHeader save(AuditHeader auditHeader) {
         auditHeader.bumpUpdate();
         return auditRepo.save((AuditHeaderNode) auditHeader);
@@ -72,9 +78,14 @@ public class AuditDaoNeo implements AuditDao {
         return template.save((TxRefNode) tagRef);
     }
 
+    @Cacheable(value = "auditKey")
+    private AuditHeader getCachedHeader(String key) {
+        return auditRepo.findByUID(key);
+    }
+
     @Override
     public AuditHeader findHeader(String key, boolean inflate) {
-        AuditHeader header = auditRepo.findByUID(key);
+        AuditHeader header = getCachedHeader(key);
         if (inflate) {
             fetch(header);
         }
@@ -92,8 +103,8 @@ public class AuditDaoNeo implements AuditDao {
         return null;
     }
 
+    @Cacheable(value = "auditHeaderId", key = "p0.id")
     public AuditHeader fetch(AuditHeader header) {
-        //template.fetch(header);
         template.fetch(header.getTagValues());
         template.fetch(header.getCreatedBy());
         template.fetch(header.getLastUser());
@@ -218,8 +229,7 @@ public class AuditDaoNeo implements AuditDao {
 
     @Override
     public AuditHeader create(String uid, FortressUser fu, AuditHeaderInputBean inputBean, DocumentType documentType) {
-        AuditHeader ah = new AuditHeaderNode(uid, fu, inputBean, documentType);
-        return save(ah);
+        return save(new AuditHeaderNode(uid, fu, inputBean, documentType));
     }
 
     @Override

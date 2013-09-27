@@ -27,6 +27,7 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.repo.neo4j.dao.CompanyDao;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -66,9 +67,9 @@ public class CompanyService {
 
     }
 
-    public Fortress getCompanyFortress(Company company, String fortressName) {
-        return companyDao.getFortressByName(company.getId(), fortressName);
-        //return companyDao.getFortressByCode(company.getId(), fortressName.toLowerCase().replaceAll("\\s",""));
+    @Cacheable(value = "companyFortress", unless = "#result == null")
+    public Fortress getCompanyFortress(Long company, String fortressName) {
+        return companyDao.getFortressByName(company, fortressName);
     }
 
     public Iterable<CompanyUser> getUsers(String companyName) {
@@ -94,6 +95,7 @@ public class CompanyService {
         return companyDao.create(companyName, keyGenService.getUniqueKey());
     }
 
+    @Cacheable(value = "companyKeys", unless = "#result == null")
     public Company findByApiKey(String apiKey) {
         return companyDao.findByPropertyValue("apiKey", apiKey);
     }
@@ -106,4 +108,5 @@ public class CompanyService {
 
         return companyDao.findCompanies(su.getId());
     }
+
 }

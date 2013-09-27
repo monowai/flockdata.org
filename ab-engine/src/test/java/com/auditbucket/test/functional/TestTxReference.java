@@ -156,7 +156,7 @@ public class TestTxReference {
 
         String key = auditManager.createHeader(aBean).getAuditKey();
         assertNotNull(key);
-        AuditHeader header = auditService.getHeader(key, true);
+        AuditHeader header = auditService.getHeader(key);
         assertNotNull(header);
         //assertEquals(1, header.getTxTags().size());
         AuditLogInputBean alb = new AuditLogInputBean(key, "charlie", DateTime.now(), escJsonA, null, tagRef);

@@ -30,7 +30,7 @@
     </appender>
 
     <!-- 3rdparty Loggers -->
-    <logger name="org.springframework">
+    <logger name="org.springframework.cache">
         <level value="error"/>
     </logger>
 

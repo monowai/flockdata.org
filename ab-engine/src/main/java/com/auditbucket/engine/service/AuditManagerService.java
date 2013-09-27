@@ -22,6 +22,10 @@ package com.auditbucket.engine.service;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.bean.*;
 import com.auditbucket.helper.AuditException;
+import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,14 +45,42 @@ public class AuditManagerService {
     @Autowired
     AuditService auditService;
 
+    @Autowired
+    CompanyService companyService;
+
+    @Autowired
+    private SecurityHelper securityHelper;
+
     private boolean wiredIndexes;
+
+    private Company resolveCompany(String apiKey) throws AuditException {
+        Company c;
+        if (apiKey == null) {
+            // Find by logged in user name
+            c = securityHelper.getCompany();
+        } else {
+            c = companyService.findByApiKey(apiKey);
+        }
+        if (c == null)
+            throw new AuditException("Unable to find the requested API Key");
+        return c;
+    }
+
+    private Fortress resolveFortress(Company company, AuditHeaderInputBean inputBean) throws AuditException {
+        Fortress fortress = companyService.getCompanyFortress(company.getId(), inputBean.getFortress());
+
+        if (fortress == null)
+            throw new AuditException(inputBean.getFortress() + " does not exist");
+        return fortress;
+    }
 
     public AuditResultBean createHeader(AuditHeaderInputBean inputBean) throws AuditException, IOException {
         AuditLogInputBean logBean = inputBean.getAuditLog();
         if (logBean != null) // Error as soon as we can
             logBean.setWhat(logBean.getWhat());
-
-        AuditResultBean resultBean = auditService.createHeader(inputBean);
+        Company company = resolveCompany(inputBean.getApiKey());
+        Fortress fortress = resolveFortress(company, inputBean);
+        AuditResultBean resultBean = auditService.createHeader(inputBean, company, fortress);
         if (inputBean.getAuditLog() != null) {
             logBean.setAuditId(resultBean.getAuditId());
             logBean.setAuditKey(resultBean.getAuditKey());

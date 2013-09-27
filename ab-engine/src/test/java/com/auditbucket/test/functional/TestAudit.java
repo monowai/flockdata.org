@@ -533,7 +533,7 @@ public class TestAudit {
     }
 
     @Test
-    public void lastChangeDatesReconcileWithFortressInput() throws IOException {
+    public void lastChangeDatesReconcileWithFortressInput() throws Exception {
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         SecurityContextHolder.getContext().setAuthentication(authMike);
         Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
@@ -542,7 +542,7 @@ public class TestAudit {
 
         AuditHeader auditHeader = auditService.getHeader(ahWP);
         auditManagerService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", new DateTime(), what + 1 + "\"}"));
-        auditHeader = auditService.getHeader(ahWP, false); // Inflate the header on the server
+        auditHeader = auditService.getHeader(ahWP); // Inflate the header on the server
         AuditLog lastLog = auditService.getLastLog(auditHeader.getAuditKey());
         assertNotNull(lastLog);
         assertNotNull(lastLog.getAuditChange().getWhat());
