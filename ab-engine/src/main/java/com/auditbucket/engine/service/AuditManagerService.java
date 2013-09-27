@@ -80,6 +80,7 @@ public class AuditManagerService {
             logBean.setWhat(logBean.getWhat());
         Company company = resolveCompany(inputBean.getApiKey());
         Fortress fortress = resolveFortress(company, inputBean);
+        fortress.setCompany(company);
         AuditResultBean resultBean = auditService.createHeader(inputBean, company, fortress);
         if (inputBean.getAuditLog() != null) {
             logBean.setAuditId(resultBean.getAuditId());

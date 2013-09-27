@@ -127,21 +127,6 @@ public class AuditService {
         return (tx == null ? null : auditDAO.findByTransaction(tx));
     }
 
-    public AuditResultBean createHeader(AuditHeaderInputBean inputBean) throws AuditException {
-        SystemUser su = sysUserService.findByName(securityHelper.getLoggedInUser());
-
-        if (su == null)
-            throw new SecurityException("Not authorised");
-
-        Company company = su.getCompany();
-        Fortress fortress = companyService.getCompanyFortress(company.getId(), inputBean.getFortress());
-
-        if (fortress == null)
-            throw new AuditException(inputBean.getFortress() + " does not exist");
-
-        return createHeader(inputBean, company, fortress);
-    }
-
     /**
      * Creates a fortress specific auditHeader for the caller. FortressUserNode is automatically
      * created if it does not exist.
@@ -150,12 +135,14 @@ public class AuditService {
      */
     public AuditResultBean createHeader(AuditHeaderInputBean inputBean, Company company, Fortress fortress) throws AuditException {
         Future<AuditHeader> futureHeader = null;
+        Future<DocumentType> futureDocType;
         // ToDo: Improve cypher query
 
         if (inputBean.getAuditKey() == null && inputBean.getCallerRef() != null && !inputBean.getCallerRef().equals(EMPTY))
             futureHeader = findByCallerRefFuture(fortress.getId(), inputBean.getDocumentType(), inputBean.getCallerRef());
 
-        fortress.setCompany(company); // Saving fetching twice
+        futureDocType = getDocumentType(inputBean.getDocumentType());
+        DocumentType documentType;
         // Create thisFortressUser if missing
         FortressUser fu = fortressService.getFortressUser(fortress, inputBean.getFortressUser(), true);
         fu.getFortress().setCompany(company);
@@ -164,8 +151,10 @@ public class AuditService {
         AuditHeader ah = null;
 
         try {
+            documentType = futureDocType.get();
             if (futureHeader != null)
                 ah = futureHeader.get(); // Idempotent check
+
         } catch (InterruptedException e) {
             logger.error("waiting for future result", e);
             return null;
@@ -183,14 +172,18 @@ public class AuditService {
             return arb;
         }
 
-        ah = makeAuditHeader(inputBean, fu);
+        ah = makeAuditHeader(inputBean, fu, documentType);
         inputBean.setWhen(ah.getFortressDateCreated().toDate());
         return new AuditResultBean(ah);
 
     }
 
-    private AuditHeader makeAuditHeader(AuditHeaderInputBean inputBean, FortressUser fu) {
-        DocumentType documentType = tagService.resolveDocType(inputBean.getDocumentType());
+    private Future<DocumentType> getDocumentType(String documentType) {
+        return new AsyncResult<>(tagService.resolveDocType(documentType));
+    }
+
+    private AuditHeader makeAuditHeader(AuditHeaderInputBean inputBean, FortressUser fu, DocumentType documentType) {
+
         AuditHeader ah = auditDAO.create(inputBean.getAuditKey(), fu, inputBean, documentType);
         auditTagService.createTagValues(inputBean.getTagValues(), ah);
         logger.debug("Audit Header created:{} key=[{}]", ah.getId(), ah.getAuditKey());
