@@ -111,6 +111,14 @@ getlaunchdpid() {
     LAUNCHDPID=$(($LAUNCHDPID))
   fi
 }
+checkwriteaccess() {
+    if [ $UID != 0 ] ; then
+    if [ ! -w "$AB_HOME/data" ] ; then
+      echo "ERROR: No write access to data/ directory, run either as user $NEO4J_USER or root"
+      exit 1
+    fi
+    fi
+}
 
 stopit() {
 
