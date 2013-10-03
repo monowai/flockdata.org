@@ -335,8 +335,30 @@ public class TestAuditTags {
         Set<AuditTag> tagResults = auditTagService.findAuditTags(header);
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
         assertEquals(3, header.getTagValues().size());
+    }
 
+    @Test
+    public void duplicateRLXTypesNotStored() throws Exception {
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        assertNotNull(iSystemUser);
 
+        Fortress fortress = fortressService.registerFortress("ABC");
+        assertNotNull(fortress);
+
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
+        Map<String, Object> tags = new HashMap<>();
+        Collection<String> types = new ArrayList<>();
+        types.add("email-to");
+        types.add("email-to");
+        types.add("email-to");
+        tags.put("mike@auditbucket.com", types);
+        inputBean.setTagValues(tags);
+        AuditResultBean resultBean = auditManager.createHeader(inputBean);
+        AuditHeader header = auditService.getHeader(resultBean.getAuditKey());
+        Set<AuditTag> tagResults = auditTagService.findAuditTags(header);
+        // ToDo In Neo4j2 remove the generic tag
+        assertEquals("One for the Generic tag and one for exploration", 1, tagResults.size());
+        assertEquals(1, header.getTagValues().size());
     }
 
     @Test

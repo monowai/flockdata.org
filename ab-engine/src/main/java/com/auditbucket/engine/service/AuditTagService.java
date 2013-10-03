@@ -56,16 +56,16 @@ public class AuditTagService {
     @Autowired
     AuditTagDao auditTagDao;
 
-    public AuditTag processTag(AuditHeader header, AuditTagInputBean tagInput) {
+    public void processTag(AuditHeader header, AuditTagInputBean tagInput) {
         //Company company = securityHelper.getCompany();
         String type = tagInput.getType();
         Set<AuditTag> existing = findTagValues(tagInput.getTagName(), type);
         if (existing != null && existing.size() == 1)
             // We already have this tagged so get out of here
-            return existing.iterator().next();
+            return;
 
         Tag tag = tagService.processTag(new TagInputBean(tagInput.getTagName()));
-        return auditTagDao.save(header, tag, type);
+        auditTagDao.save(header, tag, type);
     }
 
     public Set<AuditTag> findTagValues(String name, String type) {
