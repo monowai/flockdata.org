@@ -29,9 +29,12 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -95,24 +98,38 @@ public class AuditTagService {
      * <p/>
      * If this scenario, ClientID123 is created as a single node with two relationships - clientKey and prospectKey
      *
-     * @param userTags Key/Value pair of tags. TagNode will be created if missing
      * @param ah       Header to associate userTags with
+     * @param userTags Key/Value pair of tags. TagNode will be created if missing
      */
-    public void createTagValues(Map<String, String> userTags, AuditHeader ah) {
+    @Caching(evict = {@CacheEvict(value = "auditHeaderId", key = "#p0.id"),
+            @CacheEvict(value = "auditKey", key = "#p0.auditKey")})
+    public void createTagValues(AuditHeader ah, Map<String, Object> userTags) {
         if ((userTags == null) || userTags.isEmpty())
             return;
 
         Company company = ah.getFortress().getCompany();
 
-        for (String tagType : userTags.keySet()) {
-            Tag tag;
-            String tagName = userTags.get(tagType);
-            if (tagName == null)
-                tag = tagService.processTag(new TagInputBean(company, tagType));
-            else
-                tag = tagService.processTag(new TagInputBean(company, tagName));
+        for (String tagName : userTags.keySet()) {
+            Tag tag = tagService.processTag(new TagInputBean(company, tagName));
+            Object tagRlx = userTags.get(tagName);
+            String rlxName;
+            // Handle both a simple relationship type name or a collection of relationships
+            if (tagRlx == null)
+                auditTagDao.save(ah, tag, null);
 
-            auditTagDao.save(ah, tag, tagType);
+            else {
+
+                if (tagRlx instanceof Collection) {
+                    for (Object o : ((Collection) tagRlx)) {
+                        auditTagDao.save(ah, tag, o.toString());
+                    }
+                } else {
+                    rlxName = tagRlx.toString();
+                    auditTagDao.save(ah, tag, rlxName);
+                }
+
+            }
+
         }
     }
 

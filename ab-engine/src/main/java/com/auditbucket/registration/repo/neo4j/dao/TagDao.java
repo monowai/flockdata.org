@@ -69,7 +69,7 @@ public class TagDao implements com.auditbucket.dao.TagDao {
     public Tag findOne(String tagName, Long id) {
         if (tagName == null || id == null)
             throw new IllegalArgumentException("Null can not be used to find a tag ");
-        return tagRepo.findCompanyTag(tagName, id);
+        return tagRepo.findCompanyTagByCode(tagName.toLowerCase().replaceAll("\\s", ""), id);
     }
 
     @Override

@@ -32,7 +32,7 @@ import org.springframework.data.neo4j.repository.GraphRepository;
 public interface TagRepository extends GraphRepository<TagNode> {
     @Query(value = "start n=node({1}) " +
             "   MATCH n-[:tags]->tag " +
-            "   where tag.name ={0} " +
+            "   where tag.code ={0} " +
             "  return tag")
-    TagNode findCompanyTag(String tagName, Long companyId);
+    TagNode findCompanyTagByCode(String tagName, Long companyId);
 }

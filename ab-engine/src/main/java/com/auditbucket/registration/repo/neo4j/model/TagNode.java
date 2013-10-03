@@ -42,7 +42,9 @@ public class TagNode implements Tag {
     private
     Company company;
 
-    @Indexed(indexName = "tagName")
+    @Indexed(indexName = "tagCode")
+    private String code;
+
     private String name;
 
     protected TagNode() {
@@ -52,6 +54,7 @@ public class TagNode implements Tag {
         this();
         this.company = tag.getCompany();
         this.name = tag.getName();
+        this.code = tag.getName().toLowerCase().replaceAll("\\s", "");
     }
 
 
@@ -72,8 +75,9 @@ public class TagNode implements Tag {
     }
 
     @Override
-    public void setName(String floppy) {
-        this.name = floppy;
+    public void setName(String tagName) {
+        this.name = tagName;
+        this.code = tagName.toLowerCase().replaceAll("\\s", "");
     }
 
     @JsonIgnore

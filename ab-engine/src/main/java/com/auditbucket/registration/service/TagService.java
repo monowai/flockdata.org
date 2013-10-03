@@ -61,7 +61,6 @@ public class TagService {
         if (existingTag != null)
             return existingTag;
 
-        // audit change
         return tagDao.save(tag);
     }
 

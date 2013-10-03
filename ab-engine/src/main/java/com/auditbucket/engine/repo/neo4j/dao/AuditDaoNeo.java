@@ -68,7 +68,6 @@ public class AuditDaoNeo implements AuditDao {
     @Override
     @Caching(evict = {@CacheEvict(value = "auditHeaderId", key = "#p0.id"),
             @CacheEvict(value = "auditKey", key = "#p0.auditKey")})
-
     public AuditHeader save(AuditHeader auditHeader) {
         auditHeader.bumpUpdate();
         return auditRepo.save((AuditHeaderNode) auditHeader);

@@ -57,7 +57,11 @@ public class AuditTagRelationship implements AuditTag {
         this();
         this.auditHeader = (AuditHeaderNode) header;
         this.tag = (TagNode) tag;
-        this.tagType = tagType;
+        this.tagType = (tagType == null ? tag.getName() : tagType);
+    }
+
+    public Long getId() {
+        return id;
     }
 
     @Override
@@ -71,6 +75,7 @@ public class AuditTagRelationship implements AuditTag {
     }
 
     @Override
+    @JsonIgnore
     public String getTagType() {
         return tagType;  //To change body of implemented methods use File | Settings | File Templates.
     }

@@ -21,10 +21,12 @@ package com.auditbucket.engine.endpoint;
 
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditLog;
+import com.auditbucket.audit.model.AuditTag;
 import com.auditbucket.audit.model.TxRef;
 import com.auditbucket.bean.*;
 import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
+import com.auditbucket.engine.service.AuditTagService;
 import com.auditbucket.engine.service.EngineAdmin;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;
@@ -34,6 +36,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -60,6 +63,9 @@ public class AuditEP {
 
     @Autowired
     FortressService fortressService;
+
+    @Autowired
+    AuditTagService auditTagService;
 
     @Autowired
     CompanyService companyService;
@@ -188,11 +194,13 @@ public class AuditEP {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/{auditKey}", method = RequestMethod.GET)
-    public ResponseEntity<AuditHeader> getAudit(@PathVariable("auditKey") String auditKey) throws Exception {
-        // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
+    @RequestMapping(value = "/find/{fortress}/{recordType}/{callerRef}", method = RequestMethod.GET)
+    public ResponseEntity<AuditHeader> getByClientRef(@PathVariable("fortress") String fortress,
+                                                      @PathVariable("recordType") String recordType,
+                                                      @PathVariable("callerRef") String callerRef) throws Exception {
         try {
-            AuditHeader result = auditService.getHeader(auditKey, true);
+            Fortress f = fortressService.findByName(fortress);
+            AuditHeader result = auditService.findByCallerRef(f.getId(), recordType, callerRef);
             return new ResponseEntity<>(result, HttpStatus.OK);
 
         } catch (IllegalArgumentException e) {
@@ -203,13 +211,11 @@ public class AuditEP {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/find/{fortress}/{recordType}/{callerRef}", method = RequestMethod.GET)
-    public ResponseEntity<AuditHeader> getByClientRef(@PathVariable("fortress") String fortress,
-                                                      @PathVariable("recordType") String recordType,
-                                                      @PathVariable("callerRef") String callerRef) throws Exception {
+    @RequestMapping(value = "/{auditKey}", method = RequestMethod.GET)
+    public ResponseEntity<AuditHeader> getAudit(@PathVariable("auditKey") String auditKey) throws Exception {
+        // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
         try {
-            Fortress f = fortressService.findByName(fortress);
-            AuditHeader result = auditService.findByCallerRef(f.getId(), recordType, callerRef);
+            AuditHeader result = auditService.getHeader(auditKey, true);
             return new ResponseEntity<>(result, HttpStatus.OK);
 
         } catch (IllegalArgumentException e) {
@@ -268,4 +274,20 @@ public class AuditEP {
             return new ResponseEntity<>((AuditLogDetailBean) null, HttpStatus.FORBIDDEN);
         }
     }
+
+    @ResponseBody
+    @RequestMapping(value = "/{auditKey}/tags", method = RequestMethod.GET)
+    public ResponseEntity<Set<AuditTag>> getAuditTags(@PathVariable("auditKey") String auditKey) throws Exception {
+        // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
+        try {
+            AuditHeader result = auditService.getHeader(auditKey);
+            return new ResponseEntity<>(auditTagService.findAuditTags(result), HttpStatus.OK);
+
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>((MultiValueMap<String, String>) null, HttpStatus.NOT_FOUND);
+        } catch (SecurityException e) {
+            return new ResponseEntity<>((MultiValueMap<String, String>) null, HttpStatus.FORBIDDEN);
+        }
+    }
+
 }

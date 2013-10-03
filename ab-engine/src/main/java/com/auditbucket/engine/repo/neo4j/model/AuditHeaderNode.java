@@ -46,9 +46,6 @@ import java.util.*;
 @NodeEntity(useShortNames = true)
 public class AuditHeaderNode implements AuditHeader {
 
-    //@Transient
-    //private Logger log = LoggerFactory.getLogger(AuditHeaderNode.class);
-
     @Indexed(indexName = UUID_KEY, unique = true)
     private String auditKey;
 
@@ -240,18 +237,8 @@ public class AuditHeaderNode implements AuditHeader {
         return this.callerRef;
     }
 
-    @JsonIgnore
     public Set<AuditTag> getTagValues() {
         return tagValues;
-    }
-
-    public Map<String, String> getTagMap() {
-        Map<String, String> result = new HashMap<>();
-        if (tagValues != null)
-            for (AuditTag tagValue : tagValues) {
-                result.put(tagValue.getTag().getName(), tagValue.getTagType());
-            }
-        return result;
     }
 
     @Override

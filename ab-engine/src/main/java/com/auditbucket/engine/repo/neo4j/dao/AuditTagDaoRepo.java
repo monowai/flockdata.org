@@ -25,6 +25,8 @@ import com.auditbucket.engine.repo.neo4j.AuditTagRepo;
 import com.auditbucket.engine.repo.neo4j.model.AuditTagRelationship;
 import com.auditbucket.registration.model.Tag;
 import org.neo4j.graphdb.Node;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
@@ -44,18 +46,24 @@ public class AuditTagDaoRepo implements com.auditbucket.dao.AuditTagDao {
     @Autowired
     AuditTagRepo auditTagRepo;
 
+    private Logger logger = LoggerFactory.getLogger(AuditTagRepo.class);
+
     @Override
     public AuditTag save(AuditHeader auditHeader, Tag tag, String type) {
-        // type should be the Neo4J Node type when V2 is released.
-        AuditTagRelationship atv = new AuditTagRelationship(auditHeader, tag, type);
-        Node headerNode = template.getNode(auditHeader.getId());
-        Node tagNode = template.getNode(tag.getId());
-        //Primary exploration relationship
-        template.createRelationshipBetween(tagNode, headerNode, type, null);
+        if (type != null) {
+            Node headerNode = template.getNode(auditHeader.getId());
+            Node tagNode = template.getNode(tag.getId());
+            //Primary exploration relationship
+            template.createRelationshipBetween(tagNode, headerNode, type, null);
+            logger.debug("Created Tag[{}] Relationship for type {}", tag, type);
+        }
 
         // Only keeping this so that we can efficiently find all the tags being used by a header/tag combo
         // could be simplified to all tags attached to a single Tag node.
-        return template.save(atv);
+        // type should be the Neo4J Node type when V2 is released.
+        AuditTagRelationship atr = new AuditTagRelationship(auditHeader, tag, type);
+        logger.debug("Creating Tag Relationship for audit [{}]", auditHeader.getId());
+        return template.save(atr);
     }
 
     @Override

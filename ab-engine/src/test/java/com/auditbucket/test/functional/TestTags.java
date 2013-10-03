@@ -30,8 +30,6 @@ import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.data.neo4j.support.node.Neo4jHelper;
@@ -68,7 +66,7 @@ public class TestTags {
 
     @Autowired
     private Neo4jTemplate template;
-    private Logger log = LoggerFactory.getLogger(TestTags.class);
+    //private Logger log = LoggerFactory.getLogger(TestTags.class);
     private String company = "Monowai";
     private String mike = "mike@monowai.com";
     private String mark = "mark@monowai.com";
