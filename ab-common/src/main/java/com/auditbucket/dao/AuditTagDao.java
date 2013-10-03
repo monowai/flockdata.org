@@ -35,7 +35,7 @@ public interface AuditTagDao {
 
     Set<AuditTag> find(Tag tagName, String type);
 
-    Set<AuditHeader> findTagAudits(Tag tag);
+    Set<AuditHeader> findTagAudits(Long tagId);
 
     Set<AuditTag> getAuditTags(Long id);
 

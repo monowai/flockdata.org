@@ -106,7 +106,7 @@ public class AuditHeaderNode implements AuditHeader {
         String docType = (documentType != null ? getDocumentType() : "");
         this.name = (callerRef == null ? docType : (docType + "." + callerRef).toLowerCase());
 
-        indexName = createdBy.getFortress().getCompany().getCode() + "." + fortress.getCode();
+        indexName = "ab." + createdBy.getFortress().getCompany().getCode() + "." + fortress.getCode();
         callerRef = auditInput.getCallerRef();
         if (callerRef != null)
             callerRef = callerRef.toLowerCase();

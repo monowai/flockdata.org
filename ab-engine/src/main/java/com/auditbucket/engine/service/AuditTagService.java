@@ -79,27 +79,28 @@ public class AuditTagService {
         Tag tag = tagService.findTag(tagName);
         if (tag == null)
             return null;
-        return auditTagDao.findTagAudits(tag);
+        return auditTagDao.findTagAudits(tag.getId());
     }
+
 
     /**
      * Will associate the supplied userTags with the AuditHeaderNode
      * <p/>
-     * The Key in the map will be treated as the tag name if the value == null
-     * Otherwise the key is treated as the tagType and the value is treated as the name.
+     * in JSON terms....
+     * "ClientID123" :{"clientKey","prospectKey"}
      * <p/>
-     * This approach allows you to use a simple tag for a document such as
-     * ClientID123 without having to describe the type (it will be created as a general type)
      * <p/>
-     * likewise if providing Type/Name then you can associate the same name tag with multiple relationships types
+     * The value can be null which will create a simple tag for the Header such as
+     * ClientID123
      * <p/>
-     * clientKey/ClientID123
-     * prospectKey/ClientID123
+     * They type can be Null, String or a Collection<String> that describes the relationship
+     * types to create.
      * <p/>
-     * If this scenario, ClientID123 is created as a single node with two relationships - clientKey and prospectKey
+     * If this scenario, ClientID123 is created as a single node with two relationships that
+     * describe the association - clientKey and prospectKey
      *
      * @param ah       Header to associate userTags with
-     * @param userTags Key/Value pair of tags. TagNode will be created if missing
+     * @param userTags Key/Value pair of tags. TagNode will be created if missing. Value can be a Collection
      */
     @Caching(evict = {@CacheEvict(value = "auditHeaderId", key = "#p0.id"),
             @CacheEvict(value = "auditKey", key = "#p0.auditKey")})

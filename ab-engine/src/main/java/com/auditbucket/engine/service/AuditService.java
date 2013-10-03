@@ -219,20 +219,21 @@ public class AuditService {
      * @param input log details
      * @return populated log information with any error messages
      */
-    public AuditLogResultBean createLog(AuditLogInputBean input) {
-        AuditHeader header;
+    public AuditLogResultBean createLog(AuditHeader header, AuditLogInputBean input) {
         AuditLogResultBean resultBean = new AuditLogResultBean(input);
-        String auditKey = input.getAuditKey();
 
-        if (input.getAuditId() == null) {
-            if (auditKey == null || auditKey.equals(EMPTY)) {
-                header = findByCallerRef(input.getFortress(), input.getDocumentType(), input.getCallerRef());
-                if (header != null)
-                    input.setAuditKey(header.getAuditKey());
+        if (header == null) {
+            String auditKey = input.getAuditKey();
+            if (input.getAuditId() == null) {
+                if (auditKey == null || auditKey.equals(EMPTY)) {
+                    header = findByCallerRef(input.getFortress(), input.getDocumentType(), input.getCallerRef());
+                    if (header != null)
+                        input.setAuditKey(header.getAuditKey());
+                } else
+                    header = getHeader(auditKey); // true??
             } else
-                header = getHeader(auditKey); // true??
-        } else
-            header = getHeader(input.getAuditId());  // Only set internally by AuditBucket. Never rely on the caller
+                header = getHeader(input.getAuditId());  // Only set internally by AuditBucket. Never rely on the caller
+        }
 
         if (header == null) {
             resultBean.setStatus(AuditLogInputBean.LogStatus.NOT_FOUND);

@@ -51,8 +51,6 @@ public class AuditManagerService {
     @Autowired
     private SecurityHelper securityHelper;
 
-    private boolean wiredIndexes;
-
     private Company resolveCompany(String apiKey) throws AuditException {
         Company c;
         if (apiKey == null) {
@@ -82,7 +80,11 @@ public class AuditManagerService {
         Fortress fortress = resolveFortress(company, inputBean);
         fortress.setCompany(company);
         AuditResultBean resultBean = auditService.createHeader(inputBean, company, fortress);
+
+        // Here on could be spun in to a separate thread. The log has to happen eventually
+        //   and can't fail.
         if (inputBean.getAuditLog() != null) {
+            // Secret back door so that the log result can quickly get the
             logBean.setAuditId(resultBean.getAuditId());
             logBean.setAuditKey(resultBean.getAuditKey());
             logBean.setFortressUser(inputBean.getFortressUser());
@@ -104,8 +106,12 @@ public class AuditManagerService {
     }
 
     public AuditLogResultBean createLog(AuditLogInputBean auditLogInputBean) throws IOException {
+        return createLog(null, auditLogInputBean);
+    }
+
+    public AuditLogResultBean createLog(AuditHeader header, AuditLogInputBean auditLogInputBean) throws IOException {
         auditLogInputBean.setWhat(auditLogInputBean.getWhat());
-        AuditLogResultBean resultBean = auditService.createLog(auditLogInputBean);
+        AuditLogResultBean resultBean = auditService.createLog(header, auditLogInputBean);
         if (resultBean != null && resultBean.getStatus() == AuditLogInputBean.LogStatus.OK)
             auditService.makeChangeSearchable(resultBean.getSearchDocument());
 

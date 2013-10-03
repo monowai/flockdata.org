@@ -74,10 +74,10 @@ public class AuditTagDaoRepo implements com.auditbucket.dao.AuditTagDao {
     }
 
     @Override
-    public Set<AuditHeader> findTagAudits(Tag tag) {
-        if (tag == null)
+    public Set<AuditHeader> findTagAudits(Long tagId) {
+        if (tagId == null)
             return null;
-        return auditTagRepo.findTagAudits(tag.getId());
+        return auditTagRepo.findTagAudits(tagId);
     }
 
 
