@@ -49,3 +49,9 @@ Thumbs.db
 target/
 data/
 
+
+ab-engine/.shell_history
+
+ab-integration-tests/.shell_history
+
+ab-search/.shell_history
