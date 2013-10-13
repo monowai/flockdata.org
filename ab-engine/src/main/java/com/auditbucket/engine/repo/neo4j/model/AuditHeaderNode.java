@@ -80,6 +80,7 @@ public class AuditHeaderNode implements AuditHeader {
 
     public static final String UUID_KEY = "auditKey";
 
+    @Indexed(indexName = "auditName")
     private String name;
 
     private long fortressDate;
@@ -104,12 +105,14 @@ public class AuditHeaderNode implements AuditHeader {
         this.fortress = (FortressNode) createdBy.getFortress();
         this.documentType = (DocumentTypeNode) documentType;
         String docType = (documentType != null ? getDocumentType() : "");
-        this.name = (callerRef == null ? docType : (docType + "." + callerRef).toLowerCase());
-
-        indexName = "ab." + createdBy.getFortress().getCompany().getCode() + "." + fortress.getCode();
         callerRef = auditInput.getCallerRef();
         if (callerRef != null)
             callerRef = callerRef.toLowerCase();
+
+        this.name = (callerRef == null ? docType : (docType + "." + callerRef).toLowerCase());
+
+        indexName = "ab." + createdBy.getFortress().getCompany().getCode() + "." + fortress.getCode();
+
 
         Date when = auditInput.getWhen();
 

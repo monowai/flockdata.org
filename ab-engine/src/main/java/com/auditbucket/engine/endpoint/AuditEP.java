@@ -28,9 +28,12 @@ import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.engine.service.AuditTagService;
 import com.auditbucket.engine.service.EngineAdmin;
+import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -70,6 +73,8 @@ public class AuditEP {
     @Autowired
     CompanyService companyService;
 
+    private static Logger logger = LoggerFactory.getLogger(AuditEP.class);
+
     @ResponseBody
     @RequestMapping(value = "/ping", method = RequestMethod.GET)
     public String get() throws Exception {
@@ -93,6 +98,11 @@ public class AuditEP {
             auditResultBean = auditManager.createHeader(input);
             auditResultBean.setStatus("OK");
             return new ResponseEntity<>(auditResultBean, HttpStatus.OK);
+        } catch (AuditException e) {
+            auditResultBean = new AuditResultBean(e.getMessage());
+            logger.info("*** ", e);
+            return new ResponseEntity<>(auditResultBean, HttpStatus.BAD_REQUEST);
+
         } catch (IllegalArgumentException e) {
             auditResultBean = new AuditResultBean(e.getMessage());
             return new ResponseEntity<>(auditResultBean, HttpStatus.BAD_REQUEST);
