@@ -24,10 +24,7 @@ import com.auditbucket.bean.*;
 import com.auditbucket.dao.AuditDao;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.helper.SecurityHelper;
-import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.model.FortressUser;
-import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.model.*;
 import com.auditbucket.registration.service.*;
 import com.auditbucket.search.AuditSearchChange;
 import com.auditbucket.search.SearchResult;
@@ -355,9 +352,8 @@ public class AuditService {
             return null;
         SearchChange searchDocument;
         searchDocument = new AuditSearchChange(auditHeader, logInput.getMapWhat(), event.getCode(), fortressWhen);
-        //searchDocument.setTags(getAuditTags(auditHeader.getId()));
         searchDocument.setWho(auditLog.getAuditChange().getWho().getCode());
-
+        searchDocument.setTags(auditTagService.findAuditTags(auditHeader));
         try {
             logger.trace("JSON {}", om.writeValueAsString(searchDocument));
         } catch (JsonProcessingException e) {
@@ -577,7 +573,9 @@ public class AuditService {
         if (auditHeader.getFortress().isSearchActive() && !auditHeader.isSearchSuppressed()) {
             // Update against the Audit Header only by re-indexing the search document
             Map<String, Object> priorWhat = whatService.getWhat(priorChange).getWhatMap();
-            searchGateway.makeChangeSearchable(new AuditSearchChange(auditHeader, priorWhat, priorChange.getEvent().getCode(), new DateTime(priorChange.getAuditLog().getFortressWhen())));
+            AuditSearchChange searchDocument = new AuditSearchChange(auditHeader, priorWhat, priorChange.getEvent().getCode(), new DateTime(priorChange.getAuditLog().getFortressWhen()));
+            searchDocument.setTags(auditTagService.findAuditTags(auditHeader));
+            searchGateway.makeChangeSearchable(searchDocument);
         }
         return new AsyncResult<>(auditHeader);
     }
@@ -631,8 +629,7 @@ public class AuditService {
      * @return inflated header
      */
     public AuditHeader findByCallerRefFull(Long fortressID, String documentType, String callerRef) {
-        AuditHeader result = findByCallerRef(fortressID, documentType, callerRef);
-        return result;
+        return findByCallerRef(fortressID, documentType, callerRef);
     }
 
     @Async
@@ -671,13 +668,8 @@ public class AuditService {
     public AuditSummaryBean getAuditSummary(String auditKey) {
         AuditHeader header = getHeader(auditKey, true);
         Set<AuditLog> changes = getAuditLogs(header.getId());
-        return new AuditSummaryBean(header, changes);
-    }
-
-    public Set<AuditTag> getAuditTags(Long id) {
-        return auditTagService.findAuditTags(id);
-
-
+        Set<AuditTag> tags = auditTagService.findAuditTags(header);
+        return new AuditSummaryBean(header, changes, tags);
     }
 
     @Async
@@ -688,6 +680,7 @@ public class AuditService {
 
         fortressService.fetch(header.getLastUser());
         SearchChange searchDocument = new AuditSearchChange(header, null, event, new DateTime(when));
+        searchDocument.setTags(auditTagService.findAuditTags(header));
         makeChangeSearchable(searchDocument);
 
     }

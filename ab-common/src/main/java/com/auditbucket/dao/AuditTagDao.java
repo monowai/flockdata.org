@@ -21,8 +21,11 @@ package com.auditbucket.dao;
 
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditTag;
+import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.model.Tag;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -33,12 +36,15 @@ import java.util.Set;
 public interface AuditTagDao {
     AuditTag save(AuditHeader auditHeader, Tag tag, String type);
 
-    Set<AuditTag> find(Tag tagName, String type);
+    Boolean relationshipExists(AuditHeader auditHeader, Tag tagName, String relationshipType);
 
-    Set<AuditHeader> findTagAudits(Long tagId);
+    Set<AuditTag> getAuditTags(AuditHeader auditHeader, Long companyTagId);
 
-    Set<AuditTag> getAuditTags(Long id);
+    AuditTag save(AuditHeader ah, Tag tag, String relationship, Map<String, Object> propMap);
 
-    void update(Set<AuditTag> modifiedSet);
+    void deleteAuditTags(AuditHeader auditHeader, Collection<AuditTag> auditTags) throws AuditException;
 
+    void changeType(AuditHeader auditHeader, AuditTag existingTag, String newType);
+
+    Set<AuditHeader> findTagAudits(Tag tag);
 }

@@ -23,6 +23,8 @@ import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditTag;
 import com.auditbucket.engine.repo.neo4j.model.AuditHeaderNode;
 import com.auditbucket.engine.repo.neo4j.model.AuditTagRelationship;
+import com.auditbucket.registration.model.Tag;
+import com.auditbucket.registration.repo.neo4j.model.TagNode;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
@@ -35,13 +37,11 @@ import java.util.Set;
  */
 public interface AuditTagRepo extends GraphRepository<AuditTagRelationship> {
 
-    @Query(elementClass = AuditTagRelationship.class, value = "start tag=node({0}) match tag-[tags:auditTag]->auditHeader where tags.tagType={1} return tags")
-    Set<AuditTag> findTagValues(Long tagId, String tagType);
+//    @Query(elementClass = TagNode.class,
+//            value = "start tag=node({0}) " +
+//                    "match tag-[tags:auditTag]->auditHeader " +
+//                    "where tags.tagType={1} return tags")
+//    Set<Tag> findTagValues(Long tagId, String tagType);
 
-    @Query(elementClass = AuditTagRelationship.class, value = "start audit = node({0}) match audit<-[tags:auditTag]-() return tags")
-    Set<AuditTag> findAuditTags(Long auditId);
-
-    @Query(elementClass = AuditHeaderNode.class, value = "start tag=node({0}) match tag-[tags:auditTag]->auditHeaders return auditHeaders")
-    Set<AuditHeader> findTagAudits(Long tagId);
 
 }

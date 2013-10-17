@@ -104,7 +104,6 @@ public class AuditDaoNeo implements AuditDao {
 
     @Cacheable(value = "auditHeaderId", key = "p0.id")
     public AuditHeader fetch(AuditHeader header) {
-        template.fetch(header.getTagValues());
         template.fetch(header.getCreatedBy());
         template.fetch(header.getLastUser());
 
@@ -166,12 +165,13 @@ public class AuditDaoNeo implements AuditDao {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("txRef", txRef.getId());
 
-        Iterator<Map<String, Object>> rows;
+
         Result<Map<String, Object>> exResult = template.query(findByTagRef, params);
 
+        Iterator<Map<String, Object>> rows;
         rows = exResult.iterator();
 
-        List<AuditTXResult> simpleResult = new ArrayList<AuditTXResult>();
+        List<AuditTXResult> simpleResult = new ArrayList<>();
         int i = 1;
         //Result<Map<String, Object>> results =
         while (rows.hasNext()) {

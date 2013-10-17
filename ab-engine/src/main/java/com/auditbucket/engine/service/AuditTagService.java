@@ -23,17 +23,17 @@ import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditTag;
 import com.auditbucket.bean.AuditTagInputBean;
 import com.auditbucket.dao.AuditTagDao;
+import com.auditbucket.helper.AuditException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -57,10 +57,9 @@ public class AuditTagService {
     AuditTagDao auditTagDao;
 
     public void processTag(AuditHeader header, AuditTagInputBean tagInput) {
-        //Company company = securityHelper.getCompany();
         String type = tagInput.getType();
-        Set<AuditTag> existing = findTagValues(tagInput.getTagName(), type);
-        if (existing != null && existing.size() == 1)
+        boolean existing = relationshipExists(header, tagInput.getTagName(), type);
+        if (existing)
             // We already have this tagged so get out of here
             return;
 
@@ -68,23 +67,23 @@ public class AuditTagService {
         auditTagDao.save(header, tag, type);
     }
 
-    public Set<AuditTag> findTagValues(String name, String type) {
+    public Boolean relationshipExists(AuditHeader auditHeader, String name, String relationshipType) {
         Tag tag = tagService.findTag(name);
         if (tag == null)
-            return null;
-        return auditTagDao.find(tag, type);
+            return false;
+        return auditTagDao.relationshipExists(auditHeader, tag, relationshipType);
     }
 
-    public Set<AuditHeader> findTagAudits(String tagName) {
-        Tag tag = tagService.findTag(tagName);
-        if (tag == null)
-            return null;
-        return auditTagDao.findTagAudits(tag.getId());
-    }
+//    public Set<AuditHeader> findTagAudits(String tagName) {
+//        Tag tag = tagService.findTag(tagName);
+//        if (tag == null)
+//            return null;
+//        return auditTagDao.findTagAudits(tag.getId());
+//    }
 
 
     /**
-     * Will associate the supplied userTags with the AuditHeaderNode
+     * Associates the supplied userTags with the AuditHeaderNode
      * <p/>
      * in JSON terms....
      * "ClientID123" :{"clientKey","prospectKey"}
@@ -102,8 +101,6 @@ public class AuditTagService {
      * @param ah       Header to associate userTags with
      * @param userTags Key/Value pair of tags. TagNode will be created if missing. Value can be a Collection
      */
-    @Caching(evict = {@CacheEvict(value = "auditHeaderId", key = "#p0.id"),
-            @CacheEvict(value = "auditKey", key = "#p0.auditKey")})
     public void createTagValues(AuditHeader ah, Map<String, Object> userTags) {
         if ((userTags == null) || userTags.isEmpty())
             return;
@@ -114,31 +111,64 @@ public class AuditTagService {
             Tag tag = tagService.processTag(new TagInputBean(company, tagName));
             Object tagRlx = userTags.get(tagName);
             String rlxName;
-            // Handle both a simple relationship type name or a collection of relationships
+            // Handle both a simple relationship type name or a map/collection of relationships
             if (tagRlx == null)
                 auditTagDao.save(ah, tag, null);
 
             else {
 
                 if (tagRlx instanceof Collection) {
+                    // ToDo: Collection of Maps
                     for (Object o : ((Collection) tagRlx)) {
                         auditTagDao.save(ah, tag, o.toString());
+                    }
+                } else if (tagRlx instanceof Map) {
+                    // Map of relationship with properties
+                    Map<String, Object> tagMap = (Map<String, Object>) tagRlx;
+                    for (String relationship : tagMap.keySet()) {
+                        Object o = tagMap.get(relationship);
+                        Map<String, Object> propMap = null;
+                        if (o != null && o instanceof Map) {
+                            propMap = (Map<String, Object>) o;
+                        }
+                        auditTagDao.save(ah, tag, relationship, propMap);
                     }
                 } else {
                     rlxName = tagRlx.toString();
                     auditTagDao.save(ah, tag, rlxName);
                 }
-
             }
-
         }
     }
 
     public Set<AuditTag> findAuditTags(AuditHeader auditHeader) {
-        return auditTagDao.getAuditTags(auditHeader.getId());
+        Long companyId = tagService.getCompanyTagManager(securityHelper.getCompany().getId());
+        return auditTagDao.getAuditTags(auditHeader, companyId);
     }
 
-    public Set<AuditTag> findAuditTags(Long id) {
-        return auditTagDao.getAuditTags(id);
+    public void deleteAuditTags(AuditHeader auditHeader, Collection<AuditTag> auditTags) throws AuditException {
+        auditTagDao.deleteAuditTags(auditHeader, auditTags);
+    }
+
+    public void deleteAuditTag(AuditHeader auditHeader, AuditTag value) throws AuditException {
+        Collection<AuditTag> remove = new ArrayList<>(1);
+        remove.add(value);
+        deleteAuditTags(auditHeader, remove);
+
+    }
+
+    public void changeType(AuditHeader auditHeader, AuditTag existingTag, String newType) throws AuditException {
+        if (auditHeader == null || existingTag == null || newType == null)
+            throw new AuditException(("Illegal parameter"));
+        auditTagDao.changeType(auditHeader, existingTag, newType);
+    }
+
+
+    public Set<AuditHeader> findTagAudits(String tagName) throws AuditException {
+        Tag tag = tagService.findTag(tagName);
+        if (tag == null)
+            throw new AuditException("Unable to find the tag [" + tagName + "]");
+        return auditTagDao.findTagAudits(tag);
+
     }
 }

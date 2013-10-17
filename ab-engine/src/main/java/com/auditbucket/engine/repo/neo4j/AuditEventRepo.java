@@ -21,8 +21,6 @@ package com.auditbucket.engine.repo.neo4j;
 
 import com.auditbucket.audit.model.AuditEvent;
 import com.auditbucket.engine.repo.neo4j.model.AuditEventNode;
-import com.auditbucket.engine.repo.neo4j.model.AuditTagRelationship;
-import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
@@ -33,7 +31,7 @@ import java.util.Set;
  * Date: 28/06/13
  * Time: 10:56 PM
  */
-public interface AuditEventRepo extends GraphRepository<AuditTagRelationship> {
+public interface AuditEventRepo extends GraphRepository<AuditEventNode> {
 
     @Query(elementClass = AuditEventNode.class, value = "start company=node({0})" +
             "   match company-[:COMPANY_EVENT]->event " +

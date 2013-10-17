@@ -20,7 +20,6 @@
 package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.audit.model.AuditTag;
 import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.registration.model.Fortress;
@@ -35,7 +34,8 @@ import org.joda.time.DateTimeZone;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.*;
 
-import java.util.*;
+import java.util.Date;
+import java.util.TimeZone;
 
 
 /**
@@ -74,9 +74,6 @@ public class AuditHeaderNode implements AuditHeader {
 
     @RelatedTo(elementClass = FortressUserNode.class, type = "lastChanged", direction = Direction.INCOMING)
     private FortressUserNode lastWho;
-
-    @RelatedToVia(elementClass = AuditTagRelationship.class, type = "auditTag", direction = Direction.INCOMING)
-    private Set<AuditTag> tagValues;
 
     public static final String UUID_KEY = "auditKey";
 
@@ -240,18 +237,9 @@ public class AuditHeaderNode implements AuditHeader {
         return this.callerRef;
     }
 
-    public Set<AuditTag> getTagValues() {
-        return tagValues;
-    }
-
     @Override
     public long getWhenCreated() {
         return dateCreated;
-    }
-
-    @Override
-    public void setTags(Set<AuditTag> auditTags) {
-        this.tagValues = auditTags;
     }
 
     @Override

@@ -122,8 +122,10 @@ public class TestTags {
         assertNotNull(tagInput.getCompany());
         assertNull(tagService.findTag("ABC"));
         Tag result = tagService.findTag("FLOP");
+        assertNotNull(result);
         result.setName("FLOPPY");
         result = tagService.processTag(result);
+        assertNotNull(result);
         assertEquals("FLOPPY", result.getName());
         assertNull(tagService.findTag("FLOP"));
         assertNotNull(tagService.findTag("FLOPPY"));

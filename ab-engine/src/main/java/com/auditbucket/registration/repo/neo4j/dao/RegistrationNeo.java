@@ -34,7 +34,7 @@ import org.springframework.stereotype.Repository;
  * Time: 6:40 PM
  */
 @Repository
-public class RegistrationDao implements com.auditbucket.dao.RegistrationDao {
+public class RegistrationNeo implements com.auditbucket.dao.RegistrationDao {
     @Autowired
     private
     SystemUserRepository suRepo;

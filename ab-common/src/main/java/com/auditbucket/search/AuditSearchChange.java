@@ -75,7 +75,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
         this.callerRef = header.getCallerRef();
         this.who = header.getLastUser().getCode();
         this.createdDate = header.getWhenCreated(); // When created in AuditBucket
-        setTags(header.getTagValues());
+        //setTags(header.getTagValues());
     }
 
     public AuditSearchChange() {
@@ -176,7 +176,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
         return tagValues;
     }
 
-    private void setTags(Set<AuditTag> tagSet) {
+    public void setTags(Set<AuditTag> tagSet) {
         tagValues = new HashMap<>();
         for (AuditTag tag : tagSet) {
             tagValues.put(tag.getTagType(), tag.getTag().getName());

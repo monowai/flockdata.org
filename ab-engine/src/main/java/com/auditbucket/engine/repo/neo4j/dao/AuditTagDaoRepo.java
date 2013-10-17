@@ -21,17 +21,25 @@ package com.auditbucket.engine.repo.neo4j.dao;
 
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditTag;
+import com.auditbucket.dao.TagDao;
 import com.auditbucket.engine.repo.neo4j.AuditTagRepo;
+import com.auditbucket.engine.repo.neo4j.model.AuditHeaderNode;
 import com.auditbucket.engine.repo.neo4j.model.AuditTagRelationship;
+import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.model.Tag;
+import com.auditbucket.registration.repo.neo4j.model.TagNode;
+import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.Set;
+import javax.annotation.Resource;
+import java.util.*;
 
 /**
  * User: Mike Holdsworth
@@ -43,57 +51,127 @@ public class AuditTagDaoRepo implements com.auditbucket.dao.AuditTagDao {
     @Autowired
     Neo4jTemplate template;
 
-    @Autowired
-    AuditTagRepo auditTagRepo;
+    @Resource
+    GraphDatabaseService gdb;
 
     private Logger logger = LoggerFactory.getLogger(AuditTagRepo.class);
 
     @Override
-    public AuditTag save(AuditHeader auditHeader, Tag tag, String type) {
-        if (type != null) {
-            Node headerNode = template.getNode(auditHeader.getId());
-            Node tagNode = template.getNode(tag.getId());
-            //Primary exploration relationship
-            if (template.getRelationshipBetween(tagNode, headerNode, type) == null)
-                template.createRelationshipBetween(tagNode, headerNode, type, null);
-            else
-                return null; // we already know about this
+    public AuditTag save(AuditHeader auditHeader, Tag tag, String relationship) {
+        return save(auditHeader, tag, relationship, null);
+    }
 
-            logger.debug("Created Tag[{}] Relationship for type {}", tag, type);
+    @Override
+    public AuditTag save(AuditHeader auditHeader, Tag tag, String relationship, Map<String, Object> propMap) {
+        // ToDo: this will only set properties for the "current" tag to Header. it will not version it.
+        if (relationship == null) {
+            relationship = "GENERAL_TAG";
+        }
+        Node headerNode = template.getNode(auditHeader.getId());
+        Node tagNode = template.getNode(tag.getId());
+        //Primary exploration relationship
+        Relationship r = template.getRelationshipBetween(tagNode, headerNode, relationship);
+        boolean recreated = false;
+        if (r != null) {// Recreate
+            recreated = true;
+            r.delete();
         }
 
-        // Only keeping this so that we can efficiently find all the tags being used by a header/tag combo
-        // could be simplified to all tags attached to a single Tag node.
-        // type should be the Neo4J Node type when V2 is released.
-        AuditTagRelationship atr = new AuditTagRelationship(auditHeader, tag, type);
-        logger.debug("Creating Tag Relationship for audit [{}]", auditHeader.getId());
-        return template.save(atr);
-    }
-
-    @Override
-    public Set<AuditTag> find(Tag tagName, String type) {
-        if (tagName == null)
+        template.createRelationshipBetween(tagNode, headerNode, relationship, propMap);
+        if (recreated)
             return null;
-        return auditTagRepo.findTagValues(tagName.getId(), type);
+        logger.debug("Created Tag[{}] Relationship for type {}", tag, relationship);
+
+        return null;
     }
+
+    @Autowired
+    TagDao tagDao;
 
     @Override
-    public Set<AuditHeader> findTagAudits(Long tagId) {
-        if (tagId == null)
-            return null;
-        return auditTagRepo.findTagAudits(tagId);
-    }
+    public void deleteAuditTags(AuditHeader auditHeader, Collection<AuditTag> auditTags) throws AuditException {
+        Node auditNode = null;
+        for (AuditTag tag : auditTags) {
+            if (!tag.getAuditId().equals(auditHeader.getId()))
+                throw new AuditException("Tags to not belong to the required AuditHeader");
 
+            if (auditNode == null) {
+                auditNode = template.getNode(tag.getAuditId());
+            }
 
-    @Override
-    public Set<AuditTag> getAuditTags(Long id) {
-        return auditTagRepo.findAuditTags(id);
-    }
-
-    public void update(Set<AuditTag> newValues) {
-        for (AuditTag iTagValue : newValues) {
-            auditTagRepo.save((AuditTagRelationship) iTagValue);
+            Relationship r = template.getRelationship(tag.getId());
+            r.delete();
+            tagDao.deleteCompanyRelationship(auditHeader.getFortress().getCompany(), tag.getTag());
+            template.getNode(tag.getTag().getId()).delete();
         }
     }
+
+    /**
+     * Rewrites the relationship type between the nodes copying the properties
+     *
+     * @param auditHeader audit
+     * @param existingTag current
+     * @param newType     new type name
+     */
+    @Override
+    public void changeType(AuditHeader auditHeader, AuditTag existingTag, String newType) {
+        if (!relationshipExists(auditHeader, existingTag.getTag(), newType)) {
+            Relationship r = template.getRelationship(existingTag.getId());
+            Iterable<String> propertyKeys = r.getPropertyKeys();
+            Map<String, Object> properties = new HashMap<>();
+            for (String propertyKey : propertyKeys) {
+                properties.put(propertyKey, r.getProperty(propertyKey));
+            }
+            template.createRelationshipBetween(r.getStartNode(), r.getEndNode(), newType, properties);
+            r.delete();
+        }
+    }
+
+    @Override
+    public Set<AuditHeader> findTagAudits(Tag tag) {
+        String query = "start tag=node({tagId}) " +
+                "       match tag-[]->audit" +
+                "      return audit";
+        Map<String, Object> params = new HashMap<>();
+        params.put("tagId", tag.getId());
+        Result<Map<String, Object>> result = template.query(query, params);
+        Set<AuditHeader> results = new HashSet<>();
+        for (Map<String, Object> row : result) {
+            AuditHeader audit = template.convert(row.get("audit"), AuditHeaderNode.class);
+            results.add(audit);
+        }
+
+        return results;
+    }
+
+    @Override
+    public Boolean relationshipExists(AuditHeader auditHeader, Tag tagName, String relationshipType) {
+        Node end = template.getNode(auditHeader.getId());
+        Node start = template.getNode(tagName.getId());
+        return (template.getRelationshipBetween(start, end, relationshipType) != null);
+
+    }
+
+
+    @Override
+    public Set<AuditTag> getAuditTags(AuditHeader auditHeader, Long companyTagId) {
+        String query = "start audit=node({auditId}), cTag=node({cTagId}) " +
+                "MATCH audit<-[tagType]-(tag)<--cTag " +
+                "return tag, tagType";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("auditId", auditHeader.getId());
+        params.put("cTagId", companyTagId);
+        Set<AuditTag> tagResults = new HashSet<>();
+        for (Map<String, Object> row : template.query(query, params)) {
+            TagNode tag = template.convert(row.get("tag"), TagNode.class);
+            Relationship relationship = template.convert(row.get("tagType"), Relationship.class);
+
+            AuditTagRelationship auditTag = new AuditTagRelationship(auditHeader, tag, relationship);
+            tagResults.add(auditTag);
+        }
+        return tagResults;
+    }
+
 
 }

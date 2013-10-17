@@ -31,8 +31,26 @@ import com.auditbucket.registration.model.Tag;
 public interface TagDao {
     Tag save(Tag tag);
 
-    Tag findOne(String tagName, Long id);
+    /**
+     * Locates a tag
+     *
+     * @param tagName   name to find
+     * @param companyId Company that owns the tag
+     * @return the tag if it exists or null
+     */
+    Tag findOne(String tagName, Long companyId);
 
     DocumentType findOrCreate(String documentType, Company company);
 
+    Long createCompanyTagManager(Long companyId, String tagCollectionName);
+
+    Long getCompanyTagManager(Long companyId);
+
+    /**
+     * Removes the relationship between the company and the tag
+     *
+     * @param company that owns the tag
+     * @param tag     tag to remove the relationship from
+     */
+    void deleteCompanyRelationship(Company company, Tag tag);
 }
