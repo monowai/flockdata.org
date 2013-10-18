@@ -159,10 +159,10 @@ public class AuditDaoNeo implements AuditDao {
         //Example showing how to use cypher and extract
 
         String findByTagRef = "start tag =node({txRef}) " +
-                "              match tag-[:txIncludes]->auditLog<-[logs:logged]-audit " +
+                "              match tag-[:AFFECTED]->auditLog<-[logs:LOGGED]-audit " +
                 "             return logs, audit, auditLog " +
                 "           order by logs.sysWhen";
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("txRef", txRef.getId());
 
 

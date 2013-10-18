@@ -42,7 +42,7 @@
         <org.springdata.neo4j>2.3.1.RELEASE</org.springdata.neo4j>
         <org.springsecurity-version>3.1.4.RELEASE</org.springsecurity-version>
         <org.springintegration.version>2.2.3.RELEASE</org.springintegration.version>
-        <neo4j.version>1.9.2</neo4j.version>
+        <neo4j.version>1.9.3</neo4j.version>
         <jackson.version>2.2.2</jackson.version>
     </properties>
     <repositories>

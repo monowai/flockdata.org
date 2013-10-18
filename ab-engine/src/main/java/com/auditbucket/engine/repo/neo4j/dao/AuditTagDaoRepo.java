@@ -22,13 +22,11 @@ package com.auditbucket.engine.repo.neo4j.dao;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditTag;
 import com.auditbucket.dao.TagDao;
-import com.auditbucket.engine.repo.neo4j.AuditTagRepo;
 import com.auditbucket.engine.repo.neo4j.model.AuditHeaderNode;
 import com.auditbucket.engine.repo.neo4j.model.AuditTagRelationship;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.repo.neo4j.model.TagNode;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
@@ -38,7 +36,6 @@ import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
-import javax.annotation.Resource;
 import java.util.*;
 
 /**
@@ -51,10 +48,7 @@ public class AuditTagDaoRepo implements com.auditbucket.dao.AuditTagDao {
     @Autowired
     Neo4jTemplate template;
 
-    @Resource
-    GraphDatabaseService gdb;
-
-    private Logger logger = LoggerFactory.getLogger(AuditTagRepo.class);
+    private Logger logger = LoggerFactory.getLogger(AuditTagDaoRepo.class);
 
     @Override
     public AuditTag save(AuditHeader auditHeader, Tag tag, String relationship) {

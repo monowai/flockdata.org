@@ -108,13 +108,7 @@ public class AuditService {
     }
 
     TxRef beginTransaction(String id) {
-        String userName = securityHelper.getLoggedInUser();
-        SystemUser su = sysUserService.findByName(userName);
-
-        if (su == null)
-            throw new SecurityException("Not authorised");
-
-        Company company = su.getCompany();
+        Company company = securityHelper.getCompany();
         return auditDAO.beginTransaction(id, company);
 
     }

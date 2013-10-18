@@ -49,11 +49,11 @@ public class AuditHeaderNode implements AuditHeader {
     @Indexed(indexName = UUID_KEY, unique = true)
     private String auditKey;
 
-    @RelatedTo(elementClass = FortressNode.class, type = "audit", direction = Direction.INCOMING)
+    @RelatedTo(elementClass = FortressNode.class, type = "TRACKS", direction = Direction.INCOMING)
     @Fetch
     private FortressNode fortress;
 
-    @RelatedTo(type = "classifies", direction = Direction.INCOMING)
+    @RelatedTo(type = "CLASSIFIES", direction = Direction.INCOMING)
     @Fetch
     private DocumentTypeNode documentType;
 
@@ -69,7 +69,7 @@ public class AuditHeaderNode implements AuditHeader {
     @GraphId
     private Long id;
 
-    @RelatedTo(elementClass = FortressUserNode.class, type = "created", direction = Direction.INCOMING, enforceTargetType = true)
+    @RelatedTo(elementClass = FortressUserNode.class, type = "CREATED", direction = Direction.INCOMING, enforceTargetType = true)
     private FortressUserNode createdBy;
 
     @RelatedTo(elementClass = FortressUserNode.class, type = "lastChanged", direction = Direction.INCOMING)
