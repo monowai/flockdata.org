@@ -30,8 +30,6 @@ public interface Tag {
 
     public Company getCompany();
 
-    void setCompany(Company company);
-
     void setName(String floppy);
 
     Long getId();

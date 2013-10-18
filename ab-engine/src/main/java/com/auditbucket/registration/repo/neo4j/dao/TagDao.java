@@ -59,9 +59,9 @@ public class TagDao implements com.auditbucket.dao.TagDao {
 
     private Logger logger = LoggerFactory.getLogger(TagDao.class);
 
-    public Tag save(Tag tag) {
+    public Tag save(Company company, Tag tag) {
         // Check exists
-        Tag existingTag = findOne(tag.getName(), tag.getCompany().getId());
+        Tag existingTag = findOne(tag.getName(), company.getId());
         if (existingTag != null)
             return existingTag;
 
@@ -74,7 +74,7 @@ public class TagDao implements com.auditbucket.dao.TagDao {
 
         tagToCreate = tagRepo.save(tagToCreate);
         Node end = template.getNode(tagToCreate.getId());
-        Node start = getCompanyTagManagerNode(tagToCreate.getCompany().getId());
+        Node start = getCompanyTagManagerNode(company.getId());
         Relationship r = template.getRelationshipBetween(start, end, COMPANY_TAGS);
         if (r == null)
             template.createRelationshipBetween(start, end, COMPANY_TAGS, null);
@@ -117,7 +117,7 @@ public class TagDao implements com.auditbucket.dao.TagDao {
                 "       return ct";
         Map<String, Object> params = new HashMap<>();
         params.put("companyId", companyId);
-        params.put("tagName", tagCollectionName);
+        params.put("tagName", tagCollectionName + " Tags");
         Result<Map<String, Object>> result = template.query(query, params);
         Map<String, Object> mapResult = result.single();
         return ((Node) mapResult.get("ct")).getId();

@@ -50,14 +50,8 @@ public class TagService {
         if (tag == null)
             return tag;
 
-        // Check security access
-        if (tag.getCompany() == null || tag.getCompany().getName() == null) {
-            Company company = securityHelper.getCompany();
-            tag.setCompany(company);
-        }
-
-
-        return tagDao.save(tag);
+        Company company = securityHelper.getCompany();
+        return tagDao.save(company, tag);
     }
 
     public Tag findTag(String tagName) {
@@ -91,7 +85,7 @@ public class TagService {
     }
 
     public void createCompanyTagManager(Long id, String companyName) {
-        tagDao.createCompanyTagManager(id, companyName.toUpperCase());
+        tagDao.createCompanyTagManager(id, companyName.toLowerCase());
 
     }
 

@@ -29,7 +29,7 @@ import com.auditbucket.registration.model.Tag;
  * Time: 8:12 PM
  */
 public interface TagDao {
-    Tag save(Tag tag);
+    Tag save(Company company, Tag tag);
 
     /**
      * Locates a tag

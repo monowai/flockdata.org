@@ -96,7 +96,7 @@ public class CompanyService {
 
     public Company save(String companyName) {
         Company company = companyDao.create(companyName, keyGenService.getUniqueKey());
-        tagService.createCompanyTagManager(company.getId(), companyName + "Tags");
+        tagService.createCompanyTagManager(company.getId(), companyName);
         return company;
     }
 

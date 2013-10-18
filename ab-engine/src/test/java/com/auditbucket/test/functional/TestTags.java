@@ -92,7 +92,6 @@ public class TestTags {
         Tag tagInput = new TagInputBean(iCompany, "FLOP");
         tagInput = tagService.processTag(tagInput);
         assertNotNull(tagInput);
-        assertNotNull(tagInput.getCompany());
         assertNull(tagService.findTag("ABC"));
         assertNotNull(tagService.findTag("FLOP"));
 
@@ -104,7 +103,6 @@ public class TestTags {
         tagInput = new TagInputBean(iSystemUser.getCompany(), "FLOP");
         tagInput = tagService.processTag(tagInput);
         assertNotNull(tagInput);
-        assertNotNull(tagInput.getCompany());
         assertNull(tagService.findTag("ABC"));
         assertNotNull(tagService.findTag("FLOP"));
     }
@@ -119,7 +117,6 @@ public class TestTags {
         Tag tagInput = new TagInputBean(iCompany, "FLOP");
         tagInput = tagService.processTag(tagInput);
         assertNotNull(tagInput);
-        assertNotNull(tagInput.getCompany());
         assertNull(tagService.findTag("ABC"));
         Tag result = tagService.findTag("FLOP");
         assertNotNull(result);

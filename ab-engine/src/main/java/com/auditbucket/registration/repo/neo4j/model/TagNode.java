@@ -22,11 +22,9 @@ package com.auditbucket.registration.repo.neo4j.model;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
-import org.springframework.data.neo4j.annotation.RelatedTo;
 
 /**
  * User: Mike Holdsworth
@@ -38,9 +36,9 @@ public class TagNode implements Tag {
     @GraphId
     Long Id;
 
-    @RelatedTo(elementClass = CompanyNode.class, type = "tags", direction = Direction.INCOMING)
-    private
-    Company company;
+//    @RelatedTo(elementClass = CompanyNode.class, type = "tags", direction = Direction.INCOMING)
+//    private
+//    Company company;
 
     @Indexed(indexName = "tagCode")
     private String code;
@@ -52,7 +50,6 @@ public class TagNode implements Tag {
 
     public TagNode(Tag tag) {
         this();
-        this.company = tag.getCompany();
         this.name = tag.getName();
         this.code = tag.getName().toLowerCase().replaceAll("\\s", "");
     }
@@ -65,13 +62,9 @@ public class TagNode implements Tag {
 
     @Override
     @JsonIgnore
+    // @deprecated
     public Company getCompany() {
-        return company;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void setCompany(Company company) {
-        this.company = company;
+        return null;
     }
 
     @Override
