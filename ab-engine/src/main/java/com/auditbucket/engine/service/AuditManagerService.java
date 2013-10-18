@@ -45,6 +45,9 @@ public class AuditManagerService {
     @Autowired
     AuditService auditService;
 
+    //@Autowired
+    //AuditTagService auditTagService;
+
     @Autowired
     CompanyService companyService;
 
@@ -121,8 +124,6 @@ public class AuditManagerService {
 
     public AuditSummaryBean getAuditSummary(String auditKey) {
         AuditSummaryBean summary = auditService.getAuditSummary(auditKey);
-        AuditHeader header = summary.getHeader();
-        header.setTags(auditService.getAuditTags(header.getId()));
         return summary;
     }
 }

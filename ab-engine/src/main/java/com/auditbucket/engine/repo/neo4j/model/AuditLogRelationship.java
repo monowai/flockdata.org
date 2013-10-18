@@ -34,7 +34,7 @@ import java.util.TimeZone;
  * Date: 26/05/13
  * Time: 4:12 PM
  */
-@RelationshipEntity(type = "logged")
+@RelationshipEntity(type = "LOGGED")
 public class AuditLogRelationship implements AuditLog {
     @GraphId
     private Long id;

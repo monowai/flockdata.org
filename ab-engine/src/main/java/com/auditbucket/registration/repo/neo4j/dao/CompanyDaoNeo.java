@@ -39,7 +39,7 @@ import java.util.Collection;
  * Time: 10:05 PM
  */
 @Repository
-public class CompanyDaoRepo implements CompanyDao {
+public class CompanyDaoNeo implements CompanyDao {
     private static final String FORTRESS_NAME = "fortressName";
     @Autowired
     private CompanyRepository companyRepo;

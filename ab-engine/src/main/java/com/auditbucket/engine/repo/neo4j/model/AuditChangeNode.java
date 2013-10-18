@@ -41,11 +41,11 @@ public class AuditChangeNode implements AuditChange {
     @GraphId
     private Long id;
 
-    @RelatedTo(elementClass = FortressUserNode.class, type = "changed", direction = Direction.INCOMING, enforceTargetType = true)
+    @RelatedTo(elementClass = FortressUserNode.class, type = "CHANGED", direction = Direction.INCOMING, enforceTargetType = true)
     @Fetch
     private FortressUserNode madeBy;
 
-    @RelatedTo(elementClass = TxRefNode.class, type = "txIncludes", direction = Direction.INCOMING, enforceTargetType = true)
+    @RelatedTo(elementClass = TxRefNode.class, type = "AFFECTED", direction = Direction.INCOMING, enforceTargetType = true)
     private TxRef txRef;
 
     @RelatedTo(elementClass = AuditEventNode.class, type = "AUDIT_EVENT", direction = Direction.OUTGOING)
@@ -63,7 +63,7 @@ public class AuditChangeNode implements AuditChange {
     private AuditChangeNode previousChange;
 
     @Fetch
-    @RelatedToVia(type = "logged", direction = Direction.INCOMING)
+    @RelatedToVia(type = "LOGGED", direction = Direction.INCOMING)
     AuditLogRelationship auditLog;
 
     @RelatedTo(type = "auditWhat")

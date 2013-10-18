@@ -43,10 +43,10 @@
         <org.aspectj-version>1.7.2</org.aspectj-version>
         <org.slf4j-version>1.7.5</org.slf4j-version>
         <!--<org.springdata.neo4j>2.2.2.RELEASE</org.springdata.neo4j>-->
-        <org.springdata.neo4j>2.3.0.M1</org.springdata.neo4j>
+        <org.springdata.neo4j>2.3.1.RELEASE</org.springdata.neo4j>
         <org.springsecurity-version>3.1.4.RELEASE</org.springsecurity-version>
         <org.springintegration.version>2.2.3.RELEASE</org.springintegration.version>
-        <neo4j.version>1.9.2</neo4j.version>
+        <neo4j.version>1.9.3</neo4j.version>
         <jackson.version>2.2.2</jackson.version>
     </properties>
     <repositories>

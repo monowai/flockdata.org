@@ -88,11 +88,7 @@ public interface AuditHeader {
 
     String getCallerRef();
 
-    public Set<AuditTag> getTagValues();
-
     long getWhenCreated();
-
-    void setTags(Set<AuditTag> auditTags);
 
     @JsonIgnore
     DateTime getFortressDateCreated();

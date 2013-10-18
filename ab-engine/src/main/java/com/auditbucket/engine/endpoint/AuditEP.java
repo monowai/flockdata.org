@@ -38,6 +38,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.integration.annotation.MessageEndpoint;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +47,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 /**
  * User: Mike Holdsworth
@@ -87,6 +90,22 @@ public class AuditEP {
     @RequestMapping(value = "/health", method = RequestMethod.GET)
     public Map<String, String> getHealth() throws Exception {
         return auditAdmin.getHealth();
+    }
+
+    //ToDo: Add a PUT /fortress/docType/callerRef
+    @ResponseBody
+    @RequestMapping(value = "/header/bulk", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
+    public Future<Void> createHeaders(@RequestBody AuditHeaderInputBean[] input) throws Exception {
+        for (AuditHeaderInputBean inputBean : input) {
+            createHeaderAsync(inputBean);
+        }
+        return null;
+    }
+
+    @Async
+    private Future<ResponseEntity<AuditResultBean>> createHeaderAsync(AuditHeaderInputBean input) throws Exception {
+        ResponseEntity<AuditResultBean> result = createHeader(input);
+        return new AsyncResult<>(result);
     }
 
     @ResponseBody

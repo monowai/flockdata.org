@@ -37,7 +37,7 @@ public interface AuditHeaderRepo extends GraphRepository<AuditHeaderNode> {
     @Query(elementClass = AuditHeaderNode.class, value =
             "start fortress = node({0}), " +
                     "   audit = node:callerRef(callerRef  ={2})  " +
-                    "   match fortress-[:audit]->audit<-[:classifies]-docType " +
+                    "   match fortress-[:TRACKS]->audit<-[:CLASSIFIES]-docType " +
                     "   where docType.name ={1}" +
                     "  return audit")
     AuditHeaderNode findByCallerRef(Long fortress, String docType, String callerRef);
@@ -47,17 +47,8 @@ public interface AuditHeaderRepo extends GraphRepository<AuditHeaderNode> {
                     " return audit")
     AuditHeaderNode findByUID(String uid);
 
-    @Query(elementClass = AuditHeaderNode.class, value = "start n=node:company({1} ) " +
-            "   MATCH company-[:validTag]->ct " +
-            "   where ct.name in [{0}]" +
-            "return ct")
-    Set<AuditHeader> findByUserTag(String userTag, Long id);
-
-    //ToDo: which is more efficient?
-    // start tag =node:tagName(name="6afe75a7-bf69-40c0-aeea-a2d74c0962de")
-
     @Query(value = "start company=node({1}) " +
-            "   MATCH company-[:txTag]->txTag " +
+            "   MATCH company-[:TX]->txTag " +
             "   where txTag.name = {0} " +
             "return txTag")
     TxRefNode findTxTag(String userTag, Long company);

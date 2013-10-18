@@ -45,10 +45,10 @@ public class TxRefNode implements TxRef {
     private Long id;
 
     @Fetch
-    @RelatedTo(elementClass = CompanyNode.class, type = "txTag", direction = Direction.INCOMING)
+    @RelatedTo(elementClass = CompanyNode.class, type = "TX", direction = Direction.INCOMING)
     private CompanyNode company;
 
-    @RelatedTo(elementClass = AuditHeaderNode.class, type = "txIncludes")
+    @RelatedTo(elementClass = AuditHeaderNode.class, type = "AFFECTED")
     private Set<AuditHeader> auditHeaders;
 
     @Indexed(numeric = false, indexName = "tagName")

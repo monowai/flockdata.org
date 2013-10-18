@@ -70,8 +70,4 @@ public class TagInputBean implements Tag {
         return company;
     }
 
-    @Override
-    public void setCompany(Company company) {
-        this.company = company;
-    }
 }

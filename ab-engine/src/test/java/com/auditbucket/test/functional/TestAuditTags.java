@@ -49,6 +49,7 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.core.GraphDatabase;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.data.neo4j.support.node.Neo4jHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -62,10 +63,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-import static junit.framework.Assert.*;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * User: Mike Holdsworth
@@ -75,7 +76,6 @@ import static org.junit.Assert.fail;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 @Transactional
-
 public class TestAuditTags {
     @Autowired
     FortressService fortressService;
@@ -114,6 +114,9 @@ public class TestAuditTags {
             Neo4jHelper.cleanDb(template);
     }
 
+    @Autowired
+    GraphDatabase graphDatabase;
+
     @Test
     public void tagAuditRecords() throws Exception {
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
@@ -144,17 +147,18 @@ public class TestAuditTags {
 
         auditTagService.processTag(header, auditTag);
 
-        Set<AuditTag> tags = auditTagService.findTagValues(flopTag.getName(), "ABC");
-        assertEquals("Not found " + flopTag.getName(), 1, tags.size());
+        Boolean tagRlxExists = auditTagService.relationshipExists(header, flopTag.getName(), "ABC");
+        assertTrue("Tag not found " + flopTag.getName(), tagRlxExists);
 
         auditTagService.processTag(header, auditTag);
         // Behaviour - Can't add the same tagValue twice for the same combo
-        tags = auditTagService.findTagValues(flopTag.getName(), "ABC");
-        assertEquals(1, tags.size());
+        tagRlxExists = auditTagService.relationshipExists(header, flopTag.getName(), "ABC");
+        assertTrue(tagRlxExists);
     }
 
     @Test
-    public void tagValueCRUD() throws Exception {
+    public void renameRelationship() throws Exception {
+
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         fortressService.registerFortress("ABC");
 
@@ -172,27 +176,56 @@ public class TestAuditTags {
         aib.setTagValues(tagValues);
         AuditResultBean resultBean = auditManager.createHeader(aib);
         AuditHeader auditHeader = auditService.getHeader(resultBean.getAuditKey());
-        Set<AuditTag> tagSet = auditHeader.getTagValues();
+        Set<AuditTag> tagSet = auditTagService.findAuditTags(auditHeader);
+
         assertNotNull(tagSet);
         assertEquals(4, tagSet.size());
-        assertEquals(0, auditTagService.findTagValues("TagC", "!!Twee!!").size());//
+        assertFalse(auditTagService.relationshipExists(auditHeader, "TagC", "!!Twee!!"));//
         // Remove a single tag
-        Iterator<AuditTag> iterator = tagSet.iterator();
-        while (iterator.hasNext()) {
-            AuditTag value = iterator.next();
-            if (value.getTag().getName().equals("TagB"))
-                iterator.remove();
+        for (AuditTag value : tagSet) {
             if (value.getTag().getName().equals("TagC"))
-                value.setTagType("!!Twee!!");
+                auditTagService.changeType(auditHeader, value, "!!Twee!!");
         }
 
-        assertEquals(3, tagSet.size());
-        auditService.updateHeader(auditHeader);
-        auditHeader = auditService.getHeader(resultBean.getAuditKey());
-        tagSet = auditHeader.getTagValues();
+        assertTrue(auditTagService.relationshipExists(auditHeader, "TagC", "!!Twee!!"));
+    }
+
+    @Test
+    public void createAndDeleteAuditTags() throws Exception {
+
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        fortressService.registerFortress("ABC");
+
+        Company iCompany = iSystemUser.getCompany();
+        Tag tagInput = new TagInputBean(iCompany, "FLOP");
+
+        Tag result = tagService.processTag(tagInput);
+        assertNotNull(result);
+        AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
+        Map<String, Object> tagValues = new HashMap<>();
+        tagValues.put("TagA", "AAAA");
+        tagValues.put("TagB", "BBBB");
+        tagValues.put("TagC", "CCCC");
+        tagValues.put("TagD", "DDDD");
+        aib.setTagValues(tagValues);
+        AuditResultBean resultBean = auditManager.createHeader(aib);
+        AuditHeader auditHeader = auditService.getHeader(resultBean.getAuditKey());
+        Set<AuditTag> tagSet = auditTagService.findAuditTags(auditHeader);
+
+        assertNotNull(tagSet);
+        assertEquals(4, tagSet.size());
+        // Remove a single tag
+        for (AuditTag value : tagSet) {
+            if (value.getTag().getName().equals("TagB"))
+                auditTagService.deleteAuditTag(auditHeader, value);
+        }
+        tagSet = auditTagService.findAuditTags(auditHeader);
         assertNotNull(tagSet);
         assertEquals(3, tagSet.size());
-        assertNotNull(auditTagService.findTagValues("TagC", "!!Twee!!"));
+        // Ensure that the deleted tag is not in the results
+        for (AuditTag auditTag : tagSet) {
+            assertFalse(auditTag.getTag().getName().equals("TagB"));
+        }
     }
 
     @Test
@@ -215,13 +248,14 @@ public class TestAuditTags {
         aib.setTagValues(tagValues);
         AuditResultBean resultBean = auditManager.createHeader(aib);
         AuditHeader auditHeader = auditService.getHeader(resultBean.getAuditKey());
-        Set<AuditTag> tagSet = auditHeader.getTagValues();
+        Set<AuditTag> tagSet = auditTagService.findAuditTags(auditHeader);
         assertNotNull(tagSet);
         assertEquals(4, tagSet.size());
 
         auditService.updateHeader(auditHeader);
         auditHeader = auditService.getHeader(auditHeader.getAuditKey());
-        tagSet = auditHeader.getTagValues();
+        AuditSummaryBean summaryBean = auditService.getAuditSummary(auditHeader.getAuditKey());
+        tagSet = summaryBean.getTags();
         assertNotNull(tagSet);
         Set<AuditHeader> headers = auditTagService.findTagAudits("TagA");
         assertNotNull(headers);
@@ -257,7 +291,7 @@ public class TestAuditTags {
         AuditHeader auditHeader = auditService.getHeader(resultBean.getAuditKey());
         Tag tag = tagService.findTag("Taga");
         assertNotNull(tag);
-        Set<AuditTag> auditTags = auditTagService.findAuditTags(auditHeader.getId());
+        Set<AuditTag> auditTags = auditTagService.findAuditTags(auditHeader);
         for (AuditTag auditTag : auditTags) {
             assertEquals("Expected same tag for each relationship", tag.getId(), auditTag.getTag().getId());
         }
@@ -294,7 +328,7 @@ public class TestAuditTags {
 
         AuditSummaryBean summaryBean = auditManager.getAuditSummary(auditHeader.getAuditKey());
         assertNotNull(summaryBean);
-        assertEquals(3, summaryBean.getHeader().getTagValues().size());
+        assertEquals(3, summaryBean.getTags().size());
 
     }
 
@@ -334,7 +368,61 @@ public class TestAuditTags {
         AuditHeader header = auditService.getHeader(resultBean.getAuditKey());
         Set<AuditTag> tagResults = auditTagService.findAuditTags(header);
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
-        assertEquals(3, header.getTagValues().size());
+        AuditSummaryBean summaryBean = auditService.getAuditSummary(header.getAuditKey());
+        assertEquals(3, summaryBean.getTags().size());
+    }
+
+    @Test
+    public void mapRelationshipsWithNullProperties() throws Exception {
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        assertNotNull(iSystemUser);
+
+        Fortress fortress = fortressService.registerFortress("ABC");
+        assertNotNull(fortress);
+
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
+        Map<String, Object> tags = new HashMap<>();
+        Map<String, Map> types = new HashMap<>();
+        types.put("email-to", null);
+        types.put("email-cc", null);
+        tags.put("mike@auditbucket.com", types);
+        tags.put("np@auditbucket.com", "email-cc");
+        inputBean.setTagValues(tags);
+        AuditResultBean resultBean = auditManager.createHeader(inputBean);
+        AuditHeader header = auditService.getHeader(resultBean.getAuditKey());
+        Set<AuditTag> tagResults = auditTagService.findAuditTags(header);
+        AuditSummaryBean summaryBean = auditService.getAuditSummary(header.getAuditKey());
+        assertEquals("Union of type and tag does not total", 3, tagResults.size());
+        assertEquals(3, summaryBean.getTags().size());
+    }
+
+    @Test
+    public void mapRelationshipsWithProperties() throws Exception {
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        assertNotNull(iSystemUser);
+
+        Fortress fortress = fortressService.registerFortress("ABC");
+        assertNotNull(fortress);
+
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
+        Map<String, Object> tags = new HashMap<>();
+        Map<String, Map> types = new HashMap<>();
+        Map<String, Object> propA = new HashMap<>();
+        Map<String, Object> propB = new HashMap<>();
+        propA.put("myValue", 10);
+        propB.put("myValue", 20);
+
+        types.put("email-to", propA);
+        types.put("email-cc", propB);
+        tags.put("mike@auditbucket.com", types);
+        tags.put("np@auditbucket.com", "email-cc");
+        inputBean.setTagValues(tags);
+        AuditResultBean resultBean = auditManager.createHeader(inputBean);
+        AuditHeader header = auditService.getHeader(resultBean.getAuditKey());
+        Set<AuditTag> tagResults = auditTagService.findAuditTags(header);
+        AuditSummaryBean summaryBean = auditService.getAuditSummary(header.getAuditKey());
+        assertEquals("Union of type and tag does not total", 3, tagResults.size());
+        assertEquals(3, summaryBean.getTags().size());
     }
 
     @Test
@@ -358,7 +446,6 @@ public class TestAuditTags {
         Set<AuditTag> tagResults = auditTagService.findAuditTags(header);
         // ToDo In Neo4j2 remove the generic tag
         assertEquals("One for the Generic tag and one for exploration", 1, tagResults.size());
-        assertEquals(1, header.getTagValues().size());
     }
 
     @Test
@@ -381,7 +468,8 @@ public class TestAuditTags {
         AuditHeader header = auditService.getHeader(resultBean.getAuditKey());
         Set<AuditTag> tagResults = auditTagService.findAuditTags(header);
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
-        assertEquals(3, header.getTagValues().size());
+        AuditSummaryBean summaryBean = auditService.getAuditSummary(header.getAuditKey());
+        assertEquals(3, summaryBean.getTags().size());
 
 
     }

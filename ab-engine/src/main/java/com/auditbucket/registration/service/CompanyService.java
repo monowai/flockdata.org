@@ -31,7 +31,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.List;
 
 @Service
 public class CompanyService {
@@ -45,6 +44,10 @@ public class CompanyService {
 
     @Autowired
     private SecurityHelper securityHelper;
+
+    @Autowired
+    private TagService tagService;
+
 
     public Company findByName(String companyName) {
         return companyDao.findByPropertyValue("name", companyName);
@@ -92,7 +95,9 @@ public class CompanyService {
     }
 
     public Company save(String companyName) {
-        return companyDao.create(companyName, keyGenService.getUniqueKey());
+        Company company = companyDao.create(companyName, keyGenService.getUniqueKey());
+        tagService.createCompanyTagManager(company.getId(), companyName);
+        return company;
     }
 
     @Cacheable(value = "companyKeys", unless = "#result == null")

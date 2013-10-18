@@ -40,6 +40,7 @@ import java.util.List;
 public class FortressDaoNeo implements FortressDao {
     @Autowired
     private FortressRepository fortressRepo;
+
     @Autowired
     private FortressUserRepository fortressUserRepo;
 

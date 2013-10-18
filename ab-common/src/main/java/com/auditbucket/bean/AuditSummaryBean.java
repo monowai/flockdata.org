@@ -21,6 +21,7 @@ package com.auditbucket.bean;
 
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditLog;
+import com.auditbucket.audit.model.AuditTag;
 
 import java.util.Set;
 
@@ -31,14 +32,16 @@ import java.util.Set;
 public class AuditSummaryBean {
     private AuditHeader header;
     private Set<AuditLog> changes;
+    private Set<AuditTag> tags;
 
     private AuditSummaryBean() {
     }
 
-    public AuditSummaryBean(AuditHeader header, Set<AuditLog> changes) {
+    public AuditSummaryBean(AuditHeader header, Set<AuditLog> changes, Set<AuditTag> tags) {
         this();
         this.header = header;
         this.changes = changes;
+        this.tags = tags;
     }
 
     public AuditHeader getHeader() {
@@ -47,5 +50,9 @@ public class AuditSummaryBean {
 
     public Set<AuditLog> getChanges() {
         return changes;
+    }
+
+    public Set<AuditTag> getTags() {
+        return tags;
     }
 }
