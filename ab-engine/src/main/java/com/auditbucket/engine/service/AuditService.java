@@ -155,7 +155,7 @@ public class AuditService {
         }
 
         if (ah != null) {
-            logger.debug("Existing auditHeader record found by Caller Ref [{}] found [{}]", inputBean.getCallerRef(), ah.getAuditKey());
+            logger.trace("Existing auditHeader record found by Caller Ref [{}] found [{}]", inputBean.getCallerRef(), ah.getAuditKey());
             inputBean.setAuditKey(ah.getAuditKey());
 
             AuditResultBean arb = new AuditResultBean(ah);
@@ -273,7 +273,7 @@ public class AuditService {
             try {
                 // KVStore.getWhat()
                 if (whatService.isSame(existingLog.getAuditChange(), input.getWhat())) {
-                    logger.debug("Ignoring a change we already have {}", input);
+                    logger.trace("Ignoring a change we already have {}", input);
                     input.setStatus(AuditLogInputBean.LogStatus.IGNORE);
                     if (input.isForceReindex()) { // Caller is recreating the search index
                         prepareSearchDocument(auditHeader, input, existingLog.getAuditChange().getEvent(), searchActive, fortressWhen, existingLog);

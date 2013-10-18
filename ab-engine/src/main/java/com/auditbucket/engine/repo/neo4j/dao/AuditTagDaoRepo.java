@@ -74,7 +74,7 @@ public class AuditTagDaoRepo implements com.auditbucket.dao.AuditTagDao {
         template.createRelationshipBetween(tagNode, headerNode, relationship, propMap);
         if (recreated)
             return null;
-        logger.debug("Created Tag[{}] Relationship for type {}", tag, relationship);
+        logger.trace("Created Relationship Tag[{}] of type {}", tag, relationship);
 
         return null;
     }

@@ -61,8 +61,8 @@
     <logger name="org.springframework">
         <level value="info"/>
     </logger>
-    <logger name="org.auditbucket">
-        <level value="info"/>
+    <logger name="com.auditbucket.engine.service">
+        <level value="debug"/>
     </logger>
 
 
