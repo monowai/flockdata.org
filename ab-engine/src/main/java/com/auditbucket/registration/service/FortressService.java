@@ -29,11 +29,14 @@ import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.repo.neo4j.dao.CompanyDao;
 import com.auditbucket.registration.repo.neo4j.dao.FortressDao;
 import com.auditbucket.registration.repo.neo4j.model.FortressNode;
-import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -65,9 +68,15 @@ public class FortressService {
         return fortressDao.findOneUser(id);
     }
 
-    public Fortress find(String fortressName) {
+    @Cacheable(value = "fortressName", unless = "#result == null")
+    public Fortress findByName(String fortressName) {
         Company ownedBy = getCompany();
-        return companyDao.getFortress(ownedBy.getId(), fortressName);
+        return companyDao.getFortressByName(ownedBy.getId(), fortressName);
+    }
+
+    public Fortress findByCode(String fortressCode) {
+        Company ownedBy = getCompany();
+        return companyDao.getFortressByCode(ownedBy.getId(), fortressCode);
     }
 
     private Company getCompany() {
@@ -79,6 +88,7 @@ public class FortressService {
         return su.getCompany();
     }
 
+    @CacheEvict(value = "fortressName", key = "#p0.id")
     public Fortress save(Fortress fortress) {
         return fortressDao.save(fortress);
     }
@@ -98,6 +108,7 @@ public class FortressService {
         return getFortressUser(fortress, fortressUser, true);
     }
 
+    @Cacheable(value = "fortressUser")
     public FortressUser getFortressUser(Fortress fortress, String fortressUser, boolean createIfMissing) {
         if (fortressUser == null || fortress == null)
             throw new IllegalArgumentException("Don't go throwing null in here [" + (fortressUser == null ? "FortressUserNode]" : "FortressNode]"));
@@ -151,6 +162,14 @@ public class FortressService {
         return registerFortress(fb);
     }
 
+    public Collection<Fortress> findFortresses() {
+        Company company = securityHelper.getCompany();
+        if (company == null)
+            return new ArrayList<>();
+        return fortressDao.findFortresses(company.getId());
+
+    }
+
     public List<Fortress> findFortresses(String companyName) {
         Company company = companyService.findByName(companyName);
         if (company == null)
@@ -159,5 +178,10 @@ public class FortressService {
             return fortressDao.findFortresses(company.getId());
         else
             return null; //NotAuth
+    }
+
+    public void fetch(FortressUser lastUser) {
+        fortressDao.fetch(lastUser);
+
     }
 }

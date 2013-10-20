@@ -22,18 +22,18 @@ package com.auditbucket.registration.service;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.registration.repo.neo4j.dao.RegistrationDao;
+import com.auditbucket.registration.repo.neo4j.dao.RegistrationNeo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class SystemUserService {
 
     @Autowired
-    RegistrationDao regDao;
+    RegistrationNeo regDao;
 
+    @Cacheable(value = "systemUsers", unless = "#result == null")
     public SystemUser findByName(String name) {
         if (name == null) {
             throw new IllegalArgumentException("Name cannot be null");
@@ -46,12 +46,10 @@ public class SystemUserService {
     }
 
     //@Transactional
+
     public SystemUser save(RegistrationBean regBean) {
         return regDao.save(regBean.getCompany(), regBean.getName(), regBean.getPassword());
     }
 
-    //@Transactional (propagation = Propagation.SUPPORTS)
-    public void wireIndexes() {
-        regDao.wireIndexes();
-    }
+
 }

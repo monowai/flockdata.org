@@ -36,7 +36,7 @@ public class TagInputBean implements Tag {
     @NotEmpty
     private String name;
 
-    public TagInputBean() {
+    private TagInputBean() {
     }
 
     public TagInputBean(String tagName) {
@@ -70,8 +70,4 @@ public class TagInputBean implements Tag {
         return company;
     }
 
-    @Override
-    public void setCompany(Company company) {
-        this.company = company;
-    }
 }

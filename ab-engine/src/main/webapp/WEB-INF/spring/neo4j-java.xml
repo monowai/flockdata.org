@@ -20,16 +20,9 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:neo4j="http://www.springframework.org/schema/data/neo4j"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-http://www.springframework.org/schema/beans/spring-beans.xsd
+                            http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-
-http://www.springframework.org/schema/data/neo4j
-http://www.springframework.org/schema/data/neo4j/spring-neo4j.xsd">
-
-
-    <neo4j:config graphDatabaseService="graphDatabaseService"/>
 
     <!--Enables remote shell-->
     <bean id="graphDatabaseService" class="org.neo4j.kernel.EmbeddedGraphDatabase" destroy-method="shutdown">
@@ -41,6 +34,9 @@ http://www.springframework.org/schema/data/neo4j/spring-neo4j.xsd">
             </map>
         </constructor-arg>
     </bean>
+    <!--<bean id="serverWrapper" class="org.neo4j.server.WrappingNeoServer" init-method="start" destroy-method="stop">-->
+    <!--<constructor-arg ref="graphDatabaseService"/>-->
+    <!--</bean>-->
     <!-- End remote shell -->
 
 

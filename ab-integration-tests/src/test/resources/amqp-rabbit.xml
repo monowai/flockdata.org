@@ -30,18 +30,19 @@
     <rabbit:connection-factory id="connectionFactory"
                                host="${rabbit.host}"
                                port="${rabbit.port}"
-                               channel-cache-size="${rabbit.publisherCacheSize}"
+                               publisher-confirms="${rabbit.publisher.confirms}"
+                               publisher-returns="${rabbit.publisher.returns}"
                                executor="AMQPPoolTaskExecutor"/>
 
     <task:executor id="AMQPPoolTaskExecutor"
                    pool-size="${rabbit.consumerChannelCacheSize}"
-                   queue-capacity="1000"
+                   queue-capacity="${rabbit.task.capacity}"
                    rejection-policy="CALLER_RUNS"/>
 
     <rabbit:template id="amqpTemplate" connection-factory="connectionFactory"/>
 
     <rabbit:admin connection-factory="connectionFactory"/>
-    <!--AB Engine perspective-->
+
     <rabbit:queue name="ab-search.queue"/>
     <rabbit:queue name="ab-engine.queue"/>
 
@@ -56,5 +57,6 @@
             <rabbit:binding queue="ab-engine.queue" key="ab.engine.binding"/>
         </rabbit:bindings>
     </rabbit:direct-exchange>
+
 
 </beans>

@@ -29,7 +29,8 @@
 
     <rabbit:connection-factory id="connectionFactory"
                                host="${rabbit.host}"
-                               port="${rabbit.port}" publisher-confirms="${rabbit.publisher.confirms}"
+                               port="${rabbit.port}"
+                               publisher-confirms="${rabbit.publisher.confirms}"
                                publisher-returns="${rabbit.publisher.returns}"
                                channel-cache-size="${rabbit.publisherCacheSize}"
                                executor="AMQPPoolTaskExecutor"/>

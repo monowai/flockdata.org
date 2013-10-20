@@ -86,7 +86,7 @@ public class TestAuditEvent {
     private String monowai = "Monowai";
     private String mike = "test@ab.com";
     private String mark = "mark@null.com";
-    Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
+    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
     Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "user1");
     String what = "{\"house\": \"house";
 
@@ -110,16 +110,17 @@ public class TestAuditEvent {
         Fortress fortressA = fortressService.registerFortress("auditTest");
         Company company = fortressA.getCompany();
         assertNotNull(company);
-        String eventCode = "DuplicateNotAllowed";
-        AuditEvent event = auditEventService.processEvent(eventCode);
+        String eventName = "DuplicateNotAllowed";
+        AuditEvent event = auditEventService.processEvent(eventName);
 
         assertNotNull(event);
         Long existingId = event.getId();
-        assertEquals(eventCode, event.getCode());
+        assertEquals(eventName, event.getName());
+        assertEquals(eventName.toLowerCase(), event.getCode());
         assertEquals(company.getId(), event.getCompany().getId());
         Set<AuditEvent> events = auditEventService.getCompanyEvents(company.getId());
         assertEquals(1, events.size());
-        event = auditEventService.processEvent(eventCode);
+        event = auditEventService.processEvent(eventName);
         assertEquals(existingId, event.getId());
         assertEquals(1, events.size());
 

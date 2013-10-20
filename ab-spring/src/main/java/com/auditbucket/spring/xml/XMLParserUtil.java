@@ -25,12 +25,12 @@ import org.w3c.dom.Element;
  * XML Parser helpers
  * Source from: http://www.java2s.com/Tutorial/Java/0440__XML/GetElementBooleanValue.htm
  */
-public class XMLParserUtil {
+class XMLParserUtil {
     public static boolean getElementBooleanValue(Element element, String attribute) {
         return getElementBooleanValue(element, attribute, false);
     }
 
-    public static boolean getElementBooleanValue(Element element, String attribute, boolean defaultValue) {
+    private static boolean getElementBooleanValue(Element element, String attribute, boolean defaultValue) {
         if (!element.hasAttribute(attribute)) return defaultValue;
         return Boolean
                 .valueOf(getElementStringValue(element, attribute))

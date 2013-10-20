@@ -40,6 +40,7 @@ import java.util.List;
 public class FortressDaoNeo implements FortressDao {
     @Autowired
     private FortressRepository fortressRepo;
+
     @Autowired
     private FortressUserRepository fortressUserRepo;
 
@@ -64,9 +65,7 @@ public class FortressDaoNeo implements FortressDao {
     @Override
     public FortressUser getFortressUser(Long id, String name) {
 
-        if (template.getGraphDatabaseService().index().existsForNodes("fortressUser"))
-            return fortressRepo.getFortressUser(id, name);
-        return null;
+        return fortressRepo.getFortressUser(id, name);
 
     }
 
@@ -91,6 +90,12 @@ public class FortressDaoNeo implements FortressDao {
     @Override
     public FortressUser save(Fortress fortress, String fortressUserName) {
         return fortressUserRepo.save(new FortressUserNode(fortress, fortressUserName));
+    }
+
+    @Override
+    public void fetch(FortressUser lastUser) {
+        template.fetch(lastUser);
+
     }
 
 

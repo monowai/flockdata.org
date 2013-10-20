@@ -27,6 +27,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
@@ -38,11 +39,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class GlobalControllerExceptionHandler {
     private Logger logger = LoggerFactory.getLogger(GlobalControllerExceptionHandler.class);
 
-    @ExceptionHandler(value = {MissingServletRequestParameterException.class, HttpMessageNotReadableException.class, Exception.class})
+    @ExceptionHandler(value = {MissingServletRequestParameterException.class, HttpMessageNotReadableException.class, AuditException.class, Exception.class})
+    @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     ResponseEntity<Object> handleConflict(Exception ex) {
         logger.error(ex.getMessage(), ex.getStackTrace());
         return new ResponseEntity<Object>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
-
 }

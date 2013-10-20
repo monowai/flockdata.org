@@ -22,21 +22,13 @@ package com.auditbucket.test.unit;
 import com.auditbucket.audit.model.TxRef;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
-import com.auditbucket.bean.AuditResultBean;
 import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.net.www.http.HttpClient;
-
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.InputStream;
 
 import static junit.framework.Assert.*;
 import static org.junit.Assert.assertFalse;

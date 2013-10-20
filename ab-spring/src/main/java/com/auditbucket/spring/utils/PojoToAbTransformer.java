@@ -25,8 +25,8 @@ public class PojoToAbTransformer {
      * @return
      * @throws IllegalAccessException
      * @throws IOException
-     * @Tags in the format of "Type"/"Value"
-     * "tagValues": { "TypeA": "Helos", "TypeB": "Tiger"},
+     * @Tags in the format of "Value"/"Type"
+     * "tagValues": { "Helos": "TypeA", "Tiger": "AnimalType", "1234", "{"TypeB", "TypeC"}"},
      * See AuditLog below
      * "auditLog": {
      * "when": "2012-11-12",
@@ -44,7 +44,7 @@ public class PojoToAbTransformer {
 
         AuditHeaderInputBean auditHeaderInputBean = new AuditHeaderInputBean();
         AuditLogInputBean auditLogInputBean = new AuditLogInputBean("null", new DateTime(), null);
-        Map<String, String> tagValues = new HashMap<String, String>();
+        Map<String, Object> tagValues = new HashMap<String, Object>();
         Map<String, Object> mapWhat = new HashMap<String, Object>();
         Class aClass = pojo.getClass();
         Annotation[] annotations = aClass.getAnnotations();
@@ -86,10 +86,13 @@ public class PojoToAbTransformer {
                             if (fieldAnnotation instanceof AuditTag) {
                                 auditWhat = false;
                                 AuditTag auditTagAnnotation = (AuditTag) fieldAnnotation;
+                                // ToDo: Assume all values to be a list. We could be adding a value to an existing key
+                                // ToDo: i.e 123ABC/CustRef exists, in a sub object we add 123ABC/Customer
+                                // This would create 2 relationships for the tag key 123ABC, not simply replace it.
                                 if (auditTagAnnotation.name().equals("")) {
-                                    tagValues.put(field.getName(), field.get(pojo).toString());
+                                    tagValues.put(field.get(pojo).toString(), field.getName());
                                 } else {
-                                    tagValues.put(auditTagAnnotation.name(), field.get(pojo).toString());
+                                    tagValues.put(field.get(pojo).toString(), auditTagAnnotation.name());
                                 }
                             }
                             if (fieldAnnotation instanceof NoAudit) {

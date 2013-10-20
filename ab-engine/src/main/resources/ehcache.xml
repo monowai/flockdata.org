@@ -1,0 +1,90 @@
+<!--
+  ~ Copyright (c) 2012-2013 "Monowai Developments Limited"
+  ~
+  ~ This file is part of AuditBucket.
+  ~
+  ~ AuditBucket is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ AuditBucket is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<ehcache>
+
+    <defaultCache
+            maxElementsInMemory="200"
+            eternal="false"
+            timeToIdleSeconds="120"
+            timeToLiveSeconds="120"
+            memoryStoreEvictionPolicy="LRU"/>
+
+    <cache name="companyTag"
+           maxElementsInMemory="200"
+           eternal="true"
+           memoryStoreEvictionPolicy="LFU"/>
+
+    <cache name="companyTagManager"
+           maxElementsInMemory="10"
+           eternal="true"
+           memoryStoreEvictionPolicy="LFU"/>
+
+    <cache name="companyDocType"
+           maxElementsInMemory="200"
+           eternal="true"
+           memoryStoreEvictionPolicy="LFU"/>
+
+    <cache name="auditKey"
+           maxElementsInMemory="200"
+           eternal="false"
+           timeToIdleSeconds="120"
+           timeToLiveSeconds="120"
+           memoryStoreEvictionPolicy="LRU"/>
+
+    <cache name="auditHeaderId"
+           maxElementsInMemory="200"
+           eternal="false"
+           timeToIdleSeconds="120"
+           timeToLiveSeconds="120"
+           memoryStoreEvictionPolicy="LRU"/>
+
+    <cache name="companyKeys"
+           maxElementsInMemory="200"
+           eternal="true"
+           memoryStoreEvictionPolicy="LRU"/>
+
+    <cache name="auditLog"
+           maxElementsInMemory="200"
+           eternal="true"
+           memoryStoreEvictionPolicy="LRU"/>
+
+    <cache name="companyFortress"
+           maxElementsInMemory="200"
+           eternal="true"
+           memoryStoreEvictionPolicy="LRU"/>
+
+    <cache name="fortressName"
+           maxElementsInMemory="200"
+           eternal="true"
+           memoryStoreEvictionPolicy="LRU"/>
+
+    <cache name="systemUsers"
+           maxElementsInMemory="75"
+           eternal="false"
+           timeToIdleSeconds="120"
+           timeToLiveSeconds="320"
+           memoryStoreEvictionPolicy="LRU"/>
+
+    <cache name="fortressUser"
+           maxElementsInMemory="200"
+           eternal="true"
+           memoryStoreEvictionPolicy="LRU"/>
+
+</ehcache>

@@ -43,10 +43,11 @@ public class AuditHeaderInputBean {
     private String lastMessage;
     private AuditLogInputBean auditLog;
     private boolean searchSuppressed;
-    private Map<String, String> tagValues = new HashMap<>();
+    private Map<String, Object> tagValues = new HashMap<>();
     private boolean suppressSearch;
     private String event;
     private AuditEvent eventObject;
+    private String apiKey;
 
     public AuditHeaderInputBean() {
     }
@@ -136,11 +137,11 @@ public class AuditHeaderInputBean {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Map<String, String> getTagValues() {
+    public Map<String, Object> getTagValues() {
         return tagValues;
     }
 
-    public void setTagValues(Map<String, String> tagValues) {
+    public void setTagValues(Map<String, Object> tagValues) {
         this.tagValues = tagValues;
     }
 
@@ -172,5 +173,13 @@ public class AuditHeaderInputBean {
 
     public void setEventObject(AuditEvent eventObject) {
         this.eventObject = eventObject;
+    }
+
+    public String getApiKey() {
+        return apiKey;
+    }
+
+    public void setApiKey(String apiKey) {
+        this.apiKey = apiKey;
     }
 }

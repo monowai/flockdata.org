@@ -34,7 +34,7 @@ public class AuditTagInputBean {
     @NotNull
     private String type;
 
-    protected AuditTagInputBean() {
+    private AuditTagInputBean() {
     }
 
     public AuditTagInputBean(String auditKey, String tagName, String type) {

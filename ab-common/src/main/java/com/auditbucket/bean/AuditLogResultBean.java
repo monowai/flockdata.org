@@ -50,7 +50,7 @@ public class AuditLogResultBean {
         this.fortressUser = input.getFortressUser();
     }
 
-    public AuditLogResultBean() {
+    private AuditLogResultBean() {
     }
 
 

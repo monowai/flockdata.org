@@ -23,6 +23,7 @@ import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditTag;
 import com.auditbucket.bean.AuditTagInputBean;
 import com.auditbucket.dao.AuditTagDao;
+import com.auditbucket.helper.AuditException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
@@ -32,6 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -53,74 +56,119 @@ public class AuditTagService {
     @Autowired
     AuditTagDao auditTagDao;
 
-    public AuditTag processTag(AuditHeader header, AuditTagInputBean tagInput) {
-        //Company company = securityHelper.getCompany();
+    public void processTag(AuditHeader header, AuditTagInputBean tagInput) {
         String type = tagInput.getType();
-        Set<AuditTag> existing = findTagValues(tagInput.getTagName(), type);
-        if (existing != null && existing.size() == 1)
+        boolean existing = relationshipExists(header, tagInput.getTagName(), type);
+        if (existing)
             // We already have this tagged so get out of here
-            return existing.iterator().next();
+            return;
 
         Tag tag = tagService.processTag(new TagInputBean(tagInput.getTagName()));
-        return auditTagDao.save(header, tag, type);
+        auditTagDao.save(header, tag, type);
     }
 
-    public Set<AuditTag> findTagValues(String name, String type) {
+    public Boolean relationshipExists(AuditHeader auditHeader, String name, String relationshipType) {
         Tag tag = tagService.findTag(name);
         if (tag == null)
-            return null;
-        return auditTagDao.find(tag, type);
+            return false;
+        return auditTagDao.relationshipExists(auditHeader, tag, relationshipType);
     }
 
-    public Set<AuditHeader> findTagAudits(String tagName) {
-        Tag tag = tagService.findTag(tagName);
-        if (tag == null)
-            return null;
-        return auditTagDao.findTagAudits(tag);
-    }
+//    public Set<AuditHeader> findTagAudits(String tagName) {
+//        Tag tag = tagService.findTag(tagName);
+//        if (tag == null)
+//            return null;
+//        return auditTagDao.findTagAudits(tag.getId());
+//    }
+
 
     /**
-     * Will associate the supplied userTags with the AuditHeaderNode
+     * Associates the supplied userTags with the AuditHeaderNode
      * <p/>
-     * The Key in the map will be treated as the tag name if the value == null
-     * Otherwise the key is treated as the tagType and the value is treated as the name.
+     * in JSON terms....
+     * "ClientID123" :{"clientKey","prospectKey"}
      * <p/>
-     * This approach allows you to use a simple tag for a document such as
-     * ClientID123 without having to describe the type (it will be created as a general type)
      * <p/>
-     * likewise if providing Type/Name then you can associate the same name tag with multiple relationships types
+     * The value can be null which will create a simple tag for the Header such as
+     * ClientID123
      * <p/>
-     * clientKey/ClientID123
-     * prospectKey/ClientID123
+     * They type can be Null, String or a Collection<String> that describes the relationship
+     * types to create.
      * <p/>
-     * If this scenario, ClientID123 is created as a single node with two relationships - clientKey and prospectKey
+     * If this scenario, ClientID123 is created as a single node with two relationships that
+     * describe the association - clientKey and prospectKey
      *
-     * @param userTags Key/Value pair of tags. TagNode will be created if missing
      * @param ah       Header to associate userTags with
+     * @param userTags Key/Value pair of tags. TagNode will be created if missing. Value can be a Collection
      */
-    public void createTagValues(Map<String, String> userTags, AuditHeader ah) {
+    public void createTagValues(AuditHeader ah, Map<String, Object> userTags) {
         if ((userTags == null) || userTags.isEmpty())
             return;
 
         Company company = ah.getFortress().getCompany();
 
-        for (String tagType : userTags.keySet()) {
-            Tag tag;
-            String tagName = userTags.get(tagType);
-            if (tagName == null)
-                tag = tagService.processTag(new TagInputBean(company, tagType));
-            else
-                tag = tagService.processTag(new TagInputBean(company, tagName));
+        for (String tagName : userTags.keySet()) {
+            Tag tag = tagService.processTag(new TagInputBean(company, tagName));
+            Object tagRlx = userTags.get(tagName);
+            String rlxName;
+            // Handle both a simple relationship type name or a map/collection of relationships
+            if (tagRlx == null)
+                auditTagDao.save(ah, tag, null);
 
-            auditTagDao.save(ah, tag, tagType);
+            else {
+
+                if (tagRlx instanceof Collection) {
+                    // ToDo: Collection of Maps
+                    for (Object o : ((Collection) tagRlx)) {
+                        auditTagDao.save(ah, tag, o.toString());
+                    }
+                } else if (tagRlx instanceof Map) {
+                    // Map of relationship with properties
+                    Map<String, Object> tagMap = (Map<String, Object>) tagRlx;
+                    for (String relationship : tagMap.keySet()) {
+                        Object o = tagMap.get(relationship);
+                        Map<String, Object> propMap = null;
+                        if (o != null && o instanceof Map) {
+                            propMap = (Map<String, Object>) o;
+                        }
+                        auditTagDao.save(ah, tag, relationship, propMap);
+                    }
+                } else {
+                    rlxName = tagRlx.toString();
+                    auditTagDao.save(ah, tag, rlxName);
+                }
+            }
         }
     }
 
     public Set<AuditTag> findAuditTags(AuditHeader auditHeader) {
-        return auditTagDao.getAuditTags(auditHeader.getId());
+        Long companyId = tagService.getCompanyTagManager(securityHelper.getCompany().getId());
+        return auditTagDao.getAuditTags(auditHeader, companyId);
     }
 
-    public Set<AuditTag> findAuditTags(Long id) {
-        return auditTagDao.getAuditTags(id);
+    public void deleteAuditTags(AuditHeader auditHeader, Collection<AuditTag> auditTags) throws AuditException {
+        auditTagDao.deleteAuditTags(auditHeader, auditTags);
+    }
+
+    public void deleteAuditTag(AuditHeader auditHeader, AuditTag value) throws AuditException {
+        Collection<AuditTag> remove = new ArrayList<>(1);
+        remove.add(value);
+        deleteAuditTags(auditHeader, remove);
+
+    }
+
+    public void changeType(AuditHeader auditHeader, AuditTag existingTag, String newType) throws AuditException {
+        if (auditHeader == null || existingTag == null || newType == null)
+            throw new AuditException(("Illegal parameter"));
+        auditTagDao.changeType(auditHeader, existingTag, newType);
+    }
+
+
+    public Set<AuditHeader> findTagAudits(String tagName) throws AuditException {
+        Tag tag = tagService.findTag(tagName);
+        if (tag == null)
+            throw new AuditException("Unable to find the tag [" + tagName + "]");
+        return auditTagDao.findTagAudits(tag);
+
     }
 }

@@ -53,4 +53,6 @@ public interface Fortress {
     public String getTimeZone();
 
     public String getLanguageTag();
+
+    String getCode();
 }

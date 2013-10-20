@@ -27,6 +27,8 @@ public class WhatService {
     public static final String NEO4J = "neo4j";
     public static final String REDIS = "redis";
 
+    private static final ObjectMapper om = new ObjectMapper();
+    private static final String NEO4J = "neo4j";
     private Logger logger = LoggerFactory.getLogger(WhatService.class);
 
     @Autowired(required = false)
@@ -36,11 +38,12 @@ public class WhatService {
     RedisRepository redisRepository;
 
     public String logWhat(AuditChange change, String jsonText) {
+    public String logWhat(AuditChange change, String jsonText, int version) {
         String store = change.getWhatStore();
         // ToDo: Enum?
         // ToDo: this is a Neo4J what node store
         if (store.equalsIgnoreCase(NEO4J)) {   // ToDo: add Redis store support
-            return auditDao.save(change, jsonText);
+            return auditDao.save(change, jsonText, version);
         } else
         {
             // AuditChange will have to be saved with the remote store key

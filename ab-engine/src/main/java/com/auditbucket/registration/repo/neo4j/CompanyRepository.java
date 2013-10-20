@@ -19,6 +19,7 @@
 
 package com.auditbucket.registration.repo.neo4j;
 
+import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.CompanyUser;
 import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
 import com.auditbucket.registration.repo.neo4j.model.CompanyUserNode;
@@ -28,6 +29,7 @@ import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
 import java.util.Collection;
+import java.util.List;
 
 
 public interface CompanyRepository extends GraphRepository<CompanyNode> {
@@ -40,13 +42,30 @@ public interface CompanyRepository extends GraphRepository<CompanyNode> {
                     "match company-[r:owns]->fortress " +
                     "where fortress.name ={1} " +
                     "return fortress")
-    FortressNode getFortress(Long companyId, String fortressName);
+    FortressNode getFortressByName(Long companyId, String fortressName);
 
-    @Query(elementClass = CompanyUserNode.class, value = "start company=node({0}) match company-[r:works]-companyUser where companyUser.name ={1} return companyUser")
+    @Query(elementClass = FortressNode.class, value =
+            "start company=node({0}) " +
+                    "match company-[r:owns]->fortress " +
+                    "where fortress.code ={1} " +
+                    "return fortress")
+    FortressNode getFortressByCode(Long companyId, String fortressCode);
+
+    @Query(elementClass = CompanyUserNode.class,
+            value = "start company=node({0}) " +
+                    "match company-[r:works]-companyUser " +
+                    "where companyUser.name ={1} return companyUser")
     CompanyUserNode getCompanyUser(long ID, String userName);
 
-    @Query(elementClass = SystemUserNode.class, value = "start company=node({0}) match company-[r:administers]-systemUser where systemUser.name ={1} return systemUser")
+    @Query(elementClass = SystemUserNode.class, value = "start company=node({0}) " +
+            "match company-[r:administers]-systemUser " +
+            "where systemUser.name ={1} return systemUser")
     SystemUserNode getAdminUser(long ID, String userName);
 
 
+    @Query(elementClass = CompanyNode.class,
+            value = "start su=node({0}) " +
+                    "match su-[r:administers]->company " +
+                    "return company ")
+    Collection<Company> getCompaniesForUser(Long id);
 }

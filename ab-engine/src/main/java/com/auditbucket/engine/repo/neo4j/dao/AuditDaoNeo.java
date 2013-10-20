@@ -29,22 +29,20 @@ import com.auditbucket.engine.repo.neo4j.AuditLogRepo;
 import com.auditbucket.engine.repo.neo4j.model.*;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.FortressUser;
-import com.auditbucket.registration.repo.neo4j.dao.TagDao;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.index.Index;
-import org.neo4j.index.impl.lucene.LuceneIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
-import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 import java.util.*;
 
@@ -55,7 +53,7 @@ import java.util.*;
  */
 @Repository("auditDAO")
 public class AuditDaoNeo implements AuditDao {
-    public static final String LAST_CHANGE = "lastChange";
+    private static final String LAST_CHANGE = "lastChange";
     @Autowired
     AuditHeaderRepo auditRepo;
 
@@ -65,12 +63,11 @@ public class AuditDaoNeo implements AuditDao {
     @Autowired
     Neo4jTemplate template;
 
-    @Resource
-    GraphDatabaseService graphDb;
-
     private Logger logger = LoggerFactory.getLogger(AuditDaoNeo.class);
 
     @Override
+    @Caching(evict = {@CacheEvict(value = "auditHeaderId", key = "#p0.id"),
+            @CacheEvict(value = "auditKey", key = "#p0.auditKey")})
     public AuditHeader save(AuditHeader auditHeader) {
         auditHeader.bumpUpdate();
         return auditRepo.save((AuditHeaderNode) auditHeader);
@@ -80,9 +77,14 @@ public class AuditDaoNeo implements AuditDao {
         return template.save((TxRefNode) tagRef);
     }
 
+    @Cacheable(value = "auditKey")
+    private AuditHeader getCachedHeader(String key) {
+        return auditRepo.findByUID(key);
+    }
+
     @Override
     public AuditHeader findHeader(String key, boolean inflate) {
-        AuditHeader header = auditRepo.findByUID(key);
+        AuditHeader header = getCachedHeader(key);
         if (inflate) {
             fetch(header);
         }
@@ -100,9 +102,8 @@ public class AuditDaoNeo implements AuditDao {
         return null;
     }
 
+    @Cacheable(value = "auditHeaderId", key = "p0.id")
     public AuditHeader fetch(AuditHeader header) {
-        //template.fetch(header);
-        template.fetch(header.getTagValues());
         template.fetch(header.getCreatedBy());
         template.fetch(header.getLastUser());
 
@@ -116,8 +117,7 @@ public class AuditDaoNeo implements AuditDao {
 
     @Override
     public TxRef findTxTag(@NotEmpty String userTag, @NotNull Company company, boolean fetchHeaders) {
-        TxRef txRef = auditRepo.findTxTag(userTag, company.getId());
-        return txRef;
+        return auditRepo.findTxTag(userTag, company.getId());
     }
 
 
@@ -159,18 +159,19 @@ public class AuditDaoNeo implements AuditDao {
         //Example showing how to use cypher and extract
 
         String findByTagRef = "start tag =node({txRef}) " +
-                "              match tag-[:txIncludes]->auditLog<-[logs:logged]-audit " +
+                "              match tag-[:AFFECTED]->auditLog<-[logs:LOGGED]-audit " +
                 "             return logs, audit, auditLog " +
                 "           order by logs.sysWhen";
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("txRef", txRef.getId());
 
-        Iterator<Map<String, Object>> rows;
+
         Result<Map<String, Object>> exResult = template.query(findByTagRef, params);
 
+        Iterator<Map<String, Object>> rows;
         rows = exResult.iterator();
 
-        List<AuditTXResult> simpleResult = new ArrayList<AuditTXResult>();
+        List<AuditTXResult> simpleResult = new ArrayList<>();
         int i = 1;
         //Result<Map<String, Object>> results =
         while (rows.hasNext()) {
@@ -227,16 +228,15 @@ public class AuditDaoNeo implements AuditDao {
 
     @Override
     public AuditHeader create(String uid, FortressUser fu, AuditHeaderInputBean inputBean, DocumentType documentType) {
-        AuditHeader ah = new AuditHeaderNode(uid, fu, inputBean, documentType);
-        return save(ah);
+        return save(new AuditHeaderNode(uid, fu, inputBean, documentType));
     }
 
     @Override
+    @Cacheable(value = "auditLog")
     public AuditLog getLog(Long logId) {
         Relationship change = template.getRelationship(logId);
         if (change != null)
             return (AuditLog) template.getDefaultConverter().convert(change, AuditLogRelationship.class);
-        //return template.findOne(logId, AuditLogRelationship.class);
         return null;
     }
 
@@ -277,25 +277,12 @@ public class AuditDaoNeo implements AuditDao {
     }
 
     @Override
-    public String save(AuditChange change, String jsonText) {
-        AuditWhatNode what = new AuditWhatNode();
+    public String save(AuditChange change, String jsonText, int version) {
+        AuditWhatNode what = new AuditWhatNode(version);
         what.setJsonWhat(jsonText);
         change.setWhat(what);
         change = template.save(change);
         return change.getWhat().getId();
-    }
-
-    // The below code seems to ruin Lucene indexes when running TestAuditIntegration
-    public void wireIndexesAndCaches() {
-        logger.info("Wiring indexes and caches...");
-        Index<Node> index;
-
-        index = graphDb.index().forNodes("callerRef");
-        ((LuceneIndex<Node>) index).setCacheCapacity("callerRef", 300);
-        index = graphDb.index().forNodes("documentTypeName");
-        ((LuceneIndex<Node>) index).setCacheCapacity("name", 300);
-        index = graphDb.index().forNodes(AuditHeaderNode.UUID_KEY);
-        ((LuceneIndex<Node>) index).setCacheCapacity("auditKey", 300);
     }
 
 }

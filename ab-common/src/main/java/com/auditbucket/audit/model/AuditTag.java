@@ -21,6 +21,8 @@ package com.auditbucket.audit.model;
 
 import com.auditbucket.registration.model.Tag;
 
+import java.util.Map;
+
 /**
  * User: Mike Holdsworth
  * Date: 29/06/13
@@ -28,12 +30,17 @@ import com.auditbucket.registration.model.Tag;
  */
 public interface AuditTag {
 
+    public Long getId();
+
     public Tag getTag();
 
     //ToDo - should this be a taggable interface?
-    public AuditHeader getHeader();
+    public Long getAuditId();
 
     public String getTagType();
 
     public void setTagType(String tagValue);
+
+    public Map<String, Object> getProperties();
+
 }

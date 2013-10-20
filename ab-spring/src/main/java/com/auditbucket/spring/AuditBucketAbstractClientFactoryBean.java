@@ -7,12 +7,12 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
 
-public abstract class AuditBucketAbstractClientFactoryBean extends AuditBucketAbstractFactoryBean
+abstract class AuditBucketAbstractClientFactoryBean extends AuditBucketAbstractFactoryBean
         implements FactoryBean<AbClient>, InitializingBean, DisposableBean {
 
-    protected final Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
-    protected AbClient client;
+    private AbClient client;
 
     /**
      * Implement this method to build an AuditBucket client

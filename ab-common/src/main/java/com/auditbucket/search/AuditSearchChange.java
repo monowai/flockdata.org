@@ -73,9 +73,9 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
         this.indexName = header.getIndexName();
         this.searchKey = header.getSearchKey();
         this.callerRef = header.getCallerRef();
-        this.who = header.getLastUser().getName();
+        this.who = header.getLastUser().getCode();
         this.createdDate = header.getWhenCreated(); // When created in AuditBucket
-        setTags(header.getTagValues());
+        //setTags(header.getTagValues());
     }
 
     public AuditSearchChange() {
@@ -147,7 +147,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
         return indexName;
     }
 
-    public void setFortressName(String fortressName) {
+    void setFortressName(String fortressName) {
         this.fortressName = fortressName;
     }
 
@@ -156,7 +156,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
         return companyName;
     }
 
-    public void setCompanyName(String companyName) {
+    void setCompanyName(String companyName) {
         this.companyName = companyName;
     }
 
@@ -164,7 +164,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
         return documentType;
     }
 
-    protected void setDocumentType(String documentType) {
+    void setDocumentType(String documentType) {
         this.documentType = documentType;
     }
 
@@ -176,7 +176,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
         return tagValues;
     }
 
-    private void setTags(Set<AuditTag> tagSet) {
+    public void setTags(Set<AuditTag> tagSet) {
         tagValues = new HashMap<>();
         for (AuditTag tag : tagSet) {
             tagValues.put(tag.getTagType(), tag.getTag().getName());

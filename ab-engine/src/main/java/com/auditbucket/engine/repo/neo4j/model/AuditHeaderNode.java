@@ -21,7 +21,6 @@ package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.DocumentType;
-import com.auditbucket.audit.model.AuditTag;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
@@ -33,12 +32,10 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.neo4j.graphdb.Direction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.annotation.*;
 
-import java.util.*;
+import java.util.Date;
+import java.util.TimeZone;
 
 
 /**
@@ -49,48 +46,44 @@ import java.util.*;
 @NodeEntity(useShortNames = true)
 public class AuditHeaderNode implements AuditHeader {
 
-    @Transient
-    private Logger log = LoggerFactory.getLogger(AuditHeaderNode.class);
-
     @Indexed(indexName = UUID_KEY, unique = true)
     private String auditKey;
 
-    @RelatedTo(elementClass = FortressNode.class, type = "audit", direction = Direction.INCOMING)
+    @RelatedTo(elementClass = FortressNode.class, type = "TRACKS", direction = Direction.INCOMING)
     @Fetch
     private FortressNode fortress;
 
-    @RelatedTo(type = "classifies", direction = Direction.INCOMING)
+    @RelatedTo(type = "CLASSIFIES", direction = Direction.INCOMING)
     @Fetch
     private DocumentTypeNode documentType;
 
     @Indexed(indexName = "callerRef")
     private String callerRef;
 
-    private long dateCreated;
+    private long dateCreated = 0;
 
     private String event = null; // should only be set if this is an immutable header and no log events will be recorded
 
-    long lastUpdated = 0;
+    private long lastUpdated = 0;
 
     @GraphId
     private Long id;
 
-    @RelatedTo(elementClass = FortressUserNode.class, type = "created", direction = Direction.INCOMING, enforceTargetType = true)
+    @RelatedTo(elementClass = FortressUserNode.class, type = "CREATED", direction = Direction.INCOMING, enforceTargetType = true)
     private FortressUserNode createdBy;
 
-    @RelatedTo(elementClass = FortressUserNode.class, type = "lastChanged", direction = Direction.OUTGOING)
+    @RelatedTo(elementClass = FortressUserNode.class, type = "lastChanged", direction = Direction.INCOMING)
     private FortressUserNode lastWho;
-
-    @RelatedToVia(elementClass = AuditTagRelationship.class, type = "auditTag", direction = Direction.INCOMING)
-    private Set<AuditTag> tagValues;
 
     public static final String UUID_KEY = "auditKey";
 
+    @Indexed(indexName = "auditName")
     private String name;
 
     private long fortressDate;
 
     @Indexed(indexName = "searchKey")
+    private
     String searchKey = null;
 
     private boolean searchSuppressed;
@@ -109,12 +102,14 @@ public class AuditHeaderNode implements AuditHeader {
         this.fortress = (FortressNode) createdBy.getFortress();
         this.documentType = (DocumentTypeNode) documentType;
         String docType = (documentType != null ? getDocumentType() : "");
-        this.name = (callerRef == null ? docType : (new StringBuilder().append(docType).append(".").append(callerRef).toString()).toLowerCase());
-
-        indexName = new StringBuilder().append(createdBy.getFortress().getCompany().getName().toLowerCase()).append(".").append(fortress.getName().toLowerCase()).toString();
         callerRef = auditInput.getCallerRef();
         if (callerRef != null)
             callerRef = callerRef.toLowerCase();
+
+        this.name = (callerRef == null ? docType : (docType + "." + callerRef).toLowerCase());
+
+        indexName = "ab." + createdBy.getFortress().getCompany().getCode() + "." + fortress.getCode();
+
 
         Date when = auditInput.getWhen();
 
@@ -242,28 +237,9 @@ public class AuditHeaderNode implements AuditHeader {
         return this.callerRef;
     }
 
-    @JsonIgnore
-    public Set<AuditTag> getTagValues() {
-        return tagValues;
-    }
-
-    public Map<String, String> getTagMap() {
-        Map<String, String> result = new HashMap<>();
-        if (tagValues != null)
-            for (AuditTag tagValue : tagValues) {
-                result.put(tagValue.getTag().getName(), tagValue.getTagType());
-            }
-        return result;
-    }
-
     @Override
     public long getWhenCreated() {
         return dateCreated;
-    }
-
-    @Override
-    public void setTags(Set<AuditTag> auditTags) {
-        this.tagValues = auditTags;
     }
 
     @Override

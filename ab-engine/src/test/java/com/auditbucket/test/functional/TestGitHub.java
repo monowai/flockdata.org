@@ -32,7 +32,7 @@ import com.auditbucket.registration.repo.neo4j.model.FortressNode;
  * Time: 3:56 PM
  * To change this template use File | Settings | File Templates.
  */
-public class TestGitHub {
+class TestGitHub {
     public void testConnect() {
         GitHandler gh = new GitHandler();
         Fortress fortress = new FortressNode(new FortressInputBean("monowai"), new CompanyNode("Monowai Dev"));

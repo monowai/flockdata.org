@@ -26,4 +26,6 @@ public interface AuditWhat {
      * @param jsonWhat uncompressed JSON string
      */
     public void setJsonWhat(String jsonWhat);
+
+    public int getVersion();
 }

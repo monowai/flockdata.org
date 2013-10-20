@@ -73,4 +73,5 @@ public interface AuditChange {
     public void setWhatStore(String storage);
 
     void setEvent(AuditEvent event);
+
 }

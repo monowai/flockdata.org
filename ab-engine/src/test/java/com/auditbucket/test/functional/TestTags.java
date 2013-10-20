@@ -30,8 +30,6 @@ import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.data.neo4j.support.node.Neo4jHelper;
@@ -68,12 +66,12 @@ public class TestTags {
 
     @Autowired
     private Neo4jTemplate template;
-    private Logger log = LoggerFactory.getLogger(TestTags.class);
+    //private Logger log = LoggerFactory.getLogger(TestTags.class);
     private String company = "Monowai";
     private String mike = "mike@monowai.com";
     private String mark = "mark@monowai.com";
-    Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
-    Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "user1");
+    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
+    private Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "user1");
 
     @Rollback(false)
     @BeforeTransaction
@@ -94,7 +92,6 @@ public class TestTags {
         Tag tagInput = new TagInputBean(iCompany, "FLOP");
         tagInput = tagService.processTag(tagInput);
         assertNotNull(tagInput);
-        assertNotNull(tagInput.getCompany());
         assertNull(tagService.findTag("ABC"));
         assertNotNull(tagService.findTag("FLOP"));
 
@@ -106,7 +103,6 @@ public class TestTags {
         tagInput = new TagInputBean(iSystemUser.getCompany(), "FLOP");
         tagInput = tagService.processTag(tagInput);
         assertNotNull(tagInput);
-        assertNotNull(tagInput.getCompany());
         assertNull(tagService.findTag("ABC"));
         assertNotNull(tagService.findTag("FLOP"));
     }
@@ -121,11 +117,12 @@ public class TestTags {
         Tag tagInput = new TagInputBean(iCompany, "FLOP");
         tagInput = tagService.processTag(tagInput);
         assertNotNull(tagInput);
-        assertNotNull(tagInput.getCompany());
         assertNull(tagService.findTag("ABC"));
         Tag result = tagService.findTag("FLOP");
+        assertNotNull(result);
         result.setName("FLOPPY");
         result = tagService.processTag(result);
+        assertNotNull(result);
         assertEquals("FLOPPY", result.getName());
         assertNull(tagService.findTag("FLOP"));
         assertNotNull(tagService.findTag("FLOPPY"));

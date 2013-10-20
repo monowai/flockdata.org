@@ -59,7 +59,7 @@ public class SystemUserNode implements SystemUser {
         return name;
     }
 
-    public void setName(String name) {
+    void setName(String name) {
         this.name = name.toLowerCase();
     }
 
@@ -67,7 +67,7 @@ public class SystemUserNode implements SystemUser {
         return password;
     }
 
-    public void setPassword(String password) {
+    void setPassword(String password) {
         this.password = password;
     }
 
@@ -83,7 +83,13 @@ public class SystemUserNode implements SystemUser {
         return company;
     }
 
-    public void setAdministers(Company company) {
+    @Override
+    public Long getId() {
+        return id;
+
+    }
+
+    void setAdministers(Company company) {
         this.company = (CompanyNode) company;
     }
 

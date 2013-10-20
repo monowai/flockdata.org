@@ -92,9 +92,8 @@ public interface AuditDao {
 
     void setLastChange(AuditHeader auditHeader, AuditChange lastChange, AuditChange toRemove);
 
-    String save(AuditChange change, String jsonText);
+    String save(AuditChange change, String jsonText, int version);
 
     void fetch(AuditWhat what);
 
-    public void wireIndexesAndCaches();
 }

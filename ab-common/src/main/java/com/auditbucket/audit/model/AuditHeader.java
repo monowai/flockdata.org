@@ -24,6 +24,7 @@ import com.auditbucket.registration.model.FortressUser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTime;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -87,13 +88,7 @@ public interface AuditHeader {
 
     String getCallerRef();
 
-    public Set<AuditTag> getTagValues();
-
-    Map<String, String> getTagMap();
-
     long getWhenCreated();
-
-    void setTags(Set<AuditTag> auditTags);
 
     @JsonIgnore
     DateTime getFortressDateCreated();

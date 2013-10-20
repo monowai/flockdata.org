@@ -45,7 +45,7 @@ public class AuditEventDaoRepo implements AuditEventDao {
 
     @Override
     public AuditEvent findEvent(Company company, String eventCode) {
-        return eventRepo.findCompanyEvent(company.getId(), eventCode);
+        return eventRepo.findCompanyEvent(company.getId(), eventCode.toLowerCase());
     }
 
     @Override

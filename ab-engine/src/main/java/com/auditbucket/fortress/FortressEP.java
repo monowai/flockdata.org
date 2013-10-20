@@ -17,7 +17,7 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.registration.endpoint;
+package com.auditbucket.fortress;
 
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
@@ -31,13 +31,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
+
 /**
  * User: Mike Holdsworth
  * Date: 4/05/13
  * Time: 8:23 PM
  */
 @Controller
-@RequestMapping("/fortress/")
+@RequestMapping("/")
 public class FortressEP {
 
     @Autowired
@@ -49,11 +51,18 @@ public class FortressEP {
     @Autowired
     SecurityHelper securityHelper;
 
+    @RequestMapping(value = "/list", produces = "application/json", method = RequestMethod.GET)
+    @ResponseBody
+    public Collection<Fortress> findFortresses() throws Exception {
+        // curl -u mike:123 -X GET  http://localhost:8080/ab/company/Monowai/fortresses
+        return fortressService.findFortresses();
+    }
+
     @RequestMapping(value = "/{fortressName}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Fortress> getFortresses(@PathVariable("fortressName") String fortressName) throws Exception {
+    public ResponseEntity<Fortress> getFortress(@PathVariable("fortressName") String fortressName) throws Exception {
         // curl -u mike:123 -X GET  http://localhost:8080/ab/fortress/ABC
-        Fortress fortress = fortressService.find(fortressName);
+        Fortress fortress = fortressService.findByName(fortressName);
         if (fortress == null)
             return new ResponseEntity<>(fortress, HttpStatus.NOT_FOUND);
         else
@@ -80,7 +89,7 @@ public class FortressEP {
     @ResponseBody
     public ResponseEntity<FortressUser> getFortressUsers(@PathVariable("fortressName") String fortressName, @PathVariable("userName") String userName) throws Exception {
         FortressUser result = null;
-        Fortress fortress = fortressService.find(fortressName);
+        Fortress fortress = fortressService.findByName(fortressName);
 
         if (fortress == null) {
             return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);

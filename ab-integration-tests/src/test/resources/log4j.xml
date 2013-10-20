@@ -49,7 +49,7 @@
     </logger>
 
     <logger name="org.auditbucket">
-        <level value="info"/>
+        <level value="debug"/>
     </logger>
 
     <logger name="org.apache">

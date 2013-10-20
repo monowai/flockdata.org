@@ -50,25 +50,15 @@ public class TagService {
         if (tag == null)
             return tag;
 
-        // Check security access
-        if (tag.getCompany() == null) {
-            Company company = securityHelper.getCompany();
-            tag.setCompany(company);
-        }
-
-        // Check exists
-        Tag existingTag = tagDao.findOne(tag.getName(), tag.getCompany().getId());
-        if (existingTag != null)
-            return existingTag;
-
-        // audit change
-        return tagDao.save(tag);
+        Company company = securityHelper.getCompany();
+        return tagDao.save(company, tag);
     }
 
     public Tag findTag(String tagName) {
         Company company = securityHelper.getCompany();
         if (company == null)
             return null;
+
         return tagDao.findOne(tagName, company.getId());
     }
 
@@ -87,6 +77,15 @@ public class TagService {
             return null;
 
         return tagDao.findOrCreate(documentType, company);
+
+    }
+
+    public Long getCompanyTagManager(Long companyId) {
+        return tagDao.getCompanyTagManager(companyId);
+    }
+
+    public void createCompanyTagManager(Long id, String companyName) {
+        tagDao.createCompanyTagManager(id, companyName.toLowerCase());
 
     }
 

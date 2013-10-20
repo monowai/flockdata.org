@@ -24,13 +24,16 @@ import com.auditbucket.registration.model.CompanyUser;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 
+import java.util.Collection;
+import java.util.List;
+
 /**
  * User: Mike Holdsworth
  * Date: 20/04/13
  * Time: 6:31 PM
  */
 public interface CompanyDao {
-    public Company save(Company systemUser);
+    public Company update(Company systemUser);
 
     public CompanyUser save(CompanyUser companyUser);
 
@@ -38,9 +41,15 @@ public interface CompanyDao {
 
     public CompanyUser getCompanyUser(Long id, String userName);
 
-    public Fortress getFortress(Long id, String fortressName);
+    public Fortress getFortressByName(Long id, String fortressName);
 
     public SystemUser getAdminUser(Long id, String name);
 
     public Iterable<CompanyUser> getCompanyUsers(String companyName);
+
+    Company create(String companyName, String uniqueKey);
+
+    Fortress getFortressByCode(Long id, String fortressCode);
+
+    Collection<Company> findCompanies(Long id);
 }

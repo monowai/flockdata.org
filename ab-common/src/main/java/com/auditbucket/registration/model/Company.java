@@ -21,10 +21,16 @@ package com.auditbucket.registration.model;
 
 public interface Company {
 
-    public abstract Long getId();
+    public Long getId();
 
-    public abstract String getName();
+    public String getName();
 
-    public abstract void setName(String name);
+    public void setName(String name);
+
+    public void setApiKey(String apiKey);
+
+    String getApiKey();
+
+    public String getCode();
 
 }

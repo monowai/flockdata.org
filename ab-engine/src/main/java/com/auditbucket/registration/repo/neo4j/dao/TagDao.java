@@ -26,11 +26,18 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.repo.neo4j.TagRepository;
 import com.auditbucket.registration.repo.neo4j.model.TagNode;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * User: Mike Holdsworth
@@ -40,8 +47,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class TagDao implements com.auditbucket.dao.TagDao {
 
-    public static final String DOCUMENT_TYPE = "documentTypeName";
-
+    public static final String COMPANY_TAGS = "COMPANY_TAGS";
     @Autowired
     TagRepository tagRepo;
 
@@ -53,28 +59,82 @@ public class TagDao implements com.auditbucket.dao.TagDao {
 
     private Logger logger = LoggerFactory.getLogger(TagDao.class);
 
-    public Tag save(Tag tag) {
+    public Tag save(Company company, Tag tag) {
+        // Check exists
+        Tag existingTag = findOne(tag.getName(), company.getId());
+        if (existingTag != null)
+            return existingTag;
+
+
         TagNode tagToCreate;
         if ((tag instanceof TagNode))
             tagToCreate = (TagNode) tag;
         else
             tagToCreate = new TagNode(tag);
 
-        return tagRepo.save(tagToCreate);  //To change body of implemented methods use File | Settings | File Templates.
+        tagToCreate = tagRepo.save(tagToCreate);
+        Node end = template.getNode(tagToCreate.getId());
+        Node start = getCompanyTagManagerNode(company.getId());
+        Relationship r = template.getRelationshipBetween(start, end, COMPANY_TAGS);
+        if (r == null)
+            template.createRelationshipBetween(start, end, COMPANY_TAGS, null);
+        return tagToCreate;
+    }
+
+    @Cacheable(value = "companyTagManager", unless = "#result == null")
+    private Node getCompanyTagManagerNode(Long companyId) {
+        String query = "start company=node({companyId}) match company-[:TAG_COLLECTION]->ct return ct";
+        Map<String, Object> params = new HashMap<>();
+        params.put("companyId", companyId);
+        Result<Map<String, Object>> result = template.query(query, params);
+        Map<String, Object> mapResult = result.singleOrNull();
+        return ((Node) mapResult.get("ct"));
+    }
+
+    public Long getCompanyTagManager(Long companyId) {
+        return getCompanyTagManagerNode(companyId).getId();
     }
 
     @Override
-    public Tag findOne(String tagName, Long id) {
-        if (tagName == null || id == null)
+    public void deleteCompanyRelationship(Company company, Tag tag) {
+        Node coTags = getCompanyTagManagerNode(company.getId());
+        Node tagNode = template.getNode(tag.getId());
+        template.deleteRelationshipBetween(coTags, tagNode, COMPANY_TAGS);
+    }
+
+    /**
+     * each company has exactly one companyTagCollection to which each tag is associated.
+     * this method should be called whenever a company is created.
+     *
+     * @param companyId         company PK
+     * @param tagCollectionName name to know this by
+     * @return pk of the tag manager.
+     */
+    public Long createCompanyTagManager(Long companyId, String tagCollectionName) {
+        assert (tagCollectionName != null);
+        String query = "start company=node({companyId}) " +
+                "       create unique company-[:TAG_COLLECTION]->(ct {name:{tagName}}) " +
+                "       return ct";
+        Map<String, Object> params = new HashMap<>();
+        params.put("companyId", companyId);
+        params.put("tagName", tagCollectionName + " Tags");
+        Result<Map<String, Object>> result = template.query(query, params);
+        Map<String, Object> mapResult = result.single();
+        return ((Node) mapResult.get("ct")).getId();
+    }
+
+    @Override
+    @Cacheable(value = "companyTag", unless = "#result == null")
+    public Tag findOne(String tagName, Long companyId) {
+        if (tagName == null || companyId == null)
             throw new IllegalArgumentException("Null can not be used to find a tag ");
-        return tagRepo.findCompanyTag(tagName, id);
+        return tagRepo.findCompanyTagByCode(tagName.toLowerCase().replaceAll("\\s", ""), companyId);
     }
 
     @Override
+    @Cacheable(value = "companyDocType", unless = "#result == null")
     public DocumentType findOrCreate(String documentType, Company company) {
-        DocumentType result = null;
-        if (template.getGraphDatabaseService().index().existsForNodes(DOCUMENT_TYPE))
-            result = documentTypeRepo.findCompanyDocType(company.getId(), documentType);
+        DocumentType result = documentTypeRepo.findCompanyDocType(company.getId(), documentType.toLowerCase().replaceAll("\\s", ""));
 
         if (result == null) {
             logger.debug("Creating document type {}", documentType);

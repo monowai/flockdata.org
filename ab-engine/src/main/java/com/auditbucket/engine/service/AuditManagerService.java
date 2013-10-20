@@ -21,8 +21,15 @@ package com.auditbucket.engine.service;
 
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.bean.*;
+import com.auditbucket.helper.AuditException;
+import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
 
 /**
  * Exists because calling makeChangeSearchable within the completed transaction
@@ -38,12 +45,49 @@ public class AuditManagerService {
     @Autowired
     AuditService auditService;
 
-    private boolean wiredIndexes;
+    //@Autowired
+    //AuditTagService auditTagService;
 
-    public AuditResultBean createHeader(AuditHeaderInputBean inputBean) {
-        AuditResultBean resultBean = auditService.createHeader(inputBean);
+    @Autowired
+    CompanyService companyService;
+
+    @Autowired
+    private SecurityHelper securityHelper;
+
+    private Company resolveCompany(String apiKey) throws AuditException {
+        Company c;
+        if (apiKey == null) {
+            // Find by logged in user name
+            c = securityHelper.getCompany();
+        } else {
+            c = companyService.findByApiKey(apiKey);
+        }
+        if (c == null)
+            throw new AuditException("Unable to find the requested API Key");
+        return c;
+    }
+
+    private Fortress resolveFortress(Company company, AuditHeaderInputBean inputBean) throws AuditException {
+        Fortress fortress = companyService.getCompanyFortress(company.getId(), inputBean.getFortress());
+
+        if (fortress == null)
+            throw new AuditException(inputBean.getFortress() + " does not exist");
+        return fortress;
+    }
+
+    public AuditResultBean createHeader(AuditHeaderInputBean inputBean) throws AuditException, IOException {
+        AuditLogInputBean logBean = inputBean.getAuditLog();
+        if (logBean != null) // Error as soon as we can
+            logBean.setWhat(logBean.getWhat());
+        Company company = resolveCompany(inputBean.getApiKey());
+        Fortress fortress = resolveFortress(company, inputBean);
+        fortress.setCompany(company);
+        AuditResultBean resultBean = auditService.createHeader(inputBean, company, fortress);
+
+        // Here on could be spun in to a separate thread. The log has to happen eventually
+        //   and can't fail.
         if (inputBean.getAuditLog() != null) {
-            AuditLogInputBean logBean = inputBean.getAuditLog();
+            // Secret back door so that the log result can quickly get the
             logBean.setAuditId(resultBean.getAuditId());
             logBean.setAuditKey(resultBean.getAuditKey());
             logBean.setFortressUser(inputBean.getFortressUser());
@@ -55,23 +99,22 @@ public class AuditManagerService {
             resultBean.setLogResult(logResult);
         } else {
             // Make header searchable - metadata only
-
             if (inputBean.getEvent() != null && !"".equals(inputBean.getEvent())) {
+                // Tracking an event only
                 auditService.makeHeaderSearchable(resultBean, inputBean.getEvent(), inputBean.getWhen());
             }
-        }
-        if (!wiredIndexes) {
-            auditService.wireIndexes();
-            wiredIndexes = true;
         }
         return resultBean;
 
     }
 
-    public AuditLogResultBean createLog(AuditLogInputBean auditLogInputBean) {
+    public AuditLogResultBean createLog(AuditLogInputBean auditLogInputBean) throws IOException {
+        return createLog(null, auditLogInputBean);
+    }
 
-        AuditLogResultBean resultBean = auditService.createLog(auditLogInputBean);
-
+    public AuditLogResultBean createLog(AuditHeader header, AuditLogInputBean auditLogInputBean) throws IOException {
+        auditLogInputBean.setWhat(auditLogInputBean.getWhat());
+        AuditLogResultBean resultBean = auditService.createLog(header, auditLogInputBean);
         if (resultBean != null && resultBean.getStatus() == AuditLogInputBean.LogStatus.OK)
             auditService.makeChangeSearchable(resultBean.getSearchDocument());
 
@@ -81,8 +124,6 @@ public class AuditManagerService {
 
     public AuditSummaryBean getAuditSummary(String auditKey) {
         AuditSummaryBean summary = auditService.getAuditSummary(auditKey);
-        AuditHeader header = summary.getHeader();
-        header.setTags(auditService.getAuditTags(header.getId()));
         return summary;
     }
 }

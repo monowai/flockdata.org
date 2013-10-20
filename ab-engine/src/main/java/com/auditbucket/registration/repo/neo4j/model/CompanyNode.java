@@ -21,6 +21,7 @@ package com.auditbucket.registration.repo.neo4j.model;
 
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.CompanyUser;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
@@ -34,17 +35,32 @@ public class CompanyNode implements Company {
     @GraphId
     Long id;
 
-    @Indexed(unique = true, indexName = "companyName")
+    @Indexed(indexName = "companyName")
+    private
     String name;
+
+    @Indexed(unique = true, indexName = "companyCode")
+    private
+    String code;
+
+
+    @Indexed(indexName = "apiKey")
+    String apiKey;
 
     @RelatedTo(elementClass = CompanyUserNode.class, type = "works", direction = Direction.INCOMING)
     private Set<CompanyUser> companyUsers;
 
-    public CompanyNode(String companyName) {
-        setName(companyName);
+    protected CompanyNode() {
     }
 
-    public CompanyNode() {
+    public CompanyNode(String companyName) {
+        this(companyName, null);
+    }
+
+    public CompanyNode(String companyName, String apiKey) {
+        super();
+        setName(companyName);
+        this.apiKey = apiKey;
     }
 
     public Long getId() {
@@ -57,6 +73,17 @@ public class CompanyNode implements Company {
 
     public void setName(String name) {
         this.name = name;
+        this.code = name.toLowerCase().replaceAll("\\s", "");
+    }
+
+    @Override
+    public void setApiKey(String apiKey) {
+        this.apiKey = apiKey;
+    }
+
+    @Override
+    public String getApiKey() {
+        return this.apiKey;
     }
 
 
@@ -66,5 +93,11 @@ public class CompanyNode implements Company {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 '}';
+    }
+
+    // Lower case, no spaces
+    @JsonIgnore
+    public String getCode() {
+        return code;
     }
 }

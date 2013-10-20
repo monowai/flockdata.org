@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SimpleAuditedService {
-    public static Logger logger = LoggerFactory.getLogger(SimpleAuditedService.class);
+    private static Logger logger = LoggerFactory.getLogger(SimpleAuditedService.class);
 
     @AuditHeader
     public Customer save(Customer customer) {

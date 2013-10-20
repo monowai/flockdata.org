@@ -21,24 +21,33 @@ package com.auditbucket.engine.endpoint;
 
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditLog;
+import com.auditbucket.audit.model.AuditTag;
 import com.auditbucket.audit.model.TxRef;
 import com.auditbucket.bean.*;
 import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
+import com.auditbucket.engine.service.AuditTagService;
 import com.auditbucket.engine.service.EngineAdmin;
+import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.integration.annotation.MessageEndpoint;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 /**
  * User: Mike Holdsworth
@@ -62,12 +71,18 @@ public class AuditEP {
     FortressService fortressService;
 
     @Autowired
+    AuditTagService auditTagService;
+
+    @Autowired
     CompanyService companyService;
+
+    private static Logger logger = LoggerFactory.getLogger(AuditEP.class);
 
     @ResponseBody
     @RequestMapping(value = "/ping", method = RequestMethod.GET)
     public String get() throws Exception {
-        // curl -u mike:123 -X GET http://localhost:8080/ab/audit/ping
+        // curl -u mike:123 -X GET http://auditbucketdemo.entiviti.com:9092/ab-search/api/ping
+
         return "Pong!";
     }
 
@@ -75,6 +90,22 @@ public class AuditEP {
     @RequestMapping(value = "/health", method = RequestMethod.GET)
     public Map<String, String> getHealth() throws Exception {
         return auditAdmin.getHealth();
+    }
+
+    //ToDo: Add a PUT /fortress/docType/callerRef
+    @ResponseBody
+    @RequestMapping(value = "/header/bulk", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
+    public Future<Void> createHeaders(@RequestBody AuditHeaderInputBean[] input) throws Exception {
+        for (AuditHeaderInputBean inputBean : input) {
+            createHeaderAsync(inputBean);
+        }
+        return null;
+    }
+
+    @Async
+    private Future<ResponseEntity<AuditResultBean>> createHeaderAsync(AuditHeaderInputBean input) throws Exception {
+        ResponseEntity<AuditResultBean> result = createHeader(input);
+        return new AsyncResult<>(result);
     }
 
     @ResponseBody
@@ -86,6 +117,11 @@ public class AuditEP {
             auditResultBean = auditManager.createHeader(input);
             auditResultBean.setStatus("OK");
             return new ResponseEntity<>(auditResultBean, HttpStatus.OK);
+        } catch (AuditException e) {
+            auditResultBean = new AuditResultBean(e.getMessage());
+            logger.info("*** ", e);
+            return new ResponseEntity<>(auditResultBean, HttpStatus.BAD_REQUEST);
+
         } catch (IllegalArgumentException e) {
             auditResultBean = new AuditResultBean(e.getMessage());
             return new ResponseEntity<>(auditResultBean, HttpStatus.BAD_REQUEST);
@@ -187,11 +223,13 @@ public class AuditEP {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/{auditKey}", method = RequestMethod.GET)
-    public ResponseEntity<AuditHeader> getAudit(@PathVariable("auditKey") String auditKey) throws Exception {
-        // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
+    @RequestMapping(value = "/find/{fortress}/{recordType}/{callerRef}", method = RequestMethod.GET)
+    public ResponseEntity<AuditHeader> getByClientRef(@PathVariable("fortress") String fortress,
+                                                      @PathVariable("recordType") String recordType,
+                                                      @PathVariable("callerRef") String callerRef) throws Exception {
         try {
-            AuditHeader result = auditService.getHeader(auditKey, true);
+            Fortress f = fortressService.findByName(fortress);
+            AuditHeader result = auditService.findByCallerRef(f.getId(), recordType, callerRef);
             return new ResponseEntity<>(result, HttpStatus.OK);
 
         } catch (IllegalArgumentException e) {
@@ -202,13 +240,11 @@ public class AuditEP {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/find/{fortress}/{recordType}/{callerRef}", method = RequestMethod.GET)
-    public ResponseEntity<AuditHeader> getByClientRef(@PathVariable("fortress") String fortress,
-                                                      @PathVariable("recordType") String recordType,
-                                                      @PathVariable("callerRef") String callerRef) throws Exception {
+    @RequestMapping(value = "/{auditKey}", method = RequestMethod.GET)
+    public ResponseEntity<AuditHeader> getAudit(@PathVariable("auditKey") String auditKey) throws Exception {
+        // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
         try {
-            Fortress f = fortressService.find(fortress);
-            AuditHeader result = auditService.findByCallerRef(f.getId(), recordType, callerRef);
+            AuditHeader result = auditService.getHeader(auditKey, true);
             return new ResponseEntity<>(result, HttpStatus.OK);
 
         } catch (IllegalArgumentException e) {
@@ -267,4 +303,20 @@ public class AuditEP {
             return new ResponseEntity<>((AuditLogDetailBean) null, HttpStatus.FORBIDDEN);
         }
     }
+
+    @ResponseBody
+    @RequestMapping(value = "/{auditKey}/tags", method = RequestMethod.GET)
+    public ResponseEntity<Set<AuditTag>> getAuditTags(@PathVariable("auditKey") String auditKey) throws Exception {
+        // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
+        try {
+            AuditHeader result = auditService.getHeader(auditKey);
+            return new ResponseEntity<>(auditTagService.findAuditTags(result), HttpStatus.OK);
+
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>((MultiValueMap<String, String>) null, HttpStatus.NOT_FOUND);
+        } catch (SecurityException e) {
+            return new ResponseEntity<>((MultiValueMap<String, String>) null, HttpStatus.FORBIDDEN);
+        }
+    }
+
 }

@@ -31,14 +31,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
+
 /**
  * User: Mike Holdsworth
  * Date: 20/04/13
  * Time: 10:05 PM
  */
 @Repository
-public class CompanyDaoRepo implements CompanyDao {
-    public static final String FORTRESS_NAME = "fortressName";
+public class CompanyDaoNeo implements CompanyDao {
+    private static final String FORTRESS_NAME = "fortressName";
     @Autowired
     private CompanyRepository companyRepo;
 
@@ -49,7 +51,7 @@ public class CompanyDaoRepo implements CompanyDao {
     Neo4jTemplate template;
 
     @Override
-    public Company save(Company company) {
+    public Company update(Company company) {
         return companyRepo.save((CompanyNode) company);
     }
 
@@ -69,11 +71,20 @@ public class CompanyDaoRepo implements CompanyDao {
     }
 
     @Override
-    public Fortress getFortress(Long companyId, String fortressName) {
-        if (template.getGraphDatabaseService().index().existsForNodes(FORTRESS_NAME))
-            return companyRepo.getFortress(companyId, fortressName);
-        return null;
+    public Fortress getFortressByName(Long companyId, String fortressName) {
+        return companyRepo.getFortressByName(companyId, fortressName);
     }
+
+    @Override
+    public Fortress getFortressByCode(Long companyId, String fortressCode) {
+        return companyRepo.getFortressByCode(companyId, fortressCode);
+    }
+
+    @Override
+    public Collection<Company> findCompanies(Long id) {
+        return companyRepo.getCompaniesForUser(id);
+    }
+
 
     @Override
     public SystemUser getAdminUser(Long id, String name) {
@@ -84,4 +95,10 @@ public class CompanyDaoRepo implements CompanyDao {
     public Iterable<CompanyUser> getCompanyUsers(String companyName) {
         return companyRepo.getCompanyUsers(companyName);
     }
+
+    @Override
+    public Company create(String companyName, String uniqueKey) {
+        return companyRepo.save(new CompanyNode(companyName, uniqueKey));
+    }
+
 }

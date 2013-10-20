@@ -37,15 +37,15 @@ import java.util.Map;
  */
 @NodeEntity(useShortNames = true)
 public class AuditChangeNode implements AuditChange {
-    public static final String COLON = ":";
+    private static final String COLON = ":";
     @GraphId
     private Long id;
 
-    @RelatedTo(elementClass = FortressUserNode.class, type = "changed", direction = Direction.INCOMING, enforceTargetType = true)
+    @RelatedTo(elementClass = FortressUserNode.class, type = "CHANGED", direction = Direction.INCOMING, enforceTargetType = true)
     @Fetch
     private FortressUserNode madeBy;
 
-    @RelatedTo(elementClass = TxRefNode.class, type = "txIncludes", direction = Direction.INCOMING, enforceTargetType = true)
+    @RelatedTo(elementClass = TxRefNode.class, type = "AFFECTED", direction = Direction.INCOMING, enforceTargetType = true)
     private TxRef txRef;
 
     @RelatedTo(elementClass = AuditEventNode.class, type = "AUDIT_EVENT", direction = Direction.OUTGOING)
@@ -59,11 +59,11 @@ public class AuditChangeNode implements AuditChange {
     private boolean compressed = false;
     private String name;
 
-    @RelatedTo(type = "previousChange", direction = Direction.INCOMING)
+    @RelatedTo(type = "previousChange", direction = Direction.OUTGOING)
     private AuditChangeNode previousChange;
 
     @Fetch
-    @RelatedToVia(type = "logged", direction = Direction.INCOMING)
+    @RelatedToVia(type = "LOGGED", direction = Direction.INCOMING)
     AuditLogRelationship auditLog;
 
     @RelatedTo(type = "auditWhat")
@@ -78,7 +78,7 @@ public class AuditChangeNode implements AuditChange {
         this.madeBy = (FortressUserNode) madeBy;
 
         String event = inputBean.getEvent();
-        this.name = new StringBuilder().append(event).append(COLON).append(madeBy.getName()).toString();
+        this.name = event + COLON + madeBy.getCode();
         setTxRef(txRef);
         this.comment = inputBean.getComment();
     }

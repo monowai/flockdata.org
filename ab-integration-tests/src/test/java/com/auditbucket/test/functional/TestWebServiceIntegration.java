@@ -58,7 +58,7 @@ public class TestWebServiceIntegration {
 
     private Logger logger = LoggerFactory.getLogger(TestAuditIntegration.class);
     private String email = "test@ab.com";
-    Authentication authA = new UsernamePasswordAuthenticationToken(email, "user1");
+    private Authentication authA = new UsernamePasswordAuthenticationToken(email, "user1");
 
     //@Test
     public void jsonReadFiles() throws Exception {

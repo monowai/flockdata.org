@@ -41,11 +41,14 @@ public class FortressNode implements Fortress {
     @GraphId
     Long id;
 
-    @Indexed(indexName = "fortressName")
-    String name;
+    @Indexed(indexName = "fortressCode")
+    private String code;
 
-    //@Fetch
+    @Indexed(indexName = "fortressName")
+    private String name;
+
     @RelatedTo(type = "owns", direction = Direction.INCOMING)
+    private
     CompanyNode company;
 
     private Boolean accumulatingChanges = false;
@@ -57,6 +60,7 @@ public class FortressNode implements Fortress {
     }
 
     public FortressNode(FortressInputBean fortressInputBean, Company ownedBy) {
+        this();
         setName(fortressInputBean.getName());
         setIgnoreSearchEngine(fortressInputBean.getIgnoreSearch());
         setCompany(ownedBy);
@@ -90,6 +94,7 @@ public class FortressNode implements Fortress {
 
     public void setName(String name) {
         this.name = name;
+        this.code = name.toLowerCase().replaceAll("\\s+", "");
     }
 
     @Override
@@ -147,5 +152,10 @@ public class FortressNode implements Fortress {
 
     public void setTimeZone(String timeZone) {
         this.timeZone = timeZone;
+    }
+
+    @JsonIgnore
+    public String getCode() {
+        return code;
     }
 }

@@ -17,20 +17,21 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.engine.repo.neo4j;
-
-import com.auditbucket.audit.model.TxRef;
-import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
-import org.springframework.data.neo4j.annotation.Query;
-import org.springframework.data.neo4j.repository.GraphRepository;
+package com.auditbucket.helper;
 
 /**
  * User: Mike Holdsworth
- * Date: 15/06/13
- * Time: 10:12 AM
+ * Since: 27/09/13
  */
-public interface AuditTXRepo extends GraphRepository<AuditTXRepo> {
-    @Query(elementClass = TxRefNode.class, value = "start header=node({0}) match header<-[cw:CHANGED|CREATED]-byUser return cw")
-    TxRef getTxRef(Long auditHeaderID);
+public class AuditException extends Exception {
+    public AuditException() {
+    }
 
+    public AuditException(String message) {
+        super(message);
+    }
+
+    public AuditException(String message, Throwable t) {
+        super(message, t);
+    }
 }

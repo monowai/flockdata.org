@@ -22,11 +22,9 @@ package com.auditbucket.registration.repo.neo4j.model;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
-import org.springframework.data.neo4j.annotation.RelatedTo;
 
 /**
  * User: Mike Holdsworth
@@ -38,18 +36,22 @@ public class TagNode implements Tag {
     @GraphId
     Long Id;
 
-    @RelatedTo(elementClass = CompanyNode.class, type = "tags", direction = Direction.INCOMING)
-    Company company;
+//    @RelatedTo(elementClass = CompanyNode.class, type = "tags", direction = Direction.INCOMING)
+//    private
+//    Company company;
 
-    @Indexed(indexName = "tagName")
+    @Indexed(indexName = "tagCode")
+    private String code;
+
     private String name;
 
     protected TagNode() {
     }
 
     public TagNode(Tag tag) {
-        this.company = tag.getCompany();
+        this();
         this.name = tag.getName();
+        this.code = tag.getName().toLowerCase().replaceAll("\\s", "");
     }
 
 
@@ -60,18 +62,15 @@ public class TagNode implements Tag {
 
     @Override
     @JsonIgnore
+    // @deprecated
     public Company getCompany() {
-        return company;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
-    public void setCompany(Company company) {
-        this.company = company;
-    }
-
-    @Override
-    public void setName(String floppy) {
-        this.name = floppy;
+    public void setName(String tagName) {
+        this.name = tagName;
+        this.code = tagName.toLowerCase().replaceAll("\\s", "");
     }
 
     @JsonIgnore
