@@ -52,7 +52,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 /**
- * Created with IntelliJ IDEA.
  * User: Mike Holdsworth
  * Date: 8/04/13
  * To change this template use File | Settings | File Templates.
@@ -486,7 +485,7 @@ public class AuditService {
     }
 
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-    public AuditLog getLastAuditLog(String headerKey) {
+    public AuditLog getLastAuditLog(String headerKey) throws AuditException {
         AuditHeader ah = getValidHeader(headerKey);
         return getLastAuditLog(ah);
     }
@@ -496,13 +495,13 @@ public class AuditService {
         return auditDAO.getLastAuditLog(auditHeader.getId());
     }
 
-    public Set<AuditLog> getAuditLogs(String headerKey) {
+    public Set<AuditLog> getAuditLogs(String headerKey) throws AuditException {
         securityHelper.isValidUser();
         AuditHeader auditHeader = getValidHeader(headerKey);
         return auditDAO.getAuditLogs(auditHeader.getId());
     }
 
-    public Set<AuditLog> getAuditLogs(String headerKey, Date from, Date to) {
+    public Set<AuditLog> getAuditLogs(String headerKey, Date from, Date to) throws AuditException {
         securityHelper.isValidUser();
         AuditHeader auditHeader = getValidHeader(headerKey);
         return getAuditLogs(auditHeader, from, to);
@@ -519,14 +518,14 @@ public class AuditService {
      * @return AuditHeader
      * @throws IOException
      */
-    public AuditHeader cancelLastLogSync(String headerKey) throws IOException {
+    public AuditHeader cancelLastLogSync(String headerKey) throws IOException, AuditException {
         Future<AuditHeader> futureHeader = cancelLastLog(headerKey);
         try {
             return futureHeader.get();
         } catch (InterruptedException | ExecutionException e) {
             logger.error(e.getMessage());
+            throw new AuditException("This is bad - Interrupted Exception ", e);
         }
-        return null;
     }
 
     /**
@@ -539,7 +538,7 @@ public class AuditService {
      * @return Future<AuditHeader> record or null if no auditHeader exists.
      */
     @Async
-    Future<AuditHeader> cancelLastLog(String headerKey) throws IOException {
+    Future<AuditHeader> cancelLastLog(String headerKey) throws IOException, AuditException {
         AuditHeader auditHeader = getValidHeader(headerKey, true);
         AuditLog currentLog = getLastLog(auditHeader.getId());
         if (currentLog == null)
@@ -581,20 +580,20 @@ public class AuditService {
      * @return count
      */
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-    public int getAuditLogCount(String headerKey) {
+    public int getAuditLogCount(String headerKey) throws AuditException {
         AuditHeader auditHeader = getValidHeader(headerKey);
         return auditDAO.getLogCount(auditHeader.getId());
 
     }
 
-    private AuditHeader getValidHeader(String headerKey) {
+    private AuditHeader getValidHeader(String headerKey) throws AuditException {
         return getValidHeader(headerKey, false);
     }
 
-    private AuditHeader getValidHeader(String headerKey, boolean inflate) {
+    private AuditHeader getValidHeader(String headerKey, boolean inflate) throws AuditException {
         AuditHeader header = auditDAO.findHeader(headerKey, inflate);
         if (header == null) {
-            throw new IllegalArgumentException("No audit auditHeader for [" + headerKey + "]");
+            throw new AuditException("No audit auditHeader for [" + headerKey + "]");
         }
         String userName = securityHelper.getLoggedInUser();
         SystemUser sysUser = sysUserService.findByName(userName);
@@ -679,7 +678,7 @@ public class AuditService {
 
     }
 
-    public AuditLog getLastLog(String auditKey) {
+    public AuditLog getLastLog(String auditKey) throws AuditException {
         AuditHeader audit = getValidHeader(auditKey);
         return getLastLog(audit.getId());
 

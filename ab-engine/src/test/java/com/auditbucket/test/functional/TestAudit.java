@@ -630,6 +630,20 @@ public class TestAudit {
     }
 
     @Test
+    public void fullHeaderDetailsByCallerRef() throws Exception {
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
+        SecurityContextHolder.getContext().setAuthentication(authMike);
+        Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "ABC1");
+        String ahWP = auditManagerService.createHeader(inputBean).getAuditKey();
+
+        AuditHeader header = auditService.findByCallerRefFull(fortWP.getId(), "CompanyNode", "ABC1");
+        assertNotNull(header);
+        assertNotNull(header.getDocumentType());
+        assertEquals(ahWP, header.getAuditKey());
+    }
+
+    @Test
     public void testFortressTimeBoundaries() throws Exception {
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         SecurityContextHolder.getContext().setAuthentication(authMike);
