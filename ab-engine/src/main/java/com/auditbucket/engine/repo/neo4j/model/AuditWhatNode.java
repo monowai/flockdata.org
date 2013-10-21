@@ -24,7 +24,7 @@ public class AuditWhatNode implements AuditWhat {
 
     @JsonIgnore
     private
-    String whatBytes;
+    byte[] whatBytes;
 
     private Boolean compressed;
 
@@ -60,7 +60,7 @@ public class AuditWhatNode implements AuditWhat {
     @Override
     @JsonIgnore
     public String getWhat() {
-        return CompressionHelper.decompress(whatBytes.getBytes(), compressed);
+        return CompressionHelper.decompress(whatBytes, compressed);
     }
 
 
@@ -70,7 +70,7 @@ public class AuditWhatNode implements AuditWhat {
             return what;
         try {
             if (whatBytes != null) {
-                what = objectMapper.readValue(CompressionHelper.decompress(whatBytes.getBytes(), compressed), Map.class);
+                what = objectMapper.readValue(CompressionHelper.decompress(whatBytes, compressed), Map.class);
                 return what;
             }
 
@@ -81,6 +81,10 @@ public class AuditWhatNode implements AuditWhat {
         return what;
     }
 
+    public void setCompressed(Boolean compressed) {
+        this.compressed = compressed;
+    }
+
     @Override
     public boolean isCompressed() {
         return compressed;
@@ -88,9 +92,11 @@ public class AuditWhatNode implements AuditWhat {
 
     public void setJsonWhat(String what) {
         CompressionResult result = CompressionHelper.compress(what);
-
-        this.whatBytes = result.getAsString(); //ToDo: Store as Bytes in REDIS
         this.compressed = result.getMethod() == CompressionResult.Method.GZIP;
+    }
+
+    public void setWhatBytes(byte[] whatBytes) {
+        this.whatBytes = whatBytes;
     }
 
     public int getVersion() {

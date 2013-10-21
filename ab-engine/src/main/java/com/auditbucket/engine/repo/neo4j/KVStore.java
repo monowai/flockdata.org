@@ -1,11 +1,12 @@
-package com.auditbucket.engine.service;
+package com.auditbucket.engine.repo.neo4j;
 
 /**
  * Created with IntelliJ IDEA.
  * User: nabil
- * Date: 20/10/13
- * Time: 02:42
+ * Date: 21/10/13
+ * Time: 22:06
  * To change this template use File | Settings | File Templates.
  */
-public class RedisTest {
+public enum KVStore {
+    REDIS
 }

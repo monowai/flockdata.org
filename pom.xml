@@ -50,7 +50,10 @@
         <jackson.version>2.2.2</jackson.version>
     </properties>
     <repositories>
-
+        <repository>
+            <id>clojars.org</id>
+            <url>http://clojars.org/repo</url>
+        </repository>
     </repositories>
 
     <organization>

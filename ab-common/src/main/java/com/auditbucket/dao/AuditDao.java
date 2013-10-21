@@ -94,6 +94,8 @@ public interface AuditDao {
 
     String save(AuditChange change, String jsonText, int version);
 
+    AuditChange save(AuditChange change, Boolean compressed, int version);
+
     void fetch(AuditWhat what);
 
 }

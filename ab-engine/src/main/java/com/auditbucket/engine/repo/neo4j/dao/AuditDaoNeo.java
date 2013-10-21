@@ -279,10 +279,18 @@ public class AuditDaoNeo implements AuditDao {
     @Override
     public String save(AuditChange change, String jsonText, int version) {
         AuditWhatNode what = new AuditWhatNode(version);
-        what.setJsonWhat(jsonText);
         change.setWhat(what);
         change = template.save(change);
         return change.getWhat().getId();
+    }
+
+    @Override
+    public AuditChange save(AuditChange change, Boolean compressed, int version) {
+        AuditWhatNode what = new AuditWhatNode(version);
+        what.setCompressed(compressed);
+        change.setWhat(what);
+        change = template.save(change);
+        return change;
     }
 
 }

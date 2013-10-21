@@ -9,13 +9,13 @@ import org.springframework.stereotype.Component;
 public class RedisRepository {
 
     @Autowired
-    private RedisTemplate<Long, AuditWhat> template;
+    private RedisTemplate<Long, byte[]> template;
 
-    public void add(Long key, AuditWhat value) {
+    public void add(Long key, byte[] value) {
         template.opsForValue().set(key, value);
     }
 
-    public AuditWhat getValue(Long key) {
+    public byte[] getValue(Long key) {
         return template.opsForValue().get(key);
     }
 
