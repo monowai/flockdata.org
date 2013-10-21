@@ -61,8 +61,8 @@ public class AuditTagDaoRepo implements com.auditbucket.dao.AuditTagDao {
         if (relationship == null) {
             relationship = "GENERAL_TAG";
         }
-        Node headerNode = template.getNode(auditHeader.getId());
-        Node tagNode = template.getNode(tag.getId());
+        Node headerNode = template.getPersistentState(auditHeader);
+        Node tagNode = template.getPersistentState(tag);
         //Primary exploration relationship
         Relationship r = template.getRelationshipBetween(tagNode, headerNode, relationship);
         boolean recreated = false;
@@ -139,9 +139,9 @@ public class AuditTagDaoRepo implements com.auditbucket.dao.AuditTagDao {
     }
 
     @Override
-    public Boolean relationshipExists(AuditHeader auditHeader, Tag tagName, String relationshipType) {
-        Node end = template.getNode(auditHeader.getId());
-        Node start = template.getNode(tagName.getId());
+    public Boolean relationshipExists(AuditHeader auditHeader, Tag tag, String relationshipType) {
+        Node end = template.getPersistentState(auditHeader);
+        Node start = template.getPersistentState(tag);
         return (template.getRelationshipBetween(start, end, relationshipType) != null);
 
     }

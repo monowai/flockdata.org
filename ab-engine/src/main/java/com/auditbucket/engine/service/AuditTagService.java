@@ -30,6 +30,7 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 /**
  * User: Mike Holdsworth
@@ -82,6 +84,12 @@ public class AuditTagService {
 //    }
 
 
+    //    @Async
+    public Void createTagValuesFuture(AuditHeader ah, Map<String, Object> userTags) {
+        createTagValues(ah, userTags);
+        return null;
+    }
+
     /**
      * Associates the supplied userTags with the AuditHeaderNode
      * <p/>
@@ -101,6 +109,7 @@ public class AuditTagService {
      * @param ah       Header to associate userTags with
      * @param userTags Key/Value pair of tags. TagNode will be created if missing. Value can be a Collection
      */
+
     public void createTagValues(AuditHeader ah, Map<String, Object> userTags) {
         if ((userTags == null) || userTags.isEmpty())
             return;

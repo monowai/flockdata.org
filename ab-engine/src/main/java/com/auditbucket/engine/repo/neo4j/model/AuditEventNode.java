@@ -24,6 +24,7 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.neo4j.graphdb.Direction;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
@@ -34,6 +35,7 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
  * Since: 6/09/13
  */
 @NodeEntity
+@TypeAlias("ab.Event")
 public class AuditEventNode implements AuditEvent {
 
     @GraphId

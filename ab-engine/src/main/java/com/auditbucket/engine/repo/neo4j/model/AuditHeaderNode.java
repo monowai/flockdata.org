@@ -32,6 +32,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.neo4j.graphdb.Direction;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
 
 import java.util.Date;
@@ -44,6 +45,7 @@ import java.util.TimeZone;
  * Time: 10:56 AM
  */
 @NodeEntity(useShortNames = true)
+@TypeAlias("ab.Audit")
 public class AuditHeaderNode implements AuditHeader {
 
     @Indexed(indexName = UUID_KEY, unique = true)

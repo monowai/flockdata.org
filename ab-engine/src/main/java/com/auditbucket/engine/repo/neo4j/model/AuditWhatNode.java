@@ -6,6 +6,7 @@ import com.auditbucket.helper.CompressionResult;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.annotation.Transient;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 
@@ -18,6 +19,7 @@ import java.util.Map;
  * Since: 4/09/13
  */
 @NodeEntity
+@TypeAlias("ab.What")
 public class AuditWhatNode implements AuditWhat {
     @GraphId
     private Long id;

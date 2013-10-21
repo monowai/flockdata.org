@@ -25,6 +25,7 @@ import com.auditbucket.audit.model.AuditLog;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
 
 import java.util.TimeZone;
@@ -35,6 +36,7 @@ import java.util.TimeZone;
  * Time: 4:12 PM
  */
 @RelationshipEntity(type = "LOGGED")
+@TypeAlias("ab.Log")
 public class AuditLogRelationship implements AuditLog {
     @GraphId
     private Long id;

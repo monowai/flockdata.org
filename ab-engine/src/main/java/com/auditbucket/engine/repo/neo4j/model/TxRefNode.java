@@ -28,6 +28,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.neo4j.graphdb.Direction;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
 
 import javax.validation.constraints.NotNull;
@@ -39,6 +40,7 @@ import java.util.Set;
  * Time: 9:34 AM
  */
 @NodeEntity
+@TypeAlias("ab.TxRef")
 public class TxRefNode implements TxRef {
 
     @GraphId

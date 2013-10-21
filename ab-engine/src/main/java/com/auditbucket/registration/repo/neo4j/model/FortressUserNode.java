@@ -23,9 +23,11 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.neo4j.graphdb.Direction;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
 
 @NodeEntity
+@TypeAlias("ab.FortressUser")
 public class FortressUserNode implements FortressUser {
     @GraphId
     Long id;

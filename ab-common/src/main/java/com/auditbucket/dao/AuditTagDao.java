@@ -36,7 +36,7 @@ import java.util.Set;
 public interface AuditTagDao {
     AuditTag save(AuditHeader auditHeader, Tag tag, String type);
 
-    Boolean relationshipExists(AuditHeader auditHeader, Tag tagName, String relationshipType);
+    Boolean relationshipExists(AuditHeader auditHeader, Tag tag, String relationshipType);
 
     Set<AuditTag> getAuditTags(AuditHeader auditHeader, Long companyTagId);
 

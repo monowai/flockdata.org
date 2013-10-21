@@ -35,6 +35,7 @@ public class AuditResultBean {
     private String callerRef;
     private String auditKey;
     private AuditLogResultBean logResult;
+    private AuditHeader auditHeader;
 
     protected AuditResultBean() {
     }
@@ -56,6 +57,7 @@ public class AuditResultBean {
     public AuditResultBean(AuditHeader input) {
         this(input.getFortress().getName(), input.getDocumentType(), input.getCallerRef(), input.getAuditKey());
         this.auditId = input.getId();
+        this.auditHeader = input;
     }
 
     public String getFortressName() {
@@ -92,6 +94,10 @@ public class AuditResultBean {
         return auditId;
     }
 
+    @JsonIgnore
+    public AuditHeader getAuditHeader() {
+        return auditHeader;
+    }
 
     public void setLogResult(AuditLogResultBean logResult) {
         this.logResult = logResult;

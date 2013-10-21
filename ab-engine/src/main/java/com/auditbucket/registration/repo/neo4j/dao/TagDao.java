@@ -73,7 +73,7 @@ public class TagDao implements com.auditbucket.dao.TagDao {
             tagToCreate = new TagNode(tag);
 
         tagToCreate = tagRepo.save(tagToCreate);
-        Node end = template.getNode(tagToCreate.getId());
+        Node end = template.getPersistentState(tagToCreate);
         Node start = getCompanyTagManagerNode(company.getId());
         Relationship r = template.getRelationshipBetween(start, end, COMPANY_TAGS);
         if (r == null)

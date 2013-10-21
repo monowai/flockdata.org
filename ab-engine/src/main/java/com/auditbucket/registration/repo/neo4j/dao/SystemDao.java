@@ -21,8 +21,9 @@ package com.auditbucket.registration.repo.neo4j.dao;
 
 import com.auditbucket.registration.model.ISystem;
 import com.auditbucket.registration.repo.neo4j.SystemRepository;
-import com.auditbucket.registration.repo.neo4j.model.SystemId;
+import com.auditbucket.registration.repo.neo4j.model.SystemNode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -31,13 +32,14 @@ import org.springframework.stereotype.Repository;
  * Time: 8:33 PM
  */
 @Repository
+@TypeAlias("ab.System")
 public class SystemDao implements com.auditbucket.dao.SystemDao {
 
     @Autowired
     SystemRepository sysRepo;
 
     public ISystem save(ISystem system) {
-        return sysRepo.save((SystemId) system);
+        return sysRepo.save((SystemNode) system);
     }
 
     @Override

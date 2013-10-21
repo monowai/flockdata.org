@@ -264,13 +264,13 @@ public class AuditDaoNeo implements AuditDao {
     @Override
     public void setLastChange(AuditHeader auditHeader, AuditChange toAdd, AuditChange toRemove) {
 
-        Node header = template.getNode(auditHeader.getId());
+        Node header = template.getPersistentState(auditHeader);
         if (toRemove != null) {
-            Node previous = template.getNode(toRemove.getId());
+            Node previous = template.getPersistentState(toRemove);
             logger.debug("Audit [{}], removing relationship [{}]", auditHeader.getId(), previous.getId());
             template.deleteRelationshipBetween(header, previous, LAST_CHANGE);
         }
-        Node auditChange = template.getNode(toAdd.getId());
+        Node auditChange = template.getPersistentState(toAdd);
         template.createRelationshipBetween(header, auditChange, LAST_CHANGE, null);
         if (toRemove != null)
             logger.debug("Audit [{}], replaced Last Change relationship [{}] with [{}]", auditHeader.getId(), toRemove.getId(), auditChange.getId());

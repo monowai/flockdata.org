@@ -22,6 +22,7 @@ package com.auditbucket.registration.repo.neo4j.model;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
@@ -32,6 +33,7 @@ import org.springframework.data.neo4j.annotation.NodeEntity;
  * Time: 8:35 PM
  */
 @NodeEntity
+@TypeAlias("ab.Tag")
 public class TagNode implements Tag {
     @GraphId
     Long Id;

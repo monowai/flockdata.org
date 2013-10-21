@@ -45,8 +45,8 @@ public class AuditManagerService {
     @Autowired
     AuditService auditService;
 
-    //@Autowired
-    //AuditTagService auditTagService;
+    @Autowired
+    AuditTagService auditTagService;
 
     @Autowired
     CompanyService companyService;
@@ -83,6 +83,7 @@ public class AuditManagerService {
         Fortress fortress = resolveFortress(company, inputBean);
         fortress.setCompany(company);
         AuditResultBean resultBean = auditService.createHeader(inputBean, company, fortress);
+        auditTagService.createTagValuesFuture(resultBean.getAuditHeader(), inputBean.getTagValues());
 
         // Here on could be spun in to a separate thread. The log has to happen eventually
         //   and can't fail.

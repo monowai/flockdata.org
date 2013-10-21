@@ -34,7 +34,7 @@ import java.util.Set;
  * Time: 8:35 PM
  */
 @NodeEntity
-public class SystemId implements ISystem {
+public class SystemNode implements ISystem {
     @GraphId
     Long Id;
 
@@ -45,10 +45,10 @@ public class SystemId implements ISystem {
     @Indexed(indexName = "systemName")
     private String name;
 
-    public SystemId() {
+    public SystemNode() {
     }
 
-    public SystemId(String name) {
+    public SystemNode(String name) {
         this.name = name;
 
     }

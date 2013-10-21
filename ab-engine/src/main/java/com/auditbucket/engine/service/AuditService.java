@@ -164,6 +164,7 @@ public class AuditService {
 
         ah = makeAuditHeader(inputBean, fu, documentType);
         inputBean.setWhen(ah.getFortressDateCreated().toDate());
+
         return new AuditResultBean(ah);
 
     }
@@ -175,7 +176,6 @@ public class AuditService {
     private AuditHeader makeAuditHeader(AuditHeaderInputBean inputBean, FortressUser fu, DocumentType documentType) {
 
         AuditHeader ah = auditDAO.create(inputBean.getAuditKey(), fu, inputBean, documentType);
-        auditTagService.createTagValues(ah, inputBean.getTagValues());
         logger.debug("Audit Header created:{} key=[{}]", ah.getId(), ah.getAuditKey());
         return ah;
     }

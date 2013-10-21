@@ -22,12 +22,14 @@ package com.auditbucket.registration.repo.neo4j.model;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.CompanyUser;
 import org.neo4j.graphdb.Direction;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
 @NodeEntity
+@TypeAlias("ab.CompanyUser")
 public class CompanyUserNode implements CompanyUser {
     @GraphId
     Long id;

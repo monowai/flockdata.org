@@ -19,7 +19,7 @@
 
 package com.auditbucket.registration.repo.neo4j;
 
-import com.auditbucket.registration.repo.neo4j.model.SystemId;
+import com.auditbucket.registration.repo.neo4j.model.SystemNode;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
 /**
@@ -27,5 +27,5 @@ import org.springframework.data.neo4j.repository.GraphRepository;
  * Date: 27/06/13
  * Time: 12:24 PM
  */
-public interface SystemRepository extends GraphRepository<SystemId> {
+public interface SystemRepository extends GraphRepository<SystemNode> {
 }

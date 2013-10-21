@@ -26,6 +26,7 @@ import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.Transient;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
 
 import java.util.Map;
@@ -36,6 +37,7 @@ import java.util.Map;
  * Time: 5:57 PM
  */
 @NodeEntity(useShortNames = true)
+@TypeAlias("ab.Change")
 public class AuditChangeNode implements AuditChange {
     private static final String COLON = ":";
     @GraphId
