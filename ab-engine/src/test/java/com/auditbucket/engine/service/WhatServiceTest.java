@@ -13,11 +13,10 @@ import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
+import com.auditbucket.test.utils.AbstractRedisSupport;
 import junit.framework.Assert;
 import org.joda.time.DateTime;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
@@ -36,9 +35,8 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 @Transactional
-public class WhatServiceTest {
+public class WhatServiceTest extends AbstractRedisSupport {
 
-    private static RedisServer redisServer;
     @Autowired
     RedisRepository redisRepository;
     @Autowired
@@ -57,23 +55,6 @@ public class WhatServiceTest {
     private WhatService whatService;
     private String email = "test@ab.com";
     private Authentication authA = new UsernamePasswordAuthenticationToken(email, "user1");
-
-    @BeforeClass
-    public static void setup() throws Exception {
-        // If you are on Winodws
-        // TODO NABIL Make a factory for That
-        if (System.getProperty("os.arch").equals("amd64")) {
-            redisServer = new RedisServer(new File("ab-engine/src/test/resources/redis/redis-server.exe"), 6379); // or new RedisServer("/path/to/your/redis", 6379);
-        } else {
-            redisServer = new RedisServer(6379);
-        }
-        redisServer.start();
-    }
-
-    @AfterClass
-    public static void tearDown() throws Exception {
-        redisServer.stop();
-    }
 
     @Test
     public void testLogWhat() throws Exception {
