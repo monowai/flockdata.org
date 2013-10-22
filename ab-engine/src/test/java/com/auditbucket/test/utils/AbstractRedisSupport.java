@@ -23,7 +23,7 @@ public class AbstractRedisSupport {
     public static void setup() throws Exception {
         if(redisServer == null){
             // If you are on Winodws
-            if (System.getProperty("os.arch").equals("amd64")) {
+            if (System.getProperty("os.arch").equals("amd64") && System.getProperty("os.name").startsWith("Windows")) {
                 URL url = AbstractRedisSupport.class.getResource("/redis/redis-server.exe");
                 File redisServerExe = new File(url.getFile());
                 redisServer = new RedisServer(redisServerExe, 6379); // or new RedisServer("/path/to/your/redis", 6379);
