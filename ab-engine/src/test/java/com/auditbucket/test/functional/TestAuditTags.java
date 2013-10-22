@@ -44,6 +44,7 @@ import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
+import com.auditbucket.test.utils.AbstractRedisSupport;
 import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -76,7 +77,7 @@ import static org.junit.Assert.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 @Transactional
-public class TestAuditTags {
+public class TestAuditTags extends AbstractRedisSupport {
     @Autowired
     FortressService fortressService;
 

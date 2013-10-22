@@ -32,6 +32,7 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
+import com.auditbucket.test.utils.AbstractRedisSupport;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
@@ -68,7 +69,7 @@ import static junit.framework.Assert.assertEquals;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 @Transactional
-public class TestAudit {
+public class TestAudit extends AbstractRedisSupport {
     @Autowired
     AuditService auditService;
 

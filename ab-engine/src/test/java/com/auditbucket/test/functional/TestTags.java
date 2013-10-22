@@ -28,6 +28,7 @@ import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
+import com.auditbucket.test.utils.AbstractRedisSupport;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +54,7 @@ import static junit.framework.Assert.*;
 @ContextConfiguration("classpath:root-context.xml")
 @Transactional
 
-public class TestTags {
+public class TestTags extends AbstractRedisSupport {
     @Autowired
     FortressService fortressService;
 
