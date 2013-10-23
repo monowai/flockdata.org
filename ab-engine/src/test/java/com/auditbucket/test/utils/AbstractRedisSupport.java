@@ -30,8 +30,8 @@ public class AbstractRedisSupport {
             } else {
                 redisServer = new RedisServer(6379);
             }
+            redisServer.start();
         }
-        redisServer.start();
     }
 
 
