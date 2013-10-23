@@ -64,7 +64,7 @@ import static junit.framework.Assert.*;
 @ContextConfiguration("classpath:root-context.xml")
 @Transactional
 
-public class TestTxReference extends AbstractRedisSupport {
+public class TestTxReference {
     @Autowired
     AuditService auditService;
 

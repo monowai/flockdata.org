@@ -64,7 +64,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 @Transactional
-public class TestRegistration extends AbstractRedisSupport {
+public class TestRegistration {
 
 
     @Autowired

@@ -64,7 +64,7 @@ import static junit.framework.Assert.fail;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 @Transactional
-public class TestAuditEvent extends AbstractRedisSupport {
+public class TestAuditEvent {
     @Autowired
     AuditService auditService;
 

@@ -69,7 +69,7 @@ import static junit.framework.Assert.assertEquals;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 @Transactional
-public class TestAudit extends AbstractRedisSupport {
+public class TestAudit {
     @Autowired
     AuditService auditService;
 

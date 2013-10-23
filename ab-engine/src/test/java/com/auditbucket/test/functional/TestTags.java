@@ -54,7 +54,7 @@ import static junit.framework.Assert.*;
 @ContextConfiguration("classpath:root-context.xml")
 @Transactional
 
-public class TestTags extends AbstractRedisSupport {
+public class TestTags {
     @Autowired
     FortressService fortressService;
 

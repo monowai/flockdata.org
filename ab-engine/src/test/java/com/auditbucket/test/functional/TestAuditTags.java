@@ -77,7 +77,7 @@ import static org.junit.Assert.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 @Transactional
-public class TestAuditTags extends AbstractRedisSupport {
+public class TestAuditTags {
     @Autowired
     FortressService fortressService;
 
