@@ -31,7 +31,6 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.search.AuditSearchSchema;
-import com.auditbucket.test.utils.AbstractRedisSupport;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.searchbox.client.JestClient;
@@ -42,7 +41,10 @@ import io.searchbox.core.Search;
 import io.searchbox.indices.DeleteIndex;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +78,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
-public class TestAuditIntegration extends AbstractRedisSupport {
+public class TestAuditIntegration {
 
     private static int fortressMax = 2;
     private static JestClient client;
