@@ -38,6 +38,6 @@ public class AbstractRedisSupport {
 
     @AfterClass
     public static void tearDown() throws Exception {
-        redisServer.stop();
+        //redisServer.stop();
     }
 }

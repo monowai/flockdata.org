@@ -31,6 +31,7 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.search.AuditSearchSchema;
+import com.auditbucket.test.utils.AbstractRedisSupport;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.searchbox.client.JestClient;
@@ -75,7 +76,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
-public class TestAuditIntegration {
+public class TestAuditIntegration extends AbstractRedisSupport {
 
     private static int fortressMax = 2;
     private static JestClient client;
