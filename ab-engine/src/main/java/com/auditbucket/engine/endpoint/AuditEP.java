@@ -94,11 +94,10 @@ public class AuditEP {
     //ToDo: Add a PUT /fortress/docType/callerRef
     @ResponseBody
     @RequestMapping(value = "/header/bulk", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
-    public Future<Void> createHeaders(@RequestBody AuditHeaderInputBean[] input) throws Exception {
+    public void createHeaders(@RequestBody AuditHeaderInputBean[] input) throws Exception {
         for (AuditHeaderInputBean inputBean : input) {
             createHeaderAsync(inputBean);
         }
-        return null;
     }
 
     @Async

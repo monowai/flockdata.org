@@ -34,7 +34,7 @@
     <int:json-to-object-transformer id="jsonToObject"
                                     input-channel="searchReply"
                                     output-channel="searchResult"
-                                    type="com.auditbucket.search.SearchResult">
+                                    type="com.auditbucket.search.model.SearchResult">
     </int:json-to-object-transformer>
 
 

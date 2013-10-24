@@ -43,7 +43,7 @@
                               path="/api/searchResult"
                               reply-timeout="${reply.timeout}"
                               request-timeout="${request.timeout}"
-                              request-payload-type="com.auditbucket.search.SearchResult"
+                              request-payload-type="com.auditbucket.search.model.SearchResult"
                               supported-methods="POST"/>
 
 </beans>

@@ -1,6 +1,6 @@
 package com.auditbucket.helper;
 
-import com.auditbucket.search.SearchResult;
+import com.auditbucket.search.model.SearchResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.support.converter.MessageConversionException;

@@ -17,7 +17,7 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.search;
+package com.auditbucket.search.model;
 
 /**
  * Object to tie the keys between ab-engine and ab-search so that ab-engine can keep the document up-to-date

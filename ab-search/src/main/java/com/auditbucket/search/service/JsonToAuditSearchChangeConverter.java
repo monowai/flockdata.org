@@ -1,7 +1,6 @@
 package com.auditbucket.search.service;
 
-import com.auditbucket.search.AuditSearchChange;
-import com.auditbucket.search.SearchResult;
+import com.auditbucket.search.model.AuditSearchChange;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.support.converter.MessageConversionException;
@@ -9,7 +8,6 @@ import org.springframework.amqp.support.converter.SimpleMessageConverter;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 /**
  * Convert ByteArrays to String.

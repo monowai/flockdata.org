@@ -21,10 +21,7 @@ package com.auditbucket.engine.service;
 
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.SearchChange;
-import com.auditbucket.search.SearchResult;
 import org.springframework.integration.annotation.Gateway;
-
-import java.util.concurrent.Future;
 
 /**
  * Facades the call to the underlying auditbucket-search implementation.

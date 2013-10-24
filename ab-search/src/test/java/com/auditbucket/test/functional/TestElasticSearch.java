@@ -21,7 +21,7 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.model.AuditSearchDao;
 import com.auditbucket.audit.model.SearchChange;
-import com.auditbucket.search.AuditSearchChange;
+import com.auditbucket.search.model.AuditSearchChange;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;

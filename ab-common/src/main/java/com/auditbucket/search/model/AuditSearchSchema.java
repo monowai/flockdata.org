@@ -1,4 +1,4 @@
-package com.auditbucket.search;
+package com.auditbucket.search.model;
 
 /**
  * User: Mike Holdsworth

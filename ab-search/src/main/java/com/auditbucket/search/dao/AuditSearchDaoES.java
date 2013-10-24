@@ -22,7 +22,7 @@ package com.auditbucket.search.dao;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditSearchDao;
 import com.auditbucket.audit.model.SearchChange;
-import com.auditbucket.search.AuditSearchSchema;
+import com.auditbucket.search.model.AuditSearchSchema;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.action.ListenableActionFuture;
