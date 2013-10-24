@@ -32,7 +32,7 @@ public class FortressUserNode implements FortressUser {
     @GraphId
     Long id;
 
-    @RelatedTo(elementClass = FortressNode.class, type = "fortressUser", direction = Direction.INCOMING)
+    @RelatedTo(elementClass = FortressNode.class, type = "BELONGS_TO", direction = Direction.OUTGOING)
     private FortressNode fortress;
 
     @Indexed(indexName = "fortressUser")

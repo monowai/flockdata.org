@@ -26,7 +26,7 @@ import org.springframework.data.neo4j.repository.GraphRepository;
 
 public interface FortressUserRepository extends GraphRepository<FortressUserNode> {
 
-    @Query(value = "start fortress=node({0}) match fortress<-[r:fortressUser]-fUser where fUser.name ={1} return fUser")
+    @Query(value = "start fortress=node({0}) match fortress<-[r:BELONGS_TO]-fUser where fUser.name ={1} return fUser")
     SystemUserNode getAdminUser(long fortressId, String userName);
 
 }

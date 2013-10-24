@@ -28,7 +28,6 @@ import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.engine.service.AuditTagService;
 import com.auditbucket.engine.service.EngineAdmin;
-import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
@@ -113,22 +112,22 @@ public class AuditEP {
     public ResponseEntity<AuditResultBean> createHeader(@RequestBody AuditHeaderInputBean input) throws Exception {
         // curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab/audit/header/new/ -d '"fortress":"MyFortressName", "fortressUser": "yoursystemuser", "documentType":"CompanyNode","when":"2012-11-10"}'
         AuditResultBean auditResultBean;
-        try {
-            auditResultBean = auditManager.createHeader(input);
-            auditResultBean.setStatus("OK");
-            return new ResponseEntity<>(auditResultBean, HttpStatus.OK);
-        } catch (AuditException e) {
-            auditResultBean = new AuditResultBean(e.getMessage());
-            logger.info("*** ", e);
-            return new ResponseEntity<>(auditResultBean, HttpStatus.BAD_REQUEST);
-
-        } catch (IllegalArgumentException e) {
-            auditResultBean = new AuditResultBean(e.getMessage());
-            return new ResponseEntity<>(auditResultBean, HttpStatus.BAD_REQUEST);
-        } catch (SecurityException e) {
-            auditResultBean = new AuditResultBean("Forbidden Request " + e.getMessage());
-            return new ResponseEntity<>(auditResultBean, HttpStatus.FORBIDDEN);
-        }
+        //try {
+        auditResultBean = auditManager.createHeader(input);
+        auditResultBean.setStatus("OK");
+        return new ResponseEntity<>(auditResultBean, HttpStatus.OK);
+//        } catch (AuditException e) {
+//            auditResultBean = new AuditResultBean(e.getMessage());
+//            logger.info("*** ", e);
+//            return new ResponseEntity<>(auditResultBean, HttpStatus.BAD_REQUEST);
+//
+//        } catch (IllegalArgumentException e) {
+//            auditResultBean = new AuditResultBean(e.getMessage());
+//            return new ResponseEntity<>(auditResultBean, HttpStatus.BAD_REQUEST);
+//        } catch (SecurityException e) {
+//            auditResultBean = new AuditResultBean("Forbidden Request " + e.getMessage());
+//            return new ResponseEntity<>(auditResultBean, HttpStatus.FORBIDDEN);
+//        }
     }
 
     @ResponseBody

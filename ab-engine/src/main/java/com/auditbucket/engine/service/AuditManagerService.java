@@ -76,6 +76,8 @@ public class AuditManagerService {
     }
 
     public AuditResultBean createHeader(AuditHeaderInputBean inputBean) throws AuditException, IOException {
+        if (inputBean == null)
+            throw new AuditException("No input to process");
         AuditLogInputBean logBean = inputBean.getAuditLog();
         if (logBean != null) // Error as soon as we can
             logBean.setWhat(logBean.getWhat());

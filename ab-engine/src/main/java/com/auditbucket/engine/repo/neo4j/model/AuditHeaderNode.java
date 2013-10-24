@@ -55,7 +55,7 @@ public class AuditHeaderNode implements AuditHeader {
     @Fetch
     private FortressNode fortress;
 
-    @RelatedTo(type = "CLASSIFIES", direction = Direction.INCOMING)
+    @RelatedTo(type = "CLASSIFIED", direction = Direction.OUTGOING)
     @Fetch
     private DocumentTypeNode documentType;
 
@@ -71,10 +71,10 @@ public class AuditHeaderNode implements AuditHeader {
     @GraphId
     private Long id;
 
-    @RelatedTo(elementClass = FortressUserNode.class, type = "CREATED", direction = Direction.INCOMING, enforceTargetType = true)
+    @RelatedTo(elementClass = FortressUserNode.class, type = "CREATED_BY", direction = Direction.OUTGOING, enforceTargetType = true)
     private FortressUserNode createdBy;
 
-    @RelatedTo(elementClass = FortressUserNode.class, type = "lastChanged", direction = Direction.INCOMING)
+    @RelatedTo(elementClass = FortressUserNode.class, type = "LASTCHANGED_BY", direction = Direction.OUTGOING)
     private FortressUserNode lastWho;
 
     public static final String UUID_KEY = "auditKey";

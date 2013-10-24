@@ -163,8 +163,6 @@ public class AuditService {
         }
 
         ah = makeAuditHeader(inputBean, fu, documentType);
-        inputBean.setWhen(ah.getFortressDateCreated().toDate());
-
         return new AuditResultBean(ah);
 
     }

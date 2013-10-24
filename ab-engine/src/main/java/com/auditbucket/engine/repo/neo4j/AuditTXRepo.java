@@ -30,7 +30,7 @@ import org.springframework.data.neo4j.repository.GraphRepository;
  * Time: 10:12 AM
  */
 public interface AuditTXRepo extends GraphRepository<AuditTXRepo> {
-    @Query(elementClass = TxRefNode.class, value = "start header=node({0}) match header<-[cw:CHANGED|CREATED]-byUser return cw")
+    @Query(elementClass = TxRefNode.class, value = "start header=node({0}) match header-[cw:CHANGED_BY|CREATED_BY]->byUser return cw")
     TxRef getTxRef(Long auditHeaderID);
 
 }

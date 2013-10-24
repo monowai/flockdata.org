@@ -29,7 +29,7 @@ public interface SystemUserRepository extends GraphRepository<SystemUserNode> {
 
     @Query(elementClass = FortressUserNode.class,
             value = "start sysUser=node:sysUserName(name={0}) " +
-                    "        match sysUser-[:administers]->company-[:owns]->fortress<-[:fortressUser]-fortressUser " +
+                    "        match sysUser-[:administers]->company-[:owns]->fortress<-[:BELONGS_TO]-fortressUser " +
                     "where fortressUser.name ={2} and fortress.name={1} return fortressUser")
     FortressUser getFortressUser(String userName, String fortressName, String fortressUser);
 
