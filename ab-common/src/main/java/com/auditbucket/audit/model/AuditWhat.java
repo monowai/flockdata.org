@@ -27,5 +27,7 @@ public interface AuditWhat {
      */
     public void setJsonWhat(String jsonWhat);
 
+    public void setWhatBytes(byte[] whatBytes);
+
     public int getVersion();
 }

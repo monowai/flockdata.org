@@ -30,6 +30,10 @@
         <module>ab-search</module>
         <module>ab-integration-tests</module>
         <module>ab-spring</module>
+        <!--<module>ab-deploy</module>-->
+        <!--ToDo: Move to another POM, they are not part of AuditBucket-->
+        <!--<module>ab-demo</module>-->
+        <!--<module>ab-stress-tests</module>-->
     </modules>
     <packaging>pom</packaging>
     <version>1.0.0-BUILD-SNAPSHOT</version>
@@ -46,7 +50,10 @@
         <jackson.version>2.2.2</jackson.version>
     </properties>
     <repositories>
-
+        <repository>
+            <id>clojars.org</id>
+            <url>http://clojars.org/repo</url>
+        </repository>
     </repositories>
 
     <organization>

@@ -33,6 +33,7 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
+import com.auditbucket.test.utils.AbstractRedisSupport;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;

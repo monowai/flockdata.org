@@ -3,6 +3,9 @@ package com.auditbucket.engine.service;
 import com.auditbucket.audit.model.AuditChange;
 import com.auditbucket.audit.model.AuditWhat;
 import com.auditbucket.dao.AuditDao;
+import com.auditbucket.engine.repo.redis.RedisRepository;
+import com.auditbucket.helper.CompressionHelper;
+import com.auditbucket.helper.CompressionResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -20,22 +23,32 @@ import java.io.IOException;
 @Service
 @Transactional
 public class WhatService {
-    private static final ObjectMapper om = new ObjectMapper();
-    private static final String NEO4J = "neo4j";
-    private Logger logger = LoggerFactory.getLogger(WhatService.class);
 
+    public static final String REDIS = "redis";
+    private static final ObjectMapper om = new ObjectMapper();
     @Autowired(required = false)
     AuditDao auditDao = null;
+    @Autowired
+    RedisRepository redisRepository;
+    private Logger logger = LoggerFactory.getLogger(WhatService.class);
 
     public String logWhat(AuditChange change, String jsonText, int version) {
+        // Compress the Value of JSONText
+        CompressionResult result = CompressionHelper.compress(jsonText);
+        Boolean compressed = result.getMethod() == CompressionResult.Method.GZIP;
+
+        // Store First all information In Neo4j
+        change = auditDao.save(change, compressed, version);
+
+        // Store the what information Compressed in KV Store Depending on
+
         String store = change.getWhatStore();
-        // ToDo: Enum?
-        // ToDo: this is a Neo4J what node store
-        if (store.equalsIgnoreCase(NEO4J)) {   // ToDo: add Redis store support
-            return auditDao.save(change, jsonText, version);
-        } else
-            // AuditChange will have to be saved with the remote store key
-            return null;
+        if (store.equalsIgnoreCase(REDIS)) {
+            redisRepository.add(change.getId(), result.getAsBytes());
+        } else {
+            throw new IllegalStateException("The only supported KV Store is REDIS");
+        }
+        return change.getWhat().getId();
     }
 
     public AuditWhat getWhat(AuditChange change) {
@@ -43,10 +56,15 @@ public class WhatService {
             return null;
         String store = change.getWhatStore();
         // ToDo: this is a Neo4J what node store
-        if (store.equalsIgnoreCase(NEO4J)) // ToDo: add Redis store support
-            return auditDao.getWhat(Long.parseLong(change.getWhat().getId()));
-        else
-            return null;
+
+        AuditWhat auditWhat = auditDao.getWhat(Long.parseLong(change.getWhat().getId()));
+        if (store.equalsIgnoreCase(REDIS)) {
+            byte[] whatInformation = redisRepository.getValue(change.getId());
+            auditWhat.setWhatBytes(whatInformation);
+        } else {
+            throw new IllegalStateException("The only supported KV Store is REDIS");
+        }
+        return auditWhat;
     }
 
     /**

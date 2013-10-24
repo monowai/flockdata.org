@@ -44,6 +44,7 @@ import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
+import com.auditbucket.test.utils.AbstractRedisSupport;
 import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;

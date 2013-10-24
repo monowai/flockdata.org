@@ -28,6 +28,7 @@ import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
+import com.auditbucket.test.utils.AbstractRedisSupport;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

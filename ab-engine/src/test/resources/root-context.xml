@@ -78,5 +78,5 @@
         <!--</property>-->
     </bean>
 
-
+    <import resource="kv-context.xml"/>
 </beans>

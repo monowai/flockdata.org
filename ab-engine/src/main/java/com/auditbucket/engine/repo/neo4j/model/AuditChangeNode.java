@@ -55,7 +55,7 @@ public class AuditChangeNode implements AuditChange {
     private AuditEventNode event;
 
     private String comment;
-    private String storage = "neo4j"; // ToDo: enum
+    private String storage = "redis"; // ToDo: enum
 
     // Neo4J will not persist a byte[] over it's http interface. Probably fixed in V2, but not in our version
     private boolean compressed = false;

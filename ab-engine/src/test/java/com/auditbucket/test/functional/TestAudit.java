@@ -32,6 +32,7 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
+import com.auditbucket.test.utils.AbstractRedisSupport;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
