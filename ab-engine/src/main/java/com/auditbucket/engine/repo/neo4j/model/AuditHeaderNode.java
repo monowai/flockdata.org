@@ -55,7 +55,7 @@ public class AuditHeaderNode implements AuditHeader {
     @Fetch
     private FortressNode fortress;
 
-    @RelatedTo(type = "CLASSIFIED", direction = Direction.OUTGOING)
+    @RelatedTo(type = "CLASSIFIED_AS", direction = Direction.OUTGOING)
     @Fetch
     private DocumentTypeNode documentType;
 
