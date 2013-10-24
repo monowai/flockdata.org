@@ -58,10 +58,11 @@ public class AuditChangeNode implements AuditChange {
     private String storage = "redis"; // ToDo: enum
 
     // Neo4J will not persist a byte[] over it's http interface. Probably fixed in V2, but not in our version
+    @JsonIgnore
     private boolean compressed = false;
     private String name;
 
-    @RelatedTo(type = "previousChange", direction = Direction.OUTGOING)
+    @RelatedTo(type = "PREVIOUS_CHANGE", direction = Direction.OUTGOING)
     private AuditChangeNode previousChange;
 
     @Fetch

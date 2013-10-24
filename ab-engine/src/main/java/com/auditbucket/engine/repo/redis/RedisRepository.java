@@ -1,6 +1,5 @@
 package com.auditbucket.engine.repo.redis;
 
-import com.auditbucket.audit.model.AuditWhat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
