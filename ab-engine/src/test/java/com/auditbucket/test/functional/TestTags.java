@@ -99,7 +99,7 @@ public class TestTags {
         tags.add(new TagInputBean(iCompany, "FLOP"));
         tags.add(new TagInputBean(iCompany, "FLOP"));
 
-        Iterable<Tag> tagResult = tagService.processTags(tags);
+        Iterable<Tag> tagResult = tagService.processTagsFast(tags);
         assertNotNull(tagResult);
         int count = 0;
         for (Tag next : tagResult) {
@@ -115,7 +115,7 @@ public class TestTags {
         tags.add(new TagInputBean(iCompany, "FLOPSY"));
         tags.add(new TagInputBean(iCompany, "FLOPPO"));
         tags.add(new TagInputBean(iCompany, "FLOPER"));
-        tagResult = tagService.processTags(tags);
+        tagResult = tagService.processTagsFast(tags);
         count = 0;
         for (Tag next : tagResult) {
             count++;

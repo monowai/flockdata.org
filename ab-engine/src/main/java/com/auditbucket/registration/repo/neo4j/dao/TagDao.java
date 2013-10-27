@@ -61,10 +61,12 @@ public class TagDao implements com.auditbucket.dao.TagDao {
     private Logger logger = LoggerFactory.getLogger(TagDao.class);
 
     public Iterable<Tag> save(Company company, Iterable<TagInputBean> tags) {
+
+        // ToDo: Experimental - figuring out how to batch load tags
         Long cTag = null;
         Map<String, Object> params = new HashMap<>();
         String cypher = null;
-        String retclause = " return tag0";
+        String retclause = " return tag0"; // Dynamic return clause - 1 per InputBean
         int count = 0;
 
         for (TagInputBean next : tags) {
@@ -83,8 +85,6 @@ public class TagDao implements com.auditbucket.dao.TagDao {
                         "code:\"" + tn.getCode() + "\", __type__:\"ab.Tag\"}) ";
                 retclause = retclause + ", tag" + count;
             }
-
-            //tagsToCreate.add(new TagNode(next));
         }
         if (cypher == null)
             return null;
@@ -93,15 +93,13 @@ public class TagDao implements com.auditbucket.dao.TagDao {
         EndResult<Map<String, Object>> r = template.query(cypher, params);
         Map<String, Object> mapResult = r.single();
         ArrayList<Tag> returnResult = new ArrayList<>();
-//        returnResult = template.convert(r, TagNode.class);
+
         int max = count;
         for (int i = 0; i < max; i++) {
             returnResult.add(template.projectTo(mapResult.get("tag" + i), TagNode.class));
-            //(TagNode) mapResult.get("tag"+i));
+
         }
-        //getCompanyTagManager()
         return returnResult;
-        //return template.save(tagsToCreate);
     }
 
     public Tag save(Company company, TagInputBean tagInput) {

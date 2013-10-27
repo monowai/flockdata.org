@@ -64,8 +64,12 @@ public class TagService {
             result.add(tagDao.save(company, tagInput));
         }
         return result;
+    }
 
-//        return tagDao.save(company, tags);
+    //ToDo: Figure out how to insert all tags at once
+    public Iterable<Tag> processTagsFast(Iterable<TagInputBean> tagInputs) {
+        Company company = securityHelper.getCompany();
+        return tagDao.save(company, tagInputs);
 
     }
 
@@ -73,7 +77,6 @@ public class TagService {
         Company company = securityHelper.getCompany();
         if (company == null)
             return null;
-
         return tagDao.findOne(tagName, company.getId());
     }
 
