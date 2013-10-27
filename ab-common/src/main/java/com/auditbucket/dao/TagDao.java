@@ -20,6 +20,7 @@
 package com.auditbucket.dao;
 
 import com.auditbucket.audit.model.DocumentType;
+import com.auditbucket.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 
@@ -29,7 +30,9 @@ import com.auditbucket.registration.model.Tag;
  * Time: 8:12 PM
  */
 public interface TagDao {
-    Tag save(Company company, Tag tag);
+    Iterable<Tag> save(Company company, Iterable<TagInputBean> tags);
+
+    Tag save(Company company, TagInputBean tagInput);
 
     /**
      * Locates a tag

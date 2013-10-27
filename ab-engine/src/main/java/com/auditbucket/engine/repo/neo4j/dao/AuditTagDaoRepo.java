@@ -55,7 +55,7 @@ public class AuditTagDaoRepo implements com.auditbucket.dao.AuditTagDao {
         return save(auditHeader, tag, relationship, null);
     }
 
-    @Override
+
     public AuditTag save(AuditHeader auditHeader, Tag tag, String relationship, Map<String, Object> propMap) {
         // ToDo: this will only set properties for the "current" tag to Header. it will not version it.
         if (relationship == null) {
@@ -158,7 +158,8 @@ public class AuditTagDaoRepo implements com.auditbucket.dao.AuditTagDao {
         params.put("cTagId", companyTagId);
         Set<AuditTag> tagResults = new HashSet<>();
         for (Map<String, Object> row : template.query(query, params)) {
-            TagNode tag = template.convert(row.get("tag"), TagNode.class);
+            TagNode tag = template.projectTo(row.get("tag"), TagNode.class);
+            //TagNode tag = template.convert(row.get("tag"), TagNode.class);
             Relationship relationship = template.convert(row.get("tagType"), Relationship.class);
 
             AuditTagRelationship auditTag = new AuditTagRelationship(auditHeader, tag, relationship);

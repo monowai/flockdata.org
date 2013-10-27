@@ -23,22 +23,18 @@ import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditTag;
 import com.auditbucket.bean.AuditTagInputBean;
 import com.auditbucket.dao.AuditTagDao;
+import com.auditbucket.engine.TagBucket;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.helper.SecurityHelper;
-import com.auditbucket.registration.bean.TagInputBean;
+import com.auditbucket.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Future;
+import java.util.*;
 
 /**
  * User: Mike Holdsworth
@@ -64,8 +60,7 @@ public class AuditTagService {
         if (existing)
             // We already have this tagged so get out of here
             return;
-
-        Tag tag = tagService.processTag(new TagInputBean(tagInput.getTagName()));
+        Tag tag = tagService.findTag(tagInput.getTagName());
         auditTagDao.save(header, tag, type);
     }
 
@@ -115,13 +110,18 @@ public class AuditTagService {
             return;
 
         Company company = ah.getFortress().getCompany();
+        //List<TagBucket> tagsToCreate = new ArrayList<>();
 
         for (String tagName : userTags.keySet()) {
             Tag tag = tagService.processTag(new TagInputBean(company, tagName));
             Object tagRlx = userTags.get(tagName);
+
             String rlxName;
             // Handle both a simple relationship type name or a map/collection of relationships
             if (tagRlx == null)
+                //tagsToCreate.add(new TagBucket(ah, tag, null));
+                //ToDO: auditTagDao.save(ah, tag, null);
+
                 auditTagDao.save(ah, tag, null);
 
             else {
@@ -129,6 +129,7 @@ public class AuditTagService {
                 if (tagRlx instanceof Collection) {
                     // ToDo: Collection of Maps
                     for (Object o : ((Collection) tagRlx)) {
+                        //tagsToCreate.add(new TagBucket(ah, tag, o.toString()));
                         auditTagDao.save(ah, tag, o.toString());
                     }
                 } else if (tagRlx instanceof Map) {
@@ -140,10 +141,16 @@ public class AuditTagService {
                         if (o != null && o instanceof Map) {
                             propMap = (Map<String, Object>) o;
                         }
+                        //tagsToCreate.add(new TagBucket(ah, tag, relationship, propMap));
+                        // ToDo: auditTagDao.save(ah, tag, relationship, propMap);
+
                         auditTagDao.save(ah, tag, relationship, propMap);
                     }
                 } else {
                     rlxName = tagRlx.toString();
+                    // tagsToCreate.add(new TagBucket(ah, tag, rlxName));
+                    // ToDo: auditTagDao.save(ah, tag, rlxName);
+
                     auditTagDao.save(ah, tag, rlxName);
                 }
             }

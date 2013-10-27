@@ -20,6 +20,7 @@
 package com.auditbucket.registration.repo.neo4j.dao;
 
 import com.auditbucket.audit.model.DocumentType;
+import com.auditbucket.bean.TagInputBean;
 import com.auditbucket.engine.repo.neo4j.DocumentTypeRepo;
 import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
 import com.auditbucket.registration.model.Company;
@@ -32,12 +33,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.neo4j.conversion.EndResult;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * User: Mike Holdsworth
@@ -59,18 +60,58 @@ public class TagDao implements com.auditbucket.dao.TagDao {
 
     private Logger logger = LoggerFactory.getLogger(TagDao.class);
 
-    public Tag save(Company company, Tag tag) {
+    public Iterable<Tag> save(Company company, Iterable<TagInputBean> tags) {
+        Long cTag = null;
+        Map<String, Object> params = new HashMap<>();
+        String cypher = null;
+        String retclause = " return tag0";
+        int count = 0;
+
+        for (TagInputBean next : tags) {
+            if (cTag == null) {
+                TagNode tn = new TagNode(next);
+                cTag = getCompanyTagManager(next.getCompany().getId());
+                params.put("cTag", cTag);
+                cypher = "start tagManager=node({cTag}) create unique " +
+                        "tagManager-[:TAG_COLLECTION]->(tag0 {name:\"" + tn.getName() + "\", " +
+                        "code:\"" + tn.getCode() + "\", __type__:\"ab.Tag\"}) ";
+            } else {
+                TagNode tn = new TagNode(next);
+                count++;
+                cypher = cypher + ", " +
+                        "tagManager-[:TAG_COLLECTION]->(tag" + count + " {name:\"" + tn.getName() + "\", " +
+                        "code:\"" + tn.getCode() + "\", __type__:\"ab.Tag\"}) ";
+                retclause = retclause + ", tag" + count;
+            }
+
+            //tagsToCreate.add(new TagNode(next));
+        }
+        if (cypher == null)
+            return null;
+
+        cypher = cypher + retclause;
+        EndResult<Map<String, Object>> r = template.query(cypher, params);
+        Map<String, Object> mapResult = r.single();
+        ArrayList<Tag> returnResult = new ArrayList<>();
+//        returnResult = template.convert(r, TagNode.class);
+        int max = count;
+        for (int i = 0; i < max; i++) {
+            returnResult.add(template.projectTo(mapResult.get("tag" + i), TagNode.class));
+            //(TagNode) mapResult.get("tag"+i));
+        }
+        //getCompanyTagManager()
+        return returnResult;
+        //return template.save(tagsToCreate);
+    }
+
+    public Tag save(Company company, TagInputBean tagInput) {
         // Check exists
-        Tag existingTag = findOne(tag.getName(), company.getId());
+        Tag existingTag = findOne(tagInput.getName(), company.getId());
         if (existingTag != null)
             return existingTag;
 
 
-        TagNode tagToCreate;
-        if ((tag instanceof TagNode))
-            tagToCreate = (TagNode) tag;
-        else
-            tagToCreate = new TagNode(tag);
+        TagNode tagToCreate = new TagNode(tagInput);
 
         tagToCreate = tagRepo.save(tagToCreate);
         Node end = template.getPersistentState(tagToCreate);
@@ -80,6 +121,7 @@ public class TagDao implements com.auditbucket.dao.TagDao {
             template.createRelationshipBetween(start, end, COMPANY_TAGS, null);
         return tagToCreate;
     }
+
 
     @Cacheable(value = "companyTagManager", unless = "#result == null")
     private Node getCompanyTagManagerNode(Long companyId) {

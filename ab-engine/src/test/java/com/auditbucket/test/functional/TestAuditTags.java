@@ -36,7 +36,7 @@ import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.engine.service.AuditTagService;
 import com.auditbucket.registration.bean.RegistrationBean;
-import com.auditbucket.registration.bean.TagInputBean;
+import com.auditbucket.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
@@ -44,7 +44,6 @@ import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
-import com.auditbucket.test.utils.AbstractRedisSupport;
 import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -128,10 +127,10 @@ public class TestAuditTags {
 
         Company iCompany = iSystemUser.getCompany();
 
-        Tag flopTag = new TagInputBean(iCompany, "FLOP");
+        TagInputBean flopTag = new TagInputBean(iCompany, "FLOP");
 
-        Tag result = tagService.processTag(flopTag);
-        assertNotNull(result);
+        tagService.processTag(flopTag);
+        //assertNotNull(result);
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         AuditResultBean resultBean = auditManager.createHeader(inputBean);
         AuditHeader header = auditService.getHeader(resultBean.getAuditKey());
@@ -164,10 +163,10 @@ public class TestAuditTags {
         fortressService.registerFortress("ABC");
 
         Company iCompany = iSystemUser.getCompany();
-        Tag tagInput = new TagInputBean(iCompany, "FLOP");
+        TagInputBean tagInput = new TagInputBean(iCompany, "FLOP");
 
-        Tag result = tagService.processTag(tagInput);
-        assertNotNull(result);
+        tagService.processTag(tagInput);
+        //assertNotNull(result);
         AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         Map<String, Object> tagValues = new HashMap<>();
         tagValues.put("TagA", "AAAA");
@@ -198,10 +197,10 @@ public class TestAuditTags {
         fortressService.registerFortress("ABC");
 
         Company iCompany = iSystemUser.getCompany();
-        Tag tagInput = new TagInputBean(iCompany, "FLOP");
+        TagInputBean tagInput = new TagInputBean(iCompany, "FLOP");
 
-        Tag result = tagService.processTag(tagInput);
-        assertNotNull(result);
+        tagService.processTag(tagInput);
+        //assertNotNull(result);
         AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         Map<String, Object> tagValues = new HashMap<>();
         tagValues.put("TagA", "AAAA");
@@ -235,10 +234,10 @@ public class TestAuditTags {
         fortressService.registerFortress("ABC");
 
         Company iCompany = iSystemUser.getCompany();
-        Tag tagInput = new TagInputBean(iCompany, "FLOP");
+        TagInputBean tagInput = new TagInputBean(iCompany, "FLOP");
 
-        Tag result = tagService.processTag(tagInput);
-        assertNotNull(result);
+        tagService.processTag(tagInput);
+        //assertNotNull(result);
         AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         Map<String, Object> tagValues = new HashMap<>();
         // In this scenario, the Tag name is the key if the value is null
@@ -277,10 +276,10 @@ public class TestAuditTags {
         fortressService.registerFortress("ABC");
 
         Company iCompany = iSystemUser.getCompany();
-        Tag tagInput = new TagInputBean(iCompany, "FLOP");
+        TagInputBean tagInput = new TagInputBean(iCompany, "FLOP");
 
-        Tag result = tagService.processTag(tagInput);
-        assertNotNull(result);
+        tagService.processTag(tagInput);
+        //assertNotNull(result);
         AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         Map<String, Object> tagValues = new HashMap<>();
         // This should create the same Tag object
@@ -306,10 +305,10 @@ public class TestAuditTags {
         fortressService.registerFortress("ABC");
 
         Company iCompany = iSystemUser.getCompany();
-        Tag tagInput = new TagInputBean(iCompany, "FLOP");
+        TagInputBean tagInput = new TagInputBean(iCompany, "FLOP");
 
-        Tag result = tagService.processTag(tagInput);
-        assertNotNull(result);
+        tagService.processTag(tagInput);
+        //assertNotNull(result);
         AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         Map<String, Object> tagValues = new HashMap<>();
         // This should create the same Tag object

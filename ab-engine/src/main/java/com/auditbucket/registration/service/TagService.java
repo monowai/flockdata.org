@@ -20,6 +20,7 @@
 package com.auditbucket.registration.service;
 
 import com.auditbucket.audit.model.DocumentType;
+import com.auditbucket.bean.TagInputBean;
 import com.auditbucket.dao.TagDao;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
@@ -27,6 +28,9 @@ import com.auditbucket.registration.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Handles management of a companies tags.
@@ -46,12 +50,23 @@ public class TagService {
     @Autowired
     private TagDao tagDao;
 
-    public Tag processTag(Tag tag) {
-        if (tag == null)
-            return tag;
-
+    public Tag processTag(TagInputBean tagInput) {
         Company company = securityHelper.getCompany();
-        return tagDao.save(company, tag);
+        return tagDao.save(company, tagInput);
+    }
+
+    public Iterable<Tag> processTags(Iterable<TagInputBean> tagInputs) {
+        Company company = securityHelper.getCompany();
+        List<Tag> result = new ArrayList<>();
+
+        //ToDo: Figure out the bulk handing of tags
+        for (TagInputBean tagInput : tagInputs) {
+            result.add(tagDao.save(company, tagInput));
+        }
+        return result;
+
+//        return tagDao.save(company, tags);
+
     }
 
     public Tag findTag(String tagName) {

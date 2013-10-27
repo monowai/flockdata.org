@@ -19,13 +19,17 @@
 
 package com.auditbucket.registration.repo.neo4j.model;
 
+import com.auditbucket.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
+import com.auditbucket.registration.repo.neo4j.dao.TagDao;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.annotation.RelatedTo;
 
 /**
  * User: Mike Holdsworth
@@ -38,7 +42,7 @@ public class TagNode implements Tag {
     @GraphId
     Long Id;
 
-//    @RelatedTo(elementClass = CompanyNode.class, type = "tags", direction = Direction.INCOMING)
+//    @RelatedTo(elementClass = CompanyNode.class, type = TagDao.COMPANY_TAGS, direction = Direction.INCOMING)
 //    private
 //    Company company;
 
@@ -50,10 +54,10 @@ public class TagNode implements Tag {
     protected TagNode() {
     }
 
-    public TagNode(Tag tag) {
+    public TagNode(TagInputBean tagInput) {
         this();
-        this.name = tag.getName();
-        this.code = tag.getName().toLowerCase().replaceAll("\\s", "");
+        setName(tagInput.getName());
+        //this.company = company;
     }
 
 
@@ -86,5 +90,9 @@ public class TagNode implements Tag {
                 "Id=" + Id +
                 ", name='" + name + '\'' +
                 '}';
+    }
+
+    public String getCode() {
+        return code;
     }
 }

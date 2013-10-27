@@ -33,4 +33,6 @@ public interface Tag {
     void setName(String floppy);
 
     Long getId();
+
+    String getCode();
 }

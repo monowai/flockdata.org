@@ -17,10 +17,9 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.registration.bean;
+package com.auditbucket.bean;
 
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.Tag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -29,7 +28,7 @@ import org.hibernate.validator.constraints.NotEmpty;
  * Date: 29/06/13
  * Time: 1:20 PM
  */
-public class TagInputBean implements Tag {
+public class TagInputBean {
 
     @NotEmpty
     private Company company;
@@ -49,23 +48,23 @@ public class TagInputBean implements Tag {
         this.company = company;
     }
 
-    @Override
     public String getName() {
         return name;
     }
 
-    @Override
     public void setName(String name) {
         this.name = name;
     }
 
-    @Override
     @JsonIgnore
     public Long getId() {
         return null;
     }
 
-    @Override
+    public String getCode() {
+        return null;
+    }
+
     public Company getCompany() {
         return company;
     }
