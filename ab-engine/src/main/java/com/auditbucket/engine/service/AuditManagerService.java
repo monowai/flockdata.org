@@ -69,9 +69,10 @@ public class AuditManagerService {
 
     private Fortress resolveFortress(Company company, AuditHeaderInputBean inputBean) throws AuditException {
         Fortress fortress = companyService.getCompanyFortress(company.getId(), inputBean.getFortress());
-
-        if (fortress == null)
+        if (fortress == null) {
             throw new AuditException(inputBean.getFortress() + " does not exist");
+        }
+
         return fortress;
     }
 

@@ -29,8 +29,8 @@
         <constructor-arg index="0" value="${neo4j.datastore}"/>
         <constructor-arg index="1">
             <map>
-                <entry key="allow_store_upgrade" value="true"/>
-                <entry key="enable_remote_shell" value="true"/>
+                <entry key="allow_store_upgrade" value="false"/>
+                <entry key="enable_remote_shell" value="false"/>
             </map>
         </constructor-arg>
     </bean>
