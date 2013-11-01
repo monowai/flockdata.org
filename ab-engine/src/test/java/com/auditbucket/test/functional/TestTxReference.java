@@ -33,7 +33,6 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
-import com.auditbucket.test.utils.AbstractRedisSupport;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,8 +49,8 @@ import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 
 import static junit.framework.Assert.*;
 
@@ -203,6 +202,39 @@ public class TestTxReference {
         logs = (Collection<AuditChange>) result.get("logs");
         assertNotNull(logs);
         assertEquals(1, logs.size());
+
+
+    }
+
+    @Test
+    public void txHeadersTracked() throws Exception {
+        String company = "Monowai";
+        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        Fortress fortressA = fortressService.registerFortress(new FortressInputBean("auditTest", true));
+        String tagRef = "MyTXTag";
+        AuditHeaderInputBean aBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
+
+        String key = auditManager.createHeader(aBean).getAuditKey();
+        assertNotNull(key);
+        AuditHeader header = auditService.getHeader(key);
+        assertNotNull(header);
+        AuditLogInputBean alb = new AuditLogInputBean(key, "charlie", DateTime.now(), escJsonA, null, tagRef);
+        assertTrue(alb.isTransactional());
+        String albTxRef = auditManager.createLog(alb).getTxReference();
+
+        alb = new AuditLogInputBean(key, "harry", DateTime.now(), escJsonB);
+
+        alb.setTxRef(albTxRef);
+        String txStart = albTxRef;
+
+        auditManager.createLog(alb);
+        Set<AuditHeader> result = auditService.findTxHeaders(txStart);
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals(2, result.size());
+        for (AuditHeader auditHeader : result) {
+            assertNotNull(auditHeader.getAuditKey());
+        }
 
 
     }

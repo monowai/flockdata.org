@@ -58,6 +58,16 @@ public class FortressEP {
         return fortressService.findFortresses();
     }
 
+    @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Fortress> addFortresses(@RequestBody FortressInputBean fortressInputBean) throws Exception {
+        Fortress fortress = fortressService.registerFortress(fortressInputBean);
+
+        fortressInputBean.setFortressKey(fortress.getFortressKey());
+        return new ResponseEntity<>(fortress, HttpStatus.CREATED);
+
+    }
+
     @RequestMapping(value = "/{fortressName}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Fortress> getFortress(@PathVariable("fortressName") String fortressName) throws Exception {
@@ -67,21 +77,6 @@ public class FortressEP {
             return new ResponseEntity<>(fortress, HttpStatus.NOT_FOUND);
         else
             return new ResponseEntity<>(fortress, HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/new", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
-    @ResponseBody
-    public ResponseEntity<FortressInputBean> addFortresses(@RequestBody FortressInputBean fortressInputBean) throws Exception {
-        Fortress fortress = fortressService.registerFortress(fortressInputBean);
-
-        if (fortress == null) {
-            fortressInputBean.setMessage("Unable to create fortress");
-            return new ResponseEntity<>(fortressInputBean, HttpStatus.INTERNAL_SERVER_ERROR);
-        } else {
-            fortressInputBean.setFortressKey(fortress.getFortressKey());
-            return new ResponseEntity<>(fortressInputBean, HttpStatus.CREATED);
-        }
-
     }
 
 

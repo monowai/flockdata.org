@@ -25,6 +25,7 @@ import com.auditbucket.bean.*;
 import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.engine.service.WhatService;
+import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
@@ -59,7 +60,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Set;
@@ -400,7 +400,7 @@ public class TestAuditIntegration {
         doSearchTests(auditMax, list, watch);
     }
 
-    private void createLog(String simpleJson, AuditHeaderInputBean aib, AuditResultBean arb, int log) throws IOException {
+    private void createLog(String simpleJson, AuditHeaderInputBean aib, AuditResultBean arb, int log) throws AuditException {
         auditManager.createLog(new AuditLogInputBean(arb.getAuditKey(), aib.getFortressUser(), new DateTime(), simpleJson + log + "}"));
     }
 

@@ -92,6 +92,7 @@ public class TagNode implements Tag {
                 '}';
     }
 
+    @JsonIgnore
     public String getCode() {
         return code;
     }

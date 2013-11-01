@@ -53,5 +53,8 @@ public interface AuditHeaderRepo extends GraphRepository<AuditHeaderNode> {
             "return txTag")
     TxRefNode findTxTag(String userTag, Long company);
 
-
+    @Query(elementClass = AuditHeaderNode.class, value = "start tx=node({0}) " +
+            "   MATCH tx-[:AFFECTED]->change<-[:LOGGED]-auditHeader " +
+            "return auditHeader")
+    Set<AuditHeader> findHeadersByTxRef(Long txRef);
 }

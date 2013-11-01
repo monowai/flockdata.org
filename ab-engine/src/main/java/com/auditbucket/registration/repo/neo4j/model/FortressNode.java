@@ -59,6 +59,8 @@ public class FortressNode implements Fortress {
     private String languageTag;
 
     protected FortressNode() {
+        getTimeZone();
+        getLanguageTag();
     }
 
     public FortressNode(FortressInputBean fortressInputBean, Company ownedBy) {
@@ -70,8 +72,6 @@ public class FortressNode implements Fortress {
             this.timeZone = fortressInputBean.getTimeZone();
             if (TimeZone.getTimeZone(timeZone) == null)
                 throw new IllegalArgumentException(fortressInputBean.getTimeZone() + " is not a valid TimeZone. If you don't know a timezone to set, leave this null and the system default will be used.");
-        } else {
-            getTimeZone();
         }
         if (fortressInputBean.getLanguageTag() != null)
             this.languageTag = fortressInputBean.getLanguageTag();
@@ -111,7 +111,9 @@ public class FortressNode implements Fortress {
 
     }
 
+    @JsonIgnore
     public Boolean isAccumulatingChanges() {
+        // Reserved for future use
         return accumulatingChanges;
     }
 

@@ -46,7 +46,7 @@ public class RegistrationEP {
     @Autowired
     RegistrationService regService;
 
-    @RequestMapping(value = "/register", consumes = "application/json", method = RequestMethod.PUT)
+    @RequestMapping(value = "/", consumes = "application/json", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<SystemUser> register(@RequestBody RegistrationBean regBean) throws Exception {
         // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/profiles/register -d '{"name":"mikey", "companyName":"Monowai Dev","password":"whocares"}'

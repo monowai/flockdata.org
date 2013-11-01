@@ -47,8 +47,8 @@ public class AbClient {
         this.userName = userName;
         this.password = password;
         this.forteressName = fortressName;
-        this.NEW_LOG = this.serverName + "/audit/log/new";
-        this.NEW_HEADER = this.serverName + "/audit/header/new";
+        this.NEW_LOG = this.serverName + "/v1/audit/log";
+        this.NEW_HEADER = this.serverName + "/v1/audit/";
         logger.info(this.toString());
 
     }

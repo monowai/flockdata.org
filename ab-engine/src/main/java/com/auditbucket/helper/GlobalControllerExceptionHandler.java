@@ -44,7 +44,10 @@ public class GlobalControllerExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     ResponseEntity<Object> handleConflict(Exception ex) {
         logger.error(ex.getMessage(), ex.getStackTrace());
-        ex.printStackTrace();//ToDo: Fix how we handle exceptions.
+        //ex.printStackTrace();//ToDo: Fix how we handle exceptions.
+        AuditError error = new AuditError();
+        error.setMessage(ex.getMessage());
+
         return new ResponseEntity<Object>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }

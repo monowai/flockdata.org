@@ -70,18 +70,19 @@ public class AuditManagerService {
     private Fortress resolveFortress(Company company, AuditHeaderInputBean inputBean) throws AuditException {
         Fortress fortress = companyService.getCompanyFortress(company.getId(), inputBean.getFortress());
         if (fortress == null) {
-            throw new AuditException(inputBean.getFortress() + " does not exist");
+            throw new AuditException("Fortress {" + inputBean.getFortress() + "} does not exist");
         }
 
         return fortress;
     }
 
-    public AuditResultBean createHeader(AuditHeaderInputBean inputBean) throws AuditException, IOException {
+    public AuditResultBean createHeader(AuditHeaderInputBean inputBean) throws AuditException {
         if (inputBean == null)
             throw new AuditException("No input to process");
         AuditLogInputBean logBean = inputBean.getAuditLog();
         if (logBean != null) // Error as soon as we can
             logBean.setWhat(logBean.getWhat());
+
         Company company = resolveCompany(inputBean.getApiKey());
         Fortress fortress = resolveFortress(company, inputBean);
         fortress.setCompany(company);
@@ -112,11 +113,11 @@ public class AuditManagerService {
 
     }
 
-    public AuditLogResultBean createLog(AuditLogInputBean auditLogInputBean) throws IOException {
+    public AuditLogResultBean createLog(AuditLogInputBean auditLogInputBean) throws AuditException {
         return createLog(null, auditLogInputBean);
     }
 
-    public AuditLogResultBean createLog(AuditHeader header, AuditLogInputBean auditLogInputBean) throws IOException {
+    public AuditLogResultBean createLog(AuditHeader header, AuditLogInputBean auditLogInputBean) throws AuditException {
         auditLogInputBean.setWhat(auditLogInputBean.getWhat());
         AuditLogResultBean resultBean = auditService.createLog(header, auditLogInputBean);
         if (resultBean != null && resultBean.getStatus() == AuditLogInputBean.LogStatus.OK)

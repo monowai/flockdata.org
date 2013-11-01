@@ -20,6 +20,7 @@
 package com.auditbucket.bean;
 
 import com.auditbucket.audit.model.AuditEvent;
+import com.auditbucket.helper.AuditException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTime;
@@ -58,7 +59,7 @@ public class AuditLogInputBean {
     protected AuditLogInputBean() {
     }
 
-    public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String what) throws IOException {
+    public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String what) throws AuditException {
         this(auditKey, fortressUser, when, what, false);
     }
 
@@ -68,7 +69,7 @@ public class AuditLogInputBean {
      * @param when         -fortress view of DateTime
      * @param what         -escaped JSON
      */
-    public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String what, Boolean isTransactional) throws IOException {
+    public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String what, Boolean isTransactional) throws AuditException {
         this();
         this.auditKey = auditKey;
         this.fortressUser = fortressUser;
@@ -85,17 +86,17 @@ public class AuditLogInputBean {
      * @param what         -escaped JSON
      * @param event        -how the caller would like to catalog this change (create, update etc)
      */
-    public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String what, String event) throws IOException {
+    public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String what, String event) throws AuditException {
         this(auditKey, fortressUser, when, what);
         this.event = event;
     }
 
-    public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String what, String event, String txName) throws IOException {
+    public AuditLogInputBean(String auditKey, String fortressUser, DateTime when, String what, String event, String txName) throws AuditException {
         this(auditKey, fortressUser, when, what, event);
         this.setTxRef(txName);
     }
 
-    public AuditLogInputBean(String fortressUser, DateTime when, String what) throws IOException {
+    public AuditLogInputBean(String fortressUser, DateTime when, String what) throws AuditException {
         this(null, fortressUser, when, what);
 
     }
@@ -142,11 +143,17 @@ public class AuditLogInputBean {
     }
 
     // Will never update the map once set
-    public void setWhat(String jsonWhat) throws IOException {
+    public void setWhat(String jsonWhat) throws AuditException {
         if (jsonWhat == null || !(mapWhat == null))
             return;
-        what = om.readTree(jsonWhat).toString();
-        mapWhat = om.readValue(what, Map.class);
+        try {
+            what = om.readTree(jsonWhat).toString();
+            mapWhat = om.readValue(what, Map.class);
+        } catch (IOException e) {
+
+            throw new AuditException("Error processing JSON What text", e);
+        }
+
     }
 
     public String getComment() {

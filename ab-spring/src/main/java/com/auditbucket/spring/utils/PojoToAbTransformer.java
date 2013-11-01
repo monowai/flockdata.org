@@ -2,6 +2,7 @@ package com.auditbucket.spring.utils;
 
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
+import com.auditbucket.helper.AuditException;
 import com.auditbucket.spring.annotations.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTime;
@@ -37,7 +38,7 @@ public class PojoToAbTransformer {
      * }
      */
 
-    public static AuditHeaderInputBean transformToAbFormat(Object pojo) throws IllegalAccessException, IOException {
+    public static AuditHeaderInputBean transformToAbFormat(Object pojo) throws IllegalAccessException, IOException, AuditException {
 
         //ToDo: AuditHeader is only called when the @AuditKey is null, otherwise it's a log
         //ToDo:  caller does not determine this by ab-spring does.
@@ -141,7 +142,7 @@ public class PojoToAbTransformer {
      * "what": "{\"name\": \"99\", \"thing\": {\"status\": \"android\"}}"
      * }
      */
-    public static AuditLogInputBean transformToAbLogFormat(Object pojo) throws IllegalAccessException, IOException {
+    public static AuditLogInputBean transformToAbLogFormat(Object pojo) throws IllegalAccessException, IOException, AuditException {
         AuditLogInputBean auditLogInputBean = new AuditLogInputBean("mike", new DateTime(), null);
         Map<String, Object> mapWhat = new HashMap<String, Object>();
 

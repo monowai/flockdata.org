@@ -474,8 +474,10 @@ public class AuditService {
     }
 
     public Set<AuditHeader> findTxHeaders(String txName) {
-        TxRef txRef = findTx(txName, true);
-        return txRef.getHeaders();
+        TxRef txRef = findTx(txName);
+        if (txRef == null)
+            return null;
+        return auditDAO.findHeadersByTxRef(txRef.getId());
     }
 
     public void updateHeader(AuditHeader auditHeader) {
