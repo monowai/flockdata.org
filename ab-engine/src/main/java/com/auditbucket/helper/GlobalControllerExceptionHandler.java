@@ -21,14 +21,25 @@ package com.auditbucket.helper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * User: Mike Holdsworth
@@ -36,18 +47,70 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * Time: 12:38 PM
  */
 @ControllerAdvice
-public class GlobalControllerExceptionHandler {
+public class GlobalControllerExceptionHandler extends ResponseEntityExceptionHandler {
     private Logger logger = LoggerFactory.getLogger(GlobalControllerExceptionHandler.class);
 
-    @ExceptionHandler(value = {MissingServletRequestParameterException.class, HttpMessageNotReadableException.class, AuditException.class, Exception.class})
-    @ResponseBody
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    ResponseEntity<Object> handleConflict(Exception ex) {
-        logger.error(ex.getMessage(), ex.getStackTrace());
-        //ex.printStackTrace();//ToDo: Fix how we handle exceptions.
-        AuditError error = new AuditError();
-        error.setMessage(ex.getMessage());
-
-        return new ResponseEntity<Object>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors();
+        List<ObjectError> globalErrors = ex.getBindingResult().getGlobalErrors();
+        List<String> errors = new ArrayList<>(fieldErrors.size() + globalErrors.size());
+        String error;
+        for (FieldError fieldError : fieldErrors) {
+            error = fieldError.getField() + ", " + fieldError.getDefaultMessage();
+            errors.add(error);
+        }
+        for (ObjectError objectError : globalErrors) {
+            error = objectError.getObjectName() + ", " + objectError.getDefaultMessage();
+            errors.add(error);
+        }
+        AuditError errorMessage = new AuditError(errors);
+        return new ResponseEntity<Object>(errorMessage, headers, status);
     }
+
+    @Override
+    protected ResponseEntity<Object> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        String unsupported = "Unsupported content type: " + ex.getContentType();
+        String supported = "Supported content types: " + MediaType.toString(ex.getSupportedMediaTypes());
+        AuditError errorMessage = new AuditError(unsupported, supported);
+        return new ResponseEntity<Object>(errorMessage, headers, status);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        Throwable mostSpecificCause = ex.getMostSpecificCause();
+        AuditError errorMessage;
+        if (mostSpecificCause != null) {
+            String exceptionName = mostSpecificCause.getClass().getName();
+            String message = mostSpecificCause.getMessage();
+            errorMessage = new AuditError(exceptionName, message);
+        } else {
+            errorMessage = new AuditError(ex.getMessage());
+        }
+        return new ResponseEntity<Object>(errorMessage, headers, status);
+    }
+
+    @ExceptionHandler(AuditException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+
+    //ResponseEntity<Object> handleAuditException(AuditException ex, HttpServletResponse response) {
+    public
+    @ResponseBody
+    AuditError handleAudit(final AuditException ex) {
+        //logger.error(ex.getMessage(), ex.getStackTrace());
+        AuditError error = new AuditError(ex.getMessage());
+
+        //return handleExceptionInternal(ex, error, headers, HttpStatus.BAD_REQUEST, request);
+
+        //return new ResponseEntity<Object>(error, HttpStatus.BAD_REQUEST);
+        return error;
+    }
+
+    @ExceptionHandler({NullPointerException.class, IllegalArgumentException.class, IllegalStateException.class})
+    /*500*/ public ResponseEntity<Object> handleInternal(final RuntimeException ex, final WebRequest request) {
+        logger.error("500 Status Code", ex);
+        final String bodyOfResponse = "This should be application specific";
+        return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
+    }
+
 }
