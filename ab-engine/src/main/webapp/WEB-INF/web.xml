@@ -58,6 +58,17 @@
         <url-pattern>/v1/audit/*</url-pattern>
     </servlet-mapping>
 
+    <!--<servlet>-->
+    <!--<servlet-name>tagDispatcher</servlet-name>-->
+    <!--<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>-->
+    <!--<load-on-startup>2</load-on-startup>-->
+    <!--</servlet>-->
+
+    <!--<servlet-mapping>-->
+    <!--<servlet-name>tagDispatcher</servlet-name>-->
+    <!--<url-pattern>/v1/tag/*</url-pattern>-->
+    <!--</servlet-mapping>-->
+
     <servlet>
         <servlet-name>companyDispatcher</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>

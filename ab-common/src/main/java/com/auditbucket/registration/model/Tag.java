@@ -34,5 +34,7 @@ public interface Tag {
 
     Long getId();
 
-    String getCode();
+    String getTagSearchName();
+
+    Object getProperty(String num);
 }

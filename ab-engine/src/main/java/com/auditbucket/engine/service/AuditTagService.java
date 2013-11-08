@@ -113,7 +113,7 @@ public class AuditTagService {
         //List<TagBucket> tagsToCreate = new ArrayList<>();
 
         for (String tagName : userTags.keySet()) {
-            Tag tag = tagService.processTag(new TagInputBean(company, tagName));
+            Tag tag = tagService.processTag(new TagInputBean(tagName));
             Object tagRlx = userTags.get(tagName);
 
             String rlxName;

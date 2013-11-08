@@ -32,6 +32,7 @@ import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
+import com.auditbucket.registration.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -88,7 +89,6 @@ public class AuditEP {
         return auditAdmin.getHealth();
     }
 
-    //ToDo: Add a PUT /fortress/docType/callerRef
     @ResponseBody
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
     public void createHeaders(@RequestBody AuditHeaderInputBean[] input) throws AuditException {
@@ -264,4 +264,6 @@ public class AuditEP {
 
         return new ResponseEntity<Map>(result, HttpStatus.OK);
     }
+
+
 }

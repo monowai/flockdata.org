@@ -63,6 +63,7 @@ public class TagDao implements com.auditbucket.dao.TagDao {
     public Iterable<Tag> save(Company company, Iterable<TagInputBean> tags) {
 
         // ToDo: Experimental - figuring out how to batch load tags
+        // Doesnt' update the index so find by name fails
         Long cTag = null;
         Map<String, Object> params = new HashMap<>();
         String cypher = null;
@@ -76,13 +77,13 @@ public class TagDao implements com.auditbucket.dao.TagDao {
                 params.put("cTag", cTag);
                 cypher = "start tagManager=node({cTag}) create unique " +
                         "tagManager-[:TAG_COLLECTION]->(tag0 {name:\"" + tn.getName() + "\", " +
-                        "code:\"" + tn.getCode() + "\", __type__:\"ab.Tag\"}) ";
+                        "code:\"" + tn.getTagSearchName() + "\", __type__:\"ab.Tag\"}) ";
             } else {
                 TagNode tn = new TagNode(next);
                 count++;
                 cypher = cypher + ", " +
                         "tagManager-[:TAG_COLLECTION]->(tag" + count + " {name:\"" + tn.getName() + "\", " +
-                        "code:\"" + tn.getCode() + "\", __type__:\"ab.Tag\"}) ";
+                        "code:\"" + tn.getTagSearchName() + "\", __type__:\"ab.Tag\"}) ";
                 retclause = retclause + ", tag" + count;
             }
         }
@@ -168,7 +169,8 @@ public class TagDao implements com.auditbucket.dao.TagDao {
     public Tag findOne(String tagName, Long companyId) {
         if (tagName == null || companyId == null)
             throw new IllegalArgumentException("Null can not be used to find a tag ");
-        return tagRepo.findCompanyTagByCode(tagName.toLowerCase().replaceAll("\\s", ""), companyId);
+        Tag tag = tagRepo.findCompanyTagBySearchName(tagName.toLowerCase().replaceAll("\\s", ""), companyId);
+        return tag;
     }
 
     @Override

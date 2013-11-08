@@ -22,14 +22,16 @@ package com.auditbucket.registration.repo.neo4j.model;
 import com.auditbucket.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
-import com.auditbucket.registration.repo.neo4j.dao.TagDao;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
-import org.springframework.data.neo4j.annotation.RelatedTo;
+import org.springframework.data.neo4j.fieldaccess.DynamicProperties;
+import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
+import org.springframework.data.neo4j.fieldaccess.PrefixedDynamicProperties;
+
+import java.util.Map;
 
 /**
  * User: Mike Holdsworth
@@ -42,12 +44,13 @@ public class TagNode implements Tag {
     @GraphId
     Long Id;
 
-//    @RelatedTo(elementClass = CompanyNode.class, type = TagDao.COMPANY_TAGS, direction = Direction.INCOMING)
-//    private
-//    Company company;
+    @Indexed(indexName = "tagSearchName")
+    private String tagSearchName;
 
     @Indexed(indexName = "tagCode")
     private String code;
+
+    DynamicProperties properties = new PrefixedDynamicProperties("");
 
     private String name;
 
@@ -57,6 +60,8 @@ public class TagNode implements Tag {
     public TagNode(TagInputBean tagInput) {
         this();
         setName(tagInput.getName());
+        setCode(tagInput.getCode());
+        properties.setPropertiesFrom(tagInput.getProperties());
         //this.company = company;
     }
 
@@ -76,7 +81,7 @@ public class TagNode implements Tag {
     @Override
     public void setName(String tagName) {
         this.name = tagName;
-        this.code = tagName.toLowerCase().replaceAll("\\s", "");
+        this.tagSearchName = tagName.toLowerCase().replaceAll("\\s", "");
     }
 
     @JsonIgnore
@@ -93,7 +98,16 @@ public class TagNode implements Tag {
     }
 
     @JsonIgnore
-    public String getCode() {
-        return code;
+    public String getTagSearchName() {
+        return tagSearchName;
+    }
+
+    @Override
+    public Object getProperty(String name) {
+        return properties.getProperty(name);
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }

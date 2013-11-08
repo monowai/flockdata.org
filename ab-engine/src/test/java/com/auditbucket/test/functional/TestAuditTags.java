@@ -127,7 +127,7 @@ public class TestAuditTags {
 
         Company iCompany = iSystemUser.getCompany();
 
-        TagInputBean flopTag = new TagInputBean(iCompany, "FLOP");
+        TagInputBean flopTag = new TagInputBean("FLOP");
 
         tagService.processTag(flopTag);
         //assertNotNull(result);
@@ -163,7 +163,7 @@ public class TestAuditTags {
         fortressService.registerFortress("ABC");
 
         Company iCompany = iSystemUser.getCompany();
-        TagInputBean tagInput = new TagInputBean(iCompany, "FLOP");
+        TagInputBean tagInput = new TagInputBean("FLOP");
 
         tagService.processTag(tagInput);
         //assertNotNull(result);
@@ -197,7 +197,7 @@ public class TestAuditTags {
         fortressService.registerFortress("ABC");
 
         Company iCompany = iSystemUser.getCompany();
-        TagInputBean tagInput = new TagInputBean(iCompany, "FLOP");
+        TagInputBean tagInput = new TagInputBean("FLOP");
 
         tagService.processTag(tagInput);
         //assertNotNull(result);
@@ -234,7 +234,7 @@ public class TestAuditTags {
         fortressService.registerFortress("ABC");
 
         Company iCompany = iSystemUser.getCompany();
-        TagInputBean tagInput = new TagInputBean(iCompany, "FLOP");
+        TagInputBean tagInput = new TagInputBean("FLOP");
 
         tagService.processTag(tagInput);
         //assertNotNull(result);
@@ -276,7 +276,7 @@ public class TestAuditTags {
         fortressService.registerFortress("ABC");
 
         Company iCompany = iSystemUser.getCompany();
-        TagInputBean tagInput = new TagInputBean(iCompany, "FLOP");
+        TagInputBean tagInput = new TagInputBean("FLOP");
 
         tagService.processTag(tagInput);
         //assertNotNull(result);
@@ -305,7 +305,7 @@ public class TestAuditTags {
         fortressService.registerFortress("ABC");
 
         Company iCompany = iSystemUser.getCompany();
-        TagInputBean tagInput = new TagInputBean(iCompany, "FLOP");
+        TagInputBean tagInput = new TagInputBean("FLOP");
 
         tagService.processTag(tagInput);
         //assertNotNull(result);

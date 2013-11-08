@@ -90,31 +90,30 @@ public class TestTags {
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
         assertNotNull(iSystemUser);
 
-        Company iCompany = iSystemUser.getCompany();
         List<TagInputBean> tags = new ArrayList<>();
         //TODo: remove company from input/TagIB <> inherit Tag
-        tags.add(new TagInputBean(iCompany, "FLOP"));
-        tags.add(new TagInputBean(iCompany, "FLOP"));
-        tags.add(new TagInputBean(iCompany, "FLOP"));
-        tags.add(new TagInputBean(iCompany, "FLOP"));
-        tags.add(new TagInputBean(iCompany, "FLOP"));
+        tags.add(new TagInputBean("FLOP"));
+        tags.add(new TagInputBean("FLOP"));
+        tags.add(new TagInputBean("FLOP"));
+        tags.add(new TagInputBean("FLOP"));
+        tags.add(new TagInputBean("FLOP"));
 
         Iterable<Tag> tagResult = tagService.processTagsFast(tags);
         assertNotNull(tagResult);
         int count = 0;
         for (Tag next : tagResult) {
             assertEquals("FLOP", next.getName());
-            assertEquals("flop", next.getCode());
+            assertEquals("flop", next.getTagSearchName());
             count++;
         }
         assertEquals(1, count);
         tags = new ArrayList<>();
         //TODo: remove company from input/TagIB <> inherit Tag
-        tags.add(new TagInputBean(iCompany, "FLOP"));
-        tags.add(new TagInputBean(iCompany, "FLOPPY"));
-        tags.add(new TagInputBean(iCompany, "FLOPSY"));
-        tags.add(new TagInputBean(iCompany, "FLOPPO"));
-        tags.add(new TagInputBean(iCompany, "FLOPER"));
+        tags.add(new TagInputBean("FLOP"));
+        tags.add(new TagInputBean("FLOPPY"));
+        tags.add(new TagInputBean("FLOPSY"));
+        tags.add(new TagInputBean("FLOPPO"));
+        tags.add(new TagInputBean("FLOPER"));
         tagResult = tagService.processTagsFast(tags);
         count = 0;
         for (Tag next : tagResult) {
@@ -129,10 +128,8 @@ public class TestTags {
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
         assertNotNull(iSystemUser);
 
-        Company iCompany = iSystemUser.getCompany();
-
         List<TagInputBean> tags = new ArrayList<>();
-        TagInputBean tagInput = new TagInputBean(iCompany, "FLOP");
+        TagInputBean tagInput = new TagInputBean("FLOP");
         tags.add(tagInput);
         Iterable<Tag> tagResult = tagService.processTags(tags);
         assertNotNull(tagResult);
@@ -146,7 +143,7 @@ public class TestTags {
         SecurityContextHolder.getContext().setAuthentication(authGina);
         assertNull(tagService.findTag("FLOP")); // Can't see the Monowai company tag
 
-        tagInput = new TagInputBean(iSystemUser.getCompany(), "FLOP");
+        tagInput = new TagInputBean("FLOP");
         assertNotNull(tagService.processTag(tagInput));
         assertNull(tagService.findTag("ABC"));
         assertNotNull(tagService.findTag("FLOP"));
@@ -159,7 +156,7 @@ public class TestTags {
 
         Company iCompany = iSystemUser.getCompany();
 
-        Tag tag = tagService.processTag(new TagInputBean(iCompany, "FLOP"));
+        Tag tag = tagService.processTag(new TagInputBean("FLOP"));
         assertNotNull(tag);
         assertNull(tagService.findTag("ABC"));
         // ToDo: Find tag isn't working N4j2 Node types and CreateIndex
@@ -193,7 +190,34 @@ public class TestTags {
         dType = tagService.resolveDocType("ABC123");
         assertNotNull(dType);
         assertNotSame(id, dType.getId());
+    }
 
+    @Test
+    public void tagWithProperties() throws Exception {
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
+        assertNotNull(iSystemUser);
+
+        TagInputBean tagInput = new TagInputBean("FLOP");
+        tagInput.setProperty("num", 123);
+        tagInput.setProperty("dec", 123.11);
+        tagInput.setProperty("string", "abc");
+
+        Tag tag = tagService.processTag(tagInput);
+
+        assertNotNull(tag);
+        Tag result = tagService.findTag("FLOP");
+        // ToDo: Find tag isn't working N4j2 Node types and CreateIndex
+        // Issue is dynamic nodes and properties don't get in the index.
+
+        assertNotNull(result);
+        assertEquals(123, tag.getProperty("num"));
+        assertEquals(123.11, tag.getProperty("dec"));
+        assertEquals("abc", tag.getProperty("string"));
+
+        result = tagService.processTag(new TagInputBean("FLOPPY"));
+        assertNotNull(result);
+        assertEquals("FLOPPY", result.getName());
 
     }
+
 }

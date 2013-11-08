@@ -23,6 +23,9 @@ import com.auditbucket.registration.model.Company;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * User: Mike Holdsworth
  * Date: 29/06/13
@@ -34,18 +37,16 @@ public class TagInputBean {
     private Company company;
     @NotEmpty
     private String name;
+    private Map<String, TagInputBean> associatedTags = new HashMap<>();
 
-    private TagInputBean() {
+    Map<String, Object> properties = new HashMap<>();
+
+    protected TagInputBean() {
     }
 
     public TagInputBean(String tagName) {
         this();
         this.name = tagName;
-    }
-
-    public TagInputBean(Company company, String tagName) {
-        this(tagName);
-        this.company = company;
     }
 
     public String getName() {
@@ -67,6 +68,23 @@ public class TagInputBean {
 
     public Company getCompany() {
         return company;
+    }
+
+    public Map<String, TagInputBean> getAssociatedTags() {
+        return this.associatedTags;
+    }
+
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
+
+    public void setProperty(String key, Object value) {
+        if (!key.contains("id") | key.contains("name"))
+            properties.put(key, value);
+    }
+
+    public void setAssociatedTag(String relationshipName, TagInputBean tagInputBean) {
+        associatedTags.put(relationshipName, tagInputBean);
     }
 
 }
