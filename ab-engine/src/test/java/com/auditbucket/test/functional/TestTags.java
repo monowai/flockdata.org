@@ -220,4 +220,26 @@ public class TestTags {
 
     }
 
+    @Test
+    public void prohibitedPropertiesIgnored() throws Exception {
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
+        assertNotNull(iSystemUser);
+
+        TagInputBean tagInput = new TagInputBean("FLOP");
+
+        tagInput.setProperty("id", 123);
+        tagInput.setProperty("name", "abc");
+
+        Tag tag = tagService.processTag(tagInput);
+
+        assertNotNull(tag);
+        Tag result = tagService.findTag("FLOP");
+        // ToDo: Find tag isn't working N4j2 Node types and CreateIndex
+        // Issue is dynamic nodes and properties don't get in the index.
+
+        assertNotNull(result);
+        assertEquals("FLOP", result.getName());
+        assertNotSame(123, result.getId());
+
+    }
 }
