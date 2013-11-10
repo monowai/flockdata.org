@@ -44,7 +44,7 @@
 
     <servlet-mapping>
         <servlet-name>profileDispatcher</servlet-name>
-        <url-pattern>/profiles/*</url-pattern>
+        <url-pattern>/v1/profiles/*</url-pattern>
     </servlet-mapping>
 
     <servlet>

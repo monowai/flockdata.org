@@ -19,7 +19,6 @@
 
 package com.auditbucket.bean;
 
-import com.auditbucket.registration.model.Company;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -34,9 +33,12 @@ import java.util.Map;
 public class TagInputBean {
 
     @NotEmpty
-    private Company company;
-    @NotEmpty
     private String name;
+
+    private String code;
+
+    private boolean outbound = true;
+
     private Map<String, TagInputBean> associatedTags = new HashMap<>();
 
     Map<String, Object> properties = new HashMap<>();
@@ -63,11 +65,11 @@ public class TagInputBean {
     }
 
     public String getCode() {
-        return null;
+        return code;
     }
 
-    public Company getCompany() {
-        return company;
+    public void setAssociatedTag(String relationshipName, TagInputBean tagInputBean) {
+        associatedTags.put(relationshipName, tagInputBean);
     }
 
     public Map<String, TagInputBean> getAssociatedTags() {
@@ -83,8 +85,23 @@ public class TagInputBean {
             properties.put(key, value);
     }
 
-    public void setAssociatedTag(String relationshipName, TagInputBean tagInputBean) {
-        associatedTags.put(relationshipName, tagInputBean);
+    public boolean isOutbound() {
+        return outbound;
     }
 
+    public void setOutbound(boolean outbound) {
+        this.outbound = outbound;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    @Override
+    public String toString() {
+        return "TagInputBean{" +
+                "name='" + name + '\'' +
+                ", code='" + code + '\'' +
+                '}';
+    }
 }

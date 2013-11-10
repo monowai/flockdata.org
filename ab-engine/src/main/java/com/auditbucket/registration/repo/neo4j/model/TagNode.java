@@ -62,7 +62,6 @@ public class TagNode implements Tag {
         setName(tagInput.getName());
         setCode(tagInput.getCode());
         properties.setPropertiesFrom(tagInput.getProperties());
-        //this.company = company;
     }
 
 
@@ -107,7 +106,15 @@ public class TagNode implements Tag {
         return properties.getProperty(name);
     }
 
+    public Map<String, Object> getProperties() {
+        return properties.asMap();
+    }
+
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public String getCode() {
+        return code;
     }
 }

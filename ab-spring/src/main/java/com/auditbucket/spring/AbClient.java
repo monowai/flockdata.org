@@ -3,6 +3,7 @@ package com.auditbucket.spring;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditResultBean;
+import com.auditbucket.helper.AuditException;
 import com.auditbucket.spring.utils.PojoToAbTransformer;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
@@ -18,6 +19,9 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Random;
 
+/**
+ * @deprecated use the one in the hospital importer
+ */
 public class AbClient {
     private String serverName;
     private String apiKey;
@@ -57,7 +61,7 @@ public class AbClient {
     //       transmit beyond the AuditHeader Metadata - i.e. un-annotated fields. A header can have an optional Log associated
     //       with it.
 
-    public AuditResultBean createAuditHeader(Object pojo) throws IllegalAccessException, IOException {
+    public AuditResultBean createAuditHeader(Object pojo) throws IllegalAccessException, IOException, AuditException {
         AuditHeaderInputBean auditHeaderInputBean = PojoToAbTransformer.transformToAbFormat(pojo);
         auditHeaderInputBean.setFortress(forteressName);
         auditHeaderInputBean.setFortressUser(getUser());
@@ -77,7 +81,7 @@ public class AbClient {
         return (AuditResultBean) response.getBody();
     }
 
-    public AuditLogInputBean createAuditLog(Object pojo) throws IllegalAccessException, IOException {
+    public AuditLogInputBean createAuditLog(Object pojo) throws IllegalAccessException, IOException, AuditException {
         AuditLogInputBean auditLogInputBean = PojoToAbTransformer.transformToAbLogFormat(pojo);
         assert (auditLogInputBean.getAuditKey() != null);
         auditLogInputBean.setFortressUser(getUser());

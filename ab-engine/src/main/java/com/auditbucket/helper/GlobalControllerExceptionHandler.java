@@ -19,6 +19,7 @@
 
 package com.auditbucket.helper;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -92,17 +93,17 @@ public class GlobalControllerExceptionHandler extends ResponseEntityExceptionHan
 
     @ExceptionHandler(AuditException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-
-    //ResponseEntity<Object> handleAuditException(AuditException ex, HttpServletResponse response) {
-    public
     @ResponseBody
-    AuditError handleAudit(final AuditException ex) {
-        //logger.error(ex.getMessage(), ex.getStackTrace());
+    public AuditError handleAudit(final AuditException ex) {
         AuditError error = new AuditError(ex.getMessage());
+        return error;
+    }
 
-        //return handleExceptionInternal(ex, error, headers, HttpStatus.BAD_REQUEST, request);
-
-        //return new ResponseEntity<Object>(error, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(JsonParseException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public AuditError handleJsonError(final JsonParseException ex) {
+        AuditError error = new AuditError(ex.getMessage());
         return error;
     }
 

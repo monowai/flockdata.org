@@ -46,7 +46,7 @@ import java.util.*;
  * Time: 8:33 PM
  */
 @Repository
-public class TagDao implements com.auditbucket.dao.TagDao {
+public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
 
     public static final String COMPANY_TAGS = "COMPANY_TAGS";
     @Autowired
@@ -58,7 +58,7 @@ public class TagDao implements com.auditbucket.dao.TagDao {
     @Autowired
     Neo4jTemplate template;
 
-    private Logger logger = LoggerFactory.getLogger(TagDao.class);
+    private Logger logger = LoggerFactory.getLogger(TagDaoNeo4J.class);
 
     public Iterable<Tag> save(Company company, Iterable<TagInputBean> tags) {
 
@@ -73,7 +73,7 @@ public class TagDao implements com.auditbucket.dao.TagDao {
         for (TagInputBean next : tags) {
             if (cTag == null) {
                 TagNode tn = new TagNode(next);
-                cTag = getCompanyTagManager(next.getCompany().getId());
+                cTag = getCompanyTagManager(company.getId());
                 params.put("cTag", cTag);
                 cypher = "start tagManager=node({cTag}) create unique " +
                         "tagManager-[:TAG_COLLECTION]->(tag0 {name:\"" + tn.getName() + "\", " +
@@ -105,22 +105,38 @@ public class TagDao implements com.auditbucket.dao.TagDao {
 
     public Tag save(Company company, TagInputBean tagInput) {
         // Check exists
+        // ToDo: Neo4j2 - don't associate with the company rather a tag node type
         Tag existingTag = findOne(tagInput.getName(), company.getId());
         if (existingTag != null)
             return existingTag;
 
-
         TagNode tagToCreate = new TagNode(tagInput);
-
         tagToCreate = tagRepo.save(tagToCreate);
+
         Node end = template.getPersistentState(tagToCreate);
         Node start = getCompanyTagManagerNode(company.getId());
         Relationship r = template.getRelationshipBetween(start, end, COMPANY_TAGS);
         if (r == null)
             template.createRelationshipBetween(start, end, COMPANY_TAGS, null);
+
+        Map<String, TagInputBean> tags = tagInput.getAssociatedTags();
+        for (String rlxName : tags.keySet()) {
+            TagInputBean associatedTag = tags.get(rlxName);
+            saveAssociated(company, end, associatedTag, rlxName);
+        }
         return tagToCreate;
     }
 
+    Tag saveAssociated(Company company, Node startNode, TagInputBean associatedTag, String rlxName) {
+        Tag tagToCreate = save(company, associatedTag);
+        Node endNode = template.getPersistentState(tagToCreate);
+        if (associatedTag.isOutbound())
+            template.createRelationshipBetween(startNode, endNode, rlxName, null);
+        else
+            template.createRelationshipBetween(endNode, startNode, rlxName, null);
+
+        return tagToCreate;
+    }
 
     @Cacheable(value = "companyTagManager", unless = "#result == null")
     private Node getCompanyTagManagerNode(Long companyId) {
@@ -141,6 +157,32 @@ public class TagDao implements com.auditbucket.dao.TagDao {
         Node coTags = getCompanyTagManagerNode(company.getId());
         Node tagNode = template.getNode(tag.getId());
         template.deleteRelationshipBetween(coTags, tagNode, COMPANY_TAGS);
+    }
+
+    @Override
+    public Collection<Tag> findDirectedTags(Tag startTag, long companyId, boolean b) {
+        Long coTags = getCompanyTagManager(companyId);
+        String query = "start tag=node({tagId}), coTags=node({coTags}) " +
+                " match tag-->otherTags<--coTags" +
+                "       return otherTags";
+        Map<String, Object> params = new HashMap<>();
+        params.put("tagId", startTag.getId());
+        params.put("coTags", coTags);
+        EndResult<Map<String, Object>> r = template.query(query, params);
+
+        if (!((EndResult) r).iterator().hasNext())
+            return new ArrayList<>();
+
+        Object o = r.single();
+        Map<String, Object> mapResult = (Map<String, Object>) o;
+        Collection<Tag> results = new ArrayList<>(mapResult.size());
+
+        for (String s : mapResult.keySet()) {
+            results.add(template.projectTo(mapResult.get(s), TagNode.class));
+        }
+
+        //
+        return results;
     }
 
     /**
@@ -169,7 +211,7 @@ public class TagDao implements com.auditbucket.dao.TagDao {
     public Tag findOne(String tagName, Long companyId) {
         if (tagName == null || companyId == null)
             throw new IllegalArgumentException("Null can not be used to find a tag ");
-        Tag tag = tagRepo.findCompanyTagBySearchName(tagName.toLowerCase().replaceAll("\\s", ""), companyId);
+        Tag tag = tagRepo.findCompanyTagBySearchName(companyId, tagName.toLowerCase().replaceAll("\\s", ""));
         return tag;
     }
 

@@ -24,6 +24,8 @@ import com.auditbucket.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 
+import java.util.Collection;
+
 /**
  * User: Mike Holdsworth
  * Date: 29/06/13
@@ -56,4 +58,6 @@ public interface TagDao {
      * @param tag     tag to remove the relationship from
      */
     void deleteCompanyRelationship(Company company, Tag tag);
+
+    Collection<Tag> findDirectedTags(Tag startTag, long companyId, boolean b);
 }

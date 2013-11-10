@@ -406,15 +406,15 @@ public class TestAuditTags {
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         Map<String, Object> tags = new HashMap<>();
-        Map<String, Map> types = new HashMap<>();
+        Map<String, Map> relationships = new HashMap<>();
         Map<String, Object> propA = new HashMap<>();
         Map<String, Object> propB = new HashMap<>();
         propA.put("myValue", 10);
         propB.put("myValue", 20);
 
-        types.put("email-to", propA);
-        types.put("email-cc", propB);
-        tags.put("mike@auditbucket.com", types);
+        relationships.put("email-to", propA);
+        relationships.put("email-cc", propB);
+        tags.put("mike@auditbucket.com", relationships);
         tags.put("np@auditbucket.com", "email-cc");
         inputBean.setTagValues(tags);
         AuditResultBean resultBean = auditManager.createHeader(inputBean);
@@ -470,7 +470,44 @@ public class TestAuditTags {
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
         AuditSummaryBean summaryBean = auditService.getAuditSummary(header.getAuditKey());
         assertEquals(3, summaryBean.getTags().size());
-
-
     }
+
+    @Test
+    public void nestedStructureInHeader() throws Exception {
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        assertNotNull(iSystemUser);
+
+        Fortress fortress = fortressService.registerFortress("ABC");
+        assertNotNull(fortress);
+
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
+        TagInputBean country = new TagInputBean("New Zealand");
+        TagInputBean wellington = new TagInputBean("Wellington");
+        TagInputBean auckland = new TagInputBean("Auckland");
+        country.setAssociatedTag("capital-city", wellington);
+        country.setAssociatedTag("city", auckland);
+        TagInputBean section = new TagInputBean("Thorndon");
+        wellington.setAssociatedTag("section", section);
+        TagInputBean building = new TagInputBean("ABC House");
+        section.setAssociatedTag("houses", building);
+
+        inputBean.setAssociatedTag(country);
+        AuditResultBean resultBean = auditManager.createHeader(inputBean);
+        assertNotNull(resultBean);
+        // Tags are not associated with the header rather the structure is enforced while importing
+        Tag countryTag = tagService.findTag("New Zealand");
+        Tag cityTag = tagService.findTag("Wellington");
+        Tag sectionTag = tagService.findTag("Thorndon");
+        Tag houseTag = tagService.findTag("ABC House");
+
+        assertNotNull(countryTag);
+        assertEquals(1, tagService.findDirectedTags(countryTag).size());
+        assertNotNull(cityTag);
+        assertEquals(2, tagService.findDirectedTags(cityTag).size());
+        assertNotNull(sectionTag);
+        assertEquals(1, tagService.findDirectedTags(sectionTag).size());
+        assertNotNull(houseTag);
+        assertEquals(0, tagService.findDirectedTags(houseTag).size());
+    }
+
 }

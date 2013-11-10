@@ -21,12 +21,12 @@ package com.auditbucket.engine.service;
 
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditTag;
+import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditTagInputBean;
+import com.auditbucket.bean.TagInputBean;
 import com.auditbucket.dao.AuditTagDao;
-import com.auditbucket.engine.TagBucket;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.helper.SecurityHelper;
-import com.auditbucket.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.TagService;
@@ -34,7 +34,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * User: Mike Holdsworth
@@ -80,8 +83,15 @@ public class AuditTagService {
 
 
     //    @Async
-    public Void createTagValuesFuture(AuditHeader ah, Map<String, Object> userTags) {
-        createTagValues(ah, userTags);
+    public Void createTagValuesFuture(AuditHeader ah, AuditHeaderInputBean userTags) {
+        // Create a tag structure if present
+        for (TagInputBean inputBean : userTags.getAssociatedTags()) {
+            tagService.processTag(inputBean);
+        }
+        // Direct association between tags and a header
+        createTagValues(ah, userTags.getTagValues());
+        //List<TagInputBean>tagInputBeans = ;
+
         return null;
     }
 
@@ -141,9 +151,6 @@ public class AuditTagService {
                         if (o != null && o instanceof Map) {
                             propMap = (Map<String, Object>) o;
                         }
-                        //tagsToCreate.add(new TagBucket(ah, tag, relationship, propMap));
-                        // ToDo: auditTagDao.save(ah, tag, relationship, propMap);
-
                         auditTagDao.save(ah, tag, relationship, propMap);
                     }
                 } else {

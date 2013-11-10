@@ -24,9 +24,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.joda.time.DateTime;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * User: Mike Holdsworth
@@ -44,6 +42,7 @@ public class AuditHeaderInputBean {
     private AuditLogInputBean auditLog;
     private boolean searchSuppressed;
     private Map<String, Object> tagValues = new HashMap<>();
+    private List<TagInputBean> associatedTags = new ArrayList<>();
     private boolean suppressSearch;
     private String event;
     private AuditEvent eventObject;
@@ -181,5 +180,13 @@ public class AuditHeaderInputBean {
 
     public void setApiKey(String apiKey) {
         this.apiKey = apiKey;
+    }
+
+    public void setAssociatedTag(TagInputBean tag) {
+        associatedTags.add(tag);
+    }
+
+    public List<TagInputBean> getAssociatedTags() {
+        return associatedTags;
     }
 }
