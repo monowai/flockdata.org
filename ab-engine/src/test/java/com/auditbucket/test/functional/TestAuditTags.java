@@ -501,9 +501,9 @@ public class TestAuditTags {
         Tag houseTag = tagService.findTag("ABC House");
 
         assertNotNull(countryTag);
-        assertEquals(1, tagService.findDirectedTags(countryTag).size());
+        assertEquals(2, tagService.findDirectedTags(countryTag).size());  // Country has 2 cities
         assertNotNull(cityTag);
-        assertEquals(2, tagService.findDirectedTags(cityTag).size());
+        assertEquals(1, tagService.findDirectedTags(cityTag).size());
         assertNotNull(sectionTag);
         assertEquals(1, tagService.findDirectedTags(sectionTag).size());
         assertNotNull(houseTag);

@@ -168,19 +168,19 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
         Map<String, Object> params = new HashMap<>();
         params.put("tagId", startTag.getId());
         params.put("coTags", coTags);
-        EndResult<Map<String, Object>> r = template.query(query, params);
+        Result<Map<String, Object>> result = template.query(query, params);
 
-        if (!((EndResult) r).iterator().hasNext())
+        if (!((Result) result).iterator().hasNext())
             return new ArrayList<>();
 
-        Object o = r.single();
-        Map<String, Object> mapResult = (Map<String, Object>) o;
-        Collection<Tag> results = new ArrayList<>(mapResult.size());
+        Iterator<Map<String, Object>> rows = result.iterator();
 
-        for (String s : mapResult.keySet()) {
-            results.add(template.projectTo(mapResult.get(s), TagNode.class));
+        Collection<Tag> results = new ArrayList<>();
+
+        while (rows.hasNext()) {
+            Map<String, Object> row = rows.next();
+            results.add(template.projectTo(row.get("otherTags"), TagNode.class));
         }
-
         //
         return results;
     }
