@@ -32,7 +32,6 @@ import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
-import com.auditbucket.registration.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -163,19 +162,19 @@ public class AuditEP {
 
     @ResponseBody
     @RequestMapping(value = "/{fortress}/{recordType}/{callerRef}", method = RequestMethod.GET)
-    public ResponseEntity<AuditHeader> getByClientRef(@PathVariable("fortress") String fortress,
-                                                      @PathVariable("recordType") String recordType,
-                                                      @PathVariable("callerRef") String callerRef) {
+    public ResponseEntity<com.auditbucket.audit.model.AuditHeader> getByClientRef(@PathVariable("fortress") String fortress,
+                                                                                  @PathVariable("recordType") String recordType,
+                                                                                  @PathVariable("callerRef") String callerRef) {
         Fortress f = fortressService.findByName(fortress);
-        AuditHeader result = auditService.findByCallerRef(f.getId(), recordType, callerRef);
+        com.auditbucket.audit.model.AuditHeader result = auditService.findByCallerRef(f.getId(), recordType, callerRef);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @ResponseBody
     @RequestMapping(value = "/{auditKey}", method = RequestMethod.GET)
-    public ResponseEntity<AuditHeader> getAudit(@PathVariable("auditKey") String auditKey) {
+    public ResponseEntity<com.auditbucket.audit.model.AuditHeader> getAudit(@PathVariable("auditKey") String auditKey) {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
-        AuditHeader result = auditService.getHeader(auditKey, true);
+        com.auditbucket.audit.model.AuditHeader result = auditService.getHeader(auditKey, true);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
@@ -223,7 +222,7 @@ public class AuditEP {
     @RequestMapping(value = "/{auditKey}/tags", method = RequestMethod.GET)
     public ResponseEntity<Set<AuditTag>> getAuditTags(@PathVariable("auditKey") String auditKey) {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
-        AuditHeader result = auditService.getHeader(auditKey);
+        com.auditbucket.audit.model.AuditHeader result = auditService.getHeader(auditKey);
         return new ResponseEntity<>(auditTagService.findAuditTags(result), HttpStatus.OK);
     }
 
@@ -263,6 +262,13 @@ public class AuditEP {
         }
 
         return new ResponseEntity<Map>(result, HttpStatus.OK);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/{fortressName}/rebuild", produces = "application/json", method = RequestMethod.POST)
+    public ResponseEntity<String> rebuildSearch(@PathVariable("fortressName") String fortressName) throws AuditException {
+        Long processCount = auditManager.rebuild(fortressName);
+        return new ResponseEntity<>("Rebuild Search request completed. Processed [" + processCount + "] headers", HttpStatus.OK);
     }
 
 

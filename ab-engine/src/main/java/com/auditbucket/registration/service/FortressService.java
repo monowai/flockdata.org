@@ -20,6 +20,8 @@
 package com.auditbucket.registration.service;
 
 
+import com.auditbucket.engine.service.AbSearchGateway;
+import com.auditbucket.helper.AuditException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Company;
@@ -184,4 +186,18 @@ public class FortressService {
         fortressDao.fetch(lastUser);
 
     }
+
+    @Autowired
+    AbSearchGateway searchGateway;
+
+    public void purge(String name) throws AuditException {
+        Fortress fortress = findByName(name);
+        if (fortress == null)
+            throw new AuditException("Fortress [" + fortress + "] could not be found");
+        fortressDao.delete(fortress);
+        String indexName = "ab." + fortress.getCompany().getCode() + "." + fortress.getCode();
+        // ToDo: Delete the ES index
+        //searchGateway.delete(indexName);
+    }
+
 }

@@ -19,6 +19,7 @@
 
 package com.auditbucket.fortress;
 
+import com.auditbucket.helper.AuditException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Fortress;
@@ -53,14 +54,14 @@ public class FortressEP {
 
     @RequestMapping(value = "/list", produces = "application/json", method = RequestMethod.GET)
     @ResponseBody
-    public Collection<Fortress> findFortresses() throws Exception {
+    public Collection<Fortress> findFortresses() {
         // curl -u mike:123 -X GET  http://localhost:8080/ab/company/Monowai/fortresses
         return fortressService.findFortresses();
     }
 
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Fortress> addFortresses(@RequestBody FortressInputBean fortressInputBean) throws Exception {
+    public ResponseEntity<Fortress> addFortresses(@RequestBody FortressInputBean fortressInputBean) {
         Fortress fortress = fortressService.registerFortress(fortressInputBean);
 
         fortressInputBean.setFortressKey(fortress.getFortressKey());
@@ -70,7 +71,7 @@ public class FortressEP {
 
     @RequestMapping(value = "/{fortressName}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Fortress> getFortress(@PathVariable("fortressName") String fortressName) throws Exception {
+    public ResponseEntity<Fortress> getFortress(@PathVariable("fortressName") String fortressName) {
         // curl -u mike:123 -X GET  http://localhost:8080/ab/fortress/ABC
         Fortress fortress = fortressService.findByName(fortressName);
         if (fortress == null)
@@ -79,10 +80,20 @@ public class FortressEP {
             return new ResponseEntity<>(fortress, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/{fortressName}", method = RequestMethod.DELETE)
+    public void purgeFortress(@PathVariable("fortressName") String fortressName) throws AuditException {
+        fortressService.purge(fortressName);
+    }
+
+    @RequestMapping(value = "/{fortressName}/delete", method = RequestMethod.POST)
+    public void rebuildFortress(@PathVariable("fortressName") String fortressName) throws AuditException {
+        fortressService.purge(fortressName);
+    }
+
 
     @RequestMapping(value = "/{fortressName}/{userName}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<FortressUser> getFortressUsers(@PathVariable("fortressName") String fortressName, @PathVariable("userName") String userName) throws Exception {
+    public ResponseEntity<FortressUser> getFortressUsers(@PathVariable("fortressName") String fortressName, @PathVariable("userName") String userName) {
         FortressUser result = null;
         Fortress fortress = fortressService.findByName(fortressName);
 

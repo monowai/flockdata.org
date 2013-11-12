@@ -47,4 +47,6 @@ public interface FortressDao {
     FortressUser save(Fortress fortress, String fortressUserName);
 
     void fetch(FortressUser lastUser);
+
+    void delete(Fortress fortress);
 }

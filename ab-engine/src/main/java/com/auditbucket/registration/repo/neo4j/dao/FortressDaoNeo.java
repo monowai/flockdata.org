@@ -29,7 +29,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * User: Mike Holdsworth
@@ -96,6 +98,15 @@ public class FortressDaoNeo implements FortressDao {
     public void fetch(FortressUser lastUser) {
         template.fetch(lastUser);
 
+    }
+
+    @Override
+    public void delete(Fortress fortress) {
+        // ToDo: figure this out!!
+        //String query = "START f = node({fortressId}) WITH f MATCH f-[TRACKS]->a-[r:LOGGED|CREATED_BY|LASTCHANGED_BY|CAUSED_BY]-x DELETE a, r, x";
+        //Map<String,Object> params = new HashMap<>();
+        //params.put("fortressId", fortress.getId());
+        //template.execute(query, params);
     }
 
 

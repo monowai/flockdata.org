@@ -19,7 +19,6 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditLog;
 import com.auditbucket.bean.*;
 import com.auditbucket.engine.service.AuditManagerService;
@@ -151,7 +150,7 @@ public class TestAuditIntegration {
 
         String ahKey = auditManager.createHeader(inputBean).getAuditKey();
         assertNotNull(ahKey);
-        AuditHeader header = auditService.getHeader(ahKey);
+        com.auditbucket.audit.model.AuditHeader header = auditService.getHeader(ahKey);
         auditManager.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + 1 + "}"));
         Thread.sleep(2000);
         doEsQuery(header.getIndexName(), header.getAuditKey());
@@ -204,7 +203,7 @@ public class TestAuditIntegration {
 
         assertNotNull(ahKey);
 
-        AuditHeader auditHeader = auditService.getHeader(ahKey);
+        com.auditbucket.audit.model.AuditHeader auditHeader = auditService.getHeader(ahKey);
         assertNotNull(auditHeader);
         assertNotNull(auditService.findByCallerRef(fo.getId(), "TestAudit", "ABC123"));
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
@@ -264,7 +263,7 @@ public class TestAuditIntegration {
 
         //Transaction tx = getTransaction();
         AuditResultBean indexedResult = auditManager.createHeader(inputBean);
-        AuditHeader indexHeader = auditService.getHeader(indexedResult.getAuditKey());
+        com.auditbucket.audit.model.AuditHeader indexHeader = auditService.getHeader(indexedResult.getAuditKey());
 
         AuditLogResultBean resultBean = auditManager.createLog(new AuditLogInputBean(indexHeader.getAuditKey(), inputBean.getFortressUser(), new DateTime(), escJson + "\"andy\"}"));
         junit.framework.Assert.assertNotNull(resultBean);
@@ -278,7 +277,7 @@ public class TestAuditIntegration {
         inputBean = new AuditHeaderInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
         inputBean.setSuppressSearch(true);
         AuditResultBean noIndex = auditManager.createHeader(inputBean);
-        AuditHeader noIndexHeader = auditService.getHeader(noIndex.getAuditKey());
+        com.auditbucket.audit.model.AuditHeader noIndexHeader = auditService.getHeader(noIndex.getAuditKey());
 
         auditManager.createLog(new AuditLogInputBean(noIndexHeader.getAuditKey(), inputBean.getFortressUser(), new DateTime(), escJson + "\"bob\"}"));
         Thread.sleep(1000);
@@ -296,7 +295,7 @@ public class TestAuditIntegration {
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
 
         AuditResultBean indexedResult = auditManager.createHeader(inputBean);
-        AuditHeader indexHeader = auditService.getHeader(indexedResult.getAuditKey());
+        com.auditbucket.audit.model.AuditHeader indexHeader = auditService.getHeader(indexedResult.getAuditKey());
         String what = "{\"code\":\"AZERTY\",\"name\":\"NameText\",\"description\":\"this is a description\"}";
         auditManager.createLog(new AuditLogInputBean(indexHeader.getAuditKey(), inputBean.getFortressUser(), new DateTime(), what));
         waitForHeaderToUpdate(indexHeader);
@@ -370,7 +369,7 @@ public class TestAuditIntegration {
                     requests++;
                     if (!searchChecked) {
                         searchChecked = true;
-                        AuditHeader auditHeader = auditService.getHeader(arb.getAuditKey());
+                        com.auditbucket.audit.model.AuditHeader auditHeader = auditService.getHeader(arb.getAuditKey());
                         requests++;
                         int checkCount = waitForHeaderToUpdate(auditHeader);
                         auditSleepCount = auditSleepCount + (400 * checkCount);
@@ -411,7 +410,7 @@ public class TestAuditIntegration {
         //DecimalFormat f = new DecimalFormat("##.000");
         while (fortress <= fortressMax) {
             while (audit <= auditMax) {
-                AuditHeader header = auditService.findByCallerRefFull(list.get(fortress), "CompanyNode", "ABC" + audit);
+                com.auditbucket.audit.model.AuditHeader header = auditService.findByCallerRefFull(list.get(fortress), "CompanyNode", "ABC" + audit);
                 StopWatch watch = new StopWatch();
                 watch.start();
                 Set<AuditLog> logs = auditService.getAuditLogs(header.getId());
@@ -430,12 +429,12 @@ public class TestAuditIntegration {
 
     }
 
-    private int waitForHeaderToUpdate(AuditHeader header) throws Exception {
+    private int waitForHeaderToUpdate(com.auditbucket.audit.model.AuditHeader header) throws Exception {
         // Looking for the first searchKey to be logged against the auditHeader
         int i = 0;
         int timeout = 50;
 
-        AuditHeader auditHeader = auditService.getHeader(header.getAuditKey());
+        com.auditbucket.audit.model.AuditHeader auditHeader = auditService.getHeader(header.getAuditKey());
         if (auditHeader.getSearchKey() != null)
             return 0;
         while (auditHeader.getSearchKey() == null && i <= timeout) {
@@ -467,7 +466,7 @@ public class TestAuditIntegration {
                     if (random == 0)
                         random = 1;
 
-                    AuditHeader header = auditService.findByCallerRefFull(list.get(fortress), "CompanyNode", "ABC" + random);
+                    com.auditbucket.audit.model.AuditHeader header = auditService.findByCallerRefFull(list.get(fortress), "CompanyNode", "ABC" + random);
                     assertNotNull("ABC" + random, header);
                     assertNotNull("Looks like ab-search is not sending back results", header.getSearchKey());
                     //AuditLog when = auditService.getLastAuditLog(header);

@@ -73,7 +73,7 @@ public class TestAuditSearch {
 //        String ahKey = auditService.createHeader(inputBean).getAuditKey();
 //
 //        assertNotNull(ahKey);
-//        AuditHeader auditHeader = auditService.getHeader(ahKey);
+//        AuditLogResultBean auditHeader = auditService.getHeader(ahKey);
 //        assertNotNull(auditService.getHeader(ahKey));
 //        assertNotNull(auditHeader.getSearchKey());
 //

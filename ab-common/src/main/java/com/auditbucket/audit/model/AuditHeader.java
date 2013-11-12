@@ -32,8 +32,18 @@ public interface AuditHeader {
 
     public abstract Long getId();
 
+    /**
+     * Foreign computer system that owns this header
+     *
+     * @return fortress
+     */
     public abstract Fortress getFortress();
 
+    /**
+     * Callers classification of this header
+     *
+     * @return
+     */
     public abstract String getDocumentType();
 
     /**
@@ -53,6 +63,11 @@ public interface AuditHeader {
      */
     public long getLastUpdated();
 
+    /**
+     * Who, in the foreign fortress, last changed this?
+     *
+     * @param user user
+     */
     public void setLastUser(FortressUser user);
 
     /**
@@ -61,7 +76,7 @@ public interface AuditHeader {
     public FortressUser getCreatedBy();
 
     /**
-     * @return the index name to use for subsequent changes
+     * @return the index this header belongs to
      */
     public String getIndexName();
 
@@ -75,8 +90,14 @@ public interface AuditHeader {
      */
     void bumpUpdate();
 
+    /**
+     * @return if this header should not be made searchable
+     */
     public boolean isSearchSuppressed();
 
+    /**
+     * @param searchSuppressed never index this header in the search service
+     */
     public void suppressSearch(boolean searchSuppressed);
 
     void setSearchKey(String parentKey);
@@ -86,10 +107,19 @@ public interface AuditHeader {
      */
     public String getSearchKey();
 
+    /**
+     * @return foreign key in the Fortress
+     */
     String getCallerRef();
 
+    /**
+     * @return date created in AuditBucket
+     */
     long getWhenCreated();
 
+    /**
+     * @return date created in the foreign fortress; defaults to whenCreated if not supplied
+     */
     @JsonIgnore
     DateTime getFortressDateCreated();
 }

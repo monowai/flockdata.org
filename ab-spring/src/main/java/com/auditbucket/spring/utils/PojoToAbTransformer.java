@@ -40,7 +40,7 @@ public class PojoToAbTransformer {
 
     public static AuditHeaderInputBean transformToAbFormat(Object pojo) throws IllegalAccessException, IOException, AuditException {
 
-        //ToDo: AuditHeader is only called when the @AuditKey is null, otherwise it's a log
+        //ToDo: AuditLogResultBean is only called when the @AuditKey is null, otherwise it's a log
         //ToDo:  caller does not determine this by ab-spring does.
 
         AuditHeaderInputBean auditHeaderInputBean = new AuditHeaderInputBean();

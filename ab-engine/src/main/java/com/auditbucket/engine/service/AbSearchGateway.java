@@ -42,4 +42,5 @@ public interface AbSearchGateway {
 
     public Long getHitCount(String s);
 
+    void delete(String indexName);
 }

@@ -99,4 +99,6 @@ public interface AuditDao {
     void fetch(AuditWhat what);
 
     Set<AuditHeader> findHeadersByTxRef(Long txName);
+
+    Set<AuditHeader> findHeaders(Long fortressId, Long startFromAuditId);
 }

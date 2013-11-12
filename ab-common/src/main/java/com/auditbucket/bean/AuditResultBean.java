@@ -19,7 +19,6 @@
 
 package com.auditbucket.bean;
 
-import com.auditbucket.audit.model.AuditHeader;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -35,7 +34,7 @@ public class AuditResultBean {
     private String callerRef;
     private String auditKey;
     private AuditLogResultBean logResult;
-    private AuditHeader auditHeader;
+    private com.auditbucket.audit.model.AuditHeader auditHeader;
 
     protected AuditResultBean() {
     }
@@ -54,7 +53,7 @@ public class AuditResultBean {
 
     }
 
-    public AuditResultBean(AuditHeader input) {
+    public AuditResultBean(com.auditbucket.audit.model.AuditHeader input) {
         this(input.getFortress().getName(), input.getDocumentType(), input.getCallerRef(), input.getAuditKey());
         this.auditId = input.getId();
         this.auditHeader = input;
@@ -95,7 +94,7 @@ public class AuditResultBean {
     }
 
     @JsonIgnore
-    public AuditHeader getAuditHeader() {
+    public com.auditbucket.audit.model.AuditHeader getAuditHeader() {
         return auditHeader;
     }
 

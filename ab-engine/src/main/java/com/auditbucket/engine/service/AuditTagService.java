@@ -74,7 +74,7 @@ public class AuditTagService {
         return auditTagDao.relationshipExists(auditHeader, tag, relationshipType);
     }
 
-//    public Set<AuditHeader> findTagAudits(String tagName) {
+//    public Set<AuditLogResultBean> findTagAudits(String tagName) {
 //        Tag tag = tagService.findTag(tagName);
 //        if (tag == null)
 //            return null;

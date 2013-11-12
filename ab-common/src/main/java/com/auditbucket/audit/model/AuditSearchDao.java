@@ -43,7 +43,7 @@ public interface AuditSearchDao {
     void update(SearchChange auditChange);
 
     /**
-     * locates a document by AuditHeader.searchKey
+     * locates a document by AuditLogResultBean.searchKey
      *
      * @param header auditHeader
      * @return document context as bytes
@@ -54,7 +54,7 @@ public interface AuditSearchDao {
      * Locates a specific key monitored by the header.
      * <p/>
      * If ID is null then the call is the same as findOne(header)
-     * where the searchKey is taken to be AuditHeader.searchKey
+     * where the searchKey is taken to be AuditLogResultBean.searchKey
      *
      * @return found audit change or null if none
      */
@@ -65,7 +65,7 @@ public interface AuditSearchDao {
      * is sufficient. However if you are tracking EVERY change in the search engine, then you
      * can delete a specific instance
      *
-     * @param header           AuditHeader that the change belongs to
+     * @param header           AuditLogResultBean that the change belongs to
      * @param existingIndexKey searchKey for the header to remove. if NULL, defaults to header.getSearchKey()
      */
     void delete(AuditHeader header, String existingIndexKey);

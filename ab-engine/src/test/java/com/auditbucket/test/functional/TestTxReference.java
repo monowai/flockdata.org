@@ -20,10 +20,9 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.model.AuditChange;
-import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.bean.AuditLogResultBean;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
-import com.auditbucket.bean.AuditLogResultBean;
 import com.auditbucket.bean.AuditResultBean;
 import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
@@ -156,7 +155,7 @@ public class TestTxReference {
 
         String key = auditManager.createHeader(aBean).getAuditKey();
         assertNotNull(key);
-        AuditHeader header = auditService.getHeader(key);
+        com.auditbucket.audit.model.AuditHeader header = auditService.getHeader(key);
         assertNotNull(header);
         //assertEquals(1, header.getTxTags().size());
         AuditLogInputBean alb = new AuditLogInputBean(key, "charlie", DateTime.now(), escJsonA, null, tagRef);
@@ -216,7 +215,7 @@ public class TestTxReference {
 
         String key = auditManager.createHeader(aBean).getAuditKey();
         assertNotNull(key);
-        AuditHeader header = auditService.getHeader(key);
+        com.auditbucket.audit.model.AuditHeader header = auditService.getHeader(key);
         assertNotNull(header);
         AuditLogInputBean alb = new AuditLogInputBean(key, "charlie", DateTime.now(), escJsonA, null, tagRef);
         assertTrue(alb.isTransactional());
@@ -228,11 +227,11 @@ public class TestTxReference {
         String txStart = albTxRef;
 
         auditManager.createLog(alb);
-        Set<AuditHeader> result = auditService.findTxHeaders(txStart);
+        Set<com.auditbucket.audit.model.AuditHeader> result = auditService.findTxHeaders(txStart);
         assertNotNull(result);
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());
-        for (AuditHeader auditHeader : result) {
+        for (com.auditbucket.audit.model.AuditHeader auditHeader : result) {
             assertNotNull(auditHeader.getAuditKey());
         }
 

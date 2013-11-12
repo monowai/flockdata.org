@@ -57,4 +57,12 @@ public interface AuditHeaderRepo extends GraphRepository<AuditHeaderNode> {
             "   MATCH tx-[:AFFECTED]->change<-[:LOGGED]-auditHeader " +
             "return auditHeader")
     Set<AuditHeader> findHeadersByTxRef(Long txRef);
+
+    @Query(elementClass = AuditHeaderNode.class, value =
+            "start fortress = node({0}) " +
+                    " match fortress-[:TRACKS]->audit " +
+                    " return audit ORDER BY audit.dateCreated ? ASC" +
+                    " skip {1} limit 100 ")
+    Set<AuditHeader> findHeadersFrom(Long fortressId, Long skip);
+
 }

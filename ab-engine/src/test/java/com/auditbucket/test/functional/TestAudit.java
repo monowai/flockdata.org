@@ -20,7 +20,6 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.model.AuditChange;
-import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditLog;
 import com.auditbucket.audit.model.AuditWhat;
 import com.auditbucket.bean.*;
@@ -32,7 +31,6 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
-import com.auditbucket.test.utils.AbstractRedisSupport;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
@@ -53,7 +51,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.Set;
 import java.util.TimeZone;
@@ -255,7 +252,7 @@ public class TestAudit {
         String ahKey = resultBean.getAuditKey();
         assertNotNull(ahKey);
 
-        AuditHeader header = auditService.getHeader(ahKey);
+        com.auditbucket.audit.model.AuditHeader header = auditService.getHeader(ahKey);
         assertNotNull(header.getDocumentType());
 
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
@@ -404,7 +401,7 @@ public class TestAudit {
         Fortress fortWP = fortressService.registerFortress("wportfolio");
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "wally", "CompanyNode", new DateTime(), "ZZZZ");
         String ahWP = auditManagerService.createHeader(inputBean).getAuditKey();
-        AuditHeader auditKey = auditService.getHeader(ahWP);
+        com.auditbucket.audit.model.AuditHeader auditKey = auditService.getHeader(ahWP);
         auditManagerService.createLog(new AuditLogInputBean(auditKey.getAuditKey(), "olivia@sunnybell.com", new DateTime(), what + "1\"}", "Update"));
         auditKey = auditService.getHeader(ahWP);
         FortressUser fu = fortressService.getUser(auditKey.getLastUser().getId());
@@ -435,7 +432,7 @@ public class TestAudit {
         Fortress fortWP = fortressService.registerFortress("wportfolio");
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "wally", "CompanyNode", new DateTime(), "ZZZZ");
         String ahWP = auditManagerService.createHeader(inputBean).getAuditKey();
-        AuditHeader auditHeader = auditService.getHeader(ahWP);
+        com.auditbucket.audit.model.AuditHeader auditHeader = auditService.getHeader(ahWP);
 
         // Create the future one first.
         auditManagerService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", new DateTime(), what + "1\"}", "Update"));
@@ -475,7 +472,7 @@ public class TestAudit {
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "wally", "CompanyNode", firstDate, "123");
         String ahWP = auditManagerService.createHeader(inputBean).getAuditKey();
-        AuditHeader auditHeader = auditService.getHeader(ahWP);
+        com.auditbucket.audit.model.AuditHeader auditHeader = auditService.getHeader(ahWP);
         int i = 0;
         while (i < max) {
             workingDate = workingDate.plusDays(1);
@@ -518,7 +515,7 @@ public class TestAudit {
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", firstDate, "ABC1");
         String ahWP = auditManagerService.createHeader(inputBean).getAuditKey();
 
-        AuditHeader auditHeader = auditService.getHeader(ahWP);
+        com.auditbucket.audit.model.AuditHeader auditHeader = auditService.getHeader(ahWP);
         auditManagerService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", firstDate, what + 1 + "\"}"));
         auditManagerService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}"));
         Set<AuditLog> logs = auditService.getAuditLogs(auditHeader.getAuditKey());
@@ -541,7 +538,7 @@ public class TestAudit {
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime(), "ABC1");
         String ahWP = auditManagerService.createHeader(inputBean).getAuditKey();
 
-        AuditHeader auditHeader = auditService.getHeader(ahWP);
+        com.auditbucket.audit.model.AuditHeader auditHeader = auditService.getHeader(ahWP);
         auditManagerService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", new DateTime(), what + 1 + "\"}"));
         auditHeader = auditService.getHeader(ahWP); // Inflate the header on the server
         AuditLog lastLog = auditService.getLastLog(auditHeader.getAuditKey());
@@ -565,7 +562,7 @@ public class TestAudit {
         String ahWP = auditManagerService.createHeader(inputBean).getAuditKey();
         AuditLog log = auditService.getLastAuditLog(ahWP);
         assertEquals("Fortress modification date&time do not match", log.getFortressWhen().longValue(), logTime.getMillis());
-        AuditHeader header = auditService.getHeader(ahWP);
+        com.auditbucket.audit.model.AuditHeader header = auditService.getHeader(ahWP);
         assertEquals(fortressDateCreated, header.getFortressDateCreated());
         assertEquals("Fortress log time doesn't match", logTime.getMillis(), log.getFortressWhen().longValue());
 
@@ -580,7 +577,7 @@ public class TestAudit {
         //dt = dt.minusDays(2);
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", dt, "ABC1");
         String ahWP = auditManagerService.createHeader(inputBean).getAuditKey();
-        AuditHeader auditHeader = auditService.getHeader(ahWP);
+        com.auditbucket.audit.model.AuditHeader auditHeader = auditService.getHeader(ahWP);
 
         // Check that TimeZone information is used to correctly establish Now when not passed in a log
         // No Date, so default to NOW in the Fortress Timezone
@@ -610,7 +607,7 @@ public class TestAudit {
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", firstDate, "ABC1");
         String ahWP = auditManagerService.createHeader(inputBean).getAuditKey();
 
-        AuditHeader auditHeader = auditService.getHeader(ahWP);
+        com.auditbucket.audit.model.AuditHeader auditHeader = auditService.getHeader(ahWP);
         auditManagerService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", firstDate, what + 1 + "\"}"));
         auditManagerService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}"));
 
@@ -638,7 +635,7 @@ public class TestAudit {
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "ABC1");
         String ahWP = auditManagerService.createHeader(inputBean).getAuditKey();
 
-        AuditHeader header = auditService.findByCallerRefFull(fortWP.getId(), "CompanyNode", "ABC1");
+        com.auditbucket.audit.model.AuditHeader header = auditService.findByCallerRefFull(fortWP.getId(), "CompanyNode", "ABC1");
         assertNotNull(header);
         assertNotNull(header.getDocumentType());
         assertEquals(ahWP, header.getAuditKey());
@@ -663,7 +660,7 @@ public class TestAudit {
         AuditHeaderInputBean astAuditBean = new AuditHeaderInputBean(fortressGMT.getName(), "olivia@ast.com", "CompanyNode", null, "ABC1");
         AuditHeaderInputBean gmtAuditBean = new AuditHeaderInputBean(fortressAST.getName(), "olivia@gmt.com", "CompanyNode", null, "ABC1");
         String result = auditManagerService.createHeader(astAuditBean).getAuditKey();
-        AuditHeader header = auditService.getHeader(result);
+        com.auditbucket.audit.model.AuditHeader header = auditService.getHeader(result);
         DateTime astTime = new DateTime(header.getFortressDateCreated());
 
         result = auditManagerService.createHeader(gmtAuditBean).getAuditKey();
@@ -674,7 +671,7 @@ public class TestAudit {
 
     }
 
-    private void compareUser(AuditHeader header, String userName) {
+    private void compareUser(com.auditbucket.audit.model.AuditHeader header, String userName) {
         FortressUser fu = fortressService.getUser(header.getLastUser().getId());
         assertEquals(userName, fu.getCode());
 

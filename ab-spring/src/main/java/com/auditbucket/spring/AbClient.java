@@ -58,7 +58,7 @@ public class AbClient {
     }
 
     // ToDo: Should only be one method - createAudit(). The creation of a Log happens if there is pojo data to
-    //       transmit beyond the AuditHeader Metadata - i.e. un-annotated fields. A header can have an optional Log associated
+    //       transmit beyond the AuditLogResultBean Metadata - i.e. un-annotated fields. A header can have an optional Log associated
     //       with it.
 
     public AuditResultBean createAuditHeader(Object pojo) throws IllegalAccessException, IOException, AuditException {

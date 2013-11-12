@@ -58,6 +58,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
     private String indexName;
     private long sysWhen;
     private Long createdDate;
+    private boolean replyRequired;
 
     /**
      * extracts relevant header records to be used in indexing
@@ -221,5 +222,16 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
                 ", documentType='" + documentType + '\'' +
                 ", auditKey='" + auditKey + '\'' +
                 '}';
+    }
+
+    /**
+     * @param replyRequired do we require the search service to acknowledge this request
+     */
+    public void setReplyRequired(boolean replyRequired) {
+        this.replyRequired = replyRequired;
+    }
+
+    public boolean isReplyRequired() {
+        return replyRequired;
     }
 }

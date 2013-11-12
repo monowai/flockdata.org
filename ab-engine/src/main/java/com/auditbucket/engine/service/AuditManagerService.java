@@ -26,10 +26,11 @@ import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;
+import com.auditbucket.registration.service.FortressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
+import java.util.Set;
 
 /**
  * Exists because calling makeChangeSearchable within the completed transaction
@@ -47,6 +48,9 @@ public class AuditManagerService {
 
     @Autowired
     AuditTagService auditTagService;
+
+    @Autowired
+    FortressService fortressService;
 
     @Autowired
     CompanyService companyService;
@@ -117,7 +121,7 @@ public class AuditManagerService {
         return createLog(null, auditLogInputBean);
     }
 
-    public AuditLogResultBean createLog(AuditHeader header, AuditLogInputBean auditLogInputBean) throws AuditException {
+    public AuditLogResultBean createLog(com.auditbucket.audit.model.AuditHeader header, AuditLogInputBean auditLogInputBean) throws AuditException {
         auditLogInputBean.setWhat(auditLogInputBean.getWhat());
         AuditLogResultBean resultBean = auditService.createLog(header, auditLogInputBean);
         if (resultBean != null && resultBean.getStatus() == AuditLogInputBean.LogStatus.OK)
@@ -126,6 +130,36 @@ public class AuditManagerService {
         return resultBean;
 
     }
+
+    /**
+     * Rebuilds all search documents for the supplied fortress
+     *
+     * @param fortressName name of the fortress to rebuild
+     * @return number of documents processed
+     * @throws AuditException
+     */
+    public long rebuild(String fortressName) throws AuditException {
+        // ToDo: Rebuild by SearchDocument
+        Fortress fortress = fortressService.findByName(fortressName);
+        if (fortress == null)
+            throw new AuditException("Fortress [" + fortress + "] could not be found");
+        Long skipCount = 0l;
+        return rebuild(skipCount, fortress);
+    }
+
+    private long rebuild(Long skipCount, Fortress fortress) {
+
+        Set<AuditHeader> headers = auditService.getAuditHeaders(fortress, skipCount);
+        if (headers.isEmpty())
+            return skipCount;
+        for (AuditHeader header : headers) {
+            auditService.rebuild(header);
+            skipCount++;
+        }
+        return rebuild(skipCount, fortress);
+
+    }
+
 
     public AuditSummaryBean getAuditSummary(String auditKey) {
         AuditSummaryBean summary = auditService.getAuditSummary(auditKey);

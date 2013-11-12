@@ -20,9 +20,6 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.model.AuditEvent;
-import com.auditbucket.bean.AuditHeaderInputBean;
-import com.auditbucket.bean.AuditLogInputBean;
-import com.auditbucket.bean.AuditLogResultBean;
 import com.auditbucket.engine.service.AuditEventService;
 import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
@@ -31,8 +28,6 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
-import com.auditbucket.test.utils.AbstractRedisSupport;
-import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,7 +45,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.Set;
 
 import static junit.framework.Assert.*;

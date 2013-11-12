@@ -73,13 +73,15 @@ public class AbSearchService implements ElasticSearchGateway {
         // Used to tie the fact that the doc was updated back to the engine
         result.setLogId(thisChange.getLogId());
         result.setAuditId(thisChange.getAuditId());
-        handleResult(result);
+        if (thisChange.isReplyRequired())
+            handleResult(result);
 
     }
 
     @Async
     private Future<Void> handleResult(SearchResult result) {
         logger.debug("dispatching searchResult to ab-engine {}", result);
+
         engineGateway.handleSearchResult(result);
         return null;
     }

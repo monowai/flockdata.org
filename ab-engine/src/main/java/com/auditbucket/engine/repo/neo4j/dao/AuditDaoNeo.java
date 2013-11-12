@@ -121,6 +121,11 @@ public class AuditDaoNeo implements AuditDao {
     }
 
     @Override
+    public Set<AuditHeader> findHeaders(Long fortressId, Long skip) {
+        return auditRepo.findHeadersFrom(fortressId, skip);
+    }
+
+    @Override
     public TxRef findTxTag(@NotEmpty String userTag, @NotNull Company company, boolean fetchHeaders) {
         return auditRepo.findTxTag(userTag, company.getId());
     }
