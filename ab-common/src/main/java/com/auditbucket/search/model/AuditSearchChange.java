@@ -22,13 +22,12 @@ package com.auditbucket.search.model;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditTag;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.Tag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.joda.time.DateTime;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Encapsulates the parameters necessary to make an audit event searchable
@@ -180,7 +179,13 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
     public void setTags(Set<AuditTag> tagSet) {
         tagValues = new HashMap<>();
         for (AuditTag tag : tagSet) {
-            tagValues.put(tag.getTagType(), tag.getTag().getName());
+            Collection<Tag> tags = (Collection<Tag>) tagValues.get(tag.getTagType());
+            if (tags == null) {
+                tags = new ArrayList<>();
+                tagValues.put(tag.getTagType(), tags);
+            }
+            tags.add(tag.getTag());
+            //tagValues.put(tag.getTagType(), tag.getTag());
         }
     }
 

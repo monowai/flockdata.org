@@ -53,7 +53,7 @@ import java.util.*;
  */
 @Repository("auditDAO")
 public class AuditDaoNeo implements AuditDao {
-    private static final String LAST_CHANGE = "lastChange";
+    private static final String LAST_CHANGE = "LAST_CHANGE";
     @Autowired
     AuditHeaderRepo auditRepo;
 
