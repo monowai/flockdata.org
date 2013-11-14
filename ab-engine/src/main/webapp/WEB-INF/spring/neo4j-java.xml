@@ -34,9 +34,10 @@
             </map>
         </constructor-arg>
     </bean>
-    <!--<bean id="serverWrapper" class="org.neo4j.server.WrappingNeoServer" init-method="start" destroy-method="stop">-->
-    <!--<constructor-arg ref="graphDatabaseService"/>-->
-    <!--</bean>-->
+    <bean id="serverWrapper" class="org.neo4j.server.WrappingNeoServerBootstrapper" init-method="start"
+          destroy-method="stop">
+        <constructor-arg ref="graphDatabaseService"/>
+    </bean>
     <!-- End remote shell -->
 
 

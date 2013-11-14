@@ -177,11 +177,23 @@
             </exclusions>
 
         </dependency>
+        <!-- Required for embedding the neo4j rest API-->
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-server</artifactId>
+            <version>1.17.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-servlet</artifactId>
+            <version>1.17.1</version>
+        </dependency>
+
         <dependency>
             <groupId>org.neo4j.app</groupId>
             <artifactId>neo4j-server</artifactId>
             <version>${neo4j.version}</version>
-            <classifier>static-web</classifier>
             <exclusions>
                 <exclusion>
                     <groupId>ch.qos.logback</groupId>
@@ -192,8 +204,25 @@
                     <artifactId>logback-access</artifactId>
                 </exclusion>
             </exclusions>
-            <!--<scope>test</scope>-->
         </dependency>
+
+        <!--<dependency>-->
+        <!--<groupId>org.neo4j.app</groupId>-->
+        <!--<artifactId>neo4j-server</artifactId>-->
+        <!--<version>${neo4j.version}</version>-->
+        <!--<classifier>static-web</classifier>-->
+        <!--<exclusions>-->
+        <!--<exclusion>-->
+        <!--<groupId>ch.qos.logback</groupId>-->
+        <!--<artifactId>logback-classic</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+        <!--<groupId>ch.qos.logback</groupId>-->
+        <!--<artifactId>logback-access</artifactId>-->
+        <!--</exclusion>-->
+        <!--</exclusions>-->
+        <!--&lt;!&ndash;<scope>test</scope>&ndash;&gt;-->
+        <!--</dependency>-->
         <!--sd-Neo4J advanced mapping-->
         <dependency>
             <groupId>org.springframework.data</groupId>
