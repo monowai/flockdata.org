@@ -123,8 +123,17 @@ public class AuditTagService {
         //List<TagBucket> tagsToCreate = new ArrayList<>();
 
         for (String tagName : userTags.keySet()) {
-            Tag tag = tagService.processTag(new TagInputBean(tagName));
+
             Object tagRlx = userTags.get(tagName);
+            TagInputBean tagInput;
+            if (tagRlx instanceof TagInputBean) {
+                tagInput = (TagInputBean) tagRlx;
+                tagRlx = tagName; // Get the relationship name from the key
+            } else
+                tagInput = new TagInputBean(tagName);
+
+            Tag tag = tagService.processTag(tagInput);
+
 
             String rlxName;
             // Handle both a simple relationship type name or a map/collection of relationships

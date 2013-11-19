@@ -140,6 +140,9 @@ public class AuditHeaderInputBean {
         return tagValues;
     }
 
+    /**
+     * @param tagValues <relationship, object>
+     */
     public void setTagValues(Map<String, Object> tagValues) {
         this.tagValues = tagValues;
     }
@@ -188,5 +191,10 @@ public class AuditHeaderInputBean {
 
     public List<TagInputBean> getAssociatedTags() {
         return associatedTags;
+    }
+
+    public void addTagValue(String relationship, TagInputBean tag) {
+        getTagValues().put(relationship, tag);
+
     }
 }

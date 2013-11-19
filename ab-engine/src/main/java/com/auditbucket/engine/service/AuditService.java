@@ -170,9 +170,9 @@ public class AuditService {
         return new AsyncResult<>(tagService.resolveDocType(documentType));
     }
 
-    private com.auditbucket.audit.model.AuditHeader makeAuditHeader(AuditHeaderInputBean inputBean, FortressUser fu, DocumentType documentType) {
+    private AuditHeader makeAuditHeader(AuditHeaderInputBean inputBean, FortressUser fu, DocumentType documentType) {
 
-        com.auditbucket.audit.model.AuditHeader ah = auditDAO.create(inputBean.getAuditKey(), fu, inputBean, documentType);
+        AuditHeader ah = auditDAO.create(inputBean.getAuditKey(), fu, inputBean, documentType);
         logger.debug("Audit Header created:{} key=[{}]", ah.getId(), ah.getAuditKey());
         return ah;
     }
