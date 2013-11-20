@@ -23,6 +23,7 @@ import com.auditbucket.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
@@ -106,6 +107,7 @@ public class TagNode implements Tag {
         return properties.getProperty(name);
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Map<String, Object> getProperties() {
         return properties.asMap();
     }
@@ -114,6 +116,7 @@ public class TagNode implements Tag {
         this.code = code;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getCode() {
         return code;
     }

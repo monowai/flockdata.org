@@ -313,12 +313,12 @@ public class TestAuditTags {
         AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         Map<String, Object> tagValues = new HashMap<>();
         // This should create the same Tag object
-        Collection list = new ArrayList();
-        list.add("Type1");
-        list.add("Type2");
-        list.add("Type3");
+        Collection<String> relationshipList = new ArrayList<>();
+        relationshipList.add("Type1");
+        relationshipList.add("Type2");
+        relationshipList.add("Type3");
 
-        tagValues.put("TagA", list);
+        tagValues.put("TagA", relationshipList);
 
         aib.setTagValues(tagValues);
         AuditResultBean resultBean = auditManager.createHeader(aib);
@@ -359,10 +359,10 @@ public class TestAuditTags {
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         Map<String, Object> tags = new HashMap<>();
-        Collection<String> types = new ArrayList<>();
-        types.add("email-to");
-        types.add("email-cc");
-        tags.put("mike@auditbucket.com", types);
+        Collection<String> relationshipTypes = new ArrayList<>();
+        relationshipTypes.add("email-to");
+        relationshipTypes.add("email-cc");
+        tags.put("mike@auditbucket.com", relationshipTypes);
         tags.put("np@auditbucket.com", "email-cc");
         inputBean.setTagValues(tags);
         AuditResultBean resultBean = auditManager.createHeader(inputBean);
@@ -406,18 +406,6 @@ public class TestAuditTags {
         assertNotNull(fortress);
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
-        Map<String, Object> tags = new HashMap<>();
-        Map<String, Map> relationships = new HashMap<>();
-        Map<String, Object> propA = new HashMap<>();
-        Map<String, Object> propB = new HashMap<>();
-        propA.put("myValue", 10);
-        propB.put("myValue", 20);
-
-        relationships.put("email-to", propA);
-        relationships.put("email-cc", propB);
-        tags.put("mike@auditbucket.com", relationships);
-        tags.put("np@auditbucket.com", "email-cc");
-        inputBean.setTagValues(tags);
         AuditResultBean resultBean = auditManager.createHeader(inputBean);
         AuditHeader header = auditService.getHeader(resultBean.getAuditKey());
         Set<AuditTag> tagResults = auditTagService.findAuditTags(header);

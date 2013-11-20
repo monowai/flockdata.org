@@ -138,9 +138,6 @@ public class AuditTagService {
             String rlxName;
             // Handle both a simple relationship type name or a map/collection of relationships
             if (tagRlx == null)
-                //tagsToCreate.add(new TagBucket(ah, tag, null));
-                //ToDO: auditTagDao.save(ah, tag, null);
-
                 auditTagDao.save(ah, tag, null);
 
             else {
@@ -175,6 +172,11 @@ public class AuditTagService {
 
     public Set<AuditTag> findAuditTags(AuditHeader auditHeader) {
         Long companyId = tagService.getCompanyTagManager(securityHelper.getCompany().getId());
+        return findAuditTags(companyId, auditHeader);
+    }
+
+    public Set<AuditTag> findAuditTags(Long companyId, AuditHeader auditHeader) {
+        //Long companyId = tagService.getCompanyTagManager(securityHelper.getCompany().getId());
         return auditTagDao.getAuditTags(auditHeader, companyId);
     }
 

@@ -284,6 +284,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
         indexMe.put(AuditSearchSchema.CREATED, auditChange.getCreatedDate());
         if (!auditChange.getTagValues().isEmpty())
             indexMe.put(AuditSearchSchema.TAGS, auditChange.getTagValues());
+        // ToDo: Force the index mapping to handle the tags
 
         return indexMe;
     }
@@ -360,7 +361,20 @@ public class AuditSearchDaoES implements AuditSearchDao {
                     .endObject()
                     .startObject(AuditSearchSchema.LAST_EVENT)  //@lastEvent
                     .field("type", "string")
+                    .field("index", NOT_ANALYZED)
                     .endObject()
+                    .startObject("@tags.lead.tagSearchName")
+                    .field("type", "string")
+                    .field("index", NOT_ANALYZED)
+                    .endObject()
+//                    .startObject("@tags.contributor.tagsearchname")
+//                    .field("index", NOT_ANALYZED)
+//                    .endObject()
+//
+//                    .startObject("@tags.writer.tagsearchname")
+//                    .field("index", NOT_ANALYZED)
+//                    .endObject()
+
 //                    .startObject("@tags")
 //                    .field("analyzer", "standard")//@tags is dynamic so we don't init his mapping we choose the convention
 //                    .endObject()

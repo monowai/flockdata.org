@@ -123,7 +123,7 @@ public class AuditService {
      * @return unique primary key to be used for subsequent log calls
      */
     public AuditResultBean createHeader(AuditHeaderInputBean inputBean, Company company, Fortress fortress) throws AuditException {
-        Future<com.auditbucket.audit.model.AuditHeader> futureHeader = null;
+        Future<AuditHeader> futureHeader = null;
         Future<DocumentType> futureDocType;
         // ToDo: Improve cypher query
 
@@ -137,7 +137,7 @@ public class AuditService {
         fu.getFortress().setCompany(company);
         fu.setFortress(fortress);// Save fetching it twice
         inputBean.setAuditKey(keyGenService.getUniqueKey());
-        com.auditbucket.audit.model.AuditHeader ah = null;
+        AuditHeader ah = null;
 
         try {
             documentType = futureDocType.get();
@@ -178,18 +178,18 @@ public class AuditService {
     }
 
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-    public com.auditbucket.audit.model.AuditHeader getHeader(@NotEmpty String key) {
+    public AuditHeader getHeader(@NotEmpty String key) {
         return getHeader(key, false);
     }
 
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-    public com.auditbucket.audit.model.AuditHeader getHeader(@NotEmpty String key, boolean inflate) {
+    public AuditHeader getHeader(@NotEmpty String key, boolean inflate) {
         String userName = securityHelper.getLoggedInUser();
         SystemUser su = sysUserService.findByName(userName);
         if (su == null)
             throw new SecurityException(userName + " Not authorised to retrieve headers");
 
-        com.auditbucket.audit.model.AuditHeader ah = auditDAO.findHeader(key, inflate);
+        AuditHeader ah = auditDAO.findHeader(key, inflate);
         if (ah == null)
             throw new IllegalArgumentException("Unable to find key [" + key + "]");
 
@@ -206,7 +206,7 @@ public class AuditService {
      * @param input log details
      * @return populated log information with any error messages
      */
-    public AuditLogResultBean createLog(com.auditbucket.audit.model.AuditHeader header, AuditLogInputBean input) {
+    public AuditLogResultBean createLog(AuditHeader header, AuditLogInputBean input) {
         AuditLogResultBean resultBean = new AuditLogResultBean(input);
 
         if (header == null) {
@@ -239,7 +239,7 @@ public class AuditService {
      * @param thisFortressUser audit header tag set
      * @return populated log information with any error messages
      */
-    public AuditLogResultBean createLog(com.auditbucket.audit.model.AuditHeader auditHeader, AuditLogInputBean input, FortressUser thisFortressUser) {
+    public AuditLogResultBean createLog(AuditHeader auditHeader, AuditLogInputBean input, FortressUser thisFortressUser) {
         // Warning - making this private means it doesn't get a transaction!
         AuditLogResultBean resultBean = new AuditLogResultBean(input);
         //ToDo: May want to track a "View" event which would not change the What data.
@@ -336,12 +336,12 @@ public class AuditService {
 
     }
 
-    public Set<com.auditbucket.audit.model.AuditHeader> getAuditHeaders(Fortress fortress, Long startFromAuditId) {
+    public Set<AuditHeader> getAuditHeaders(Fortress fortress, Long startFromAuditId) {
         return auditDAO.findHeaders(fortress.getId(), startFromAuditId);
     }
 
 
-    private SearchChange prepareSearchDocument(com.auditbucket.audit.model.AuditHeader auditHeader, AuditLogInputBean logInput, AuditEvent event, Boolean searchActive, DateTime fortressWhen, AuditLog auditLog) throws JsonProcessingException {
+    private SearchChange prepareSearchDocument(AuditHeader auditHeader, AuditLogInputBean logInput, AuditEvent event, Boolean searchActive, DateTime fortressWhen, AuditLog auditLog) throws JsonProcessingException {
 
         if (!searchActive || auditHeader.isSearchSuppressed())
             return null;
@@ -370,7 +370,7 @@ public class AuditService {
         searchGateway.makeChangeSearchable(searchDocument);
     }
 
-    private com.auditbucket.audit.model.AuditHeader waitOnHeader(com.auditbucket.audit.model.AuditHeader auditHeader) {
+    private AuditHeader waitOnHeader(AuditHeader auditHeader) {
 
         if (auditHeader.isSearchSuppressed() || auditHeader.getSearchKey() != null)
             return auditHeader; // Nothing to wait for as we're suppressing searches for this auditHeader
@@ -395,7 +395,7 @@ public class AuditService {
 
     //@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     @Cacheable(value = "auditHeaderId")
-    private com.auditbucket.audit.model.AuditHeader getHeader(Long id) {
+    private AuditHeader getHeader(Long id) {
         return auditDAO.getHeader(id);
     }
 
@@ -426,7 +426,7 @@ public class AuditService {
     public void handleSearchResult(SearchResult searchResult) {
 
         logger.debug("Updating from search auditKey =[{}]", searchResult);
-        com.auditbucket.audit.model.AuditHeader header = auditDAO.getHeader(searchResult.getAuditId());
+        AuditHeader header = auditDAO.getHeader(searchResult.getAuditId());
 
         if (header == null) {
             logger.error("Audit Key could not be found for [{}]", searchResult);
@@ -477,41 +477,41 @@ public class AuditService {
         return tx;
     }
 
-    public Set<com.auditbucket.audit.model.AuditHeader> findTxHeaders(String txName) {
+    public Set<AuditHeader> findTxHeaders(String txName) {
         TxRef txRef = findTx(txName);
         if (txRef == null)
             return null;
         return auditDAO.findHeadersByTxRef(txRef.getId());
     }
 
-    public void updateHeader(com.auditbucket.audit.model.AuditHeader auditHeader) {
+    public void updateHeader(AuditHeader auditHeader) {
         auditDAO.save(auditHeader);
     }
 
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public AuditLog getLastAuditLog(String headerKey) throws AuditException {
-        com.auditbucket.audit.model.AuditHeader ah = getValidHeader(headerKey);
+        AuditHeader ah = getValidHeader(headerKey);
         return getLastAuditLog(ah);
     }
 
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-    public AuditLog getLastAuditLog(com.auditbucket.audit.model.AuditHeader auditHeader) {
+    public AuditLog getLastAuditLog(AuditHeader auditHeader) {
         return auditDAO.getLastAuditLog(auditHeader.getId());
     }
 
     public Set<AuditLog> getAuditLogs(String headerKey) throws AuditException {
         securityHelper.isValidUser();
-        com.auditbucket.audit.model.AuditHeader auditHeader = getValidHeader(headerKey);
+        AuditHeader auditHeader = getValidHeader(headerKey);
         return auditDAO.getAuditLogs(auditHeader.getId());
     }
 
     public Set<AuditLog> getAuditLogs(String headerKey, Date from, Date to) throws AuditException {
         securityHelper.isValidUser();
-        com.auditbucket.audit.model.AuditHeader auditHeader = getValidHeader(headerKey);
+        AuditHeader auditHeader = getValidHeader(headerKey);
         return getAuditLogs(auditHeader, from, to);
     }
 
-    Set<AuditLog> getAuditLogs(com.auditbucket.audit.model.AuditHeader auditHeader, Date from, Date to) {
+    Set<AuditLog> getAuditLogs(AuditHeader auditHeader, Date from, Date to) {
         return auditDAO.getAuditLogs(auditHeader.getId(), from, to);
     }
 
@@ -522,8 +522,8 @@ public class AuditService {
      * @return AuditLogResultBean
      * @throws IOException
      */
-    public com.auditbucket.audit.model.AuditHeader cancelLastLogSync(String headerKey) throws IOException, AuditException {
-        Future<com.auditbucket.audit.model.AuditHeader> futureHeader = cancelLastLog(headerKey);
+    public AuditHeader cancelLastLogSync(String headerKey) throws IOException, AuditException {
+        Future<AuditHeader> futureHeader = cancelLastLog(headerKey);
         try {
             return futureHeader.get();
         } catch (InterruptedException | ExecutionException e) {
@@ -542,8 +542,8 @@ public class AuditService {
      * @return Future<AuditLogResultBean> record or null if no auditHeader exists.
      */
     @Async
-    Future<com.auditbucket.audit.model.AuditHeader> cancelLastLog(String headerKey) throws IOException, AuditException {
-        com.auditbucket.audit.model.AuditHeader auditHeader = getValidHeader(headerKey, true);
+    Future<AuditHeader> cancelLastLog(String headerKey) throws IOException, AuditException {
+        AuditHeader auditHeader = getValidHeader(headerKey, true);
         AuditLog currentLog = getLastLog(auditHeader.getId());
         if (currentLog == null)
             return null;
@@ -577,7 +577,7 @@ public class AuditService {
         return new AsyncResult<>(auditHeader);
     }
 
-    public void rebuild(com.auditbucket.audit.model.AuditHeader auditHeader) {
+    public void rebuild(AuditHeader auditHeader) {
         AuditChange priorChange = getLastLog(auditHeader.getId()).getAuditChange();
         if (auditHeader.getFortress().isSearchActive() && !auditHeader.isSearchSuppressed()) {
             // Update against the Audit Header only by re-indexing the search document
@@ -598,17 +598,17 @@ public class AuditService {
      */
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public int getAuditLogCount(String headerKey) throws AuditException {
-        com.auditbucket.audit.model.AuditHeader auditHeader = getValidHeader(headerKey);
+        AuditHeader auditHeader = getValidHeader(headerKey);
         return auditDAO.getLogCount(auditHeader.getId());
 
     }
 
-    private com.auditbucket.audit.model.AuditHeader getValidHeader(String headerKey) throws AuditException {
+    private AuditHeader getValidHeader(String headerKey) throws AuditException {
         return getValidHeader(headerKey, false);
     }
 
-    private com.auditbucket.audit.model.AuditHeader getValidHeader(String headerKey, boolean inflate) throws AuditException {
-        com.auditbucket.audit.model.AuditHeader header = auditDAO.findHeader(headerKey, inflate);
+    private AuditHeader getValidHeader(String headerKey, boolean inflate) throws AuditException {
+        AuditHeader header = auditDAO.findHeader(headerKey, inflate);
         if (header == null) {
             throw new AuditException("No audit auditHeader for [" + headerKey + "]");
         }
@@ -622,7 +622,7 @@ public class AuditService {
 
     }
 
-    private com.auditbucket.audit.model.AuditHeader findByCallerRef(String fortress, String documentType, String callerRef) {
+    private AuditHeader findByCallerRef(String fortress, String documentType, String callerRef) {
         Fortress iFortress = fortressService.findByName(fortress);
         if (iFortress == null)
             return null;
@@ -638,13 +638,13 @@ public class AuditService {
      * @param callerRef    fortress PK
      * @return inflated header
      */
-    public com.auditbucket.audit.model.AuditHeader findByCallerRefFull(Long fortressID, String documentType, String callerRef) {
+    public AuditHeader findByCallerRefFull(Long fortressID, String documentType, String callerRef) {
         return findByCallerRef(fortressID, documentType, callerRef);
     }
 
     @Async
-    private Future<com.auditbucket.audit.model.AuditHeader> findByCallerRefFuture(Long fortressId, String documentType, String callerRef) {
-        com.auditbucket.audit.model.AuditHeader auditHeader = findByCallerRef(fortressId, documentType, callerRef);
+    private Future<AuditHeader> findByCallerRefFuture(Long fortressId, String documentType, String callerRef) {
+        AuditHeader auditHeader = findByCallerRef(fortressId, documentType, callerRef);
         return new AsyncResult<>(auditHeader);
     }
 
@@ -654,7 +654,7 @@ public class AuditService {
      * @param callerRef    fortress primary key
      * @return AuditLogResultBean or NULL.
      */
-    public com.auditbucket.audit.model.AuditHeader findByCallerRef(Long fortressID, String documentType, String callerRef) {
+    public AuditHeader findByCallerRef(Long fortressID, String documentType, String callerRef) {
 
         SystemUser su = sysUserService.findByName(securityHelper.getLoggedInUser());
         if (su == null)
@@ -676,33 +676,33 @@ public class AuditService {
     }
 
     public AuditSummaryBean getAuditSummary(String auditKey) {
-        com.auditbucket.audit.model.AuditHeader header = getHeader(auditKey, true);
+        AuditHeader header = getHeader(auditKey, true);
         Set<AuditLog> changes = getAuditLogs(header.getId());
         Set<AuditTag> tags = auditTagService.findAuditTags(header);
         return new AuditSummaryBean(header, changes, tags);
     }
 
     @Async
-    public void makeHeaderSearchable(AuditResultBean resultBean, String event, Date when) {
-        com.auditbucket.audit.model.AuditHeader header = getHeader(resultBean.getAuditId());
+    public void makeHeaderSearchable(AuditResultBean resultBean, String event, Date when, Long companyId) {
+        AuditHeader header = getHeader(resultBean.getAuditId());
         if (header.isSearchSuppressed() || !header.getFortress().isSearchActive())
             return;
 
         fortressService.fetch(header.getLastUser());
         SearchChange searchDocument = new AuditSearchChange(header, null, event, new DateTime(when));
-        searchDocument.setTags(auditTagService.findAuditTags(header));
+        searchDocument.setTags(auditTagService.findAuditTags(companyId, header));
         makeChangeSearchable(searchDocument);
 
     }
 
     public AuditLog getLastLog(String auditKey) throws AuditException {
-        com.auditbucket.audit.model.AuditHeader audit = getValidHeader(auditKey);
+        AuditHeader audit = getValidHeader(auditKey);
         return getLastLog(audit.getId());
 
     }
 
     public AuditLogDetailBean getFullDetail(String auditKey, Long logId) {
-        com.auditbucket.audit.model.AuditHeader header = getHeader(auditKey, true);
+        AuditHeader header = getHeader(auditKey, true);
         if (header == null)
             return null;
 
