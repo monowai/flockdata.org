@@ -81,6 +81,8 @@ public class AuditResultBean {
     }
 
     public String getStatus() {
+        if (wasDuplicate)
+            return "Existing audit record found was found and returned";
         return status;
     }
 
@@ -105,5 +107,15 @@ public class AuditResultBean {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public AuditLogResultBean getLogResult() {
         return logResult;
+    }
+
+    boolean wasDuplicate = false;
+
+    public void setWasDuplicate() {
+        this.wasDuplicate = true;
+    }
+
+    public boolean isDuplicate() {
+        return wasDuplicate;
     }
 }

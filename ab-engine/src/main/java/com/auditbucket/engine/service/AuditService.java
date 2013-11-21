@@ -130,7 +130,7 @@ public class AuditService {
         if (inputBean.getAuditKey() == null && inputBean.getCallerRef() != null && !inputBean.getCallerRef().equals(EMPTY))
             futureHeader = findByCallerRefFuture(fortress.getId(), inputBean.getDocumentType(), inputBean.getCallerRef());
 
-        futureDocType = getDocumentType(inputBean.getDocumentType());
+        futureDocType = getDocumentType(company, inputBean.getDocumentType());
         DocumentType documentType;
         // Create thisFortressUser if missing
         FortressUser fu = fortressService.getFortressUser(fortress, inputBean.getFortressUser(), true);
@@ -157,7 +157,8 @@ public class AuditService {
             inputBean.setAuditKey(ah.getAuditKey());
 
             AuditResultBean arb = new AuditResultBean(ah);
-            arb.setStatus("Existing audit record found and is being returned");
+            arb.setWasDuplicate();
+
             return arb;
         }
 
@@ -166,8 +167,8 @@ public class AuditService {
 
     }
 
-    private Future<DocumentType> getDocumentType(String documentType) {
-        return new AsyncResult<>(tagService.resolveDocType(documentType));
+    private Future<DocumentType> getDocumentType(Company company, String documentType) {
+        return new AsyncResult<>(tagService.resolveDocType(company, documentType));
     }
 
     private AuditHeader makeAuditHeader(AuditHeaderInputBean inputBean, FortressUser fu, DocumentType documentType) {
@@ -302,7 +303,7 @@ public class AuditService {
         if (existingLog != null)
             existingChange = existingLog.getAuditChange();
 
-        AuditEvent event = auditEventService.processEvent(input.getEvent());
+        AuditEvent event = auditEventService.processEvent(fortress.getCompany(), input.getEvent());
         input.setAuditEvent(event);
         AuditChange thisChange = auditDAO.save(thisFortressUser, input, txRef, existingChange);
         int version = 0;
@@ -348,7 +349,7 @@ public class AuditService {
         SearchChange searchDocument;
         searchDocument = new AuditSearchChange(auditHeader, logInput.getMapWhat(), event.getCode(), fortressWhen);
         searchDocument.setWho(auditLog.getAuditChange().getWho().getCode());
-        searchDocument.setTags(auditTagService.findAuditTags(auditHeader));
+        searchDocument.setTags(auditTagService.findAuditTags(auditHeader.getFortress().getCompany().getId(), auditHeader));
         try {
             logger.trace("JSON {}", om.writeValueAsString(searchDocument));
         } catch (JsonProcessingException e) {
@@ -362,7 +363,6 @@ public class AuditService {
     }
 
     @Async
-    //@Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void makeChangeSearchable(SearchChange searchDocument) {
         if (searchDocument == null)
             return;
@@ -578,14 +578,29 @@ public class AuditService {
     }
 
     public void rebuild(AuditHeader auditHeader) {
-        AuditChange priorChange = getLastLog(auditHeader.getId()).getAuditChange();
-        if (auditHeader.getFortress().isSearchActive() && !auditHeader.isSearchSuppressed()) {
-            // Update against the Audit Header only by re-indexing the search document
-            Map<String, Object> priorWhat = whatService.getWhat(priorChange).getWhatMap();
-            AuditSearchChange searchDocument = new AuditSearchChange(auditHeader, priorWhat, priorChange.getEvent().getCode(), new DateTime(priorChange.getAuditLog().getFortressWhen()));
-            searchDocument.setTags(auditTagService.findAuditTags(auditHeader));
-            searchDocument.setReplyRequired(false);
-            searchGateway.makeChangeSearchable(searchDocument);
+        try {
+            AuditLog lastLog = getLastLog(auditHeader.getId());
+            AuditChange lastChange = null;
+            if (lastLog != null)
+                lastChange = lastLog.getAuditChange();
+            else {
+                // ToDo: This will not work for meta-data index headers. Work loop also needs looking at
+                logger.info("No last change for {}, ignoring the re-index request for this record" + auditHeader.getCallerRef());
+            }
+
+            if (auditHeader.getFortress().isSearchActive() && !auditHeader.isSearchSuppressed()) {
+                // Update against the Audit Header only by re-indexing the search document
+                Map<String, Object> lastWhat = null;
+                if (lastChange != null)
+                    whatService.getWhat(lastChange).getWhatMap();
+
+                AuditSearchChange searchDocument = new AuditSearchChange(auditHeader, lastWhat, lastChange.getEvent().getCode(), new DateTime(lastChange.getAuditLog().getFortressWhen()));
+                searchDocument.setTags(auditTagService.findAuditTags(auditHeader));
+                searchDocument.setReplyRequired(false);
+                searchGateway.makeChangeSearchable(searchDocument);
+            }
+        } catch (Exception e) {
+            logger.error("error", e);
         }
 
     }
@@ -622,7 +637,7 @@ public class AuditService {
 
     }
 
-    private AuditHeader findByCallerRef(String fortress, String documentType, String callerRef) {
+    public AuditHeader findByCallerRef(String fortress, String documentType, String callerRef) {
         Fortress iFortress = fortressService.findByName(fortress);
         if (iFortress == null)
             return null;
@@ -648,6 +663,7 @@ public class AuditService {
         return new AsyncResult<>(auditHeader);
     }
 
+
     /**
      * @param fortressID   fortress to search
      * @param documentType class of document
@@ -656,13 +672,13 @@ public class AuditService {
      */
     public AuditHeader findByCallerRef(Long fortressID, String documentType, String callerRef) {
 
-        SystemUser su = sysUserService.findByName(securityHelper.getLoggedInUser());
-        if (su == null)
-            throw new SecurityException(securityHelper.getLoggedInUser() + " is not authorised");
+//        SystemUser su = sysUserService.findByName(securityHelper.getLoggedInUser());
+//        if (su == null)
+//            throw new SecurityException(securityHelper.getLoggedInUser() + " is not authorised");
 
         Fortress fortress = fortressService.getFortress(fortressID);
-        if (!fortress.getCompany().getId().equals(su.getCompany().getId()))
-            throw new SecurityException(securityHelper.getLoggedInUser() + " is not authorised to work with requested FortressNode");
+//        if (!fortress.getCompany().getId().equals(su.getCompany().getId()))
+//            throw new SecurityException(securityHelper.getLoggedInUser() + " is not authorised to work with requested FortressNode");
 
         return auditDAO.findHeaderByCallerRef(fortress.getId(), documentType, callerRef.trim());
     }

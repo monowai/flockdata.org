@@ -406,6 +406,18 @@ public class TestAuditTags {
         assertNotNull(fortress);
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
+        Map<String, Object> tags = new HashMap<>();
+        Map<String, Map> relationships = new HashMap<>();
+        Map<String, Object> propA = new HashMap<>();
+        Map<String, Object> propB = new HashMap<>();
+        propA.put("myValue", 10);
+        propB.put("myValue", 20);
+
+        relationships.put("email-to", propA);
+        relationships.put("email-cc", propB);
+        tags.put("mike@auditbucket.com", relationships);
+        tags.put("np@auditbucket.com", "email-cc");
+        inputBean.setTagValues(tags);
         AuditResultBean resultBean = auditManager.createHeader(inputBean);
         AuditHeader header = auditService.getHeader(resultBean.getAuditKey());
         Set<AuditTag> tagResults = auditTagService.findAuditTags(header);

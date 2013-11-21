@@ -57,7 +57,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
     private String indexName;
     private long sysWhen;
     private Long createdDate;
-    private boolean replyRequired;
+    private boolean replyRequired = true;
 
     /**
      * extracts relevant header records to be used in indexing

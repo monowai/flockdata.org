@@ -60,8 +60,7 @@ public class AbSearchService implements ElasticSearchGateway {
 
     @ServiceActivator(inputChannel = "makeSearchRequest") // Subscriber
     public void createSearchableChange(AuditSearchChange thisChange) {
-        if (logger.isTraceEnabled())
-            logger.trace("searchRequest received for " + thisChange);
+        logger.debug("searchRequest received for {}", thisChange);
 
         SearchResult result;
         if (thisChange.getSearchKey() != null) {

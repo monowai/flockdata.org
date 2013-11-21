@@ -143,13 +143,8 @@ public class TestAudit {
         assertNull("Security - shouldn't be able to see this header", auditService.findByCallerRef(fortressA.getId(), "TestAudit", "123ABC"));
         // Test non external user can't do this
         SecurityContextHolder.getContext().setAuthentication(authB);
-        try {
-            assertNull(auditService.findByCallerRef(fortressA.getId(), "TestAudit", "ABC123"));
-            fail("Security exception not thrown");
+        assertNull(auditService.findByCallerRef(fortressA.getCode(), "TestAudit", "ABC123"));
 
-        } catch (SecurityException se) {
-
-        }
         try {
             assertNull(auditService.getHeader(key));
             fail("Security exception not thrown");
@@ -158,11 +153,6 @@ public class TestAudit {
 
         }
 
-        try {
-            assertNull("Should have returned an error message", auditService.getHeader("Illegal Key"));
-            fail("Illegal Argument Excepiton not thrown");
-        } catch (IllegalArgumentException e) {
-        }
 
     }
 

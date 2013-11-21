@@ -83,10 +83,10 @@ public class AuditTagService {
 
 
     //    @Async
-    public Void createTagValuesFuture(AuditHeader ah, AuditHeaderInputBean userTags) {
+    public Void createTagValuesFuture(AuditHeader ah, AuditHeaderInputBean userTags, Company company) {
         // Create a tag structure if present
         for (TagInputBean inputBean : userTags.getAssociatedTags()) {
-            tagService.processTag(inputBean);
+            tagService.processTag(inputBean, company);
         }
         // Direct association between tags and a header
         createTagValues(ah, userTags.getTagValues());
@@ -132,7 +132,7 @@ public class AuditTagService {
             } else
                 tagInput = new TagInputBean(tagName);
 
-            Tag tag = tagService.processTag(tagInput);
+            Tag tag = tagService.processTag(tagInput, company);
 
 
             String rlxName;

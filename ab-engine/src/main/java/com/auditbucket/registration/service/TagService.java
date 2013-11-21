@@ -51,8 +51,14 @@ public class TagService {
     @Autowired
     private TagDao tagDao;
 
-    public Tag processTag(TagInputBean tagInput) {
+    public Tag processTag(TagInputBean inputBean) {
         Company company = securityHelper.getCompany();
+        return processTag(inputBean, company);
+
+    }
+
+    public Tag processTag(TagInputBean tagInput, Company company) {
+        //
         return tagDao.save(company, tagInput);
     }
 
@@ -81,19 +87,24 @@ public class TagService {
         return tagDao.findOne(tagName, company.getId());
     }
 
-    /**
-     * finds or creates a Document Type for the caller's company
-     *
-     * @param documentType name of the document
-     * @return created DocumentType
-     */
     public DocumentType resolveDocType(String documentType) {
-        if (documentType == null) {
-            throw new IllegalArgumentException("DocumentTypeNode cannot be null");
-        }
         Company company = securityHelper.getCompany();
         if (company == null)
             return null;
+        return resolveDocType(company, documentType);
+    }
+
+    /**
+     * finds or creates a Document Type for the caller's company
+     *
+     * @param company
+     * @param documentType name of the document
+     * @return created DocumentType
+     */
+    public DocumentType resolveDocType(Company company, String documentType) {
+        if (documentType == null) {
+            throw new IllegalArgumentException("DocumentTypeNode cannot be null");
+        }
 
         return tagDao.findOrCreate(documentType, company);
 
@@ -111,4 +122,5 @@ public class TagService {
     public Collection<Tag> findDirectedTags(Tag startTag) {
         return tagDao.findDirectedTags(startTag, securityHelper.getCompany().getId(), true); // outbound
     }
+
 }

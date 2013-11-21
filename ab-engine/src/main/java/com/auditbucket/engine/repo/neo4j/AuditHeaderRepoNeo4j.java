@@ -32,7 +32,7 @@ import java.util.Set;
  * Date: 14/04/13
  * Time: 8:00 PM
  */
-public interface AuditHeaderRepo extends GraphRepository<AuditHeaderNode> {
+public interface AuditHeaderRepoNeo4j extends GraphRepository<AuditHeaderNode> {
 
     @Query(elementClass = AuditHeaderNode.class, value =
             "start fortress = node({0}), " +

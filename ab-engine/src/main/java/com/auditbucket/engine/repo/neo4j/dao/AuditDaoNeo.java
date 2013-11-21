@@ -24,7 +24,7 @@ import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditTXResult;
 import com.auditbucket.dao.AuditDao;
-import com.auditbucket.engine.repo.neo4j.AuditHeaderRepo;
+import com.auditbucket.engine.repo.neo4j.AuditHeaderRepoNeo4j;
 import com.auditbucket.engine.repo.neo4j.AuditLogRepo;
 import com.auditbucket.engine.repo.neo4j.model.*;
 import com.auditbucket.registration.model.Company;
@@ -55,7 +55,7 @@ import java.util.*;
 public class AuditDaoNeo implements AuditDao {
     private static final String LAST_CHANGE = "LAST_CHANGE";
     @Autowired
-    AuditHeaderRepo auditRepo;
+    AuditHeaderRepoNeo4j auditRepo;
 
     @Autowired
     AuditLogRepo auditLogRepo;

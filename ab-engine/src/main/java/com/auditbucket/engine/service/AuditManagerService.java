@@ -27,10 +27,16 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.text.DecimalFormat;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 /**
  * Exists because calling makeChangeSearchable within the completed transaction
@@ -58,7 +64,9 @@ public class AuditManagerService {
     @Autowired
     private SecurityHelper securityHelper;
 
-    private Company resolveCompany(String apiKey) throws AuditException {
+    private Logger logger = LoggerFactory.getLogger(AuditManagerService.class);
+
+    public Company resolveCompany(String apiKey) throws AuditException {
         Company c;
         if (apiKey == null) {
             // Find by logged in user name
@@ -71,13 +79,44 @@ public class AuditManagerService {
         return c;
     }
 
-    private Fortress resolveFortress(Company company, AuditHeaderInputBean inputBean) throws AuditException {
+    public Fortress resolveFortress(Company company, AuditHeaderInputBean inputBean) throws AuditException {
         Fortress fortress = companyService.getCompanyFortress(company.getId(), inputBean.getFortress());
         if (fortress == null) {
             throw new AuditException("Fortress {" + inputBean.getFortress() + "} does not exist");
         }
 
         return fortress;
+    }
+
+    public void createHeaders(AuditHeaderInputBean[] inputBeans) throws AuditException {
+        AuditHeaderInputBean args = inputBeans[0];
+        Company company = resolveCompany(args.getApiKey());
+        Fortress fortress = resolveFortress(company, args);
+        fortress.setCompany(company);
+
+
+        for (AuditHeaderInputBean inputBean : inputBeans) {
+            createHeadersAsync(inputBeans, company, fortress);
+        }
+        logger.debug("Batch Request processed");
+    }
+
+    @Async
+    public Future<Void> createHeadersAsync(AuditHeaderInputBean[] inputBeans, Company company, Fortress fortress) throws AuditException {
+        fortress.setCompany(company);
+        DateTime then = DateTime.now();
+        Long id = then.getMillis();
+        logger.info("Processing Batch [{}] - id {}", inputBeans.length, id);
+        try {
+            for (AuditHeaderInputBean inputBean : inputBeans) {
+                createHeader(inputBean, company, fortress);
+            }
+        } catch (Exception e) {
+            logger.error("", e);
+        }
+        DecimalFormat f = new DecimalFormat("##.000");
+        logger.info("Completed Batch [{}] - secs= {}", id, f.format(System.currentTimeMillis() - id / 1000d));
+        return null;
     }
 
     public AuditResultBean createHeader(AuditHeaderInputBean inputBean) throws AuditException {
@@ -90,9 +129,13 @@ public class AuditManagerService {
         Company company = resolveCompany(inputBean.getApiKey());
         Fortress fortress = resolveFortress(company, inputBean);
         fortress.setCompany(company);
-        AuditResultBean resultBean = auditService.createHeader(inputBean, company, fortress);
-        auditTagService.createTagValuesFuture(resultBean.getAuditHeader(), inputBean);
+        return createHeader(inputBean, company, fortress);
+    }
 
+    public AuditResultBean createHeader(AuditHeaderInputBean inputBean, Company company, Fortress fortress) throws AuditException {
+        AuditResultBean resultBean = auditService.createHeader(inputBean, company, fortress);
+        auditTagService.createTagValuesFuture(resultBean.getAuditHeader(), inputBean, company);
+        AuditLogInputBean logBean = inputBean.getAuditLog();
         // Here on could be spun in to a separate thread. The log has to happen eventually
         //   and can't fail.
         if (inputBean.getAuditLog() != null) {
@@ -108,7 +151,7 @@ public class AuditManagerService {
             resultBean.setLogResult(logResult);
         } else {
             // Make header searchable - metadata only
-            if (inputBean.getEvent() != null && !"".equals(inputBean.getEvent())) {
+            if (!resultBean.isDuplicate() && inputBean.getEvent() != null && !"".equals(inputBean.getEvent())) {
                 // Tracking an event only
                 auditService.makeHeaderSearchable(resultBean, inputBean.getEvent(), inputBean.getWhen(), company.getId());
             }
