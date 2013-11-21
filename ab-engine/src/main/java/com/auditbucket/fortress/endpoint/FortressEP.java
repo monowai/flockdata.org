@@ -17,7 +17,7 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.fortress;
+package com.auditbucket.fortress.endpoint;
 
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.helper.SecurityHelper;
@@ -40,7 +40,7 @@ import java.util.Collection;
  * Time: 8:23 PM
  */
 @Controller
-@RequestMapping("/")
+@RequestMapping("/fortress")
 public class FortressEP {
 
     @Autowired

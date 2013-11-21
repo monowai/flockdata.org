@@ -133,7 +133,10 @@ public class FortressService {
         if (company == null)
             throw new IllegalArgumentException("[" + fortress.getName() + "] has no owner");
 
-        registrationService.isAdminUser(company, "Unable to find requested fortress");
+        // If we're dealing with Primary Keys and Objects, we don't need to make security
+        //  checks, though this one might be the exception!
+
+        //registrationService.isAdminUser(company, "Unable to find requested fortress");
         return fortressDao.save(fortress, fortressUser);
 
     }

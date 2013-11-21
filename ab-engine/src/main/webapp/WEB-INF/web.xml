@@ -36,62 +36,51 @@
     </listener>
 
     <!--Registration service handler-->
-    <servlet>
-        <servlet-name>profileDispatcher</servlet-name>
-        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-        <load-on-startup>2</load-on-startup>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>profileDispatcher</servlet-name>
-        <url-pattern>/v1/profiles/*</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>auditDispatcher</servlet-name>
-        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-        <load-on-startup>2</load-on-startup>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>auditDispatcher</servlet-name>
-        <url-pattern>/v1/audit/*</url-pattern>
-    </servlet-mapping>
-
     <!--<servlet>-->
-    <!--<servlet-name>tagDispatcher</servlet-name>-->
+    <!--<servlet-name>profileDispatcher</servlet-name>-->
     <!--<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>-->
     <!--<load-on-startup>2</load-on-startup>-->
     <!--</servlet>-->
 
     <!--<servlet-mapping>-->
-    <!--<servlet-name>tagDispatcher</servlet-name>-->
-    <!--<url-pattern>/v1/tag/*</url-pattern>-->
+    <!--<servlet-name>profileDispatcher</servlet-name>-->
+    <!--<url-pattern>/v1/profiles/*</url-pattern>-->
+    <!--</servlet-mapping>-->
+
+    <!--<servlet>-->
+    <!--<servlet-name>auditDispatcher</servlet-name>-->
+    <!--<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>-->
+    <!--<load-on-startup>2</load-on-startup>-->
+    <!--</servlet>-->
+
+    <!--<servlet-mapping>-->
+    <!--<servlet-name>auditDispatcher</servlet-name>-->
+    <!--<url-pattern>/v1/audit/*</url-pattern>-->
+    <!--</servlet-mapping>-->
+
+    <!--<servlet>-->
+    <!--<servlet-name>companyDispatcher</servlet-name>-->
+    <!--<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>-->
+    <!--<load-on-startup>2</load-on-startup>-->
+    <!--</servlet>-->
+
+    <!--<servlet-mapping>-->
+    <!--<servlet-name>companyDispatcher</servlet-name>-->
+    <!--<url-pattern>/v1/company/*</url-pattern>-->
+    <!--</servlet-mapping>-->
+
+    <!--<servlet>-->
+    <!--<servlet-name>fortressDispatcher</servlet-name>-->
+    <!--<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>-->
+    <!--<load-on-startup>2</load-on-startup>-->
+    <!--</servlet>-->
+
+    <!--<servlet-mapping>-->
+    <!--<servlet-name>fortressDispatcher</servlet-name>-->
+    <!--<url-pattern>/v1/fortress/*</url-pattern>-->
     <!--</servlet-mapping>-->
 
     <servlet>
-        <servlet-name>companyDispatcher</servlet-name>
-        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-        <load-on-startup>2</load-on-startup>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>companyDispatcher</servlet-name>
-        <url-pattern>/v1/company/*</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>fortressDispatcher</servlet-name>
-        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-        <load-on-startup>2</load-on-startup>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>fortressDispatcher</servlet-name>
-        <url-pattern>/v1/fortress/*</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
         <servlet-name>apiDispatcher</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <load-on-startup>2</load-on-startup>
@@ -99,7 +88,7 @@
 
     <servlet-mapping>
         <servlet-name>apiDispatcher</servlet-name>
-        <url-pattern>/*</url-pattern>
+        <url-pattern>/v1/*</url-pattern>
     </servlet-mapping>
 
     <!-- Spring Security -->

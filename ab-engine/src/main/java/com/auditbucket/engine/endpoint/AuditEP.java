@@ -29,6 +29,7 @@ import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.engine.service.AuditTagService;
 import com.auditbucket.engine.service.EngineAdmin;
 import com.auditbucket.helper.AuditException;
+import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
@@ -37,14 +38,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Future;
 
 /**
  * User: Mike Holdsworth
@@ -52,7 +51,7 @@ import java.util.concurrent.Future;
  * Time: 8:23 PM
  */
 @Controller
-@RequestMapping("/")
+@RequestMapping("/audit")
 @MessageEndpoint
 public class AuditEP {
     @Autowired
@@ -89,17 +88,19 @@ public class AuditEP {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
-    public void createHeaders(@RequestBody AuditHeaderInputBean[] input) throws AuditException {
-        for (AuditHeaderInputBean inputBean : input) {
-            createHeaderAsync(inputBean);
-        }
-    }
+    @RequestMapping(value = "/", consumes = "application/json", method = RequestMethod.PUT)
+    public void createHeaders(@RequestBody AuditHeaderInputBean[] inputBeans) throws AuditException {
+        Company company = auditManager.resolveCompany(inputBeans[0].getApiKey());
+        Fortress fortress = auditManager.resolveFortress(company, inputBeans[0]);
+        boolean sync = true; // todo: Deadlocks occur around Tags if processing async. Perhaps caller handle this by supressing async until a few batches have been processed synch.
+        if (sync) {
+            for (AuditHeaderInputBean inputBean : inputBeans) {
+                createHeader(inputBean);
+            }
 
-    @Async
-    private Future<ResponseEntity<AuditResultBean>> createHeaderAsync(AuditHeaderInputBean input) throws AuditException {
-        ResponseEntity<AuditResultBean> result = createHeader(input);
-        return new AsyncResult<>(result);
+        } else
+            auditManager.createHeadersAsync(inputBeans, company, fortress);
+
     }
 
     /**
@@ -166,7 +167,7 @@ public class AuditEP {
                                                                                   @PathVariable("recordType") String recordType,
                                                                                   @PathVariable("callerRef") String callerRef) {
         Fortress f = fortressService.findByName(fortress);
-        com.auditbucket.audit.model.AuditHeader result = auditService.findByCallerRef(f.getId(), recordType, callerRef);
+        AuditHeader result = auditService.findByCallerRef(f.getId(), recordType, callerRef);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 

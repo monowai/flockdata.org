@@ -17,7 +17,7 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.company;
+package com.auditbucket.company.endpoint;
 
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
@@ -43,7 +43,7 @@ import java.util.List;
  * Time: 8:23 PM
  */
 @Controller
-@RequestMapping("/")
+@RequestMapping("/company")
 public class CompanyEP {
 
     @Autowired

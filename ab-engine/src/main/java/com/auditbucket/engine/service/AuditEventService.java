@@ -53,11 +53,13 @@ public class AuditEventService {
      */
     public AuditEvent processEvent(String eventCode) {
         Company company = securityHelper.getCompany();
+        return processEvent(company, eventCode);
+    }
+
+    public AuditEvent processEvent(Company company, String eventCode) {
         AuditEvent existingEvent = auditEventDao.findEvent(company, eventCode);
         if (existingEvent == null)
             existingEvent = auditEventDao.createEvent(company, eventCode);
-
-
         return existingEvent;
     }
 

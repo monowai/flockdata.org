@@ -38,6 +38,7 @@
           destroy-method="stop">
         <constructor-arg ref="graphDatabaseService"/>
     </bean>
+
     <!-- End remote shell -->
 
 

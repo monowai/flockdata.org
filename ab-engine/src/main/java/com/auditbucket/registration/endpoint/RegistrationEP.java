@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 // Customise a dispatcher in web.xml
-@RequestMapping("/")
+@RequestMapping("/profiles")
 public class RegistrationEP {
 
     @Autowired
