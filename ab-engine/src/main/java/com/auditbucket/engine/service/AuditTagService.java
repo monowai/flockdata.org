@@ -81,18 +81,22 @@ public class AuditTagService {
 //        return auditTagDao.findTagAudits(tag.getId());
 //    }
 
-
-    //    @Async
-    public Void createTagValuesFuture(AuditHeader ah, AuditHeaderInputBean userTags, Company company) {
+    public void createTagStructure(AuditHeaderInputBean userTags, Company company) {
         // Create a tag structure if present
         for (TagInputBean inputBean : userTags.getAssociatedTags()) {
             tagService.processTag(inputBean, company);
         }
-        // Direct association between tags and a header
-        createTagValues(ah, userTags.getTagValues());
-        //List<TagInputBean>tagInputBeans = ;
+    }
 
-        return null;
+    /**
+     * Associates Tag Values with an AuditHeader
+     *
+     * @param auditHeader to associate with
+     * @param inputBean   contains tag value inputs
+     */
+    public void associateTags(AuditHeader auditHeader, AuditHeaderInputBean inputBean) {
+        // Direct association between tags and a header
+        associateTags(auditHeader, inputBean.getTagValues());
     }
 
     /**
@@ -114,8 +118,7 @@ public class AuditTagService {
      * @param ah       Header to associate userTags with
      * @param userTags Key/Value pair of tags. TagNode will be created if missing. Value can be a Collection
      */
-
-    public void createTagValues(AuditHeader ah, Map<String, Object> userTags) {
+    public void associateTags(AuditHeader ah, Map<String, Object> userTags) {
         if ((userTags == null) || userTags.isEmpty())
             return;
 
@@ -171,7 +174,7 @@ public class AuditTagService {
     }
 
     public Set<AuditTag> findAuditTags(AuditHeader auditHeader) {
-        Long companyId = tagService.getCompanyTagManager(securityHelper.getCompany().getId());
+        Long companyId = securityHelper.getCompany().getId();
         return findAuditTags(companyId, auditHeader);
     }
 

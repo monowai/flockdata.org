@@ -133,8 +133,12 @@ public class AuditManagerService {
     }
 
     public AuditResultBean createHeader(AuditHeaderInputBean inputBean, Company company, Fortress fortress) throws AuditException {
+        // Establish directed tag structure
+
         AuditResultBean resultBean = auditService.createHeader(inputBean, company, fortress);
-        auditTagService.createTagValuesFuture(resultBean.getAuditHeader(), inputBean, company);
+        // Create audit tags
+        auditTagService.createTagStructure(inputBean, company);
+        auditTagService.associateTags(resultBean.getAuditHeader(), inputBean);
         AuditLogInputBean logBean = inputBean.getAuditLog();
         // Here on could be spun in to a separate thread. The log has to happen eventually
         //   and can't fail.

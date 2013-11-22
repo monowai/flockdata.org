@@ -27,6 +27,7 @@ import com.auditbucket.engine.repo.neo4j.model.AuditTagRelationship;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.repo.neo4j.model.TagNode;
+import com.auditbucket.registration.service.TagService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
@@ -47,6 +48,9 @@ import java.util.*;
 public class AuditTagDaoRepo implements com.auditbucket.dao.AuditTagDao {
     @Autowired
     Neo4jTemplate template;
+
+    @Autowired
+    TagService tagService;
 
     private Logger logger = LoggerFactory.getLogger(AuditTagDaoRepo.class);
 
@@ -148,14 +152,15 @@ public class AuditTagDaoRepo implements com.auditbucket.dao.AuditTagDao {
 
 
     @Override
-    public Set<AuditTag> getAuditTags(AuditHeader auditHeader, Long companyTagId) {
+    public Set<AuditTag> getAuditTags(AuditHeader auditHeader, Long companyId) {
+        Long cTagId = tagService.getCompanyTagManager(companyId);
         String query = "start audit=node({auditId}), cTag=node({cTagId}) " +
                 "MATCH audit<-[tagType]-(tag)<--cTag " +
                 "return tag, tagType";
 
         Map<String, Object> params = new HashMap<>();
         params.put("auditId", auditHeader.getId());
-        params.put("cTagId", companyTagId);
+        params.put("cTagId", cTagId);
         Set<AuditTag> tagResults = new HashSet<>();
         for (Map<String, Object> row : template.query(query, params)) {
             TagNode tag = template.projectTo(row.get("tag"), TagNode.class);
