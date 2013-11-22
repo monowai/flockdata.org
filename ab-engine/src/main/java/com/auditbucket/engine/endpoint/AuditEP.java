@@ -267,9 +267,15 @@ public class AuditEP {
     @ResponseBody
     @RequestMapping(value = "/{fortressName}/rebuild", produces = "application/json", method = RequestMethod.POST)
     public ResponseEntity<String> rebuildSearch(@PathVariable("fortressName") String fortressName) throws AuditException {
-        Long processCount = auditManager.rebuild(fortressName);
-        return new ResponseEntity<>("Rebuild Search request completed. Processed [" + processCount + "] headers", HttpStatus.OK);
+        Long processCount = auditManager.reindex(fortressName);
+        return new ResponseEntity<>("Reindex Search request completed. Processed [" + processCount + "] headers", HttpStatus.OK);
     }
 
+    @ResponseBody
+    @RequestMapping(value = "/{fortressName}/{docType}/rebuild", produces = "application/json", method = RequestMethod.POST)
+    public ResponseEntity<String> rebuildSearch(@PathVariable("fortressName") String fortressName, @PathVariable("docType") String docType) throws AuditException {
+        Long processCount = auditManager.reindexByDocType(fortressName, docType);
+        return new ResponseEntity<>("Reindex Search request completed. Processed [" + processCount + "] headers for [" + fortressName + "] and document type [" + docType + "]", HttpStatus.OK);
+    }
 
 }

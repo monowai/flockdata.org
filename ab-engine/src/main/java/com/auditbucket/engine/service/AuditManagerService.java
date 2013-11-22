@@ -137,8 +137,8 @@ public class AuditManagerService {
 
         AuditResultBean resultBean = auditService.createHeader(inputBean, company, fortress);
         // Create audit tags
-        auditTagService.createTagStructure(inputBean, company);
-        auditTagService.associateTags(resultBean.getAuditHeader(), inputBean);
+        auditTagService.createTagStructure(inputBean.getAssociatedTags(), company);
+        auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTagValues());
         AuditLogInputBean logBean = inputBean.getAuditLog();
         // Here on could be spun in to a separate thread. The log has to happen eventually
         //   and can't fail.
@@ -185,28 +185,56 @@ public class AuditManagerService {
      * @return number of documents processed
      * @throws AuditException
      */
-    public long rebuild(String fortressName) throws AuditException {
-        // ToDo: Rebuild by SearchDocument
+    public long reindex(String fortressName) throws AuditException {
         Fortress fortress = fortressService.findByName(fortressName);
         if (fortress == null)
             throw new AuditException("Fortress [" + fortress + "] could not be found");
         Long skipCount = 0l;
-        return rebuild(skipCount, fortress);
+        return reindex(skipCount, fortress);
     }
 
-    private long rebuild(Long skipCount, Fortress fortress) {
+    private long reindex(Long skipCount, Fortress fortress) {
 
         Set<AuditHeader> headers = auditService.getAuditHeaders(fortress, skipCount);
         if (headers.isEmpty())
             return skipCount;
+        skipCount = reindexHeaders(skipCount, headers);
+        return reindex(skipCount, fortress);
+
+    }
+
+    /**
+     * Rebuilds all search documents for the supplied fortress of the supplied document type
+     *
+     * @param fortressName name of the fortress to rebuild
+     * @return number of documents processed
+     * @throws AuditException
+     */
+    public long reindexByDocType(String fortressName, String docType) throws AuditException {
+        Fortress fortress = fortressService.findByName(fortressName);
+        if (fortress == null)
+            throw new AuditException("Fortress [" + fortress + "] could not be found");
+        Long skipCount = 0l;
+        return reindexByDocType(skipCount, fortress, docType);
+    }
+
+    private long reindexByDocType(Long skipCount, Fortress fortress, String docType) {
+
+        Set<AuditHeader> headers = auditService.getAuditHeaders(fortress, docType, skipCount);
+        if (headers.isEmpty())
+            return skipCount;
+        skipCount = reindexHeaders(skipCount, headers);
+        return reindexByDocType(skipCount, fortress, docType);
+
+    }
+
+    private Long reindexHeaders(Long skipCount, Set<AuditHeader> headers) {
         for (AuditHeader header : headers) {
             auditService.rebuild(header);
             skipCount++;
         }
-        return rebuild(skipCount, fortress);
-
+        return skipCount;
     }
-
 
     public AuditSummaryBean getAuditSummary(String auditKey) {
         AuditSummaryBean summary = auditService.getAuditSummary(auditKey);

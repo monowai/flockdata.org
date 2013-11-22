@@ -121,8 +121,14 @@ public class AuditDaoNeo implements AuditDao {
     }
 
     @Override
-    public Set<AuditHeader> findHeaders(Long fortressId, Long skip) {
-        return auditRepo.findHeadersFrom(fortressId, skip);
+    public Set<AuditHeader> findHeaders(Long fortressId, Long skipTo) {
+        return auditRepo.findHeadersFrom(fortressId, skipTo);
+    }
+
+    @Override
+    public Set<AuditHeader> findHeaders(Long fortressId, Long docTypeId, Long skipTo) {
+
+        return auditRepo.findHeadersFrom(fortressId, docTypeId, skipTo);
     }
 
     @Override

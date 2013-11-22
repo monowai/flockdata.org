@@ -34,10 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * User: Mike Holdsworth
@@ -74,29 +71,17 @@ public class AuditTagService {
         return auditTagDao.relationshipExists(auditHeader, tag, relationshipType);
     }
 
-//    public Set<AuditLogResultBean> findTagAudits(String tagName) {
-//        Tag tag = tagService.findTag(tagName);
-//        if (tag == null)
-//            return null;
-//        return auditTagDao.findTagAudits(tag.getId());
-//    }
-
-    public void createTagStructure(AuditHeaderInputBean userTags, Company company) {
+    /**
+     * Directed tag structure
+     *
+     * @param userTags
+     * @param company
+     */
+    public void createTagStructure(List<TagInputBean> userTags, Company company) {
         // Create a tag structure if present
-        for (TagInputBean inputBean : userTags.getAssociatedTags()) {
+        for (TagInputBean inputBean : userTags) {
             tagService.processTag(inputBean, company);
         }
-    }
-
-    /**
-     * Associates Tag Values with an AuditHeader
-     *
-     * @param auditHeader to associate with
-     * @param inputBean   contains tag value inputs
-     */
-    public void associateTags(AuditHeader auditHeader, AuditHeaderInputBean inputBean) {
-        // Direct association between tags and a header
-        associateTags(auditHeader, inputBean.getTagValues());
     }
 
     /**

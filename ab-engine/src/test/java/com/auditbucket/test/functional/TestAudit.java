@@ -29,6 +29,7 @@ import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
+import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import org.apache.commons.lang.time.StopWatch;
@@ -57,6 +58,7 @@ import java.util.TimeZone;
 
 import static junit.framework.Assert.*;
 import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * User: Mike Holdsworth
@@ -658,6 +660,29 @@ public class TestAudit {
         DateTime gmtTime = new DateTime(header.getFortressDateCreated());
 
         assertNotSame(astTime.getHourOfDay(), gmtTime.getHourOfDay());
+
+    }
+
+    @Test
+    public void headersByFortressAndDocType() throws Exception {
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
+
+        Fortress fortress = fortressService.registerFortress("ABC");
+        assertNotNull(fortress);
+
+        String typeA = "TypeA";
+        String typeB = "Type B";
+
+        auditManagerService.createHeader(new AuditHeaderInputBean("ABC", "auditTest", typeA, new DateTime(), "abc"));
+        auditManagerService.createHeader(new AuditHeaderInputBean("ABC", "auditTest", typeA, new DateTime(), "abd"));
+        auditManagerService.createHeader(new AuditHeaderInputBean("ABC", "auditTest", typeB, new DateTime(), "abc"));
+
+        assertEquals(3, auditService.getAuditHeaders(fortress, 0l).size());
+        assertEquals(2, auditService.getAuditHeaders(fortress, typeA, 0l).size());
+        assertEquals("Case sensitivity failed", 2, auditService.getAuditHeaders(fortress, "typea", 0l).size());
+        assertEquals(1, auditService.getAuditHeaders(fortress, typeB, 0l).size());
+        assertEquals("Case sensitivity failed", 1, auditService.getAuditHeaders(fortress, "type b", 0l).size());
+
 
     }
 

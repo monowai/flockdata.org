@@ -100,5 +100,7 @@ public interface AuditDao {
 
     Set<AuditHeader> findHeadersByTxRef(Long txName);
 
-    Set<AuditHeader> findHeaders(Long fortressId, Long startFromAuditId);
+    Set<AuditHeader> findHeaders(Long fortressId, Long skipTo);
+
+    Set<AuditHeader> findHeaders(Long id, Long docTypeId, Long skipTo);
 }

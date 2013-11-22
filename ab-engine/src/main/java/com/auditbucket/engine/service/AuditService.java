@@ -337,10 +337,14 @@ public class AuditService {
 
     }
 
-    public Set<AuditHeader> getAuditHeaders(Fortress fortress, Long startFromAuditId) {
-        return auditDAO.findHeaders(fortress.getId(), startFromAuditId);
+    public Set<AuditHeader> getAuditHeaders(Fortress fortress, Long skipTo) {
+        return auditDAO.findHeaders(fortress.getId(), skipTo);
     }
 
+    public Set<AuditHeader> getAuditHeaders(Fortress fortress, String docTypeName, Long skipTo) {
+        DocumentType docType = tagService.resolveDocType(fortress.getCompany(), docTypeName);
+        return auditDAO.findHeaders(fortress.getId(), docType.getId(), skipTo);
+    }
 
     private SearchChange prepareSearchDocument(AuditHeader auditHeader, AuditLogInputBean logInput, AuditEvent event, Boolean searchActive, DateTime fortressWhen, AuditLog auditLog) throws JsonProcessingException {
 
