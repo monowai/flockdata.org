@@ -12,7 +12,7 @@ public class AuditSearchSchema {
     public static final String FORTRESS = "@fortress";
     public static final String DOC_TYPE = "@docType";
     public static final String CALLER_REF = "@callerRef";
-    public static final String TAGS = "@tags";
+    public static final String TAG = "@tag";
     public static final String LAST_EVENT = "@lastEvent";
     public static final String WHO = "@who";
     public static final String AUDIT_KEY = "@auditKey";

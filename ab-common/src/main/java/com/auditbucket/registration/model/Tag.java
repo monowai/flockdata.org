@@ -19,6 +19,8 @@
 
 package com.auditbucket.registration.model;
 
+import java.util.Map;
+
 /**
  * User: Mike Holdsworth
  * Date: 15/06/13
@@ -37,4 +39,8 @@ public interface Tag {
     String getTagSearchName();
 
     Object getProperty(String num);
+
+    public Map<String, Object> getProperties();
+
+    String getCode();
 }

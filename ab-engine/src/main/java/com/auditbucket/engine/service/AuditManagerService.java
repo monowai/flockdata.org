@@ -185,12 +185,13 @@ public class AuditManagerService {
      * @return number of documents processed
      * @throws AuditException
      */
-    public long reindex(String fortressName) throws AuditException {
+    public void reindex(String fortressName) throws AuditException {
         Fortress fortress = fortressService.findByName(fortressName);
         if (fortress == null)
             throw new AuditException("Fortress [" + fortress + "] could not be found");
         Long skipCount = 0l;
-        return reindex(skipCount, fortress);
+        long result = reindex(skipCount, fortress);
+        logger.info("Reindex Search request completed. Processed [" + result + "] headers for [" + fortressName + "]");
     }
 
     private long reindex(Long skipCount, Fortress fortress) {
@@ -210,12 +211,13 @@ public class AuditManagerService {
      * @return number of documents processed
      * @throws AuditException
      */
-    public long reindexByDocType(String fortressName, String docType) throws AuditException {
+    public void reindexByDocType(String fortressName, String docType) throws AuditException {
         Fortress fortress = fortressService.findByName(fortressName);
         if (fortress == null)
             throw new AuditException("Fortress [" + fortress + "] could not be found");
         Long skipCount = 0l;
-        return reindexByDocType(skipCount, fortress, docType);
+        long result = reindexByDocType(skipCount, fortress, docType);
+        logger.info("Reindex Search request completed. Processed [" + result + "] headers for [" + fortressName + "] and document type [" + docType + "]");
     }
 
     private long reindexByDocType(Long skipCount, Fortress fortress, String docType) {

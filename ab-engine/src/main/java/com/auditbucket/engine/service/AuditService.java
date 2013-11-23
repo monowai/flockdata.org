@@ -594,9 +594,11 @@ public class AuditService {
 
             if (auditHeader.getFortress().isSearchActive() && !auditHeader.isSearchSuppressed()) {
                 // Update against the Audit Header only by re-indexing the search document
-                Map<String, Object> lastWhat = null;
+                Map<String, Object> lastWhat;
                 if (lastChange != null)
-                    whatService.getWhat(lastChange).getWhatMap();
+                    lastWhat = whatService.getWhat(lastChange).getWhatMap();
+                else
+                    return; // ToDo: fix reindex header only scenario, i.e. no "change/what"
 
                 AuditSearchChange searchDocument = new AuditSearchChange(auditHeader, lastWhat, lastChange.getEvent().getCode(), new DateTime(lastChange.getAuditLog().getFortressWhen()));
                 searchDocument.setTags(auditTagService.findAuditTags(auditHeader));

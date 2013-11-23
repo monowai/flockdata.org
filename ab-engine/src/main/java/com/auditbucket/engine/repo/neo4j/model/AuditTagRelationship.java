@@ -42,15 +42,19 @@ public class AuditTagRelationship implements AuditTag {
 
     private String tagType;
 
+    private Integer weight;
+
     protected AuditTagRelationship() {
     }
 
-    public AuditTagRelationship(AuditHeader header, Tag tag, Relationship tagType) {
+    public AuditTagRelationship(AuditHeader header, Tag tag, Relationship relationship) {
         this();
         this.auditId = header.getId();
         this.tag = (TagNode) tag;
-        this.tagType = (tagType == null ? tag.getName() : tagType.getType().name());
-        this.id = tagType.getId();
+        this.tagType = (relationship == null ? tag.getName() : relationship.getType().name());
+        if (relationship.hasProperty("weight"))
+            this.weight = (Integer) relationship.getProperty("weight");
+        this.id = relationship.getId();
     }
 
     public Long getId() {
@@ -83,24 +87,9 @@ public class AuditTagRelationship implements AuditTag {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof AuditTagRelationship)) return false;
-
-        AuditTagRelationship that = (AuditTagRelationship) o;
-
-        if (!auditId.equals(that.auditId)) return false;
-        if (!id.equals(that.id)) return false;
-        if (!tag.getId().equals(that.tag)) return false;
-
-        return true;
+    public Integer getWeight() {
+        return weight;
     }
 
-    @Override
-    public int hashCode() {
-        int result = id.hashCode();
-        result = 31 * result + tag.getId().hashCode();
-        result = 31 * result + auditId.hashCode();
-        return result;
-    }
+
 }

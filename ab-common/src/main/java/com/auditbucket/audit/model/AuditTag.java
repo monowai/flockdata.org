@@ -43,4 +43,6 @@ public interface AuditTag {
 
     public Map<String, Object> getProperties();
 
+    Integer getWeight();
+
 }

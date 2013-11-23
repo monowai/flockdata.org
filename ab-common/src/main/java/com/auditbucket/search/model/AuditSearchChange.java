@@ -64,7 +64,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
      *
      * @param header auditHeader details (owner of this change)
      */
-    public AuditSearchChange(AuditHeader header) {
+    AuditSearchChange(AuditHeader header) {
         this();
         this.auditKey = header.getAuditKey();
         this.auditId = header.getId();
@@ -75,7 +75,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
         this.callerRef = header.getCallerRef();
         this.who = header.getLastUser().getCode();
         this.createdDate = header.getWhenCreated(); // When created in AuditBucket
-        //setTags(header.getTagValues());
+
     }
 
     public AuditSearchChange() {
@@ -85,7 +85,6 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
         this(header);
         this.what = mapWhat;
         this.event = event;
-
         setWhen(when);
     }
 
@@ -129,7 +128,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
     }
 
     public void setWhen(DateTime when) {
-        if (when != null)
+        if ((when != null) && (when.getMillis() != 0))
             this.when = when.getMillis();
     }
 
@@ -179,12 +178,18 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
     public void setTags(Set<AuditTag> tagSet) {
         tagValues = new HashMap<>();
         for (AuditTag tag : tagSet) {
-            Collection<Tag> tags = (Collection<Tag>) tagValues.get(tag.getTagType());
-            if (tags == null) {
-                tags = new ArrayList<>();
-                tagValues.put(tag.getTagType(), tags);
+            HashMap<String, Object> tagValues = (HashMap<String, Object>) this.tagValues.get(tag.getTagType());
+            if (tagValues == null) {
+                tagValues = new HashMap<>();
+                this.tagValues.put(tag.getTagType(), tagValues);
             }
-            tags.add(tag.getTag());
+            tagValues.put("name", tag.getTag().getName());
+            tagValues.put("key", tag.getTag().getTagSearchName());
+            if (tag.getTag().getCode() != null)
+                tagValues.put("code", tag.getTag().getCode());
+            if (tag.getWeight() != null)
+                tagValues.put("weight", tag.getWeight());
+            tagValues.put("props", tag.getProperties());
             //tagValues.put(tag.getTagType(), tag.getTag());
         }
     }

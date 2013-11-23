@@ -29,10 +29,13 @@ import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.engine.service.AuditTagService;
 import com.auditbucket.engine.service.EngineAdmin;
 import com.auditbucket.helper.AuditException;
+import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -70,9 +73,12 @@ public class AuditEP {
     AuditTagService auditTagService;
 
     @Autowired
+    SecurityHelper securityHelper;
+
+    @Autowired
     CompanyService companyService;
 
-    //private static Logger logger = LoggerFactory.getLogger(AuditEP.class);
+    private static Logger logger = LoggerFactory.getLogger(AuditEP.class);
 
     @ResponseBody
     @RequestMapping(value = "/ping", method = RequestMethod.GET)
@@ -267,15 +273,17 @@ public class AuditEP {
     @ResponseBody
     @RequestMapping(value = "/{fortressName}/rebuild", produces = "application/json", method = RequestMethod.POST)
     public ResponseEntity<String> rebuildSearch(@PathVariable("fortressName") String fortressName) throws AuditException {
-        Long processCount = auditManager.reindex(fortressName);
-        return new ResponseEntity<>("Reindex Search request completed. Processed [" + processCount + "] headers", HttpStatus.OK);
+        logger.info("Reindex command received for " + fortressName + " from [" + securityHelper.getLoggedInUser() + "]");
+        auditManager.reindex(fortressName);
+        return new ResponseEntity<>("Request to reindex has been received", HttpStatus.OK);
     }
 
     @ResponseBody
     @RequestMapping(value = "/{fortressName}/{docType}/rebuild", produces = "application/json", method = RequestMethod.POST)
     public ResponseEntity<String> rebuildSearch(@PathVariable("fortressName") String fortressName, @PathVariable("docType") String docType) throws AuditException {
-        Long processCount = auditManager.reindexByDocType(fortressName, docType);
-        return new ResponseEntity<>("Reindex Search request completed. Processed [" + processCount + "] headers for [" + fortressName + "] and document type [" + docType + "]", HttpStatus.OK);
+        logger.info("Reindex command received for " + fortressName + " & docType " + docType + " from [" + securityHelper.getLoggedInUser() + "]");
+        auditManager.reindexByDocType(fortressName, docType);
+        return new ResponseEntity<>("Request to reindex has been received", HttpStatus.OK);
     }
 
 }
