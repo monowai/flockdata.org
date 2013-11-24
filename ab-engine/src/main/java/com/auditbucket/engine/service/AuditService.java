@@ -354,6 +354,7 @@ public class AuditService {
         searchDocument = new AuditSearchChange(auditHeader, logInput.getMapWhat(), event.getCode(), fortressWhen);
         searchDocument.setWho(auditLog.getAuditChange().getWho().getCode());
         searchDocument.setTags(auditTagService.findAuditTags(auditHeader.getFortress().getCompany().getId(), auditHeader));
+        searchDocument.setDescription(auditHeader.getName());
         try {
             logger.trace("JSON {}", om.writeValueAsString(searchDocument));
         } catch (JsonProcessingException e) {

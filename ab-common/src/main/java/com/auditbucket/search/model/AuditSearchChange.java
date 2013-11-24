@@ -39,6 +39,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
 
     private String id;
     private String documentType;
+    private String description;
     private Map<String, Object> what;
     private Long when;
     private String fortressName;
@@ -218,6 +219,16 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
 
     public Long getCreatedDate() {
         return createdDate;
+    }
+
+    @Override
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
     }
 
     public Long getSysWhen() {

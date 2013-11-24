@@ -82,6 +82,8 @@ public class AuditHeaderNode implements AuditHeader {
     @Indexed(indexName = "auditName")
     private String name;
 
+    private String description;
+
     private long fortressDate;
 
     @Indexed(indexName = "searchKey")
@@ -109,9 +111,9 @@ public class AuditHeaderNode implements AuditHeader {
             callerRef = callerRef.toLowerCase();
 
         this.name = (callerRef == null ? docType : (docType + "." + callerRef).toLowerCase());
+        this.description = auditInput.getDescription();
 
         indexName = "ab." + createdBy.getFortress().getCompany().getCode() + "." + fortress.getCode();
-
 
         Date when = auditInput.getWhen();
 
@@ -124,7 +126,7 @@ public class AuditHeaderNode implements AuditHeader {
         this.lastWho = (FortressUserNode) createdBy;
         this.event = auditInput.getEvent();
 
-        this.suppressSearch(auditInput.isSuppressSearch());
+        this.suppressSearch(auditInput.isSearchSuppressed());
 
     }
 
@@ -248,5 +250,9 @@ public class AuditHeaderNode implements AuditHeader {
     @JsonIgnore
     public DateTime getFortressDateCreated() {
         return new DateTime(fortressDate, DateTimeZone.forTimeZone(TimeZone.getTimeZone(fortress.getTimeZone())));
+    }
+
+    public String getDescription() {
+        return description;
     }
 }

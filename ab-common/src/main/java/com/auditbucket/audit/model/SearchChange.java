@@ -87,4 +87,9 @@ public interface SearchChange {
     Long getAuditId();
 
     Long getCreatedDate();
+
+    void setDescription(String description);
+
+    String getDescription();
+
 }

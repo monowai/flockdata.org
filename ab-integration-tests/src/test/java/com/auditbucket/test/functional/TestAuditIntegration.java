@@ -275,7 +275,7 @@ public class TestAuditIntegration {
         doEsQuery(indexName, "andy");
 
         inputBean = new AuditHeaderInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
-        inputBean.setSuppressSearch(true);
+        inputBean.setSearchSuppressed(true);
         AuditResultBean noIndex = auditManager.createHeader(inputBean);
         com.auditbucket.audit.model.AuditHeader noIndexHeader = auditService.getHeader(noIndex.getAuditKey());
 

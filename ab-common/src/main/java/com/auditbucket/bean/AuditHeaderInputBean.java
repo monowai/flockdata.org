@@ -40,13 +40,14 @@ public class AuditHeaderInputBean {
     private Date when = null;
     private String lastMessage;
     private AuditLogInputBean auditLog;
-    private boolean searchSuppressed;
     private Map<String, Object> tagValues = new HashMap<>();
     private List<TagInputBean> associatedTags = new ArrayList<>();
-    private boolean suppressSearch;
+    private boolean searchSuppressed;
     private String event;
     private AuditEvent eventObject;
     private String apiKey;
+    private String description;
+
 
     public AuditHeaderInputBean() {
     }
@@ -60,8 +61,8 @@ public class AuditHeaderInputBean {
         this.callerRef = callerRef;
     }
 
-    public AuditHeaderInputBean(String name, String s, String companyNode, DateTime fortressWhen) {
-        this(name, s, companyNode, fortressWhen, null);
+    public AuditHeaderInputBean(String description, String s, String companyNode, DateTime fortressWhen) {
+        this(description, s, companyNode, fortressWhen, null);
 
     }
 
@@ -160,12 +161,12 @@ public class AuditHeaderInputBean {
         this.tagValues = tagValues;
     }
 
-    public void setSuppressSearch(boolean suppressSearch) {
-        this.suppressSearch = suppressSearch;
+    public void setSearchSuppressed(boolean searchSuppressed) {
+        this.searchSuppressed = searchSuppressed;
     }
 
-    public boolean isSuppressSearch() {
-        return suppressSearch;
+    public boolean isSearchSuppressed() {
+        return searchSuppressed;
     }
 
     public String getEvent() {
@@ -209,5 +210,13 @@ public class AuditHeaderInputBean {
     public void addTagValue(String relationship, TagInputBean tag) {
         getTagValues().put(relationship, tag);
 
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

@@ -281,6 +281,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
         indexMe.put(AuditSearchSchema.FORTRESS, auditChange.getFortressName());
         indexMe.put(AuditSearchSchema.DOC_TYPE, auditChange.getDocumentType());
         indexMe.put(AuditSearchSchema.CALLER_REF, auditChange.getCallerRef());
+        indexMe.put(AuditSearchSchema.DESCRIPTION, auditChange.getDescription());
         indexMe.put(AuditSearchSchema.CREATED, auditChange.getCreatedDate());
         if (!auditChange.getTagValues().isEmpty())
             indexMe.put(AuditSearchSchema.TAG, auditChange.getTagValues());
