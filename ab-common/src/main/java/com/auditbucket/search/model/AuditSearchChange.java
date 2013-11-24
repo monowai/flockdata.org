@@ -22,7 +22,6 @@ package com.auditbucket.search.model;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditTag;
 import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.model.Tag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.joda.time.DateTime;
@@ -184,7 +183,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
                 this.tagValues.put(tag.getTagType(), tagValues);
             }
             tagValues.put("name", tag.getTag().getName());
-            tagValues.put("key", tag.getTag().getTagSearchName());
+            tagValues.put("key", tag.getTag().getKey());
             if (tag.getTag().getCode() != null)
                 tagValues.put("code", tag.getTag().getCode());
             if (tag.getWeight() != null)

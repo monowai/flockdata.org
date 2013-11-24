@@ -77,13 +77,13 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
                 params.put("cTag", cTag);
                 cypher = "start tagManager=node({cTag}) create unique " +
                         "tagManager-[:TAG_COLLECTION]->(tag0 {name:\"" + tn.getName() + "\", " +
-                        "code:\"" + tn.getTagSearchName() + "\", __type__:\"ab.Tag\"}) ";
+                        "code:\"" + tn.getKey() + "\", __type__:\"ab.Tag\"}) ";
             } else {
                 TagNode tn = new TagNode(next);
                 count++;
                 cypher = cypher + ", " +
                         "tagManager-[:TAG_COLLECTION]->(tag" + count + " {name:\"" + tn.getName() + "\", " +
-                        "code:\"" + tn.getTagSearchName() + "\", __type__:\"ab.Tag\"}) ";
+                        "code:\"" + tn.getKey() + "\", __type__:\"ab.Tag\"}) ";
                 retclause = retclause + ", tag" + count;
             }
         }
@@ -211,7 +211,7 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
     public Tag findOne(String tagName, Long companyId) {
         if (tagName == null || companyId == null)
             throw new IllegalArgumentException("Null can not be used to find a tag ");
-        Tag tag = tagRepo.findCompanyTagBySearchName(companyId, tagName.toLowerCase().replaceAll("\\s", ""));
+        Tag tag = tagRepo.findCompanyTagByKey(companyId, tagName.toLowerCase().replaceAll("\\s", ""));
         return tag;
     }
 

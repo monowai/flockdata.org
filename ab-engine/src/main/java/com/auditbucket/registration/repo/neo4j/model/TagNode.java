@@ -20,7 +20,6 @@
 package com.auditbucket.registration.repo.neo4j.model;
 
 import com.auditbucket.bean.TagInputBean;
-import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -29,7 +28,6 @@ import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.fieldaccess.DynamicProperties;
-import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
 import org.springframework.data.neo4j.fieldaccess.PrefixedDynamicProperties;
 
 import java.util.Map;
@@ -45,10 +43,10 @@ public class TagNode implements Tag {
     @GraphId
     Long Id;
 
-    @Indexed(indexName = "tagSearchName")
-    private String tagSearchName;
+    @Indexed(indexName = "tagKeys")
+    private String key;
 
-    @Indexed(indexName = "tagCode")
+    @Indexed(indexName = "tagCodes")
     private String code;
 
     DynamicProperties properties = new PrefixedDynamicProperties("");
@@ -72,16 +70,9 @@ public class TagNode implements Tag {
     }
 
     @Override
-    @JsonIgnore
-    // @deprecated
-    public Company getCompany() {
-        return null;
-    }
-
-    @Override
     public void setName(String tagName) {
         this.name = tagName;
-        this.tagSearchName = tagName.toLowerCase().replaceAll("\\s", "");
+        this.key = tagName.toLowerCase().replaceAll("\\s", "");
     }
 
     @JsonIgnore
@@ -98,8 +89,8 @@ public class TagNode implements Tag {
     }
 
     @JsonIgnore
-    public String getTagSearchName() {
-        return tagSearchName;
+    public String getKey() {
+        return key;
     }
 
     @Override

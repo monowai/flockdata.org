@@ -30,7 +30,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Date;
+
 import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 /**
@@ -76,15 +79,34 @@ public class TestInputBeans {
 
     @Test
     public void testAuditInputBean() throws Exception {
-        AuditHeaderInputBean aib = new AuditHeaderInputBean("fortress", "user", "booking", DateTime.now(), "myRef");
+        DateTime dateA = DateTime.now();
+        AuditHeaderInputBean aib = new AuditHeaderInputBean("fortress", "user", "booking", dateA, "myRef");
         assertNull(aib.getAuditKey());
         aib.setAuditKey("AbC");
         assertNotNull(aib.getAuditKey());
 
+
         // NonNull tx ref sets the inputBean to be transactional
         String what = "{\"abc\":0}";
-        AuditLogInputBean alb = new AuditLogInputBean("aaa", "user", null, what, "", "txreftest");
+        DateTime dateB = DateTime.now();
+        AuditLogInputBean alb = new AuditLogInputBean("aaa", "user", dateB, what, "", "txreftest");
+        aib.setAuditLog(alb); // Creation dates defer to the Log
         assertTrue(alb.isTransactional());
+        assertEquals(dateB.getMillis(), aib.getWhen().getTime());
+        // Try to override the
+        aib.setWhen(DateTime.now().toDate());
+        assertEquals(dateB.getMillis(), aib.getWhen().getTime());
+        assertEquals(aib.getWhen().getTime(), alb.getWhen().getTime());
+
+        // Change the date on the log, should be the same in the header
+        alb.setWhen(dateA.toDate());
+        assertEquals(dateA.getMillis(), aib.getWhen().getTime());
+        // Null the log
+        aib.setAuditLog(null);
+        Date dateC = new Date();
+        alb.setWhen(dateC);
+        aib.setAuditLog(alb);
+        assertEquals(dateC.getTime(), aib.getWhen().getTime());
 
         alb = new AuditLogInputBean("aaa", "user", null, what);
         assertFalse(alb.isTransactional());

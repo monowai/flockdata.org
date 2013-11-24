@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -42,7 +43,7 @@ public class AuditLogInputBean {
     private String comment;
     private String fortressUser;
     private String event;
-    private String when;
+    private Date when;
     private String what;
 
     // Required to support location by Caller Ref
@@ -74,7 +75,7 @@ public class AuditLogInputBean {
         this.auditKey = auditKey;
         this.fortressUser = fortressUser;
         if (when != null)
-            this.when = when.toString();
+            this.when = when.toDate();
         setTransactional(isTransactional);
         setWhat(what);
     }
@@ -125,11 +126,11 @@ public class AuditLogInputBean {
         this.fortressUser = fortressUser;
     }
 
-    public String getWhen() {
+    public Date getWhen() {
         return when;
     }
 
-    public void setWhen(String when) {
+    public void setWhen(Date when) {
         this.when = when;
     }
 

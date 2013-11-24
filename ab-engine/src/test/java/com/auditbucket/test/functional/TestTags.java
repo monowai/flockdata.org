@@ -103,7 +103,7 @@ public class TestTags {
         int count = 0;
         for (Tag next : tagResult) {
             assertEquals("FLOP", next.getName());
-            assertEquals("flop", next.getTagSearchName());
+            assertEquals("flop", next.getKey());
             count++;
         }
         assertEquals(1, count);

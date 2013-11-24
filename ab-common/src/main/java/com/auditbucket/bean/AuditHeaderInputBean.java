@@ -75,15 +75,25 @@ public class AuditHeaderInputBean {
 
     /**
      * Fortress Timezone when
+     * Defers to the AuditLogInput if present with a valid date
      *
      * @return when in the fortress this was created
      */
     public Date getWhen() {
+        if (auditLog != null && auditLog.getWhen() != null && auditLog.getWhen().getTime() > 0)
+            return auditLog.getWhen();
         return when;
     }
 
+    /**
+     * If there is an auditLog with a valid Date, this variable will not set
+     *
+     * @param when
+     */
     public void setWhen(Date when) {
-        this.when = when;
+        if (!(auditLog != null && auditLog.getWhen() != null && auditLog.getWhen().getTime() > 0))
+            this.when = when;
+        // We ignore the incoming date if a valid one is set in a present auditLog
     }
 
     public String getFortress() {
@@ -128,6 +138,9 @@ public class AuditHeaderInputBean {
 
     public void setAuditLog(AuditLogInputBean auditLog) {
         this.auditLog = auditLog;
+        if (auditLog != null) {
+            this.when = auditLog.getWhen();
+        }
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

@@ -555,7 +555,7 @@ public class TestAudit {
         AuditLog log = auditService.getLastAuditLog(ahWP);
         assertEquals("Fortress modification date&time do not match", log.getFortressWhen().longValue(), logTime.getMillis());
         com.auditbucket.audit.model.AuditHeader header = auditService.getHeader(ahWP);
-        assertEquals(fortressDateCreated, header.getFortressDateCreated());
+        assertEquals(fortressDateCreated.getMillis(), header.getFortressDateCreated().getMillis());
         assertEquals("Fortress log time doesn't match", logTime.getMillis(), log.getFortressWhen().longValue());
 
     }

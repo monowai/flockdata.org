@@ -30,13 +30,11 @@ public interface Tag {
 
     public String getName();
 
-    public Company getCompany();
-
     void setName(String floppy);
 
     Long getId();
 
-    String getTagSearchName();
+    String getKey();
 
     Object getProperty(String num);
 
