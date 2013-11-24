@@ -37,12 +37,22 @@ public interface AuditTag {
     //ToDo - should this be a taggable interface?
     public Long getAuditId();
 
+    /**
+     * @return relationship name
+     */
     public String getTagType();
 
-    public void setTagType(String tagValue);
-
+    /**
+     * @return property map of custom properties associated with the tag
+     */
     public Map<String, Object> getProperties();
 
+    /**
+     * useful to understand a relative weighting between the tag and the audit for this
+     * class of tagType.
+     *
+     * @return weight of the attribute in the relationship
+     */
     Integer getWeight();
 
 }

@@ -20,6 +20,7 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.model.AuditChange;
+import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditLog;
 import com.auditbucket.audit.model.AuditWhat;
 import com.auditbucket.bean.*;
@@ -547,14 +548,24 @@ public class TestAudit {
         Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
         DateTime fortressDateCreated = DateTime.now();
         Thread.sleep(500);
-        DateTime logTime = DateTime.now();
+        DateTime logTime;
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", fortressDateCreated, "ABC1");
-        AuditLogInputBean auditLogInputBean = new AuditLogInputBean(mike, logTime, "{\"abx\": 1 }");
+        AuditLogInputBean auditLogInputBean = new AuditLogInputBean(mike, fortressDateCreated, "{\"abx\": 1 }");
+        // Time will come from the Log
         inputBean.setAuditLog(auditLogInputBean);
-        String ahWP = auditManagerService.createHeader(inputBean).getAuditKey();
+        AuditResultBean auditResultBean = auditManagerService.createHeader(inputBean);
+        String ahWP = auditResultBean.getAuditKey();
+
+        assertEquals(fortressDateCreated.getMillis(), auditResultBean.getAuditHeader().getFortressDateCreated().getMillis());
+
+        // Creating the 2nd log will advance the last modified time
+        logTime = DateTime.now();
+        auditLogInputBean = new AuditLogInputBean(ahWP, mike, logTime, "{\"abx\": 2 }");
+        auditManagerService.createLog(auditLogInputBean);
+
         AuditLog log = auditService.getLastAuditLog(ahWP);
         assertEquals("Fortress modification date&time do not match", log.getFortressWhen().longValue(), logTime.getMillis());
-        com.auditbucket.audit.model.AuditHeader header = auditService.getHeader(ahWP);
+        AuditHeader header = auditService.getHeader(ahWP);
         assertEquals(fortressDateCreated.getMillis(), header.getFortressDateCreated().getMillis());
         assertEquals("Fortress log time doesn't match", logTime.getMillis(), log.getFortressWhen().longValue());
 

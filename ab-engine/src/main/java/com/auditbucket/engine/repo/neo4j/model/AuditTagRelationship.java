@@ -44,6 +44,9 @@ public class AuditTagRelationship implements AuditTag {
 
     private Integer weight;
 
+    private String abAdded = "y"; // By default, all tag relationships are added via AB InputBeans
+    //  relationships added outside of AB will not have this property unless manually set
+
     protected AuditTagRelationship() {
     }
 
@@ -54,6 +57,10 @@ public class AuditTagRelationship implements AuditTag {
         this.tagType = (relationship == null ? tag.getName() : relationship.getType().name());
         if (relationship.hasProperty("weight"))
             this.weight = (Integer) relationship.getProperty("weight");
+
+        // Flags the relationship as having been created by a user rather than a system process
+        if (relationship.hasProperty("abAdded"))
+            this.abAdded = (String) relationship.getProperty("abAdded");
         this.id = relationship.getId();
     }
 
@@ -77,19 +84,14 @@ public class AuditTagRelationship implements AuditTag {
         return tagType;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void setTagType(String tagType) {
-        this.tagType = tagType;
-    }
-
     @Override
     public Map<String, Object> getProperties() {
-        return null;
+        return tag.getProperties();
     }
 
     @Override
     public Integer getWeight() {
         return weight;
     }
-
 
 }
