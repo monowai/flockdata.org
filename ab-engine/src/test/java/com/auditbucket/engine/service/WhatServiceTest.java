@@ -6,7 +6,7 @@ import com.auditbucket.audit.model.AuditWhat;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.dao.AuditDao;
-import com.auditbucket.engine.repo.redis.RedisRepository;
+import com.auditbucket.engine.repo.redis.RedisRepo;
 import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
@@ -26,9 +26,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
-import redis.embedded.RedisServer;
-
-import java.io.File;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -38,7 +35,7 @@ import static org.junit.Assert.assertNotNull;
 public class WhatServiceTest extends AbstractRedisSupport {
 
     @Autowired
-    RedisRepository redisRepository;
+    RedisRepo redisRepo;
     @Autowired
     Neo4jTemplate template;
     @Autowired
@@ -77,7 +74,7 @@ public class WhatServiceTest extends AbstractRedisSupport {
         AuditLog auditLog = auditDAO.getLastAuditLog(header.getId());
 
         assertNotNull(auditLog);
-        byte[] whatInfos = redisRepository.getValue(auditLog.getAuditChange().getId());
+        byte[] whatInfos = redisRepo.getValue(auditLog.getAuditChange().getId());
         String whatDecompressed = CompressionHelper.decompress(whatInfos, false);
         Assert.assertNotNull(whatInfos);
         String whatExpected = "{\"blah\":" + 1 + "}";

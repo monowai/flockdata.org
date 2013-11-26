@@ -17,15 +17,13 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.engine.repo.neo4j.dao;
+package com.auditbucket.engine.repo.neo4j;
 
 import com.auditbucket.audit.model.*;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditTXResult;
 import com.auditbucket.dao.AuditDao;
-import com.auditbucket.engine.repo.neo4j.AuditHeaderRepoNeo4j;
-import com.auditbucket.engine.repo.neo4j.AuditLogRepo;
 import com.auditbucket.engine.repo.neo4j.model.*;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.FortressUser;
@@ -55,7 +53,7 @@ import java.util.*;
 public class AuditDaoNeo implements AuditDao {
     private static final String LAST_CHANGE = "LAST_CHANGE";
     @Autowired
-    AuditHeaderRepoNeo4j auditRepo;
+    AuditHeaderRepo auditRepo;
 
     @Autowired
     AuditLogRepo auditLogRepo;

@@ -17,7 +17,7 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.engine.repo.neo4j.dao;
+package com.auditbucket.engine.repo.neo4j;
 
 import com.auditbucket.audit.model.AuditEvent;
 import com.auditbucket.dao.AuditEventDao;
@@ -36,7 +36,7 @@ import java.util.Set;
  * Time: 11:07 PM
  */
 @Repository
-public class AuditEventDaoRepo implements AuditEventDao {
+public class AuditEventDaoNeo implements AuditEventDao {
     @Autowired
     Neo4jTemplate template;
 

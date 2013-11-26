@@ -3,7 +3,7 @@ package com.auditbucket.engine.service;
 import com.auditbucket.audit.model.AuditChange;
 import com.auditbucket.audit.model.AuditWhat;
 import com.auditbucket.dao.AuditDao;
-import com.auditbucket.engine.repo.redis.RedisRepository;
+import com.auditbucket.engine.repo.redis.RedisRepo;
 import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.helper.CompressionResult;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -29,7 +29,7 @@ public class WhatService {
     @Autowired(required = false)
     AuditDao auditDao = null;
     @Autowired
-    RedisRepository redisRepository;
+    RedisRepo redisRepo;
     private Logger logger = LoggerFactory.getLogger(WhatService.class);
 
     public String logWhat(AuditChange change, String jsonText, int version) {
@@ -44,7 +44,7 @@ public class WhatService {
 
         String store = change.getWhatStore();
         if (store.equalsIgnoreCase(REDIS)) {
-            redisRepository.add(change.getId(), result.getAsBytes());
+            redisRepo.add(change.getId(), result.getAsBytes());
         } else {
             throw new IllegalStateException("The only supported KV Store is REDIS");
         }
@@ -59,7 +59,7 @@ public class WhatService {
 
         AuditWhat auditWhat = auditDao.getWhat(Long.parseLong(change.getWhat().getId()));
         if (store.equalsIgnoreCase(REDIS)) {
-            byte[] whatInformation = redisRepository.getValue(change.getId());
+            byte[] whatInformation = redisRepo.getValue(change.getId());
             auditWhat.setWhatBytes(whatInformation);
         } else {
             throw new IllegalStateException("The only supported KV Store is REDIS");

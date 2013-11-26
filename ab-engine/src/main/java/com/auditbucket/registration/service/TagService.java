@@ -64,6 +64,11 @@ public class TagService {
 
     public Iterable<Tag> processTags(Iterable<TagInputBean> tagInputs) {
         Company company = securityHelper.getCompany();
+        return processTags(tagInputs, company);
+    }
+
+    public Iterable<Tag> processTags(Iterable<TagInputBean> tagInputs, Company company) {
+
         List<Tag> result = new ArrayList<>();
 
         //ToDo: Figure out the bulk handing of tags
@@ -80,11 +85,16 @@ public class TagService {
 
     }
 
+    public Tag findTag(String tagName, Company company) {
+        return tagDao.findOne(tagName, company.getId());
+    }
+
+
     public Tag findTag(String tagName) {
         Company company = securityHelper.getCompany();
         if (company == null)
             return null;
-        return tagDao.findOne(tagName, company.getId());
+        return findTag(tagName, company);
     }
 
     public DocumentType resolveDocType(String documentType) {

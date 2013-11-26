@@ -17,7 +17,7 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.engine.repo.neo4j.dao;
+package com.auditbucket.engine.repo.neo4j;
 
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditTag;
@@ -33,6 +33,7 @@ import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
@@ -45,14 +46,14 @@ import java.util.*;
  * Time: 11:07 PM
  */
 @Repository("auditTagDAO")
-public class AuditTagDaoRepo implements com.auditbucket.dao.AuditTagDao {
+public class AuditTagDaoNeo implements com.auditbucket.dao.AuditTagDao {
     @Autowired
     Neo4jTemplate template;
 
     @Autowired
     TagService tagService;
 
-    private Logger logger = LoggerFactory.getLogger(AuditTagDaoRepo.class);
+    private Logger logger = LoggerFactory.getLogger(AuditTagDaoNeo.class);
 
     @Override
     public AuditTag save(AuditHeader auditHeader, Tag tag, String relationship) {
@@ -75,7 +76,28 @@ public class AuditTagDaoRepo implements com.auditbucket.dao.AuditTagDao {
             r.delete();
         }
 
-        template.createRelationshipBetween(tagNode, headerNode, relationship, propMap);
+        // Some tags are busy. Here we have a few attempts at avoiding a deadlock
+        int attempt = 0, maxRetries = 10;
+        ConcurrencyFailureException cex = null;
+        while (attempt < maxRetries) {
+            try {
+                template.createRelationshipBetween(tagNode, headerNode, relationship, propMap);
+                break;
+            } catch (ConcurrencyFailureException ce) {
+                cex = ce;
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+
+                    logger.error("Interrupted while waiting for timeout", e);
+                }
+                attempt++;
+            }
+        }
+        if (attempt == maxRetries) {
+            // Ok, we couldn't resolve the deadlock
+            throw (cex);
+        }
         if (recreated)
             return null;
         logger.trace("Created Relationship Tag[{}] of type {}", tag, relationship);

@@ -44,9 +44,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * User: Mike Holdsworth
@@ -98,7 +96,9 @@ public class AuditEP {
     public void createHeaders(@RequestBody AuditHeaderInputBean[] inputBeans) throws AuditException {
         Company company = auditManager.resolveCompany(inputBeans[0].getApiKey());
         Fortress fortress = auditManager.resolveFortress(company, inputBeans[0]);
-        boolean async = false; // todo: Deadlocks occur around Tags if processing async. Perhaps caller handle this by supressing async until a few batches have been processed synch.
+        boolean async = false; // todo: Deadlocks occur around Tags if processing async. need to create tags before associating as CompanyTag node is VERY busy.
+        auditManager.createTagStructure(inputBeans, company);
+
         if (async) {
             auditManager.createHeadersAsync(inputBeans, company, fortress);
         } else {

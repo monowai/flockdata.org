@@ -27,15 +27,17 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
+import com.auditbucket.registration.service.TagService;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StopWatch;
 
 import java.text.DecimalFormat;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Future;
 
 /**
@@ -60,6 +62,9 @@ public class AuditManagerService {
 
     @Autowired
     CompanyService companyService;
+
+    @Autowired
+    TagService tagService;
 
     @Autowired
     private SecurityHelper securityHelper;
@@ -101,21 +106,48 @@ public class AuditManagerService {
         logger.debug("Batch Request processed");
     }
 
+    public void createTagStructure(AuditHeaderInputBean[] inputBeans, Company company) {
+        Map<String, Object> tagProcessed = new HashMap<>(); // Map to track tags we've created
+        for (AuditHeaderInputBean inputBean : inputBeans) {
+            if (inputBean.getAssociatedTags() != null)
+                auditTagService.createTagStructure(inputBean.getAssociatedTags(), company);
+
+            Map<String, Object> tags = inputBean.getTagValues();
+            Collection<TagInputBean> tagSet = new ArrayList<>();
+
+            for (String tag : tags.keySet()) {
+                if (tagProcessed.get(tag) == null) {
+                    //logger.info(tag);
+                    tagSet.add(new TagInputBean(tag)); // Create Me!
+                    tagProcessed.put(tag, true); // suppress duplicates
+                }
+            }
+            if (!tagSet.isEmpty()) // Anything new to add?
+                tagService.processTags(tagSet);
+        }
+    }
+
+    static DecimalFormat f = new DecimalFormat("##.000");
+
     @Async
     public Future<Void> createHeadersAsync(AuditHeaderInputBean[] inputBeans, Company company, Fortress fortress) throws AuditException {
+        if (inputBeans.length == 0)
+            return null;
         fortress.setCompany(company);
-        DateTime then = DateTime.now();
-        Long id = then.getMillis();
-        logger.info("Processing Batch [{}] - id {}", inputBeans.length, id);
+        Long id = DateTime.now().getMillis();
+        StopWatch watch = new StopWatch();
         try {
+            watch.start();
+            logger.info("Starting Batch [{}] - size [{}]", id, inputBeans.length);
             for (AuditHeaderInputBean inputBean : inputBeans) {
-                createHeader(inputBean, company, fortress);
+                createHeader(inputBean, company, fortress, true);
             }
+
+            watch.stop();
         } catch (Exception e) {
-            logger.error("", e);
+            logger.error("Async Header error", e);
         }
-        DecimalFormat f = new DecimalFormat("##.000");
-        logger.info("Completed Batch [{}] - secs= {}", id, f.format(System.currentTimeMillis() - id / 1000d));
+        logger.info("Completed Batch [{}] - secs= {}, RPS={}", id, f.format(watch.getTotalTimeSeconds()), f.format(inputBeans.length / watch.getTotalTimeSeconds()));
         return null;
     }
 
@@ -129,15 +161,19 @@ public class AuditManagerService {
         Company company = resolveCompany(inputBean.getApiKey());
         Fortress fortress = resolveFortress(company, inputBean);
         fortress.setCompany(company);
-        return createHeader(inputBean, company, fortress);
+        return createHeader(inputBean, company, fortress, false);
     }
 
-    public AuditResultBean createHeader(AuditHeaderInputBean inputBean, Company company, Fortress fortress) throws AuditException {
+    public AuditResultBean createHeader(AuditHeaderInputBean inputBean, Company company, Fortress fortress, boolean tagsProcessed) throws AuditException {
         // Establish directed tag structure
-
+        if (!tagsProcessed) {
+            AuditHeaderInputBean[] inputBeans = new AuditHeaderInputBean[1];
+            inputBeans[0] = inputBean;
+            createTagStructure(inputBeans, company);
+        }
         AuditResultBean resultBean = auditService.createHeader(inputBean, company, fortress);
         // Create audit tags
-        auditTagService.createTagStructure(inputBean.getAssociatedTags(), company);
+
         auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTagValues());
         AuditLogInputBean logBean = inputBean.getAuditLog();
         // Here on could be spun in to a separate thread. The log has to happen eventually
@@ -242,4 +278,6 @@ public class AuditManagerService {
         AuditSummaryBean summary = auditService.getAuditSummary(auditKey);
         return summary;
     }
+
+
 }

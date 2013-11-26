@@ -108,20 +108,19 @@ public class AuditTagService {
             return;
 
         Company company = ah.getFortress().getCompany();
-        //List<TagBucket> tagsToCreate = new ArrayList<>();
 
         for (String tagName : userTags.keySet()) {
 
             Object tagRlx = userTags.get(tagName);
             TagInputBean tagInput;
+            Tag tag;
             if (tagRlx instanceof TagInputBean) {
                 tagInput = (TagInputBean) tagRlx;
                 tagRlx = tagName; // Get the relationship name from the key
-            } else
-                tagInput = new TagInputBean(tagName);
-
-            Tag tag = tagService.processTag(tagInput, company);
-
+                tag = tagService.processTag(tagInput, company);
+            } else {
+                tag = tagService.findTag(tagName, company);//tagService.processTag(tagInput, company);
+            }
 
             String rlxName;
             // Handle both a simple relationship type name or a map/collection of relationships
@@ -133,7 +132,6 @@ public class AuditTagService {
                 if (tagRlx instanceof Collection) {
                     // ToDo: Collection of Maps
                     for (Object o : ((Collection) tagRlx)) {
-                        //tagsToCreate.add(new TagBucket(ah, tag, o.toString()));
                         auditTagDao.save(ah, tag, o.toString());
                     }
                 } else if (tagRlx instanceof Map) {
@@ -149,9 +147,6 @@ public class AuditTagService {
                     }
                 } else {
                     rlxName = tagRlx.toString();
-                    // tagsToCreate.add(new TagBucket(ah, tag, rlxName));
-                    // ToDo: auditTagDao.save(ah, tag, rlxName);
-
                     auditTagDao.save(ah, tag, rlxName);
                 }
             }
@@ -164,7 +159,6 @@ public class AuditTagService {
     }
 
     public Set<AuditTag> findAuditTags(Long companyId, AuditHeader auditHeader) {
-        //Long companyId = tagService.getCompanyTagManager(securityHelper.getCompany().getId());
         return auditTagDao.getAuditTags(auditHeader, companyId);
     }
 
