@@ -103,7 +103,7 @@ public class AuditEP {
             auditManager.createHeadersAsync(inputBeans, company, fortress);
         } else {
             for (AuditHeaderInputBean inputBean : inputBeans) {
-                createHeader(inputBean);
+                auditManager.createHeader(inputBean, company, fortress, true);
             }
         }
     }
