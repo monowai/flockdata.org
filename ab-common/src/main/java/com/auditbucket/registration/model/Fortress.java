@@ -45,7 +45,7 @@ public interface Fortress {
 
     public void setAccumulatingChanges(Boolean accumulateChanges);
 
-    public void setIgnoreSearchEngine(Boolean ignoreSearchEngine);
+    public void setSearchActive(Boolean ignoreSearchEngine);
 
     /**
      * @return default timzeone for this fortress

@@ -54,7 +54,7 @@ public class FortressNode implements Fortress {
     CompanyNode company;
 
     private Boolean accumulatingChanges = false;
-    private Boolean ignoreSearchEngine = true;
+    private Boolean searchActive = true;
     private String timeZone;
     private String languageTag;
 
@@ -66,7 +66,7 @@ public class FortressNode implements Fortress {
     public FortressNode(FortressInputBean fortressInputBean, Company ownedBy) {
         this();
         setName(fortressInputBean.getName());
-        setIgnoreSearchEngine(fortressInputBean.getIgnoreSearch());
+        setSearchActive(fortressInputBean.getSearchActive());
         setCompany(ownedBy);
         if (fortressInputBean.getTimeZone() != null) {
             this.timeZone = fortressInputBean.getTimeZone();
@@ -119,18 +119,18 @@ public class FortressNode implements Fortress {
 
     @Override
     public Boolean isSearchActive() {
-        return !ignoreSearchEngine;
+        return searchActive;
     }
 
-    public void setIgnoreSearchEngine(Boolean ignoreSearchEngine) {
-        if (ignoreSearchEngine != null)
-            this.ignoreSearchEngine = ignoreSearchEngine;
+    public void setSearchActive(Boolean searchActive) {
+        if (searchActive != null)
+            this.searchActive = searchActive;
     }
 
     public void setAccumulatingChanges(Boolean addChanges) {
         this.accumulatingChanges = addChanges;
         if (addChanges)
-            ignoreSearchEngine = false;
+            searchActive = false;
     }
 
     @Override

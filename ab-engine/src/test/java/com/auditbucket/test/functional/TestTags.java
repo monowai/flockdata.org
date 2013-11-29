@@ -22,7 +22,6 @@ package com.auditbucket.test.functional;
 import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.bean.TagInputBean;
-import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.FortressService;
@@ -117,6 +116,7 @@ public class TestTags {
         tagResult = tagService.processTagsFast(tags);
         count = 0;
         for (Tag next : tagResult) {
+            assertNotNull(next);
             count++;
         }
         assertEquals(5, count);
@@ -138,7 +138,7 @@ public class TestTags {
 
         // ToDo: FindService assertNotNull(tagService.findTag("FLOP"));
 
-        iSystemUser = regService.registerSystemUser(new RegistrationBean("ABC", "gina", "bah"));
+        regService.registerSystemUser(new RegistrationBean("ABC", "gina", "bah"));
         Authentication authGina = new UsernamePasswordAuthenticationToken("gina", "user1");
         SecurityContextHolder.getContext().setAuthentication(authGina);
         assertNull(tagService.findTag("FLOP")); // Can't see the Monowai company tag
@@ -154,8 +154,6 @@ public class TestTags {
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
         assertNotNull(iSystemUser);
 
-        Company iCompany = iSystemUser.getCompany();
-
         Tag tag = tagService.processTag(new TagInputBean("FLOP"));
         assertNotNull(tag);
         assertNull(tagService.findTag("ABC"));
@@ -164,6 +162,7 @@ public class TestTags {
 
         Tag result = tagService.findTag("FLOP");
         assertNotNull(result);
+        tagService.findTag("FLOP");
         result = tagService.processTag(new TagInputBean("FLOPPY"));
         assertNotNull(result);
         assertEquals("FLOPPY", result.getName());

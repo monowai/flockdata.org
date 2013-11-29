@@ -56,12 +56,12 @@ public class AuditTagDaoNeo implements com.auditbucket.dao.AuditTagDao {
     private Logger logger = LoggerFactory.getLogger(AuditTagDaoNeo.class);
 
     @Override
-    public AuditTag save(AuditHeader auditHeader, Tag tag, String relationship) {
-        return save(auditHeader, tag, relationship, null);
+    public void save(AuditHeader auditHeader, Tag tag, String relationship) {
+        save(auditHeader, tag, relationship, null);
     }
 
 
-    public AuditTag save(AuditHeader auditHeader, Tag tag, String relationship, Map<String, Object> propMap) {
+    public void save(AuditHeader auditHeader, Tag tag, String relationship, Map<String, Object> propMap) {
         // ToDo: this will only set properties for the "current" tag to Header. it will not version it.
         if (relationship == null) {
             relationship = "GENERAL_TAG";
@@ -73,7 +73,8 @@ public class AuditTagDaoNeo implements com.auditbucket.dao.AuditTagDao {
         boolean recreated = false;
         if (r != null) {// Recreate
             recreated = true;
-            r.delete();
+//            r.delete();
+            return;
         }
 
         // Some tags are busy. Here we have a few attempts at avoiding a deadlock
@@ -98,11 +99,11 @@ public class AuditTagDaoNeo implements com.auditbucket.dao.AuditTagDao {
             // Ok, we couldn't resolve the deadlock
             throw (cex);
         }
-        if (recreated)
-            return null;
+//        if (recreated)
+//            return null;
         logger.trace("Created Relationship Tag[{}] of type {}", tag, relationship);
 
-        return null;
+        return;
     }
 
     @Autowired

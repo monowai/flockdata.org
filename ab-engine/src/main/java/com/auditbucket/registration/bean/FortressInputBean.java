@@ -35,7 +35,7 @@ import java.util.TimeZone;
  */
 public class FortressInputBean {
     private String name;
-    private Boolean ignoreSearch = false;
+    private Boolean searchActive = false;
     private String message = null;
     private String fortressKey = null;
     private String timeZone = null;
@@ -54,7 +54,7 @@ public class FortressInputBean {
      */
     public FortressInputBean(String name, boolean ignoreSearchEngine) {
         //this.accumulateChanges = ignoreSearchEngine;
-        this.ignoreSearch = ignoreSearchEngine;
+        this.searchActive = !ignoreSearchEngine;
         this.name = name;
     }
 
@@ -70,12 +70,12 @@ public class FortressInputBean {
         this.name = name;
     }
 
-    public Boolean getIgnoreSearch() {
-        return ignoreSearch;
+    public Boolean getSearchActive() {
+        return searchActive;
     }
 
-    public void setIgnoreSearch(Boolean ignoreSearch) {
-        this.ignoreSearch = ignoreSearch;
+    public void setSearchActive(Boolean searchActive) {
+        this.searchActive = searchActive;
     }
 
     public void setMessage(String message) {

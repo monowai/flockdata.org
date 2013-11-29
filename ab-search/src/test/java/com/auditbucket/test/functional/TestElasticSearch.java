@@ -74,7 +74,7 @@ public class TestElasticSearch {
         // Basic JSON/ES tests to figure our what is going on
 
 //        Fortress fortress = new Fortress(new FortressInputBean("fortress"), new Company("Monowai"));
-//        fortress.setIgnoreSearchEngine(false);
+//        fortress.setSearchActive(false);
 //        FortressUser fu = new FortressUser(fortress, uid);
 //        AuditHeaderInputBean hib = new AuditHeaderInputBean("fortress", "Test", "Test", new DateTime().toDate(), "testRef");
 //        AuditLogResultBean auditHeader = new AuditLogResultBean(fu, hib, new DocumentType("TestJson", fu.getFortress().getCompany()));
@@ -140,7 +140,7 @@ public class TestElasticSearch {
         // As per JSON test, except this time we're doing it all via Spring.
 
 //        Fortress fortress = new Fortress(new FortressInputBean("fortress"), new Company("Monowai"));
-//        fortress.setIgnoreSearchEngine(false);
+//        fortress.setSearchActive(false);
 //        FortressUser fu = new FortressUser(fortress, uid);
 //        AuditHeaderInputBean hib = new AuditHeaderInputBean("fortress", "Test", "Test", new DateTime().toDate(), "testRef");
 //        AuditLogResultBean auditHeader = new AuditLogResultBean(fu, hib, new DocumentType("TestJson", fu.getFortress().getCompany()));
