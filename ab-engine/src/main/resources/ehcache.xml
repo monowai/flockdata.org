@@ -46,7 +46,14 @@
            eternal="false"
            timeToIdleSeconds="120"
            timeToLiveSeconds="120"
-           memoryStoreEvictionPolicy="LRU"/>
+           memoryStoreEvictionPolicy="LFU"/>
+
+    <cache name="auditCallerKey"
+           maxElementsInMemory="400"
+           eternal="false"
+           timeToIdleSeconds="120"
+           timeToLiveSeconds="120"
+           memoryStoreEvictionPolicy="LFU"/>
 
     <cache name="auditHeaderId"
            maxElementsInMemory="200"

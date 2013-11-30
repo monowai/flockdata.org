@@ -96,12 +96,14 @@ public class AuditEP {
     public void createHeaders(@RequestBody AuditHeaderInputBean[] inputBeans) throws AuditException {
         Company company = auditManager.resolveCompany(inputBeans[0].getApiKey());
         Fortress fortress = auditManager.resolveFortress(company, inputBeans[0]);
-        boolean async = false; // todo: Deadlocks occur around Tags if processing async. need to create tags before associating as CompanyTag node is VERY busy.
+        //194490
+        boolean async = true; // todo: Deadlocks can occur around Tags if processing async. need to create tags before associating as CompanyTag node is VERY busy.
         auditManager.createTagStructure(inputBeans, company);
 
         if (async) {
             auditManager.createHeadersAsync(inputBeans, company, fortress);
         } else {
+
             for (AuditHeaderInputBean inputBean : inputBeans) {
                 auditManager.createHeader(inputBean, company, fortress, true);
             }

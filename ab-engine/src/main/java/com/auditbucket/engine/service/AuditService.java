@@ -426,7 +426,6 @@ public class AuditService {
      *
      * @param searchResult contains keys to tie the search to the audit
      */
-    @Async
     @ServiceActivator(inputChannel = "searchResult")
     public void handleSearchResult(SearchResult searchResult) {
 
@@ -666,8 +665,13 @@ public class AuditService {
 
     @Async
     private Future<AuditHeader> findByCallerRefFuture(Long fortressId, String documentType, String callerRef) {
-        AuditHeader auditHeader = findByCallerRef(fortressId, documentType, callerRef);
-        return new AsyncResult<>(auditHeader);
+        try {
+            AuditHeader auditHeader = findByCallerRef(fortressId, documentType, callerRef);
+            return new AsyncResult<>(auditHeader);
+        } catch (Exception e) {
+            logger.error("Caller Reference ", e);
+        }
+        return new AsyncResult<>(null);
     }
 
 
@@ -687,7 +691,7 @@ public class AuditService {
 //        if (!fortress.getCompany().getId().equals(su.getCompany().getId()))
 //            throw new SecurityException(securityHelper.getLoggedInUser() + " is not authorised to work with requested FortressNode");
 
-        return auditDAO.findHeaderByCallerRef(fortress.getId(), documentType, callerRef.trim());
+        return auditDAO.findHeaderByCallerRef(fortress.getId(), documentType, callerRef.toLowerCase().trim());
     }
 
     private AuditLog getLastLog(Long headerId) {

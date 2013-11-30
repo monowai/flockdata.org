@@ -55,19 +55,23 @@
     <import resource="neo4j-context.xml"/>
     <import resource="kv-context.xml"/>
 
-    <task:annotation-driven executor="taskExecutor"/>
+    <task:annotation-driven executor="ab-engineExec"/>
 
-    <task:executor id="executor" pool-size="20"/>
+    <!--Pool size is the number of executors that will handle Bulk Uploads and incoming search responses-->
+    <task:executor id="ab-engineExec" pool-size="25-25" keep-alive="180" queue-capacity="50"
+                   rejection-policy="CALLER_RUNS"/>
 
-    <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ConcurrentTaskExecutor">
-        <property name="concurrentExecutor" ref="threadPoolExecutor"/>
-    </bean>
-    <bean id="threadPoolExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-        <property name="threadGroupName" value="ab-engine"/>
-        <property name="keepAliveSeconds" value="5"/>
-        <property name="allowCoreThreadTimeOut" value="true"/>
-        <property name="queueCapacity" value="-1"/>
-    </bean>
+    <!--<bean id="generalTaskExecutor" class="org.springframework.scheduling.concurrent.ConcurrentTaskExecutor">-->
+    <!--<property name="concurrentExecutor" ref="threadPoolExecutor"/>-->
+    <!--</bean>-->
+
+    <!--<bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">-->
+    <!--<property name="threadGroupName" value="ab-engine"/>-->
+    <!--<property name="keepAliveSeconds" value="10"/>-->
+    <!--<property name="allowCoreThreadTimeOut" value="false"/>-->
+    <!--<property name="queueCapacity" value="-1"/>-->
+    <!--&lt;!&ndash;<property name="queueCapacity" value="100"/>&ndash;&gt;-->
+    <!--</bean>-->
 
     <cache:annotation-driven/>
     <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager" p:cacheManager-ref="ehcache"/>

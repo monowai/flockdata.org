@@ -166,37 +166,44 @@ public class AuditManagerService {
 
     public AuditResultBean createHeader(AuditHeaderInputBean inputBean, Company company, Fortress fortress, boolean tagsProcessed) throws AuditException {
         // Establish directed tag structure
-        if (!tagsProcessed) {
-            AuditHeaderInputBean[] inputBeans = new AuditHeaderInputBean[1];
-            inputBeans[0] = inputBean;
-            createTagStructure(inputBeans, company);
-        }
-        AuditResultBean resultBean = auditService.createHeader(inputBean, company, fortress);
-        // Create audit tags
-
-        auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTagValues());
-        AuditLogInputBean logBean = inputBean.getAuditLog();
-        // Here on could be spun in to a separate thread. The log has to happen eventually
-        //   and can't fail.
-        if (inputBean.getAuditLog() != null) {
-            // Secret back door so that the log result can quickly get the
-            logBean.setAuditId(resultBean.getAuditId());
-            logBean.setAuditKey(resultBean.getAuditKey());
-            logBean.setFortressUser(inputBean.getFortressUser());
-            logBean.setCallerRef(resultBean.getCallerRef());
-
-            AuditLogResultBean logResult = createLog(inputBean.getAuditLog());
-            logResult.setAuditKey(null);// Don't duplicate the text as it's in the header
-            logResult.setFortressUser(null);
-            resultBean.setLogResult(logResult);
-        } else {
-            // Make header searchable - metadata only
-            if (!resultBean.isDuplicate() && inputBean.getEvent() != null && !"".equals(inputBean.getEvent())) {
-                // Tracking an event only
-                auditService.makeHeaderSearchable(resultBean, inputBean.getEvent(), inputBean.getWhen(), company.getId());
+        try {
+            if (!tagsProcessed) {
+                AuditHeaderInputBean[] inputBeans = new AuditHeaderInputBean[1];
+                inputBeans[0] = inputBean;
+                createTagStructure(inputBeans, company);
             }
+            AuditResultBean resultBean = auditService.createHeader(inputBean, company, fortress);
+
+            // Don't recreate tags if we already handled this -ToDiscuss!!
+            if (!resultBean.isDuplicate())
+                auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTagValues());
+
+            AuditLogInputBean logBean = inputBean.getAuditLog();
+            // Here on could be spun in to a separate thread. The log has to happen eventually
+            //   and can't fail.
+            if (inputBean.getAuditLog() != null) {
+                // Secret back door so that the log result can quickly get the
+                logBean.setAuditId(resultBean.getAuditId());
+                logBean.setAuditKey(resultBean.getAuditKey());
+                logBean.setFortressUser(inputBean.getFortressUser());
+                logBean.setCallerRef(resultBean.getCallerRef());
+
+                AuditLogResultBean logResult = createLog(inputBean.getAuditLog());
+                logResult.setAuditKey(null);// Don't duplicate the text as it's in the header
+                logResult.setFortressUser(null);
+                resultBean.setLogResult(logResult);
+            } else {
+                // Make header searchable - metadata only
+                if (!resultBean.isDuplicate() && inputBean.getEvent() != null && !"".equals(inputBean.getEvent())) {
+                    // Tracking an event only
+                    auditService.makeHeaderSearchable(resultBean, inputBean.getEvent(), inputBean.getWhen(), company.getId());
+                }
+            }
+            return resultBean;
+        } catch (Exception e) {
+            logger.error("Header Exception", e);
+            return null;
         }
-        return resultBean;
 
     }
 

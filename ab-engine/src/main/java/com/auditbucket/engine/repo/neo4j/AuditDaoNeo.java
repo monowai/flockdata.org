@@ -89,13 +89,14 @@ public class AuditDaoNeo implements AuditDao {
         return header;
     }
 
+    @Cacheable(value = "auditCallerKey", unless = "#result==null")
     public AuditHeader findHeaderByCallerRef(Long fortressId, @NotNull String documentType, @NotNull String callerRef) {
         if (logger.isTraceEnabled())
             logger.trace("findByCallerRef fortress [" + fortressId + "] docType[" + documentType + "], callerRef[" + callerRef.toLowerCase() + "]");
 
         // This is pretty crappy, but Neo4J will throw an exception the first time you try to search if no index is in place.
         if (template.getGraphDatabaseService().index().existsForNodes("callerRef"))
-            return auditRepo.findByCallerRef(fortressId, documentType, callerRef.toLowerCase());
+            return auditRepo.findByCallerRef(fortressId, documentType, callerRef);
 
         return null;
     }

@@ -64,15 +64,10 @@
         <constructor-arg index="0" value="DEBUG"/>
     </bean>
 
-    <!--<bean id="qExecutor" class="org.springframework.scheduling.concurrent.ConcurrentTaskExecutor">-->
-    <!--<property name="concurrentExecutor" ref="qThreadPoolExecutor"/>-->
-    <!--</bean>-->
     <bean id="qThreadPoolExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-        <!--<property name="corePoolSize" value="20"/>-->
-        <!--<property name="maxPoolSize" value="250"/>-->
-        <property name="keepAliveSeconds" value="5"/>
         <property name="allowCoreThreadTimeOut" value="true"/>
-        <property name="queueCapacity" value="-1"/>
+        <property name="queueCapacity" value="20"/>
+        <!--Was -1-->
     </bean>
 
 </beans>
