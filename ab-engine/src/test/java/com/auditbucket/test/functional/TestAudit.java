@@ -141,9 +141,9 @@ public class TestAudit {
 
         SecurityContextHolder.getContext().setAuthentication(authMike);
 
-        assertNotNull(auditService.findByCallerRef(fortressA.getId(), "TestAudit", "ABC123"));
-        assertNotNull(auditService.findByCallerRef(fortressA.getId(), "TestAudit", "abc123"));
-        assertNull("Security - shouldn't be able to see this header", auditService.findByCallerRef(fortressA.getId(), "TestAudit", "123ABC"));
+        assertNotNull(auditService.findByCallerRef(fortressA, "TestAudit", "ABC123"));
+        assertNotNull(auditService.findByCallerRef(fortressA, "TestAudit", "abc123"));
+        assertNull("Security - shouldn't be able to see this header", auditService.findByCallerRef(fortressA, "TestAudit", "123ABC"));
         // Test non external user can't do this
         SecurityContextHolder.getContext().setAuthentication(authB);
         assertNull(auditService.findByCallerRef(fortressA.getCode(), "TestAudit", "ABC123"));
@@ -171,7 +171,7 @@ public class TestAudit {
         assertNotNull(ahKey);
 
         assertNotNull(auditService.getHeader(ahKey));
-        assertNotNull(auditService.findByCallerRef(fo.getId(), "TestAudit", "ABC123"));
+        assertNotNull(auditService.findByCallerRef(fo, "TestAudit", "ABC123"));
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));
 
@@ -638,7 +638,7 @@ public class TestAudit {
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "ABC1");
         String ahWP = auditManagerService.createHeader(inputBean).getAuditKey();
 
-        com.auditbucket.audit.model.AuditHeader header = auditService.findByCallerRefFull(fortWP.getId(), "CompanyNode", "ABC1");
+        com.auditbucket.audit.model.AuditHeader header = auditService.findByCallerRefFull(fortWP, "CompanyNode", "ABC1");
         assertNotNull(header);
         assertNotNull(header.getDocumentType());
         assertEquals(ahWP, header.getAuditKey());

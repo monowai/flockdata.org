@@ -47,16 +47,20 @@ public class DocumentTypeNode implements DocumentType {
 
     private String name;
 
-    @Indexed(indexName = "documentTypeCode")
     private String code;
+
+    @Indexed(indexName = "companyDocKey", unique = true)
+    private String companyKey;
 
     protected DocumentTypeNode() {
     }
 
     public DocumentTypeNode(String documentTypeName, Company company) {
+        this();
         this.name = documentTypeName;
         this.code = documentTypeName.toLowerCase().replaceAll("\\s", "");
         this.company = company;
+        this.companyKey = company.getId() + "." + documentTypeName.toLowerCase().replaceAll("\\s", "");
     }
 
     public String getName() {
@@ -78,5 +82,13 @@ public class DocumentTypeNode implements DocumentType {
     @JsonIgnore
     public String getCode() {
         return code;
+    }
+
+    @JsonIgnore
+    /**
+     * used to create a unique key index for a company+docType combo
+     */
+    String getCompanyKey() {
+        return companyKey;
     }
 }

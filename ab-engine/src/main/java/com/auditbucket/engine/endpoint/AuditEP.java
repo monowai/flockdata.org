@@ -174,7 +174,7 @@ public class AuditEP {
                                                                                   @PathVariable("recordType") String recordType,
                                                                                   @PathVariable("callerRef") String callerRef) {
         Fortress f = fortressService.findByName(fortress);
-        AuditHeader result = auditService.findByCallerRef(f.getId(), recordType, callerRef);
+        AuditHeader result = auditService.findByCallerRef(f, recordType, callerRef);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 

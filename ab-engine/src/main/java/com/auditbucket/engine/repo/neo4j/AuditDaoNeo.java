@@ -90,13 +90,15 @@ public class AuditDaoNeo implements AuditDao {
     }
 
     @Cacheable(value = "auditCallerKey", unless = "#result==null")
-    public AuditHeader findHeaderByCallerRef(Long fortressId, @NotNull String documentType, @NotNull String callerRef) {
+    public AuditHeader findHeaderByCallerRef(Long fortressId, @NotNull Long documentId, @NotNull String callerRef) {
         if (logger.isTraceEnabled())
-            logger.trace("findByCallerRef fortress [" + fortressId + "] docType[" + documentType + "], callerRef[" + callerRef.toLowerCase() + "]");
+            logger.trace("findByCallerRef fortress [" + fortressId + "] docType[" + documentId + "], callerRef[" + callerRef.toLowerCase() + "]");
 
         // This is pretty crappy, but Neo4J will throw an exception the first time you try to search if no index is in place.
-        if (template.getGraphDatabaseService().index().existsForNodes("callerRef"))
-            return auditRepo.findByCallerRef(fortressId, documentType, callerRef);
+        if (template.getGraphDatabaseService().index().existsForNodes("callerRef")) {
+            String keyToFind = "" + fortressId + "." + documentId + "." + callerRef.toLowerCase();
+            return auditRepo.findByCallerRef(keyToFind);
+        }
 
         return null;
     }
@@ -243,7 +245,11 @@ public class AuditDaoNeo implements AuditDao {
 
     @Override
     public AuditHeader create(String uid, FortressUser fu, AuditHeaderInputBean inputBean, DocumentType documentType) {
-        return save(new AuditHeaderNode(uid, fu, inputBean, documentType));
+        AuditHeader ah = findHeaderByCallerRef(fu.getFortress().getId(), documentType.getId(), inputBean.getCallerRef());
+        if (ah == null)
+            return save(new AuditHeaderNode(uid, fu, inputBean, documentType));
+
+        return ah;
     }
 
     @Override

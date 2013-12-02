@@ -45,7 +45,9 @@ public interface TagDao {
      */
     Tag findOne(String tagName, Long companyId);
 
-    DocumentType findOrCreate(String documentType, Company company);
+    DocumentType findCompanyDocument(String documentType, Company company);
+
+    DocumentType findOrCreateDocument(String documentType, Company company, Boolean createIfMissing);
 
     Long createCompanyTagManager(Long companyId, String tagCollectionName);
 

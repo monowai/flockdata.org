@@ -60,7 +60,7 @@ public interface AuditDao {
 
     Set<AuditLog> getAuditLogs(Long auditHeaderID);
 
-    AuditHeader findHeaderByCallerRef(Long fortressId, String documentType, String callerRef);
+    AuditHeader findHeaderByCallerRef(Long fortressId, Long documentId, String callerRef);
 
     AuditHeader fetch(AuditHeader header);
 

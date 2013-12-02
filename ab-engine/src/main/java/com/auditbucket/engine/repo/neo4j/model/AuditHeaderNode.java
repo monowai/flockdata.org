@@ -48,7 +48,7 @@ import java.util.TimeZone;
 @TypeAlias("ab.Audit")
 public class AuditHeaderNode implements AuditHeader {
 
-    @Indexed(indexName = UUID_KEY, unique = true)
+    @Indexed(indexName = UUID_KEY)
     private String auditKey;
 
     @RelatedTo(elementClass = FortressNode.class, type = "TRACKS", direction = Direction.INCOMING)
@@ -59,7 +59,9 @@ public class AuditHeaderNode implements AuditHeader {
     @Fetch
     private DocumentTypeNode documentType;
 
-    @Indexed(indexName = "callerRef")
+    @Indexed(indexName = "callerRef", unique = true)
+    private String callerKeyRef;
+
     private String callerRef;
 
     private long dateCreated = 0;
@@ -107,8 +109,9 @@ public class AuditHeaderNode implements AuditHeader {
         this.documentType = (DocumentTypeNode) documentType;
         String docType = (documentType != null ? getDocumentType() : "");
         callerRef = auditInput.getCallerRef();
-        if (callerRef != null)
-            callerRef = callerRef.toLowerCase();
+        if (callerRef != null) {
+            callerKeyRef = fortress.getId() + "." + documentType.getId() + "." + callerRef.toLowerCase();
+        }
 
         this.name = (callerRef == null ? docType : (docType + "." + callerRef).toLowerCase());
         this.description = auditInput.getDescription();
@@ -145,6 +148,11 @@ public class AuditHeaderNode implements AuditHeader {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public Fortress getFortress() {
         return fortress;
+    }
+
+    @JsonIgnore
+    public String getCallerKeyRef() {
+        return this.callerKeyRef;
     }
 
     @Override

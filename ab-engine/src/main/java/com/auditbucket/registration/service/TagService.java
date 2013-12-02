@@ -105,18 +105,30 @@ public class TagService {
     }
 
     /**
+     * Finds a company document type and creates it if it is missing
+     *
+     * @param company
+     * @param documentType
+     * @return
+     */
+    public DocumentType resolveDocType(Company company, String documentType) {
+        return resolveDocType(company, documentType, true);
+    }
+
+    /**
      * finds or creates a Document Type for the caller's company
      *
      * @param company
-     * @param documentType name of the document
+     * @param documentType    name of the document
+     * @param createIfMissing
      * @return created DocumentType
      */
-    public DocumentType resolveDocType(Company company, String documentType) {
+    public DocumentType resolveDocType(Company company, String documentType, Boolean createIfMissing) {
         if (documentType == null) {
             throw new IllegalArgumentException("DocumentTypeNode cannot be null");
         }
 
-        return tagDao.findOrCreate(documentType, company);
+        return tagDao.findOrCreateDocument(documentType, company, createIfMissing);
 
     }
 

@@ -19,6 +19,7 @@
 
 package com.auditbucket.test.functional;
 
+import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditLog;
 import com.auditbucket.bean.*;
 import com.auditbucket.engine.service.AuditManagerService;
@@ -110,13 +111,13 @@ public class TestAuditIntegration {
         factory.setClientConfig(clientConfig);
         client = factory.getObject();
 
-        client.execute(new DeleteIndex.Builder("testaudit.suppress").build());
-        client.execute(new DeleteIndex.Builder("testaudit.ngram").build());
-        client.execute(new DeleteIndex.Builder("companywithspace.audittest").build());
+        client.execute(new DeleteIndex.Builder("ab.testaudit.suppress").build());
+        client.execute(new DeleteIndex.Builder("ab.testaudit.ngram").build());
+        client.execute(new DeleteIndex.Builder("ab.companywithspace.audittest").build());
 
-        client.execute(new DeleteIndex.Builder("monowai.audittest").build());
+        client.execute(new DeleteIndex.Builder("ab.monowai.audittest").build());
         for (int i = 1; i < fortressMax + 1; i++) {
-            client.execute(new DeleteIndex.Builder("testaudit.bulkloada" + i).build());
+            client.execute(new DeleteIndex.Builder("ab.testaudit.bulkloada" + i).build());
         }
 
     }
@@ -205,7 +206,7 @@ public class TestAuditIntegration {
 
         com.auditbucket.audit.model.AuditHeader auditHeader = auditService.getHeader(ahKey);
         assertNotNull(auditHeader);
-        assertNotNull(auditService.findByCallerRef(fo.getId(), "TestAudit", "ABC123"));
+        assertNotNull(auditService.findByCallerRef(fo, "TestAudit", "ABC123"));
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));
 
@@ -466,7 +467,7 @@ public class TestAuditIntegration {
                     if (random == 0)
                         random = 1;
 
-                    com.auditbucket.audit.model.AuditHeader header = auditService.findByCallerRefFull(list.get(fortress), "CompanyNode", "ABC" + random);
+                    AuditHeader header = auditService.findByCallerRefFull(list.get(fortress), "CompanyNode", "ABC" + random);
                     assertNotNull("ABC" + random, header);
                     assertNotNull("Looks like ab-search is not sending back results", header.getSearchKey());
                     //AuditLog when = auditService.getLastAuditLog(header);

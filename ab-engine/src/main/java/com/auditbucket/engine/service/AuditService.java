@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.mapping.model.MappingException;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -123,37 +124,20 @@ public class AuditService {
      * @return unique primary key to be used for subsequent log calls
      */
     public AuditResultBean createHeader(AuditHeaderInputBean inputBean, Company company, Fortress fortress) throws AuditException {
-        Future<AuditHeader> futureHeader = null;
-        Future<DocumentType> futureDocType;
-        // ToDo: Improve cypher query
-
-        if (inputBean.getAuditKey() == null && inputBean.getCallerRef() != null && !inputBean.getCallerRef().equals(EMPTY))
-            futureHeader = findByCallerRefFuture(fortress.getId(), inputBean.getDocumentType(), inputBean.getCallerRef());
-
-        futureDocType = getDocumentType(company, inputBean.getDocumentType());
         DocumentType documentType;
+        documentType = tagService.resolveDocType(company, inputBean.getDocumentType());
+
         // Create thisFortressUser if missing
         FortressUser fu = fortressService.getFortressUser(fortress, inputBean.getFortressUser(), true);
         fu.getFortress().setCompany(company);
         fu.setFortress(fortress);// Save fetching it twice
-        inputBean.setAuditKey(keyGenService.getUniqueKey());
+
         AuditHeader ah = null;
-
-        try {
-            documentType = futureDocType.get();
-            if (futureHeader != null)
-                ah = futureHeader.get(); // Idempotent check
-
-        } catch (InterruptedException e) {
-            logger.error("waiting for future result", e);
-            return null;
-        } catch (ExecutionException e) {
-            logger.error("waiting for future result", e);
-            return null;
-        }
+        if (inputBean.getAuditKey() == null && inputBean.getCallerRef() != null && !inputBean.getCallerRef().equals(EMPTY))
+            ah = findByCallerRef(fortress, documentType, inputBean.getCallerRef());
 
         if (ah != null) {
-            logger.trace("Existing auditHeader record found by Caller Ref [{}] found [{}]", inputBean.getCallerRef(), ah.getAuditKey());
+            logger.info("Existing auditHeader record found by Caller Ref [{}] found [{}]", inputBean.getCallerRef(), ah.getAuditKey());
             inputBean.setAuditKey(ah.getAuditKey());
 
             AuditResultBean arb = new AuditResultBean(ah);
@@ -167,14 +151,10 @@ public class AuditService {
 
     }
 
-    private Future<DocumentType> getDocumentType(Company company, String documentType) {
-        return new AsyncResult<>(tagService.resolveDocType(company, documentType));
-    }
-
     private AuditHeader makeAuditHeader(AuditHeaderInputBean inputBean, FortressUser fu, DocumentType documentType) {
-
+        inputBean.setAuditKey(keyGenService.getUniqueKey());
         AuditHeader ah = auditDAO.create(inputBean.getAuditKey(), fu, inputBean, documentType);
-        logger.debug("Audit Header created:{} key=[{}]", ah.getId(), ah.getAuditKey());
+        logger.info("Audit Header created:{} key=[{}]", ah.getId(), ah.getAuditKey());
         return ah;
     }
 
@@ -648,25 +628,32 @@ public class AuditService {
         if (iFortress == null)
             return null;
 
-        return findByCallerRef(iFortress.getId(), documentType, callerRef);
+        return findByCallerRef(iFortress, documentType, callerRef);
+    }
+
+    public AuditHeader findByCallerRefFull(Long fortressId, String documentType, String callerRef) {
+        Fortress fortress = fortressService.getFortress(fortressId);
+        return findByCallerRefFull(fortress, documentType, callerRef);
+
     }
 
     /**
+     * \
      * inflates the search result with dependencies populated
      *
-     * @param fortressID   PK
+     * @param fortress
      * @param documentType Class of doc
      * @param callerRef    fortress PK
      * @return inflated header
      */
-    public AuditHeader findByCallerRefFull(Long fortressID, String documentType, String callerRef) {
-        return findByCallerRef(fortressID, documentType, callerRef);
+    public AuditHeader findByCallerRefFull(Fortress fortress, String documentType, String callerRef) {
+        return findByCallerRef(fortress, documentType, callerRef);
     }
 
     @Async
-    private Future<AuditHeader> findByCallerRefFuture(Long fortressId, String documentType, String callerRef) {
+    private Future<AuditHeader> findByCallerRefFuture(Fortress fortress, String documentType, String callerRef) {
         try {
-            AuditHeader auditHeader = findByCallerRef(fortressId, documentType, callerRef);
+            AuditHeader auditHeader = findByCallerRef(fortress, documentType, callerRef);
             return new AsyncResult<>(auditHeader);
         } catch (Exception e) {
             logger.error("Caller Reference ", e);
@@ -674,24 +661,22 @@ public class AuditService {
         return new AsyncResult<>(null);
     }
 
+    public AuditHeader findByCallerRef(Fortress fortress, String documentType, String callerRef) {
+        DocumentType doc = tagService.resolveDocType(fortress.getCompany(), documentType, false);
+        if (doc == null)
+            return null;
+        return findByCallerRef(fortress, doc, callerRef);
+
+    }
 
     /**
-     * @param fortressID   fortress to search
+     * @param fortress
      * @param documentType class of document
      * @param callerRef    fortress primary key
      * @return AuditLogResultBean or NULL.
      */
-    public AuditHeader findByCallerRef(Long fortressID, String documentType, String callerRef) {
-
-//        SystemUser su = sysUserService.findByName(securityHelper.getLoggedInUser());
-//        if (su == null)
-//            throw new SecurityException(securityHelper.getLoggedInUser() + " is not authorised");
-
-        Fortress fortress = fortressService.getFortress(fortressID);
-//        if (!fortress.getCompany().getId().equals(su.getCompany().getId()))
-//            throw new SecurityException(securityHelper.getLoggedInUser() + " is not authorised to work with requested FortressNode");
-
-        return auditDAO.findHeaderByCallerRef(fortress.getId(), documentType, callerRef.toLowerCase().trim());
+    public AuditHeader findByCallerRef(Fortress fortress, DocumentType documentType, String callerRef) {
+        return auditDAO.findHeaderByCallerRef(fortress.getId(), documentType.getId(), callerRef.toLowerCase().trim());
     }
 
     private AuditLog getLastLog(Long headerId) {

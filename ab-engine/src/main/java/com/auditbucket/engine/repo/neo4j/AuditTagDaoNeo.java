@@ -21,6 +21,7 @@ package com.auditbucket.engine.repo.neo4j;
 
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditTag;
+import com.auditbucket.dao.AuditTagDao;
 import com.auditbucket.dao.TagDao;
 import com.auditbucket.engine.repo.neo4j.model.AuditHeaderNode;
 import com.auditbucket.engine.repo.neo4j.model.AuditTagRelationship;
@@ -46,7 +47,7 @@ import java.util.*;
  * Time: 11:07 PM
  */
 @Repository("auditTagDAO")
-public class AuditTagDaoNeo implements com.auditbucket.dao.AuditTagDao {
+public class AuditTagDaoNeo implements AuditTagDao {
     @Autowired
     Neo4jTemplate template;
 
@@ -70,9 +71,9 @@ public class AuditTagDaoNeo implements com.auditbucket.dao.AuditTagDao {
         Node tagNode = template.getPersistentState(tag);
         //Primary exploration relationship
         Relationship r = template.getRelationshipBetween(tagNode, headerNode, relationship);
-        boolean recreated = false;
+        //boolean recreated = false;
         if (r != null) {// Recreate
-            recreated = true;
+            //  recreated = true;
 //            r.delete();
             return;
         }
@@ -103,7 +104,6 @@ public class AuditTagDaoNeo implements com.auditbucket.dao.AuditTagDao {
 //            return null;
         logger.trace("Created Relationship Tag[{}] of type {}", tag, relationship);
 
-        return;
     }
 
     @Autowired

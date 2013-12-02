@@ -215,16 +215,20 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
         return tag;
     }
 
-    @Override
     @Cacheable(value = "companyDocType", unless = "#result == null")
-    public DocumentType findOrCreate(String documentType, Company company) {
-        DocumentType result = documentTypeRepo.findCompanyDocType(company.getId(), documentType.toLowerCase().replaceAll("\\s", ""));
+    public DocumentType findCompanyDocument(String documentType, Company company) {
+        return documentTypeRepo.findCompanyDocType(company.getId(), company.getId() + "." + documentType.toLowerCase().replaceAll("\\s", ""));
+    }
 
-        if (result == null) {
+    public DocumentType findOrCreateDocument(String documentType, Company company, Boolean createIfMissing) {
+        DocumentType docResult = findCompanyDocument(documentType, company);
+        if (docResult == null && createIfMissing) {
+            DocumentTypeNode docType = new DocumentTypeNode(documentType, company);
             logger.debug("Creating document type {}", documentType);
-            result = documentTypeRepo.save(new DocumentTypeNode(documentType, company));
+            docResult = documentTypeRepo.save(docType);
+
         }
-        return result;
+        return docResult;
 
     }
 }
