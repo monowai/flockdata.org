@@ -37,6 +37,9 @@ public interface AuditLog {
      */
     public void setIsIndexed();
 
+    /**
+     * @return When this log file was created in AuditBucket
+     */
     public Long getSysWhen();
 
     public Long getFortressWhen();

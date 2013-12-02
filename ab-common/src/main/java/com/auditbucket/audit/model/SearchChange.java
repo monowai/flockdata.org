@@ -65,8 +65,16 @@ public interface SearchChange {
 
     public String getIndexName();
 
+    /**
+     * @return date this was created in the owning fortress
+     */
     public Long getWhen();
 
+    /**
+     * when this log was created in the Fortress
+     *
+     * @param date date
+     */
     void setWhen(DateTime date);
 
     void setWho(String name);

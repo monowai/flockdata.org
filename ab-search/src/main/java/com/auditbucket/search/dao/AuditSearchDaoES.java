@@ -274,7 +274,11 @@ public class AuditSearchDaoES implements AuditSearchDao {
         indexMe.put(AuditSearchSchema.WHO, auditChange.getWho());
         if (auditChange.getEvent() != null)
             indexMe.put(AuditSearchSchema.LAST_EVENT, auditChange.getEvent());
+
         indexMe.put(AuditSearchSchema.WHEN, auditChange.getWhen());
+        // When the AuditHeader was created
+        indexMe.put(AuditSearchSchema.CREATED, auditChange.getCreatedDate());
+        // When the log was created
         indexMe.put(AuditSearchSchema.TIMESTAMP, new Date(auditChange.getSysWhen()));
         // https://github.com/monowai/auditbucket/issues/21
 
@@ -282,7 +286,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
         indexMe.put(AuditSearchSchema.DOC_TYPE, auditChange.getDocumentType());
         indexMe.put(AuditSearchSchema.CALLER_REF, auditChange.getCallerRef());
         indexMe.put(AuditSearchSchema.DESCRIPTION, auditChange.getDescription());
-        indexMe.put(AuditSearchSchema.CREATED, auditChange.getCreatedDate());
+
         if (!auditChange.getTagValues().isEmpty())
             indexMe.put(AuditSearchSchema.TAG, auditChange.getTagValues());
         // ToDo: Force the index mapping to handle the tags
