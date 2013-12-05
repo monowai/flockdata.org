@@ -154,7 +154,7 @@ public class AuditService {
     private AuditHeader makeAuditHeader(AuditHeaderInputBean inputBean, FortressUser fu, DocumentType documentType) {
         inputBean.setAuditKey(keyGenService.getUniqueKey());
         AuditHeader ah = auditDAO.create(inputBean.getAuditKey(), fu, inputBean, documentType);
-        logger.info("Audit Header created:{} key=[{}]", ah.getId(), ah.getAuditKey());
+        logger.debug("Audit Header created:{} key=[{}]", ah.getId(), ah.getAuditKey());
         return ah;
     }
 
