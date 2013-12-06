@@ -35,7 +35,6 @@ AuditBucket does not "own" your databases. These are free for you to explore and
 Typically archival projects are run to get eliminate "old" data from transacton systems. AuditBucket enables this information to be preserved and explored in new and exciting ways while freeing up your transactional systems to do what they do best - perform.
 
 ## Licensing
-
 AuditBucket is an open source product. We support a Community edition under the GPLv3 license. The Enterprise edition is available under the AGPLv3 license for open source projects otherwise under a commercial license by contacting [the team](http://auditbucket.com/contact-auditbucket/).
 
 ##Architecture
@@ -68,12 +67,7 @@ Look under the hood of an application and you'll see that it sends information o
 ### Freetext Search
 By integrating the "latest" version of data being changed in ElasticSearch, you have powerful enterprise class way of searching all your computer systems for any data value. Like a google search for your proprietary information.
 
-### How do we talk to it?
-
-REST and JSON. Download, compile and deploy. Coming soon - a hosted version.
-
 ## How to use
-
 AuditBucket is deployed as two highly scalable services
 * ab-engine - connects incoming changes in a Graph database and versions the information in Redis
 * ab-search - records the latest version of a document audited by ab-engine in ElasticSearch
@@ -87,11 +81,10 @@ Get the source
 $ git clone https://github.com/monowai/auditbucket
 ```
 
-Build with dependancies.
+Build with dependancies (note the command line parameters, these allow appropriate config files to be loaded at boot).
 ```
 $ mvn install -Dab.integration=http -Dneo4j=java
 ```
-
 Check out the configuration files in src/test/resources and src/main/resources that allow ElasticSearch to connect to a cluster (if you're running such a thing). Otherwise you can run the JUnit tests. The test configuration connects to Neo4J in embedded mode, while the release configuration assumes the connection to be over  HTTP. This shows you how to connect to both environments, so modify to suit your needs.
 
 Deploy in TomCat or whatever be your favourite container. You can also run the Tomcat executable WAR built by Maven.
@@ -102,6 +95,9 @@ $ mvn -Dtest=Test* test -Dab.integration=http -Dneo4j=java
 ```
 
 Once you have the .war file installed in your app server, you can start firing off urls to test things.
+
+### How do we talk to it?
+REST and JSON. Download, compile and deploy. Coming soon - a hosted version.
 
 ### Security
 Note that the user id is 'mike' and the password is '123'. This is bodgy configuration stuff hacked in to spring-security.xml. I'm sure you'll configure your own lovely security domain, or help me out with an OAuth configuration ;)
