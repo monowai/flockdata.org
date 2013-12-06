@@ -1,4 +1,4 @@
-auditbucket  - Data Tracking Service
+auditbucket  - Information Profiling Service
 ===========
 
 Welcome to AuditBucket. This service enables you to track incoming information, find it, compare it and explore it in a data neutral service.
