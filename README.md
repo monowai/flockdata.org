@@ -5,15 +5,20 @@ Welcome to AuditBucket. This service enables you to track incoming information, 
 
 It represents an exploration in to NoSQL technologies and Spring. Notable projects that have been combined to deliver this functionality include
 
-* [spring-elasticsearch](https://github.com/dadoonet/spring-elasticsearch)
+* Datastores
 * [elasticsearch](https://github.com/elasticsearch/elasticsearch)
-* [spring-data-neo4j](https://github.com/SpringSource/spring-data-neo4j)
 * [neo4j](https://github.com/neo4j/neo4j)
 * [resdis](https://github.com/antirez/redis)
+
+* Spring Framework
+* [spring-data-neo4j](https://github.com/SpringSource/spring-data-neo4j)
+* [spring-elasticsearch](https://github.com/dadoonet/spring-elasticsearch)
  
 We love open source and think these products are amazing. It can take a bit to figure out a good way to evaluate their suitability to process your information. This is where AB comes in. 
 
 The basic principals behind AB are quite straight forward and are centred on ideas long held by me, and probably you, for a number of years. The projects I've combined and document logic I've applied have made the job of getting the functionality up and useful a lot more quickly than I definetly would have been able to do on my own.
+
+Worst case scenario is you'll learn a few things about building graphs and search engines.
 
 ## Executive Summary
 Track, Find, Kompare and Explore
