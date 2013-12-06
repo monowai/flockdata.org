@@ -33,6 +33,7 @@ public class FortressUserNode implements FortressUser {
     Long id;
 
     @RelatedTo(elementClass = FortressNode.class, type = "BELONGS_TO", direction = Direction.OUTGOING)
+    @Fetch
     private FortressNode fortress;
 
     @Indexed(indexName = "fortressUser")

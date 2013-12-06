@@ -128,7 +128,6 @@ public class AuditService {
 
         // Create thisFortressUser if missing
         FortressUser fu = fortressService.getFortressUser(fortress, inputBean.getFortressUser(), true);
-        fu.getFortress().setCompany(company);
         fu.setFortress(fortress);// Save fetching it twice
 
         AuditHeader ah = null;
@@ -154,7 +153,7 @@ public class AuditService {
         inputBean.setAuditKey(keyGenService.getUniqueKey());
         AuditHeader ah = auditDAO.create(inputBean, fu, documentType);
         if (ah.getId() == null)
-            inputBean.setAuditKey("NT " + fu.getFortress().getFortressKey());
+            inputBean.setAuditKey("NT " + fu.getFortress().getFortressKey()); // Audit ain't tracking this
         logger.debug("Audit Header created:{} key=[{}]", ah.getId(), ah.getAuditKey());
         return ah;
     }
@@ -348,7 +347,6 @@ public class AuditService {
         return searchDocument;
     }
 
-    @Async
     public void makeChangeSearchable(SearchChange searchDocument) {
         if (searchDocument == null)
             return;

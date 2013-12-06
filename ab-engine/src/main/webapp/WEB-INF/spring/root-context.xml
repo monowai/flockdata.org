@@ -58,7 +58,7 @@
     <task:annotation-driven executor="ab-engineExec"/>
 
     <!--Pool size is the number of executors that will handle Bulk Uploads and incoming search responses-->
-    <task:executor id="ab-engineExec" pool-size="25-25" keep-alive="180" queue-capacity="50"
+    <task:executor id="ab-engineExec" pool-size="25-25" keep-alive="180" queue-capacity="10"
                    rejection-policy="CALLER_RUNS"/>
 
     <!--<bean id="generalTaskExecutor" class="org.springframework.scheduling.concurrent.ConcurrentTaskExecutor">-->

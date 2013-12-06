@@ -149,7 +149,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
         }
     }
 
-    private void ensureIndex(String indexName, String documentType) {
+    private synchronized void ensureIndex(String indexName, String documentType) {
         boolean hasIndex = esClient.admin().indices().exists(new IndicesExistsRequest(indexName)).actionGet().isExists();
         if (hasIndex)
             return;
