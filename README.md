@@ -5,12 +5,12 @@ Welcome to AuditBucket. This service enables you to track incoming information, 
 
 It represents an exploration in to NoSQL technologies and Spring. Notable projects that have been combined to deliver this functionality include
 
-* Datastores
+Datastores
 * [elasticsearch](https://github.com/elasticsearch/elasticsearch)
 * [neo4j](https://github.com/neo4j/neo4j)
 * [resdis](https://github.com/antirez/redis)
 
-* Spring Framework
+Spring Framework
 * [spring-data-neo4j](https://github.com/SpringSource/spring-data-neo4j)
 * [spring-elasticsearch](https://github.com/dadoonet/spring-elasticsearch)
  
