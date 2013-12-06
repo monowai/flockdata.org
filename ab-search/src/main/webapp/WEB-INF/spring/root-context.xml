@@ -49,8 +49,6 @@
         <property name="concurrentExecutor" ref="threadPoolExecutor"/>
     </bean>
     <bean id="threadPoolExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-        <!--<property name="corePoolSize" value="20"/>-->
-        <!--<property name="maxPoolSize" value="250"/>-->
         <property name="keepAliveSeconds" value="5"/>
         <property name="allowCoreThreadTimeOut" value="true"/>
         <property name="queueCapacity" value="-1"/>
