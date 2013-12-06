@@ -112,7 +112,7 @@ public class AuditHeaderNode implements AuditHeader {
         if (callerRef != null) {
             callerKeyRef = fortress.getId() + "." + documentType.getId() + "." + callerRef.toLowerCase();
         } else
-            callerKeyRef = auditKey;
+            callerKeyRef = fortress.getId() + "." + documentType.getId() + "." + auditKey;
 
         this.name = (callerRef == null ? docType : (docType + "." + callerRef).toLowerCase());
         this.description = auditInput.getDescription();

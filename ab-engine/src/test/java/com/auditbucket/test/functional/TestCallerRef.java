@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -77,6 +78,28 @@ public class TestCallerRef {
         // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
         if (!"rest".equals(System.getProperty("neo4j")))
             Neo4jHelper.cleanDb(template);
+    }
+
+    @Test
+    public void nullCallerRefBehaviour() throws Exception {
+        cleanUpGraph(); // No transaction so need to clear down the graph
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
+
+        Fortress fortress = fortressService.registerFortress("auditTest" + System.currentTimeMillis());
+        // Duplicate null caller ref keys
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortress.getName(), "harry", "TestAudit", new DateTime(), null);
+        auditManagerService.createHeader(inputBean).getAuditKey();
+        inputBean = new AuditHeaderInputBean(fortress.getName(), "wally", "TestAudit", new DateTime(), null);
+        String ahKey = auditManagerService.createHeader(inputBean).getAuditKey();
+
+        assertNotNull(ahKey);
+        AuditHeader auditHeader = auditService.getHeader(ahKey);
+        assertNotNull(auditHeader);
+        assertNull(auditHeader.getCallerRef());
+
+        // By default this will be found via the header key as it was null when header created.
+        assertNotNull(auditService.findByCallerRef(fortress, "TestAudit", ahKey));
+
     }
 
     /**
