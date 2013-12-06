@@ -78,7 +78,7 @@ public interface AuditDao {
 
     public AuditChange save(FortressUser fUser, AuditLogInputBean input);
 
-    AuditHeader create(String uid, FortressUser fu, AuditHeaderInputBean inputBean, DocumentType documentType);
+    AuditHeader create(AuditHeaderInputBean inputBean, FortressUser fu, DocumentType documentType);
 
     AuditLog getLog(Long logId);
 

@@ -105,6 +105,8 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
     }
 
     public String getSearchKey() {
+        if (searchKey != null)
+            return searchKey.toLowerCase();
         return searchKey;
     }
 

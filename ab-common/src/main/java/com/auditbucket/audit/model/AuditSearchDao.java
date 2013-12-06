@@ -40,7 +40,7 @@ public interface AuditSearchDao {
      *
      * @param auditChange values to update from
      */
-    void update(SearchChange auditChange);
+    SearchChange update(SearchChange auditChange);
 
     /**
      * locates a document by AuditLogResultBean.searchKey

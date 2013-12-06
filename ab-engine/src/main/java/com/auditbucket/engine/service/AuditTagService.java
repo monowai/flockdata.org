@@ -21,7 +21,6 @@ package com.auditbucket.engine.service;
 
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditTag;
-import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditTagInputBean;
 import com.auditbucket.bean.TagInputBean;
 import com.auditbucket.dao.AuditTagDao;
@@ -103,9 +102,10 @@ public class AuditTagService {
      * @param ah       Header to associate userTags with
      * @param userTags Key/Value pair of tags. TagNode will be created if missing. Value can be a Collection
      */
-    public void associateTags(AuditHeader ah, Map<String, Object> userTags) {
+    public Set<AuditTag> associateTags(AuditHeader ah, Map<String, Object> userTags) {
+        Set<AuditTag> rlxs = new TreeSet<>();
         if ((userTags == null) || userTags.isEmpty())
-            return;
+            return rlxs;
 
         Company company = ah.getFortress().getCompany();
 
@@ -123,16 +123,20 @@ public class AuditTagService {
             }
 
             String rlxName;
-            // Handle both a simple relationship type name or a map/collection of relationships
-            if (tagRlx == null)
-                auditTagDao.save(ah, tag, null);
 
-            else {
+            // Handle both simple relationships type name or a map/collection of relationships
+            if (tagRlx == null) {
+                AuditTag auditTagRelationship = auditTagDao.save(ah, tag, null);
+                if (auditTagRelationship != null)
+                    rlxs.add(auditTagRelationship);
+            } else {
 
                 if (tagRlx instanceof Collection) {
                     // ToDo: Collection of Maps
                     for (Object o : ((Collection) tagRlx)) {
-                        auditTagDao.save(ah, tag, o.toString());
+                        AuditTag auditTagRelationship = auditTagDao.save(ah, tag, o.toString());
+                        if (auditTagRelationship != null)
+                            rlxs.add(auditTagRelationship);
                     }
                 } else if (tagRlx instanceof Map) {
                     // Map of relationship with properties
@@ -143,14 +147,19 @@ public class AuditTagService {
                         if (o != null && o instanceof Map) {
                             propMap = (Map<String, Object>) o;
                         }
-                        auditTagDao.save(ah, tag, relationship, propMap);
+                        AuditTag auditTagRelationship = auditTagDao.save(ah, tag, relationship, propMap);
+                        if (auditTagRelationship != null)
+                            rlxs.add(auditTagRelationship);
                     }
                 } else {
                     rlxName = tagRlx.toString();
-                    auditTagDao.save(ah, tag, rlxName);
+                    AuditTag auditTagRelationship = auditTagDao.save(ah, tag, rlxName);
+                    if (auditTagRelationship != null)
+                        rlxs.add(auditTagRelationship);
                 }
             }
         }
+        return rlxs;
     }
 
     public Set<AuditTag> findAuditTags(AuditHeader auditHeader) {

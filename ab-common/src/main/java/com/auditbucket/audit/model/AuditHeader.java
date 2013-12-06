@@ -122,4 +122,6 @@ public interface AuditHeader {
      */
     @JsonIgnore
     DateTime getFortressDateCreated();
+
+    void setAuditKey(String o);
 }

@@ -260,6 +260,12 @@ public class AuditHeaderNode implements AuditHeader {
         return new DateTime(fortressDate, DateTimeZone.forTimeZone(TimeZone.getTimeZone(fortress.getTimeZone())));
     }
 
+    @Override
+    public void setAuditKey(String o) {
+        this.auditKey = o;
+
+    }
+
     public String getDescription() {
         return description;
     }

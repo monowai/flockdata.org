@@ -67,7 +67,7 @@ public class AbSearchService implements ElasticSearchGateway {
             auditSearch.update(thisChange);
             result = new SearchResult(thisChange);
         } else {
-            result = new SearchResult(auditSearch.save(thisChange));
+            result = new SearchResult(auditSearch.update(thisChange));
         }
         // Used to tie the fact that the doc was updated back to the engine
         result.setLogId(thisChange.getLogId());

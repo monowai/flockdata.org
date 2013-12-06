@@ -32,7 +32,6 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mapping.model.MappingException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
@@ -173,18 +172,15 @@ public class AuditManagerService {
             createTagStructure(inputBeans, company);
         }
         AuditResultBean resultBean;
-        try {
-            resultBean = auditService.createHeader(inputBean, company, fortress);
-        } catch (RuntimeException me) {
-//            AuditHeader header = auditService.findByCallerRef(fortress, inputBean.getDocumentType(), inputBean.getCallerRef());
-//            resultBean = new AuditResultBean(header);
-//            resultBean.setWasDuplicate();
-            throw (me);
-        }
+        resultBean = auditService.createHeader(inputBean, company, fortress);
 
         // Don't recreate tags if we already handled this -ToDiscuss!!
-        if (!resultBean.isDuplicate())
-            auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTagValues());
+        if (!resultBean.isDuplicate()) {
+            if (inputBean.isTrackSuppressed())
+                resultBean.setTags(auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTagValues()));
+            else
+                auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTagValues());
+        }
 
         AuditLogInputBean logBean = inputBean.getAuditLog();
         // Here on could be spun in to a separate thread. The log has to happen eventually
@@ -201,9 +197,12 @@ public class AuditManagerService {
             logResult.setFortressUser(null);
             resultBean.setLogResult(logResult);
         } else {
-            // Make header searchable - metadata only
-            if (!resultBean.isDuplicate() && inputBean.getEvent() != null && !"".equals(inputBean.getEvent())) {
-                // Tracking an event only
+            if (inputBean.isTrackSuppressed())
+                // If we aren't tracking in the graph, then we have to be searching
+                // else why even call this service??
+                auditService.makeHeaderSearchable(resultBean, inputBean.getEvent(), inputBean.getWhen(), company.getId());
+            else if (!resultBean.isDuplicate() &&
+                    inputBean.getEvent() != null && !"".equals(inputBean.getEvent())) {
                 auditService.makeHeaderSearchable(resultBean, inputBean.getEvent(), inputBean.getWhen(), company.getId());
             }
         }

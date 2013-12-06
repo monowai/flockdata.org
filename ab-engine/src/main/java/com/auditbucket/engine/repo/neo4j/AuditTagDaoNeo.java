@@ -57,25 +57,37 @@ public class AuditTagDaoNeo implements AuditTagDao {
     private Logger logger = LoggerFactory.getLogger(AuditTagDaoNeo.class);
 
     @Override
-    public void save(AuditHeader auditHeader, Tag tag, String relationship) {
-        save(auditHeader, tag, relationship, null);
+    public AuditTag save(AuditHeader auditHeader, Tag tag, String relationship) {
+        return save(auditHeader, tag, relationship, null);
     }
 
-
-    public void save(AuditHeader auditHeader, Tag tag, String relationship, Map<String, Object> propMap) {
+    /**
+     * creates the relationship between the header and the tag of the name type.
+     * If auditId == null, then an AuditTag for the caller to deal with otherwise the relationship
+     * is persisted and null is returned.
+     *
+     * @param auditHeader  constructed header
+     * @param tag          tag
+     * @param relationship name
+     * @param propMap      properties to associate with an audit tag (weight)
+     * @return Null or AuditTag
+     */
+    public AuditTag save(AuditHeader auditHeader, Tag tag, String relationship, Map<String, Object> propMap) {
         // ToDo: this will only set properties for the "current" tag to Header. it will not version it.
         if (relationship == null) {
             relationship = "GENERAL_TAG";
         }
+        AuditTagRelationship rel = new AuditTagRelationship(auditHeader, tag, relationship, propMap);
+        if (auditHeader.getId() == null)
+            return rel;
+
         Node headerNode = template.getPersistentState(auditHeader);
         Node tagNode = template.getPersistentState(tag);
         //Primary exploration relationship
         Relationship r = template.getRelationshipBetween(tagNode, headerNode, relationship);
-        //boolean recreated = false;
-        if (r != null) {// Recreate
-            //  recreated = true;
-//            r.delete();
-            return;
+
+        if (r != null) {
+            return null;
         }
 
         // Some tags are busy. Here we have a few attempts at avoiding a deadlock
@@ -100,10 +112,8 @@ public class AuditTagDaoNeo implements AuditTagDao {
             // Ok, we couldn't resolve the deadlock
             throw (cex);
         }
-//        if (recreated)
-//            return null;
         logger.trace("Created Relationship Tag[{}] of type {}", tag, relationship);
-
+        return null;
     }
 
     @Autowired

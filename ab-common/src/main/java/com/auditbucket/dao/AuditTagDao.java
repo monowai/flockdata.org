@@ -35,9 +35,9 @@ import java.util.Set;
  * Time: 9:55 PM
  */
 public interface AuditTagDao {
-    void save(AuditHeader auditHeader, Tag tag, String type);
+    AuditTag save(AuditHeader auditHeader, Tag tag, String type);
 
-    void save(AuditHeader ah, Tag tag, String relationship, Map<String, Object> propMap);
+    AuditTag save(AuditHeader ah, Tag tag, String relationship, Map<String, Object> propMap);
 
     Boolean relationshipExists(AuditHeader auditHeader, Tag tag, String relationshipType);
 

@@ -244,12 +244,14 @@ public class AuditDaoNeo implements AuditDao {
     }
 
     @Override
-    public AuditHeader create(String uid, FortressUser fu, AuditHeaderInputBean inputBean, DocumentType documentType) {
-        AuditHeader ah = findHeaderByCallerRef(fu.getFortress().getId(), documentType.getId(), inputBean.getCallerRef());
-        if (ah == null)
-            return save(new AuditHeaderNode(uid, fu, inputBean, documentType));
-
-        return ah;
+    public AuditHeader create(AuditHeaderInputBean inputBean, FortressUser fu, DocumentType documentType) {
+        // AuditHeader ah = findHeaderByCallerRef(fu.getFortress().getId(), documentType.getId(), inputBean.getCallerRef());
+        AuditHeader auditHeader = new AuditHeaderNode(inputBean.getAuditKey(), fu, inputBean, documentType);
+        if (inputBean.isTrackSuppressed()) {
+            auditHeader.setAuditKey(null);
+            return auditHeader;
+        } else
+            return save(auditHeader);
     }
 
     @Override

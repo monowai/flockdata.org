@@ -19,8 +19,13 @@
 
 package com.auditbucket.bean;
 
+import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.audit.model.AuditTag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
+import java.util.Collection;
+import java.util.Set;
 
 /**
  * User: Mike Holdsworth
@@ -35,6 +40,7 @@ public class AuditResultBean {
     private String auditKey;
     private AuditLogResultBean logResult;
     private com.auditbucket.audit.model.AuditHeader auditHeader;
+    private Set<AuditTag> tags;
 
     protected AuditResultBean() {
     }
@@ -96,7 +102,7 @@ public class AuditResultBean {
     }
 
     @JsonIgnore
-    public com.auditbucket.audit.model.AuditHeader getAuditHeader() {
+    public AuditHeader getAuditHeader() {
         return auditHeader;
     }
 
@@ -117,5 +123,18 @@ public class AuditResultBean {
 
     public boolean isDuplicate() {
         return wasDuplicate;
+    }
+
+    public void setTags(Set<AuditTag> tags) {
+        this.tags = tags;
+    }
+
+    @JsonIgnore
+    /**
+     * Only used when creating  relationships for the purpose of search
+     * that bypass the graph
+     */
+    public Set<AuditTag> getTags() {
+        return tags;
     }
 }

@@ -74,7 +74,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
             existingIndexKey = header.getSearchKey();
 
         DeleteResponse dr = esClient.prepareDelete(indexName, recordType, existingIndexKey)
-                .setRouting(header.getAuditKey())
+                //.setRouting(header.getAuditKey())
                 .execute()
                 .actionGet();
 
@@ -95,50 +95,64 @@ public class AuditSearchDaoES implements AuditSearchDao {
         String indexName = auditChange.getIndexName();
         String documentType = auditChange.getDocumentType();
 
-        // Test if index exist
-        boolean hasIndex = esClient.admin().indices().exists(new IndicesExistsRequest(indexName)).actionGet().isExists();
-        if (!hasIndex) {
-            createIndex(indexName, documentType);
-        } else {
-            XContentBuilder mappingEs = mapping(documentType);
-            // Test if Type exist
-            String[] indexNames = new String[1];
-            indexNames[0] = indexName;
-            String[] documentTypes = new String[1];
-            documentTypes[0] = documentType;
 
-            boolean hasType = esClient.admin().indices().typesExists(new TypesExistsRequest(indexNames, documentTypes)).actionGet().isExists();
-            if (!hasType) {
-                // Type Don't exist ==> Insert Mapping
-                if (mappingEs != null) {
-                    esClient.admin().indices()
-                            .preparePutMapping(indexName)
-                            .setType(documentType)
-                            .setSource(mappingEs)
-                            .execute().actionGet();
-                }
-            }
-        }
+        ensureIndex(indexName, documentType);
+        ensureMapping(indexName, documentType);
 
         String source = makeIndexJson(auditChange);
         IndexRequestBuilder irb = esClient.prepareIndex(indexName, documentType)
-                .setSource(source)
-                .setRouting(auditChange.getAuditKey());
+                .setSource(source);
+        //.setRouting(auditChange.getAuditKey());
+
+
+        String searchKey = auditChange.getSearchKey();
+        if (searchKey == null && auditChange.getCallerRef() != null)
+            searchKey = auditChange.getCallerRef().toLowerCase();
 
         // Rebuilding a document after a reindex - preserving the unique key.
-        if (auditChange.getSearchKey() != null)
-            irb.setId(auditChange.getSearchKey());
+        if (searchKey != null) {
+            irb.setId(searchKey);
+        }
 
-        IndexResponse ir = irb.execute().actionGet();
-        auditChange.setSearchKey(ir.getId());
 
-        if (logger.isDebugEnabled())
-            logger.debug("Added Document [" + auditChange.getAuditKey() + "], logId=" + auditChange.getLogId() + " searchId [" + ir.getId() + "] to " + indexName + "/" + documentType);
-        return auditChange;
+        try {
+            IndexResponse ir = irb.execute().actionGet();
+            auditChange.setSearchKey(ir.getId());
+
+            if (logger.isDebugEnabled())
+                logger.debug("Added Document [" + auditChange.getAuditKey() + "], logId=" + auditChange.getLogId() + " searchId [" + ir.getId() + "] to " + indexName + "/" + documentType);
+            return auditChange;
+        } catch (Exception e) {
+            return auditChange;
+        }
 
     }
 
-    private void createIndex(String indexName, String documentType) {
+    private void ensureMapping(String indexName, String documentType) {
+        XContentBuilder mappingEs = mapping(documentType);
+        // Test if Type exist
+        String[] indexNames = new String[1];
+        indexNames[0] = indexName;
+        String[] documentTypes = new String[1];
+        documentTypes[0] = documentType;
+
+        boolean hasType = esClient.admin().indices().typesExists(new TypesExistsRequest(indexNames, documentTypes)).actionGet().isExists();
+        if (!hasType) {
+            // Type Don't exist ==> Insert Mapping
+            if (mappingEs != null) {
+                esClient.admin().indices()
+                        .preparePutMapping(indexName)
+                        .setType(documentType)
+                        .setSource(mappingEs)
+                        .execute().actionGet();
+            }
+        }
+    }
+
+    private void ensureIndex(String indexName, String documentType) {
+        boolean hasIndex = esClient.admin().indices().exists(new IndicesExistsRequest(indexName)).actionGet().isExists();
+        if (hasIndex)
+            return;
         XContentBuilder mappingEs = mapping(documentType);
         // create Index  and Set Mapping
         if (mappingEs != null) {
@@ -155,16 +169,20 @@ public class AuditSearchDaoES implements AuditSearchDao {
     }
 
     @Override
-    public void update(SearchChange incoming) {
+    public SearchChange update(SearchChange incoming) {
 
         String source = makeIndexJson(incoming);
+        if (incoming.getSearchKey() == null)
+            return save(incoming);
 
         try {
+            ensureIndex(incoming.getIndexName(), incoming.getDocumentType());
+            ensureMapping(incoming.getIndexName(), incoming.getDocumentType());
             GetResponse response =
                     esClient.prepareGet(incoming.getIndexName(),
                             incoming.getDocumentType(),
                             incoming.getSearchKey())
-                            .setRouting(incoming.getAuditKey())
+                            //.setRouting(incoming.getAuditKey())
                             .execute()
                             .actionGet();
             if (response.isExists() && !response.isSourceEmpty()) {
@@ -177,20 +195,19 @@ public class AuditSearchDaoES implements AuditSearchDao {
                     Long existingWhen = (Long) o;
                     if (existingWhen > incoming.getWhen()) {
                         logger.debug("ignoring a request to update as the existing document dated [{}] is newer than the incoming document dated [{}]", new Date(existingWhen), new Date(incoming.getWhen()));
-                        return; // Don't overwrite the most current doc!
+                        return incoming; // Don't overwrite the most current doc!
                     }
                 }
             } else {
                 // No response, to a search key we expect to exist. Create a new one
                 // Likely to be in response to rebuilding an ES index from Graph data.
-                save(incoming);
-                return;
+                return save(incoming);
             }
 
             // Update the existing document with the incoming change
             IndexRequestBuilder update = esClient
-                    .prepareIndex(incoming.getIndexName(), incoming.getDocumentType(), incoming.getSearchKey())
-                    .setRouting(incoming.getAuditKey());
+                    .prepareIndex(incoming.getIndexName(), incoming.getDocumentType(), incoming.getSearchKey());
+            //.setRouting(incoming.getAuditKey());
 
             ListenableActionFuture<IndexResponse> ur = update.setSource(source).
                     execute();
@@ -201,9 +218,9 @@ public class AuditSearchDaoES implements AuditSearchDao {
             }
         } catch (IndexMissingException e) { // administrator must have deleted it, but we think it still exists
             logger.info("Attempt to update non-existent index [" + incoming.getIndexName() + "]. Moving to create it");
-            save(incoming);
+            return save(incoming);
         }
-
+        return incoming;
     }
 
     public byte[] findOne(AuditHeader header) {
@@ -218,7 +235,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
         logger.debug("Looking for [{}] in {}", id, indexName + documentType);
 
         GetResponse response = esClient.prepareGet(indexName, documentType, id)
-                .setRouting(header.getAuditKey())
+                //.setRouting(header.getAuditKey())
                 .execute()
                 .actionGet();
 

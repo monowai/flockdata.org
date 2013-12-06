@@ -100,4 +100,13 @@ public interface SearchChange {
 
     String getDescription();
 
+    /**
+     * Hint to determine if a reply from the search service is expected
+     * by the caller
+     * <p/>
+     * default to true
+     */
+
+    public void setReplyRequired(boolean required);
+
 }

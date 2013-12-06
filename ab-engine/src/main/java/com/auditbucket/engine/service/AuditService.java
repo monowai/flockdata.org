@@ -38,7 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.mapping.model.MappingException;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -153,7 +152,9 @@ public class AuditService {
 
     private AuditHeader makeAuditHeader(AuditHeaderInputBean inputBean, FortressUser fu, DocumentType documentType) {
         inputBean.setAuditKey(keyGenService.getUniqueKey());
-        AuditHeader ah = auditDAO.create(inputBean.getAuditKey(), fu, inputBean, documentType);
+        AuditHeader ah = auditDAO.create(inputBean, fu, documentType);
+        if (ah.getId() == null)
+            inputBean.setAuditKey("NT " + fu.getFortress().getFortressKey());
         logger.debug("Audit Header created:{} key=[{}]", ah.getId(), ah.getAuditKey());
         return ah;
     }
@@ -378,7 +379,6 @@ public class AuditService {
 
     }
 
-    //@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     @Cacheable(value = "auditHeaderId")
     private AuditHeader getHeader(Long id) {
         return auditDAO.getHeader(id);
@@ -410,7 +410,10 @@ public class AuditService {
     public void handleSearchResult(SearchResult searchResult) {
 
         logger.debug("Updating from search auditKey =[{}]", searchResult);
-        AuditHeader header = auditDAO.getHeader(searchResult.getAuditId());
+        Long auditId = searchResult.getAuditId();
+        if (auditId == null)
+            return;
+        AuditHeader header = auditDAO.getHeader(auditId);
 
         if (header == null) {
             logger.error("Audit Key could not be found for [{}]", searchResult);
@@ -696,13 +699,20 @@ public class AuditService {
 
     @Async
     public void makeHeaderSearchable(AuditResultBean resultBean, String event, Date when, Long companyId) {
-        AuditHeader header = getHeader(resultBean.getAuditId());
+        AuditHeader header = resultBean.getAuditHeader();
         if (header.isSearchSuppressed() || !header.getFortress().isSearchActive())
             return;
 
         fortressService.fetch(header.getLastUser());
         SearchChange searchDocument = new AuditSearchChange(header, null, event, new DateTime(when));
-        searchDocument.setTags(auditTagService.findAuditTags(companyId, header));
+        if (resultBean.getTags() != null) {
+            searchDocument.setTags(resultBean.getTags());
+            searchDocument.setReplyRequired(false);
+            searchDocument.setSearchKey(header.getCallerRef());
+
+        } else {
+            searchDocument.setTags(auditTagService.findAuditTags(companyId, header));
+        }
         makeChangeSearchable(searchDocument);
 
     }

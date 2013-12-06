@@ -47,6 +47,7 @@ public class AuditHeaderInputBean {
     private AuditEvent eventObject;
     private String apiKey;
     private String description;
+    private boolean trackSuppressed = false;
 
 
     public AuditHeaderInputBean() {
@@ -218,5 +219,13 @@ public class AuditHeaderInputBean {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public boolean isTrackSuppressed() {
+        return trackSuppressed;
+    }
+
+    public void setTrackSuppressed(boolean trackSuppressed) {
+        this.trackSuppressed = trackSuppressed;
     }
 }
