@@ -1,9 +1,9 @@
 auditbucket  - Information Profiling Service
 ===========
 
-Welcome to AuditBucket. This service enables you to track incoming information, find it, compare it and explore it in a data neutral service.
+Welcome to AuditBucket. This project will enable you to track incoming information, find it from a search engine, compare it for changes and explore it in a network graph to find connections.
 
-It represents our exploration in to NoSQL technologies and Spring in a service oriented world. As with most any modern project, we lean on the brilliant work being done by the opensource community as a whole. We believe AB will enable you to explore big data and look at information in new and exciting ways for very little effort - particularly given the range of technologies that AB ties together.  
+AuditBucket represents a sophisticated exploration in to NoSQL technologies and Spring for a service oriented world. As with most modern projects, we lean on the brilliant work being done by the opensource community as a whole. We believe AB will enable you to explore big data and look at information in new and exciting ways for very little effort - particularly given the range of technologies that AB ties together.  
 
 ##Datastores
 AB coordinates and directs information to various highly scalable data sources to achive it's benefits. 
@@ -16,6 +16,7 @@ AB coordinates and directs information to various highly scalable data sources t
 We can't build much with out standing on the shoulders of giants. 
 * [spring-data-neo4j](https://github.com/SpringSource/spring-data-neo4j)
 * [spring-elasticsearch](https://github.com/dadoonet/spring-elasticsearch)
+* [jedis](https://github.com/xetorthio/jedis) - Driver for REDIS
 * [spring](http://spring.io/) - Spring Integration, Spring MVC, Spring Security etc...
  
 We love open source and think all of the above products are amazing, representing the cutting edge in information management techniques. However, it can take a bit of effort to figure out a good way to evaluate their suitability to process your information. This is where AuditBucket can help you.
