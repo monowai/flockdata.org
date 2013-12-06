@@ -3,22 +3,22 @@ auditbucket  - Information Profiling Service
 
 Welcome to AuditBucket. This service enables you to track incoming information, find it, compare it and explore it in a data neutral service.
 
-It represents an exploration in to NoSQL technologies and Spring. Notable projects that have been combined to deliver this functionality include
+It represents our exploration in to NoSQL technologies and Spring in a service oriented world. As with most any modern project, we lean on the brilliant work being done by the opensource community as a whole. We believe AB will enable you to explore big data and look at information in new and exciting ways for very little effort - particularly given the range of technologies that AB ties together.  
 
-Datastores
+##Datastores
+AB coordinates and directs information to various highly scalable data sources to achive it's benefits. 
 * [elasticsearch](https://github.com/elasticsearch/elasticsearch)
 * [neo4j](https://github.com/neo4j/neo4j)
 * [resdis](https://github.com/antirez/redis)
+* [rabbitmq](https://github.com/rabbitmq/rabbitmq-server)
 
-Spring Framework
+##Frameworks
+We can't build much with out standing on the shoulders of giants. 
 * [spring-data-neo4j](https://github.com/SpringSource/spring-data-neo4j)
 * [spring-elasticsearch](https://github.com/dadoonet/spring-elasticsearch)
+* [spring](http://spring.io/) - Spring Integration, Spring MVC, Spring Security etc...
  
-We love open source and think these products are amazing. It can take a bit to figure out a good way to evaluate their suitability to process your information. This is where AB comes in. 
-
-The basic principals behind AB are quite straight forward and are centred on ideas long held by me, and probably you, for a number of years. The projects I've combined and document logic I've applied have made the job of getting the functionality up and useful a lot more quickly than I definetly would have been able to do on my own.
-
-Worst case scenario is you'll learn a few things about building graphs and search engines.
+We love open source and think all of the above products are amazing, representing the cutting edge in information management techniques. However, it can take a bit of effort to figure out a good way to evaluate their suitability to process your information. This is where AuditBucket can help you.
 
 ## Executive Summary
 Track, Find, Kompare and Explore
@@ -33,20 +33,26 @@ AuditBucket does not "own" your databases. These are free for you to explore and
 
 Typically archival projects are run to get eliminate "old" data from transacton systems. AuditBucket enables this information to be preserved and explored in new and exciting ways while freeing up your transactional systems to do what they do best - perform.
 
-As loosley coupled services integrated over a SOA'ish manner become the normal way to build systems tracking the information that flows across these services becomes vital when it comes to debuging issues. AB can help with this using a technique known as Event Sourcing. AB takes the view that an event spans your computer systems and let's you find this information quickly and analyse what happened or changed.  
+## Licensing
+
+AuditBucket is an open source product. We support a Community edition under the GPLv3 license. The Enterprise edition is available under the AGPLv3 license for open source projects otherwise under a commercial license by contacting [the team](http://auditbucket.com/contact-auditbucket/).
+
+##Architecture
+The basic principals behind AB are well suited to Domain Driven Design and SOA architectures. We connect sophisticated index technologies and document management logic on to scalable databases to let you look at your information in new and exciting ways.  
+
+As loosely coupled services integrated over a SOA'ish manner become the normal way to build systems tracking the information that flows across these services becomes vital when it comes to debugging issues. AB can help with this using a technique known as Event Sourcing. AB takes the view that an event spans your computer systems and let's you find this information quickly and analyse what happened or changed. 
 
 ## Use Cases
 ### Search
-Elasticsearch is a spectacular search product enabling you to create complex key world queries that respond at the speed of business. Put Kibana on the front and you can start to accumulate realtime dashboards that give you the pulse of change in your business. With AB tapping in to your applications, you can offer your staff Full Text Search capabilities across your actual business data - AB makes available to search "the latest version" of your business document, i.e. your Customer record, Invoice, Intentory item, whatever irrespective of what underlying system created it. 
+Elasticsearch is a spectacular search product enabling you to create complex key world queries that respond at the speed of business. Put Kibana on the front and you can start to accumulate realtime dashboards that give you the pulse of change in your business. With AB tapping in to your applications, you can offer your staff Full Text Search capabilities across your actual business data - AB makes available to search "the latest version" of your business document, i.e. your Customer record, Invoice, Inventory item, whatever irrespective of what underlying system created it. 
 
-With AB mainataining your ElasticSearch db, you can have cross system search capabilities in hours.
+With AB maintaining your ElasticSearch db, you can have cross system search capabilities in hours.
 
 ### Explore
 Neo4J is another wonderful tool that let's your explore your business information in a highly connected graph. AB will build this graph for you by using information tags that you determine to be of value. You can start exploring your enterprise information as a social graph in hours.
 
-
 ## How does it work?
-Look under the hood of an application and you'll see that it sends information over APIs. By tapping in to these APIs "versions" of the information being changed can be logged in AuditBucket for future analysis and tracking trends freeing your processing systems up from the administrative burdon of carrying such information. 
+Look under the hood of an application and you'll see that it sends information over APIs. By tapping in to these APIs "versions" of the information being changed can be logged in AuditBucket for future analysis and tracking trends freeing your processing systems up from the administrative burden of carrying such information. 
 
 ## What is it good for?
 
@@ -56,13 +62,14 @@ Look under the hood of an application and you'll see that it sends information o
 * Assist in implementing compensating transactions across distributed application boundaries
 * Free text searching of data changes
 * Keeping the auditing information out of your transaction processing system
+* Learning about building graphs, search engines and loosley coupled application development. 
 
 ### Freetext Search
 By integrating the "latest" version of data being changed in ElasticSearch, you have powerful enterprise class way of searching all your computer systems for any data value. Like a google search for your proprietary information.
 
 ### How do we talk to it?
 
-REST and JSON. Dowload, compile and deploy. Coming soon - a hosted version.
+REST and JSON. Download, compile and deploy. Coming soon - a hosted version.
 
 ## How to use
 
@@ -72,7 +79,7 @@ AuditBucket is deployed as two highly scalable services
 
 You only interact with ab-engine. A REST api exists for bother services. You can use an integration layer to control communication between the two, or configure them to talk via RabbitMQ.
 
-ab-search can be configured to co-exist with your ElasticSearch cluster and is basically a microservice to support this activity. It keeps it's information in neatly organised indexes that allow you to easily apply security to the URLs
+ab-search can be configured to co-exist with your ElasticSearch cluster and is basically a micro-service to support this activity. It keeps it's information in neatly organised indexes that allow you to easily apply security to the URLs
 
 Get the source
 ```
@@ -99,7 +106,7 @@ Once you have the .war file installed in your app server, you can start firing o
 Note that the user id is 'mike' and the password is '123'. This is bodgy configuration stuff hacked in to spring-security.xml. I'm sure you'll configure your own lovely security domain, or help me out with an OAuth configuration ;)
 
 ## Tracking Data
-By default, information is tracked in Neo4J and ElasticSearch. You can, at the point of POST, request that the information be only tracked in Neo4j or only ElasticSearch. This is down to your usecase. You might be simply tracking event type information that never changes, so simply storing in ElasticSearch is functional enough as the data is not connectable.
+By default, information is tracked in Neo4J and ElasticSearch. You can, at the point of POST, request that the information be only tracked in Neo4j or only ElasticSearch. This is down to your use case. You might be simply tracking event type information that never changes, so simply storing in ElasticSearch is functional enough as the data is not connectable.
 
 ## Creating Data
 Note that in the examples below, /ab/ is the application context. Substitute for whatever context is appropriate for your deployment.
@@ -119,3 +126,9 @@ curl -u mike:123 -H "Content-Type:application/json" -X PUT  http://localhost:808
 ```
 Ask and we'll provide a GIST of PostMan calls that show all the API calls and parameters.
 Please review the [Audit Service Calls](https://github.com/monowai/auditbucket/wiki/Audit-Service-Calls) for further information and detailed syntax
+
+## Viewing the information
+Any Neo4J or ElasticSearch query product will work with AuditBucket information. 
+
+[Kibana](http://www.elasticsearch.org/overview/kibana/) - dashboard/query tool from the clever chaps at ElasticSearch
+[Linkurious](http://linkurio.us/) - HTML graph exploration tool
