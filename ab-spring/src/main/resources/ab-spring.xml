@@ -17,14 +17,14 @@
                                request-channel="pingChannel"
                                reply-channel="nullChannel"
                                http-method="GET"
-                               url="http://localhost:8080/ab-engine/audit/ping"
+                               url="http://localhost:8080/ab-engine/v1/audit/ping"
             />
 
     <int-http:outbound-gateway reply-timeout="1000"
                                request-channel="healthChannel"
                                reply-channel="nullChannel"
                                http-method="GET"
-                               url="http://localhost:8080/ab-engine/audit/health"/>
+                               url="http://localhost:8080/ab-engine/v1/audit/health"/>
 
 
     <int:channel id="inputChannel"/>

@@ -50,6 +50,7 @@
     <import resource="neo4j-context-test.xml"/>
     <import resource="integration.xml"/>
     <import resource="amqp-integration-test.xml"/>
+    <import resource="kv-context.xml"/>
 
     <task:annotation-driven executor="taskExecutor"/>
 
