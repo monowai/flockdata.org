@@ -20,11 +20,15 @@ Track, Find, Kompare and Explore
 
 We need to keep track of information. We are producing more information faster now that at any time in history. Examining patterns in information offers significant business value and insight.
 
-Auditing is often seen as a low value "we'll get to it later" afterthought in a lot of systems. Applications are concerned with with processing information rather than tracking history of information, perhaps with the exception of "who last changed this" at best. This is not enough when forensic levels of anlaysis may be required and can expose companies to unnecessary risk. 
+Auditing is often seen as a low value "we'll get to it later" afterthought in a lot of systems. Applications are concerned with with processing information rather than tracking history of information, perhaps with the exception of "who last changed this" at best. This is not enough when forensic levels of anlaysis may be required and can expose companies to unnecessary risk and regulatory penalties. 
 
-AuditBucket looks at the problem as a document oriented information managmenet challenge. Tracking changes to information across your many applications offers a view of what is going on at the information coalface of your business.
+AuditBucket looks at the problem as a document oriented information management challenge. Tracking changes to information across your many applications offers a view of what is going on at the information coalface of your business.
+
+AuditBucket does not "own" your databases. These are free for you to explore and enhance using excellent tools like "Kibana", "Linkurious", "Linkurious" and of course your own information management systems. AB simply organises your documents into a consistent way for exploration with out imposing or requiring your existing information systems to change. 
 
 Typically archival projects are run to get eliminate "old" data from transacton systems. AuditBucket enables this information to be preserved and explored in new and exciting ways while freeing up your transactional systems to do what they do best - perform.
+
+As loosley coupled services integrated over a SOA'ish manner become the normal way to build systems tracking the information that flows across these services becomes vital when it comes to debuging issues. AB can help with this using a technique known as Event Sourcing. AB takes the view that an event spans your computer systems and let's you find this information quickly and analyse what happened or changed.  
 
 ## Use Cases
 ### Search
