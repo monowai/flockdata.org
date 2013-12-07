@@ -34,7 +34,6 @@ import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
@@ -90,28 +89,7 @@ public class AuditTagDaoNeo implements AuditTagDao {
             return null;
         }
 
-        // Some tags are busy. Here we have a few attempts at avoiding a deadlock
-        int attempt = 0, maxRetries = 10;
-        ConcurrencyFailureException cex = null;
-        while (attempt < maxRetries) {
-            try {
-                template.createRelationshipBetween(tagNode, headerNode, relationship, propMap);
-                break;
-            } catch (ConcurrencyFailureException ce) {
-                cex = ce;
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-
-                    logger.error("Interrupted while waiting for timeout", e);
-                }
-                attempt++;
-            }
-        }
-        if (attempt == maxRetries) {
-            // Ok, we couldn't resolve the deadlock
-            throw (cex);
-        }
+        template.createRelationshipBetween(tagNode, headerNode, relationship, propMap);
         logger.trace("Created Relationship Tag[{}] of type {}", tag, relationship);
         return null;
     }

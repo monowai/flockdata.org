@@ -41,10 +41,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.concurrent.Future;
 
 /**
  * User: Mike Holdsworth
@@ -94,13 +96,23 @@ public class AuditEP {
     @ResponseBody
     @RequestMapping(value = "/", consumes = "application/json", method = RequestMethod.PUT)
     public void createHeaders(@RequestBody AuditHeaderInputBean[] inputBeans) throws AuditException {
+        createHeadersF(inputBeans, false);
+    }
+
+    public void createHeadersF(AuditHeaderInputBean[] inputBeans, boolean waitForFinish) throws AuditException {
         Company company = auditManager.resolveCompany(inputBeans[0].getApiKey());
         Fortress fortress = auditManager.resolveFortress(company, inputBeans[0]);
         boolean async = true; // todo: Figure out how to throttle
         auditManager.createTagStructure(inputBeans, company);
 
         if (async) {
-            auditManager.createHeadersAsync(inputBeans, company, fortress);
+
+            Future<Integer> am = auditManager.createHeadersAsync(inputBeans, company, fortress);
+            if (waitForFinish)
+                while (!am.isDone()) {
+                    //
+                }
+
         } else {
 
             for (AuditHeaderInputBean inputBean : inputBeans) {

@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
@@ -130,17 +131,19 @@ public class AuditManagerService {
     static DecimalFormat f = new DecimalFormat("##.000");
 
     @Async
-    public Future<Void> createHeadersAsync(AuditHeaderInputBean[] inputBeans, Company company, Fortress fortress) throws AuditException {
+    public Future<Integer> createHeadersAsync(AuditHeaderInputBean[] inputBeans, Company company, Fortress fortress) throws AuditException {
         if (inputBeans.length == 0)
             return null;
         fortress.setCompany(company);
         Long id = DateTime.now().getMillis();
         StopWatch watch = new StopWatch();
+        int processCount = 0;
         try {
             watch.start();
             logger.info("Starting Batch [{}] - size [{}]", id, inputBeans.length);
             for (AuditHeaderInputBean inputBean : inputBeans) {
                 createHeader(inputBean, company, fortress, true);
+                processCount++;
             }
 
             watch.stop();
@@ -148,7 +151,7 @@ public class AuditManagerService {
             logger.error("Async Header error", e);
         }
         logger.info("Completed Batch [{}] - secs= {}, RPS={}", id, f.format(watch.getTotalTimeSeconds()), f.format(inputBeans.length / watch.getTotalTimeSeconds()));
-        return null;
+        return new AsyncResult<>(processCount);
     }
 
     public AuditResultBean createHeader(AuditHeaderInputBean inputBean) throws AuditException {
@@ -171,14 +174,33 @@ public class AuditManagerService {
             inputBeans[0] = inputBean;
             createTagStructure(inputBeans, company);
         }
-        AuditResultBean resultBean;
-        resultBean = auditService.createHeader(inputBean, company, fortress);
+        AuditResultBean resultBean = null;
+
+        // Deadlock re-try fun
+        int retries = 4, count = 0;
+        while (resultBean == null)
+            try {
+                resultBean = auditService.createHeader(inputBean, company, fortress);
+            } catch (RuntimeException re) {
+                logger.debug("Deadlock Detected. Entering retry");
+                count++;
+                if (count == retries) {
+                    // Deadlock retry
+                    // ToDo: A Map<String,AuditHeader> keyed by Tag may reduce potential deadlocks as fewer tags are associated with more headers
+                    // http://www.slideshare.net/neo4j/zephyr-neo4jgraphconnect-2013short
+                    logger.error("Error creating Header, rolling back", re);
+                    throw (re);
+                }
+
+            }
 
         // Don't recreate tags if we already handled this -ToDiscuss!!
         if (!resultBean.isDuplicate()) {
             if (inputBean.isTrackSuppressed())
+                // We need to get the "tags" across to ElasticSearch, so we mock them ;)
                 resultBean.setTags(auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTagValues()));
             else
+                // Write the associations to the graph
                 auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTagValues());
         }
 
