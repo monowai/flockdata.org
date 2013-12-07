@@ -35,7 +35,7 @@ AuditBucket does not "own" your databases. These are free for you to explore and
 Typically archival projects are run to get eliminate "old" data from transacton systems. AuditBucket enables this information to be preserved and explored in new and exciting ways while freeing up your transactional systems to do what they do best - perform.
 
 ## Licensing
-AuditBucket is an open source product. We support a Community edition under the GPLv3 license. The Enterprise edition is available under the AGPLv3 license for open source projects otherwise under a commercial license by contacting [the team](http://auditbucket.com/contact-auditbucket/).
+AuditBucket is an open source product. We support a Community edition under the GPLv3 license. The Enterprise edition is available under the AGPLv3 license for open source projects otherwise under a commercial license by contacting [the team](http://auditbucket.com/contact-auditbucket/). Talk to us about clustering as there may be costs involved.
 
 ##Architecture
 The basic principals behind AB are well suited to Domain Driven Design and SOA architectures. We connect sophisticated index technologies and document management logic on to scalable databases to let you look at your information in new and exciting ways.  
@@ -96,17 +96,16 @@ $ mvn -Dtest=Test* test -Dab.integration=http -Dneo4j=java
 
 Once you have the .war file installed in your app server, you can start firing off urls to test things.
 
-### How do we talk to it?
-REST and JSON. Download, compile and deploy. Coming soon - a hosted version.
-
 ### Security
 Note that the user id is 'mike' and the password is '123'. This is bodgy configuration stuff hacked in to spring-security.xml. I'm sure you'll configure your own lovely security domain, or help me out with an OAuth configuration ;)
 
 ## Tracking Data
 By default, information is tracked in Neo4J and ElasticSearch. You can, at the point of POST, request that the information be only tracked in Neo4j or only ElasticSearch. This is down to your use case. You might be simply tracking event type information that never changes, so simply storing in ElasticSearch is functional enough as the data is not connectable.
 
-## Creating Data
-Note that in the examples below, /ab/ is the application context. Substitute for whatever context is appropriate for your deployment.
+## Interacting with AuditBucket
+HTTP, REST and JSON is the lingua franca - surprised? Doubted it. Download, compile and deploy. 
+
+In the examples below, /ab/ is the application context. Substitute for whatever context is appropriate for your deployment.
 
 ###Register yourself with an account
 ```
