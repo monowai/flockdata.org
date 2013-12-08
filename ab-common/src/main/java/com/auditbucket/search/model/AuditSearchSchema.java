@@ -1,5 +1,7 @@
 package com.auditbucket.search.model;
 
+import com.auditbucket.registration.model.Fortress;
+
 /**
  * User: Mike Holdsworth
  * Since: 5/09/13
@@ -38,5 +40,8 @@ public class AuditSearchSchema {
     public static final String NGRM_WHAT_NAME_MIN = "3";
     public static final String NGRM_WHAT_NAME_MAX = "10";
 
+    public static final String parseIndex(Fortress fortress) {
+        return "ab." + fortress.getCompany().getCode() + "." + fortress.getCode();
+    }
 
 }

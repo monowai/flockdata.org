@@ -29,6 +29,7 @@ import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.search.model.AuditSearchSchema;
@@ -114,8 +115,9 @@ public class TestAuditIntegration {
         client.execute(new DeleteIndex.Builder("ab.testaudit.suppress").build());
         client.execute(new DeleteIndex.Builder("ab.testaudit.ngram").build());
         client.execute(new DeleteIndex.Builder("ab.companywithspace.audittest").build());
-
+        client.execute(new DeleteIndex.Builder("ab.monowai.trackgraph").build());
         client.execute(new DeleteIndex.Builder("ab.monowai.audittest").build());
+
         for (int i = 1; i < fortressMax + 1; i++) {
             client.execute(new DeleteIndex.Builder("ab.testaudit.bulkloada" + i).build());
         }
@@ -151,7 +153,7 @@ public class TestAuditIntegration {
 
         String ahKey = auditManager.createHeader(inputBean).getAuditKey();
         assertNotNull(ahKey);
-        com.auditbucket.audit.model.AuditHeader header = auditService.getHeader(ahKey);
+        AuditHeader header = auditService.getHeader(ahKey);
         auditManager.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + 1 + "}"));
         Thread.sleep(2000);
         doEsQuery(header.getIndexName(), header.getAuditKey());
@@ -204,7 +206,7 @@ public class TestAuditIntegration {
 
         assertNotNull(ahKey);
 
-        com.auditbucket.audit.model.AuditHeader auditHeader = auditService.getHeader(ahKey);
+        AuditHeader auditHeader = auditService.getHeader(ahKey);
         assertNotNull(auditHeader);
         assertNotNull(auditService.findByCallerRef(fo, "TestAudit", "ABC123"));
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
@@ -249,6 +251,56 @@ public class TestAuditIntegration {
 
     }
 
+    @Test
+    public void auditsByPassGraphByCallerRef() throws Exception {
+        int max = 3;
+        String ahKey;
+        logger.info("auditsByPassGraphByCallerRef started");
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        String company = "Monowai";
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
+        Fortress fortress = fortressService.registerFortress(new FortressInputBean("TrackGraph", false));
+
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortress.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
+        inputBean.setTrackSuppressed(true);
+        auditManager.createHeader(inputBean);
+
+        String indexName = AuditSearchSchema.parseIndex(fortress);
+        ;
+
+        // Putting asserts On elasticsearch
+        Thread.sleep(2000); // Let the messaging take effect
+        doEsQuery(indexName, "*", 1);
+        inputBean = new AuditHeaderInputBean(fortress.getName(), "wally", "TestAudit", new DateTime(), "ABC124");
+        inputBean.setTrackSuppressed(true);
+        auditManager.createHeader(inputBean);
+        Thread.sleep(2000); // Let the messaging take effect
+        doEsQuery(indexName, "*", 2);
+
+        inputBean = new AuditHeaderInputBean(fortress.getName(), "wally", "TestAudit", new DateTime(), "ABC124");
+        inputBean.setTrackSuppressed(true);
+        auditManager.createHeader(inputBean);
+        Thread.sleep(2000); // Let the messaging take effect
+        // Updating the same caller ref should not create a 3rd record
+        doEsQuery(indexName, "*", 2);
+
+        inputBean = new AuditHeaderInputBean(fortress.getName(), "wally", "TestAudit", new DateTime(), "abc124");
+        inputBean.setTrackSuppressed(true);
+        auditManager.createHeader(inputBean);
+        Thread.sleep(2000); // Let the messaging take effect
+        // Updating the same caller ref should not create a 3rd record
+        doEsQuery(indexName, "*", 2);
+
+        inputBean = new AuditHeaderInputBean(fortress.getName(), "wally", "TestAudit", new DateTime(), "abc125");
+        inputBean.setTrackSuppressed(true);
+        auditManager.createHeader(inputBean);
+        Thread.sleep(2000); // Let the messaging take effect
+        // Updating the same caller ref should not create a 3rd record
+        doEsQuery(indexName, "*", 3);
+
+    }
+
+
     /**
      * Suppresses the indexing of a log record even if the fortress is set to index everything
      *
@@ -264,7 +316,7 @@ public class TestAuditIntegration {
 
         //Transaction tx = getTransaction();
         AuditResultBean indexedResult = auditManager.createHeader(inputBean);
-        com.auditbucket.audit.model.AuditHeader indexHeader = auditService.getHeader(indexedResult.getAuditKey());
+        AuditHeader indexHeader = auditService.getHeader(indexedResult.getAuditKey());
 
         AuditLogResultBean resultBean = auditManager.createLog(new AuditLogInputBean(indexHeader.getAuditKey(), inputBean.getFortressUser(), new DateTime(), escJson + "\"andy\"}"));
         junit.framework.Assert.assertNotNull(resultBean);
@@ -278,7 +330,7 @@ public class TestAuditIntegration {
         inputBean = new AuditHeaderInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
         inputBean.setSearchSuppressed(true);
         AuditResultBean noIndex = auditManager.createHeader(inputBean);
-        com.auditbucket.audit.model.AuditHeader noIndexHeader = auditService.getHeader(noIndex.getAuditKey());
+        AuditHeader noIndexHeader = auditService.getHeader(noIndex.getAuditKey());
 
         auditManager.createLog(new AuditLogInputBean(noIndexHeader.getAuditKey(), inputBean.getFortressUser(), new DateTime(), escJson + "\"bob\"}"));
         Thread.sleep(1000);
@@ -296,7 +348,7 @@ public class TestAuditIntegration {
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
 
         AuditResultBean indexedResult = auditManager.createHeader(inputBean);
-        com.auditbucket.audit.model.AuditHeader indexHeader = auditService.getHeader(indexedResult.getAuditKey());
+        AuditHeader indexHeader = auditService.getHeader(indexedResult.getAuditKey());
         String what = "{\"code\":\"AZERTY\",\"name\":\"NameText\",\"description\":\"this is a description\"}";
         auditManager.createLog(new AuditLogInputBean(indexHeader.getAuditKey(), inputBean.getFortressUser(), new DateTime(), what));
         waitForHeaderToUpdate(indexHeader);
@@ -370,7 +422,7 @@ public class TestAuditIntegration {
                     requests++;
                     if (!searchChecked) {
                         searchChecked = true;
-                        com.auditbucket.audit.model.AuditHeader auditHeader = auditService.getHeader(arb.getAuditKey());
+                        AuditHeader auditHeader = auditService.getHeader(arb.getAuditKey());
                         requests++;
                         int checkCount = waitForHeaderToUpdate(auditHeader);
                         auditSleepCount = auditSleepCount + (400 * checkCount);
@@ -411,7 +463,7 @@ public class TestAuditIntegration {
         //DecimalFormat f = new DecimalFormat("##.000");
         while (fortress <= fortressMax) {
             while (audit <= auditMax) {
-                com.auditbucket.audit.model.AuditHeader header = auditService.findByCallerRefFull(list.get(fortress), "CompanyNode", "ABC" + audit);
+                AuditHeader header = auditService.findByCallerRefFull(list.get(fortress), "CompanyNode", "ABC" + audit);
                 StopWatch watch = new StopWatch();
                 watch.start();
                 Set<AuditLog> logs = auditService.getAuditLogs(header.getId());
@@ -430,12 +482,12 @@ public class TestAuditIntegration {
 
     }
 
-    private int waitForHeaderToUpdate(com.auditbucket.audit.model.AuditHeader header) throws Exception {
+    private int waitForHeaderToUpdate(AuditHeader header) throws Exception {
         // Looking for the first searchKey to be logged against the auditHeader
         int i = 0;
         int timeout = 50;
 
-        com.auditbucket.audit.model.AuditHeader auditHeader = auditService.getHeader(header.getAuditKey());
+        AuditHeader auditHeader = auditService.getHeader(header.getAuditKey());
         if (auditHeader.getSearchKey() != null)
             return 0;
         while (auditHeader.getSearchKey() == null && i <= timeout) {
@@ -516,19 +568,21 @@ public class TestAuditIntegration {
         String query = "{\n" +
                 "    query: {\n" +
                 "          query_string : {\n" +
-                "              \"query\" : \"" + queryString + "\"\n" +
+                "              \"query\" : \"" + queryString + "\"" +
                 "           }\n" +
                 "      }\n" +
                 "}";
+
+        logger.info("searching index [{}] for [{}]", index, queryString);
         Search search = new Search.Builder(query)
                 .addIndex(index)
                 .build();
 
         JestResult result = client.execute(search);
         assertNotNull(result);
-        assertNotNull(result.getJsonObject());
-        assertNotNull(result.getJsonObject().getAsJsonObject("hits"));
-        assertNotNull(result.getJsonObject().getAsJsonObject("hits").get("total"));
+        assertNotNull(result.getErrorMessage(), result.getJsonObject());
+        assertNotNull(result.getErrorMessage(), result.getJsonObject().getAsJsonObject("hits"));
+        assertNotNull(result.getErrorMessage(), result.getJsonObject().getAsJsonObject("hits").get("total"));
         int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
         Assert.assertEquals(index + "\r\n" + result.getJsonString(), expectedHitCount, nbrResult);
         return null;
@@ -557,6 +611,7 @@ public class TestAuditIntegration {
         assertNotNull(message, result.getJsonObject().getAsJsonObject("hits"));
         assertNotNull(message, result.getJsonObject().getAsJsonObject("hits").get("total"));
         int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
+        logger.info("searching index [{}] for [{}]", index, queryString);
         Assert.assertEquals(result.getJsonString(), expectedHitCount, nbrResult);
         if (nbrResult != 0) {
             return result.getJsonObject()

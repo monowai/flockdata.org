@@ -26,6 +26,7 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.repo.neo4j.model.FortressNode;
 import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
+import com.auditbucket.search.model.AuditSearchSchema;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -117,7 +118,7 @@ public class AuditHeaderNode implements AuditHeader {
         this.name = (callerRef == null ? docType : (docType + "." + callerRef).toLowerCase());
         this.description = auditInput.getDescription();
 
-        indexName = "ab." + createdBy.getFortress().getCompany().getCode() + "." + fortress.getCode();
+        indexName = AuditSearchSchema.parseIndex(fortress);
 
         Date when = auditInput.getWhen();
 

@@ -145,13 +145,16 @@ public class FortressService {
         Company company = getCompany();
 
         Fortress fortress = companyService.getFortress(company, fib.getName());
+
         if (fortress != null) {
             // Already associated, get out of here
             return fortress;
         }
 
         fortress = new FortressNode(fib, company);
-        return save(fortress);
+        fortress = save(fortress);
+        fortress.setCompany(company);
+        return fortress;
 
     }
 

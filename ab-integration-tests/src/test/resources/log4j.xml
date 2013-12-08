@@ -55,15 +55,19 @@
     <logger name="org.apache">
         <level value="info"/>
     </logger>
+    <logger name="net.sf.ehcache">
+        <level value="info"/>
+    </logger>
+
     <logger name="org.neo4j">
-        <level value="debug"/>
+        <level value="info"/>
     </logger>
 
     <logger name="io.searchbox">
         <level value="info"/>
     </logger>
 
-    <!-- Root Logger -->
+    <!-- Root Logger. If you're diagnosling integration test issues, up this value to debug -->
     <root>
         <priority value="info"/>
         <appender-ref ref="console"/>
