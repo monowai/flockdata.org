@@ -135,7 +135,7 @@ public class AuditService {
             ah = findByCallerRef(fortress, documentType, inputBean.getCallerRef());
 
         if (ah != null) {
-            logger.info("Existing auditHeader record found by Caller Ref [{}] found [{}]", inputBean.getCallerRef(), ah.getAuditKey());
+            logger.debug("Existing auditHeader record found by Caller Ref [{}] found [{}]", inputBean.getCallerRef(), ah.getAuditKey());
             inputBean.setAuditKey(ah.getAuditKey());
 
             AuditResultBean arb = new AuditResultBean(ah);

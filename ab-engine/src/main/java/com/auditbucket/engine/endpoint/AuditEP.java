@@ -101,7 +101,7 @@ public class AuditEP {
 
     public void createHeadersF(AuditHeaderInputBean[] inputBeans, boolean waitForFinish) throws AuditException {
         Company company = auditManager.resolveCompany(inputBeans[0].getApiKey());
-        Fortress fortress = auditManager.resolveFortress(company, inputBeans[0]);
+        Fortress fortress = auditManager.resolveFortress(company, inputBeans[0], true);
         boolean async = true; // todo: Figure out how to throttle
         auditManager.createTagStructure(inputBeans, company);
 

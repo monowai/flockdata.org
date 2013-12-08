@@ -23,6 +23,7 @@ import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.bean.*;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;
@@ -86,8 +87,17 @@ public class AuditManagerService {
     }
 
     public Fortress resolveFortress(Company company, AuditHeaderInputBean inputBean) throws AuditException {
+        return resolveFortress(company, inputBean, false);
+    }
+
+    public Fortress resolveFortress(Company company, AuditHeaderInputBean inputBean, boolean createIfMissing) throws AuditException {
         Fortress fortress = companyService.getCompanyFortress(company.getId(), inputBean.getFortress());
         if (fortress == null) {
+            if (createIfMissing) {
+                fortress = fortressService.registerFortress(new FortressInputBean(inputBean.getFortress(), false));
+                logger.info("Automatically created fortress " + fortress.getName());
+            }
+
             throw new AuditException("Fortress {" + inputBean.getFortress() + "} does not exist");
         }
 
@@ -128,7 +138,7 @@ public class AuditManagerService {
         }
     }
 
-    static DecimalFormat f = new DecimalFormat("##.000");
+    static DecimalFormat f = new DecimalFormat();
 
     @Async
     public Future<Integer> createHeadersAsync(AuditHeaderInputBean[] inputBeans, Company company, Fortress fortress) throws AuditException {
@@ -181,6 +191,17 @@ public class AuditManagerService {
         while (resultBean == null)
             try {
                 resultBean = auditService.createHeader(inputBean, company, fortress);
+
+                // Don't recreate tags if we already handled this -ToDiscuss!!
+                if (!resultBean.isDuplicate()) {
+                    count = 0;
+                    if (inputBean.isTrackSuppressed())
+                        // We need to get the "tags" across to ElasticSearch, so we mock them ;)
+                        resultBean.setTags(auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTagValues()));
+                    else
+                        // Write the associations to the graph
+                        auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTagValues());
+                }
             } catch (RuntimeException re) {
                 logger.debug("Deadlock Detected. Entering retry");
                 count++;
@@ -193,16 +214,6 @@ public class AuditManagerService {
                 }
 
             }
-
-        // Don't recreate tags if we already handled this -ToDiscuss!!
-        if (!resultBean.isDuplicate()) {
-            if (inputBean.isTrackSuppressed())
-                // We need to get the "tags" across to ElasticSearch, so we mock them ;)
-                resultBean.setTags(auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTagValues()));
-            else
-                // Write the associations to the graph
-                auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTagValues());
-        }
 
         AuditLogInputBean logBean = inputBean.getAuditLog();
         // Here on could be spun in to a separate thread. The log has to happen eventually

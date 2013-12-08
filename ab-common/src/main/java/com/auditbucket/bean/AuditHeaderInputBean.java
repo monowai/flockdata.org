@@ -42,11 +42,11 @@ public class AuditHeaderInputBean {
     private AuditLogInputBean auditLog;
     private Map<String, Object> tagValues = new HashMap<>();
     private List<TagInputBean> associatedTags = new ArrayList<>();
-    private boolean searchSuppressed;
     private String event;
     private AuditEvent eventObject;
     private String apiKey;
     private String description;
+    private boolean searchSuppressed;
     private boolean trackSuppressed = false;
 
 
@@ -118,6 +118,11 @@ public class AuditHeaderInputBean {
         return documentType;
     }
 
+    /**
+     * Fortress unique type of document that categorizes this type of change.
+     *
+     * @param documentType name of the document
+     */
     public void setDocumentType(String documentType) {
         this.documentType = documentType;
     }
@@ -127,15 +132,11 @@ public class AuditHeaderInputBean {
         return callerRef;
     }
 
+    /**
+     * @param callerRef primary key in the calling systems datastore
+     */
     public void setCallerRef(String callerRef) {
         this.callerRef = callerRef;
-    }
-
-    public void setLastMessage(String lastMessage) {
-        this.lastMessage = lastMessage;
-    }
-
-    protected void setIsTransactional(Boolean transactional) {
     }
 
     public void setAuditLog(AuditLogInputBean auditLog) {
@@ -156,18 +157,13 @@ public class AuditHeaderInputBean {
     }
 
     /**
+     * Tag values to associate with the header
+     *
      * @param tagValues <relationship, object>
+     * @see com.auditbucket.bean.AuditHeaderInputBean#getAssociatedTags()
      */
     public void setTagValues(Map<String, Object> tagValues) {
         this.tagValues = tagValues;
-    }
-
-    public void setSearchSuppressed(boolean searchSuppressed) {
-        this.searchSuppressed = searchSuppressed;
-    }
-
-    public boolean isSearchSuppressed() {
-        return searchSuppressed;
     }
 
     public String getEvent() {
@@ -192,6 +188,9 @@ public class AuditHeaderInputBean {
         this.eventObject = eventObject;
     }
 
+    /**
+     * @return secret know only by the caller and AuditBucket
+     */
     public String getApiKey() {
         return apiKey;
     }
@@ -200,10 +199,26 @@ public class AuditHeaderInputBean {
         this.apiKey = apiKey;
     }
 
+    /**
+     * Single tag
+     *
+     * @param tag tag to add
+     * @see AuditHeaderInputBean#getAssociatedTags()
+     */
     public void setAssociatedTag(TagInputBean tag) {
         associatedTags.add(tag);
     }
 
+    /**
+     * Tag structure to create. This is a short hand way of ensuring an
+     * associative structure will exist. Perhaps you can only identify this while processing
+     * a large file set.
+     * <p/>
+     * This will not associate the header with the tag structure. To do that
+     *
+     * @return Tag values to created
+     * @see AuditHeaderInputBean#setTagValues(java.util.Map)
+     */
     public List<TagInputBean> getAssociatedTags() {
         return associatedTags;
     }
@@ -221,10 +236,34 @@ public class AuditHeaderInputBean {
         this.description = description;
     }
 
+    /**
+     * @return do not index in the search service
+     */
+    public boolean isSearchSuppressed() {
+        return searchSuppressed;
+    }
+
+    /**
+     * Graph the change only. Do not write to the search service
+     *
+     * @param searchSuppressed true/false
+     */
+    public void setSearchSuppressed(boolean searchSuppressed) {
+        this.searchSuppressed = searchSuppressed;
+    }
+
+    /**
+     * @return do not index in the graph
+     */
     public boolean isTrackSuppressed() {
         return trackSuppressed;
     }
 
+    /**
+     * Write the change as a search event only. Do not write to the graph service
+     *
+     * @param trackSuppressed true/false
+     */
     public void setTrackSuppressed(boolean trackSuppressed) {
         this.trackSuppressed = trackSuppressed;
     }
