@@ -65,7 +65,7 @@
         <constructor-arg index="0" value="DEBUG"/>
     </bean>
 
-    <task:executor id="qExecutor" pool-size="25-25" keep-alive="180" queue-capacity="100"
+    <task:executor id="qExecutor" pool-size="40-40" keep-alive="180" queue-capacity="100"
                    rejection-policy="CALLER_RUNS"/>
 
 

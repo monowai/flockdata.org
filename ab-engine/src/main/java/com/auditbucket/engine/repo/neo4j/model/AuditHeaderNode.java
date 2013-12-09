@@ -22,6 +22,7 @@ package com.auditbucket.engine.repo.neo4j.model;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.bean.AuditHeaderInputBean;
+import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.repo.neo4j.model.FortressNode;
@@ -103,7 +104,7 @@ public class AuditHeaderNode implements AuditHeader {
         this.lastUpdated = dateCreated;
     }
 
-    public AuditHeaderNode(String uniqueKey, @NotEmpty FortressUser createdBy, @NotEmpty AuditHeaderInputBean auditInput, @NotEmpty DocumentType documentType) {
+    public AuditHeaderNode(String uniqueKey, @NotEmpty FortressUser createdBy, @NotEmpty AuditHeaderInputBean auditInput, @NotEmpty DocumentType documentType) throws AuditException {
         this();
         auditKey = uniqueKey;
         this.fortress = (FortressNode) createdBy.getFortress();
@@ -111,19 +112,19 @@ public class AuditHeaderNode implements AuditHeader {
         String docType = (documentType != null ? getDocumentType() : "");
         callerRef = auditInput.getCallerRef();
         if (callerRef != null) {
-            callerKeyRef = fortress.getId() + "." + documentType.getId() + "." + callerRef.toLowerCase();
+            callerKeyRef = this.fortress.getId() + "." + documentType.getId() + "." + callerRef.toLowerCase();
         } else
-            callerKeyRef = fortress.getId() + "." + documentType.getId() + "." + auditKey;
+            callerKeyRef = this.fortress.getId() + "." + documentType.getId() + "." + auditKey;
 
         this.name = (callerRef == null ? docType : (docType + "." + callerRef).toLowerCase());
         this.description = auditInput.getDescription();
 
-        indexName = AuditSearchSchema.parseIndex(fortress);
+        indexName = AuditSearchSchema.parseIndex(this.fortress);
 
         Date when = auditInput.getWhen();
 
         if (when == null)
-            fortressDate = new DateTime(dateCreated, DateTimeZone.forTimeZone(TimeZone.getTimeZone(fortress.getTimeZone()))).getMillis();
+            fortressDate = new DateTime(dateCreated, DateTimeZone.forTimeZone(TimeZone.getTimeZone(this.fortress.getTimeZone()))).getMillis();
         else
             fortressDate = when.getTime();
 

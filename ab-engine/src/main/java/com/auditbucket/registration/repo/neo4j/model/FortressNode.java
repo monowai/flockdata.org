@@ -25,10 +25,7 @@ import com.auditbucket.registration.model.Fortress;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
-import org.springframework.data.neo4j.annotation.GraphId;
-import org.springframework.data.neo4j.annotation.Indexed;
-import org.springframework.data.neo4j.annotation.NodeEntity;
-import org.springframework.data.neo4j.annotation.RelatedTo;
+import org.springframework.data.neo4j.annotation.*;
 
 import java.util.Locale;
 import java.util.TimeZone;
@@ -50,8 +47,8 @@ public class FortressNode implements Fortress {
     private String name;
 
     @RelatedTo(type = "owns", direction = Direction.INCOMING)
-    private
-    CompanyNode company;
+    @Fetch
+    private CompanyNode company;
 
     private Boolean accumulatingChanges = false;
     private Boolean searchActive = true;

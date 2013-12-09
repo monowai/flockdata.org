@@ -25,6 +25,7 @@ import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditTXResult;
 import com.auditbucket.dao.AuditDao;
 import com.auditbucket.engine.repo.neo4j.model.*;
+import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.FortressUser;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -244,7 +245,7 @@ public class AuditDaoNeo implements AuditDao {
     }
 
     @Override
-    public AuditHeader create(AuditHeaderInputBean inputBean, FortressUser fu, DocumentType documentType) {
+    public AuditHeader create(AuditHeaderInputBean inputBean, FortressUser fu, DocumentType documentType) throws AuditException {
         // AuditHeader ah = findHeaderByCallerRef(fu.getFortress().getId(), documentType.getId(), inputBean.getCallerRef());
         AuditHeader auditHeader = new AuditHeaderNode(inputBean.getAuditKey(), fu, inputBean, documentType);
         if (inputBean.isTrackSuppressed()) {

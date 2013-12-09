@@ -196,6 +196,10 @@ public class AuditSearchDaoES implements AuditSearchDao {
                     if (existingWhen > incoming.getWhen()) {
                         logger.debug("ignoring a request to update as the existing document dated [{}] is newer than the incoming document dated [{}]", new Date(existingWhen), new Date(incoming.getWhen()));
                         return incoming; // Don't overwrite the most current doc!
+                    } else if (incoming.getWhen() == 0l && !incoming.isReplyRequired()) {
+                        // Meta Change - not indexed in AB, so ignore something we already have.
+                        // Likely scenario is a batch is being reprocessed
+                        return incoming;
                     }
                 }
             } else {
