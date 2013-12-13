@@ -192,7 +192,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
                 // what the most recent doc is.
                 Object o = response.getSource().get(AuditSearchSchema.WHEN); // fortress view of WHEN, not AuditBuckets!
                 if (o != null) {
-                    Long existingWhen = (Long) o;
+                    Long existingWhen = Long.decode(o.toString());
                     if (existingWhen > incoming.getWhen()) {
                         logger.debug("ignoring a request to update as the existing document dated [{}] is newer than the incoming document dated [{}]", new Date(existingWhen), new Date(incoming.getWhen()));
                         return incoming; // Don't overwrite the most current doc!
