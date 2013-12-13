@@ -39,20 +39,48 @@
     <version>1.0.0-BUILD-SNAPSHOT</version>
     <properties>
         <java-version>1.7</java-version>
-        <org.springframework-version>3.2.4.RELEASE</org.springframework-version>
+        <org.springframework-version>3.2.6.RELEASE</org.springframework-version>
+        <org.springsecurity-version>3.1.4.RELEASE</org.springsecurity-version>
+        <org.springintegration.version>2.2.6.RELEASE</org.springintegration.version>
         <org.aspectj-version>1.7.2</org.aspectj-version>
         <org.slf4j-version>1.7.5</org.slf4j-version>
-        <!--<org.springdata.neo4j>2.2.2.RELEASE</org.springdata.neo4j>-->
-        <org.springdata.neo4j>2.3.1.RELEASE</org.springdata.neo4j>
-        <org.springsecurity-version>3.1.4.RELEASE</org.springsecurity-version>
-        <org.springintegration.version>2.2.3.RELEASE</org.springintegration.version>
-        <neo4j.version>1.9.3</neo4j.version>
-        <jackson.version>2.2.2</jackson.version>
+        <!--<org.springdata.neo4j>3.0.0.M1</org.springdata.neo4j>-->
+        <!--<neo4j.version>2.0.0</neo4j.version>-->
+
+        <!--<org.springdata.neo4j>2.3.3.RELEASE</org.springdata.neo4j>-->
+        <org.springdata.neo4j>2.4.0.BUILD-SNAPSHOT</org.springdata.neo4j>
+        <neo4j.version>1.9.4</neo4j.version>
+
+        <jackson.version>2.3.0</jackson.version>
     </properties>
     <repositories>
         <repository>
             <id>clojars.org</id>
             <url>http://clojars.org/repo</url>
+        </repository>
+        <repository>
+            <id>neo4j-snapshots</id>
+            <name>Neo4j Snapshots</name>
+            <url>http://m2.neo4j.org</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>http://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>spring-snapshots</id>
+            <name>Spring Snapshots</name>
+            <url>http://repo.spring.io/snapshot</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
     </repositories>
 

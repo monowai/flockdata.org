@@ -41,6 +41,7 @@ import java.util.Map;
  * Since: 29/08/13
  */
 @Service
+@Transactional
 public class EngineAdmin {
 
     @Autowired
@@ -96,7 +97,7 @@ public class EngineAdmin {
 
     }
 
-    @PostConstruct
+
     private void doHealth() {
         ObjectMapper om = new ObjectMapper();
         try {

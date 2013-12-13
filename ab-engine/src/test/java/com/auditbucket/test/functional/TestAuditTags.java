@@ -333,6 +333,7 @@ public class TestAuditTags {
 
     }
 
+    @Test
     public void documentTypesWork() {
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         fortressService.registerFortress("ABC");
@@ -345,7 +346,7 @@ public class TestAuditTags {
         // Should be finding by code which is always Lower
         DocumentType sameDoc = tagService.resolveDocType(docType.getCode().toUpperCase());
         Assert.assertNotNull(sameDoc);
-        assertSame(sameDoc.getId(), docType.getId());
+        assertEquals(sameDoc.getId(), docType.getId());
 
     }
 

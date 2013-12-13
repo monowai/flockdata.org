@@ -58,14 +58,14 @@ public interface AuditHeaderRepo extends GraphRepository<AuditHeaderNode> {
     @Query(elementClass = AuditHeaderNode.class, value =
             "start fortress = node({0}) " +
                     " match fortress-[:TRACKS]->audit " +
-                    " return audit ORDER BY audit.dateCreated ? ASC" +
+                    " return audit ORDER BY audit.dateCreated ASC" +
                     " skip {1} limit 100 ")
     Set<AuditHeader> findHeadersFrom(Long fortressId, Long skip);
 
     @Query(elementClass = AuditHeaderNode.class, value =
             "start fortress = node({0}), docType=node({1}) " +
                     " match fortress-[:TRACKS]->audit-[:CLASSIFIED_AS]->docType " +
-                    " return audit ORDER BY audit.dateCreated ? ASC" +
+                    " return audit ORDER BY audit.dateCreated ASC" +
                     " skip {2} limit 100 ")
     Set<AuditHeader> findHeadersFrom(Long fortressId, Long docTypeId, Long skipTo);
 }
