@@ -19,12 +19,6 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.registration.model.Fortress;
-import org.kohsuke.github.GHRepository;
-import org.kohsuke.github.GitHub;
-
-import java.io.IOException;
-
 /**
  * Created with IntelliJ IDEA.
  * User: Mike Holdsworth
@@ -34,55 +28,55 @@ import java.io.IOException;
  */
 public class GitHandler {
 
-    private GitHub github = null;
-    private GHRepository repo;
+//    private GitHub github = null;
+//    private GHRepository repo;
 
-    public void initHandler(Fortress fortress) {
-
-        try {
-            github = GitHub.connect();
-            if (repo == null)
-                repo = findRepo(fortress);
-
-
-        } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-
-    }
-
-    public void deleteRepo(Fortress fortress) {
-        try {
-            repo.delete();
-
-            if (repo != null)
-                System.out.print("Failed to remove repo" + fortress.getFortressKey());
-        } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-    }
-
-    private GHRepository findRepo(Fortress fortress) throws IOException {
-
-        try {
-            return github.getRepository("monowai/" + fortress.getFortressKey());
-        } catch (IOException e) {
-            return createRepo(fortress);
-        }
-    }
-
-    private GHRepository createRepo(Fortress fortress) throws IOException {
-        String folder = "/Users/mike/git"; //fortress.getRepo();
-        // Should only need to do this once, when registering a fortress
-
-        repo = github.createRepository(
-                fortress.getFortressKey(), "this is my new repository",
-                "http://www.monowai.com/", true/*public*/);
-
-        String user = "monowai";
-        repo.addCollaborators(github.getUser(user));
-
-        return repo;
-
-    }
+//    public void initHandler(Fortress fortress) {
+//
+//        try {
+//            github = GitHub.connect();
+//            if (repo == null)
+//                repo = findRepo(fortress);
+//
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+//        }
+//
+//    }
+//
+//    public void deleteRepo(Fortress fortress) {
+//        try {
+//            repo.delete();
+//
+//            if (repo != null)
+//                System.out.print("Failed to remove repo" + fortress.getFortressKey());
+//        } catch (IOException e) {
+//            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+//        }
+//    }
+//
+//    private GHRepository findRepo(Fortress fortress) throws IOException {
+//
+//        try {
+//            return github.getRepository("monowai/" + fortress.getFortressKey());
+//        } catch (IOException e) {
+//            return createRepo(fortress);
+//        }
+//    }
+//
+//    private GHRepository createRepo(Fortress fortress) throws IOException {
+//        String folder = "/Users/mike/git"; //fortress.getRepo();
+//        // Should only need to do this once, when registering a fortress
+//
+//        repo = github.createRepository(
+//                fortress.getFortressKey(), "this is my new repository",
+//                "http://www.monowai.com/", true/*public*/);
+//
+//        String user = "monowai";
+//        repo.addCollaborators(github.getUser(user));
+//
+//        return repo;
+//
+//    }
 }

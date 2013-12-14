@@ -24,28 +24,15 @@
     <parent>
         <artifactId>auditbucket</artifactId>
         <groupId>com.monowai</groupId>
-        <version>1.0.0-BUILD-SNAPSHOT</version>
+        <version>0.90-BUILD-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ab-search</artifactId>
     <packaging>war</packaging>
-    <properties>
-        <jackson.version>1.9.9</jackson.version>
-    </properties>
+    <!--<properties>-->
+    <!--<jackson.version>1.9.9</jackson.version>-->
+    <!--</properties>-->
     <dependencies>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <version>${org.slf4j-version}</version>
-            <!--Support for jakarta commons logging - tomcat-->
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.1.1</version>
-            <scope>provided</scope>
-            <!--logging framework provided by container, not our application-->
-        </dependency>
 
         <!-- Spring -->
         <dependency>
@@ -124,15 +111,16 @@
         </dependency>
 
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-core-asl</artifactId>
-            <version>1.9.9</version>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-asl</artifactId>
-            <version>1.9.9</version>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
+
 
         <!-- Servlet -->
         <dependency>

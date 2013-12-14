@@ -36,7 +36,7 @@ class TestGitHub {
     public void testConnect() {
         GitHandler gh = new GitHandler();
         Fortress fortress = new FortressNode(new FortressInputBean("monowai"), new CompanyNode("Monowai Dev"));
-        gh.initHandler(fortress);
-        gh.deleteRepo(fortress);
+        //gh.initHandler(fortress);
+        //gh.deleteRepo(fortress);
     }
 }
