@@ -24,7 +24,7 @@ The end results are that people can leverage sophisticated search capabilities o
 AB leans on the brilliant work being done by the open-source community. The open source projects we have selected represent the cutting edge in information management techniques. AB will enable you to evaluate big data and look at information in new and exciting ways for very little effort - particularly given the range of technologies that AB ties together.  
 
 ## Licensing
-AuditBucket is an open source product. We support a Community edition under the GPLv3 license. The Enterprise edition is available under the AGPLv3 license for open source projects otherwise under a commercial license by contacting [the team](http://auditbucket.com/contact-auditbucket/). Talk to us about clustering as there may be costs involved.
+AuditBucket is an open source product. We support a Community edition under the GPLv3 license. The Enterprise edition is available under the AGPLv3 license for open source projects otherwise under a commercial license by contacting [the bucketeers](http://auditbucket.com/contact-auditbucket/). Talk to us about clustering as there may be costs involved.
 
 ## Working with us
 More details? Stuck? Integration assistance? General consulting? Want to get started at the [speed of business](http://www.adamalthus.com/blog/2013/06/05/cloud-computing-and-complexity/#more-890)? 
