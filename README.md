@@ -86,8 +86,8 @@ By integrating the "latest" version of data being changed in ElasticSearch, you 
 
 ## How to use
 You need to gain a brief understanding of the two AuditBucket scalable services
-* ab-engine - connects incoming changes in a Graph database (Neo4j) and versions the information in Redis
-* ab-search - records the latest version of a document audited by ab-engine in ElasticSearch
+* [ab-engine](https://github.com/monowai/auditbucket/tree/master/ab-engine) - connects incoming changes in a Graph database (Neo4j) and versions the information in Redis
+* [ab-search](https://github.com/monowai/auditbucket/tree/master/ab-search) - records the latest version of a document audited by ab-engine in ElasticSearch
 
 ## Viewing the information
 AuditBucket information is stored in industry standard JSON documents. Any Neo4j or ElasticSearch query tools can work effortlessely AuditBucket information. 
