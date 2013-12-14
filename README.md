@@ -29,7 +29,7 @@ AuditBucket is an open source product. We support a Community edition under the 
 ## Working with us
 More details? Stuck? Integration assistance? General consulting? Want to get started at the [speed of business](http://www.adamalthus.com/blog/2013/06/05/cloud-computing-and-complexity/#more-890)? 
 
-Drop us a line over at [auditbucket.com](http://auditbucket.com/contact-auditbucket/) and we'd be happy to share experiences. Usual social media channels also apply.
+Drop us a line over at [auditbucket.com](http://auditbucket.com/contact-auditbucket/) and we'd be happy to see if we can help you reach your goals. Usual social media channels also apply.
 
 ##Architecture
 The basic principals behind AB are well suited to Domain Driven Design and SOA architectures. We connect sophisticated index technologies and document management logic to scalable databases. This lets you look at your information in new and exciting ways.  
@@ -75,7 +75,7 @@ Look under the hood of an application and you'll see that it sends information o
 ## What is it good for?
 * Understand who's changing what data across your systems
 * Track updates to information across computer systems in realtime
-* [Event Sourcing](http://martinfowler.com/eaaDev/EventSourcing.html) in complex integrated environment.
+* [Event Sourcing](http://martinfowler.com/eaaDev/EventSourcing.html) in complex integrated environments.
 * Assist in implementing compensating transactions across distributed application boundaries
 * Free text searching of your business information
 * Keeping the auditing information out of your transaction processing system
@@ -86,8 +86,8 @@ By integrating the "latest" version of data being changed in ElasticSearch, you 
 
 ## How to use
 You need to gain a brief understanding of the two AuditBucket scalable services
-* ab-engine - connects incoming changes in a Graph database (Neo4j) and versions the information in Redis
-* ab-search - records the latest version of a document audited by ab-engine in ElasticSearch
+* [ab-engine](https://github.com/monowai/auditbucket/tree/master/ab-engine) - connects incoming changes in a Graph database (Neo4j) and versions the information in Redis
+* [ab-search](https://github.com/monowai/auditbucket/tree/master/ab-search) - records the latest version of a document audited by ab-engine in ElasticSearch
 
 ## Viewing the information
 AuditBucket information is stored in industry standard JSON documents. Any Neo4j or ElasticSearch query tools can work effortlessely AuditBucket information. 
