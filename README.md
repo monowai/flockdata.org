@@ -8,7 +8,7 @@ Information is power. We are producing information now faster than at any time i
 
 Auditing (tracking changes to data) is often seen as a low value "we'll get to it later" afterthought in most computer systems, until it's too late. Applications are concerned and optimized to process information rather than track the history of changing information. Often at best they can answer you "who last changed this?". This is not enough when forensic levels of anlaysis are required. Not auditing actionable data can expose organizations to unnecessary risk and financial penalties, perhaps even make your organisation appear to be less than "open and co-operative" with regulators. 
 
-AuditBucket looks at the problem as a document-oriented information management challenge. Tracking changes to information across your many applications offers a view of what is going on at the information interface of your business.
+AuditBucket looks at the problem as a document-oriented information management challenge. The end results are that people can leverage sophisticated search capabilities on to latest available business information then explore it's evolution independently of your transaction processing systems. Kind of like real-time data warehousing for sales and a graph for the marketing department to mine.
 
 AuditBucket does not change your data in anyway. It enriches it leaving you free to explore and enhance with excellent query tools such as [Kibana](http://www.elasticsearch.org/overview/kibana/), [Linkurious](http://linkurio.us/) , [Keylines](http://keylines.com/) and of course your own information technology systems. AB simply organises your documents into a consistent way for exploration and search without imposing or requiring your existing information technology systems to change. 
 
@@ -17,9 +17,7 @@ Typically archival projects are run to eliminate "old" data from transaction sys
 ## Still with us?
 This project represents an exploration into alternative information systems and the technologies that support them with a view to how they could be put to work in a service/api-oriented world that can be mapped on to business processes. 
 
-AuditBucket(AB) enables you to track incoming information, find it via a search engine, compare versions over time, and explore it as a network graph to find connections in your information.
-
-The end results are that people can leverage sophisticated search capabilities on to latest available business information then explore it's evolution independently of your transaction processing systems. Kind of like real-time data warehousing for sales and a graph for the marketing department to mine.
+AuditBucket(AB) enables you to track incoming information, find it via a search engine, compare versions over time, and explore it as a network graph to find connections in your information. Tracking changes to information across your many applications offers a view of what is going on at the information interface of your business.
 
 AB leans on the brilliant work being done by the open-source community. The open source projects we have selected represent the cutting edge in information management techniques. AB will enable you to evaluate big data and look at information in new and exciting ways for very little effort - particularly given the range of technologies that AB ties together.  
 
