@@ -29,8 +29,11 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ab-search</artifactId>
     <packaging>war</packaging>
-    <dependencies>
+    <!--<properties>-->
+    <!--<jackson.version>1.9.9</jackson.version>-->
+    <!--</properties>-->
 
+    <dependencies>
         <!-- Spring -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -107,16 +110,28 @@
             <version>${org.aspectj-version}</version>
         </dependency>
 
+        <!--This one is for Spring-->
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-core-asl</artifactId>
+            <version>1.9.13</version>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>1.9.13</version>
         </dependency>
+
+        <!--<dependency>-->
+        <!--<groupId>com.fasterxml.jackson.core</groupId>-->
+        <!--<artifactId>jackson-core</artifactId>-->
+        <!--<version>${jackson.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>com.fasterxml.jackson.core</groupId>-->
+        <!--<artifactId>jackson-databind</artifactId>-->
+        <!--<version>${jackson.version}</version>-->
+        <!--</dependency>-->
 
 
         <!-- Servlet -->
