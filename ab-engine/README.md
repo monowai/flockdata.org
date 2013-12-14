@@ -65,4 +65,10 @@ curl -u mike:123 -H "Content-Type:application/json" -X PUT  http://localhost:808
 Figure out how to audit a record from the API documentation. Understand and add tag structures. Process a batch of Audit record. Log a change.
 
 ## Configuration
+See config.properties for the ab-engine defaults. These can be overridden while ab-engine is starting if you pass them in via the command line. But for evaluation purposes, they are good enough!
+
+Note that if ab-engine is integrating via AMQP, then ab-search must use this approach as well. 
+
+If you want to use AMQP, and we suggest you do, the default message platform we support is [RabbitMQ](http://www.rabbitmq.com/). Just download and install and you're good to go. Dead simple. If you want to support a different messaging platform, then check out the integration*.xml files for the pattern, add your own and contribute!
+
 ToDo:
