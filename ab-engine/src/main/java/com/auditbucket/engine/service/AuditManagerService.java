@@ -187,14 +187,14 @@ public class AuditManagerService {
         AuditResultBean resultBean = null;
 
         // Deadlock re-try fun
-        int retries = 4, count = 0;
+        int retries = 4, retryCount = 0;
         while (resultBean == null)
             try {
                 resultBean = auditService.createHeader(inputBean, company, fortress);
 
                 // Don't recreate tags if we already handled this -ToDiscuss!!
                 if (!resultBean.isDuplicate()) {
-                    count = 0;
+                    retryCount = 0;
                     if (inputBean.isTrackSuppressed())
                         // We need to get the "tags" across to ElasticSearch, so we mock them ;)
                         resultBean.setTags(auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTagValues()));
@@ -204,8 +204,8 @@ public class AuditManagerService {
                 }
             } catch (RuntimeException re) {
                 logger.debug("Deadlock Detected. Entering retry");
-                count++;
-                if (count == retries) {
+                retryCount++;
+                if (retryCount == retries) {
                     // Deadlock retry
                     // ToDo: A Map<String,AuditHeader> keyed by Tag may reduce potential deadlocks as fewer tags are associated with more headers
                     // http://www.slideshare.net/neo4j/zephyr-neo4jgraphconnect-2013short

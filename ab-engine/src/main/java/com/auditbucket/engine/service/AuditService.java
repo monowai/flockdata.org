@@ -149,7 +149,7 @@ public class AuditService {
 
     }
 
-    private AuditHeader makeAuditHeader(AuditHeaderInputBean inputBean, FortressUser fu, DocumentType documentType) {
+    private AuditHeader makeAuditHeader(AuditHeaderInputBean inputBean, FortressUser fu, DocumentType documentType) throws AuditException {
         inputBean.setAuditKey(keyGenService.getUniqueKey());
         AuditHeader ah = auditDAO.create(inputBean, fu, documentType);
         if (ah.getId() == null)
@@ -341,7 +341,11 @@ public class AuditService {
             logger.error(e.getMessage());
             throw (e);
         }
-        searchDocument.setSysWhen(auditLog.getSysWhen());
+        if (auditLog != null && auditLog.getSysWhen() != 0)
+            searchDocument.setSysWhen(auditLog.getSysWhen());
+        else
+            searchDocument.setSysWhen(auditHeader.getWhenCreated());
+
         // Used to reconcile that the change was actually indexed
         searchDocument.setLogId(auditLog.getId());
         return searchDocument;
@@ -707,6 +711,9 @@ public class AuditService {
             searchDocument.setTags(resultBean.getTags());
             searchDocument.setReplyRequired(false);
             searchDocument.setSearchKey(header.getCallerRef());
+            if (header.getId() == null)
+                searchDocument.setWhen(null);
+            searchDocument.setSysWhen(header.getWhenCreated());
 
         } else {
             searchDocument.setTags(auditTagService.findAuditTags(companyId, header));

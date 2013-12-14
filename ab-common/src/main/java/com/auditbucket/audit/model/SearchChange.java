@@ -109,4 +109,6 @@ public interface SearchChange {
 
     public void setReplyRequired(boolean required);
 
+    boolean isReplyRequired();
+
 }

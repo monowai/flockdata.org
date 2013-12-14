@@ -22,7 +22,9 @@ package com.auditbucket.dao;
 import com.auditbucket.audit.model.*;
 import com.auditbucket.bean.AuditHeaderInputBean;
 import com.auditbucket.bean.AuditLogInputBean;
+import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import org.joda.time.DateTime;
 
@@ -78,7 +80,7 @@ public interface AuditDao {
 
     public AuditChange save(FortressUser fUser, AuditLogInputBean input);
 
-    AuditHeader create(AuditHeaderInputBean inputBean, FortressUser fu, DocumentType documentType);
+    AuditHeader create(AuditHeaderInputBean inputBean, FortressUser fu, DocumentType documentType) throws AuditException;
 
     AuditLog getLog(Long logId);
 

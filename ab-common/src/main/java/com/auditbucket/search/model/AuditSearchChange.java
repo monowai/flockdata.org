@@ -132,6 +132,8 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
     public void setWhen(DateTime when) {
         if ((when != null) && (when.getMillis() != 0))
             this.when = when.getMillis();
+        else
+            this.when = 0l;
     }
 
     @Override
@@ -185,14 +187,28 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
                 tagValues = new HashMap<>();
                 this.tagValues.put(tag.getTagType(), tagValues);
             }
-            tagValues.put("name", tag.getTag().getName());
-            tagValues.put("key", tag.getTag().getKey());
-            if (tag.getTag().getCode() != null)
-                tagValues.put("code", tag.getTag().getCode());
-            if (tag.getWeight() != null)
-                tagValues.put("weight", tag.getWeight());
+
+            setTagValue(tag.getTag().getName(), "name", tagValues);
+            setTagValue(tag.getTag().getKey(), "key", tagValues);
+            setTagValue(tag.getTag().getCode(), "code", tagValues);
+            setTagValue(tag.getWeight(), "weight", tagValues);
+
             tagValues.put("props", tag.getProperties());
             //tagValues.put(tag.getTagType(), tag.getTag());
+        }
+    }
+
+    private void setTagValue(Object value, String column, HashMap<String, Object> tagValues) {
+        if (value != null) {
+            Object object = tagValues.get(column);
+            ArrayList values;
+            if (object == null) {
+                values = new ArrayList();
+            } else
+                values = (ArrayList) object;
+
+            values.add(value);
+            tagValues.put(column, values);
         }
     }
 
@@ -200,6 +216,9 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
         return callerRef;
     }
 
+    /**
+     * When this log file was created in AuditBucket graph
+     */
     public void setSysWhen(Long sysWhen) {
         this.sysWhen = sysWhen;
     }
