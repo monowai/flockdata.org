@@ -1,32 +1,33 @@
 auditbucket  - Information Profiling Service
 ===========
 
-Welcome to AuditBucket. This project represents an exploration into alternative information systems and the technologies that support them with a view to how they could be put to work in a service/api-oriented world that can be mapped on to business processes. 
-
-AuditBucket(AB) enables you to track incoming information, find it via a search engine, compare versions over time, and explore it as a network graph to find connections in your information.
-
-The end results is that people can leverage sophisticated search capabilities on to latest available business information then explore it's evolution independently of your transaction processing systems. Kind of like real-time data warehousing for sales and a graph for the marketing department to mine.
-
-AB leans on the brilliant work being done by the open-source community. The open source projects we have selected represent the cutting edge in information management techniques. AB will enable you to evaluate big data and look at information in new and exciting ways for very little effort - particularly given the range of technologies that AB ties together.  
-
 ## Executive Summary
 Track, Find, Kompare and Explore
 
-Information is power. We are producing information now faster now that at any time in history. Examining patterns in information can offer significant business value and insight. AuditBucket offers a straightforward generic way to classify and track information.
+Information is power. We are producing information now faster than at any time in history. Examining patterns in information can offer significant business value and insight. AuditBucket offers a straightforward data agnostic way to classify and track information from any computer system.
 
-Auditing (tracking changes to data) is often seen as a low value "we'll get to it later" afterthought in a lot of systems. Applications are concerned with with processing information rather than tracking the history of information, perhaps with the exception of "who last changed this" at best. This is not enough when forensic levels of anlaysis are required. Not auditing data can expose organizations to unnecessary risk and regulatory penalties. 
+Auditing (tracking changes to data) is often seen as a low value "we'll get to it later" afterthought in most computer systems, until it's too late. Applications are concerned and optimized to process information rather than track the history of changing information. Often at best they can answer you "who last changed this?". This is not enough when forensic levels of anlaysis are required. Not auditing actionable data can expose organizations to unnecessary risk and financial penalties, perhaps even make your organisation appear to be less than "open and co-operative" with regulators. 
 
 AuditBucket looks at the problem as a document-oriented information management challenge. Tracking changes to information across your many applications offers a view of what is going on at the information interface of your business.
 
 AuditBucket does not change your data in anyway. It enriches it leaving you free to explore and enhance with excellent query tools such as [Kibana](http://www.elasticsearch.org/overview/kibana/), [Linkurious](http://linkurio.us/) , [Keylines](http://keylines.com/) and of course your own information technology systems. AB simply organises your documents into a consistent way for exploration and search without imposing or requiring your existing information technology systems to change. 
 
-Typically archival projects are run to get eliminate "old" data from transaction systems. AuditBucket enables this insight to be preserved and explored in new and exciting ways while freeing up your transactional systems to do what they do best - perform.
+Typically archival projects are run to eliminate "old" data from transaction systems which can compound problems and introduce on-going costs. AuditBucket enables insight to be preserved and explored in innovative ways, freeing up your transactional systems to do what they do best - perform.
+
+## Still with us?
+This project represents an exploration into alternative information systems and the technologies that support them with a view to how they could be put to work in a service/api-oriented world that can be mapped on to business processes. 
+
+AuditBucket(AB) enables you to track incoming information, find it via a search engine, compare versions over time, and explore it as a network graph to find connections in your information.
+
+The end results are that people can leverage sophisticated search capabilities on to latest available business information then explore it's evolution independently of your transaction processing systems. Kind of like real-time data warehousing for sales and a graph for the marketing department to mine.
+
+AB leans on the brilliant work being done by the open-source community. The open source projects we have selected represent the cutting edge in information management techniques. AB will enable you to evaluate big data and look at information in new and exciting ways for very little effort - particularly given the range of technologies that AB ties together.  
 
 ## Licensing
 AuditBucket is an open source product. We support a Community edition under the GPLv3 license. The Enterprise edition is available under the AGPLv3 license for open source projects otherwise under a commercial license by contacting [the team](http://auditbucket.com/contact-auditbucket/). Talk to us about clustering as there may be costs involved.
 
 ## Working with us
-More details? Stuck? Integration assistance? Just want to get started at the [speed of business](http://www.adamalthus.com/blog/2013/06/05/cloud-computing-and-complexity/#more-890)? 
+More details? Stuck? Integration assistance? General consulting? Want to get started at the [speed of business](http://www.adamalthus.com/blog/2013/06/05/cloud-computing-and-complexity/#more-890)? 
 
 Drop us a line over at [auditbucket.com](http://auditbucket.com/contact-auditbucket/) and we'd be happy to share experiences. Usual social media channels also apply.
 
@@ -50,10 +51,12 @@ These guys are connecting the world of today and tomorrow
 * [spring](http://spring.io/) - Spring Integration, Spring MVC, Spring Security etc...
 
 ##People
-A big thanks to the people who helped me look at technology in a new light. 
+We are standing at a pivotal point in the way we manage and process information.
+A big thanks to the people who helped me look at technology in a different light over the last few years. 
 * Col Perx
 * Martin Fowler
 * Michael Hunger
+* Shay Banon
 * Jim Webber
 * StackOverflow !
 
@@ -70,13 +73,13 @@ Neo4J is another wonderful tool that let's your explore your business informatio
 Look under the hood of an application and you'll see that it sends information over APIs. By tapping in to these APIs, "versions" of the information being changed can be logged in AuditBucket for future analysis and tracking trends. This frees up your processing systems from the administrative burden of carrying such information. 
 
 ## What is it good for?
-* Understand who's changing dta what across systems
-* Follow updates to information across computer systems in realtime
-* [Event Sourcing](http://martinfowler.com/eaaDev/EventSourcing.html)
+* Understand who's changing what data across your systems
+* Track updates to information across computer systems in realtime
+* [Event Sourcing](http://martinfowler.com/eaaDev/EventSourcing.html) in complex integrated environment.
 * Assist in implementing compensating transactions across distributed application boundaries
-* Free text searching of data changes
+* Free text searching of your business information
 * Keeping the auditing information out of your transaction processing system
-* Learning about building graphs, search engines and loosley coupled application development. 
+* Discover graphs, search engines and loosley coupled application development. 
 
 ### Freetext Search
 By integrating the "latest" version of data being changed in ElasticSearch, you have a powerful enterprise class way of searching all your computer systems for any data value. It's like a Google search for your proprietary information.
@@ -87,10 +90,7 @@ You need to gain a brief understanding of the two AuditBucket scalable services
 * ab-search - records the latest version of a document audited by ab-engine in ElasticSearch
 
 ## Viewing the information
-Neo4J & ElasticSearch query tools will work effortlessely AuditBucket information. Here are a few to check out.
-
-[Kibana](http://www.elasticsearch.org/overview/kibana/) - [speed of business](http://www.adamalthus.com/blog/2013/06/05/cloud-computing-and-complexity/#more-890) dashboard/query tool from the clever chaps at ElasticSearch
-[Linkurious](http://linkurio.us/) - HTML graph exploration tool
+AuditBucket information is stored in industry standard JSON documents. Any Neo4j or ElasticSearch query tools can work effortlessely AuditBucket information. 
 
 
 -Mike
