@@ -31,6 +31,6 @@ You can change this by passing in your own configuration settings, i.e.
 -Des.clustername=mycluster
 ```
 
-AuditBucket indexes documents in a structure that follows ab.{fortressCode}.{documenttype}/{callerRef} structure.
+AuditBucket indexes documents in a structure that follows [ab.{fortress-code}.{document-type}/{caller-ref}] structure.
 
-This lets you search "ab.*", "ab.crm.*", "ab.crm.prospects.*" or any other combination of wild cards you can imagine. So you can keep your syslog activity from logstash seperate from your business domain data in the same cluster. Neat eh?
+This lets you search wide or narrow index structures with wild cards. This approach keeps your syslog activity from logstash seperate from your business domain data in the same cluster. Neat eh?
