@@ -29,9 +29,6 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ab-search</artifactId>
     <packaging>war</packaging>
-    <!--<properties>-->
-    <!--<jackson.version>1.9.9</jackson.version>-->
-    <!--</properties>-->
     <dependencies>
 
         <!-- Spring -->
