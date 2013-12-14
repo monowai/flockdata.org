@@ -41,6 +41,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -84,18 +85,20 @@ public class AuditEP {
     @ResponseBody
     @RequestMapping(value = "/ping", method = RequestMethod.GET)
     public String get() {
-        // curl -u mike:123 -X GET http://auditbucketdemo.entiviti.com:9092/ab-search/api/ping
+        // curl -X GET http://auditbucketdemo.entiviti.com:8081/ab-engine/v1/audit/ping
         return "Pong!";
     }
 
     @ResponseBody
     @RequestMapping(value = "/health", method = RequestMethod.GET)
+    @Secured({"ROLE_USER"})
     public Map<String, String> getHealth() {
         return auditAdmin.getHealth();
     }
 
     @ResponseBody
     @RequestMapping(value = "/", consumes = "application/json", method = RequestMethod.PUT)
+    @Secured({"ROLE_USER"})
     public void createHeaders(@RequestBody AuditHeaderInputBean[] inputBeans) throws AuditException {
         createHeadersF(inputBeans, false);
     }
@@ -103,7 +106,7 @@ public class AuditEP {
     public void createHeadersF(AuditHeaderInputBean[] inputBeans, boolean waitForFinish) throws AuditException {
         Company company = auditManager.resolveCompany(inputBeans[0].getApiKey());
         Fortress fortress = auditManager.resolveFortress(company, inputBeans[0], true);
-        boolean async = true; // todo: Figure out how to throttle
+        boolean async = true;
         auditManager.createTagStructure(inputBeans, company);
 
         if (async) {
@@ -131,6 +134,7 @@ public class AuditEP {
      */
     @ResponseBody
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
+    @Secured({"ROLE_USER"})
     public ResponseEntity<AuditResultBean> createHeader(@RequestBody AuditHeaderInputBean input) throws AuditException {
         // curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab/audit/header/new/ -d '"fortress":"MyFortressName", "fortressUser": "yoursystemuser", "documentType":"CompanyNode","when":"2012-11-10"}'
         AuditResultBean auditResultBean;
@@ -142,6 +146,7 @@ public class AuditEP {
 
     @ResponseBody
     @RequestMapping(value = "/log/", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
+    @Secured({"ROLE_USER"})
     public ResponseEntity<AuditLogResultBean> createLog(@RequestBody AuditLogInputBean input) throws AuditException {
         // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/audit/log/ -d '{"eventType":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10", "what": "{\"name\": \"val\"}" }'
 
@@ -165,6 +170,7 @@ public class AuditEP {
     @ResponseBody
     @RequestMapping(value = "/{fortress}/{recordType}/{callerRef}", method = RequestMethod.PUT)
     @Async
+    @Secured({"ROLE_USER"})
     public ResponseEntity<AuditResultBean> putByClientRef(@RequestBody AuditHeaderInputBean input,
                                                           @PathVariable("fortress") String fortress,
                                                           @PathVariable("recordType") String recordType,
@@ -182,6 +188,7 @@ public class AuditEP {
 
     @ResponseBody
     @RequestMapping(value = "/{fortress}/{recordType}/{callerRef}", method = RequestMethod.GET)
+    @Secured({"ROLE_USER"})
     public ResponseEntity<com.auditbucket.audit.model.AuditHeader> getByClientRef(@PathVariable("fortress") String fortress,
                                                                                   @PathVariable("recordType") String recordType,
                                                                                   @PathVariable("callerRef") String callerRef) {
@@ -192,6 +199,7 @@ public class AuditEP {
 
     @ResponseBody
     @RequestMapping(value = "/{auditKey}", method = RequestMethod.GET)
+    @Secured({"ROLE_USER"})
     public ResponseEntity<com.auditbucket.audit.model.AuditHeader> getAudit(@PathVariable("auditKey") String auditKey) {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
         com.auditbucket.audit.model.AuditHeader result = auditService.getHeader(auditKey, true);
@@ -200,6 +208,7 @@ public class AuditEP {
 
     @ResponseBody
     @RequestMapping(value = "/{auditKey}/logs", produces = "application/json", method = RequestMethod.GET)
+    @Secured({"ROLE_USER"})
     public Set<AuditLog> getAuditLogs(@PathVariable("auditKey") String auditKey) throws AuditException {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/c27ec2e5-2e17-4855-be18-bd8f82249157/logs
         return auditService.getAuditLogs(auditKey);
@@ -208,6 +217,7 @@ public class AuditEP {
 
     @ResponseBody
     @RequestMapping(value = "/{auditKey}/summary", produces = "application/json", method = RequestMethod.GET)
+    @Secured({"ROLE_USER"})
     public ResponseEntity<AuditSummaryBean> getAuditSummary(@PathVariable("auditKey") String auditKey) {
         return new ResponseEntity<>(auditManager.getAuditSummary(auditKey), HttpStatus.OK);
 
@@ -215,6 +225,7 @@ public class AuditEP {
 
     @ResponseBody
     @RequestMapping(value = "/{auditKey}/lastlog", produces = "application/json", method = RequestMethod.GET)
+    @Secured({"ROLE_USER"})
     public ResponseEntity<AuditLog> getLastChange(@PathVariable("auditKey") String auditKey) throws AuditException {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/c27ec2e5-2e17-4855-be18-bd8f82249157/lastchange
         AuditLog changed = auditService.getLastLog(auditKey);
@@ -227,6 +238,7 @@ public class AuditEP {
 
     @ResponseBody
     @RequestMapping(value = "/{auditKey}/{logId}", produces = "application/json", method = RequestMethod.GET)
+    @Secured({"ROLE_USER"})
     public ResponseEntity<AuditLogDetailBean> getFullLog(@PathVariable("auditKey") String auditKey, @PathVariable("logId") Long logId) {
 
         AuditLogDetailBean change = auditService.getFullDetail(auditKey, logId);
@@ -240,6 +252,7 @@ public class AuditEP {
 
     @ResponseBody
     @RequestMapping(value = "/{auditKey}/tags", method = RequestMethod.GET)
+    @Secured({"ROLE_USER"})
     public ResponseEntity<Set<AuditTag>> getAuditTags(@PathVariable("auditKey") String auditKey) {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
         com.auditbucket.audit.model.AuditHeader result = auditService.getHeader(auditKey);
@@ -249,6 +262,7 @@ public class AuditEP {
 
     @ResponseBody
     @RequestMapping(value = "/tx/{txRef}", produces = "application/json", method = RequestMethod.GET)
+    @Secured({"ROLE_USER"})
     public ResponseEntity<TxRef> getAuditTx(@PathVariable("txRef") String txRef) {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
         TxRef result;
@@ -259,6 +273,7 @@ public class AuditEP {
 
     @ResponseBody
     @RequestMapping(value = "/tx/{txRef}/headers", produces = "application/json", method = RequestMethod.GET)
+    @Secured({"ROLE_USER"})
     public ResponseEntity<Map<String, Object>> getAuditTxHeaders(@PathVariable("txRef") String txRef) {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
         Set<AuditHeader> headers;
@@ -271,6 +286,7 @@ public class AuditEP {
 
     @ResponseBody
     @RequestMapping(value = "/tx/{txRef}/logs", produces = "application/json", method = RequestMethod.GET)
+    @Secured({"ROLE_USER"})
     public ResponseEntity<Map> getAuditTxLogs(@PathVariable("txRef") String txRef) {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
         Map<String, Object> result;
@@ -286,6 +302,7 @@ public class AuditEP {
 
     @ResponseBody
     @RequestMapping(value = "/{fortressName}/rebuild", produces = "application/json", method = RequestMethod.POST)
+    @Secured({"ROLE_USER"})
     public ResponseEntity<String> rebuildSearch(@PathVariable("fortressName") String fortressName) throws AuditException {
         logger.info("Reindex command received for " + fortressName + " from [" + securityHelper.getLoggedInUser() + "]");
         auditManager.reindex(fortressName);
@@ -294,6 +311,7 @@ public class AuditEP {
 
     @ResponseBody
     @RequestMapping(value = "/{fortressName}/{docType}/rebuild", produces = "application/json", method = RequestMethod.POST)
+    @Secured({"ROLE_USER"})
     public ResponseEntity<String> rebuildSearch(@PathVariable("fortressName") String fortressName, @PathVariable("docType") String docType) throws AuditException {
         logger.info("Reindex command received for " + fortressName + " & docType " + docType + " from [" + securityHelper.getLoggedInUser() + "]");
         auditManager.reindexByDocType(fortressName, docType);

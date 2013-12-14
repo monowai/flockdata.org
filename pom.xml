@@ -40,7 +40,7 @@
         <org.springintegration.version>2.2.6.RELEASE</org.springintegration.version>
         <org.aspectj-version>1.7.2</org.aspectj-version>
         <org.slf4j-version>1.7.5</org.slf4j-version>
-        <jackson.version>2.3.0</jackson.version>
+        <jackson.version>2.2.3</jackson.version>
     </properties>
     <dependencies>
         <dependency>
@@ -52,14 +52,22 @@
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>1.1.3</version>
-
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>2.3</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
