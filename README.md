@@ -75,7 +75,7 @@ Look under the hood of an application and you'll see that it sends information o
 ## What is it good for?
 * Understand who's changing what data across your systems
 * Track updates to information across computer systems in realtime
-* [Event Sourcing](http://martinfowler.com/eaaDev/EventSourcing.html) in complex integrated environment.
+* [Event Sourcing](http://martinfowler.com/eaaDev/EventSourcing.html) in complex integrated environments.
 * Assist in implementing compensating transactions across distributed application boundaries
 * Free text searching of your business information
 * Keeping the auditing information out of your transaction processing system
