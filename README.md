@@ -29,7 +29,7 @@ AuditBucket is an open source product. We support a Community edition under the 
 ## Working with us
 More details? Stuck? Integration assistance? General consulting? Want to get started at the [speed of business](http://www.adamalthus.com/blog/2013/06/05/cloud-computing-and-complexity/#more-890)? 
 
-Drop us a line over at [auditbucket.com](http://auditbucket.com/contact-auditbucket/) and we'd be happy to share experiences. Usual social media channels also apply.
+Drop us a line over at [auditbucket.com](http://auditbucket.com/contact-auditbucket/) and we'd be happy to see if we can help you reach your goals. Usual social media channels also apply.
 
 ##Architecture
 The basic principals behind AB are well suited to Domain Driven Design and SOA architectures. We connect sophisticated index technologies and document management logic to scalable databases. This lets you look at your information in new and exciting ways.  
