@@ -32,9 +32,9 @@ More details? Stuck? Integration assistance? General consulting? Want to get sta
 Drop us a line over at [auditbucket.com](http://auditbucket.com/contact-auditbucket/) and we'd be happy to see if we can help you reach your goals. Usual social media channels also apply.
 
 ##Architecture
-The basic principals behind AB are well suited to Domain Driven Design and SOA architectures. We connect sophisticated index technologies and document management logic to scalable databases. This lets you look at your information in new and exciting ways.  
+The basic principals behind AB are well suited to Domain Driven Design, ROA & SOA architectures. We integrate sophisticated index technologies and document management logic to scalable JSON databases. This lets you look at your information in new and innovative ways.  
 
-As loosely coupled services, integrated in SOA approaches, become the normal way to build systems, tracking the information that flows across these services becomes vital when it comes to debugging issues. AB can help, using a technique known as Event Sourcing. AB takes the view that an event spans your systems and lets you find this information quickly and analyse what happened or changed. 
+As loosely coupled services become the normal way to build systems, tracking the information that flows across these services becomes vital when it comes to analysing issues both technically and from the business experience. AB can help, using a technique known as Event Sourcing. AB takes the view that an event spans your systems and lets you find this information quickly and analyse what happened or changed. 
 
 ##Datastores
 AB coordinates and directs information to various highly scalable data sources to achieve its benefits. These teams are genius. 
