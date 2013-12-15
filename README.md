@@ -34,20 +34,6 @@ The basic principals behind AB are well suited to Domain Driven Design, ROA & SO
 
 As loosely coupled services become the normal way to build systems, tracking the information that flows across these services becomes vital when it comes to analysing issues both technically and from the business experience. AB can help, using a technique known as Event Sourcing. AB takes the view that an event spans your systems and lets you find this information quickly and analyse what happened or changed. 
 
-##Datastores
-AB coordinates and directs information to various highly scalable data sources to achieve its benefits. These teams are genius. 
-* [elasticsearch](https://github.com/elasticsearch/elasticsearch)
-* [neo4j](https://github.com/neo4j/neo4j)
-* [resdis](https://github.com/antirez/redis)
-* [rabbitmq](https://github.com/rabbitmq/rabbitmq-server)
-
-##Frameworks
-These guys are connecting the world of today and tomorrow
-* [spring-data-neo4j](https://github.com/SpringSource/spring-data-neo4j)
-* [spring-elasticsearch](https://github.com/dadoonet/spring-elasticsearch)
-* [jedis](https://github.com/xetorthio/jedis) - Driver for REDIS
-* [spring](http://spring.io/) - Spring Integration, Spring MVC, Spring Security etc...
-
 ##People
 We are standing at a pivotal point in the way we manage and process information.
 A big thanks to the people who inspired me over the last few years to look at business and technology in a different light 
@@ -74,6 +60,21 @@ Neo4J is another wonderful tool that let's your explore your business informatio
 ## How does it work?
 Look under the hood of an application and you'll see that it sends information over APIs. By tapping in to these APIs, "versions" of the information being changed can be logged in AuditBucket for future analysis and tracking trends. This frees up your processing systems from the administrative burden of carrying such information. 
 
+##Datastores
+AB coordinates and directs information to various highly scalable data sources to achieve its benefits. These teams are genius. 
+* [elasticsearch](https://github.com/elasticsearch/elasticsearch)
+* [neo4j](https://github.com/neo4j/neo4j)
+* [resdis](https://github.com/antirez/redis)
+* [rabbitmq](https://github.com/rabbitmq/rabbitmq-server)
+
+##Frameworks
+These guys are connecting the world of today and tomorrow
+* [spring-data-neo4j](https://github.com/SpringSource/spring-data-neo4j)
+* [spring-elasticsearch](https://github.com/dadoonet/spring-elasticsearch)
+* [jedis](https://github.com/xetorthio/jedis) - Driver for REDIS
+* [spring](http://spring.io/) - Spring Integration, Spring MVC, Spring Security etc...
+
+
 ## What is it good for?
 * Understand who's changing what data across your systems
 * Track updates to information across computer systems in realtime
@@ -82,9 +83,6 @@ Look under the hood of an application and you'll see that it sends information o
 * Free text searching of your business information
 * Keeping the auditing information out of your transaction processing system
 * Discover graphs, search engines and loosley coupled application development. 
-
-### Freetext Search
-By integrating the "latest" version of data being changed in ElasticSearch, you have a powerful enterprise class way of searching all your computer systems for any data value. It's like a Google search for your proprietary information.
 
 ## How to use
 You need to gain a brief understanding of the two AuditBucket scalable services
