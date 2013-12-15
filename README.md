@@ -50,13 +50,17 @@ These guys are connecting the world of today and tomorrow
 
 ##People
 We are standing at a pivotal point in the way we manage and process information.
-A big thanks to the people who helped me look at technology in a different light over the last few years. 
-* Col Perx
-* Martin Fowler
-* Michael Hunger
-* Shay Banon
-* Jim Webber
-* StackOverflow !
+A big thanks to the people who inspired me over the last few years to look at business and technology in a different light 
+* [Col Perks](http://www.linkedin.com/pub/col-perks/5/416/b3b)
+* [Martin Fowler](http://martinfowler.com/)
+* [Michael Hunger](http://stackoverflow.com/users/728812/michael-hunger)
+* [Shay Banon](http://www.elasticsearch.com/about/team/)
+* [Jim Webber](http://jimwebber.org/)
+* [Jonathan Murray](http://www.adamalthus.com/about/)
+* [Nigel Dalton](http://www.linkedin.com/in/nigeldalton)
+* StackOverflow contributors - naturally
+
+While the talks, techiques and ideas of these people have inspired AuditBucket, the interpretation and implementation is my own work and this isn't, and shouldn't, be taken as any sign of their endorsement of AB. 
 
 ## Use Cases
 ### Search
