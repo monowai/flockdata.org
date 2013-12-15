@@ -1,4 +1,4 @@
-auditbucket  - Information Profiling Service
+[auditbucket}(http://auditbucket.com)  - Information Profiling Service
 ===========
 
 ## Executive Summary
@@ -90,7 +90,7 @@ You need to gain a brief understanding of the two AuditBucket scalable services
 * [ab-search](https://github.com/monowai/auditbucket/tree/master/ab-search) - records the latest version of a document audited by ab-engine in ElasticSearch
 
 ## Viewing the information
-AuditBucket information is stored in industry standard JSON documents. Any Neo4j or ElasticSearch query tools can work effortlessely AuditBucket information. 
+AuditBucket information is stored in industry standard JSON documents. Any Neo4j or ElasticSearch query tool will work effortlessely with AuditBucket information. 
 
 
 -Mike
