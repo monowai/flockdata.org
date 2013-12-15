@@ -52,7 +52,7 @@ These guys are connecting the world of today and tomorrow
 We are standing at a pivotal point in the way we manage and process information.
 A big thanks to the people who inspired me over the last few years to look at business and technology in a different light 
 * [Col Perks](http://www.linkedin.com/pub/col-perks/5/416/b3b)
-* [Martin Fowler](http://martinfowler.com/)
+* [Thoughtworks](http://www.thoughtworks.com) in general and [Martin Fowler](http://martinfowler.com/) in particular
 * [Michael Hunger](http://stackoverflow.com/users/728812/michael-hunger)
 * [Shay Banon](http://www.elasticsearch.com/about/team/)
 * [Jim Webber](http://jimwebber.org/)
