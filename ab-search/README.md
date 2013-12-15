@@ -35,6 +35,9 @@ AuditBucket indexes documents in a structure that follows [ab.{fortress-code}.{d
 
 This lets you search wide or narrow index structures with wild cards. This approach keeps your syslog activity from logstash seperate from your business domain data in the same cluster. Neat eh?
 
+### Freetext Search
+By integrating the "latest" version of data being changed in ElasticSearch, you have a powerful enterprise class way of searching all your computer systems for any data value. It's like a Google search for your domain data.
+
 ### Next steps for you!
 Figure out how to query ElasticSearch. Deploy Kibana and start looking at your data in new ways.
 
