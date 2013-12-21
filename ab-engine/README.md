@@ -1,4 +1,4 @@
-ab-engine  - Meta-Data interface
+ab-engine  - Meta-Data API
 ===========
 Welcome to AuditBucket's ab-engine meta-data service. This service facade coordinates KV Stores and Neo4J to support tracking and exploration of data. While Redis is the current default, we are working to add Riak support shortly.
 
@@ -39,7 +39,7 @@ If you want to use AMQP, and we suggest you do, the default message platform we 
 Note that if ab-engine is integrating via AMQP, then ab-search must use this approach as well. 
 
 ## Container Deployment
-While this all looks rather technical, it is simply a matter for getting the WAR files deployed in a webserver. There is no "seperate database" unless you wish to configure AB to talk to one.
+While this all looks rather technical, it is simply a matter of getting the WAR file deployed in a webserver. There is no "seperate database" unless you wish to configure AB to talk to one.
 
 Deploy in TomCat or whatever be your favourite container. Maven will build an executable tomcat 7 package for you that you can run from the Java command line. We will assume that you are going to deploy the WAR to TC7 via your IDE.
 
