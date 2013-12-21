@@ -1,6 +1,6 @@
 ab-search - ElasticSearch Facade
 ===============
-This service is used by ab-engine to talk to ElasticSearch or notionally any search product you would care to write a handler for. It listens for data integrating over http or amqp puts the docs into ElasticSearch
+This service is used by [ab-engine](../ab-engine) to talk to ElasticSearch or notionally any search product you would care to write a handler for. It listens for data integrating over http or amqp puts the docs into ElasticSearch
 
 ## Configuration
 See [Spring](src/main/webapp/WEB-INF/spring) and [Application config](src/main/resources/config.properties) for various ab-search defaults. These can be overridden while ab-search is starting if you pass them in via the command line. But for evaluation purposes, they are good enough!
