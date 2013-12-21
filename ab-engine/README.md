@@ -106,3 +106,5 @@ curl -H "Content-Type:application/json" -X POST http://localhost:9201/ab.*/_sear
 ### Next steps for you!
 Figure out how to audit a record from the [API](https://github.com/monowai/auditbucket/wiki/Audit-Service-Calls) documentation. Understand and add [Tags](https://github.com/monowai/auditbucket/wiki/Tags). Process a batch of Audit records. Log a change.
 
+You will probably want to look at the various Bean packages in [ab-common](../ab-common/src/main/java/com/auditbucket/audit/bean) to find the various properties you can set while we continue to enhance the documents!
+
