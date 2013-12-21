@@ -27,10 +27,23 @@ AuditBucket is an open source product. We support a Community edition under the 
 ## Project Status
 We're at 0.90. Pretty close to being feature frozen. Version 1.0 will be released early next year on Neo4J 2.0. This version runs on 1.9. Unless demand requires it, we won't be offering an upgrade path from 0.90 to 1.0. But from 1.0 on upgrades will be fully supported.
 
+We will be introducing Riak as an alternative KV Store to REDIS shortly. It will be configurable as to which you choose to use. Again, data will not be migrated.
+
 ## Working with us
 More details? Stuck? Integration assistance? General consulting? Want to get started at the [speed of business](http://www.adamalthus.com/blog/2013/06/05/cloud-computing-and-complexity/#more-890)? 
 
 Drop us a line over at [auditbucket.com](http://auditbucket.com/contact-auditbucket/) and we'd be happy to see if we can help you reach your goals. Usual social media channels also apply.
+
+### Contributing
+We encourage contributions to AuditBucket from the community. Here’s how to get started.
+
+* Fork the appropriate sub-projects that are affected by your change. Fork this repository if your changes are for release generation or packaging.
+* Make your changes and run the test suite.
+* Commit your changes and push them to your fork.
+* Open pull-requests for the appropriate projects.
+* A Bucketeer will review your pull-request, suggest changes, and merge it when it’s ready and/or offer feedback.
+* 
+To report a bug or issue, please open a new [issue](https://github.com/monowai/auditbucket/issues) against this repository.
 
 ##Architecture
 The basic principals behind AB are well suited to Domain Driven Design, ROA & SOA architectures. We integrate sophisticated index technologies and document management logic to scalable JSON databases. This lets you look at your information in new and innovative ways.  
@@ -47,6 +60,7 @@ A big thanks to the people who inspired me over the last few years to look at bu
 * [Jim Webber](http://jimwebber.org/)
 * [Jonathan Murray](http://www.adamalthus.com/about/)
 * [Nigel Dalton](http://www.linkedin.com/in/nigeldalton)
+* [Jeremy Snyder](http://entiviti.com)
 * StackOverflow contributors - naturally
 
 While the talks, techiques and ideas of these people have inspired AuditBucket, the interpretation and implementation is my own work and this isn't, and shouldn't, be taken as any sign of their endorsement of AB. 
