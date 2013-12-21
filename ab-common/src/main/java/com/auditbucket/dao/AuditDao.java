@@ -20,8 +20,8 @@
 package com.auditbucket.dao;
 
 import com.auditbucket.audit.model.*;
-import com.auditbucket.bean.AuditHeaderInputBean;
-import com.auditbucket.bean.AuditLogInputBean;
+import com.auditbucket.audit.bean.AuditHeaderInputBean;
+import com.auditbucket.audit.bean.AuditLogInputBean;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;

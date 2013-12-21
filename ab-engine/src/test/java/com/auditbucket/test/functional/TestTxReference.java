@@ -20,10 +20,10 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.model.AuditChange;
-import com.auditbucket.bean.AuditLogResultBean;
-import com.auditbucket.bean.AuditHeaderInputBean;
-import com.auditbucket.bean.AuditLogInputBean;
-import com.auditbucket.bean.AuditResultBean;
+import com.auditbucket.audit.bean.AuditLogResultBean;
+import com.auditbucket.audit.bean.AuditHeaderInputBean;
+import com.auditbucket.audit.bean.AuditLogInputBean;
+import com.auditbucket.audit.bean.AuditResultBean;
 import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.registration.bean.FortressInputBean;

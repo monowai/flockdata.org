@@ -10,9 +10,25 @@ public class AuditBucketClientFactoryBean extends AuditBucketAbstractClientFacto
 
     @Override
     protected AbExporter buildClient() throws Exception {
-        return new AbExporter(properties.get("server.name").toString(),
+        Object f = properties.get("ab.fortress");
+        String fortressName = null;
+        if (f != null)
+            fortressName = f.toString();
+        Object b = properties.get("ab.batch");
+        Integer batchSize = null;
+        if (b != null)
+            batchSize = Integer.parseInt(b.toString());
+        else
+            batchSize = Integer.parseInt("1");
+        AbExporter exporter = new AbExporter(properties.get("server.name").toString(),
                 properties.get("ab.username").toString(),
-                properties.get("ab.password").toString(), 1);
+                properties.get("ab.password").toString(),
+                batchSize,
+                fortressName
+        );
+        exporter.setSimulateOnly((batchSize.intValue() <= 0));
+        exporter.ensureFortress(fortressName);
+        return exporter;
 
     }
 }

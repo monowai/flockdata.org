@@ -19,11 +19,11 @@
 
 package com.auditbucket.engine.endpoint;
 
+import com.auditbucket.audit.bean.*;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditLog;
 import com.auditbucket.audit.model.AuditTag;
 import com.auditbucket.audit.model.TxRef;
-import com.auditbucket.bean.*;
 import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.engine.service.AuditTagService;

@@ -20,7 +20,7 @@
 package com.auditbucket.registration.repo.neo4j.dao;
 
 import com.auditbucket.audit.model.DocumentType;
-import com.auditbucket.bean.TagInputBean;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.engine.repo.neo4j.DocumentTypeRepo;
 import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
 import com.auditbucket.registration.model.Company;

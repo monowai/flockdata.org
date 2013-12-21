@@ -1,6 +1,6 @@
 package com.auditbucket.spring.utils;
 
-import com.auditbucket.bean.AuditHeaderInputBean;
+import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.spring.annotations.AuditClientRef;
 import com.auditbucket.spring.annotations.AuditKey;

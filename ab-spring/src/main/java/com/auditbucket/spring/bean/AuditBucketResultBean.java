@@ -1,7 +1,7 @@
 package com.auditbucket.spring.bean;
 
-import com.auditbucket.bean.AuditLogInputBean;
-import com.auditbucket.bean.AuditResultBean;
+import com.auditbucket.audit.bean.AuditLogInputBean;
+import com.auditbucket.audit.bean.AuditResultBean;
 
 /**
  * Created with IntelliJ IDEA.

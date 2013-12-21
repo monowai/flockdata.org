@@ -20,7 +20,7 @@
 package com.auditbucket.registration.service;
 
 import com.auditbucket.audit.model.DocumentType;
-import com.auditbucket.bean.TagInputBean;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.dao.TagDao;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;

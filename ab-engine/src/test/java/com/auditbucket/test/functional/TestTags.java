@@ -21,7 +21,7 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.registration.bean.RegistrationBean;
-import com.auditbucket.bean.TagInputBean;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.FortressService;

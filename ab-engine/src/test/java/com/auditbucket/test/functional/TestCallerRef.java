@@ -1,8 +1,8 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.bean.AuditHeaderInputBean;
-import com.auditbucket.bean.AuditResultBean;
+import com.auditbucket.audit.bean.AuditHeaderInputBean;
+import com.auditbucket.audit.bean.AuditResultBean;
 import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.helper.AuditException;

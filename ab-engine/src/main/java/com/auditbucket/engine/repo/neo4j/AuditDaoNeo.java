@@ -20,9 +20,9 @@
 package com.auditbucket.engine.repo.neo4j;
 
 import com.auditbucket.audit.model.*;
-import com.auditbucket.bean.AuditHeaderInputBean;
-import com.auditbucket.bean.AuditLogInputBean;
-import com.auditbucket.bean.AuditTXResult;
+import com.auditbucket.audit.bean.AuditHeaderInputBean;
+import com.auditbucket.audit.bean.AuditLogInputBean;
+import com.auditbucket.audit.bean.AuditTXResult;
 import com.auditbucket.dao.AuditDao;
 import com.auditbucket.engine.repo.neo4j.model.*;
 import com.auditbucket.helper.AuditException;

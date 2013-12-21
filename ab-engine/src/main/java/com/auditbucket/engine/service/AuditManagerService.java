@@ -19,11 +19,12 @@
 
 package com.auditbucket.engine.service;
 
+import com.auditbucket.audit.bean.*;
 import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.bean.*;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;

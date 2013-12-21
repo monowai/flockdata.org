@@ -19,10 +19,11 @@
 
 package com.auditbucket.helper;
 
-import com.auditbucket.bean.AuditHeaderInputBean;
-import com.auditbucket.bean.AuditLogInputBean;
-import com.auditbucket.bean.AuditResultBean;
-import com.auditbucket.bean.TagInputBean;
+import com.auditbucket.audit.bean.AuditHeaderInputBean;
+import com.auditbucket.audit.bean.AuditResultBean;
+import com.auditbucket.registration.bean.FortressInputBean;
+import com.auditbucket.registration.bean.FortressResultBean;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,6 +50,7 @@ public class AbExporter {
 
     private String NEW_HEADER;
     private String NEW_TAG;
+    private String FORTRESS;
     private final String userName;
     private final String password;
     private int batchSize;
@@ -58,6 +60,7 @@ public class AbExporter {
     private List<TagInputBean> batchTag = new ArrayList<>();
     private final String batchSync = "BatchSync";
     private final String tagSync = "TagSync";
+    private String defaultFortress;
 
     public void setSimulateOnly(boolean simulateOnly) {
         this.simulateOnly = simulateOnly;
@@ -68,12 +71,17 @@ public class AbExporter {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(AbExporter.class);
 
     public AbExporter(String serverName, String userName, String password, int batchSize) {
+        this(serverName, userName, password, batchSize, null);
+    }
+
+    public AbExporter(String serverName, String userName, String password, int batchSize, String defaultFortress) {
         this.userName = userName;
         this.password = password;
         this.NEW_HEADER = serverName + "/v1/audit/";
         this.NEW_TAG = serverName + "/v1/tag/";
+        this.FORTRESS = serverName + "/v1/fortress/";
         this.batchSize = batchSize;
-
+        this.defaultFortress = defaultFortress;
     }
 
     /**
@@ -95,6 +103,32 @@ public class AbExporter {
         Map<String, Object> properties = new HashMap<>();
         properties.put("weight", weight);
         return properties;
+    }
+
+    public void ensureFortress(String fortressName) {
+        if (fortressName == null)
+            return;
+
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+
+        HttpHeaders httpHeaders = getHeaders(userName, password);
+        HttpEntity<FortressInputBean> request = new HttpEntity<>(new FortressInputBean(fortressName, false), httpHeaders);
+        try {
+            restTemplate.exchange(FORTRESS, HttpMethod.POST, request, FortressResultBean.class);
+            if (defaultFortress != null && !defaultFortress.equals(fortressName)) {
+                request = new HttpEntity<>(new FortressInputBean(defaultFortress, false), httpHeaders);
+                restTemplate.exchange(FORTRESS, HttpMethod.POST, request, FortressResultBean.class);
+            }
+        } catch (HttpClientErrorException e) {
+            // ToDo: Rest error handling pretty useless. need to know why it's failing
+            logger.error("AB Client Audit error {}", getErrorMessage(e));
+        } catch (HttpServerErrorException e) {
+            logger.error("AB Server Audit error {}", getErrorMessage(e));
+
+        }
+
+
     }
 
     private String flushAudit(AuditHeaderInputBean[] auditInput) {
@@ -218,8 +252,11 @@ public class AbExporter {
     void writeAudit(AuditHeaderInputBean auditHeaderInputBean, boolean flush, String message) {
 
         synchronized (batchSync) {
-            if (auditHeaderInputBean != null)
+            if (auditHeaderInputBean != null) {
+                if (auditHeaderInputBean.getFortress() == null)
+                    auditHeaderInputBean.setFortress(defaultFortress);
                 batchHeader.add(auditHeaderInputBean);
+            }
 
             if (flush || batchHeader.size() == batchSize) {
                 AuditHeaderInputBean[] thisBatch = new AuditHeaderInputBean[batchHeader.size()];
@@ -230,10 +267,10 @@ public class AbExporter {
                     i++;
                 }
 
-                if (i > 0) {
-                    logger.info("Flushing....");
+                if (i > 1) {
+                    logger.debug("Flushing....");
                     flushAudit(thisBatch);
-                    logger.info("Flushed " + message + " Batch [{}]", i);
+                    logger.debug("Flushed " + message + " Batch [{}]", i);
                 }
                 batchHeader = new ArrayList<>();
             }
@@ -259,10 +296,10 @@ public class AbExporter {
                     thisBatch[i] = it.next();
                     i++;
                 }
-                logger.info("Flushing " + message + " Tag Batch [{}]", i);
-                if (i > 0)
+                logger.debug("Flushing " + message + " Tag Batch [{}]", i);
+                if (i > 1)
                     flushTags(thisBatch);
-                logger.info("Tag Batch Flushed");
+                logger.debug("Tag Batch Flushed");
                 batchHeader = new ArrayList<>();
             }
         }

@@ -1,6 +1,6 @@
 package com.auditbucket.registration.endpoint;
 
-import com.auditbucket.bean.TagInputBean;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;

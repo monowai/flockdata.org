@@ -1,7 +1,7 @@
 package com.auditbucket.spring.utils;
 
-import com.auditbucket.bean.AuditHeaderInputBean;
-import com.auditbucket.bean.AuditLogInputBean;
+import com.auditbucket.audit.bean.AuditHeaderInputBean;
+import com.auditbucket.audit.bean.AuditLogInputBean;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.spring.annotations.*;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -21,8 +21,8 @@ package com.auditbucket.engine.service;
 
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditTag;
-import com.auditbucket.bean.AuditTagInputBean;
-import com.auditbucket.bean.TagInputBean;
+import com.auditbucket.audit.bean.AuditTagInputBean;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.dao.AuditTagDao;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.helper.SecurityHelper;

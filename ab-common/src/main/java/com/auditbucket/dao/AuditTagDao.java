@@ -21,7 +21,6 @@ package com.auditbucket.dao;
 
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditTag;
-import com.auditbucket.bean.TagInputBean;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.model.Tag;
 

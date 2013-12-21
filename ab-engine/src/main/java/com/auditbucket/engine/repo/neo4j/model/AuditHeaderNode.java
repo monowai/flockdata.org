@@ -21,7 +21,7 @@ package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.DocumentType;
-import com.auditbucket.bean.AuditHeaderInputBean;
+import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;

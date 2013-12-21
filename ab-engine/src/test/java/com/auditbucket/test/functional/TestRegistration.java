@@ -27,7 +27,6 @@ import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.SystemUserService;
-import com.auditbucket.test.utils.AbstractRedisSupport;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

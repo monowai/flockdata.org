@@ -19,7 +19,7 @@
 
 package com.auditbucket.test.unit;
 
-import com.auditbucket.bean.AuditLogInputBean;
+import com.auditbucket.audit.bean.AuditLogInputBean;
 import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.helper.CompressionResult;
 import com.fasterxml.jackson.databind.JsonNode;

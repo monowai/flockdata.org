@@ -17,42 +17,46 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.bean;
+package com.auditbucket.audit.bean;
 
-import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.audit.model.AuditLog;
-import com.auditbucket.audit.model.AuditTag;
-
-import java.util.Set;
+import javax.validation.constraints.NotNull;
 
 /**
  * User: Mike Holdsworth
- * Since: 25/08/13
+ * Date: 28/06/13
+ * Time: 9:58 PM
  */
-public class AuditSummaryBean {
-    private AuditHeader header;
-    private Set<AuditLog> changes;
-    private Set<AuditTag> tags;
+public class AuditTagInputBean {
+    @NotNull
+    private String tagName;
+    @NotNull
+    private String auditKey;
+    @NotNull
+    private String type;
 
-    private AuditSummaryBean() {
+    private AuditTagInputBean() {
     }
 
-    public AuditSummaryBean(AuditHeader header, Set<AuditLog> changes, Set<AuditTag> tags) {
+    public AuditTagInputBean(String auditKey, String tagName, String type) {
         this();
-        this.header = header;
-        this.changes = changes;
-        this.tags = tags;
+        this.auditKey = auditKey;
+        this.tagName = tagName;
+        // Stragetically this should be a named relationship
+        if (type == null)
+            this.type = "general";
+        else
+            this.type = type;
     }
 
-    public AuditHeader getHeader() {
-        return header;
+    public String getAuditKey() {
+        return auditKey;
     }
 
-    public Set<AuditLog> getChanges() {
-        return changes;
+    public String getTagName() {
+        return tagName;
     }
 
-    public Set<AuditTag> getTags() {
-        return tags;
+    public String getType() {
+        return type;
     }
 }

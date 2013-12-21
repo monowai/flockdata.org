@@ -19,13 +19,15 @@
 
 package com.auditbucket.engine.service;
 
+import com.auditbucket.audit.bean.*;
 import com.auditbucket.audit.model.*;
-import com.auditbucket.bean.*;
-import com.auditbucket.bean.AuditLogResultBean;
 import com.auditbucket.dao.AuditDao;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.helper.SecurityHelper;
-import com.auditbucket.registration.model.*;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.FortressUser;
+import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.*;
 import com.auditbucket.search.model.AuditSearchChange;
 import com.auditbucket.search.model.SearchResult;
@@ -46,7 +48,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 

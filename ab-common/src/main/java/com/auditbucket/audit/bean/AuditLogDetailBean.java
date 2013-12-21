@@ -1,4 +1,4 @@
-package com.auditbucket.bean;
+package com.auditbucket.audit.bean;
 
 import com.auditbucket.audit.model.AuditLog;
 import com.auditbucket.audit.model.AuditWhat;

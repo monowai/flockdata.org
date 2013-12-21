@@ -20,7 +20,7 @@
 package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.audit.model.*;
-import com.auditbucket.bean.AuditLogInputBean;
+import com.auditbucket.audit.bean.AuditLogInputBean;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
 import com.fasterxml.jackson.annotation.JsonIgnore;

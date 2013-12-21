@@ -17,9 +17,10 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.bean;
+package com.auditbucket.audit.bean;
 
 import com.auditbucket.audit.model.AuditEvent;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.joda.time.DateTime;
@@ -160,7 +161,7 @@ public class AuditHeaderInputBean {
      * Tag values to associate with the header
      *
      * @param tagValues <relationship, object>
-     * @see com.auditbucket.bean.AuditHeaderInputBean#getAssociatedTags()
+     * @see AuditHeaderInputBean#getAssociatedTags()
      */
     public void setTagValues(Map<String, Object> tagValues) {
         this.tagValues = tagValues;
