@@ -110,6 +110,7 @@ You need to gain a brief understanding of the two AuditBucket scalable services
 ## Viewing the information
 AuditBucket information is stored in industry standard JSON documents. Any Neo4j or ElasticSearch query tool will work effortlessely with AuditBucket information. 
 
+Have fun and please share your experiences.
 
 -Mike
 
