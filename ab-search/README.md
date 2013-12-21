@@ -21,6 +21,8 @@ You can change this by passing in your own configuration settings, i.e.
 
 
 ## Container Deployment
+While this all looks rather technical, it is simply a matter of getting the WAR file deployed in a webserver. There is no "seperate database" unless you wish to configure AB to talk to one.
+
 We assume you've read the all important [ab-engine](../ab-engine) container section. Here you can either run a seperate TC instance, on port 8081 in this example, or you could deploy it in a seperate application context on the same TC instance.
 
 ## Interacting
