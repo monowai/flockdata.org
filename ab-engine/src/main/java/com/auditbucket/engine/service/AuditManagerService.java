@@ -152,7 +152,7 @@ public class AuditManagerService {
             watch.start();
             logger.info("Starting Batch [{}] - size [{}]", id, inputBeans.length);
             for (AuditHeaderInputBean inputBean : inputBeans) {
-                createHeader(inputBean, company, fortress, true);
+                createHeader(inputBean, company, fortress, false);
                 processCount++;
             }
 

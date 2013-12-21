@@ -107,7 +107,7 @@ public class AuditEP {
         Company company = auditManager.resolveCompany(inputBeans[0].getApiKey());
         Fortress fortress = auditManager.resolveFortress(company, inputBeans[0], true);
         boolean async = true;
-        auditManager.createTagStructure(inputBeans, company);
+        //auditManager.createTagStructure(inputBeans, company);
 
         if (async) {
 

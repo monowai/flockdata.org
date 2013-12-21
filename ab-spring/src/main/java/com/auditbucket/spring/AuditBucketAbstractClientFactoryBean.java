@@ -1,5 +1,6 @@
 package com.auditbucket.spring;
 
+import com.auditbucket.helper.AbExporter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -8,11 +9,11 @@ import org.springframework.beans.factory.InitializingBean;
 
 
 abstract class AuditBucketAbstractClientFactoryBean extends AuditBucketAbstractFactoryBean
-        implements FactoryBean<AbClient>, InitializingBean, DisposableBean {
+        implements FactoryBean<AbExporter>, InitializingBean, DisposableBean {
 
     private final Log logger = LogFactory.getLog(getClass());
 
-    private AbClient client;
+    private AbExporter client;
 
     /**
      * Implement this method to build an AuditBucket client
@@ -20,7 +21,7 @@ abstract class AuditBucketAbstractClientFactoryBean extends AuditBucketAbstractF
      * @return AuditBucket Client
      * @throws Exception if something goes wrong
      */
-    abstract protected AbClient buildClient() throws Exception;
+    abstract protected AbExporter buildClient() throws Exception;
 
 
     @Override
@@ -34,6 +35,7 @@ abstract class AuditBucketAbstractClientFactoryBean extends AuditBucketAbstractF
         try {
             logger.info("Closing AuditBucket client");
             if (client != null) {
+                client.flush("");
                 //client.close();
             }
         } catch (final Exception e) {
@@ -42,13 +44,13 @@ abstract class AuditBucketAbstractClientFactoryBean extends AuditBucketAbstractF
     }
 
     @Override
-    public AbClient getObject() throws Exception {
+    public AbExporter getObject() throws Exception {
         return client;
     }
 
     @Override
-    public Class<AbClient> getObjectType() {
-        return AbClient.class;
+    public Class<AbExporter> getObjectType() {
+        return AbExporter.class;
     }
 
     @Override

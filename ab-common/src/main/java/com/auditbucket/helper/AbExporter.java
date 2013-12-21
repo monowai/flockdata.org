@@ -20,6 +20,7 @@
 package com.auditbucket.helper;
 
 import com.auditbucket.bean.AuditHeaderInputBean;
+import com.auditbucket.bean.AuditLogInputBean;
 import com.auditbucket.bean.AuditResultBean;
 import com.auditbucket.bean.TagInputBean;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -183,6 +184,11 @@ public class AbExporter {
         return node.toString();
     }
 
+    public void flush(String message) {
+        flush(message, type.TAG);
+        flush(message, type.AUDIT);
+    }
+
     /**
      * push any remaining updates
      */
@@ -283,6 +289,7 @@ public class AbExporter {
             return null;
 
         }
-
     }
+
+
 }
