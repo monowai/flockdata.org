@@ -10,7 +10,7 @@ Auditing (tracking changes to data) is often seen as a low value "we'll get to i
 
 AuditBucket looks at the problem as a document-oriented information management challenge. The end results are that people can leverage sophisticated search capabilities on to latest available business information then explore it's evolution independently of your transaction processing systems. Kind of like real-time data warehousing for sales and a graph for the marketing department to explore for opportunities.
 
-AuditBucket does not change your data in anyway. It enriches it leaving you free to explore and enhance with excellent query tools such as [Kibana](http://www.elasticsearch.org/overview/kibana/), [Linkurious](http://linkurio.us/) , [Keylines](http://keylines.com/) and of course your own information technology systems. AB simply organises your documents into a consistent way for exploration and search without imposing or requiring your existing information technology systems to change. 
+AuditBucket does not change your data. AB simply organises your documents in to a consistent envelope to enable exploration and search. You are completely free to explore and enhance it with excellent query tools such as [Kibana](http://www.elasticsearch.org/overview/kibana/), [Linkurious](http://linkurio.us/) , [Keylines](http://keylines.com/) and of course your own information technology systems. 
 
 Typically archival projects are run to eliminate "old" data from transaction systems which can compound problems and introduce on-going costs. AuditBucket enables insight to be preserved and explored in innovative ways, freeing up your transactional systems to do what they do best - perform.
 
