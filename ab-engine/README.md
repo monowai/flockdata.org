@@ -78,6 +78,32 @@ This is one of your computer systems that you want to audit
 ```
 curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/v1/fortress/ -d '{"name": "SAP-AR","searchActive": true}'
 ```
+### Create an Audit Record
+You should start [ab-search](../ab-search) before doing this if you're not using RabbitMQ!!
+```
+curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/v1/audit/ -d '{
+  "fortress":"SAP-AR", 
+  "fortressUser": "ak0919",
+  "documentType":"Debtor",
+  "callerRef":"myRef",
+
+  "auditLog": {  "transactional": true,
+           		 "what": "{\"BusinessData\": \"Escaped JSON goes here\", \"nestedObject\": {\"status\": \"kool for kats\"}}"
+  }
+}'
+```
+### Find that doc in ElasticSearch
+```
+curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:9201/ab.*/_search -d '{
+    query: {
+          query_string : {
+
+              "query" : "debtor"
+           }
+      }
+}'
+````
+
 ### Next steps for you!
 Figure out how to audit a record from the API documentation. Understand and add tag structures. Process a batch of Audit records. Log a change.
 
