@@ -44,6 +44,11 @@ And health of the service can be queried via a secured call
 curl -u mike:123 -X GET http://localhost:8081/ab-search/v1/health
 ```
 
+Say hello to ElasticSearch
+```
+curl -X GET http://localhost:9201/_cluster/health?pretty=true
+```
+
 Generally that's it. There are some endpoints implemented using an @ServiceActivator pattern but these are reserved for ab-engine integration.
 
 By default, ab-search spins up and ElasticSearch instance. It uses ports 9201 and 9301. This is basically so you can experiment with ElasticSearch clustering on one computer.
