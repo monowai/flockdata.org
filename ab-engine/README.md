@@ -1,6 +1,5 @@
 ab-engine  - Meta-Data interface
 ===========
-
 Welcome to AuditBucket's ab-engine meta-data service. This service facade coordinates KV Stores and Neo4J to support tracking and exploration of data. While Redis is the current default, we are working to add Riak support shortly.
 
 You only need to interact with ab-engine. By default, ab-engine will also write "the latest" change to your information in to [ab-search](../ab-search). Is is also possible to write via ab-engine directly to ElasticSearch and bypass the exploration if your dataset does not have any degree of connection. Some statistical dumps can be like this.
@@ -40,6 +39,8 @@ If you want to use AMQP, and we suggest you do, the default message platform we 
 Note that if ab-engine is integrating via AMQP, then ab-search must use this approach as well. 
 
 ## Container Deployment
+While this all looks rather technical, it is simply a matter for getting the WAR files deployed in a webserver. There is no "seperate database" unless you wish to configure AB to talk to one.
+
 Deploy in TomCat or whatever be your favourite container. Maven will build an executable tomcat 7 package for you that you can run from the Java command line. We will assume that you are going to deploy the WAR to TC7 via your IDE.
 
 Default HTTP port for ab-engine is 8080 and for ab-search its 8081. If you are using different ports then review the [configuration files] (src/main/resources/config.properties) that describe how engine and search find each other. If you have an existing ElasticSearch cluster, you will also want to review 
