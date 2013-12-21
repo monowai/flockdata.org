@@ -24,6 +24,9 @@ AB leans on the brilliant work being done by the open-source community. The open
 ## Licensing
 AuditBucket is an open source product. We support a Community edition under the GPLv3 license. The Enterprise edition is available under the AGPLv3 license for open source projects otherwise under a commercial license by contacting [the bucketeers](http://auditbucket.com/contact-auditbucket/). Talk to us about clustering as there may be costs involved.
 
+## Project Status
+We're at 0.90. Pretty close to being feature frozen. Version 1.0 will be released early next year on Neo4J 2.0. This version runs on 1.9. Unless demand requires it, we won't be offering an upgrade path from 0.90 to 1.0. But from 1.0 on upgrades will be fully supported.
+
 ## Working with us
 More details? Stuck? Integration assistance? General consulting? Want to get started at the [speed of business](http://www.adamalthus.com/blog/2013/06/05/cloud-computing-and-complexity/#more-890)? 
 
@@ -65,6 +68,7 @@ AB coordinates and directs information to various highly scalable data sources t
 * [elasticsearch](https://github.com/elasticsearch/elasticsearch)
 * [neo4j](https://github.com/neo4j/neo4j)
 * [resdis](https://github.com/antirez/redis)
+* [riak](http://basho.com/riak/)
 * [rabbitmq](https://github.com/rabbitmq/rabbitmq-server)
 
 ##Frameworks
@@ -76,12 +80,12 @@ These guys are connecting the world of today and tomorrow
 
 
 ## What is it good for?
-* Understand who's changing what data across your systems
-* Track updates to information across computer systems in realtime
+* Understand who's changing what data across your application fortresses
+* Track changes to domain information across fortress boundaries in realtime
 * [Event Sourcing](http://martinfowler.com/eaaDev/EventSourcing.html) in complex integrated environments.
-* Assist in implementing compensating transactions across distributed application boundaries
-* Free text searching of your business information
-* Keeping the auditing information out of your transaction processing system
+* Track data to support compensating transactions across distributed fortress boundaries
+* Free text searching of your business domain data
+* Keep audit data out of your transaction processing fortress
 * Discover graphs, search engines and loosley coupled application development. 
 
 ## How to use
