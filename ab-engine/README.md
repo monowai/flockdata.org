@@ -41,6 +41,12 @@ Note that if ab-engine is integrating via AMQP, then ab-search must use this app
 ## Container Deployment
 While this all looks rather technical, it is simply a matter of getting the WAR file deployed in a webserver. There is no "seperate database" unless you wish to configure AB to talk to one.
 
+If you just want to evaluate and are pressed for time, then run ab-engine straight from the ab-engine/target folder with the following command
+```
+$ cd ab-engine/target
+$ java -jar ab-engine-0.90-BUILD-SNAPSHOT-war-exec.jar -Dneo4j=java -Dab.integration=http -httpPort=8080 -Dab.config=./classes/config.properties -Dlog4j.configuration=file:./classes/log4j.xml
+```
+
 Deploy in TomCat or whatever be your favourite container. Maven will build an executable tomcat 7 package for you that you can run from the Java command line. We will assume that you are going to deploy the WAR to TC7 via your IDE.
 
 Default HTTP port for ab-engine is 8080 and for ab-search its 8081. If you are using different ports then review the [configuration files] (src/main/resources/config.properties) that describe how engine and search find each other. If you have an existing ElasticSearch cluster, you will also want to review 
@@ -61,7 +67,7 @@ In the examples below, /ab-engine/ represents the application context with the e
 
 ###Register yourself with an account
 ```
-curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab-engine/v1/profiles/register -d '{"name":"mikey", "companyName":"Monowai","password":"whocares"}'
+curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/v1/profiles/ -d '{"name":"mikey", "companyName":"Monowai","password":"whocares"}'
 ```
 ### See who you are
 ```
@@ -70,7 +76,7 @@ curl -u mike:123 -X GET http://localhost:8080/ab-engine/v1/profiles/me
 ### Create an Application Fortress
 This is one of your computer systems that you want to audit
 ```
-curl -u mike:123 -H "Content-Type:application/json" -X PUT  http://localhost:8080/ab-engine/v1/fortress -d '{"name": "SAP-AR","searchActive": true}'
+curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/v1/fortress/ -d '{"name": "SAP-AR","searchActive": true}'
 ```
 ### Next steps for you!
 Figure out how to audit a record from the API documentation. Understand and add tag structures. Process a batch of Audit records. Log a change.
