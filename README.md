@@ -19,7 +19,7 @@ This project represents an exploration into alternative information systems and 
 
 AuditBucket (AB) enables you to track incoming information, find it via a search engine, compare versions over time, and explore it as a network graph to find connections in your information. Tracking changes to information across your many applications offers a view of what is going on at the information interface of your business.
 
-AB leans on the brilliant work being done by the open-source community. The open source projects we have selected represent the cutting edge in information management techniques. AB will enable you to evaluate big data and look at information in new and exciting ways for very little effort - particularly given the range of technologies that AB ties together.  
+AB leans on the brilliant work being done by the open-source community. The open source projects we have selected represent the cutting edge in information management techniques. AB will enable your journey into big data and looks at information in new and exciting ways for very little effort. **Accelerate your evaluation of Neo4J and ElasticSearch**.
 
 ## Licensing
 AuditBucket is an open source product. We support a Community edition under the GPLv3 license. The Enterprise edition is available under the AGPLv3 license for open source projects otherwise under a commercial license by contacting [the Bucketeers](http://auditbucket.com/contact-auditbucket/). Talk to us about clustering as there may be costs involved.
