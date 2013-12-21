@@ -94,11 +94,10 @@ curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:808
 ```
 ### Find that doc in ElasticSearch
 ```
-curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:9201/ab.*/_search -d '{
+curl -H "Content-Type:application/json" -X POST http://localhost:9201/ab.*/_search -d '{
     query: {
           query_string : {
-
-              "query" : "debtor"
+            "query" : "debtor"
            }
       }
 }'
