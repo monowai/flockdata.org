@@ -104,5 +104,5 @@ curl -H "Content-Type:application/json" -X POST http://localhost:9201/ab.*/_sear
 ````
 
 ### Next steps for you!
-Figure out how to audit a record from the API documentation. Understand and add [[Tags-With-Java]]. Process a batch of Audit records. Log a change.
+Figure out how to audit a record from the [API](https://github.com/monowai/auditbucket/wiki/Audit-Service-Calls) documentation. Understand and add [Tags](https://github.com/monowai/auditbucket/wiki/Tags). Process a batch of Audit records. Log a change.
 
