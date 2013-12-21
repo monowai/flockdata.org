@@ -32,7 +32,7 @@ We will be introducing Riak as an alternative KV Store to REDIS shortly. It will
 ## Working with us
 More details? Stuck? Integration assistance? General consulting? Want to get started at the [speed of business](http://www.adamalthus.com/blog/2013/06/05/cloud-computing-and-complexity/#more-890)? 
 
-Drop us a line over at [auditbucket.com](http://auditbucket.com/contact-auditbucket/) and we'd be happy to see if we can help you reach your goals. Usual social media channels also apply.
+Drop us a line over at [auditbucket.com](http://auditbucket.com/contact-auditbucket/) and we'd be happy to see if we can help you reach your goals. Usual social media channels also apply - [LinkedIn](http://www.linkedin.com/company/3361595) .
 
 ### Contributing
 We encourage contributions to AuditBucket from the community. Here’s how to get started.
@@ -104,8 +104,8 @@ These guys are connecting the world of today and tomorrow
 
 ## How to use
 You need to gain a brief understanding of the two AuditBucket scalable services
-* [ab-engine](https://github.com/monowai/auditbucket/tree/master/ab-engine) - connects incoming changes in a Graph database (Neo4j) and versions the information in Redis
-* [ab-search](https://github.com/monowai/auditbucket/tree/master/ab-search) - records the latest version of a document audited by ab-engine in ElasticSearch
+* [ab-engine](ab-engine/README.md) - connects incoming changes in a Graph database (Neo4j) and versions the information in Redis
+* [ab-search](ab-search/README.md) - records the latest version of a document audited by ab-engine in ElasticSearch
 
 ## Viewing the information
 AuditBucket information is stored in industry standard JSON documents. Any Neo4j or ElasticSearch query tool will work effortlessely with AuditBucket information. 
