@@ -1,4 +1,4 @@
-[auditbucket](http://auditbucket.com)  - Information Profiling Service
+[auditbucket](http://auditbucket.com) - Data Profiling Service
 ===========
 
 ## Executive Summary
