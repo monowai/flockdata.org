@@ -10,6 +10,8 @@ When ab-engine runs embedded Neo4J the REST api is exposed on port 7474 so explo
 
 The concepts and calls are explained in the [Audit Service Call Wiki](https://github.com/monowai/auditbucket/wiki/Audit-Service-Calls)
 
+Please see our [PostMan API gist](https://gist.github.com/monowai/8077021)  for a quick and conenient way of making REST calls to AuditBucket.
+
 ## Dependencies
 Only mandatory dependency is REDIS as at this time. Install this separately. We assume you are running all of this on your developer workstation on default ports. If this is the case, then you are good to go
 
@@ -39,7 +41,7 @@ If you want to use AMQP, and we suggest you do, the default message platform we 
 Note that if ab-engine is integrating via AMQP, then ab-search must use this approach as well. 
 
 ## Container Deployment
-While this all looks rather technical, it is simply a matter of getting the WAR file deployed in a webserver. There is no "seperate database" unless you wish to configure AB to talk to one.
+While this all looks rather technical, it is simply a matter of getting the WAR file deployed in a webserver. There is no "separate database" unless you wish to configure AB to talk to one.
 
 If you just want to evaluate and are pressed for time, then run ab-engine straight from the ab-engine/target folder with the following command
 ```
