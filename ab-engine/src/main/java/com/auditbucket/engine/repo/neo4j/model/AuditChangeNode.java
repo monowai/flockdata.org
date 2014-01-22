@@ -37,7 +37,7 @@ import java.util.Map;
  * Time: 5:57 PM
  */
 @NodeEntity(useShortNames = true)
-@TypeAlias("ab.Change")
+@TypeAlias("Change")
 public class AuditChangeNode implements AuditChange {
     private static final String COLON = ":";
     @GraphId

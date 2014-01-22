@@ -26,7 +26,7 @@ import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
 
 @NodeEntity
-@TypeAlias("ab.SystemUser")
+@TypeAlias("SystemUser")
 public class SystemUserNode implements SystemUser {
     @GraphId
     Long id;

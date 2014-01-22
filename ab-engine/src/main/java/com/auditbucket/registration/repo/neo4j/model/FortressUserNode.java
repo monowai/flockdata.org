@@ -27,7 +27,7 @@ import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
 
 @NodeEntity
-@TypeAlias("ab.FortressUser")
+@TypeAlias("FortressUser")
 public class FortressUserNode implements FortressUser {
     @GraphId
     Long id;

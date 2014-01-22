@@ -40,7 +40,7 @@ import java.util.Set;
  * Time: 9:34 AM
  */
 @NodeEntity
-@TypeAlias("ab.TxRef")
+@TypeAlias("TxRef")
 public class TxRefNode implements TxRef {
 
     @GraphId
