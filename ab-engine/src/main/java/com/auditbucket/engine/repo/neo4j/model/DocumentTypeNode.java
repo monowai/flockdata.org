@@ -36,7 +36,7 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
  * Time: 10:02 AM
  */
 @NodeEntity
-@TypeAlias("ab.DocType")
+@TypeAlias("DocType")
 public class DocumentTypeNode implements DocumentType {
 
     @GraphId

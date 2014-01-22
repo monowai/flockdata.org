@@ -32,7 +32,7 @@ import java.util.TimeZone;
 import java.util.UUID;
 
 @NodeEntity
-@TypeAlias("ab.Fortress")
+@TypeAlias("Fortress")
 public class FortressNode implements Fortress {
 
     private UUID fortressKey;

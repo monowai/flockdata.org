@@ -19,7 +19,7 @@ import java.util.Map;
  * Since: 4/09/13
  */
 @NodeEntity
-@TypeAlias("ab.What")
+@TypeAlias("What")
 public class AuditWhatNode implements AuditWhat {
     @GraphId
     private Long id;

@@ -38,7 +38,7 @@ import java.util.Map;
  * Time: 8:35 PM
  */
 @NodeEntity
-@TypeAlias("ab.Tag")
+@TypeAlias("Tag")
 public class TagNode implements Tag {
     @GraphId
     Long Id;

@@ -29,7 +29,7 @@ import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
 @NodeEntity
-@TypeAlias("ab.CompanyUser")
+@TypeAlias("CompanyUser")
 public class CompanyUserNode implements CompanyUser {
     @GraphId
     Long id;

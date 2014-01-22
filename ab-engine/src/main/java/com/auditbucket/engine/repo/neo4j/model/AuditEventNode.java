@@ -35,7 +35,7 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
  * Since: 6/09/13
  */
 @NodeEntity
-@TypeAlias("ab.Event")
+@TypeAlias("Event")
 public class AuditEventNode implements AuditEvent {
 
     @GraphId
