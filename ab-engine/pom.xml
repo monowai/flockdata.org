@@ -201,6 +201,7 @@
             <groupId>org.neo4j.app</groupId>
             <artifactId>neo4j-server</artifactId>
             <version>${neo4j.version}</version>
+            <classifier>static-web</classifier>
             <exclusions>
                 <exclusion>
                     <groupId>ch.qos.logback</groupId>
@@ -222,8 +223,8 @@
         <!--<artifactId>neo4j-server</artifactId>-->
         <!--<version>${neo4j.version}</version>-->
         <!--<classifier>static-web</classifier>-->
-        <!--&lt;!&ndash;<scope>test</scope>&ndash;&gt;-->
         <!--</dependency>-->
+
         <!--sd-Neo4J advanced mapping-->
         <dependency>
             <groupId>org.springframework.data</groupId>
