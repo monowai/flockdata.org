@@ -35,7 +35,7 @@ public interface FortressRepository extends GraphRepository<FortressNode> {
             "       where fortressUser.name ={1} return fortressUser")
     FortressUserNode getFortressUser(Long fortressId, String userName);
 
-    @Query(elementClass = FortressNode.class, value = "start company=node({0}) match company-[:owns]->f return f")
+    @Query(elementClass = FortressNode.class, value = "start company=node({0}) match company-[:OWNS]->f return f")
     List<Fortress> findCompanyFortresses(Long companyID);
 
 }

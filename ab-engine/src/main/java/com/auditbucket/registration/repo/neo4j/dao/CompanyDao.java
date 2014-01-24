@@ -45,7 +45,7 @@ public interface CompanyDao {
 
     public SystemUser getAdminUser(Long id, String name);
 
-    public Iterable<CompanyUser> getCompanyUsers(String companyName);
+    public Iterable<CompanyUser> getCompanyUsers(Long companyId);
 
     Company create(String companyName, String uniqueKey);
 

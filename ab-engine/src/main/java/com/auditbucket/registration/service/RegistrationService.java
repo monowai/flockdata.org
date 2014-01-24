@@ -50,7 +50,7 @@ public class RegistrationService {
 
     private static SystemUser GUEST = new SystemUserNode("Guest", null, null, false);
 
-    //@Transactional
+    @Transactional
     public SystemUser registerSystemUser(RegistrationBean regBean) {
         SystemUser systemUser = systemUserService.findByName(regBean.getName());
 

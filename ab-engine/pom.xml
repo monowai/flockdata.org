@@ -34,7 +34,7 @@
         <!--You need to keep the SDN lib in line with the Neo4J version otherwise
         odd errors involving REAL_TIME occur during startup-->
 
-        <org.springdata.neo4j>3.0.0.M1</org.springdata.neo4j>
+        <org.springdata.neo4j>3.0.0.BUILD-SNAPSHOT</org.springdata.neo4j>
         <neo4j.version>2.0.0</neo4j.version>
 
         <!--<org.springdata.neo4j>2.4.0.BUILD-SNAPSHOT</org.springdata.neo4j>-->
@@ -61,6 +61,11 @@
                     <artifactId>commons-logging</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-rest-graphdb</artifactId>
+            <version>2.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

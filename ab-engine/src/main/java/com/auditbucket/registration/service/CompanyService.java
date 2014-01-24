@@ -62,8 +62,8 @@ public class CompanyService {
 
     }
 
-    public CompanyUser getCompanyUser(String companyName, String userName) {
-        Company company = findByName(companyName);
+    public CompanyUser getCompanyUser(String userName) {
+        Company company = securityHelper.getCompany();
         if (company == null)
             return null;
         return companyDao.getCompanyUser(company.getId(), userName);
@@ -75,8 +75,9 @@ public class CompanyService {
         return companyDao.getFortressByName(company, fortressName);
     }
 
-    public Iterable<CompanyUser> getUsers(String companyName) {
-        return companyDao.getCompanyUsers(companyName);
+    public Iterable<CompanyUser> getUsers() {
+        Company company = securityHelper.getCompany();
+        return companyDao.getCompanyUsers(company.getId());
     }
 
 

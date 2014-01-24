@@ -38,7 +38,7 @@ public class SystemNode implements ISystem {
     @GraphId
     Long Id;
 
-    @RelatedTo(elementClass = SystemUserNode.class, type = "administers", direction = Direction.OUTGOING)
+    @RelatedTo(elementClass = SystemUserNode.class, type = "ADMINISTERS", direction = Direction.OUTGOING)
     private
     Set<SystemUser> systemUsers;
 
