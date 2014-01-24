@@ -135,7 +135,7 @@ public class AuditManagerService {
                 }
             }
             if (!tagSet.isEmpty()) // Anything new to add?
-                tagService.processTags(tagSet);
+                tagService.processTags(tagSet, company);
         }
     }
 

@@ -17,7 +17,7 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.helper;
+package com.auditbucket.importer;
 
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.bean.AuditResultBean;
@@ -46,7 +46,7 @@ import java.util.*;
  * User: Mike Holdsworth
  * Since: 13/10/13
  */
-public class AbExporter {
+public class AbRestClient {
 
     private String NEW_HEADER;
     private String NEW_TAG;
@@ -68,13 +68,13 @@ public class AbExporter {
 
     public enum type {AUDIT, TAG}
 
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(AbExporter.class);
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(AbRestClient.class);
 
-    public AbExporter(String serverName, String userName, String password, int batchSize) {
+    public AbRestClient(String serverName, String userName, String password, int batchSize) {
         this(serverName, userName, password, batchSize, null);
     }
 
-    public AbExporter(String serverName, String userName, String password, int batchSize, String defaultFortress) {
+    public AbRestClient(String serverName, String userName, String password, int batchSize, String defaultFortress) {
         this.userName = userName;
         this.password = password;
         this.NEW_HEADER = serverName + "/v1/audit/";

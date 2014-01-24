@@ -1,6 +1,6 @@
 package com.auditbucket.spring;
 
-import com.auditbucket.helper.AbExporter;
+import com.auditbucket.importer.AbRestClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -9,7 +9,7 @@ public class AuditBucketClientFactoryBean extends AuditBucketAbstractClientFacto
     protected final Log logger = LogFactory.getLog(getClass());
 
     @Override
-    protected AbExporter buildClient() throws Exception {
+    protected AbRestClient buildClient() throws Exception {
         Object f = properties.get("ab.fortress");
         String fortressName = null;
         if (f != null)
@@ -20,7 +20,7 @@ public class AuditBucketClientFactoryBean extends AuditBucketAbstractClientFacto
             batchSize = Integer.parseInt(b.toString());
         else
             batchSize = Integer.parseInt("1");
-        AbExporter exporter = new AbExporter(properties.get("server.name").toString(),
+        AbRestClient exporter = new AbRestClient(properties.get("server.name").toString(),
                 properties.get("ab.username").toString(),
                 properties.get("ab.password").toString(),
                 batchSize,
