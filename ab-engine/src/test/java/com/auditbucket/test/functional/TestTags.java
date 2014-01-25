@@ -245,12 +245,12 @@ public class TestTags {
         assertNotNull(iSystemUser);
 
         TagInputBean tagInput = new TagInputBean("Source");
-        tagInput.setAssociatedTag("testAssoc", new TagInputBean("Dest"));
+        tagInput.setTargets("testAssoc", new TagInputBean("Dest"));
         TagInputBean tag3 = new TagInputBean("Dest3");
         TagInputBean tag2 = new TagInputBean("Dest2");
-        tag2.setAssociatedTag("testAssoc3", tag3);
+        tag2.setTargets("testAssoc3", tag3);
 
-        tagInput.setAssociatedTag("testAssoc2", tag2);
+        tagInput.setTargets("testAssoc2", tag2);
 
         Tag tag = tagService.processTag(tagInput);
 

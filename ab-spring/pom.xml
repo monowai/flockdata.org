@@ -14,7 +14,7 @@
 
         <dependency>
             <groupId>com.monowai</groupId>
-            <artifactId>ab-import</artifactId>
+            <artifactId>ab-client</artifactId>
             <version>${project.version}</version>
         </dependency>
 

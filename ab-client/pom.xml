@@ -9,12 +9,12 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>ab-import</artifactId>
+    <artifactId>ab-client</artifactId>
     <dependencies>
         <dependency>
             <groupId>com.monowai</groupId>
             <artifactId>ab-common</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

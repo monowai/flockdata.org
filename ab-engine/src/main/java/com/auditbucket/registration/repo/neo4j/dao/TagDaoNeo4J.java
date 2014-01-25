@@ -20,9 +20,9 @@
 package com.auditbucket.registration.repo.neo4j.dao;
 
 import com.auditbucket.audit.model.DocumentType;
-import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.engine.repo.neo4j.DocumentTypeRepo;
 import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.repo.neo4j.TagRepository;
@@ -106,23 +106,26 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
     public Tag save(Company company, TagInputBean tagInput) {
         // Check exists
         // ToDo: Neo4j2 - don't associate with the company rather a tag node type
-        Tag existingTag = findOne(tagInput.getName(), company.getId());
-        if (existingTag != null)
-            return existingTag;
-
-        TagNode tagToCreate = new TagNode(tagInput);
-        tagToCreate = tagRepo.save(tagToCreate);
+        TagNode tagToCreate = (TagNode) findOne(tagInput.getName(), company.getId());
+        if (tagToCreate == null) {
+            tagToCreate = new TagNode(tagInput);
+            tagToCreate = tagRepo.save(tagToCreate);
+        }
 
         Node end = template.getPersistentState(tagToCreate);
         Node start = getCompanyTagManagerNode(company.getId());
+
         Relationship r = template.getRelationshipBetween(start, end, COMPANY_TAGS);
         if (r == null)
             template.createRelationshipBetween(start, end, COMPANY_TAGS, null);
 
-        Map<String, TagInputBean> tags = tagInput.getAssociatedTags();
+        Map<String, TagInputBean[]> tags = tagInput.getTargets();
         for (String rlxName : tags.keySet()) {
-            TagInputBean associatedTag = tags.get(rlxName);
-            saveAssociated(company, end, associatedTag, rlxName);
+            TagInputBean[] associatedTag = tags.get(rlxName);
+            for (TagInputBean tagInputBean : associatedTag) {
+                saveAssociated(company, end, tagInputBean, rlxName);
+            }
+
         }
         return tagToCreate;
     }
@@ -130,10 +133,10 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
     Tag saveAssociated(Company company, Node startNode, TagInputBean associatedTag, String rlxName) {
         Tag tagToCreate = save(company, associatedTag);
         Node endNode = template.getPersistentState(tagToCreate);
-        if (associatedTag.isOutbound())
-            template.createRelationshipBetween(startNode, endNode, rlxName, null);
-        else
+        if (associatedTag.isReverse())
             template.createRelationshipBetween(endNode, startNode, rlxName, null);
+        else
+            template.createRelationshipBetween(startNode, endNode, rlxName, null);
 
         return tagToCreate;
     }

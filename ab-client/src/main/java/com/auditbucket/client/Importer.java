@@ -1,4 +1,4 @@
-package com.auditbucket.importer;
+package com.auditbucket.client;
 
 import au.com.bytecode.opencsv.CSVReader;
 import com.auditbucket.audit.bean.AuditHeaderInputBean;

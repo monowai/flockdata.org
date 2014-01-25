@@ -1,4 +1,4 @@
-package com.auditbucket.importer;
+package com.auditbucket.client;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
