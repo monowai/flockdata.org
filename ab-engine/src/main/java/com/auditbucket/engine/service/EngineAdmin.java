@@ -21,6 +21,7 @@ package com.auditbucket.engine.service;
 
 import com.auditbucket.dao.AuditDao;
 import com.auditbucket.helper.VersionHelper;
+import com.auditbucket.registration.model.Company;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -28,11 +29,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.neo4j.support.Neo4jTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,6 +56,8 @@ public class EngineAdmin {
 
     private Logger logger = LoggerFactory.getLogger(EngineAdmin.class);
 
+    private Boolean multiTenanted = false;
+
     @Value("${rabbit.host:@null}")
     protected void setRabbitHost(String rabbitHost) {
         if ("@null".equals(rabbitHost)) this.rabbitHost = null;
@@ -73,7 +76,25 @@ public class EngineAdmin {
     protected void setAbSearch(String absearchMake) {
         if ("@null".equals(absearchMake)) this.abSearch = null;
         else this.abSearch = absearchMake;
+    }
 
+    @Value("${abengine.multiTenanted:@null}")
+    protected void setMultiTenanted(String multiTenanted) {
+        this.multiTenanted = !"@null".equals(multiTenanted) && Boolean.parseBoolean(multiTenanted);
+    }
+
+    @Autowired
+    Neo4jTemplate template;
+
+    @Async
+    public void createTagIndex(Company company) {
+        template.query("create constraint on (t:Tag" + getTagSuffix(company) + ") assert t.key is unique", null);
+    }
+
+    public String getTagSuffix(Company company) {
+        if (company == null)
+            return "";
+        return (isMultiTenanted() ? company.getCode() : "");
     }
 
     public Map<String, String> getHealth() {
@@ -87,6 +108,8 @@ public class EngineAdmin {
         healthResults.put("config-file", config);
         String integration = System.getProperty("ab.integration");
         healthResults.put("ab.integration", integration);
+
+        //healthResults.put("ab.multiTenanted", multiTenanted.toString());
         if ("http".equalsIgnoreCase(integration)) {
             healthResults.put("absearch.make", abSearch);
         } else {
@@ -110,4 +133,11 @@ public class EngineAdmin {
         }
     }
 
+    public boolean isMultiTenanted() {
+        return multiTenanted;
+    }
+
+    public void setMultiTenanted(boolean multiTenanted) {
+        this.multiTenanted = multiTenanted;
+    }
 }

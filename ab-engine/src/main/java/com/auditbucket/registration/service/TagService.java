@@ -20,9 +20,9 @@
 package com.auditbucket.registration.service;
 
 import com.auditbucket.audit.model.DocumentType;
-import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.dao.TagDao;
 import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,7 +86,7 @@ public class TagService {
     }
 
     public Tag findTag(String tagName, Company company) {
-        return tagDao.findOne(tagName, company.getId());
+        return tagDao.findOne(tagName, company);
     }
 
 
@@ -132,17 +132,8 @@ public class TagService {
 
     }
 
-    public Long getCompanyTagManager(Long companyId) {
-        return tagDao.getCompanyTagManager(companyId);
-    }
-
-    public void createCompanyTagManager(Long id, String companyName) {
-        tagDao.createCompanyTagManager(id, companyName.toLowerCase());
-
-    }
-
     public Collection<Tag> findDirectedTags(Tag startTag) {
-        return tagDao.findDirectedTags(startTag, securityHelper.getCompany().getId(), true); // outbound
+        return tagDao.findDirectedTags(startTag, securityHelper.getCompany(), true); // outbound
     }
 
 }

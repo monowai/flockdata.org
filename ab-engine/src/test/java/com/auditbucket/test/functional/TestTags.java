@@ -20,6 +20,7 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.model.DocumentType;
+import com.auditbucket.engine.service.EngineAdmin;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.SystemUser;
@@ -64,6 +65,9 @@ public class TestTags {
 
     @Autowired
     TagService tagService;
+
+    @Autowired
+    EngineAdmin engineAdmin;
 
 
     @Autowired
@@ -124,7 +128,8 @@ public class TestTags {
     }
 
     @org.junit.Test
-    public void tagCreationAndSecurity() throws Exception {
+    public void secureMultiTenantedTags() throws Exception {
+        engineAdmin.setMultiTenanted(true);
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
         assertNotNull(iSystemUser);
 
@@ -150,15 +155,13 @@ public class TestTags {
     }
 
     @Test
-    public void tagUpdate() throws Exception {
+    public void updateExistingTag() throws Exception {
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
         assertNotNull(iSystemUser);
 
+        assertNull(tagService.findTag("ABC"));
         Tag tag = tagService.processTag(new TagInputBean("FLOP"));
         assertNotNull(tag);
-        assertNull(tagService.findTag("ABC"));
-        // ToDo: Find tag isn't working N4j2 Node types and CreateIndex
-        // Issue is manual nodes don't get in the index.
 
         Tag result = tagService.findTag("FLOP");
         assertNotNull(result);
@@ -240,7 +243,7 @@ public class TestTags {
     }
 
     @Test
-    public void associatedRelationships() throws Exception {
+    public void targetRelationships() throws Exception {
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
         assertNotNull(iSystemUser);
 

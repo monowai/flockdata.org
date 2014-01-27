@@ -73,7 +73,8 @@ public class CompanyNode implements Company {
 
     public void setName(String name) {
         this.name = name;
-        this.code = name.toLowerCase().replaceAll("\\s", "");
+        if (code == null)
+            this.code = name.toLowerCase().replaceAll("\\s", "");
     }
 
     @Override

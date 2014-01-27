@@ -19,13 +19,13 @@
 
 package com.auditbucket.engine.service;
 
+import com.auditbucket.audit.bean.AuditTagInputBean;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditTag;
-import com.auditbucket.audit.bean.AuditTagInputBean;
-import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.dao.AuditTagDao;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.TagService;
@@ -163,12 +163,12 @@ public class AuditTagService {
     }
 
     public Set<AuditTag> findAuditTags(AuditHeader auditHeader) {
-        Long companyId = securityHelper.getCompany().getId();
-        return findAuditTags(companyId, auditHeader);
+        Company company = securityHelper.getCompany();
+        return findAuditTags(company, auditHeader);
     }
 
-    public Set<AuditTag> findAuditTags(Long companyId, AuditHeader auditHeader) {
-        return auditTagDao.getAuditTags(auditHeader, companyId);
+    public Set<AuditTag> findAuditTags(Company company, AuditHeader auditHeader) {
+        return auditTagDao.getAuditTags(auditHeader, company);
     }
 
     public void deleteAuditTags(AuditHeader auditHeader, Collection<AuditTag> auditTags) throws AuditException {

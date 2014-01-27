@@ -337,7 +337,7 @@ public class AuditService {
         SearchChange searchDocument;
         searchDocument = new AuditSearchChange(auditHeader, logInput.getMapWhat(), event.getCode(), fortressWhen);
         searchDocument.setWho(auditLog.getAuditChange().getWho().getCode());
-        searchDocument.setTags(auditTagService.findAuditTags(auditHeader.getFortress().getCompany().getId(), auditHeader));
+        searchDocument.setTags(auditTagService.findAuditTags(auditHeader.getFortress().getCompany(), auditHeader));
         searchDocument.setDescription(auditHeader.getName());
         try {
             logger.trace("JSON {}", om.writeValueAsString(searchDocument));
@@ -704,7 +704,7 @@ public class AuditService {
     }
 
     @Async
-    public void makeHeaderSearchable(AuditResultBean resultBean, String event, Date when, Long companyId) {
+    public void makeHeaderSearchable(AuditResultBean resultBean, String event, Date when, Company company) {
         AuditHeader header = resultBean.getAuditHeader();
         if (header.isSearchSuppressed() || !header.getFortress().isSearchActive())
             return;
@@ -720,7 +720,7 @@ public class AuditService {
             searchDocument.setSysWhen(header.getWhenCreated());
 
         } else {
-            searchDocument.setTags(auditTagService.findAuditTags(companyId, header));
+            searchDocument.setTags(auditTagService.findAuditTags(company, header));
         }
         makeChangeSearchable(searchDocument);
 

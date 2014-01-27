@@ -49,6 +49,7 @@ public class TagInputBean {
     public TagInputBean(String tagName) {
         this();
         this.name = tagName;
+        this.code = tagName;
     }
 
     public String getName() {
