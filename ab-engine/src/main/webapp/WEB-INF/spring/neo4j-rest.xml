@@ -25,7 +25,7 @@
 
     <!--Hit Neo4J over a REST API-->
     <!--If using over the REST api you can not clear down the database, so don't call Neo4jHelper.cleanDb(..) -->
-    <bean id="graphDatabaseService" class="org.springframework.data.neo4j.rest.SpringRestGraphDatabase">
+    <bean id="graphDatabaseService" class="org.neo4j.rest.graphdb.RestGraphDatabase">
         <constructor-arg index="0" value="${neo4j.url}"/>
     </bean>
 

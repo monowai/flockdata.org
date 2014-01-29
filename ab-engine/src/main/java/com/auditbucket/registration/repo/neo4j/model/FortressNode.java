@@ -40,13 +40,13 @@ public class FortressNode implements Fortress {
     @GraphId
     Long id;
 
-    @Indexed(indexName = "fortressCode")
+    @Indexed
     private String code;
 
-    @Indexed(indexName = "fortressName")
+    @Indexed
     private String name;
 
-    @RelatedTo(type = "owns", direction = Direction.INCOMING)
+    @RelatedTo(type = "OWNS", direction = Direction.INCOMING)
     @Fetch
     private CompanyNode company;
 

@@ -37,19 +37,17 @@ public class CompanyNode implements Company {
     @GraphId
     Long id;
 
-    @Indexed(indexName = "companyName")
-    private
-    String name;
+    @Indexed
+    private String name;
 
-    @Indexed(unique = true, indexName = "companyCode")
-    private
-    String code;
+    @Indexed(unique = true)
+    private String code;
 
 
     @Indexed(indexName = "apiKey")
     String apiKey;
 
-    @RelatedTo(elementClass = CompanyUserNode.class, type = "works", direction = Direction.INCOMING)
+    @RelatedTo(elementClass = CompanyUserNode.class, type = "WORKS", direction = Direction.INCOMING)
     private Set<CompanyUser> companyUsers;
 
     protected CompanyNode() {
@@ -60,7 +58,7 @@ public class CompanyNode implements Company {
     }
 
     public CompanyNode(String companyName, String apiKey) {
-        super();
+        this();
         setName(companyName);
         this.apiKey = apiKey;
     }
@@ -75,7 +73,8 @@ public class CompanyNode implements Company {
 
     public void setName(String name) {
         this.name = name;
-        this.code = name.toLowerCase().replaceAll("\\s", "");
+        if (code == null)
+            this.code = name.toLowerCase().replaceAll("\\s", "");
     }
 
     @Override

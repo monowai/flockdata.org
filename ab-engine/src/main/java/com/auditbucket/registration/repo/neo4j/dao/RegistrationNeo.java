@@ -49,10 +49,7 @@ public class RegistrationNeo implements com.auditbucket.dao.RegistrationDao {
 
     public SystemUser findSysUserByName(String name) {
         SystemUser result = null;
-        if (template.getGraphDatabaseService().index().existsForNodes("sysUserName")) {
-            result = suRepo.getSystemUser(name);
-        }
-        return result;
+        return suRepo.getSystemUser(name);
     }
 
     @Override

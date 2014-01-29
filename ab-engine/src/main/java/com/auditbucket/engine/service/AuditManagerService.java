@@ -135,7 +135,7 @@ public class AuditManagerService {
                 }
             }
             if (!tagSet.isEmpty()) // Anything new to add?
-                tagService.processTags(tagSet);
+                tagService.processTags(tagSet, company);
         }
     }
 
@@ -160,6 +160,7 @@ public class AuditManagerService {
             watch.stop();
         } catch (Exception e) {
             logger.error("Async Header error", e);
+            throw new AuditException("Async error progressing Headers", e);
         }
         logger.info("Completed Batch [{}] - secs= {}, RPS={}", id, f.format(watch.getTotalTimeSeconds()), f.format(inputBeans.length / watch.getTotalTimeSeconds()));
         return new AsyncResult<>(processCount);
@@ -234,10 +235,10 @@ public class AuditManagerService {
             if (inputBean.isTrackSuppressed())
                 // If we aren't tracking in the graph, then we have to be searching
                 // else why even call this service??
-                auditService.makeHeaderSearchable(resultBean, inputBean.getEvent(), inputBean.getWhen(), company.getId());
+                auditService.makeHeaderSearchable(resultBean, inputBean.getEvent(), inputBean.getWhen(), company);
             else if (!resultBean.isDuplicate() &&
                     inputBean.getEvent() != null && !"".equals(inputBean.getEvent())) {
-                auditService.makeHeaderSearchable(resultBean, inputBean.getEvent(), inputBean.getWhen(), company.getId());
+                auditService.makeHeaderSearchable(resultBean, inputBean.getEvent(), inputBean.getWhen(), company);
             }
         }
         return resultBean;

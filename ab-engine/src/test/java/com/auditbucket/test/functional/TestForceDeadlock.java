@@ -10,7 +10,6 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
-import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +26,6 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +33,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 
 /**
  * User: Mike Holdsworth
@@ -88,14 +87,15 @@ public class TestForceDeadlock {
      * @throws Exception
      */
     @Test
-    public void forceDeadlockUnderLoadIsHandled() throws InterruptedException {
+    public void forceDeadlockUnderLoadIsHandled() throws Exception {
         cleanUpGraph(); // No transaction so need to clear down the graph
 
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
+//        SecurityContextHolder.getContext().setAuthentication(authMike);
         Fortress fortress = fortressService.registerFortress("auditTest" + System.currentTimeMillis());
         String docType = "TestAuditX";
 
-        CountDownLatch latch = new CountDownLatch(3);
+        CountDownLatch latch = new CountDownLatch(4);
 
         CallerRefRunner ta = addRunner(fortress, docType, "123", latch);
         CallerRefRunner tb = addRunner(fortress, docType, "124", latch);
@@ -103,11 +103,12 @@ public class TestForceDeadlock {
         CallerRefRunner td = addRunner(fortress, docType, "126", latch);
         latch.await();
         boolean working = false;
+        Future<Integer> frA = null, frB = null, frC = null;
         try {
 
-            auditEP.createHeadersF(ta.getInputBeans(), false);
-            auditEP.createHeadersF(tb.getInputBeans(), false);
-            auditEP.createHeadersF(tc.getInputBeans(), true);
+            frA = auditEP.createHeadersF(ta.getInputBeans(), false);
+            frB = auditEP.createHeadersF(tb.getInputBeans(), false);
+            frC = auditEP.createHeadersF(tc.getInputBeans(), false);
             // Waiting for the async result to finish...
             auditEP.createHeadersF(td.getInputBeans(), true);
 //            Thread.sleep(5000);
@@ -118,9 +119,22 @@ public class TestForceDeadlock {
 
             logger.error("ae ", e);
         }
-
+        assertNotNull(frA);
+        assertNotNull(frB);
+        assertNotNull(frC);
+        doFutureWorked(frA, ta.getInputBeans().length);
+        doFutureWorked(frB, ta.getInputBeans().length);
+        doFutureWorked(frC, ta.getInputBeans().length);
         assertEquals(true, working);
 
+
+    }
+
+    private void doFutureWorked(Future<Integer> future, int count) throws Exception {
+        while (!future.isDone()) {
+            Thread.yield();
+        }
+        assertEquals(count, future.get().intValue());
 
     }
 
@@ -183,7 +197,7 @@ public class TestForceDeadlock {
                     count++;
                 }
                 working = true;
-            } catch (RuntimeException e) {
+            } catch (Exception e) {
 
                 logger.error("Help!!", e);
             } finally {

@@ -1,21 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2012-2013 "Monowai Developments Limited"
+  ~ Copyright (c) 2013 Monowai Developments Limited.
   ~
-  ~ This file is part of AuditBucket.
+  ~ This file is provided for exploratory purposes of Medicare data.
   ~
-  ~ AuditBucket is free software: you can redistribute it and/or modify
-  ~ it under the terms of the GNU General Public License as published by
-  ~ the Free Software Foundation, either version 3 of the License, or
-  ~ (at your option) any later version.
+  ~ The analysis is original thinking of the author and is not in the public domain.
   ~
-  ~ AuditBucket is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
+  ~ This file may not be reproduced without consultation
   -->
 
 <!DOCTYPE log4j:configuration PUBLIC "-//APACHE//DTD LOG4J 1.2//EN" "log4j.dtd">
@@ -61,17 +52,11 @@
     <logger name="org.springframework">
         <level value="info"/>
     </logger>
-    <logger name="com.auditbucket.engine.service">
-        <level value="info"/>
+    <logger name="org.auditbucket">
+        <level value="debug"/>
     </logger>
 
-    <logger name="com.jersey">
-        <level value="error"/>
-    </logger>
 
-    <logger name="o.e.jetty">
-        <level value="error"/>
-    </logger>
     <!-- Root Logger -->
     <root>
         <priority value="info"/>

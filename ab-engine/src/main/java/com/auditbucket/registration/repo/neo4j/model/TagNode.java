@@ -23,6 +23,7 @@ import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Tag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.neo4j.graphdb.Node;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
@@ -59,8 +60,32 @@ public class TagNode implements Tag {
     public TagNode(TagInputBean tagInput) {
         this();
         setName(tagInput.getName());
-        setCode(tagInput.getCode());
+        if (tagInput.getCode() == null)
+            setCode(getName());
+        else
+            setCode(tagInput.getCode());
+
+        this.key = getName().toLowerCase().replaceAll("\\s", "");
+
         properties.setPropertiesFrom(tagInput.getProperties());
+    }
+
+    public TagNode(Map<String, Object> mapResult) {
+        if (mapResult == null)
+            return;
+        this.Id = (Long) mapResult.get(("Id"));
+        this.code = (String) mapResult.get("code");
+        this.name = (String) mapResult.get("name");
+        this.key = (String) mapResult.get("key");
+
+    }
+
+    public TagNode(Node tag) {
+        this.Id = tag.getId();
+        this.code = (String) tag.getProperty("code");
+        this.name = (String) tag.getProperty("name");
+        this.key = (String) tag.getProperty("key");
+
     }
 
 
@@ -72,7 +97,6 @@ public class TagNode implements Tag {
     @Override
     public void setName(String tagName) {
         this.name = tagName;
-        this.key = tagName.toLowerCase().replaceAll("\\s", "");
     }
 
     @JsonIgnore
@@ -110,5 +134,11 @@ public class TagNode implements Tag {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getCode() {
         return code;
+    }
+
+
+    public void setId(Long id) {
+        this.Id = id;
+
     }
 }

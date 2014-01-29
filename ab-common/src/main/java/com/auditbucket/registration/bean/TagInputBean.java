@@ -37,9 +37,9 @@ public class TagInputBean {
 
     private String code;
 
-    private boolean outbound = true;
+    private boolean reverse = false;
 
-    private Map<String, TagInputBean> associatedTags = new HashMap<>();
+    private Map<String, TagInputBean[]> targets = new HashMap<>();
 
     Map<String, Object> properties = new HashMap<>();
 
@@ -49,6 +49,7 @@ public class TagInputBean {
     public TagInputBean(String tagName) {
         this();
         this.name = tagName;
+        this.code = tagName;
     }
 
     public String getName() {
@@ -68,12 +69,17 @@ public class TagInputBean {
         return code;
     }
 
-    public void setAssociatedTag(String relationshipName, TagInputBean tagInputBean) {
-        associatedTags.put(relationshipName, tagInputBean);
+    public void setTargets(String relationshipName, TagInputBean tagInputBean) {
+        TagInputBean[] put = {tagInputBean};
+        targets.put(relationshipName, put);
     }
 
-    public Map<String, TagInputBean> getAssociatedTags() {
-        return this.associatedTags;
+    public void setTargets(String relationshipName, TagInputBean[] tagInputBeans) {
+        targets.put(relationshipName, tagInputBeans);
+    }
+
+    public Map<String, TagInputBean[]> getTargets() {
+        return this.targets;
     }
 
     public Map<String, Object> getProperties() {
@@ -85,12 +91,12 @@ public class TagInputBean {
             properties.put(key, value);
     }
 
-    public boolean isOutbound() {
-        return outbound;
+    public boolean isReverse() {
+        return reverse;
     }
 
-    public void setOutbound(boolean outbound) {
-        this.outbound = outbound;
+    public void setReverse(boolean reverse) {
+        this.reverse = reverse;
     }
 
     public void setCode(String code) {

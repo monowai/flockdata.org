@@ -26,12 +26,12 @@ import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
 
 @NodeEntity
-@TypeAlias("SystemUser")
+@TypeAlias(value = "SystemUser")
 public class SystemUserNode implements SystemUser {
     @GraphId
     Long id;
 
-    @Indexed(unique = true, indexName = "sysUserName")
+    @Indexed(unique = true)
     private String name = null;
 
     private String password;
@@ -42,7 +42,7 @@ public class SystemUserNode implements SystemUser {
 //    private CompanyUser companyUser;
 
     @Fetch
-    @RelatedTo(elementClass = CompanyNode.class, type = "administers", direction = Direction.OUTGOING)
+    @RelatedTo(elementClass = CompanyNode.class, type = "ADMINISTERS", direction = Direction.OUTGOING)
     private CompanyNode company;
 
 

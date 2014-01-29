@@ -22,6 +22,7 @@ package com.auditbucket.dao;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditTag;
 import com.auditbucket.helper.AuditException;
+import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 
 import java.util.Collection;
@@ -40,7 +41,7 @@ public interface AuditTagDao {
 
     Boolean relationshipExists(AuditHeader auditHeader, Tag tag, String relationshipType);
 
-    Set<AuditTag> getAuditTags(AuditHeader auditHeader, Long companyTagId);
+    Set<AuditTag> getAuditTags(AuditHeader auditHeader, Company company);
 
     void deleteAuditTags(AuditHeader auditHeader, Collection<AuditTag> auditTags) throws AuditException;
 

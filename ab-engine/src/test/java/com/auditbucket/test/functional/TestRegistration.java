@@ -106,7 +106,9 @@ public class TestRegistration {
     private String testCompanyName = "testco";
 
     private void createCompanyUsers(String userNamePrefix, int count) {
-        Company company = companyService.save(testCompanyName);
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        SystemUser su = registrationService.registerSystemUser(new RegistrationBean("CompanyA", "mike", "whocares"));
+        Company company = su.getCompany();
         int i = 1;
         while (i <= count) {
             CompanyUser test = new CompanyUserNode(userNamePrefix + i + "@sunnybell.com", company);
@@ -123,7 +125,7 @@ public class TestRegistration {
     public void findByName() {
         createCompanyUsers("MTest", 3);
         String name = "mtest2@sunnybell.com";
-        CompanyUser p = companyService.getCompanyUser(testCompanyName, name);
+        CompanyUser p = companyService.getCompanyUser(name);
         assertNotNull(p);
         assertEquals(name, p.getName());
 
@@ -160,7 +162,7 @@ public class TestRegistration {
     @Transactional
     public void testCompanyUsers() {
         createCompanyUsers("mike", 10);
-        Iterable<CompanyUser> users = companyService.getUsers(testCompanyName);
+        Iterable<CompanyUser> users = companyService.getUsers();
         assertTrue(users.iterator().hasNext());
     }
 
@@ -171,7 +173,7 @@ public class TestRegistration {
         Fortress fA = fortressService.registerFortress("FortressA");
         Fortress fB = fortressService.registerFortress("FortressB");
         Fortress fC = fortressService.registerFortress("FortressC");
-        fortressService.registerFortress("FortressC");// Forced duplicate should be ignore
+        fortressService.registerFortress("FortressC");// Forced duplicate should be ignored
 
         Collection<Company> companies = companyService.findCompanies();
         assertEquals(1, companies.size());
@@ -190,10 +192,10 @@ public class TestRegistration {
 
     }
 
-    @Test
     public void testFulltextIndex() {
+        // Not a valid test - no assertions. Not sure what it's trying to prove
         createCompanyUsers("mike", 3);
-        Index<PropertyContainer> index = template.getIndex("companyUserName");
+        Index<PropertyContainer> index = template.getIndex("CompanyUserNode");
         IndexHits<PropertyContainer> indexHits = index.query("name", "Test*");
         for (PropertyContainer c : indexHits) {
             String name = (String) c.getProperty("name");

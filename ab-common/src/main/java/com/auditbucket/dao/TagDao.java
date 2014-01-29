@@ -39,27 +39,15 @@ public interface TagDao {
     /**
      * Locates a tag
      *
-     * @param tagName   name to find
-     * @param companyId Company that owns the tag
+     * @param tagName name to find
+     * @param company
      * @return the tag if it exists or null
      */
-    Tag findOne(String tagName, Long companyId);
+    Tag findOne(String tagName, Company company);
 
     DocumentType findCompanyDocument(String documentType, Company company);
 
     DocumentType findOrCreateDocument(String documentType, Company company, Boolean createIfMissing);
 
-    Long createCompanyTagManager(Long companyId, String tagCollectionName);
-
-    Long getCompanyTagManager(Long companyId);
-
-    /**
-     * Removes the relationship between the company and the tag
-     *
-     * @param company that owns the tag
-     * @param tag     tag to remove the relationship from
-     */
-    void deleteCompanyRelationship(Company company, Tag tag);
-
-    Collection<Tag> findDirectedTags(Tag startTag, long companyId, boolean b);
+    Collection<Tag> findDirectedTags(Tag startTag, Company company, boolean b);
 }

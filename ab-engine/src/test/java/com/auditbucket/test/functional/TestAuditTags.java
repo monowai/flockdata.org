@@ -25,13 +25,13 @@ package com.auditbucket.test.functional;
  * Time: 4:49 PM
  */
 
-import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.audit.model.AuditTag;
-import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.bean.AuditResultBean;
 import com.auditbucket.audit.bean.AuditSummaryBean;
 import com.auditbucket.audit.bean.AuditTagInputBean;
+import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.audit.model.AuditTag;
+import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.engine.service.AuditTagService;
@@ -66,8 +66,9 @@ import java.util.*;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.fail;
 
 /**
  * User: Mike Holdsworth
@@ -486,12 +487,12 @@ public class TestAuditTags {
         TagInputBean country = new TagInputBean("New Zealand");
         TagInputBean wellington = new TagInputBean("Wellington");
         TagInputBean auckland = new TagInputBean("Auckland");
-        country.setAssociatedTag("capital-city", wellington);
-        country.setAssociatedTag("city", auckland);
+        country.setTargets("capital-city", wellington);
+        country.setTargets("city", auckland);
         TagInputBean section = new TagInputBean("Thorndon");
-        wellington.setAssociatedTag("section", section);
+        wellington.setTargets("section", section);
         TagInputBean building = new TagInputBean("ABC House");
-        section.setAssociatedTag("houses", building);
+        section.setTargets("houses", building);
 
         inputBean.setAssociatedTag(country);
         AuditResultBean resultBean = auditManager.createHeader(inputBean);
@@ -530,9 +531,9 @@ public class TestAuditTags {
 
         TagInputBean institutionTag = new TagInputBean("mikecorp");
         // Institution is in a city
-        institutionTag.setAssociatedTag("located", cityInputTag);
-        cityInputTag.setAssociatedTag("state", stateInputTag);
-        stateInputTag.setAssociatedTag("country", countryInputTag);
+        institutionTag.setTargets("located", cityInputTag);
+        cityInputTag.setTargets("state", stateInputTag);
+        stateInputTag.setTargets("country", countryInputTag);
         inputBean.setAssociatedTag(institutionTag);
         inputBean.addTagValue("institution", institutionTag);
 

@@ -34,38 +34,38 @@ import java.util.List;
 
 public interface CompanyRepository extends GraphRepository<CompanyNode> {
 
-    @Query(elementClass = CompanyUserNode.class, value = "start company=node:companyName(name={0}) match company<-[:works]-companyUsers return companyUsers")
-    Collection<CompanyUser> getCompanyUsers(String companyName);
+    @Query(elementClass = CompanyUserNode.class, value = "start company=node({0}) match company<-[:WORKS]-companyUsers return companyUsers")
+    Collection<CompanyUser> getCompanyUsers(Long companyId);
 
     @Query(elementClass = FortressNode.class, value =
             "start company=node({0}) " +
-                    "match company-[r:owns]->fortress " +
+                    "match company-[r:OWNS]->fortress " +
                     "where fortress.name ={1} " +
                     "return fortress")
     FortressNode getFortressByName(Long companyId, String fortressName);
 
     @Query(elementClass = FortressNode.class, value =
             "start company=node({0}) " +
-                    "match company-[r:owns]->fortress " +
+                    "match company-[r:OWNS]->fortress " +
                     "where fortress.code ={1} " +
                     "return fortress")
     FortressNode getFortressByCode(Long companyId, String fortressCode);
 
     @Query(elementClass = CompanyUserNode.class,
             value = "start company=node({0}) " +
-                    "match company-[r:works]-companyUser " +
+                    "match company-[r:WORKS]-companyUser " +
                     "where companyUser.name ={1} return companyUser")
     CompanyUserNode getCompanyUser(long ID, String userName);
 
     @Query(elementClass = SystemUserNode.class, value = "start company=node({0}) " +
-            "match company-[r:administers]-systemUser " +
+            "match company-[r:ADMINISTERS]-systemUser " +
             "where systemUser.name ={1} return systemUser")
     SystemUserNode getAdminUser(long ID, String userName);
 
 
     @Query(elementClass = CompanyNode.class,
             value = "start su=node({0}) " +
-                    "match su-[r:administers]->company " +
+                    "match su-[r:ADMINISTERS]->company " +
                     "return company ")
     Collection<Company> getCompaniesForUser(Long id);
 }

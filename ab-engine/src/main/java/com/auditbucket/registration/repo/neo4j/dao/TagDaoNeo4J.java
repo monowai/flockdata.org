@@ -20,20 +20,19 @@
 package com.auditbucket.registration.repo.neo4j.dao;
 
 import com.auditbucket.audit.model.DocumentType;
-import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.engine.repo.neo4j.DocumentTypeRepo;
 import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
+import com.auditbucket.engine.service.EngineAdmin;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.repo.neo4j.TagRepository;
 import com.auditbucket.registration.repo.neo4j.model.TagNode;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.neo4j.conversion.EndResult;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
@@ -48,7 +47,6 @@ import java.util.*;
 @Repository
 public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
 
-    public static final String COMPANY_TAGS = "COMPANY_TAGS";
     @Autowired
     TagRepository tagRepo;
 
@@ -58,88 +56,70 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
     @Autowired
     Neo4jTemplate template;
 
+    @Autowired
+    EngineAdmin engineAdmin;
+
     private Logger logger = LoggerFactory.getLogger(TagDaoNeo4J.class);
 
     public Iterable<Tag> save(Company company, Iterable<TagInputBean> tags) {
 
-        // ToDo: Experimental - figuring out how to batch load tags
-        // Doesnt' update the index so find by name fails
-        Long cTag = null;
-        Map<String, Object> params = new HashMap<>();
-        String cypher = null;
-        String retclause = " return tag0"; // Dynamic return clause - 1 per InputBean
-        int count = 0;
-
-        for (TagInputBean next : tags) {
-            if (cTag == null) {
-                TagNode tn = new TagNode(next);
-                cTag = getCompanyTagManager(company.getId());
-                params.put("cTag", cTag);
-                cypher = "start tagManager=node({cTag}) create unique " +
-                        "tagManager-[:TAG_COLLECTION]->(tag0 {name:\"" + tn.getName() + "\", " +
-                        "code:\"" + tn.getKey() + "\", __type__:\"ab.Tag\"}) ";
-            } else {
-                TagNode tn = new TagNode(next);
-                count++;
-                cypher = cypher + ", " +
-                        "tagManager-[:TAG_COLLECTION]->(tag" + count + " {name:\"" + tn.getName() + "\", " +
-                        "code:\"" + tn.getKey() + "\", __type__:\"ab.Tag\"}) ";
-                retclause = retclause + ", tag" + count;
-            }
-        }
-        if (cypher == null)
-            return null;
-
-        cypher = cypher + retclause;
-        EndResult<Map<String, Object>> r = template.query(cypher, params);
-        Map<String, Object> mapResult = r.single();
-        ArrayList<Tag> returnResult = new ArrayList<>();
-
-        int max = count;
-        for (int i = 0; i < max; i++) {
-            returnResult.add(template.projectTo(mapResult.get("tag" + i), TagNode.class));
-
-        }
-        return returnResult;
+        return null;
     }
 
     public Tag save(Company company, TagInputBean tagInput) {
         // Check exists
         // ToDo: Neo4j2 - don't associate with the company rather a tag node type
-        Tag existingTag = findOne(tagInput.getName(), company.getId());
-        if (existingTag != null)
-            return existingTag;
+        TagNode sourceTag = (TagNode) findOne(tagInput.getName(), company);
+        Node end;
+        if (sourceTag == null) {
+            sourceTag = new TagNode(tagInput);
+            // ToDo: Dynamic properties
 
-        TagNode tagToCreate = new TagNode(tagInput);
-        tagToCreate = tagRepo.save(tagToCreate);
+//            end = template.createUniqueNode(sourceTag);
+            String tagSuffix = engineAdmin.getTagSuffix(company);
 
-        Node end = template.getPersistentState(tagToCreate);
-        Node start = getCompanyTagManagerNode(company.getId());
-        Relationship r = template.getRelationshipBetween(start, end, COMPANY_TAGS);
-        if (r == null)
-            template.createRelationshipBetween(start, end, COMPANY_TAGS, null);
+            String query = "merge (tag:Tag" + tagSuffix + " {code:{code}, name:{name}, key:{key}, __TYPE__:'Tag'})  return tag";
+            Map<String, Object> params = new HashMap<>();
+            params.put("code", sourceTag.getCode());
+            params.put("key", sourceTag.getKey());
+            params.put("name", sourceTag.getName());
+            Result<Map<String, Object>> result = template.query(query, params);
+            Map<String, Object> mapResult = result.singleOrNull();
+            end = (Node) mapResult.get("tag");
+            sourceTag.setId(end.getId());
 
-        Map<String, TagInputBean> tags = tagInput.getAssociatedTags();
-        for (String rlxName : tags.keySet()) {
-            TagInputBean associatedTag = tags.get(rlxName);
-            saveAssociated(company, end, associatedTag, rlxName);
+            //graphDb.createIndex(end., "Tag" + (engineAdmin.isMultiTenanted()? company.getCode():""), IndexType.UNIQUE );
+        } else {
+            end = template.getPersistentState(sourceTag);
         }
-        return tagToCreate;
+
+        Map<String, TagInputBean[]> tags = tagInput.getTargets();
+        for (String rlxName : tags.keySet()) {
+            TagInputBean[] associatedTag = tags.get(rlxName);
+            for (TagInputBean tagInputBean : associatedTag) {
+                saveAssociated(company, end, tagInputBean, rlxName);
+            }
+
+        }
+        return sourceTag;
     }
+
 
     Tag saveAssociated(Company company, Node startNode, TagInputBean associatedTag, String rlxName) {
         Tag tagToCreate = save(company, associatedTag);
         Node endNode = template.getPersistentState(tagToCreate);
-        if (associatedTag.isOutbound())
-            template.createRelationshipBetween(startNode, endNode, rlxName, null);
-        else
+        if (associatedTag.isReverse())
             template.createRelationshipBetween(endNode, startNode, rlxName, null);
+        else
+            template.createRelationshipBetween(startNode, endNode, rlxName, null);
 
         return tagToCreate;
     }
 
     @Cacheable(value = "companyTagManager", unless = "#result == null")
     private Node getCompanyTagManagerNode(Long companyId) {
+        // ToDo: Remove this
+        if (true) return null;
         String query = "start company=node({companyId}) match company-[:TAG_COLLECTION]->ct return ct";
         Map<String, Object> params = new HashMap<>();
         params.put("companyId", companyId);
@@ -148,26 +128,16 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
         return ((Node) mapResult.get("ct"));
     }
 
-    public Long getCompanyTagManager(Long companyId) {
-        return getCompanyTagManagerNode(companyId).getId();
-    }
-
     @Override
-    public void deleteCompanyRelationship(Company company, Tag tag) {
-        Node coTags = getCompanyTagManagerNode(company.getId());
-        Node tagNode = template.getNode(tag.getId());
-        template.deleteRelationshipBetween(coTags, tagNode, COMPANY_TAGS);
-    }
-
-    @Override
-    public Collection<Tag> findDirectedTags(Tag startTag, long companyId, boolean b) {
-        Long coTags = getCompanyTagManager(companyId);
-        String query = "start tag=node({tagId}), coTags=node({coTags}) " +
-                " match tag-->otherTags<--coTags" +
-                "       return otherTags";
+    public Collection<Tag> findDirectedTags(Tag startTag, Company company, boolean b) {
+        //Long coTags = getCompanyTagManager(companyId);
+        //"MATCH audit<-[tagType]-(tag:Tag"+engineAdmin.getTagSuffix(company)+") " +
+        String query = "start tag=node({tagId}) " +
+                " match tag-->(otherTag:Tag" + engineAdmin.getTagSuffix(company) + ") " +
+                "       return otherTag";
         Map<String, Object> params = new HashMap<>();
         params.put("tagId", startTag.getId());
-        params.put("coTags", coTags);
+        //params.put("coTags", coTags);
         Result<Map<String, Object>> result = template.query(query, params);
 
         if (!((Result) result).iterator().hasNext())
@@ -179,40 +149,28 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
 
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
-            results.add(template.projectTo(row.get("otherTags"), TagNode.class));
+            results.add(new TagNode((Node) row.get("otherTag")));
         }
         //
         return results;
     }
 
-    /**
-     * each company has exactly one companyTagCollection to which each tag is associated.
-     * this method should be called whenever a company is created.
-     *
-     * @param companyId         company PK
-     * @param tagCollectionName name to know this by
-     * @return pk of the tag manager.
-     */
-    public Long createCompanyTagManager(Long companyId, String tagCollectionName) {
-        assert (tagCollectionName != null);
-        String query = "start company=node({companyId}) " +
-                "       create unique company-[:TAG_COLLECTION]->(ct {name:{tagName}}) " +
-                "       return ct";
-        Map<String, Object> params = new HashMap<>();
-        params.put("companyId", companyId);
-        params.put("tagName", tagCollectionName + " Tags");
-        Result<Map<String, Object>> result = template.query(query, params);
-        Map<String, Object> mapResult = result.single();
-        return ((Node) mapResult.get("ct")).getId();
-    }
-
     @Override
     @Cacheable(value = "companyTag", unless = "#result == null")
-    public Tag findOne(String tagName, Long companyId) {
-        if (tagName == null || companyId == null)
+    public Tag findOne(String tagName, Company company) {
+        if (tagName == null || company == null)
             throw new IllegalArgumentException("Null can not be used to find a tag ");
-        Tag tag = tagRepo.findCompanyTagByKey(companyId, tagName.toLowerCase().replaceAll("\\s", ""));
-        return tag;
+
+        String query = "match (tag:Tag" + (engineAdmin.isMultiTenanted() ? company.getCode() : "") + ") where tag.key ={tagKey} return tag";
+        Map<String, Object> params = new HashMap<>();
+        params.put("tagKey", tagName.toLowerCase().replaceAll("\\s", "")); // ToDo- formula to static method
+        Result<Map<String, Object>> result = template.query(query, params);
+        Map<String, Object> mapResult = result.singleOrNull();
+        if (mapResult != null)
+            return new TagNode((Node) mapResult.get("tag"));
+        else
+            return null;
+
     }
 
     @Cacheable(value = "companyDocType", unless = "#result == null")

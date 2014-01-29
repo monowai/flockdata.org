@@ -92,8 +92,8 @@ public class CompanyDaoNeo implements CompanyDao {
     }
 
     @Override
-    public Iterable<CompanyUser> getCompanyUsers(String companyName) {
-        return companyRepo.getCompanyUsers(companyName);
+    public Iterable<CompanyUser> getCompanyUsers(Long companyId) {
+        return companyRepo.getCompanyUsers(companyId);
     }
 
     @Override

@@ -20,6 +20,7 @@
 package com.auditbucket.registration.service;
 
 
+import com.auditbucket.engine.service.EngineAdmin;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.CompanyUser;
@@ -48,6 +49,8 @@ public class CompanyService {
     @Autowired
     private TagService tagService;
 
+    @Autowired
+    private EngineAdmin engineAdmin;
 
     public Company findByName(String companyName) {
         return companyDao.findByPropertyValue("name", companyName);
@@ -62,8 +65,8 @@ public class CompanyService {
 
     }
 
-    public CompanyUser getCompanyUser(String companyName, String userName) {
-        Company company = findByName(companyName);
+    public CompanyUser getCompanyUser(String userName) {
+        Company company = securityHelper.getCompany();
         if (company == null)
             return null;
         return companyDao.getCompanyUser(company.getId(), userName);
@@ -75,8 +78,9 @@ public class CompanyService {
         return companyDao.getFortressByName(company, fortressName);
     }
 
-    public Iterable<CompanyUser> getUsers(String companyName) {
-        return companyDao.getCompanyUsers(companyName);
+    public Iterable<CompanyUser> getUsers() {
+        Company company = securityHelper.getCompany();
+        return companyDao.getCompanyUsers(company.getId());
     }
 
 
@@ -96,7 +100,7 @@ public class CompanyService {
 
     public Company save(String companyName) {
         Company company = companyDao.create(companyName, keyGenService.getUniqueKey());
-        tagService.createCompanyTagManager(company.getId(), companyName);
+        engineAdmin.createTagIndex(company);
         return company;
     }
 

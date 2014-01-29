@@ -34,20 +34,17 @@ public class CompanyUserNode implements CompanyUser {
     @GraphId
     Long id;
 
-    @Indexed(indexName = "companyUserName")
+    @Indexed
     private String name = null;
 
-    @RelatedTo(elementClass = CompanyNode.class, type = "works", direction = Direction.OUTGOING)
-    private
-    Company company;
-
-//    @RelatedTo (elementClass = SystemUserNode.class, type ="isA", direction = Direction.INCOMING)
-//    private SystemUser systemUser;
+    @RelatedTo(elementClass = CompanyNode.class, type = "WORKS", direction = Direction.OUTGOING)
+    private Company company;
 
     protected CompanyUserNode() {
     }
 
     public CompanyUserNode(String name, Company company) {
+        this();
         setName(name);
         setCompany(company);
     }

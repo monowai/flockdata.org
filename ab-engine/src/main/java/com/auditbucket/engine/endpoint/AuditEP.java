@@ -103,7 +103,7 @@ public class AuditEP {
         createHeadersF(inputBeans, false);
     }
 
-    public void createHeadersF(AuditHeaderInputBean[] inputBeans, boolean waitForFinish) throws AuditException {
+    public Future<Integer> createHeadersF(AuditHeaderInputBean[] inputBeans, boolean waitForFinish) throws AuditException {
         Company company = auditManager.resolveCompany(inputBeans[0].getApiKey());
         Fortress fortress = auditManager.resolveFortress(company, inputBeans[0], true);
         boolean async = true;
@@ -114,8 +114,9 @@ public class AuditEP {
             Future<Integer> am = auditManager.createHeadersAsync(inputBeans, company, fortress);
             if (waitForFinish)
                 while (!am.isDone()) {
-                    //
+                    Thread.yield();
                 }
+            return am;
 
         } else {
 
@@ -123,6 +124,7 @@ public class AuditEP {
                 auditManager.createHeader(inputBean, company, fortress, true);
             }
         }
+        return null;
     }
 
     /**

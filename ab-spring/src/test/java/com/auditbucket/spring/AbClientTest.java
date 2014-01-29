@@ -1,6 +1,6 @@
 package com.auditbucket.spring;
 
-import com.auditbucket.helper.AbExporter;
+import com.auditbucket.client.AbRestClient;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -8,7 +8,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class AbClientTest extends AbstractABTest {
     @Autowired
-    AbExporter abClient;
+    AbRestClient abClient;
 
     @Test
     public void testStart() {

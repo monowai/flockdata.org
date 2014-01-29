@@ -25,7 +25,9 @@ import com.auditbucket.dao.AuditTagDao;
 import com.auditbucket.dao.TagDao;
 import com.auditbucket.engine.repo.neo4j.model.AuditHeaderNode;
 import com.auditbucket.engine.repo.neo4j.model.AuditTagRelationship;
+import com.auditbucket.engine.service.EngineAdmin;
 import com.auditbucket.helper.AuditException;
+import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.repo.neo4j.model.TagNode;
 import com.auditbucket.registration.service.TagService;
@@ -110,7 +112,7 @@ public class AuditTagDaoNeo implements AuditTagDao {
 
             Relationship r = template.getRelationship(tag.getId());
             r.delete();
-            tagDao.deleteCompanyRelationship(auditHeader.getFortress().getCompany(), tag.getTag());
+            //tagDao.deleteCompanyRelationship(auditHeader.getFortress().getCompany(), tag.getTag());
             template.getNode(tag.getTag().getId()).delete();
         }
     }
@@ -161,20 +163,23 @@ public class AuditTagDaoNeo implements AuditTagDao {
 
     }
 
+    @Autowired
+    EngineAdmin engineAdmin;
 
     @Override
-    public Set<AuditTag> getAuditTags(AuditHeader auditHeader, Long companyId) {
-        Long cTagId = tagService.getCompanyTagManager(companyId);
-        String query = "start audit=node({auditId}), cTag=node({cTagId}) " +
-                "MATCH audit<-[tagType]-(tag)<--cTag " +
+    public Set<AuditTag> getAuditTags(AuditHeader auditHeader, Company company) {
+        String query = "start audit=node({auditId}) " +
+                "MATCH audit<-[tagType]-(tag:Tag" + engineAdmin.getTagSuffix(company) + ") " +
                 "return tag, tagType";
 
         Map<String, Object> params = new HashMap<>();
         params.put("auditId", auditHeader.getId());
-        params.put("cTagId", cTagId);
+
         Set<AuditTag> tagResults = new HashSet<>();
         for (Map<String, Object> row : template.query(query, params)) {
-            TagNode tag = template.projectTo(row.get("tag"), TagNode.class);
+            Node n = (Node) row.get("tag");
+            TagNode tag = new TagNode(n);
+            //TagNode tag = template.projectTo(row.get("tag"), TagNode.class);
             //TagNode tag = template.convert(row.get("tag"), TagNode.class);
             Relationship relationship = template.convert(row.get("tagType"), Relationship.class);
 
