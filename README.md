@@ -1,6 +1,9 @@
 [auditbucket](http://auditbucket.com) - Data Profiling Service
 ===========
 
+## Project Status
+We're at 0.90 and very close to being feature frozen. Code and API are stable with only a few changes to the way tags are handled.  Master now supports Neo4j2. There is a Neo4j19 branch if you prefer. Data migration between versions is not guaranteed until we hit 1.0.
+
 ## Executive Summary
 Track, Find, Kompare and Explore
 
@@ -23,11 +26,6 @@ AB leans on the brilliant work being done by the open-source community. The open
 
 ## Licensing
 AuditBucket is an open source product. We support a Community edition under the GPLv3 license. The Enterprise edition is available under the AGPLv3 license for open source projects otherwise under a commercial license by contacting [the Bucketeers](http://auditbucket.com/contact-auditbucket/). Talk to us about clustering as there may be costs involved.
-
-## Project Status
-We're at 0.90. and very close to being feature frozen. Code and API are stable.  Service is likely to evolve to support various deployment configurations only. Version 1.0 will be released early next year on Neo4J 2.0 (currently running on 1.9) and ElasticSearch 1.0. Unless demand requires it, we won't be guaranteeing an upgrade path from 0.90 to 1.0. From 1.0 on upgrades will be fully supported. Let’s see what happens.
-
-We will be introducing Riak as an alternative KV Store to REDIS shortly. It will be configurable as to which you choose to use. Again, data will not be migrated.
 
 ## Working with us
 More details? Stuck? Integration assistance? General consulting? Want to get started at the [speed of business](http://www.adamalthus.com/blog/2013/06/05/cloud-computing-and-complexity/#more-890)? 
