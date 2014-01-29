@@ -78,7 +78,7 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
 //            end = template.createUniqueNode(sourceTag);
             String tagSuffix = engineAdmin.getTagSuffix(company);
 
-            String query = "create (tag:Tag" + tagSuffix + " {code:{code}, name:{name}, key:{key}, __TYPE__:'Tag'})  return tag";
+            String query = "merge (tag:Tag" + tagSuffix + " {code:{code}, name:{name}, key:{key}, __TYPE__:'Tag'})  return tag";
             Map<String, Object> params = new HashMap<>();
             params.put("code", sourceTag.getCode());
             params.put("key", sourceTag.getKey());

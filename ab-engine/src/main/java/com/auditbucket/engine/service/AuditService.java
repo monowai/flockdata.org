@@ -481,13 +481,11 @@ public class AuditService {
         auditDAO.save(auditHeader);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public AuditLog getLastAuditLog(String headerKey) throws AuditException {
         AuditHeader ah = getValidHeader(headerKey);
         return getLastAuditLog(ah);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public AuditLog getLastAuditLog(AuditHeader auditHeader) {
         return auditDAO.getLastAuditLog(auditHeader.getId());
     }

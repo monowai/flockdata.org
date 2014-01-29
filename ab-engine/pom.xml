@@ -197,13 +197,12 @@
             <artifactId>jersey-servlet</artifactId>
             <version>1.18</version>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>org.neo4j.app</groupId>-->
-        <!--<artifactId>neo4j-server</artifactId>-->
-        <!--<version>${neo4j.version}</version>-->
-        <!--<classifier>static-web</classifier>-->
+        <dependency>
+            <groupId>org.neo4j.app</groupId>
+            <artifactId>neo4j-server</artifactId>
+            <version>${neo4j.version}</version>
 
-        <!--</dependency>-->
+        </dependency>
 
         <dependency>
             <groupId>org.neo4j.app</groupId>

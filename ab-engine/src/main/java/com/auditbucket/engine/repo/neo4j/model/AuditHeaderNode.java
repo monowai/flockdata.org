@@ -47,7 +47,7 @@ import java.util.TimeZone;
  * Time: 10:56 AM
  */
 @NodeEntity(useShortNames = true)
-@TypeAlias("Audit")
+@TypeAlias("AuditHeader")
 public class AuditHeaderNode implements AuditHeader {
 
     @Indexed(indexName = UUID_KEY)

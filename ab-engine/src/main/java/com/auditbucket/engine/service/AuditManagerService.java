@@ -160,6 +160,7 @@ public class AuditManagerService {
             watch.stop();
         } catch (Exception e) {
             logger.error("Async Header error", e);
+            throw new AuditException("Async error progressing Headers", e);
         }
         logger.info("Completed Batch [{}] - secs= {}, RPS={}", id, f.format(watch.getTotalTimeSeconds()), f.format(inputBeans.length / watch.getTotalTimeSeconds()));
         return new AsyncResult<>(processCount);

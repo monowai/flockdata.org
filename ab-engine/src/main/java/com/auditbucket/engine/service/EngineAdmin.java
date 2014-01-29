@@ -88,6 +88,9 @@ public class EngineAdmin {
 
     @Async
     public void createTagIndex(Company company) {
+        //template.query("create index on (t:Tag" + getTagSuffix(company) + ")", null) ;
+        // Performance issue with constraints?
+        logger.info("MutilTennant suffix = [" + getTagSuffix(company) + "]");
         template.query("create constraint on (t:Tag" + getTagSuffix(company) + ") assert t.key is unique", null);
     }
 
