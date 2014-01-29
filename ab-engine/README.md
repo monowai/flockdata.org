@@ -46,7 +46,7 @@ While this all looks rather technical, it is simply a matter of getting the WAR 
 If you just want to evaluate and are pressed for time, then run ab-engine straight from the ab-engine/target folder with the following command
 ```
 $ cd ab-engine/target
-$ java -jar ab-engine-0.90-BUILD-SNAPSHOT-war-exec.jar -Dneo4j=java -Dab.integration=http -httpPort=8080 -Dab.config=./classes/config.properties -Dlog4j.configuration=file:./classes/log4j.xml
+$ java -jar ab-engine-0.91-BUILD-SNAPSHOT-war-exec.jar -Dneo4j=java -Dab.integration=http -httpPort=8080 -Dab.config=./classes/config.properties -Dlog4j.configuration=file:./classes/log4j.xml
 ```
 
 Deploy in TomCat or whatever be your favourite container. Maven will build an executable tomcat 7 package for you that you can run from the Java command line. We will assume that you are going to deploy the WAR to TC7 via your IDE.

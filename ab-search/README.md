@@ -26,7 +26,7 @@ While this all looks rather technical, it is simply a matter of getting the WAR 
 If you're pressed for time and just want to see thing going, then you can run ab-search straight from the command line
 ```
 $ cd ab-search/target
-$ java -jar ab-search-0.90-BUILD-SNAPSHOT-war-exec.jar -Dneo4j=java -Dab.integration=http -httpPort=8081 -Dab.config=./classes/config.properties -Dlog4j.configuration=file:./classes/log4j.xml
+$ java -jar ab-search-0.91-BUILD-SNAPSHOT-war-exec.jar -Dneo4j=java -Dab.integration=http -httpPort=8081 -Dab.config=./classes/config.properties -Dlog4j.configuration=file:./classes/log4j.xml
 ```
 
 We assume you've read the all important [ab-engine](../ab-engine) container section. Here you can either run a seperate TC instance, on port 8081 in this example, or you could deploy it in a seperate application context on the same TC instance.

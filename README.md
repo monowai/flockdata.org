@@ -2,7 +2,9 @@
 ===========
 
 ## Project Status
-We're at 0.90 and very close to being feature frozen. Code and API are stable with only a few changes to the way tags are handled.  Master now supports Neo4j2. There is a Neo4j19 branch if you prefer. Data migration between versions is not guaranteed until we hit 1.0.
+We're at 0.91 and very close to being feature frozen. Code and API are stable with only a few changes to the way tags are handled.  Master now supports Neo4j2. There is a Neo4j19 branch if you prefer. Data migration between versions is not guaranteed until we hit 1.0.
+
+While we are supporting Neo4j2 this code should be considered experimental until the SDN4J team finalise their release.
 
 ## Executive Summary
 Track, Find, Kompare and Explore
