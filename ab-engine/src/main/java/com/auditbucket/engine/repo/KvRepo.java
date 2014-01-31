@@ -14,4 +14,6 @@ public interface KvRepo {
     public byte[] getValue(AuditHeader auditHeader, Long key);
 
     public void delete(AuditHeader auditHeader, Long key);
+
+    String ping();
 }

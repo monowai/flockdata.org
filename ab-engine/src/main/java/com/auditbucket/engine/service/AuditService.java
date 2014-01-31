@@ -176,7 +176,7 @@ public class AuditService {
 
         AuditHeader ah = auditDAO.findHeader(key, inflate);
         if (ah == null)
-            throw new IllegalArgumentException("Unable to find key [" + key + "]");
+            throw new IllegalArgumentException("Unable to resolve requested audit key [" + key + "]");
 
         if (!(ah.getFortress().getCompany().getId().equals(su.getCompany().getId())))
             throw new SecurityException("CompanyNode mismatch. [" + su.getName() + "] working for [" + su.getCompany().getName() + "] cannot write audit records for [" + ah.getFortress().getCompany().getName() + "]");
@@ -547,9 +547,9 @@ public class AuditService {
             auditHeader = auditDAO.save(auditHeader);
             whatService.delete(auditHeader, currentChange);
             auditDAO.delete(currentChange);
-        } else if ( currentChange!=null ){
-        // No changes left, there is now just a header
-        // What to to? Delete the auditHeader? Store the "canceled By" User? Assign the log to a Cancelled RLX?
+        } else if (currentChange != null) {
+            // No changes left, there is now just a header
+            // What to to? Delete the auditHeader? Store the "canceled By" User? Assign the log to a Cancelled RLX?
             // ToDo: Delete from ElasticSearch??
             auditHeader.setLastUser(fortressService.getFortressUser(auditHeader.getFortress(), auditHeader.getCreatedBy().getCode()));
             auditHeader = auditDAO.save(auditHeader);
@@ -698,8 +698,10 @@ public class AuditService {
         return auditDAO.getAuditLogs(headerId);
     }
 
-    public AuditSummaryBean getAuditSummary(String auditKey) {
+    public AuditSummaryBean getAuditSummary(String auditKey) throws AuditException {
         AuditHeader header = getHeader(auditKey, true);
+        if ( header == null )
+            throw new AuditException("Invalid Audit Key ["+auditKey+"]");
         Set<AuditLog> changes = getAuditLogs(header.getId());
         Set<AuditTag> tags = auditTagService.findAuditTags(header);
         return new AuditSummaryBean(header, changes, tags);
@@ -734,6 +736,12 @@ public class AuditService {
 
     }
 
+    public AuditLog getLastLog(AuditHeader audit) throws AuditException {
+//        AuditHeader audit = getValidHeader(auditKey);
+        return getLastLog(audit.getId());
+
+    }
+
     public AuditLogDetailBean getFullDetail(String auditKey, Long logId) {
         AuditHeader auditHeader = getHeader(auditKey, true);
         if (auditHeader == null)
@@ -743,6 +751,19 @@ public class AuditService {
         auditDAO.fetch(log.getAuditChange());
         AuditWhat what = whatService.getWhat(auditHeader, log.getAuditChange());
         return new AuditLogDetailBean(log, what);
+    }
+
+    public AuditLog getAuditLog(AuditHeader header, Long logId) {
+        if (header != null) {
+
+            AuditLog log = auditDAO.getLog(logId);
+            if (!log.getAuditHeader().getId().equals(header.getId()))
+                return null;
+
+            auditDAO.fetch(log.getAuditChange());
+            return log;
+        }
+        return null;
     }
 
 

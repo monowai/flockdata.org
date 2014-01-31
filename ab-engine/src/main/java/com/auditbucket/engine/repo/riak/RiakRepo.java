@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Date;
 
 @Component
 public class RiakRepo implements KvRepo {
@@ -28,5 +29,13 @@ public class RiakRepo implements KvRepo {
 
     public void delete(AuditHeader auditHeader, Long key) {
         riak.delete(auditHeader.getIndexName(), key);
+    }
+
+    @Override
+    public String ping() {
+        riak.setIfKeyNonExistent("ab.ping", "ping", new Date());
+        riak.delete("ab.ping", "ping");
+        return "Riak is OK";
+
     }
 }

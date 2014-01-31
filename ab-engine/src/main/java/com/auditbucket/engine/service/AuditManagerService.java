@@ -319,7 +319,7 @@ public class AuditManagerService {
         return skipCount;
     }
 
-    public AuditSummaryBean getAuditSummary(String auditKey) {
+    public AuditSummaryBean getAuditSummary(String auditKey) throws AuditException {
         AuditSummaryBean summary = auditService.getAuditSummary(auditKey);
         return summary;
     }

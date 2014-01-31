@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
+
 @Component
 public class RedisRepo implements KvRepo {
 
@@ -22,5 +24,13 @@ public class RedisRepo implements KvRepo {
 
     public void delete(AuditHeader auditHeader, Long key) {
         template.opsForValue().getOperations().delete(key);
+    }
+
+    @Override
+    public String ping() {
+        Date when = new Date();
+        template.opsForValue().setIfAbsent(-99999l, when.toString().getBytes());
+        template.opsForValue().getOperations().delete(-99999l);
+        return "Redis is OK";
     }
 }

@@ -128,6 +128,7 @@ public class EngineConfig {
         healthResults.put("config-file", config);
         String integration = System.getProperty("ab.integration");
         healthResults.put("ab.integration", integration);
+        healthResults.put("abengine.kvStore", String.valueOf(kvStore));
 
         //healthResults.put("ab.multiTenanted", multiTenanted.toString());
         if ("http".equalsIgnoreCase(integration)) {

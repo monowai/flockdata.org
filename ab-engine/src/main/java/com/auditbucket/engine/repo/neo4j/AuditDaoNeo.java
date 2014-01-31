@@ -84,7 +84,7 @@ public class AuditDaoNeo implements AuditDao {
     @Override
     public AuditHeader findHeader(String key, boolean inflate) {
         AuditHeader header = getCachedHeader(key);
-        if (inflate) {
+        if (inflate && header !=null) {
             fetch(header);
         }
         return header;

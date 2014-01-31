@@ -27,6 +27,11 @@ import java.io.IOException;
 @Transactional
 public class WhatService {
 
+    public String ping() {
+        KvRepo repo = getKvRepo();
+        return repo.ping();
+    }
+
     public enum KV_STORE {REDIS, RIAK}
     private static final ObjectMapper om = new ObjectMapper();
     @Autowired(required = false)
@@ -61,8 +66,14 @@ public class WhatService {
         return change.getWhat().getId();
     }
 
+    private KvRepo getKvRepo(){
+        return getKvRepo(String.valueOf(engineAdmin.getKvStore()));
+    }
     private KvRepo getKvRepo(AuditChange change) {
-        String kvStore = change.getWhatStore();
+        return getKvRepo(change.getWhatStore());
+    }
+
+    private KvRepo getKvRepo(String kvStore){
         if (kvStore.equalsIgnoreCase(String.valueOf(KV_STORE.REDIS))) {
             return redisRepo;
         } else if (kvStore.equalsIgnoreCase(String.valueOf(KV_STORE.RIAK))) {
@@ -70,8 +81,8 @@ public class WhatService {
         } else {
             throw new IllegalStateException("The only supported KV Stores supported are redis & riak");
         }
-    }
 
+    }
     public AuditWhat getWhat(AuditHeader auditHeader, AuditChange change) {
         if (change == null || change.getWhat() == null)
             return null;
