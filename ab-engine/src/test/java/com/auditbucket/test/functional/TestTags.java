@@ -20,7 +20,7 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.model.DocumentType;
-import com.auditbucket.engine.service.EngineAdmin;
+import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.SystemUser;
@@ -67,7 +67,7 @@ public class TestTags {
     TagService tagService;
 
     @Autowired
-    EngineAdmin engineAdmin;
+    EngineConfig engineAdmin;
 
 
     @Autowired

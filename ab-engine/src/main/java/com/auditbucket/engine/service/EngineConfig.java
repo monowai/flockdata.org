@@ -43,7 +43,7 @@ import java.util.Map;
  */
 @Service
 @Transactional
-public class EngineAdmin {
+public class EngineConfig {
 
     @Autowired
     AuditDao auditDAO;
@@ -54,9 +54,10 @@ public class EngineAdmin {
 
     private String rabbitPort;
 
-    private Logger logger = LoggerFactory.getLogger(EngineAdmin.class);
+    private Logger logger = LoggerFactory.getLogger(EngineConfig.class);
 
     private Boolean multiTenanted = false;
+    private WhatService.KV_STORE kvStore =null;
 
     @Value("${rabbit.host:@null}")
     protected void setRabbitHost(String rabbitHost) {
@@ -81,6 +82,22 @@ public class EngineAdmin {
     @Value("${abengine.multiTenanted:@null}")
     protected void setMultiTenanted(String multiTenanted) {
         this.multiTenanted = !"@null".equals(multiTenanted) && Boolean.parseBoolean(multiTenanted);
+    }
+
+    @Value("${abengine.kvStore}")
+    public void setKvStore (String kvStore){
+        if ("@null".equals(kvStore) || kvStore.equalsIgnoreCase("redis"))
+            this.kvStore = WhatService.KV_STORE.REDIS;
+        else if ( kvStore.equalsIgnoreCase("riak"))
+            this.kvStore = WhatService.KV_STORE.RIAK;
+        else {
+            logger.error("Unable to resolve the abengine.kvstore property [" + kvStore +"]. Defaulting to REDIS");
+        }
+
+    }
+
+    public WhatService.KV_STORE getKvStore() {
+        return kvStore;
     }
 
     @Autowired

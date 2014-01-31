@@ -22,7 +22,7 @@ package com.auditbucket.registration.repo.neo4j.dao;
 import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.engine.repo.neo4j.DocumentTypeRepo;
 import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
-import com.auditbucket.engine.service.EngineAdmin;
+import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
@@ -57,7 +57,7 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
     Neo4jTemplate template;
 
     @Autowired
-    EngineAdmin engineAdmin;
+    EngineConfig engineAdmin;
 
     private Logger logger = LoggerFactory.getLogger(TagDaoNeo4J.class);
 

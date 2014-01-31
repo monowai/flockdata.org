@@ -20,7 +20,7 @@
 package com.auditbucket.registration.service;
 
 
-import com.auditbucket.engine.service.EngineAdmin;
+import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.CompanyUser;
@@ -50,7 +50,7 @@ public class CompanyService {
     private TagService tagService;
 
     @Autowired
-    private EngineAdmin engineAdmin;
+    private EngineConfig engineAdmin;
 
     public Company findByName(String companyName) {
         return companyDao.findByPropertyValue("name", companyName);

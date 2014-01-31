@@ -134,6 +134,11 @@ public class AuditDaoNeo implements AuditDao {
     }
 
     @Override
+    public void delete(AuditChange currentChange) {
+        auditLogRepo.delete((AuditChangeNode)currentChange);
+    }
+
+    @Override
     public TxRef findTxTag(@NotEmpty String userTag, @NotNull Company company, boolean fetchHeaders) {
         return auditRepo.findTxTag(userTag, company.getId());
     }

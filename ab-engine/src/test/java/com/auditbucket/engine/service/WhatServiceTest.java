@@ -50,12 +50,17 @@ public class WhatServiceTest extends AbstractRedisSupport {
     AuditDao auditDAO;
     @Autowired
     private WhatService whatService;
+
+    @Autowired
+    private EngineConfig engineConfig;
+
     private String email = "test@ab.com";
     private Authentication authA = new UsernamePasswordAuthenticationToken(email, "user1");
 
     @Test
-    public void testLogWhat() throws Exception {
+    public void whatLogFromRedis() throws Exception {
         //Given
+        engineConfig.setKvStore("REDIS");
         SecurityContextHolder.getContext().setAuthentication(authA);
         regService.registerSystemUser(new RegistrationBean("Company", email, "bah"));
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("Audit Test", true));
@@ -74,40 +79,78 @@ public class WhatServiceTest extends AbstractRedisSupport {
         AuditLog auditLog = auditDAO.getLastAuditLog(header.getId());
 
         assertNotNull(auditLog);
-        byte[] whatInfos = redisRepo.getValue(auditLog.getAuditChange().getId());
+        byte[] whatInfos = redisRepo.getValue(header,auditLog.getAuditChange().getId());
         String whatDecompressed = CompressionHelper.decompress(whatInfos, false);
         Assert.assertNotNull(whatInfos);
         String whatExpected = "{\"blah\":" + 1 + "}";
         Assert.assertEquals(whatDecompressed, whatExpected);
+        auditService.cancelLastLogSync(ahKey);
+        Assert.assertNull(auditService.getLastAuditLog(header));
+        Assert.assertNull(whatService.getWhat(header, auditLog.getAuditChange()).getWhat());
+
     }
 
     @Test
-    public void testGetWhat() throws Exception {
-        //Given
+    public void getWhatFromRedis() throws Exception {
+        engineConfig.setKvStore("REDIS");
         SecurityContextHolder.getContext().setAuthentication(authA);
         regService.registerSystemUser(new RegistrationBean("Company", email, "bah"));
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("Audit Test", true));
         String docType = "TestAuditX";
-        String callerRef = "ABC123X";
+        String callerRef = "ABC123Z";
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
 
         String ahKey = auditManager.createHeader(inputBean).getAuditKey();
         assertNotNull(ahKey);
         AuditHeader header = auditService.getHeader(ahKey);
-        auditManager.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + 1 + "}"));
+        auditManager.createLog(header, new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + 1 + "}"));
         AuditLog auditLog = auditDAO.getLastAuditLog(header.getId());
         assertNotNull(auditLog);
 
         //When
-        AuditWhat auditWhat = whatService.getWhat(auditLog.getAuditChange());
-
+        AuditWhat auditWhat = whatService.getWhat(header, auditLog.getAuditChange());
 
         //Then
         Assert.assertNotNull(auditWhat);
         String whatExpected = "{\"blah\":" + 1 + "}";
         Assert.assertEquals(auditWhat.getWhat(), whatExpected);
+        Assert.assertTrue(whatService.isSame(header, auditLog.getAuditChange(), whatExpected));
+        auditService.cancelLastLogSync(ahKey);
+        Assert.assertNull(auditService.getLastAuditLog(header));
+        Assert.assertNull(whatService.getWhat(header, auditLog.getAuditChange()).getWhat());
     }
 
+    @Test
+    public void getWhatFromRiak() throws Exception {
+        engineConfig.setKvStore("RIAK");
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        regService.registerSystemUser(new RegistrationBean("Company", email, "bah"));
+        Fortress fortressA = fortressService.registerFortress(new FortressInputBean("Audit Test", true));
+        String docType = "TestAuditX";
+        String callerRef = "ABC123R";
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
+
+        String ahKey = auditManager.createHeader(inputBean).getAuditKey();
+        assertNotNull(ahKey);
+        AuditHeader header = auditService.getHeader(ahKey);
+        auditManager.createLog(header, new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + 1 + "}"));
+        AuditLog auditLog = auditDAO.getLastAuditLog(header.getId());
+        assertNotNull(auditLog);
+
+        //When
+        AuditWhat auditWhat = whatService.getWhat(header, auditLog.getAuditChange());
+
+        //Then
+        Assert.assertNotNull(auditWhat);
+        String whatExpected = "{\"blah\":" + 1 + "}";
+        Assert.assertEquals(auditWhat.getWhat(), whatExpected);
+        Assert.assertTrue(whatService.isSame(header, auditLog.getAuditChange(), whatExpected));
+        // Testing that cancel works
+        auditService.cancelLastLogSync(ahKey);
+        Assert.assertNull(auditService.getLastAuditLog(header));
+        Assert.assertNull(whatService.getWhat(header, auditLog.getAuditChange()).getWhat());
+
+    }
     @Test
     public void testIsSame() throws Exception {
 

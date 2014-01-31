@@ -27,7 +27,7 @@ import com.auditbucket.audit.model.TxRef;
 import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.engine.service.AuditTagService;
-import com.auditbucket.engine.service.EngineAdmin;
+import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
@@ -63,7 +63,7 @@ public class AuditEP {
     AuditService auditService;
 
     @Autowired
-    EngineAdmin auditAdmin;
+    EngineConfig auditAdmin;
 
     @Autowired
     AuditManagerService auditManager;

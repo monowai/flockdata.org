@@ -100,8 +100,8 @@ public class AuditService {
     @Autowired
     private KeyGenService keyGenService;
 
-    public AuditWhat getWhat(AuditChange change) {
-        return whatService.getWhat(change);
+    public AuditWhat getWhat(AuditHeader auditHeader, AuditChange change) {
+        return whatService.getWhat(auditHeader, change);
     }
 
 
@@ -250,10 +250,8 @@ public class AuditService {
         DateTime fortressWhen = (input.getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(input.getWhen()));
 
         if (existingLog != null) {
-            // Neo4j won't store the map, so we store the raw escaped JSON text
             try {
-                // KVStore.getWhat()
-                if (whatService.isSame(existingLog.getAuditChange(), input.getWhat())) {
+                if (whatService.isSame(auditHeader, existingLog.getAuditChange(), input.getWhat())) {
                     logger.trace("Ignoring a change we already have {}", input);
                     input.setStatus(AuditLogInputBean.LogStatus.IGNORE);
                     if (input.isForceReindex()) { // Caller is recreating the search index
@@ -292,10 +290,10 @@ public class AuditService {
         AuditChange thisChange = auditDAO.save(thisFortressUser, input, txRef, existingChange);
         int version = 0;
         if (existingChange != null) {
-            version = whatService.getWhat(existingChange).getVersion();
+            version = whatService.getWhat(auditHeader, existingChange).getVersion();
         }
 
-        whatService.logWhat(thisChange, input.getWhat(), version);
+        whatService.logWhat(auditHeader, thisChange, input.getWhat(), version);
 
         AuditLog newLog = auditDAO.addLog(auditHeader, thisChange, fortressWhen);
         boolean moreRecent = (existingChange == null || existingLog.getFortressWhen() <= newLog.getFortressWhen());
@@ -547,11 +545,17 @@ public class AuditService {
             auditDAO.fetch(priorChange);
             auditHeader.setLastUser(fortressService.getFortressUser(auditHeader.getFortress(), priorChange.getWho().getCode()));
             auditHeader = auditDAO.save(auditHeader);
-        } //else {
-        // No changes left
+            whatService.delete(auditHeader, currentChange);
+            auditDAO.delete(currentChange);
+        } else if ( currentChange!=null ){
+        // No changes left, there is now just a header
         // What to to? Delete the auditHeader? Store the "canceled By" User? Assign the log to a Cancelled RLX?
-        //}
-
+            // ToDo: Delete from ElasticSearch??
+            auditHeader.setLastUser(fortressService.getFortressUser(auditHeader.getFortress(), auditHeader.getCreatedBy().getCode()));
+            auditHeader = auditDAO.save(auditHeader);
+            whatService.delete(auditHeader, currentChange);
+            auditDAO.delete(currentChange);
+        }
 
         if (priorChange == null)
             // Nothing to index, no changes left so we're done
@@ -560,7 +564,7 @@ public class AuditService {
         // Sync the update to ab-search.
         if (auditHeader.getFortress().isSearchActive() && !auditHeader.isSearchSuppressed()) {
             // Update against the Audit Header only by re-indexing the search document
-            Map<String, Object> priorWhat = whatService.getWhat(priorChange).getWhatMap();
+            Map<String, Object> priorWhat = whatService.getWhat(auditHeader, priorChange).getWhatMap();
             AuditSearchChange searchDocument = new AuditSearchChange(auditHeader, priorWhat, priorChange.getEvent().getCode(), new DateTime(priorChange.getAuditLog().getFortressWhen()));
             searchDocument.setTags(auditTagService.findAuditTags(auditHeader));
             searchGateway.makeChangeSearchable(searchDocument);
@@ -583,7 +587,7 @@ public class AuditService {
                 // Update against the Audit Header only by re-indexing the search document
                 Map<String, Object> lastWhat;
                 if (lastChange != null)
-                    lastWhat = whatService.getWhat(lastChange).getWhatMap();
+                    lastWhat = whatService.getWhat(auditHeader, lastChange).getWhatMap();
                 else
                     return; // ToDo: fix reindex header only scenario, i.e. no "change/what"
 
@@ -731,13 +735,13 @@ public class AuditService {
     }
 
     public AuditLogDetailBean getFullDetail(String auditKey, Long logId) {
-        AuditHeader header = getHeader(auditKey, true);
-        if (header == null)
+        AuditHeader auditHeader = getHeader(auditKey, true);
+        if (auditHeader == null)
             return null;
 
         AuditLog log = auditDAO.getLog(logId);
         auditDAO.fetch(log.getAuditChange());
-        AuditWhat what = whatService.getWhat(log.getAuditChange());
+        AuditWhat what = whatService.getWhat(auditHeader, log.getAuditChange());
         return new AuditLogDetailBean(log, what);
     }
 

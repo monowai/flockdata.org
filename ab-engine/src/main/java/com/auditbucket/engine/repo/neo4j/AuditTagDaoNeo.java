@@ -25,7 +25,7 @@ import com.auditbucket.dao.AuditTagDao;
 import com.auditbucket.dao.TagDao;
 import com.auditbucket.engine.repo.neo4j.model.AuditHeaderNode;
 import com.auditbucket.engine.repo.neo4j.model.AuditTagRelationship;
-import com.auditbucket.engine.service.EngineAdmin;
+import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
@@ -164,7 +164,7 @@ public class AuditTagDaoNeo implements AuditTagDao {
     }
 
     @Autowired
-    EngineAdmin engineAdmin;
+    EngineConfig engineAdmin;
 
     @Override
     public Set<AuditTag> getAuditTags(AuditHeader auditHeader, Company company) {

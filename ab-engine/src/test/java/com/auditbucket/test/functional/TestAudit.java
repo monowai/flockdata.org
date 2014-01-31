@@ -536,7 +536,7 @@ public class TestAudit {
         AuditLog lastLog = auditService.getLastLog(auditHeader.getAuditKey());
         assertNotNull(lastLog);
         assertNotNull(lastLog.getAuditChange().getWhat());
-        AuditWhat whatResult = auditService.getWhat(lastLog.getAuditChange());
+        AuditWhat whatResult = auditService.getWhat(auditHeader, lastLog.getAuditChange());
         assertTrue(whatResult.getWhatMap().containsKey("house"));
     }
 
@@ -624,7 +624,7 @@ public class TestAudit {
             AuditChange change = log.getAuditChange();
             assertNotNull(change.getEvent());
             assertNotNull(change.getWho().getCode());
-            AuditWhat whatResult = auditService.getWhat(change);
+            AuditWhat whatResult = auditService.getWhat(auditHeader, change);
             assertTrue(whatResult.getWhatMap().containsKey("house"));
         }
     }

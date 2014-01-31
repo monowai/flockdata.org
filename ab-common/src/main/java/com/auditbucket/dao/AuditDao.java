@@ -105,4 +105,6 @@ public interface AuditDao {
     Set<AuditHeader> findHeaders(Long fortressId, Long skipTo);
 
     Set<AuditHeader> findHeaders(Long id, Long docTypeId, Long skipTo);
+
+    void delete(AuditChange currentChange);
 }

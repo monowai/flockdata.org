@@ -18,4 +18,10 @@
     We must compare them and choose the best One
      In this example we use Jedis
     -->
+
+    <!--http://docs.spring.io/spring-data/data-keyvalue/riak/docs/current/reference/html/#riak:template:config-->
+    <bean id="riakTemplate" class="org.springframework.data.keyvalue.riak.core.RiakTemplate"
+          p:defaultUri="${riak.url}/{bucket}/{key}"
+          p:mapReduceUri="${riak.mapurl}"
+          p:useCache="true"/>
 </beans>
