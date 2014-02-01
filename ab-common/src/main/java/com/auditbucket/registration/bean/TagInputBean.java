@@ -42,14 +42,41 @@ public class TagInputBean {
     private Map<String, TagInputBean[]> targets = new HashMap<>();
 
     Map<String, Object> properties = new HashMap<>();
+    private String type="";
 
     protected TagInputBean() {
     }
+    public TagInputBean(String tagName, String type) {
+        this(tagName);
+        setType(type);
+    }
 
+    /**
+     * Unique name by which this tag will be known
+     *
+     * You can pass this in as Type:Name and AB will additionally
+     * recognize the tag as being of the supplied type
+     *
+     * Code value defaults to the tag name
+     *
+     * @param tagName unique name
+     */
     public TagInputBean(String tagName) {
         this();
-        this.name = tagName;
-        this.code = tagName;
+        if ( tagName.contains(":")){
+            String []data = tagName.split(":");
+            for (int i = 0; i < data.length; i++) {
+                if (i== data.length-1)
+                    this.name = data[i];
+                else
+                    this.type= this.type +" :"+data[i];
+
+            }
+            this.type = this.type.trim();
+        } else
+            this.name = tagName;
+
+        this.code = this.name;
     }
 
     public String getName() {
@@ -109,5 +136,18 @@ public class TagInputBean {
                 "name='" + name + '\'' +
                 ", code='" + code + '\'' +
                 '}';
+    }
+
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    /**
+     *
+     * @return Colon prefixed description of the tag
+     */
+    public String getType() {
+        return type;
     }
 }

@@ -269,4 +269,21 @@ public class TestTags {
         assertNotNull(result);
 
     }
+    @Test
+    public void customLabels() throws Exception {
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
+        assertNotNull(iSystemUser);
+
+        TagInputBean tagInput = new TagInputBean("Source");
+        tagInput.setCode("CodeA");
+        tagInput.setName("NameA");
+        tagInput.setType("TestTag");
+        Tag tag = tagService.processTag(tagInput);
+        assertNotNull (tag);
+        assertEquals(tagInput.getCode(), tag.getCode());
+        assertEquals(tagInput.getName(), tag.getName());
+        assertNotNull(tag.getKey());
+    }
+
+
 }

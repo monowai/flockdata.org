@@ -38,21 +38,17 @@ import java.util.Map;
  * Date: 29/06/13
  * Time: 8:35 PM
  */
-@NodeEntity
-@TypeAlias("Tag")
 public class TagNode implements Tag {
-    @GraphId
     Long Id;
 
-    @Indexed(indexName = "tagKeys")
     private String key;
 
-    @Indexed(indexName = "tagCodes")
     private String code;
 
     DynamicProperties properties = new PrefixedDynamicProperties("");
 
     private String name;
+    private String type;
 
     protected TagNode() {
     }
@@ -65,19 +61,9 @@ public class TagNode implements Tag {
         else
             setCode(tagInput.getCode());
 
-        this.key = getName().toLowerCase().replaceAll("\\s", "");
+        this.key = getCode().toLowerCase().replaceAll("\\s", "");
 
         properties.setPropertiesFrom(tagInput.getProperties());
-    }
-
-    public TagNode(Map<String, Object> mapResult) {
-        if (mapResult == null)
-            return;
-        this.Id = (Long) mapResult.get(("Id"));
-        this.code = (String) mapResult.get("code");
-        this.name = (String) mapResult.get("name");
-        this.key = (String) mapResult.get("key");
-
     }
 
     public TagNode(Node tag) {
@@ -87,7 +73,6 @@ public class TagNode implements Tag {
         this.key = (String) tag.getProperty("key");
 
     }
-
 
     @Override
     public String getName() {
@@ -140,5 +125,9 @@ public class TagNode implements Tag {
     public void setId(Long id) {
         this.Id = id;
 
+    }
+
+    public String getType() {
+        return type;
     }
 }

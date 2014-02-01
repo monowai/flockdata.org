@@ -24,6 +24,7 @@ import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.bean.AuditLogInputBean;
 import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
 import com.auditbucket.registration.bean.FortressInputBean;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -111,6 +112,25 @@ public class TestInputBeans {
         alb = new AuditLogInputBean("aaa", "user", null, what);
         assertFalse(alb.isTransactional());
 
+
+    }
+
+    @Test
+    public void labeledTagInputBreaksOut(){
+        String input ="Label:Name";
+        TagInputBean t = new TagInputBean(input);
+        assertEquals(":Label", t.getType());
+        assertEquals("Name", t.getName());
+
+        input = "LabelA:LabelB:Name";
+        t = new TagInputBean(input);
+        assertEquals(":LabelA :LabelB", t.getType());
+        assertEquals("Name", t.getName());
+
+        input = "Name";
+        t = new TagInputBean(input);
+        assertEquals("Name", t.getName());
+        assertEquals("", t.getType());
 
     }
 
