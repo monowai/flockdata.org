@@ -66,7 +66,7 @@ public class TagInputBean {
         if ( tagName.contains(":")){
             String []data = tagName.split(":");
             for (int i = 0; i < data.length; i++) {
-                if (i== data.length-1)
+                if (i== 0)
                     this.name = data[i];
                 else
                     this.type= this.type +" :"+data[i];

@@ -117,12 +117,12 @@ public class TestInputBeans {
 
     @Test
     public void labeledTagInputBreaksOut(){
-        String input ="Label:Name";
+        String input ="Name:Label";
         TagInputBean t = new TagInputBean(input);
         assertEquals(":Label", t.getType());
         assertEquals("Name", t.getName());
 
-        input = "LabelA:LabelB:Name";
+        input = "Name:LabelA:LabelB";
         t = new TagInputBean(input);
         assertEquals(":LabelA :LabelB", t.getType());
         assertEquals("Name", t.getName());
