@@ -54,8 +54,8 @@ public class TagInputBean {
     /**
      * Unique name by which this tag will be known
      *
-     * You can pass this in as Type:Name and AB will additionally
-     * recognize the tag as being of the supplied type
+     * You can pass this in as Name:Type and AB will additionally
+     * recognize the tag as being of the supplied Type
      *
      * Code value defaults to the tag name
      *
