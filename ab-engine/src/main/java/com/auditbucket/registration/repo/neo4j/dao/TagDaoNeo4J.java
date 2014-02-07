@@ -73,10 +73,10 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
             //       do we care that one company can see another companies tag value? Certainly not the
             //       audit data.
             if ( tagInput.getType() != null && !"".equals(tagInput.getType()))
-                tagSuffix = tagSuffix +" " + tagInput.getType();
+                tagSuffix = tagSuffix +" :" + tagInput.getType();
 
 
-            String query = "merge (tag:Tag " + tagSuffix + " {code:{code}, name:{name}, key:{key}})  return tag";
+            String query = "merge (tag:Tag" + tagSuffix + " {code:{code}, name:{name}, key:{key}})  return tag";
             Map<String, Object> params = new HashMap<>();
             params.put("code", sourceTag.getCode());
             params.put("key", sourceTag.getKey());
@@ -111,18 +111,6 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
             template.createRelationshipBetween(startNode, endNode, rlxName, null);
 
         return tagToCreate;
-    }
-
-    @Cacheable(value = "companyTagManager", unless = "#result == null")
-    private Node getCompanyTagManagerNode(Long companyId) {
-        // ToDo: Remove this
-        if (true) return null;
-        String query = "start company=node({companyId}) match company-[:TAG_COLLECTION]->ct return ct";
-        Map<String, Object> params = new HashMap<>();
-        params.put("companyId", companyId);
-        Result<Map<String, Object>> result = template.query(query, params);
-        Map<String, Object> mapResult = result.singleOrNull();
-        return ((Node) mapResult.get("ct"));
     }
 
     @Override

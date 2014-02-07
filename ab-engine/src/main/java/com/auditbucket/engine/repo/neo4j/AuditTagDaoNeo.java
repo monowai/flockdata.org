@@ -83,7 +83,7 @@ public class AuditTagDaoNeo implements AuditTagDao {
             return rel;
 
         Node headerNode = template.getPersistentState(auditHeader);
-        Node tagNode = template.getPersistentState(tag);
+        Node tagNode = template.getNode(tag.getId());
         //Primary exploration relationship
         Relationship r = template.getRelationshipBetween(tagNode, headerNode, relationship);
 
@@ -158,7 +158,7 @@ public class AuditTagDaoNeo implements AuditTagDao {
     @Override
     public Boolean relationshipExists(AuditHeader auditHeader, Tag tag, String relationshipType) {
         Node end = template.getPersistentState(auditHeader);
-        Node start = template.getPersistentState(tag);
+        Node start = template.getNode(tag.getId());
         return (template.getRelationshipBetween(start, end, relationshipType) != null);
 
     }
