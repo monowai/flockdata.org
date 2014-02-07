@@ -13,7 +13,7 @@ The concepts and calls are explained in the [Audit Service Call Wiki](https://gi
 Please see our [PostMan API gist](https://gist.github.com/monowai/8077021)  for a quick and conenient way of making REST calls to AuditBucket.
 
 ## Dependencies
-Only mandatory dependency is REDIS as at this time. Install this separately. We assume you are running all of this on your developer workstation on default ports. If this is the case, then you are good to go
+Only mandatory dependency at this time is REDIS or RIAK as a KV store; This should be installed separately according to your OS instructions. It is recommended that you install RabbitMQ in order to use reliable AMQP cooms between ab-engine an ab-search, however if you are just experimenting, then http integration is fine.
 
 ## Installation
 Get the source
@@ -38,10 +38,10 @@ ab-engine exchanges information with ab-search over http or amqp integration; yo
 
 If you want to use AMQP, and we suggest you do, the default message platform we support is [RabbitMQ](http://www.rabbitmq.com/). Just download and install and you're good to go. Dead simple. If you want to support a different messaging platform, then check out the integration*.xml files for the pattern, add your own and contribute!
 
-Note that if ab-engine is integrating via AMQP, then ab-search must use this approach as well. 
+Note that if ab-engine is integrating via AMQP then ab-search must use this approach as well.
 
 ## Container Deployment
-While this all looks rather technical, it is simply a matter of getting the WAR file deployed in a webserver. There is no "separate database" unless you wish to configure AB to talk to one.
+While this all looks rather technical, it is simply a matter of getting the WAR file deployed in a webserver.
 
 If you just want to evaluate and are pressed for time, then run ab-engine straight from the ab-engine/target folder with the following command
 ```
@@ -49,20 +49,20 @@ $ cd ab-engine/target
 $ java -jar ab-engine-0.90-BUILD-SNAPSHOT-war-exec.jar -Dneo4j=java -Dab.integration=http -httpPort=8080 -Dab.config=./classes/config.properties -Dlog4j.configuration=file:./classes/log4j.xml
 ```
 
-Deploy in TomCat or whatever be your favourite container. Maven will build an executable tomcat 7 package for you that you can run from the Java command line. We will assume that you are going to deploy the WAR to TC7 via your IDE.
+Deploy in TomCat or whatever be your favourite container. Maven will build an executable Tomcat7 package for you that you can run from the Java command line. We will assume that you are going to deploy the WAR to TC7 via your IDE.
 
 Default HTTP port for ab-engine is 8080 and for ab-search its 8081. If you are using different ports then review the [configuration files] (src/main/resources/config.properties) that describe how engine and search find each other. If you have an existing ElasticSearch cluster, you will also want to review 
 
 Once you have the .war file installed in your app server, you can start firing off urls to test things.
 
 ## Interacting with AuditBucket
-HTTP, REST and JSON is the lingua franca - surprised? Didn't think so. Download, compile and deploy.
+HTTP, REST and JSON is the lingua franca.
 
 ### Security
 Note that the user id is 'mike' and the password is '123'. This is basic configuration stuff hacked in to spring-security.xml. I'm sure you can configure your own lovely security domain, or help me out with an OAuth configuration ;)
 
 ## Tracking Data
-By default, information is tracked in Neo4J and ElasticSearch. You can, at the point of POST, request that the information be only tracked in Neo4j or only ElasticSearch. This depends on your use case. You might be simply tracking event type information that never changes, so simply storing in ElasticSearch is functional enough as the data is not connectable.
+By default, information is tracked in Neo4J and ElasticSearch. You can, at the point of POST, request that the information be only tracked in Neo4j or only ElasticSearch. This depends on your use case. You might be simply tracking event type information that never changes, so simply storing in ElasticSearch is functional enough as the data is not require the meshing of connections.
 
 ## Creating Data
 In the examples below, /ab-engine/ represents the application context with the endpoints starting at /v1/. Substitute for whatever server & context is appropriate for your deployment.
@@ -81,7 +81,7 @@ This is one of your computer systems that you want to audit
 curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/v1/fortress/ -d '{"name": "SAP-AR","searchActive": true}'
 ```
 ### Create an Audit Record
-You should start [ab-search](../ab-search) before doing this if you're not using RabbitMQ!!
+You should have started [ab-search](../ab-search) before doing this if you're not using RabbitMQ otherwise expect a communications error!
 ```
 curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/v1/audit/ -d '{
   "fortress":"SAP-AR", 
