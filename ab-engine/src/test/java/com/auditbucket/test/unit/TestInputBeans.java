@@ -19,9 +19,9 @@
 
 package com.auditbucket.test.unit;
 
-import com.auditbucket.audit.model.TxRef;
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.bean.AuditLogInputBean;
+import com.auditbucket.audit.model.TxRef;
 import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.TagInputBean;
@@ -34,8 +34,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Date;
 
 import static junit.framework.Assert.*;
-import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 /**
  * User: Mike Holdsworth
@@ -131,6 +131,15 @@ public class TestInputBeans {
         t = new TagInputBean(input);
         assertEquals("Name", t.getName());
         assertEquals("", t.getType());
+        try {
+            new TagInputBean("Hello There", "White Space Not Allowed");
+            fail("Whitespace is not allowed in a tag type");
+            new TagInputBean("Hello There:White Space Not Allowed");
+            fail("Whitespace is not allowed in a tag type");
+        } catch (Exception e ){
+            // This is good
+        }
+
 
     }
 

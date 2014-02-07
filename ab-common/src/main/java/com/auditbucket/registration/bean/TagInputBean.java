@@ -48,7 +48,10 @@ public class TagInputBean {
     }
     public TagInputBean(String tagName, String type) {
         this(tagName);
-        setType(type);
+        if ( type.contains(" "))
+            throw new RuntimeException("Tag Type cannot contain whitespace");
+
+        setType(":"+type);
     }
 
     /**
@@ -68,8 +71,12 @@ public class TagInputBean {
             for (int i = 0; i < data.length; i++) {
                 if (i== 0)
                     this.name = data[i];
-                else
+                else {
+                    if ( data[i].contains(" "))
+                        throw new RuntimeException("Tag Type cannot contain whitespace " +data[i]);
+
                     this.type= this.type +" :"+data[i];
+                }
 
             }
             this.type = this.type.trim();
