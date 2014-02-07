@@ -289,9 +289,9 @@ public class AuditService {
         input.setAuditEvent(event);
         AuditChange thisChange = auditDAO.save(thisFortressUser, input, txRef, existingChange);
         int version = 0;
-        if (existingChange != null) {
-            version = whatService.getWhat(auditHeader, existingChange).getVersion();
-        }
+//        if (existingChange != null) {
+//            version = whatService.getWhat(auditHeader, existingChange).getVersion();
+//        }
 
         whatService.logWhat(auditHeader, thisChange, input.getWhat(), version);
 
@@ -750,6 +750,7 @@ public class AuditService {
         AuditLog log = auditDAO.getLog(logId);
         auditDAO.fetch(log.getAuditChange());
         AuditWhat what = whatService.getWhat(auditHeader, log.getAuditChange());
+        log.getAuditChange().setWhat(what);
         return new AuditLogDetailBean(log, what);
     }
 

@@ -1,10 +1,10 @@
 package com.auditbucket.engine.service;
 
+import com.auditbucket.audit.bean.AuditHeaderInputBean;
+import com.auditbucket.audit.bean.AuditLogInputBean;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditLog;
 import com.auditbucket.audit.model.AuditWhat;
-import com.auditbucket.audit.bean.AuditHeaderInputBean;
-import com.auditbucket.audit.bean.AuditLogInputBean;
 import com.auditbucket.dao.AuditDao;
 import com.auditbucket.engine.repo.redis.RedisRepo;
 import com.auditbucket.helper.CompressionHelper;
@@ -16,7 +16,7 @@ import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.test.utils.AbstractRedisSupport;
 import junit.framework.Assert;
 import org.joda.time.DateTime;
-import org.junit.*;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
@@ -113,6 +113,7 @@ public class WhatServiceTest extends AbstractRedisSupport {
         //Then
         Assert.assertNotNull(auditWhat);
         String whatExpected = "{\"blah\":" + 1 + "}";
+        Assert.assertNotNull(auditWhat.getWhat());
         Assert.assertEquals(auditWhat.getWhat(), whatExpected);
         Assert.assertTrue(whatService.isSame(header, auditLog.getAuditChange(), whatExpected));
         auditService.cancelLastLogSync(ahKey);

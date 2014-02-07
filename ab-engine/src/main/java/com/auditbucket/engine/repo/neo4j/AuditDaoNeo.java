@@ -19,12 +19,16 @@
 
 package com.auditbucket.engine.repo.neo4j;
 
-import com.auditbucket.audit.model.*;
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.bean.AuditLogInputBean;
 import com.auditbucket.audit.bean.AuditTXResult;
+import com.auditbucket.audit.model.*;
 import com.auditbucket.dao.AuditDao;
-import com.auditbucket.engine.repo.neo4j.model.*;
+import com.auditbucket.engine.repo.AuditWhatData;
+import com.auditbucket.engine.repo.neo4j.model.AuditChangeNode;
+import com.auditbucket.engine.repo.neo4j.model.AuditHeaderNode;
+import com.auditbucket.engine.repo.neo4j.model.AuditLogRelationship;
+import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.FortressUser;
@@ -271,7 +275,7 @@ public class AuditDaoNeo implements AuditDao {
 
     @Override
     public AuditWhat getWhat(Long whatId) {
-        return template.findOne(whatId, AuditWhatNode.class);
+        return template.findOne(whatId, AuditWhatData.class);
     }
 
     @Override
@@ -306,20 +310,8 @@ public class AuditDaoNeo implements AuditDao {
     }
 
     @Override
-    public String save(AuditChange change, String jsonText, int version) {
-        AuditWhatNode what = new AuditWhatNode(version);
-        change.setWhat(what);
-        change = template.save(change);
-        return change.getWhat().getId();
-    }
-
-    @Override
-    public AuditChange save(AuditChange change, Boolean compressed, int version) {
-        AuditWhatNode what = new AuditWhatNode(version);
-        what.setCompressed(compressed);
-        change.setWhat(what);
-        change = template.save(change);
-        return change;
+    public AuditChange save(AuditChange change, Boolean compressed) {
+        return template.save(change);
     }
 
 }

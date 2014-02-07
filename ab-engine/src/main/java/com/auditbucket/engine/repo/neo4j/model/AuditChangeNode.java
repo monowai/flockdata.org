@@ -19,8 +19,9 @@
 
 package com.auditbucket.engine.repo.neo4j.model;
 
-import com.auditbucket.audit.model.*;
 import com.auditbucket.audit.bean.AuditLogInputBean;
+import com.auditbucket.audit.model.*;
+import com.auditbucket.engine.repo.AuditWhatData;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -69,8 +70,8 @@ public class AuditChangeNode implements AuditChange {
     @RelatedToVia(type = "LOGGED", direction = Direction.INCOMING)
     AuditLogRelationship auditLog;
 
-    @RelatedTo(type = "auditWhat")
-    private AuditWhatNode auditWhat;
+//    @RelatedTo(type = "auditWhat")
+    private AuditWhatData auditWhat;
 
     protected AuditChangeNode() {
 
@@ -98,7 +99,7 @@ public class AuditChangeNode implements AuditChange {
     }
 
     public void setWhat(AuditWhat what) {
-        this.auditWhat = (AuditWhatNode) what;
+        this.auditWhat = (AuditWhatData) what;
     }
 
     public FortressUser getWho() {
@@ -150,7 +151,7 @@ public class AuditChangeNode implements AuditChange {
         return event;
     }
 
-    private boolean isCompressed() {
+    public boolean isCompressed() {
         return compressed;
     }
 

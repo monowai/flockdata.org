@@ -19,12 +19,11 @@
 
 package com.auditbucket.dao;
 
-import com.auditbucket.audit.model.*;
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.bean.AuditLogInputBean;
+import com.auditbucket.audit.model.*;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import org.joda.time.DateTime;
 
@@ -94,9 +93,7 @@ public interface AuditDao {
 
     void setLastChange(AuditHeader auditHeader, AuditChange lastChange, AuditChange toRemove);
 
-    String save(AuditChange change, String jsonText, int version);
-
-    AuditChange save(AuditChange change, Boolean compressed, int version);
+    AuditChange save(AuditChange change, Boolean compressed);
 
     void fetch(AuditWhat what);
 

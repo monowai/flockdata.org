@@ -4,6 +4,7 @@ import com.auditbucket.audit.model.AuditChange;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditWhat;
 import com.auditbucket.dao.AuditDao;
+import com.auditbucket.engine.repo.AuditWhatData;
 import com.auditbucket.engine.repo.KvRepo;
 import com.auditbucket.engine.repo.redis.RedisRepo;
 import com.auditbucket.engine.repo.riak.RiakRepo;
@@ -45,14 +46,14 @@ public class WhatService {
 
     private Logger logger = LoggerFactory.getLogger(WhatService.class);
 
-    public String logWhat(AuditHeader auditHeader, AuditChange change, String jsonText, int version) {
+    public void logWhat(AuditHeader auditHeader, AuditChange change, String jsonText, int version) {
         // Compress the Value of JSONText
         CompressionResult result = CompressionHelper.compress(jsonText);
         Boolean compressed = result.getMethod() == CompressionResult.Method.GZIP;
 
         change.setWhatStore(String.valueOf(engineAdmin.getKvStore()));
         // Store First all information In Neo4j
-        change = auditDao.save(change, compressed, version);
+        change = auditDao.save(change, compressed);
 
         // Store the what information Compressed in KV Store Depending on
         KvRepo kvRepo = getKvRepo(change);
@@ -63,7 +64,7 @@ public class WhatService {
         } catch (IOException e) {
             logger.error("KV storage issue", e);
         }
-        return change.getWhat().getId();
+        //return change.getId();
     }
 
     private KvRepo getKvRepo(){
@@ -84,12 +85,11 @@ public class WhatService {
 
     }
     public AuditWhat getWhat(AuditHeader auditHeader, AuditChange change) {
-        if (change == null || change.getWhat() == null)
+        if (change == null )
             return null;
         KvRepo kvRepo = getKvRepo(change);
         byte[] whatInformation = kvRepo.getValue(auditHeader, change.getId());
-        AuditWhat auditWhat = auditDao.getWhat(Long.parseLong(change.getWhat().getId()));
-        auditWhat.setWhatBytes(whatInformation);
+        AuditWhat auditWhat = new AuditWhatData(whatInformation, change.isCompressed());
         return auditWhat;
     }
 
