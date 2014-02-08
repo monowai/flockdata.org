@@ -34,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Handles management of a companies tags.
@@ -141,4 +142,8 @@ public class TagService {
         return tagDao.findDirectedTags(startTag, securityHelper.getCompany(), true); // outbound
     }
 
+    public Map<String, Tag> findTags(String type) {
+        Company company = securityHelper.getCompany();
+        return tagDao.findTags(company, type);
+    }
 }

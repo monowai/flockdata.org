@@ -107,8 +107,9 @@ public class EngineConfig {
     public void createTagIndex(Company company) {
         //template.query("create index on (t:Tag" + getTagSuffix(company) + ")", null) ;
         // Performance issue with constraints?
-        logger.info("MutilTennant suffix = [" + getTagSuffix(company) + "]");
-        template.query("create constraint on (t:Tag" + getTagSuffix(company) + ") assert t.key is unique", null);
+        logger.info("MutilTenant suffix = [" + getTagSuffix(company) + "]");
+        template.query("create constraint on (t:Tag" + getTagSuffix(company) + ") assert t.id is unique", null);
+        //template.query("create index on (t:Tag" + getTagSuffix(company)+ ")", null);
     }
 
     public String getTagSuffix(Company company) {

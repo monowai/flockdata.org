@@ -140,7 +140,16 @@ public class TestInputBeans {
             // This is good
         }
 
+    }
 
+    @Test
+    public void valuesDefaultCorrectly(){
+        TagInputBean tib = new TagInputBean("Hello");
+        assertEquals("Hello", tib.getCode());
+        tib.setCode("hello");
+        assertEquals("hello", tib.getCode());
+        tib.setType ("Testing");
+        assertEquals(":Testing", tib.getType());
     }
 
 

@@ -711,7 +711,16 @@ public class AuditService {
     public void makeHeaderSearchable(AuditResultBean resultBean, String event, Date when, Company company) {
         AuditHeader header = resultBean.getAuditHeader();
         if (header.isSearchSuppressed() || !header.getFortress().isSearchActive())
-            return;
+            return ;
+
+        SearchChange searchDocument = getSearchChange(resultBean, event, when, company);
+        if (searchDocument == null) return;
+        makeChangeSearchable(searchDocument);
+
+    }
+
+    public SearchChange getSearchChange(AuditResultBean resultBean, String event, Date when, Company company) {
+        AuditHeader header = resultBean.getAuditHeader();
 
         fortressService.fetch(header.getLastUser());
         SearchChange searchDocument = new AuditSearchChange(header, null, event, new DateTime(when));
@@ -726,8 +735,7 @@ public class AuditService {
         } else {
             searchDocument.setTags(auditTagService.findAuditTags(company, header));
         }
-        makeChangeSearchable(searchDocument);
-
+        return searchDocument;
     }
 
     public AuditLog getLastLog(String auditKey) throws AuditException {
@@ -767,5 +775,16 @@ public class AuditService {
         return null;
     }
 
-
+    /**
+     * Typically called only for regression test purposes
+     *
+     * @param resultBean Audit to work with
+     * @param event      descriptor of last event
+     * @param when       date fortress is saying this took place
+     * @return           populated search doc
+     */
+    public SearchChange getSearchChange(AuditResultBean resultBean, String event, Date when) {
+        Company company = securityHelper.getCompany();
+        return getSearchChange(resultBean, event, when, company)   ;
+    }
 }

@@ -78,6 +78,9 @@ public class AuditTagDaoNeo implements AuditTagDao {
         if (relationship == null) {
             relationship = "GENERAL_TAG";
         }
+        if ( tag == null )
+            throw new IllegalArgumentException("Tag must not be NULL. Relationship["+relationship+"]");
+
         AuditTagRelationship rel = new AuditTagRelationship(auditHeader, tag, relationship, propMap);
         if (auditHeader.getId() == null)
             return rel;

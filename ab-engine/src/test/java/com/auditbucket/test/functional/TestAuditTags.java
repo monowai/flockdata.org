@@ -32,6 +32,7 @@ import com.auditbucket.audit.bean.AuditTagInputBean;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditTag;
 import com.auditbucket.audit.model.DocumentType;
+import com.auditbucket.audit.model.SearchChange;
 import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.engine.service.AuditTagService;
@@ -555,6 +556,44 @@ public class TestAuditTags {
             Tag stateTag = states.iterator().next();
             assertEquals(stateInputTag.getName(), stateTag.getName());
         }
+
+    }
+
+    @Test
+    public void tagsInSearchDoc() throws Exception {
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        assertNotNull(iSystemUser);
+
+        Fortress fortress = fortressService.registerFortress("ABC");
+        assertNotNull(fortress);
+
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
+        String country = "USA";
+        String city = "Los Angeles";
+
+        TagInputBean countryInputTag = new TagInputBean(country);
+        TagInputBean cityInputTag = new TagInputBean(city);
+        TagInputBean stateInputTag = new TagInputBean("CA");
+
+        TagInputBean institutionTag = new TagInputBean("mikecorp");
+        // Institution is in a city
+        institutionTag.setTargets("located", cityInputTag);
+        cityInputTag.setTargets("state", stateInputTag);
+        stateInputTag.setTargets("country", countryInputTag);
+        inputBean.setAssociatedTag(institutionTag);
+        inputBean.addTagValue("institution", institutionTag);
+
+        // Institution<-city<-state<-country
+
+        AuditResultBean resultBean = auditManager.createHeader(inputBean);
+        assertNotNull(resultBean);
+        Set<AuditTag> tags = auditTagService.findAuditTags(resultBean.getAuditHeader());
+        assertFalse(tags.isEmpty());
+
+        SearchChange searchChange = auditService.getSearchChange(resultBean, "Blah", new Date());
+        assertNotNull (searchChange);
+        assertNotNull ( searchChange.getTagValues());
+
 
     }
 

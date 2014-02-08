@@ -24,10 +24,6 @@ import com.auditbucket.registration.model.Tag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.neo4j.graphdb.Node;
-import org.springframework.data.annotation.TypeAlias;
-import org.springframework.data.neo4j.annotation.GraphId;
-import org.springframework.data.neo4j.annotation.Indexed;
-import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.fieldaccess.DynamicProperties;
 import org.springframework.data.neo4j.fieldaccess.PrefixedDynamicProperties;
 
@@ -48,7 +44,6 @@ public class TagNode implements Tag {
     DynamicProperties properties = new PrefixedDynamicProperties("");
 
     private String name;
-    private String type;
 
     protected TagNode() {
     }
@@ -61,7 +56,7 @@ public class TagNode implements Tag {
         else
             setCode(tagInput.getCode());
 
-        this.key = getCode().toLowerCase().replaceAll("\\s", "");
+        this.key = getName().toLowerCase().replaceAll("\\s", "");
 
         properties.setPropertiesFrom(tagInput.getProperties());
     }
@@ -127,7 +122,4 @@ public class TagNode implements Tag {
 
     }
 
-    public String getType() {
-        return type;
-    }
 }

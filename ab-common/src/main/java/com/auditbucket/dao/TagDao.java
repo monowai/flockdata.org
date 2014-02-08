@@ -25,6 +25,7 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * User: Mike Holdsworth
@@ -50,4 +51,6 @@ public interface TagDao {
     DocumentType findOrCreateDocument(String documentType, Company company, Boolean createIfMissing);
 
     Collection<Tag> findDirectedTags(Tag startTag, Company company, boolean b);
+
+    Map<String, Tag> findTags(Company company, String type);
 }

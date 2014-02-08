@@ -28,6 +28,7 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.repo.neo4j.model.TagNode;
 import org.neo4j.graphdb.Node;
+import org.neo4j.kernel.impl.core.NodeProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,10 +73,10 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
             // ToDo: Should a type be suffixed with company in multi-tenanted? - more time to think!!
             //       do we care that one company can see another companies tag value? Certainly not the
             //       audit data.
-            if ( tagInput.getType() != null && !"".equals(tagInput.getType()))
+            if ( tagInput.getType() != null && !":".equals(tagInput.getType()))
                 tagSuffix = tagSuffix +" " + tagInput.getType();
 
-
+            // ToDo: Multi-tenanted custom tags
             String query = "merge (tag:Tag" + tagSuffix + " {code:{code}, name:{name}, key:{key}})  return tag";
             Map<String, Object> params = new HashMap<>();
             params.put("code", sourceTag.getCode());
@@ -138,6 +139,21 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
         }
         //
         return results;
+    }
+
+    @Override
+    public Map<String, Tag> findTags(Company company, String type) {
+        Map<String, Tag>tagResults = new HashMap<>();
+        String query = "match (tag:" +type + (engineAdmin.getTagSuffix(company)) + ") return tag";
+        // Look at PAGE
+        Result<Map<String, Object>> results = template.query(query, null);
+        for (Map<String, Object> row :results){
+            Object o = row.get("tag");
+            Tag t = new TagNode((NodeProxy)o);
+            tagResults.put(t.getName(), t);
+
+        }
+        return tagResults;
     }
 
     @Override

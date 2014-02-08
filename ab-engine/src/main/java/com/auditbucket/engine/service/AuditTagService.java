@@ -29,6 +29,8 @@ import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.TagService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +55,8 @@ public class AuditTagService {
     @Autowired
     AuditTagDao auditTagDao;
 
+    private Logger logger = LoggerFactory.getLogger(AuditTagService.class);
+
     public void processTag(AuditHeader header, AuditTagInputBean tagInput) {
         String type = tagInput.getType();
         boolean existing = relationshipExists(header, tagInput.getTagName(), type);
@@ -71,15 +75,18 @@ public class AuditTagService {
     }
 
     /**
-     * Directed tag structure
+     * Directed tag structure hierarchy
      *
-     * @param userTags
-     * @param company
+     * @param userTags  input beans
+     * @param company   valid company
      */
     public void createTagStructure(List<TagInputBean> userTags, Company company) {
         // Create a tag structure if present
         for (TagInputBean inputBean : userTags) {
-            tagService.processTag(inputBean, company);
+            Tag t = tagService.processTag(inputBean, company);
+            if ( t== null){
+                logger.error("Error creating Tag " + inputBean);
+            }
         }
     }
 
@@ -119,7 +126,8 @@ public class AuditTagService {
                 tagRlx = tagName; // Get the relationship name from the key
                 tag = tagService.processTag(tagInput, company);
             } else {
-                tag = tagService.findTag(tagName, company);//tagService.processTag(tagInput, company);
+                tagInput = new TagInputBean(tagName);
+                tag = tagService.findTag(tagInput.getName(), company);//tagService.processTag(tagInput, company);
             }
 
             String rlxName;
