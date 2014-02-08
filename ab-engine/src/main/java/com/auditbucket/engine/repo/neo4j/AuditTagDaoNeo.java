@@ -43,6 +43,8 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 
 /**
+ * Data Access Object that manipulates tag nodes against audit headers
+ *
  * User: Mike Holdsworth
  * Date: 28/06/13
  * Time: 11:07 PM
@@ -58,8 +60,8 @@ public class AuditTagDaoNeo implements AuditTagDao {
     private Logger logger = LoggerFactory.getLogger(AuditTagDaoNeo.class);
 
     @Override
-    public AuditTag save(AuditHeader auditHeader, Tag tag, String relationship) {
-        return save(auditHeader, tag, relationship, null);
+    public AuditTag save(AuditHeader auditHeader, Tag tag, String relationshipName) {
+        return save(auditHeader, tag, relationshipName, null);
     }
 
     /**
@@ -69,33 +71,33 @@ public class AuditTagDaoNeo implements AuditTagDao {
      *
      * @param auditHeader  constructed header
      * @param tag          tag
-     * @param relationship name
+     * @param relationshipName name
      * @param propMap      properties to associate with an audit tag (weight)
      * @return Null or AuditTag
      */
-    public AuditTag save(AuditHeader auditHeader, Tag tag, String relationship, Map<String, Object> propMap) {
+    public AuditTag save(AuditHeader auditHeader, Tag tag, String relationshipName, Map<String, Object> propMap) {
         // ToDo: this will only set properties for the "current" tag to Header. it will not version it.
-        if (relationship == null) {
-            relationship = "GENERAL_TAG";
+        if (relationshipName == null) {
+            relationshipName = "GENERAL_TAG";
         }
         if ( tag == null )
-            throw new IllegalArgumentException("Tag must not be NULL. Relationship["+relationship+"]");
+            throw new IllegalArgumentException("Tag must not be NULL. Relationship["+ relationshipName +"]");
 
-        AuditTagRelationship rel = new AuditTagRelationship(auditHeader, tag, relationship, propMap);
+        AuditTagRelationship rel = new AuditTagRelationship(auditHeader, tag, relationshipName, propMap);
         if (auditHeader.getId() == null)
             return rel;
 
         Node headerNode = template.getPersistentState(auditHeader);
         Node tagNode = template.getNode(tag.getId());
         //Primary exploration relationship
-        Relationship r = template.getRelationshipBetween(tagNode, headerNode, relationship);
+        Relationship r = template.getRelationshipBetween(tagNode, headerNode, relationshipName);
 
         if (r != null) {
             return null;
         }
 
-        template.createRelationshipBetween(tagNode, headerNode, relationship, propMap);
-        logger.trace("Created Relationship Tag[{}] of type {}", tag, relationship);
+        template.createRelationshipBetween(tagNode, headerNode, relationshipName, propMap);
+        logger.trace("Created Relationship Tag[{}] of type {}", tag, relationshipName);
         return null;
     }
 
@@ -159,10 +161,10 @@ public class AuditTagDaoNeo implements AuditTagDao {
     }
 
     @Override
-    public Boolean relationshipExists(AuditHeader auditHeader, Tag tag, String relationshipType) {
+    public Boolean relationshipExists(AuditHeader auditHeader, Tag tag, String relationshipName) {
         Node end = template.getPersistentState(auditHeader);
         Node start = template.getNode(tag.getId());
-        return (template.getRelationshipBetween(start, end, relationshipType) != null);
+        return (template.getRelationshipBetween(start, end, relationshipName) != null);
 
     }
 
@@ -182,8 +184,6 @@ public class AuditTagDaoNeo implements AuditTagDao {
         for (Map<String, Object> row : template.query(query, params)) {
             Node n = (Node) row.get("tag");
             TagNode tag = new TagNode(n);
-            //TagNode tag = template.projectTo(row.get("tag"), TagNode.class);
-            //TagNode tag = template.convert(row.get("tag"), TagNode.class);
             Relationship relationship = template.convert(row.get("tagType"), Relationship.class);
 
             AuditTagRelationship auditTag = new AuditTagRelationship(auditHeader, tag, relationship);

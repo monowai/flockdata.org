@@ -25,9 +25,11 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
+ * Company represents a unique organisation who interacts with the system
+ * API To abstract interactions with underlying implementations
+ *
  * User: Mike Holdsworth
  * Date: 20/04/13
  * Time: 6:31 PM
@@ -37,19 +39,19 @@ public interface CompanyDao {
 
     public CompanyUser save(CompanyUser companyUser);
 
-    public Company findByPropertyValue(String name, Object value);
+    public Company findByPropertyValue(String property, Object value);
 
-    public CompanyUser getCompanyUser(Long id, String userName);
+    public CompanyUser getCompanyUser(Long companyId, String userName);
 
-    public Fortress getFortressByName(Long id, String fortressName);
+    public Fortress getFortressByName(Long companyId, String fortressName);
 
-    public SystemUser getAdminUser(Long id, String name);
+    public SystemUser getAdminUser(Long companyId, String name);
 
     public Iterable<CompanyUser> getCompanyUsers(Long companyId);
 
     Company create(String companyName, String uniqueKey);
 
-    Fortress getFortressByCode(Long id, String fortressCode);
+    Fortress getFortressByCode(Long companyId, String fortressCode);
 
-    Collection<Company> findCompanies(Long id);
+    Collection<Company> findCompanies(Long companyId);
 }

@@ -26,18 +26,23 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.joda.time.DateTime;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
- * Encapsulates the parameters necessary to make an audit event searchable
- * <p/>
+ * Encapsulates the information to make an audit header and log a searchable document
+ * according to the way AuditBucket deals with search docs.
+ *
+ * This object becomes the payload dispatch to ab-search for indexing.
+ *
  * User: Mike Holdsworth
  * Date: 25/04/13
  * Time: 9:33 PM
  */
 public class AuditSearchChange implements com.auditbucket.audit.model.SearchChange {
 
-    private String id;
     private String documentType;
     private String description;
     private Map<String, Object> what;

@@ -58,13 +58,13 @@ public class AuditTagService {
     private Logger logger = LoggerFactory.getLogger(AuditTagService.class);
 
     public void processTag(AuditHeader header, AuditTagInputBean tagInput) {
-        String type = tagInput.getType();
-        boolean existing = relationshipExists(header, tagInput.getTagName(), type);
+        String relationshipName = tagInput.getType();
+        boolean existing = relationshipExists(header, tagInput.getTagName(), relationshipName);
         if (existing)
             // We already have this tagged so get out of here
             return;
         Tag tag = tagService.findTag(tagInput.getTagName());
-        auditTagDao.save(header, tag, type);
+        auditTagDao.save(header, tag, relationshipName);
     }
 
     public Boolean relationshipExists(AuditHeader auditHeader, String name, String relationshipType) {

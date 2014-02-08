@@ -106,7 +106,6 @@ public interface SearchChange {
      * <p/>
      * default to true
      */
-
     public void setReplyRequired(boolean required);
 
     boolean isReplyRequired();

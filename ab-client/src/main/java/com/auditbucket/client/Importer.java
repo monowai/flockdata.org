@@ -31,6 +31,28 @@ import java.util.Date;
 import java.util.List;
 
 /**
+ * General importer with support for CSV and XML parsing. Interacts with AbRestClient to send
+ * information via a RESTful interface
+ *
+ * Will send information to AuditBucket as either tags or audit information.
+ *
+ * You should extend AuditHeaderInputBean or TagInputBean and implement XMLMappable or DelimitedMappable
+ * to massage your data prior to dispatch to AB.
+ *
+ * Parameters:
+ *  -s=http://localhost:8080/ab-engine
+ *
+ * quoted string containing "file,DelimitedClass,BatchSize"
+ * "./path/to/file/cow.csv,com.auditbucket.health.Countries,200"
+ *
+ * if BatchSize is set to -1, then a simulation only is run; information is not dispatched to the server.
+ * This is useful to debug the class implementing Delimited
+ *
+ * @see AbRestClient
+ * @see Mappable
+ * @see TagInputBean
+ * @see AuditHeaderInputBean
+ *
  * User: Mike Holdsworth
  * Since: 13/10/13
  */
@@ -97,15 +119,6 @@ public class Importer {
             endProcess(watch, totalRows);
 
             logger.info("Finished at {}", DateFormat.getDateTimeInstance().format(new Date()));
-
-            //"/Users/mike/Downloads/cow.csv,com.auditbucket.health.Countries,200"
-
-            //"/Users/mike/Desktop/Med/ophthalmology.xml,com.auditbucket.health.medline.study.Ophthalmology,100,-1"
-            //"/Users/mike/Dropbox/auditbucket/dataproviders/medline/GraftVsHost.xml,com.auditbucket.health.medline.study.GraftVsHost,100"
-            //"/Users/mike/Dropbox/data feeds/Cervical cancer.xml,com.auditbucket.health.medline.study.CervicalCancer,100"
-//            "/Users/mike/Dropbox/auditbucket/dataproviders/medicare/HQI_HOSP.csv";com.auditbucket.health.medicare.Hospital;200
-            //"/Users/mike/Dropbox/auditbucket/dataproviders/medicare/hvbp_hcahps_02_07_2013.csv";com.auditbucket.health.medicare.Hcahps;500
-            //"/Users/mike/downloads/2008_BSA_Inpatient_Claims_PUF.csv";com.auditbucket.health.medicare.InpatientClaims,500
 
         } catch (Exception e) {
             logger.error("Import error", e);

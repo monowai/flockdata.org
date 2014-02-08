@@ -43,6 +43,9 @@ import java.util.*;
 
 /**
  * Template to support writing Audit and Tag information to a remote AuditBucket instance.
+ *
+ * @see Importer
+ *
  * User: Mike Holdsworth
  * Since: 13/10/13
  */
@@ -77,6 +80,7 @@ public class AbRestClient {
     public AbRestClient(String serverName, String userName, String password, int batchSize, String defaultFortress) {
         this.userName = userName;
         this.password = password;
+        // Urls to write Audit/Tag/Fortress information
         this.NEW_HEADER = serverName + "/v1/audit/";
         this.NEW_TAG = serverName + "/v1/tag/";
         this.FORTRESS = serverName + "/v1/fortress/";
@@ -85,9 +89,9 @@ public class AbRestClient {
     }
 
     /**
-     * creates a rating value for a relationship
+     * creates a rating value for a relationship. The property is always called weight
      *
-     * @param relationshipName from Tag to AuditHeader
+     * @param relationshipName - from Tag to AuditHeader
      * @param weight           - weight of the rating.
      * @return constructed Tag Map that AuditBucket will handle
      */
@@ -203,7 +207,7 @@ public class AbRestClient {
     static final ObjectMapper mapper = new ObjectMapper();
 
     /**
-     * Converts the strings to a simple JSON representation
+     * Converts the string arrays to a simple JSON representation
      *
      * @param headerRow - keys
      * @param line      - values

@@ -30,9 +30,7 @@ import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.repo.neo4j.dao.CompanyDao;
 import com.auditbucket.registration.repo.neo4j.dao.FortressDao;
-import com.auditbucket.registration.repo.neo4j.model.FortressNode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,9 +47,6 @@ public class FortressService {
 
     @Autowired
     private CompanyService companyService;
-
-    @Autowired
-    private RegistrationService registrationService;
 
     @Autowired
     private SystemUserService sysUserService;
@@ -90,9 +85,9 @@ public class FortressService {
         return su.getCompany();
     }
 
-    @CacheEvict(value = "fortressName", key = "#p0.id")
-    public Fortress save(Fortress fortress) {
-        return fortressDao.save(fortress);
+
+    public Fortress save(Company company, FortressInputBean fortress) {
+        return fortressDao.save(company, fortress);
     }
 
     /**
@@ -151,8 +146,7 @@ public class FortressService {
             return fortress;
         }
 
-        fortress = new FortressNode(fib, company);
-        fortress = save(fortress);
+        fortress = save(company, fib);
         fortress.setCompany(company);
         return fortress;
 

@@ -61,13 +61,13 @@ public class CompanyDaoNeo implements CompanyDao {
 
 
     @Override
-    public Company findByPropertyValue(String name, Object value) {
-        return companyRepo.findByPropertyValue(name, value);
+    public Company findByPropertyValue(String property, Object value) {
+        return companyRepo.findByPropertyValue(property, value);
     }
 
     @Override
-    public CompanyUser getCompanyUser(Long id, String userName) {
-        return companyRepo.getCompanyUser(id, userName);
+    public CompanyUser getCompanyUser(Long companyId, String userName) {
+        return companyRepo.getCompanyUser(companyId, userName);
     }
 
     @Override
@@ -81,14 +81,14 @@ public class CompanyDaoNeo implements CompanyDao {
     }
 
     @Override
-    public Collection<Company> findCompanies(Long id) {
-        return companyRepo.getCompaniesForUser(id);
+    public Collection<Company> findCompanies(Long companyId) {
+        return companyRepo.getCompaniesForUser(companyId);
     }
 
 
     @Override
-    public SystemUser getAdminUser(Long id, String name) {
-        return companyRepo.getAdminUser(id, name);
+    public SystemUser getAdminUser(Long companyId, String name) {
+        return companyRepo.getAdminUser(companyId, name);
     }
 
     @Override
