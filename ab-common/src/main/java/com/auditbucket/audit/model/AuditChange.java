@@ -48,6 +48,8 @@ public interface AuditChange {
 
     AuditEvent getEvent();
 
+    public boolean isCompressed();
+
     void setPreviousChange(AuditChange previousChange);
 
     AuditChange getPreviousChange();

@@ -22,13 +22,13 @@ package com.auditbucket.registration.repo.neo4j.dao;
 import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.engine.repo.neo4j.DocumentTypeRepo;
 import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
-import com.auditbucket.engine.service.EngineAdmin;
+import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
-import com.auditbucket.registration.repo.neo4j.TagRepository;
 import com.auditbucket.registration.repo.neo4j.model.TagNode;
 import org.neo4j.graphdb.Node;
+import org.neo4j.kernel.impl.core.NodeProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,16 +48,13 @@ import java.util.*;
 public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
 
     @Autowired
-    TagRepository tagRepo;
-
-    @Autowired
     DocumentTypeRepo documentTypeRepo;
 
     @Autowired
     Neo4jTemplate template;
 
     @Autowired
-    EngineAdmin engineAdmin;
+    EngineConfig engineAdmin;
 
     private Logger logger = LoggerFactory.getLogger(TagDaoNeo4J.class);
 
@@ -68,17 +65,19 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
 
     public Tag save(Company company, TagInputBean tagInput) {
         // Check exists
-        // ToDo: Neo4j2 - don't associate with the company rather a tag node type
         TagNode sourceTag = (TagNode) findOne(tagInput.getName(), company);
         Node end;
         if (sourceTag == null) {
             sourceTag = new TagNode(tagInput);
-            // ToDo: Dynamic properties
-
-//            end = template.createUniqueNode(sourceTag);
             String tagSuffix = engineAdmin.getTagSuffix(company);
+            // ToDo: Should a type be suffixed with company in multi-tenanted? - more time to think!!
+            //       do we care that one company can see another companies tag value? Certainly not the
+            //       audit data.
+            if ( tagInput.getType() != null && !":".equals(tagInput.getType()))
+                tagSuffix = tagSuffix +" " + tagInput.getType();
 
-            String query = "merge (tag:Tag" + tagSuffix + " {code:{code}, name:{name}, key:{key}, __TYPE__:'Tag'})  return tag";
+            // ToDo: Multi-tenanted custom tags
+            String query = "merge (tag:Tag" + tagSuffix + " {code:{code}, name:{name}, key:{key}})  return tag";
             Map<String, Object> params = new HashMap<>();
             params.put("code", sourceTag.getCode());
             params.put("key", sourceTag.getKey());
@@ -88,9 +87,8 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
             end = (Node) mapResult.get("tag");
             sourceTag.setId(end.getId());
 
-            //graphDb.createIndex(end., "Tag" + (engineAdmin.isMultiTenanted()? company.getCode():""), IndexType.UNIQUE );
         } else {
-            end = template.getPersistentState(sourceTag);
+            end = template.getNode(sourceTag.getId());
         }
 
         Map<String, TagInputBean[]> tags = tagInput.getTargets();
@@ -107,25 +105,13 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
 
     Tag saveAssociated(Company company, Node startNode, TagInputBean associatedTag, String rlxName) {
         Tag tagToCreate = save(company, associatedTag);
-        Node endNode = template.getPersistentState(tagToCreate);
+        Node endNode = template.getNode(tagToCreate.getId());
         if (associatedTag.isReverse())
             template.createRelationshipBetween(endNode, startNode, rlxName, null);
         else
             template.createRelationshipBetween(startNode, endNode, rlxName, null);
 
         return tagToCreate;
-    }
-
-    @Cacheable(value = "companyTagManager", unless = "#result == null")
-    private Node getCompanyTagManagerNode(Long companyId) {
-        // ToDo: Remove this
-        if (true) return null;
-        String query = "start company=node({companyId}) match company-[:TAG_COLLECTION]->ct return ct";
-        Map<String, Object> params = new HashMap<>();
-        params.put("companyId", companyId);
-        Result<Map<String, Object>> result = template.query(query, params);
-        Map<String, Object> mapResult = result.singleOrNull();
-        return ((Node) mapResult.get("ct"));
     }
 
     @Override
@@ -153,6 +139,21 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
         }
         //
         return results;
+    }
+
+    @Override
+    public Map<String, Tag> findTags(Company company, String type) {
+        Map<String, Tag>tagResults = new HashMap<>();
+        String query = "match (tag:" +type + (engineAdmin.getTagSuffix(company)) + ") return tag";
+        // Look at PAGE
+        Result<Map<String, Object>> results = template.query(query, null);
+        for (Map<String, Object> row :results){
+            Object o = row.get("tag");
+            Tag t = new TagNode((NodeProxy)o);
+            tagResults.put(t.getName(), t);
+
+        }
+        return tagResults;
     }
 
     @Override

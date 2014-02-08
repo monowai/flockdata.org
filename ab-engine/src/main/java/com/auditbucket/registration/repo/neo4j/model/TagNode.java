@@ -24,10 +24,6 @@ import com.auditbucket.registration.model.Tag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.neo4j.graphdb.Node;
-import org.springframework.data.annotation.TypeAlias;
-import org.springframework.data.neo4j.annotation.GraphId;
-import org.springframework.data.neo4j.annotation.Indexed;
-import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.fieldaccess.DynamicProperties;
 import org.springframework.data.neo4j.fieldaccess.PrefixedDynamicProperties;
 
@@ -38,16 +34,11 @@ import java.util.Map;
  * Date: 29/06/13
  * Time: 8:35 PM
  */
-@NodeEntity
-@TypeAlias("Tag")
 public class TagNode implements Tag {
-    @GraphId
     Long Id;
 
-    @Indexed(indexName = "tagKeys")
     private String key;
 
-    @Indexed(indexName = "tagCodes")
     private String code;
 
     DynamicProperties properties = new PrefixedDynamicProperties("");
@@ -70,16 +61,6 @@ public class TagNode implements Tag {
         properties.setPropertiesFrom(tagInput.getProperties());
     }
 
-    public TagNode(Map<String, Object> mapResult) {
-        if (mapResult == null)
-            return;
-        this.Id = (Long) mapResult.get(("Id"));
-        this.code = (String) mapResult.get("code");
-        this.name = (String) mapResult.get("name");
-        this.key = (String) mapResult.get("key");
-
-    }
-
     public TagNode(Node tag) {
         this.Id = tag.getId();
         this.code = (String) tag.getProperty("code");
@@ -87,7 +68,6 @@ public class TagNode implements Tag {
         this.key = (String) tag.getProperty("key");
 
     }
-
 
     @Override
     public String getName() {
@@ -141,4 +121,5 @@ public class TagNode implements Tag {
         this.Id = id;
 
     }
+
 }

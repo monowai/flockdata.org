@@ -31,6 +31,7 @@ import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.TagService;
 import org.joda.time.DateTime;
+import org.neo4j.kernel.DeadlockDetectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -205,15 +206,19 @@ public class AuditManagerService {
                         auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTagValues());
                 }
             } catch (RuntimeException re) {
-                logger.debug("Deadlock Detected. Entering retry");
-                retryCount++;
-                if (retryCount == retries) {
-                    // Deadlock retry
-                    // ToDo: A Map<String,AuditHeader> keyed by Tag may reduce potential deadlocks as fewer tags are associated with more headers
-                    // http://www.slideshare.net/neo4j/zephyr-neo4jgraphconnect-2013short
-                    logger.error("Error creating Header, rolling back", re);
+                // ToDo: Exceptions getting wrapped in a JedisException. Can't directly catch the DDE hence the instanceof check
+                if ( re.getCause() instanceof DeadlockDetectedException) {
+                    logger.debug("Deadlock Detected. Entering retry");
+                    retryCount++;
+                    if (retryCount == retries) {
+                        // ToDo: A Map<String,AuditHeader> keyed by Tag may reduce potential deadlocks as fewer tags are associated with more headers
+                        // http://www.slideshare.net/neo4j/zephyr-neo4jgraphconnect-2013short
+                        logger.error("Error creating Header, rolling back", re);
+                        throw (re);
+                    }
+                } else
                     throw (re);
-                }
+
 
             }
 
@@ -319,7 +324,7 @@ public class AuditManagerService {
         return skipCount;
     }
 
-    public AuditSummaryBean getAuditSummary(String auditKey) {
+    public AuditSummaryBean getAuditSummary(String auditKey) throws AuditException {
         AuditSummaryBean summary = auditService.getAuditSummary(auditKey);
         return summary;
     }

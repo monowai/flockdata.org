@@ -57,7 +57,6 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import static junit.framework.Assert.*;
-import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -535,8 +534,9 @@ public class TestAudit {
         auditHeader = auditService.getHeader(ahWP); // Inflate the header on the server
         AuditLog lastLog = auditService.getLastLog(auditHeader.getAuditKey());
         assertNotNull(lastLog);
-        assertNotNull(lastLog.getAuditChange().getWhat());
-        AuditWhat whatResult = auditService.getWhat(lastLog.getAuditChange());
+//        assertNotNull(lastLog.getAuditChange().getWhat());
+        AuditWhat whatResult = auditService.getWhat(auditHeader, lastLog.getAuditChange());
+        assertNotNull ( whatResult);
         assertTrue(whatResult.getWhatMap().containsKey("house"));
     }
 
@@ -624,7 +624,7 @@ public class TestAudit {
             AuditChange change = log.getAuditChange();
             assertNotNull(change.getEvent());
             assertNotNull(change.getWho().getCode());
-            AuditWhat whatResult = auditService.getWhat(change);
+            AuditWhat whatResult = auditService.getWhat(auditHeader, change);
             assertTrue(whatResult.getWhatMap().containsKey("house"));
         }
     }
@@ -658,7 +658,6 @@ public class TestAudit {
         Fortress fortressAST = fortressService.registerFortress(astFortress);
         assertEquals(TimeZone.getTimeZone("AST").getID(), fortressAST.getTimeZone());
 
-        DateTime dt = new DateTime();
         AuditHeaderInputBean astAuditBean = new AuditHeaderInputBean(fortressGMT.getName(), "olivia@ast.com", "CompanyNode", null, "ABC1");
         AuditHeaderInputBean gmtAuditBean = new AuditHeaderInputBean(fortressAST.getName(), "olivia@gmt.com", "CompanyNode", null, "ABC1");
         String result = auditManagerService.createHeader(astAuditBean).getAuditKey();

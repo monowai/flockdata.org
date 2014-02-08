@@ -25,7 +25,7 @@ import com.auditbucket.dao.AuditTagDao;
 import com.auditbucket.dao.TagDao;
 import com.auditbucket.engine.repo.neo4j.model.AuditHeaderNode;
 import com.auditbucket.engine.repo.neo4j.model.AuditTagRelationship;
-import com.auditbucket.engine.service.EngineAdmin;
+import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
@@ -78,12 +78,15 @@ public class AuditTagDaoNeo implements AuditTagDao {
         if (relationship == null) {
             relationship = "GENERAL_TAG";
         }
+        if ( tag == null )
+            throw new IllegalArgumentException("Tag must not be NULL. Relationship["+relationship+"]");
+
         AuditTagRelationship rel = new AuditTagRelationship(auditHeader, tag, relationship, propMap);
         if (auditHeader.getId() == null)
             return rel;
 
         Node headerNode = template.getPersistentState(auditHeader);
-        Node tagNode = template.getPersistentState(tag);
+        Node tagNode = template.getNode(tag.getId());
         //Primary exploration relationship
         Relationship r = template.getRelationshipBetween(tagNode, headerNode, relationship);
 
@@ -158,13 +161,13 @@ public class AuditTagDaoNeo implements AuditTagDao {
     @Override
     public Boolean relationshipExists(AuditHeader auditHeader, Tag tag, String relationshipType) {
         Node end = template.getPersistentState(auditHeader);
-        Node start = template.getPersistentState(tag);
+        Node start = template.getNode(tag.getId());
         return (template.getRelationshipBetween(start, end, relationshipType) != null);
 
     }
 
     @Autowired
-    EngineAdmin engineAdmin;
+    EngineConfig engineAdmin;
 
     @Override
     public Set<AuditTag> getAuditTags(AuditHeader auditHeader, Company company) {

@@ -20,7 +20,7 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.model.DocumentType;
-import com.auditbucket.engine.service.EngineAdmin;
+import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.SystemUser;
@@ -44,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static junit.framework.Assert.*;
 
@@ -67,7 +68,7 @@ public class TestTags {
     TagService tagService;
 
     @Autowired
-    EngineAdmin engineAdmin;
+    EngineConfig engineAdmin;
 
 
     @Autowired
@@ -269,4 +270,44 @@ public class TestTags {
         assertNotNull(result);
 
     }
+    @Test
+    public void customLabelsSingleTenant() throws Exception {
+        engineAdmin.setMultiTenanted(false);
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
+        assertNotNull(iSystemUser);
+
+        TagInputBean tagInput = new TagInputBean("Source", "TestTag");
+        tagInput.setCode("CodeA");
+        tagInput.setName("NameA");
+        Tag tag = tagService.processTag(tagInput);
+        assertNotNull (tag);
+        assertEquals(tagInput.getCode(), tag.getCode());
+        assertEquals(tagInput.getName(), tag.getName());
+        assertNotNull(tag.getKey());
+        Map<String, Tag> results = tagService.findTags("TestTag");
+        assertNotNull ( results);
+        assertFalse(results.isEmpty());
+        assertNotNull ( results.get(tagInput.getName()));
+    }
+
+    // ToDo: Multi-tenanted custom tags
+    public void customLabelsMultiTenant() throws Exception {
+        engineAdmin.setMultiTenanted(true);
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
+        assertNotNull(iSystemUser);
+
+        TagInputBean tagInput = new TagInputBean("Source", "TestTag");
+        tagInput.setCode("CodeA");
+        tagInput.setName("NameA");
+        Tag tag = tagService.processTag(tagInput);
+        assertNotNull (tag);
+        assertEquals(tagInput.getCode(), tag.getCode());
+        assertEquals(tagInput.getName(), tag.getName());
+        assertNotNull(tag.getKey());
+        Map<String, Tag> results = tagService.findTags("TestTag");
+        assertNotNull ( results);
+        assertFalse(results.isEmpty());
+        assertNotNull ( results.get(tagInput.getName()));
+    }
+
 }

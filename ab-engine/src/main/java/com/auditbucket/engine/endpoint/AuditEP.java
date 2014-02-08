@@ -20,14 +20,8 @@
 package com.auditbucket.engine.endpoint;
 
 import com.auditbucket.audit.bean.*;
-import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.audit.model.AuditLog;
-import com.auditbucket.audit.model.AuditTag;
-import com.auditbucket.audit.model.TxRef;
-import com.auditbucket.engine.service.AuditManagerService;
-import com.auditbucket.engine.service.AuditService;
-import com.auditbucket.engine.service.AuditTagService;
-import com.auditbucket.engine.service.EngineAdmin;
+import com.auditbucket.audit.model.*;
+import com.auditbucket.engine.service.*;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
@@ -63,7 +57,7 @@ public class AuditEP {
     AuditService auditService;
 
     @Autowired
-    EngineAdmin auditAdmin;
+    EngineConfig auditAdmin;
 
     @Autowired
     AuditManagerService auditManager;
@@ -79,6 +73,9 @@ public class AuditEP {
 
     @Autowired
     CompanyService companyService;
+
+    @Autowired
+    WhatService whatService;
 
     private static Logger logger = LoggerFactory.getLogger(AuditEP.class);
 
@@ -220,7 +217,7 @@ public class AuditEP {
     @ResponseBody
     @RequestMapping(value = "/{auditKey}/summary", produces = "application/json", method = RequestMethod.GET)
     @Secured({"ROLE_USER"})
-    public ResponseEntity<AuditSummaryBean> getAuditSummary(@PathVariable("auditKey") String auditKey) {
+    public ResponseEntity<AuditSummaryBean> getAuditSummary(@PathVariable("auditKey") String auditKey) throws AuditException{
         return new ResponseEntity<>(auditManager.getAuditSummary(auditKey), HttpStatus.OK);
 
     }
@@ -239,6 +236,24 @@ public class AuditEP {
     }
 
     @ResponseBody
+    @RequestMapping(value = "/{auditKey}/lastlog/what", produces = "application/json", method = RequestMethod.GET)
+    @Secured({"ROLE_USER"})
+    public ResponseEntity<AuditWhat> getLastChangeWhat(@PathVariable("auditKey") String auditKey) throws AuditException {
+        // curl -u mike:123 -X GET http://localhost:8080/ab/audit/c27ec2e5-2e17-4855-be18-bd8f82249157/lastchange
+        AuditHeader header = auditService.getHeader(auditKey);
+        if (header != null) {
+            AuditLog changed = auditService.getLastLog(header);
+            AuditWhat what = whatService.getWhat(header, changed.getAuditChange());
+
+            if (changed != null)
+                return new ResponseEntity<>(what, HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>((AuditWhat) null, HttpStatus.OK);
+
+    }
+
+    @ResponseBody
     @RequestMapping(value = "/{auditKey}/{logId}", produces = "application/json", method = RequestMethod.GET)
     @Secured({"ROLE_USER"})
     public ResponseEntity<AuditLogDetailBean> getFullLog(@PathVariable("auditKey") String auditKey, @PathVariable("logId") Long logId) {
@@ -249,6 +264,22 @@ public class AuditEP {
             return new ResponseEntity<>(change, HttpStatus.OK);
 
         return new ResponseEntity<>((AuditLogDetailBean) null, HttpStatus.OK);
+
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/{auditKey}/{logId}/what", produces = "application/json", method = RequestMethod.GET)
+    @Secured({"ROLE_USER"})
+    public ResponseEntity<AuditWhat> getLogWhat(@PathVariable("auditKey") String auditKey, @PathVariable("logId") Long logId) {
+
+        AuditHeader header = auditService.getHeader(auditKey);
+        if (header != null) {
+            AuditLog log = auditService.getAuditLog(header, logId);
+            if (log != null)
+                return new ResponseEntity<>(whatService.getWhat(header, log.getAuditChange()), HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>((AuditWhat) null, HttpStatus.OK);
 
     }
 

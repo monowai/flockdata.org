@@ -1,9 +1,13 @@
 package com.auditbucket.engine.service;
 
 import com.auditbucket.audit.model.AuditChange;
+import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditWhat;
 import com.auditbucket.dao.AuditDao;
+import com.auditbucket.engine.repo.AuditWhatData;
+import com.auditbucket.engine.repo.KvRepo;
 import com.auditbucket.engine.repo.redis.RedisRepo;
+import com.auditbucket.engine.repo.riak.RiakRepo;
 import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.helper.CompressionResult;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -24,60 +28,91 @@ import java.io.IOException;
 @Transactional
 public class WhatService {
 
-    public static final String REDIS = "redis";
+    public String ping() {
+        KvRepo repo = getKvRepo();
+        return repo.ping();
+    }
+
+    public enum KV_STORE {REDIS, RIAK}
     private static final ObjectMapper om = new ObjectMapper();
     @Autowired(required = false)
     AuditDao auditDao = null;
     @Autowired
     RedisRepo redisRepo;
+    @Autowired
+    RiakRepo riakRepo;
+    @Autowired
+    EngineConfig engineAdmin;
+
     private Logger logger = LoggerFactory.getLogger(WhatService.class);
 
-    public String logWhat(AuditChange change, String jsonText, int version) {
+    public void logWhat(AuditHeader auditHeader, AuditChange change, String jsonText, int version) {
         // Compress the Value of JSONText
         CompressionResult result = CompressionHelper.compress(jsonText);
         Boolean compressed = result.getMethod() == CompressionResult.Method.GZIP;
 
+        change.setWhatStore(String.valueOf(engineAdmin.getKvStore()));
         // Store First all information In Neo4j
-        change = auditDao.save(change, compressed, version);
+        change = auditDao.save(change, compressed);
 
         // Store the what information Compressed in KV Store Depending on
+        KvRepo kvRepo = getKvRepo(change);
 
-        String store = change.getWhatStore();
-        if (store.equalsIgnoreCase(REDIS)) {
-            redisRepo.add(change.getId(), result.getAsBytes());
-        } else {
-            throw new IllegalStateException("The only supported KV Store is REDIS");
+        try {
+            // ToDo: deal with this via spring integration??
+            kvRepo.add(auditHeader, change.getId(), result.getAsBytes());
+        } catch (IOException e) {
+            logger.error("KV storage issue", e);
         }
-        return change.getWhat().getId();
+        //return change.getId();
     }
 
-    public AuditWhat getWhat(AuditChange change) {
-        if (change == null || change.getWhat() == null)
-            return null;
-        String store = change.getWhatStore();
-        // ToDo: this is a Neo4J what node store
+    private KvRepo getKvRepo(){
+        return getKvRepo(String.valueOf(engineAdmin.getKvStore()));
+    }
+    private KvRepo getKvRepo(AuditChange change) {
+        return getKvRepo(change.getWhatStore());
+    }
 
-        AuditWhat auditWhat = auditDao.getWhat(Long.parseLong(change.getWhat().getId()));
-        if (store.equalsIgnoreCase(REDIS)) {
-            byte[] whatInformation = redisRepo.getValue(change.getId());
-            auditWhat.setWhatBytes(whatInformation);
+    private KvRepo getKvRepo(String kvStore){
+        if (kvStore.equalsIgnoreCase(String.valueOf(KV_STORE.REDIS))) {
+            return redisRepo;
+        } else if (kvStore.equalsIgnoreCase(String.valueOf(KV_STORE.RIAK))) {
+            return riakRepo ;
         } else {
-            throw new IllegalStateException("The only supported KV Store is REDIS");
+            throw new IllegalStateException("The only supported KV Stores supported are redis & riak");
         }
+
+    }
+    public AuditWhat getWhat(AuditHeader auditHeader, AuditChange change) {
+        if (change == null )
+            return null;
+        KvRepo kvRepo = getKvRepo(change);
+        byte[] whatInformation = kvRepo.getValue(auditHeader, change.getId());
+        AuditWhat auditWhat = new AuditWhatData(whatInformation, change.isCompressed());
         return auditWhat;
     }
+
+    public void delete(AuditHeader auditHeader, AuditChange change) {
+
+        getKvRepo(change).delete(auditHeader, change.getId());
+    }
+
+
 
     /**
      * Locate and compare the two JSON What documents to determine if they have changed
      *
+     *
+     * @param auditHeader
      * @param compareFrom existing change to compare from
      * @param compareWith new Change to compare with - JSON format
      * @return false if different, true if same
      */
-    public boolean isSame(AuditChange compareFrom, String compareWith) {
+    public boolean isSame(AuditHeader auditHeader, AuditChange compareFrom, String compareWith) {
         if (compareFrom == null)
             return false;
-        AuditWhat what = getWhat(compareFrom);
+        AuditWhat what = getWhat(auditHeader, compareFrom);
 
         if (what == null)
             return false;

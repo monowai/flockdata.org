@@ -8,8 +8,6 @@ import java.util.Map;
  */
 public interface AuditWhat {
 
-    public String getId();
-
     /**
      * @return uncompressed Json String
      */
@@ -22,12 +20,5 @@ public interface AuditWhat {
 
     public boolean isCompressed();
 
-    /**
-     * @param jsonWhat uncompressed JSON string
-     */
-    public void setJsonWhat(String jsonWhat);
 
-    public void setWhatBytes(byte[] whatBytes);
-
-    public int getVersion();
 }

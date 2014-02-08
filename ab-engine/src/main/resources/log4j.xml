@@ -69,6 +69,9 @@
         <level value="error"/>
     </logger>
 
+    <logger name="org.eclipse">
+        <level value="error"/>
+    </logger>
     <logger name="o.e.jetty">
         <level value="error"/>
     </logger>

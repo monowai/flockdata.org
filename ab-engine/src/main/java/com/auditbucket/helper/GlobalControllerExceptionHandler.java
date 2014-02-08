@@ -22,96 +22,55 @@ package com.auditbucket.helper;
 import com.fasterxml.jackson.core.JsonParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
+import org.springframework.data.keyvalue.riak.DataStoreOperationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
-import org.springframework.web.HttpMediaTypeNotSupportedException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-
-import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  * User: Mike Holdsworth
  * Date: 15/06/13
  * Time: 12:38 PM
+ *
+ * http://www.asyncdev.net/2011/12/spring-restful-controllers-and-error-handling/
+ *
  */
 @ControllerAdvice
-public class GlobalControllerExceptionHandler extends ResponseEntityExceptionHandler {
+public class GlobalControllerExceptionHandler {
     private Logger logger = LoggerFactory.getLogger(GlobalControllerExceptionHandler.class);
 
-    @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors();
-        List<ObjectError> globalErrors = ex.getBindingResult().getGlobalErrors();
-        List<String> errors = new ArrayList<>(fieldErrors.size() + globalErrors.size());
-        String error;
-        for (FieldError fieldError : fieldErrors) {
-            error = fieldError.getField() + ", " + fieldError.getDefaultMessage();
-            errors.add(error);
-        }
-        for (ObjectError objectError : globalErrors) {
-            error = objectError.getObjectName() + ", " + objectError.getDefaultMessage();
-            errors.add(error);
-        }
-        AuditError errorMessage = new AuditError(errors);
-        return new ResponseEntity<Object>(errorMessage, headers, status);
-    }
-
-    @Override
-    protected ResponseEntity<Object> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        String unsupported = "Unsupported content type: " + ex.getContentType();
-        String supported = "Supported content types: " + MediaType.toString(ex.getSupportedMediaTypes());
-        AuditError errorMessage = new AuditError(unsupported, supported);
-        return new ResponseEntity<Object>(errorMessage, headers, status);
-    }
-
-    @Override
-    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        Throwable mostSpecificCause = ex.getMostSpecificCause();
-        AuditError errorMessage;
-        if (mostSpecificCause != null) {
-            String exceptionName = mostSpecificCause.getClass().getName();
-            String message = mostSpecificCause.getMessage();
-            errorMessage = new AuditError(exceptionName, message);
-        } else {
-            errorMessage = new AuditError(ex.getMessage());
-        }
-        return new ResponseEntity<Object>(errorMessage, headers, status);
+    @ExceptionHandler(DataStoreOperationException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ModelAndView handleKVStore( DataStoreOperationException ex){
+        logger.error("KV Store Error", ex);
+        return new JsonError("Internal KV Error. Contact Support").asModelAndView();
     }
 
     @ExceptionHandler(AuditException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public AuditError handleAudit(final AuditException ex) {
-        AuditError error = new AuditError(ex.getMessage());
-        return error;
+    public ModelAndView handleAuditException( AuditException ex){
+        return new JsonError(ex.getMessage()).asModelAndView();
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ModelAndView handleIAException( IllegalArgumentException ex){
+        return new JsonError(ex.getMessage()).asModelAndView();
     }
 
     @ExceptionHandler(JsonParseException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public AuditError handleJsonError(final JsonParseException ex) {
-        AuditError error = new AuditError(ex.getMessage());
-        return error;
+    public ModelAndView handleJsonError(final JsonParseException ex) {
+        return new JsonError(ex.getMessage()).asModelAndView();
     }
 
-    @ExceptionHandler({NullPointerException.class, IllegalArgumentException.class, IllegalStateException.class})
-    /*500*/ public ResponseEntity<Object> handleInternal(final RuntimeException ex, final WebRequest request) {
-        logger.error("500 Status Code", ex);
-        final String bodyOfResponse = ex.getLocalizedMessage();
-        return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ModelAndView handleInternal( Exception ex) {
+        return new JsonError(ex.getMessage()).asModelAndView();
     }
 
 }

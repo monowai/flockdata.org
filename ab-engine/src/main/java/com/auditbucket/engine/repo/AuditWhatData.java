@@ -1,14 +1,10 @@
-package com.auditbucket.engine.repo.neo4j.model;
+package com.auditbucket.engine.repo;
 
 import com.auditbucket.audit.model.AuditWhat;
 import com.auditbucket.helper.CompressionHelper;
-import com.auditbucket.helper.CompressionResult;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.annotation.Transient;
-import org.springframework.data.annotation.TypeAlias;
-import org.springframework.data.neo4j.annotation.GraphId;
-import org.springframework.data.neo4j.annotation.NodeEntity;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -16,13 +12,10 @@ import java.util.Map;
 
 /**
  * User: Mike Holdsworth
+ * POJO for transmitting what data from a KV store
  * Since: 4/09/13
  */
-@NodeEntity
-@TypeAlias("What")
-public class AuditWhatNode implements AuditWhat {
-    @GraphId
-    private Long id;
+public class AuditWhatData implements AuditWhat {
 
     @JsonIgnore
     private
@@ -36,27 +29,14 @@ public class AuditWhatNode implements AuditWhat {
     @Transient
     private
     ObjectMapper objectMapper = new ObjectMapper();
-    private
-    int version;
-    private String name;
 
-    protected AuditWhatNode() {
+    protected AuditWhatData() {
     }
 
-    public AuditWhatNode(int version) {
+    public AuditWhatData(byte[] whatInformation, boolean compressed) {
         this();
-        if (version == 0)
-            version = 1;
-        this.version = version;
-        this.name = "version " + version;
-    }
-
-    @Override
-    @JsonIgnore
-    public String getId() {
-        if (id == null)
-            return "";
-        return id.toString();
+        this.setWhatBytes(whatInformation);
+        this.compressed = compressed;
     }
 
     @Override
@@ -83,25 +63,13 @@ public class AuditWhatNode implements AuditWhat {
         return what;
     }
 
-    public void setCompressed(Boolean compressed) {
-        this.compressed = compressed;
-    }
-
     @Override
     public boolean isCompressed() {
         return compressed;
     }
 
-    public void setJsonWhat(String what) {
-        CompressionResult result = CompressionHelper.compress(what);
-        this.compressed = result.getMethod() == CompressionResult.Method.GZIP;
-    }
-
-    public void setWhatBytes(byte[] whatBytes) {
+    void setWhatBytes(byte[] whatBytes) {
         this.whatBytes = whatBytes;
     }
 
-    public int getVersion() {
-        return version;
-    }
 }

@@ -100,8 +100,8 @@ public class AuditService {
     @Autowired
     private KeyGenService keyGenService;
 
-    public AuditWhat getWhat(AuditChange change) {
-        return whatService.getWhat(change);
+    public AuditWhat getWhat(AuditHeader auditHeader, AuditChange change) {
+        return whatService.getWhat(auditHeader, change);
     }
 
 
@@ -176,7 +176,7 @@ public class AuditService {
 
         AuditHeader ah = auditDAO.findHeader(key, inflate);
         if (ah == null)
-            throw new IllegalArgumentException("Unable to find key [" + key + "]");
+            throw new IllegalArgumentException("Unable to resolve requested audit key [" + key + "]");
 
         if (!(ah.getFortress().getCompany().getId().equals(su.getCompany().getId())))
             throw new SecurityException("CompanyNode mismatch. [" + su.getName() + "] working for [" + su.getCompany().getName() + "] cannot write audit records for [" + ah.getFortress().getCompany().getName() + "]");
@@ -250,10 +250,8 @@ public class AuditService {
         DateTime fortressWhen = (input.getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(input.getWhen()));
 
         if (existingLog != null) {
-            // Neo4j won't store the map, so we store the raw escaped JSON text
             try {
-                // KVStore.getWhat()
-                if (whatService.isSame(existingLog.getAuditChange(), input.getWhat())) {
+                if (whatService.isSame(auditHeader, existingLog.getAuditChange(), input.getWhat())) {
                     logger.trace("Ignoring a change we already have {}", input);
                     input.setStatus(AuditLogInputBean.LogStatus.IGNORE);
                     if (input.isForceReindex()) { // Caller is recreating the search index
@@ -291,11 +289,11 @@ public class AuditService {
         input.setAuditEvent(event);
         AuditChange thisChange = auditDAO.save(thisFortressUser, input, txRef, existingChange);
         int version = 0;
-        if (existingChange != null) {
-            version = whatService.getWhat(existingChange).getVersion();
-        }
+//        if (existingChange != null) {
+//            version = whatService.getWhat(auditHeader, existingChange).getVersion();
+//        }
 
-        whatService.logWhat(thisChange, input.getWhat(), version);
+        whatService.logWhat(auditHeader, thisChange, input.getWhat(), version);
 
         AuditLog newLog = auditDAO.addLog(auditHeader, thisChange, fortressWhen);
         boolean moreRecent = (existingChange == null || existingLog.getFortressWhen() <= newLog.getFortressWhen());
@@ -547,11 +545,17 @@ public class AuditService {
             auditDAO.fetch(priorChange);
             auditHeader.setLastUser(fortressService.getFortressUser(auditHeader.getFortress(), priorChange.getWho().getCode()));
             auditHeader = auditDAO.save(auditHeader);
-        } //else {
-        // No changes left
-        // What to to? Delete the auditHeader? Store the "canceled By" User? Assign the log to a Cancelled RLX?
-        //}
-
+            whatService.delete(auditHeader, currentChange);
+            auditDAO.delete(currentChange);
+        } else if (currentChange != null) {
+            // No changes left, there is now just a header
+            // What to to? Delete the auditHeader? Store the "canceled By" User? Assign the log to a Cancelled RLX?
+            // ToDo: Delete from ElasticSearch??
+            auditHeader.setLastUser(fortressService.getFortressUser(auditHeader.getFortress(), auditHeader.getCreatedBy().getCode()));
+            auditHeader = auditDAO.save(auditHeader);
+            whatService.delete(auditHeader, currentChange);
+            auditDAO.delete(currentChange);
+        }
 
         if (priorChange == null)
             // Nothing to index, no changes left so we're done
@@ -560,7 +564,7 @@ public class AuditService {
         // Sync the update to ab-search.
         if (auditHeader.getFortress().isSearchActive() && !auditHeader.isSearchSuppressed()) {
             // Update against the Audit Header only by re-indexing the search document
-            Map<String, Object> priorWhat = whatService.getWhat(priorChange).getWhatMap();
+            Map<String, Object> priorWhat = whatService.getWhat(auditHeader, priorChange).getWhatMap();
             AuditSearchChange searchDocument = new AuditSearchChange(auditHeader, priorWhat, priorChange.getEvent().getCode(), new DateTime(priorChange.getAuditLog().getFortressWhen()));
             searchDocument.setTags(auditTagService.findAuditTags(auditHeader));
             searchGateway.makeChangeSearchable(searchDocument);
@@ -583,7 +587,7 @@ public class AuditService {
                 // Update against the Audit Header only by re-indexing the search document
                 Map<String, Object> lastWhat;
                 if (lastChange != null)
-                    lastWhat = whatService.getWhat(lastChange).getWhatMap();
+                    lastWhat = whatService.getWhat(auditHeader, lastChange).getWhatMap();
                 else
                     return; // ToDo: fix reindex header only scenario, i.e. no "change/what"
 
@@ -694,8 +698,10 @@ public class AuditService {
         return auditDAO.getAuditLogs(headerId);
     }
 
-    public AuditSummaryBean getAuditSummary(String auditKey) {
+    public AuditSummaryBean getAuditSummary(String auditKey) throws AuditException {
         AuditHeader header = getHeader(auditKey, true);
+        if ( header == null )
+            throw new AuditException("Invalid Audit Key ["+auditKey+"]");
         Set<AuditLog> changes = getAuditLogs(header.getId());
         Set<AuditTag> tags = auditTagService.findAuditTags(header);
         return new AuditSummaryBean(header, changes, tags);
@@ -705,7 +711,16 @@ public class AuditService {
     public void makeHeaderSearchable(AuditResultBean resultBean, String event, Date when, Company company) {
         AuditHeader header = resultBean.getAuditHeader();
         if (header.isSearchSuppressed() || !header.getFortress().isSearchActive())
-            return;
+            return ;
+
+        SearchChange searchDocument = getSearchChange(resultBean, event, when, company);
+        if (searchDocument == null) return;
+        makeChangeSearchable(searchDocument);
+
+    }
+
+    public SearchChange getSearchChange(AuditResultBean resultBean, String event, Date when, Company company) {
+        AuditHeader header = resultBean.getAuditHeader();
 
         fortressService.fetch(header.getLastUser());
         SearchChange searchDocument = new AuditSearchChange(header, null, event, new DateTime(when));
@@ -720,8 +735,7 @@ public class AuditService {
         } else {
             searchDocument.setTags(auditTagService.findAuditTags(company, header));
         }
-        makeChangeSearchable(searchDocument);
-
+        return searchDocument;
     }
 
     public AuditLog getLastLog(String auditKey) throws AuditException {
@@ -730,16 +744,47 @@ public class AuditService {
 
     }
 
+    public AuditLog getLastLog(AuditHeader audit) throws AuditException {
+//        AuditHeader audit = getValidHeader(auditKey);
+        return getLastLog(audit.getId());
+
+    }
+
     public AuditLogDetailBean getFullDetail(String auditKey, Long logId) {
-        AuditHeader header = getHeader(auditKey, true);
-        if (header == null)
+        AuditHeader auditHeader = getHeader(auditKey, true);
+        if (auditHeader == null)
             return null;
 
         AuditLog log = auditDAO.getLog(logId);
         auditDAO.fetch(log.getAuditChange());
-        AuditWhat what = whatService.getWhat(log.getAuditChange());
+        AuditWhat what = whatService.getWhat(auditHeader, log.getAuditChange());
+        log.getAuditChange().setWhat(what);
         return new AuditLogDetailBean(log, what);
     }
 
+    public AuditLog getAuditLog(AuditHeader header, Long logId) {
+        if (header != null) {
 
+            AuditLog log = auditDAO.getLog(logId);
+            if (!log.getAuditHeader().getId().equals(header.getId()))
+                return null;
+
+            auditDAO.fetch(log.getAuditChange());
+            return log;
+        }
+        return null;
+    }
+
+    /**
+     * Typically called only for regression test purposes
+     *
+     * @param resultBean Audit to work with
+     * @param event      descriptor of last event
+     * @param when       date fortress is saying this took place
+     * @return           populated search doc
+     */
+    public SearchChange getSearchChange(AuditResultBean resultBean, String event, Date when) {
+        Company company = securityHelper.getCompany();
+        return getSearchChange(resultBean, event, when, company)   ;
+    }
 }

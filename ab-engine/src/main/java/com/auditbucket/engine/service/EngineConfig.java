@@ -43,7 +43,7 @@ import java.util.Map;
  */
 @Service
 @Transactional
-public class EngineAdmin {
+public class EngineConfig {
 
     @Autowired
     AuditDao auditDAO;
@@ -54,9 +54,10 @@ public class EngineAdmin {
 
     private String rabbitPort;
 
-    private Logger logger = LoggerFactory.getLogger(EngineAdmin.class);
+    private Logger logger = LoggerFactory.getLogger(EngineConfig.class);
 
     private Boolean multiTenanted = false;
+    private WhatService.KV_STORE kvStore =null;
 
     @Value("${rabbit.host:@null}")
     protected void setRabbitHost(String rabbitHost) {
@@ -83,6 +84,22 @@ public class EngineAdmin {
         this.multiTenanted = !"@null".equals(multiTenanted) && Boolean.parseBoolean(multiTenanted);
     }
 
+    @Value("${abengine.kvStore}")
+    public void setKvStore (String kvStore){
+        if ("@null".equals(kvStore) || kvStore.equalsIgnoreCase("redis"))
+            this.kvStore = WhatService.KV_STORE.REDIS;
+        else if ( kvStore.equalsIgnoreCase("riak"))
+            this.kvStore = WhatService.KV_STORE.RIAK;
+        else {
+            logger.error("Unable to resolve the abengine.kvstore property [" + kvStore +"]. Defaulting to REDIS");
+        }
+
+    }
+
+    public WhatService.KV_STORE getKvStore() {
+        return kvStore;
+    }
+
     @Autowired
     Neo4jTemplate template;
 
@@ -90,8 +107,9 @@ public class EngineAdmin {
     public void createTagIndex(Company company) {
         //template.query("create index on (t:Tag" + getTagSuffix(company) + ")", null) ;
         // Performance issue with constraints?
-        logger.info("MutilTennant suffix = [" + getTagSuffix(company) + "]");
-        template.query("create constraint on (t:Tag" + getTagSuffix(company) + ") assert t.key is unique", null);
+        logger.info("MultiTenant suffix = [" + getTagSuffix(company) + "]");
+        template.query("create constraint on (t:Tag" + getTagSuffix(company) + ") assert t.id is unique", null);
+        //template.query("create index on (t:Tag" + getTagSuffix(company)+ ")", null);
     }
 
     public String getTagSuffix(Company company) {
@@ -111,6 +129,7 @@ public class EngineAdmin {
         healthResults.put("config-file", config);
         String integration = System.getProperty("ab.integration");
         healthResults.put("ab.integration", integration);
+        healthResults.put("abengine.kvStore", String.valueOf(kvStore));
 
         //healthResults.put("ab.multiTenanted", multiTenanted.toString());
         if ("http".equalsIgnoreCase(integration)) {

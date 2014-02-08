@@ -1,5 +1,9 @@
 [auditbucket](http://auditbucket.com) - Data Profiling Service
 ===========
+## Project Status
+We're at 0.91 and very close to being feature frozen. Code and API are stable with only a few changes to the way tags are handled.  Master now supports Neo4j2. There is a Neo4j19 branch if you prefer. Data migration between versions is not guaranteed until we hit 1.0.
+
+While we are supporting Neo4j2 this code should be considered experimental until the SDN4J team finalise their release
 
 ## Project Status
 We're at 0.91 and very close to being feature frozen. Code and API are stable with only a few changes to the way tags are handled.  Master now supports Neo4j2. There is a Neo4j19 branch if you prefer. Data migration between versions is not guaranteed until we hit 1.0.
@@ -7,17 +11,17 @@ We're at 0.91 and very close to being feature frozen. Code and API are stable wi
 While we are supporting Neo4j2 this code should be considered experimental until the SDN4J team finalise their release.
 
 ## Executive Summary
-Track, Find, Kompare and Explore
+Track, Find, Compare and Explore
 
-Globally we are producing information now faster than at any time in history. Information is vital. Examining patterns in information can offer significant business value and insight. AuditBucket offers a straightforward data to classify and track information from any computer system. Turn **your** information into a knowledge platform.
+AuditBucket is a mediation service that preserves the business context of your information and creates you an ElasticSearch search engine and Neo4J graph database with very little upfront analysis or effort.
 
-Auditing (tracking changes to data) is often seen as a low value "we'll get to it later" afterthought in most computer systems, until it's too late. Applications are concerned and optimized to process information, rather than track the history of changing information. Often at best they can answer you "who last changed this?". This is not enough when forensic levels of analysis are required. Not auditing actionable data can expose organizations to unnecessary risk and financial penalties, and in the most extreme case, make organisations appear to be less than "open and co-operative" with regulators.
+You already know *what* information is crucial to your organisation - you've built and brought applications to capture that store that data. These applications are capturing information in a business context in order to store it for you - orders, customers, interactions etc. Let's take it to the next level. What if you could preserve the business context of the information you are already gathering to create insight. Now what if you could do that across your applications?
 
-AuditBucket views the problem as a **domain document** information management challenge. Everything is tracked as JSON data. The end results are that people can leverage sophisticated search capabilities onto latest available business information, then explore its evolution independently of the underlying transaction processing system that produced it. Kind of like **real-time data warehousing** for sales, and a graph for the marketing department to explore **patterns and behavior**.
+By preserving the business context of your information, you can easily establish high performance platforms from which deep insight can be extracted from your data. Search for any word across your data without caring if it is a Product, Address, Company or Person keyword. Summarise the results into beautiful real-time dashboards to keep your finger on the pulse. Explore the associative relationships of your information in innovative ways to identify patterns and trends.
 
-AuditBucket does not change your data other than storing it as a JSON representation. It does organise your documents in to a consistent envelope to enable exploration and search. You are completely free to explore and enhance it with excellent query tools such as [Kibana](http://www.elasticsearch.org/overview/kibana/), [Linkurious](http://linkurio.us/) , [Keylines](http://keylines.com/) and of course your own information technology systems. 
+Track distribution dockets of product involving specific batch numbers? Done. Alert me to all trades > 1,000,000 involving Trader X on the Sell side? Done. Complex questions don't become complex projects. They become realtime dashboards, alerts and queries that can be produced in a morning.
 
-Typically, archival projects are run to eliminate "old" data from transaction systems which are costly initiatives that introduce on-going costs. AuditBucket enables insight to be preserved and explored in innovative ways freeing up your transactional systems to do what they do best - perform.
+The latest generation of information management technologies make working with information fun and easy and AuditBucket makes them effortless to create.
 
 ## Still with us?
 This project represents an exploration into alternative information systems and the technologies that support them with a view to how they could be put to work in a service/api-oriented world that can be mapped onto business processes in a JSON oriented Domain Driven architecture.
@@ -27,10 +31,10 @@ AuditBucket (AB) enables you to track incoming information, find it via a search
 AB leans on the brilliant work being done by the open-source community. The open source projects we have selected represent the cutting edge in information management techniques. AB will enable your journey into big data and looks at information in new and exciting ways for very little effort. **Accelerate your evaluation of Neo4J and ElasticSearch**.
 
 ## Licensing
-AuditBucket is an open source product. We support a Community edition under the GPLv3 license. The Enterprise edition is available under the AGPLv3 license for open source projects otherwise under a commercial license by contacting [the Bucketeers](http://auditbucket.com/contact-auditbucket/). Talk to us about clustering as there may be costs involved.
+AuditBucket is an open source product. We support a Community edition under the GPLv3 license. The Enterprise edition is available under the AGPLv3 license for open source projects otherwise under a commercial license by contacting [the Bucketeers](http://auditbucket.com/contact-auditbucket/). Talk to us about clustering as there may be costs involved with the underlying stack.
 
 ## Working with us
-More details? Stuck? Integration assistance? General consulting? Want to get started at the [speed of business](http://www.adamalthus.com/blog/2013/06/05/cloud-computing-and-complexity/#more-890)? 
+More details? Ideas? Integration assistance? General consulting? Want to get started at the [speed of business](http://www.adamalthus.com/blog/2013/06/05/cloud-computing-and-complexity/#more-890)? 
 
 Drop us a line over at [auditbucket.com](http://auditbucket.com/contact-auditbucket/) and we'd be happy to see if we can help you reach your goals. Usual social media channels also apply - [LinkedIn](http://www.linkedin.com/company/3361595) .
 
