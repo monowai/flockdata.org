@@ -32,7 +32,7 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
 import java.util.Set;
 
 @NodeEntity
-@TypeAlias("Company")
+@TypeAlias("ABCompany")
 public class CompanyNode implements Company {
     @GraphId
     Long id;
