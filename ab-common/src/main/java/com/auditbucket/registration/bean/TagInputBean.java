@@ -42,18 +42,18 @@ public class TagInputBean {
     private Map<String, TagInputBean[]> targets = new HashMap<>();
 
     Map<String, Object> properties = new HashMap<>();
-    private String type = "";
+    private String index = "";
 
     protected TagInputBean() {
     }
 
-    public TagInputBean(String tagName, String type) {
+    public TagInputBean(String tagName, String index) {
         this(tagName);
-        type = type.trim();
-        if (type.contains(" "))
-            throw new RuntimeException("Tag Type cannot contain whitespace [" + type + "]");
+        index = index.trim();
+        if (index.contains(" "))
+            throw new RuntimeException("Tag Type cannot contain whitespace [" + index + "]");
 
-        setType(":" + type);
+        setIndex(":" + index);
     }
 
     /**
@@ -77,11 +77,11 @@ public class TagInputBean {
                     if (data[i].contains(" "))
                         throw new RuntimeException("Tag Type cannot contain whitespace " + data[i]);
 
-                    this.type = this.type + " :" + data[i];
+                    this.index = this.index + " :" + data[i];
                 }
 
             }
-            this.type = this.type.trim();
+            this.index = this.index.trim();
         } else
             this.name = tagName;
 
@@ -152,11 +152,11 @@ public class TagInputBean {
      * Will add the : if it is missing
      */
 
-    public void setType(String type) {
-        if ( type!=null && !"".equals(type)&& !type.startsWith(":"))
-            this.type =":"+type;
+    public void setIndex(String index) {
+        if ( index !=null && !"".equals(index)&& !index.startsWith(":"))
+            this.index =":"+ index;
         else
-            this.type = type;
+            this.index = index;
     }
 
     /**
@@ -165,7 +165,7 @@ public class TagInputBean {
      *
      * @return Colon prefixed name of the tag
      */
-    public String getType() {
-        return type;
+    public String getIndex() {
+        return index;
     }
 }

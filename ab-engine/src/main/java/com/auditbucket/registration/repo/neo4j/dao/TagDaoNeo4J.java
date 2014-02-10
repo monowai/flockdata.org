@@ -73,8 +73,8 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
             // ToDo: Should a type be suffixed with company in multi-tenanted? - more time to think!!
             //       do we care that one company can see another companies tag value? Certainly not the
             //       audit data.
-            if ( tagInput.getType() != null && !":".equals(tagInput.getType()))
-                tagSuffix = tagSuffix +" " + tagInput.getType();
+            if ( tagInput.getIndex() != null && !":".equals(tagInput.getIndex()))
+                tagSuffix = tagSuffix +" " + tagInput.getIndex();
 
             // ToDo: Multi-tenanted custom tags
             String query = "merge (tag:Tag" + tagSuffix + " {code:{code}, name:{name}, key:{key}})  return tag";

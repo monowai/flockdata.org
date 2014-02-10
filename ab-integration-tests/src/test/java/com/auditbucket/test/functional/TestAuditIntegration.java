@@ -146,6 +146,7 @@ public class TestAuditIntegration {
     public void companyAndFortressWithSpaces() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(authA);
         regService.registerSystemUser(new RegistrationBean("Company With Space", email, "bah"));
+        Thread.sleep(1000);
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("Audit Test", false));
         String docType = "TestAuditX";
         String callerRef = "ABC123X";
