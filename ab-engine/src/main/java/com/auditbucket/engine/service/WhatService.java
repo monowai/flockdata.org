@@ -1,5 +1,6 @@
 package com.auditbucket.engine.service;
 
+import com.auditbucket.audit.bean.AuditDeltaBean;
 import com.auditbucket.audit.model.AuditChange;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditWhat;
@@ -12,6 +13,8 @@ import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.helper.CompressionResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.MapDifference;
+import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Set;
 
 /**
  * User: Mike Holdsworth
@@ -137,8 +142,24 @@ public class WhatService {
 
     }
 
-    public String getDelta(Long sourceId, Long otherId) {
-        // ToDo: obtain the delta
-        return null;
+    public AuditDeltaBean getDelta(AuditHeader header, AuditChange from, AuditChange to) {
+        if ( header == null || from == null || to == null )
+            throw new IllegalArgumentException("Unable to compute delta due to missing arguments");
+        AuditWhat source = getWhat(header, from);
+        AuditWhat dest = getWhat(header, to);
+        MapDifference<String, Object> diffMap = Maps.difference(source.getWhatMap(), dest.getWhatMap());
+        AuditDeltaBean result = new AuditDeltaBean();
+        result.setAdded(new HashMap<>(diffMap.entriesOnlyOnRight()));
+        result.setRemoved(new HashMap<>(diffMap.entriesOnlyOnLeft()));
+        HashMap<String, Object> differences = new HashMap<>();
+        Set<String> keys =diffMap.entriesDiffering().keySet();
+        for (String key : keys) {
+            differences.put(key, diffMap.entriesDiffering().get(key).toString());
+        }
+        result.setChanged(differences);
+        result.setUnchanged(diffMap.entriesInCommon());
+        return result;
     }
+
+
 }

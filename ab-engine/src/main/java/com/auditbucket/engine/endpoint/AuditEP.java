@@ -252,6 +252,26 @@ public class AuditEP {
         return new ResponseEntity<>((AuditWhat) null, HttpStatus.OK);
 
     }
+    @ResponseBody
+    @RequestMapping(value = "/{auditKey}/{logId}/delta/{withId}", produces = "application/json", method = RequestMethod.GET)
+    @Secured({"ROLE_USER"})
+    public ResponseEntity<AuditDeltaBean> getDelta(@PathVariable("auditKey") String auditKey, @PathVariable("logId") Long logId, @PathVariable("withId") Long withId) {
+        AuditHeader header = auditService.getHeader(auditKey);
+
+        if ( header != null ){
+            AuditLog left = auditService.getAuditLog(header, logId);
+            AuditLog right = auditService.getAuditLog(header, withId);
+            if ( left!=null && right != null ){
+                AuditDeltaBean deltaBean = whatService.getDelta(header, left.getAuditChange(), right.getAuditChange());
+
+                if (deltaBean != null)
+                    return new ResponseEntity<>(deltaBean, HttpStatus.OK);
+            }
+        }
+
+        return new ResponseEntity<>((AuditDeltaBean) null, HttpStatus.OK);
+
+    }
 
     @ResponseBody
     @RequestMapping(value = "/{auditKey}/{logId}", produces = "application/json", method = RequestMethod.GET)
