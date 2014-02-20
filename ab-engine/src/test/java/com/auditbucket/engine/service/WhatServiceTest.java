@@ -58,6 +58,39 @@ public class WhatServiceTest extends AbstractRedisSupport {
     private Authentication authA = new UsernamePasswordAuthenticationToken(email, "user1");
 
     @Test
+    public void getWhatFromRiak() throws Exception {
+        engineConfig.setKvStore("RIAK");
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        regService.registerSystemUser(new RegistrationBean("Company", email, "bah"));
+        Fortress fortressA = fortressService.registerFortress(new FortressInputBean("Audit Test", true));
+        String docType = "TestAuditX";
+        String callerRef = "ABC123R";
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
+
+        String ahKey = auditManager.createHeader(inputBean).getAuditKey();
+        assertNotNull(ahKey);
+        AuditHeader header = auditService.getHeader(ahKey);
+        auditManager.createLog(header, new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + 1 + "}"));
+        AuditLog auditLog = auditDAO.getLastAuditLog(header.getId());
+        assertNotNull(auditLog);
+
+        //When
+        AuditWhat auditWhat = whatService.getWhat(header, auditLog.getAuditChange());
+
+        //Then
+        Assert.assertNotNull(auditWhat);
+        String whatExpected = "{\"blah\":" + 1 + "}";
+        Assert.assertEquals(auditWhat.getWhat(), whatExpected);
+        Assert.assertTrue(whatService.isSame(header, auditLog.getAuditChange(), whatExpected));
+        // Testing that cancel works
+        auditService.cancelLastLogSync(ahKey);
+        Assert.assertNull(auditService.getLastAuditLog(header));
+        Assert.assertNull(whatService.getWhat(header, auditLog.getAuditChange()).getWhat());
+        engineConfig.setKvStore("REDIS");
+
+    }
+
+    @Test
     public void whatLogFromRedis() throws Exception {
         //Given
         engineConfig.setKvStore("REDIS");
@@ -121,44 +154,5 @@ public class WhatServiceTest extends AbstractRedisSupport {
         Assert.assertNull(whatService.getWhat(header, auditLog.getAuditChange()).getWhat());
     }
 
-    @Test
-    public void getWhatFromRiak() throws Exception {
-        engineConfig.setKvStore("RIAK");
-        SecurityContextHolder.getContext().setAuthentication(authA);
-        regService.registerSystemUser(new RegistrationBean("Company", email, "bah"));
-        Fortress fortressA = fortressService.registerFortress(new FortressInputBean("Audit Test", true));
-        String docType = "TestAuditX";
-        String callerRef = "ABC123R";
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
 
-        String ahKey = auditManager.createHeader(inputBean).getAuditKey();
-        assertNotNull(ahKey);
-        AuditHeader header = auditService.getHeader(ahKey);
-        auditManager.createLog(header, new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + 1 + "}"));
-        AuditLog auditLog = auditDAO.getLastAuditLog(header.getId());
-        assertNotNull(auditLog);
-
-        //When
-        AuditWhat auditWhat = whatService.getWhat(header, auditLog.getAuditChange());
-
-        //Then
-        Assert.assertNotNull(auditWhat);
-        String whatExpected = "{\"blah\":" + 1 + "}";
-        Assert.assertEquals(auditWhat.getWhat(), whatExpected);
-        Assert.assertTrue(whatService.isSame(header, auditLog.getAuditChange(), whatExpected));
-        // Testing that cancel works
-        auditService.cancelLastLogSync(ahKey);
-        Assert.assertNull(auditService.getLastAuditLog(header));
-        Assert.assertNull(whatService.getWhat(header, auditLog.getAuditChange()).getWhat());
-
-    }
-    @Test
-    public void testIsSame() throws Exception {
-
-    }
-
-    @Test
-    public void testGetDelta() throws Exception {
-
-    }
 }

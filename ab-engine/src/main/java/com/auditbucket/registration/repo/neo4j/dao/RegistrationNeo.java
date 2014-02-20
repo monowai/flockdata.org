@@ -36,19 +36,17 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class RegistrationNeo implements com.auditbucket.dao.RegistrationDao {
     @Autowired
-    private
-    SystemUserRepository suRepo;
+    private SystemUserRepository suRepo;
 
     @Autowired
     Neo4jTemplate template;
 
-    @Override
-    public SystemUser save(SystemUser systemUser) {
+    SystemUser save(SystemUser systemUser) {
         return suRepo.save((SystemUserNode) systemUser);
     }
 
     public SystemUser findSysUserByName(String name) {
-        SystemUser result = null;
+        suRepo.findOne(1l);
         return suRepo.getSystemUser(name);
     }
 

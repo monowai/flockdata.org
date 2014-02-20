@@ -79,7 +79,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
                 .actionGet();
 
         if (logger.isDebugEnabled()) {
-            if (dr.isNotFound())
+            if (!dr.isFound())
                 logger.debug("Didn't find the document to remove [" + existingIndexKey + "] from " + indexName + "/" + recordType);
             else
                 logger.debug("Removed document [" + existingIndexKey + "] from " + indexName + "/" + recordType);

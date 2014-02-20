@@ -121,10 +121,11 @@ public class TestRegistration {
     }
 
     @Test
-    @Transactional
     public void findByName() {
         createCompanyUsers("MTest", 3);
         String name = "mtest2@sunnybell.com";
+        //SystemUser systemUser = registrationService.registerSystemUser(new RegistrationBean("test", "mike", "password"));
+        SecurityContextHolder.getContext().setAuthentication(authA);
         CompanyUser p = companyService.getCompanyUser(name);
         assertNotNull(p);
         assertEquals(name, p.getName());
@@ -132,7 +133,6 @@ public class TestRegistration {
     }
 
     @Test
-    @Transactional
     public void companyFortressNameSearch() throws Exception {
         String companyName = "Monowai";
         String adminName = "mike";
@@ -159,7 +159,6 @@ public class TestRegistration {
     }
 
     @Test
-    @Transactional
     public void testCompanyUsers() {
         createCompanyUsers("mike", 10);
         Iterable<CompanyUser> users = companyService.getUsers();
@@ -169,7 +168,7 @@ public class TestRegistration {
     @Test
     public void companiesForUser() {
         SecurityContextHolder.getContext().setAuthentication(authA);
-        registrationService.registerSystemUser(new RegistrationBean("CompanyA", "mike", "whocares"));
+        registrationService.registerSystemUser(new RegistrationBean("CompanyAA", "mike", "whocares"));
         Fortress fA = fortressService.registerFortress("FortressA");
         Fortress fB = fortressService.registerFortress("FortressB");
         Fortress fC = fortressService.registerFortress("FortressC");
@@ -183,7 +182,7 @@ public class TestRegistration {
         assertEquals(3, fortresses.size());
 
         SecurityContextHolder.getContext().setAuthentication(authB);
-        registrationService.registerSystemUser(new RegistrationBean("CompanyB", "harry", "whocares"));
+        registrationService.registerSystemUser(new RegistrationBean("CompanyBB", "harry", "whocares"));
 
         //Should be seeing different fortresses
         assertNotSame(fA.getId(), fortressService.registerFortress("FortressA").getId());
@@ -205,7 +204,7 @@ public class TestRegistration {
 
     @Test
     public void testRegistration() {
-        String companyName = "Monowai";
+        String companyName = "testReg";
         String adminName = "mike";
         String userName = "gina@hummingbird.com";
 
@@ -347,9 +346,10 @@ public class TestRegistration {
         Long uid;
         String uname = "mike";
         // Assume the user has now logged in.
-        registrationService.registerSystemUser(new RegistrationBean("TestCompany", uname, "password"));
+        String company = "MultiFortTest";
+        registrationService.registerSystemUser(new RegistrationBean(company, uname, "password"));
         SecurityContextHolder.getContext().setAuthentication(authA);
-        CompanyUser nonAdmin = registrationService.addCompanyUser(uname, "TestCompany");
+        CompanyUser nonAdmin = registrationService.addCompanyUser(uname, company);
         assertNotNull(nonAdmin);
 
         Fortress fortress = fortressService.registerFortress("auditbucket");
@@ -368,9 +368,10 @@ public class TestRegistration {
         String uname = "mike";
         // Assume the user has now logged in.
         //org.neo4j.graphdb.Transaction t = graphDatabaseService.beginTx();
-        registrationService.registerSystemUser(new RegistrationBean("TestCompany", uname, "password"));
+        String company = "MFURT";
+        registrationService.registerSystemUser(new RegistrationBean(company, uname, "password"));
         SecurityContextHolder.getContext().setAuthentication(authA);
-        CompanyUser nonAdmin = registrationService.addCompanyUser(uname, "TestCompany");
+        CompanyUser nonAdmin = registrationService.addCompanyUser(uname, company);
         assertNotNull(nonAdmin);
 
         Fortress fortress = fortressService.registerFortress("auditbucket");

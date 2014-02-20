@@ -30,12 +30,13 @@ import com.auditbucket.registration.repo.neo4j.dao.CompanyDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
 @Service
+@Transactional
 public class CompanyService {
-
 
     @Autowired
     private CompanyDao companyDao;
@@ -45,9 +46,6 @@ public class CompanyService {
 
     @Autowired
     private SecurityHelper securityHelper;
-
-    @Autowired
-    private TagService tagService;
 
     @Autowired
     private EngineConfig engineAdmin;

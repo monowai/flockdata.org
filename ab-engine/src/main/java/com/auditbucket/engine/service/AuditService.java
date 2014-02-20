@@ -44,7 +44,6 @@ import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
@@ -162,12 +161,10 @@ public class AuditService {
         return ah;
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public AuditHeader getHeader(@NotEmpty String key) {
         return getHeader(key, false);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public AuditHeader getHeader(@NotEmpty String key, boolean inflate) {
         String userName = securityHelper.getLoggedInUser();
         SystemUser su = sysUserService.findByName(userName);
@@ -608,7 +605,6 @@ public class AuditService {
      * @param headerKey GUID
      * @return count
      */
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public int getAuditLogCount(String headerKey) throws AuditException {
         AuditHeader auditHeader = getValidHeader(headerKey);
         return auditDAO.getLogCount(auditHeader.getId());
