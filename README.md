@@ -1,14 +1,21 @@
 [auditbucket](http://auditbucket.com) - Data Profiling Service
 ===========
 ## Project Status
-We're at 0.91 and very close to being feature frozen. Code and API are stable with only a few changes to the way tags are handled.  Master now supports Neo4j2. There is a Neo4j19 branch if you prefer. Data migration between versions is not guaranteed until we hit 1.0.
+Now supporting ElasticSearch 1.0
 
-While we are supporting Neo4j2 this code should be considered experimental until the SDN4J team finalise their release
-
-## Project Status
 We're at 0.91 and very close to being feature frozen. Code and API are stable with only a few changes to the way tags are handled.  Master now supports Neo4j2. There is a Neo4j19 branch if you prefer. Data migration between versions is not guaranteed until we hit 1.0.
 
 While we are supporting Neo4j2 this code should be considered experimental until the SDN4J team finalise their release.
+
+## Use Cases
+### Track changes to information 
+With a single service call you can version your information against an event. This is the "Audit" in AB. 
+
+### Big Data Analytics
+You want to get started or explore the power of big data. You have information, but what does it look like in a NonSQL database? 
+
+### Legacy System Migration
+You are closing down an old computer system. Migrate it's data via the AB API and you can preserve that insight without having to keep the old application around.
 
 ## Executive Summary
 Track, Find, Compare and Explore
@@ -69,7 +76,7 @@ A big thanks to the people who inspired me over the last few years to look at bu
 
 While the talks, techiques and ideas of these people have inspired AuditBucket, the interpretation and implementation is my own work and this isn't, and shouldn't, be taken as any sign of their endorsement of AB. 
 
-## Use Cases
+## Features
 ### Search
 ElasticSearch is a spectacular search product enabling you to create complex keyword queries that respond at the speed of business. Put Kibana on the front and you can start to accumulate realtime dashboards that give you the pulse of change in your business. With AB tapping in to your applications, you can offer your staff Full Text Search capabilities across your actual business data - AB makes it possible to search "the latest version" of your business document, i.e. your Customer record, Invoice, Inventory item, whatever; irrespective of what underlying system created it. 
 
