@@ -38,7 +38,7 @@ public class AuditHeaderInputBean {
     private String documentType;
     private Date when = null;
     private AuditLogInputBean auditLog;
-    private List<TagInputBean> tags = new ArrayList<>();
+    private Collection<TagInputBean> tags = new ArrayList<>();
 
     private String event;
     private String apiKey;
@@ -218,10 +218,17 @@ public class AuditHeaderInputBean {
      * @return Tag values to created
      */
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public List<TagInputBean> getTags() {
+    public Collection<TagInputBean> getTags() {
         return tags;
     }
 
+    public void setTags(Collection<TagInputBean>tags){
+        for (TagInputBean next : tags) {
+            this.tags.add(next);
+
+        }
+
+    }
     public String getDescription() {
         return description;
     }

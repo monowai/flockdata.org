@@ -93,9 +93,14 @@ public class WhatService {
         if (change == null )
             return null;
         KvRepo kvRepo = getKvRepo(change);
-        byte[] whatInformation = kvRepo.getValue(auditHeader, change.getId());
-        AuditWhat auditWhat = new AuditWhatData(whatInformation, change.isCompressed());
-        return auditWhat;
+        try {
+            byte[] whatInformation = kvRepo.getValue(auditHeader, change.getId());
+            AuditWhat auditWhat = new AuditWhatData(whatInformation, change.isCompressed());
+            return auditWhat;
+        } catch ( RuntimeException re){
+            logger.error("KV Error Audit["+auditHeader.getAuditKey() +"] change ["+change.getId()+"]", re);
+            throw (re);
+        }
     }
 
     public void delete(AuditHeader auditHeader, AuditChange change) {

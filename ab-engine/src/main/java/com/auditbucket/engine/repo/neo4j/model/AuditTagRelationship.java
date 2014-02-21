@@ -24,6 +24,7 @@ import com.auditbucket.audit.model.AuditTag;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.repo.neo4j.model.TagNode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.Map;
@@ -106,17 +107,24 @@ public class AuditTagRelationship implements AuditTag, Comparable {
     }
 
     @Override
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Map<String, Object> getProperties() {
         return tag.getProperties();
     }
 
     @Override
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Integer getWeight() {
         return weight;
     }
 
     @Override
     public int compareTo(Object o) {
+        //ToDo: What?????
         return 1;
+    }
+
+    public void setWeight(Integer weight) {
+        this.weight = weight;
     }
 }

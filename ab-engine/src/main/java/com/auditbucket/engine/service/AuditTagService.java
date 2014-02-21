@@ -80,7 +80,7 @@ public class AuditTagService {
      * @param userTags input beans
      * @param company  valid company
      */
-    public void createTagStructure(List<TagInputBean> userTags, Company company) {
+    public void createTagStructure(Collection<TagInputBean> userTags, Company company) {
         // Create a tag structure if present
         for (TagInputBean inputBean : userTags) {
             Tag t = tagService.processTag(inputBean, company);
@@ -109,7 +109,7 @@ public class AuditTagService {
      * @param ah       Header to associate userTags with
      * @param userTags Key/Value pair of tags. TagNode will be created if missing. Value can be a Collection
      */
-    public Set<AuditTag> associateTags(AuditHeader ah, List<TagInputBean> userTags) {
+    public Set<AuditTag> associateTags(AuditHeader ah, Collection<TagInputBean> userTags) {
         Set<AuditTag> rlxs = new TreeSet<>();
         if ((userTags == null) || userTags.isEmpty())
             return rlxs;

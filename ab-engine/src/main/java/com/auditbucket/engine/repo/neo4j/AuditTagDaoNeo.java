@@ -187,6 +187,10 @@ public class AuditTagDaoNeo implements AuditTagDao {
             Relationship relationship = template.convert(row.get("tagType"), Relationship.class);
 
             AuditTagRelationship auditTag = new AuditTagRelationship(auditHeader, tag, relationship);
+            // Commenting out for Double check. Doesn't seem to serve any purpose in
+            // search anyway
+            auditTag.setWeight(null);
+
             tagResults.add(auditTag);
         }
         return tagResults;
