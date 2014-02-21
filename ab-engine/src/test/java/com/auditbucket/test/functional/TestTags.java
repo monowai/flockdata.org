@@ -276,7 +276,7 @@ public class TestTags {
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
         assertNotNull(iSystemUser);
 
-        TagInputBean tagInput = new TagInputBean("Source", "TestTag");
+        TagInputBean tagInput = new TagInputBean("Source:TestTag");
         tagInput.setCode("CodeA");
         tagInput.setName("NameA");
         Tag tag = tagService.processTag(tagInput);
@@ -296,7 +296,7 @@ public class TestTags {
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
         assertNotNull(iSystemUser);
 
-        TagInputBean tagInput = new TagInputBean("Source", "TestTag");
+        TagInputBean tagInput = new TagInputBean("Source:TestTag");
         tagInput.setCode("CodeA");
         tagInput.setName("NameA");
         Tag tag = tagService.processTag(tagInput);
@@ -309,5 +309,7 @@ public class TestTags {
         assertFalse(results.isEmpty());
         assertNotNull ( results.get(tagInput.getName()));
     }
+
+
 
 }

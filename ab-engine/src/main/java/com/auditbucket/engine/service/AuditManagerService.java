@@ -122,17 +122,17 @@ public class AuditManagerService {
     public void createTagStructure(AuditHeaderInputBean[] inputBeans, Company company) {
         Map<String, Object> tagProcessed = new HashMap<>(); // Map to track tags we've created
         for (AuditHeaderInputBean inputBean : inputBeans) {
-            if (inputBean.getAssociatedTags() != null)
-                auditTagService.createTagStructure(inputBean.getAssociatedTags(), company);
+            if (inputBean.getTags() != null)
+                auditTagService.createTagStructure(inputBean.getTags(), company);
 
-            Map<String, Object> tags = inputBean.getTagValues();
+            Collection<TagInputBean> auditTags = inputBean.getTags();
             Collection<TagInputBean> tagSet = new ArrayList<>();
-
-            for (String tag : tags.keySet()) {
-                if (tagProcessed.get(tag) == null) {
+            for (TagInputBean tag : auditTags) {
+                // Associated with an audit header?
+                if (tagProcessed.get(tag.getName()) == null ) {
                     //logger.info(tag);
-                    tagSet.add(new TagInputBean(tag)); // Create Me!
-                    tagProcessed.put(tag, true); // suppress duplicates
+                    tagSet.add(tag); // Create Me!
+                    tagProcessed.put(tag.getName(), true); // suppress duplicates
                 }
             }
             if (!tagSet.isEmpty()) // Anything new to add?
@@ -200,10 +200,10 @@ public class AuditManagerService {
                     retryCount = 0;
                     if (inputBean.isTrackSuppressed())
                         // We need to get the "tags" across to ElasticSearch, so we mock them ;)
-                        resultBean.setTags(auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTagValues()));
+                        resultBean.setTags(auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTags()));
                     else
                         // Write the associations to the graph
-                        auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTagValues());
+                        auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTags());
                 }
             } catch (RuntimeException re) {
                 // ToDo: Exceptions getting wrapped in a JedisException. Can't directly catch the DDE hence the instanceof check

@@ -132,7 +132,7 @@ public class TestInputBeans {
         assertEquals("Name", t.getName());
         assertEquals("", t.getIndex());
         try {
-            new TagInputBean("Hello There", "White Space Not Allowed");
+            new TagInputBean("Hello There:White Space Not Allowed");
             fail("Whitespace is not allowed in a tag type");
             new TagInputBean("Hello There:White Space Not Allowed");
             fail("Whitespace is not allowed in a tag type");

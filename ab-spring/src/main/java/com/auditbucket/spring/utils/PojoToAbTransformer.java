@@ -121,7 +121,8 @@ public class PojoToAbTransformer {
         String what = mapper.writeValueAsString(mapWhat);
         auditLogInputBean.setWhat(what);
         auditHeaderInputBean.setAuditLog(auditLogInputBean);
-        auditHeaderInputBean.setTagValues(tagValues);
+        //ToDo: Figure out tag structure
+        //auditHeaderInputBean.setTagValues(tagValues);
         return auditHeaderInputBean;
     }
 

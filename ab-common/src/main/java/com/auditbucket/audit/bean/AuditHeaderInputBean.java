@@ -38,8 +38,8 @@ public class AuditHeaderInputBean {
     private String documentType;
     private Date when = null;
     private AuditLogInputBean auditLog;
-    private Map<String, Object> tagValues = new HashMap<>();
-    private List<TagInputBean> associatedTags = new ArrayList<>();
+    private List<TagInputBean> tags = new ArrayList<>();
+
     private String event;
     private String apiKey;
     private String description;
@@ -162,20 +162,6 @@ public class AuditHeaderInputBean {
         return auditLog;
     }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Map<String, Object> getTagValues() {
-        return tagValues;
-    }
-
-    /**
-     * Tag values to associate with the header
-     *
-     * @param tagValues <relationship, object>
-     * @see AuditHeaderInputBean#getAssociatedTags()
-     */
-    public void setTagValues(Map<String, Object> tagValues) {
-        this.tagValues = tagValues;
-    }
 
     public String getEvent() {
         return event;
@@ -211,11 +197,16 @@ public class AuditHeaderInputBean {
      * Single tag
      *
      * @param tag tag to add
-     * @see AuditHeaderInputBean#getAssociatedTags()
+     * @see AuditHeaderInputBean#getTags()
      */
-    public void setAssociatedTag(TagInputBean tag) {
-        associatedTags.add(tag);
+    public void setTag(TagInputBean tag) {
+        tags.add(tag);
     }
+
+    public void removeTag ( TagInputBean tag){
+        tags.remove(tag);
+    }
+
 
     /**
      * Tag structure to create. This is a short hand way of ensuring an
@@ -225,15 +216,10 @@ public class AuditHeaderInputBean {
      * This will not associate the header with the tag structure. To do that
      *
      * @return Tag values to created
-     * @see AuditHeaderInputBean#setTagValues(java.util.Map)
      */
-    public List<TagInputBean> getAssociatedTags() {
-        return associatedTags;
-    }
-
-    public void addTagValue(String relationship, TagInputBean tag) {
-        getTagValues().put(relationship, tag);
-
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public List<TagInputBean> getTags() {
+        return tags;
     }
 
     public String getDescription() {

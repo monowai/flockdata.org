@@ -6,6 +6,7 @@ import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.bean.RegistrationBean;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
@@ -27,8 +28,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 
@@ -153,7 +152,9 @@ public class TestForceDeadlock {
         CountDownLatch latch;
         int maxRun = 30;
         AuditHeaderInputBean inputBeans[] = new AuditHeaderInputBean[maxRun];
-        Map<String, Object> tagMap = new HashMap<>();
+        TagInputBean tagA = new TagInputBean("tagA");
+        TagInputBean tagB = new TagInputBean("tagB");
+
 
         boolean working = false;
 
@@ -163,8 +164,6 @@ public class TestForceDeadlock {
             this.fortress = fortress;
             this.latch = latch;
             this.working = false;
-            tagMap.put("tagA", null);
-            tagMap.put("tagB", null);
 //            tagMap.put ("tagC", null);
 //            tagMap.put ("tagD", null);
 //            tagMap.put ("tagE", null);
@@ -192,7 +191,8 @@ public class TestForceDeadlock {
             try {
                 while (count < maxRun) {
                     AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef + count);
-                    inputBean.setTagValues(tagMap);
+                    inputBean.setTag(tagA);
+                    inputBean.setTag(tagB);
                     inputBeans[count] = inputBean;
                     count++;
                 }

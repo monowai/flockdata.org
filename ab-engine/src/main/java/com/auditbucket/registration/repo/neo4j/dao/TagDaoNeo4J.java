@@ -27,6 +27,7 @@ import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.repo.neo4j.model.TagNode;
+import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.impl.core.NodeProxy;
 import org.slf4j.Logger;
@@ -73,8 +74,8 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
             // ToDo: Should a type be suffixed with company in multi-tenanted? - more time to think!!
             //       do we care that one company can see another companies tag value? Certainly not the
             //       audit data.
-            if ( tagInput.getIndex() != null && !":".equals(tagInput.getIndex()))
-                tagSuffix = tagSuffix +" " + tagInput.getIndex();
+            if (tagInput.getIndex() != null && !":".equals(tagInput.getIndex()))
+                tagSuffix = tagSuffix + " " + tagInput.getIndex();
 
             // ToDo: Multi-tenanted custom tags
             String query = "merge (tag:Tag" + tagSuffix + " {code:{code}, name:{name}, key:{key}})  return tag";
@@ -102,16 +103,33 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
         return sourceTag;
     }
 
-
+    /**
+     * Create unique relationship between the tag and the node
+     *
+     * @param company       associate the tag with this company
+     * @param startNode     notional start node
+     * @param associatedTag tag to make or get
+     * @param rlxName       relationship name
+     * @return the created tag
+     */
     Tag saveAssociated(Company company, Node startNode, TagInputBean associatedTag, String rlxName) {
-        Tag tagToCreate = save(company, associatedTag);
-        Node endNode = template.getNode(tagToCreate.getId());
-        if (associatedTag.isReverse())
-            template.createRelationshipBetween(endNode, startNode, rlxName, null);
-        else
-            template.createRelationshipBetween(startNode, endNode, rlxName, null);
+        Tag tag = save(company, associatedTag);
+        Node endNode = template.getNode(tag.getId());
+        DynamicRelationshipType rlx = DynamicRelationshipType.withName(rlxName);
 
-        return tagToCreate;
+        if (associatedTag.isReverse()) {
+            if (template.getRelationshipBetween(endNode, startNode, rlxName) == null)
+                //template.createRelationshipBetween(endNode, startNode, rlxName, null);
+                endNode.createRelationshipTo(startNode, rlx);
+        } else {
+
+            if (template.getRelationshipBetween(startNode, endNode, rlxName) == null)
+                startNode.createRelationshipTo(endNode, rlx);
+            //
+            //    template.createRelationshipBetween(startNode, endNode, rlxName, null);
+        }
+
+        return tag;
     }
 
     @Override
@@ -119,7 +137,7 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
         //Long coTags = getCompanyTagManager(companyId);
         //"MATCH audit<-[tagType]-(tag:Tag"+engineAdmin.getTagSuffix(company)+") " +
         String query = "start tag=node({tagId}) " +
-                " match tag-->(otherTag:Tag" + engineAdmin.getTagSuffix(company) + ") " +
+                " match (tag)-->(otherTag:Tag" + engineAdmin.getTagSuffix(company) + ") " +
                 "       return otherTag";
         Map<String, Object> params = new HashMap<>();
         params.put("tagId", startTag.getId());
@@ -143,13 +161,13 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
 
     @Override
     public Map<String, Tag> findTags(Company company, String type) {
-        Map<String, Tag>tagResults = new HashMap<>();
-        String query = "match (tag:" +type + (engineAdmin.getTagSuffix(company)) + ") return tag";
+        Map<String, Tag> tagResults = new HashMap<>();
+        String query = "match (tag:" + type + (engineAdmin.getTagSuffix(company)) + ") return tag";
         // Look at PAGE
         Result<Map<String, Object>> results = template.query(query, null);
-        for (Map<String, Object> row :results){
+        for (Map<String, Object> row : results) {
             Object o = row.get("tag");
-            Tag t = new TagNode((NodeProxy)o);
+            Tag t = new TagNode((NodeProxy) o);
             tagResults.put(t.getName(), t);
 
         }
