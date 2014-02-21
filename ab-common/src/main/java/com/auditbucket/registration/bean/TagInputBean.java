@@ -44,9 +44,9 @@ public class TagInputBean {
     Map<String, Object> properties = new HashMap<>();
     private String index = "";
 
-    Map<String, Object> audits = new HashMap<>();
+    Map<String, Object> auditLinks = new HashMap<>();
 
-    private String audit = null;
+    private String auditLink = null;
 
     protected TagInputBean() {
     }
@@ -99,7 +99,7 @@ public class TagInputBean {
                 throw new RuntimeException("Tag Type cannot contain whitespace [" + auditRelationship + "]");
         }
 
-        addAuditRelationship(auditRelationship, relationshipProperties);
+        addAuditLink(auditRelationship, relationshipProperties);
 
     }
 
@@ -180,24 +180,24 @@ public class TagInputBean {
      * @param auditRelationship name of the relationship to the Audit Header
      * @param properties properties to store against the relationship
      */
-    public void addAuditRelationship(String auditRelationship, Map<String, Object> properties) {
-        this.audits.put(auditRelationship, properties);
+    public void addAuditLink(String auditRelationship, Map<String, Object> properties) {
+        this.auditLinks.put(auditRelationship, properties);
 
     }
-    public void addAuditRelationship(String auditRelationship ){
-        addAuditRelationship(auditRelationship, null );
+    public void addAuditLink(String auditRelationship){
+        addAuditLink(auditRelationship, null);
     }
 
-    public Map<String, Object> getAudits(){
-        return audits;
+    public Map<String, Object> getAuditLinks(){
+        return auditLinks;
     }
 
     /**
      *
      * @return name to relate this to an audit record
      */
-    public String getAudit(){
-        return audit;
+    public String getAuditLink(){
+        return auditLink;
     }
 
     @Override

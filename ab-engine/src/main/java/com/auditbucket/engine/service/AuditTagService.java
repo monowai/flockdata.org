@@ -122,11 +122,11 @@ public class AuditTagService {
             tag = tagService.processTag(tagInput, company);
 
             // Handle both simple relationships type name or a map/collection of relationships
-            if (tagInput.getAudits() != null) {
-                rlxs = processRelationships(ah, tag, tagInput.getAudits());
-             if ( tagInput.getAudit()!=null ) // Simple relationship to the audit header
+            if (tagInput.getAuditLinks() != null) {
+                rlxs = processRelationships(ah, tag, tagInput.getAuditLinks());
+             if ( tagInput.getAuditLink()!=null ) // Simple relationship to the audit header
                 // Makes it easier for the API
-                 auditTagDao.save(ah, tag, tagInput.getAudit());
+                 auditTagDao.save(ah, tag, tagInput.getAuditLink());
 
             }
         }
