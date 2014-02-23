@@ -106,20 +106,8 @@ public class AuditManagerService {
         return fortress;
     }
 
-    public void createHeaders(AuditHeaderInputBean[] inputBeans) throws AuditException {
-        AuditHeaderInputBean args = inputBeans[0];
-        Company company = resolveCompany(args.getApiKey());
-        Fortress fortress = resolveFortress(company, args);
-        fortress.setCompany(company);
-
-
-        for (AuditHeaderInputBean inputBean : inputBeans) {
-            createHeadersAsync(inputBeans, company, fortress);
-        }
-        logger.debug("Batch Request processed");
-    }
-
     public void createTagStructure(AuditHeaderInputBean[] inputBeans, Company company) {
+        // ToDo: Test that this works!!
         Map<String, Object> tagProcessed = new HashMap<>(); // Map to track tags we've created
         for (AuditHeaderInputBean inputBean : inputBeans) {
             if (inputBean.getTags() != null)
@@ -154,7 +142,7 @@ public class AuditManagerService {
             watch.start();
             logger.info("Starting Batch [{}] - size [{}]", id, inputBeans.length);
             for (AuditHeaderInputBean inputBean : inputBeans) {
-                createHeader(inputBean, company, fortress, false);
+                createHeader(inputBean, company, fortress);
                 processCount++;
             }
 
@@ -177,16 +165,16 @@ public class AuditManagerService {
         Company company = resolveCompany(inputBean.getApiKey());
         Fortress fortress = resolveFortress(company, inputBean);
         fortress.setCompany(company);
-        return createHeader(inputBean, company, fortress, false);
+        return createHeader(inputBean, company, fortress);
     }
 
-    public AuditResultBean createHeader(AuditHeaderInputBean inputBean, Company company, Fortress fortress, boolean tagsProcessed) throws AuditException {
+    public AuditResultBean createHeader(AuditHeaderInputBean inputBean, Company company, Fortress fortress) throws AuditException {
         // Establish directed tag structure
-        if (!tagsProcessed) {
-            AuditHeaderInputBean[] inputBeans = new AuditHeaderInputBean[1];
-            inputBeans[0] = inputBean;
-            createTagStructure(inputBeans, company);
-        }
+//        if (!tagsProcessed) {
+//            AuditHeaderInputBean[] inputBeans = new AuditHeaderInputBean[1];
+//            inputBeans[0] = inputBean;
+//            createTagStructure(inputBeans, company);
+//        }
         AuditResultBean resultBean = null;
 
         // Deadlock re-try fun
@@ -224,7 +212,7 @@ public class AuditManagerService {
 
         AuditLogInputBean logBean = inputBean.getAuditLog();
         // Here on could be spun in to a separate thread. The log has to happen eventually
-        //   and can't fail.
+        //   and shouldn't fail.
         if (inputBean.getAuditLog() != null) {
             // Secret back door so that the log result can quickly get the
             logBean.setAuditId(resultBean.getAuditId());

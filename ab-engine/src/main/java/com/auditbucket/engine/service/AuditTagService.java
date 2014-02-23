@@ -124,11 +124,11 @@ public class AuditTagService {
             // Handle both simple relationships type name or a map/collection of relationships
             if (tagInput.getAuditLinks() != null) {
                 rlxs = processRelationships(ah, tag, tagInput.getAuditLinks());
-             if ( tagInput.getAuditLink()!=null ) // Simple relationship to the audit header
-                // Makes it easier for the API
-                 auditTagDao.save(ah, tag, tagInput.getAuditLink());
-
             }
+            if (tagInput.getAuditLink() != null) // Simple relationship to the audit header
+                // Makes it easier for the API to call
+                rlxs.add(auditTagDao.save(ah, tag, tagInput.getAuditLink()));
+
         }
         return rlxs;
     }
@@ -137,7 +137,7 @@ public class AuditTagService {
         Set<AuditTag> rlxs = new TreeSet<>();
         for (String key : auditRelationships.keySet()) {
             Object properties = auditRelationships.get(key);
-            Map<String, Object> propMap ;
+            Map<String, Object> propMap;
             if (properties != null && properties instanceof Map) {
                 propMap = (Map<String, Object>) properties;
                 AuditTag auditTagRelationship = auditTagDao.save(ah, tag, key, propMap);

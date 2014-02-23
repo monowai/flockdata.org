@@ -122,4 +122,27 @@ public class TagNode implements Tag {
 
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TagNode)) return false;
+
+        TagNode tagNode = (TagNode) o;
+
+        if (Id != null ? !Id.equals(tagNode.Id) : tagNode.Id != null) return false;
+        if (code != null ? !code.equals(tagNode.code) : tagNode.code != null) return false;
+        if (key != null ? !key.equals(tagNode.key) : tagNode.key != null) return false;
+        if (name != null ? !name.equals(tagNode.name) : tagNode.name != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Id != null ? Id.hashCode() : 0;
+        result = 31 * result + (key != null ? key.hashCode() : 0);
+        result = 31 * result + (code != null ? code.hashCode() : 0);
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        return result;
+    }
 }

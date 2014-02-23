@@ -577,7 +577,7 @@ public class AuditService {
                 lastChange = lastLog.getAuditChange();
             else {
                 // ToDo: This will not work for meta-data index headers. Work loop also needs looking at
-                logger.info("No last change for {}, ignoring the re-index request for this record" + auditHeader.getCallerRef());
+                logger.info("No last change for {}, ignoring the re-index request for this header", auditHeader.getCallerRef());
             }
 
             if (auditHeader.getFortress().isSearchActive() && !auditHeader.isSearchSuppressed()) {

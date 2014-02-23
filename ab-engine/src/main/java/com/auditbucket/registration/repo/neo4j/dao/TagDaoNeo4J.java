@@ -59,48 +59,60 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
 
     private Logger logger = LoggerFactory.getLogger(TagDaoNeo4J.class);
 
-    public Iterable<Tag> save(Company company, Iterable<TagInputBean> tags) {
-
-        return null;
+    public Tag save(Company company, TagInputBean tagInput) {
+        String tagSuffix = engineAdmin.getTagSuffix(company);
+        return save(company, tagInput, tagSuffix);
     }
 
-    public Tag save(Company company, TagInputBean tagInput) {
-        // Check exists
-        TagNode sourceTag = (TagNode) findOne(tagInput.getName(), company);
-        Node end;
-        if (sourceTag == null) {
-            sourceTag = new TagNode(tagInput);
-            String tagSuffix = engineAdmin.getTagSuffix(company);
-            // ToDo: Should a type be suffixed with company in multi-tenanted? - more time to think!!
-            //       do we care that one company can see another companies tag value? Certainly not the
-            //       audit data.
-            if (tagInput.getIndex() != null && !":".equals(tagInput.getIndex()))
-                tagSuffix = tagSuffix + " " + tagInput.getIndex();
-
-            // ToDo: Multi-tenanted custom tags
-            String query = "merge (tag:Tag" + tagSuffix + " {code:{code}, name:{name}, key:{key}})  return tag";
-            Map<String, Object> params = new HashMap<>();
-            params.put("code", sourceTag.getCode());
-            params.put("key", sourceTag.getKey());
-            params.put("name", sourceTag.getName());
-            Result<Map<String, Object>> result = template.query(query, params);
-            Map<String, Object> mapResult = result.singleOrNull();
-            end = (Node) mapResult.get("tag");
-            sourceTag.setId(end.getId());
-
-        } else {
-            end = template.getNode(sourceTag.getId());
+    public Iterable<Tag> save(Company company, Iterable<TagInputBean> tags) {
+        String tagSuffix = engineAdmin.getTagSuffix(company);
+        List<Tag> result = new ArrayList<>();
+        for (TagInputBean tag : tags) {
+            result.add(save(company, tag, tagSuffix));
         }
+        return result;
+    }
+
+    Tag save(Company company, TagInputBean tagInput, String tagSuffix) {
+        // Check exists
+        TagNode existingTag = (TagNode) findOne(tagInput.getName(), company);
+        if (existingTag == null) {
+
+            existingTag = getOrCreateTag(tagInput, tagSuffix);
+        }
+        Node start = template.getNode(existingTag.getId());
 
         Map<String, TagInputBean[]> tags = tagInput.getTargets();
         for (String rlxName : tags.keySet()) {
             TagInputBean[] associatedTag = tags.get(rlxName);
             for (TagInputBean tagInputBean : associatedTag) {
-                saveAssociated(company, end, tagInputBean, rlxName);
+                createRelationship(company, start, tagInputBean, rlxName);
             }
 
         }
-        return sourceTag;
+        return existingTag;
+    }
+
+    private TagNode getOrCreateTag(TagInputBean tagInput, String tagSuffix) {
+        TagNode existingTag = new TagNode(tagInput);
+
+        // ToDo: Should a type be suffixed with company in multi-tenanted? - more time to think!!
+        //       do we care that one company can see another companies tag value? Certainly not the
+        //       audit data.
+        if (tagInput.getIndex() != null && !":".equals(tagInput.getIndex()))
+            tagSuffix = tagSuffix + " " + tagInput.getIndex();
+
+        // ToDo: Multi-tenanted custom tags
+        String query = "merge (tag:Tag" + tagSuffix + " {code:{code}, name:{name}, key:{key}})  return tag";
+        Map<String, Object> params = new HashMap<>();
+        params.put("code", existingTag.getCode());
+        params.put("key", existingTag.getKey());
+        params.put("name", existingTag.getName());
+        Result<Map<String, Object>> result = template.query(query, params);
+        Map<String, Object> mapResult = result.singleOrNull();
+        Node end = (Node) mapResult.get("tag");
+        existingTag.setId(end.getId());
+        return existingTag;
     }
 
     /**
@@ -112,7 +124,9 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
      * @param rlxName       relationship name
      * @return the created tag
      */
-    Tag saveAssociated(Company company, Node startNode, TagInputBean associatedTag, String rlxName) {
+    Tag createRelationship(Company company, Node startNode, TagInputBean associatedTag, String rlxName) {
+        // Careful - this save can be recursive
+        // ToDo - idea = create all tags first then just create the relationships
         Tag tag = save(company, associatedTag);
         Node endNode = template.getNode(tag.getId());
         DynamicRelationshipType rlx = DynamicRelationshipType.withName(rlxName);
@@ -180,7 +194,7 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
         if (tagName == null || company == null)
             throw new IllegalArgumentException("Null can not be used to find a tag ");
 
-        String query = "match (tag:Tag" + (engineAdmin.isMultiTenanted() ? company.getCode() : "") + ") where tag.key ={tagKey} return tag";
+        String query = "match (tag:Tag" + engineAdmin.getTagSuffix(company) + ") where tag.key ={tagKey} return tag";
         Map<String, Object> params = new HashMap<>();
         params.put("tagKey", tagName.toLowerCase().replaceAll("\\s", "")); // ToDo- formula to static method
         Result<Map<String, Object>> result = template.query(query, params);

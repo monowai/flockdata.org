@@ -74,14 +74,7 @@ public class TagService {
 
     public Iterable<Tag> processTags(Iterable<TagInputBean> tagInputs, Company company) {
 
-        List<Tag> result = new ArrayList<>();
-
-        //ToDo: Figure out the bulk handing of tags
-        for (TagInputBean tagInput : tagInputs) {
-            Tag t = tagDao.save(company, tagInput);
-            result.add(t);
-        }
-        return result;
+        return tagDao.save(company, tagInputs);
     }
 
     //ToDo: Figure out how to insert all tags at once

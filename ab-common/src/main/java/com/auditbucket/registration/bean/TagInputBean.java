@@ -206,4 +206,30 @@ public class TagInputBean {
                 "name='" + name + '\'' +
                 '}';
     }
+
+    /**
+     * Compares only on code and name to keep it ez. These objects are not persisted directly
+     *
+     * @param o
+     * @return
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TagInputBean)) return false;
+
+        TagInputBean that = (TagInputBean) o;
+
+        if (!code.equals(that.code)) return false;
+        if (!name.equals(that.name)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name.hashCode();
+        result = 31 * result + code.hashCode();
+        return result;
+    }
 }

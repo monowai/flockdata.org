@@ -104,6 +104,7 @@ public class AuditEP {
         Company company = auditManager.resolveCompany(inputBeans[0].getApiKey());
         Fortress fortress = auditManager.resolveFortress(company, inputBeans[0], true);
         boolean async = true;
+        // ToDo: Test if this actually works.
         //auditManager.createTagStructure(inputBeans, company);
 
         if (async) {
@@ -118,7 +119,7 @@ public class AuditEP {
         } else {
 
             for (AuditHeaderInputBean inputBean : inputBeans) {
-                auditManager.createHeader(inputBean, company, fortress, true);
+                auditManager.createHeader(inputBean, company, fortress);
             }
         }
         return null;

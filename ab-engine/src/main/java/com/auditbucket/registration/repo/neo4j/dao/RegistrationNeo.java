@@ -46,7 +46,6 @@ public class RegistrationNeo implements com.auditbucket.dao.RegistrationDao {
     }
 
     public SystemUser findSysUserByName(String name) {
-        suRepo.findOne(1l);
         return suRepo.getSystemUser(name);
     }
 
