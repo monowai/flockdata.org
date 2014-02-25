@@ -271,7 +271,7 @@ public class AbRestClient {
                     i++;
                 }
 
-                if (i > 1) {
+                if (i >= 1) {
                     logger.debug("Flushing....");
                     flushAudit(thisBatch);
                     logger.debug("Flushed " + message + " Batch [{}]", i);
@@ -301,7 +301,7 @@ public class AbRestClient {
                     i++;
                 }
                 logger.debug("Flushing " + message + " Tag Batch [{}]", i);
-                if (i > 1)
+                if (i >= 1)
                     flushTags(thisBatch);
                 logger.debug("Tag Batch Flushed");
                 batchHeader = new ArrayList<>();

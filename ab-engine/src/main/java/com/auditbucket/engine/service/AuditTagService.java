@@ -115,11 +115,10 @@ public class AuditTagService {
             return rlxs;
 
         Company company = ah.getFortress().getCompany();
-
+        tagService.processTags(userTags, company);
         for (TagInputBean tagInput : userTags) {
 
-            Tag tag;
-            tag = tagService.processTag(tagInput, company);
+            Tag tag = tagService.findTag(tagInput.getName(), company);
 
             // Handle both simple relationships type name or a map/collection of relationships
             if (tagInput.getAuditLinks() != null) {

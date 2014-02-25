@@ -27,7 +27,6 @@ import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.repo.neo4j.model.TagNode;
-import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.impl.core.NodeProxy;
 import org.slf4j.Logger;
@@ -61,23 +60,28 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
 
     public Tag save(Company company, TagInputBean tagInput) {
         String tagSuffix = engineAdmin.getTagSuffix(company);
-        return save(company, tagInput, tagSuffix);
+        List<String>createdValues = new ArrayList();
+        return save(company, tagInput, tagSuffix, createdValues);
+    }
+    Tag save(Company company, TagInputBean tagInput, Collection<String>createdValues) {
+        String tagSuffix = engineAdmin.getTagSuffix(company);
+        return save(company, tagInput, tagSuffix, createdValues);
     }
 
     public Iterable<Tag> save(Company company, Iterable<TagInputBean> tags) {
         String tagSuffix = engineAdmin.getTagSuffix(company);
         List<Tag> result = new ArrayList<>();
+        List<String>createdValues = new ArrayList();
         for (TagInputBean tag : tags) {
-            result.add(save(company, tag, tagSuffix));
+            result.add(save(company, tag, tagSuffix,createdValues));
         }
         return result;
     }
 
-    Tag save(Company company, TagInputBean tagInput, String tagSuffix) {
+    Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection createdValues) {
         // Check exists
         TagNode existingTag = (TagNode) findOne(tagInput.getName(), company);
         if (existingTag == null) {
-
             existingTag = getOrCreateTag(tagInput, tagSuffix);
         }
         Node start = template.getNode(existingTag.getId());
@@ -86,7 +90,7 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
         for (String rlxName : tags.keySet()) {
             TagInputBean[] associatedTag = tags.get(rlxName);
             for (TagInputBean tagInputBean : associatedTag) {
-                createRelationship(company, start, tagInputBean, rlxName);
+                createRelationship(company, start, tagInputBean, rlxName, createdValues);
             }
 
         }
@@ -108,6 +112,8 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
         params.put("code", existingTag.getCode());
         params.put("key", existingTag.getKey());
         params.put("name", existingTag.getName());
+        // ToDo: - set custom properties
+
         Result<Map<String, Object>> result = template.query(query, params);
         Map<String, Object> mapResult = result.singleOrNull();
         Node end = (Node) mapResult.get("tag");
@@ -118,31 +124,37 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
     /**
      * Create unique relationship between the tag and the node
      *
+     *
      * @param company       associate the tag with this company
      * @param startNode     notional start node
      * @param associatedTag tag to make or get
      * @param rlxName       relationship name
+     * @param createdValues
      * @return the created tag
      */
-    Tag createRelationship(Company company, Node startNode, TagInputBean associatedTag, String rlxName) {
+    Tag createRelationship(Company company, Node startNode, TagInputBean associatedTag, String rlxName, Collection<String> createdValues) {
         // Careful - this save can be recursive
         // ToDo - idea = create all tags first then just create the relationships
-        Tag tag = save(company, associatedTag);
+        Tag tag = save(company, associatedTag, createdValues);
         Node endNode = template.getNode(tag.getId());
-        DynamicRelationshipType rlx = DynamicRelationshipType.withName(rlxName);
 
-        if (associatedTag.isReverse()) {
-            if (template.getRelationshipBetween(endNode, startNode, rlxName) == null)
-                //template.createRelationshipBetween(endNode, startNode, rlxName, null);
-                endNode.createRelationshipTo(startNode, rlx);
-        } else {
+        Long startId =   (!associatedTag.isReverse()? startNode.getId():endNode.getId());
+        Long endId   =   (!associatedTag.isReverse()? endNode.getId():startNode.getId());
 
-            if (template.getRelationshipBetween(startNode, endNode, rlxName) == null)
-                startNode.createRelationshipTo(endNode, rlx);
-            //
-            //    template.createRelationshipBetween(startNode, endNode, rlxName, null);
-        }
+        String key = rlxName +":"+startId+":"+endId;
+        if ( createdValues.contains(key))
+            return tag;
 
+        //logger.info("Creating RLX {}, {}, {}", rlxName, startId, endId);
+        String cypher = "match startNode, endNode where " +
+                "id(startNode)={start} " +
+                "and id(endNode)={end} " +
+                "create unique (startNode) -[r:`"+rlxName+"`]->(endNode) return r";
+        Map<String, Object> params = new HashMap<>();
+        params.put("start", startId);
+        params.put("end",   endId);
+        template.query(cypher, params);
+        createdValues.add(key);
         return tag;
     }
 
