@@ -35,6 +35,7 @@ import org.neo4j.kernel.DeadlockDetectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
@@ -178,7 +179,7 @@ public class AuditManagerService {
         AuditResultBean resultBean = null;
 
         // Deadlock re-try fun
-        int retries = 4, retryCount = 0;
+        int retries = 10, retryCount = 0;
         while (resultBean == null)
             try {
                 resultBean = auditService.createHeader(inputBean, company, fortress);
@@ -195,7 +196,7 @@ public class AuditManagerService {
                 }
             } catch (RuntimeException re) {
                 // ToDo: Exceptions getting wrapped in a JedisException. Can't directly catch the DDE hence the instanceof check
-                if ( re.getCause() instanceof DeadlockDetectedException) {
+                if ( re.getCause() instanceof DeadlockDetectedException || re.getCause() instanceof InvalidDataAccessResourceUsageException) {
                     logger.debug("Deadlock Detected. Entering retry");
                     retryCount++;
                     if (retryCount == retries) {
