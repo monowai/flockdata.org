@@ -616,13 +616,7 @@ public class TestAuditTags {
             assertTrue(tag.getTag().getName().equals(institution.getName())|| tag.getTag().getName().equals(cityTag.getName()));
         }
 
-        // Should be 2 tags against the audit - city and located
-
-
-        //inputBean.addTagValue(authorTag);
-
-
-
     }
+
 
 }
