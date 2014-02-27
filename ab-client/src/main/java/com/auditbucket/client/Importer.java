@@ -33,18 +33,18 @@ import java.util.List;
 /**
  * General importer with support for CSV and XML parsing. Interacts with AbRestClient to send
  * information via a RESTful interface
- *
+ * <p/>
  * Will send information to AuditBucket as either tags or audit information.
- *
+ * <p/>
  * You should extend AuditHeaderInputBean or TagInputBean and implement XMLMappable or DelimitedMappable
  * to massage your data prior to dispatch to AB.
- *
+ * <p/>
  * Parameters:
- *  -s=http://localhost:8080/ab-engine
- *
+ * -s=http://localhost:8080/ab-engine
+ * <p/>
  * quoted string containing "file,DelimitedClass,BatchSize"
  * "./path/to/file/cow.csv,com.auditbucket.health.Countries,200"
- *
+ * <p/>
  * if BatchSize is set to -1, then a simulation only is run; information is not dispatched to the server.
  * This is useful to debug the class implementing Delimited
  *
@@ -52,9 +52,9 @@ import java.util.List;
  * @see Mappable
  * @see TagInputBean
  * @see AuditHeaderInputBean
- *
- * User: Mike Holdsworth
- * Since: 13/10/13
+ *      <p/>
+ *      User: Mike Holdsworth
+ *      Since: 13/10/13
  */
 @SuppressWarnings("StatementWithEmptyBody")
 public class Importer {
@@ -220,7 +220,7 @@ public class Importer {
                         if (type == AbRestClient.type.AUDIT) {
                             AuditHeaderInputBean header = (AuditHeaderInputBean) row;
 
-                            if (!jsonData.equals("")) {
+                            if (!"".equals(jsonData)) {
                                 jsonData = jsonData.replaceAll("[\\x00-\\x09\\x11\\x12\\x14-\\x1F\\x7F]", "");
                                 AuditLogInputBean logInputBean = new AuditLogInputBean("system", new DateTime(), jsonData);
                                 header.setAuditLog(logInputBean);
@@ -228,11 +228,12 @@ public class Importer {
                                 // It's all Meta baby - no audit information
                             }
                             writeAudit(abExporter, header, mappable.getClass().getCanonicalName());
-                        } else {
-                            // Tag
-                            TagInputBean tagInputBean = (TagInputBean) row;
-                            logger.info(tagInputBean.toString());
-                            writeTag(abExporter, tagInputBean, mappable.getClass().getCanonicalName());
+                        } else {// Tag
+                            if (!"".equals(jsonData)) {
+                                TagInputBean tagInputBean = (TagInputBean) row;
+                                logger.info(tagInputBean.toString());
+                                writeTag(abExporter, tagInputBean, mappable.getClass().getCanonicalName());
+                            }
                         }
                         if (rows % 500 == 0) {
                             logger.info("Processed {} ", rows);

@@ -463,6 +463,7 @@
                         </goals>
                         <phase>package</phase>
                         <configuration>
+                            <finalName>${project.artifactId}-war.jar</finalName>
                             <!-- optional only if you want to use a preconfigured server.xml file -->
                             <!--
                             <serverXml>src/main/tomcatconf/server.xml</serverXml>

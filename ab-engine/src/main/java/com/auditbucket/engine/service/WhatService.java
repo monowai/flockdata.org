@@ -51,7 +51,7 @@ public class WhatService {
 
     private Logger logger = LoggerFactory.getLogger(WhatService.class);
 
-    public void logWhat(AuditHeader auditHeader, AuditChange change, String jsonText, int version) {
+    public void logWhat(AuditHeader auditHeader, AuditChange change, String jsonText) {
         // Compress the Value of JSONText
         CompressionResult result = CompressionHelper.compress(jsonText);
         Boolean compressed = result.getMethod() == CompressionResult.Method.GZIP;
@@ -99,8 +99,10 @@ public class WhatService {
             return auditWhat;
         } catch ( RuntimeException re){
             logger.error("KV Error Audit["+auditHeader.getAuditKey() +"] change ["+change.getId()+"]", re);
-            throw (re);
+
+            //throw (re);
         }
+        return null;
     }
 
     public void delete(AuditHeader auditHeader, AuditChange change) {

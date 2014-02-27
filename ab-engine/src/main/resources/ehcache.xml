@@ -31,6 +31,11 @@
            eternal="true"
            memoryStoreEvictionPolicy="LFU"/>
 
+    <cache name="companyEvent"
+           maxElementsInMemory="100"
+           eternal="true"
+           memoryStoreEvictionPolicy="LFU"/>
+
     <cache name="companyTagManager"
            maxElementsInMemory="10"
            eternal="true"

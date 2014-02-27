@@ -275,6 +275,7 @@ public class AuditService {
             if (input.getEvent() == null) {
                 input.setEvent(AuditChange.CREATE);
             }
+            // Set when creating the header
             auditHeader.setLastUser(thisFortressUser);
             auditHeader = auditDAO.save(auditHeader);
         }
@@ -282,15 +283,10 @@ public class AuditService {
         if (existingLog != null)
             existingChange = existingLog.getAuditChange();
 
-        AuditEvent event = auditEventService.processEvent(fortress.getCompany(), input.getEvent());
-        input.setAuditEvent(event);
         AuditChange thisChange = auditDAO.save(thisFortressUser, input, txRef, existingChange);
-        int version = 0;
-//        if (existingChange != null) {
-//            version = whatService.getWhat(auditHeader, existingChange).getVersion();
-//        }
+        input.setAuditEvent(thisChange.getEvent());
 
-        whatService.logWhat(auditHeader, thisChange, input.getWhat(), version);
+        whatService.logWhat(auditHeader, thisChange, input.getWhat());
 
         AuditLog newLog = auditDAO.addLog(auditHeader, thisChange, fortressWhen);
         boolean moreRecent = (existingChange == null || existingLog.getFortressWhen() <= newLog.getFortressWhen());
@@ -306,12 +302,13 @@ public class AuditService {
             auditDAO.setLastChange(auditHeader, thisChange, existingChange);
 
             try {
-                resultBean.setSearchDocument(prepareSearchDocument(auditHeader, input, event, searchActive, fortressWhen, newLog));
+                resultBean.setSearchDocument(prepareSearchDocument(auditHeader, input, input.getAuditEvent(), searchActive, fortressWhen, newLog));
             } catch (JsonProcessingException e) {
                 resultBean.setMessage("Error processing JSON document");
                 resultBean.setStatus(AuditLogInputBean.LogStatus.ILLEGAL_ARGUMENT);
             }
         }
+        resultBean.setSysWhen(newLog.getSysWhen());
         return resultBean;
 
     }
