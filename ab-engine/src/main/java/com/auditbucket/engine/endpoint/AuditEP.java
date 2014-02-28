@@ -104,17 +104,16 @@ public class AuditEP {
         Company company = auditManager.resolveCompany(inputBeans[0].getApiKey());
         Fortress fortress = auditManager.resolveFortress(company, inputBeans[0], true);
         boolean async = true;
-        // ToDo: Test if this actually works.
-        //auditManager.createTagStructure(inputBeans, company);
 
         if (async) {
 
-            Future<Integer> am = auditManager.createHeadersAsync(inputBeans, company, fortress);
+            Future<Integer> batch = auditManager.createHeadersAsync(inputBeans, company, fortress);
+            Thread.yield();
             if (waitForFinish)
-                while (!am.isDone()) {
+                while (!batch.isDone()) {
                     Thread.yield();
                 }
-            return am;
+            return batch;
 
         } else {
 

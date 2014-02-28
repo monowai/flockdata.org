@@ -199,8 +199,9 @@ public class AuditHeaderInputBean {
      * @param tag tag to add
      * @see AuditHeaderInputBean#getTags()
      */
-    public void setTag(TagInputBean tag) {
+    public AuditHeaderInputBean setTag(TagInputBean tag) {
         tags.add(tag);
+        return this;
     }
 
     public void removeTag ( TagInputBean tag){

@@ -60,10 +60,11 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
 
     public Tag save(Company company, TagInputBean tagInput) {
         String tagSuffix = engineAdmin.getTagSuffix(company);
-        List<String>createdValues = new ArrayList();
+        List<String> createdValues = new ArrayList();
         return save(company, tagInput, tagSuffix, createdValues);
     }
-    Tag save(Company company, TagInputBean tagInput, Collection<String>createdValues) {
+
+    Tag save(Company company, TagInputBean tagInput, Collection<String> createdValues) {
         String tagSuffix = engineAdmin.getTagSuffix(company);
         return save(company, tagInput, tagSuffix, createdValues);
     }
@@ -71,9 +72,9 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
     public Iterable<Tag> save(Company company, Iterable<TagInputBean> tags) {
         String tagSuffix = engineAdmin.getTagSuffix(company);
         List<Tag> result = new ArrayList<>();
-        List<String>createdValues = new ArrayList();
+        List<String> createdValues = new ArrayList();
         for (TagInputBean tag : tags) {
-            result.add(save(company, tag, tagSuffix,createdValues));
+            result.add(save(company, tag, tagSuffix, createdValues));
         }
         return result;
     }
@@ -81,10 +82,16 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
     Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection createdValues) {
         // Check exists
         TagNode existingTag = (TagNode) findOne(tagInput.getName(), company);
+        Node start = null;
         if (existingTag == null) {
-            existingTag = getOrCreateTag(tagInput, tagSuffix);
+            //TagNode    existingTag = getOrCreateTag(tagInput, tagSuffix);
+            //}
+            //Node start = template.getNode(existingTag.getId());
+            logger.info("Trying to create Tag {}", tagInput.toString());
+             start = getOrCreateTag(tagInput, tagSuffix);
+        } else {
+            start = template.getNode(existingTag.getId());
         }
-        Node start = template.getNode(existingTag.getId());
 
         Map<String, TagInputBean[]> tags = tagInput.getTargets();
         for (String rlxName : tags.keySet()) {
@@ -94,11 +101,11 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
             }
 
         }
-        return existingTag;
+        return new TagNode(start);
     }
 
-    private TagNode getOrCreateTag(TagInputBean tagInput, String tagSuffix) {
-        TagNode existingTag = new TagNode(tagInput);
+    private Node getOrCreateTag(TagInputBean tagInput, String tagSuffix) {
+        TagNode tag = new TagNode(tagInput);
 
         // ToDo: Should a type be suffixed with company in multi-tenanted? - more time to think!!
         //       do we care that one company can see another companies tag value? Certainly not the
@@ -107,23 +114,23 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
             tagSuffix = tagSuffix + " " + tagInput.getIndex();
 
         // ToDo: Multi-tenanted custom tags
+        logger.info("About to merge Tag {}", tag.getKey());
         String query = "merge (tag:Tag" + tagSuffix + " {code:{code}, name:{name}, key:{key}})  return tag";
         Map<String, Object> params = new HashMap<>();
-        params.put("code", existingTag.getCode());
-        params.put("key", existingTag.getKey());
-        params.put("name", existingTag.getName());
+        params.put("code", tag.getCode());
+        params.put("key", tag.getKey());
+        params.put("name", tag.getName());
         // ToDo: - set custom properties
 
         Result<Map<String, Object>> result = template.query(query, params);
         Map<String, Object> mapResult = result.singleOrNull();
         Node end = (Node) mapResult.get("tag");
-        existingTag.setId(end.getId());
-        return existingTag;
+        //existingTag.setId(end.getId());
+        return end;
     }
 
     /**
      * Create unique relationship between the tag and the node
-     *
      *
      * @param company       associate the tag with this company
      * @param startNode     notional start node
@@ -138,21 +145,21 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
         Tag tag = save(company, associatedTag, createdValues);
         Node endNode = template.getNode(tag.getId());
 
-        Long startId =   (!associatedTag.isReverse()? startNode.getId():endNode.getId());
-        Long endId   =   (!associatedTag.isReverse()? endNode.getId():startNode.getId());
+        Long startId = (!associatedTag.isReverse() ? startNode.getId() : endNode.getId());
+        Long endId = (!associatedTag.isReverse() ? endNode.getId() : startNode.getId());
 
-        String key = rlxName +":"+startId+":"+endId;
-        if ( createdValues.contains(key))
+        String key = rlxName + ":" + startId + ":" + endId;
+        if (createdValues.contains(key))
             return tag;
 
         //logger.info("Creating RLX {}, {}, {}", rlxName, startId, endId);
         String cypher = "match startNode, endNode where " +
                 "id(startNode)={start} " +
                 "and id(endNode)={end} " +
-                "create unique (startNode) -[r:`"+rlxName+"`]->(endNode) return r";
+                "create unique (startNode) -[r:`" + rlxName + "`]->(endNode) return r";
         Map<String, Object> params = new HashMap<>();
         params.put("start", startId);
-        params.put("end",   endId);
+        params.put("end", endId);
         template.query(cypher, params);
         createdValues.add(key);
         return tag;
@@ -224,6 +231,7 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
     }
 
     public DocumentType findOrCreateDocument(String documentType, Company company, Boolean createIfMissing) {
+
         DocumentType docResult = findCompanyDocument(documentType, company);
         if (docResult == null && createIfMissing) {
             DocumentTypeNode docType = new DocumentTypeNode(documentType, company);

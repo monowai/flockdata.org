@@ -35,6 +35,7 @@ import org.neo4j.kernel.DeadlockDetectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -170,6 +171,8 @@ public class AuditManagerService {
     }
 
     public AuditResultBean createHeader(AuditHeaderInputBean inputBean, Company company, Fortress fortress) throws AuditException {
+        if(inputBean ==null  )
+            throw new AuditException("No input to process!");
         // Establish directed tag structure
 //        if (!tagsProcessed) {
 //            AuditHeaderInputBean[] inputBeans = new AuditHeaderInputBean[1];
@@ -179,11 +182,14 @@ public class AuditManagerService {
         AuditResultBean resultBean = null;
 
         // Deadlock re-try fun
-        int retries = 10, retryCount = 0;
-        while (resultBean == null)
+        int maxRetry = 10, retryCount = 0;
+        while (retryCount < maxRetry){
             try {
-                resultBean = auditService.createHeader(inputBean, company, fortress);
-
+                if (resultBean == null || resultBean.getAuditId() ==null ) {
+                    resultBean = auditService.createHeader(inputBean, company, fortress);
+                } else {
+                    logger.info("Skipping resultBean created after deadlock {}", inputBean.getCallerRef());
+                }
                 // Don't recreate tags if we already handled this -ToDiscuss!!
                 if (!resultBean.isDuplicate()) {
                     retryCount = 0;
@@ -194,22 +200,22 @@ public class AuditManagerService {
                         // Write the associations to the graph
                         auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTags());
                 }
+                retryCount = maxRetry; // Exit the loop
             } catch (RuntimeException re) {
                 // ToDo: Exceptions getting wrapped in a JedisException. Can't directly catch the DDE hence the instanceof check
-                if ( re.getCause() instanceof DeadlockDetectedException || re.getCause() instanceof InvalidDataAccessResourceUsageException) {
-                    logger.debug("Deadlock Detected. Entering retry");
+                if ( re.getCause() instanceof DeadlockDetectedException || re.getCause() instanceof InvalidDataAccessResourceUsageException || re.getCause() instanceof DataRetrievalFailureException) {
+                    logger.error("Deadlock Detected. Entering retry {}", inputBean.getCallerRef());
+                    Thread.yield();
                     retryCount++;
-                    if (retryCount == retries) {
-                        // ToDo: A Map<String,AuditHeader> keyed by Tag may reduce potential deadlocks as fewer tags are associated with more headers
+                    if (retryCount == maxRetry) {
                         // http://www.slideshare.net/neo4j/zephyr-neo4jgraphconnect-2013short
-                        logger.error("Error creating Header, rolling back", re);
+                        logger.error("Error creating Header for fortress [{}], docType {}, callerRef [{}], rolling back. Cause = {}", inputBean.getFortress(), inputBean.getDocumentType(), inputBean.getCallerRef(), re.getCause());
                         throw (re);
                     }
                 } else
                     throw (re);
-
-
             }
+        }
 
         AuditLogInputBean logBean = inputBean.getAuditLog();
         // Here on could be spun in to a separate thread. The log has to happen eventually

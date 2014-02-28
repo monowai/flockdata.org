@@ -207,12 +207,6 @@ public class TagInputBean {
                 '}';
     }
 
-    /**
-     * Compares only on code and name to keep it ez. These objects are not persisted directly
-     *
-     * @param o
-     * @return
-     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -220,16 +214,20 @@ public class TagInputBean {
 
         TagInputBean that = (TagInputBean) o;
 
-        if (!code.equals(that.code)) return false;
-        if (!name.equals(that.name)) return false;
+        if (reverse != that.reverse) return false;
+        if (code != null ? !code.equals(that.code) : that.code != null) return false;
+        if (index != null ? !index.equals(that.index) : that.index != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + code.hashCode();
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (code != null ? code.hashCode() : 0);
+        result = 31 * result + (reverse ? 1 : 0);
+        result = 31 * result + (index != null ? index.hashCode() : 0);
         return result;
     }
 }

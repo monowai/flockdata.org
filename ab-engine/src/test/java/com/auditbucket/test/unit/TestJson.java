@@ -90,7 +90,7 @@ public class TestJson {
         MapDifference diff = Maps.difference(mapA, mapB);
         System.out.print(diff.entriesOnlyOnLeft());
     }
-    private static String getBigJsonText(int i) {
+    public static String getBigJsonText(int i) {
         return "{\n" +
                 "   \"trainprofiles\": [\n" +
                 "        {\n" +
