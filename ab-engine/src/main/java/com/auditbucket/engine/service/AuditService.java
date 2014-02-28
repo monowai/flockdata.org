@@ -252,7 +252,7 @@ public class AuditService {
                     logger.trace("Ignoring a change we already have {}", input);
                     input.setStatus(AuditLogInputBean.LogStatus.IGNORE);
                     if (input.isForceReindex()) { // Caller is recreating the search index
-                        prepareSearchDocument(auditHeader, input, existingLog.getAuditChange().getEvent(), searchActive, fortressWhen, existingLog);
+                        makeChangeSearchable(prepareSearchDocument(auditHeader, input, existingLog.getAuditChange().getEvent(), searchActive, fortressWhen, existingLog));
                         resultBean.setMessage("Ignoring a change we already have. Honouring request to re-index");
                     } else
                         resultBean.setMessage("Ignoring a change we already have");

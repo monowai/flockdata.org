@@ -76,4 +76,5 @@ public interface AuditChange {
 
     void setEvent(AuditEvent event);
 
+    void setCompressed(Boolean compressed);
 }

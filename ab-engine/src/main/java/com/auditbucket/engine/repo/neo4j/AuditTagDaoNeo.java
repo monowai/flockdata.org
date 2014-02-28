@@ -21,6 +21,7 @@ package com.auditbucket.engine.repo.neo4j;
 
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditTag;
+import com.auditbucket.audit.model.GeoData;
 import com.auditbucket.dao.AuditTagDao;
 import com.auditbucket.dao.TagDao;
 import com.auditbucket.engine.repo.neo4j.model.AuditHeaderNode;
@@ -44,7 +45,7 @@ import java.util.*;
 
 /**
  * Data Access Object that manipulates tag nodes against audit headers
- *
+ * <p/>
  * User: Mike Holdsworth
  * Date: 28/06/13
  * Time: 11:07 PM
@@ -69,10 +70,10 @@ public class AuditTagDaoNeo implements AuditTagDao {
      * If auditId == null, then an AuditTag for the caller to deal with otherwise the relationship
      * is persisted and null is returned.
      *
-     * @param auditHeader  constructed header
-     * @param tag          tag
+     * @param auditHeader      constructed header
+     * @param tag              tag
      * @param relationshipName name
-     * @param propMap      properties to associate with an audit tag (weight)
+     * @param propMap          properties to associate with an audit tag (weight)
      * @return Null or AuditTag
      */
     public AuditTag save(AuditHeader auditHeader, Tag tag, String relationshipName, Map<String, Object> propMap) {
@@ -80,8 +81,8 @@ public class AuditTagDaoNeo implements AuditTagDao {
         if (relationshipName == null) {
             relationshipName = "GENERAL_TAG";
         }
-        if ( tag == null )
-            throw new IllegalArgumentException("Tag must not be NULL. Relationship["+ relationshipName +"]");
+        if (tag == null)
+            throw new IllegalArgumentException("Tag must not be NULL. Relationship[" + relationshipName + "]");
 
         AuditTagRelationship rel = new AuditTagRelationship(auditHeader, tag, relationshipName, propMap);
         if (auditHeader.getId() == null)
@@ -173,9 +174,15 @@ public class AuditTagDaoNeo implements AuditTagDao {
 
     @Override
     public Set<AuditTag> getAuditTags(AuditHeader auditHeader, Company company) {
-        String query = "start audit=node({auditId}) " +
-                "MATCH audit<-[tagType]-(tag:Tag" + engineAdmin.getTagSuffix(company) + ") " +
-                "return tag, tagType";
+        String query = "match (audit:AuditHeader)<-[tagType]-(tag:Tag" + engineAdmin.getTagSuffix(company) + ") " +
+                "where id(audit)={auditId} \n" +
+                "optional match tag-[:located]-(located)-[*0..2]-(country:Country) \n" +
+                "optional match located-[*0..2]->(state:State) " +
+                "return tag,tagType,located,state, country";
+
+//        String query = "start audit=node({auditId}) " +
+//                "MATCH audit<-[tagType]-(tag:Tag" + engineAdmin.getTagSuffix(company) + ") " +
+//                "return tag, tagType";
 
         Map<String, Object> params = new HashMap<>();
         params.put("auditId", auditHeader.getId());
@@ -185,8 +192,24 @@ public class AuditTagDaoNeo implements AuditTagDao {
             Node n = (Node) row.get("tag");
             TagNode tag = new TagNode(n);
             Relationship relationship = template.convert(row.get("tagType"), Relationship.class);
-
             AuditTagRelationship auditTag = new AuditTagRelationship(auditHeader, tag, relationship);
+
+            Node loc = (Node) row.get("located");
+
+            if (loc != null) {
+                GeoData geoData = new GeoData();
+                Node country = (Node) row.get("country");
+                Node state = (Node) row.get("state");
+                geoData.setCity((String) loc.getProperty("name"));
+
+                if ( country!=null && country.hasProperty("name")){
+                    geoData.setIsoCode((String) country.getProperty("code"));
+                    geoData.setCountry((String) country.getProperty("name"));
+                }
+                if (state!=null && state.hasProperty("name"))
+                    geoData.setState((String) state.getProperty("name"));
+                auditTag.setGeoData(geoData);
+            }
             // Commenting out for DoubleCheck. Doesn't seem to serve any purpose in
             // search anyway
             auditTag.setWeight(null);

@@ -53,19 +53,17 @@ public class WhatService {
 
     public void logWhat(AuditHeader auditHeader, AuditChange change, String jsonText) {
         // Compress the Value of JSONText
-        CompressionResult result = CompressionHelper.compress(jsonText);
-        Boolean compressed = result.getMethod() == CompressionResult.Method.GZIP;
+        CompressionResult dataBlock = CompressionHelper.compress(jsonText);
+        Boolean compressed = (dataBlock.getMethod() == CompressionResult.Method.GZIP);
 
         change.setWhatStore(String.valueOf(engineAdmin.getKvStore()));
+        change.setCompressed(compressed);
         // Store First all information In Neo4j
         change = auditDao.save(change, compressed);
 
-        // Store the what information Compressed in KV Store Depending on
-        KvRepo kvRepo = getKvRepo(change);
-
         try {
             // ToDo: deal with this via spring integration??
-            kvRepo.add(auditHeader, change.getId(), result.getAsBytes());
+            getKvRepo(change).add(auditHeader, change.getId(), dataBlock.getAsBytes());
         } catch (IOException e) {
             logger.error("KV storage issue", e);
         }
@@ -92,9 +90,8 @@ public class WhatService {
     public AuditWhat getWhat(AuditHeader auditHeader, AuditChange change) {
         if (change == null )
             return null;
-        KvRepo kvRepo = getKvRepo(change);
         try {
-            byte[] whatInformation = kvRepo.getValue(auditHeader, change.getId());
+            byte[] whatInformation = getKvRepo(change).getValue(auditHeader, change.getId());
             AuditWhat auditWhat = new AuditWhatData(whatInformation, change.isCompressed());
             return auditWhat;
         } catch ( RuntimeException re){

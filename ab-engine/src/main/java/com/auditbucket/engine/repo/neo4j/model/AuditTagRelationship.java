@@ -21,6 +21,7 @@ package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditTag;
+import com.auditbucket.audit.model.GeoData;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.repo.neo4j.model.TagNode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -46,6 +47,7 @@ public class AuditTagRelationship implements AuditTag, Comparable {
     private Integer weight;
 
     private String abAdded = "y"; // By default, all tag relationships are added via AB InputBeans
+    private GeoData geoData;
     //  relationships added outside of AB will not have this property unless manually set
 
     protected AuditTagRelationship() {
@@ -126,5 +128,14 @@ public class AuditTagRelationship implements AuditTag, Comparable {
 
     public void setWeight(Integer weight) {
         this.weight = weight;
+    }
+
+    public void setGeoData(GeoData geoData) {
+        this.geoData = geoData;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public GeoData getGeoData() {
+        return geoData;
     }
 }

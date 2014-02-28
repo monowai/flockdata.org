@@ -617,6 +617,53 @@ public class TestAuditTags {
         }
 
     }
+    @Test
+    public void geoTag() throws Exception {
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        assertNotNull(iSystemUser);
 
+        Fortress fortress = fortressService.registerFortress("ABC");
+        assertNotNull(fortress);
+
+        AuditHeaderInputBean auditBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
+        String country = "USA:Country";
+        String city = "Los Angeles:City";
+
+        TagInputBean countryInputTag = new TagInputBean(country);
+        TagInputBean cityInputTag = new TagInputBean(city);
+        TagInputBean stateInputTag = new TagInputBean("CA:State");
+
+        TagInputBean institutionTag = new TagInputBean("mikecorp", "owns");
+        // Institution is in a city
+        institutionTag.setTargets("located", cityInputTag);
+        cityInputTag.setTargets("state", stateInputTag);
+        stateInputTag.setTargets("country", countryInputTag);
+        auditBean.setTag(institutionTag);
+
+        // Institution<-city<-state<-country
+
+        AuditResultBean resultBean = auditManager.createHeader(auditBean);
+        assertNotNull(resultBean);
+        assertNotNull ( tagService.findTag("USA"));
+
+        Set<AuditTag> tags = auditTagService.findAuditTags(resultBean.getAuditHeader());
+        assertFalse(tags.isEmpty());
+
+        for (AuditTag tag : tags) {
+            assertEquals("mikecorp", tag.getTag().getName());
+            assertNotNull ( tag.getGeoData());
+            assertEquals("CA", tag.getGeoData().getState());
+            assertEquals("Los Angeles", tag.getGeoData().getCity());
+            Collection<Tag> cities = tagService.findDirectedTags(tag.getTag());
+            org.junit.Assert.assertFalse(cities.isEmpty());
+            Tag cityTag = cities.iterator().next();
+            assertEquals(cityInputTag.getName(), cityTag.getName());
+            Collection<Tag> states = tagService.findDirectedTags(cityTag);
+            assertFalse(states.isEmpty());
+            Tag stateTag = states.iterator().next();
+            assertEquals(stateInputTag.getName(), stateTag.getName());
+        }
+
+    }
 
 }

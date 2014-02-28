@@ -209,8 +209,6 @@ public class TestTags {
 
         assertNotNull(tag);
         Tag result = tagService.findTag("FLOP");
-        // ToDo: Find tag isn't working N4j2 Node types and CreateIndex
-        // Issue is dynamic nodes and properties don't get in the index.
 
         assertNotNull(result);
         assertEquals(123, tag.getProperty("num"));
