@@ -118,7 +118,7 @@ public class AuditTagService {
         tagService.processTags(userTags, company);
         for (TagInputBean tagInput : userTags) {
 
-            Tag tag = tagService.findTag(tagInput.getName(), company);
+            Tag tag = tagService.processTag(tagInput, company);
 
             // Handle both simple relationships type name or a map/collection of relationships
             if (tagInput.getAuditLinks() != null) {

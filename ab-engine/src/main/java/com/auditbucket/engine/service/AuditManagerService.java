@@ -31,6 +31,7 @@ import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.TagService;
 import org.joda.time.DateTime;
+import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.kernel.DeadlockDetectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -187,12 +188,9 @@ public class AuditManagerService {
             try {
                 if (resultBean == null || resultBean.getAuditId() ==null ) {
                     resultBean = auditService.createHeader(inputBean, company, fortress);
-                } else {
-                    logger.info("Skipping resultBean created after deadlock {}", inputBean.getCallerRef());
                 }
                 // Don't recreate tags if we already handled this -ToDiscuss!!
                 if (!resultBean.isDuplicate()) {
-                    retryCount = 0;
                     if (inputBean.isTrackSuppressed())
                         // We need to get the "tags" across to ElasticSearch, so we mock them ;)
                         resultBean.setTags(auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTags()));
@@ -203,8 +201,8 @@ public class AuditManagerService {
                 retryCount = maxRetry; // Exit the loop
             } catch (RuntimeException re) {
                 // ToDo: Exceptions getting wrapped in a JedisException. Can't directly catch the DDE hence the instanceof check
-                if ( re.getCause() instanceof DeadlockDetectedException || re.getCause() instanceof InvalidDataAccessResourceUsageException || re.getCause() instanceof DataRetrievalFailureException) {
-                    logger.error("Deadlock Detected. Entering retry {}", inputBean.getCallerRef());
+                if ( re.getCause() instanceof NotFoundException|| re.getCause() instanceof DeadlockDetectedException || re.getCause() instanceof InvalidDataAccessResourceUsageException || re.getCause() instanceof DataRetrievalFailureException) {
+                    logger.debug("Deadlock Detected. Entering retry fortress [{}], docType {}, callerRef [{}], rolling back. Cause = {}", inputBean.getFortress(), inputBean.getDocumentType(), inputBean.getCallerRef(), re.getCause());
                     Thread.yield();
                     retryCount++;
                     if (retryCount == maxRetry) {

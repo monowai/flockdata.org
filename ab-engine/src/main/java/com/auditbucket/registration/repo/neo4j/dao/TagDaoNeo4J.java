@@ -87,7 +87,6 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
             //TagNode    existingTag = getOrCreateTag(tagInput, tagSuffix);
             //}
             //Node start = template.getNode(existingTag.getId());
-            logger.info("Trying to create Tag {}", tagInput.toString());
              start = getOrCreateTag(tagInput, tagSuffix);
         } else {
             start = template.getNode(existingTag.getId());
@@ -114,7 +113,7 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
             tagSuffix = tagSuffix + " " + tagInput.getIndex();
 
         // ToDo: Multi-tenanted custom tags
-        logger.info("About to merge Tag {}", tag.getKey());
+        //logger.info("About to merge Tag {}", tag.getKey());
         String query = "merge (tag:Tag" + tagSuffix + " {code:{code}, name:{name}, key:{key}})  return tag";
         Map<String, Object> params = new HashMap<>();
         params.put("code", tag.getCode());

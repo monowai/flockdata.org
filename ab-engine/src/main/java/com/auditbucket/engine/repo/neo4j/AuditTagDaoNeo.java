@@ -32,7 +32,9 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.repo.neo4j.model.TagNode;
 import com.auditbucket.registration.service.TagService;
+import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,14 +91,21 @@ public class AuditTagDaoNeo implements AuditTagDao {
             return rel;
 
         Node headerNode = template.getPersistentState(auditHeader);
-        Node tagNode = template.getNode(tag.getId());
+
+        Node tagNode  ;
+        try {
+            tagNode = template.getNode(tag.getId());
+        } catch (RuntimeException e) {
+            logger.error("Weird error looking for tag [{}] with ID [{}]",tag.getKey(), tag.getId());
+            throw (e);
+        }
         //Primary exploration relationship
         Relationship r = template.getRelationshipBetween(tagNode, headerNode, relationshipName);
 
         if (r != null) {
             return null;
         }
-
+        //DynamicRelationshipType rlx = DynamicRelationshipType.withName(relationshipName);
         template.createRelationshipBetween(tagNode, headerNode, relationshipName, propMap);
         logger.trace("Created Relationship Tag[{}] of type {}", tag, relationshipName);
         return null;
