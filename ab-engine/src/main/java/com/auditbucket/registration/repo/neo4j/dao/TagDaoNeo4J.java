@@ -20,6 +20,7 @@
 package com.auditbucket.registration.repo.neo4j.dao;
 
 import com.auditbucket.audit.model.DocumentType;
+import com.auditbucket.engine.PropertyConversion;
 import com.auditbucket.engine.repo.neo4j.DocumentTypeRepo;
 import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
 import com.auditbucket.engine.service.EngineConfig;
@@ -28,6 +29,7 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.repo.neo4j.model.TagNode;
 import org.neo4j.graphdb.Node;
+import org.neo4j.kernel.api.properties.DefinedProperty;
 import org.neo4j.kernel.impl.core.NodeProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,12 +84,9 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
     Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection createdValues) {
         // Check exists
         TagNode existingTag = (TagNode) findOne(tagInput.getName(), company);
-        Node start = null;
+        Node start;
         if (existingTag == null) {
-            //TagNode    existingTag = getOrCreateTag(tagInput, tagSuffix);
-            //}
-            //Node start = template.getNode(existingTag.getId());
-             start = getOrCreateTag(tagInput, tagSuffix);
+            start = createTag(tagInput, tagSuffix);
         } else {
             start = template.getNode(existingTag.getId());
         }
@@ -103,7 +102,7 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
         return new TagNode(start);
     }
 
-    private Node getOrCreateTag(TagInputBean tagInput, String tagSuffix) {
+    private Node createTag(TagInputBean tagInput, String tagSuffix) {
         TagNode tag = new TagNode(tagInput);
 
         // ToDo: Should a type be suffixed with company in multi-tenanted? - more time to think!!
@@ -114,13 +113,24 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
 
         // ToDo: Multi-tenanted custom tags
         //logger.info("About to merge Tag {}", tag.getKey());
-        String query = "merge (tag:Tag" + tagSuffix + " {code:{code}, name:{name}, key:{key}})  return tag";
+        String query = "merge (tag:Tag" + tagSuffix + " {code:{code}, name:{name}, key:{key}";
         Map<String, Object> params = new HashMap<>();
         params.put("code", tag.getCode());
         params.put("key", tag.getKey());
         params.put("name", tag.getName());
         // ToDo: - set custom properties
 
+        Map<String, Object> properties = tagInput.getProperties();
+        for (Map.Entry<String, Object> prop : properties.entrySet()) {
+            if (! PropertyConversion.isSystemColumn(prop.getKey())) {
+                if (prop.getValue() != null) {
+                    DefinedProperty property = PropertyConversion.convertProperty(1, prop.getValue());
+                    query = query + ", " + PropertyConversion.toJsonColumn(prop.getKey(), property.value());
+                }
+            }
+        }
+
+        query = query + "})  return tag";
         Result<Map<String, Object>> result = template.query(query, params);
         Map<String, Object> mapResult = result.singleOrNull();
         Node end = (Node) mapResult.get("tag");

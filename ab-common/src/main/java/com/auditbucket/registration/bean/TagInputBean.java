@@ -60,7 +60,7 @@ public class TagInputBean {
      * <p/>
      * You can pass this in as Name:Type and AB will additionally
      * recognize the tag as being of the supplied Type
-     *
+     * <p/>
      * This tag will not be associated with an AuditHeader (it has no auditRelationship)
      * <p/>
      * Code value defaults to the tag name
@@ -91,8 +91,8 @@ public class TagInputBean {
 
     public TagInputBean(String tagName, String auditRelationship, Map<String, Object> relationshipProperties) {
         this(tagName);
-        if ( auditRelationship == null )
-            auditRelationship="general";
+        if (auditRelationship == null)
+            auditRelationship = "general";
         else {
             auditRelationship = auditRelationship.trim();
             if (auditRelationship.contains(" "))
@@ -138,8 +138,7 @@ public class TagInputBean {
     }
 
     public void setProperty(String key, Object value) {
-        if (!key.contains("id") | key.contains("name"))
-            properties.put(key, value);
+        properties.put(key, value);
     }
 
     public boolean isReverse() {
@@ -160,8 +159,8 @@ public class TagInputBean {
      */
 
     public void setIndex(String index) {
-        if ( index !=null && !"".equals(index)&& !index.startsWith(":"))
-            this.index =":"+ index;
+        if (index != null && !"".equals(index) && !index.startsWith(":"))
+            this.index = ":" + index;
         else
             this.index = index;
     }
@@ -175,28 +174,30 @@ public class TagInputBean {
     public String getIndex() {
         return index;
     }
+
     /**
      * Associates this tag with the AuditHeader
+     *
      * @param auditRelationship name of the relationship to the Audit Header
-     * @param properties properties to store against the relationship
+     * @param properties        properties to store against the relationship
      */
     public void addAuditLink(String auditRelationship, Map<String, Object> properties) {
         this.auditLinks.put(auditRelationship, properties);
 
     }
-    public void addAuditLink(String auditRelationship){
+
+    public void addAuditLink(String auditRelationship) {
         addAuditLink(auditRelationship, null);
     }
 
-    public Map<String, Object> getAuditLinks(){
+    public Map<String, Object> getAuditLinks() {
         return auditLinks;
     }
 
     /**
-     *
      * @return name to relate this to an audit record
      */
-    public String getAuditLink(){
+    public String getAuditLink() {
         return auditLink;
     }
 

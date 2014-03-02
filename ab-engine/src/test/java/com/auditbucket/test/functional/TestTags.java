@@ -211,7 +211,7 @@ public class TestTags {
         Tag result = tagService.findTag("FLOP");
 
         assertNotNull(result);
-        assertEquals(123, tag.getProperty("num"));
+        assertEquals(123l, tag.getProperty("num"));
         assertEquals(123.11, tag.getProperty("dec"));
         assertEquals("abc", tag.getProperty("string"));
 

@@ -19,14 +19,14 @@
 
 package com.auditbucket.registration.repo.neo4j.model;
 
+import com.auditbucket.engine.PropertyConversion;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Tag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.neo4j.graphdb.Node;
-import org.springframework.data.neo4j.fieldaccess.DynamicProperties;
-import org.springframework.data.neo4j.fieldaccess.PrefixedDynamicProperties;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -41,7 +41,7 @@ public class TagNode implements Tag {
 
     private String code;
 
-    DynamicProperties properties = new PrefixedDynamicProperties("");
+    Map<String,Object> properties = new HashMap<>();
 
     private String name;
 
@@ -58,7 +58,7 @@ public class TagNode implements Tag {
 
         this.key = getName().toLowerCase().replaceAll("\\s", "");
 
-        properties.setPropertiesFrom(tagInput.getProperties());
+        properties.putAll(tagInput.getProperties());
     }
 
     public TagNode(Node tag) {
@@ -66,7 +66,12 @@ public class TagNode implements Tag {
         this.code = (String) tag.getProperty("code");
         this.name = (String) tag.getProperty("name");
         this.key = (String) tag.getProperty("key");
+        Iterable<String> keys = tag.getPropertyKeys();
+        for (String s : keys) {
+            if ( !(PropertyConversion.isSystemColumn(s)))
+                properties.put(s, tag.getProperty(s));
 
+        }
     }
 
     @Override
@@ -99,12 +104,12 @@ public class TagNode implements Tag {
 
     @Override
     public Object getProperty(String name) {
-        return properties.getProperty(name);
+        return properties.get(name);
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public Map<String, Object> getProperties() {
-        return properties.asMap();
+        return new HashMap<>(properties);
     }
 
     public void setCode(String code) {
