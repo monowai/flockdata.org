@@ -120,15 +120,15 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
         params.put("name", tag.getName());
         // ToDo: - set custom properties
 
-        Map<String, Object> properties = tagInput.getProperties();
-        for (Map.Entry<String, Object> prop : properties.entrySet()) {
-            if (! PropertyConversion.isSystemColumn(prop.getKey())) {
-                if (prop.getValue() != null) {
-                    DefinedProperty property = PropertyConversion.convertProperty(1, prop.getValue());
-                    query = query + ", " + PropertyConversion.toJsonColumn(prop.getKey(), property.value());
-                }
-            }
-        }
+//        Map<String, Object> properties = tagInput.getProperties();
+//        for (Map.Entry<String, Object> prop : properties.entrySet()) {
+//            if (! PropertyConversion.isSystemColumn(prop.getKey())) {
+//                if (prop.getValue() != null) {
+//                    DefinedProperty property = PropertyConversion.convertProperty(1, prop.getValue());
+//                    query = query + ", " + PropertyConversion.toJsonColumn(prop.getKey(), property.value());
+//                }
+//            }
+//        }
 
         query = query + "})  return tag";
         Result<Map<String, Object>> result = template.query(query, params);

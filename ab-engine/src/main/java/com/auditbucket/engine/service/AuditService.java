@@ -244,7 +244,7 @@ public class AuditService {
 
         Boolean searchActive = fortress.isSearchActive();
         DateTime fortressWhen = (input.getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(input.getWhen()));
-        boolean saveHeader = false;
+        boolean saveHeader =false;
 
         if (existingLog != null) {
             try {
@@ -278,6 +278,8 @@ public class AuditService {
             if (!auditHeader.getLastUser().getId().equals(thisFortressUser.getId())){
                 saveHeader = true;
                 auditHeader.setLastUser(thisFortressUser);
+                auditHeader = auditDAO.save(auditHeader);
+
             }
         }
         AuditChange existingChange = null;
@@ -297,9 +299,9 @@ public class AuditService {
         input.setStatus(AuditLogInputBean.LogStatus.OK);
 
         if (moreRecent) {
-            saveHeader = true;
             if (!auditHeader.getLastUser().getId().equals(thisFortressUser.getId())) {
                 auditHeader.setLastUser(thisFortressUser);
+                auditDAO.save(auditHeader);
             }
             try {
                 resultBean.setSearchDocument(prepareSearchDocument(auditHeader, input, input.getAuditEvent(), searchActive, fortressWhen, newLog));
@@ -308,20 +310,13 @@ public class AuditService {
                 resultBean.setStatus(AuditLogInputBean.LogStatus.ILLEGAL_ARGUMENT);
             }
 
-            doRecentLogTidyUp(auditHeader, existingChange, thisChange, saveHeader);
-
+            auditDAO.setLastChange(auditHeader, thisChange, existingChange);
         }
 
         return resultBean;
 
     }
 
-    @Async
-    private void doRecentLogTidyUp(AuditHeader auditHeader, AuditChange existingChange, AuditChange thisChange, boolean saveHeader) {
-        if (saveHeader)
-            auditDAO.save(auditHeader);
-        auditDAO.setLastChange(auditHeader, thisChange, existingChange);
-    }
 
     public Set<AuditHeader> getAuditHeaders(Fortress fortress, Long skipTo) {
         return auditDAO.findHeaders(fortress.getId(), skipTo);
