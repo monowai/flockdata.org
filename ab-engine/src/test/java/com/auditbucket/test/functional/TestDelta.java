@@ -117,7 +117,7 @@ public class TestDelta {
         String jsonB = "{\"house\": \"green\", \"bedrooms\": 2, \"list\": [1,2,3]}";
 
 
-        AuditHeaderInputBean header = new AuditHeaderInputBean("DELTAForce", "auditTest", typeA, new DateTime(), "abdelta");
+        AuditHeaderInputBean header = new AuditHeaderInputBean("DELTAForce", "auditTestz", "Delta", new DateTime(), "abdelta");
         AuditLogInputBean log = new AuditLogInputBean("Mike", new DateTime(), jsonA);
         header.setAuditLog(log);
         AuditResultBean result = auditManagerService.createHeader(header);

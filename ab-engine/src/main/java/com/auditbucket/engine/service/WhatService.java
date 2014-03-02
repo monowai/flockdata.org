@@ -18,6 +18,7 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,7 +52,7 @@ public class WhatService {
 
     private Logger logger = LoggerFactory.getLogger(WhatService.class);
 
-    public void logWhat(AuditHeader auditHeader, AuditChange change, String jsonText) {
+    public AuditChange logWhat(AuditHeader auditHeader, AuditChange change, String jsonText) {
         // Compress the Value of JSONText
         CompressionResult dataBlock = CompressionHelper.compress(jsonText);
         Boolean compressed = (dataBlock.getMethod() == CompressionResult.Method.GZIP);
@@ -60,14 +61,19 @@ public class WhatService {
         change.setCompressed(compressed);
         // Store First all information In Neo4j
         change = auditDao.save(change, compressed);
+        doKvWrite(auditHeader, change, dataBlock);
 
+        return change;
+    }
+
+    @Async
+    private void doKvWrite(AuditHeader auditHeader, AuditChange change, CompressionResult dataBlock) {
         try {
             // ToDo: deal with this via spring integration??
             getKvRepo(change).add(auditHeader, change.getId(), dataBlock.getAsBytes());
         } catch (IOException e) {
             logger.error("KV storage issue", e);
         }
-        //return change.getId();
     }
 
     private KvRepo getKvRepo(){
