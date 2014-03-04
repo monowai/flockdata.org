@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 /**
  * User: Mike Holdsworth
@@ -61,19 +62,20 @@ public class WhatService {
         change.setCompressed(compressed);
         // Store First all information In Neo4j
         change = auditDao.save(change, compressed);
-        doKvWrite(auditHeader, change, dataBlock);
+        Future<Void> r = doKvWrite(auditHeader, change, dataBlock);
 
         return change;
     }
 
-    @Async
-    private void doKvWrite(AuditHeader auditHeader, AuditChange change, CompressionResult dataBlock) {
+    @Async //Only public methods are Async using this annotation
+    public Future<Void> doKvWrite(AuditHeader auditHeader, AuditChange change, CompressionResult dataBlock) {
         try {
             // ToDo: deal with this via spring integration??
             getKvRepo(change).add(auditHeader, change.getId(), dataBlock.getAsBytes());
         } catch (IOException e) {
             logger.error("KV storage issue", e);
         }
+        return null ;
     }
 
     private KvRepo getKvRepo(){

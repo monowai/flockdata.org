@@ -244,7 +244,6 @@ public class AuditService {
 
         Boolean searchActive = fortress.isSearchActive();
         DateTime fortressWhen = (input.getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(input.getWhen()));
-        boolean saveHeader =false;
 
         if (existingLog != null) {
             try {
@@ -275,12 +274,11 @@ public class AuditService {
             if (input.getEvent() == null) {
                 input.setEvent(AuditChange.CREATE);
             }
-            if (!auditHeader.getLastUser().getId().equals(thisFortressUser.getId())){
-                saveHeader = true;
+            //if (!auditHeader.getLastUser().getId().equals(thisFortressUser.getId())){
                 auditHeader.setLastUser(thisFortressUser);
                 auditHeader = auditDAO.save(auditHeader);
 
-            }
+            //}
         }
         AuditChange existingChange = null;
         if (existingLog != null)
@@ -706,15 +704,15 @@ public class AuditService {
     }
 
     @Async
-    public void makeHeaderSearchable(AuditResultBean resultBean, String event, Date when, Company company) {
+    public Future<Void> makeHeaderSearchable(AuditResultBean resultBean, String event, Date when, Company company) {
         AuditHeader header = resultBean.getAuditHeader();
         if (header.isSearchSuppressed() || !header.getFortress().isSearchActive())
-            return ;
+            return null ;
 
         SearchChange searchDocument = getSearchChange(resultBean, event, when, company);
-        if (searchDocument == null) return;
+        if (searchDocument == null) return null;
         makeChangeSearchable(searchDocument);
-
+        return null;
     }
 
     public SearchChange getSearchChange(AuditResultBean resultBean, String event, Date when, Company company) {

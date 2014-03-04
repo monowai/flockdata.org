@@ -195,7 +195,7 @@ public class TestTags {
         assertNotSame(id, dType.getId());
     }
 
-    @Test
+    // @Test // Not yet supported.
     public void tagWithProperties() throws Exception {
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
         assertNotNull(iSystemUser);
