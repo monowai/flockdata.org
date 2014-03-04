@@ -19,9 +19,10 @@
 
 package com.auditbucket.registration.repo.neo4j.dao;
 
+import com.auditbucket.registration.bean.FortressInputBean;
+import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
-import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
 
 import java.util.List;
 
@@ -32,21 +33,53 @@ import java.util.List;
  */
 public interface FortressDao {
 
-    public Fortress save(Fortress fortress);
+    /**
+     * create a fortress
+     *
+     *
+     *
+     * @param company
+     * @param fortress data to save
+     * @return saved fortress
+     */
+    public Fortress save(Company company, FortressInputBean fortress);
 
-    public Fortress findByPropertyValue(String name, Object value);
+    public Fortress findByPropertyValue(String property, Object value);
 
-    public Fortress findOne(Long id);
+    /**
+     * Find by primary key
+     * @param fortressId  unique identifier
+     * @return null if doesn't exist
+     */
+    public Fortress findOne(Long fortressId);
 
-    public FortressUser getFortressUser(Long id, String name);
+    public FortressUser getFortressUser(Long fortressId, String name);
 
     List<Fortress> findFortresses(Long companyID);
 
-    FortressUser findOneUser(Long id);
+    /**
+     * Locate a unique fortress user by primary key
+     *
+     * @param fortressUserId  unique key
+     * @return null if doesn't exist
+     */
+    FortressUser findOneUser(Long fortressUserId);
 
+    /**
+     * Associations supplied fortressUserName with the resolved fortress
+     *
+     * @param fortress resolved unique fortress
+     * @param fortressUserName unique username for the fortress
+     * @return FortressUser created
+     */
     FortressUser save(Fortress fortress, String fortressUserName);
 
-    void fetch(FortressUser lastUser);
+    /**
+     * Instantiate lazy loaded properties if appropriate
+     *
+     * @param fortressUser valid object with an Id
+     */
+    void fetch(FortressUser fortressUser);
 
     void delete(Fortress fortress);
 }

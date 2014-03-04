@@ -31,8 +31,30 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * User: Mike Holdsworth
- * Since: 13/10/13
+ * General importer with support for CSV and XML parsing. Interacts with AbRestClient to send
+ * information via a RESTful interface
+ * <p/>
+ * Will send information to AuditBucket as either tags or audit information.
+ * <p/>
+ * You should extend AuditHeaderInputBean or TagInputBean and implement XMLMappable or DelimitedMappable
+ * to massage your data prior to dispatch to AB.
+ * <p/>
+ * Parameters:
+ * -s=http://localhost:8080/ab-engine
+ * <p/>
+ * quoted string containing "file,DelimitedClass,BatchSize"
+ * "./path/to/file/cow.csv,com.auditbucket.health.Countries,200"
+ * <p/>
+ * if BatchSize is set to -1, then a simulation only is run; information is not dispatched to the server.
+ * This is useful to debug the class implementing Delimited
+ *
+ * @see AbRestClient
+ * @see Mappable
+ * @see TagInputBean
+ * @see AuditHeaderInputBean
+ *      <p/>
+ *      User: Mike Holdsworth
+ *      Since: 13/10/13
  */
 @SuppressWarnings("StatementWithEmptyBody")
 public class Importer {
@@ -97,15 +119,6 @@ public class Importer {
             endProcess(watch, totalRows);
 
             logger.info("Finished at {}", DateFormat.getDateTimeInstance().format(new Date()));
-
-            //"/Users/mike/Downloads/cow.csv,com.auditbucket.health.Countries,200"
-
-            //"/Users/mike/Desktop/Med/ophthalmology.xml,com.auditbucket.health.medline.study.Ophthalmology,100,-1"
-            //"/Users/mike/Dropbox/auditbucket/dataproviders/medline/GraftVsHost.xml,com.auditbucket.health.medline.study.GraftVsHost,100"
-            //"/Users/mike/Dropbox/data feeds/Cervical cancer.xml,com.auditbucket.health.medline.study.CervicalCancer,100"
-//            "/Users/mike/Dropbox/auditbucket/dataproviders/medicare/HQI_HOSP.csv";com.auditbucket.health.medicare.Hospital;200
-            //"/Users/mike/Dropbox/auditbucket/dataproviders/medicare/hvbp_hcahps_02_07_2013.csv";com.auditbucket.health.medicare.Hcahps;500
-            //"/Users/mike/downloads/2008_BSA_Inpatient_Claims_PUF.csv";com.auditbucket.health.medicare.InpatientClaims,500
 
         } catch (Exception e) {
             logger.error("Import error", e);
@@ -207,7 +220,7 @@ public class Importer {
                         if (type == AbRestClient.type.AUDIT) {
                             AuditHeaderInputBean header = (AuditHeaderInputBean) row;
 
-                            if (!jsonData.equals("")) {
+                            if (!"".equals(jsonData)) {
                                 jsonData = jsonData.replaceAll("[\\x00-\\x09\\x11\\x12\\x14-\\x1F\\x7F]", "");
                                 AuditLogInputBean logInputBean = new AuditLogInputBean("system", new DateTime(), jsonData);
                                 header.setAuditLog(logInputBean);
@@ -215,11 +228,12 @@ public class Importer {
                                 // It's all Meta baby - no audit information
                             }
                             writeAudit(abExporter, header, mappable.getClass().getCanonicalName());
-                        } else {
-                            // Tag
-                            TagInputBean tagInputBean = (TagInputBean) row;
-                            logger.info(tagInputBean.toString());
-                            writeTag(abExporter, tagInputBean, mappable.getClass().getCanonicalName());
+                        } else {// Tag
+                            if (!"".equals(jsonData)) {
+                                TagInputBean tagInputBean = (TagInputBean) row;
+                                logger.info(tagInputBean.toString());
+                                writeTag(abExporter, tagInputBean, mappable.getClass().getCanonicalName());
+                            }
                         }
                         if (rows % 500 == 0) {
                             logger.info("Processed {} ", rows);

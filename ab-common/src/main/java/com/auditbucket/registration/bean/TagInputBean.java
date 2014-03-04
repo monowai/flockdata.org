@@ -42,18 +42,17 @@ public class TagInputBean {
     private Map<String, TagInputBean[]> targets = new HashMap<>();
 
     Map<String, Object> properties = new HashMap<>();
-    private String type = "";
+    private String index = "";
+
+    Map<String, Object> auditLinks = new HashMap<>();
+
+    private String auditLink = null;
 
     protected TagInputBean() {
     }
 
-    public TagInputBean(String tagName, String type) {
-        this(tagName);
-        type = type.trim();
-        if (type.contains(" "))
-            throw new RuntimeException("Tag Type cannot contain whitespace [" + type + "]");
-
-        setType(":" + type);
+    public TagInputBean(String tagName, String auditRelationship) {
+        this(tagName, auditRelationship, null);
     }
 
     /**
@@ -61,6 +60,8 @@ public class TagInputBean {
      * <p/>
      * You can pass this in as Name:Type and AB will additionally
      * recognize the tag as being of the supplied Type
+     * <p/>
+     * This tag will not be associated with an AuditHeader (it has no auditRelationship)
      * <p/>
      * Code value defaults to the tag name
      *
@@ -77,15 +78,29 @@ public class TagInputBean {
                     if (data[i].contains(" "))
                         throw new RuntimeException("Tag Type cannot contain whitespace " + data[i]);
 
-                    this.type = this.type + " :" + data[i];
+                    this.index = this.index + " :" + data[i];
                 }
 
             }
-            this.type = this.type.trim();
+            this.index = this.index.trim();
         } else
             this.name = tagName;
 
         this.code = this.name;
+    }
+
+    public TagInputBean(String tagName, String auditRelationship, Map<String, Object> relationshipProperties) {
+        this(tagName);
+        if (auditRelationship == null)
+            auditRelationship = "general";
+        else {
+            auditRelationship = auditRelationship.trim();
+            if (auditRelationship.contains(" "))
+                throw new RuntimeException("Tag Type cannot contain whitespace [" + auditRelationship + "]");
+        }
+
+        addAuditLink(auditRelationship, relationshipProperties);
+
     }
 
     public String getName() {
@@ -105,9 +120,9 @@ public class TagInputBean {
         return code;
     }
 
-    public void setTargets(String relationshipName, TagInputBean tagInputBean) {
+    public void setTargets(String tagRelationship, TagInputBean tagInputBean) {
         TagInputBean[] put = {tagInputBean};
-        targets.put(relationshipName, put);
+        targets.put(tagRelationship, put);
     }
 
     public void setTargets(String relationshipName, TagInputBean[] tagInputBeans) {
@@ -123,8 +138,7 @@ public class TagInputBean {
     }
 
     public void setProperty(String key, Object value) {
-        if (!key.contains("id") | key.contains("name"))
-            properties.put(key, value);
+        properties.put(key, value);
     }
 
     public boolean isReverse() {
@@ -139,24 +153,16 @@ public class TagInputBean {
         this.code = code;
     }
 
-    @Override
-    public String toString() {
-        return "TagInputBean{" +
-                "name='" + name + '\'' +
-                ", code='" + code + '\'' +
-                '}';
-    }
-
     /**
      * Tag names cannot contain spaces and should begin with a single :
      * Will add the : if it is missing
      */
 
-    public void setType(String type) {
-        if ( type!=null && !"".equals(type)&& !type.startsWith(":"))
-            this.type =":"+type;
+    public void setIndex(String index) {
+        if (index != null && !"".equals(index) && !index.startsWith(":"))
+            this.index = ":" + index;
         else
-            this.type = type;
+            this.index = index;
     }
 
     /**
@@ -165,7 +171,64 @@ public class TagInputBean {
      *
      * @return Colon prefixed name of the tag
      */
-    public String getType() {
-        return type;
+    public String getIndex() {
+        return index;
+    }
+
+    /**
+     * Associates this tag with the AuditHeader
+     *
+     * @param auditRelationship name of the relationship to the Audit Header
+     * @param properties        properties to store against the relationship
+     */
+    public void addAuditLink(String auditRelationship, Map<String, Object> properties) {
+        this.auditLinks.put(auditRelationship, properties);
+
+    }
+
+    public void addAuditLink(String auditRelationship) {
+        addAuditLink(auditRelationship, null);
+    }
+
+    public Map<String, Object> getAuditLinks() {
+        return auditLinks;
+    }
+
+    /**
+     * @return name to relate this to an audit record
+     */
+    public String getAuditLink() {
+        return auditLink;
+    }
+
+    @Override
+    public String toString() {
+        return "TagInputBean{" +
+                "name='" + name + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TagInputBean)) return false;
+
+        TagInputBean that = (TagInputBean) o;
+
+        if (reverse != that.reverse) return false;
+        if (code != null ? !code.equals(that.code) : that.code != null) return false;
+        if (index != null ? !index.equals(that.index) : that.index != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (code != null ? code.hashCode() : 0);
+        result = 31 * result + (reverse ? 1 : 0);
+        result = 31 * result + (index != null ? index.hashCode() : 0);
+        return result;
     }
 }

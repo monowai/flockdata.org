@@ -171,12 +171,10 @@ public class TestAuditTags {
         tagService.processTag(tagInput);
         //assertNotNull(result);
         AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
-        Map<String, Object> tagValues = new HashMap<>();
-        tagValues.put("TagA", "AAAA");
-        tagValues.put("TagB", "BBBB");
-        tagValues.put("TagC", "CCCC");
-        tagValues.put("TagD", "DDDD");
-        aib.setTagValues(tagValues);
+        aib.setTag(new TagInputBean("TagA", "AAAA"));
+        aib.setTag(new TagInputBean("TagB", "BBBB"));
+        aib.setTag(new TagInputBean("TagC", "CCCC"));
+        aib.setTag(new TagInputBean("TagD", "DDDD"));
         AuditResultBean resultBean = auditManager.createHeader(aib);
         AuditHeader auditHeader = auditService.getHeader(resultBean.getAuditKey());
         Set<AuditTag> tagSet = auditTagService.findAuditTags(auditHeader);
@@ -205,12 +203,11 @@ public class TestAuditTags {
         tagService.processTag(tagInput);
         //assertNotNull(result);
         AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
-        Map<String, Object> tagValues = new HashMap<>();
-        tagValues.put("TagA", "AAAA");
-        tagValues.put("TagB", "BBBB");
-        tagValues.put("TagC", "CCCC");
-        tagValues.put("TagD", "DDDD");
-        aib.setTagValues(tagValues);
+
+        aib.setTag(new TagInputBean("TagA", "AAAA"));
+        aib.setTag(new TagInputBean("TagB", "BBBB"));
+        aib.setTag(new TagInputBean("TagC", "CCCC"));
+        aib.setTag(new TagInputBean("TagD", "DDDD"));
         AuditResultBean resultBean = auditManager.createHeader(aib);
         AuditHeader auditHeader = auditService.getHeader(resultBean.getAuditKey());
         Set<AuditTag> tagSet = auditTagService.findAuditTags(auditHeader);
@@ -233,22 +230,19 @@ public class TestAuditTags {
 
     @Test
     public void nullTagValueCRUD() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         fortressService.registerFortress("ABC");
 
-        Company iCompany = iSystemUser.getCompany();
         TagInputBean tagInput = new TagInputBean("FLOP");
 
         tagService.processTag(tagInput);
         //assertNotNull(result);
         AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
-        Map<String, Object> tagValues = new HashMap<>();
         // In this scenario, the Tag name is the key if the value is null
-        tagValues.put("TagA", null);
-        tagValues.put("TagB", null);
-        tagValues.put("TagC", null);
-        tagValues.put("TagD", "DDDD");
-        aib.setTagValues(tagValues);
+        aib.setTag(new TagInputBean("TagA", null));
+        aib.setTag(new TagInputBean("TagB", null));
+        aib.setTag(new TagInputBean("TagC", null));
+        aib.setTag(new TagInputBean("TagD", "DDDD"));
         AuditResultBean resultBean = auditManager.createHeader(aib);
         AuditHeader auditHeader = auditService.getHeader(resultBean.getAuditKey());
         Set<AuditTag> tagSet = auditTagService.findAuditTags(auditHeader);
@@ -284,12 +278,10 @@ public class TestAuditTags {
         tagService.processTag(tagInput);
         //assertNotNull(result);
         AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
-        Map<String, Object> tagValues = new HashMap<>();
         // This should create the same Tag object
-        tagValues.put("TagA", "camel");
-        tagValues.put("taga", "lower");
-        tagValues.put("tAgA", "mixed");
-        aib.setTagValues(tagValues);
+        aib.setTag(new TagInputBean("TagA", "camel"));
+        aib.setTag(new TagInputBean("taga", "lower"));
+        aib.setTag(new TagInputBean("tAgA", "mixed"));
         AuditResultBean resultBean = auditManager.createHeader(aib);
         AuditHeader auditHeader = auditService.getHeader(resultBean.getAuditKey());
         Tag tag = tagService.findTag("Taga");
@@ -313,16 +305,13 @@ public class TestAuditTags {
         tagService.processTag(tagInput);
         //assertNotNull(result);
         AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
-        Map<String, Object> tagValues = new HashMap<>();
         // This should create the same Tag object
-        Collection<String> relationshipList = new ArrayList<>();
-        relationshipList.add("Type1");
-        relationshipList.add("Type2");
-        relationshipList.add("Type3");
+        TagInputBean tag = new TagInputBean("TagA");
+        tag.addAuditLink("Type1");
+        tag.addAuditLink("Type2");
+        tag.addAuditLink("Type3");
+        aib.setTag(tag);
 
-        tagValues.put("TagA", relationshipList);
-
-        aib.setTagValues(tagValues);
         AuditResultBean resultBean = auditManager.createHeader(aib);
         AuditHeader auditHeader = auditService.getHeader(resultBean.getAuditKey());
         Set<AuditTag> tagSet = auditTagService.findAuditTags(auditHeader);
@@ -361,13 +350,13 @@ public class TestAuditTags {
         assertNotNull(fortress);
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
-        Map<String, Object> tags = new HashMap<>();
-        Collection<String> relationshipTypes = new ArrayList<>();
-        relationshipTypes.add("email-to");
-        relationshipTypes.add("email-cc");
-        tags.put("mike@auditbucket.com", relationshipTypes);
-        tags.put("np@auditbucket.com", "email-cc");
-        inputBean.setTagValues(tags);
+
+        TagInputBean tagA = new TagInputBean("mike@auditbucket.com", "email-to");
+        tagA.addAuditLink("email-cc");
+        TagInputBean tagB = new TagInputBean("np@auditbucket.com", "email-cc");
+        inputBean.setTag(tagA);
+        inputBean.setTag(tagB);
+
         AuditResultBean resultBean = auditManager.createHeader(inputBean);
         AuditHeader header = auditService.getHeader(resultBean.getAuditKey());
         Set<AuditTag> tagResults = auditTagService.findAuditTags(header);
@@ -385,13 +374,12 @@ public class TestAuditTags {
         assertNotNull(fortress);
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
-        Map<String, Object> tags = new HashMap<>();
-        Map<String, Map> types = new HashMap<>();
-        types.put("email-to", null);
-        types.put("email-cc", null);
-        tags.put("mike@auditbucket.com", types);
-        tags.put("np@auditbucket.com", "email-cc");
-        inputBean.setTagValues(tags);
+        TagInputBean tagA = new TagInputBean("mike@auditbucket.com", "email-to");
+        tagA.addAuditLink("email-cc");
+        TagInputBean tagB = new TagInputBean("np@auditbucket.com", "email-cc");
+        inputBean.setTag(tagA);
+        inputBean.setTag(tagB);
+
         AuditResultBean resultBean = auditManager.createHeader(inputBean);
         AuditHeader header = auditService.getHeader(resultBean.getAuditKey());
         Set<AuditTag> tagResults = auditTagService.findAuditTags(header);
@@ -409,18 +397,17 @@ public class TestAuditTags {
         assertNotNull(fortress);
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
-        Map<String, Object> tags = new HashMap<>();
-        Map<String, Map> relationships = new HashMap<>();
         Map<String, Object> propA = new HashMap<>();
         Map<String, Object> propB = new HashMap<>();
         propA.put("myValue", 10);
         propB.put("myValue", 20);
 
-        relationships.put("email-to", propA);
-        relationships.put("email-cc", propB);
-        tags.put("mike@auditbucket.com", relationships);
-        tags.put("np@auditbucket.com", "email-cc");
-        inputBean.setTagValues(tags);
+        TagInputBean tagA = new TagInputBean("mike@auditbucket.com", "email-to", propA);
+        tagA.addAuditLink("email-cc", propB);
+        TagInputBean tagB = new TagInputBean("np@auditbucket.com", "email-cc");
+
+        inputBean.setTag(tagA);
+        inputBean.setTag(tagB);
         AuditResultBean resultBean = auditManager.createHeader(inputBean);
         AuditHeader header = auditService.getHeader(resultBean.getAuditKey());
         Set<AuditTag> tagResults = auditTagService.findAuditTags(header);
@@ -438,13 +425,13 @@ public class TestAuditTags {
         assertNotNull(fortress);
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
-        Map<String, Object> tags = new HashMap<>();
-        Collection<String> types = new ArrayList<>();
-        types.add("email-to");
-        types.add("email-to");
-        types.add("email-to");
-        tags.put("mike@auditbucket.com", types);
-        inputBean.setTagValues(tags);
+
+        TagInputBean tagInputBean = new TagInputBean("mike@auditbucket.com", "email-to");
+        tagInputBean.addAuditLink("email-to");
+        tagInputBean.addAuditLink("email-to");
+
+        inputBean.setTag(tagInputBean);
+
         AuditResultBean resultBean = auditManager.createHeader(inputBean);
         AuditHeader header = auditService.getHeader(resultBean.getAuditKey());
         Set<AuditTag> tagResults = auditTagService.findAuditTags(header);
@@ -461,13 +448,14 @@ public class TestAuditTags {
         assertNotNull(fortress);
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
-        Map<String, Object> tags = new HashMap<>();
-        Collection<String> types = new ArrayList<>();
-        types.add("email to");
-        types.add("email cc");
-        tags.put("mike auditbucket.com", types);
-        tags.put("np auditbucket.com", "email cc");
-        inputBean.setTagValues(tags);
+
+        TagInputBean tagA = new TagInputBean("mike@auditbucket.com", "email-to");
+        tagA.addAuditLink("email cc");
+        TagInputBean tagB = new TagInputBean("np@auditbucket.com", "email-cc");
+
+        inputBean.setTag(tagA);
+        inputBean.setTag(tagB);
+
         AuditResultBean resultBean = auditManager.createHeader(inputBean);
         AuditHeader header = auditService.getHeader(resultBean.getAuditKey());
         Set<AuditTag> tagResults = auditTagService.findAuditTags(header);
@@ -478,9 +466,10 @@ public class TestAuditTags {
 
     @Test
     public void nestedStructureInHeader() throws Exception {
+
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         assertNotNull(iSystemUser);
-
+        SecurityContextHolder.getContext().setAuthentication(authA);
         Fortress fortress = fortressService.registerFortress("ABC");
         assertNotNull(fortress);
 
@@ -495,7 +484,7 @@ public class TestAuditTags {
         TagInputBean building = new TagInputBean("ABC House");
         section.setTargets("houses", building);
 
-        inputBean.setAssociatedTag(country);
+        inputBean.setTag(country);
         AuditResultBean resultBean = auditManager.createHeader(inputBean);
         assertNotNull(resultBean);
         // Tags are not associated with the header rather the structure is enforced while importing
@@ -530,13 +519,12 @@ public class TestAuditTags {
         TagInputBean cityInputTag = new TagInputBean(city);
         TagInputBean stateInputTag = new TagInputBean("CA");
 
-        TagInputBean institutionTag = new TagInputBean("mikecorp");
+        TagInputBean institutionTag = new TagInputBean("mikecorp", "owns");
         // Institution is in a city
         institutionTag.setTargets("located", cityInputTag);
         cityInputTag.setTargets("state", stateInputTag);
         stateInputTag.setTargets("country", countryInputTag);
-        inputBean.setAssociatedTag(institutionTag);
-        inputBean.addTagValue("institution", institutionTag);
+        inputBean.setTag(institutionTag);
 
         // Institution<-city<-state<-country
 
@@ -575,13 +563,12 @@ public class TestAuditTags {
         TagInputBean cityInputTag = new TagInputBean(city);
         TagInputBean stateInputTag = new TagInputBean("CA");
 
-        TagInputBean institutionTag = new TagInputBean("mikecorp");
+        TagInputBean institutionTag = new TagInputBean("mikecorp", "works");
         // Institution is in a city
         institutionTag.setTargets("located", cityInputTag);
         cityInputTag.setTargets("state", stateInputTag);
         stateInputTag.setTargets("country", countryInputTag);
-        inputBean.setAssociatedTag(institutionTag);
-        inputBean.addTagValue("institution", institutionTag);
+        inputBean.setTag(institutionTag);
 
         // Institution<-city<-state<-country
 
@@ -591,9 +578,91 @@ public class TestAuditTags {
         assertFalse(tags.isEmpty());
 
         SearchChange searchChange = auditService.getSearchChange(resultBean, "Blah", new Date());
-        assertNotNull (searchChange);
-        assertNotNull ( searchChange.getTagValues());
+        assertNotNull(searchChange);
+        assertNotNull(searchChange.getTagValues());
+    }
 
+    @Test
+    public void targetTagWithAuditRelationship() throws Exception {
+        String name = "Doctor John";
+        TagInputBean authorTag = new TagInputBean(name+":person");
+        authorTag.addAuditLink("writer");
+        authorTag.addAuditLink("lead");
+
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        assertNotNull(iSystemUser);
+
+        Fortress fortress = fortressService.registerFortress("ABC");
+        assertNotNull(fortress);
+
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
+        TagInputBean countryTag = new TagInputBean("New Zealand");
+        TagInputBean cityTag = new TagInputBean("Auckland");
+        TagInputBean institution = new TagInputBean("Auckland University:Institution");
+        cityTag.setTargets("jurisdiction", countryTag); // Auckland located in NZ
+
+        institution.addAuditLink("located");
+        cityTag.addAuditLink("city");
+
+        inputBean.setTag(cityTag); // Not attached to audit
+        inputBean.setTag(countryTag);
+        inputBean.setTag(institution);
+
+        AuditResultBean result = auditManager.createHeader(inputBean);
+        assertNotNull ( result);
+        Set<AuditTag> tags = auditTagService.findAuditTags(result.getAuditHeader());
+        assertEquals(2, tags.size());
+        for (AuditTag tag : tags) {
+            assertTrue(tag.getTag().getName().equals(institution.getName())|| tag.getTag().getName().equals(cityTag.getName()));
+        }
+
+    }
+    @Test
+    public void geoTag() throws Exception {
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        assertNotNull(iSystemUser);
+
+        Fortress fortress = fortressService.registerFortress("ABC");
+        assertNotNull(fortress);
+
+        AuditHeaderInputBean auditBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
+        String country = "USA:Country";
+        String city = "Los Angeles:City";
+
+        TagInputBean countryInputTag = new TagInputBean(country);
+        TagInputBean cityInputTag = new TagInputBean(city);
+        TagInputBean stateInputTag = new TagInputBean("CA:State");
+
+        TagInputBean institutionTag = new TagInputBean("mikecorp", "owns");
+        // Institution is in a city
+        institutionTag.setTargets("located", cityInputTag);
+        cityInputTag.setTargets("state", stateInputTag);
+        stateInputTag.setTargets("country", countryInputTag);
+        auditBean.setTag(institutionTag);
+
+        // Institution<-city<-state<-country
+
+        AuditResultBean resultBean = auditManager.createHeader(auditBean);
+        assertNotNull(resultBean);
+        assertNotNull ( tagService.findTag("USA"));
+
+        Set<AuditTag> tags = auditTagService.findAuditTags(resultBean.getAuditHeader());
+        assertFalse(tags.isEmpty());
+
+        for (AuditTag tag : tags) {
+            assertEquals("mikecorp", tag.getTag().getName());
+            assertNotNull ( tag.getGeoData());
+            assertEquals("CA", tag.getGeoData().getState());
+            assertEquals("Los Angeles", tag.getGeoData().getCity());
+            Collection<Tag> cities = tagService.findDirectedTags(tag.getTag());
+            org.junit.Assert.assertFalse(cities.isEmpty());
+            Tag cityTag = cities.iterator().next();
+            assertEquals(cityInputTag.getName(), cityTag.getName());
+            Collection<Tag> states = tagService.findDirectedTags(cityTag);
+            assertFalse(states.isEmpty());
+            Tag stateTag = states.iterator().next();
+            assertEquals(stateInputTag.getName(), stateTag.getName());
+        }
 
     }
 

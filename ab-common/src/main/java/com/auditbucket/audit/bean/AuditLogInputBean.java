@@ -161,6 +161,11 @@ public class AuditLogInputBean {
         return comment;
     }
 
+    /**
+     * user definable text documenting the chnage
+     *
+     * @param comment free text
+     */
     public void setComment(String comment) {
         this.comment = comment;
     }
@@ -169,6 +174,12 @@ public class AuditLogInputBean {
         return callerRef;
     }
 
+    /**
+     * The caller ref must be unique for the Document Type in the Fortress
+     * If you do not have a unique ref, then you must pass the AuditKey instead.
+     *
+     * @param callerRef fortress primary key
+     */
     public void setCallerRef(String callerRef) {
         this.callerRef = callerRef;
     }
@@ -184,6 +195,11 @@ public class AuditLogInputBean {
         return txRef;
     }
 
+    /**
+     * This LogInput will be tracked against the supplied TxRef
+     *
+     * @param txRef TX Key Reference to use
+     */
     public void setTxRef(String txRef) {
         if (txRef != null && txRef.equals(""))
             this.txRef = null;
@@ -205,6 +221,12 @@ public class AuditLogInputBean {
         return abMessage;
     }
 
+    /**
+     * event sourcing type functionality. If true, AB will create a transaction identifier
+     * that the caller can supply in subsequent updates
+     *
+     * @param isTransactional track
+     */
     public void setTransactional(Boolean isTransactional) {
         this.isTransactional = isTransactional;
     }

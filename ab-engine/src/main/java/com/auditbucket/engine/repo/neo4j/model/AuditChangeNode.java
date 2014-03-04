@@ -169,4 +169,9 @@ public class AuditChangeNode implements AuditChange {
         this.event = (AuditEventNode) event;
 
     }
+
+    @Override
+    public void setCompressed(Boolean compressed) {
+        this.compressed=compressed;
+    }
 }

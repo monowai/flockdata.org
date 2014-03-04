@@ -19,9 +19,7 @@
 
 package com.auditbucket.audit.bean;
 
-import com.auditbucket.audit.model.AuditEvent;
 import com.auditbucket.registration.bean.TagInputBean;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.joda.time.DateTime;
 
@@ -39,12 +37,10 @@ public class AuditHeaderInputBean {
     private String fortressUser;
     private String documentType;
     private Date when = null;
-    private String lastMessage;
     private AuditLogInputBean auditLog;
-    private Map<String, Object> tagValues = new HashMap<>();
-    private List<TagInputBean> associatedTags = new ArrayList<>();
+    private Collection<TagInputBean> tags = new ArrayList<>();
+
     private String event;
-    private AuditEvent eventObject;
     private String apiKey;
     private String description;
     private boolean searchSuppressed;
@@ -89,20 +85,28 @@ public class AuditHeaderInputBean {
     }
 
     /**
-     * If there is an auditLog with a valid Date, this variable will not set
+     * This date is ignored if a valid one is set in a present auditLog
      *
-     * @param when
+     * @param when when the caller says this occurred
      */
     public void setWhen(Date when) {
         if (!(auditLog != null && auditLog.getWhen() != null && auditLog.getWhen().getTime() > 0))
             this.when = when;
-        // We ignore the incoming date if a valid one is set in a present auditLog
+        //
     }
 
     public String getFortress() {
         return fortress;
     }
 
+    /**
+     * Fortress is a computer application/service in the callers environment, i.e. Payroll, HR, AR.
+     * This could also be thought of as a Database in an DBMS
+     *
+     * The Fortress name is unique for the Company.
+     *
+     * @param fortress unique fortress name
+     */
     public void setFortress(String fortress) {
         this.fortress = fortress;
     }
@@ -134,7 +138,13 @@ public class AuditHeaderInputBean {
     }
 
     /**
-     * @param callerRef primary key in the calling systems datastore
+     * Must be unique for the Fortress and Document Type. It is also optional. If you do not have
+     * a primary key, then to update "this" instance of the AuditHeader you will need to use
+     * the generated AuditKey returned by AuditBucket in the AuditResultBean
+     *
+     * @see AuditResultBean
+     *
+     * @param callerRef primary key in the calling system datastore
      */
     public void setCallerRef(String callerRef) {
         this.callerRef = callerRef;
@@ -152,20 +162,6 @@ public class AuditHeaderInputBean {
         return auditLog;
     }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Map<String, Object> getTagValues() {
-        return tagValues;
-    }
-
-    /**
-     * Tag values to associate with the header
-     *
-     * @param tagValues <relationship, object>
-     * @see AuditHeaderInputBean#getAssociatedTags()
-     */
-    public void setTagValues(Map<String, Object> tagValues) {
-        this.tagValues = tagValues;
-    }
 
     public String getEvent() {
         return event;
@@ -173,20 +169,13 @@ public class AuditHeaderInputBean {
 
     /**
      * only used if the header is a one off immutable event
+     * is supplied, then the event is logged against the header. Typically events are logged
+     * against AuditLogs
      *
      * @param event user definable event for an immutable header
      */
     public void setEvent(String event) {
         this.event = event;
-    }
-
-    @JsonIgnore
-    public AuditEvent getEventObject() {
-        return eventObject;
-    }
-
-    public void setEventObject(AuditEvent eventObject) {
-        this.eventObject = eventObject;
     }
 
     /**
@@ -196,6 +185,10 @@ public class AuditHeaderInputBean {
         return apiKey;
     }
 
+    /**
+     * Reserved for future use. Looking to set the Company API key as a secret
+     * @param apiKey company secret
+     */
     public void setApiKey(String apiKey) {
         this.apiKey = apiKey;
     }
@@ -204,11 +197,17 @@ public class AuditHeaderInputBean {
      * Single tag
      *
      * @param tag tag to add
-     * @see AuditHeaderInputBean#getAssociatedTags()
+     * @see AuditHeaderInputBean#getTags()
      */
-    public void setAssociatedTag(TagInputBean tag) {
-        associatedTags.add(tag);
+    public AuditHeaderInputBean setTag(TagInputBean tag) {
+        tags.add(tag);
+        return this;
     }
+
+    public void removeTag ( TagInputBean tag){
+        tags.remove(tag);
+    }
+
 
     /**
      * Tag structure to create. This is a short hand way of ensuring an
@@ -218,21 +217,27 @@ public class AuditHeaderInputBean {
      * This will not associate the header with the tag structure. To do that
      *
      * @return Tag values to created
-     * @see AuditHeaderInputBean#setTagValues(java.util.Map)
      */
-    public List<TagInputBean> getAssociatedTags() {
-        return associatedTags;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public Collection<TagInputBean> getTags() {
+        return tags;
     }
 
-    public void addTagValue(String relationship, TagInputBean tag) {
-        getTagValues().put(relationship, tag);
+    public void setTags(Collection<TagInputBean>tags){
+        for (TagInputBean next : tags) {
+            this.tags.add(next);
+
+        }
 
     }
-
     public String getDescription() {
         return description;
     }
 
+    /**
+     *
+     * @param description User definable note describing the header
+     */
     public void setDescription(String description) {
         this.description = description;
     }
@@ -254,7 +259,8 @@ public class AuditHeaderInputBean {
     }
 
     /**
-     * @return do not index in the graph
+     * do not index in the graph - search only
+     * @return graphable?
      */
     public boolean isTrackSuppressed() {
         return trackSuppressed;

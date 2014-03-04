@@ -1,5 +1,6 @@
 package com.auditbucket.engine.service;
 
+import com.auditbucket.audit.bean.AuditDeltaBean;
 import com.auditbucket.audit.model.AuditChange;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditWhat;
@@ -12,13 +13,18 @@ import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.helper.CompressionResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.MapDifference;
+import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Set;
 
 /**
  * User: Mike Holdsworth
@@ -46,25 +52,28 @@ public class WhatService {
 
     private Logger logger = LoggerFactory.getLogger(WhatService.class);
 
-    public void logWhat(AuditHeader auditHeader, AuditChange change, String jsonText, int version) {
+    public AuditChange logWhat(AuditHeader auditHeader, AuditChange change, String jsonText) {
         // Compress the Value of JSONText
-        CompressionResult result = CompressionHelper.compress(jsonText);
-        Boolean compressed = result.getMethod() == CompressionResult.Method.GZIP;
+        CompressionResult dataBlock = CompressionHelper.compress(jsonText);
+        Boolean compressed = (dataBlock.getMethod() == CompressionResult.Method.GZIP);
 
         change.setWhatStore(String.valueOf(engineAdmin.getKvStore()));
+        change.setCompressed(compressed);
         // Store First all information In Neo4j
         change = auditDao.save(change, compressed);
+        doKvWrite(auditHeader, change, dataBlock);
 
-        // Store the what information Compressed in KV Store Depending on
-        KvRepo kvRepo = getKvRepo(change);
+        return change;
+    }
 
+    @Async
+    private void doKvWrite(AuditHeader auditHeader, AuditChange change, CompressionResult dataBlock) {
         try {
             // ToDo: deal with this via spring integration??
-            kvRepo.add(auditHeader, change.getId(), result.getAsBytes());
+            getKvRepo(change).add(auditHeader, change.getId(), dataBlock.getAsBytes());
         } catch (IOException e) {
             logger.error("KV storage issue", e);
         }
-        //return change.getId();
     }
 
     private KvRepo getKvRepo(){
@@ -87,10 +96,16 @@ public class WhatService {
     public AuditWhat getWhat(AuditHeader auditHeader, AuditChange change) {
         if (change == null )
             return null;
-        KvRepo kvRepo = getKvRepo(change);
-        byte[] whatInformation = kvRepo.getValue(auditHeader, change.getId());
-        AuditWhat auditWhat = new AuditWhatData(whatInformation, change.isCompressed());
-        return auditWhat;
+        try {
+            byte[] whatInformation = getKvRepo(change).getValue(auditHeader, change.getId());
+            AuditWhat auditWhat = new AuditWhatData(whatInformation, change.isCompressed());
+            return auditWhat;
+        } catch ( RuntimeException re){
+            logger.error("KV Error Audit["+auditHeader.getAuditKey() +"] change ["+change.getId()+"]", re);
+
+            //throw (re);
+        }
+        return null;
     }
 
     public void delete(AuditHeader auditHeader, AuditChange change) {
@@ -137,8 +152,24 @@ public class WhatService {
 
     }
 
-    public String getDelta(Long sourceId, Long otherId) {
-        // ToDo: obtain the delta
-        return null;
+    public AuditDeltaBean getDelta(AuditHeader header, AuditChange from, AuditChange to) {
+        if ( header == null || from == null || to == null )
+            throw new IllegalArgumentException("Unable to compute delta due to missing arguments");
+        AuditWhat source = getWhat(header, from);
+        AuditWhat dest = getWhat(header, to);
+        MapDifference<String, Object> diffMap = Maps.difference(source.getWhatMap(), dest.getWhatMap());
+        AuditDeltaBean result = new AuditDeltaBean();
+        result.setAdded(new HashMap<>(diffMap.entriesOnlyOnRight()));
+        result.setRemoved(new HashMap<>(diffMap.entriesOnlyOnLeft()));
+        HashMap<String, Object> differences = new HashMap<>();
+        Set<String> keys =diffMap.entriesDiffering().keySet();
+        for (String key : keys) {
+            differences.put(key, diffMap.entriesDiffering().get(key).toString());
+        }
+        result.setChanged(differences);
+        result.setUnchanged(diffMap.entriesInCommon());
+        return result;
     }
+
+
 }

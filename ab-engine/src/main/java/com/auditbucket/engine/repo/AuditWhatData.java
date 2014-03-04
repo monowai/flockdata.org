@@ -52,7 +52,7 @@ public class AuditWhatData implements AuditWhat {
             return what;
         try {
             if (whatBytes != null) {
-                what = objectMapper.readValue(CompressionHelper.decompress(whatBytes, compressed), Map.class);
+                what = objectMapper.readValue(getWhat(), Map.class);
                 return what;
             }
 

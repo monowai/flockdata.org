@@ -25,6 +25,7 @@ import com.auditbucket.engine.repo.neo4j.AuditEventRepo;
 import com.auditbucket.engine.repo.neo4j.model.AuditEventNode;
 import com.auditbucket.registration.model.Company;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -44,6 +45,7 @@ public class AuditEventDaoNeo implements AuditEventDao {
     AuditEventRepo eventRepo;
 
     @Override
+    @Cacheable(value = "companyEvent", unless = "#result == null")
     public AuditEvent findEvent(Company company, String eventCode) {
         return eventRepo.findCompanyEvent(company.getId(), eventCode.toLowerCase());
     }

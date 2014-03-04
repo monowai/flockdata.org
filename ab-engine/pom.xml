@@ -34,7 +34,8 @@
         <!--You need to keep the SDN lib in line with the Neo4J version otherwise
         odd errors involving REAL_TIME occur during startup-->
 
-        <org.springdata.neo4j>3.0.0.BUILD-SNAPSHOT</org.springdata.neo4j>
+        <org.springdata.neo4j>3.0.0.RC1</org.springdata.neo4j>
+        <!--<org.springdata.neo4j>3.0.0.BUILD-SNAPSHOT</org.springdata.neo4j>-->
         <neo4j.version>2.0.0</neo4j.version>
 
         <!--<org.springdata.neo4j>2.4.0.BUILD-SNAPSHOT</org.springdata.neo4j>-->
@@ -150,6 +151,11 @@
             <artifactId>tomcat-servlet-api</artifactId>
             <version>7.0.47</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>15.0</version>
         </dependency>
 
         <!--Needed for neo4j-aspects-->
@@ -457,6 +463,7 @@
                         </goals>
                         <phase>package</phase>
                         <configuration>
+                            <finalName>${project.artifactId}-war.jar</finalName>
                             <!-- optional only if you want to use a preconfigured server.xml file -->
                             <!--
                             <serverXml>src/main/tomcatconf/server.xml</serverXml>

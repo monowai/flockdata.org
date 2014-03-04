@@ -29,8 +29,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.Assert.assertEquals;
@@ -167,7 +165,7 @@ public class TestCallerRef {
                 while (count < maxRun) {
                     AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef);
                     AuditResultBean arb;
-                    arb = auditManagerService.createHeader(inputBean, fortress.getCompany(), fortress, false);
+                    arb = auditManagerService.createHeader(inputBean, fortress.getCompany(), fortress);
                     assertNotNull(arb);
                     assertEquals(callerRef.toLowerCase(), arb.getCallerRef().toLowerCase());
                     AuditHeader byCallerRef = auditService.findByCallerRef(fortress, docType, callerRef);

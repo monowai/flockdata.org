@@ -104,21 +104,21 @@ public class AuditEP {
         Company company = auditManager.resolveCompany(inputBeans[0].getApiKey());
         Fortress fortress = auditManager.resolveFortress(company, inputBeans[0], true);
         boolean async = true;
-        //auditManager.createTagStructure(inputBeans, company);
 
         if (async) {
 
-            Future<Integer> am = auditManager.createHeadersAsync(inputBeans, company, fortress);
+            Future<Integer> batch = auditManager.createHeadersAsync(inputBeans, company, fortress);
+            Thread.yield();
             if (waitForFinish)
-                while (!am.isDone()) {
+                while (!batch.isDone()) {
                     Thread.yield();
                 }
-            return am;
+            return batch;
 
         } else {
 
             for (AuditHeaderInputBean inputBean : inputBeans) {
-                auditManager.createHeader(inputBean, company, fortress, true);
+                auditManager.createHeader(inputBean, company, fortress);
             }
         }
         return null;
@@ -250,6 +250,26 @@ public class AuditEP {
         }
 
         return new ResponseEntity<>((AuditWhat) null, HttpStatus.OK);
+
+    }
+    @ResponseBody
+    @RequestMapping(value = "/{auditKey}/{logId}/delta/{withId}", produces = "application/json", method = RequestMethod.GET)
+    @Secured({"ROLE_USER"})
+    public ResponseEntity<AuditDeltaBean> getDelta(@PathVariable("auditKey") String auditKey, @PathVariable("logId") Long logId, @PathVariable("withId") Long withId) {
+        AuditHeader header = auditService.getHeader(auditKey);
+
+        if ( header != null ){
+            AuditLog left = auditService.getAuditLog(header, logId);
+            AuditLog right = auditService.getAuditLog(header, withId);
+            if ( left!=null && right != null ){
+                AuditDeltaBean deltaBean = whatService.getDelta(header, left.getAuditChange(), right.getAuditChange());
+
+                if (deltaBean != null)
+                    return new ResponseEntity<>(deltaBean, HttpStatus.OK);
+            }
+        }
+
+        return new ResponseEntity<>((AuditDeltaBean) null, HttpStatus.OK);
 
     }
 

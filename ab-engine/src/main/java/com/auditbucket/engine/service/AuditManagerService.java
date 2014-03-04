@@ -31,10 +31,13 @@ import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.TagService;
 import org.joda.time.DateTime;
+import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.kernel.DeadlockDetectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataRetrievalFailureException;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
@@ -106,33 +109,21 @@ public class AuditManagerService {
         return fortress;
     }
 
-    public void createHeaders(AuditHeaderInputBean[] inputBeans) throws AuditException {
-        AuditHeaderInputBean args = inputBeans[0];
-        Company company = resolveCompany(args.getApiKey());
-        Fortress fortress = resolveFortress(company, args);
-        fortress.setCompany(company);
-
-
-        for (AuditHeaderInputBean inputBean : inputBeans) {
-            createHeadersAsync(inputBeans, company, fortress);
-        }
-        logger.debug("Batch Request processed");
-    }
-
     public void createTagStructure(AuditHeaderInputBean[] inputBeans, Company company) {
+        // ToDo: Test that this works!!
         Map<String, Object> tagProcessed = new HashMap<>(); // Map to track tags we've created
         for (AuditHeaderInputBean inputBean : inputBeans) {
-            if (inputBean.getAssociatedTags() != null)
-                auditTagService.createTagStructure(inputBean.getAssociatedTags(), company);
+            if (inputBean.getTags() != null)
+                auditTagService.createTagStructure(inputBean.getTags(), company);
 
-            Map<String, Object> tags = inputBean.getTagValues();
+            Collection<TagInputBean> auditTags = inputBean.getTags();
             Collection<TagInputBean> tagSet = new ArrayList<>();
-
-            for (String tag : tags.keySet()) {
-                if (tagProcessed.get(tag) == null) {
+            for (TagInputBean tag : auditTags) {
+                // Associated with an audit header?
+                if (tagProcessed.get(tag.getName()) == null ) {
                     //logger.info(tag);
-                    tagSet.add(new TagInputBean(tag)); // Create Me!
-                    tagProcessed.put(tag, true); // suppress duplicates
+                    tagSet.add(tag); // Create Me!
+                    tagProcessed.put(tag.getName(), true); // suppress duplicates
                 }
             }
             if (!tagSet.isEmpty()) // Anything new to add?
@@ -154,7 +145,7 @@ public class AuditManagerService {
             watch.start();
             logger.info("Starting Batch [{}] - size [{}]", id, inputBeans.length);
             for (AuditHeaderInputBean inputBean : inputBeans) {
-                createHeader(inputBean, company, fortress, false);
+                createHeader(inputBean, company, fortress);
                 processCount++;
             }
 
@@ -177,54 +168,56 @@ public class AuditManagerService {
         Company company = resolveCompany(inputBean.getApiKey());
         Fortress fortress = resolveFortress(company, inputBean);
         fortress.setCompany(company);
-        return createHeader(inputBean, company, fortress, false);
+        return createHeader(inputBean, company, fortress);
     }
 
-    public AuditResultBean createHeader(AuditHeaderInputBean inputBean, Company company, Fortress fortress, boolean tagsProcessed) throws AuditException {
+    public AuditResultBean createHeader(AuditHeaderInputBean inputBean, Company company, Fortress fortress) throws AuditException {
+        if(inputBean ==null  )
+            throw new AuditException("No input to process!");
         // Establish directed tag structure
-        if (!tagsProcessed) {
-            AuditHeaderInputBean[] inputBeans = new AuditHeaderInputBean[1];
-            inputBeans[0] = inputBean;
-            createTagStructure(inputBeans, company);
-        }
+//        if (!tagsProcessed) {
+//            AuditHeaderInputBean[] inputBeans = new AuditHeaderInputBean[1];
+//            inputBeans[0] = inputBean;
+//            createTagStructure(inputBeans, company);
+//        }
         AuditResultBean resultBean = null;
 
         // Deadlock re-try fun
-        int retries = 4, retryCount = 0;
-        while (resultBean == null)
+        int maxRetry = 10, retryCount = 0;
+        while (retryCount < maxRetry){
             try {
-                resultBean = auditService.createHeader(inputBean, company, fortress);
-
+                if (resultBean == null || resultBean.getAuditId() ==null ) {
+                    resultBean = auditService.createHeader(inputBean, company, fortress);
+                }
                 // Don't recreate tags if we already handled this -ToDiscuss!!
                 if (!resultBean.isDuplicate()) {
-                    retryCount = 0;
                     if (inputBean.isTrackSuppressed())
                         // We need to get the "tags" across to ElasticSearch, so we mock them ;)
-                        resultBean.setTags(auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTagValues()));
+                        resultBean.setTags(auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTags()));
                     else
                         // Write the associations to the graph
-                        auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTagValues());
+                        auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTags());
                 }
+                retryCount = maxRetry; // Exit the loop
             } catch (RuntimeException re) {
                 // ToDo: Exceptions getting wrapped in a JedisException. Can't directly catch the DDE hence the instanceof check
-                if ( re.getCause() instanceof DeadlockDetectedException) {
-                    logger.debug("Deadlock Detected. Entering retry");
+                if ( re.getCause() instanceof NotFoundException|| re.getCause() instanceof DeadlockDetectedException || re.getCause() instanceof InvalidDataAccessResourceUsageException || re.getCause() instanceof DataRetrievalFailureException) {
+                    logger.debug("Deadlock Detected. Entering retry fortress [{}], docType {}, callerRef [{}], rolling back. Cause = {}", inputBean.getFortress(), inputBean.getDocumentType(), inputBean.getCallerRef(), re.getCause());
+                    Thread.yield();
                     retryCount++;
-                    if (retryCount == retries) {
-                        // ToDo: A Map<String,AuditHeader> keyed by Tag may reduce potential deadlocks as fewer tags are associated with more headers
+                    if (retryCount == maxRetry) {
                         // http://www.slideshare.net/neo4j/zephyr-neo4jgraphconnect-2013short
-                        logger.error("Error creating Header, rolling back", re);
+                        logger.error("Error creating Header for fortress [{}], docType {}, callerRef [{}], rolling back. Cause = {}", inputBean.getFortress(), inputBean.getDocumentType(), inputBean.getCallerRef(), re.getCause());
                         throw (re);
                     }
                 } else
                     throw (re);
-
-
             }
+        }
 
         AuditLogInputBean logBean = inputBean.getAuditLog();
         // Here on could be spun in to a separate thread. The log has to happen eventually
-        //   and can't fail.
+        //   and shouldn't fail.
         if (inputBean.getAuditLog() != null) {
             // Secret back door so that the log result can quickly get the
             logBean.setAuditId(resultBean.getAuditId());

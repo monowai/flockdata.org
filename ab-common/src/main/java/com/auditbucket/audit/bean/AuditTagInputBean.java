@@ -22,6 +22,8 @@ package com.auditbucket.audit.bean;
 import javax.validation.constraints.NotNull;
 
 /**
+ * Associates a Tag with an Audit Header
+ *
  * User: Mike Holdsworth
  * Date: 28/06/13
  * Time: 9:58 PM
@@ -37,15 +39,20 @@ public class AuditTagInputBean {
     private AuditTagInputBean() {
     }
 
-    public AuditTagInputBean(String auditKey, String tagName, String type) {
+    /**
+     *
+     * @param auditKey existing audit key
+     * @param tagName  name of an existing tag
+     * @param relationshipName     relationship name to create
+     */
+    public AuditTagInputBean(String auditKey, String tagName, String relationshipName) {
         this();
         this.auditKey = auditKey;
         this.tagName = tagName;
-        // Stragetically this should be a named relationship
-        if (type == null)
+        if (relationshipName == null)
             this.type = "general";
         else
-            this.type = type;
+            this.type = relationshipName;
     }
 
     public String getAuditKey() {
@@ -56,6 +63,11 @@ public class AuditTagInputBean {
         return tagName;
     }
 
+    /**
+     * Type of relationship
+     *
+     * @return relationship name
+     */
     public String getType() {
         return type;
     }

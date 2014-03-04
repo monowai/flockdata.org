@@ -31,7 +31,7 @@ import java.util.Set;
  * Since: 11/05/13
  */
 public class AuditResultBean {
-    private Long auditId;
+    private Long auditId = null;
     private String status;
     private String fortressName;
     private String documentType;

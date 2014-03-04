@@ -58,13 +58,13 @@ public class AuditTagService {
     private Logger logger = LoggerFactory.getLogger(AuditTagService.class);
 
     public void processTag(AuditHeader header, AuditTagInputBean tagInput) {
-        String type = tagInput.getType();
-        boolean existing = relationshipExists(header, tagInput.getTagName(), type);
+        String relationshipName = tagInput.getType();
+        boolean existing = relationshipExists(header, tagInput.getTagName(), relationshipName);
         if (existing)
             // We already have this tagged so get out of here
             return;
         Tag tag = tagService.findTag(tagInput.getTagName());
-        auditTagDao.save(header, tag, type);
+        auditTagDao.save(header, tag, relationshipName);
     }
 
     public Boolean relationshipExists(AuditHeader auditHeader, String name, String relationshipType) {
@@ -77,14 +77,14 @@ public class AuditTagService {
     /**
      * Directed tag structure hierarchy
      *
-     * @param userTags  input beans
-     * @param company   valid company
+     * @param userTags input beans
+     * @param company  valid company
      */
-    public void createTagStructure(List<TagInputBean> userTags, Company company) {
+    public void createTagStructure(Collection<TagInputBean> userTags, Company company) {
         // Create a tag structure if present
         for (TagInputBean inputBean : userTags) {
             Tag t = tagService.processTag(inputBean, company);
-            if ( t== null){
+            if (t == null) {
                 logger.error("Error creating Tag " + inputBean);
             }
         }
@@ -109,62 +109,43 @@ public class AuditTagService {
      * @param ah       Header to associate userTags with
      * @param userTags Key/Value pair of tags. TagNode will be created if missing. Value can be a Collection
      */
-    public Set<AuditTag> associateTags(AuditHeader ah, Map<String, Object> userTags) {
+    public Set<AuditTag> associateTags(AuditHeader ah, Collection<TagInputBean> userTags) {
         Set<AuditTag> rlxs = new TreeSet<>();
         if ((userTags == null) || userTags.isEmpty())
             return rlxs;
 
         Company company = ah.getFortress().getCompany();
+        tagService.processTags(userTags, company);
+        for (TagInputBean tagInput : userTags) {
 
-        for (String tagName : userTags.keySet()) {
-
-            Object tagRlx = userTags.get(tagName);
-            TagInputBean tagInput;
-            Tag tag;
-            if (tagRlx instanceof TagInputBean) {
-                tagInput = (TagInputBean) tagRlx;
-                tagRlx = tagName; // Get the relationship name from the key
-                tag = tagService.processTag(tagInput, company);
-            } else {
-                tagInput = new TagInputBean(tagName);
-                tag = tagService.findTag(tagInput.getName(), company);//tagService.processTag(tagInput, company);
-            }
-
-            String rlxName;
+            Tag tag = tagService.processTag(tagInput, company);
 
             // Handle both simple relationships type name or a map/collection of relationships
-            if (tagRlx == null) {
-                AuditTag auditTagRelationship = auditTagDao.save(ah, tag, null);
+            if (tagInput.getAuditLinks() != null) {
+                rlxs = processRelationships(ah, tag, tagInput.getAuditLinks());
+            }
+            if (tagInput.getAuditLink() != null) // Simple relationship to the audit header
+                // Makes it easier for the API to call
+                rlxs.add(auditTagDao.save(ah, tag, tagInput.getAuditLink()));
+
+        }
+        return rlxs;
+    }
+
+    private Set<AuditTag> processRelationships(AuditHeader ah, Tag tag, Map<String, Object> auditRelationships) {
+        Set<AuditTag> rlxs = new TreeSet<>();
+        for (String key : auditRelationships.keySet()) {
+            Object properties = auditRelationships.get(key);
+            Map<String, Object> propMap;
+            if (properties != null && properties instanceof Map) {
+                propMap = (Map<String, Object>) properties;
+                AuditTag auditTagRelationship = auditTagDao.save(ah, tag, key, propMap);
                 if (auditTagRelationship != null)
                     rlxs.add(auditTagRelationship);
             } else {
-
-                if (tagRlx instanceof Collection) {
-                    // ToDo: Collection of Maps
-                    for (Object o : ((Collection) tagRlx)) {
-                        AuditTag auditTagRelationship = auditTagDao.save(ah, tag, o.toString());
-                        if (auditTagRelationship != null)
-                            rlxs.add(auditTagRelationship);
-                    }
-                } else if (tagRlx instanceof Map) {
-                    // Map of relationship with properties
-                    Map<String, Object> tagMap = (Map<String, Object>) tagRlx;
-                    for (String relationship : tagMap.keySet()) {
-                        Object o = tagMap.get(relationship);
-                        Map<String, Object> propMap = null;
-                        if (o != null && o instanceof Map) {
-                            propMap = (Map<String, Object>) o;
-                        }
-                        AuditTag auditTagRelationship = auditTagDao.save(ah, tag, relationship, propMap);
-                        if (auditTagRelationship != null)
-                            rlxs.add(auditTagRelationship);
-                    }
-                } else {
-                    rlxName = tagRlx.toString();
-                    AuditTag auditTagRelationship = auditTagDao.save(ah, tag, rlxName);
-                    if (auditTagRelationship != null)
-                        rlxs.add(auditTagRelationship);
-                }
+                AuditTag auditTagRelationship = auditTagDao.save(ah, tag, key);
+                if (auditTagRelationship != null)
+                    rlxs.add(auditTagRelationship);
             }
         }
         return rlxs;

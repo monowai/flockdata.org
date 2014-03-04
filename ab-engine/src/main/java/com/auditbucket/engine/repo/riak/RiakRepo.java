@@ -4,11 +4,9 @@ import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.engine.repo.KvRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.keyvalue.riak.core.RiakTemplate;
-import org.springframework.data.keyvalue.riak.core.io.RiakOutputStream;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Date;
 
 @Component

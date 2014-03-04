@@ -30,7 +30,8 @@
 
     <rabbit:connection-factory id="connectionFactory"
                                host="${rabbit.host}"
-                               port="${rabbit.port}" publisher-confirms="${rabbit.publisher.confirms}"
+                               port="${rabbit.port}"
+                               publisher-confirms="${rabbit.publisher.confirms}"
                                publisher-returns="${rabbit.publisher.returns}"
                                executor="AMQPPoolTaskExecutor"/>
 
@@ -48,7 +49,7 @@
 
     <rabbit:direct-exchange name="ab.search.exchange">
         <rabbit:bindings>
-            <rabbit:binding queue="ab-search.queue" key="ab.search.binding"/>
+            <rabbit:binding queue="ab-search.queue" key="ab.search.binding" />
         </rabbit:bindings>
     </rabbit:direct-exchange>
 

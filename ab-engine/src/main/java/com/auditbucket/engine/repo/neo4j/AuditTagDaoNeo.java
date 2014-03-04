@@ -21,6 +21,7 @@ package com.auditbucket.engine.repo.neo4j;
 
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditTag;
+import com.auditbucket.audit.model.GeoData;
 import com.auditbucket.dao.AuditTagDao;
 import com.auditbucket.dao.TagDao;
 import com.auditbucket.engine.repo.neo4j.model.AuditHeaderNode;
@@ -31,7 +32,9 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.repo.neo4j.model.TagNode;
 import com.auditbucket.registration.service.TagService;
+import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +46,8 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 
 /**
+ * Data Access Object that manipulates tag nodes against audit headers
+ * <p/>
  * User: Mike Holdsworth
  * Date: 28/06/13
  * Time: 11:07 PM
@@ -58,8 +63,8 @@ public class AuditTagDaoNeo implements AuditTagDao {
     private Logger logger = LoggerFactory.getLogger(AuditTagDaoNeo.class);
 
     @Override
-    public AuditTag save(AuditHeader auditHeader, Tag tag, String relationship) {
-        return save(auditHeader, tag, relationship, null);
+    public AuditTag save(AuditHeader auditHeader, Tag tag, String relationshipName) {
+        return save(auditHeader, tag, relationshipName, null);
     }
 
     /**
@@ -67,35 +72,42 @@ public class AuditTagDaoNeo implements AuditTagDao {
      * If auditId == null, then an AuditTag for the caller to deal with otherwise the relationship
      * is persisted and null is returned.
      *
-     * @param auditHeader  constructed header
-     * @param tag          tag
-     * @param relationship name
-     * @param propMap      properties to associate with an audit tag (weight)
+     * @param auditHeader      constructed header
+     * @param tag              tag
+     * @param relationshipName name
+     * @param propMap          properties to associate with an audit tag (weight)
      * @return Null or AuditTag
      */
-    public AuditTag save(AuditHeader auditHeader, Tag tag, String relationship, Map<String, Object> propMap) {
+    public AuditTag save(AuditHeader auditHeader, Tag tag, String relationshipName, Map<String, Object> propMap) {
         // ToDo: this will only set properties for the "current" tag to Header. it will not version it.
-        if (relationship == null) {
-            relationship = "GENERAL_TAG";
+        if (relationshipName == null) {
+            relationshipName = "GENERAL_TAG";
         }
-        if ( tag == null )
-            throw new IllegalArgumentException("Tag must not be NULL. Relationship["+relationship+"]");
+        if (tag == null)
+            throw new IllegalArgumentException("Tag must not be NULL. Relationship[" + relationshipName + "]");
 
-        AuditTagRelationship rel = new AuditTagRelationship(auditHeader, tag, relationship, propMap);
+        AuditTagRelationship rel = new AuditTagRelationship(auditHeader, tag, relationshipName, propMap);
         if (auditHeader.getId() == null)
             return rel;
 
         Node headerNode = template.getPersistentState(auditHeader);
-        Node tagNode = template.getNode(tag.getId());
+
+        Node tagNode  ;
+        try {
+            tagNode = template.getNode(tag.getId());
+        } catch (RuntimeException e) {
+            logger.error("Weird error looking for tag [{}] with ID [{}]",tag.getKey(), tag.getId());
+            throw (e);
+        }
         //Primary exploration relationship
-        Relationship r = template.getRelationshipBetween(tagNode, headerNode, relationship);
+        Relationship r = template.getRelationshipBetween(tagNode, headerNode, relationshipName);
 
         if (r != null) {
             return null;
         }
-
-        template.createRelationshipBetween(tagNode, headerNode, relationship, propMap);
-        logger.trace("Created Relationship Tag[{}] of type {}", tag, relationship);
+        //DynamicRelationshipType rlx = DynamicRelationshipType.withName(relationshipName);
+        template.createRelationshipBetween(tagNode, headerNode, relationshipName, propMap);
+        logger.trace("Created Relationship Tag[{}] of type {}", tag, relationshipName);
         return null;
     }
 
@@ -159,10 +171,10 @@ public class AuditTagDaoNeo implements AuditTagDao {
     }
 
     @Override
-    public Boolean relationshipExists(AuditHeader auditHeader, Tag tag, String relationshipType) {
+    public Boolean relationshipExists(AuditHeader auditHeader, Tag tag, String relationshipName) {
         Node end = template.getPersistentState(auditHeader);
         Node start = template.getNode(tag.getId());
-        return (template.getRelationshipBetween(start, end, relationshipType) != null);
+        return (template.getRelationshipBetween(start, end, relationshipName) != null);
 
     }
 
@@ -171,9 +183,15 @@ public class AuditTagDaoNeo implements AuditTagDao {
 
     @Override
     public Set<AuditTag> getAuditTags(AuditHeader auditHeader, Company company) {
-        String query = "start audit=node({auditId}) " +
-                "MATCH audit<-[tagType]-(tag:Tag" + engineAdmin.getTagSuffix(company) + ") " +
-                "return tag, tagType";
+        String query = "match (audit:AuditHeader)<-[tagType]-(tag:Tag" + engineAdmin.getTagSuffix(company) + ") " +
+                "where id(audit)={auditId} \n" +
+                "optional match tag-[:located]-(located)-[*0..2]-(country:Country) \n" +
+                "optional match located-[*0..2]->(state:State) " +
+                "return tag,tagType,located,state, country";
+
+//        String query = "start audit=node({auditId}) " +
+//                "MATCH audit<-[tagType]-(tag:Tag" + engineAdmin.getTagSuffix(company) + ") " +
+//                "return tag, tagType";
 
         Map<String, Object> params = new HashMap<>();
         params.put("auditId", auditHeader.getId());
@@ -182,11 +200,29 @@ public class AuditTagDaoNeo implements AuditTagDao {
         for (Map<String, Object> row : template.query(query, params)) {
             Node n = (Node) row.get("tag");
             TagNode tag = new TagNode(n);
-            //TagNode tag = template.projectTo(row.get("tag"), TagNode.class);
-            //TagNode tag = template.convert(row.get("tag"), TagNode.class);
             Relationship relationship = template.convert(row.get("tagType"), Relationship.class);
-
             AuditTagRelationship auditTag = new AuditTagRelationship(auditHeader, tag, relationship);
+
+            Node loc = (Node) row.get("located");
+
+            if (loc != null) {
+                GeoData geoData = new GeoData();
+                Node country = (Node) row.get("country");
+                Node state = (Node) row.get("state");
+                geoData.setCity((String) loc.getProperty("name"));
+
+                if ( country!=null && country.hasProperty("name")){
+                    geoData.setIsoCode((String) country.getProperty("code"));
+                    geoData.setCountry((String) country.getProperty("name"));
+                }
+                if (state!=null && state.hasProperty("name"))
+                    geoData.setState((String) state.getProperty("name"));
+                auditTag.setGeoData(geoData);
+            }
+            // Commenting out for DoubleCheck. Doesn't seem to serve any purpose in
+            // search anyway
+            auditTag.setWeight(null);
+
             tagResults.add(auditTag);
         }
         return tagResults;

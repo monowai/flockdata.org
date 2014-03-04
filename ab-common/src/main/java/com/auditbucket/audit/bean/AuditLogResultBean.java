@@ -40,6 +40,7 @@ public class AuditLogResultBean {
     private String fortressUser;
     private String txReference = null;
     private SearchChange searchDocument;
+    private Long sysWhen;
 
     public AuditLogResultBean(AuditLogInputBean input) {
         this();
@@ -133,5 +134,13 @@ public class AuditLogResultBean {
     @JsonIgnore
     public SearchChange getSearchDocument() {
         return searchDocument;
+    }
+
+    public void setSysWhen(Long sysWhe) {
+        this.sysWhen = sysWhe;
+    }
+
+    public Long getSysWhen() {
+        return sysWhen;
     }
 }

@@ -44,7 +44,6 @@ import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
@@ -162,12 +161,10 @@ public class AuditService {
         return ah;
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public AuditHeader getHeader(@NotEmpty String key) {
         return getHeader(key, false);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public AuditHeader getHeader(@NotEmpty String key, boolean inflate) {
         String userName = securityHelper.getLoggedInUser();
         SystemUser su = sysUserService.findByName(userName);
@@ -240,7 +237,6 @@ public class AuditService {
         TxRef txRef = handleTxRef(input);
         resultBean.setTxReference(txRef);
 
-        //ToDo: Look at spin the following off in to a separate thread?
         // https://github.com/monowai/auditbucket/issues/7
         AuditLog existingLog = null;
         if (auditHeader.getLastUpdated() != auditHeader.getWhenCreated()) // Will there even be a change to find
@@ -248,6 +244,7 @@ public class AuditService {
 
         Boolean searchActive = fortress.isSearchActive();
         DateTime fortressWhen = (input.getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(input.getWhen()));
+        boolean saveHeader =false;
 
         if (existingLog != null) {
             try {
@@ -255,7 +252,7 @@ public class AuditService {
                     logger.trace("Ignoring a change we already have {}", input);
                     input.setStatus(AuditLogInputBean.LogStatus.IGNORE);
                     if (input.isForceReindex()) { // Caller is recreating the search index
-                        prepareSearchDocument(auditHeader, input, existingLog.getAuditChange().getEvent(), searchActive, fortressWhen, existingLog);
+                        makeChangeSearchable(prepareSearchDocument(auditHeader, input, existingLog.getAuditChange().getEvent(), searchActive, fortressWhen, existingLog));
                         resultBean.setMessage("Ignoring a change we already have. Honouring request to re-index");
                     } else
                         resultBean.setMessage("Ignoring a change we already have");
@@ -278,24 +275,25 @@ public class AuditService {
             if (input.getEvent() == null) {
                 input.setEvent(AuditChange.CREATE);
             }
-            auditHeader.setLastUser(thisFortressUser);
-            auditHeader = auditDAO.save(auditHeader);
+            if (!auditHeader.getLastUser().getId().equals(thisFortressUser.getId())){
+                saveHeader = true;
+                auditHeader.setLastUser(thisFortressUser);
+                auditHeader = auditDAO.save(auditHeader);
+
+            }
         }
         AuditChange existingChange = null;
         if (existingLog != null)
             existingChange = existingLog.getAuditChange();
 
-        AuditEvent event = auditEventService.processEvent(fortress.getCompany(), input.getEvent());
-        input.setAuditEvent(event);
         AuditChange thisChange = auditDAO.save(thisFortressUser, input, txRef, existingChange);
-        int version = 0;
-//        if (existingChange != null) {
-//            version = whatService.getWhat(auditHeader, existingChange).getVersion();
-//        }
+        input.setAuditEvent(thisChange.getEvent());
 
-        whatService.logWhat(auditHeader, thisChange, input.getWhat(), version);
+        thisChange = whatService.logWhat(auditHeader, thisChange, input.getWhat());
 
         AuditLog newLog = auditDAO.addLog(auditHeader, thisChange, fortressWhen);
+        resultBean.setSysWhen(newLog.getSysWhen());
+
         boolean moreRecent = (existingChange == null || existingLog.getFortressWhen() <= newLog.getFortressWhen());
 
         input.setStatus(AuditLogInputBean.LogStatus.OK);
@@ -305,19 +303,20 @@ public class AuditService {
                 auditHeader.setLastUser(thisFortressUser);
                 auditDAO.save(auditHeader);
             }
-
-            auditDAO.setLastChange(auditHeader, thisChange, existingChange);
-
             try {
-                resultBean.setSearchDocument(prepareSearchDocument(auditHeader, input, event, searchActive, fortressWhen, newLog));
+                resultBean.setSearchDocument(prepareSearchDocument(auditHeader, input, input.getAuditEvent(), searchActive, fortressWhen, newLog));
             } catch (JsonProcessingException e) {
                 resultBean.setMessage("Error processing JSON document");
                 resultBean.setStatus(AuditLogInputBean.LogStatus.ILLEGAL_ARGUMENT);
             }
+
+            auditDAO.setLastChange(auditHeader, thisChange, existingChange);
         }
+
         return resultBean;
 
     }
+
 
     public Set<AuditHeader> getAuditHeaders(Fortress fortress, Long skipTo) {
         return auditDAO.findHeaders(fortress.getId(), skipTo);
@@ -580,7 +579,7 @@ public class AuditService {
                 lastChange = lastLog.getAuditChange();
             else {
                 // ToDo: This will not work for meta-data index headers. Work loop also needs looking at
-                logger.info("No last change for {}, ignoring the re-index request for this record" + auditHeader.getCallerRef());
+                logger.info("No last change for {}, ignoring the re-index request for this header", auditHeader.getCallerRef());
             }
 
             if (auditHeader.getFortress().isSearchActive() && !auditHeader.isSearchSuppressed()) {
@@ -608,7 +607,6 @@ public class AuditService {
      * @param headerKey GUID
      * @return count
      */
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public int getAuditLogCount(String headerKey) throws AuditException {
         AuditHeader auditHeader = getValidHeader(headerKey);
         return auditDAO.getLogCount(auditHeader.getId());

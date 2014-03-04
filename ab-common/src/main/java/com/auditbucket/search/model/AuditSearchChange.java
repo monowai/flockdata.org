@@ -26,10 +26,16 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.joda.time.DateTime;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
- * Encapsulates the parameters necessary to make an audit event searchable
+ * Encapsulates the information to make an audit header and log a searchable document
+ * according to the way AuditBucket deals with search docs.
+ * <p/>
+ * This object becomes the payload dispatch to ab-search for indexing.
  * <p/>
  * User: Mike Holdsworth
  * Date: 25/04/13
@@ -37,7 +43,6 @@ import java.util.*;
  */
 public class AuditSearchChange implements com.auditbucket.audit.model.SearchChange {
 
-    private String id;
     private String documentType;
     private String description;
     private Map<String, Object> what;
@@ -188,19 +193,23 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
                 this.tagValues.put(tag.getTagType(), tagValues);
             }
 
-            setTagValue(tag.getTag().getName(), "name", tagValues);
-            setTagValue(tag.getTag().getKey(), "key", tagValues);
-            setTagValue(tag.getTag().getCode(), "code", tagValues);
-            setTagValue(tag.getWeight(), "weight", tagValues);
-
+            setTagValue("name", tag.getTag().getName(), tagValues);
+            setTagValue("key", tag.getTag().getKey(), tagValues);
+            setTagValue("code", tag.getTag().getCode(), tagValues);
+            setTagValue("weight", tag.getWeight(), tagValues);
+            if (tag.getGeoData() != null) {
+                setTagValue("iso", tag.getGeoData().getIsoCode(), tagValues);
+                setTagValue("country", tag.getGeoData().getCountry(), tagValues);
+                setTagValue("state", tag.getGeoData().getState(), tagValues);
+                setTagValue("city", tag.getGeoData().getCity(), tagValues);
+            }
             tagValues.put("props", tag.getProperties());
-            //tagValues.put(tag.getTagType(), tag.getTag());
         }
     }
 
-    private void setTagValue(Object value, String column, HashMap<String, Object> tagValues) {
+    private void setTagValue(String key, Object value, HashMap<String, Object> masterValues) {
         if (value != null) {
-            Object object = tagValues.get(column);
+            Object object = masterValues.get(key);
             ArrayList values;
             if (object == null) {
                 values = new ArrayList();
@@ -208,7 +217,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
                 values = (ArrayList) object;
 
             values.add(value);
-            tagValues.put(column, values);
+            masterValues.put(key, values);
         }
     }
 

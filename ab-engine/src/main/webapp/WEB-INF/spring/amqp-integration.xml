@@ -38,6 +38,7 @@
                               request-channel="searchResult"
                               queue-names="ab-engine.queue"
                               shutdown-timeout="3000"
+                              acknowledge-mode="AUTO"
                               concurrent-consumers="50"
                               prefetch-count="10"
                               task-executor="AMQPPoolTaskExecutor"

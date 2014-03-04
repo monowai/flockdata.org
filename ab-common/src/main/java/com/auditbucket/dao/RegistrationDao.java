@@ -28,8 +28,6 @@ import com.auditbucket.registration.model.SystemUser;
  * Time: 6:31 PM
  */
 public interface RegistrationDao {
-    public SystemUser save(SystemUser systemUser);
-
     public SystemUser findSysUserByName(String name);
 
     SystemUser save(Company company, String userName, String password);

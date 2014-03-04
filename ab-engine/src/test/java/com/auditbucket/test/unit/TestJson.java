@@ -24,8 +24,13 @@ import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.helper.CompressionResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.MapDifference;
+import com.google.common.collect.Maps;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -73,8 +78,19 @@ public class TestJson {
         Assert.assertTrue(compareTo.equals(other));
 
     }
+    @Test
+    public void diffUtils() throws Exception{
+        String jsonA = "{\"house\": \"red\", \"bedrooms\": 2, \"list\": [3,2,1]}";
+        String jsonB = "{\"house\": \"green\", \"bedrooms\": 2, \"list\": [1,2,3]}";
+        Map mapA, mapB;
+        ObjectMapper mapper = new ObjectMapper();
 
-    private static String getBigJsonText(int i) {
+        mapA = mapper.readValue(jsonA, HashMap.class);
+        mapB = mapper.readValue(jsonB, HashMap.class);
+        MapDifference diff = Maps.difference(mapA, mapB);
+        System.out.print(diff.entriesOnlyOnLeft());
+    }
+    public static String getBigJsonText(int i) {
         return "{\n" +
                 "   \"trainprofiles\": [\n" +
                 "        {\n" +

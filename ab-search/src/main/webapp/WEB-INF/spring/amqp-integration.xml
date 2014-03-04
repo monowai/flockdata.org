@@ -36,7 +36,7 @@
             request-channel="makeSearchRequest"
             queue-names="ab-search.queue"
             concurrent-consumers="50"
-            prefetch-count="10"
+            prefetch-count="10"   acknowledge-mode="AUTO"
             task-executor="AMQPPoolTaskExecutor"
             shutdown-timeout="3000"
             receive-timeout="${request.timeout}"

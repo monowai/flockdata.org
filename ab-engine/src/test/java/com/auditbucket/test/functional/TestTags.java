@@ -209,11 +209,9 @@ public class TestTags {
 
         assertNotNull(tag);
         Tag result = tagService.findTag("FLOP");
-        // ToDo: Find tag isn't working N4j2 Node types and CreateIndex
-        // Issue is dynamic nodes and properties don't get in the index.
 
         assertNotNull(result);
-        assertEquals(123, tag.getProperty("num"));
+        assertEquals(123l, tag.getProperty("num"));
         assertEquals(123.11, tag.getProperty("dec"));
         assertEquals("abc", tag.getProperty("string"));
 
@@ -276,7 +274,7 @@ public class TestTags {
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
         assertNotNull(iSystemUser);
 
-        TagInputBean tagInput = new TagInputBean("Source", "TestTag");
+        TagInputBean tagInput = new TagInputBean("Source:TestTag");
         tagInput.setCode("CodeA");
         tagInput.setName("NameA");
         Tag tag = tagService.processTag(tagInput);
@@ -296,7 +294,7 @@ public class TestTags {
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
         assertNotNull(iSystemUser);
 
-        TagInputBean tagInput = new TagInputBean("Source", "TestTag");
+        TagInputBean tagInput = new TagInputBean("Source:TestTag");
         tagInput.setCode("CodeA");
         tagInput.setName("NameA");
         Tag tag = tagService.processTag(tagInput);
@@ -309,5 +307,7 @@ public class TestTags {
         assertFalse(results.isEmpty());
         assertNotNull ( results.get(tagInput.getName()));
     }
+
+
 
 }

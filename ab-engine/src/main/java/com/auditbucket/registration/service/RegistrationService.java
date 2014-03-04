@@ -25,15 +25,14 @@ import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.CompanyUser;
 import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
 import com.auditbucket.registration.repo.neo4j.model.CompanyUserNode;
 import com.auditbucket.registration.repo.neo4j.model.SystemUserNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class RegistrationService {
 
     @Autowired
@@ -50,7 +49,6 @@ public class RegistrationService {
 
     private static SystemUser GUEST = new SystemUserNode("Guest", null, null, false);
 
-    @Transactional
     public SystemUser registerSystemUser(RegistrationBean regBean) {
         SystemUser systemUser = systemUserService.findByName(regBean.getName());
 

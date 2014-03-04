@@ -29,6 +29,7 @@ import com.auditbucket.engine.repo.neo4j.model.AuditChangeNode;
 import com.auditbucket.engine.repo.neo4j.model.AuditHeaderNode;
 import com.auditbucket.engine.repo.neo4j.model.AuditLogRelationship;
 import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
+import com.auditbucket.engine.service.AuditEventService;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.FortressUser;
@@ -62,6 +63,9 @@ public class AuditDaoNeo implements AuditDao {
 
     @Autowired
     AuditLogRepo auditLogRepo;
+
+    @Autowired
+    AuditEventService auditEventService;
 
     @Autowired
     Neo4jTemplate template;
@@ -247,8 +251,10 @@ public class AuditDaoNeo implements AuditDao {
 
     @Override
     public AuditChange save(FortressUser fUser, AuditLogInputBean input, TxRef txRef, AuditChange previousChange) {
+        AuditEvent event = auditEventService.processEvent(fUser.getFortress().getCompany(), input.getEvent());
+
         AuditChange auditChange = new AuditChangeNode(fUser, input, txRef);
-        auditChange.setEvent(input.getAuditEvent());
+        auditChange.setEvent(event);
         auditChange.setPreviousChange(previousChange);
         return template.save(auditChange);
     }

@@ -19,6 +19,8 @@
 
 package com.auditbucket.registration.repo.neo4j.dao;
 
+import com.auditbucket.registration.bean.FortressInputBean;
+import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.repo.neo4j.FortressRepository;
@@ -29,9 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * User: Mike Holdsworth
@@ -47,27 +47,29 @@ public class FortressDaoNeo implements FortressDao {
     private FortressUserRepository fortressUserRepo;
 
     @Override
-    public Fortress save(Fortress fortress) {
-        return fortressRepo.save((FortressNode) fortress);
+    public Fortress save(Company company, FortressInputBean fortressInput) {
+        FortressNode fortress = new FortressNode(fortressInput, company);
+
+        return fortressRepo.save( fortress);
     }
 
     @Override
-    public Fortress findByPropertyValue(String name, Object value) {
-        return fortressRepo.findByPropertyValue(name, value);
+    public Fortress findByPropertyValue(String property, Object value) {
+        return fortressRepo.findByPropertyValue(property, value);
     }
 
     @Override
-    public Fortress findOne(Long id) {
-        return fortressRepo.findOne(id);
+    public Fortress findOne(Long fortressId) {
+        return fortressRepo.findOne(fortressId);
     }
 
     @Autowired
     Neo4jTemplate template;
 
     @Override
-    public FortressUser getFortressUser(Long id, String name) {
+    public FortressUser getFortressUser(Long fortressId, String name) {
 
-        return fortressRepo.getFortressUser(id, name);
+        return fortressRepo.getFortressUser(fortressId, name);
 
     }
 
@@ -85,8 +87,8 @@ public class FortressDaoNeo implements FortressDao {
     }
 
     @Override
-    public FortressUser findOneUser(Long id) {
-        return fortressUserRepo.findOne(id);
+    public FortressUser findOneUser(Long fortressUserId) {
+        return fortressUserRepo.findOne(fortressUserId);
     }
 
     @Override
@@ -95,8 +97,8 @@ public class FortressDaoNeo implements FortressDao {
     }
 
     @Override
-    public void fetch(FortressUser lastUser) {
-        template.fetch(lastUser);
+    public void fetch(FortressUser fortressUser) {
+        template.fetch(fortressUser);
 
     }
 

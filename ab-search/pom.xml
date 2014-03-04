@@ -160,13 +160,13 @@
         <dependency>
             <groupId>fr.pilato.spring</groupId>
             <artifactId>spring-elasticsearch</artifactId>
-            <version>0.3.0</version>
+            <version>1.0.0</version>
 
         </dependency>
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
-            <version>0.90.11</version>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.monowai</groupId>
@@ -227,6 +227,7 @@
                         </goals>
                         <phase>package</phase>
                         <configuration>
+                            <finalName>${project.artifactId}-war.jar</finalName>
                             <!-- optional only if you want to use a preconfigured server.xml file -->
                             <!--
                             <serverXml>src/main/tomcatconf/server.xml</serverXml>
