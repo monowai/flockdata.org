@@ -148,7 +148,15 @@ public class AuditService {
         }
 
         ah = makeAuditHeader(inputBean, fu, documentType);
-        return new AuditResultBean(ah);
+        AuditResultBean resultBean = new AuditResultBean(ah);
+        if (inputBean.isTrackSuppressed())
+            // We need to get the "tags" across to ElasticSearch, so we mock them ;)
+            resultBean.setTags(auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTags()));
+        else
+            // Write the associations to the graph
+            auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTags());
+
+        return resultBean;
 
     }
 
@@ -275,8 +283,8 @@ public class AuditService {
                 input.setEvent(AuditChange.CREATE);
             }
             //if (!auditHeader.getLastUser().getId().equals(thisFortressUser.getId())){
-                auditHeader.setLastUser(thisFortressUser);
-                auditHeader = auditDAO.save(auditHeader);
+            auditHeader.setLastUser(thisFortressUser);
+            auditHeader = auditDAO.save(auditHeader);
 
             //}
         }
@@ -696,8 +704,8 @@ public class AuditService {
 
     public AuditSummaryBean getAuditSummary(String auditKey) throws AuditException {
         AuditHeader header = getHeader(auditKey, true);
-        if ( header == null )
-            throw new AuditException("Invalid Audit Key ["+auditKey+"]");
+        if (header == null)
+            throw new AuditException("Invalid Audit Key [" + auditKey + "]");
         Set<AuditLog> changes = getAuditLogs(header.getId());
         Set<AuditTag> tags = auditTagService.findAuditTags(header);
         return new AuditSummaryBean(header, changes, tags);
@@ -707,7 +715,7 @@ public class AuditService {
     public Future<Void> makeHeaderSearchable(AuditResultBean resultBean, String event, Date when, Company company) {
         AuditHeader header = resultBean.getAuditHeader();
         if (header.isSearchSuppressed() || !header.getFortress().isSearchActive())
-            return null ;
+            return null;
 
         SearchChange searchDocument = getSearchChange(resultBean, event, when, company);
         if (searchDocument == null) return null;
@@ -777,10 +785,10 @@ public class AuditService {
      * @param resultBean Audit to work with
      * @param event      descriptor of last event
      * @param when       date fortress is saying this took place
-     * @return           populated search doc
+     * @return populated search doc
      */
     public SearchChange getSearchChange(AuditResultBean resultBean, String event, Date when) {
         Company company = securityHelper.getCompany();
-        return getSearchChange(resultBean, event, when, company)   ;
+        return getSearchChange(resultBean, event, when, company);
     }
 }

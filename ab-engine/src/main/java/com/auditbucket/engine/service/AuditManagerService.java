@@ -135,8 +135,12 @@ public class AuditManagerService {
 
     @Async
     public Future<Integer> createHeadersAsync(AuditHeaderInputBean[] inputBeans, Company company, Fortress fortress) throws AuditException {
+        return new AsyncResult<>(createHeaders(inputBeans, company, fortress));
+    }
+
+    public Integer createHeaders(AuditHeaderInputBean[] inputBeans, Company company, Fortress fortress) throws AuditException {
         if (inputBeans.length == 0)
-            return null;
+            return 0;
         fortress.setCompany(company);
         Long id = DateTime.now().getMillis();
         StopWatch watch = new StopWatch();
@@ -155,7 +159,7 @@ public class AuditManagerService {
             throw new AuditException("Async error progressing Headers", e);
         }
         logger.info("Completed Batch [{}] - secs= {}, RPS={}", id, f.format(watch.getTotalTimeSeconds()), f.format(inputBeans.length / watch.getTotalTimeSeconds()));
-        return new AsyncResult<>(processCount);
+        return processCount;
     }
 
     public AuditResultBean createHeader(AuditHeaderInputBean inputBean) throws AuditException {
@@ -174,12 +178,7 @@ public class AuditManagerService {
     public AuditResultBean createHeader(AuditHeaderInputBean inputBean, Company company, Fortress fortress) throws AuditException {
         if(inputBean ==null  )
             throw new AuditException("No input to process!");
-        // Establish directed tag structure
-//        if (!tagsProcessed) {
-//            AuditHeaderInputBean[] inputBeans = new AuditHeaderInputBean[1];
-//            inputBeans[0] = inputBean;
-//            createTagStructure(inputBeans, company);
-//        }
+
         AuditResultBean resultBean = null;
 
         // Deadlock re-try fun
@@ -188,15 +187,6 @@ public class AuditManagerService {
             try {
                 if (resultBean == null || resultBean.getAuditId() ==null ) {
                     resultBean = auditService.createHeader(inputBean, company, fortress);
-                }
-                // Don't recreate tags if we already handled this -ToDiscuss!!
-                if (!resultBean.isDuplicate()) {
-                    if (inputBean.isTrackSuppressed())
-                        // We need to get the "tags" across to ElasticSearch, so we mock them ;)
-                        resultBean.setTags(auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTags()));
-                    else
-                        // Write the associations to the graph
-                        auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTags());
                 }
                 retryCount = maxRetry; // Exit the loop
             } catch (RuntimeException re) {
@@ -210,8 +200,9 @@ public class AuditManagerService {
                         logger.error("Error creating Header for fortress [{}], docType {}, callerRef [{}], rolling back. Cause = {}", inputBean.getFortress(), inputBean.getDocumentType(), inputBean.getCallerRef(), re.getCause());
                         throw (re);
                     }
-                } else
+                } else {
                     throw (re);
+                }
             }
         }
 

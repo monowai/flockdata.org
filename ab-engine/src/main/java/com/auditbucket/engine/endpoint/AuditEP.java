@@ -116,10 +116,7 @@ public class AuditEP {
             return batch;
 
         } else {
-
-            for (AuditHeaderInputBean inputBean : inputBeans) {
-                auditManager.createHeader(inputBean, company, fortress);
-            }
+            auditManager.createHeaders(inputBeans, company, fortress);
         }
         return null;
     }
@@ -217,7 +214,7 @@ public class AuditEP {
     @ResponseBody
     @RequestMapping(value = "/{auditKey}/summary", produces = "application/json", method = RequestMethod.GET)
     @Secured({"ROLE_USER"})
-    public ResponseEntity<AuditSummaryBean> getAuditSummary(@PathVariable("auditKey") String auditKey) throws AuditException{
+    public ResponseEntity<AuditSummaryBean> getAuditSummary(@PathVariable("auditKey") String auditKey) throws AuditException {
         return new ResponseEntity<>(auditManager.getAuditSummary(auditKey), HttpStatus.OK);
 
     }
@@ -252,16 +249,17 @@ public class AuditEP {
         return new ResponseEntity<>((AuditWhat) null, HttpStatus.OK);
 
     }
+
     @ResponseBody
     @RequestMapping(value = "/{auditKey}/{logId}/delta/{withId}", produces = "application/json", method = RequestMethod.GET)
     @Secured({"ROLE_USER"})
     public ResponseEntity<AuditDeltaBean> getDelta(@PathVariable("auditKey") String auditKey, @PathVariable("logId") Long logId, @PathVariable("withId") Long withId) {
         AuditHeader header = auditService.getHeader(auditKey);
 
-        if ( header != null ){
+        if (header != null) {
             AuditLog left = auditService.getAuditLog(header, logId);
             AuditLog right = auditService.getAuditLog(header, withId);
-            if ( left!=null && right != null ){
+            if (left != null && right != null) {
                 AuditDeltaBean deltaBean = whatService.getDelta(header, left.getAuditChange(), right.getAuditChange());
 
                 if (deltaBean != null)
