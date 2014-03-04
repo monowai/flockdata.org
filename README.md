@@ -1,21 +1,22 @@
-[auditbucket](http://auditbucket.com) - Data Profiling Service
+[auditbucket](http://auditbucket.com) - Data Mediation Service
 ===========
 ## Project Status
 Now supporting ElasticSearch 1.0
 
-We're at 0.91 and very close to being feature frozen. Code and API are stable with only a few changes to the way tags are handled.  Master now supports Neo4j2. There is a Neo4j19 branch if you prefer. Data migration between versions is not guaranteed until we hit 1.0.
+We're at 0.91 and very close to being feature frozen. Code and API are stable with only a few changes to the way tags are handled.  Master now supports Neo4j2. Data migration between versions is not guaranteed until we hit 1.0.
 
 While we are supporting Neo4j2 this code should be considered experimental until the SDN4J team finalise their release.
 
 ## Use Cases
 ### Track changes to information 
-With a single service call you can version your information against an event. This is the "Audit" in AB. 
-
-### Big Data Analytics
-You want to get started or explore the power of big data. You have information, but what does it look like in a NonSQL database? 
+With a single service call you can version your information against an event, elaborate it in Neo4j and index it in ElasticSearch. This is the "Audit" in AB. 
 
 ### Legacy System Migration
 You are closing down an old computer system. Migrate it's data via the AB API and you can preserve that insight without having to keep the old application around.
+
+### Big Data Analytics
+You want to get started or explore the power of big data. You have the data, now see what it looks like in Neo4j and ElasticSearch
+
 
 ## Executive Summary
 Track, Find, Compare and Explore
