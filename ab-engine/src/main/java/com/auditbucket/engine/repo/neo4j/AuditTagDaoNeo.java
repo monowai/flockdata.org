@@ -92,11 +92,11 @@ public class AuditTagDaoNeo implements AuditTagDao {
 
         Node headerNode = template.getPersistentState(auditHeader);
 
-        Node tagNode  ;
+        Node tagNode;
         try {
             tagNode = template.getNode(tag.getId());
         } catch (RuntimeException e) {
-            logger.error("Weird error looking for tag [{}] with ID [{}]",tag.getKey(), tag.getId());
+            logger.error("Weird error looking for tag [{}] with ID [{}]", tag.getKey(), tag.getId());
             throw (e);
         }
         //Primary exploration relationship
@@ -195,7 +195,7 @@ public class AuditTagDaoNeo implements AuditTagDao {
 
         Map<String, Object> params = new HashMap<>();
         params.put("auditId", auditHeader.getId());
-
+        //Map<Long, AuditTag> tagResults = new HashMap<>();
         Set<AuditTag> tagResults = new HashSet<>();
         for (Map<String, Object> row : template.query(query, params)) {
             Node n = (Node) row.get("tag");
@@ -211,20 +211,21 @@ public class AuditTagDaoNeo implements AuditTagDao {
                 Node state = (Node) row.get("state");
                 geoData.setCity((String) loc.getProperty("name"));
 
-                if ( country!=null && country.hasProperty("name")){
+                if (country != null && country.hasProperty("name")) {
                     geoData.setIsoCode((String) country.getProperty("code"));
                     geoData.setCountry((String) country.getProperty("name"));
                 }
-                if (state!=null && state.hasProperty("name"))
+                if (state != null && state.hasProperty("name"))
                     geoData.setState((String) state.getProperty("name"));
                 auditTag.setGeoData(geoData);
             }
             // Commenting out for DoubleCheck. Doesn't seem to serve any purpose in
             // search anyway
             auditTag.setWeight(null);
-
-            tagResults.add(auditTag);
+            tagResults.add(auditTag) ;
+            //tagResults.put(tag.getId(), auditTag);
         }
+        //return new HashSet<>(tagResults.values());
         return tagResults;
     }
 

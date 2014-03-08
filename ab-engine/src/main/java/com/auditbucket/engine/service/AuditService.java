@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -422,7 +423,13 @@ public class AuditService {
         Long auditId = searchResult.getAuditId();
         if (auditId == null)
             return;
-        AuditHeader header = auditDAO.getHeader(auditId);
+        AuditHeader header;
+        try {
+            header = auditDAO.getHeader(auditId); // Happens during development when Graph is cleared down and incoming search results are on the q
+        } catch (DataRetrievalFailureException e){
+            logger.error("Unable to located header for auditId {}", auditId);
+            return ;
+        }
 
         if (header == null) {
             logger.error("Audit Key could not be found for [{}]", searchResult);

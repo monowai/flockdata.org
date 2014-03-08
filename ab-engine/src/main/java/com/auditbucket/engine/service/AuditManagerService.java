@@ -23,6 +23,7 @@ import com.auditbucket.audit.bean.*;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.helper.TagException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
@@ -200,7 +201,11 @@ public class AuditManagerService {
                         logger.error("Error creating Header for fortress [{}], docType {}, callerRef [{}], rolling back. Cause = {}", inputBean.getFortress(), inputBean.getDocumentType(), inputBean.getCallerRef(), re.getCause());
                         throw (re);
                     }
-                } else {
+                } else if ( re.getCause() instanceof TagException ) {
+                    // Carry on processing FixMe - log this to an error channel
+                    logger.error("Error creating Tag. Input was fortress [{}], docType {}, callerRef [{}], rolling back. Cause = {}", inputBean.getFortress(), inputBean.getDocumentType(), inputBean.getCallerRef(), re.getCause());
+                }
+                else {
                     throw (re);
                 }
             }

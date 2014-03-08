@@ -177,9 +177,6 @@ public class TestCallerRef {
             } catch (RuntimeException e) {
 
                 logger.error("Help!!", e);
-            } catch (AuditException e) {
-
-                logger.error("AE Help!!", e);
             } finally {
                 latch.countDown();
             }

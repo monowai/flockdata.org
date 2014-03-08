@@ -114,9 +114,6 @@ public class TestForceDeadlock {
             working = true;
         } catch (RuntimeException e) {
             logger.error("rte ", e);
-        } catch (AuditException e) {
-
-            logger.error("ae ", e);
         }
         for (int i = 0; i <threadMax ; i++) {
             while ( futures.get(i).get() == null ){

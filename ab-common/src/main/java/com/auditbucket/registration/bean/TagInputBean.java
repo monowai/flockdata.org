@@ -47,6 +47,7 @@ public class TagInputBean {
     Map<String, Object> auditLinks = new HashMap<>();
 
     private String auditLink = null;
+    private boolean mustExist=false;
 
     protected TagInputBean() {
     }
@@ -204,7 +205,11 @@ public class TagInputBean {
     @Override
     public String toString() {
         return "TagInputBean{" +
-                "name='" + name + '\'' +
+                "code='" + code + '\'' +
+                ", name='" + name + '\'' +
+                ", index='" + index + '\'' +
+                ", targets=" + targets +
+                ", auditLinks=" + auditLinks +
                 '}';
     }
 
@@ -230,5 +235,13 @@ public class TagInputBean {
         result = 31 * result + (reverse ? 1 : 0);
         result = 31 * result + (index != null ? index.hashCode() : 0);
         return result;
+    }
+
+    public boolean isMustExist() {
+        return mustExist;
+    }
+
+    public void setMustExist(boolean mustExist) {
+        this.mustExist = mustExist;
     }
 }
