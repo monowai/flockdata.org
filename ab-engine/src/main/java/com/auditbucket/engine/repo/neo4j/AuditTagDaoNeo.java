@@ -103,12 +103,12 @@ public class AuditTagDaoNeo implements AuditTagDao {
         Relationship r = template.getRelationshipBetween(tagNode, headerNode, relationshipName);
 
         if (r != null) {
-            return null;
+            return rel;
         }
         //DynamicRelationshipType rlx = DynamicRelationshipType.withName(relationshipName);
         template.createRelationshipBetween(tagNode, headerNode, relationshipName, propMap);
         logger.trace("Created Relationship Tag[{}] of type {}", tag, relationshipName);
-        return null;
+        return rel;
     }
 
     @Autowired
