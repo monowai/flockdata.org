@@ -196,9 +196,9 @@ public class AuditEP {
     @ResponseBody
     @RequestMapping(value = "/{auditKey}", method = RequestMethod.GET)
     @Secured({"ROLE_USER"})
-    public ResponseEntity<com.auditbucket.audit.model.AuditHeader> getAudit(@PathVariable("auditKey") String auditKey) {
+    public ResponseEntity<AuditHeader> getAudit(@PathVariable("auditKey") String auditKey) {
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
-        com.auditbucket.audit.model.AuditHeader result = auditService.getHeader(auditKey, true);
+        AuditHeader result = auditService.getHeader(auditKey, true);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 

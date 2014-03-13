@@ -606,6 +606,7 @@ public class AuditService {
                 AuditSearchChange searchDocument = new AuditSearchChange(auditHeader, lastWhat, lastChange.getEvent().getCode(), new DateTime(lastChange.getAuditLog().getFortressWhen()));
                 searchDocument.setTags(auditTagService.findAuditTags(auditHeader));
                 searchDocument.setReplyRequired(false);
+                searchDocument.setWho(lastChange.getWho().getCode());
                 searchGateway.makeChangeSearchable(searchDocument);
             }
         } catch (Exception e) {
