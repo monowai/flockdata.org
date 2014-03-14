@@ -144,6 +144,8 @@ public class AuditService {
 
             AuditResultBean arb = new AuditResultBean(ah);
             arb.setWasDuplicate();
+            // Could be rewriting tags
+            auditTagService.associateTags(company, ah, inputBean.getTags());
 
             return arb;
         }
@@ -152,10 +154,10 @@ public class AuditService {
         AuditResultBean resultBean = new AuditResultBean(ah);
         if (inputBean.isTrackSuppressed())
             // We need to get the "tags" across to ElasticSearch, so we mock them ;)
-            resultBean.setTags(auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTags()));
+            resultBean.setTags(auditTagService.associateTags(company, resultBean.getAuditHeader(), inputBean.getTags()));
         else
             // Write the associations to the graph
-            auditTagService.associateTags(resultBean.getAuditHeader(), inputBean.getTags());
+            auditTagService.associateTags(company, resultBean.getAuditHeader(), inputBean.getTags());
 
         return resultBean;
 

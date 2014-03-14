@@ -48,4 +48,5 @@ public interface AuditTagDao {
     void changeType(AuditHeader auditHeader, AuditTag existingTag, String newType);
 
     Set<AuditHeader> findTagAudits(Tag tag);
+
 }

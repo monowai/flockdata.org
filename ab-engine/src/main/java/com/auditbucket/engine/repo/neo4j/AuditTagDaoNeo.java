@@ -119,7 +119,7 @@ public class AuditTagDaoNeo implements AuditTagDao {
         Node auditNode = null;
         for (AuditTag tag : auditTags) {
             if (!tag.getAuditId().equals(auditHeader.getId()))
-                throw new AuditException("Tags to not belong to the required AuditHeader");
+                throw new AuditException("Tags do not belong to the required AuditHeader");
 
             if (auditNode == null) {
                 auditNode = template.getNode(tag.getAuditId());
@@ -127,8 +127,9 @@ public class AuditTagDaoNeo implements AuditTagDao {
 
             Relationship r = template.getRelationship(tag.getId());
             r.delete();
-            //tagDao.deleteCompanyRelationship(auditHeader.getFortress().getCompany(), tag.getTag());
-            template.getNode(tag.getTag().getId()).delete();
+            // ToDo - remove nodes that are not attached to other nodes.
+            if ( ! r.getOtherNode(auditNode).getRelationships().iterator().hasNext() )
+                template.getNode(tag.getTag().getId()).delete();
         }
     }
 

@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
@@ -51,7 +50,6 @@ import java.util.concurrent.Future;
  */
 @Controller
 @RequestMapping("/audit")
-@MessageEndpoint
 public class AuditEP {
     @Autowired
     AuditService auditService;

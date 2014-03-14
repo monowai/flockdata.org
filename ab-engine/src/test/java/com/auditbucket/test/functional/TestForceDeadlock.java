@@ -191,7 +191,7 @@ public class TestForceDeadlock {
         @Override
         public void run() {
             int count = 0;
-
+            Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
             logger.info("Hello from thread {}, Creating {} AuditHeaders", callerRef, maxRun);
             try {
                 while (count < maxRun) {

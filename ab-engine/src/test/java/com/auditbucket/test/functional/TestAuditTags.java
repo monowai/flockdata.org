@@ -25,14 +25,12 @@ package com.auditbucket.test.functional;
  * Time: 4:49 PM
  */
 
-import com.auditbucket.audit.bean.AuditHeaderInputBean;
-import com.auditbucket.audit.bean.AuditResultBean;
-import com.auditbucket.audit.bean.AuditSummaryBean;
-import com.auditbucket.audit.bean.AuditTagInputBean;
+import com.auditbucket.audit.bean.*;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditTag;
 import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.audit.model.SearchChange;
+import com.auditbucket.engine.endpoint.AuditEP;
 import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.engine.service.AuditTagService;
@@ -53,6 +51,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.core.GraphDatabase;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.data.neo4j.support.node.Neo4jHelper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -97,6 +96,9 @@ public class TestAuditTags {
 
     @Autowired
     AuditTagService auditTagService;
+
+    @Autowired
+    AuditEP auditEp;
 
     @Autowired
     private Neo4jTemplate template;
@@ -585,7 +587,7 @@ public class TestAuditTags {
     @Test
     public void targetTagWithAuditRelationship() throws Exception {
         String name = "Doctor John";
-        TagInputBean authorTag = new TagInputBean(name+":person");
+        TagInputBean authorTag = new TagInputBean(name + ":person");
         authorTag.addAuditLink("writer");
         authorTag.addAuditLink("lead");
 
@@ -609,14 +611,15 @@ public class TestAuditTags {
         inputBean.setTag(institution);
 
         AuditResultBean result = auditManager.createHeader(inputBean);
-        assertNotNull ( result);
+        assertNotNull(result);
         Set<AuditTag> tags = auditTagService.findAuditTags(result.getAuditHeader());
         assertEquals(2, tags.size());
         for (AuditTag tag : tags) {
-            assertTrue(tag.getTag().getName().equals(institution.getName())|| tag.getTag().getName().equals(cityTag.getName()));
+            assertTrue(tag.getTag().getName().equals(institution.getName()) || tag.getTag().getName().equals(cityTag.getName()));
         }
 
     }
+
     @Test
     public void geoTag() throws Exception {
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
@@ -644,14 +647,14 @@ public class TestAuditTags {
 
         AuditResultBean resultBean = auditManager.createHeader(auditBean);
         assertNotNull(resultBean);
-        assertNotNull ( tagService.findTag("USA"));
+        assertNotNull(tagService.findTag("USA"));
 
         Set<AuditTag> tags = auditTagService.findAuditTags(resultBean.getAuditHeader());
         assertFalse(tags.isEmpty());
 
         for (AuditTag tag : tags) {
             assertEquals("mikecorp", tag.getTag().getName());
-            assertNotNull ( tag.getGeoData());
+            assertNotNull(tag.getGeoData());
             assertEquals("CA", tag.getGeoData().getState());
             assertEquals("Los Angeles", tag.getGeoData().getCity());
             Collection<Tag> cities = tagService.findDirectedTags(tag.getTag());
@@ -664,6 +667,112 @@ public class TestAuditTags {
             assertEquals(stateInputTag.getName(), stateTag.getName());
         }
 
+    }
+
+    @Test
+    public void tagsAreUpdatedOnAuditUpdate() throws Exception {
+        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        fortressService.registerFortress("ABC");
+
+        TagInputBean tagInput = new TagInputBean("FLOP");
+        String what = "{\"house\": \"house";
+
+        tagService.processTag(tagInput);
+        //assertNotNull(result);
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc1");
+        AuditLogInputBean logBean = new AuditLogInputBean("mike", new DateTime(), what + "1\"}");
+        inputBean.setAuditLog(logBean);
+        // This should create the same Tag object
+        inputBean.setTag(new TagInputBean("TagA", "camel"));
+        AuditResultBean resultBean = auditManager.createHeader(inputBean);
+        AuditHeader unchanged = auditService.getHeader(resultBean.getAuditKey());
+        assertNotNull ( unchanged);
+
+        AuditHeaderInputBean removeTag = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc2");
+        AuditLogInputBean alb = new AuditLogInputBean("mike", new DateTime(), what + "1\"}");
+        removeTag.setAuditLog(alb);
+        // This should create the same Tag object
+        removeTag.setTag(new TagInputBean("TagA", "camel"));
+        resultBean = auditManager.createHeader(removeTag);
+        AuditHeader auditHeader = auditService.getHeader(resultBean.getAuditKey());
+        Assert.assertNotNull(auditHeader);
+
+        validateTag(auditHeader, "TagA", 1);
+
+        // Replace the current tag
+        removeTag.setTag(new TagInputBean("TagB", "camel"));
+        removeTag.setAuditLog(new AuditLogInputBean("mike", new DateTime(), what + "2\"}"));
+        auditManager.createHeader(removeTag);
+        validateTag(auditHeader, "TagB", 1);
+
+        // Make sure we didn't remove the node as it was in use by the first header we created
+        validateTag(unchanged, "TagA", 1);
+    }
+    @Test
+    public void tagsWithNoRelationshipsAreRemovedOnHeaderUpdate() throws Exception {
+        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        fortressService.registerFortress("ABC");
+
+        TagInputBean tagInput = new TagInputBean("FLOP");
+        String what = "{\"house\": \"house";
+
+        tagService.processTag(tagInput);
+        AuditHeaderInputBean removeTag = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc2");
+        AuditLogInputBean alb = new AuditLogInputBean("mike", new DateTime(), what + "1\"}");
+        removeTag.setAuditLog(alb);
+        // This should create the same Tag object
+        removeTag.setTag(new TagInputBean("TagA", "camel"));
+        AuditResultBean resultBean = auditManager.createHeader(removeTag);
+        AuditHeader auditHeader = auditService.getHeader(resultBean.getAuditKey());
+        Assert.assertNotNull(auditHeader);
+
+        validateTag(auditHeader, "TagA", 1);
+
+        // Replace the current tag
+        removeTag.setTag(new TagInputBean("TagB", "camel"));
+        removeTag.setAuditLog(new AuditLogInputBean("mike", new DateTime(), what + "2\"}"));
+        auditManager.createHeader(removeTag);
+        validateTag(auditHeader, "TagB", 1);
+
+        assertTrue ( "TagA has no audit headers so should have been removed", tagService.findTag("TagA")==null);
+    }
+//    @Test
+//    public void headerTagsAreUpdatedWithTagDetailsInAnAuditLog() throws Exception {
+//        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+//        fortressService.registerFortress("ABC");
+//
+//        TagInputBean tagInput = new TagInputBean("FLOP");
+//        String what = "{\"house\": \"house";
+//
+//        tagService.processTag(tagInput);
+//        //assertNotNull(result);
+//        AuditHeaderInputBean inputBean = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc1");
+//        AuditLogInputBean logBean = new AuditLogInputBean("mike", new DateTime(), what + "1\"}");
+//        inputBean.setAuditLog(logBean);
+//        // This should create the same Tag object
+//        inputBean.setTag(new TagInputBean("TagA", "camel"));
+//        ResponseEntity<AuditResultBean> response = auditEp.createHeader(inputBean);
+//        assertNotNull (response);
+//
+//        AuditResultBean resultBean = response.getBody();
+//        assertNotNull(resultBean);
+//        AuditHeader header = auditEp.getAudit(resultBean.getAuditKey()).getBody();
+//        assertNotNull(header);
+//
+//        // Now change the tag via the Audit Log
+//        AuditLogInputBean alb = new AuditLogInputBean("mike", new DateTime(), what + "1\"}");
+//
+//        validateTag(header, "TagA", 1);
+//
+//
+//    }
+    private void validateTag(AuditHeader auditHeader,  String expected, int i) {
+        Collection<AuditTag> tags;
+        tags = auditTagService.findAuditTags(auditHeader);
+        assertEquals(expected, i, tags.size() );
+        for (AuditTag tag : tags){
+            assertEquals(expected, tag.getTag().getName());
+        }
     }
 
 }
