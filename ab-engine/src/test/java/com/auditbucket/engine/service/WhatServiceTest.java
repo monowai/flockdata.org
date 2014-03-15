@@ -19,7 +19,10 @@ import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -56,6 +59,8 @@ public class WhatServiceTest extends AbstractRedisSupport {
     @Autowired
     private WhatService whatService;
 
+    private Logger logger = LoggerFactory.getLogger(WhatServiceTest.class);
+
     @Autowired
     private EngineConfig engineConfig;
 
@@ -89,7 +94,12 @@ public class WhatServiceTest extends AbstractRedisSupport {
         AuditHeader header = auditService.getHeader(ahKey);
         Map<String, Object> what = getWhatMap();
         String whatString = getJsonFromObject(what);
-        auditManager.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), whatString));
+        try{
+            auditManager.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), whatString));
+        } catch (DataAccessException e ){
+            logger.error("KV Stores are configured in config.properties. This test is failing to find the {} server.",engineConfig.getKvStore());
+            return;
+        }
         AuditLog auditLog = auditDAO.getLastAuditLog(header.getId());
         assertNotNull(auditLog);
 
