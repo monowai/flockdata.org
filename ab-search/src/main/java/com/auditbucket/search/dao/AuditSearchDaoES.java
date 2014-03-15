@@ -123,6 +123,7 @@ public class AuditSearchDaoES implements AuditSearchDao {
                 logger.debug("Added Document [" + auditChange.getAuditKey() + "], logId=" + auditChange.getLogId() + " searchId [" + ir.getId() + "] to " + indexName + "/" + documentType);
             return auditChange;
         } catch (Exception e) {
+            logger.error("Unexpected error", e);
             return auditChange;
         }
 

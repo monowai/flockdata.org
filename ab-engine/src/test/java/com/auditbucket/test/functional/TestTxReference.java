@@ -107,7 +107,7 @@ public class TestTxReference {
         AuditHeaderInputBean abcHeader = new AuditHeaderInputBean(fortressABC.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
         abcHeader.setAuditLog(new AuditLogInputBean(null, "charlie", DateTime.now(), escJsonA, true));
 
-        AuditResultBean resultBean = auditManager.createHeader(abcHeader);
+        AuditResultBean resultBean = auditManager.createHeader(abcHeader, null);
         AuditLogResultBean logResultBean = resultBean.getLogResult();
         assertNotNull(logResultBean);
         String abcTxRef = logResultBean.getTxReference();
@@ -117,7 +117,7 @@ public class TestTxReference {
         SecurityContextHolder.getContext().setAuthentication(authCBA);
         Fortress fortressCBA = fortressService.registerFortress("cbaTest");
         AuditHeaderInputBean cbaHeader = new AuditHeaderInputBean(fortressCBA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
-        String cbaKey = auditManager.createHeader(cbaHeader).getAuditKey();
+        String cbaKey = auditManager.createHeader(cbaHeader, null).getAuditKey();
 
         AuditLogInputBean cbaLog = new AuditLogInputBean(cbaKey, "charlie", DateTime.now(), escJsonA, true);
         assertEquals("CBA Logger Not Created", AuditLogInputBean.LogStatus.OK, auditManager.createLog(cbaLog).getStatus());
@@ -136,7 +136,7 @@ public class TestTxReference {
         // WHat happens if ABC tries to use CBA's TX Ref.
         abcHeader = new AuditHeaderInputBean(fortressABC.getName(), "wally", "TestAudit", new DateTime(), "ZZZAAA");
         abcHeader.setAuditLog(new AuditLogInputBean(null, "wally", DateTime.now(), escJsonA, null, cbaTxRef));
-        AuditResultBean result = auditManager.createHeader(abcHeader);
+        AuditResultBean result = auditManager.createHeader(abcHeader, null);
         assertNotNull(result);
         // It works because TX References have only to be unique for a company
         //      ab generated references are GUIDs, but the caller is allowed to define their own transaction
@@ -153,7 +153,7 @@ public class TestTxReference {
         String tagRef = "MyTXTag";
         AuditHeaderInputBean aBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
 
-        String key = auditManager.createHeader(aBean).getAuditKey();
+        String key = auditManager.createHeader(aBean, null).getAuditKey();
         assertNotNull(key);
         com.auditbucket.audit.model.AuditHeader header = auditService.getHeader(key);
         assertNotNull(header);
@@ -213,7 +213,7 @@ public class TestTxReference {
         String tagRef = "MyTXTag";
         AuditHeaderInputBean aBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
 
-        String key = auditManager.createHeader(aBean).getAuditKey();
+        String key = auditManager.createHeader(aBean, null).getAuditKey();
         assertNotNull(key);
         com.auditbucket.audit.model.AuditHeader header = auditService.getHeader(key);
         assertNotNull(header);

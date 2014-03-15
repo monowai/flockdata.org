@@ -106,16 +106,18 @@ public class AuditTagService {
      * If this scenario, ClientID123 is created as a single node with two relationships that
      * describe the association - clientKey and prospectKey
      *
+     * @param company
      * @param ah       Header to associate userTags with
      * @param userTags Key/Value pair of tags. TagNode will be created if missing. Value can be a Collection
      */
-    public Set<AuditTag> associateTags(AuditHeader ah, Collection<TagInputBean> userTags) {
+    public Set<AuditTag> associateTags(Company company, AuditHeader ah, Collection<TagInputBean> userTags) {
         Set<AuditTag> rlxs = new TreeSet<>();
         if ((userTags == null) || userTags.isEmpty())
             return rlxs;
 
-        Company company = ah.getFortress().getCompany();
         tagService.processTags(userTags, company);
+        Set<AuditTag> existingTags = findAuditTags(company, ah);
+
         for (TagInputBean tagInput : userTags) {
 
             Tag tag = tagService.processTag(tagInput, company);
@@ -129,7 +131,19 @@ public class AuditTagService {
                 rlxs.add(auditTagDao.save(ah, tag, tagInput.getAuditLink()));
 
         }
+        removeUnusedTagRelationships(ah, existingTags, rlxs);
         return rlxs;
+    }
+
+    private void removeUnusedTagRelationships(AuditHeader ah, Collection<AuditTag> existingTags, Set<AuditTag> newTags ){
+        Collection<AuditTag>deleteMe = new ArrayList<>();
+        for (AuditTag tag : existingTags) {
+
+            if (!newTags.contains(tag))
+                deleteMe.add(tag);
+        }
+        auditTagDao.deleteAuditTags(ah, deleteMe);
+
     }
 
     private Set<AuditTag> processRelationships(AuditHeader ah, Tag tag, Map<String, Object> auditRelationships) {

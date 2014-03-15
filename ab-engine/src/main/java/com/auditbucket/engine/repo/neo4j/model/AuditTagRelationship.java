@@ -73,6 +73,39 @@ public class AuditTagRelationship implements AuditTag, Comparable {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AuditTagRelationship)) return false;
+
+        AuditTagRelationship that = (AuditTagRelationship) o;
+
+        if (auditId != null ? !auditId.equals(that.auditId) : that.auditId != null) return false;
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (tag != null ? !tag.equals(that.tag) : that.tag != null) return false;
+        if (tagType != null ? !tagType.equals(that.tagType) : that.tagType != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "AuditTagRelationship{" +
+                "auditId=" + auditId +
+                ", tag=" + tag +
+                ", tagType='" + tagType + '\'' +
+                '}';
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (tag != null ? tag.hashCode() : 0);
+        result = 31 * result + (auditId != null ? auditId.hashCode() : 0);
+        result = 31 * result + (tagType != null ? tagType.hashCode() : 0);
+        return result;
+    }
+
     public AuditTagRelationship(AuditHeader header, Tag tag, Relationship relationship) {
         this();
         this.auditId = header.getId();

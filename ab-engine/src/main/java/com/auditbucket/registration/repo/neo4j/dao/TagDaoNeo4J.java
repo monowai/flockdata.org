@@ -20,16 +20,15 @@
 package com.auditbucket.registration.repo.neo4j.dao;
 
 import com.auditbucket.audit.model.DocumentType;
-import com.auditbucket.engine.PropertyConversion;
 import com.auditbucket.engine.repo.neo4j.DocumentTypeRepo;
 import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
 import com.auditbucket.engine.service.EngineConfig;
+import com.auditbucket.helper.TagException;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.repo.neo4j.model.TagNode;
 import org.neo4j.graphdb.Node;
-import org.neo4j.kernel.api.properties.DefinedProperty;
 import org.neo4j.kernel.impl.core.NodeProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +85,11 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
         TagNode existingTag = (TagNode) findOne(tagInput.getName(), company);
         Node start;
         if (existingTag == null) {
-            start = createTag(tagInput, tagSuffix);
+            if ( tagInput.isMustExist()){
+                throw new TagException("Tag "+tagInput.getName()+" is expected to exist. Illegal tag, ignoring request.");
+            }
+            else
+                start = createTag(tagInput, tagSuffix);
         } else {
             start = template.getNode(existingTag.getId());
         }

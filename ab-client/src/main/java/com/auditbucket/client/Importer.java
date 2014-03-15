@@ -74,8 +74,12 @@ public class Importer {
                     .setDefault("http://localhost/ab-engine")
                     .help("Host URL to send files to");
 
+            parser.addArgument("-b", "--batch")
+                    .setDefault(100)
+                    .help("Default batch size");
+
             parser.addArgument("files").nargs("*")
-                    .help("Path and filename of Audit records to import in the format \"[/filepath/filename.ext],[com.import.YourClass],[batchSize],{skipCount}\"");
+                     .help("Path and filename of Audit records to import in the format \"[/filepath/filename.ext],[com.import.YourClass],{skipCount}\"");
 
             Namespace ns = null;
             try {
@@ -89,12 +93,18 @@ public class Importer {
                 parser.handleError(new ArgumentParserException("No files to parse", parser));
                 System.exit(1);
             }
+            String b = ns.getString("batch");
+            int batchSize = 100;
+            if ( b !=null && !"".equals(b))
+                batchSize = Integer.parseInt(b);
+
+
             StopWatch watch = new StopWatch();
             watch.start();
             logger.info("*** Starting {}", DateFormat.getDateTimeInstance().format(new Date()));
             long totalRows = 0;
             for (String file : files) {
-                int batchSize = 100;
+
                 int skipCount = 0;
                 List<String> items = Arrays.asList(file.split("\\s*,\\s*"));
                 if (items.size() == 0)
@@ -108,9 +118,8 @@ public class Importer {
                     } else if (item == 1) {
                         fileClass = itemArg;
                     } else if (item == 2)
-                        batchSize = Integer.parseInt(itemArg);
-                    else if (item == 3)
                         skipCount = Integer.parseInt(itemArg);
+
                     item++;
                 }
                 logger.debug("*** Calculated process args {}, {}, {}, {}", fileName, fileClass, batchSize, skipCount);

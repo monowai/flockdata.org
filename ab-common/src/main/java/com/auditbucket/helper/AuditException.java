@@ -23,7 +23,7 @@ package com.auditbucket.helper;
  * User: Mike Holdsworth
  * Since: 27/09/13
  */
-public class AuditException extends Exception {
+public class AuditException extends RuntimeException {
     public AuditException() {
     }
 

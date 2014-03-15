@@ -89,7 +89,7 @@ public class TestForceDeadlock {
 
         String monowai = "Monowai";
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
-//        SecurityContextHolder.getContext().setAuthentication(authMike);
+        SecurityContextHolder.getContext().setAuthentication(authMike);
         Fortress fortress = fortressService.registerFortress("auditTest" + System.currentTimeMillis());
         String docType = "TestAuditX";
 
@@ -108,15 +108,12 @@ public class TestForceDeadlock {
 
         try {
             for (int i = 0; i <threadMax ; i++) {
-                futures.put(i, auditEP.createHeadersF(runners.get(i).getInputBeans(), false));
+                futures.put(i, auditEP.createHeadersF(runners.get(i).getInputBeans(), false, fortress.getCompany().getApiKey()));
                 //futures.put(i, auditEP.createHeadersF(runners.get(i).getInputBeans(), false));
             }
             working = true;
         } catch (RuntimeException e) {
             logger.error("rte ", e);
-        } catch (AuditException e) {
-
-            logger.error("ae ", e);
         }
         for (int i = 0; i <threadMax ; i++) {
             while ( futures.get(i).get() == null ){
@@ -194,7 +191,7 @@ public class TestForceDeadlock {
         @Override
         public void run() {
             int count = 0;
-
+            SecurityContextHolder.getContext().setAuthentication(authMike);
             logger.info("Hello from thread {}, Creating {} AuditHeaders", callerRef, maxRun);
             try {
                 while (count < maxRun) {

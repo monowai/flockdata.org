@@ -5,7 +5,6 @@ import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.bean.AuditResultBean;
 import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
-import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.FortressService;
@@ -86,9 +85,9 @@ public class TestCallerRef {
         Fortress fortress = fortressService.registerFortress("auditTest" + System.currentTimeMillis());
         // Duplicate null caller ref keys
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortress.getName(), "harry", "TestAudit", new DateTime(), null);
-        auditManagerService.createHeader(inputBean).getAuditKey();
+        auditManagerService.createHeader(inputBean, null).getAuditKey();
         inputBean = new AuditHeaderInputBean(fortress.getName(), "wally", "TestAudit", new DateTime(), null);
-        String ahKey = auditManagerService.createHeader(inputBean).getAuditKey();
+        String ahKey = auditManagerService.createHeader(inputBean, null).getAuditKey();
 
         assertNotNull(ahKey);
         AuditHeader auditHeader = auditService.getHeader(ahKey);
@@ -177,9 +176,6 @@ public class TestCallerRef {
             } catch (RuntimeException e) {
 
                 logger.error("Help!!", e);
-            } catch (AuditException e) {
-
-                logger.error("AE Help!!", e);
             } finally {
                 latch.countDown();
             }

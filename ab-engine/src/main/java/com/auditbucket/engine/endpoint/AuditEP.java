@@ -22,6 +22,7 @@ package com.auditbucket.engine.endpoint;
 import com.auditbucket.audit.bean.*;
 import com.auditbucket.audit.model.*;
 import com.auditbucket.engine.service.*;
+import com.auditbucket.helper.ApiKeyHelper;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
@@ -33,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
@@ -51,7 +51,6 @@ import java.util.concurrent.Future;
  */
 @Controller
 @RequestMapping("/audit")
-@MessageEndpoint
 public class AuditEP {
     @Autowired
     AuditService auditService;
@@ -95,13 +94,15 @@ public class AuditEP {
 
     @ResponseBody
     @RequestMapping(value = "/", consumes = "application/json", method = RequestMethod.PUT)
-    @Secured({"ROLE_USER"})
-    public void createHeaders(@RequestBody AuditHeaderInputBean[] inputBeans) throws AuditException {
-        createHeadersF(inputBeans, false);
+
+    public void createHeaders(@RequestBody AuditHeaderInputBean[] inputBeans,
+                              String apiKey,
+                              @RequestHeader(value = "Api-Key") String apiHeaderKey) throws AuditException {
+        createHeadersF(inputBeans, false, ApiKeyHelper.resolveKey(apiKey, apiHeaderKey));
     }
 
-    public Future<Integer> createHeadersF(AuditHeaderInputBean[] inputBeans, boolean waitForFinish) throws AuditException {
-        Company company = auditManager.resolveCompany(inputBeans[0].getApiKey());
+    public Future<Integer> createHeadersF(AuditHeaderInputBean[] inputBeans, boolean waitForFinish, String apiKey) throws AuditException {
+        Company company = auditManager.resolveCompany(apiKey);
         Fortress fortress = auditManager.resolveFortress(company, inputBeans[0], true);
         boolean async = true;
 
@@ -116,10 +117,7 @@ public class AuditEP {
             return batch;
 
         } else {
-
-            for (AuditHeaderInputBean inputBean : inputBeans) {
-                auditManager.createHeader(inputBean, company, fortress);
-            }
+            auditManager.createHeaders(inputBeans, company, fortress);
         }
         return null;
     }
@@ -133,11 +131,13 @@ public class AuditEP {
      */
     @ResponseBody
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
-    @Secured({"ROLE_USER"})
-    public ResponseEntity<AuditResultBean> createHeader(@RequestBody AuditHeaderInputBean input) throws AuditException {
+    public ResponseEntity<AuditResultBean> createHeader(@RequestBody AuditHeaderInputBean input,
+                                                        String apiKey,
+                                                        @RequestHeader(value = "Api-Key") String apiHeaderKey) throws AuditException {
         // curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab/audit/header/new/ -d '"fortress":"MyFortressName", "fortressUser": "yoursystemuser", "documentType":"CompanyNode","when":"2012-11-10"}'
+
         AuditResultBean auditResultBean;
-        auditResultBean = auditManager.createHeader(input);
+        auditResultBean = auditManager.createHeader(input, ApiKeyHelper.resolveKey(apiKey, apiHeaderKey));
         auditResultBean.setStatus("OK");
         return new ResponseEntity<>(auditResultBean, HttpStatus.OK);
 
@@ -145,11 +145,18 @@ public class AuditEP {
 
     @ResponseBody
     @RequestMapping(value = "/log/", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
-    @Secured({"ROLE_USER"})
-    public ResponseEntity<AuditLogResultBean> createLog(@RequestBody AuditLogInputBean input) throws AuditException {
-        // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/audit/log/ -d '{"eventType":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10", "what": "{\"name\": \"val\"}" }'
+    public ResponseEntity<AuditLogResultBean> createLog(@RequestBody AuditLogInputBean input, String apiRequestKey,
+                                                        @RequestHeader(value = "Api-Key") String apiHeaderKey) throws AuditException {
 
-        AuditLogResultBean resultBean = auditManager.createLog(input);
+        // If we have a valid company we are good to go.
+        Company company = auditManager.resolveCompany(ApiKeyHelper.resolveKey(apiRequestKey, apiHeaderKey));
+        if ( company == null )
+            throw new AuditException( "Unable to resolve supplied API key to a valid company");
+
+        AuditHeader header = auditService.getHeader(company, input.getAuditKey());
+        if (header == null )
+            throw new AuditException("Unable to find the request auditHeader "+input.getAuditKey());
+        AuditLogResultBean resultBean = auditManager.createLog(header, input);
         AuditLogInputBean.LogStatus ls = input.getAbStatus();
         if (ls.equals(AuditLogInputBean.LogStatus.FORBIDDEN))
             return new ResponseEntity<>(resultBean, HttpStatus.FORBIDDEN);
@@ -179,7 +186,7 @@ public class AuditEP {
         input.setDocumentType(recordType);
         input.setCallerRef(callerRef);
         input.setAuditKey(null);
-        auditResultBean = auditManager.createHeader(input);
+        auditResultBean = auditManager.createHeader(input, null);
         auditResultBean.setStatus("OK");
         return new ResponseEntity<>(auditResultBean, HttpStatus.OK);
 
@@ -188,7 +195,7 @@ public class AuditEP {
     @ResponseBody
     @RequestMapping(value = "/{fortress}/{recordType}/{callerRef}", method = RequestMethod.GET)
     @Secured({"ROLE_USER"})
-    public ResponseEntity<com.auditbucket.audit.model.AuditHeader> getByClientRef(@PathVariable("fortress") String fortress,
+    public ResponseEntity<AuditHeader> getByClientRef(@PathVariable("fortress") String fortress,
                                                                                   @PathVariable("recordType") String recordType,
                                                                                   @PathVariable("callerRef") String callerRef) {
         Fortress f = fortressService.findByName(fortress);
@@ -198,10 +205,17 @@ public class AuditEP {
 
     @ResponseBody
     @RequestMapping(value = "/{auditKey}", method = RequestMethod.GET)
-    @Secured({"ROLE_USER"})
-    public ResponseEntity<com.auditbucket.audit.model.AuditHeader> getAudit(@PathVariable("auditKey") String auditKey) {
+    public ResponseEntity<AuditHeader> getAudit(@PathVariable("auditKey") String auditKey, String apiRequestKey,
+                                                @RequestHeader(value = "Api-Key") String apiHeaderKey) throws AuditException {
+        // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/audit/log/ -d '{"eventType":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10", "what": "{\"name\": \"val\"}" }'
+        Company company = auditManager.resolveCompany(ApiKeyHelper.resolveKey(apiRequestKey, apiHeaderKey));
+        if ( company == null )
+            throw new AuditException( "Unable to resolve supplied API key to a valid company");
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
-        com.auditbucket.audit.model.AuditHeader result = auditService.getHeader(auditKey, true);
+        AuditHeader result = auditService.getHeader(company, auditKey, true);
+        if (result == null )
+            throw new AuditException("Unable to resolve requested audit key [" + auditKey + "]. Company is " +(company==null?"Invalid":"Valid"));
+
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
@@ -217,7 +231,7 @@ public class AuditEP {
     @ResponseBody
     @RequestMapping(value = "/{auditKey}/summary", produces = "application/json", method = RequestMethod.GET)
     @Secured({"ROLE_USER"})
-    public ResponseEntity<AuditSummaryBean> getAuditSummary(@PathVariable("auditKey") String auditKey) throws AuditException{
+    public ResponseEntity<AuditSummaryBean> getAuditSummary(@PathVariable("auditKey") String auditKey) throws AuditException {
         return new ResponseEntity<>(auditManager.getAuditSummary(auditKey), HttpStatus.OK);
 
     }
@@ -252,16 +266,17 @@ public class AuditEP {
         return new ResponseEntity<>((AuditWhat) null, HttpStatus.OK);
 
     }
+
     @ResponseBody
     @RequestMapping(value = "/{auditKey}/{logId}/delta/{withId}", produces = "application/json", method = RequestMethod.GET)
     @Secured({"ROLE_USER"})
     public ResponseEntity<AuditDeltaBean> getDelta(@PathVariable("auditKey") String auditKey, @PathVariable("logId") Long logId, @PathVariable("withId") Long withId) {
         AuditHeader header = auditService.getHeader(auditKey);
 
-        if ( header != null ){
+        if (header != null) {
             AuditLog left = auditService.getAuditLog(header, logId);
             AuditLog right = auditService.getAuditLog(header, withId);
-            if ( left!=null && right != null ){
+            if (left != null && right != null) {
                 AuditDeltaBean deltaBean = whatService.getDelta(header, left.getAuditChange(), right.getAuditChange());
 
                 if (deltaBean != null)

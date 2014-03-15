@@ -41,7 +41,6 @@ public class AuditHeaderInputBean {
     private Collection<TagInputBean> tags = new ArrayList<>();
 
     private String event;
-    private String apiKey;
     private String description;
     private boolean searchSuppressed;
     private boolean trackSuppressed = false;
@@ -176,21 +175,6 @@ public class AuditHeaderInputBean {
      */
     public void setEvent(String event) {
         this.event = event;
-    }
-
-    /**
-     * @return secret know only by the caller and AuditBucket
-     */
-    public String getApiKey() {
-        return apiKey;
-    }
-
-    /**
-     * Reserved for future use. Looking to set the Company API key as a secret
-     * @param apiKey company secret
-     */
-    public void setApiKey(String apiKey) {
-        this.apiKey = apiKey;
     }
 
     /**

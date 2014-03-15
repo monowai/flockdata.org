@@ -92,23 +92,23 @@ public class AuditTagDaoNeo implements AuditTagDao {
 
         Node headerNode = template.getPersistentState(auditHeader);
 
-        Node tagNode  ;
+        Node tagNode;
         try {
             tagNode = template.getNode(tag.getId());
         } catch (RuntimeException e) {
-            logger.error("Weird error looking for tag [{}] with ID [{}]",tag.getKey(), tag.getId());
+            logger.error("Weird error looking for tag [{}] with ID [{}]", tag.getKey(), tag.getId());
             throw (e);
         }
         //Primary exploration relationship
         Relationship r = template.getRelationshipBetween(tagNode, headerNode, relationshipName);
 
         if (r != null) {
-            return null;
+            return rel;
         }
         //DynamicRelationshipType rlx = DynamicRelationshipType.withName(relationshipName);
         template.createRelationshipBetween(tagNode, headerNode, relationshipName, propMap);
         logger.trace("Created Relationship Tag[{}] of type {}", tag, relationshipName);
-        return null;
+        return rel;
     }
 
     @Autowired
@@ -119,7 +119,7 @@ public class AuditTagDaoNeo implements AuditTagDao {
         Node auditNode = null;
         for (AuditTag tag : auditTags) {
             if (!tag.getAuditId().equals(auditHeader.getId()))
-                throw new AuditException("Tags to not belong to the required AuditHeader");
+                throw new AuditException("Tags do not belong to the required AuditHeader");
 
             if (auditNode == null) {
                 auditNode = template.getNode(tag.getAuditId());
@@ -127,8 +127,9 @@ public class AuditTagDaoNeo implements AuditTagDao {
 
             Relationship r = template.getRelationship(tag.getId());
             r.delete();
-            //tagDao.deleteCompanyRelationship(auditHeader.getFortress().getCompany(), tag.getTag());
-            template.getNode(tag.getTag().getId()).delete();
+            // ToDo - remove nodes that are not attached to other nodes.
+            if ( ! r.getOtherNode(auditNode).getRelationships().iterator().hasNext() )
+                template.getNode(tag.getTag().getId()).delete();
         }
     }
 
@@ -195,7 +196,7 @@ public class AuditTagDaoNeo implements AuditTagDao {
 
         Map<String, Object> params = new HashMap<>();
         params.put("auditId", auditHeader.getId());
-
+        //Map<Long, AuditTag> tagResults = new HashMap<>();
         Set<AuditTag> tagResults = new HashSet<>();
         for (Map<String, Object> row : template.query(query, params)) {
             Node n = (Node) row.get("tag");
@@ -211,20 +212,21 @@ public class AuditTagDaoNeo implements AuditTagDao {
                 Node state = (Node) row.get("state");
                 geoData.setCity((String) loc.getProperty("name"));
 
-                if ( country!=null && country.hasProperty("name")){
+                if (country != null && country.hasProperty("name")) {
                     geoData.setIsoCode((String) country.getProperty("code"));
                     geoData.setCountry((String) country.getProperty("name"));
                 }
-                if (state!=null && state.hasProperty("name"))
+                if (state != null && state.hasProperty("name"))
                     geoData.setState((String) state.getProperty("name"));
                 auditTag.setGeoData(geoData);
             }
             // Commenting out for DoubleCheck. Doesn't seem to serve any purpose in
             // search anyway
             auditTag.setWeight(null);
-
-            tagResults.add(auditTag);
+            tagResults.add(auditTag) ;
+            //tagResults.put(tag.getId(), auditTag);
         }
+        //return new HashSet<>(tagResults.values());
         return tagResults;
     }
 

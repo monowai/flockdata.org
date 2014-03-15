@@ -137,8 +137,6 @@ public class AuditHeaderNode implements AuditHeader {
 
     }
 
-
-    @JsonIgnore
     public Long getId() {
         return id;
     }
