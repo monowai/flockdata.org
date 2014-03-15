@@ -69,7 +69,7 @@ In the examples below, /ab-engine/ represents the application context with the e
 
 ###Register yourself with an account
 ```
-curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/v1/profiles/ -d '{"name":"mikey", "companyName":"Monowai","password":"whocares"}'
+curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/v1/profiles/ -d '{"name":"mike", "companyName":"Monowai","password":"whocares"}'
 ```
 ### See who you are
 ```
