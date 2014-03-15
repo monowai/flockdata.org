@@ -120,7 +120,6 @@ public class TestAudit {
     }
 
     @Test
-    @Transactional
     public void testApiKeysWorkInPrecedence() throws Exception {
         // No Security Access necessary.
         SecurityContextHolder.getContext().setAuthentication(null);
