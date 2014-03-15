@@ -81,14 +81,9 @@ public class AuditManagerService {
 
     public Company resolveCompany(String apiKey) throws AuditException {
         Company c;
-        if (apiKey == null) {
-            // Find by logged in user name
-            c = securityHelper.getCompany();
-        } else {
-            c = companyService.findByApiKey(apiKey);
-        }
+        c = securityHelper.getCompany(apiKey);
         if (c == null)
-            throw new AuditException("Unable to find the requested API Key");
+            throw new AuditException("Invalid API Key");
         return c;
     }
 
@@ -163,14 +158,14 @@ public class AuditManagerService {
         return processCount;
     }
 
-    public AuditResultBean createHeader(AuditHeaderInputBean inputBean) throws AuditException {
+    public AuditResultBean createHeader(AuditHeaderInputBean inputBean, String apiKey) throws AuditException {
         if (inputBean == null)
             throw new AuditException("No input to process");
         AuditLogInputBean logBean = inputBean.getAuditLog();
         if (logBean != null) // Error as soon as we can
             logBean.setWhat(logBean.getWhat());
 
-        Company company = resolveCompany(inputBean.getApiKey());
+        Company company = resolveCompany(apiKey);
         Fortress fortress = resolveFortress(company, inputBean);
         fortress.setCompany(company);
         return createHeader(inputBean, company, fortress);
@@ -221,7 +216,7 @@ public class AuditManagerService {
             logBean.setFortressUser(inputBean.getFortressUser());
             logBean.setCallerRef(resultBean.getCallerRef());
 
-            AuditLogResultBean logResult = createLog(inputBean.getAuditLog());
+            AuditLogResultBean logResult = createLog(company, inputBean.getAuditLog());
             logResult.setAuditKey(null);// Don't duplicate the text as it's in the header
             logResult.setFortressUser(null);
             resultBean.setLogResult(logResult);
@@ -238,12 +233,17 @@ public class AuditManagerService {
         return resultBean;
 
     }
-
-    public AuditLogResultBean createLog(AuditLogInputBean auditLogInputBean) throws AuditException {
-        return createLog(null, auditLogInputBean);
+    public AuditLogResultBean createLog(AuditLogInputBean input) {
+        AuditHeader header = auditService.getHeader(null, input.getAuditKey());
+        return createLog(header, input);
     }
 
-    AuditLogResultBean createLog(AuditHeader header, AuditLogInputBean auditLogInputBean) throws AuditException {
+    public AuditLogResultBean createLog(Company company, AuditLogInputBean input) {
+        AuditHeader header = auditService.getHeader(company, input.getAuditKey());
+        return createLog(header, input);
+    }
+
+    public AuditLogResultBean createLog(AuditHeader header, AuditLogInputBean auditLogInputBean) throws AuditException {
         auditLogInputBean.setWhat(auditLogInputBean.getWhat());
         AuditLogResultBean resultBean = auditService.createLog(header, auditLogInputBean);
         if (resultBean != null && resultBean.getStatus() == AuditLogInputBean.LogStatus.OK)
@@ -317,6 +317,7 @@ public class AuditManagerService {
         AuditSummaryBean summary = auditService.getAuditSummary(auditKey);
         return summary;
     }
+
 
 
 }

@@ -137,18 +137,7 @@ public class FortressService {
     }
 
     public Fortress registerFortress(FortressInputBean fib) {
-        Company company = getCompany();
-
-        Fortress fortress = companyService.getFortress(company, fib.getName());
-
-        if (fortress != null) {
-            // Already associated, get out of here
-            return fortress;
-        }
-
-        fortress = save(company, fib);
-        fortress.setCompany(company);
-        return fortress;
+       return registerFortress(fib, getCompany());
 
     }
 
@@ -200,4 +189,16 @@ public class FortressService {
         //searchGateway.delete(indexName);
     }
 
+    public Fortress registerFortress(FortressInputBean fib, Company company) {
+        Fortress fortress = companyService.getFortress(company, fib.getName());
+
+        if (fortress != null) {
+            // Already associated, get out of here
+            return fortress;
+        }
+
+        fortress = save(company, fib);
+        fortress.setCompany(company);
+        return fortress;
+    }
 }

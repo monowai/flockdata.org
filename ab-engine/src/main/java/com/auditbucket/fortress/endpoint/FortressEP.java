@@ -23,6 +23,7 @@ import com.auditbucket.helper.AuditException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.FortressResultBean;
+import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.service.CompanyService;
@@ -62,11 +63,11 @@ public class FortressEP {
 
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<FortressResultBean> addFortresses(@RequestBody FortressInputBean fortressInputBean) {
-        Fortress fortress = fortressService.registerFortress(fortressInputBean);
-
+    public ResponseEntity<Fortress> registerFortress(@RequestBody FortressInputBean fortressInputBean, String apiKey) {
+        Company company = securityHelper.getCompany(apiKey);
+        Fortress fortress = fortressService.registerFortress(fortressInputBean, company);
         fortressInputBean.setFortressKey(fortress.getFortressKey());
-        return new ResponseEntity<>(new FortressResultBean(fortress), HttpStatus.CREATED);
+        return new ResponseEntity<>(fortress, HttpStatus.CREATED);
 
     }
 

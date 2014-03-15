@@ -120,7 +120,7 @@ public class TestDelta {
         AuditHeaderInputBean header = new AuditHeaderInputBean("DELTAForce", "auditTestz", "Delta", new DateTime(), "abdelta");
         AuditLogInputBean log = new AuditLogInputBean("Mike", new DateTime(), jsonA);
         header.setAuditLog(log);
-        AuditResultBean result = auditManagerService.createHeader(header);
+        AuditResultBean result = auditManagerService.createHeader(header, null);
         AuditLog first = auditService.getLastAuditLog(result.getAuditHeader());
         Assert.assertNotNull(first);
         log = new AuditLogInputBean(result.getAuditKey(), "Mike", new DateTime(), jsonB);

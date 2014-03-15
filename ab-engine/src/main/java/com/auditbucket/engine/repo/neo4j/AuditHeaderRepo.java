@@ -40,7 +40,7 @@ public interface AuditHeaderRepo extends GraphRepository<AuditHeaderNode> {
     AuditHeaderNode findByCallerRef(String callerKeyRef);
 
     @Query(elementClass = AuditHeaderNode.class, value =
-            "start audit=node:auditKey(auditKey = {0} ) " +
+            "match (audit:AuditHeader) where audit.auditKey = {0}  " +
                     " return audit")
     AuditHeaderNode findByUID(String uid);
 

@@ -21,6 +21,7 @@ package com.auditbucket.helper;
 
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.SystemUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -37,6 +38,9 @@ import org.springframework.stereotype.Service;
 public class SecurityHelper {
     @Autowired
     private SystemUserService sysUserService;
+
+    @Autowired
+    private CompanyService companyService;
 
     public String isValidUser() {
         return getUserName(true, true);
@@ -88,5 +92,12 @@ public class SecurityHelper {
             throw new SecurityException("Not authorised");
 
         return su.getCompany();
+    }
+
+    public Company getCompany(String apiKey) {
+        if (apiKey == null)
+            return getCompany();
+        else
+            return companyService.findByApiKey(apiKey);
     }
 }

@@ -84,7 +84,7 @@ public class AuditDaoNeo implements AuditDao {
         return template.save((TxRefNode) tagRef);
     }
 
-    @Cacheable(value = "auditKey")
+    @Cacheable(value = "auditKey", unless = "#result==null")
     private AuditHeader getCachedHeader(String key) {
         return auditRepo.findByUID(key);
     }

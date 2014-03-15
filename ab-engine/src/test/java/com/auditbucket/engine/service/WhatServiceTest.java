@@ -7,7 +7,6 @@ import com.auditbucket.audit.model.AuditLog;
 import com.auditbucket.audit.model.AuditWhat;
 import com.auditbucket.dao.AuditDao;
 import com.auditbucket.engine.repo.redis.RedisRepo;
-import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
@@ -34,7 +33,6 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
@@ -78,7 +76,7 @@ public class WhatServiceTest extends AbstractRedisSupport {
         engineConfig.setKvStore("REDIS");
     }
 
-    private void testKVStore() throws Exception{
+    private void testKVStore() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(authA);
         regService.registerSystemUser(new RegistrationBean("Company", email, "bah"));
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("Audit Test", true));
@@ -86,12 +84,12 @@ public class WhatServiceTest extends AbstractRedisSupport {
         String callerRef = "ABC123R";
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
 
-        String ahKey = auditManager.createHeader(inputBean).getAuditKey();
+        String ahKey = auditManager.createHeader(inputBean, null).getAuditKey();
         assertNotNull(ahKey);
         AuditHeader header = auditService.getHeader(ahKey);
         Map<String, Object> what = getWhatMap();
         String whatString = getJsonFromObject(what);
-        auditManager.createLog(header, new AuditLogInputBean(ahKey, "wally", new DateTime(), whatString));
+        auditManager.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), whatString));
         AuditLog auditLog = auditDAO.getLastAuditLog(header.getId());
         assertNotNull(auditLog);
 
@@ -116,22 +114,40 @@ public class WhatServiceTest extends AbstractRedisSupport {
         assertEquals(what.get("bval"), auditWhat.getWhatMap().get("bval"));
     }
 
-    private String getJsonFromObject(Map<String, Object> what) throws JsonProcessingException {
+
+    public static String getRandomJson() throws JsonProcessingException {
+        return getRandomJson(null);
+    }
+
+    public static String getRandomJson(String s) throws JsonProcessingException {
+        return getJsonFromObject(getWhatMap(s));
+    }
+
+    private static Map<String, Object> getWhatMap(String s) {
+        Map<String, Object> o = getWhatMap();
+        if (s == null)
+            return o;
+
+        o.put("random", s);
+        return o;
+    }
+
+    public static String getJsonFromObject(Map<String, Object> what) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(what);
     }
 
-    private Map<String, Object> getWhatMap() {
-        Map<String,Object> what = new HashMap<>();
+    public static Map<String, Object> getWhatMap() {
+        Map<String, Object> what = new HashMap<>();
         what.put("lval", 123456789012345l);
         what.put("dval", 1234012345.990012d);
         // Duplicated to force compression
-        what.put ("sval", "Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party");
-        what.put ("sval2", "Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party");
-        what.put ("sval3", "Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party");
-        what.put ("sval4", "Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party");
-        what.put ("ival", 12345);
-        what.put ("bval", Boolean.TRUE);
+        what.put("sval", "Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party");
+        what.put("sval2", "Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party");
+        what.put("sval3", "Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party");
+        what.put("sval4", "Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party");
+        what.put("ival", 12345);
+        what.put("bval", Boolean.TRUE);
         return what;
     }
 
