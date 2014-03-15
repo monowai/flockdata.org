@@ -568,10 +568,7 @@
         <repository>
             <id>neo4j-snapshots</id>
             <name>Neo4j Snapshots</name>
-            <url>http://m2.neo4j.org</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
+            <url>http://m2.neo4j.org/content/repositories/releases/</url>
         </repository>
         <repository>
             <id>spring-milestones</id>
