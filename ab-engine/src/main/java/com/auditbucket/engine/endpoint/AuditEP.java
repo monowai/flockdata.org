@@ -97,7 +97,7 @@ public class AuditEP {
 
     public void createHeaders(@RequestBody AuditHeaderInputBean[] inputBeans,
                               String apiKey,
-                              @RequestHeader(value = "Api-Key") String apiHeaderKey) throws AuditException {
+                              @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws AuditException {
         createHeadersF(inputBeans, false, ApiKeyHelper.resolveKey(apiKey, apiHeaderKey));
     }
 
@@ -133,7 +133,7 @@ public class AuditEP {
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
     public ResponseEntity<AuditResultBean> createHeader(@RequestBody AuditHeaderInputBean input,
                                                         String apiKey,
-                                                        @RequestHeader(value = "Api-Key") String apiHeaderKey) throws AuditException {
+                                                        @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws AuditException {
         // curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab/audit/header/new/ -d '"fortress":"MyFortressName", "fortressUser": "yoursystemuser", "documentType":"CompanyNode","when":"2012-11-10"}'
 
         AuditResultBean auditResultBean;
@@ -146,7 +146,7 @@ public class AuditEP {
     @ResponseBody
     @RequestMapping(value = "/log/", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
     public ResponseEntity<AuditLogResultBean> createLog(@RequestBody AuditLogInputBean input, String apiRequestKey,
-                                                        @RequestHeader(value = "Api-Key") String apiHeaderKey) throws AuditException {
+                                                        @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws AuditException {
 
         // If we have a valid company we are good to go.
         Company company = auditManager.resolveCompany(ApiKeyHelper.resolveKey(apiRequestKey, apiHeaderKey));
@@ -206,7 +206,7 @@ public class AuditEP {
     @ResponseBody
     @RequestMapping(value = "/{auditKey}", method = RequestMethod.GET)
     public ResponseEntity<AuditHeader> getAudit(@PathVariable("auditKey") String auditKey, String apiRequestKey,
-                                                @RequestHeader(value = "Api-Key") String apiHeaderKey) throws AuditException {
+                                                @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws AuditException {
         // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/audit/log/ -d '{"eventType":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10", "what": "{\"name\": \"val\"}" }'
         Company company = auditManager.resolveCompany(ApiKeyHelper.resolveKey(apiRequestKey, apiHeaderKey));
         if ( company == null )

@@ -220,7 +220,7 @@ public class AuditService {
      * @param input log details
      * @return populated log information with any error messages
      */
-    AuditLogResultBean createLog(AuditHeader header, AuditLogInputBean input) {
+    public AuditLogResultBean createLog(AuditHeader header, AuditLogInputBean input) {
         AuditLogResultBean resultBean = new AuditLogResultBean(input);
 
         if (header == null) {
