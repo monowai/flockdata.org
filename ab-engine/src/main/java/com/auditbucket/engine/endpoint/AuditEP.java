@@ -173,7 +173,6 @@ public class AuditEP {
 
     @ResponseBody
     @RequestMapping(value = "/{fortress}/{recordType}/{callerRef}", method = RequestMethod.PUT)
-    @Async
     @Secured({"ROLE_USER"})
     public ResponseEntity<AuditResultBean> putByClientRef(@RequestBody AuditHeaderInputBean input,
                                                           @PathVariable("fortress") String fortress,
