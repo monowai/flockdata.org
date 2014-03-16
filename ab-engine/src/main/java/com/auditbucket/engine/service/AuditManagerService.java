@@ -25,7 +25,6 @@ import com.auditbucket.helper.AuditException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.helper.TagException;
 import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;
@@ -45,7 +44,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.Set;
 import java.util.concurrent.Future;
 
 /**
@@ -103,28 +102,6 @@ public class AuditManagerService {
         }
 
         return fortress;
-    }
-
-    public void createTagStructure(AuditHeaderInputBean[] inputBeans, Company company) {
-        // ToDo: Test that this works!!
-        Map<String, Object> tagProcessed = new HashMap<>(); // Map to track tags we've created
-        for (AuditHeaderInputBean inputBean : inputBeans) {
-            if (inputBean.getTags() != null)
-                auditTagService.createTagStructure(inputBean.getTags(), company);
-
-            Collection<TagInputBean> auditTags = inputBean.getTags();
-            Collection<TagInputBean> tagSet = new ArrayList<>();
-            for (TagInputBean tag : auditTags) {
-                // Associated with an audit header?
-                if (tagProcessed.get(tag.getName()) == null ) {
-                    //logger.info(tag);
-                    tagSet.add(tag); // Create Me!
-                    tagProcessed.put(tag.getName(), true); // suppress duplicates
-                }
-            }
-            if (!tagSet.isEmpty()) // Anything new to add?
-                tagService.processTags(tagSet, company);
-        }
     }
 
     static DecimalFormat f = new DecimalFormat();
@@ -257,7 +234,6 @@ public class AuditManagerService {
      * Rebuilds all search documents for the supplied fortress
      *
      * @param fortressName name of the fortress to rebuild
-     * @return number of documents processed
      * @throws AuditException
      */
     public void reindex(String fortressName) throws AuditException {
@@ -313,11 +289,11 @@ public class AuditManagerService {
         return skipCount;
     }
 
-    public AuditSummaryBean getAuditSummary(String auditKey) throws AuditException {
-        AuditSummaryBean summary = auditService.getAuditSummary(auditKey);
+    public AuditSummaryBean getAuditSummary(String auditKey) {
+        return getAuditSummary(auditKey, null);
+    }
+    public AuditSummaryBean getAuditSummary(String auditKey, Company company) {
+        AuditSummaryBean summary = auditService.getAuditSummary(auditKey, company);
         return summary;
     }
-
-
-
 }

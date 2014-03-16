@@ -22,14 +22,15 @@ package com.auditbucket.test.functional;
 import com.auditbucket.audit.bean.*;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditLog;
+import com.auditbucket.engine.endpoint.AuditEP;
 import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.engine.service.WhatService;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.search.model.AuditSearchSchema;
@@ -85,6 +86,9 @@ public class TestAuditIntegration {
     private static JestClient client;
     @Autowired
     AuditService auditService;
+    @Autowired
+    AuditEP auditEP;
+
     @Autowired
     RegistrationService regService;
     @Autowired
@@ -158,6 +162,28 @@ public class TestAuditIntegration {
         auditManager.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + 1 + "}"));
         Thread.sleep(2000);
         doEsQuery(header.getIndexName(), header.getAuditKey());
+    }
+
+    @Test
+    public void headerWithTagsProcess() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        String company = "Monowai";
+        String apiKey = regService.registerSystemUser(new RegistrationBean(company, email, "bah")).getCompany().getApiKey();
+        Fortress fo = fortressService.registerFortress(new FortressInputBean("headerWithTagsProcess", false));
+        DateTime now = new DateTime();
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", now, "ZZZ123");
+        inputBean.setTag(new TagInputBean("testTagNameZZ", "someAuditRLX"));
+        inputBean.setEvent("TagTest");
+        AuditResultBean auditResult;
+        auditResult = auditEP.createHeader(inputBean, apiKey, apiKey).getBody();
+        Thread.sleep(4000);
+        AuditSummaryBean summary = auditEP.getAuditSummary(auditResult.getAuditKey(), apiKey, apiKey).getBody();
+        assertNotNull(summary);
+        // Check we can find the Event in ElasticSearch
+        doEsQuery(summary.getHeader().getIndexName(), inputBean.getEvent(), 1);
+        // Can we find the Tag
+        doEsQuery(summary.getHeader().getIndexName(), "testTagNameZZ", 1);
+
     }
 
     @Test
@@ -254,12 +280,10 @@ public class TestAuditIntegration {
 
     @Test
     public void auditsByPassGraphByCallerRef() throws Exception {
-        int max = 3;
-        String ahKey;
         logger.info("auditsByPassGraphByCallerRef started");
         SecurityContextHolder.getContext().setAuthentication(authA);
         String company = "Monowai";
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
+        regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("TrackGraph", false));
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortress.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
@@ -267,7 +291,6 @@ public class TestAuditIntegration {
         auditManager.createHeader(inputBean, null);
 
         String indexName = AuditSearchSchema.parseIndex(fortress);
-        ;
 
         // Putting asserts On elasticsearch
         Thread.sleep(2000); // Let the messaging take effect
@@ -496,7 +519,7 @@ public class TestAuditIntegration {
             Thread.sleep(400);
             i++;
         }
-        if (i > 4)
+        if (i > 10)
             logger.info("Wait for search got to " + i);
         boolean searchWorking = auditHeader.getSearchKey() != null;
         assertTrue("Search reply not received from ab-search", searchWorking);

@@ -34,9 +34,10 @@ import com.auditbucket.engine.endpoint.AuditEP;
 import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.engine.service.AuditTagService;
+import com.auditbucket.helper.AuditException;
+import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
-import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.model.Tag;
@@ -62,9 +63,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.fail;
@@ -129,8 +128,6 @@ public class TestAuditTags {
         Fortress fortress = fortressService.registerFortress("ABC");
         assertNotNull(fortress);
 
-        Company iCompany = iSystemUser.getCompany();
-
         TagInputBean flopTag = new TagInputBean("FLOP");
 
         tagService.processTag(flopTag);
@@ -163,10 +160,9 @@ public class TestAuditTags {
     @Test
     public void renameRelationship() throws Exception {
 
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         fortressService.registerFortress("ABC");
 
-        Company iCompany = iSystemUser.getCompany();
         TagInputBean tagInput = new TagInputBean("FLOP");
 
         tagService.processTag(tagInput);
@@ -198,7 +194,7 @@ public class TestAuditTags {
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         fortressService.registerFortress("ABC");
 
-        Company iCompany = iSystemUser.getCompany();
+        iSystemUser.getCompany();
         TagInputBean tagInput = new TagInputBean("FLOP");
 
         tagService.processTag(tagInput);
@@ -252,7 +248,7 @@ public class TestAuditTags {
 
         auditService.updateHeader(auditHeader);
         auditHeader = auditService.getHeader(auditHeader.getAuditKey());
-        AuditSummaryBean summaryBean = auditService.getAuditSummary(auditHeader.getAuditKey());
+        AuditSummaryBean summaryBean = auditService.getAuditSummary(auditHeader.getAuditKey(), null);
         tagSet = summaryBean.getTags();
         assertNotNull(tagSet);
         Set<AuditHeader> headers = auditTagService.findTagAudits("TagA");
@@ -270,10 +266,9 @@ public class TestAuditTags {
 
     @Test
     public void duplicateTagNotCreated() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         fortressService.registerFortress("ABC");
 
-        Company iCompany = iSystemUser.getCompany();
         TagInputBean tagInput = new TagInputBean("FLOP");
 
         tagService.processTag(tagInput);
@@ -296,11 +291,62 @@ public class TestAuditTags {
     }
 
     @Test
+    public void noTrackTagsAreReturned() throws Exception {
+        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        fortressService.registerFortress(new FortressInputBean("ABC"));
+
+        TagInputBean tagInput = new TagInputBean("FLOP");
+
+        tagService.processTag(tagInput);
+        //assertNotNull(result);
+        AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
+        aib.setTrackSuppressed(true);
+        // This should create the same Tag object
+        aib.setTag(new TagInputBean("TagA", "camel"));
+        aib.setTag(new TagInputBean("taga", "lower"));
+        aib.setTag(new TagInputBean("tAgA", "mixed"));
+        AuditResultBean resultBean = auditManager.createHeader(aib, null);
+        assertEquals(1, resultBean.getTags().size());
+        assertNull(resultBean.getAuditKey());
+
+    }
+
+    @Test
+    public void createLogForInvalidHeader() throws Exception{
+        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        fortressService.registerFortress(new FortressInputBean("ABC"));
+
+        AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
+        // This should create the same Tag object
+        auditEp.createHeader(aib, null, null).getBody();
+        AuditLogInputBean alib = new AuditLogInputBean("InvalidKey", "Harry", new DateTime(),"{\"xx\":1}");
+        try {
+            auditEp.createLog(alib, null, null );
+            fail("Invalid audit header. This should not have worked");
+        } catch (AuditException e ){
+            // Good stuff
+        }
+
+    }
+    @Test
+    public void createLogForValidHeaderWithNoWhatDetail() throws Exception{
+        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        fortressService.registerFortress(new FortressInputBean("ABC"));
+
+        AuditHeaderInputBean aib = new AuditHeaderInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
+        // This should create the same Tag object
+        AuditResultBean rb = auditEp.createHeader(aib, null, null).getBody();
+        AuditLogInputBean alib = new AuditLogInputBean(rb.getAuditKey(), "Harry", new DateTime(),null);
+        AuditLogResultBean alb = auditEp.createLog(alib, null, null ).getBody();
+
+
+    }
+
+    @Test
     public void differentTagTypeSameTagName() throws Exception {
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         fortressService.registerFortress("ABC");
 
-        Company iCompany = iSystemUser.getCompany();
         TagInputBean tagInput = new TagInputBean("FLOP");
 
         tagService.processTag(tagInput);
@@ -319,7 +365,8 @@ public class TestAuditTags {
         assertNotNull(tagSet);
         assertEquals(3, tagSet.size());
 
-        AuditSummaryBean summaryBean = auditManager.getAuditSummary(auditHeader.getAuditKey());
+        String apiKey = iSystemUser.getCompany().getApiKey();
+        AuditSummaryBean summaryBean = auditEp.getAuditSummary(auditHeader.getAuditKey(),apiKey, apiKey ).getBody();
         assertNotNull(summaryBean);
         assertEquals(3, summaryBean.getTags().size());
 
@@ -362,7 +409,7 @@ public class TestAuditTags {
         AuditHeader header = auditService.getHeader(resultBean.getAuditKey());
         Set<AuditTag> tagResults = auditTagService.findAuditTags(header);
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
-        AuditSummaryBean summaryBean = auditService.getAuditSummary(header.getAuditKey());
+        AuditSummaryBean summaryBean = auditService.getAuditSummary(header.getAuditKey(), null);
         assertEquals(3, summaryBean.getTags().size());
     }
 
@@ -384,7 +431,7 @@ public class TestAuditTags {
         AuditResultBean resultBean = auditManager.createHeader(inputBean, null);
         AuditHeader header = auditService.getHeader(resultBean.getAuditKey());
         Set<AuditTag> tagResults = auditTagService.findAuditTags(header);
-        AuditSummaryBean summaryBean = auditService.getAuditSummary(header.getAuditKey());
+        AuditSummaryBean summaryBean = auditService.getAuditSummary(header.getAuditKey(), null);
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
         assertEquals(3, summaryBean.getTags().size());
     }
@@ -412,7 +459,7 @@ public class TestAuditTags {
         AuditResultBean resultBean = auditManager.createHeader(inputBean, null);
         AuditHeader header = auditService.getHeader(resultBean.getAuditKey());
         Set<AuditTag> tagResults = auditTagService.findAuditTags(header);
-        AuditSummaryBean summaryBean = auditService.getAuditSummary(header.getAuditKey());
+        AuditSummaryBean summaryBean = auditService.getAuditSummary(header.getAuditKey(), null);
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
         assertEquals(3, summaryBean.getTags().size());
     }
@@ -461,7 +508,7 @@ public class TestAuditTags {
         AuditHeader header = auditService.getHeader(resultBean.getAuditKey());
         Set<AuditTag> tagResults = auditTagService.findAuditTags(header);
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
-        AuditSummaryBean summaryBean = auditService.getAuditSummary(header.getAuditKey());
+        AuditSummaryBean summaryBean = auditService.getAuditSummary(header.getAuditKey(), null);
         assertEquals(3, summaryBean.getTags().size());
     }
 

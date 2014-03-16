@@ -184,6 +184,9 @@ public class AuditTagDaoNeo implements AuditTagDao {
 
     @Override
     public Set<AuditTag> getAuditTags(AuditHeader auditHeader, Company company) {
+        Set<AuditTag> tagResults = new HashSet<>();
+        if ( null == auditHeader.getId())
+            return tagResults;
         String query = "match (audit:AuditHeader)<-[tagType]-(tag:Tag" + engineAdmin.getTagSuffix(company) + ") " +
                 "where id(audit)={auditId} \n" +
                 "optional match tag-[:located]-(located)-[*0..2]-(country:Country) \n" +
@@ -197,7 +200,7 @@ public class AuditTagDaoNeo implements AuditTagDao {
         Map<String, Object> params = new HashMap<>();
         params.put("auditId", auditHeader.getId());
         //Map<Long, AuditTag> tagResults = new HashMap<>();
-        Set<AuditTag> tagResults = new HashSet<>();
+
         for (Map<String, Object> row : template.query(query, params)) {
             Node n = (Node) row.get("tag");
             TagNode tag = new TagNode(n);

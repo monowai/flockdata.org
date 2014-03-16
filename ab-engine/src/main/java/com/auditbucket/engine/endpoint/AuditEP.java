@@ -149,15 +149,13 @@ public class AuditEP {
                                                         @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws AuditException {
 
         // If we have a valid company we are good to go.
-        Company company = auditManager.resolveCompany(ApiKeyHelper.resolveKey(apiRequestKey, apiHeaderKey));
-        if ( company == null )
-            throw new AuditException( "Unable to resolve supplied API key to a valid company");
+        Company company = getCompany(apiRequestKey, apiHeaderKey);
 
         AuditHeader header = auditService.getHeader(company, input.getAuditKey());
         if (header == null )
             throw new AuditException("Unable to find the request auditHeader "+input.getAuditKey());
         AuditLogResultBean resultBean = auditManager.createLog(header, input);
-        AuditLogInputBean.LogStatus ls = input.getAbStatus();
+        AuditLogInputBean.LogStatus ls = resultBean.getStatus();
         if (ls.equals(AuditLogInputBean.LogStatus.FORBIDDEN))
             return new ResponseEntity<>(resultBean, HttpStatus.FORBIDDEN);
         else if (ls.equals(AuditLogInputBean.LogStatus.NOT_FOUND)) {
@@ -208,15 +206,20 @@ public class AuditEP {
     public ResponseEntity<AuditHeader> getAudit(@PathVariable("auditKey") String auditKey, String apiRequestKey,
                                                 @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws AuditException {
         // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/audit/log/ -d '{"eventType":"change","auditKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10", "what": "{\"name\": \"val\"}" }'
-        Company company = auditManager.resolveCompany(ApiKeyHelper.resolveKey(apiRequestKey, apiHeaderKey));
-        if ( company == null )
-            throw new AuditException( "Unable to resolve supplied API key to a valid company");
+        Company company = getCompany(apiRequestKey, apiHeaderKey);
         // curl -u mike:123 -X GET http://localhost:8080/ab/audit/{audit-key}
         AuditHeader result = auditService.getHeader(company, auditKey, true);
         if (result == null )
             throw new AuditException("Unable to resolve requested audit key [" + auditKey + "]. Company is " +(company==null?"Invalid":"Valid"));
 
         return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    private Company getCompany(String apiRequestKey, String apiHeaderKey) {
+        Company company = auditManager.resolveCompany(ApiKeyHelper.resolveKey(apiRequestKey, apiHeaderKey));
+        if ( company == null )
+            throw new AuditException( "Unable to resolve supplied API key to a valid company");
+        return company;
     }
 
     @ResponseBody
@@ -230,9 +233,10 @@ public class AuditEP {
 
     @ResponseBody
     @RequestMapping(value = "/{auditKey}/summary", produces = "application/json", method = RequestMethod.GET)
-    @Secured({"ROLE_USER"})
-    public ResponseEntity<AuditSummaryBean> getAuditSummary(@PathVariable("auditKey") String auditKey) throws AuditException {
-        return new ResponseEntity<>(auditManager.getAuditSummary(auditKey), HttpStatus.OK);
+    public ResponseEntity<AuditSummaryBean> getAuditSummary(@PathVariable("auditKey") String auditKey, String apiRequestKey,
+                                                            @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws AuditException {
+        Company company = getCompany(apiRequestKey, apiHeaderKey);
+        return new ResponseEntity<>(auditManager.getAuditSummary(auditKey, company), HttpStatus.OK);
 
     }
 

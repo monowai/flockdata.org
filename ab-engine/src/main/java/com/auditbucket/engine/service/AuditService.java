@@ -733,8 +733,8 @@ public class AuditService {
         return auditDAO.getAuditLogs(headerId);
     }
 
-    public AuditSummaryBean getAuditSummary(String auditKey) throws AuditException {
-        AuditHeader header = getHeader(null, auditKey, true);
+    public AuditSummaryBean getAuditSummary(String auditKey, Company company) throws AuditException {
+        AuditHeader header = getHeader(company, auditKey, true);
         if (header == null)
             throw new AuditException("Invalid Audit Key [" + auditKey + "]");
         Set<AuditLog> changes = getAuditLogs(header.getId());

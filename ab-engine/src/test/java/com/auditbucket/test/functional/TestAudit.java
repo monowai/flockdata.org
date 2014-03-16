@@ -692,7 +692,7 @@ public class TestAudit {
         auditManagerService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", firstDate, what + 1 + "\"}"));
         auditManagerService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}"));
 
-        AuditSummaryBean auditSummary = auditService.getAuditSummary(ahWP);
+        AuditSummaryBean auditSummary = auditService.getAuditSummary(ahWP, null);
         assertNotNull(auditSummary);
         assertEquals(ahWP, auditSummary.getHeader().getAuditKey());
         assertNotNull(auditSummary.getHeader().getLastUser());
