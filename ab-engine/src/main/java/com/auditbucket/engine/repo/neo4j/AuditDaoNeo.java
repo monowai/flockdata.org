@@ -108,7 +108,7 @@ public class AuditDaoNeo implements AuditDao {
         return auditRepo.findBySchemaPropertyValue("callerKeyRef", keyToFind);
     }
 
-    @Cacheable(value = "auditHeaderId", key = "p0.id")
+    @Cacheable(value = "auditHeaderId", key = "p0.id", unless = "#result==null")
     public AuditHeader fetch(AuditHeader header) {
         template.fetch(header.getCreatedBy());
         template.fetch(header.getLastUser());
@@ -209,7 +209,7 @@ public class AuditDaoNeo implements AuditDao {
             i++;
 
         }
-        Map<String, Object> result = new HashMap<String, Object>(i);
+        Map<String, Object> result = new HashMap<>(i);
         result.put("txRef", txRef.getName());
         result.put("logs", simpleResult);
 
