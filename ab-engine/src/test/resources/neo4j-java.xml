@@ -30,6 +30,7 @@ http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springfr
 
     <bean id="graphDbFactory" class="org.neo4j.graphdb.factory.GraphDatabaseFactory"/>
 
+
     <bean id="graphDbBuilder" factory-bean="graphDbFactory" factory-method="newEmbeddedDatabaseBuilder">
         <constructor-arg value="${neo4j.datastore}"/>
     </bean>

@@ -49,7 +49,7 @@ public class DocumentTypeNode implements DocumentType {
 
     private String code;
 
-    @Indexed(indexName = "companyDocKey", unique = true)
+    @Indexed(unique = true)
     private String companyKey;
 
     protected DocumentTypeNode() {

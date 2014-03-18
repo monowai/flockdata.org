@@ -272,7 +272,7 @@ public class AuditService {
         // https://github.com/monowai/auditbucket/issues/7
         AuditLog existingLog = null;
         if (authorisedHeader.getLastUpdated() != authorisedHeader.getWhenCreated()) // Will there even be a change to find
-            existingLog = getLastAuditLog(authorisedHeader);//(auditHeader.getLastChange() != null ? auditHeader.getLastChange() : null);
+            existingLog = getLastAuditLog(authorisedHeader);
 
         Boolean searchActive = fortress.isSearchActive();
         DateTime fortressWhen = (input.getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(input.getWhen()));
@@ -524,13 +524,11 @@ public class AuditService {
     }
 
     public Set<AuditLog> getAuditLogs(String headerKey) throws AuditException {
-        securityHelper.isValidUser();
         AuditHeader auditHeader = getValidHeader(headerKey);
         return auditDAO.getAuditLogs(auditHeader.getId());
     }
 
     public Set<AuditLog> getAuditLogs(String headerKey, Date from, Date to) throws AuditException {
-        securityHelper.isValidUser();
         AuditHeader auditHeader = getValidHeader(headerKey);
         return getAuditLogs(auditHeader, from, to);
     }

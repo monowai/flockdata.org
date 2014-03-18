@@ -41,7 +41,7 @@ public class AuditEventNode implements AuditEvent {
     @GraphId
     private Long id;
 
-    @Indexed(indexName = "eventCode")
+    @Indexed
     private String code;
     private String name;
 

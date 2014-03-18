@@ -23,16 +23,15 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.CompanyUser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.Label;
 import org.springframework.data.annotation.TypeAlias;
-import org.springframework.data.neo4j.annotation.GraphId;
-import org.springframework.data.neo4j.annotation.Indexed;
-import org.springframework.data.neo4j.annotation.NodeEntity;
-import org.springframework.data.neo4j.annotation.RelatedTo;
+import org.springframework.data.neo4j.annotation.*;
+import org.springframework.data.neo4j.support.index.IndexType;
 
 import java.util.Set;
 
 @NodeEntity
-@TypeAlias("ABCompany")
+@TypeAlias(value ="ABCompany")
 public class CompanyNode implements Company {
     @GraphId
     Long id;
@@ -43,8 +42,7 @@ public class CompanyNode implements Company {
     @Indexed(unique = true)
     private String code;
 
-
-    @Indexed(indexName = "apiKey")
+    @Indexed
     String apiKey;
 
     @RelatedTo(elementClass = CompanyUserNode.class, type = "WORKS", direction = Direction.INCOMING)

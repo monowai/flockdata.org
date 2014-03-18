@@ -48,13 +48,14 @@ public class AuditLogRelationship implements AuditLog {
     @Fetch
     private AuditChangeNode auditChange;
 
-    @Indexed(indexName = "sysWhen", numeric = true)
+    @Indexed
     private Long sysWhen = 0l;
 
-    @Indexed(indexName = "fortressWhen")
+    @Indexed
     private Long fortressWhen = 0l;
 
-    @Indexed(indexName = "searchIndex")
+    //@Indexed
+    // ToDo: Associated with a node if Not Indexed. This is for maintenance and rebuilding missing docs.
     private boolean indexed = false;
 
     protected AuditLogRelationship() {

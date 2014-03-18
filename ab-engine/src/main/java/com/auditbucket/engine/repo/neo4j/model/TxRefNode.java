@@ -53,7 +53,7 @@ public class TxRefNode implements TxRef {
     @RelatedTo(elementClass = AuditHeaderNode.class, type = "AFFECTED")
     private Set<AuditHeader> auditHeaders;
 
-    @Indexed(numeric = false, indexName = "tagName")
+    @Indexed
     private String name;
 
     private TxStatus txStatus = TxStatus.TX_CREATED;

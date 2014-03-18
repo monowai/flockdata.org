@@ -38,11 +38,11 @@ public interface AuditLogRepo extends GraphRepository<AuditChangeNode> {
     int getLogCount(Long auditHeaderID);
 
     @Query(elementClass = AuditLogRelationship.class,
-            value = "start header=node({0}) match header-[last:LAST_CHANGE]->auditLog<-[log:LOGGED]-header " +
+            value = "match (header:AuditHeader)-[last:LAST_CHANGE]->(change:Change)<-[log:LOGGED]-(header) where id(header)={0} " +
                     "   return log")
     AuditLogRelationship getLastAuditLog(Long auditHeaderID);
 
-    @Query(elementClass = AuditLogRelationship.class, value = "start header=node({0}) match header-[log:LOGGED]->auditLog where log.fortressWhen >= {1} and log.fortressWhen <= {2} return log ")
+    @Query(elementClass = AuditLogRelationship.class, value = "start header=node({0}) match (header)-[log:LOGGED]->(auditLog) where log.fortressWhen >= {1} and log.fortressWhen <= {2} return log ")
     Set<AuditLog> getAuditLogs(Long auditHeaderID, Long from, Long to);
 
     @Query(elementClass = AuditLogRelationship.class, value = "start audit=node({0}) " +

@@ -42,7 +42,7 @@ public class SystemNode implements ISystem {
     private
     Set<SystemUser> systemUsers;
 
-    @Indexed(indexName = "systemName")
+    @Indexed
     private String name;
 
     public SystemNode() {

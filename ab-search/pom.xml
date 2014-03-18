@@ -29,9 +29,9 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ab-search</artifactId>
     <packaging>war</packaging>
-    <!--<properties>-->
-    <!--<jackson.version>1.9.9</jackson.version>-->
-    <!--</properties>-->
+    <properties>
+        <es.version>1.0.1</es.version>
+    </properties>
 
     <dependencies>
         <!-- Spring -->
@@ -166,7 +166,7 @@
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
-            <version>1.0.0</version>
+            <version>${es.version}</version>
         </dependency>
         <dependency>
             <groupId>com.monowai</groupId>

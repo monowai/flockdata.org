@@ -35,8 +35,10 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.FortressUser;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
+import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +59,6 @@ import java.util.*;
  */
 @Repository("auditDAO")
 public class AuditDaoNeo implements AuditDao {
-    private static final String LAST_CHANGE = "LAST_CHANGE";
     @Autowired
     AuditHeaderRepo auditRepo;
 
@@ -86,13 +87,13 @@ public class AuditDaoNeo implements AuditDao {
 
     @Cacheable(value = "auditKey", unless = "#result==null")
     private AuditHeader getCachedHeader(String key) {
-        return auditRepo.findByUID(key);
+        return auditRepo.findBySchemaPropertyValue("auditKey", key);
     }
 
     @Override
     public AuditHeader findHeader(String key, boolean inflate) {
         AuditHeader header = getCachedHeader(key);
-        if (inflate && header !=null) {
+        if (inflate && header != null) {
             fetch(header);
         }
         return header;
@@ -103,13 +104,8 @@ public class AuditDaoNeo implements AuditDao {
         if (logger.isTraceEnabled())
             logger.trace("findByCallerRef fortress [" + fortressId + "] docType[" + documentId + "], callerRef[" + callerRef.toLowerCase() + "]");
 
-        // This is pretty crappy, but Neo4J will throw an exception the first time you try to search if no index is in place.
-        if (template.getGraphDatabaseService().index().existsForNodes("callerRef")) {
-            String keyToFind = "" + fortressId + "." + documentId + "." + callerRef.toLowerCase();
-            return auditRepo.findByCallerRef(keyToFind);
-        }
-
-        return null;
+        String keyToFind = "" + fortressId + "." + documentId + "." + callerRef.toLowerCase();
+        return auditRepo.findBySchemaPropertyValue("callerKeyRef", keyToFind);
     }
 
     @Cacheable(value = "auditHeaderId", key = "p0.id")
@@ -143,7 +139,7 @@ public class AuditDaoNeo implements AuditDao {
 
     @Override
     public void delete(AuditChange currentChange) {
-        auditLogRepo.delete((AuditChangeNode)currentChange);
+        auditLogRepo.delete((AuditChangeNode) currentChange);
     }
 
     @Override
@@ -171,7 +167,6 @@ public class AuditDaoNeo implements AuditDao {
     public AuditLog getLastAuditLog(Long auditHeaderID) {
         AuditLog when = auditLogRepo.getLastAuditLog(auditHeaderID);
         if (when != null) {
-            //template.fetch(when.getAuditChange());
             logger.trace("Last Change {}", when);
         }
 
@@ -235,12 +230,14 @@ public class AuditDaoNeo implements AuditDao {
     public String ping() {
 
 
-        Map<String, Object> ab = new HashMap<>();
-        ab.put("name", "AuditBucket");
-        Node abNode = template.getGraphDatabase().getOrCreateNode("system", "name", "AuditBucket", ab);
-        if (abNode == null) {
-            return "Neo4J has problems";
-        }
+//        Map<String, Object> ab = new HashMap<>();
+//        ab.put("name", "AuditBucket");
+//        ArrayList labels = new ArrayList();
+//        labels.add("ZZTest");
+//        Node abNode = template.getGraphDatabase().getOrCreateNode("system", "name", "ab", "AuditBucket", ab, labels);
+//        if (abNode == null) {
+//            return "Neo4J has problems";
+//        }
         return "Neo4J is OK";
     }
 
@@ -252,7 +249,6 @@ public class AuditDaoNeo implements AuditDao {
     @Override
     public AuditChange save(FortressUser fUser, AuditLogInputBean input, TxRef txRef, AuditChange previousChange) {
         AuditEvent event = auditEventService.processEvent(fUser.getFortress().getCompany(), input.getEvent());
-
         AuditChange auditChange = new AuditChangeNode(fUser, input, txRef);
         auditChange.setEvent(event);
         auditChange.setPreviousChange(previousChange);
@@ -261,7 +257,6 @@ public class AuditDaoNeo implements AuditDao {
 
     @Override
     public AuditHeader create(AuditHeaderInputBean inputBean, FortressUser fu, DocumentType documentType) throws AuditException {
-        // AuditHeader ah = findHeaderByCallerRef(fu.getFortress().getId(), documentType.getId(), inputBean.getCallerRef());
         AuditHeader auditHeader = new AuditHeaderNode(inputBean.getAuditKey(), fu, inputBean, documentType);
         if (inputBean.isTrackSuppressed()) {
             auditHeader.setAuditKey(null);
@@ -299,20 +294,23 @@ public class AuditDaoNeo implements AuditDao {
         return auditLogRepo.getLastAuditLog(headerId);
     }
 
+    private static final String LAST_CHANGE = "LAST_CHANGE";
+
+    enum LastChange implements RelationshipType {
+        LAST_CHANGE
+    }
 
     @Override
     public void setLastChange(AuditHeader auditHeader, AuditChange toAdd, AuditChange toRemove) {
 
         Node header = template.getPersistentState(auditHeader);
-        if (toRemove != null) {
-            Node previous = template.getPersistentState(toRemove);
-            logger.debug("Audit [{}], removing relationship [{}]", auditHeader.getId(), previous.getId());
-            template.deleteRelationshipBetween(header, previous, LAST_CHANGE);
+        Relationship r = header.getSingleRelationship(LastChange.LAST_CHANGE, Direction.OUTGOING);
+        if (r != null) {
+            r.delete();
         }
+
         Node auditChange = template.getPersistentState(toAdd);
         template.createRelationshipBetween(header, auditChange, LAST_CHANGE, null);
-        if (toRemove != null)
-            logger.debug("Audit [{}], replaced Last Change relationship [{}] with [{}]", auditHeader.getId(), toRemove.getId(), auditChange.getId());
     }
 
     @Override

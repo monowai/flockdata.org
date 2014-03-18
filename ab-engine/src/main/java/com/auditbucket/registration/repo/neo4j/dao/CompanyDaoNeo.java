@@ -62,7 +62,7 @@ public class CompanyDaoNeo implements CompanyDao {
 
     @Override
     public Company findByPropertyValue(String property, Object value) {
-        return companyRepo.findByPropertyValue(property, value);
+        return companyRepo.findBySchemaPropertyValue(property, value);
     }
 
     @Override

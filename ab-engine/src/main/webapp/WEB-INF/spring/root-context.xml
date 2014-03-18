@@ -44,11 +44,6 @@
     <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true"
                                   location="classpath:/config.properties,file:${ab.config}"/>
 
-    <!--<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">-->
-    <!--&lt;!&ndash; config the location(s) of the properties file(s) here &ndash;&gt;-->
-    <!--<property name="nullValue" value="@null" />-->
-    <!--</bean>-->
-
     <import resource="spring-security.xml"/>
     <import resource="integration.xml"/>
     <import resource="${ab.integration}-integration.xml"/>
@@ -60,18 +55,6 @@
     <!--Pool size is the number of executors that will handle Bulk Uploads and incoming search responses-->
     <task:executor id="ab-engineExec" pool-size="20-20" keep-alive="180" queue-capacity="10"
                    rejection-policy="CALLER_RUNS"/>
-
-    <!--<bean id="generalTaskExecutor" class="org.springframework.scheduling.concurrent.ConcurrentTaskExecutor">-->
-    <!--<property name="concurrentExecutor" ref="threadPoolExecutor"/>-->
-    <!--</bean>-->
-
-    <!--<bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">-->
-    <!--<property name="threadGroupName" value="ab-engine"/>-->
-    <!--<property name="keepAliveSeconds" value="10"/>-->
-    <!--<property name="allowCoreThreadTimeOut" value="false"/>-->
-    <!--<property name="queueCapacity" value="-1"/>-->
-    <!--&lt;!&ndash;<property name="queueCapacity" value="100"/>&ndash;&gt;-->
-    <!--</bean>-->
 
     <cache:annotation-driven/>
     <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager" p:cacheManager-ref="ehcache"/>

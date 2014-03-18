@@ -46,7 +46,7 @@
     </int:object-to-json-transformer>
 
     <int:channel id="makeSearchRequest">
-        <int:dispatcher task-executor="taskExecutor"/>
+        <int:dispatcher task-executor="executor"/>
     </int:channel>
 
     <int:channel id="searchResult">
@@ -64,7 +64,7 @@
     </bean>
 
     <bean id="qExecutor" class="org.springframework.scheduling.concurrent.ConcurrentTaskExecutor">
-        <property name="concurrentExecutor" ref="threadPoolExecutor"/>
+        <property name="concurrentExecutor" ref="executor"/>
     </bean>
     <bean id="qThreadPoolExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
         <property name="keepAliveSeconds" value="5"/>

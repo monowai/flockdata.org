@@ -50,7 +50,7 @@ import java.util.TimeZone;
 @TypeAlias("AuditHeader")
 public class AuditHeaderNode implements AuditHeader {
 
-    @Indexed(indexName = UUID_KEY)
+    @Indexed
     private String auditKey;
 
     @RelatedTo(elementClass = FortressNode.class, type = "TRACKS", direction = Direction.INCOMING)
@@ -61,7 +61,7 @@ public class AuditHeaderNode implements AuditHeader {
     @Fetch
     private DocumentTypeNode documentType;
 
-    @Indexed(indexName = "callerRef", unique = true)
+    @Indexed(unique = true)
     private String callerKeyRef;
 
     private String callerRef;
@@ -81,19 +81,17 @@ public class AuditHeaderNode implements AuditHeader {
     @RelatedTo(elementClass = FortressUserNode.class, type = "LASTCHANGED_BY", direction = Direction.OUTGOING)
     private FortressUserNode lastWho;
 
-    @Indexed(indexName = "AuditGUID")
     public static final String UUID_KEY = "auditKey";
 
-    @Indexed(indexName = "auditName")
+    @Indexed
     private String name;
 
     private String description;
 
     private long fortressDate;
 
-    @Indexed(indexName = "searchKey")
-    private
-    String searchKey = null;
+    @Indexed
+    private String searchKey = null;
 
     private boolean searchSuppressed;
     private String indexName;
