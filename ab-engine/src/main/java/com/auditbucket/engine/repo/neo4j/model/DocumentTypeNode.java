@@ -20,8 +20,8 @@
 package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.audit.model.DocumentType;
-import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.repo.neo4j.model.FortressNode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
@@ -42,8 +42,8 @@ public class DocumentTypeNode implements DocumentType {
     @GraphId
     Long id;
 
-    @RelatedTo(elementClass = CompanyNode.class, type = "documents", direction = Direction.INCOMING)
-    private Company company;
+    @RelatedTo(elementClass = FortressNode.class, type = "documents", direction = Direction.INCOMING)
+    private Fortress fortress;
 
     private String name;
 
@@ -55,12 +55,13 @@ public class DocumentTypeNode implements DocumentType {
     protected DocumentTypeNode() {
     }
 
-    public DocumentTypeNode(String documentTypeName, Company company) {
+    public DocumentTypeNode(Fortress fortress, String documentType) {
         this();
-        this.name = documentTypeName;
-        this.code = documentTypeName.toLowerCase().replaceAll("\\s", "");
-        this.company = company;
-        this.companyKey = company.getId() + "." + documentTypeName.toLowerCase().replaceAll("\\s", "");
+        this.name = documentType;
+        this.code = documentType.toLowerCase().replaceAll("\\s", "");
+        this.fortress = fortress;
+        this.companyKey = fortress.getCompany().getId() + "." + documentType.toLowerCase().replaceAll("\\s", "");
+
     }
 
     public String getName() {
@@ -68,8 +69,8 @@ public class DocumentTypeNode implements DocumentType {
     }
 
     @JsonIgnore
-    public Company getCompany() {
-        return company;
+    public Fortress getFortress() {
+        return fortress;
     }
 
     @Override

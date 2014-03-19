@@ -147,7 +147,7 @@ public class TestAuditIntegration {
 
     }
 
-    @Test
+    //@Test
     public void companyAndFortressWithSpaces() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(authA);
         regService.registerSystemUser(new RegistrationBean("Company With Space", email, "bah"));
@@ -165,7 +165,7 @@ public class TestAuditIntegration {
         doEsQuery(header.getIndexName(), header.getAuditKey());
     }
 
-    @Test
+    //@Test
     public void headerWithTagsProcess() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(authA);
         String company = "Monowai";
@@ -187,7 +187,7 @@ public class TestAuditIntegration {
 
     }
 
-    @Test
+    //@Test
     public void immutableHeadersWithNoLogsAreIndexed() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(authA);
         String company = "Monowai";
@@ -217,7 +217,7 @@ public class TestAuditIntegration {
         doEsQuery(summary.getHeader().getIndexName(), "ZZZ999", 0);
     }
 
-    @Test
+    //@Test
     public void createHeaderTimeLogsWithSearchActivated() throws Exception {
         int max = 3;
         String ahKey;
@@ -250,7 +250,7 @@ public class TestAuditIntegration {
             i++;
         }
         watch.stop();
-        Thread.sleep(5000);
+        Thread.sleep(8000);
         // Test that we get the expected number of log events
         if (!"rest".equals(System.getProperty("neo4j"))) // Don't check if running over rest
             assertEquals("This will fail if the DB is not cleared down, i.e. testing over REST", max, auditService.getAuditLogCount(ahKey));
@@ -279,7 +279,7 @@ public class TestAuditIntegration {
 
     }
 
-    @Test
+    //@Test
     public void auditsByPassGraphByCallerRef() throws Exception {
         logger.info("auditsByPassGraphByCallerRef started");
         SecurityContextHolder.getContext().setAuthentication(authA);
@@ -331,7 +331,7 @@ public class TestAuditIntegration {
      *
      * @throws Exception
      */
-    @Test
+    //@Test
     public void suppressIndexingOnDemand() throws Exception {
         String escJson = "{\"who\":";
         SecurityContextHolder.getContext().setAuthentication(authA);
@@ -364,7 +364,7 @@ public class TestAuditIntegration {
         doEsQuery(indexName, "andy");
     }
 
-    @Test
+    //@Test
     public void testWhatIndexingDefaultAttributeWithNGram() throws Exception {
 
         SecurityContextHolder.getContext().setAuthentication(authA);

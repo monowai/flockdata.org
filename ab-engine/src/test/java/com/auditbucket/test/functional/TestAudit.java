@@ -177,14 +177,16 @@ public class TestAudit {
     @Test
     public void logChangeWithNullAuditKeyButCallerRefExists() throws Exception {
         regService.register(new RegistrationBean(monowai, mike, "bah"));
-        Fortress fortressA = fortressService.registerFortress("auditTest");
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
+        Fortress fortress = fortressService.registerFortress("auditTest");
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortress.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
         assertNotNull(auditEP.createHeader(inputBean, null, null));
 
         AuditLogInputBean aib = new AuditLogInputBean("wally", new DateTime(), "{\"blah\":" + 1 + "}");
-        aib.setCallerRef(fortressA.getName(), "TestAudit", "ABC123");
+        aib.setCallerRef(fortress.getName(), "TestAudit", "ABC123");
         AuditLogResultBean input = auditManagerService.createLog(aib);
         assertNotNull(input.getAuditKey());
+        Assert.assertNotNull(auditService.findByCallerRef(fortress, aib.getDocumentType(), aib.getCallerRef()));
+
 
 
     }
@@ -230,17 +232,17 @@ public class TestAudit {
     public void createHeaderTimeLogs() throws Exception {
 
         regService.register(new RegistrationBean(monowai, mike, "bah"));
-        Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
+        Fortress fortress = fortressService.registerFortress(new FortressInputBean("auditTest", true));
 
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortress.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
         String ahKey = auditManagerService.createHeader(inputBean, null).getAuditKey();
 
         assertNotNull(ahKey);
 
         assertNotNull(auditService.getHeader(ahKey));
-        assertNotNull(auditService.findByCallerRef(fo, "TestAudit", "ABC123"));
-        assertNotNull(fortressService.getFortressUser(fo, "wally", true));
-        assertNull(fortressService.getFortressUser(fo, "wallyz", false));
+        assertNotNull(auditService.findByCallerRef(fortress, "TestAudit", "ABC123"));
+        assertNotNull(fortressService.getFortressUser(fortress, "wally", true));
+        assertNull(fortressService.getFortressUser(fortress, "wallyz", false));
 
         int i = 0;
         double max = 10d;

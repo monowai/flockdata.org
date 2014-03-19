@@ -20,6 +20,7 @@
 package com.auditbucket.audit.model;
 
 import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.Fortress;
 
 /**
  * User: Mike Holdsworth
@@ -30,7 +31,7 @@ public interface DocumentType {
 
     public String getName();
 
-    public Company getCompany();
+    public Fortress getFortress();
 
     Long getId();
 

@@ -57,9 +57,7 @@ public class AuditHeaderNode implements AuditHeader {
     @Fetch
     private FortressNode fortress;
 
-    @RelatedTo(type = "CLASSIFIED_AS", direction = Direction.OUTGOING)
-    @Fetch
-    private DocumentTypeNode documentType;
+    private String documentType;
 
     @Indexed(unique = true)
     private String callerKeyRef;
@@ -107,16 +105,13 @@ public class AuditHeaderNode implements AuditHeader {
         this();
         auditKey = uniqueKey;
         this.fortress = (FortressNode) createdBy.getFortress();
-        this.documentType = (DocumentTypeNode) documentType;
-        String docType = (documentType != null ? getDocumentType() : "");
+        this.documentType = (documentType != null ? documentType.getName().toLowerCase() : "");
         callerRef = auditInput.getCallerRef();
-        if (callerRef != null) {
-            callerKeyRef = this.fortress.getId() + "." + documentType.getId() + "." + callerRef.toLowerCase();
-        } else
-            callerKeyRef = this.fortress.getId() + "." + documentType.getId() + "." + auditKey;
+        callerKeyRef = this.fortress.getId() + "." + documentType.getId() + "." + (callerRef != null ? callerRef.toLowerCase() : auditKey);
 
-        this.name = (callerRef == null ? docType : (docType + "." + callerRef).toLowerCase());
+        this.name = (callerRef == null ? this.documentType : (this.documentType + "." + callerRef).toLowerCase());
         this.description = auditInput.getDescription();
+
 
         indexName = AuditSearchSchema.parseIndex(this.fortress);
 
@@ -126,6 +121,8 @@ public class AuditHeaderNode implements AuditHeader {
             fortressDate = new DateTime(dateCreated, DateTimeZone.forTimeZone(TimeZone.getTimeZone(this.fortress.getTimeZone()))).getMillis();
         else
             fortressDate = when.getTime();
+
+        lastUpdated = fortressDate;
 
         this.createdBy = (FortressUserNode) createdBy;
         this.lastWho = (FortressUserNode) createdBy;
@@ -167,7 +164,7 @@ public class AuditHeaderNode implements AuditHeader {
     @Override
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getDocumentType() {
-        return documentType.getName().toLowerCase();
+        return documentType;
     }
 
     @Override

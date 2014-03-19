@@ -44,6 +44,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
 import java.text.DecimalFormat;
+import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.Future;
 
@@ -247,7 +248,7 @@ public class AuditManagerService {
 
     private long reindex(Long skipCount, Fortress fortress) {
 
-        Set<AuditHeader> headers = auditService.getAuditHeaders(fortress, skipCount);
+        Collection<AuditHeader> headers = auditService.getAuditHeaders(fortress, skipCount);
         if (headers.isEmpty())
             return skipCount;
         skipCount = reindexHeaders(skipCount, headers);
@@ -273,7 +274,7 @@ public class AuditManagerService {
 
     private long reindexByDocType(Long skipCount, Fortress fortress, String docType) {
 
-        Set<AuditHeader> headers = auditService.getAuditHeaders(fortress, docType, skipCount);
+        Collection<AuditHeader> headers = auditService.getAuditHeaders(fortress, docType, skipCount);
         if (headers.isEmpty())
             return skipCount;
         skipCount = reindexHeaders(skipCount, headers);
@@ -281,7 +282,7 @@ public class AuditManagerService {
 
     }
 
-    private Long reindexHeaders(Long skipCount, Set<AuditHeader> headers) {
+    private Long reindexHeaders(Long skipCount, Collection<AuditHeader> headers) {
         for (AuditHeader header : headers) {
             auditService.rebuild(header);
             skipCount++;

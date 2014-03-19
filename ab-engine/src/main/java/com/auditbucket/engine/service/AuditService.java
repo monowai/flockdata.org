@@ -48,6 +48,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
@@ -128,7 +129,7 @@ public class AuditService {
      */
     public AuditResultBean createHeader(AuditHeaderInputBean inputBean, Company company, Fortress fortress) throws AuditException {
         DocumentType documentType;
-        documentType = tagService.resolveDocType(company, inputBean.getDocumentType());
+        documentType = tagService.resolveDocType(fortress, inputBean.getDocumentType());
 
         // Create thisFortressUser if missing
         FortressUser fu = fortressService.getFortressUser(fortress, inputBean.getFortressUser(), true);
@@ -137,8 +138,6 @@ public class AuditService {
         AuditHeader ah = null;
         if (inputBean.getCallerRef() != null && !inputBean.getCallerRef().equals(EMPTY))
             ah = findByCallerRef(fortress, documentType, inputBean.getCallerRef());
-//        else if ( inputBean.getAuditKey()!=null )
-//            ah = getHeader(company, inputBean.getAuditKey());
 
         if (ah != null) {
             logger.debug("Existing auditHeader record found by Caller Ref [{}] found [{}]", inputBean.getCallerRef(), ah.getAuditKey());
@@ -333,6 +332,8 @@ public class AuditService {
                 authorisedHeader.setLastUser(thisFortressUser);
                 auditDAO.save(authorisedHeader);
             }
+            auditDAO.setLastChange(authorisedHeader, thisChange);
+
             try {
                 resultBean.setSearchDocument(prepareSearchDocument(authorisedHeader, input, input.getAuditEvent(), searchActive, fortressWhen, newLog));
             } catch (JsonProcessingException e) {
@@ -340,7 +341,7 @@ public class AuditService {
                 resultBean.setStatus(AuditLogInputBean.LogStatus.ILLEGAL_ARGUMENT);
             }
 
-            auditDAO.setLastChange(authorisedHeader, thisChange, existingChange);
+
         }
 
         return resultBean;
@@ -348,13 +349,13 @@ public class AuditService {
     }
 
 
-    public Set<AuditHeader> getAuditHeaders(Fortress fortress, Long skipTo) {
+    public Collection<AuditHeader> getAuditHeaders(Fortress fortress, Long skipTo) {
         return auditDAO.findHeaders(fortress.getId(), skipTo);
     }
 
-    public Set<AuditHeader> getAuditHeaders(Fortress fortress, String docTypeName, Long skipTo) {
-        DocumentType docType = tagService.resolveDocType(fortress.getCompany(), docTypeName);
-        return auditDAO.findHeaders(fortress.getId(), docType.getId(), skipTo);
+    public Collection<AuditHeader> getAuditHeaders(Fortress fortress, String docTypeName, Long skipTo) {
+        DocumentType docType = tagService.resolveDocType(fortress, docTypeName);
+        return auditDAO.findHeaders(fortress.getId(), docType.getName(), skipTo);
     }
 
     private SearchChange prepareSearchDocument(AuditHeader auditHeader, AuditLogInputBean logInput, AuditEvent event, Boolean searchActive, DateTime fortressWhen, AuditLog auditLog) throws JsonProcessingException {
@@ -520,6 +521,7 @@ public class AuditService {
     }
 
     public AuditLog getLastAuditLog(AuditHeader auditHeader) {
+        logger.info("Getting last log {}",auditHeader.getCallerRef());
         return auditDAO.getLastAuditLog(auditHeader.getId());
     }
 
@@ -574,7 +576,7 @@ public class AuditService {
         AuditChange priorChange = currentLog.getAuditChange().getPreviousChange();
 
         if (priorChange != null) {
-            auditDAO.setLastChange(auditHeader, priorChange, currentChange);
+            auditDAO.setLastChange(auditHeader, priorChange);
             auditDAO.fetch(priorChange);
             auditHeader.setLastUser(fortressService.getFortressUser(auditHeader.getFortress(), priorChange.getWho().getCode()));
             auditHeader = auditDAO.save(auditHeader);
@@ -706,7 +708,7 @@ public class AuditService {
     }
 
     public AuditHeader findByCallerRef(Fortress fortress, String documentType, String callerRef) {
-        DocumentType doc = tagService.resolveDocType(fortress.getCompany(), documentType, false);
+        DocumentType doc = tagService.resolveDocType(fortress, documentType, false);
         if (doc == null)
             return null;
         return findByCallerRef(fortress, doc, callerRef);

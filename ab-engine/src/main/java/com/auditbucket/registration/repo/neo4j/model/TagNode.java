@@ -25,6 +25,9 @@ import com.auditbucket.registration.model.Tag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.neo4j.graphdb.Node;
+import org.springframework.data.annotation.TypeAlias;
+import org.springframework.data.neo4j.annotation.GraphId;
+import org.springframework.data.neo4j.annotation.NodeEntity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,8 +37,11 @@ import java.util.Map;
  * Date: 29/06/13
  * Time: 8:35 PM
  */
+@NodeEntity // Only in place to support projection
+@TypeAlias("Tag")
 public class TagNode implements Tag {
-    Long Id;
+    @GraphId
+    Long id;
 
     private String key;
 
@@ -60,9 +66,9 @@ public class TagNode implements Tag {
 
         properties.putAll(tagInput.getProperties());
     }
-
+    @Deprecated
     public TagNode(Node tag) {
-        this.Id = tag.getId();
+        this.id = tag.getId();
         this.code = (String) tag.getProperty("code");
         this.name = (String) tag.getProperty("name");
         this.key = (String) tag.getProperty("key");
@@ -86,13 +92,13 @@ public class TagNode implements Tag {
 
     @JsonIgnore
     public Long getId() {
-        return Id;  //To change body of implemented methods use File | Settings | File Templates.
+        return id;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
     public String toString() {
         return "TagNode{" +
-                "Id=" + Id +
+                "id=" + id +
                 ", name='" + name + '\'' +
                 '}';
     }
@@ -123,7 +129,7 @@ public class TagNode implements Tag {
 
 
     public void setId(Long id) {
-        this.Id = id;
+        this.id = id;
 
     }
 
@@ -134,7 +140,7 @@ public class TagNode implements Tag {
 
         TagNode tagNode = (TagNode) o;
 
-        if (Id != null ? !Id.equals(tagNode.Id) : tagNode.Id != null) return false;
+        if (id != null ? !id.equals(tagNode.id) : tagNode.id != null) return false;
         if (code != null ? !code.equals(tagNode.code) : tagNode.code != null) return false;
         if (key != null ? !key.equals(tagNode.key) : tagNode.key != null) return false;
         if (name != null ? !name.equals(tagNode.name) : tagNode.name != null) return false;
@@ -144,7 +150,7 @@ public class TagNode implements Tag {
 
     @Override
     public int hashCode() {
-        int result = Id != null ? Id.hashCode() : 0;
+        int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (key != null ? key.hashCode() : 0);
         result = 31 * result + (code != null ? code.hashCode() : 0);
         result = 31 * result + (name != null ? name.hashCode() : 0);

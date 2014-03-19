@@ -35,10 +35,7 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.FortressUser;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.RelationshipType;
+import org.neo4j.graphdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,8 +74,21 @@ public class AuditDaoNeo implements AuditDao {
     @Caching(evict = {@CacheEvict(value = "auditHeaderId", key = "#p0.id"),
             @CacheEvict(value = "auditKey", key = "#p0.auditKey")})
     public AuditHeader save(AuditHeader auditHeader) {
+        return save(auditHeader, null);
+    }
+    @Override
+    @Caching(evict = {@CacheEvict(value = "auditHeaderId", key = "#p0.id"),
+                     @CacheEvict(value = "auditKey", key = "#p0.auditKey")}
+    )
+    public AuditHeader save(AuditHeader auditHeader, DocumentType documentType) {
         auditHeader.bumpUpdate();
-        return auditRepo.save((AuditHeaderNode) auditHeader);
+        AuditHeader header = auditRepo.save((AuditHeaderNode) auditHeader);
+        if ( header!=null && documentType !=null ) {
+            Node node = template.getPersistentState(header);
+            node.addLabel( DynamicLabel.label(documentType.getName()));
+        }
+
+        return header;
     }
 
     public TxRef save(TxRef tagRef) {
@@ -100,7 +110,7 @@ public class AuditDaoNeo implements AuditDao {
     }
 
     @Cacheable(value = "auditCallerKey", unless = "#result==null")
-    public AuditHeader findHeaderByCallerRef(Long fortressId, @NotNull Long documentId, @NotNull String callerRef) {
+    public AuditHeader findHeaderByCallerRef(Long fortressId, Long documentId, String callerRef) {
         if (logger.isTraceEnabled())
             logger.trace("findByCallerRef fortress [" + fortressId + "] docType[" + documentId + "], callerRef[" + callerRef.toLowerCase() + "]");
 
@@ -127,14 +137,32 @@ public class AuditDaoNeo implements AuditDao {
     }
 
     @Override
-    public Set<AuditHeader> findHeaders(Long fortressId, Long skipTo) {
+    public Collection<AuditHeader> findHeaders(Long fortressId, Long skipTo) {
         return auditRepo.findHeadersFrom(fortressId, skipTo);
     }
 
     @Override
-    public Set<AuditHeader> findHeaders(Long fortressId, Long docTypeId, Long skipTo) {
+    public Collection<AuditHeader> findHeaders(Long fortressId, String label, Long skipTo) {
+        //ToDo: Should this pass in timestamp it got to??
+        String cypher = "match (f:Fortress)-[:TRACKS]->(audit:`"+label+"`) where id(f)={fortress} return audit ORDER BY audit.dateCreated ASC skip {skip} limit 100 ";
+        Map<String,Object>args = new HashMap<>();
+        args.put("fortress", fortressId);
+        args.put("skip", skipTo);
+        Result<Map<String, Object>> result = template.query(cypher, args);
+        if (!((Result) result).iterator().hasNext())
+            return new ArrayList<>();
 
-        return auditRepo.findHeadersFrom(fortressId, docTypeId, skipTo);
+        Iterator<Map<String, Object>> rows = result.iterator();
+
+        Collection<AuditHeader> results = new ArrayList<>();
+
+        while (rows.hasNext()) {
+            Map<String, Object> row = rows.next();
+            results.add(template.projectTo(row.get("audit"), AuditHeaderNode.class));
+        }
+        //
+        return results;
+        //return auditRepo.findHeadersFrom(fortressId, docTypeId, skipTo);
     }
 
     @Override
@@ -162,15 +190,6 @@ public class AuditDaoNeo implements AuditDao {
     @Override
     public int getLogCount(Long id) {
         return auditLogRepo.getLogCount(id);
-    }
-
-    public AuditLog getLastAuditLog(Long auditHeaderID) {
-        AuditLog when = auditLogRepo.getLastAuditLog(auditHeaderID);
-        if (when != null) {
-            logger.trace("Last Change {}", when);
-        }
-
-        return when;
     }
 
     public Set<AuditLog> getAuditLogs(Long auditLogID, Date from, Date to) {
@@ -262,7 +281,7 @@ public class AuditDaoNeo implements AuditDao {
             auditHeader.setAuditKey(null);
             return auditHeader;
         } else
-            return save(auditHeader);
+            return save(auditHeader, documentType);
     }
 
     @Override
@@ -294,23 +313,34 @@ public class AuditDaoNeo implements AuditDao {
         return auditLogRepo.getLastAuditLog(headerId);
     }
 
-    private static final String LAST_CHANGE = "LAST_CHANGE";
-
     enum LastChange implements RelationshipType {
         LAST_CHANGE
     }
+    private static final String LAST_CHANGE = "LAST_CHANGE";
+
+    public AuditLog getLastAuditLog(Long auditHeaderID) {
+
+        AuditLog when = auditLogRepo.getLastAuditLog(auditHeaderID);
+        if (when != null) {
+            logger.trace("Last Change {}", when);
+        }
+
+        return when;
+    }
 
     @Override
-    public void setLastChange(AuditHeader auditHeader, AuditChange toAdd, AuditChange toRemove) {
+    public void setLastChange(AuditHeader auditHeader, AuditChange toAdd) {
 
         Node header = template.getPersistentState(auditHeader);
         Relationship r = header.getSingleRelationship(LastChange.LAST_CHANGE, Direction.OUTGOING);
         if (r != null) {
+            logger.info("Deleting {} for {}",r, auditHeader.getCallerRef());
             r.delete();
         }
 
         Node auditChange = template.getPersistentState(toAdd);
         template.createRelationshipBetween(header, auditChange, LAST_CHANGE, null);
+        logger.info("Created {}, for {}" ,header.getSingleRelationship(LastChange.LAST_CHANGE, Direction.OUTGOING), auditHeader.getCallerRef());
     }
 
     @Override

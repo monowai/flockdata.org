@@ -42,6 +42,8 @@
         <!--Default properties for test. integration over http and Neo4J running embedded-->
         <ab.integration>http</ab.integration>
         <neo4j>java</neo4j>
+        <neo4j.version>2.0.1</neo4j.version>
+
     </properties>
 
     <dependencies>

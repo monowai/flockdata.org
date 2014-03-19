@@ -22,6 +22,7 @@ package com.auditbucket.dao;
 import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.Tag;
 
 import java.util.Collection;
@@ -46,9 +47,7 @@ public interface TagDao {
      */
     Tag findOne(String tagName, Company company);
 
-    DocumentType findCompanyDocument(String documentType, Company company);
-
-    DocumentType findOrCreateDocument(String documentType, Company company, Boolean createIfMissing);
+    DocumentType findDocumentType(Fortress company, String documentType, Boolean createIfMissing);
 
     Collection<Tag> findDirectedTags(Tag startTag, Company company, boolean b);
 

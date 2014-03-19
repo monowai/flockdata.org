@@ -27,6 +27,7 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.FortressUser;
 import org.joda.time.DateTime;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
@@ -41,6 +42,14 @@ public interface AuditDao {
     String ping();
 
     public AuditHeader save(AuditHeader auditHeader);
+
+    /**
+     * Saves the header with the supplied DocumentType label
+     * @param auditHeader
+     * @param documentType
+     * @return updated header
+     */
+    public AuditHeader save(AuditHeader auditHeader, DocumentType documentType);
 
     /**
      * @param key     GUID
@@ -91,7 +100,7 @@ public interface AuditDao {
 
     AuditLog getLastLog(Long headerId);
 
-    void setLastChange(AuditHeader auditHeader, AuditChange lastChange, AuditChange toRemove);
+    void setLastChange(AuditHeader auditHeader, AuditChange lastChange);
 
     AuditChange save(AuditChange change, Boolean compressed);
 
@@ -99,9 +108,9 @@ public interface AuditDao {
 
     Set<AuditHeader> findHeadersByTxRef(Long txName);
 
-    Set<AuditHeader> findHeaders(Long fortressId, Long skipTo);
+    Collection<AuditHeader> findHeaders(Long fortressId, Long skipTo);
 
-    Set<AuditHeader> findHeaders(Long id, Long docTypeId, Long skipTo);
+    Collection<AuditHeader> findHeaders(Long id, String docType, Long skipTo);
 
     void delete(AuditChange currentChange);
 }

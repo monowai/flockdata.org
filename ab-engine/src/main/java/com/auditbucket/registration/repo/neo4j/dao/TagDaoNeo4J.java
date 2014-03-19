@@ -26,6 +26,7 @@ import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.helper.TagException;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.repo.neo4j.model.TagNode;
 import org.neo4j.graphdb.Node;
@@ -86,7 +87,7 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
         Node start;
         if (existingTag == null) {
             if ( tagInput.isMustExist()){
-                throw new TagException("Tag "+tagInput.getName()+" is expected to exist. Illegal tag, ignoring request.");
+                throw new TagException("Tag "+tagInput.getName()+" is expected to exist but doesn't. Ignoring this request.");
             }
             else
                 start = createTag(tagInput, tagSuffix);
@@ -114,9 +115,9 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
         if (tagInput.getIndex() != null && !":".equals(tagInput.getIndex()))
             tagSuffix = tagSuffix + " " + tagInput.getIndex();
 
-        // ToDo: Multi-tenanted custom tags
-        //logger.info("About to merge Tag {}", tag.getKey());
-        String query = "merge (tag:Tag" + tagSuffix + " {code:{code}, name:{name}, key:{key}";
+        // ToDo: Multi-tenanted custom tags?
+        // _Tag only exists for SDN projection
+        String query = "merge (tag:_Tag :Tag" + tagSuffix + " {code:{code}, name:{name}, key:{key}";
         Map<String, Object> params = new HashMap<>();
         params.put("code", tag.getCode());
         params.put("key", tag.getKey());
@@ -136,9 +137,7 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
         query = query + "})  return tag";
         Result<Map<String, Object>> result = template.query(query, params);
         Map<String, Object> mapResult = result.singleOrNull();
-        Node end = (Node) mapResult.get("tag");
-        //existingTag.setId(end.getId());
-        return end;
+        return (Node) mapResult.get("tag");
     }
 
     /**
@@ -198,7 +197,8 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
 
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
-            results.add(new TagNode((Node) row.get("otherTag")));
+            //results.add(new TagNode((Node) row.get("otherTag")));
+            results.add(template.projectTo(row.get("otherTag"), TagNode.class));
         }
         //
         return results;
@@ -238,15 +238,16 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
     }
 
     @Cacheable(value = "companyDocType", unless = "#result == null")
-    public DocumentType findCompanyDocument(String documentType, Company company) {
-        return documentTypeRepo.findCompanyDocType(company.getId(), company.getId() + "." + documentType.toLowerCase().replaceAll("\\s", ""));
+    private DocumentType findFortressDocument(String documentType, Fortress fortress) {
+        String key = fortress.getCompany().getId() + "." + documentType.toLowerCase().replaceAll("\\s", "");
+        return documentTypeRepo.findFortressDocType(fortress.getId(), key);
+        //return documentTypeRepo.findBySchemaPropertyValue("companyKey", key);
     }
 
-    public DocumentType findOrCreateDocument(String documentType, Company company, Boolean createIfMissing) {
-
-        DocumentType docResult = findCompanyDocument(documentType, company);
+    public DocumentType findDocumentType(Fortress fortress, String documentType, Boolean createIfMissing) {
+        DocumentType docResult = findFortressDocument(documentType, fortress);
         if (docResult == null && createIfMissing) {
-            DocumentTypeNode docType = new DocumentTypeNode(documentType, company);
+            DocumentTypeNode docType = new DocumentTypeNode(fortress, documentType);
             logger.debug("Creating document type {}", documentType);
             docResult = documentTypeRepo.save(docType);
 

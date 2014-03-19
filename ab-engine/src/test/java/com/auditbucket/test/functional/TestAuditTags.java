@@ -102,7 +102,6 @@ public class TestAuditTags {
     private Neo4jTemplate template;
 
     //private Logger log = LoggerFactory.getLogger(TestAuditTags.class);
-
     private String company = "Monowai";
     private String uid = "mike@monowai.com";
     private Authentication authA = new UsernamePasswordAuthenticationToken(uid, "user1");
@@ -293,7 +292,7 @@ public class TestAuditTags {
     @Test
     public void noTrackTagsAreReturned() throws Exception {
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
-        fortressService.registerFortress(new FortressInputBean("ABC"));
+        Fortress fortress = fortressService.registerFortress(new FortressInputBean("ABC"));
 
         TagInputBean tagInput = new TagInputBean("FLOP");
 
@@ -375,19 +374,45 @@ public class TestAuditTags {
     @Test
     public void documentTypesWork() {
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
-        fortressService.registerFortress("ABC");
+        Fortress fortress = fortressService.registerFortress("ABC");
 
         String docName = "CamelCaseDoc";
-        DocumentType docType = tagService.resolveDocType(docName);
+        DocumentType docType = tagService.resolveDocType(fortress, docName); // Creates if missing
         assertNotNull(docType);
         assertEquals(docName.toLowerCase(), docType.getCode());
         assertEquals(docName, docType.getName());
         // Should be finding by code which is always Lower
-        DocumentType sameDoc = tagService.resolveDocType(docType.getCode().toUpperCase());
+        DocumentType sameDoc = tagService.resolveDocType(fortress, docType.getCode().toUpperCase(), false);
         Assert.assertNotNull(sameDoc);
         assertEquals(sameDoc.getId(), docType.getId());
 
     }
+
+    @Test
+    public void duplicateDocumentTypes() throws Exception {
+        String mark = "mark@monowai.com";
+        Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "user1");
+
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        Assert.assertNotNull(iSystemUser);
+
+        Fortress fortress = fortressService.registerFortress("duplicateDocumentTypes");
+
+        DocumentType dType = tagService.resolveDocType(fortress, "ABC123", true);
+        Assert.assertNotNull(dType);
+        Long id = dType.getId();
+        dType = tagService.resolveDocType(fortress, "ABC123", false);
+        assertEquals(id, dType.getId());
+
+        // Company 2 gets a different tag with the same name
+        SecurityContextHolder.getContext().setAuthentication(authMark);
+        regService.registerSystemUser(new RegistrationBean("secondcompany", mark, "bah"));
+        // Same fortress name, but different company
+        dType = tagService.resolveDocType(fortressService.registerFortress("duplicateDocumentTypes"), "ABC123"); // Creates if missing
+        Assert.assertNotNull(dType);
+        Assert.assertNotSame(id, dType.getId());
+    }
+
 
     @Test
     public void tagListAndSingular() throws Exception {

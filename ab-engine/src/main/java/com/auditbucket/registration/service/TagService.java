@@ -24,6 +24,7 @@ import com.auditbucket.dao.TagDao;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,9 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -96,38 +95,33 @@ public class TagService {
         return findTag(tagName, company);
     }
 
-    public DocumentType resolveDocType(String documentType) {
-        Company company = securityHelper.getCompany();
-        if (company == null)
-            return null;
-        return resolveDocType(company, documentType);
-    }
-
     /**
      * Finds a company document type and creates it if it is missing
      *
-     * @param company
+     *
+     * @param fortress
      * @param documentType
      * @return
      */
-    public DocumentType resolveDocType(Company company, String documentType) {
-        return resolveDocType(company, documentType, true);
+    public DocumentType resolveDocType(Fortress fortress, String documentType) {
+        return resolveDocType(fortress, documentType, true);
     }
 
     /**
      * finds or creates a Document Type for the caller's company
      *
-     * @param company
+     *
+     * @param fortress
      * @param documentType    name of the document
      * @param createIfMissing
      * @return created DocumentType
      */
-    public DocumentType resolveDocType(Company company, String documentType, Boolean createIfMissing) {
+    public DocumentType resolveDocType(Fortress fortress, String documentType, Boolean createIfMissing) {
         if (documentType == null) {
             throw new IllegalArgumentException("DocumentTypeNode cannot be null");
         }
 
-        return tagDao.findOrCreateDocument(documentType, company, createIfMissing);
+        return tagDao.findDocumentType(fortress, documentType, createIfMissing);
 
     }
 

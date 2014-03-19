@@ -77,7 +77,7 @@ public class TestElasticSearch {
 //        fortress.setSearchActive(false);
 //        FortressUser fu = new FortressUser(fortress, uid);
 //        AuditHeaderInputBean hib = new AuditHeaderInputBean("fortress", "Test", "Test", new DateTime().toDate(), "testRef");
-//        AuditLogResultBean auditHeader = new AuditLogResultBean(fu, hib, new DocumentType("TestJson", fu.getFortress().getCompany()));
+//        AuditLogResultBean auditHeader = new AuditLogResultBean(fu, hib, new DocumentType("TestJson", fu.getFortress().getFortress()));
 //
         AuditSearchChange auditChange = new AuditSearchChange();
 //
@@ -143,7 +143,7 @@ public class TestElasticSearch {
 //        fortress.setSearchActive(false);
 //        FortressUser fu = new FortressUser(fortress, uid);
 //        AuditHeaderInputBean hib = new AuditHeaderInputBean("fortress", "Test", "Test", new DateTime().toDate(), "testRef");
-//        AuditLogResultBean auditHeader = new AuditLogResultBean(fu, hib, new DocumentType("TestJson", fu.getFortress().getCompany()));
+//        AuditLogResultBean auditHeader = new AuditLogResultBean(fu, hib, new DocumentType("TestJson", fu.getFortress().getFortress()));
 
         SearchChange auditChange = new AuditSearchChange();
 //        String auditKey = "auditHeader.getAuditKey()";
