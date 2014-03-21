@@ -38,8 +38,10 @@ public class AuditResultBean {
     private String callerRef;
     private String auditKey;
     private AuditLogResultBean logResult;
+    private AuditLogInputBean auditLog;
     private com.auditbucket.audit.model.AuditHeader auditHeader;
     private Set<AuditTag> tags;
+    private AuditHeaderInputBean auditInputBean;
 
     protected AuditResultBean() {
     }
@@ -135,5 +137,23 @@ public class AuditResultBean {
      */
     public Set<AuditTag> getTags() {
         return tags;
+    }
+
+    @JsonIgnore
+    public AuditLogInputBean getAuditLog() {
+        return auditLog;
+    }
+
+    public void setAuditLogInput(AuditLogInputBean logInputBean) {
+        this.auditLog = logInputBean;
+    }
+
+    public void setAuditInputBean(AuditHeaderInputBean auditInputBean) {
+        this.auditInputBean = auditInputBean;
+    }
+
+    @JsonIgnore
+    public AuditHeaderInputBean getAuditInputBean() {
+        return auditInputBean;
     }
 }

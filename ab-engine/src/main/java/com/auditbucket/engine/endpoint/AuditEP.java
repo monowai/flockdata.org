@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -104,7 +103,7 @@ public class AuditEP {
     public Future<Integer> createHeadersF(AuditHeaderInputBean[] inputBeans, boolean waitForFinish, String apiKey) throws AuditException {
         Company company = auditManager.resolveCompany(apiKey);
         Fortress fortress = auditManager.resolveFortress(company, inputBeans[0], true);
-        boolean async = true;
+        boolean async = false;
 
         if (async) {
 

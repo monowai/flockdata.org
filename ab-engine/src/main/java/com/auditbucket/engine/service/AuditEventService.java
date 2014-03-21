@@ -19,13 +19,13 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.audit.model.AuditChange;
 import com.auditbucket.audit.model.AuditEvent;
 import com.auditbucket.dao.AuditEventDao;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
@@ -51,11 +51,13 @@ public class AuditEventService {
      * @param eventCode - descriptive name of the event - duplicates for a company will not be created
      * @return created AuditEvent
      */
+    @Transactional(propagation =  Propagation.SUPPORTS)
     public AuditEvent processEvent(String eventCode) {
         Company company = securityHelper.getCompany();
         return processEvent(company, eventCode);
     }
 
+    @Transactional(propagation =  Propagation.SUPPORTS)
     public AuditEvent processEvent(Company company, String eventCode) {
         AuditEvent existingEvent = auditEventDao.findEvent(company, eventCode);
         if (existingEvent == null)

@@ -45,7 +45,6 @@ import org.springframework.util.StopWatch;
 
 import java.text.DecimalFormat;
 import java.util.Collection;
-import java.util.Set;
 import java.util.concurrent.Future;
 
 /**
@@ -122,11 +121,19 @@ public class AuditManagerService {
         try {
             watch.start();
             logger.info("Starting Batch [{}] - size [{}]", id, inputBeans.length);
-            for (AuditHeaderInputBean inputBean : inputBeans) {
-                createHeader(inputBean, company, fortress);
-                processCount++;
-            }
+            boolean newMode = true;
+            if (newMode) {
+                logger.info("Processing in Batch Transaction mode");
+                Iterable<AuditResultBean> resultBeans = auditService.createHeaders(inputBeans, company, fortress);
+                processAuditLogs(resultBeans, company);
 
+            } else {
+                logger.info("Processing in slow Transaction mode");
+                for (AuditHeaderInputBean inputBean : inputBeans) {
+                    createHeader(inputBean, company, fortress);
+                    processCount++;
+                }
+            }
             watch.stop();
         } catch (Exception e) {
             logger.error("Async Header error", e);
@@ -150,22 +157,22 @@ public class AuditManagerService {
     }
 
     public AuditResultBean createHeader(AuditHeaderInputBean inputBean, Company company, Fortress fortress) throws AuditException {
-        if(inputBean ==null  )
+        if (inputBean == null)
             throw new AuditException("No input to process!");
 
         AuditResultBean resultBean = null;
 
         // Deadlock re-try fun
         int maxRetry = 10, retryCount = 0;
-        while (retryCount < maxRetry){
+        while (retryCount < maxRetry) {
             try {
-                if (resultBean == null || resultBean.getAuditId() ==null ) {
+                if (resultBean == null || resultBean.getAuditId() == null) {
                     resultBean = auditService.createHeader(inputBean, company, fortress);
                 }
                 retryCount = maxRetry; // Exit the loop
             } catch (RuntimeException re) {
                 // ToDo: Exceptions getting wrapped in a JedisException. Can't directly catch the DDE hence the instanceof check
-                if ( re.getCause() instanceof NotFoundException|| re.getCause() instanceof DeadlockDetectedException || re.getCause() instanceof InvalidDataAccessResourceUsageException || re.getCause() instanceof DataRetrievalFailureException) {
+                if (re.getCause() instanceof NotFoundException || re.getCause() instanceof DeadlockDetectedException || re.getCause() instanceof InvalidDataAccessResourceUsageException || re.getCause() instanceof DataRetrievalFailureException) {
                     logger.debug("Deadlock Detected. Entering retry fortress [{}], docType {}, callerRef [{}], rolling back. Cause = {}", inputBean.getFortress(), inputBean.getDocumentType(), inputBean.getCallerRef(), re.getCause());
                     Thread.yield();
                     retryCount++;
@@ -174,43 +181,54 @@ public class AuditManagerService {
                         logger.error("Error creating Header for fortress [{}], docType {}, callerRef [{}], rolling back. Cause = {}", inputBean.getFortress(), inputBean.getDocumentType(), inputBean.getCallerRef(), re.getCause());
                         throw (re);
                     }
-                } else if ( re.getCause() instanceof TagException ) {
+                } else if (re.getCause() instanceof TagException) {
                     // Carry on processing FixMe - log this to an error channel
                     logger.error("Error creating Tag. Input was fortress [{}], docType {}, callerRef [{}], rolling back. Cause = {}", inputBean.getFortress(), inputBean.getDocumentType(), inputBean.getCallerRef(), re.getCause());
-                }
-                else {
+                } else {
                     throw (re);
                 }
             }
         }
 
-        AuditLogInputBean logBean = inputBean.getAuditLog();
+        processAuditLog(resultBean, company);
+        return resultBean;
+
+    }
+
+    @Async
+    public Future<Void> processAuditLogs(Iterable<AuditResultBean> resultBeans, Company company) {
+        for (AuditResultBean resultBean : resultBeans)
+            processAuditLog(resultBean, company);
+        return new AsyncResult<>(null);
+    }
+
+    private void processAuditLog(AuditResultBean resultBean, Company company) {
+        AuditLogInputBean logBean = resultBean.getAuditLog();
         // Here on could be spun in to a separate thread. The log has to happen eventually
         //   and shouldn't fail.
-        if (inputBean.getAuditLog() != null) {
+        if (resultBean.getAuditLog() != null) {
             // Secret back door so that the log result can quickly get the
             logBean.setAuditId(resultBean.getAuditId());
             logBean.setAuditKey(resultBean.getAuditKey());
-            logBean.setFortressUser(inputBean.getFortressUser());
+            logBean.setFortressUser(resultBean.getAuditInputBean().getFortressUser());
             logBean.setCallerRef(resultBean.getCallerRef());
 
-            AuditLogResultBean logResult = createLog(company, inputBean.getAuditLog());
+            AuditLogResultBean logResult = createLog(company, resultBean.getAuditLog());
             logResult.setAuditKey(null);// Don't duplicate the text as it's in the header
             logResult.setFortressUser(null);
             resultBean.setLogResult(logResult);
         } else {
-            if (inputBean.isTrackSuppressed())
+            if (resultBean.getAuditInputBean().isTrackSuppressed())
                 // If we aren't tracking in the graph, then we have to be searching
                 // else why even call this service??
-                auditService.makeHeaderSearchable(resultBean, inputBean.getEvent(), inputBean.getWhen(), company);
+                auditService.makeHeaderSearchable(resultBean, resultBean.getAuditInputBean().getEvent(), resultBean.getAuditInputBean().getWhen(), company);
             else if (!resultBean.isDuplicate() &&
-                    inputBean.getEvent() != null && !"".equals(inputBean.getEvent())) {
-                auditService.makeHeaderSearchable(resultBean, inputBean.getEvent(), inputBean.getWhen(), company);
+                    resultBean.getAuditInputBean().getEvent() != null && !"".equals(resultBean.getAuditInputBean().getEvent())) {
+                auditService.makeHeaderSearchable(resultBean, resultBean.getAuditInputBean().getEvent(), resultBean.getAuditInputBean().getWhen(), company);
             }
         }
-        return resultBean;
-
     }
+
     public AuditLogResultBean createLog(AuditLogInputBean input) {
         AuditHeader header = auditService.getHeader(null, input.getAuditKey());
         return createLog(header, input);
@@ -293,6 +311,7 @@ public class AuditManagerService {
     public AuditSummaryBean getAuditSummary(String auditKey) {
         return getAuditSummary(auditKey, null);
     }
+
     public AuditSummaryBean getAuditSummary(String auditKey, Company company) {
         AuditSummaryBean summary = auditService.getAuditSummary(auditKey, company);
         return summary;

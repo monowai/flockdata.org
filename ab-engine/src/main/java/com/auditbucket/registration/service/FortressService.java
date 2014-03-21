@@ -33,6 +33,7 @@ import com.auditbucket.registration.repo.neo4j.dao.FortressDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -105,7 +106,8 @@ public class FortressService {
         return getFortressUser(fortress, fortressUser, true);
     }
 
-    @Cacheable(value = "fortressUser")
+    @Cacheable(value = "fortressUser", unless = "#result==null" )
+    @Transactional(propagation = Propagation.SUPPORTS)
     public FortressUser getFortressUser(Fortress fortress, String fortressUser, boolean createIfMissing) {
         if (fortressUser == null || fortress == null)
             throw new IllegalArgumentException("Don't go throwing null in here [" + (fortressUser == null ? "FortressUserNode]" : "FortressNode]"));

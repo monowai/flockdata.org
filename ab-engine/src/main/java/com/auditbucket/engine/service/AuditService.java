@@ -48,10 +48,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -143,6 +140,7 @@ public class AuditService {
             inputBean.setAuditKey(ah.getAuditKey());
 
             AuditResultBean arb = new AuditResultBean(ah);
+            arb.setAuditInputBean(inputBean);
             arb.setWasDuplicate();
             // Could be rewriting tags
             auditTagService.associateTags(company, ah, inputBean.getTags());
@@ -152,6 +150,7 @@ public class AuditService {
 
         ah = makeAuditHeader(inputBean, fu, documentType);
         AuditResultBean resultBean = new AuditResultBean(ah);
+        resultBean.setAuditInputBean(inputBean);
         if (inputBean.isTrackSuppressed())
             // We need to get the "tags" across to ElasticSearch, so we mock them ;)
             resultBean.setTags(auditTagService.associateTags(company, resultBean.getAuditHeader(), inputBean.getTags()));
@@ -159,6 +158,7 @@ public class AuditService {
             // Write the associations to the graph
             auditTagService.associateTags(company, resultBean.getAuditHeader(), inputBean.getTags());
 
+        resultBean.setAuditLogInput(inputBean.getAuditLog());
         return resultBean;
 
     }
@@ -820,4 +820,14 @@ public class AuditService {
         return getSearchChange(resultBean, event, when, company);
     }
 
+    public Iterable<AuditResultBean> createHeaders(AuditHeaderInputBean[] inputBeans, Company company, Fortress fortress) {
+        Collection<AuditResultBean>arb = new ArrayList<>();
+        int processCount = 0;
+        for (AuditHeaderInputBean inputBean : inputBeans) {
+            arb.add(createHeader(inputBean, company, fortress));
+            processCount++;
+        }
+        return arb;
+
+    }
 }
