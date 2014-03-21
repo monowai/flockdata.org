@@ -19,11 +19,24 @@
   -->
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-http://www.springframework.org/schema/beans/spring-beans.xsd">
+http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <util:map id="config">
+        <entry key="remote_shell_enabled" value="true"/>
+    </util:map>
+    <bean id="graphDbFactory" class="org.neo4j.graphdb.factory.GraphDatabaseFactory"/>
+
+    <bean id="graphDbBuilder" factory-bean="graphDbFactory" factory-method="newEmbeddedDatabaseBuilder">
+        <constructor-arg value="${neo4j.datastore}"/>
+    </bean>
+
+    <bean id="graphDbBuilderFinal" factory-bean="graphDbBuilder" factory-method="setConfig">
+        <constructor-arg ref="config"/>
+    </bean>
 
 
-    <bean id="graphDatabaseService" class="org.neo4j.test.ImpermanentGraphDatabase" destroy-method="shutdown"/>
+    <bean id="graphDatabaseService" class="org.neo4j.test.ImpermanentGraphDatabase" factory-bean="graphDbBuilderFinal" factory-method="newGraphDatabase" destroy-method="shutdown"/>
 
 </beans>

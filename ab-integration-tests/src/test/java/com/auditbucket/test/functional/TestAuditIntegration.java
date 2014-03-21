@@ -61,7 +61,6 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -82,8 +81,8 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 public class TestAuditIntegration {
-
-    private static int fortressMax = 2;
+    private boolean stressOnly = false;
+    private static int fortressMax = 1;
     private static JestClient client;
     @Autowired
     AuditService auditService;
@@ -147,8 +146,9 @@ public class TestAuditIntegration {
 
     }
 
-    //@Test
+    @Test
     public void companyAndFortressWithSpaces() throws Exception {
+        org.junit.Assume.assumeTrue(!stressOnly);
         SecurityContextHolder.getContext().setAuthentication(authA);
         regService.registerSystemUser(new RegistrationBean("Company With Space", email, "bah"));
         Thread.sleep(1000);
@@ -165,8 +165,9 @@ public class TestAuditIntegration {
         doEsQuery(header.getIndexName(), header.getAuditKey());
     }
 
-    //@Test
+    @Test
     public void headerWithTagsProcess() throws Exception {
+        org.junit.Assume.assumeTrue(!stressOnly);
         SecurityContextHolder.getContext().setAuthentication(authA);
         String company = "Monowai";
         String apiKey = regService.registerSystemUser(new RegistrationBean(company, email, "bah")).getCompany().getApiKey();
@@ -187,8 +188,9 @@ public class TestAuditIntegration {
 
     }
 
-    //@Test
+    @Test
     public void immutableHeadersWithNoLogsAreIndexed() throws Exception {
+        org.junit.Assume.assumeTrue(!stressOnly);
         SecurityContextHolder.getContext().setAuthentication(authA);
         String company = "Monowai";
         regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
@@ -217,8 +219,9 @@ public class TestAuditIntegration {
         doEsQuery(summary.getHeader().getIndexName(), "ZZZ999", 0);
     }
 
-    //@Test
+    @Test
     public void createHeaderTimeLogsWithSearchActivated() throws Exception {
+        org.junit.Assume.assumeTrue(!stressOnly);
         int max = 3;
         String ahKey;
         logger.info("createHeaderTimeLogsWithSearchActivated started");
@@ -279,8 +282,9 @@ public class TestAuditIntegration {
 
     }
 
-    //@Test
+    @Test
     public void auditsByPassGraphByCallerRef() throws Exception {
+        org.junit.Assume.assumeTrue(!stressOnly);
         logger.info("auditsByPassGraphByCallerRef started");
         SecurityContextHolder.getContext().setAuthentication(authA);
         String company = "Monowai";
@@ -331,8 +335,9 @@ public class TestAuditIntegration {
      *
      * @throws Exception
      */
-    //@Test
+    @Test
     public void suppressIndexingOnDemand() throws Exception {
+        org.junit.Assume.assumeTrue(!stressOnly);
         String escJson = "{\"who\":";
         SecurityContextHolder.getContext().setAuthentication(authA);
         regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
@@ -364,9 +369,9 @@ public class TestAuditIntegration {
         doEsQuery(indexName, "andy");
     }
 
-    //@Test
+    @Test
     public void testWhatIndexingDefaultAttributeWithNGram() throws Exception {
-
+        org.junit.Assume.assumeTrue(!stressOnly);
         SecurityContextHolder.getContext().setAuthentication(authA);
         regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
         Fortress iFortress = fortressService.registerFortress(new FortressInputBean("ngram", false));
@@ -483,7 +488,7 @@ public class TestAuditIntegration {
 
     private void validateLogsIndexed(ArrayList<Long> list, int auditMax, int expectedLogCount) throws Exception {
         logger.info("Validating logs are indexed");
-        int fortress = 1;
+        int fortress = 2;
         int audit = 1;
         //DecimalFormat f = new DecimalFormat("##.000");
         while (fortress <= fortressMax) {

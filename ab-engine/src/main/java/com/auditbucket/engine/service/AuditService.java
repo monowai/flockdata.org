@@ -106,12 +106,11 @@ public class AuditService {
     }
 
 
-    TxRef beginTransaction() {
-        return beginTransaction(keyGenService.getUniqueKey());
+    TxRef beginTransaction(Company company) {
+        return beginTransaction(keyGenService.getUniqueKey(), company);
     }
 
-    TxRef beginTransaction(String id) {
-        Company company = securityHelper.getCompany();
+    TxRef beginTransaction(String id, Company company) {
         return auditDAO.beginTransaction(id, company);
 
     }
@@ -265,7 +264,7 @@ public class AuditService {
         Fortress fortress = authorisedHeader.getFortress();
 
         // Transactions checks
-        TxRef txRef = handleTxRef(input);
+        TxRef txRef = handleTxRef(input, fortress.getCompany());
         resultBean.setTxReference(txRef);
 
         // https://github.com/monowai/auditbucket/issues/7
@@ -311,19 +310,16 @@ public class AuditService {
 
             //}
         }
-        AuditChange existingChange = null;
-        if (existingLog != null)
-            existingChange = existingLog.getAuditChange();
 
-        AuditChange thisChange = auditDAO.save(thisFortressUser, input, txRef, existingChange);
+        AuditChange thisChange = auditDAO.save(thisFortressUser, input, txRef, (existingLog!=null ?existingLog.getAuditChange():null));
         input.setAuditEvent(thisChange.getEvent());
 
         thisChange = whatService.logWhat(authorisedHeader, thisChange, input.getWhat());
 
-        AuditLog newLog = auditDAO.addLog(authorisedHeader, thisChange, fortressWhen);
+        AuditLog newLog = auditDAO.addLog(authorisedHeader, thisChange, fortressWhen, existingLog);
         resultBean.setSysWhen(newLog.getSysWhen());
 
-        boolean moreRecent = (existingChange == null || existingLog.getFortressWhen() <= newLog.getFortressWhen());
+        boolean moreRecent = (existingLog == null || existingLog.getFortressWhen() <= newLog.getFortressWhen());
 
         input.setStatus(AuditLogInputBean.LogStatus.OK);
 
@@ -332,7 +328,7 @@ public class AuditService {
                 authorisedHeader.setLastUser(thisFortressUser);
                 auditDAO.save(authorisedHeader);
             }
-            auditDAO.setLastChange(authorisedHeader, thisChange);
+            //auditDAO.setLastChange(authorisedHeader, thisChange);
 
             try {
                 resultBean.setSearchDocument(prepareSearchDocument(authorisedHeader, input, input.getAuditEvent(), searchActive, fortressWhen, newLog));
@@ -340,8 +336,6 @@ public class AuditService {
                 resultBean.setMessage("Error processing JSON document");
                 resultBean.setStatus(AuditLogInputBean.LogStatus.ILLEGAL_ARGUMENT);
             }
-
-
         }
 
         return resultBean;
@@ -379,6 +373,7 @@ public class AuditService {
             searchDocument.setSysWhen(auditHeader.getWhenCreated());
 
         // Used to reconcile that the change was actually indexed
+        logger.trace("Preparing Search Document [{}]", auditLog);
         searchDocument.setLogId(auditLog.getId());
         return searchDocument;
     }
@@ -386,7 +381,7 @@ public class AuditService {
     public void makeChangeSearchable(SearchChange searchDocument) {
         if (searchDocument == null)
             return;
-        logger.debug("Indexing auditLog [{}]]", searchDocument);
+        logger.debug("Sending request to index auditLog [{}]]", searchDocument);
         searchGateway.makeChangeSearchable(searchDocument);
     }
 
@@ -418,14 +413,14 @@ public class AuditService {
         return auditDAO.getHeader(id);
     }
 
-    private TxRef handleTxRef(AuditLogInputBean input) {
+    private TxRef handleTxRef(AuditLogInputBean input, Company company) {
         TxRef txRef = null;
         if (input.isTransactional()) {
             if (input.getTxRef() == null) {
-                txRef = beginTransaction();
+                txRef = beginTransaction(company);
                 input.setTxRef(txRef.getName());
             } else {
-                txRef = beginTransaction(input.getTxRef());
+                txRef = beginTransaction(input.getTxRef(), company);
             }
         }
 
@@ -451,7 +446,7 @@ public class AuditService {
         try {
             header = auditDAO.getHeader(auditId); // Happens during development when Graph is cleared down and incoming search results are on the q
         } catch (DataRetrievalFailureException e){
-            logger.error("Unable to located header for auditId {}", auditId);
+            logger.error("Unable to locate header for auditId {} in order to handle the search result. Ignoring.", auditId);
             return ;
         }
 
@@ -459,10 +454,11 @@ public class AuditService {
             logger.error("Audit Key could not be found for [{}]", searchResult);
             return;
         }
+
         if (header.getSearchKey() == null) {
             header.setSearchKey(searchResult.getSearchKey());
             auditDAO.save(header);
-            logger.trace("Updated from search auditKey =[{}]", searchResult);
+            logger.trace("Updating Header{} search auditKey =[{}]", header.getAuditKey(), searchResult);
         }
 
         if (searchResult.getLogId() == null) {
@@ -521,7 +517,8 @@ public class AuditService {
     }
 
     public AuditLog getLastAuditLog(AuditHeader auditHeader) {
-        logger.info("Getting last log {}",auditHeader.getCallerRef());
+        logger.debug("Getting lastLog AuditID [{}]", auditHeader.getId());
+
         return auditDAO.getLastAuditLog(auditHeader.getId());
     }
 
@@ -576,7 +573,7 @@ public class AuditService {
         AuditChange priorChange = currentLog.getAuditChange().getPreviousChange();
 
         if (priorChange != null) {
-            auditDAO.setLastChange(auditHeader, priorChange);
+            auditDAO.makeLastChange(auditHeader, priorChange);
             auditDAO.fetch(priorChange);
             auditHeader.setLastUser(fortressService.getFortressUser(auditHeader.getFortress(), priorChange.getWho().getCode()));
             auditHeader = auditDAO.save(auditHeader);
@@ -726,7 +723,7 @@ public class AuditService {
     }
 
     private AuditLog getLastLog(Long headerId) {
-        return auditDAO.getLastLog(headerId);
+        return auditDAO.getLastAuditLog(headerId);
     }
 
     public Set<AuditLog> getAuditLogs(Long headerId) {

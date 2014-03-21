@@ -19,11 +19,17 @@
   -->
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-http://www.springframework.org/schema/beans/spring-beans.xsd">
+http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <util:map id="config">
+        <entry key="remote_shell_enabled" value="true"/>
+    </util:map>
+
 
     <bean id="graphDatabaseService" class="org.neo4j.test.ImpermanentGraphDatabase" destroy-method="shutdown"/>
+
 
 
 

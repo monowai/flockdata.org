@@ -39,7 +39,6 @@ import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.FortressService;
 import junit.framework.Assert;
 import org.apache.commons.lang.time.StopWatch;
-import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -664,7 +663,7 @@ public class TestAudit {
         assertEquals("Logs with missing dates not correctly recorded", 2, logs.size());
 
         // Same date should still log
-        DateMidnight dateMidnight = new DateTime().toDateMidnight();
+        DateTime dateMidnight = new DateTime();
         log = auditManagerService.createLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", dateMidnight.toDateTime(), what + 3 + "\"}"));
         logger.info("3 " + new Date(log.getSysWhen()).toString());
         AuditLog thirdLog = auditService.getLastLog(ahWP);

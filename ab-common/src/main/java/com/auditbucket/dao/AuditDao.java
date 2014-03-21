@@ -80,7 +80,7 @@ public interface AuditDao {
 
     public Map<String, Object> findByTransaction(TxRef txRef);
 
-    AuditLog addLog(AuditHeader header, AuditChange al, DateTime fortressWhen);
+    AuditLog addLog(AuditHeader header, AuditChange al, DateTime fortressWhen, AuditLog existingLog);
 
     AuditLog save(AuditLog log);
 
@@ -98,10 +98,6 @@ public interface AuditDao {
 
     AuditChange fetch(AuditChange lastChange);
 
-    AuditLog getLastLog(Long headerId);
-
-    void setLastChange(AuditHeader auditHeader, AuditChange lastChange);
-
     AuditChange save(AuditChange change, Boolean compressed);
 
     void fetch(AuditWhat what);
@@ -113,4 +109,6 @@ public interface AuditDao {
     Collection<AuditHeader> findHeaders(Long id, String docType, Long skipTo);
 
     void delete(AuditChange currentChange);
+
+    void makeLastChange(AuditHeader auditHeader, AuditChange priorChange);
 }

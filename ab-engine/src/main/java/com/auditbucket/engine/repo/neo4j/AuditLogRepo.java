@@ -38,7 +38,7 @@ public interface AuditLogRepo extends GraphRepository<AuditChangeNode> {
     int getLogCount(Long auditHeaderID);
 
     @Query(elementClass = AuditLogRelationship.class,
-            value = "match (header:AuditHeader)-[last:LAST_CHANGE]->(change:Change)<-[log:LOGGED]-(header) where id(header)={0} " +
+            value = "match (change:Change)<-[log:LOGGED]-() where id(change)={0} " +
                     "   return log")
     AuditLogRelationship getLastAuditLog(Long auditHeaderID);
 

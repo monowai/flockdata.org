@@ -58,6 +58,15 @@ public class AuditChangeNode implements AuditChange {
     private String comment;
     private String storage ;
 
+    @Override
+    public String toString() {
+        return "AuditChangeNode{" +
+                "id=" + id +
+                ", madeBy=" + madeBy +
+                ", event=" + event +
+                '}';
+    }
+
     // Neo4J will not persist a byte[] over it's http interface. Probably fixed in V2, but not in our version
     @JsonIgnore
     private boolean compressed = false;
@@ -66,9 +75,9 @@ public class AuditChangeNode implements AuditChange {
     @RelatedTo(type = "PREVIOUS_CHANGE", direction = Direction.OUTGOING)
     private AuditChangeNode previousChange;
 
-    @Fetch
-    @RelatedToVia(type = "LOGGED", direction = Direction.INCOMING)
-    AuditLogRelationship auditLog;
+//    @Fetch
+//    @RelatedToVia(type = "LOGGED", direction = Direction.INCOMING)
+//    AuditLogRelationship auditLog;
 
 //    @RelatedTo(type = "auditWhat")
     private AuditWhatData auditWhat;
@@ -137,7 +146,7 @@ public class AuditChangeNode implements AuditChange {
     @Override
     @JsonIgnore
     public AuditLog getAuditLog() {
-        return auditLog;
+        return null;
     }
 
     @Transient
@@ -169,9 +178,24 @@ public class AuditChangeNode implements AuditChange {
         this.event = (AuditEventNode) event;
 
     }
+    public boolean equals(Object other) {
+        if (this == other) return true;
+
+        if (id == null) return false;
+
+        if (! (other instanceof AuditChangeNode)) return false;
+
+        return id.equals(((AuditChangeNode) other).id);
+    }
+
+    public int hashCode() {
+        return id == null ? System.identityHashCode(this) : id.hashCode();
+    }
 
     @Override
     public void setCompressed(Boolean compressed) {
         this.compressed=compressed;
     }
+
+
 }
