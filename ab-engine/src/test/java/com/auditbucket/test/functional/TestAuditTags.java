@@ -295,7 +295,7 @@ public class TestAuditTags {
     @Test
     public void noTrackTagsAreReturned() throws Exception {
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
-        Fortress fortress = fortressService.registerFortress(new FortressInputBean("ABC"));
+        fortressService.registerFortress(new FortressInputBean("ABC"));
 
         TagInputBean tagInput = new TagInputBean("FLOP");
 
@@ -339,7 +339,7 @@ public class TestAuditTags {
         // This should create the same Tag object
         AuditResultBean rb = auditEp.createHeader(aib, null, null).getBody();
         AuditLogInputBean alib = new AuditLogInputBean(rb.getAuditKey(), "Harry", new DateTime(),null);
-        AuditLogResultBean alb = auditEp.createLog(alib, null, null ).getBody();
+        auditEp.createLog(alib, null, null ).getBody();
 
 
     }
