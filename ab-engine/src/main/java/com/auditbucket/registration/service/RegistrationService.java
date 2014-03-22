@@ -20,6 +20,7 @@
 package com.auditbucket.registration.service;
 
 
+import com.auditbucket.helper.AuditException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Company;
@@ -84,7 +85,6 @@ public class RegistrationService {
         return iCompanyUser;
     }
 
-
     public SystemUser isAdminUser(Company company, String message) {
         String systemUser = securityHelper.isValidUser();
         SystemUser adminUser = companyService.getAdminUser(company, systemUser);
@@ -109,5 +109,14 @@ public class RegistrationService {
 
 
     }
+
+    public Company resolveCompany(String apiKey) throws AuditException {
+        Company c;
+        c = securityHelper.getCompany(apiKey);
+        if (c == null)
+            throw new AuditException("Invalid API Key");
+        return c;
+    }
+
 
 }

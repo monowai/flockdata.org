@@ -22,7 +22,6 @@ package com.auditbucket.audit.model;
 import org.joda.time.DateTime;
 
 import java.util.Map;
-import java.util.Set;
 
 /**
  * User: Mike Holdsworth
@@ -50,7 +49,7 @@ public interface SearchChange {
 
     public Map<String, Object> getTagValues();
 
-    public void setTags(Set<AuditTag> tagSet);
+    public void setTags(Iterable<AuditTag> tagSet);
 
     /**
      * @return who made this change

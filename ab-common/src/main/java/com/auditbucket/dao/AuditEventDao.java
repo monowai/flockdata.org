@@ -19,12 +19,8 @@
 
 package com.auditbucket.dao;
 
-import com.auditbucket.audit.model.AuditChange;
 import com.auditbucket.audit.model.AuditEvent;
-import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.audit.model.AuditTag;
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.Tag;
 
 import java.util.Set;
 
@@ -34,8 +30,6 @@ import java.util.Set;
  * Time: 9:55 PM
  */
 public interface AuditEventDao {
-
-    AuditEvent findEvent(Company company, String eventCode);
 
     AuditEvent createEvent(Company company, String eventCode);
 

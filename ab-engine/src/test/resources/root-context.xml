@@ -41,41 +41,20 @@
     <import resource="neo4j-context.xml"/>
     <import resource="integration.xml"/>
     <import resource="spring-security.xml"/>
+    <import resource="kv-context.xml"/>
 
-    <task:annotation-driven executor="taskExecutor"/>
+    <task:annotation-driven executor="ab-engineExec"/>
 
     <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true"
                                   location="classpath:/config.properties"/>
 
-    <!--<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">-->
-    <!--&lt;!&ndash; config the location(s) of the properties file(s) here &ndash;&gt;-->
-    <!--<property name="nullValue" value="@null" />-->
-    <!--</bean>-->
+    <task:executor id="ab-engineExec" pool-size="10-15" keep-alive="180" queue-capacity="15"
+                   rejection-policy="CALLER_RUNS"/>
 
-    <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ConcurrentTaskExecutor">
-        <property name="concurrentExecutor" ref="threadPoolExecutor"/>
-    </bean>
-    <bean id="threadPoolExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-        <!--<property name="corePoolSize" value="20"/>-->
-        <property name="threadGroupName" value="ab-engine"/>
-        <!--<property name="maxPoolSize" value="250"/>-->
-        <property name="keepAliveSeconds" value="5"/>
-        <property name="allowCoreThreadTimeOut" value="true"/>
-        <property name="queueCapacity" value="-1"/>
-    </bean>
 
     <cache:annotation-driven/>
     <bean id="cacheManager" class="org.springframework.cache.support.NoOpCacheManager">
-        <!--<property name="caches">-->
-        <!--<set>-->
-        <!--<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" name="companyKeys" />-->
-        <!--<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" name="sysUserNames" />-->
-        <!--<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" name="systemUsers" />-->
-        <!--<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" name="fortressName" />-->
-        <!--<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" name="companyFortress" />-->
-        <!--</set>-->
-        <!--</property>-->
     </bean>
 
-    <import resource="kv-context.xml"/>
+
 </beans>

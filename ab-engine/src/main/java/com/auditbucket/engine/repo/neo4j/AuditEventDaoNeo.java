@@ -21,14 +21,16 @@ package com.auditbucket.engine.repo.neo4j;
 
 import com.auditbucket.audit.model.AuditEvent;
 import com.auditbucket.dao.AuditEventDao;
-import com.auditbucket.engine.repo.neo4j.AuditEventRepo;
 import com.auditbucket.engine.repo.neo4j.model.AuditEventNode;
 import com.auditbucket.registration.model.Company;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -44,17 +46,36 @@ public class AuditEventDaoNeo implements AuditEventDao {
     @Autowired
     AuditEventRepo eventRepo;
 
-    @Override
     @Cacheable(value = "companyEvent", unless = "#result == null")
-    public AuditEvent findEvent(Company company, String eventCode) {
+    private AuditEvent findEvent(Company company, String eventCode) {
         return eventRepo.findCompanyEvent(company.getId(), eventCode.toLowerCase());
     }
 
     @Override
     public AuditEvent createEvent(Company company, String eventCode) {
-        AuditEventNode node = new AuditEventNode(company, eventCode);
+        AuditEvent ev = findEvent(company, eventCode);
+        if (ev == null ) {
+            //ev = new AuditEventNode(company, eventCode);
+            //ev = template.save(ev);
+            String cypher = "merge (event:_Event :Event{code:{code}, name:{name}}) " +
+                    "with event " +
+                    "match (c:ABCompany) where id(c) = {coId} " +
+                    "merge (c)-[:COMPANY_EVENT]->(event) " +
+                    "return event";
 
-        return template.save(node);
+            Map<String, Object> params = new HashMap<>();
+            params.put("code", eventCode.toLowerCase());
+            params.put("name", eventCode);
+            params.put("coId", company.getId());
+            Result<Map<String, Object>> results = template.query(cypher, params);
+            //((Node)row.get("event")).getPropertyKeys();
+            for (Map<String, Object> row : results) {
+                ev = template.projectTo(row.get("event"), AuditEventNode.class);
+            }
+//            ev = findEvent(company, eventCode);
+        }
+
+        return ev;
     }
 
     @Override

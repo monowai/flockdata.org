@@ -19,9 +19,6 @@
 
 package com.auditbucket.audit.model;
 
-import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.Tag;
-
 /**
  * User: Mike Holdsworth
  * Date: 29/06/13
@@ -32,8 +29,6 @@ public interface AuditEvent {
     public Long getId();
 
     public String getCode();
-
-    Company getCompany();
 
     String getName();
 }

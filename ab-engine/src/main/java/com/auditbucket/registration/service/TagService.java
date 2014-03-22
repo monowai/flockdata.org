@@ -68,11 +68,10 @@ public class TagService {
 
     public Iterable<Tag> processTags(Iterable<TagInputBean> tagInputs) {
         Company company = securityHelper.getCompany();
-        return processTags(tagInputs, company);
+        return processTags(company, tagInputs);
     }
 
-    public Iterable<Tag> processTags(Iterable<TagInputBean> tagInputs, Company company) {
-
+    public Iterable<Tag> processTags(Company company, Iterable<TagInputBean> tagInputs) {
         return tagDao.save(company, tagInputs);
     }
 

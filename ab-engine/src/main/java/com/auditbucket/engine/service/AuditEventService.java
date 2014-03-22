@@ -59,10 +59,7 @@ public class AuditEventService {
 
     @Transactional(propagation =  Propagation.SUPPORTS)
     public AuditEvent processEvent(Company company, String eventCode) {
-        AuditEvent existingEvent = auditEventDao.findEvent(company, eventCode);
-        if (existingEvent == null)
-            existingEvent = auditEventDao.createEvent(company, eventCode);
-        return existingEvent;
+        return auditEventDao.createEvent(company, eventCode);
     }
 
     public Set<AuditEvent> getCompanyEvents(Long id) {

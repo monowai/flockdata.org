@@ -33,6 +33,7 @@ import com.auditbucket.search.model.AuditSearchChange;
 import com.auditbucket.search.model.SearchResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.collections.FastArrayList;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -820,12 +821,11 @@ public class AuditService {
         return getSearchChange(resultBean, event, when, company);
     }
 
-    public Iterable<AuditResultBean> createHeaders(AuditHeaderInputBean[] inputBeans, Company company, Fortress fortress) {
-        Collection<AuditResultBean>arb = new ArrayList<>();
-        int processCount = 0;
+    public Iterable<AuditResultBean> createHeaders(List<AuditHeaderInputBean> inputBeans, Company company, Fortress fortress) {
+        Collection<AuditResultBean>arb = new FastArrayList();
         for (AuditHeaderInputBean inputBean : inputBeans) {
+            logger.debug("Batch Processing callerRef=[{}], documentType=[{}]", inputBean.getCallerRef(), inputBean.getDocumentType());
             arb.add(createHeader(inputBean, company, fortress));
-            processCount++;
         }
         return arb;
 

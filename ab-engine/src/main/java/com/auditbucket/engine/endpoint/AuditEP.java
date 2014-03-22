@@ -29,16 +29,19 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
+import com.auditbucket.registration.service.RegistrationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
@@ -76,6 +79,8 @@ public class AuditEP {
     WhatService whatService;
 
     private static Logger logger = LoggerFactory.getLogger(AuditEP.class);
+    @Autowired
+    private RegistrationService registrationService;
 
     @ResponseBody
     @RequestMapping(value = "/ping", method = RequestMethod.GET)
@@ -94,31 +99,24 @@ public class AuditEP {
     @ResponseBody
     @RequestMapping(value = "/", consumes = "application/json", method = RequestMethod.PUT)
 
-    public void createHeaders(@RequestBody AuditHeaderInputBean[] inputBeans,
+    public void createHeaders(@RequestBody List<AuditHeaderInputBean> inputBeans,
                               String apiKey,
                               @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws AuditException {
-        createHeadersF(inputBeans, false, ApiKeyHelper.resolveKey(apiKey, apiHeaderKey));
+        createHeadersAsync(inputBeans, false, ApiKeyHelper.resolveKey(apiKey, apiHeaderKey));
     }
 
-    public Future<Integer> createHeadersF(AuditHeaderInputBean[] inputBeans, boolean waitForFinish, String apiKey) throws AuditException {
-        Company company = auditManager.resolveCompany(apiKey);
-        Fortress fortress = auditManager.resolveFortress(company, inputBeans[0], true);
-        boolean async = false;
 
+    public Future<Integer> createHeadersAsync(List<AuditHeaderInputBean> inputBeans, boolean async, String apiKey) throws AuditException {
+        Company company = registrationService.resolveCompany(apiKey);
+        Fortress fortress = auditManager.resolveFortress(company, inputBeans.iterator().next(), true);
         if (async) {
-
             Future<Integer> batch = auditManager.createHeadersAsync(inputBeans, company, fortress);
             Thread.yield();
-            if (waitForFinish)
-                while (!batch.isDone()) {
-                    Thread.yield();
-                }
             return batch;
 
         } else {
-            auditManager.createHeaders(inputBeans, company, fortress);
+            return new AsyncResult<>(auditManager.createHeaders(inputBeans, company, fortress));
         }
-        return null;
     }
 
     /**

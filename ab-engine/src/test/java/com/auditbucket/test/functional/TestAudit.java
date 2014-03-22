@@ -27,7 +27,6 @@ import com.auditbucket.audit.model.AuditWhat;
 import com.auditbucket.engine.endpoint.AuditEP;
 import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
-import com.auditbucket.engine.service.WhatServiceTest;
 import com.auditbucket.fortress.endpoint.FortressEP;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.bean.FortressInputBean;
@@ -142,8 +141,10 @@ public class TestAudit {
 
         // Should work now
         SecurityContextHolder.getContext().setAuthentication(authMike);//
+
         result = auditEP.createHeader(inputBean, null, null).getBody(); // Works due to basic authz
         assertNotNull(result);  // works coz basic authz
+
         final AuditHeader header = auditEP.getAudit(result.getAuditKey(), apiKey, apiKey).getBody();
         assertNotNull (header);
         SecurityContextHolder.getContext().setAuthentication(authMark);// Wrong user, but valid API key
@@ -166,10 +167,6 @@ public class TestAudit {
         } catch (AuditException e) {
             // this should happen due to invalid api key
         }
-
-        AuditLogInputBean alb = new AuditLogInputBean(header.getAuditKey(), "zippy", new DateTime(), WhatServiceTest.getRandomJson("random!")) ;
-        auditEP.createLog(alb, apiKey, apiKey);
-
 
     }
 
@@ -296,43 +293,6 @@ public class TestAudit {
         assertFalse(logs.isEmpty());
         assertEquals(1, logs.size());
         logs.iterator().next().toString();
-    }
-
-    /**
-     * Ensures that the event type gets set to the correct default for create and update.
-     */
-    @Test
-    public void defaultEventTypesAreHandled() throws Exception {
-
-        regService.register(new RegistrationBean(monowai, mike, "bah"));
-        Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
-
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
-
-        AuditResultBean resultBean = auditManagerService.createHeader(inputBean, null);
-        String ahKey = resultBean.getAuditKey();
-        assertNotNull(ahKey);
-
-        AuditHeader header = auditService.getHeader(ahKey);
-        assertNotNull(header.getDocumentType());
-
-        assertNotNull(fortressService.getFortressUser(fo, "wally", true));
-        assertNull(fortressService.getFortressUser(fo, "wallyz", false));
-
-        auditManagerService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 0}"));
-
-        AuditLog when = auditService.getLastAuditLog(ahKey);
-        assertNotNull(when);
-        assertEquals(AuditChange.CREATE, when.getAuditChange().getEvent().getName()); // log event default
-        assertEquals(AuditChange.CREATE.toLowerCase(), when.getAuditChange().getEvent().getName().toLowerCase()); // log event default
-
-        auditManagerService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 1}"));
-        AuditLog whenB = auditService.getLastAuditLog(ahKey);
-        assertNotNull(whenB);
-
-        assertFalse(whenB.equals(when));
-        assertNotNull(whenB.getAuditChange().getEvent());
-        assertEquals(AuditChange.UPDATE, whenB.getAuditChange().getEvent().getName());  // log event default
     }
 
     @Test

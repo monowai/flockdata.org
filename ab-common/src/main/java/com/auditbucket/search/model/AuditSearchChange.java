@@ -29,7 +29,6 @@ import org.joda.time.DateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Encapsulates the information to make an audit header and log a searchable document
@@ -184,7 +183,7 @@ public class AuditSearchChange implements com.auditbucket.audit.model.SearchChan
         return tagValues;
     }
 
-    public void setTags(Set<AuditTag> tagSet) {
+    public void setTags(Iterable<AuditTag> tagSet) {
         tagValues = new HashMap<>();
         for (AuditTag tag : tagSet) {
             HashMap<String, Object> tagValues = (HashMap<String, Object>) this.tagValues.get(tag.getTagType());
