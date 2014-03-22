@@ -41,19 +41,19 @@ public class AuditEventNode implements AuditEvent {
     @GraphId
     private Long id;
 
-    @Indexed(indexName = "eventCode")
+    @Indexed (unique = true)
     private String code;
     private String name;
 
     @RelatedTo(type = "COMPANY_EVENT", direction = Direction.INCOMING)
-    private CompanyNode company;
+    private Iterable<CompanyNode> companies;
 
     protected AuditEventNode() {
     }
 
     public AuditEventNode(Company company, String event) {
         this();
-        this.company = (CompanyNode) company;
+        //this.company = (CompanyNode) company;
         this.code = event.toLowerCase();
         this.name = event;
     }
@@ -68,11 +68,11 @@ public class AuditEventNode implements AuditEvent {
         return code;
     }
 
-    @Override
-    @JsonIgnore
-    public Company getCompany() {
-        return company;
-    }
+//    @Override
+//    @JsonIgnore
+//    public Company getCompany() {
+//        return company;
+//    }
 
     @Override
     public String getName() {

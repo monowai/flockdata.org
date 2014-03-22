@@ -22,14 +22,15 @@ package com.auditbucket.test.functional;
 import com.auditbucket.audit.bean.*;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditLog;
+import com.auditbucket.engine.endpoint.AuditEP;
 import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.engine.service.WhatService;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.search.model.AuditSearchSchema;
@@ -80,11 +81,14 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 public class TestAuditIntegration {
-
-    private static int fortressMax = 2;
+    private boolean stressOnly = false;
+    private static int fortressMax = 1;
     private static JestClient client;
     @Autowired
     AuditService auditService;
+    @Autowired
+    AuditEP auditEP;
+
     @Autowired
     RegistrationService regService;
     @Autowired
@@ -144,6 +148,7 @@ public class TestAuditIntegration {
 
     @Test
     public void companyAndFortressWithSpaces() throws Exception {
+        org.junit.Assume.assumeTrue(!stressOnly);
         SecurityContextHolder.getContext().setAuthentication(authA);
         regService.registerSystemUser(new RegistrationBean("Company With Space", email, "bah"));
         Thread.sleep(1000);
@@ -161,7 +166,31 @@ public class TestAuditIntegration {
     }
 
     @Test
+    public void headerWithTagsProcess() throws Exception {
+        org.junit.Assume.assumeTrue(!stressOnly);
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        String company = "Monowai";
+        String apiKey = regService.registerSystemUser(new RegistrationBean(company, email, "bah")).getCompany().getApiKey();
+        Fortress fo = fortressService.registerFortress(new FortressInputBean("headerWithTagsProcess", false));
+        DateTime now = new DateTime();
+        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", now, "ZZZ123");
+        inputBean.setTag(new TagInputBean("testTagNameZZ", "someAuditRLX"));
+        inputBean.setEvent("TagTest");
+        AuditResultBean auditResult;
+        auditResult = auditEP.createHeader(inputBean, apiKey, apiKey).getBody();
+        Thread.sleep(4000);
+        AuditSummaryBean summary = auditEP.getAuditSummary(auditResult.getAuditKey(), apiKey, apiKey).getBody();
+        assertNotNull(summary);
+        // Check we can find the Event in ElasticSearch
+        doEsQuery(summary.getHeader().getIndexName(), inputBean.getEvent(), 1);
+        // Can we find the Tag
+        doEsQuery(summary.getHeader().getIndexName(), "testTagNameZZ", 1);
+
+    }
+
+    @Test
     public void immutableHeadersWithNoLogsAreIndexed() throws Exception {
+        org.junit.Assume.assumeTrue(!stressOnly);
         SecurityContextHolder.getContext().setAuthentication(authA);
         String company = "Monowai";
         regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
@@ -192,6 +221,7 @@ public class TestAuditIntegration {
 
     @Test
     public void createHeaderTimeLogsWithSearchActivated() throws Exception {
+        org.junit.Assume.assumeTrue(!stressOnly);
         int max = 3;
         String ahKey;
         logger.info("createHeaderTimeLogsWithSearchActivated started");
@@ -223,7 +253,7 @@ public class TestAuditIntegration {
             i++;
         }
         watch.stop();
-        Thread.sleep(5000);
+        Thread.sleep(8000);
         // Test that we get the expected number of log events
         if (!"rest".equals(System.getProperty("neo4j"))) // Don't check if running over rest
             assertEquals("This will fail if the DB is not cleared down, i.e. testing over REST", max, auditService.getAuditLogCount(ahKey));
@@ -254,12 +284,11 @@ public class TestAuditIntegration {
 
     @Test
     public void auditsByPassGraphByCallerRef() throws Exception {
-        int max = 3;
-        String ahKey;
+        org.junit.Assume.assumeTrue(!stressOnly);
         logger.info("auditsByPassGraphByCallerRef started");
         SecurityContextHolder.getContext().setAuthentication(authA);
         String company = "Monowai";
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
+        regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("TrackGraph", false));
 
         AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortress.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
@@ -267,7 +296,6 @@ public class TestAuditIntegration {
         auditManager.createHeader(inputBean, null);
 
         String indexName = AuditSearchSchema.parseIndex(fortress);
-        ;
 
         // Putting asserts On elasticsearch
         Thread.sleep(2000); // Let the messaging take effect
@@ -309,6 +337,7 @@ public class TestAuditIntegration {
      */
     @Test
     public void suppressIndexingOnDemand() throws Exception {
+        org.junit.Assume.assumeTrue(!stressOnly);
         String escJson = "{\"who\":";
         SecurityContextHolder.getContext().setAuthentication(authA);
         regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
@@ -342,7 +371,7 @@ public class TestAuditIntegration {
 
     @Test
     public void testWhatIndexingDefaultAttributeWithNGram() throws Exception {
-
+        org.junit.Assume.assumeTrue(!stressOnly);
         SecurityContextHolder.getContext().setAuthentication(authA);
         regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
         Fortress iFortress = fortressService.registerFortress(new FortressInputBean("ngram", false));
@@ -459,7 +488,7 @@ public class TestAuditIntegration {
 
     private void validateLogsIndexed(ArrayList<Long> list, int auditMax, int expectedLogCount) throws Exception {
         logger.info("Validating logs are indexed");
-        int fortress = 1;
+        int fortress = 2;
         int audit = 1;
         //DecimalFormat f = new DecimalFormat("##.000");
         while (fortress <= fortressMax) {
@@ -496,7 +525,7 @@ public class TestAuditIntegration {
             Thread.sleep(400);
             i++;
         }
-        if (i > 4)
+        if (i > 10)
             logger.info("Wait for search got to " + i);
         boolean searchWorking = auditHeader.getSearchKey() != null;
         assertTrue("Search reply not received from ab-search", searchWorking);

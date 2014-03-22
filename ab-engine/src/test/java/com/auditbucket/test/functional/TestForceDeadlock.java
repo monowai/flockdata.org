@@ -1,15 +1,17 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
+import com.auditbucket.audit.bean.AuditLogInputBean;
 import com.auditbucket.engine.endpoint.AuditEP;
 import com.auditbucket.engine.service.AuditService;
-import com.auditbucket.helper.AuditException;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
+import com.auditbucket.registration.endpoint.TagEP;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
+import com.auditbucket.test.unit.TestJson;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,10 +29,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 
@@ -51,6 +50,10 @@ public class TestForceDeadlock {
 
     @Autowired
     private AuditEP auditEP;
+
+    @Autowired
+    private TagEP tagEP;
+
 
     @Autowired
     private Neo4jTemplate template;
@@ -94,46 +97,46 @@ public class TestForceDeadlock {
         String docType = "TestAuditX";
 
         CountDownLatch latch = new CountDownLatch(4);
-        ArrayList<TagInputBean>tags = getTags(10, 20);
+        ArrayList<TagInputBean> tags = getTags(10, 20);
 
-        Map<Integer,CallerRefRunner> runners = new HashMap<>();
+        Map<Integer, CallerRefRunner> runners = new HashMap<>();
         int threadMax = 15;
-        for (int i = 0; i <threadMax ; i++) {
+        for (int i = 0; i < threadMax; i++) {
             runners.put(i, addRunner(fortress, docType, "ABC" + i, 20, tags, latch));
         }
 
         latch.await();
         boolean working = false;
-        Map<Integer,Future<Integer>>futures = new HashMap<>();
-
+        Map<Integer, Future<Integer>> futures = new HashMap<>();
+        String apiKey = fortress.getCompany().getApiKey();
         try {
-            for (int i = 0; i <threadMax ; i++) {
-                futures.put(i, auditEP.createHeadersF(runners.get(i).getInputBeans(), false, fortress.getCompany().getApiKey()));
-                //futures.put(i, auditEP.createHeadersF(runners.get(i).getInputBeans(), false));
+            for (int i = 0; i < threadMax; i++) {
+                //tagEP.createAuditTags(runners.get(i).getTags(), apiKey, apiKey);
+                futures.put(i, auditEP.createHeadersAsync(runners.get(i).getInputBeans(), true, apiKey));
             }
             working = true;
         } catch (RuntimeException e) {
             logger.error("rte ", e);
         }
-        for (int i = 0; i <threadMax ; i++) {
-            while ( futures.get(i).get() == null ){
-                Thread.yield();
+        for (int i = 0; i < threadMax; i++) {
+            if (futures.get(i) != null) {
+                while (!futures.get(i).isDone()) {
+                    Thread.yield();
+                }
+                doFutureWorked(futures.get(i), runners.get(i).getMaxRun());
             }
-            doFutureWorked(futures.get(i), runners.get(i).getMaxRun());
         }
         assertEquals(true, working);
-
-
     }
 
     private ArrayList<TagInputBean> getTags(int auditTag, int regTag) {
         ArrayList<TagInputBean> tags = new ArrayList<>();
         for (int i = 0; i < auditTag; i++) {
-            tags.add(new TagInputBean("audittag"+i, "tagRlx"+i));
+            tags.add(new TagInputBean("audittag" + i, "tagRlx" + i));
         }
 
         for (int i = 0; i < regTag; i++) {
-            TagInputBean tag = new TagInputBean("tag"+i);
+            TagInputBean tag = new TagInputBean("tag" + i);
             tags.add(tag);
         }
         return tags;
@@ -161,7 +164,7 @@ public class TestForceDeadlock {
         Fortress fortress;
         CountDownLatch latch;
         int maxRun = 30;
-        AuditHeaderInputBean inputBeans[] ;
+        List<AuditHeaderInputBean> inputBeans;
         Collection<TagInputBean> tags;
 
         boolean worked = false;
@@ -172,15 +175,15 @@ public class TestForceDeadlock {
             this.fortress = fortress;
             this.latch = latch;
             this.tags = tags;
-            this.maxRun= maxRun;
-            inputBeans = new AuditHeaderInputBean[maxRun];
+            this.maxRun = maxRun;
+            inputBeans = new ArrayList<>(maxRun) ;
         }
 
         public int getMaxRun() {
             return maxRun;
         }
 
-        public AuditHeaderInputBean[] getInputBeans() {
+        public List<AuditHeaderInputBean> getInputBeans() {
             return inputBeans;
         }
 
@@ -197,7 +200,9 @@ public class TestForceDeadlock {
                 while (count < maxRun) {
                     AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef + count);
                     inputBean.setTags(tags);
-                    inputBeans[count] = inputBean;
+                    inputBean.setAuditLog( new AuditLogInputBean("john"+count, null, TestJson.getBigJsonText(count) ));
+
+                    inputBeans.add(inputBean);
                     count++;
                 }
                 worked = true;
@@ -209,6 +214,14 @@ public class TestForceDeadlock {
             }
 
 
+        }
+
+        public Collection<TagInputBean> getTags() {
+            return tags;
+        }
+
+        public void setTags(Collection<TagInputBean> tags) {
+            this.tags = tags;
         }
     }
 }

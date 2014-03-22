@@ -24,32 +24,28 @@ import com.auditbucket.registration.model.FortressUser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTime;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-
 public interface AuditHeader {
 
-    public abstract Long getId();
+    public Long getId();
 
     /**
      * Foreign computer system that owns this header
      *
      * @return fortress
      */
-    public abstract Fortress getFortress();
+    public Fortress getFortress();
 
     /**
      * Callers classification of this header
      *
      * @return
      */
-    public abstract String getDocumentType();
+    public String getDocumentType();
 
     /**
      * @return Global Unique ID
      */
-    public abstract String getAuditKey();
+    public String getAuditKey();
 
     /**
      * @return last fortress user to modify this record

@@ -50,18 +50,16 @@ import java.util.TimeZone;
 @TypeAlias("AuditHeader")
 public class AuditHeaderNode implements AuditHeader {
 
-    @Indexed(indexName = UUID_KEY)
+    @Indexed
     private String auditKey;
 
     @RelatedTo(elementClass = FortressNode.class, type = "TRACKS", direction = Direction.INCOMING)
     @Fetch
     private FortressNode fortress;
 
-    @RelatedTo(type = "CLASSIFIED_AS", direction = Direction.OUTGOING)
-    @Fetch
-    private DocumentTypeNode documentType;
+    private String documentType;
 
-    @Indexed(indexName = "callerRef", unique = true)
+    @Indexed(unique = true)
     private String callerKeyRef;
 
     private String callerRef;
@@ -81,19 +79,17 @@ public class AuditHeaderNode implements AuditHeader {
     @RelatedTo(elementClass = FortressUserNode.class, type = "LASTCHANGED_BY", direction = Direction.OUTGOING)
     private FortressUserNode lastWho;
 
-    @Indexed(indexName = "AuditGUID")
     public static final String UUID_KEY = "auditKey";
 
-    @Indexed(indexName = "auditName")
+    @Indexed
     private String name;
 
     private String description;
 
     private long fortressDate;
 
-    @Indexed(indexName = "searchKey")
-    private
-    String searchKey = null;
+    @Indexed
+    private String searchKey = null;
 
     private boolean searchSuppressed;
     private String indexName;
@@ -109,16 +105,13 @@ public class AuditHeaderNode implements AuditHeader {
         this();
         auditKey = uniqueKey;
         this.fortress = (FortressNode) createdBy.getFortress();
-        this.documentType = (DocumentTypeNode) documentType;
-        String docType = (documentType != null ? getDocumentType() : "");
+        this.documentType = (documentType != null ? documentType.getName().toLowerCase() : "");
         callerRef = auditInput.getCallerRef();
-        if (callerRef != null) {
-            callerKeyRef = this.fortress.getId() + "." + documentType.getId() + "." + callerRef.toLowerCase();
-        } else
-            callerKeyRef = this.fortress.getId() + "." + documentType.getId() + "." + auditKey;
+        callerKeyRef = this.fortress.getId() + "." + documentType.getId() + "." + (callerRef != null ? callerRef.toLowerCase() : auditKey);
 
-        this.name = (callerRef == null ? docType : (docType + "." + callerRef).toLowerCase());
+        this.name = (callerRef == null ? this.documentType : (this.documentType + "." + callerRef).toLowerCase());
         this.description = auditInput.getDescription();
+
 
         indexName = AuditSearchSchema.parseIndex(this.fortress);
 
@@ -128,6 +121,8 @@ public class AuditHeaderNode implements AuditHeader {
             fortressDate = new DateTime(dateCreated, DateTimeZone.forTimeZone(TimeZone.getTimeZone(this.fortress.getTimeZone()))).getMillis();
         else
             fortressDate = when.getTime();
+
+        lastUpdated = fortressDate;
 
         this.createdBy = (FortressUserNode) createdBy;
         this.lastWho = (FortressUserNode) createdBy;
@@ -169,7 +164,7 @@ public class AuditHeaderNode implements AuditHeader {
     @Override
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getDocumentType() {
-        return documentType.getName().toLowerCase();
+        return documentType;
     }
 
     @Override
@@ -270,5 +265,22 @@ public class AuditHeaderNode implements AuditHeader {
 
     public String getDescription() {
         return description;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AuditHeaderNode)) return false;
+
+        AuditHeaderNode that = (AuditHeaderNode) o;
+
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 }

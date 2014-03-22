@@ -24,10 +24,8 @@ import com.auditbucket.audit.bean.AuditResultBean;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.FortressResultBean;
 import com.auditbucket.registration.bean.TagInputBean;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -39,7 +37,10 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Template to support writing Audit and Tag information to a remote AuditBucket instance.
@@ -88,27 +89,6 @@ public class AbRestClient {
         this.defaultFortress = defaultFortress;
     }
 
-    /**
-     * creates a rating value for a relationship. The property is always called weight
-     *
-     * @param relationshipName - from Tag to AuditHeader
-     * @param weight           - weight of the rating.
-     * @return constructed Tag Map that AuditBucket will handle
-     */
-    public static Map<String, Object> getWeightedRelationship(String relationshipName, int weight) {
-        Map<String, Object> relationship = new HashMap<>();
-        Map<String, Object> properties = new HashMap<>();
-        relationship.put(relationshipName, properties);
-        properties.put("weight", weight);
-        return relationship;
-    }
-
-    public static Map<String, Object> getWeightedMap(int weight) {
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("weight", weight);
-        return properties;
-    }
-
     public void ensureFortress(String fortressName) {
         if (fortressName == null)
             return;
@@ -134,15 +114,14 @@ public class AbRestClient {
 
 
     }
-
-    private String flushAudit(AuditHeaderInputBean[] auditInput) {
+    private String flushAudit(List<AuditHeaderInputBean> auditInput) {
         if (simulateOnly)
             return "OK";
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
         HttpHeaders httpHeaders = getHeaders(userName, password);
-        HttpEntity<AuditHeaderInputBean[]> requestEntity = new HttpEntity<>(auditInput, httpHeaders);
+        HttpEntity<List<AuditHeaderInputBean>> requestEntity = new HttpEntity<>(auditInput, httpHeaders);
 
         try {
             restTemplate.exchange(NEW_HEADER, HttpMethod.PUT, requestEntity, AuditResultBean.class);
@@ -157,6 +136,8 @@ public class AbRestClient {
 
         }
     }
+
+
 
     public String getErrorMessage(HttpStatusCodeException e) {
 
@@ -206,20 +187,10 @@ public class AbRestClient {
 
     static final ObjectMapper mapper = new ObjectMapper();
 
-    /**
-     * Converts the string arrays to a simple JSON representation
-     *
-     * @param headerRow - keys
-     * @param line      - values
-     * @return JSON Object
-     * @throws JsonProcessingException
-     */
-    public static String convertToJson(String[] headerRow, String[] line) throws JsonProcessingException {
-        ObjectNode node = mapper.createObjectNode();
-        for (int i = 0; i < headerRow.length; i++) {
-            node.put(headerRow[i], line[i].trim());
-        }
-        return node.toString();
+    public static Map<String, Object> getWeightedMap(int weight) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("weight", weight);
+        return properties;
     }
 
     public void flush(String message) {
@@ -263,18 +234,11 @@ public class AbRestClient {
             }
 
             if (flush || batchHeader.size() == batchSize) {
-                AuditHeaderInputBean[] thisBatch = new AuditHeaderInputBean[batchHeader.size()];
-                ListIterator<AuditHeaderInputBean> it = batchHeader.listIterator();
-                int i = 0;
-                while (it.hasNext()) {
-                    thisBatch[i] = it.next();
-                    i++;
-                }
 
-                if (i >= 1) {
+                if (batchHeader.size() >= 1) {
                     logger.debug("Flushing....");
-                    flushAudit(thisBatch);
-                    logger.debug("Flushed " + message + " Batch [{}]", i);
+                    flushAudit(batchHeader);
+                    logger.debug("Flushed " + message + " Batch [{}]", batchHeader.size());
                 }
                 batchHeader = new ArrayList<>();
             }
@@ -293,16 +257,9 @@ public class AbRestClient {
                 batchTag.add(tagInputBean);
 
             if (flush || batchTag.size() == batchSize) {
-                TagInputBean[] thisBatch = new TagInputBean[batchTag.size()];
-                ListIterator<TagInputBean> it = batchTag.listIterator();
-                int i = 0;
-                while (it.hasNext()) {
-                    thisBatch[i] = it.next();
-                    i++;
-                }
-                logger.debug("Flushing " + message + " Tag Batch [{}]", i);
-                if (i >= 1)
-                    flushTags(thisBatch);
+                logger.debug("Flushing " + message + " Tag Batch [{}]", batchTag.size());
+                if (batchTag.size() >= 0)
+                    flushTags(batchTag);
                 logger.debug("Tag Batch Flushed");
                 batchHeader = new ArrayList<>();
             }
@@ -310,12 +267,12 @@ public class AbRestClient {
 
     }
 
-    public String flushTags(TagInputBean[] tagInputBean) {
+    public String flushTags(List<TagInputBean> tagInputBean) {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
         HttpHeaders httpHeaders = getHeaders(userName, password);
-        HttpEntity<TagInputBean[]> requestEntity = new HttpEntity<>(tagInputBean, httpHeaders);
+        HttpEntity<List<TagInputBean>> requestEntity = new HttpEntity<>(tagInputBean, httpHeaders);
 
         //logger.info("template {}", restTemplate);
         try {

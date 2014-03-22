@@ -48,13 +48,14 @@ public class AuditLogRelationship implements AuditLog {
     @Fetch
     private AuditChangeNode auditChange;
 
-    @Indexed(indexName = "sysWhen", numeric = true)
+    @Indexed
     private Long sysWhen = 0l;
 
-    @Indexed(indexName = "fortressWhen")
+    @Indexed
     private Long fortressWhen = 0l;
 
-    @Indexed(indexName = "searchIndex")
+    //@Indexed
+    // ToDo: Associated with a node if Not Indexed. This is for maintenance and rebuilding missing docs.
     private boolean indexed = false;
 
     protected AuditLogRelationship() {
@@ -110,6 +111,27 @@ public class AuditLogRelationship implements AuditLog {
 
     public Long getId() {
         return id;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AuditLogRelationship)) return false;
+
+        AuditLogRelationship that = (AuditLogRelationship) o;
+
+        if (auditChange != null ? !auditChange.equals(that.auditChange) : that.auditChange != null) return false;
+        if (auditHeader != null ? !auditHeader.equals(that.auditHeader) : that.auditHeader != null) return false;
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (auditHeader != null ? auditHeader.hashCode() : 0);
+        result = 31 * result + (auditChange != null ? auditChange.hashCode() : 0);
+        return result;
     }
 
     @Override

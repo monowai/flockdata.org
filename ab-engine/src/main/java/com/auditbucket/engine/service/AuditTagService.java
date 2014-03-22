@@ -19,6 +19,7 @@
 
 package com.auditbucket.engine.service;
 
+import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.bean.AuditTagInputBean;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditTag;
@@ -29,6 +30,7 @@ import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.TagService;
+import org.apache.commons.collections.FastArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,13 +112,11 @@ public class AuditTagService {
      * @param ah       Header to associate userTags with
      * @param userTags Key/Value pair of tags. TagNode will be created if missing. Value can be a Collection
      */
-    public Set<AuditTag> associateTags(Company company, AuditHeader ah, Collection<TagInputBean> userTags) {
-        Set<AuditTag> rlxs = new TreeSet<>();
-        if ((userTags == null) || userTags.isEmpty())
-            return rlxs;
+    public Collection<AuditTag> associateTags(Company company, AuditHeader ah, Collection<TagInputBean> userTags) {
+        Collection<AuditTag> rlxs = new FastArrayList();
 
-        tagService.processTags(userTags, company);
-        Set<AuditTag> existingTags = findAuditTags(company, ah);
+        tagService.processTags(company, userTags);
+
 
         for (TagInputBean tagInput : userTags) {
 
@@ -131,14 +131,15 @@ public class AuditTagService {
                 rlxs.add(auditTagDao.save(ah, tag, tagInput.getAuditLink()));
 
         }
-        removeUnusedTagRelationships(ah, existingTags, rlxs);
+        // ToDo: Fix this - when we need to rewrite the header tags
+//        Iterable<AuditTag> existingTags = findAuditTags(company, ah);
+//        removeUnusedTagRelationships(ah, existingTags, rlxs);
         return rlxs;
     }
 
-    private void removeUnusedTagRelationships(AuditHeader ah, Collection<AuditTag> existingTags, Set<AuditTag> newTags ){
-        Collection<AuditTag>deleteMe = new ArrayList<>();
+    private void removeUnusedTagRelationships(AuditHeader ah, Iterable<AuditTag> existingTags, Collection<AuditTag> newTags ){
+        Collection<AuditTag>deleteMe = new FastArrayList();
         for (AuditTag tag : existingTags) {
-
             if (!newTags.contains(tag))
                 deleteMe.add(tag);
         }
@@ -146,8 +147,8 @@ public class AuditTagService {
 
     }
 
-    private Set<AuditTag> processRelationships(AuditHeader ah, Tag tag, Map<String, Object> auditRelationships) {
-        Set<AuditTag> rlxs = new TreeSet<>();
+    private Collection<AuditTag> processRelationships(AuditHeader ah, Tag tag, Map<String, Object> auditRelationships) {
+        Collection<AuditTag> rlxs = new FastArrayList();
         for (String key : auditRelationships.keySet()) {
             Object properties = auditRelationships.get(key);
             Map<String, Object> propMap;
@@ -198,5 +199,11 @@ public class AuditTagService {
             throw new AuditException("Unable to find the tag [" + tagName + "]");
         return auditTagDao.findTagAudits(tag);
 
+    }
+
+    public void createTags(Company company, List<AuditHeaderInputBean> inputBeans) {
+        for(AuditHeaderInputBean bean:inputBeans){
+            tagService.processTags(company, bean.getTags());
+        }
     }
 }

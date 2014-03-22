@@ -24,7 +24,7 @@ import com.auditbucket.audit.model.AuditTag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import java.util.Set;
+import java.util.Collection;
 
 /**
  * User: Mike Holdsworth
@@ -38,8 +38,10 @@ public class AuditResultBean {
     private String callerRef;
     private String auditKey;
     private AuditLogResultBean logResult;
+    private AuditLogInputBean auditLog;
     private com.auditbucket.audit.model.AuditHeader auditHeader;
-    private Set<AuditTag> tags;
+    private Collection<AuditTag> tags;
+    private AuditHeaderInputBean auditInputBean;
 
     protected AuditResultBean() {
     }
@@ -124,7 +126,7 @@ public class AuditResultBean {
         return wasDuplicate;
     }
 
-    public void setTags(Set<AuditTag> tags) {
+    public void setTags(Collection<AuditTag> tags) {
         this.tags = tags;
     }
 
@@ -133,7 +135,25 @@ public class AuditResultBean {
      * Only used when creating  relationships for the purpose of search
      * that bypass the graph
      */
-    public Set<AuditTag> getTags() {
+    public Collection<AuditTag> getTags() {
         return tags;
+    }
+
+    @JsonIgnore
+    public AuditLogInputBean getAuditLog() {
+        return auditLog;
+    }
+
+    public void setAuditLogInput(AuditLogInputBean logInputBean) {
+        this.auditLog = logInputBean;
+    }
+
+    public void setAuditInputBean(AuditHeaderInputBean auditInputBean) {
+        this.auditInputBean = auditInputBean;
+    }
+
+    @JsonIgnore
+    public AuditHeaderInputBean getAuditInputBean() {
+        return auditInputBean;
     }
 }

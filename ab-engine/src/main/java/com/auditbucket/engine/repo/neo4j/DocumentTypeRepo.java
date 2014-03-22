@@ -30,10 +30,10 @@ import org.springframework.data.neo4j.repository.GraphRepository;
  */
 public interface DocumentTypeRepo extends GraphRepository<DocumentTypeNode> {
     @Query(elementClass = DocumentTypeNode.class,
-            value = "start company=node({0})" +
-                    "MATCH company-[:documents]->documentType " +
-                    "        where documentType.companyKey ={1}" +
+            value =
+                    "MATCH fortress-[:documents]->documentType " +
+                    "        where id(fortress)={0} and documentType.companyKey ={1}" +
                     "       return documentType")
-    DocumentTypeNode findCompanyDocType(Long companyId, String docName);
+    DocumentTypeNode findFortressDocType(Long fortressId, String docKey);
 
 }

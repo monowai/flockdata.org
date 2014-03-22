@@ -36,7 +36,7 @@ public class FortressUserNode implements FortressUser {
     @Fetch
     private FortressNode fortress;
 
-    @Indexed(indexName = "fortressUser")
+    @Indexed
     private String code = null;
 
     private String name;

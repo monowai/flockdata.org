@@ -32,9 +32,7 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.repo.neo4j.model.TagNode;
 import com.auditbucket.registration.service.TagService;
-import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,7 +103,6 @@ public class AuditTagDaoNeo implements AuditTagDao {
         if (r != null) {
             return rel;
         }
-        //DynamicRelationshipType rlx = DynamicRelationshipType.withName(relationshipName);
         template.createRelationshipBetween(tagNode, headerNode, relationshipName, propMap);
         logger.trace("Created Relationship Tag[{}] of type {}", tag, relationshipName);
         return rel;
@@ -184,6 +181,9 @@ public class AuditTagDaoNeo implements AuditTagDao {
 
     @Override
     public Set<AuditTag> getAuditTags(AuditHeader auditHeader, Company company) {
+        Set<AuditTag> tagResults = new HashSet<>();
+        if ( null == auditHeader.getId())
+            return tagResults;
         String query = "match (audit:AuditHeader)<-[tagType]-(tag:Tag" + engineAdmin.getTagSuffix(company) + ") " +
                 "where id(audit)={auditId} \n" +
                 "optional match tag-[:located]-(located)-[*0..2]-(country:Country) \n" +
@@ -197,7 +197,7 @@ public class AuditTagDaoNeo implements AuditTagDao {
         Map<String, Object> params = new HashMap<>();
         params.put("auditId", auditHeader.getId());
         //Map<Long, AuditTag> tagResults = new HashMap<>();
-        Set<AuditTag> tagResults = new HashSet<>();
+
         for (Map<String, Object> row : template.query(query, params)) {
             Node n = (Node) row.get("tag");
             TagNode tag = new TagNode(n);

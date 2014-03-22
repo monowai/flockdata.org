@@ -30,8 +30,8 @@
     </appender>
 
     <!-- 3rdparty Loggers -->
-    <logger name="org.springframework.cache">
-        <level value="error"/>
+    <logger name="org.springframework">
+        <level value="info"/>
     </logger>
 
 
@@ -40,7 +40,7 @@
     </logger>
 
     <logger name="org.auditbucket">
-        <level value="info"/>
+        <level value="debug"/>
     </logger>
 
     <!-- Root Logger -->

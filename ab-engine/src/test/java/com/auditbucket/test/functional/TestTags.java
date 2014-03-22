@@ -19,7 +19,6 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
@@ -78,7 +77,7 @@ public class TestTags {
     private String mike = "mike@monowai.com";
     private String mark = "mark@monowai.com";
     private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
-    private Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "user1");
+
 
     @Rollback(false)
     @BeforeTransaction
@@ -176,24 +175,6 @@ public class TestTags {
 
     }
 
-    @Test
-    public void duplicateDocumentTypes() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
-        assertNotNull(iSystemUser);
-
-        DocumentType dType = tagService.resolveDocType("ABC123");
-        assertNotNull(dType);
-        Long id = dType.getId();
-        dType = tagService.resolveDocType("ABC123");
-        assertEquals(id, dType.getId());
-
-        // Company 2 gets a different tag with the same name
-        SecurityContextHolder.getContext().setAuthentication(authMark);
-        regService.registerSystemUser(new RegistrationBean("secondcompany", mark, "bah"));
-        dType = tagService.resolveDocType("ABC123");
-        assertNotNull(dType);
-        assertNotSame(id, dType.getId());
-    }
 
     // @Test // Not yet supported.
     public void tagWithProperties() throws Exception {

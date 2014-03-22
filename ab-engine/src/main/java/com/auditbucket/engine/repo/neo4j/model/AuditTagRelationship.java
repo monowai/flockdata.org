@@ -38,7 +38,7 @@ import java.util.Map;
 public class AuditTagRelationship implements AuditTag, Comparable {
     Long id;
 
-    private TagNode tag;
+    private Tag tag;
 
     private Long auditId;
 
@@ -109,7 +109,7 @@ public class AuditTagRelationship implements AuditTag, Comparable {
     public AuditTagRelationship(AuditHeader header, Tag tag, Relationship relationship) {
         this();
         this.auditId = header.getId();
-        this.tag = (TagNode) tag;
+        this.tag = tag;
         this.tagType = (relationship == null ? tag.getName() : relationship.getType().name());
         if (relationship.hasProperty("weight"))
             this.weight = (Integer) relationship.getProperty("weight");

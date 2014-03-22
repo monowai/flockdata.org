@@ -19,11 +19,12 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.audit.model.AuditChange;
-import com.auditbucket.audit.bean.AuditLogResultBean;
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.bean.AuditLogInputBean;
+import com.auditbucket.audit.bean.AuditLogResultBean;
 import com.auditbucket.audit.bean.AuditResultBean;
+import com.auditbucket.audit.model.AuditChange;
+import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
 import com.auditbucket.registration.bean.FortressInputBean;
@@ -215,7 +216,7 @@ public class TestTxReference {
 
         String key = auditManager.createHeader(aBean, null).getAuditKey();
         assertNotNull(key);
-        com.auditbucket.audit.model.AuditHeader header = auditService.getHeader(key);
+        AuditHeader header = auditService.getHeader(key);
         assertNotNull(header);
         AuditLogInputBean alb = new AuditLogInputBean(key, "charlie", DateTime.now(), escJsonA, null, tagRef);
         assertTrue(alb.isTransactional());
@@ -227,11 +228,12 @@ public class TestTxReference {
         String txStart = albTxRef;
 
         auditManager.createLog(alb);
-        Set<com.auditbucket.audit.model.AuditHeader> result = auditService.findTxHeaders(txStart);
+        // All headers touched by this transaction. ToDo: All changes affected
+        Set<AuditHeader> result = auditService.findTxHeaders(txStart);
         assertNotNull(result);
         assertFalse(result.isEmpty());
-        assertEquals(2, result.size());
-        for (com.auditbucket.audit.model.AuditHeader auditHeader : result) {
+        assertEquals(1, result.size());
+        for (AuditHeader auditHeader : result) {
             assertNotNull(auditHeader.getAuditKey());
         }
 

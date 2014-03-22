@@ -32,7 +32,7 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
 import java.util.Set;
 
 @NodeEntity
-@TypeAlias("ABCompany")
+@TypeAlias(value ="ABCompany")
 public class CompanyNode implements Company {
     @GraphId
     Long id;
@@ -43,8 +43,7 @@ public class CompanyNode implements Company {
     @Indexed(unique = true)
     private String code;
 
-
-    @Indexed(indexName = "apiKey")
+    @Indexed
     String apiKey;
 
     @RelatedTo(elementClass = CompanyUserNode.class, type = "WORKS", direction = Direction.INCOMING)

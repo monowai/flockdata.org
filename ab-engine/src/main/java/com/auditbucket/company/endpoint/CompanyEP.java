@@ -21,10 +21,8 @@ package com.auditbucket.company.endpoint;
 
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.CompanyService;
-import com.auditbucket.registration.service.FortressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +33,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * User: Mike Holdsworth
@@ -47,14 +44,10 @@ import java.util.List;
 public class CompanyEP {
 
     @Autowired
-    FortressService fortressService;
-
-    @Autowired
     CompanyService companyService;
 
     @Autowired
     SecurityHelper securityHelper;
-
 
     @RequestMapping(value = "/list", produces = "application/json", method = RequestMethod.GET)
     @ResponseBody
