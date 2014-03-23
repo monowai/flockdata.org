@@ -238,18 +238,30 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
     }
 
     @Cacheable(value = "companyDocType", unless = "#result == null")
-    private DocumentType findFortressDocument(String documentType, Fortress fortress) {
+    private DocumentType findFortressDocument(Fortress fortress, String documentType) {
         String key = fortress.getCompany().getId() + "." + documentType.toLowerCase().replaceAll("\\s", "");
-        return documentTypeRepo.findFortressDocType(fortress.getId(), key);
-        //return documentTypeRepo.findBySchemaPropertyValue("companyKey", key);
+        //return documentTypeRepo.findFortressDocType(fortress.getId(), key);
+        return documentTypeRepo.findBySchemaPropertyValue("companyKey", key);
     }
 
     public DocumentType findDocumentType(Fortress fortress, String documentType, Boolean createIfMissing) {
-        DocumentType docResult = findFortressDocument(documentType, fortress);
+        DocumentType docResult = findFortressDocument(fortress, documentType);
         if (docResult == null && createIfMissing) {
-            DocumentTypeNode docType = new DocumentTypeNode(fortress, documentType);
-            logger.debug("Creating document type {}", documentType);
-            docResult = documentTypeRepo.save(docType);
+            docResult = new DocumentTypeNode(fortress, documentType);
+            String cypher = "merge (docType:_DocType :DocType{code:{code}, name:{name}, companyKey:{key}}) " +
+                    "with docType " +
+                    "match (f:Fortress) where id(f) = {fId} " +
+                    "merge (f)<-[:FORTRESS_DOC]-(docType) " +
+                    "return docType";
+
+            Map<String, Object> params = new HashMap<>();
+            params.put("code", docResult.getCode());
+            params.put("name", docResult.getName());
+            params.put("key", docResult.getCompanyKey());
+            params.put("fId", fortress.getId());
+
+            template.query(cypher, params);
+            docResult=findFortressDocument(fortress, documentType);
 
         }
         return docResult;

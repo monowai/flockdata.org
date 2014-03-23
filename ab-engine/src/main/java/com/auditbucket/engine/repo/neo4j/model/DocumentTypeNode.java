@@ -42,7 +42,7 @@ public class DocumentTypeNode implements DocumentType {
     @GraphId
     Long id;
 
-    @RelatedTo(elementClass = FortressNode.class, type = "documents", direction = Direction.INCOMING)
+    @RelatedTo(elementClass = FortressNode.class, type = "FORTRESS_DOC", direction = Direction.INCOMING)
     private Fortress fortress;
 
     private String name;
@@ -89,7 +89,7 @@ public class DocumentTypeNode implements DocumentType {
     /**
      * used to create a unique key index for a company+docType combo
      */
-    String getCompanyKey() {
+    public String getCompanyKey() {
         return companyKey;
     }
 }

@@ -62,7 +62,7 @@
         <level value="info"/>
     </logger>
     <logger name="com.auditbucket">
-        <level value="debug"/>
+        <level value="info"/>
     </logger>
 
     <logger name="com.jersey">

@@ -22,9 +22,9 @@ package com.auditbucket.engine.service;
 import com.auditbucket.audit.bean.*;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.helper.AuditException;
-import com.auditbucket.helper.TagException;
+import com.auditbucket.helper.Command;
+import com.auditbucket.helper.DeadlockRetry;
 import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;
@@ -34,29 +34,24 @@ import com.auditbucket.registration.service.TagService;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.FastArrayList;
 import org.joda.time.DateTime;
-import org.neo4j.graphdb.NotFoundException;
-import org.neo4j.kernel.DeadlockDetectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataRetrievalFailureException;
-import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Future;
 
 /**
- * Exists because calling makeChangeSearchable within the completed transaction
- * of auditService.createLog resulted in a "__TYPE__ not found" exception from Neo4J
- * <p/>
- * http://stackoverflow.com/questions/18072961/loosing-type-under-load
- * <p/>
+ *
+ * Non transactional coordinator of mediation services
+ *
  * User: Mike Holdsworth
  * Since: 28/08/13
  */
@@ -106,13 +101,22 @@ public class AuditManagerService {
 
     static DecimalFormat f = new DecimalFormat();
 
+    /**
+     * Process the AuditHeader input for a company asynchronously
+     * @param inputBeans  data
+     * @param company     for
+     * @param fortress    system
+     * @return process count - don't rely on it, why would you want it?
+     * @throws AuditException
+     */
 
     @Async
-    public Future<Integer> createHeadersAsync(List<AuditHeaderInputBean> inputBeans, Company company, Fortress fortress) throws AuditException {
+    public Future<Integer> createHeadersAsync(List<AuditHeaderInputBean> inputBeans, final Company company, final Fortress fortress) throws AuditException {
+        // ToDo: Return strings which could contain only the caller ref data that failed.
         return new AsyncResult<>(createHeaders(inputBeans, company, fortress));
     }
 
-    public Integer createHeaders(List<AuditHeaderInputBean> inputBeans, Company company, Fortress fortress) throws AuditException {
+    public Integer createHeaders(List<AuditHeaderInputBean> inputBeans, final Company company, final Fortress fortress) throws AuditException {
 
         fortress.setCompany(company);
         Long id = DateTime.now().getMillis();
@@ -121,38 +125,26 @@ public class AuditManagerService {
         logger.info("Starting Batch [{}] - size [{}]", id, inputBeans.size());
         boolean newMode = true;
         if (newMode) {
-            // ToDo: Figure out if this is efficient
-            processTags(company, inputBeans);
+
             // Tune to balance against concurrency and batch transaction insert efficiency.
             List<List<AuditHeaderInputBean>> splitList = Lists.partition(inputBeans, 5);
-            for (List<AuditHeaderInputBean> auditHeaderInputBeans : splitList) {
-                int maxRetry = 10, retryCount = 0;
 
-                try {  // Deadlock detection ToDo - oh to be able to pass a function. Create an object/interface to satisfy
-                    fortressService.registerFortress(new FortressInputBean(auditHeaderInputBeans.iterator().next().getFortress()), company);
-                    while (retryCount < maxRetry) {
-                        Iterable<AuditResultBean> resultBeans = auditService.createHeaders(auditHeaderInputBeans, company, fortress);
-                        processAuditLogsAsync(resultBeans, company);
-                        retryCount = maxRetry; // No deadlock
+            for (List<AuditHeaderInputBean> auditHeaderInputBeans : splitList) {
+
+                class DLCommand implements Command {
+                    ArrayList<AuditHeaderInputBean> headers = null;
+                    DLCommand (List<AuditHeaderInputBean> processList){
+                        headers = new FastArrayList(processList);
                     }
-                } catch (RuntimeException re) {
-                    // ToDo: Exceptions getting wrapped in a JedisException. Can't directly catch the DDE hence the instanceof check
-                    if (re.getCause() instanceof NotFoundException || re.getCause() instanceof DeadlockDetectedException || re.getCause() instanceof InvalidDataAccessResourceUsageException || re.getCause() instanceof DataRetrievalFailureException) {
-                        Thread.yield();
-                        retryCount++;
-                        if (retryCount == maxRetry) {
-                            // http://www.slideshare.net/neo4j/zephyr-neo4jgraphconnect-2013short
-                            logger.error("Deadlock retry exceeded ");
-                            throw (re);
-                        }
-                    } else if (re.getCause() instanceof TagException) {
-                        // Carry on processing FixMe - log this to an error channel
-                        logger.error("Error creating tag", re.getCause());
-                    } else {
-                        throw (re);
+                    @Override
+                    public Command execute() {
+                        fortressService.registerFortress(new FortressInputBean(headers.iterator().next().getFortress()), company);
+                        Iterable<AuditResultBean> resultBeans = auditService.createHeaders(headers, company, fortress);
+                        processAuditLogsAsync(resultBeans, company);
+                        return this;
                     }
                 }
-
+                DeadlockRetry.execute(new DLCommand(auditHeaderInputBeans), 10);
             }
 
         } else {
@@ -164,17 +156,6 @@ public class AuditManagerService {
         watch.stop();
         logger.info("Completed Batch [{}] - secs= {}, RPS={}", id, f.format(watch.getTotalTimeSeconds()), f.format(inputBeans.size() / watch.getTotalTimeSeconds()));
         return inputBeans.size();
-    }
-
-    private void processTags(Company company, List<AuditHeaderInputBean> auditHeaderInputBeans) {
-        Collection<TagInputBean> result = new FastArrayList();
-        for (AuditHeaderInputBean input : auditHeaderInputBeans) {
-            for (TagInputBean tag: input.getTags()){
-                if (! result.contains(tag))
-                    result.add(tag);
-            }
-        }
-        tagService.processTags(company, result);
     }
 
     public AuditResultBean createHeader(AuditHeaderInputBean inputBean, String apiKey) throws AuditException {
@@ -190,54 +171,29 @@ public class AuditManagerService {
         return createHeader(inputBean, company, fortress);
     }
 
-    public AuditResultBean createHeader(AuditHeaderInputBean inputBean, Company company, Fortress fortress) throws AuditException {
+    public AuditResultBean createHeader(final AuditHeaderInputBean inputBean, final Company company, final Fortress fortress) throws AuditException {
         if (inputBean == null)
             throw new AuditException("No input to process!");
 
-        AuditResultBean resultBean = null;
+        class DLCommand implements Command {
+            AuditResultBean result = null;
+            @Override
+            public Command execute() {
+                result = auditService.createHeader(inputBean, company, fortress);
+                processAuditLog(result, company);
 
-        // Deadlock re-try fun
-        int maxRetry = 10, retryCount = 0;
-        while (retryCount < maxRetry) {
-            try {
-                if (resultBean == null || resultBean.getAuditId() == null) {
-                    resultBean = auditService.createHeader(inputBean, company, fortress);
-                }
-                retryCount = maxRetry; // Exit the loop
-            } catch (RuntimeException re) {
-                // ToDo: Exceptions getting wrapped in a JedisException. Can't directly catch the DDE hence the instanceof check
-                if (re.getCause() instanceof NotFoundException || re.getCause() instanceof DeadlockDetectedException || re.getCause() instanceof InvalidDataAccessResourceUsageException || re.getCause() instanceof DataRetrievalFailureException) {
-                    logger.debug("Deadlock Detected. Entering retry fortress [{}], docType {}, callerRef [{}], rolling back. Cause = {}", inputBean.getFortress(), inputBean.getDocumentType(), inputBean.getCallerRef(), re.getCause());
-                    Thread.yield();
-                    retryCount++;
-                    if (retryCount == maxRetry) {
-                        // http://www.slideshare.net/neo4j/zephyr-neo4jgraphconnect-2013short
-                        logger.error("Error creating Header for fortress [{}], docType {}, callerRef [{}], rolling back. Cause = {}", inputBean.getFortress(), inputBean.getDocumentType(), inputBean.getCallerRef(), re.getCause());
-                        throw (re);
-                    }
-                } else if (re.getCause() instanceof TagException) {
-                    // Carry on processing FixMe - log this to an error channel
-                    logger.error("Error creating Tag. Input was fortress [{}], docType {}, callerRef [{}], rolling back. Cause = {}", inputBean.getFortress(), inputBean.getDocumentType(), inputBean.getCallerRef(), re.getCause());
-                } else {
-                    throw (re);
-                }
+                return this;
             }
         }
-
-        processAuditLog(resultBean, company);
-        return resultBean;
-
-    }
-
-    public void processAuditLogs(Iterable<AuditResultBean> resultBeans, Company company) {
-        for (AuditResultBean resultBean : resultBeans)
-            processAuditLog(resultBean, company);
+        DLCommand c = new DLCommand();
+        DeadlockRetry.execute(c , 10);
+        return c.result;
     }
 
     @Async
     public Future<Void> processAuditLogsAsync(Iterable<AuditResultBean> resultBeans, Company company) {
 
-        for (AuditResultBean resultBean : resultBeans){
+        for (AuditResultBean resultBean : resultBeans) {
             processAuditLog(resultBean, company);
         }
         return new AsyncResult<>(null);
@@ -255,7 +211,12 @@ public class AuditManagerService {
             logBean.setFortressUser(resultBean.getAuditInputBean().getFortressUser());
             logBean.setCallerRef(resultBean.getCallerRef());
 
-            AuditLogResultBean logResult = createLog(company, resultBean);
+            AuditLogResultBean logResult ;
+            if ( header!= null )
+                logResult =createLog(header, logBean);
+            else
+                logResult = createLog(company, resultBean);
+
             logResult.setAuditKey(null);// Don't duplicate the text as it's in the header
             logResult.setFortressUser(null);
             resultBean.setLogResult(logResult);
@@ -280,41 +241,27 @@ public class AuditManagerService {
     public AuditLogResultBean createLog(Company company, AuditResultBean resultBean) {
         AuditHeader header = resultBean.getAuditHeader();
 
-        if ( header == null ) header = auditService.getHeader(company, resultBean.getAuditKey());
+        if (header == null) header = auditService.getHeader(company, resultBean.getAuditKey());
         return createLog(header, resultBean.getAuditLog());
     }
 
-    public AuditLogResultBean createLog(AuditHeader header, AuditLogInputBean auditLogInputBean) throws AuditException {
+    public AuditLogResultBean createLog(final AuditHeader header, final AuditLogInputBean auditLogInputBean) throws AuditException {
         auditLogInputBean.setWhat(auditLogInputBean.getWhat());
-        AuditLogResultBean resultBean = null;
-        int maxRetry = 10, retryCount = 0;
-        try {
-            while (retryCount < maxRetry) {
-                resultBean = auditService.createLog(header, auditLogInputBean);
-                retryCount = maxRetry;
-            }
-        } catch (RuntimeException re) {
-            // ToDo: Exceptions getting wrapped in a JedisException. Can't directly catch the DDE hence the instanceof check
-            if (re.getCause() instanceof NotFoundException || re.getCause() instanceof DeadlockDetectedException || re.getCause() instanceof InvalidDataAccessResourceUsageException || re.getCause() instanceof DataRetrievalFailureException) {
-                Thread.yield();
-                retryCount++;
-                if (retryCount == maxRetry) {
-                    // http://www.slideshare.net/neo4j/zephyr-neo4jgraphconnect-2013short
-                    logger.error("Deadlock retry exceeded ");
-                    throw (re);
-                }
-            } else if (re.getCause() instanceof TagException) {
-                // Carry on processing FixMe - log this to an error channel
-                logger.error("Error creating tag", re.getCause());
-            } else {
-                throw (re);
+        class DLCommand implements Command {
+            AuditLogResultBean result = null;
+            @Override
+            public Command execute() {
+                result = auditService.createLog(header, auditLogInputBean);
+                return this;
             }
         }
+        DLCommand c = new DLCommand();
+        DeadlockRetry.execute(c , 10);
 
-        if (resultBean != null && resultBean.getStatus() == AuditLogInputBean.LogStatus.OK)
-            auditService.makeChangeSearchable(resultBean.getSearchDocument());
+        if (c.result != null && c.result.getStatus() == AuditLogInputBean.LogStatus.OK)
+            auditService.makeChangeSearchable(c.result.getSearchDocument());
 
-        return resultBean;
+        return c.result;
 
     }
 

@@ -166,6 +166,7 @@ public class Importer {
             String docType = mappable.getDataType();
             watch.start();
             try {
+                long then = new DateTime().getMillis();
                 while (xsr.getLocalName().equals(docType)) {
                     XmlMappable row = mappable.newInstance();
                     String json = row.setXMLData(xsr);
@@ -177,7 +178,7 @@ public class Importer {
                     writeAudit(abExporter, header, mappable.getClass().getCanonicalName());
                     rows++;
                     if (rows % 500 == 0)
-                        logger.info("Processed {} elapsed seconds {}", rows, watch.getTotalTimeSeconds());
+                        logger.info("Processed {} elapsed seconds {}", rows, new DateTime().getMillis()-then /1000d);
 
                 }
             } finally {

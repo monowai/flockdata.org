@@ -102,7 +102,7 @@ public class AuditEP {
     public void createHeaders(@RequestBody List<AuditHeaderInputBean> inputBeans,
                               String apiKey,
                               @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws AuditException {
-        createHeadersAsync(inputBeans, false, ApiKeyHelper.resolveKey(apiKey, apiHeaderKey));
+        createHeadersAsync(inputBeans, true, ApiKeyHelper.resolveKey(apiKey, apiHeaderKey));
     }
 
 

@@ -19,7 +19,6 @@
 
 package com.auditbucket.audit.model;
 
-import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 
 /**
@@ -36,4 +35,6 @@ public interface DocumentType {
     Long getId();
 
     String getCode();
+
+    String getCompanyKey();
 }

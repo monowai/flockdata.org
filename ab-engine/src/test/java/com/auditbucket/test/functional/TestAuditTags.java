@@ -385,9 +385,7 @@ public class TestAuditTags {
         assertEquals(docName.toLowerCase(), docType.getCode());
         assertEquals(docName, docType.getName());
         // Should be finding by code which is always Lower
-        DocumentType sameDoc = tagService.resolveDocType(fortress, docType.getCode().toUpperCase(), false);
-        Assert.assertNotNull(sameDoc);
-        assertEquals(sameDoc.getId(), docType.getId());
+        Assert.assertNotNull(tagService.resolveDocType(fortress, docType.getCode().toUpperCase(), false));
 
     }
 

@@ -824,7 +824,7 @@ public class AuditService {
     public Iterable<AuditResultBean> createHeaders(List<AuditHeaderInputBean> inputBeans, Company company, Fortress fortress) {
         Collection<AuditResultBean>arb = new FastArrayList();
         for (AuditHeaderInputBean inputBean : inputBeans) {
-            logger.debug("Batch Processing callerRef=[{}], documentType=[{}]", inputBean.getCallerRef(), inputBean.getDocumentType());
+            logger.trace("Batch Processing callerRef=[{}], documentType=[{}]", inputBean.getCallerRef(), inputBean.getDocumentType());
             arb.add(createHeader(inputBean, company, fortress));
         }
         return arb;

@@ -24,8 +24,10 @@ import com.auditbucket.audit.bean.AuditResultBean;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.FortressResultBean;
 import com.auditbucket.registration.bean.TagInputBean;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -46,9 +48,9 @@ import java.util.Map;
  * Template to support writing Audit and Tag information to a remote AuditBucket instance.
  *
  * @see Importer
- *
- * User: Mike Holdsworth
- * Since: 13/10/13
+ *      <p/>
+ *      User: Mike Holdsworth
+ *      Since: 13/10/13
  */
 public class AbRestClient {
 
@@ -62,7 +64,7 @@ public class AbRestClient {
     private boolean simulateOnly;
     private List<AuditHeaderInputBean> batchHeader = new ArrayList<>();
     private List<TagInputBean> batchTag = new ArrayList<>();
-    private final String batchSync = "BatchSync";
+    private final String headerSync = "BatchSync";
     private final String tagSync = "TagSync";
     private String defaultFortress;
 
@@ -114,6 +116,7 @@ public class AbRestClient {
 
 
     }
+
     private String flushAudit(List<AuditHeaderInputBean> auditInput) {
         if (simulateOnly)
             return "OK";
@@ -136,7 +139,6 @@ public class AbRestClient {
 
         }
     }
-
 
 
     public String getErrorMessage(HttpStatusCodeException e) {
@@ -185,14 +187,6 @@ public class AbRestClient {
         return headers;
     }
 
-    static final ObjectMapper mapper = new ObjectMapper();
-
-    public static Map<String, Object> getWeightedMap(int weight) {
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("weight", weight);
-        return properties;
-    }
-
     public void flush(String message) {
         flush(message, type.TAG);
         flush(message, type.AUDIT);
@@ -205,7 +199,7 @@ public class AbRestClient {
         if (simulateOnly)
             return;
         if (abType.equals(type.AUDIT)) {
-            synchronized (batchSync) {
+            synchronized (headerSync) {
                 writeAudit(null, true, message);
             }
         } else {
@@ -224,24 +218,38 @@ public class AbRestClient {
         writeAudit(auditHeaderInputBean, false, message);
     }
 
+    private void batchTags(AuditHeaderInputBean auditHeaderInputBeans) {
+
+        for (TagInputBean tag : auditHeaderInputBeans.getTags()) {
+            if (!batchTag.contains(tag))
+                batchTag.add(tag);
+        }
+    }
+
+
     void writeAudit(AuditHeaderInputBean auditHeaderInputBean, boolean flush, String message) {
 
-        synchronized (batchSync) {
+        synchronized (headerSync) {
             if (auditHeaderInputBean != null) {
                 if (auditHeaderInputBean.getFortress() == null)
                     auditHeaderInputBean.setFortress(defaultFortress);
                 batchHeader.add(auditHeaderInputBean);
+                batchTags(auditHeaderInputBean);
             }
 
             if (flush || batchHeader.size() == batchSize) {
 
                 if (batchHeader.size() >= 1) {
                     logger.debug("Flushing....");
+                    // process the tags independently to reduce the chance of a deadlock when processing the header
+                    flushTags(batchTag);
                     flushAudit(batchHeader);
                     logger.debug("Flushed " + message + " Batch [{}]", batchHeader.size());
                 }
                 batchHeader = new ArrayList<>();
+                batchTag = new ArrayList<>();
             }
+
         }
 
     }
@@ -289,5 +297,29 @@ public class AbRestClient {
         }
     }
 
+    static final ObjectMapper mapper = new ObjectMapper();
+
+    public static Map<String, Object> getWeightedMap(int weight) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("weight", weight);
+        return properties;
+    }
+
+
+    /**
+     * Converts the strings to a simple JSON representation
+     *
+     * @param headerRow - keys
+     * @param line      - values
+     * @return JSON Object
+     * @throws JsonProcessingException
+     */
+    public static String convertToJson(String[] headerRow, String[] line) throws JsonProcessingException {
+        ObjectNode node = mapper.createObjectNode();
+        for (int i = 0; i < headerRow.length; i++) {
+            node.put(headerRow[i], line[i].trim());
+        }
+        return node.toString();
+    }
 
 }
