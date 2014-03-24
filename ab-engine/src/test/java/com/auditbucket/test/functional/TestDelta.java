@@ -124,7 +124,7 @@ public class TestDelta {
         AuditLog first = auditService.getLastAuditLog(result.getAuditHeader());
         Assert.assertNotNull(first);
         log = new AuditLogInputBean(result.getAuditKey(), "Mike", new DateTime(), jsonB);
-        auditManagerService.createLog(log);
+        auditManagerService.processLog(log);
         AuditLog second = auditService.getLastAuditLog(result.getAuditHeader());
         Assert.assertNotNull(second);
 

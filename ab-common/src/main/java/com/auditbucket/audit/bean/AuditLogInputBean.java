@@ -161,15 +161,6 @@ public class AuditLogInputBean {
         return comment;
     }
 
-    /**
-     * user definable text documenting the chnage
-     *
-     * @param comment free text
-     */
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
-
     public String getCallerRef() {
         return callerRef;
     }
@@ -214,12 +205,6 @@ public class AuditLogInputBean {
 
     }
 
-    /**
-     * @return auditBucket service response message
-     */
-    public String getAbMessage() {
-        return abMessage;
-    }
 
     /**
      * event sourcing type functionality. If true, AB will create a transaction identifier
@@ -238,10 +223,6 @@ public class AuditLogInputBean {
     public void setStatus(LogStatus logStatus) {
         this.abStatus = logStatus;
 
-    }
-
-    public LogStatus getAbStatus() {
-        return this.abStatus;
     }
 
     public String getDocumentType() {

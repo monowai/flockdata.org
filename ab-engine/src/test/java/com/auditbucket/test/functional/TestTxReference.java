@@ -19,11 +19,11 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.audit.model.AuditChange;
-import com.auditbucket.audit.bean.AuditLogResultBean;
 import com.auditbucket.audit.bean.AuditHeaderInputBean;
 import com.auditbucket.audit.bean.AuditLogInputBean;
+import com.auditbucket.audit.bean.AuditLogResultBean;
 import com.auditbucket.audit.bean.AuditResultBean;
+import com.auditbucket.audit.model.AuditChange;
 import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.engine.service.AuditManagerService;
 import com.auditbucket.engine.service.AuditService;
@@ -121,7 +121,7 @@ public class TestTxReference {
         String cbaKey = auditManager.createHeader(cbaHeader, null).getAuditKey();
 
         AuditLogInputBean cbaLog = new AuditLogInputBean(cbaKey, "charlie", DateTime.now(), escJsonA, true);
-        assertEquals("CBA Logger Not Created", AuditLogInputBean.LogStatus.OK, auditManager.createLog(cbaLog).getStatus());
+        assertEquals("CBA Logger Not Created", AuditLogInputBean.LogStatus.OK, auditManager.processLog(cbaLog).getStatus());
         String cbaTxRef = cbaLog.getTxRef();
         assertNotNull(cbaTxRef);
 
@@ -161,7 +161,7 @@ public class TestTxReference {
         //assertEquals(1, header.getTxTags().size());
         AuditLogInputBean alb = new AuditLogInputBean(key, "charlie", DateTime.now(), escJsonA, null, tagRef);
         assertTrue(alb.isTransactional());
-        String albTxRef = auditManager.createLog(alb).getTxReference();
+        String albTxRef = auditManager.processLog(alb).getTxReference();
 
         alb = new AuditLogInputBean(key, "harry", DateTime.now(), escJsonB);
 
@@ -169,7 +169,7 @@ public class TestTxReference {
         alb.setTxRef(albTxRef);
         String txStart = albTxRef;
 
-        auditManager.createLog(alb);
+        auditManager.processLog(alb);
         Map<String, Object> result = auditService.findByTXRef(txStart);
         assertNotNull(result);
         assertEquals(tagRef, result.get("txRef"));
@@ -184,7 +184,7 @@ public class TestTxReference {
         alb.setTxRef("");
         assertNull("Should be Null if it is blank", alb.getTxRef());
         assertTrue(alb.isTransactional());
-        AuditLogResultBean arb = auditManager.createLog(alb);
+        AuditLogResultBean arb = auditManager.processLog(alb);
         String txEnd = arb.getTxReference();
         assertNotNull(txEnd);
         assertNotSame(txEnd, txStart);
@@ -220,14 +220,14 @@ public class TestTxReference {
         assertNotNull(header);
         AuditLogInputBean alb = new AuditLogInputBean(key, "charlie", DateTime.now(), escJsonA, null, tagRef);
         assertTrue(alb.isTransactional());
-        String albTxRef = auditManager.createLog(alb).getTxReference();
+        String albTxRef = auditManager.processLog(alb).getTxReference();
 
         alb = new AuditLogInputBean(key, "harry", DateTime.now(), escJsonB);
 
         alb.setTxRef(albTxRef);
         String txStart = albTxRef;
 
-        auditManager.createLog(alb);
+        auditManager.processLog(alb);
         // All headers touched by this transaction. ToDo: All changes affected
         Set<AuditHeader> result = auditService.findTxHeaders(txStart);
         assertNotNull(result);

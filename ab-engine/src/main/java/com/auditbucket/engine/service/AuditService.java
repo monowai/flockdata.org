@@ -33,7 +33,6 @@ import com.auditbucket.search.model.AuditSearchChange;
 import com.auditbucket.search.model.SearchResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.collections.FastArrayList;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -49,7 +48,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -315,6 +318,9 @@ public class AuditService {
         AuditChange thisChange = auditDAO.save(thisFortressUser, input, txRef, (existingLog!=null ?existingLog.getAuditChange():null));
         input.setAuditEvent(thisChange.getEvent());
 
+        // ToDo: WhatService call should occur after this function is finished.
+        //       change should then be written back to the graph via @ServiceActivator as called
+        //       by as yet to be extracted ab-what service
         thisChange = whatService.logWhat(authorisedHeader, thisChange, input.getWhat());
 
         AuditLog newLog = auditDAO.addLog(authorisedHeader, thisChange, fortressWhen, existingLog);
@@ -329,7 +335,6 @@ public class AuditService {
                 authorisedHeader.setLastUser(thisFortressUser);
                 auditDAO.save(authorisedHeader);
             }
-            //auditDAO.setLastChange(authorisedHeader, thisChange);
 
             try {
                 resultBean.setSearchDocument(prepareSearchDocument(authorisedHeader, input, input.getAuditEvent(), searchActive, fortressWhen, newLog));
@@ -821,8 +826,8 @@ public class AuditService {
         return getSearchChange(resultBean, event, when, company);
     }
 
-    public Iterable<AuditResultBean> createHeaders(List<AuditHeaderInputBean> inputBeans, Company company, Fortress fortress) {
-        Collection<AuditResultBean>arb = new FastArrayList();
+    public Iterable<AuditResultBean> createHeaders(Iterable<AuditHeaderInputBean> inputBeans, Company company, Fortress fortress) {
+        Collection<AuditResultBean>arb = new CopyOnWriteArrayList<>();
         for (AuditHeaderInputBean inputBean : inputBeans) {
             logger.trace("Batch Processing callerRef=[{}], documentType=[{}]", inputBean.getCallerRef(), inputBean.getDocumentType());
             arb.add(createHeader(inputBean, company, fortress));

@@ -87,7 +87,7 @@ public class FortressService {
     }
 
 
-    public Fortress save(Company company, FortressInputBean fortress) {
+    private Fortress save(Company company, FortressInputBean fortress) {
         return fortressDao.save(company, fortress);
     }
 
@@ -139,7 +139,7 @@ public class FortressService {
     }
 
     public Fortress registerFortress(FortressInputBean fib) {
-       return registerFortress(fib, getCompany());
+       return registerFortress(getCompany(), fib, true);
 
     }
 
@@ -191,10 +191,20 @@ public class FortressService {
         //searchGateway.delete(indexName);
     }
 
-    public Fortress registerFortress(FortressInputBean fib, Company company) {
+    /**
+     * Creates a fortress if it's missing.
+     * @param company   who to crate for
+     * @param fortressInputBean payload
+     * @return existing or newly created fortress
+     */
+    public Fortress registerFortress(Company company, FortressInputBean fortressInputBean) {
+        return registerFortress(company, fortressInputBean, true);
+    }
+
+    public Fortress registerFortress(Company company, FortressInputBean fib, boolean createIfMissing) {
         Fortress fortress = companyService.getFortress(company, fib.getName());
 
-        if (fortress != null) {
+        if (fortress != null || !createIfMissing) {
             // Already associated, get out of here
             return fortress;
         }
@@ -203,4 +213,6 @@ public class FortressService {
         fortress.setCompany(company);
         return fortress;
     }
+
+
 }

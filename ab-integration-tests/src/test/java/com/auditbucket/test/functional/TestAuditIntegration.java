@@ -160,7 +160,7 @@ public class TestAuditIntegration {
         String ahKey = auditManager.createHeader(inputBean, null).getAuditKey();
         assertNotNull(ahKey);
         AuditHeader header = auditService.getHeader(ahKey);
-        auditManager.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + 1 + "}"));
+        auditManager.processLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + 1 + "}"));
         Thread.sleep(2000);
         doEsQuery(header.getIndexName(), header.getAuditKey());
     }
@@ -249,7 +249,7 @@ public class TestAuditIntegration {
         logger.info("Start-");
         watch.start();
         while (i < max) {
-            auditManager.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + i + "}"));
+            auditManager.processLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + i + "}"));
             i++;
         }
         watch.stop();
@@ -348,7 +348,7 @@ public class TestAuditIntegration {
         AuditResultBean indexedResult = auditManager.createHeader(inputBean, null);
         AuditHeader indexHeader = auditService.getHeader(indexedResult.getAuditKey());
 
-        AuditLogResultBean resultBean = auditManager.createLog(new AuditLogInputBean(indexHeader.getAuditKey(), inputBean.getFortressUser(), new DateTime(), escJson + "\"andy\"}"));
+        AuditLogResultBean resultBean = auditManager.processLog(new AuditLogInputBean(indexHeader.getAuditKey(), inputBean.getFortressUser(), new DateTime(), escJson + "\"andy\"}"));
         junit.framework.Assert.assertNotNull(resultBean);
 
         waitForHeaderToUpdate(indexHeader);
@@ -362,7 +362,7 @@ public class TestAuditIntegration {
         AuditResultBean noIndex = auditManager.createHeader(inputBean, null);
         AuditHeader noIndexHeader = auditService.getHeader(noIndex.getAuditKey());
 
-        auditManager.createLog(new AuditLogInputBean(noIndexHeader.getAuditKey(), inputBean.getFortressUser(), new DateTime(), escJson + "\"bob\"}"));
+        auditManager.processLog(new AuditLogInputBean(noIndexHeader.getAuditKey(), inputBean.getFortressUser(), new DateTime(), escJson + "\"bob\"}"));
         Thread.sleep(1000);
         // Bob's not there because we said we didn't want to index that header
         doEsQuery(indexName, "bob", 0);
@@ -380,7 +380,7 @@ public class TestAuditIntegration {
         AuditResultBean indexedResult = auditManager.createHeader(inputBean, null);
         AuditHeader indexHeader = auditService.getHeader(indexedResult.getAuditKey());
         String what = "{\"code\":\"AZERTY\",\"name\":\"NameText\",\"description\":\"this is a description\"}";
-        auditManager.createLog(new AuditLogInputBean(indexHeader.getAuditKey(), inputBean.getFortressUser(), new DateTime(), what));
+        auditManager.processLog(new AuditLogInputBean(indexHeader.getAuditKey(), inputBean.getFortressUser(), new DateTime(), what));
         waitForHeaderToUpdate(indexHeader);
         String indexName = indexHeader.getIndexName();
         Thread.sleep(1000);
@@ -483,7 +483,7 @@ public class TestAuditIntegration {
     }
 
     private void createLog(String simpleJson, AuditHeaderInputBean aib, AuditResultBean arb, int log) throws AuditException {
-        auditManager.createLog(new AuditLogInputBean(arb.getAuditKey(), aib.getFortressUser(), new DateTime(), simpleJson + log + "}"));
+        auditManager.processLog(new AuditLogInputBean(arb.getAuditKey(), aib.getFortressUser(), new DateTime(), simpleJson + log + "}"));
     }
 
     private void validateLogsIndexed(ArrayList<Long> list, int auditMax, int expectedLogCount) throws Exception {

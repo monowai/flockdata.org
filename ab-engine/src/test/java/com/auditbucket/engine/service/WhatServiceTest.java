@@ -95,7 +95,7 @@ public class WhatServiceTest extends AbstractRedisSupport {
         Map<String, Object> what = getWhatMap();
         String whatString = getJsonFromObject(what);
         try{
-            auditManager.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), whatString));
+            auditManager.processLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), whatString));
         } catch (DataAccessException e ){
             logger.error("KV Stores are configured in config.properties. This test is failing to find the {} server.",engineConfig.getKvStore());
             return;

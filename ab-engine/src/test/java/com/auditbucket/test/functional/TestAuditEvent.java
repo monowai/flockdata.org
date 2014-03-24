@@ -146,14 +146,14 @@ public class TestAuditEvent {
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));
 
-        auditManagerService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 0}"));
+        auditManagerService.processLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 0}"));
 
         AuditLog when = auditService.getLastAuditLog(ahKey);
         assertNotNull(when);
         assertEquals(AuditChange.CREATE, when.getAuditChange().getEvent().getName()); // log event default
         assertEquals(AuditChange.CREATE.toLowerCase(), when.getAuditChange().getEvent().getName().toLowerCase()); // log event default
 
-        auditManagerService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 1}"));
+        auditManagerService.processLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 1}"));
         AuditLog whenB = auditService.getLastAuditLog(ahKey);
         assertNotNull(whenB);
 

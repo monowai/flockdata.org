@@ -32,7 +32,6 @@ import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
 import com.google.common.collect.Lists;
-import org.apache.commons.collections.FastArrayList;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,9 +42,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Future;
 
 /**
@@ -77,28 +76,6 @@ public class AuditManagerService {
     @Autowired
     private RegistrationService registrationService;
 
-    public Company resolveCompany(String apiKey) throws AuditException {
-        return registrationService.resolveCompany(apiKey);
-    }
-
-    public Fortress resolveFortress(Company company, AuditHeaderInputBean inputBean) throws AuditException {
-        return resolveFortress(company, inputBean, false);
-    }
-
-    public Fortress resolveFortress(Company company, AuditHeaderInputBean inputBean, boolean createIfMissing) throws AuditException {
-        Fortress fortress = companyService.getCompanyFortress(company.getId(), inputBean.getFortress());
-        if (fortress == null) {
-            if (createIfMissing) {
-                fortress = fortressService.registerFortress(new FortressInputBean(inputBean.getFortress(), false));
-                logger.info("Automatically created fortress " + fortress.getName());
-            }
-
-            throw new AuditException("Fortress {" + inputBean.getFortress() + "} does not exist");
-        }
-
-        return fortress;
-    }
-
     static DecimalFormat f = new DecimalFormat();
 
     /**
@@ -117,7 +94,6 @@ public class AuditManagerService {
     }
 
     public Integer createHeaders(List<AuditHeaderInputBean> inputBeans, final Company company, final Fortress fortress) throws AuditException {
-
         fortress.setCompany(company);
         Long id = DateTime.now().getMillis();
         StopWatch watch = new StopWatch();
@@ -132,15 +108,15 @@ public class AuditManagerService {
             for (List<AuditHeaderInputBean> auditHeaderInputBeans : splitList) {
 
                 class DLCommand implements Command {
-                    ArrayList<AuditHeaderInputBean> headers = null;
+                    Iterable<AuditHeaderInputBean> headers = null;
                     DLCommand (List<AuditHeaderInputBean> processList){
-                        headers = new FastArrayList(processList);
+                        headers = new CopyOnWriteArrayList<>(processList);
                     }
                     @Override
                     public Command execute() {
-                        fortressService.registerFortress(new FortressInputBean(headers.iterator().next().getFortress()), company);
+                        fortressService.registerFortress(company, new FortressInputBean(headers.iterator().next().getFortress()), true);
                         Iterable<AuditResultBean> resultBeans = auditService.createHeaders(headers, company, fortress);
-                        processAuditLogsAsync(resultBeans, company);
+                        processAuditLogs(resultBeans, company);
                         return this;
                     }
                 }
@@ -165,8 +141,8 @@ public class AuditManagerService {
         if (logBean != null) // Error as soon as we can
             logBean.setWhat(logBean.getWhat());
 
-        Company company = resolveCompany(apiKey);
-        Fortress fortress = resolveFortress(company, inputBean);
+        Company company = registrationService.resolveCompany(apiKey);
+        Fortress fortress = fortressService.registerFortress(company, new FortressInputBean(inputBean.getFortress(), true));
         fortress.setCompany(company);
         return createHeader(inputBean, company, fortress);
     }
@@ -180,7 +156,7 @@ public class AuditManagerService {
             @Override
             public Command execute() {
                 result = auditService.createHeader(inputBean, company, fortress);
-                processAuditLog(result, company);
+                processLogFromResult(company, result);
 
                 return this;
             }
@@ -191,15 +167,26 @@ public class AuditManagerService {
     }
 
     @Async
-    public Future<Void> processAuditLogsAsync(Iterable<AuditResultBean> resultBeans, Company company) {
+    public Future<Void> processAuditLogs(Iterable<AuditResultBean> resultBeans, Company company) {
 
         for (AuditResultBean resultBean : resultBeans) {
-            processAuditLog(resultBean, company);
+            processLogFromResult(company, resultBean);
         }
         return new AsyncResult<>(null);
     }
 
-    private void processAuditLog(AuditResultBean resultBean, Company company) {
+    public AuditLogResultBean processLog(AuditLogInputBean input) {
+        AuditHeader header = auditService.getHeader(null, input.getAuditKey());
+        return processLogForHeader(header, input);
+    }
+
+    private AuditLogResultBean processCompanyLog(Company company, AuditResultBean resultBean) {
+        AuditHeader header = resultBean.getAuditHeader();
+        if (header == null) header = auditService.getHeader(company, resultBean.getAuditKey());
+        return processLogForHeader(header, resultBean.getAuditLog());
+    }
+
+    private void processLogFromResult(Company company, AuditResultBean resultBean) {
         AuditLogInputBean logBean = resultBean.getAuditLog();
         AuditHeader header = resultBean.getAuditHeader();
         // Here on could be spun in to a separate thread. The log has to happen eventually
@@ -213,9 +200,9 @@ public class AuditManagerService {
 
             AuditLogResultBean logResult ;
             if ( header!= null )
-                logResult =createLog(header, logBean);
+                logResult = processLogForHeader(header, logBean);
             else
-                logResult = createLog(company, resultBean);
+                logResult = processCompanyLog(company, resultBean);
 
             logResult.setAuditKey(null);// Don't duplicate the text as it's in the header
             logResult.setFortressUser(null);
@@ -233,19 +220,28 @@ public class AuditManagerService {
         }
     }
 
-    public AuditLogResultBean createLog(AuditLogInputBean input) {
-        AuditHeader header = auditService.getHeader(null, input.getAuditKey());
-        return createLog(header, input);
+    /**
+     * Will locate the audit header from the supplied input
+     * @param company valid company the caller can operate on
+     * @param input   payload containing at least the AuditKey
+     * @return result of the log
+     */
+    public AuditLogResultBean processLogForCompany(Company company, AuditLogInputBean input) {
+        AuditHeader header = auditService.getHeader(company, input.getAuditKey());
+        if (header == null )
+            throw new AuditException("Unable to find the request auditHeader "+input.getAuditKey());
+        return processLogForHeader(header, input);
     }
 
-    public AuditLogResultBean createLog(Company company, AuditResultBean resultBean) {
-        AuditHeader header = resultBean.getAuditHeader();
-
-        if (header == null) header = auditService.getHeader(company, resultBean.getAuditKey());
-        return createLog(header, resultBean.getAuditLog());
-    }
-
-    public AuditLogResultBean createLog(final AuditHeader header, final AuditLogInputBean auditLogInputBean) throws AuditException {
+    /**
+     * Deadlock safe processor that creates the log then indexes the change to the search service if necessary
+     *
+     * @param header Header that the caller is authorised to work with
+     * @param auditLogInputBean log details to apply to the authorised header
+     * @return result details
+     * @throws AuditException
+     */
+    public AuditLogResultBean processLogForHeader(final AuditHeader header, final AuditLogInputBean auditLogInputBean) throws AuditException {
         auditLogInputBean.setWhat(auditLogInputBean.getWhat());
         class DLCommand implements Command {
             AuditLogResultBean result = null;
@@ -330,4 +326,5 @@ public class AuditManagerService {
     public AuditSummaryBean getAuditSummary(String auditKey, Company company) {
         return auditService.getAuditSummary(auditKey, company);
     }
+
 }

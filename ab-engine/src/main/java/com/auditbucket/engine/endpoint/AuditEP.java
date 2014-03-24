@@ -25,6 +25,7 @@ import com.auditbucket.engine.service.*;
 import com.auditbucket.helper.ApiKeyHelper;
 import com.auditbucket.helper.AuditException;
 import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;
@@ -108,7 +109,7 @@ public class AuditEP {
 
     public Future<Integer> createHeadersAsync(List<AuditHeaderInputBean> inputBeans, boolean async, String apiKey) throws AuditException {
         Company company = registrationService.resolveCompany(apiKey);
-        Fortress fortress = auditManager.resolveFortress(company, inputBeans.iterator().next(), true);
+        Fortress fortress = fortressService.registerFortress(company, new FortressInputBean(inputBeans.iterator().next().getFortress()), true);
         if (async) {
             Future<Integer> batch = auditManager.createHeadersAsync(inputBeans, company, fortress);
             Thread.yield();
@@ -148,10 +149,7 @@ public class AuditEP {
         // If we have a valid company we are good to go.
         Company company = getCompany(apiRequestKey, apiHeaderKey);
 
-        AuditHeader header = auditService.getHeader(company, input.getAuditKey());
-        if (header == null )
-            throw new AuditException("Unable to find the request auditHeader "+input.getAuditKey());
-        AuditLogResultBean resultBean = auditManager.createLog(header, input);
+        AuditLogResultBean resultBean = auditManager.processLogForCompany(company, input);
         AuditLogInputBean.LogStatus ls = resultBean.getStatus();
         if (ls.equals(AuditLogInputBean.LogStatus.FORBIDDEN))
             return new ResponseEntity<>(resultBean, HttpStatus.FORBIDDEN);
@@ -212,7 +210,7 @@ public class AuditEP {
     }
 
     private Company getCompany(String apiRequestKey, String apiHeaderKey) {
-        Company company = auditManager.resolveCompany(ApiKeyHelper.resolveKey(apiRequestKey, apiHeaderKey));
+        Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiRequestKey, apiHeaderKey));
         if ( company == null )
             throw new AuditException( "Unable to resolve supplied API key to a valid company");
         return company;

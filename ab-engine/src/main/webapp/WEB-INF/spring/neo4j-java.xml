@@ -26,6 +26,7 @@
 
     <util:map id="config">
         <entry key="remote_shell_enabled" value="true"/>
+        <entry key="cache-type" value="weak"/>
     </util:map>
 
     <bean id="graphDbFactory" class="org.neo4j.graphdb.factory.GraphDatabaseFactory"/>
