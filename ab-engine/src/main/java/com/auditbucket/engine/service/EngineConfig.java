@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -19,7 +19,7 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.dao.AuditDao;
+import com.auditbucket.dao.TrackDao;
 import com.auditbucket.helper.VersionHelper;
 import com.auditbucket.registration.model.Company;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -46,7 +46,7 @@ import java.util.Map;
 public class EngineConfig {
 
     @Autowired
-    AuditDao auditDAO;
+    TrackDao trackDAO;
 
     private String abSearch;
 
@@ -122,7 +122,7 @@ public class EngineConfig {
         String version = VersionHelper.getABVersion();
         Map<String, String> healthResults = new HashMap<>();
         healthResults.put("ab-engine.version", version);
-        healthResults.put("ab-engine", auditDAO.ping());
+        healthResults.put("ab-engine", trackDAO.ping());
         String config = System.getProperty("ab.config");
         if (config == null || config.equals(""))
             config = "system-default";

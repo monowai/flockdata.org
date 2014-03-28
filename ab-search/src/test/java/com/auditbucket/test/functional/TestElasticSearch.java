@@ -21,7 +21,7 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.model.AuditSearchDao;
 import com.auditbucket.audit.model.SearchChange;
-import com.auditbucket.search.model.AuditSearchChange;
+import com.auditbucket.search.model.MetaSearchChange;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
@@ -76,10 +76,10 @@ public class TestElasticSearch {
 //        Fortress fortress = new Fortress(new FortressInputBean("fortress"), new Company("Monowai"));
 //        fortress.setSearchActive(false);
 //        FortressUser fu = new FortressUser(fortress, uid);
-//        AuditHeaderInputBean hib = new AuditHeaderInputBean("fortress", "Test", "Test", new DateTime().toDate(), "testRef");
-//        AuditLogResultBean auditHeader = new AuditLogResultBean(fu, hib, new DocumentType("TestJson", fu.getFortress().getFortress()));
+//        MetaInputBean hib = new MetaInputBean("fortress", "Test", "Test", new DateTime().toDate(), "testRef");
+//        LogResultBean auditHeader = new LogResultBean(fu, hib, new DocumentType("TestJson", fu.getFortress().getFortress()));
 //
-        AuditSearchChange auditChange = new AuditSearchChange();
+        MetaSearchChange auditChange = new MetaSearchChange();
 //
         //auditChange.setName("Create");
         auditChange.setWhen(new DateTime());
@@ -106,7 +106,7 @@ public class TestElasticSearch {
             IndexResponse ir =
                     client.prepareIndex(indexKey, auditChange.getWho())
                             .setSource(om.writeValueAsString(auditChange))
-                            .setRouting(auditChange.getAuditKey())
+                            .setRouting(auditChange.getMetaKey())
                             .execute()
                             .actionGet();
 
@@ -115,12 +115,12 @@ public class TestElasticSearch {
 
             // Retrieve from Lucene
             GetResponse response = client.prepareGet(indexKey, auditChange.getWho(), ir.getId())
-                    .setRouting(auditChange.getAuditKey())
+                    .setRouting(auditChange.getMetaKey())
                     .execute()
                     .actionGet();
             assertNotNull(response);
 
-            AuditSearchChange found = om.readValue(response.getSourceAsBytes(), AuditSearchChange.class);
+            MetaSearchChange found = om.readValue(response.getSourceAsBytes(), MetaSearchChange.class);
             assertNotNull(found);
             assertEquals(0, auditChange.getWhen().compareTo(found.getWhen()));
 
@@ -142,11 +142,11 @@ public class TestElasticSearch {
 //        Fortress fortress = new Fortress(new FortressInputBean("fortress"), new Company("Monowai"));
 //        fortress.setSearchActive(false);
 //        FortressUser fu = new FortressUser(fortress, uid);
-//        AuditHeaderInputBean hib = new AuditHeaderInputBean("fortress", "Test", "Test", new DateTime().toDate(), "testRef");
-//        AuditLogResultBean auditHeader = new AuditLogResultBean(fu, hib, new DocumentType("TestJson", fu.getFortress().getFortress()));
+//        MetaInputBean hib = new MetaInputBean("fortress", "Test", "Test", new DateTime().toDate(), "testRef");
+//        LogResultBean auditHeader = new LogResultBean(fu, hib, new DocumentType("TestJson", fu.getFortress().getFortress()));
 
-        SearchChange auditChange = new AuditSearchChange();
-//        String auditKey = "auditHeader.getAuditKey()";
+        SearchChange auditChange = new MetaSearchChange();
+//        String auditKey = "auditHeader.getMetaKey()";
 //
 //        auditChange.setWhen(new DateTime());
 //        ObjectMapper om = new ObjectMapper();
@@ -157,7 +157,7 @@ public class TestElasticSearch {
 //
 //        auditChange.setWhat(node);
 
-        auditChange = alRepo.save(auditChange);
+        auditChange = alRepo.update(auditChange);
         assertNotNull(auditChange);
         String searchKey = auditChange.getSearchKey();
         assertNotNull(searchKey);

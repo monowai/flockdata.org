@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -126,10 +126,10 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
 
 //        Map<String, Object> properties = tagInput.getProperties();
 //        for (Map.Entry<String, Object> prop : properties.entrySet()) {
-//            if (! PropertyConversion.isSystemColumn(prop.getKey())) {
+//            if (! PropertyConversion.isSystemColumn(prop.getMetaKey())) {
 //                if (prop.getValue() != null) {
 //                    DefinedProperty property = PropertyConversion.convertProperty(1, prop.getValue());
-//                    query = query + ", " + PropertyConversion.toJsonColumn(prop.getKey(), property.value());
+//                    query = query + ", " + PropertyConversion.toJsonColumn(prop.getMetaKey(), property.value());
 //                }
 //            }
 //        }

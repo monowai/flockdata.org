@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -19,7 +19,8 @@
 
 package com.auditbucket.registration.repo.neo4j.model;
 
-import com.auditbucket.registration.model.*;
+import com.auditbucket.registration.model.ISystem;
+import com.auditbucket.registration.model.SystemUser;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;

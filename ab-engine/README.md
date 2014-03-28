@@ -89,7 +89,7 @@ curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:808
   "documentType":"Debtor",
   "callerRef":"myRef",
 
-  "auditLog": {  "transactional": true,
+  "trackLog": {  "transactional": true,
            		 "what": "{\"BusinessData\": \"Escaped JSON goes here\", \"nestedObject\": {\"status\": \"kool for kats\"}}"
   }
 }'

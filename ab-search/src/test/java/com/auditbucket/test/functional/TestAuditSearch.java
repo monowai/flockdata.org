@@ -19,17 +19,15 @@
 
 package com.auditbucket.test.functional;
 
+import com.auditbucket.search.service.AbSearchService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import junit.framework.Assert;
-
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-
-import com.auditbucket.search.service.AbSearchService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * User: Mike Holdsworth
@@ -68,27 +66,27 @@ public class TestAuditSearch {
 //        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
 //        Fortress fo = fortressService.registerFortress(new FortressInputBean("testSearchCancel", false));
 //
-//        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "TestAudit", new Date(), "ABC123");
-//        inputBean.setAuditLog(new AuditLogInputBean("wally", new DateTime(), "{\"blah\":" + 0 + "}"));
-//        String ahKey = auditService.createHeader(inputBean).getAuditKey();
+//        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestAudit", new Date(), "ABC123");
+//        inputBean.setLog(new LogInputBean("wally", new DateTime(), "{\"blah\":" + 0 + "}"));
+//        String ahKey = auditService.createHeader(inputBean).getMetaKey();
 //
 //        assertNotNull(ahKey);
-//        AuditLogResultBean auditHeader = auditService.getHeader(ahKey);
+//        LogResultBean auditHeader = auditService.getHeader(ahKey);
 //        assertNotNull(auditService.getHeader(ahKey));
 //        assertNotNull(auditHeader.getSearchKey());
 //
 //        int i = 1;
 //        int max = 10;
 //        while (i < max) {
-//            auditService.createLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + i + "}"));
+//            auditService.createLog(new LogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + i + "}"));
 //            i++;
 //        }
-//        Set<AuditChange> logs = auditService.getAuditLogs(ahKey);
-//        Iterator<AuditChange> it = logs.iterator();
+//        Set<ChangeLog> logs = auditService.getAuditLogs(ahKey);
+//        Iterator<ChangeLog> it = logs.iterator();
 //        assertNotNull(logs);
 //        assertEquals(max, logs.size());
 //        while (it.hasNext()) {
-//            AuditChange next = it.next();
+//            ChangeLog next = it.next();
 //            assertNull(next.getSearchKey());
 //        }
 //        byte[] parent = searchService.findOne(auditHeader, auditHeader.getSearchKey());
@@ -96,7 +94,7 @@ public class TestAuditSearch {
 //        assertNotNull(parent);
 //        Map<String, Object> ac = om.readValue(parent, Map.class);
 //        assertNotNull(ac);
-//        assertEquals(auditHeader.getAuditKey(), ac.get("auditKey"));
+//        assertEquals(auditHeader.getMetaKey(), ac.get("auditKey"));
 //        assertEquals("wally", ac.get("who"));
 //        assertEquals(max - 1, ac.get("blah"));
 //

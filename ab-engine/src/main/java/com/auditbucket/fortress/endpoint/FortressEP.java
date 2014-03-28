@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -19,7 +19,7 @@
 
 package com.auditbucket.fortress.endpoint;
 
-import com.auditbucket.helper.AuditException;
+import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Company;
@@ -82,12 +82,12 @@ public class FortressEP {
     }
 
     @RequestMapping(value = "/{fortressName}", method = RequestMethod.DELETE)
-    public void purgeFortress(@PathVariable("fortressName") String fortressName) throws AuditException {
+    public void purgeFortress(@PathVariable("fortressName") String fortressName) throws DatagioException {
         fortressService.purge(fortressName);
     }
 
     @RequestMapping(value = "/{fortressName}/delete", method = RequestMethod.POST)
-    public void rebuildFortress(@PathVariable("fortressName") String fortressName) throws AuditException {
+    public void rebuildFortress(@PathVariable("fortressName") String fortressName) throws DatagioException {
         fortressService.purge(fortressName);
     }
 

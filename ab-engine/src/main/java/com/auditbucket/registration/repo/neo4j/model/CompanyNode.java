@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -23,10 +23,11 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.CompanyUser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Label;
 import org.springframework.data.annotation.TypeAlias;
-import org.springframework.data.neo4j.annotation.*;
-import org.springframework.data.neo4j.support.index.IndexType;
+import org.springframework.data.neo4j.annotation.GraphId;
+import org.springframework.data.neo4j.annotation.Indexed;
+import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.annotation.RelatedTo;
 
 import java.util.Set;
 

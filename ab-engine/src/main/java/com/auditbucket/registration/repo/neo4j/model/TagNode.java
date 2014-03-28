@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -62,9 +62,9 @@ public class TagNode implements Tag {
         else
             setCode(tagInput.getCode());
 
-        this.key = getName().toLowerCase().replaceAll("\\s", "");
-
-        properties.putAll(tagInput.getProperties());
+        this.key = getCode().toLowerCase().replaceAll("\\s", "");
+        if ( !tagInput.getProperties().isEmpty())
+            properties.putAll(tagInput.getProperties());
     }
     @Deprecated
     public TagNode(Node tag) {

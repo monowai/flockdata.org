@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -20,15 +20,15 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.bean.*;
-import com.auditbucket.audit.model.AuditChange;
-import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.audit.model.AuditLog;
-import com.auditbucket.audit.model.AuditWhat;
-import com.auditbucket.engine.endpoint.AuditEP;
-import com.auditbucket.engine.service.AuditManagerService;
-import com.auditbucket.engine.service.AuditService;
+import com.auditbucket.audit.model.ChangeLog;
+import com.auditbucket.audit.model.LogWhat;
+import com.auditbucket.audit.model.MetaHeader;
+import com.auditbucket.audit.model.TrackLog;
+import com.auditbucket.engine.endpoint.TrackEP;
+import com.auditbucket.engine.service.MediationFacade;
+import com.auditbucket.engine.service.TrackService;
 import com.auditbucket.fortress.endpoint.FortressEP;
-import com.auditbucket.helper.AuditException;
+import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.endpoint.RegistrationEP;
@@ -74,10 +74,10 @@ import static org.junit.Assert.fail;
 @Transactional
 public class TestAudit {
     @Autowired
-    AuditService auditService;
+    TrackService trackService;
 
     @Autowired
-    AuditEP auditEP;
+    TrackEP trackEP;
 
     @Autowired
     RegistrationEP regService;
@@ -93,7 +93,7 @@ public class TestAudit {
     private Neo4jTemplate template;
 
     @Autowired
-    private AuditManagerService auditManagerService;
+    private MediationFacade mediationFacade;
 
     private Logger logger = LoggerFactory.getLogger(TestAudit.class);
     private String monowai = "Monowai";
@@ -127,12 +127,12 @@ public class TestAudit {
 
         Assert.assertNotNull(apiKey);
         Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("testApiKeysWorkInPrecedence"), sysUser.getCompany().getApiKey()).getBody();
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
+        MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
 
         // Fails due to NoAuth or key
-        AuditResultBean result ;
+        TrackResultBean result ;
         try {
-            result= auditEP.createHeader(inputBean, null, null).getBody();
+            result= trackEP.trackHeader(inputBean, null, null).getBody();
             assertNull(result);
             fail("Security Exception did not occur");
         } catch (SecurityException e) {
@@ -142,29 +142,29 @@ public class TestAudit {
         // Should work now
         SecurityContextHolder.getContext().setAuthentication(authMike);//
 
-        result = auditEP.createHeader(inputBean, null, null).getBody(); // Works due to basic authz
+        result = trackEP.trackHeader(inputBean, null, null).getBody(); // Works due to basic authz
         assertNotNull(result);  // works coz basic authz
 
-        final AuditHeader header = auditEP.getAudit(result.getAuditKey(), apiKey, apiKey).getBody();
+        final MetaHeader header = trackEP.getAudit(result.getMetaKey(), apiKey, apiKey).getBody();
         assertNotNull (header);
         SecurityContextHolder.getContext().setAuthentication(authMark);// Wrong user, but valid API key
-        assertNotNull(auditEP.createHeader(inputBean, apiKey, null));// works
-        assertNotNull(auditEP.createHeader(inputBean, null, apiKey));// works
-        assertNotNull(auditEP.createHeader(inputBean, "invalidApiKey", apiKey));// Header overrides request
+        assertNotNull(trackEP.trackHeader(inputBean, apiKey, null));// works
+        assertNotNull(trackEP.trackHeader(inputBean, null, apiKey));// works
+        assertNotNull(trackEP.trackHeader(inputBean, "invalidApiKey", apiKey));// Header overrides request
         try {
-            assertNull(auditEP.createHeader(inputBean, apiKey, "123")); // Illegal result
+            assertNull(trackEP.trackHeader(inputBean, apiKey, "123")); // Illegal result
             Assert.fail("this should not have worked due to invalid api key");
-        } catch (AuditException e) {
+        } catch (DatagioException e) {
             // this should happen due to invalid api key
         }
         SecurityContextHolder.getContext().setAuthentication(null);// No user context, but valid API key
-        assertNotNull(auditEP.createHeader(inputBean, apiKey, null));// works
-        assertNotNull(auditEP.createHeader(inputBean, null, apiKey));// works
-        assertNotNull(auditEP.createHeader(inputBean, "invalidApiKey", apiKey));// Header overrides request
+        assertNotNull(trackEP.trackHeader(inputBean, apiKey, null));// works
+        assertNotNull(trackEP.trackHeader(inputBean, null, apiKey));// works
+        assertNotNull(trackEP.trackHeader(inputBean, "invalidApiKey", apiKey));// Header overrides request
         try {
-            assertNull(auditEP.createHeader(inputBean, apiKey, "123")); // Illegal result
+            assertNull(trackEP.trackHeader(inputBean, apiKey, "123")); // Illegal result
             Assert.fail("this should not have worked due to invalid api key");
-        } catch (AuditException e) {
+        } catch (DatagioException e) {
             // this should happen due to invalid api key
         }
 
@@ -174,14 +174,14 @@ public class TestAudit {
     public void logChangeWithNullAuditKeyButCallerRefExists() throws Exception {
         regService.register(new RegistrationBean(monowai, mike, "bah"));
         Fortress fortress = fortressService.registerFortress("auditTest");
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortress.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
-        assertNotNull(auditEP.createHeader(inputBean, null, null));
+        MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
+        assertNotNull(trackEP.trackHeader(inputBean, null, null));
 
-        AuditLogInputBean aib = new AuditLogInputBean("wally", new DateTime(), "{\"blah\":" + 1 + "}");
+        LogInputBean aib = new LogInputBean("wally", new DateTime(), "{\"blah\":" + 1 + "}");
         aib.setCallerRef(fortress.getName(), "TestAudit", "ABC123");
-        AuditLogResultBean input = auditManagerService.processLog(aib);
-        assertNotNull(input.getAuditKey());
-        Assert.assertNotNull(auditService.findByCallerRef(fortress, aib.getDocumentType(), aib.getCallerRef()));
+        LogResultBean input = mediationFacade.processLog(aib);
+        assertNotNull(input.getMetaKey());
+        Assert.assertNotNull(trackService.findByCallerRef(fortress, aib.getDocumentType(), aib.getCallerRef()));
 
 
 
@@ -191,30 +191,30 @@ public class TestAudit {
     public void locatingByCallerRefWillThrowAuthorizationException() throws Exception {
         regService.register(new RegistrationBean(monowai, mike, "bah"));
         Fortress fortressA = fortressService.registerFortress("auditTest");
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
-        String key = auditManagerService.createHeader(inputBean, null).getAuditKey();
+        MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
+        String key = mediationFacade.createHeader(inputBean, null).getMetaKey();
         // Check we can't create the same header twice for a given client ref
-        inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
-        String keyB = auditManagerService.createHeader(inputBean, null).getAuditKey();
+        inputBean = new MetaInputBean(fortressA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
+        String keyB = mediationFacade.createHeader(inputBean, null).getMetaKey();
         assertEquals(key, keyB);
 
         Authentication authB = new UsernamePasswordAuthenticationToken("swagger", "user2");
         SecurityContextHolder.getContext().setAuthentication(authB);
         regService.register(new RegistrationBean("TestTow", "swagger", "bah"));
         Fortress fortressB = fortressService.registerFortress("auditTestB");
-        auditManagerService.createHeader(new AuditHeaderInputBean(fortressB.getName(), "wally", "TestAudit", new DateTime(), "123ABC"), null);
+        mediationFacade.createHeader(new MetaInputBean(fortressB.getName(), "wally", "TestAudit", new DateTime(), "123ABC"), null);
 
         SecurityContextHolder.getContext().setAuthentication(authMike);
 
-        assertNotNull(auditService.findByCallerRef(fortressA, "TestAudit", "ABC123"));
-        assertNotNull(auditService.findByCallerRef(fortressA, "TestAudit", "abc123"));
-        assertNull("Security - shouldn't be able to see this header", auditService.findByCallerRef(fortressA, "TestAudit", "123ABC"));
+        assertNotNull(trackService.findByCallerRef(fortressA, "TestAudit", "ABC123"));
+        assertNotNull(trackService.findByCallerRef(fortressA, "TestAudit", "abc123"));
+        assertNull("Security - shouldn't be able to see this header", trackService.findByCallerRef(fortressA, "TestAudit", "123ABC"));
         // Test non external user can't do this
         SecurityContextHolder.getContext().setAuthentication(authB);
-        assertNull(auditService.findByCallerRef(fortressA.getCode(), "TestAudit", "ABC123"));
+        assertNull(trackService.findByCallerRef(fortressA.getCode(), "TestAudit", "ABC123"));
 
         try {
-            assertNull(auditService.getHeader(key));
+            assertNull(trackService.getHeader(key));
             fail("Security exception not thrown");
 
         } catch (SecurityException se) {
@@ -230,13 +230,13 @@ public class TestAudit {
         regService.register(new RegistrationBean(monowai, mike, "bah"));
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("auditTest", true));
 
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortress.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
-        String ahKey = auditManagerService.createHeader(inputBean, null).getAuditKey();
+        MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
+        String ahKey = mediationFacade.createHeader(inputBean, null).getMetaKey();
 
         assertNotNull(ahKey);
 
-        assertNotNull(auditService.getHeader(ahKey));
-        assertNotNull(auditService.findByCallerRef(fortress, "TestAudit", "ABC123"));
+        assertNotNull(trackService.getHeader(ahKey));
+        assertNotNull(trackService.findByCallerRef(fortress, "TestAudit", "ABC123"));
         assertNotNull(fortressService.getFortressUser(fortress, "wally", true));
         assertNull(fortressService.getFortressUser(fortress, "wallyz", false));
 
@@ -246,14 +246,14 @@ public class TestAudit {
         logger.info("Start-");
         watch.start();
         while (i < max) {
-            auditManagerService.processLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + i + "}"));
+            mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + i + "}"));
             i++;
         }
         watch.stop();
         logger.info("End " + watch.getTime() / 1000d + " avg = " + (watch.getTime() / 1000d) / max);
 
         // Test that we get the expected number of log events
-        assertEquals(max, (double) auditService.getAuditLogCount(ahKey));
+        assertEquals(max, (double) trackService.getLogCount(ahKey));
     }
 
     /**
@@ -266,8 +266,8 @@ public class TestAudit {
         regService.register(new RegistrationBean(monowai, mike, "bah"));
         Fortress fo = fortressService.registerFortress("auditTest");
 
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "ndlwcqw2");
-        String ahKey = auditManagerService.createHeader(inputBean, null).getAuditKey();
+        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "ndlwcqw2");
+        String ahKey = mediationFacade.createHeader(inputBean, null).getMetaKey();
 
         assertNotNull(ahKey);
         // Irrespective of the order of the fields, we see it as the same.
@@ -275,7 +275,7 @@ public class TestAudit {
         String jsonB = "{\"thing\": {\"m\": \"happy\"},\"name\": \"8888\"}";
 
 
-        assertNotNull(auditService.getHeader(ahKey));
+        assertNotNull(trackService.getHeader(ahKey));
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));
         int i = 0;
@@ -284,11 +284,11 @@ public class TestAudit {
         while (i < max) {
             // Same "what" text so should only be one auditLogCount record
             json = (i % 2 == 0 ? jsonA : jsonB);
-            auditManagerService.processLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), json));
+            mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(), json));
             i++;
         }
-        assertEquals(1d, (double) auditService.getAuditLogCount(ahKey));
-        Set<AuditLog> logs = auditService.getAuditLogs(ahKey);
+        assertEquals(1d, (double) trackService.getLogCount(ahKey));
+        Set<TrackLog> logs = trackService.getLogs(ahKey);
         assertNotNull(logs);
         assertFalse(logs.isEmpty());
         assertEquals(1, logs.size());
@@ -300,16 +300,16 @@ public class TestAudit {
 
         regService.register(new RegistrationBean(monowai, mike, "bah"));
         Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
-        AuditResultBean resultBean = auditManagerService.createHeader(inputBean, null);
-        String ahKey = resultBean.getAuditKey();
+        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
+        TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
+        String ahKey = resultBean.getMetaKey();
 
         assertNotNull(ahKey);
-        assertNotNull(auditService.getHeader(ahKey));
+        assertNotNull(trackService.getHeader(ahKey));
 
-        auditManagerService.processLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 0}"));
-        auditManagerService.processLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 1}"));
-        assertEquals(2, auditService.getAuditLogCount(resultBean.getAuditKey()));
+        mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 0}"));
+        mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 1}"));
+        assertEquals(2, trackService.getLogCount(resultBean.getMetaKey()));
     }
 
     @Test
@@ -317,13 +317,13 @@ public class TestAudit {
         regService.register(new RegistrationBean(monowai, mike, "bah"));
         Fortress fo = fortressService.registerFortress("auditTest");
 
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "uouu87");
-        AuditLogInputBean logBean = new AuditLogInputBean(null, "wally", DateTime.now(), "{\"blah\":0}");
-        inputBean.setAuditLog(logBean);
-        AuditResultBean resultBean = auditManagerService.createHeader(inputBean, null);
+        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "uouu87");
+        LogInputBean logBean = new LogInputBean(null, "wally", DateTime.now(), "{\"blah\":0}");
+        inputBean.setLog(logBean);
+        TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
         assertNotNull(resultBean);
-        assertNotNull(resultBean.getAuditKey());
-        assertEquals(1, auditService.getAuditLogCount(resultBean.getAuditKey()));
+        assertNotNull(resultBean.getMetaKey());
+        assertEquals(1, trackService.getLogCount(resultBean.getMetaKey()));
     }
 
     @Test
@@ -331,13 +331,13 @@ public class TestAudit {
         regService.register(new RegistrationBean(monowai, mike, "bah"));
         Fortress fo = fortressService.registerFortress("auditTest");
 
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "232146");
-        AuditLogInputBean logBean = new AuditLogInputBean(null, "wally", DateTime.now(), "{\"blah\":0}");
-        inputBean.setAuditLog(logBean);
-        AuditResultBean resultBean = auditManagerService.createHeader(inputBean, null);
+        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "232146");
+        LogInputBean logBean = new LogInputBean(null, "wally", DateTime.now(), "{\"blah\":0}");
+        inputBean.setLog(logBean);
+        TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
         assertNotNull(resultBean);
-        assertNotNull(resultBean.getAuditKey());
-        assertEquals(1, auditService.getAuditLogCount(resultBean.getAuditKey()));
+        assertNotNull(resultBean.getMetaKey());
+        assertEquals(1, trackService.getLogCount(resultBean.getMetaKey()));
     }
 
     @Test
@@ -346,24 +346,24 @@ public class TestAudit {
         Fortress fortressA = fortressService.registerFortress("auditTest" + System.currentTimeMillis());
         String docType = "TestAuditX";
         String callerRef = "ABC123X";
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
-        String keyA = auditManagerService.createHeader(inputBean, null).getAuditKey();
-        AuditLogInputBean alb = new AuditLogInputBean("logTest", new DateTime(), "{\"blah\":" + 0 + "}");
+        MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
+        String keyA = mediationFacade.createHeader(inputBean, null).getMetaKey();
+        LogInputBean alb = new LogInputBean("logTest", new DateTime(), "{\"blah\":" + 0 + "}");
         alb.setCallerRef(fortressA.getName(), docType, callerRef);
-        AuditLogResultBean arb = auditManagerService.processLog(alb);
+        LogResultBean arb = mediationFacade.processLog(alb);
         assertNotNull(arb);
-        assertEquals(keyA, arb.getAuditKey());
+        assertEquals(keyA, arb.getMetaKey());
 
         SecurityContextHolder.getContext().setAuthentication(authMark);
         regService.register(new RegistrationBean("TWEE", mark, "bah"));
         Fortress fortressB = fortressService.registerFortress("auditTestB" + System.currentTimeMillis());
-        inputBean = new AuditHeaderInputBean(fortressB.getName(), "wally", docType, new DateTime(), callerRef);
-        String keyB = auditManagerService.createHeader(inputBean, null).getAuditKey();
-        alb = new AuditLogInputBean("logTest", new DateTime(), "{\"blah\":" + 0 + "}");
+        inputBean = new MetaInputBean(fortressB.getName(), "wally", docType, new DateTime(), callerRef);
+        String keyB = mediationFacade.createHeader(inputBean, null).getMetaKey();
+        alb = new LogInputBean("logTest", new DateTime(), "{\"blah\":" + 0 + "}");
         alb.setCallerRef(fortressB.getName(), docType, callerRef);
-        arb = auditManagerService.processLog(alb);
+        arb = mediationFacade.processLog(alb);
         assertNotNull(arb);
-        assertEquals("This caller should not see KeyA", keyB, arb.getAuditKey());
+        assertEquals("This caller should not see KeyA", keyB, arb.getMetaKey());
 
     }
 
@@ -373,8 +373,8 @@ public class TestAudit {
         Fortress fortressA = fortressService.registerFortress("audit Test" + System.currentTimeMillis());
         String docType = "TestAuditX";
         String callerRef = "ABC123X";
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
-        String keyA = auditManagerService.createHeader(inputBean, null).getAuditKey();
+        MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
+        String keyA = mediationFacade.createHeader(inputBean, null).getMetaKey();
         assertNotNull(keyA);
     }
 
@@ -387,16 +387,16 @@ public class TestAudit {
         //Monowai/Mike
         SecurityContextHolder.getContext().setAuthentication(authMike);
         Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "wally", "CompanyNode", new DateTime(), "AHWP");
-        String ahWP = auditManagerService.createHeader(inputBean, null).getAuditKey();
+        MetaInputBean inputBean = new MetaInputBean(fortWP.getName(), "wally", "CompanyNode", new DateTime(), "AHWP");
+        String ahWP = mediationFacade.createHeader(inputBean, null).getMetaKey();
         assertNotNull(ahWP);
-        assertNotNull(auditService.getHeader(ahWP));
+        assertNotNull(trackService.getHeader(ahWP));
 
         //Hummingbird/Gina
         SecurityContextHolder.getContext().setAuthentication(authMark);
         Fortress fortHS = fortressService.registerFortress(new FortressInputBean("honeysuckle", true));
-        inputBean = new AuditHeaderInputBean(fortHS.getName(), "harry", "CompanyNode", new DateTime(), "AHHS");
-        String ahHS = auditManagerService.createHeader(inputBean, null).getAuditKey();
+        inputBean = new MetaInputBean(fortHS.getName(), "harry", "CompanyNode", new DateTime(), "AHHS");
+        String ahHS = mediationFacade.createHeader(inputBean, null).getMetaKey();
 
         assertNotNull(fortressService.getFortressUser(fortWP, "wally", true));
         assertNotNull(fortressService.getFortressUser(fortHS, "harry", true));
@@ -417,26 +417,26 @@ public class TestAudit {
     @Test
     public void lastChangedWorks() throws Exception {
         regService.register(new RegistrationBean(monowai, mike, "bah"));
-        // Create a second log record in order to workout who last change the AuditHeaderNode
+        // Create a second log record in order to workout who last change the MetaHeaderNode
         SecurityContextHolder.getContext().setAuthentication(authMike);
 
         Fortress fortWP = fortressService.registerFortress("wportfolio");
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "wally", "CompanyNode", new DateTime(), "ZZZZ");
-        String ahWP = auditManagerService.createHeader(inputBean, null).getAuditKey();
-        AuditHeader auditKey = auditService.getHeader(ahWP);
-        auditManagerService.processLog(new AuditLogInputBean(auditKey.getAuditKey(), "olivia@sunnybell.com", new DateTime(), what + "1\"}", "Update"));
-        auditKey = auditService.getHeader(ahWP);
+        MetaInputBean inputBean = new MetaInputBean(fortWP.getName(), "wally", "CompanyNode", new DateTime(), "ZZZZ");
+        String ahWP = mediationFacade.createHeader(inputBean, null).getMetaKey();
+        MetaHeader auditKey = trackService.getHeader(ahWP);
+        mediationFacade.processLog(new LogInputBean(auditKey.getMetaKey(), "olivia@sunnybell.com", new DateTime(), what + "1\"}", "Update"));
+        auditKey = trackService.getHeader(ahWP);
         FortressUser fu = fortressService.getUser(auditKey.getLastUser().getId());
         assertEquals("olivia@sunnybell.com", fu.getCode());
 
-        auditManagerService.processLog(new AuditLogInputBean(auditKey.getAuditKey(), "harry@sunnybell.com", new DateTime(), what + "2\"}", "Update"));
-        auditKey = auditService.getHeader(ahWP);
+        mediationFacade.processLog(new LogInputBean(auditKey.getMetaKey(), "harry@sunnybell.com", new DateTime(), what + "2\"}", "Update"));
+        auditKey = trackService.getHeader(ahWP);
 
         fu = fortressService.getUser(auditKey.getLastUser().getId());
         assertEquals("harry@sunnybell.com", fu.getCode());
 
-        auditManagerService.processLog(new AuditLogInputBean(auditKey.getAuditKey(), "olivia@sunnybell.com", new DateTime(), what + "3\"}", "Update"));
-        auditKey = auditService.getHeader(ahWP);
+        mediationFacade.processLog(new LogInputBean(auditKey.getMetaKey(), "olivia@sunnybell.com", new DateTime(), what + "3\"}", "Update"));
+        auditKey = trackService.getHeader(ahWP);
 
         fu = fortressService.getUser(auditKey.getLastUser().getId());
         assertEquals("olivia@sunnybell.com", fu.getCode());
@@ -446,32 +446,32 @@ public class TestAudit {
     @Test
     public void outOfSequenceLogsWorking() throws Exception {
         regService.register(new RegistrationBean(monowai, mike, "bah"));
-        // Create a second log record in order to workout who last change the AuditHeaderNode
+        // Create a second log record in order to workout who last change the MetaHeaderNode
         SecurityContextHolder.getContext().setAuthentication(authMike);
         DateTime dt = new DateTime().toDateTime();
         DateTime earlyDate = dt.minusDays(2);
 
         Fortress fortWP = fortressService.registerFortress("wportfolio");
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "wally", "CompanyNode", new DateTime(), "ZZZZ");
-        String ahWP = auditManagerService.createHeader(inputBean, null).getAuditKey();
-        com.auditbucket.audit.model.AuditHeader auditHeader = auditService.getHeader(ahWP);
+        MetaInputBean inputBean = new MetaInputBean(fortWP.getName(), "wally", "CompanyNode", new DateTime(), "ZZZZ");
+        String ahWP = mediationFacade.createHeader(inputBean, null).getMetaKey();
+        MetaHeader metaHeader = trackService.getHeader(ahWP);
 
         // Create the future one first.
-        auditManagerService.processLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", new DateTime(), what + "1\"}", "Update"));
-        auditHeader = auditService.getHeader(ahWP);
-        FortressUser fu = fortressService.getUser(auditHeader.getLastUser().getId());
+        mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", new DateTime(), what + "1\"}", "Update"));
+        metaHeader = trackService.getHeader(ahWP);
+        FortressUser fu = fortressService.getUser(metaHeader.getLastUser().getId());
         assertEquals("olivia@sunnybell.com", fu.getCode());
-        AuditLog compareLog = auditService.getLastAuditLog(auditHeader);
+        TrackLog compareLog = trackService.getLastLog(metaHeader);
 
         // Load a historic record. This should not become "last"
-        auditManagerService.processLog(new AuditLogInputBean(auditHeader.getAuditKey(), "harry@sunnybell.com", earlyDate, what + "2\"}", "Update"));
-        auditHeader = auditService.getHeader(ahWP);
+        mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "harry@sunnybell.com", earlyDate, what + "2\"}", "Update"));
+        metaHeader = trackService.getHeader(ahWP);
 
-        AuditLog lastLog = auditService.getLastAuditLog(auditHeader);
+        TrackLog lastLog = trackService.getLastLog(metaHeader);
         assertNotNull(lastLog);
         assertEquals(compareLog.getId(), lastLog.getId());
 
-        fu = fortressService.getUser(auditHeader.getLastUser().getId());
+        fu = fortressService.getUser(metaHeader.getLastUser().getId());
         assertEquals("olivia@sunnybell.com", fu.getCode()); // The first one we created is the "last one"
 
 
@@ -483,7 +483,7 @@ public class TestAudit {
     @Test
     public void logDateRangesWorking() throws Exception {
         regService.register(new RegistrationBean(monowai, mike, "bah"));
-        // Create a second log record in order to workout who last change the AuditHeaderNode
+        // Create a second log record in order to workout who last change the MetaHeaderNode
         SecurityContextHolder.getContext().setAuthentication(authMike);
 
         int max = 10;
@@ -492,32 +492,32 @@ public class TestAudit {
         DateTime firstDate = dt.minusDays(max);
         DateTime workingDate = firstDate.toDateTime();
 
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "wally", "CompanyNode", firstDate, "123");
-        String ahWP = auditManagerService.createHeader(inputBean, null).getAuditKey();
-        com.auditbucket.audit.model.AuditHeader auditHeader = auditService.getHeader(ahWP);
+        MetaInputBean inputBean = new MetaInputBean(fortWP.getName(), "wally", "CompanyNode", firstDate, "123");
+        String ahWP = mediationFacade.createHeader(inputBean, null).getMetaKey();
+        MetaHeader metaHeader = trackService.getHeader(ahWP);
         int i = 0;
         while (i < max) {
             workingDate = workingDate.plusDays(1);
-            assertEquals("Loop count " + i, AuditLogInputBean.LogStatus.OK, auditManagerService.processLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", workingDate, what + i + "\"}")).getStatus());
+            assertEquals("Loop count " + i, LogInputBean.LogStatus.OK, mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", workingDate, what + i + "\"}")).getStatus());
             i++;
         }
 
-        Set<AuditLog> aLogs = auditService.getAuditLogs(auditHeader.getAuditKey());
+        Set<TrackLog> aLogs = trackService.getLogs(metaHeader.getMetaKey());
         assertEquals(max, aLogs.size());
 
-        AuditLog lastLog = auditService.getLastAuditLog(auditHeader.getAuditKey());
-        AuditChange lastChange = lastLog.getAuditChange();
+        TrackLog lastLog = trackService.getLastLog(metaHeader.getMetaKey());
+        ChangeLog lastChange = lastLog.getChange();
         assertNotNull(lastChange);
         assertEquals(workingDate.toDate(), new Date(lastLog.getFortressWhen()));
-        auditHeader = auditService.getHeader(ahWP);
-        assertEquals(max, auditService.getAuditLogCount(auditHeader.getAuditKey()));
+        metaHeader = trackService.getHeader(ahWP);
+        assertEquals(max, trackService.getLogCount(metaHeader.getMetaKey()));
 
         DateTime then = workingDate.minusDays(4);
         logger.info("Searching between " + then.toDate() + " and " + workingDate.toDate());
-        Set<AuditLog> logs = auditService.getAuditLogs(auditHeader.getAuditKey(), then.toDate(), workingDate.toDate());
+        Set<TrackLog> logs = trackService.getLogs(metaHeader.getMetaKey(), then.toDate(), workingDate.toDate());
         assertEquals(5, logs.size());
         Long logId = logs.iterator().next().getId();
-        AuditLogDetailBean change = auditService.getFullDetail(auditHeader.getAuditKey(), logId);
+        LogDetailBean change = trackService.getFullDetail(metaHeader.getMetaKey(), logId);
         assertNotNull(change);
         assertNotNull(change.getLog());
         assertNotNull(change.getWhat());
@@ -534,22 +534,22 @@ public class TestAudit {
         Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
         DateTime dt = new DateTime().toDateTime();
         DateTime firstDate = dt.minusDays(2);
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", firstDate, "clb1");
-        String ahWP = auditManagerService.createHeader(inputBean, null).getAuditKey();
+        MetaInputBean inputBean = new MetaInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", firstDate, "clb1");
+        String ahWP = mediationFacade.createHeader(inputBean, null).getMetaKey();
 
-        com.auditbucket.audit.model.AuditHeader auditHeader = auditService.getHeader(ahWP);
-        auditManagerService.processLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", firstDate, what + 1 + "\"}"));
-        auditManagerService.processLog(new AuditLogInputBean(auditHeader.getAuditKey(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}"));
-        Set<AuditLog> logs = auditService.getAuditLogs(auditHeader.getAuditKey());
+        MetaHeader metaHeader = trackService.getHeader(ahWP);
+        mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", firstDate, what + 1 + "\"}"));
+        mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}"));
+        Set<TrackLog> logs = trackService.getLogs(metaHeader.getMetaKey());
         assertEquals(2, logs.size());
-        auditHeader = auditService.getHeader(ahWP);
-        compareUser(auditHeader, "isabella@sunnybell.com");
-        auditHeader = auditService.cancelLastLogSync(auditHeader.getAuditKey());
+        metaHeader = trackService.getHeader(ahWP);
+        compareUser(metaHeader, "isabella@sunnybell.com");
+        metaHeader = trackService.cancelLastLogSync(metaHeader.getMetaKey());
 
-        assertNotNull(auditHeader);
-        compareUser(auditHeader, "olivia@sunnybell.com");
-        auditHeader = auditService.cancelLastLogSync(auditHeader.getAuditKey());
-        assertNotNull(auditHeader);
+        assertNotNull(metaHeader);
+        compareUser(metaHeader, "olivia@sunnybell.com");
+        metaHeader = trackService.cancelLastLogSync(metaHeader.getMetaKey());
+        assertNotNull(metaHeader);
     }
 
     @Test
@@ -557,16 +557,16 @@ public class TestAudit {
         regService.register(new RegistrationBean(monowai, mike, "bah"));
         SecurityContextHolder.getContext().setAuthentication(authMike);
         Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime(), "ABC1");
-        String ahWP = auditManagerService.createHeader(inputBean, null).getAuditKey();
+        MetaInputBean inputBean = new MetaInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime(), "ABC1");
+        String ahWP = mediationFacade.createHeader(inputBean, null).getMetaKey();
 
-        com.auditbucket.audit.model.AuditHeader auditHeader = auditService.getHeader(ahWP);
-        auditManagerService.processLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", new DateTime(), what + 1 + "\"}"));
-        auditHeader = auditService.getHeader(ahWP); // Inflate the header on the server
-        AuditLog lastLog = auditService.getLastLog(auditHeader.getAuditKey());
+        MetaHeader metaHeader = trackService.getHeader(ahWP);
+        mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", new DateTime(), what + 1 + "\"}"));
+        metaHeader = trackService.getHeader(ahWP); // Inflate the header on the server
+        TrackLog lastLog = trackService.getLastLog(metaHeader.getMetaKey());
         assertNotNull(lastLog);
 //        assertNotNull(lastLog.getAuditChange().getWhat());
-        AuditWhat whatResult = auditService.getWhat(auditHeader, lastLog.getAuditChange());
+        LogWhat whatResult = trackService.getWhat(metaHeader, lastLog.getChange());
         assertNotNull(whatResult);
         assertTrue(whatResult.getWhatMap().containsKey("house"));
     }
@@ -579,23 +579,23 @@ public class TestAudit {
         DateTime fortressDateCreated = DateTime.now();
         Thread.sleep(500);
         DateTime logTime;
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", fortressDateCreated, "dcalbu");
-        AuditLogInputBean auditLogInputBean = new AuditLogInputBean(mike, fortressDateCreated, "{\"abx\": 1 }");
+        MetaInputBean inputBean = new MetaInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", fortressDateCreated, "dcalbu");
+        LogInputBean logInputBean = new LogInputBean(mike, fortressDateCreated, "{\"abx\": 1 }");
         // Time will come from the Log
-        inputBean.setAuditLog(auditLogInputBean);
-        AuditResultBean auditResultBean = auditManagerService.createHeader(inputBean, null);
-        String ahWP = auditResultBean.getAuditKey();
+        inputBean.setLog(logInputBean);
+        TrackResultBean trackResultBean = mediationFacade.createHeader(inputBean, null);
+        String ahWP = trackResultBean.getMetaKey();
 
-        assertEquals(fortressDateCreated.getMillis(), auditResultBean.getAuditHeader().getFortressDateCreated().getMillis());
+        assertEquals(fortressDateCreated.getMillis(), trackResultBean.getMetaHeader().getFortressDateCreated().getMillis());
 
         // Creating the 2nd log will advance the last modified time
         logTime = DateTime.now();
-        auditLogInputBean = new AuditLogInputBean(ahWP, mike, logTime, "{\"abx\": 2 }");
-        auditManagerService.processLog(auditLogInputBean);
+        logInputBean = new LogInputBean(ahWP, mike, logTime, "{\"abx\": 2 }");
+        mediationFacade.processLog(logInputBean);
 
-        AuditLog log = auditService.getLastAuditLog(ahWP);
+        TrackLog log = trackService.getLastLog(ahWP);
         assertEquals("Fortress modification date&time do not match", log.getFortressWhen().longValue(), logTime.getMillis());
-        AuditHeader header = auditService.getHeader(ahWP);
+        MetaHeader header = trackService.getHeader(ahWP);
         assertEquals(fortressDateCreated.getMillis(), header.getFortressDateCreated().getMillis());
         assertEquals("Fortress log time doesn't match", logTime.getMillis(), log.getFortressWhen().longValue());
 
@@ -607,36 +607,36 @@ public class TestAudit {
         SecurityContextHolder.getContext().setAuthentication(authMike);
         Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
         DateTime dt = new DateTime().toDateTime();
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", dt, "mldgsd99");
-        String ahWP = auditManagerService.createHeader(inputBean, null).getAuditKey();
-        com.auditbucket.audit.model.AuditHeader auditHeader = auditService.getHeader(ahWP);
+        MetaInputBean inputBean = new MetaInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", dt, "mldgsd99");
+        String ahWP = mediationFacade.createHeader(inputBean, null).getMetaKey();
+        MetaHeader metaHeader = trackService.getHeader(ahWP);
 
         // Check that TimeZone information is used to correctly establish Now when not passed in a log
         // No Date, so default to NOW in the Fortress Timezone
-        AuditLogResultBean log = auditManagerService.processLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", null, what + 1 + "\"}"));
+        LogResultBean log = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", null, what + 1 + "\"}"));
         logger.info("1 " + new Date(log.getSysWhen()).toString());
 
-        log = auditManagerService.processLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", null, what + 2 + "\"}"));
+        log = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", null, what + 2 + "\"}"));
         logger.info("2 " + new Date(log.getSysWhen()).toString());
 
-        Set<AuditLog> logs = auditService.getAuditLogs(auditHeader.getId());
+        Set<TrackLog> logs = trackService.getLogs(metaHeader.getId());
         assertEquals("Logs with missing dates not correctly recorded", 2, logs.size());
 
         // Same date should still log
         DateTime dateMidnight = new DateTime();
-        log = auditManagerService.processLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", dateMidnight.toDateTime(), what + 3 + "\"}"));
+        log = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", dateMidnight.toDateTime(), what + 3 + "\"}"));
         logger.info("3 " + new Date(log.getSysWhen()).toString());
-        AuditLog thirdLog = auditService.getLastLog(ahWP);
-        auditManagerService.processLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", dateMidnight.toDateTime(), what + 4 + "\"}"));
+        TrackLog thirdLog = trackService.getLastLog(ahWP);
+        mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", dateMidnight.toDateTime(), what + 4 + "\"}"));
         logger.info("4 " + new Date(log.getSysWhen()).toString());
-        logs = auditService.getAuditLogs(auditHeader.getId());
+        logs = trackService.getLogs(metaHeader.getId());
         assertEquals(4, logs.size());
-        for (AuditLog next : logs) {
+        for (TrackLog next : logs) {
             logger.info(next.getId() + " - " + new Date(next.getSysWhen()).toString());
         }
-        AuditLog lastLog = auditService.getLastLog(ahWP);
+        TrackLog lastLog = trackService.getLastLog(ahWP);
         logger.info("L " + new Date(lastLog.getSysWhen()).toString());
-        assertNotSame("Last log in should be the last", lastLog.getAuditChange().getId(), thirdLog.getAuditChange().getId());
+        assertNotSame("Last log in should be the last", lastLog.getChange().getId(), thirdLog.getChange().getId());
     }
 
     @Test
@@ -646,25 +646,25 @@ public class TestAudit {
         Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
         DateTime dt = new DateTime().toDateTime();
         DateTime firstDate = dt.minusDays(2);
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", firstDate, "ABC1");
-        String ahWP = auditManagerService.createHeader(inputBean, null).getAuditKey();
+        MetaInputBean inputBean = new MetaInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", firstDate, "ABC1");
+        String ahWP = mediationFacade.createHeader(inputBean, null).getMetaKey();
 
-        com.auditbucket.audit.model.AuditHeader auditHeader = auditService.getHeader(ahWP);
-        auditManagerService.processLog(new AuditLogInputBean(auditHeader.getAuditKey(), "olivia@sunnybell.com", firstDate, what + 1 + "\"}"));
-        auditManagerService.processLog(new AuditLogInputBean(auditHeader.getAuditKey(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}"));
+        MetaHeader metaHeader = trackService.getHeader(ahWP);
+        mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", firstDate, what + 1 + "\"}"));
+        mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}"));
 
-        AuditSummaryBean auditSummary = auditService.getAuditSummary(ahWP, null);
+        TrackedSummaryBean auditSummary = trackService.getMetaSummary(ahWP, null);
         assertNotNull(auditSummary);
-        assertEquals(ahWP, auditSummary.getHeader().getAuditKey());
+        assertEquals(ahWP, auditSummary.getHeader().getMetaKey());
         assertNotNull(auditSummary.getHeader().getLastUser());
         assertNotNull(auditSummary.getHeader().getCreatedBy());
         assertNotNull(auditSummary.getHeader().getFortress());
         assertEquals(2, auditSummary.getChanges().size());
-        for (AuditLog log : auditSummary.getChanges()) {
-            AuditChange change = log.getAuditChange();
+        for (TrackLog log : auditSummary.getChanges()) {
+            ChangeLog change = log.getChange();
             assertNotNull(change.getEvent());
             assertNotNull(change.getWho().getCode());
-            AuditWhat whatResult = auditService.getWhat(auditHeader, change);
+            LogWhat whatResult = trackService.getWhat(metaHeader, change);
             assertTrue(whatResult.getWhatMap().containsKey("house"));
         }
     }
@@ -674,13 +674,13 @@ public class TestAudit {
         regService.register(new RegistrationBean(monowai, mike, "bah"));
         SecurityContextHolder.getContext().setAuthentication(authMike);
         Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "ABC1");
-        String ahWP = auditManagerService.createHeader(inputBean, null).getAuditKey();
+        MetaInputBean inputBean = new MetaInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "ABC1");
+        String ahWP = mediationFacade.createHeader(inputBean, null).getMetaKey();
 
-        com.auditbucket.audit.model.AuditHeader header = auditService.findByCallerRefFull(fortWP, "CompanyNode", "ABC1");
+        MetaHeader header = trackService.findByCallerRefFull(fortWP, "CompanyNode", "ABC1");
         assertNotNull(header);
         assertNotNull(header.getDocumentType());
-        assertEquals(ahWP, header.getAuditKey());
+        assertEquals(ahWP, header.getMetaKey());
     }
 
     @Test
@@ -698,14 +698,14 @@ public class TestAudit {
         Fortress fortressAST = fortressService.registerFortress(astFortress);
         assertEquals(TimeZone.getTimeZone("AST").getID(), fortressAST.getTimeZone());
 
-        AuditHeaderInputBean astAuditBean = new AuditHeaderInputBean(fortressGMT.getName(), "olivia@ast.com", "CompanyNode", null, "ABC1");
-        AuditHeaderInputBean gmtAuditBean = new AuditHeaderInputBean(fortressAST.getName(), "olivia@gmt.com", "CompanyNode", null, "ABC1");
-        String result = auditManagerService.createHeader(astAuditBean, null).getAuditKey();
-        com.auditbucket.audit.model.AuditHeader header = auditService.getHeader(result);
+        MetaInputBean astAuditBean = new MetaInputBean(fortressGMT.getName(), "olivia@ast.com", "CompanyNode", null, "ABC1");
+        MetaInputBean gmtAuditBean = new MetaInputBean(fortressAST.getName(), "olivia@gmt.com", "CompanyNode", null, "ABC1");
+        String result = mediationFacade.createHeader(astAuditBean, null).getMetaKey();
+        MetaHeader header = trackService.getHeader(result);
         DateTime astTime = new DateTime(header.getFortressDateCreated());
 
-        result = auditManagerService.createHeader(gmtAuditBean, null).getAuditKey();
-        header = auditService.getHeader(result);
+        result = mediationFacade.createHeader(gmtAuditBean, null).getMetaKey();
+        header = trackService.getHeader(result);
         DateTime gmtTime = new DateTime(header.getFortressDateCreated());
 
         assertNotSame(astTime.getHourOfDay(), gmtTime.getHourOfDay());
@@ -722,20 +722,20 @@ public class TestAudit {
         String typeA = "TypeA";
         String typeB = "Type B";
 
-        auditManagerService.createHeader(new AuditHeaderInputBean("ABC", "auditTest", typeA, new DateTime(), "abc"), null);
-        auditManagerService.createHeader(new AuditHeaderInputBean("ABC", "auditTest", typeA, new DateTime(), "abd"), null);
-        auditManagerService.createHeader(new AuditHeaderInputBean("ABC", "auditTest", typeB, new DateTime(), "abc"), null);
+        mediationFacade.createHeader(new MetaInputBean("ABC", "auditTest", typeA, new DateTime(), "abc"), null);
+        mediationFacade.createHeader(new MetaInputBean("ABC", "auditTest", typeA, new DateTime(), "abd"), null);
+        mediationFacade.createHeader(new MetaInputBean("ABC", "auditTest", typeB, new DateTime(), "abc"), null);
 
-        assertEquals(3, auditService.getAuditHeaders(fortress, 0l).size());
-        assertEquals(2, auditService.getAuditHeaders(fortress, typeA, 0l).size());
-        assertEquals("Case sensitivity failed", 2, auditService.getAuditHeaders(fortress, "typea", 0l).size());
-        assertEquals(1, auditService.getAuditHeaders(fortress, typeB, 0l).size());
-        assertEquals("Case sensitivity failed", 1, auditService.getAuditHeaders(fortress, "type b", 0l).size());
+        assertEquals(3, trackService.getHeaders(fortress, 0l).size());
+        assertEquals(2, trackService.getHeaders(fortress, typeA, 0l).size());
+        assertEquals("Case sensitivity failed", 2, trackService.getHeaders(fortress, "typea", 0l).size());
+        assertEquals(1, trackService.getHeaders(fortress, typeB, 0l).size());
+        assertEquals("Case sensitivity failed", 1, trackService.getHeaders(fortress, "type b", 0l).size());
 
 
     }
 
-    private void compareUser(com.auditbucket.audit.model.AuditHeader header, String userName) {
+    private void compareUser(MetaHeader header, String userName) {
         FortressUser fu = fortressService.getUser(header.getLastUser().getId());
         assertEquals(userName, fu.getCode());
 
@@ -745,10 +745,10 @@ public class TestAudit {
         int i = 0;
         SecurityContextHolder.getContext().setAuthentication(auth);
         while (i < recordsToCreate) {
-            auditManagerService.processLog(new AuditLogInputBean(auditHeader, "wally", new DateTime(), textToUse + i + "\"}", (String) null));
+            mediationFacade.processLog(new LogInputBean(auditHeader, "wally", new DateTime(), textToUse + i + "\"}", (String) null));
             i++;
         }
-        assertEquals(recordsToCreate, (double) auditService.getAuditLogCount(auditHeader));
+        assertEquals(recordsToCreate, (double) trackService.getLogCount(auditHeader));
     }
 
 

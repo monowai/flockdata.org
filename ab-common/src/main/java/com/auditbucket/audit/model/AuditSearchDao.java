@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -27,13 +27,6 @@ import java.util.Map;
  * Time: 12:26 PM
  */
 public interface AuditSearchDao {
-    /**
-     * creates a search document for the first time
-     *
-     * @param auditChange values to create from
-     * @return the search document created from the auditChange
-     */
-    SearchChange save(SearchChange auditChange);
 
     /**
      * Rewrites an existing document
@@ -43,32 +36,32 @@ public interface AuditSearchDao {
     SearchChange update(SearchChange auditChange);
 
     /**
-     * locates a document by AuditLogResultBean.searchKey
+     * locates a document by LogResultBean.searchKey
      *
      * @param header auditHeader
      * @return document context as bytes
      */
-    public byte[] findOne(AuditHeader header);
+    public byte[] findOne(MetaHeader header);
 
     /**
      * Locates a specific key monitored by the header.
      * <p/>
      * If ID is null then the call is the same as findOne(header)
-     * where the searchKey is taken to be AuditLogResultBean.searchKey
+     * where the searchKey is taken to be LogResultBean.searchKey
      *
      * @return found audit change or null if none
      */
-    byte[] findOne(AuditHeader header, String id);
+    byte[] findOne(MetaHeader header, String id);
 
     /**
      * Removes a search document. Most of the time, the searchKey in the header
      * is sufficient. However if you are tracking EVERY change in the search engine, then you
      * can delete a specific instance
      *
-     * @param header           AuditLogResultBean that the change belongs to
+     * @param header           LogResultBean that the change belongs to
      * @param existingIndexKey searchKey for the header to remove. if NULL, defaults to header.getSearchKey()
      */
-    void delete(AuditHeader header, String existingIndexKey);
+    void delete(MetaHeader header, String existingIndexKey);
 
     Map<String, Object> ping();
 }

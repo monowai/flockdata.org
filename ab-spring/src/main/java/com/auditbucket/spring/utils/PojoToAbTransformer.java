@@ -1,8 +1,8 @@
 package com.auditbucket.spring.utils;
 
-import com.auditbucket.audit.bean.AuditHeaderInputBean;
-import com.auditbucket.audit.bean.AuditLogInputBean;
-import com.auditbucket.helper.AuditException;
+import com.auditbucket.audit.bean.LogInputBean;
+import com.auditbucket.audit.bean.MetaInputBean;
+import com.auditbucket.helper.DatagioException;
 import com.auditbucket.spring.annotations.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTime;
@@ -28,7 +28,7 @@ public class PojoToAbTransformer {
      * @throws IOException
      * @Tags in the format of "Value"/"Type"
      * "tagValues": { "Helos": "TypeA", "Tiger": "AnimalType", "1234", "{"TypeB", "TypeC"}"},
-     * See AuditLog below
+     * See DatagioLog below
      * "auditLog": {
      * "when": "2012-11-12",
      * "transactional": false,
@@ -38,26 +38,26 @@ public class PojoToAbTransformer {
      * }
      */
 
-    public static AuditHeaderInputBean transformToAbFormat(Object pojo) throws IllegalAccessException, IOException, AuditException {
+    public static MetaInputBean transformToAbFormat(Object pojo) throws IllegalAccessException, IOException, DatagioException {
 
-        //ToDo: AuditLogResultBean is only called when the @AuditKey is null, otherwise it's a log
+        //ToDo: LogResultBean is only called when the @DatagioUid is null, otherwise it's a log
         //ToDo:  caller does not determine this by ab-spring does.
 
-        AuditHeaderInputBean auditHeaderInputBean = new AuditHeaderInputBean();
-        AuditLogInputBean auditLogInputBean = new AuditLogInputBean("null", new DateTime(), null);
+        MetaInputBean metaInputBean = new MetaInputBean();
+        LogInputBean logInputBean = new LogInputBean("null", new DateTime(), null);
         Map<String, Object> tagValues = new HashMap<String, Object>();
         Map<String, Object> mapWhat = new HashMap<String, Object>();
         Class aClass = pojo.getClass();
         Annotation[] annotations = aClass.getAnnotations();
 
         for (Annotation annotation : annotations) {
-            if (annotation instanceof Auditable) {
+            if (annotation instanceof Trackable) {
                 // Class Is annotated for being send to AB
-                Auditable auditableAnnotation = (Auditable) annotation;
+                Trackable auditableAnnotation = (Trackable) annotation;
                 if (auditableAnnotation.documentType().equals("")) {
-                    auditHeaderInputBean.setDocumentType(aClass.getSimpleName().toLowerCase());
+                    metaInputBean.setDocumentType(aClass.getSimpleName().toLowerCase());
                 } else {
-                    auditHeaderInputBean.setDocumentType(auditableAnnotation.documentType());
+                    metaInputBean.setDocumentType(auditableAnnotation.documentType());
                 }
                 Field[] fields = aClass.getDeclaredFields();
                 for (Field field : fields) {
@@ -71,22 +71,22 @@ public class PojoToAbTransformer {
                         // ToDo: should be an annotation around the service.method,
                         // ToDo: i.e. @audit (docType="Booking", fortress="Fortress")
                         if (field.get(pojo) != null) {
-                            if (fieldAnnotation instanceof AuditKey) {
+                            if (fieldAnnotation instanceof DatagioUid) {
                                 auditWhat = false;
-                                auditHeaderInputBean.setAuditKey(field.get(pojo).toString());
+                                metaInputBean.setMetaKey(field.get(pojo).toString());
                             }
 
-                            if (fieldAnnotation instanceof AuditClientRef) {
+                            if (fieldAnnotation instanceof DatagioCallerRef) {
                                 auditWhat = false;
-                                auditHeaderInputBean.setCallerRef(field.get(pojo).toString());
+                                metaInputBean.setCallerRef(field.get(pojo).toString());
                             }
 
                             // ToDo: AuditUser
 
 
-                            if (fieldAnnotation instanceof AuditTag) {
+                            if (fieldAnnotation instanceof DatagioTag) {
                                 auditWhat = false;
-                                AuditTag auditTagAnnotation = (AuditTag) fieldAnnotation;
+                                DatagioTag auditTagAnnotation = (DatagioTag) fieldAnnotation;
                                 // ToDo: Assume all values to be a list. We could be adding a value to an existing key
                                 // ToDo: i.e 123ABC/CustRef exists, in a sub object we add 123ABC/Customer
                                 // This would create 2 relationships for the tag key 123ABC, not simply replace it.
@@ -96,14 +96,14 @@ public class PojoToAbTransformer {
                                     tagValues.put(field.get(pojo).toString(), auditTagAnnotation.name());
                                 }
                             }
-                            if (fieldAnnotation instanceof NoAudit) {
+                            if (fieldAnnotation instanceof NoTrack) {
                                 auditWhat = false;
                             }
 
                         } else {
                             // The case when the value of field are NULL
                             // because we can have TIME=t0 ==> status=STARTED || TIME=t1 ==> status=NULL
-                            if (fieldAnnotation instanceof AuditKey || fieldAnnotation instanceof AuditTag || fieldAnnotation instanceof NoAudit) {
+                            if (fieldAnnotation instanceof DatagioUid || fieldAnnotation instanceof DatagioTag || fieldAnnotation instanceof NoTrack) {
                                 auditWhat = false;
                             }
                         }
@@ -111,7 +111,7 @@ public class PojoToAbTransformer {
                     if (auditWhat) {
                         // ToDo: This needs to assume nested objects and recursively look through them as well
                         // ToDo: customer JSON transformer to serialize the entire object to JSON Node
-                        // and ignore the fields that are NoAudit, AuditKey.
+                        // and ignore the fields that are NoTrack, DatagioUid.
                         mapWhat.put(field.getName(), field.get(pojo));
                     }
                 }
@@ -119,15 +119,15 @@ public class PojoToAbTransformer {
         }
         ObjectMapper mapper = new ObjectMapper(); // create once, reuse
         String what = mapper.writeValueAsString(mapWhat);
-        auditLogInputBean.setWhat(what);
-        auditHeaderInputBean.setAuditLog(auditLogInputBean);
+        logInputBean.setWhat(what);
+        metaInputBean.setLog(logInputBean);
         //ToDo: Figure out tag structure
-        //auditHeaderInputBean.setTagValues(tagValues);
-        return auditHeaderInputBean;
+        //metaInputBean.setTagValues(tagValues);
+        return metaInputBean;
     }
 
     /**
-     * Maps to the AuditLog event.
+     * Maps to the DatagioLog event.
      * {
      * "auditKey": @auditKey,
      * "when": @auditDate,
@@ -143,15 +143,15 @@ public class PojoToAbTransformer {
      * "what": "{\"name\": \"99\", \"thing\": {\"status\": \"android\"}}"
      * }
      */
-    public static AuditLogInputBean transformToAbLogFormat(Object pojo) throws IllegalAccessException, IOException, AuditException {
-        AuditLogInputBean auditLogInputBean = new AuditLogInputBean("mike", new DateTime(), null);
+    public static LogInputBean transformToAbLogFormat(Object pojo) throws IllegalAccessException, IOException, DatagioException {
+        LogInputBean logInputBean = new LogInputBean("mike", new DateTime(), null);
         Map<String, Object> mapWhat = new HashMap<String, Object>();
 
         Class aClass = pojo.getClass();
         Annotation[] annotations = aClass.getAnnotations();
 
         for (Annotation annotation : annotations) {
-            if (annotation instanceof Auditable) {
+            if (annotation instanceof Trackable) {
                 // The case when the value of field are not NULL
                 Field[] fields = aClass.getDeclaredFields();
                 for (Field field : fields) {
@@ -161,18 +161,18 @@ public class PojoToAbTransformer {
                     for (Annotation fieldAnnotation : fieldAnnotations) {
                         // The case when the value of field are not NULL
                         if (field.get(pojo) != null) {
-                            if (fieldAnnotation instanceof AuditKey) {
-                                auditLogInputBean.setAuditKey(field.get(pojo).toString());
+                            if (fieldAnnotation instanceof DatagioUid) {
+                                logInputBean.setMetaKey(field.get(pojo).toString());
                             }
-                            if (fieldAnnotation instanceof AuditClientRef) {
-                                auditLogInputBean.setCallerRef(field.get(pojo).toString());
+                            if (fieldAnnotation instanceof DatagioCallerRef) {
+                                logInputBean.setCallerRef(field.get(pojo).toString());
                             }
 
-                            if (fieldAnnotation instanceof NoAudit) {
+                            if (fieldAnnotation instanceof NoTrack) {
                                 auditWhat = false;
                             }
                         } else {
-                            if (fieldAnnotation instanceof AuditKey || fieldAnnotation instanceof AuditClientRef || fieldAnnotation instanceof AuditTag || fieldAnnotation instanceof NoAudit) {
+                            if (fieldAnnotation instanceof DatagioUid || fieldAnnotation instanceof DatagioCallerRef || fieldAnnotation instanceof DatagioTag || fieldAnnotation instanceof NoTrack) {
                                 auditWhat = false;
                             }
                         }
@@ -185,7 +185,7 @@ public class PojoToAbTransformer {
         }
         ObjectMapper mapper = new ObjectMapper(); // create once, reuse
         String what = mapper.writeValueAsString(mapWhat);
-        auditLogInputBean.setWhat(what);
-        return auditLogInputBean;
+        logInputBean.setWhat(what);
+        return logInputBean;
     }
 }

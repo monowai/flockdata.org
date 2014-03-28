@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 public class SimpleAuditedService {
     private static Logger logger = LoggerFactory.getLogger(SimpleAuditedService.class);
 
-    @AuditHeader
+    @DatagioHeader
     public Customer save(Customer customer) {
         logger.info("call save Method");
         if (customer.getEmail().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,3}$")) {
@@ -18,7 +18,7 @@ public class SimpleAuditedService {
         }
     }
 
-    @AuditLog
+    @DatagioLog
     public Customer update(Customer customer) {
         logger.info("call update Method");
         if (customer.getEmail().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,3}$")) {
@@ -29,14 +29,14 @@ public class SimpleAuditedService {
         }
     }
 
-    @Auditable
+    @Trackable
     public static class Customer {
-        @AuditKey
+        @DatagioUid
         private Long id;
 
         private String name;
 
-        @AuditClientRef
+        @DatagioCallerRef
         private String email;
 
         public Long getId() {

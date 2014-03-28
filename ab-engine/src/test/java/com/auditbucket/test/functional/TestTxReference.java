@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -19,14 +19,14 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.audit.bean.AuditHeaderInputBean;
-import com.auditbucket.audit.bean.AuditLogInputBean;
-import com.auditbucket.audit.bean.AuditLogResultBean;
-import com.auditbucket.audit.bean.AuditResultBean;
-import com.auditbucket.audit.model.AuditChange;
-import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.engine.service.AuditManagerService;
-import com.auditbucket.engine.service.AuditService;
+import com.auditbucket.audit.bean.LogInputBean;
+import com.auditbucket.audit.bean.LogResultBean;
+import com.auditbucket.audit.bean.MetaInputBean;
+import com.auditbucket.audit.bean.TrackResultBean;
+import com.auditbucket.audit.model.ChangeLog;
+import com.auditbucket.audit.model.MetaHeader;
+import com.auditbucket.engine.service.MediationFacade;
+import com.auditbucket.engine.service.TrackService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
@@ -65,10 +65,10 @@ import static junit.framework.Assert.*;
 
 public class TestTxReference {
     @Autowired
-    AuditService auditService;
+    TrackService trackService;
 
     @Autowired
-    AuditManagerService auditManager;
+    MediationFacade auditManager;
 
     @Autowired
     RegistrationService regService;
@@ -105,11 +105,11 @@ public class TestTxReference {
 
 // ABC Data
         Fortress fortressABC = fortressService.registerFortress("abcTest");
-        AuditHeaderInputBean abcHeader = new AuditHeaderInputBean(fortressABC.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
-        abcHeader.setAuditLog(new AuditLogInputBean(null, "charlie", DateTime.now(), escJsonA, true));
+        MetaInputBean abcHeader = new MetaInputBean(fortressABC.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
+        abcHeader.setLog(new LogInputBean(null, "charlie", DateTime.now(), escJsonA, true));
 
-        AuditResultBean resultBean = auditManager.createHeader(abcHeader, null);
-        AuditLogResultBean logResultBean = resultBean.getLogResult();
+        TrackResultBean resultBean = auditManager.createHeader(abcHeader, null);
+        LogResultBean logResultBean = resultBean.getLogResult();
         assertNotNull(logResultBean);
         String abcTxRef = logResultBean.getTxReference();
         assertNotNull(abcTxRef);
@@ -117,31 +117,31 @@ public class TestTxReference {
 // CBA data
         SecurityContextHolder.getContext().setAuthentication(authCBA);
         Fortress fortressCBA = fortressService.registerFortress("cbaTest");
-        AuditHeaderInputBean cbaHeader = new AuditHeaderInputBean(fortressCBA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
-        String cbaKey = auditManager.createHeader(cbaHeader, null).getAuditKey();
+        MetaInputBean cbaHeader = new MetaInputBean(fortressCBA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
+        String cbaKey = auditManager.createHeader(cbaHeader, null).getMetaKey();
 
-        AuditLogInputBean cbaLog = new AuditLogInputBean(cbaKey, "charlie", DateTime.now(), escJsonA, true);
-        assertEquals("CBA Logger Not Created", AuditLogInputBean.LogStatus.OK, auditManager.processLog(cbaLog).getStatus());
+        LogInputBean cbaLog = new LogInputBean(cbaKey, "charlie", DateTime.now(), escJsonA, true);
+        assertEquals("CBA Logger Not Created", LogInputBean.LogStatus.OK, auditManager.processLog(cbaLog).getStatus());
         String cbaTxRef = cbaLog.getTxRef();
         assertNotNull(cbaTxRef);
 
         // CBA Caller can not see the ABC transaction
-        assertNotNull(auditService.findTx(cbaTxRef));
-        assertNull(auditService.findTx(abcTxRef));
+        assertNotNull(trackService.findTx(cbaTxRef));
+        assertNull(trackService.findTx(abcTxRef));
 
         // ABC Caller cannot see the CBA transaction
         SecurityContextHolder.getContext().setAuthentication(authABC);
-        assertNotNull(auditService.findTx(abcTxRef));
-        assertNull(auditService.findTx(cbaTxRef));
+        assertNotNull(trackService.findTx(abcTxRef));
+        assertNull(trackService.findTx(cbaTxRef));
 
         // WHat happens if ABC tries to use CBA's TX Ref.
-        abcHeader = new AuditHeaderInputBean(fortressABC.getName(), "wally", "TestAudit", new DateTime(), "ZZZAAA");
-        abcHeader.setAuditLog(new AuditLogInputBean(null, "wally", DateTime.now(), escJsonA, null, cbaTxRef));
-        AuditResultBean result = auditManager.createHeader(abcHeader, null);
+        abcHeader = new MetaInputBean(fortressABC.getName(), "wally", "TestAudit", new DateTime(), "ZZZAAA");
+        abcHeader.setLog(new LogInputBean(null, "wally", DateTime.now(), escJsonA, null, cbaTxRef));
+        TrackResultBean result = auditManager.createHeader(abcHeader, null);
         assertNotNull(result);
         // It works because TX References have only to be unique for a company
         //      ab generated references are GUIDs, but the caller is allowed to define their own transaction
-        assertNotNull(auditService.findTx(cbaTxRef));
+        assertNotNull(trackService.findTx(cbaTxRef));
 
 
     }
@@ -152,54 +152,54 @@ public class TestTxReference {
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("auditTest", true));
         String tagRef = "MyTXTag";
-        AuditHeaderInputBean aBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
+        MetaInputBean aBean = new MetaInputBean(fortressA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
 
-        String key = auditManager.createHeader(aBean, null).getAuditKey();
+        String key = auditManager.createHeader(aBean, null).getMetaKey();
         assertNotNull(key);
-        com.auditbucket.audit.model.AuditHeader header = auditService.getHeader(key);
+        MetaHeader header = trackService.getHeader(key);
         assertNotNull(header);
         //assertEquals(1, header.getTxTags().size());
-        AuditLogInputBean alb = new AuditLogInputBean(key, "charlie", DateTime.now(), escJsonA, null, tagRef);
+        LogInputBean alb = new LogInputBean(key, "charlie", DateTime.now(), escJsonA, null, tagRef);
         assertTrue(alb.isTransactional());
         String albTxRef = auditManager.processLog(alb).getTxReference();
 
-        alb = new AuditLogInputBean(key, "harry", DateTime.now(), escJsonB);
+        alb = new LogInputBean(key, "harry", DateTime.now(), escJsonB);
 
 
         alb.setTxRef(albTxRef);
         String txStart = albTxRef;
 
         auditManager.processLog(alb);
-        Map<String, Object> result = auditService.findByTXRef(txStart);
+        Map<String, Object> result = trackService.findByTXRef(txStart);
         assertNotNull(result);
         assertEquals(tagRef, result.get("txRef"));
-        Collection<AuditChange> logs = (Collection<AuditChange>) result.get("logs");
+        Collection<ChangeLog> logs = (Collection<ChangeLog>) result.get("logs");
         assertNotNull(logs);
         assertEquals(2, logs.size());
 
         // Create a new Logger for a different transaction
-        alb = new AuditLogInputBean(key, "mikey", DateTime.now(), escJsonA);
+        alb = new LogInputBean(key, "mikey", DateTime.now(), escJsonA);
         alb.setTransactional(true);
         assertNull(alb.getTxRef());
         alb.setTxRef("");
         assertNull("Should be Null if it is blank", alb.getTxRef());
         assertTrue(alb.isTransactional());
-        AuditLogResultBean arb = auditManager.processLog(alb);
+        LogResultBean arb = auditManager.processLog(alb);
         String txEnd = arb.getTxReference();
         assertNotNull(txEnd);
         assertNotSame(txEnd, txStart);
 
-        result = auditService.findByTXRef(txStart);
+        result = trackService.findByTXRef(txStart);
         assertNotNull(result);
         assertEquals(tagRef, result.get("txRef"));
-        logs = (Collection<AuditChange>) result.get("logs");
+        logs = (Collection<ChangeLog>) result.get("logs");
         assertNotNull(logs);
         assertEquals(2, logs.size());
 
-        result = auditService.findByTXRef(txEnd);
+        result = trackService.findByTXRef(txEnd);
         assertNotNull(result);
         assertEquals(txEnd, result.get("txRef"));
-        logs = (Collection<AuditChange>) result.get("logs");
+        logs = (Collection<ChangeLog>) result.get("logs");
         assertNotNull(logs);
         assertEquals(1, logs.size());
 
@@ -212,29 +212,29 @@ public class TestTxReference {
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("auditTest", true));
         String tagRef = "MyTXTag";
-        AuditHeaderInputBean aBean = new AuditHeaderInputBean(fortressA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
+        MetaInputBean aBean = new MetaInputBean(fortressA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
 
-        String key = auditManager.createHeader(aBean, null).getAuditKey();
+        String key = auditManager.createHeader(aBean, null).getMetaKey();
         assertNotNull(key);
-        AuditHeader header = auditService.getHeader(key);
+        MetaHeader header = trackService.getHeader(key);
         assertNotNull(header);
-        AuditLogInputBean alb = new AuditLogInputBean(key, "charlie", DateTime.now(), escJsonA, null, tagRef);
+        LogInputBean alb = new LogInputBean(key, "charlie", DateTime.now(), escJsonA, null, tagRef);
         assertTrue(alb.isTransactional());
         String albTxRef = auditManager.processLog(alb).getTxReference();
 
-        alb = new AuditLogInputBean(key, "harry", DateTime.now(), escJsonB);
+        alb = new LogInputBean(key, "harry", DateTime.now(), escJsonB);
 
         alb.setTxRef(albTxRef);
         String txStart = albTxRef;
 
         auditManager.processLog(alb);
         // All headers touched by this transaction. ToDo: All changes affected
-        Set<AuditHeader> result = auditService.findTxHeaders(txStart);
+        Set<MetaHeader> result = trackService.findTxHeaders(txStart);
         assertNotNull(result);
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
-        for (AuditHeader auditHeader : result) {
-            assertNotNull(auditHeader.getAuditKey());
+        for (MetaHeader metaHeader : result) {
+            assertNotNull(metaHeader.getMetaKey());
         }
 
 

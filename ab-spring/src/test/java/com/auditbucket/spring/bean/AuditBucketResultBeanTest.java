@@ -1,7 +1,7 @@
 package com.auditbucket.spring.bean;
 
-import com.auditbucket.audit.bean.AuditLogInputBean;
-import com.auditbucket.audit.bean.AuditResultBean;
+import com.auditbucket.audit.bean.LogInputBean;
+import com.auditbucket.audit.bean.TrackResultBean;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
@@ -16,29 +16,29 @@ import org.junit.Test;
 public class AuditBucketResultBeanTest {
     @Test
     public void testGetAuditKeyAuditResultBean() throws Exception {
-        AuditResultBean auditResultBean = new AuditResultBean("", "", "", "auditKey");
-        AuditBucketResultBean auditBucketResultBean = new AuditBucketResultBean(auditResultBean);
+        TrackResultBean trackResultBean = new TrackResultBean("", "", "", "auditKey");
+        AuditBucketResultBean auditBucketResultBean = new AuditBucketResultBean(trackResultBean);
         Assert.assertEquals(auditBucketResultBean.getAuditKey(), "auditKey");
     }
 
     @Test
     public void testGetAuditKeyAuditLogInputBean() throws Exception {
-        AuditLogInputBean auditLogInputBean = new AuditLogInputBean("auditKey", "", new DateTime(), null);
-        AuditBucketResultBean auditBucketResultBean = new AuditBucketResultBean(auditLogInputBean);
+        LogInputBean logInputBean = new LogInputBean("auditKey", "", new DateTime(), null);
+        AuditBucketResultBean auditBucketResultBean = new AuditBucketResultBean(logInputBean);
         Assert.assertEquals(auditBucketResultBean.getAuditKey(), "auditKey");
     }
 
     @Test
     public void testGetResultAuditResultBean() throws Exception {
-        AuditResultBean auditResultBean = new AuditResultBean("", "", "", "auditKey");
-        AuditBucketResultBean auditBucketResultBean = new AuditBucketResultBean(auditResultBean);
-        Assert.assertEquals(auditBucketResultBean.getResult().getClass(), AuditResultBean.class);
+        TrackResultBean trackResultBean = new TrackResultBean("", "", "", "auditKey");
+        AuditBucketResultBean auditBucketResultBean = new AuditBucketResultBean(trackResultBean);
+        Assert.assertEquals(auditBucketResultBean.getResult().getClass(), TrackResultBean.class);
     }
 
     @Test
     public void testGetResultAuditLogInputBean() throws Exception {
-        AuditLogInputBean auditLogInputBean = new AuditLogInputBean("auditKey", "", new DateTime(), null);
-        AuditBucketResultBean auditBucketResultBean = new AuditBucketResultBean(auditLogInputBean);
-        Assert.assertEquals(auditBucketResultBean.getResult().getClass(), AuditLogInputBean.class);
+        LogInputBean logInputBean = new LogInputBean("auditKey", "", new DateTime(), null);
+        AuditBucketResultBean auditBucketResultBean = new AuditBucketResultBean(logInputBean);
+        Assert.assertEquals(auditBucketResultBean.getResult().getClass(), LogInputBean.class);
     }
 }

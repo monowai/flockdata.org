@@ -1,11 +1,30 @@
+/*
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
+ *
+ * This file is part of AuditBucket.
+ *
+ * AuditBucket is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AuditBucket is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.auditbucket.engine.service;
 
-import com.auditbucket.audit.bean.AuditHeaderInputBean;
-import com.auditbucket.audit.bean.AuditLogInputBean;
-import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.audit.model.AuditLog;
-import com.auditbucket.audit.model.AuditWhat;
-import com.auditbucket.dao.AuditDao;
+import com.auditbucket.audit.bean.LogInputBean;
+import com.auditbucket.audit.bean.MetaInputBean;
+import com.auditbucket.audit.model.LogWhat;
+import com.auditbucket.audit.model.MetaHeader;
+import com.auditbucket.audit.model.TrackLog;
+import com.auditbucket.dao.TrackDao;
 import com.auditbucket.engine.repo.redis.RedisRepo;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
@@ -47,15 +66,15 @@ public class WhatServiceTest extends AbstractRedisSupport {
     @Autowired
     Neo4jTemplate template;
     @Autowired
-    AuditService auditService;
+    TrackService trackService;
     @Autowired
     RegistrationService regService;
     @Autowired
     FortressService fortressService;
     @Autowired
-    AuditManagerService auditManager;
+    MediationFacade auditManager;
     @Autowired
-    AuditDao auditDAO;
+    TrackDao trackDAO;
     @Autowired
     private WhatService whatService;
 
@@ -87,41 +106,41 @@ public class WhatServiceTest extends AbstractRedisSupport {
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("Audit Test", true));
         String docType = "TestAuditX";
         String callerRef = "ABC123R";
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
+        MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
 
-        String ahKey = auditManager.createHeader(inputBean, null).getAuditKey();
+        String ahKey = auditManager.createHeader(inputBean, null).getMetaKey();
         assertNotNull(ahKey);
-        AuditHeader header = auditService.getHeader(ahKey);
+        MetaHeader header = trackService.getHeader(ahKey);
         Map<String, Object> what = getWhatMap();
         String whatString = getJsonFromObject(what);
         try{
-            auditManager.processLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), whatString));
+            auditManager.processLog(new LogInputBean(ahKey, "wally", new DateTime(), whatString));
         } catch (DataAccessException e ){
             logger.error("KV Stores are configured in config.properties. This test is failing to find the {} server.",engineConfig.getKvStore());
             return;
         }
-        AuditLog auditLog = auditDAO.getLastAuditLog(header.getId());
-        assertNotNull(auditLog);
+        TrackLog trackLog = trackDAO.getLastLog(header.getId());
+        assertNotNull(trackLog);
 
         //When
-        AuditWhat auditWhat = whatService.getWhat(header, auditLog.getAuditChange());
+        LogWhat logWhat = whatService.getWhat(header, trackLog.getChange());
 
-        Assert.assertNotNull(auditWhat);
-        validateWhat(what, auditWhat);
+        Assert.assertNotNull(logWhat);
+        validateWhat(what, logWhat);
 
-        Assert.assertTrue(whatService.isSame(header, auditLog.getAuditChange(), whatString));
+        Assert.assertTrue(whatService.isSame(header, trackLog.getChange(), whatString));
         // Testing that cancel works
-        auditService.cancelLastLogSync(ahKey);
-        Assert.assertNull(auditService.getLastAuditLog(header));
-        Assert.assertNull(whatService.getWhat(header, auditLog.getAuditChange()).getWhat());
+        trackService.cancelLastLogSync(ahKey);
+        Assert.assertNull(trackService.getLastLog(header));
+        Assert.assertNull(whatService.getWhat(header, trackLog.getChange()).getWhat());
     }
 
-    private void validateWhat(Map<String, Object> what, AuditWhat auditWhat) {
-        assertEquals(what.get("lval"), auditWhat.getWhatMap().get("lval"));
-        assertEquals(what.get("dval"), auditWhat.getWhatMap().get("dval"));
-        assertEquals(what.get("sval"), auditWhat.getWhatMap().get("sval"));
-        assertEquals(what.get("ival"), auditWhat.getWhatMap().get("ival"));
-        assertEquals(what.get("bval"), auditWhat.getWhatMap().get("bval"));
+    private void validateWhat(Map<String, Object> what, LogWhat logWhat) {
+        assertEquals(what.get("lval"), logWhat.getWhatMap().get("lval"));
+        assertEquals(what.get("dval"), logWhat.getWhatMap().get("dval"));
+        assertEquals(what.get("sval"), logWhat.getWhatMap().get("sval"));
+        assertEquals(what.get("ival"), logWhat.getWhatMap().get("ival"));
+        assertEquals(what.get("bval"), logWhat.getWhatMap().get("bval"));
     }
 
 

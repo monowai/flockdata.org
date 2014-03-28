@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -19,7 +19,7 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.audit.model.MetaHeader;
 import com.auditbucket.audit.model.SearchChange;
 import org.springframework.integration.annotation.Gateway;
 
@@ -34,11 +34,11 @@ public interface AbSearchGateway {
     @Gateway(requestChannel = "sendRequest")
     public void makeChangeSearchable(SearchChange searchDocumentBean);
 
-    public void delete(AuditHeader auditHeader, String searchKey);
+    public void delete(MetaHeader metaHeader, String searchKey);
 
-    public byte[] findOne(AuditHeader auditHeader, String searchKey);
+    public byte[] findOne(MetaHeader metaHeader, String searchKey);
 
-    public byte[] findOne(AuditHeader auditHeader);
+    public byte[] findOne(MetaHeader metaHeader);
 
     public Long getHitCount(String s);
 

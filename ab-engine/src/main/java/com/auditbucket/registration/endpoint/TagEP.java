@@ -1,7 +1,26 @@
+/*
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
+ *
+ * This file is part of AuditBucket.
+ *
+ * AuditBucket is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AuditBucket is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.auditbucket.registration.endpoint;
 
 import com.auditbucket.helper.ApiKeyHelper;
-import com.auditbucket.helper.AuditException;
+import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
@@ -32,7 +51,7 @@ public class TagEP {
     @ResponseBody
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
     public void createAuditTags(@RequestBody Collection<TagInputBean> input, String apiKey,
-                                @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws AuditException {
+                                @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiKey, apiHeaderKey));
         tagService.processTags(company, input);
 
@@ -40,7 +59,7 @@ public class TagEP {
 
     @ResponseBody
     @RequestMapping(value = "/{type}", produces = "application/json", consumes = "application/json", method = RequestMethod.GET)
-    public Map<String, Tag> getTags(@PathVariable("type") String type) throws AuditException {
+    public Map<String, Tag> getTags(@PathVariable("type") String type) throws DatagioException {
         return tagService.findTags(type);
     }
 }

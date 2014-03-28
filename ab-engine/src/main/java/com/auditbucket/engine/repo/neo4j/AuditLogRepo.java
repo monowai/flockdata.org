@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -19,9 +19,9 @@
 
 package com.auditbucket.engine.repo.neo4j;
 
-import com.auditbucket.audit.model.AuditLog;
-import com.auditbucket.engine.repo.neo4j.model.AuditChangeNode;
-import com.auditbucket.engine.repo.neo4j.model.AuditLogRelationship;
+import com.auditbucket.audit.model.TrackLog;
+import com.auditbucket.engine.repo.neo4j.model.ChangeLogNode;
+import com.auditbucket.engine.repo.neo4j.model.TrackLogRelationship;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
@@ -32,22 +32,22 @@ import java.util.Set;
  * Date: 14/04/13
  * Time: 8:00 PM
  */
-public interface AuditLogRepo extends GraphRepository<AuditChangeNode> {
+public interface AuditLogRepo extends GraphRepository<ChangeLogNode> {
 
     @Query(value = "start auditHeader=node({0}) match auditHeader-[cw:LOGGED]->auditLog return count(cw)")
     int getLogCount(Long auditHeaderID);
 
-    @Query(elementClass = AuditLogRelationship.class,
+    @Query(elementClass = TrackLogRelationship.class,
             value = "match (change:Change)<-[log:LOGGED]-() where id(change)={0} " +
                     "   return log")
-    AuditLogRelationship getLastAuditLog(Long auditHeaderID);
+    TrackLogRelationship getLastAuditLog(Long auditHeaderID);
 
-    @Query(elementClass = AuditLogRelationship.class, value = "start header=node({0}) match (header)-[log:LOGGED]->(auditLog) where log.fortressWhen >= {1} and log.fortressWhen <= {2} return log ")
-    Set<AuditLog> getAuditLogs(Long auditHeaderID, Long from, Long to);
+    @Query(elementClass = TrackLogRelationship.class, value = "start header=node({0}) match (header)-[log:LOGGED]->(auditLog) where log.fortressWhen >= {1} and log.fortressWhen <= {2} return log ")
+    Set<TrackLog> getAuditLogs(Long auditHeaderID, Long from, Long to);
 
-    @Query(elementClass = AuditLogRelationship.class, value = "start audit=node({0}) " +
+    @Query(elementClass = TrackLogRelationship.class, value = "start audit=node({0}) " +
             "   MATCH audit-[log:LOGGED]->auditChange " +
             "return log order by log.fortressWhen desc")
-    Set<AuditLog> findAuditLogs(Long auditHeaderID);
+    Set<TrackLog> findAuditLogs(Long auditHeaderID);
 
 }

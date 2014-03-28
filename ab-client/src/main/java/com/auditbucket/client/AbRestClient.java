@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -19,8 +19,8 @@
 
 package com.auditbucket.client;
 
-import com.auditbucket.audit.bean.AuditHeaderInputBean;
-import com.auditbucket.audit.bean.AuditResultBean;
+import com.auditbucket.audit.bean.MetaInputBean;
+import com.auditbucket.audit.bean.TrackResultBean;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.FortressResultBean;
 import com.auditbucket.registration.bean.TagInputBean;
@@ -62,7 +62,7 @@ public class AbRestClient {
     private int batchSize;
     private static boolean compress = false;
     private boolean simulateOnly;
-    private List<AuditHeaderInputBean> batchHeader = new ArrayList<>();
+    private List<MetaInputBean> batchHeader = new ArrayList<>();
     private List<TagInputBean> batchTag = new ArrayList<>();
     private final String headerSync = "BatchSync";
     private final String tagSync = "TagSync";
@@ -84,7 +84,7 @@ public class AbRestClient {
         this.userName = userName;
         this.password = password;
         // Urls to write Audit/Tag/Fortress information
-        this.NEW_HEADER = serverName + "/v1/audit/";
+        this.NEW_HEADER = serverName + "/v1/track/";
         this.NEW_TAG = serverName + "/v1/tag/";
         this.FORTRESS = serverName + "/v1/fortress/";
         this.batchSize = batchSize;
@@ -117,17 +117,17 @@ public class AbRestClient {
 
     }
 
-    private String flushAudit(List<AuditHeaderInputBean> auditInput) {
+    private String flushAudit(List<MetaInputBean> auditInput) {
         if (simulateOnly)
             return "OK";
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
         HttpHeaders httpHeaders = getHeaders(userName, password);
-        HttpEntity<List<AuditHeaderInputBean>> requestEntity = new HttpEntity<>(auditInput, httpHeaders);
+        HttpEntity<List<MetaInputBean>> requestEntity = new HttpEntity<>(auditInput, httpHeaders);
 
         try {
-            restTemplate.exchange(NEW_HEADER, HttpMethod.PUT, requestEntity, AuditResultBean.class);
+            restTemplate.exchange(NEW_HEADER, HttpMethod.PUT, requestEntity, TrackResultBean.class);
             return "OK";
         } catch (HttpClientErrorException e) {
             // ToDo: Rest error handling pretty useless. need to know why it's failing
@@ -212,29 +212,29 @@ public class AbRestClient {
     /**
      * send the data to AuditBucket
      *
-     * @param auditHeaderInputBean Input to push
+     * @param metaInputBean Input to push
      */
-    public void writeAudit(AuditHeaderInputBean auditHeaderInputBean, String message) {
-        writeAudit(auditHeaderInputBean, false, message);
+    public void writeAudit(MetaInputBean metaInputBean, String message) {
+        writeAudit(metaInputBean, false, message);
     }
 
-    private void batchTags(AuditHeaderInputBean auditHeaderInputBeans) {
+    private void batchTags(MetaInputBean metaInputBeans) {
 
-        for (TagInputBean tag : auditHeaderInputBeans.getTags()) {
+        for (TagInputBean tag : metaInputBeans.getTags()) {
             if (!batchTag.contains(tag))
                 batchTag.add(tag);
         }
     }
 
 
-    void writeAudit(AuditHeaderInputBean auditHeaderInputBean, boolean flush, String message) {
+    void writeAudit(MetaInputBean metaInputBean, boolean flush, String message) {
 
         synchronized (headerSync) {
-            if (auditHeaderInputBean != null) {
-                if (auditHeaderInputBean.getFortress() == null)
-                    auditHeaderInputBean.setFortress(defaultFortress);
-                batchHeader.add(auditHeaderInputBean);
-                batchTags(auditHeaderInputBean);
+            if (metaInputBean != null) {
+                if (metaInputBean.getFortress() == null)
+                    metaInputBean.setFortress(defaultFortress);
+                batchHeader.add(metaInputBean);
+                batchTags(metaInputBean);
             }
 
             if (flush || batchHeader.size() == batchSize) {
@@ -284,7 +284,7 @@ public class AbRestClient {
 
         //logger.info("template {}", restTemplate);
         try {
-            restTemplate.exchange(NEW_TAG, HttpMethod.PUT, requestEntity, AuditResultBean.class);
+            restTemplate.exchange(NEW_TAG, HttpMethod.PUT, requestEntity, TrackResultBean.class);
             return "OK";
         } catch (HttpClientErrorException e) {
             // to test, try to log against no existing fortress.

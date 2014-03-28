@@ -37,7 +37,7 @@
     <int:json-to-object-transformer id="jsonToObject"
                                     input-channel="searchRequest"
                                     output-channel="searchResult"
-                                    type="com.auditbucket.search.model.AuditSearchChange"/>
+                                    type="com.auditbucket.search.model.MetaSearchChange"/>
 
     <int:object-to-json-transformer id="objectToJson"
                                     input-channel="searchReply"

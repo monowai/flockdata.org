@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -19,6 +19,7 @@
 
 package com.auditbucket.test.functional;
 
+import com.auditbucket.engine.PropertyConversion;
 import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
@@ -289,6 +290,13 @@ public class TestTags {
         assertNotNull ( results.get(tagInput.getName()));
     }
 
+    @Test
+    public void systemPropertiesHonoured() throws Exception{
+        // Case insensitive test
+        assertTrue(PropertyConversion.isSystemColumn("Name"));
+        assertTrue(PropertyConversion.isSystemColumn("code"));
+        assertTrue(PropertyConversion.isSystemColumn("keY"));
 
+    }
 
 }

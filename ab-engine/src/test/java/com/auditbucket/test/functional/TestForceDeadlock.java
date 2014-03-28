@@ -1,9 +1,28 @@
+/*
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
+ *
+ * This file is part of AuditBucket.
+ *
+ * AuditBucket is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AuditBucket is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.auditbucket.test.functional;
 
-import com.auditbucket.audit.bean.AuditHeaderInputBean;
-import com.auditbucket.audit.bean.AuditLogInputBean;
-import com.auditbucket.engine.endpoint.AuditEP;
-import com.auditbucket.engine.service.AuditService;
+import com.auditbucket.audit.bean.LogInputBean;
+import com.auditbucket.audit.bean.MetaInputBean;
+import com.auditbucket.engine.endpoint.TrackEP;
+import com.auditbucket.engine.service.TrackService;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.endpoint.TagEP;
@@ -49,7 +68,7 @@ public class TestForceDeadlock {
     TagService tagService;
 
     @Autowired
-    private AuditEP auditEP;
+    private TrackEP trackEP;
 
     @Autowired
     private TagEP tagEP;
@@ -62,7 +81,7 @@ public class TestForceDeadlock {
     private String mike = "test@ab.com";
     private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
     @Autowired
-    AuditService auditService;
+    TrackService trackService;
 
     @Autowired
     RegistrationService regService;
@@ -112,7 +131,7 @@ public class TestForceDeadlock {
         try {
             for (int i = 0; i < threadMax; i++) {
                 //tagEP.createAuditTags(runners.get(i).getTags(), apiKey, apiKey);
-                futures.put(i, auditEP.createHeadersAsync(runners.get(i).getInputBeans(), true, apiKey));
+                futures.put(i, trackEP.trackHeadersAsync(runners.get(i).getInputBeans(), true, apiKey));
             }
             working = true;
         } catch (RuntimeException e) {
@@ -164,7 +183,7 @@ public class TestForceDeadlock {
         Fortress fortress;
         CountDownLatch latch;
         int maxRun = 30;
-        List<AuditHeaderInputBean> inputBeans;
+        List<MetaInputBean> inputBeans;
         Collection<TagInputBean> tags;
 
         boolean worked = false;
@@ -183,7 +202,7 @@ public class TestForceDeadlock {
             return maxRun;
         }
 
-        public List<AuditHeaderInputBean> getInputBeans() {
+        public List<MetaInputBean> getInputBeans() {
             return inputBeans;
         }
 
@@ -198,9 +217,9 @@ public class TestForceDeadlock {
             logger.info("Hello from thread {}, Creating {} AuditHeaders", callerRef, maxRun);
             try {
                 while (count < maxRun) {
-                    AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef + count);
+                    MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef + count);
                     inputBean.setTags(tags);
-                    inputBean.setAuditLog( new AuditLogInputBean("john"+count, null, TestJson.getBigJsonText(count) ));
+                    inputBean.setLog(new LogInputBean("john" + count, null, TestJson.getBigJsonText(count)));
 
                     inputBeans.add(inputBean);
                     count++;

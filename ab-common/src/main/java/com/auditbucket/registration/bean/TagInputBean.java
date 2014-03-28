@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -62,7 +62,7 @@ public class TagInputBean {
      * You can pass this in as Name:Type and AB will additionally
      * recognize the tag as being of the supplied Type
      * <p/>
-     * This tag will not be associated with an AuditHeader (it has no auditRelationship)
+     * This tag will not be associated with an MetaHeader (it has no auditRelationship)
      * <p/>
      * Code value defaults to the tag name
      *
@@ -177,7 +177,7 @@ public class TagInputBean {
     }
 
     /**
-     * Associates this tag with the AuditHeader
+     * Associates this tag with the MetaHeader
      *
      * @param auditRelationship name of the relationship to the Audit Header
      * @param properties        properties to store against the relationship

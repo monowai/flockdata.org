@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -19,16 +19,16 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.audit.bean.AuditHeaderInputBean;
-import com.auditbucket.audit.bean.AuditLogInputBean;
-import com.auditbucket.audit.bean.AuditResultBean;
-import com.auditbucket.audit.model.AuditChange;
-import com.auditbucket.audit.model.AuditEvent;
-import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.audit.model.AuditLog;
-import com.auditbucket.engine.service.AuditEventService;
-import com.auditbucket.engine.service.AuditManagerService;
-import com.auditbucket.engine.service.AuditService;
+import com.auditbucket.audit.bean.LogInputBean;
+import com.auditbucket.audit.bean.MetaInputBean;
+import com.auditbucket.audit.bean.TrackResultBean;
+import com.auditbucket.audit.model.ChangeEvent;
+import com.auditbucket.audit.model.ChangeLog;
+import com.auditbucket.audit.model.MetaHeader;
+import com.auditbucket.audit.model.TrackLog;
+import com.auditbucket.engine.service.MediationFacade;
+import com.auditbucket.engine.service.TrackEventService;
+import com.auditbucket.engine.service.TrackService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.endpoint.RegistrationEP;
@@ -67,7 +67,7 @@ import static org.junit.Assert.assertNotNull;
 @Transactional
 public class TestAuditEvent {
     @Autowired
-    AuditService auditService;
+    TrackService trackService;
 
     @Autowired
     RegistrationEP regService;
@@ -76,13 +76,13 @@ public class TestAuditEvent {
     FortressService fortressService;
 
     @Autowired
-    AuditEventService auditEventService;
+    TrackEventService trackEventService;
 
     @Autowired
     private Neo4jTemplate template;
 
     @Autowired
-    private AuditManagerService auditManagerService;
+    private MediationFacade mediationFacade;
 
     private Logger logger = LoggerFactory.getLogger(TestAuditEvent.class);
     private String monowai = "Monowai";
@@ -110,16 +110,16 @@ public class TestAuditEvent {
         Company company = fortressA.getCompany();
         assertNotNull(company);
         String eventName = "DuplicateNotAllowed";
-        AuditEvent event = auditEventService.processEvent(eventName);
+        ChangeEvent event = trackEventService.processEvent(eventName);
 
         assertNotNull(event);
         Long existingId = event.getId();
         assertEquals(eventName, event.getName());
         assertEquals(eventName.toLowerCase(), event.getCode());
         //assertEquals(company.getId(), event.getCompany().getId());
-        Set<AuditEvent> events = auditEventService.getCompanyEvents(company.getId());
+        Set<ChangeEvent> events = trackEventService.getCompanyEvents(company.getId());
         assertEquals(1, events.size());
-        event = auditEventService.processEvent(eventName);
+        event = trackEventService.processEvent(eventName);
         assertEquals(existingId, event.getId());
         assertEquals(1, events.size());
 
@@ -134,31 +134,31 @@ public class TestAuditEvent {
         regService.register(new RegistrationBean(monowai, mike, "bah"));
         Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
 
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
+        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
 
-        AuditResultBean resultBean = auditManagerService.createHeader(inputBean, null);
-        String ahKey = resultBean.getAuditKey();
+        TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
+        String ahKey = resultBean.getMetaKey();
         assertNotNull(ahKey);
 
-        AuditHeader header = auditService.getHeader(ahKey);
+        MetaHeader header = trackService.getHeader(ahKey);
         assertNotNull(header.getDocumentType());
 
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));
 
-        auditManagerService.processLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 0}"));
+        mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 0}"));
 
-        AuditLog when = auditService.getLastAuditLog(ahKey);
+        TrackLog when = trackService.getLastLog(ahKey);
         assertNotNull(when);
-        assertEquals(AuditChange.CREATE, when.getAuditChange().getEvent().getName()); // log event default
-        assertEquals(AuditChange.CREATE.toLowerCase(), when.getAuditChange().getEvent().getName().toLowerCase()); // log event default
+        assertEquals(ChangeLog.CREATE, when.getChange().getEvent().getName()); // log event default
+        assertEquals(ChangeLog.CREATE.toLowerCase(), when.getChange().getEvent().getName().toLowerCase()); // log event default
 
-        auditManagerService.processLog(new AuditLogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 1}"));
-        AuditLog whenB = auditService.getLastAuditLog(ahKey);
+        mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 1}"));
+        TrackLog whenB = trackService.getLastLog(ahKey);
         assertNotNull(whenB);
 
         assertFalse(whenB.equals(when));
-        assertNotNull(whenB.getAuditChange().getEvent());
-        assertEquals(AuditChange.UPDATE, whenB.getAuditChange().getEvent().getName());  // log event default
+        assertNotNull(whenB.getChange().getEvent());
+        assertEquals(ChangeLog.UPDATE, whenB.getChange().getEvent().getName());  // log event default
     }
 }

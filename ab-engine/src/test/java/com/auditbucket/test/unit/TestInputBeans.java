@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -19,8 +19,8 @@
 
 package com.auditbucket.test.unit;
 
-import com.auditbucket.audit.bean.AuditHeaderInputBean;
-import com.auditbucket.audit.bean.AuditLogInputBean;
+import com.auditbucket.audit.bean.LogInputBean;
+import com.auditbucket.audit.bean.MetaInputBean;
 import com.auditbucket.audit.model.TxRef;
 import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
 import com.auditbucket.registration.bean.FortressInputBean;
@@ -81,17 +81,17 @@ public class TestInputBeans {
     @Test
     public void testAuditInputBean() throws Exception {
         DateTime dateA = DateTime.now();
-        AuditHeaderInputBean aib = new AuditHeaderInputBean("fortress", "user", "booking", dateA, "myRef");
-        assertNull(aib.getAuditKey());
-        aib.setAuditKey("AbC");
-        assertNotNull(aib.getAuditKey());
+        MetaInputBean aib = new MetaInputBean("fortress", "user", "booking", dateA, "myRef");
+        assertNull(aib.getMetaKey());
+        aib.setMetaKey("AbC");
+        assertNotNull(aib.getMetaKey());
 
 
         // NonNull tx ref sets the inputBean to be transactional
         String what = "{\"abc\":0}";
         DateTime dateB = DateTime.now();
-        AuditLogInputBean alb = new AuditLogInputBean("aaa", "user", dateB, what, "", "txreftest");
-        aib.setAuditLog(alb); // Creation dates defer to the Log
+        LogInputBean alb = new LogInputBean("aaa", "user", dateB, what, "", "txreftest");
+        aib.setLog(alb); // Creation dates defer to the Log
         assertTrue(alb.isTransactional());
         assertEquals(dateB.getMillis(), aib.getWhen().getTime());
         // Try to override the
@@ -103,13 +103,13 @@ public class TestInputBeans {
         alb.setWhen(dateA.toDate());
         assertEquals(dateA.getMillis(), aib.getWhen().getTime());
         // Null the log
-        aib.setAuditLog(null);
+        aib.setLog(null);
         Date dateC = new Date();
         alb.setWhen(dateC);
-        aib.setAuditLog(alb);
+        aib.setLog(alb);
         assertEquals(dateC.getTime(), aib.getWhen().getTime());
 
-        alb = new AuditLogInputBean("aaa", "user", null, what);
+        alb = new LogInputBean("aaa", "user", null, what);
         assertFalse(alb.isTransactional());
 
 

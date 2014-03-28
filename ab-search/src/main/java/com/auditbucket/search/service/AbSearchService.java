@@ -19,12 +19,12 @@
 
 package com.auditbucket.search.service;
 
-import com.auditbucket.audit.model.AuditHeader;
 import com.auditbucket.audit.model.AuditSearchDao;
+import com.auditbucket.audit.model.MetaHeader;
 import com.auditbucket.dao.AuditQueryDao;
-import com.auditbucket.search.model.AuditSearchChange;
-import com.auditbucket.search.model.SearchResult;
 import com.auditbucket.search.endpoint.ElasticSearchGateway;
+import com.auditbucket.search.model.MetaSearchChange;
+import com.auditbucket.search.model.SearchResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +59,7 @@ public class AbSearchService implements ElasticSearchGateway {
     }
 
     @ServiceActivator(inputChannel = "makeSearchRequest") // Subscriber
-    public void createSearchableChange(AuditSearchChange thisChange) {
+    public void createSearchableChange(MetaSearchChange thisChange) {
         logger.debug("searchRequest received for {}", thisChange);
 
         SearchResult result;
@@ -71,7 +71,7 @@ public class AbSearchService implements ElasticSearchGateway {
         }
         // Used to tie the fact that the doc was updated back to the engine
         result.setLogId(thisChange.getLogId());
-        result.setAuditId(thisChange.getAuditId());
+        result.setMetaId(thisChange.getMetaId());
         if (thisChange.isReplyRequired())
             handleResult(result);
 
@@ -85,16 +85,16 @@ public class AbSearchService implements ElasticSearchGateway {
         return null;
     }
 
-    public void delete(AuditHeader auditHeader) {
-        auditSearch.delete(auditHeader, null);
+    public void delete(MetaHeader metaHeader) {
+        auditSearch.delete(metaHeader, null);
 
     }
 
-    public byte[] findOne(AuditHeader header) {
+    public byte[] findOne(MetaHeader header) {
         return auditSearch.findOne(header);
     }
 
-    public byte[] findOne(AuditHeader header, String id) {
+    public byte[] findOne(MetaHeader header, String id) {
         return auditSearch.findOne(header, id);
     }
 

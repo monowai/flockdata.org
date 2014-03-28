@@ -1,10 +1,29 @@
+/*
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
+ *
+ * This file is part of AuditBucket.
+ *
+ * AuditBucket is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AuditBucket is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.auditbucket.test.functional;
 
-import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.audit.bean.AuditHeaderInputBean;
-import com.auditbucket.audit.bean.AuditResultBean;
-import com.auditbucket.engine.service.AuditManagerService;
-import com.auditbucket.engine.service.AuditService;
+import com.auditbucket.audit.bean.MetaInputBean;
+import com.auditbucket.audit.bean.TrackResultBean;
+import com.auditbucket.audit.model.MetaHeader;
+import com.auditbucket.engine.service.MediationFacade;
+import com.auditbucket.engine.service.TrackService;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.FortressService;
@@ -51,14 +70,14 @@ public class TestCallerRef {
     private Neo4jTemplate template;
 
     @Autowired
-    private AuditManagerService auditManagerService;
+    private MediationFacade mediationFacade;
 
     private Logger logger = LoggerFactory.getLogger(TestCallerRef.class);
     private String monowai = "Monowai";
     private String mike = "test@ab.com";
     private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
     @Autowired
-    AuditService auditService;
+    TrackService trackService;
 
     @Autowired
     RegistrationService regService;
@@ -84,18 +103,18 @@ public class TestCallerRef {
 
         Fortress fortress = fortressService.registerFortress("auditTest" + System.currentTimeMillis());
         // Duplicate null caller ref keys
-        AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortress.getName(), "harry", "TestAudit", new DateTime(), null);
-        auditManagerService.createHeader(inputBean, null).getAuditKey();
-        inputBean = new AuditHeaderInputBean(fortress.getName(), "wally", "TestAudit", new DateTime(), null);
-        String ahKey = auditManagerService.createHeader(inputBean, null).getAuditKey();
+        MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "harry", "TestAudit", new DateTime(), null);
+        mediationFacade.createHeader(inputBean, null).getMetaKey();
+        inputBean = new MetaInputBean(fortress.getName(), "wally", "TestAudit", new DateTime(), null);
+        String ahKey = mediationFacade.createHeader(inputBean, null).getMetaKey();
 
         assertNotNull(ahKey);
-        AuditHeader auditHeader = auditService.getHeader(ahKey);
-        assertNotNull(auditHeader);
-        assertNull(auditHeader.getCallerRef());
+        MetaHeader metaHeader = trackService.getHeader(ahKey);
+        assertNotNull(metaHeader);
+        assertNull(metaHeader.getCallerRef());
 
         // By default this will be found via the header key as it was null when header created.
-        assertNotNull(auditService.findByCallerRef(fortress, "TestAudit", ahKey));
+        assertNotNull(trackService.findByCallerRef(fortress, "TestAudit", ahKey));
 
     }
 
@@ -119,7 +138,7 @@ public class TestCallerRef {
         CallerRefRunner tb = addRunner(fortress, docType, callerRef, latch);
         CallerRefRunner tc = addRunner(fortress, docType, callerRef, latch);
         latch.await();
-        Assert.assertNotNull(auditService.findByCallerRef(fortress, docType, callerRef));
+        Assert.assertNotNull(trackService.findByCallerRef(fortress, docType, callerRef));
         assertEquals(true, ta.isWorking());
         assertEquals(true, tb.isWorking());
         assertEquals(true, tc.isWorking());
@@ -162,14 +181,14 @@ public class TestCallerRef {
             logger.info("Hello from thread {}", this.toString());
             try {
                 while (count < maxRun) {
-                    AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef);
-                    AuditResultBean arb;
-                    arb = auditManagerService.createHeader(inputBean, fortress.getCompany(), fortress);
+                    MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef);
+                    TrackResultBean arb;
+                    arb = mediationFacade.createHeader(inputBean, fortress.getCompany(), fortress);
                     assertNotNull(arb);
                     assertEquals(callerRef.toLowerCase(), arb.getCallerRef().toLowerCase());
-                    AuditHeader byCallerRef = auditService.findByCallerRef(fortress, docType, callerRef);
+                    MetaHeader byCallerRef = trackService.findByCallerRef(fortress, docType, callerRef);
                     assertNotNull(byCallerRef);
-                    assertEquals(arb.getAuditKey(), byCallerRef.getAuditKey());
+                    assertEquals(arb.getMetaKey(), byCallerRef.getMetaKey());
                     count++;
                 }
                 working = true;

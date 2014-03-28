@@ -1,7 +1,7 @@
 package com.auditbucket.spring.bean;
 
-import com.auditbucket.audit.bean.AuditLogInputBean;
-import com.auditbucket.audit.bean.AuditResultBean;
+import com.auditbucket.audit.bean.LogInputBean;
+import com.auditbucket.audit.bean.TrackResultBean;
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,30 +12,30 @@ import com.auditbucket.audit.bean.AuditResultBean;
  */
 class AuditBucketResultBean {
 
-    private AuditResultBean auditResultBean;
-    private AuditLogInputBean auditLogInputBean;
+    private TrackResultBean trackResultBean;
+    private LogInputBean logInputBean;
 
-    public AuditBucketResultBean(AuditResultBean auditResultBean) {
-        this.auditResultBean = auditResultBean;
+    public AuditBucketResultBean(TrackResultBean trackResultBean) {
+        this.trackResultBean = trackResultBean;
     }
 
-    public AuditBucketResultBean(AuditLogInputBean auditLogInputBean) {
-        this.auditLogInputBean = auditLogInputBean;
+    public AuditBucketResultBean(LogInputBean logInputBean) {
+        this.logInputBean = logInputBean;
     }
 
     public String getAuditKey() {
-        if (auditLogInputBean != null) {
-            return auditLogInputBean.getAuditKey();
+        if (logInputBean != null) {
+            return logInputBean.getMetaKey();
         } else {
-            return auditResultBean.getAuditKey();
+            return trackResultBean.getMetaKey();
         }
     }
 
     public Object getResult() {
-        if (auditLogInputBean != null) {
-            return auditLogInputBean;
+        if (logInputBean != null) {
+            return logInputBean;
         } else {
-            return auditResultBean;
+            return trackResultBean;
         }
     }
 }
