@@ -36,7 +36,7 @@ import org.springframework.dao.InvalidDataAccessResourceUsageException;
 public class DeadlockRetry {
     private static Logger logger = LoggerFactory.getLogger(DeadlockRetry.class);
 
-    public static Command execute(Command command, int maxRetry) {
+    public static Command execute(Command command, String block, int maxRetry) {
         // Deadlock re-try fun
         int retryCount = 0;
         while (retryCount < maxRetry) {
@@ -45,12 +45,12 @@ public class DeadlockRetry {
             } catch (RuntimeException re) {
                 // ToDo: Exceptions getting wrapped in a JedisException. Can't directly catch the DDE hence the instanceof check
                 if (re.getCause() instanceof NotFoundException || re.getCause() instanceof DeadlockDetectedException || re.getCause() instanceof InvalidDataAccessResourceUsageException || re.getCause() instanceof DataRetrievalFailureException) {
-                    logger.debug("Deadlock Detected. Entering retry");
+                    logger.debug("Deadlock Detected. Entering retry [{}]", block);
                     Thread.yield();
                     retryCount++;
                     if (retryCount == maxRetry) {
                         // http://www.slideshare.net/neo4j/zephyr-neo4jgraphconnect-2013short
-                        logger.error("Deadlock retries exceeded");
+                        logger.error("Deadlock retries exceeded in [{}]", block);
                         throw (re);
                     }
                 } else {

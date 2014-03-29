@@ -54,6 +54,9 @@ public class ChangeLogNode implements ChangeLog {
     @RelatedTo(elementClass = TxRefNode.class, type = "AFFECTED", direction = Direction.INCOMING, enforceTargetType = true)
     private TxRef txRef;
 
+    @RelatedTo(elementClass = MetaHeaderNode.class, type ="LOGGED", direction = Direction.OUTGOING)
+    private TrackLogRelationship log;
+
     @RelatedTo(elementClass = ChangeEventNode.class, type = "AUDIT_EVENT", direction = Direction.OUTGOING)
     @Fetch
     private ChangeEventNode event;
@@ -140,13 +143,6 @@ public class ChangeLogNode implements ChangeLog {
     public ChangeLog getPreviousChange() {
         return previousChange;
     }
-
-    @Override
-    @JsonIgnore
-    public TrackLog getLog() {
-        return null;
-    }
-
     @Transient
     private Map<String, Object> what;
 
@@ -193,6 +189,11 @@ public class ChangeLogNode implements ChangeLog {
     @Override
     public void setCompressed(Boolean compressed) {
         this.compressed=compressed;
+    }
+
+    @Override
+    public TrackLog getLog() {
+        return log;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
 

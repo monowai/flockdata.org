@@ -41,7 +41,7 @@ public interface TrackTagDao {
 
     Boolean relationshipExists(MetaHeader metaHeader, Tag tag, String relationshipName);
 
-    Set<TrackTag> getAuditTags(MetaHeader metaHeader, Company company);
+    Set<TrackTag> getMetaTrackTags(MetaHeader metaHeader, Company company);
 
     void deleteAuditTags(MetaHeader metaHeader, Collection<TrackTag> trackTags) throws DatagioException;
 

@@ -23,6 +23,7 @@ import com.auditbucket.audit.bean.*;
 import com.auditbucket.audit.model.MetaHeader;
 import com.auditbucket.helper.Command;
 import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.DeadlockRetry;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
@@ -119,7 +120,7 @@ public class MediationFacade {
                         return this;
                     }
                 }
-                com.auditbucket.helper.DeadlockRetry.execute(new DLCommand(metaInputBeans), 10);
+                com.auditbucket.helper.DeadlockRetry.execute(new DLCommand(metaInputBeans), "creating headers", 10);
             }
 
         } else {
@@ -161,7 +162,7 @@ public class MediationFacade {
             }
         }
         DeadlockRetry c = new DeadlockRetry();
-        com.auditbucket.helper.DeadlockRetry.execute(c, 10);
+        com.auditbucket.helper.DeadlockRetry.execute(c, "create header", 10);
         return c.result;
     }
 
@@ -251,7 +252,7 @@ public class MediationFacade {
             }
         }
         DeadLockCommand c = new DeadLockCommand();
-        com.auditbucket.helper.DeadlockRetry.execute(c, 10);
+        DeadlockRetry.execute(c, "processing log for header", 20);
 
         if (c.result != null && c.result.getStatus() == LogInputBean.LogStatus.OK)
             trackService.makeChangeSearchable(c.result.getSearchDocument());
@@ -266,6 +267,7 @@ public class MediationFacade {
      * @param fortressName name of the fortress to rebuild
      * @throws com.auditbucket.helper.DatagioException
      */
+    @Async
     public void reindex(String fortressName) throws DatagioException {
         Fortress fortress = fortressService.findByName(fortressName);
         if (fortress == null)
@@ -291,6 +293,7 @@ public class MediationFacade {
      * @param fortressName name of the fortress to rebuild
      * @throws com.auditbucket.helper.DatagioException
      */
+    @Async
     public void reindexByDocType(String fortressName, String docType) throws DatagioException {
         Fortress fortress = fortressService.findByName(fortressName);
         if (fortress == null)

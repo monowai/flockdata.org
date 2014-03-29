@@ -180,7 +180,7 @@ public class TrackTagDaoNeo implements TrackTagDao {
     EngineConfig engineAdmin;
 
     @Override
-    public Set<TrackTag> getAuditTags(MetaHeader metaHeader, Company company) {
+    public Set<TrackTag> getMetaTrackTags(MetaHeader metaHeader, Company company) {
         Set<TrackTag> tagResults = new HashSet<>();
         if ( null == metaHeader.getId())
             return tagResults;
@@ -213,8 +213,9 @@ public class TrackTagDaoNeo implements TrackTagDao {
                 geoData.setCity((String) loc.getProperty("name"));
 
                 if (country != null && country.hasProperty("name")) {
-                    geoData.setIsoCode((String) country.getProperty("code"));
-                    geoData.setCountry((String) country.getProperty("name"));
+                    // ToDo: Needs to be a Country object, not a tag. Properties here don't make sense
+                    geoData.setIsoCode((String) country.getProperty("name"));
+                    geoData.setCountry((String) country.getProperty("code"));
                 }
                 if (state != null && state.hasProperty("name"))
                     geoData.setState((String) state.getProperty("name"));

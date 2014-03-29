@@ -60,7 +60,7 @@ public class TrackDaoNeo implements TrackDao {
     MetaDataRepo metaRepo;
 
     @Autowired
-    AuditLogRepo auditLogRepo;
+    TrackLogRepo trackLogRepo;
 
     @Autowired
     TrackEventService trackEventService;
@@ -165,7 +165,7 @@ public class TrackDaoNeo implements TrackDao {
 
     @Override
     public void delete(ChangeLog currentChange) {
-        auditLogRepo.delete((ChangeLogNode) currentChange);
+        trackLogRepo.delete((ChangeLogNode) currentChange);
     }
 
     @Override
@@ -187,15 +187,15 @@ public class TrackDaoNeo implements TrackDao {
 
     @Override
     public int getLogCount(Long id) {
-        return auditLogRepo.getLogCount(id);
+        return trackLogRepo.getLogCount(id);
     }
 
     public Set<TrackLog> getLogs(Long auditLogID, Date from, Date to) {
-        return auditLogRepo.getAuditLogs(auditLogID, from.getTime(), to.getTime());
+        return trackLogRepo.getAuditLogs(auditLogID, from.getTime(), to.getTime());
     }
 
     public Set<TrackLog> getLogs(Long auditHeaderID) {
-        return auditLogRepo.findAuditLogs(auditHeaderID);
+        return trackLogRepo.findAuditLogs(auditHeaderID);
     }
 
     public Map<String, Object> findByTransaction(TxRef txRef) {
@@ -355,10 +355,10 @@ public class TrackDaoNeo implements TrackDao {
 
         Relationship r = template.getNode(auditHeaderID).getSingleRelationship(LastChange.LAST_CHANGE, Direction.BOTH);
         if (r != null) {
-            auditLogRepo.getLastAuditLog(auditHeaderID);
+            trackLogRepo.getLastAuditLog(auditHeaderID);
 
 
-            log = auditLogRepo.getLastAuditLog(r.getEndNode().getId());
+            log = trackLogRepo.getLastAuditLog(r.getEndNode().getId());
 //            int count = 0;
 //
 //            for (TrackLogRelationship when : logs) {

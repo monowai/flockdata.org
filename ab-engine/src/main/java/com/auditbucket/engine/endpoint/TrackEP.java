@@ -367,7 +367,7 @@ public class TrackEP {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/{fortressName}/rebuild", produces = "application/json", method = RequestMethod.POST)
+    @RequestMapping(value = "/{fortressName}/rebuild", method = RequestMethod.POST)
     @Secured({"ROLE_USER"})
     public ResponseEntity<String> rebuildSearch(@PathVariable("fortressName") String fortressName) throws DatagioException {
         logger.info("Reindex command received for " + fortressName + " from [" + securityHelper.getLoggedInUser() + "]");
@@ -376,7 +376,7 @@ public class TrackEP {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/{fortressName}/{docType}/rebuild", produces = "application/json", method = RequestMethod.POST)
+    @RequestMapping(value = "/{fortressName}/{docType}/rebuild", method = RequestMethod.POST)
     @Secured({"ROLE_USER"})
     public ResponseEntity<String> rebuildSearch(@PathVariable("fortressName") String fortressName, @PathVariable("docType") String docType) throws DatagioException {
         logger.info("Reindex command received for " + fortressName + " & docType " + docType + " from [" + securityHelper.getLoggedInUser() + "]");

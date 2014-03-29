@@ -386,11 +386,13 @@ public class TrackService {
         return searchDocument;
     }
 
-    public void makeChangeSearchable(SearchChange searchDocument) {
+    @Async
+    public Future<Void> makeChangeSearchable(SearchChange searchDocument) {
         if (searchDocument == null)
-            return;
+            return null;
         logger.debug("Sending request to index trackLog [{}]]", searchDocument);
         searchGateway.makeChangeSearchable(searchDocument);
+        return null;
     }
 
     private MetaHeader waitOnHeader(MetaHeader metaHeader) {
@@ -611,6 +613,7 @@ public class TrackService {
         if (metaHeader.getFortress().isSearchActive() && !metaHeader.isSearchSuppressed()) {
             // Update against the MetaHeader only by re-indexing the search document
             Map<String, Object> priorWhat = whatService.getWhat(metaHeader, priorChange).getWhatMap();
+
             MetaSearchChange searchDocument = new MetaSearchChange(metaHeader, priorWhat, priorChange.getEvent().getCode(), new DateTime(priorChange.getLog().getFortressWhen()));
             searchDocument.setTags(tagTrackService.findTrackTags(metaHeader));
             searchGateway.makeChangeSearchable(searchDocument);
@@ -637,7 +640,7 @@ public class TrackService {
                 else
                     return; // ToDo: fix reindex header only scenario, i.e. no "change/what"
 
-                MetaSearchChange searchDocument = new MetaSearchChange(metaHeader, lastWhat, lastChange.getEvent().getCode(), new DateTime(lastChange.getLog().getFortressWhen()));
+                MetaSearchChange searchDocument = new MetaSearchChange(metaHeader, lastWhat, lastChange.getEvent().getCode(), new DateTime(lastLog.getFortressWhen()));
                 searchDocument.setTags(tagTrackService.findTrackTags(metaHeader));
                 searchDocument.setReplyRequired(false);
                 searchDocument.setWho(lastChange.getWho().getCode());

@@ -54,8 +54,6 @@ public interface ChangeLog {
 
     ChangeLog getPreviousChange();
 
-    TrackLog getLog();
-
     long getId();
 
     LogWhat getWhat();
@@ -77,4 +75,6 @@ public interface ChangeLog {
     void setEvent(ChangeEvent event);
 
     void setCompressed(Boolean compressed);
+
+    TrackLog getLog();
 }

@@ -32,7 +32,7 @@ import java.util.Set;
  * Date: 14/04/13
  * Time: 8:00 PM
  */
-public interface AuditLogRepo extends GraphRepository<ChangeLogNode> {
+public interface TrackLogRepo extends GraphRepository<ChangeLogNode> {
 
     @Query(value = "start auditHeader=node({0}) match auditHeader-[cw:LOGGED]->auditLog return count(cw)")
     int getLogCount(Long auditHeaderID);

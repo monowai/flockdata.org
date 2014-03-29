@@ -171,7 +171,7 @@ public class TagTrackService {
     }
 
     public Set<TrackTag> findTrackTags(Company company, MetaHeader metaHeader) {
-        return trackTagDao.getAuditTags(metaHeader, company);
+        return trackTagDao.getMetaTrackTags(metaHeader, company);
     }
 
     public void deleteTrackTags(MetaHeader metaHeader, Collection<TrackTag> trackTags) throws DatagioException {

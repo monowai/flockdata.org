@@ -46,7 +46,7 @@ public class TrackLogRelationship implements TrackLog {
 
     @EndNode
     @Fetch
-    private ChangeLogNode auditChange;
+    private ChangeLogNode changeLog;
 
     @Indexed
     private Long sysWhen = 0l;
@@ -66,7 +66,7 @@ public class TrackLogRelationship implements TrackLog {
     public TrackLogRelationship(MetaHeader header, ChangeLog log, DateTime fortressWhen) {
         this();
         this.metaHeader = (MetaHeaderNode) header;
-        this.auditChange = (ChangeLogNode) log;
+        this.changeLog = (ChangeLogNode) log;
         if (fortressWhen != null && fortressWhen.getMillis() != 0) {
             this.fortressWhen = fortressWhen.getMillis();
         } else {
@@ -89,7 +89,7 @@ public class TrackLogRelationship implements TrackLog {
     }
 
     public ChangeLog getChange() {
-        return auditChange;
+        return changeLog;
     }
 
     @JsonIgnore
@@ -98,7 +98,7 @@ public class TrackLogRelationship implements TrackLog {
     }
 
     public void setChange(ChangeLogNode auditLog) {
-        this.auditChange = auditLog;
+        this.changeLog = auditLog;
     }
 
     public boolean isIndexed() {
@@ -119,7 +119,7 @@ public class TrackLogRelationship implements TrackLog {
 
         TrackLogRelationship that = (TrackLogRelationship) o;
 
-        if (auditChange != null ? !auditChange.equals(that.auditChange) : that.auditChange != null) return false;
+        if (changeLog != null ? !changeLog.equals(that.changeLog) : that.changeLog != null) return false;
         if (metaHeader != null ? !metaHeader.equals(that.metaHeader) : that.metaHeader != null) return false;
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
 
@@ -130,7 +130,7 @@ public class TrackLogRelationship implements TrackLog {
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (metaHeader != null ? metaHeader.hashCode() : 0);
-        result = 31 * result + (auditChange != null ? auditChange.hashCode() : 0);
+        result = 31 * result + (changeLog != null ? changeLog.hashCode() : 0);
         return result;
     }
 
