@@ -75,8 +75,8 @@ public class TrackDaoNeo implements TrackDao {
     }
 
     @Override
-    @Caching(evict = {@CacheEvict(value = "auditHeaderId", key = "#p0.id"),
-            @CacheEvict(value = "auditKey", key = "#p0.auditKey")}
+    @Caching(evict = {@CacheEvict(value = "headerId", key = "#p0.id"),
+            @CacheEvict(value = "metaKey", key = "#p0.metaKey")}
     )
     public MetaHeader save(MetaHeader metaHeader, DocumentType documentType) {
         metaHeader.bumpUpdate();
@@ -93,7 +93,7 @@ public class TrackDaoNeo implements TrackDao {
         return template.save((TxRefNode) tagRef);
     }
 
-    @Cacheable(value = "auditKey", unless = "#result==null")
+    @Cacheable(value = "metaKey", unless = "#result==null")
     private MetaHeader getCachedHeader(String key) {
         return metaRepo.findBySchemaPropertyValue(MetaHeaderNode.UUID_KEY, key);
     }
@@ -116,7 +116,7 @@ public class TrackDaoNeo implements TrackDao {
         return metaRepo.findBySchemaPropertyValue("callerKeyRef", keyToFind);
     }
 
-    @Cacheable(value = "auditHeaderId", key = "p0.id", unless = "#result==null")
+    @Cacheable(value = "headerId", key = "p0.id", unless = "#result==null")
     public MetaHeader fetch(MetaHeader header) {
         template.fetch(header.getCreatedBy());
         template.fetch(header.getLastUser());
@@ -278,7 +278,7 @@ public class TrackDaoNeo implements TrackDao {
     }
 
     @Override
-    @Cacheable(value = "log", unless = "#result==null")
+    @Cacheable(value = "trackLog", unless = "#result==null")
     public TrackLog getLog(Long logId) {
         Relationship change = template.getRelationship(logId);
         if (change != null)
@@ -292,7 +292,7 @@ public class TrackDaoNeo implements TrackDao {
     }
 
 
-    @Cacheable(value = "metaHeaderId",unless = "#result==null")
+    @Cacheable(value = "metaId",unless = "#result==null")
     @Override
     public MetaHeader getHeader(Long id) {
         return template.findOne(id, MetaHeaderNode.class);

@@ -67,7 +67,7 @@
            timeToLiveSeconds="120"
            memoryStoreEvictionPolicy="LFU"/>
 
-    <cache name="metaHeaderId"
+    <cache name="metaId"
            maxElementsInMemory="200"
            eternal="false"
            timeToIdleSeconds="120"
