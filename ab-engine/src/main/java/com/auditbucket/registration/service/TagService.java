@@ -83,7 +83,7 @@ public class TagService {
     }
 
     public Tag findTag(String tagName, Company company) {
-        return tagDao.findOne(tagName, company);
+        return tagDao.findOne(company, tagName);
     }
 
 

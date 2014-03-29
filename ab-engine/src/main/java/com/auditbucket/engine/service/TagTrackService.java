@@ -122,12 +122,12 @@ public class TagTrackService {
             Tag tag = tagService.processTag(tagInput, company);
 
             // Handle both simple relationships type name or a map/collection of relationships
-            if (tagInput.getAuditLinks() != null) {
-                rlxs = processRelationships(ah, tag, tagInput.getAuditLinks());
+            if (tagInput.getMetaLinks() != null) {
+                rlxs = processRelationships(ah, tag, tagInput.getMetaLinks());
             }
-            if (tagInput.getAuditLink() != null) // Simple relationship to the audit header
+            if (tagInput.getMetaLink() != null) // Simple relationship to the audit header
                 // Makes it easier for the API to call
-                rlxs.add(trackTagDao.save(ah, tag, tagInput.getAuditLink()));
+                rlxs.add(trackTagDao.save(ah, tag, tagInput.getMetaLink()));
 
         }
         // ToDo: Fix this - when we need to rewrite the header tags

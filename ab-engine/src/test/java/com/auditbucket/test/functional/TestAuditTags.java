@@ -356,9 +356,9 @@ public class TestAuditTags {
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         // This should create the same Tag object
         TagInputBean tag = new TagInputBean("TagA");
-        tag.addAuditLink("Type1");
-        tag.addAuditLink("Type2");
-        tag.addAuditLink("Type3");
+        tag.addMetaLink("Type1");
+        tag.addMetaLink("Type2");
+        tag.addMetaLink("Type3");
         aib.setTag(tag);
 
         TrackResultBean resultBean = auditManager.createHeader(aib, null);
@@ -426,7 +426,7 @@ public class TestAuditTags {
         MetaInputBean inputBean = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
 
         TagInputBean tagA = new TagInputBean("mike@auditbucket.com", "email-to");
-        tagA.addAuditLink("email-cc");
+        tagA.addMetaLink("email-cc");
         TagInputBean tagB = new TagInputBean("np@auditbucket.com", "email-cc");
         inputBean.setTag(tagA);
         inputBean.setTag(tagB);
@@ -449,7 +449,7 @@ public class TestAuditTags {
 
         MetaInputBean inputBean = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         TagInputBean tagA = new TagInputBean("mike@auditbucket.com", "email-to");
-        tagA.addAuditLink("email-cc");
+        tagA.addMetaLink("email-cc");
         TagInputBean tagB = new TagInputBean("np@auditbucket.com", "email-cc");
         inputBean.setTag(tagA);
         inputBean.setTag(tagB);
@@ -477,7 +477,7 @@ public class TestAuditTags {
         propB.put("myValue", 20);
 
         TagInputBean tagA = new TagInputBean("mike@auditbucket.com", "email-to", propA);
-        tagA.addAuditLink("email-cc", propB);
+        tagA.addMetaLink("email-cc", propB);
         TagInputBean tagB = new TagInputBean("np@auditbucket.com", "email-cc");
 
         inputBean.setTag(tagA);
@@ -501,8 +501,8 @@ public class TestAuditTags {
         MetaInputBean inputBean = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
 
         TagInputBean tagInputBean = new TagInputBean("mike@auditbucket.com", "email-to");
-        tagInputBean.addAuditLink("email-to");
-        tagInputBean.addAuditLink("email-to");
+        tagInputBean.addMetaLink("email-to");
+        tagInputBean.addMetaLink("email-to");
 
         inputBean.setTag(tagInputBean);
 
@@ -524,7 +524,7 @@ public class TestAuditTags {
         MetaInputBean inputBean = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
 
         TagInputBean tagA = new TagInputBean("mike@auditbucket.com", "email-to");
-        tagA.addAuditLink("email cc");
+        tagA.addMetaLink("email cc");
         TagInputBean tagB = new TagInputBean("np@auditbucket.com", "email-cc");
 
         inputBean.setTag(tagA);
@@ -660,8 +660,8 @@ public class TestAuditTags {
     public void targetTagWithAuditRelationship() throws Exception {
         String name = "Doctor John";
         TagInputBean authorTag = new TagInputBean(name + ":person");
-        authorTag.addAuditLink("writer");
-        authorTag.addAuditLink("lead");
+        authorTag.addMetaLink("writer");
+        authorTag.addMetaLink("lead");
 
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         assertNotNull(iSystemUser);
@@ -675,8 +675,8 @@ public class TestAuditTags {
         TagInputBean institution = new TagInputBean("Auckland University:Institution");
         cityTag.setTargets("jurisdiction", countryTag); // Auckland located in NZ
 
-        institution.addAuditLink("located");
-        cityTag.addAuditLink("city");
+        institution.addMetaLink("located");
+        cityTag.addMetaLink("city");
 
         inputBean.setTag(cityTag); // Not attached to audit
         inputBean.setTag(countryTag);

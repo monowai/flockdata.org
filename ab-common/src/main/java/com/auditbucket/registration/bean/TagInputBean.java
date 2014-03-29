@@ -44,9 +44,9 @@ public class TagInputBean {
     Map<String, Object> properties = new HashMap<>();
     private String index = "";
 
-    Map<String, Object> auditLinks = new HashMap<>();
+    Map<String, Object> metaLinks = new HashMap<>();
 
-    private String auditLink = null;
+    private String metaLink = null;
     private boolean mustExist=false;
 
     protected TagInputBean() {
@@ -100,7 +100,7 @@ public class TagInputBean {
                 throw new RuntimeException("Tag Type cannot contain whitespace [" + auditRelationship + "]");
         }
 
-        addAuditLink(auditRelationship, relationshipProperties);
+        addMetaLink(auditRelationship, relationshipProperties);
 
     }
 
@@ -182,24 +182,24 @@ public class TagInputBean {
      * @param auditRelationship name of the relationship to the Audit Header
      * @param properties        properties to store against the relationship
      */
-    public void addAuditLink(String auditRelationship, Map<String, Object> properties) {
-        this.auditLinks.put(auditRelationship, properties);
+    public void addMetaLink(String auditRelationship, Map<String, Object> properties) {
+        this.metaLinks.put(auditRelationship, properties);
 
     }
 
-    public void addAuditLink(String auditRelationship) {
-        addAuditLink(auditRelationship, null);
+    public void addMetaLink(String auditRelationship) {
+        addMetaLink(auditRelationship, null);
     }
 
-    public Map<String, Object> getAuditLinks() {
-        return auditLinks;
+    public Map<String, Object> getMetaLinks() {
+        return metaLinks;
     }
 
     /**
      * @return name to relate this to an audit record
      */
-    public String getAuditLink() {
-        return auditLink;
+    public String getMetaLink() {
+        return metaLink;
     }
 
     @Override
@@ -208,8 +208,8 @@ public class TagInputBean {
                 "code='" + code + '\'' +
                 ", name='" + name + '\'' +
                 ", index='" + index + '\'' +
-                ", targets=" + targets +
-                ", auditLinks=" + auditLinks +
+                ", targets=" + targets.keySet().size() +
+                ", metaLinks=" + metaLinks +
                 '}';
     }
 

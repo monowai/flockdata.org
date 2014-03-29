@@ -83,13 +83,12 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
 
     Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection createdValues) {
         // Check exists
-        TagNode existingTag = (TagNode) findOne(tagInput.getName(), company);
+        TagNode existingTag = (TagNode) findOne(company, tagInput.getName());
         Node start;
         if (existingTag == null) {
-            if ( tagInput.isMustExist()){
-                throw new TagException("Tag "+tagInput.getName()+" is expected to exist but doesn't. Ignoring this request.");
-            }
-            else
+            if (tagInput.isMustExist()) {
+                throw new TagException("Tag " + tagInput.getName() + " is expected to exist but doesn't. Ignoring this request.");
+            } else
                 start = createTag(tagInput, tagSuffix);
         } else {
             start = template.getNode(existingTag.getId());
@@ -221,11 +220,16 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
 
     @Override
     @Cacheable(value = "companyTag", unless = "#result == null")
-    public Tag findOne(String tagName, Company company) {
+    public Tag findOne(Company company, String tagName) {
         if (tagName == null || company == null)
             throw new IllegalArgumentException("Null can not be used to find a tag ");
 
-        String query = "match (tag:Tag" + engineAdmin.getTagSuffix(company) + ") where tag.key ={tagKey} return tag";
+        String query;
+        if ("".equals(engineAdmin.getTagSuffix(company)))
+            query = "match (tag:Tag) where tag.key ={tagKey} return tag";
+        else
+            query = "match (tag:Tag" + engineAdmin.getTagSuffix(company) + ") where tag.key ={tagKey} return tag";
+
         Map<String, Object> params = new HashMap<>();
         params.put("tagKey", tagName.toLowerCase().replaceAll("\\s", "")); // ToDo- formula to static method
         Result<Map<String, Object>> result = template.query(query, params);
@@ -261,7 +265,7 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
             params.put("fId", fortress.getId());
 
             template.query(cypher, params);
-            docResult=findFortressDocument(fortress, documentType);
+            docResult = findFortressDocument(fortress, documentType);
 
         }
         return docResult;
