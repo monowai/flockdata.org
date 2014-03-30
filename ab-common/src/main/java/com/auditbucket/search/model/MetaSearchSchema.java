@@ -39,7 +39,7 @@ public class MetaSearchSchema {
     public static final String TAG = "@tag";
     public static final String LAST_EVENT = "@lastEvent";
     public static final String WHO = "@who";
-    public static final String META_KEY = "@auditKey";
+    public static final String META_KEY = "@metaKey";
     public static String CREATED = "@whenCreated"; // Date the document was first created
 
     public static final String WHAT_CODE = "code";
