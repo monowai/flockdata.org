@@ -102,7 +102,7 @@ public class TestTags {
         tags.add(new TagInputBean("FLOP"));
         tags.add(new TagInputBean("FLOP"));
 
-        Iterable<Tag> tagResult = tagService.processTagsFast(tags);
+        Iterable<Tag> tagResult = tagService.processTags(tags);
         assertNotNull(tagResult);
         int count = 0;
         for (Tag next : tagResult) {
@@ -118,7 +118,7 @@ public class TestTags {
         tags.add(new TagInputBean("FLOPSY"));
         tags.add(new TagInputBean("FLOPPO"));
         tags.add(new TagInputBean("FLOPER"));
-        tagResult = tagService.processTagsFast(tags);
+        tagResult = tagService.processTags(tags);
         count = 0;
         for (Tag next : tagResult) {
             assertNotNull(next);
@@ -256,7 +256,8 @@ public class TestTags {
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
         assertNotNull(iSystemUser);
 
-        TagInputBean tagInput = new TagInputBean("Source:TestTag");
+        TagInputBean tagInput = new TagInputBean("Source");
+        tagInput.setIndex(":TestTag");
         tagInput.setCode("CodeA");
         tagInput.setName("NameA");
         Tag tag = tagService.processTag(tagInput);
@@ -276,7 +277,8 @@ public class TestTags {
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
         assertNotNull(iSystemUser);
 
-        TagInputBean tagInput = new TagInputBean("Source:TestTag");
+        TagInputBean tagInput = new TagInputBean("Source");
+        tagInput.setIndex(":TestTag");
         tagInput.setCode("CodeA");
         tagInput.setName("NameA");
         Tag tag = tagService.processTag(tagInput);
@@ -298,5 +300,9 @@ public class TestTags {
         assertTrue(PropertyConversion.isSystemColumn("keY"));
 
     }
+
+
+
+    // ToDo: Unique tags by "Index", not unique across "Tag"
 
 }

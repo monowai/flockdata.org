@@ -110,9 +110,9 @@ public class TrackDaoNeo implements TrackDao {
     @Cacheable(value = "callerKey", unless = "#result==null")
     public MetaHeader findHeaderByCallerKey(Long fortressId, Long documentId, String callerRef) {
         if (logger.isTraceEnabled())
-            logger.trace("findByCallerRef fortress [" + fortressId + "] docType[" + documentId + "], callerRef[" + callerRef.toLowerCase() + "]");
+            logger.trace("findByCallerRef fortress [" + fortressId + "] docType[" + documentId + "], callerRef[" + callerRef + "]");
 
-        String keyToFind = "" + fortressId + "." + documentId + "." + callerRef.toLowerCase();
+        String keyToFind = "" + fortressId + "." + documentId + "." + callerRef;
         return metaRepo.findBySchemaPropertyValue("callerKeyRef", keyToFind);
     }
 

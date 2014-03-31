@@ -104,7 +104,7 @@ public class TestCallerRef {
         Fortress fortress = fortressService.registerFortress("auditTest" + System.currentTimeMillis());
         // Duplicate null caller ref keys
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "harry", "TestAudit", new DateTime(), null);
-        mediationFacade.createHeader(inputBean, null).getMetaKey();
+        Assert.assertNotNull(mediationFacade.createHeader(inputBean, null).getMetaKey());
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestAudit", new DateTime(), null);
         String ahKey = mediationFacade.createHeader(inputBean, null).getMetaKey();
 

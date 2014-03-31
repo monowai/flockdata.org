@@ -108,9 +108,10 @@ public class MetaHeaderNode implements MetaHeader {
         this.documentType = (documentType != null ? documentType.getName().toLowerCase() : "");
         callerRef = metaInput.getCallerRef();
         //if ( callerRef!=null )
-        callerKeyRef = this.fortress.getId() + "." + documentType.getId() + "." + (callerRef != null ? callerRef.toLowerCase() : metaKey);
+        callerKeyRef = this.fortress.getId() + "." + documentType.getId() + "." + (callerRef != null ? callerRef : metaKey);
 
-        this.name = (callerRef == null ? this.documentType : (this.documentType + "." + callerRef).toLowerCase());
+        if ( name ==null )
+            this.name = (callerRef == null ? this.documentType : (this.documentType + "." + callerRef));
         this.description = metaInput.getDescription();
 
 
@@ -275,9 +276,8 @@ public class MetaHeaderNode implements MetaHeader {
 
         MetaHeaderNode that = (MetaHeaderNode) o;
 
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        return !(id != null ? !id.equals(that.id) : that.id != null);
 
-        return true;
     }
 
     @Override

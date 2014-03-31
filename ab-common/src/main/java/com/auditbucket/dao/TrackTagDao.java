@@ -37,16 +37,27 @@ import java.util.Set;
 public interface TrackTagDao {
     TrackTag save(MetaHeader metaHeader, Tag tag, String relationshipName);
 
-    TrackTag save(MetaHeader ah, Tag tag, String relationshipName, Map<String, Object> propMap);
+    TrackTag save(MetaHeader ah, Tag tag, String metaLink, boolean reverse);
+
+    TrackTag save(MetaHeader ah, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap);
 
     Boolean relationshipExists(MetaHeader metaHeader, Tag tag, String relationshipName);
 
-    Set<TrackTag> getMetaTrackTags(MetaHeader metaHeader, Company company);
+    /**
+     * Track Tags that are in either direction
+     *
+     * @param company    validated company
+     * @param metaHeader header the caller is authorised to work with
+     * @return           all TrackTags for the company in both directions
+     */
+    Set<TrackTag> getMetaTrackTags(Company company, MetaHeader metaHeader);
+
+    Set<TrackTag> getMetaTrackTagsOutbound(Company company, MetaHeader header);
 
     void deleteAuditTags(MetaHeader metaHeader, Collection<TrackTag> trackTags) throws DatagioException;
 
     void changeType(MetaHeader metaHeader, TrackTag existingTag, String newType);
 
-    Set<MetaHeader> findTagAudits(Tag tag);
+    Set<MetaHeader> findTrackTags(Tag tag);
 
 }

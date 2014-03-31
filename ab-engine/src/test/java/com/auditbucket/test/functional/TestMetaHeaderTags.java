@@ -79,7 +79,7 @@ import static org.junit.Assert.fail;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 @Transactional
-public class TestAuditTags {
+public class TestMetaHeaderTags {
     @Autowired
     FortressService fortressService;
 
@@ -104,7 +104,7 @@ public class TestAuditTags {
     @Autowired
     private Neo4jTemplate template;
 
-    //private Logger log = LoggerFactory.getLogger(TestAuditTags.class);
+    //private Logger log = LoggerFactory.getLogger(TestMetaHeaderTags.class);
     private String company = "Monowai";
     private String uid = "mike@monowai.com";
     private Authentication authA = new UsernamePasswordAuthenticationToken(uid, "user1");
@@ -509,8 +509,31 @@ public class TestAuditTags {
         TrackResultBean resultBean = auditManager.createHeader(inputBean, null);
         MetaHeader header = trackService.getHeader(resultBean.getMetaKey());
         Set<TrackTag> tagResults = tagTrackService.findTrackTags(header);
-        // ToDo In Neo4j2 remove the generic tag
         assertEquals("One for the Generic tag and one for exploration", 1, tagResults.size());
+    }
+
+    @Test
+    public void directedMetaTagsWork ( )throws Exception{
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+        assertNotNull(iSystemUser);
+
+        Fortress fortress = fortressService.registerFortress("ABC");
+        assertNotNull(fortress);
+
+        MetaInputBean inputBean = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
+
+        TagInputBean tagInputBean = new TagInputBean("mike@auditbucket.com", "email-to");
+        tagInputBean.setReverse(true); // relationships will be reversed
+        tagInputBean.addMetaLink("email-to");
+
+        inputBean.setTag(tagInputBean);
+
+        TrackResultBean resultBean = auditManager.createHeader(inputBean, null);
+        MetaHeader header = trackService.getHeader(resultBean.getMetaKey());
+        // By default, tags are inbound to the MetaHeader. This asserts the reverse also works
+        Set<TrackTag> tagResults = tagTrackService.findOutboundTags(header);
+        assertEquals("No tag heading out from the MetaHeader could be found", 1, tagResults.size());
+
     }
 
     @Test
@@ -701,12 +724,12 @@ public class TestAuditTags {
         assertNotNull(fortress);
 
         MetaInputBean auditBean = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
-        String country = "USA:Country";
-        String city = "Los Angeles:City";
+        String country = "USA";
+        String city = "Los Angeles";
 
-        TagInputBean countryInputTag = new TagInputBean(country);
-        TagInputBean cityInputTag = new TagInputBean(city);
-        TagInputBean stateInputTag = new TagInputBean("CA:State");
+        TagInputBean countryInputTag = new TagInputBean(country, "Country", "");
+        TagInputBean cityInputTag = new TagInputBean(city, ":City", "");
+        TagInputBean stateInputTag = new TagInputBean("CA", "State", "");
 
         TagInputBean institutionTag = new TagInputBean("mikecorp", "owns");
         // Institution is in a city
@@ -810,6 +833,7 @@ public class TestAuditTags {
 
         assertTrue ( "TagA has no audit headers so should have been removed", tagService.findTag("TagA")==null);
     }
+
 //    @Test
 //    public void headerTagsAreUpdatedWithTagDetailsInAnAuditLog() throws Exception {
 //        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
@@ -840,6 +864,8 @@ public class TestAuditTags {
 //
 //
 //    }
+
+
     private void validateTag(MetaHeader metaHeader,  String expected, int i) {
         Collection<TrackTag> tags;
         tags = tagTrackService.findTrackTags(metaHeader);

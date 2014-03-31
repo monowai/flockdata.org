@@ -736,7 +736,7 @@ public class TrackService {
      * @return LogResultBean or NULL.
      */
     public MetaHeader findByCallerRef(Fortress fortress, DocumentType documentType, String callerRef) {
-        return trackDao.findHeaderByCallerKey(fortress.getId(), documentType.getId(), callerRef.toLowerCase().trim());
+        return trackDao.findHeaderByCallerKey(fortress.getId(), documentType.getId(), callerRef.trim());
     }
 
 

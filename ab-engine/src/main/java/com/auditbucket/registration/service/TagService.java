@@ -75,13 +75,6 @@ public class TagService {
         return tagDao.save(company, tagInputs);
     }
 
-    //ToDo: Figure out how to insert all tags at once
-    public Iterable<Tag> processTagsFast(Iterable<TagInputBean> tagInputs) {
-        Company company = securityHelper.getCompany();
-        return tagDao.save(company, tagInputs);
-
-    }
-
     public Tag findTag(String tagName, Company company) {
         return tagDao.findOne(company, tagName);
     }

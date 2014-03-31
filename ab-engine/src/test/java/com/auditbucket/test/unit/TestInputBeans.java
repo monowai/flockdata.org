@@ -117,13 +117,15 @@ public class TestInputBeans {
 
     @Test
     public void labeledTagInputBreaksOut(){
-        String input ="Name:Label";
-        TagInputBean t = new TagInputBean(input);
+        String input ="Name";
+        TagInputBean t = new TagInputBean(input, "Label", "");
+
         assertEquals(":Label", t.getIndex());
         assertEquals("Name", t.getName());
 
-        input = "Name:LabelA:LabelB";
+        input = "Name";
         t = new TagInputBean(input);
+        t.setIndex(":LabelA:LabelB");
         assertEquals(":LabelA :LabelB", t.getIndex());
         assertEquals("Name", t.getName());
 
@@ -131,11 +133,13 @@ public class TestInputBeans {
         t = new TagInputBean(input);
         assertEquals("Name", t.getName());
         assertEquals("", t.getIndex());
+        // Whitespaces is now escaped!
         try {
-            new TagInputBean("Hello There:White Space Not Allowed");
-            fail("Whitespace is not allowed in a tag type");
-            new TagInputBean("Hello There:White Space Not Allowed");
-            fail("Whitespace is not allowed in a tag type");
+            TagInputBean tag = new TagInputBean("Hello There");
+            tag.setIndex("White Space Not Allowed");
+            fail("Whitespace is not allowed in a tag index");
+            tag.setIndex(":White :Space Not Allowed");
+            fail("Whitespace is not allowed in a tag index");
         } catch (Exception e ){
             // This is good
         }

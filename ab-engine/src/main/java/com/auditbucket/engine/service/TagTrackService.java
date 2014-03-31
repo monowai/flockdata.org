@@ -123,11 +123,11 @@ public class TagTrackService {
 
             // Handle both simple relationships type name or a map/collection of relationships
             if (tagInput.getMetaLinks() != null) {
-                rlxs = processRelationships(ah, tag, tagInput.getMetaLinks());
+                rlxs = processRelationships(ah, tag, tagInput.getMetaLinks(), tagInput.isReverse());
             }
             if (tagInput.getMetaLink() != null) // Simple relationship to the audit header
                 // Makes it easier for the API to call
-                rlxs.add(trackTagDao.save(ah, tag, tagInput.getMetaLink()));
+                rlxs.add(trackTagDao.save(ah, tag, tagInput.getMetaLink(), tagInput.isReverse()));
 
         }
         // ToDo: Fix this - when we need to rewrite the header tags
@@ -146,32 +146,48 @@ public class TagTrackService {
 
     }
 
-    private Collection<TrackTag> processRelationships(MetaHeader ah, Tag tag, Map<String, Object> auditRelationships) {
-        Collection<TrackTag> rlxs = new  ArrayList<>();
-        for (String key : auditRelationships.keySet()) {
-            Object properties = auditRelationships.get(key);
+    private Collection<TrackTag> processRelationships(MetaHeader ah, Tag tag, Map<String, Object> metaRelationships, boolean isReversed) {
+        Collection<TrackTag> trackTags = new  ArrayList<>();
+        for (String key : metaRelationships.keySet()) {
+            Object properties = metaRelationships.get(key);
             Map<String, Object> propMap;
             if (properties != null && properties instanceof Map) {
                 propMap = (Map<String, Object>) properties;
-                TrackTag trackTagRelationship = trackTagDao.save(ah, tag, key, propMap);
+                TrackTag trackTagRelationship = trackTagDao.save(ah, tag, key, isReversed, propMap);
                 if (trackTagRelationship != null)
-                    rlxs.add(trackTagRelationship);
+                    trackTags.add(trackTagRelationship);
             } else {
-                TrackTag trackTagRelationship = trackTagDao.save(ah, tag, key);
+                TrackTag trackTagRelationship = trackTagDao.save(ah, tag, key, isReversed);
                 if (trackTagRelationship != null)
-                    rlxs.add(trackTagRelationship);
+                    trackTags.add(trackTagRelationship);
             }
         }
-        return rlxs;
+        return trackTags;
     }
 
+    /**
+     * Finds both incoming and outgoing tags for the MetaHeader
+     *
+     * @param metaHeader Header the caller is authorised to work with
+     * @return TrackTags found
+     */
     public Set<TrackTag> findTrackTags(MetaHeader metaHeader) {
         Company company = securityHelper.getCompany();
         return findTrackTags(company, metaHeader);
     }
 
+    public Set<TrackTag> findOutboundTags(MetaHeader header) {
+        Company company = securityHelper.getCompany();
+        return  findOutboundTags(company, header);
+    }
+
+    public Set<TrackTag> findOutboundTags(Company company, MetaHeader header) {
+        return trackTagDao.getMetaTrackTagsOutbound(company, header);
+    }
+
+
     public Set<TrackTag> findTrackTags(Company company, MetaHeader metaHeader) {
-        return trackTagDao.getMetaTrackTags(metaHeader, company);
+        return trackTagDao.getMetaTrackTags(company, metaHeader);
     }
 
     public void deleteTrackTags(MetaHeader metaHeader, Collection<TrackTag> trackTags) throws DatagioException {
@@ -196,7 +212,7 @@ public class TagTrackService {
         Tag tag = tagService.findTag(tagName);
         if (tag == null)
             throw new DatagioException("Unable to find the tag [" + tagName + "]");
-        return trackTagDao.findTagAudits(tag);
+        return trackTagDao.findTrackTags(tag);
 
     }
 
@@ -205,4 +221,5 @@ public class TagTrackService {
             tagService.processTags(company, bean.getTags());
         }
     }
+
 }

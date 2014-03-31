@@ -207,7 +207,7 @@ public class TestAudit {
         SecurityContextHolder.getContext().setAuthentication(authMike);
 
         assertNotNull(trackService.findByCallerRef(fortressA, "TestAudit", "ABC123"));
-        assertNotNull(trackService.findByCallerRef(fortressA, "TestAudit", "abc123"));
+        assertNull( "Caller refs are case sensitive so this should not be found", trackService.findByCallerRef(fortressA, "TestAudit", "abc123"));
         assertNull("Security - shouldn't be able to see this header", trackService.findByCallerRef(fortressA, "TestAudit", "123ABC"));
         // Test non external user can't do this
         SecurityContextHolder.getContext().setAuthentication(authB);

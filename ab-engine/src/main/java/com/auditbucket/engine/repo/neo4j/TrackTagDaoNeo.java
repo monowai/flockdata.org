@@ -62,21 +62,27 @@ public class TrackTagDaoNeo implements TrackTagDao {
 
     @Override
     public TrackTag save(MetaHeader metaHeader, Tag tag, String relationshipName) {
-        return save(metaHeader, tag, relationshipName, null);
+        return save(metaHeader, tag, relationshipName, false, null);
+    }
+    @Override
+    public TrackTag save(MetaHeader ah, Tag tag, String metaLink, boolean reverse) {
+        return save(ah, tag, metaLink, reverse, null );
     }
 
+
     /**
-     * creates the relationship between the header and the tag of the name type.
+     * creates the relationship between the metaHeader and the tag of the name type.
      * If auditId == null, then an TrackTag for the caller to deal with otherwise the relationship
      * is persisted and null is returned.
      *
-     * @param metaHeader      constructed header
+     *
+     * @param metaHeader      constructed metaHeader
      * @param tag              tag
      * @param relationshipName name
-     * @param propMap          properties to associate with an audit tag (weight)
-     * @return Null or TrackTag
+     * @param isReversed
+     *@param propMap          properties to associate with an audit tag (weight)  @return Null or TrackTag
      */
-    public TrackTag save(MetaHeader metaHeader, Tag tag, String relationshipName, Map<String, Object> propMap) {
+    public TrackTag save(MetaHeader metaHeader, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap) {
         // ToDo: this will only set properties for the "current" tag to Header. it will not version it.
         if (relationshipName == null) {
             relationshipName = "GENERAL_TAG";
@@ -85,6 +91,7 @@ public class TrackTagDaoNeo implements TrackTagDao {
             throw new IllegalArgumentException("Tag must not be NULL. Relationship[" + relationshipName + "]");
 
         TrackTagRelationship rel = new TrackTagRelationship(metaHeader, tag, relationshipName, propMap);
+
         if (metaHeader.getId() == null)
             return rel;
 
@@ -98,12 +105,15 @@ public class TrackTagDaoNeo implements TrackTagDao {
             throw (e);
         }
         //Primary exploration relationship
-        Relationship r = template.getRelationshipBetween(tagNode, headerNode, relationshipName);
+        Node start = (isReversed? headerNode:tagNode);
+        Node end = (isReversed? tagNode:headerNode);
+
+        Relationship r = template.getRelationshipBetween(start, end, relationshipName);
 
         if (r != null) {
             return rel;
         }
-        template.createRelationshipBetween(tagNode, headerNode, relationshipName, propMap);
+        template.createRelationshipBetween(start, end, relationshipName, propMap);
         logger.trace("Created Relationship Tag[{}] of type {}", tag, relationshipName);
         return rel;
     }
@@ -152,7 +162,7 @@ public class TrackTagDaoNeo implements TrackTagDao {
     }
 
     @Override
-    public Set<MetaHeader> findTagAudits(Tag tag) {
+    public Set<MetaHeader> findTrackTags(Tag tag) {
         String query = "start tag=node({tagId}) " +
                 "       match tag-[]->audit" +
                 "      return audit";
@@ -180,20 +190,36 @@ public class TrackTagDaoNeo implements TrackTagDao {
     EngineConfig engineAdmin;
 
     @Override
-    public Set<TrackTag> getMetaTrackTags(MetaHeader metaHeader, Company company) {
+    public Set<TrackTag> getMetaTrackTagsOutbound(Company company, MetaHeader metaHeader) {
         Set<TrackTag> tagResults = new HashSet<>();
         if ( null == metaHeader.getId())
             return tagResults;
-        String query = "match (audit:MetaHeader)<-[tagType]-(tag:Tag" + engineAdmin.getTagSuffix(company) + ") " +
+        String query = "match (audit:MetaHeader)-[tagType]->(tag:Tag" + engineAdmin.getTagSuffix(company) + ") " +
                 "where id(audit)={auditId} \n" +
                 "optional match tag-[:located]-(located)-[*0..2]-(country:Country) \n" +
                 "optional match located-[*0..2]->(state:State) " +
                 "return tag,tagType,located,state, country";
 
-//        String query = "start audit=node({auditId}) " +
-//                "MATCH audit<-[tagType]-(tag:Tag" + engineAdmin.getTagSuffix(company) + ") " +
-//                "return tag, tagType";
+        return getTrackTags(metaHeader, tagResults, query);
 
+    }
+
+    @Override
+    public Set<TrackTag> getMetaTrackTags(Company company, MetaHeader metaHeader) {
+        Set<TrackTag> tagResults = new HashSet<>();
+        if ( null == metaHeader.getId())
+            return tagResults;
+        String query = "match (audit:MetaHeader)-[tagType]-(tag:Tag" + engineAdmin.getTagSuffix(company) + ") " +
+                "where id(audit)={auditId} \n" +
+                "optional match tag-[:located]-(located)-[*0..2]-(country:Country) \n" +
+                "optional match located-[*0..2]->(state:State) " +
+                "return tag,tagType,located,state, country";
+
+
+        return getTrackTags(metaHeader, tagResults, query);
+    }
+
+    private Set<TrackTag> getTrackTags(MetaHeader metaHeader, Set<TrackTag> tagResults, String query) {
         Map<String, Object> params = new HashMap<>();
         params.put("auditId", metaHeader.getId());
         //Map<Long, TrackTag> tagResults = new HashMap<>();

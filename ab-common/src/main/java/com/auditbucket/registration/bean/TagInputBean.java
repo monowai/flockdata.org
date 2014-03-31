@@ -22,6 +22,7 @@ package com.auditbucket.registration.bean;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,13 +48,32 @@ public class TagInputBean {
     Map<String, Object> metaLinks = new HashMap<>();
 
     private String metaLink = null;
-    private boolean mustExist=false;
+    private boolean mustExist = false;
 
     protected TagInputBean() {
     }
 
-    public TagInputBean(String tagName, String auditRelationship) {
-        this(tagName, auditRelationship, null);
+    /**
+     * associates a tag to the Meta Header
+     *
+     * @param tagName              Unique name for a tag (if exists will be reused)
+     * @param metaRelationshipName name of relationship to the MetaHeader
+     */
+    public TagInputBean(String tagName, String metaRelationshipName) {
+        this(tagName, null, metaRelationshipName);
+    }
+
+    /**
+     * associates a tag to the meta header giving it an optional index label to categorize it by
+     *
+     * @param tagName              Unique name for a tag (if exists will be reused)
+     * @param index                optional index label to give the Tag. Must start with ":"
+     * @param metaRelationshipName name of relationship to the MetaHeader
+     */
+    public TagInputBean(String tagName, String index, String metaRelationshipName) {
+        this(tagName, metaRelationshipName, (Map<String, Object>) null);
+        setIndex(index);
+
     }
 
     /**
@@ -62,7 +82,7 @@ public class TagInputBean {
      * You can pass this in as Name:Type and AB will additionally
      * recognize the tag as being of the supplied Type
      * <p/>
-     * This tag will not be associated with an MetaHeader (it has no auditRelationship)
+     * This tag will not be associated with an MetaHeader (it has no metaRelationshipName)
      * <p/>
      * Code value defaults to the tag name
      *
@@ -70,37 +90,25 @@ public class TagInputBean {
      */
     public TagInputBean(String tagName) {
         this();
-        if (tagName.contains(":")) {
-            String[] data = tagName.split(":");
-            for (int i = 0; i < data.length; i++) {
-                if (i == 0)
-                    this.name = data[i];
-                else {
-                    if (data[i].contains(" "))
-                        throw new RuntimeException("Tag Type cannot contain whitespace " + data[i]);
-
-                    this.index = this.index + " :" + data[i];
-                }
-
-            }
-            this.index = this.index.trim();
-        } else
-            this.name = tagName;
+        this.name = tagName;
 
         this.code = this.name;
     }
 
-    public TagInputBean(String tagName, String auditRelationship, Map<String, Object> relationshipProperties) {
+    public TagInputBean(String tagName, String metaRelationshipName, Map<String, Object> relationshipProperties) {
         this(tagName);
-        if (auditRelationship == null)
-            auditRelationship = "general";
+        if (metaRelationshipName == null)
+            metaRelationshipName = "general";
         else {
-            auditRelationship = auditRelationship.trim();
-            if (auditRelationship.contains(" "))
-                throw new RuntimeException("Tag Type cannot contain whitespace [" + auditRelationship + "]");
+            metaRelationshipName = metaRelationshipName.trim();
+            if (metaRelationshipName.contains(" ")) {
+                if (!metaRelationshipName.startsWith("'"))
+                    metaRelationshipName = "'" + metaRelationshipName + "'";
+                //   throw new RuntimeException("Tag Type cannot contain whitespace [" + metaRelationshipName + "]");
+            }
         }
 
-        addMetaLink(auditRelationship, relationshipProperties);
+        addMetaLink(metaRelationshipName, relationshipProperties);
 
     }
 
@@ -138,7 +146,7 @@ public class TagInputBean {
         return properties;
     }
 
-    public void setProperty(String key, Object value) {
+    public void setProperty(String key, Serializable value) {
         properties.put(key, value);
     }
 
@@ -160,18 +168,42 @@ public class TagInputBean {
      */
 
     public void setIndex(String index) {
-        if (index != null && !"".equals(index) && !index.startsWith(":"))
-            this.index = ":" + index;
+        if (index == null)
+            return;
+
+        String parseIndex;
+        if (!index.startsWith(":"))
+            parseIndex = ":" + index.trim();
         else
-            this.index = index;
+            parseIndex = index.trim();
+
+        if (index.contains(":")) {
+            String[] data = index.split(":");
+            for (String aData : data) {
+                isValid(aData);
+                if (!"".equals(aData))
+                    this.index = this.index + ":" + aData +" ";
+
+            }
+            this.index = this.index.trim();
+        } else {
+            isValid(parseIndex);
+            this.index = parseIndex;
+        }
+
+    }
+
+    private void isValid(String aData) {
+        if (aData.contains(" "))
+            throw new RuntimeException("Tag Type cannot contain whitespace " + aData);
     }
 
     /**
-     * Tag names cannot contain spaces and should begin with a single :
-     * Will add the : if it is missing
+     * Indexes should not contain spaces and should begin with a single :
      *
      * @return Colon prefixed name of the tag
      */
+
     public String getIndex() {
         return index;
     }
@@ -244,4 +276,5 @@ public class TagInputBean {
     public void setMustExist(boolean mustExist) {
         this.mustExist = mustExist;
     }
+
 }
