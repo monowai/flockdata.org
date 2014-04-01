@@ -174,7 +174,7 @@ public class TestAuditIntegration {
         String apiKey = regService.registerSystemUser(new RegistrationBean(company, email, "bah")).getCompany().getApiKey();
         Fortress fo = fortressService.registerFortress(new FortressInputBean("headerWithTagsProcess", false));
         DateTime now = new DateTime();
-        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestAudit", now, "ZZZ123");
+        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", now, "ZZZ123");
         inputBean.setTag(new TagInputBean("testTagNameZZ", "someAuditRLX"));
         inputBean.setEvent("TagTest");
         TrackResultBean auditResult;
@@ -197,7 +197,7 @@ public class TestAuditIntegration {
         regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
         Fortress fo = fortressService.registerFortress(new FortressInputBean("immutableHeadersWithNoLogsAreIndexed", false));
         DateTime now = new DateTime();
-        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestAudit", now, "ZZZ123");
+        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", now, "ZZZ123");
         inputBean.setEvent("immutableHeadersWithNoLogsAreIndexed");
         TrackResultBean auditResult;
         auditResult = mediationFacade.createHeader(inputBean, null);
@@ -210,7 +210,7 @@ public class TestAuditIntegration {
         doEsQuery(summary.getHeader().getIndexName(), inputBean.getEvent(), 1);
 
         // No Event, so should not be in elasticsearch
-        inputBean = new MetaInputBean(fo.getName(), "wally", "TestAudit", now, "ZZZ999");
+        inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", now, "ZZZ999");
         auditResult = mediationFacade.createHeader(inputBean, null);
         summary = mediationFacade.getTrackedSummary(auditResult.getMetaKey());
         assertNotNull(summary);
@@ -231,7 +231,7 @@ public class TestAuditIntegration {
         regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
         Fortress fo = fortressService.registerFortress(new FortressInputBean("111", false));
 
-        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
+        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         TrackResultBean auditResult;
         auditResult = mediationFacade.createHeader(inputBean, null);
         ahKey = auditResult.getMetaKey();
@@ -240,7 +240,7 @@ public class TestAuditIntegration {
 
         MetaHeader metaHeader = trackService.getHeader(ahKey);
         assertNotNull(metaHeader);
-        assertNotNull(trackService.findByCallerRef(fo, "TestAudit", "ABC123"));
+        assertNotNull(trackService.findByCallerRef(fo, "TestTrack", "ABC123"));
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));
 
@@ -292,7 +292,7 @@ public class TestAuditIntegration {
         regService.registerSystemUser(new RegistrationBean(company, email, "bah"));
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("TrackGraph", false));
 
-        MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
+        MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         inputBean.setTrackSuppressed(true);
         mediationFacade.createHeader(inputBean, null);
 
@@ -301,27 +301,27 @@ public class TestAuditIntegration {
         // Putting asserts On elasticsearch
         Thread.sleep(2000); // Let the messaging take effect
         doEsQuery(indexName, "*", 1);
-        inputBean = new MetaInputBean(fortress.getName(), "wally", "TestAudit", new DateTime(), "ABC124");
+        inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setTrackSuppressed(true);
         mediationFacade.createHeader(inputBean, null);
         Thread.sleep(2000); // Let the messaging take effect
         doEsQuery(indexName, "*", 2);
 
-        inputBean = new MetaInputBean(fortress.getName(), "wally", "TestAudit", new DateTime(), "ABC124");
-        inputBean.setTrackSuppressed(true);
-        mediationFacade.createHeader(inputBean, null);
-        Thread.sleep(2000); // Let the messaging take effect
-        // Updating the same caller ref should not create a 3rd record
-        doEsQuery(indexName, "*", 2);
-
-        inputBean = new MetaInputBean(fortress.getName(), "wally", "TestAudit", new DateTime(), "abc124");
+        inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setTrackSuppressed(true);
         mediationFacade.createHeader(inputBean, null);
         Thread.sleep(2000); // Let the messaging take effect
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(indexName, "*", 2);
 
-        inputBean = new MetaInputBean(fortress.getName(), "wally", "TestAudit", new DateTime(), "abc125");
+        inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "abc124");
+        inputBean.setTrackSuppressed(true);
+        mediationFacade.createHeader(inputBean, null);
+        Thread.sleep(2000); // Let the messaging take effect
+        // Updating the same caller ref should not create a 3rd record
+        doEsQuery(indexName, "*", 2);
+
+        inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "abc125");
         inputBean.setTrackSuppressed(true);
         mediationFacade.createHeader(inputBean, null);
         Thread.sleep(2000); // Let the messaging take effect
@@ -340,7 +340,7 @@ public class TestAuditIntegration {
 
         String escJson = "{\"who\":";
         SecurityContextHolder.getContext().setAuthentication(authA);
-        regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
+        regService.registerSystemUser(new RegistrationBean("TestTrack", email, "bah"));
         Fortress iFortress = fortressService.registerFortress(new FortressInputBean("suppress", false));
         MetaInputBean inputBean = new MetaInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
 
@@ -373,7 +373,7 @@ public class TestAuditIntegration {
     public void testWhatIndexingDefaultAttributeWithNGram() throws Exception {
         assumeTrue(!ignoreMe);
         SecurityContextHolder.getContext().setAuthentication(authA);
-        regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
+        regService.registerSystemUser(new RegistrationBean("TestTrack", email, "bah"));
         Fortress iFortress = fortressService.registerFortress(new FortressInputBean("ngram", false));
         MetaInputBean inputBean = new MetaInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
 
@@ -409,7 +409,7 @@ public class TestAuditIntegration {
         logger.info("stressWithHighVolume started");
         SecurityContextHolder.getContext().setAuthentication(authA);
         //Neo4jHelper.cleanDb(graphDatabaseService, true);
-        regService.registerSystemUser(new RegistrationBean("TestAudit", email, "bah"));
+        regService.registerSystemUser(new RegistrationBean("TestTrack", email, "bah"));
 
         int auditMax = 10;
         int logMax = 10;

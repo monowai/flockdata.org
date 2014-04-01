@@ -105,7 +105,7 @@ public class TestTxReference {
 
 // ABC Data
         Fortress fortressABC = fortressService.registerFortress("abcTest");
-        MetaInputBean abcHeader = new MetaInputBean(fortressABC.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
+        MetaInputBean abcHeader = new MetaInputBean(fortressABC.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         abcHeader.setLog(new LogInputBean(null, "charlie", DateTime.now(), escJsonA, true));
 
         TrackResultBean resultBean = auditManager.createHeader(abcHeader, null);
@@ -117,7 +117,7 @@ public class TestTxReference {
 // CBA data
         SecurityContextHolder.getContext().setAuthentication(authCBA);
         Fortress fortressCBA = fortressService.registerFortress("cbaTest");
-        MetaInputBean cbaHeader = new MetaInputBean(fortressCBA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
+        MetaInputBean cbaHeader = new MetaInputBean(fortressCBA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         String cbaKey = auditManager.createHeader(cbaHeader, null).getMetaKey();
 
         LogInputBean cbaLog = new LogInputBean(cbaKey, "charlie", DateTime.now(), escJsonA, true);
@@ -135,7 +135,7 @@ public class TestTxReference {
         assertNull(trackService.findTx(cbaTxRef));
 
         // WHat happens if ABC tries to use CBA's TX Ref.
-        abcHeader = new MetaInputBean(fortressABC.getName(), "wally", "TestAudit", new DateTime(), "ZZZAAA");
+        abcHeader = new MetaInputBean(fortressABC.getName(), "wally", "TestTrack", new DateTime(), "ZZZAAA");
         abcHeader.setLog(new LogInputBean(null, "wally", DateTime.now(), escJsonA, null, cbaTxRef));
         TrackResultBean result = auditManager.createHeader(abcHeader, null);
         assertNotNull(result);
@@ -152,7 +152,7 @@ public class TestTxReference {
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("auditTest", true));
         String tagRef = "MyTXTag";
-        MetaInputBean aBean = new MetaInputBean(fortressA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
+        MetaInputBean aBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
 
         String key = auditManager.createHeader(aBean, null).getMetaKey();
         assertNotNull(key);
@@ -212,7 +212,7 @@ public class TestTxReference {
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("auditTest", true));
         String tagRef = "MyTXTag";
-        MetaInputBean aBean = new MetaInputBean(fortressA.getName(), "wally", "TestAudit", new DateTime(), "ABC123");
+        MetaInputBean aBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
 
         String key = auditManager.createHeader(aBean, null).getMetaKey();
         assertNotNull(key);

@@ -52,6 +52,12 @@ public interface MetaDataRepo extends GraphRepository<MetaHeaderNode> {
                     " skip {1} limit 100 ")
     Set<MetaHeader> findHeadersFrom(Long fortressId, Long skip);
 
+    @Query(elementClass = MetaHeaderNode.class, value =
+                    " match (fortress)-[:TRACKS]->(header) where id(fortress)={0} " +
+                    " and header.callerRef ={1}" +
+                    " return header ")
+    Iterable<MetaHeader> findByCallerRef(Long fortressId, String callerRef);
+
 //    @Query(elementClass = MetaHeaderNode.class, value =
 //            "start fortress = node({0}), docType=node({1}) " +
 //                    " match fortress-[:TRACKS]->audit-[:CLASSIFIED_AS]->docType " +

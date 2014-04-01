@@ -82,7 +82,7 @@ public class TestDelta {
     @Autowired
     private MediationFacade mediationFacade;
 
-    private Logger logger = LoggerFactory.getLogger(TestAudit.class);
+    private Logger logger = LoggerFactory.getLogger(TestTrack.class);
     private String monowai = "Monowai";
     private String mike = "mike";
     private String mark = "mark@null.com";

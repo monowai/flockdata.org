@@ -212,10 +212,10 @@ public class MediationFacade {
             if (resultBean.getMetaInputBean().isTrackSuppressed())
                 // If we aren't tracking in the graph, then we have to be searching
                 // else why even call this service??
-                trackService.makeHeaderSearchable(resultBean, resultBean.getMetaInputBean().getEvent(), resultBean.getMetaInputBean().getWhen(), company);
+                trackService.makeHeaderSearchable(company, resultBean, resultBean.getMetaInputBean().getEvent(), resultBean.getMetaInputBean().getWhen());
             else if (!resultBean.isDuplicate() &&
                     resultBean.getMetaInputBean().getEvent() != null && !"".equals(resultBean.getMetaInputBean().getEvent())) {
-                trackService.makeHeaderSearchable(resultBean, resultBean.getMetaInputBean().getEvent(), resultBean.getMetaInputBean().getWhen(), company);
+                trackService.makeHeaderSearchable(company, resultBean, resultBean.getMetaInputBean().getEvent(), resultBean.getMetaInputBean().getWhen());
             }
         }
     }
@@ -268,8 +268,8 @@ public class MediationFacade {
      * @throws com.auditbucket.helper.DatagioException
      */
     @Async
-    public void reindex(String fortressName) throws DatagioException {
-        Fortress fortress = fortressService.findByName(fortressName);
+    public void reindex(Company company, String fortressName) throws DatagioException {
+        Fortress fortress = fortressService.findByName(company, fortressName);
         if (fortress == null)
             throw new DatagioException("Fortress [" + fortress + "] could not be found");
         Long skipCount = 0l;
@@ -294,8 +294,8 @@ public class MediationFacade {
      * @throws com.auditbucket.helper.DatagioException
      */
     @Async
-    public void reindexByDocType(String fortressName, String docType) throws DatagioException {
-        Fortress fortress = fortressService.findByName(fortressName);
+    public void reindexByDocType(Company company, String fortressName, String docType) throws DatagioException {
+        Fortress fortress = fortressService.findByName(company, fortressName);
         if (fortress == null)
             throw new DatagioException("Fortress [" + fortress + "] could not be found");
         Long skipCount = 0l;
@@ -322,11 +322,11 @@ public class MediationFacade {
     }
 
     public TrackedSummaryBean getTrackedSummary(String metaKey) {
-        return getTrackedSummary(metaKey, null);
+        return getTrackedSummary(null, metaKey);
     }
 
-    public TrackedSummaryBean getTrackedSummary(String metaKey, Company company) {
-        return trackService.getMetaSummary(metaKey, company);
+    public TrackedSummaryBean getTrackedSummary(Company company, String metaKey) {
+        return trackService.getMetaSummary(company, metaKey);
     }
 
 }

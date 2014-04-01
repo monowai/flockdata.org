@@ -70,7 +70,11 @@ public interface TrackDao {
 
     Set<TrackLog> getLogs(Long auditHeaderID);
 
-    MetaHeader findHeaderByCallerKey(Long fortressId, Long documentId, String callerRef);
+    Iterable<MetaHeader> findByCallerRef(Long fortressId, String callerRef);
+
+    MetaHeader findByCallerRefUnique(Long id, String sourceKey);
+
+    MetaHeader findByCallerRef(Long fortressId, Long documentId, String callerRef);
 
     MetaHeader fetch(MetaHeader header);
 
@@ -111,4 +115,9 @@ public interface TrackDao {
     void delete(ChangeLog currentChange);
 
     void makeLastChange(MetaHeader metaHeader, ChangeLog priorChange);
+
+    void crossReference(MetaHeader header, Collection<MetaHeader> targets, String refName);
+
+    Map<String,Collection<MetaHeader>> getCrossReference(Company company, MetaHeader header, String xRefName);
+
 }

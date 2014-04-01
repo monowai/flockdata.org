@@ -107,8 +107,31 @@ public class TrackDaoNeo implements TrackDao {
         return header;
     }
 
+    @Override
+    public Iterable<MetaHeader> findByCallerRef(Long fortressId, String callerRef) {
+          return metaRepo.findByCallerRef (fortressId, callerRef);
+
+    }
+
+    @Override
+    public MetaHeader findByCallerRefUnique(Long id, String callerRef) {
+        int count = 0;
+        Iterable<MetaHeader> headers = findByCallerRef(id, callerRef);
+        MetaHeader result = null;
+        for (MetaHeader header : headers) {
+            count ++;
+            result = header;
+            if ( count >1) break;
+        }
+        if ( count !=1 )
+            throw new DatagioException("Unable to find exactly one record for the callerRef ["+callerRef+"]");
+
+        return result;
+
+    }
+
     @Cacheable(value = "callerKey", unless = "#result==null")
-    public MetaHeader findHeaderByCallerKey(Long fortressId, Long documentId, String callerRef) {
+    public MetaHeader findByCallerRef(Long fortressId, Long documentId, String callerRef) {
         if (logger.isTraceEnabled())
             logger.trace("findByCallerRef fortress [" + fortressId + "] docType[" + documentId + "], callerRef[" + callerRef + "]");
 
@@ -142,7 +165,7 @@ public class TrackDaoNeo implements TrackDao {
     @Override
     public Collection<MetaHeader> findHeaders(Long fortressId, String label, Long skipTo) {
         //ToDo: Should this pass in timestamp it got to??
-        String cypher = "match (f:Fortress)-[:TRACKS]->(audit:`" + label + "`) where id(f)={fortress} return audit ORDER BY audit.dateCreated ASC skip {skip} limit 100 ";
+        String cypher = "match (f:Fortress)-[:TRACKS]->(meta:`" + label + "`) where id(f)={fortress} return meta ORDER BY meta.dateCreated ASC skip {skip} limit 100 ";
         Map<String, Object> args = new HashMap<>();
         args.put("fortress", fortressId);
         args.put("skip", skipTo);
@@ -156,7 +179,7 @@ public class TrackDaoNeo implements TrackDao {
 
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
-            results.add(template.projectTo(row.get("audit"), MetaHeaderNode.class));
+            results.add(template.projectTo(row.get("meta"), MetaHeaderNode.class));
         }
         //
         return results;
@@ -343,35 +366,45 @@ public class TrackDaoNeo implements TrackDao {
 
     @Override
     public void makeLastChange(MetaHeader metaHeader, ChangeLog lastChange) {
-        Node auditNode = template.getPersistentState(metaHeader);
-        Node changeNode = template.getPersistentState(lastChange);
-        Relationship r = template.createRelationshipBetween(auditNode, changeNode, LAST_CHANGE, null);
-        logger.debug("makeLastChange - MetaHeader [{}], LAST_CHANGE [{}], auditChange [{}]", metaHeader.getId(), r.getId(), changeNode.getId());
+        Node metaNode = template.getPersistentState(metaHeader);
+        Node logNode = template.getPersistentState(lastChange);
+        Relationship r = template.createRelationshipBetween(metaNode, logNode, LAST_CHANGE, null);
+        logger.debug("makeLastChange - MetaHeader [{}], LAST_CHANGE [{}], auditChange [{}]", metaHeader.getId(), r.getId(), logNode.getId());
+    }
+
+    @Override
+    public void crossReference(MetaHeader header, Collection<MetaHeader> targets, String refName) {
+        Node source = template.getPersistentState(header);
+        for (MetaHeader target : targets) {
+            Node dest = template.getPersistentState(target);
+            template.createRelationshipBetween(source, dest, refName, null);
+        }
+    }
+
+    @Override
+    public Map<String, Collection<MetaHeader>> getCrossReference(Company company, MetaHeader header, String xRefName) {
+        Node n = template.getPersistentState(header);
+
+        RelationshipType r=  DynamicRelationshipType.withName(xRefName);
+        Iterable<Relationship> rlxs = n.getRelationships( r );
+        Map<String, Collection<MetaHeader>> results = new HashMap<>();
+        Collection<MetaHeader> headers = new ArrayList<>();
+        results.put(xRefName, headers);
+        for (Relationship rlx : rlxs) {
+            headers.add(template.projectTo(rlx.getEndNode(), MetaHeaderNode.class));
+        }
+        return results;
+
     }
 
 
-    public TrackLog getLastLog(Long auditHeaderID) {
+    public TrackLog getLastLog(Long metaHeaderId) {
         TrackLogRelationship log = null;
 
-        Relationship r = template.getNode(auditHeaderID).getSingleRelationship(LastChange.LAST_CHANGE, Direction.BOTH);
+        Relationship r = template.getNode(metaHeaderId).getSingleRelationship(LastChange.LAST_CHANGE, Direction.BOTH);
         if (r != null) {
-            trackLogRepo.getLastAuditLog(auditHeaderID);
-
-
+            trackLogRepo.getLastAuditLog(metaHeaderId);
             log = trackLogRepo.getLastAuditLog(r.getEndNode().getId());
-//            int count = 0;
-//
-//            for (TrackLogRelationship when : logs) {
-//                count++;
-//                log = when;
-//                logger.debug("getLastLog for MetaHeader [{}], found RLX [{}], changeId [{}]", auditHeaderID, when, when.getAuditChange().getId());
-//            }
-//
-//            if (log != null) {
-//                if (count > 1)
-//                    logger.debug("*** MetaHeader [{}] - Found more than [{}] LAST_CHANGE Log, should only be 1", auditHeaderID, count);
-//
-//            }
         }
         return log;
     }

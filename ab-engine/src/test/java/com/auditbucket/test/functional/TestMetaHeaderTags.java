@@ -250,7 +250,7 @@ public class TestMetaHeaderTags {
 
         trackService.updateHeader(metaHeader);
         metaHeader = trackService.getHeader(metaHeader.getMetaKey());
-        TrackedSummaryBean summaryBean = trackService.getMetaSummary(metaHeader.getMetaKey(), null);
+        TrackedSummaryBean summaryBean = trackService.getMetaSummary(null, metaHeader.getMetaKey());
         tagSet = summaryBean.getTags();
         assertNotNull(tagSet);
         Set<MetaHeader> headers = tagTrackService.findTrackTags("TagA");
@@ -435,7 +435,7 @@ public class TestMetaHeaderTags {
         MetaHeader header = trackService.getHeader(resultBean.getMetaKey());
         Set<TrackTag> tagResults = tagTrackService.findTrackTags(header);
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
-        TrackedSummaryBean summaryBean = trackService.getMetaSummary(header.getMetaKey(), null);
+        TrackedSummaryBean summaryBean = trackService.getMetaSummary(null, header.getMetaKey());
         assertEquals(3, summaryBean.getTags().size());
     }
 
@@ -457,7 +457,7 @@ public class TestMetaHeaderTags {
         TrackResultBean resultBean = auditManager.createHeader(inputBean, null);
         MetaHeader header = trackService.getHeader(resultBean.getMetaKey());
         Set<TrackTag> tagResults = tagTrackService.findTrackTags(header);
-        TrackedSummaryBean summaryBean = trackService.getMetaSummary(header.getMetaKey(), null);
+        TrackedSummaryBean summaryBean = trackService.getMetaSummary(null, header.getMetaKey());
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
         assertEquals(3, summaryBean.getTags().size());
     }
@@ -485,7 +485,7 @@ public class TestMetaHeaderTags {
         TrackResultBean resultBean = auditManager.createHeader(inputBean, null);
         MetaHeader header = trackService.getHeader(resultBean.getMetaKey());
         Set<TrackTag> tagResults = tagTrackService.findTrackTags(header);
-        TrackedSummaryBean summaryBean = trackService.getMetaSummary(header.getMetaKey(), null);
+        TrackedSummaryBean summaryBean = trackService.getMetaSummary(null, header.getMetaKey());
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
         assertEquals(3, summaryBean.getTags().size());
     }
@@ -557,7 +557,7 @@ public class TestMetaHeaderTags {
         MetaHeader header = trackService.getHeader(resultBean.getMetaKey());
         Set<TrackTag> tagResults = tagTrackService.findTrackTags(header);
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
-        TrackedSummaryBean summaryBean = trackService.getMetaSummary(header.getMetaKey(), null);
+        TrackedSummaryBean summaryBean = trackService.getMetaSummary(null, header.getMetaKey());
         assertEquals(3, summaryBean.getTags().size());
     }
 
@@ -837,7 +837,7 @@ public class TestMetaHeaderTags {
 //    @Test
 //    public void headerTagsAreUpdatedWithTagDetailsInAnAuditLog() throws Exception {
 //        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
-//        fortressService.registerFortress("ABC");
+//        fortressEP.registerFortress("ABC");
 //
 //        TagInputBean tagInput = new TagInputBean("FLOP");
 //        String what = "{\"house\": \"house";

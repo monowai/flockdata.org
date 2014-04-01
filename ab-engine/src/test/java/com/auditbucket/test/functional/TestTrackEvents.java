@@ -65,7 +65,7 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 @Transactional
-public class TestAuditEvent {
+public class TestTrackEvents {
     @Autowired
     TrackService trackService;
 
@@ -84,7 +84,7 @@ public class TestAuditEvent {
     @Autowired
     private MediationFacade mediationFacade;
 
-    private Logger logger = LoggerFactory.getLogger(TestAuditEvent.class);
+    private Logger logger = LoggerFactory.getLogger(TestTrackEvents.class);
     private String monowai = "Monowai";
     private String mike = "test@ab.com";
     private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
