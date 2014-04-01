@@ -19,11 +19,13 @@
 
 package com.auditbucket.audit.bean;
 
+import com.auditbucket.registration.model.Tag;
+
 import javax.validation.constraints.NotNull;
 
 /**
  * Associates a Tag with an Audit Header
- *
+ * <p/>
  * User: Mike Holdsworth
  * Date: 28/06/13
  * Time: 9:58 PM
@@ -35,15 +37,15 @@ public class TrackTagInputBean {
     private String metaKey;
     @NotNull
     private String type;
+    private String index;
 
     private TrackTagInputBean() {
     }
 
     /**
-     *
-     * @param metaKey existing meta header key
-     * @param tagName  name of an existing tag
-     * @param relationshipName     relationship name to create
+     * @param metaKey          existing meta header key
+     * @param tagName          name of an existing tag
+     * @param relationshipName relationship name to create
      */
     public TrackTagInputBean(String metaKey, String tagName, String relationshipName) {
         this();
@@ -71,4 +73,12 @@ public class TrackTagInputBean {
     public String getType() {
         return type;
     }
+
+    public String getIndex() {
+        if (index==null ||"".equals(index))
+            return Tag.DEFAULT;
+        else
+            return index;
+    }
+
 }

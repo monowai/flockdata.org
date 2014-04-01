@@ -742,7 +742,7 @@ public class TestMetaHeaderTags {
 
         TrackResultBean resultBean = auditManager.createHeader(auditBean, null);
         assertNotNull(resultBean);
-        assertNotNull(tagService.findTag("USA"));
+        assertNotNull(tagService.findTag(fortress.getCompany(), "USA", "Country"));
 
         Set<TrackTag> tags = tagTrackService.findTrackTags(resultBean.getMetaHeader());
         assertFalse(tags.isEmpty());

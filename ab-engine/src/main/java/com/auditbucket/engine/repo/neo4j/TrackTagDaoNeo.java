@@ -194,7 +194,7 @@ public class TrackTagDaoNeo implements TrackTagDao {
         Set<TrackTag> tagResults = new HashSet<>();
         if ( null == metaHeader.getId())
             return tagResults;
-        String query = "match (audit:MetaHeader)-[tagType]->(tag:Tag" + engineAdmin.getTagSuffix(company) + ") " +
+        String query = "match (audit:MetaHeader)-[tagType]->(tag"+Tag.DEFAULT + engineAdmin.getTagSuffix(company) + ") " +
                 "where id(audit)={auditId} \n" +
                 "optional match tag-[:located]-(located)-[*0..2]-(country:Country) \n" +
                 "optional match located-[*0..2]->(state:State) " +
@@ -209,7 +209,7 @@ public class TrackTagDaoNeo implements TrackTagDao {
         Set<TrackTag> tagResults = new HashSet<>();
         if ( null == metaHeader.getId())
             return tagResults;
-        String query = "match (audit:MetaHeader)-[tagType]-(tag:Tag" + engineAdmin.getTagSuffix(company) + ") " +
+        String query = "match (audit:MetaHeader)-[tagType]-(tag" +Tag.DEFAULT+ engineAdmin.getTagSuffix(company) + ") " +
                 "where id(audit)={auditId} \n" +
                 "optional match tag-[:located]-(located)-[*0..2]-(country:Country) \n" +
                 "optional match located-[*0..2]->(state:State) " +

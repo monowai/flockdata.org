@@ -42,11 +42,13 @@ public interface TagDao {
      * Locates a tag
      *
      *
+     *
      * @param company
      * @param tagName name to find
+     * @param index
      * @return the tag if it exists or null
      */
-    Tag findOne(Company company, String tagName);
+    Tag findOne(Company company, String tagName, String index);
 
     DocumentType findDocumentType(Fortress company, String documentType, Boolean createIfMissing);
 

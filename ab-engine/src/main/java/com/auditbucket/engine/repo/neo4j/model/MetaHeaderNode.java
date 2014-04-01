@@ -62,6 +62,7 @@ public class MetaHeaderNode implements MetaHeader {
     @Indexed(unique = true)
     private String callerKeyRef;
 
+    @Indexed
     private String callerRef;
 
     private long dateCreated = 0;
@@ -191,6 +192,11 @@ public class MetaHeaderNode implements MetaHeader {
     }
 
 
+    /**
+     * should only be set if this is an immutable header and no log events will ever be recorded
+     *
+     * @return event that created this meta-header
+     */
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public String getEvent() {
         return event;

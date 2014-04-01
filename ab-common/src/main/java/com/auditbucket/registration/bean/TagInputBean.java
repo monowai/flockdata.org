@@ -25,8 +25,9 @@ import org.hibernate.validator.constraints.NotEmpty;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-
 /**
+ * All data necessary to create a simple Tag. If no index is provided then the tag is
+ * created under the default index of _Tag
  * User: Mike Holdsworth
  * Date: 29/06/13
  * Time: 1:20 PM
@@ -49,6 +50,7 @@ public class TagInputBean {
 
     private String metaLink = null;
     private boolean mustExist = false;
+
 
     protected TagInputBean() {
     }
@@ -163,33 +165,31 @@ public class TagInputBean {
     }
 
     /**
-     * Tag names cannot contain spaces and should begin with a single :
-     * Will add the : if it is missing
+     * Index name cannot contain spaces and will begin with a single :
+     * Will add the leading : if it is missing
      */
-
     public void setIndex(String index) {
         if (index == null)
             return;
 
-        String parseIndex;
         if (!index.startsWith(":"))
-            parseIndex = ":" + index.trim();
+            this.index = ":" + index.trim();
         else
-            parseIndex = index.trim();
+            this.index = index.trim();
 
-        if (index.contains(":")) {
-            String[] data = index.split(":");
-            for (String aData : data) {
-                isValid(aData);
-                if (!"".equals(aData))
-                    this.index = this.index + ":" + aData +" ";
-
-            }
-            this.index = this.index.trim();
-        } else {
-            isValid(parseIndex);
-            this.index = parseIndex;
-        }
+//        if (index.contains(":")) {
+//            String[] data = index.split(":");
+//            for (String aData : data) {
+//                isValid(aData);
+//                if (!"".equals(aData))
+//                    this.index = this.index + ":" + aData +" ";
+//
+//            }
+//            this.index = this.index.trim();
+//        } else {
+//            isValid(parseIndex);
+//            this.index = parseIndex;
+//        }
 
     }
 
@@ -205,7 +205,10 @@ public class TagInputBean {
      */
 
     public String getIndex() {
-        return index;
+        if ( "".equals(index) )
+            return ":_Tag";
+        else
+            return index;
     }
 
     /**
@@ -277,4 +280,8 @@ public class TagInputBean {
         this.mustExist = mustExist;
     }
 
+    @JsonIgnore
+    public boolean isDefault() {
+        return index == null || "".equals(index);
+    }
 }

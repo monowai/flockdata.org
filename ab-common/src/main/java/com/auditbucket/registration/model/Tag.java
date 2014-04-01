@@ -28,6 +28,8 @@ import java.util.Map;
  */
 public interface Tag {
 
+    public static String DEFAULT=":_Tag";
+
     public String getName();
 
     void setName(String floppy);

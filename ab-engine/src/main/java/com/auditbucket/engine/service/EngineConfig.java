@@ -108,7 +108,7 @@ public class EngineConfig {
         //template.query("create index on (t:Tag" + getTagSuffix(company) + ")", null) ;
         // Performance issue with constraints?
         logger.info("MultiTenant suffix = [" + getTagSuffix(company) + "]");
-        template.query("create constraint on (t:Tag" + getTagSuffix(company) + ") assert t.key is unique", null);
+        //template.query("create constraint on (t"+ Tag.DEFAULT + getTagSuffix(company) + ") assert t.key is unique", null);
         //template.query("create index on (t:Tag" + getTagSuffix(company)+ ")", null);
     }
 

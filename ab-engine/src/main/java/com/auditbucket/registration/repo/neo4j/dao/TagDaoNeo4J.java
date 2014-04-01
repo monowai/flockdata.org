@@ -83,11 +83,11 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
 
     Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection createdValues) {
         // Check exists
-        TagNode existingTag = (TagNode) findOne(company, tagInput.getName());
+        TagNode existingTag = (TagNode) findOne(company, tagInput.getName(), tagInput.getIndex());
         Node start;
         if (existingTag == null) {
             if (tagInput.isMustExist()) {
-                throw new TagException("Tag " + tagInput.getName() + " is expected to exist but doesn't. Ignoring this request.");
+                throw new TagException("Tag [" + tagInput.getName() + "] is expected to exist for ["+tagInput.getIndex()+"] but doesn't. Ignoring this request.");
             } else
                 start = createTag(tagInput, tagSuffix);
         } else {
@@ -111,15 +111,19 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
         // ToDo: Should a type be suffixed with company in multi-tenanted? - more time to think!!
         //       do we care that one company can see another companies tag value? Certainly not the
         //       audit data.
-        if (tagInput.getIndex() != null && !":".equals(tagInput.getIndex()))
-            tagSuffix = tagSuffix + " " + tagInput.getIndex();
+        if (tagInput.isDefault())
+            tagSuffix = Tag.DEFAULT + tagSuffix;
+        else
+            tagSuffix = tagInput.getIndex() + " " + Tag.DEFAULT + tagSuffix;
+
 
         // ToDo: Multi-tenanted custom tags?
         // _Tag only exists for SDN projection
-        String query = "merge (tag:_Tag :Tag" + tagSuffix + " {code:{code}, name:{name}, key:{key}";
+        String query = "merge (tag" + tagSuffix + " {code:{code}, name:{name}, key:{key}";
         Map<String, Object> params = new HashMap<>();
         params.put("code", tag.getCode());
         params.put("key", tag.getKey());
+        //params.put("typeKey", tag.getKey());
         params.put("name", tag.getName());
         // ToDo: - set custom properties
 
@@ -180,7 +184,7 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
         //Long coTags = getCompanyTagManager(companyId);
         //"MATCH audit<-[tagType]-(tag:Tag"+engineAdmin.getTagSuffix(company)+") " +
         String query = "start tag=node({tagId}) " +
-                " match (tag)-->(otherTag:Tag" + engineAdmin.getTagSuffix(company) + ") " +
+                " match (tag)-->(otherTag" + Tag.DEFAULT + engineAdmin.getTagSuffix(company) + ") " +
                 "       return otherTag";
         Map<String, Object> params = new HashMap<>();
         params.put("tagId", startTag.getId());
@@ -206,7 +210,8 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
     @Override
     public Map<String, Tag> findTags(Company company, String type) {
         Map<String, Tag> tagResults = new HashMap<>();
-        String query = "match (tag:" + type + (engineAdmin.getTagSuffix(company)) + ") return tag";
+
+        String query = "match (tag:_Tag" + (engineAdmin.getTagSuffix(company)) + ") return tag";
         // Look at PAGE
         Result<Map<String, Object>> results = template.query(query, null);
         for (Map<String, Object> row : results) {
@@ -220,15 +225,15 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
 
     @Override
     @Cacheable(value = "companyTag", unless = "#result == null")
-    public Tag findOne(Company company, String tagName) {
+    public Tag findOne(Company company, String tagName, String index) {
         if (tagName == null || company == null)
             throw new IllegalArgumentException("Null can not be used to find a tag ");
 
         String query;
         if ("".equals(engineAdmin.getTagSuffix(company)))
-            query = "match (tag:Tag) where tag.key ={tagKey} return tag";
+            query = "match (tag" + index + ") where tag.key ={tagKey} return tag";
         else
-            query = "match (tag:Tag" + engineAdmin.getTagSuffix(company) + ") where tag.key ={tagKey} return tag";
+            query = "match (tag" + index + engineAdmin.getTagSuffix(company) + ") where tag.key ={tagKey} return tag";
 
         Map<String, Object> params = new HashMap<>();
         params.put("tagKey", tagName.toLowerCase().replaceAll("\\s", "")); // ToDo- formula to static method

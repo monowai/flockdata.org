@@ -21,6 +21,7 @@ package com.auditbucket.registration.service;
 
 import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.dao.TagDao;
+import com.auditbucket.helper.Command;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
@@ -71,12 +72,22 @@ public class TagService {
         return processTags(company, tagInputs);
     }
 
-    public Iterable<Tag> processTags(Company company, Iterable<TagInputBean> tagInputs) {
-        return tagDao.save(company, tagInputs);
+    public Iterable<Tag> processTags(final Company company, final Iterable<TagInputBean> tagInputs) {
+        class DLCommand implements Command {
+            Iterable<Tag> results;
+            @Override
+            public Command execute() {
+                results = tagDao.save(company, tagInputs);
+                return this;
+            }
+        }
+        DLCommand c = new DLCommand();
+        com.auditbucket.helper.DeadlockRetry.execute(c, "creating tags", 10);
+        return c.results;
     }
 
-    public Tag findTag(String tagName, Company company) {
-        return tagDao.findOne(company, tagName);
+    public Tag findTag(Company company, String tagName) {
+        return tagDao.findOne(company, tagName, Tag.DEFAULT);
     }
 
 
@@ -84,7 +95,7 @@ public class TagService {
         Company company = securityHelper.getCompany();
         if (company == null)
             return null;
-        return findTag(tagName, company);
+        return findTag(company, tagName);
     }
 
     /**
@@ -124,5 +135,11 @@ public class TagService {
     public Map<String, Tag> findTags(String type) {
         Company company = securityHelper.getCompany();
         return tagDao.findTags(company, type);
+    }
+
+    public Tag findTag(Company company, String tagName, String index) {
+        if ( !index.startsWith(":"))
+            index =":"+index;
+        return tagDao.findOne(company, tagName, index);  //To change body of created methods use File | Settings | File Templates.
     }
 }

@@ -293,6 +293,69 @@ public class TestTags {
     }
 
     @Test
+    public void sameKeyForDifferentTagTypes() throws Exception {
+        engineAdmin.setMultiTenanted(false);
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
+        assertNotNull(iSystemUser);
+
+        TagInputBean tagInputA = new TagInputBean("Source");
+        tagInputA.setIndex(":TestTagA");
+        tagInputA.setCode("CodeA");
+        tagInputA.setName("NameA");
+        Tag tagA = tagService.processTag(tagInputA);
+        assertNotNull (tagA);
+        assertEquals(tagInputA.getCode(), tagA.getCode());
+        assertEquals(tagInputA.getName(), tagA.getName());
+        assertNotNull(tagA.getKey());
+        Map<String, Tag> results = tagService.findTags("TestTagA");
+        assertNotNull ( results);
+        assertFalse(results.isEmpty());
+        assertNotNull ( results.get(tagInputA.getName()));
+
+        // This should work as the tag is in a different index
+        TagInputBean tagInputB = new TagInputBean("Source");
+        tagInputB.setIndex(":TestTagB");
+        tagInputB.setCode("CodeA");
+        tagInputB.setName("NameA");
+        Tag tagB = tagService.processTag(tagInputB);
+        assertNotNull (tagB);
+        assertNotSame(tagA.getId(), tagB.getId());
+
+        assertEquals(tagInputB.getCode(), tagB.getCode());
+        assertEquals(tagInputB.getName(), tagB.getName());
+        assertNotNull(tagA.getKey());
+        Map<String, Tag> resultsB = tagService.findTags("TestTagB");
+        assertNotNull ( resultsB);
+        assertFalse(resultsB.isEmpty());
+        assertNotNull ( resultsB.get(tagInputB.getName()));
+
+
+    }
+
+    @Test
+    public void duplicateTagsForSameIndexReturnSingleTag() throws Exception {
+        engineAdmin.setMultiTenanted(false);
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
+        assertNotNull(iSystemUser);
+
+        TagInputBean tagInputA = new TagInputBean("Source");
+        tagInputA.setIndex(":TestTagA");
+        tagInputA.setCode("CodeA");
+        tagInputA.setName("NameA");
+        Tag tagA = tagService.processTag(tagInputA);
+        assertNotNull (tagA);
+
+        // This should work as the tag is in a different index
+        TagInputBean tagInputB = new TagInputBean("Source");
+        tagInputB.setIndex(":TestTagA");
+        tagInputB.setCode("CodeA");
+        tagInputB.setName("NameA");
+        Tag tagB = tagService.processTag(tagInputB);
+        assertNotNull (tagB);
+        assertEquals(tagA.getId(), tagB.getId());
+
+    }
+    @Test
     public void systemPropertiesHonoured() throws Exception{
         // Case insensitive test
         assertTrue(PropertyConversion.isSystemColumn("Name"));

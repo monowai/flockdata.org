@@ -64,7 +64,7 @@ public class TagTrackService {
         if (existing)
             // We already have this tagged so get out of here
             return;
-        Tag tag = tagService.findTag(tagInput.getTagName());
+        Tag tag = tagService.findTag(header.getFortress().getCompany(), tagInput.getTagName(), tagInput.getIndex());
         trackTagDao.save(header, tag, relationshipName);
     }
 

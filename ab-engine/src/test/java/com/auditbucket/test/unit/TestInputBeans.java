@@ -35,7 +35,6 @@ import java.util.Date;
 
 import static junit.framework.Assert.*;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
 
 /**
  * User: Mike Holdsworth
@@ -112,37 +111,6 @@ public class TestInputBeans {
         alb = new LogInputBean("aaa", "user", null, what);
         assertFalse(alb.isTransactional());
 
-
-    }
-
-    @Test
-    public void labeledTagInputBreaksOut(){
-        String input ="Name";
-        TagInputBean t = new TagInputBean(input, "Label", "");
-
-        assertEquals(":Label", t.getIndex());
-        assertEquals("Name", t.getName());
-
-        input = "Name";
-        t = new TagInputBean(input);
-        t.setIndex(":LabelA:LabelB");
-        assertEquals(":LabelA :LabelB", t.getIndex());
-        assertEquals("Name", t.getName());
-
-        input = "Name";
-        t = new TagInputBean(input);
-        assertEquals("Name", t.getName());
-        assertEquals("", t.getIndex());
-        // Whitespaces is now escaped!
-        try {
-            TagInputBean tag = new TagInputBean("Hello There");
-            tag.setIndex("White Space Not Allowed");
-            fail("Whitespace is not allowed in a tag index");
-            tag.setIndex(":White :Space Not Allowed");
-            fail("Whitespace is not allowed in a tag index");
-        } catch (Exception e ){
-            // This is good
-        }
 
     }
 
