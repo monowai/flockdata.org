@@ -1,5 +1,6 @@
 package com.auditbucket.test.functional;
 
+import com.auditbucket.audit.bean.CrossReferenceInputBean;
 import com.auditbucket.audit.bean.MetaInputBean;
 import com.auditbucket.audit.model.MetaHeader;
 import com.auditbucket.engine.endpoint.TrackEP;
@@ -25,9 +26,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -128,7 +127,7 @@ public class TestMetaXReference {
         xRef.add("ABC321");
         xRef.add("Doesn't matter");
         try {
-            trackEP.putCrossReferenceByCallerRef(fortress.getName(), sourceKey, xRef, "cites", null, null);
+            trackEP.postCrossReferenceByCallerRef(fortress.getName(), sourceKey, xRef, "cites", null, null);
             fail("Exactly one check failed");
         } catch ( DatagioException e ){
             // good stuff!
@@ -153,9 +152,51 @@ public class TestMetaXReference {
         callerRefs.add("ABC321");
         callerRefs.add("ABC333");
 
-        Collection<String> notFound = trackEP.putCrossReferenceByCallerRef(fortress.getName(), "ABC123", callerRefs, "cites", null, null);
+        Collection<String> notFound = trackEP.postCrossReferenceByCallerRef(fortress.getName(), "ABC123", callerRefs, "cites", null, null);
         assertEquals(0, notFound.size());
         Map<String, Collection<MetaHeader>> results = trackEP.getCrossReferenceByCallerRef(fortress.getName(), "ABC123", "cites", null, null);
+        assertNotNull ( results);
+        assertEquals(1, results.size());
+        Collection<MetaHeader> headers = results.get("cites");
+        assertNotNull ( headers);
+        int count = 0;
+        for (MetaHeader header : headers) {
+            count ++;
+        }
+        assertEquals(2, count);
+    }
+    @Test
+    public void crossReferenceWithInputBean() throws Exception {
+        registrationEP.register(new RegistrationBean(monowai, mike, "bah"));
+        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("auditTest", true), null).getBody();
+        //Fortress fortressB = fortressEP.registerFortress(new FortressInputBean("auditTestB", true), null).getBody();
+
+        MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
+        trackEP.trackHeader(inputBean, null, null).getBody();
+
+        // These are the two records that will cite the previously created header
+        MetaInputBean inputBeanB = new MetaInputBean(fortressA.getName(), "wally", "DocTypeZ", new DateTime(), "ABC321");
+        trackEP.trackHeader(inputBeanB, null, null).getBody();
+        MetaInputBean inputBeanC = new MetaInputBean(fortressA.getName(), "wally", "DocTypeS", new DateTime(), "ABC333");
+        trackEP.trackHeader(inputBeanC, null, null).getBody();
+        Map<String,Collection<String>>refs = new HashMap<>();
+        Collection<String> callerRefs = new ArrayList<>();
+
+        callerRefs.add("ABC321");
+        callerRefs.add("ABC333");
+
+        refs.put("cites",callerRefs);
+        CrossReferenceInputBean bean = new CrossReferenceInputBean(fortressA.getName(), "ABC123",refs);
+        List<CrossReferenceInputBean > inputs = new ArrayList<>();
+        inputs.add(bean);
+
+        List<CrossReferenceInputBean> notFound = trackEP.putCrossReferenceByCallerRef(inputs, null, null);
+        assertEquals(1, notFound.size());
+        for (CrossReferenceInputBean crossReferenceInputBean : notFound) {
+            assertTrue(crossReferenceInputBean.getReferences().get("cites").isEmpty());
+        }
+
+        Map<String, Collection<MetaHeader>> results = trackEP.getCrossReferenceByCallerRef(fortressA.getName(), "ABC123", "cites", null, null);
         assertNotNull ( results);
         assertEquals(1, results.size());
         Collection<MetaHeader> headers = results.get("cites");

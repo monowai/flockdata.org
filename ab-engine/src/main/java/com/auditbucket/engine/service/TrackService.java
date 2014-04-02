@@ -898,12 +898,12 @@ public class TrackService {
         return trackDao.getCrossReference(company, source, xRefName);
     }
 
-    public Collection<String> crossReferenceByCallerRef(Company company, String fortressName, String sourceKey, Collection<String> callerRefs, String xRefName) {
+    public List<String> crossReferenceByCallerRef(Company company, String fortressName, String sourceKey, Collection<String> callerRefs, String xRefName) {
         Fortress f = fortressService.findByName(company, fortressName);
         MetaHeader header = trackDao.findByCallerRefUnique(f.getId(), sourceKey);
 
         Collection<MetaHeader>targets = new ArrayList<>();
-        Collection<String>ignored = new ArrayList<>();
+        List<String>ignored = new ArrayList<>();
 
         for (String callerRef : callerRefs) {
             int count = 1;

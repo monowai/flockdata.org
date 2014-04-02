@@ -29,16 +29,17 @@ package com.auditbucket.helper;
 public class ApiKeyHelper {
     /**
      *
-     * headerParam overrides requestParam
+     * headerKey overrides requestKey
      *
-     * @param requestParam requestParam
-     * @param headerParam    headerParam
+     *
+     * @param headerKey    headerKey
+     * @param requestKey requestKey
      * @return null or param.
      */
-    public static String resolveKey (String requestParam, String headerParam){
-        String key = requestParam;
-        if (headerParam != null)
-            key = headerParam;
+    public static String resolveKey(String headerKey, String requestKey){
+        String key = requestKey;
+        if (headerKey != null)
+            key = headerKey;
         return key;
 
 

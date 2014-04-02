@@ -20,6 +20,7 @@
 package com.auditbucket.client;
 
 import au.com.bytecode.opencsv.CSVReader;
+import com.auditbucket.audit.bean.CrossReferenceInputBean;
 import com.auditbucket.audit.bean.LogInputBean;
 import com.auditbucket.audit.bean.MetaInputBean;
 import com.auditbucket.helper.DatagioException;
@@ -45,6 +46,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -96,6 +98,10 @@ public class Importer {
             parser.addArgument("-b", "--batch")
                     .setDefault(100)
                     .help("Default batch size");
+
+            parser.addArgument("-x", "--xref")
+                    .setDefault(false)
+                    .help("Cross References Only");
 
             parser.addArgument("files").nargs("*")
                      .help("Path and filename of Audit records to import in the format \"[/filepath/filename.ext],[com.import.YourClass],{skipCount}\"");
@@ -181,6 +187,7 @@ public class Importer {
             XMLInputFactory xif = XMLInputFactory.newFactory();
             XMLStreamReader xsr = xif.createXMLStreamReader(source);
             mappable.positionReader(xsr);
+            List<CrossReferenceInputBean> referenceInputBeans= new ArrayList<>();
 
             String docType = mappable.getDataType();
             watch.start();
@@ -190,6 +197,10 @@ public class Importer {
                     XmlMappable row = mappable.newInstance();
                     String json = row.setXMLData(xsr);
                     MetaInputBean header = (MetaInputBean) row;
+                    if ( !header.getCrossReferences().isEmpty()){
+                        referenceInputBeans.add(new CrossReferenceInputBean(header.getFortress(),header.getCallerRef(),header.getCrossReferences()));
+                        rows = rows + header.getCrossReferences().size();
+                    }
                     LogInputBean logInputBean = new LogInputBean("system", new DateTime(header.getWhen()), json);
                     header.setLog(logInputBean);
                     //logger.info(json);
@@ -203,13 +214,19 @@ public class Importer {
             } finally {
                 abExporter.flush(mappable.getClass().getCanonicalName(), mappable.getABType());
             }
-
+            if ( ! referenceInputBeans.isEmpty()){
+                writeCrossReferences( abExporter, referenceInputBeans, "Cross References");
+            }
             return endProcess(watch, rows);
 
 
         } catch (XMLStreamException | JAXBException e1) {
             throw new IOException(e1);
         }
+    }
+
+    private static int writeCrossReferences(AbRestClient abExporter, List<CrossReferenceInputBean> referenceInputBeans, String message) {
+        return abExporter.writeXReferences (referenceInputBeans, message);
     }
 
     static long processCSVFile(String file, AbRestClient abExporter, DelimitedMappable mappable, int skipCount) throws IOException, IllegalAccessException, InstantiationException, DatagioException {

@@ -224,7 +224,7 @@ public class TestCallerRef {
                 while (count < maxRun) {
                     MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef);
                     TrackResultBean trackResult;
-                    trackResult = mediationFacade.createHeader(inputBean, fortress.getCompany(), fortress);
+                    trackResult = mediationFacade.createHeader(fortress.getCompany(), fortress, inputBean);
                     assertNotNull(trackResult);
                     assertEquals(callerRef.toLowerCase(), trackResult.getCallerRef().toLowerCase());
                     MetaHeader byCallerRef = trackService.findByCallerRef(fortress, docType, callerRef);

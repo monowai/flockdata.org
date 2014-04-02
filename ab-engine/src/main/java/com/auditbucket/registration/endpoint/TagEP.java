@@ -52,7 +52,7 @@ public class TagEP {
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
     public void createAuditTags(@RequestBody Collection<TagInputBean> input, String apiKey,
                                 @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiKey, apiHeaderKey));
+        Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
         tagService.processTags(company, input);
 
     }

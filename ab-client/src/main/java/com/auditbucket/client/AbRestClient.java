@@ -19,6 +19,7 @@
 
 package com.auditbucket.client;
 
+import com.auditbucket.audit.bean.CrossReferenceInputBean;
 import com.auditbucket.audit.bean.MetaInputBean;
 import com.auditbucket.audit.bean.TrackResultBean;
 import com.auditbucket.registration.bean.FortressInputBean;
@@ -56,11 +57,12 @@ public class AbRestClient {
 
     private String NEW_HEADER;
     private String NEW_TAG;
+    private String CROSS_REFERENCES;
     private String FORTRESS;
     private final String userName;
     private final String password;
     private int batchSize;
-    private static boolean compress = false;
+    private static boolean compress = true;
     private boolean simulateOnly;
     private List<MetaInputBean> batchHeader = new ArrayList<>();
     private List<TagInputBean> batchTag = new ArrayList<>();
@@ -70,6 +72,29 @@ public class AbRestClient {
 
     public void setSimulateOnly(boolean simulateOnly) {
         this.simulateOnly = simulateOnly;
+    }
+
+    public int writeXReferences(List<CrossReferenceInputBean> referenceInputBeans, String message) {
+        logger.info("Processing cross references [{}]", referenceInputBeans.size());
+        if (simulateOnly)
+            return 0;
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+        HttpHeaders httpHeaders = getHeaders(userName, password);
+        HttpEntity<List<CrossReferenceInputBean>> requestEntity = new HttpEntity<>(referenceInputBeans, httpHeaders);
+        try {
+            restTemplate.exchange(CROSS_REFERENCES, HttpMethod.POST, requestEntity, Map.class);
+            return referenceInputBeans.size();
+        } catch (HttpClientErrorException e) {
+            // ToDo: Rest error handling pretty useless. need to know why it's failing
+            logger.error("AB Client Audit error {}", getErrorMessage(e));
+            return 0;
+        } catch (HttpServerErrorException e) {
+            logger.error("AB Server Audit error {}", getErrorMessage(e));
+            return 0;
+
+        }
+
     }
 
     public enum type {AUDIT, TAG}
@@ -85,6 +110,7 @@ public class AbRestClient {
         this.password = password;
         // Urls to write Audit/Tag/Fortress information
         this.NEW_HEADER = serverName + "/v1/track/";
+        this.CROSS_REFERENCES = serverName + "/v1/track/xref";
         this.NEW_TAG = serverName + "/v1/tag/";
         this.FORTRESS = serverName + "/v1/fortress/";
         this.batchSize = batchSize;

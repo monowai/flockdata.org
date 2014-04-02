@@ -80,20 +80,21 @@ public class MediationFacade {
 
     /**
      * Process the MetaHeader input for a company asynchronously
-     * @param inputBeans  data
+     *
      * @param company     for
      * @param fortress    system
+     * @param inputBeans  data
      * @return process count - don't rely on it, why would you want it?
      * @throws com.auditbucket.helper.DatagioException
      */
 
     @Async
-    public Future<Integer> createHeadersAsync(List<MetaInputBean> inputBeans, final Company company, final Fortress fortress) throws DatagioException {
+    public Future<Integer> createHeadersAsync(final Company company, final Fortress fortress, List<MetaInputBean> inputBeans) throws DatagioException {
         // ToDo: Return strings which could contain only the caller ref data that failed.
-        return new AsyncResult<>(createHeaders(inputBeans, company, fortress));
+        return new AsyncResult<>(createHeaders(company, fortress, inputBeans));
     }
 
-    public Integer createHeaders(List<MetaInputBean> inputBeans, final Company company, final Fortress fortress) throws DatagioException {
+    public Integer createHeaders(final Company company, final Fortress fortress, final List<MetaInputBean> inputBeans) throws DatagioException {
         fortress.setCompany(company);
         Long id = DateTime.now().getMillis();
         StopWatch watch = new StopWatch();
@@ -110,23 +111,23 @@ public class MediationFacade {
                 class DLCommand implements Command {
                     Iterable<MetaInputBean> headers = null;
                     DLCommand (List<MetaInputBean> processList){
-                        headers = new CopyOnWriteArrayList<>(processList);
+                        this.headers = new CopyOnWriteArrayList<>(processList);
                     }
                     @Override
                     public Command execute() {
-                        fortressService.registerFortress(company, new FortressInputBean(headers.iterator().next().getFortress()), true);
+                        //fortressService.registerFortress(company, new FortressInputBean(headers.iterator().next().getFortress()), true);
                         Iterable<TrackResultBean> resultBeans = trackService.createHeaders(headers, company, fortress);
-                        processLogs(resultBeans, company);
+                        processLogs(company, resultBeans);
                         return this;
                     }
                 }
-                com.auditbucket.helper.DeadlockRetry.execute(new DLCommand(metaInputBeans), "creating headers", 10);
+                DeadlockRetry.execute(new DLCommand(metaInputBeans), "creating headers", 20);
             }
 
         } else {
             logger.info("Processing in slow Transaction mode");
             for (MetaInputBean inputBean : inputBeans) {
-                createHeader(inputBean, company, fortress);
+                createHeader(company, fortress, inputBean);
             }
         }
         watch.stop();
@@ -144,14 +145,14 @@ public class MediationFacade {
         Company company = registrationService.resolveCompany(apiKey);
         Fortress fortress = fortressService.registerFortress(company, new FortressInputBean(inputBean.getFortress(), true));
         fortress.setCompany(company);
-        return createHeader(inputBean, company, fortress);
+        return createHeader(company, fortress, inputBean);
     }
 
-    public TrackResultBean createHeader(final MetaInputBean inputBean, final Company company, final Fortress fortress) throws DatagioException {
+    public TrackResultBean createHeader(final Company company, final Fortress fortress, final MetaInputBean inputBean) throws DatagioException {
         if (inputBean == null)
             throw new DatagioException("No input to process!");
 
-        class DeadlockRetry implements Command {
+        class HeaderDeadlockRetry implements Command {
             TrackResultBean result = null;
             @Override
             public Command execute() {
@@ -161,13 +162,14 @@ public class MediationFacade {
                 return this;
             }
         }
-        DeadlockRetry c = new DeadlockRetry();
+
+        HeaderDeadlockRetry c = new HeaderDeadlockRetry();
         com.auditbucket.helper.DeadlockRetry.execute(c, "create header", 10);
         return c.result;
     }
 
     @Async
-    public Future<Void> processLogs(Iterable<TrackResultBean> resultBeans, Company company) {
+    public Future<Void> processLogs(Company company, Iterable<TrackResultBean> resultBeans) {
 
         for (TrackResultBean resultBean : resultBeans) {
             processLogFromResult(company, resultBean);
@@ -282,7 +284,7 @@ public class MediationFacade {
         Collection<MetaHeader> headers = trackService.getHeaders(fortress, skipCount);
         if (headers.isEmpty())
             return skipCount;
-        skipCount = reindexHeaders(skipCount, headers);
+        skipCount = reindexHeaders(headers, skipCount);
         return reindex(skipCount, fortress);
 
     }
@@ -308,12 +310,12 @@ public class MediationFacade {
         Collection<MetaHeader> headers = trackService.getHeaders(fortress, docType, skipCount);
         if (headers.isEmpty())
             return skipCount;
-        skipCount = reindexHeaders(skipCount, headers);
+        skipCount = reindexHeaders(headers, skipCount);
         return reindexByDocType(skipCount, fortress, docType);
 
     }
 
-    private Long reindexHeaders(Long skipCount, Collection<MetaHeader> headers) {
+    private Long reindexHeaders(Collection<MetaHeader> headers, Long skipCount) {
         for (MetaHeader header : headers) {
             trackService.rebuild(header);
             skipCount++;

@@ -23,9 +23,7 @@ import com.auditbucket.registration.bean.TagInputBean;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.joda.time.DateTime;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
+import java.util.*;
 
 /**
  * User: Mike Holdsworth
@@ -41,6 +39,7 @@ public class MetaInputBean {
     private Date when = null;
     private LogInputBean log;
     private Collection<TagInputBean> tags = new ArrayList<>();
+    private Map<String,Collection<String>> crossReferences = new HashMap<>();
 
     private String event;
     private String description;
@@ -267,5 +266,25 @@ public class MetaInputBean {
      */
     public void setTrackSuppressed(boolean trackSuppressed) {
         this.trackSuppressed = trackSuppressed;
+    }
+
+    public void addCrossReference(String name, String callerRef){
+        Collection<String>refs = crossReferences.get(name);
+        if ( refs == null ){
+            refs = new ArrayList<>();
+            crossReferences.put(name, refs);
+        }
+        refs.add(callerRef);
+    }
+
+    /**
+     * Format is "referenceName", Collection<callerRef>
+     * All callerRefs are assumed to belong to this same fortress
+     * "This" callerRef is assume to be the starting point for the CrossReferences to link to
+     *
+     * @return crossReferences
+     */
+    public Map<String,Collection<String>> getCrossReferences(){
+        return crossReferences;
     }
 }
