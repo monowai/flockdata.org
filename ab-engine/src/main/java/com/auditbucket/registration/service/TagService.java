@@ -20,6 +20,7 @@
 package com.auditbucket.registration.service;
 
 import com.auditbucket.audit.model.DocumentType;
+import com.auditbucket.dao.SchemaDao;
 import com.auditbucket.dao.TagDao;
 import com.auditbucket.helper.Command;
 import com.auditbucket.helper.SecurityHelper;
@@ -53,6 +54,9 @@ public class TagService {
 
     @Autowired
     private TagDao tagDao;
+
+    @Autowired
+    private SchemaDao schemaDao;
 
     private Logger logger = LoggerFactory.getLogger(TagService.class);
 
@@ -124,7 +128,7 @@ public class TagService {
             throw new IllegalArgumentException("DocumentTypeNode cannot be null");
         }
 
-        return tagDao.findDocumentType(fortress, documentType, createIfMissing);
+        return schemaDao.findDocumentType(fortress, documentType, createIfMissing);
 
     }
 
@@ -134,7 +138,11 @@ public class TagService {
 
     public Map<String, Tag> findTags(String type) {
         Company company = securityHelper.getCompany();
-        return tagDao.findTags(company, type);
+        return findTags(company, type);
+    }
+
+    public Map<String, Tag> findTags(Company company, String index) {
+        return tagDao.findTags(company, index );
     }
 
     public Tag findTag(Company company, String tagName, String index) {

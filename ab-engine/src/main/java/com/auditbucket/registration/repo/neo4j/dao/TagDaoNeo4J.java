@@ -19,14 +19,11 @@
 
 package com.auditbucket.registration.repo.neo4j.dao;
 
-import com.auditbucket.audit.model.DocumentType;
-import com.auditbucket.engine.repo.neo4j.DocumentTypeRepo;
-import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
+import com.auditbucket.engine.repo.neo4j.SchemaTypeRepo;
 import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.helper.TagException;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.repo.neo4j.model.TagNode;
 import org.neo4j.graphdb.Node;
@@ -47,10 +44,10 @@ import java.util.*;
  * Time: 8:33 PM
  */
 @Repository
-public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
+public class TagDaoNeo4j implements com.auditbucket.dao.TagDao {
 
     @Autowired
-    DocumentTypeRepo documentTypeRepo;
+    SchemaTypeRepo documentTypeRepo;
 
     @Autowired
     Neo4jTemplate template;
@@ -58,7 +55,7 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
     @Autowired
     EngineConfig engineAdmin;
 
-    private Logger logger = LoggerFactory.getLogger(TagDaoNeo4J.class);
+    private Logger logger = LoggerFactory.getLogger(TagDaoNeo4j.class);
 
     public Tag save(Company company, TagInputBean tagInput) {
         String tagSuffix = engineAdmin.getTagSuffix(company);
@@ -208,10 +205,14 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
     }
 
     @Override
-    public Map<String, Tag> findTags(Company company, String type) {
+    public Map<String, Tag> findTags(Company company) {
+        return findTags(company, Tag.DEFAULT+ (engineAdmin.getTagSuffix(company)));
+    }
+    @Override
+    public Map<String, Tag> findTags(Company company, String index) {
         Map<String, Tag> tagResults = new HashMap<>();
 
-        String query = "match (tag:_Tag" + (engineAdmin.getTagSuffix(company)) + ") return tag";
+        String query = "match (tag" + index+ ") return tag";
         // Look at PAGE
         Result<Map<String, Object>> results = template.query(query, null);
         for (Map<String, Object> row : results) {
@@ -246,34 +247,5 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
 
     }
 
-    @Cacheable(value = "companyDocType", unless = "#result == null")
-    private DocumentType findFortressDocument(Fortress fortress, String documentType) {
-        String key = fortress.getCompany().getId() + "." + documentType.toLowerCase().replaceAll("\\s", "");
-        //return documentTypeRepo.findFortressDocType(fortress.getId(), key);
-        return documentTypeRepo.findBySchemaPropertyValue("companyKey", key);
-    }
 
-    public DocumentType findDocumentType(Fortress fortress, String documentType, Boolean createIfMissing) {
-        DocumentType docResult = findFortressDocument(fortress, documentType);
-        if (docResult == null && createIfMissing) {
-            docResult = new DocumentTypeNode(fortress, documentType);
-            String cypher = "merge (docType:_DocType :DocType{code:{code}, name:{name}, companyKey:{key}}) " +
-                    "with docType " +
-                    "match (f:Fortress) where id(f) = {fId} " +
-                    "merge (f)<-[:FORTRESS_DOC]-(docType) " +
-                    "return docType";
-
-            Map<String, Object> params = new HashMap<>();
-            params.put("code", docResult.getCode());
-            params.put("name", docResult.getName());
-            params.put("key", docResult.getCompanyKey());
-            params.put("fId", fortress.getId());
-
-            template.query(cypher, params);
-            docResult = findFortressDocument(fortress, documentType);
-
-        }
-        return docResult;
-
-    }
 }

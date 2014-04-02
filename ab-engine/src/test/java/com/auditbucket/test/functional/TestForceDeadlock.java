@@ -19,7 +19,6 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.audit.bean.LogInputBean;
 import com.auditbucket.audit.bean.MetaInputBean;
 import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.service.TrackService;
@@ -27,10 +26,10 @@ import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.endpoint.TagEP;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
-import com.auditbucket.test.unit.TestJson;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,6 +52,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 
 /**
  * User: Mike Holdsworth
@@ -116,7 +116,7 @@ public class TestForceDeadlock {
         String docType = "TestAuditX";
 
         CountDownLatch latch = new CountDownLatch(4);
-        ArrayList<TagInputBean> tags = getTags(10, 20);
+        ArrayList<TagInputBean> tags = getTags(10);
 
         Map<Integer, CallerRefRunner> runners = new HashMap<>();
         int threadMax = 15;
@@ -130,7 +130,6 @@ public class TestForceDeadlock {
         String apiKey = fortress.getCompany().getApiKey();
         try {
             for (int i = 0; i < threadMax; i++) {
-                //tagEP.createAuditTags(runners.get(i).getTags(), apiKey, apiKey);
                 futures.put(i, trackEP.trackHeadersAsync(runners.get(i).getInputBeans(), true, apiKey));
             }
             working = true;
@@ -146,16 +145,18 @@ public class TestForceDeadlock {
             }
         }
         assertEquals(true, working);
+        assertNotNull(tagService.findTag(fortress.getCompany(), tags.get(0).getName(), tags.get(0).getIndex()));
+
+        Map<String, Tag> createdTags = tagService.findTags(fortress.getCompany(), tags.get(0).getIndex());
+        assertEquals(false, createdTags.isEmpty());
+        assertEquals(10, createdTags.size());
     }
 
-    private ArrayList<TagInputBean> getTags(int auditTag, int regTag) {
+    private ArrayList<TagInputBean> getTags(int tagCount) {
         ArrayList<TagInputBean> tags = new ArrayList<>();
-        for (int i = 0; i < auditTag; i++) {
-            tags.add(new TagInputBean("audittag" + i, "tagRlx" + i));
-        }
-
-        for (int i = 0; i < regTag; i++) {
-            TagInputBean tag = new TagInputBean("tag" + i);
+        for (int i = 0; i < tagCount; i++) {
+            TagInputBean tag = new TagInputBean("tag" + i, "tagRlx" + i);
+            tag.setIndex("Deadlock");
             tags.add(tag);
         }
         return tags;
@@ -206,10 +207,6 @@ public class TestForceDeadlock {
             return inputBeans;
         }
 
-        public boolean isWorked() {
-            return worked;
-        }
-
         @Override
         public void run() {
             int count = 0;
@@ -219,7 +216,7 @@ public class TestForceDeadlock {
                 while (count < maxRun) {
                     MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef + count);
                     inputBean.setTags(tags);
-                    inputBean.setLog(new LogInputBean("john" + count, null, TestJson.getBigJsonText(count)));
+                    //inputBean.setLog(new LogInputBean("john" + count, null, TestJson.getBigJsonText(count)));
 
                     inputBeans.add(inputBean);
                     count++;
@@ -235,12 +232,5 @@ public class TestForceDeadlock {
 
         }
 
-        public Collection<TagInputBean> getTags() {
-            return tags;
-        }
-
-        public void setTags(Collection<TagInputBean> tags) {
-            this.tags = tags;
-        }
     }
 }

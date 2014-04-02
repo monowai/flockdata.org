@@ -179,8 +179,8 @@ public class TestMetaXReference {
         trackEP.trackHeader(inputBeanB, null, null).getBody();
         MetaInputBean inputBeanC = new MetaInputBean(fortressA.getName(), "wally", "DocTypeS", new DateTime(), "ABC333");
         trackEP.trackHeader(inputBeanC, null, null).getBody();
-        Map<String,Collection<String>>refs = new HashMap<>();
-        Collection<String> callerRefs = new ArrayList<>();
+        Map<String,List<String>>refs = new HashMap<>();
+        List<String> callerRefs = new ArrayList<>();
 
         callerRefs.add("ABC321");
         callerRefs.add("ABC333");
