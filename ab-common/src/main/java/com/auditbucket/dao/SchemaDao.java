@@ -1,6 +1,7 @@
 package com.auditbucket.dao;
 
 import com.auditbucket.audit.model.DocumentType;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 
@@ -19,4 +20,10 @@ public interface SchemaDao {
     Collection<DocumentType> getDocumentsInUse(Fortress fortress);
 
     public boolean registerTagIndex (Company c, String indexName );
+
+    public boolean tagExists(Company company, String indexName);
+
+    public void ensureIndex(Company c, TagInputBean tagInput);
+
+    public void ensureIndexes(Company c, Iterable<TagInputBean> tagInputs);
 }

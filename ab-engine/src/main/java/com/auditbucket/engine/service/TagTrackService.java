@@ -114,7 +114,7 @@ public class TagTrackService {
     public Collection<TrackTag> associateTags(Company company, MetaHeader ah, Collection<TagInputBean> userTags) {
         Collection<TrackTag> rlxs = new ArrayList<>();
 
-        tagService.processTags(company, userTags);
+        //tagService.processTags(company, userTags);
 
         for (TagInputBean tagInput : userTags) {
 

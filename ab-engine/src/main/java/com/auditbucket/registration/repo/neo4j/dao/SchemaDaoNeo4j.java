@@ -4,6 +4,7 @@ import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.dao.SchemaDao;
 import com.auditbucket.engine.repo.neo4j.SchemaTypeRepo;
 import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import org.slf4j.Logger;
@@ -11,8 +12,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -104,7 +108,32 @@ public class SchemaDaoNeo4j implements SchemaDao {
         return schemaTypeRepo.findBySchemaPropertyValue("companyKey", parseTagIndex(company, indexName))!=null;
     }
 
-    public String parseTagIndex(Company company, String indexName){
+    public void ensureIndexes(Company c, Iterable<TagInputBean> tagInputs) {
+        Collection<String> added = new ArrayList<>();
+        for (TagInputBean tagInput : tagInputs) {
+            if (!added.contains(tagInput.getIndex())) {
+                if (tagInput.getIndex() != null) {
+                    ensureIndex(c, tagInput);
+                    added.add(tagInput.getIndex());
+                }
+
+            }
+        }
+    }
+
+    @Override
+    @Transactional
+    @Async
+    public void ensureIndex(Company c, TagInputBean tagInput) {
+        // _Tag is a special label that can be used to find all tags so we have to allow it to handle duplicates
+        if ( tagInput.isDefault())
+            return;
+        template.query("create constraint on (t" + tagInput.getIndex() + ") assert t.key is unique", null);
+        logger.info("Creating constraint on [{}]", tagInput.getIndex());
+
+    }
+
+    private String parseTagIndex(Company company, String indexName){
         return company.getId() + ".t." + indexName.toLowerCase().replaceAll("\\s", "");
     }
 

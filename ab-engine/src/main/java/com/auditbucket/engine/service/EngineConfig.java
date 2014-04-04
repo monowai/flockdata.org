@@ -22,7 +22,6 @@ package com.auditbucket.engine.service;
 import com.auditbucket.dao.SchemaDao;
 import com.auditbucket.dao.TrackDao;
 import com.auditbucket.helper.VersionHelper;
-import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,8 +35,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,29 +60,10 @@ public class EngineConfig {
     private Boolean multiTenanted = false;
     private WhatService.KV_STORE kvStore = null;
 
+
     @Autowired
     SchemaDao schemaDao;
 
-    @Async
-    public void ensureIndex(Company c, Iterable<TagInputBean> tagInputs) {
-        Collection<String> added = new ArrayList<>();
-        for (TagInputBean tagInput : tagInputs) {
-            if (!added.contains(tagInput.getIndex())) {
-//                schemaDao.registerTagIndex(c, tagInput.getIndex());
-                if (tagInput.getIndex() != null) {
-                    template.query("create constraint on (t:" + tagInput.getIndex() + ") assert t.key is unique", null);
-                    logger.info("Creating constraint on [{}]", tagInput.getIndex());
-                    added.add(tagInput.getIndex());
-                }
-
-            }
-        }
-    }
-
-    @Async
-    public void ensureIndex(Company c, TagInputBean tagInput) {
-        schemaDao.registerTagIndex(c, tagInput.getIndex());
-    }
 
     @Value("${rabbit.host:@null}")
     protected void setRabbitHost(String rabbitHost) {

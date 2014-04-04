@@ -156,8 +156,9 @@ public class TestTags {
     public void updateExistingTag() throws Exception {
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
         assertNotNull(iSystemUser);
+        SecurityContextHolder.getContext().setAuthentication(authMike);
 
-        assertNull(tagService.findTag("ABC"));
+        assertNull(tagService.findTag(iSystemUser.getCompany(), "ABC"));
         Tag tag = tagService.processTag(new TagInputBean("FLOP"));
         assertNotNull(tag);
 

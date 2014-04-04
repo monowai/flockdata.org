@@ -73,7 +73,7 @@ public class TagService {
     }
 
     public Tag processTag(Company company, TagInputBean tagInput) {
-        engineConfig.ensureIndex(company, tagInput);
+        //schemaDao.ensureIndex(company, tagInput);
         return tagDao.save(company, tagInput);
     }
 
@@ -91,9 +91,8 @@ public class TagService {
     public Collection<TagInputBean> processTags(final Company company, final Iterable<TagInputBean> tagInputs) {
         // Schema constraints have to be issued in a separate transaction
         // Make sure that a unique constraint exists for a given custom index
-        engineConfig.ensureIndex(company, tagInputs);
-
-
+        // ToDo: Figure this out
+        //schemaDao.ensureIndexes(company, tagInputs);
         class DLCommand implements Command {
             Collection<TagInputBean> failedInput;
 
