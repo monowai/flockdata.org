@@ -167,7 +167,8 @@ public class TrackEP {
     public ResponseEntity<TrackResultBean> trackByClientRef(@RequestBody MetaInputBean input,
                                                             @PathVariable("fortress") String fortress,
                                                             @PathVariable("recordType") String recordType,
-                                                            @PathVariable("callerRef") String callerRef, String apiKey,
+                                                            @PathVariable("callerRef") String callerRef,
+                                                            String apiKey,
                                                             @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
 
         TrackResultBean trackResultBean;
