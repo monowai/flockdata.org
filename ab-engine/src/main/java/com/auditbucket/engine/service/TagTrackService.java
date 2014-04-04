@@ -84,7 +84,7 @@ public class TagTrackService {
     public void createTagStructure(Collection<TagInputBean> userTags, Company company) {
         // Create a tag structure if present
         for (TagInputBean inputBean : userTags) {
-            Tag t = tagService.processTag(inputBean, company);
+            Tag t = tagService.processTag(company, inputBean);
             if (t == null) {
                 logger.error("Error creating Tag " + inputBean);
             }
@@ -116,10 +116,9 @@ public class TagTrackService {
 
         tagService.processTags(company, userTags);
 
-
         for (TagInputBean tagInput : userTags) {
 
-            Tag tag = tagService.processTag(tagInput, company);
+            Tag tag = tagService.processTag(company, tagInput);
 
             // Handle both simple relationships type name or a map/collection of relationships
             if (tagInput.getMetaLinks() != null) {
@@ -136,7 +135,7 @@ public class TagTrackService {
         return rlxs;
     }
 
-    private void removeUnusedTagRelationships(MetaHeader ah, Iterable<TrackTag> existingTags, Collection<TrackTag> newTags ){
+    private void removeUnusedTagRelationships(MetaHeader ah, Iterable<TrackTag> existingTags, Collection<TrackTag> newTags ) throws DatagioException{
         Collection<TrackTag>deleteMe = new ArrayList<>();
         for (TrackTag tag : existingTags) {
             if (!newTags.contains(tag))

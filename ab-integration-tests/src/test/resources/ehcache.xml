@@ -53,13 +53,6 @@
            timeToLiveSeconds="120"
            memoryStoreEvictionPolicy="LFU"/>
 
-    <cache name="log"
-           maxElementsInMemory="200"
-           eternal="false"
-           timeToIdleSeconds="120"
-           timeToLiveSeconds="120"
-           memoryStoreEvictionPolicy="LFU"/>
-
     <cache name="callerKey"
            maxElementsInMemory="400"
            eternal="false"
@@ -67,7 +60,7 @@
            timeToLiveSeconds="120"
            memoryStoreEvictionPolicy="LFU"/>
 
-    <cache name="metaId"
+    <cache name="headerId"
            maxElementsInMemory="200"
            eternal="false"
            timeToIdleSeconds="120"

@@ -32,6 +32,7 @@ import com.auditbucket.audit.model.SearchChange;
 import com.auditbucket.audit.model.TrackTag;
 import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.service.MediationFacade;
+import com.auditbucket.engine.service.SearchServiceFacade;
 import com.auditbucket.engine.service.TagTrackService;
 import com.auditbucket.engine.service.TrackService;
 import com.auditbucket.helper.DatagioException;
@@ -100,6 +101,9 @@ public class TestMetaHeaderTags {
 
     @Autowired
     TrackEP trackEp;
+
+    @Autowired
+    SearchServiceFacade searchService;
 
     @Autowired
     private Neo4jTemplate template;
@@ -674,7 +678,7 @@ public class TestMetaHeaderTags {
         Set<TrackTag> tags = tagTrackService.findTrackTags(resultBean.getMetaHeader());
         assertFalse(tags.isEmpty());
 
-        SearchChange searchChange = trackService.getSearchChange(resultBean, "Blah", new Date());
+        SearchChange searchChange = searchService.getSearchChange(fortress.getCompany(), resultBean, "Blah", new Date());
         assertNotNull(searchChange);
         assertNotNull(searchChange.getTagValues());
     }

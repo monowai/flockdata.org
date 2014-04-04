@@ -72,7 +72,7 @@ public interface TrackDao {
 
     Iterable<MetaHeader> findByCallerRef(Long fortressId, String callerRef);
 
-    MetaHeader findByCallerRefUnique(Long id, String sourceKey);
+    MetaHeader findByCallerRefUnique(Long id, String sourceKey) throws DatagioException;
 
     MetaHeader findByCallerRef(Long fortressId, Long documentId, String callerRef);
 

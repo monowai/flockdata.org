@@ -32,7 +32,7 @@ import java.util.Collection;
  */
 public class TrackResultBean {
     private Long auditId = null;
-    private String status;
+    private String serviceMessage;
     private String fortressName;
     private String documentType;
     private String callerRef;
@@ -46,9 +46,13 @@ public class TrackResultBean {
     protected TrackResultBean() {
     }
 
-    public TrackResultBean(String statusMessage) {
+    /**
+     *
+     * @param serviceMessage server side error messgae to return to the caller
+     */
+    public TrackResultBean(String serviceMessage) {
         this();
-        this.status = statusMessage;
+        this.serviceMessage = serviceMessage;
     }
 
     public TrackResultBean(String fortressName, String documentType, String callerRef, String metaKey) {
@@ -87,14 +91,14 @@ public class TrackResultBean {
         this.metaKey = metaKey;
     }
 
-    public String getStatus() {
+    public String getServiceMessage() {
         if (wasDuplicate)
             return "Existing audit record found was found and returned";
-        return status;
+        return serviceMessage;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setServiceMessage(String serviceMessage) {
+        this.serviceMessage = serviceMessage;
     }
 
     @JsonIgnore

@@ -1,7 +1,10 @@
 package com.auditbucket.dao;
 
 import com.auditbucket.audit.model.DocumentType;
+import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
+
+import java.util.Collection;
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,5 +16,7 @@ import com.auditbucket.registration.model.Fortress;
 public interface SchemaDao {
     DocumentType findDocumentType(Fortress company, String documentType, Boolean createIfMissing);
 
+    Collection<DocumentType> getDocumentsInUse(Fortress fortress);
 
+    public boolean registerTagIndex (Company c, String indexName );
 }

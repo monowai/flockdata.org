@@ -20,6 +20,7 @@
 package com.auditbucket.audit.bean;
 
 import com.auditbucket.audit.model.SearchChange;
+import com.auditbucket.audit.model.TrackLog;
 import com.auditbucket.audit.model.TxRef;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -39,8 +40,9 @@ public class LogResultBean {
 
     private String fortressUser;
     private String txReference = null;
-    private SearchChange searchDocument;
+    private SearchChange searchChange;
     private Long sysWhen;
+    private TrackLog logToIndex;
 
     public LogResultBean(LogInputBean input) {
         this();
@@ -127,13 +129,9 @@ public class LogResultBean {
         this.status = status;
     }
 
-    public void setSearchDocument(SearchChange searchDocument) {
-        this.searchDocument = searchDocument;
-    }
-
     @JsonIgnore
-    public SearchChange getSearchDocument() {
-        return searchDocument;
+    public SearchChange getSearchChange() {
+        return searchChange;
     }
 
     public void setSysWhen(Long sysWhe) {
@@ -142,5 +140,18 @@ public class LogResultBean {
 
     public Long getSysWhen() {
         return sysWhen;
+    }
+
+    public void setLogToIndex(TrackLog logToIndex) {
+        this.logToIndex = logToIndex;
+    }
+
+    @JsonIgnore
+    public TrackLog getLogToIndex() {
+        return logToIndex;
+    }
+
+    public void setSearchChange(SearchChange searchChange) {
+        this.searchChange = searchChange;
     }
 }

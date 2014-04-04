@@ -69,6 +69,9 @@ public class MediationFacade {
     CompanyService companyService;
 
     @Autowired
+    SearchServiceFacade searchService;
+
+    @Autowired
     TagService tagService;
 
     private Logger logger = LoggerFactory.getLogger(MediationFacade.class);
@@ -114,7 +117,7 @@ public class MediationFacade {
                         this.headers = new CopyOnWriteArrayList<>(processList);
                     }
                     @Override
-                    public Command execute() {
+                    public Command execute() throws DatagioException {
                         //fortressService.registerFortress(company, new FortressInputBean(headers.iterator().next().getFortress()), true);
                         Iterable<TrackResultBean> resultBeans = trackService.createHeaders(headers, company, fortress);
                         processLogs(company, resultBeans);
@@ -155,8 +158,8 @@ public class MediationFacade {
         class HeaderDeadlockRetry implements Command {
             TrackResultBean result = null;
             @Override
-            public Command execute() {
-                result = trackService.createHeader(inputBean, company, fortress);
+            public Command execute() throws DatagioException {
+                result = trackService.createHeader(company, fortress, inputBean);
                 processLogFromResult(company, result);
 
                 return this;
@@ -169,7 +172,7 @@ public class MediationFacade {
     }
 
     @Async
-    public Future<Void> processLogs(Company company, Iterable<TrackResultBean> resultBeans) {
+    public Future<Void> processLogs(Company company, Iterable<TrackResultBean> resultBeans) throws DatagioException {
 
         for (TrackResultBean resultBean : resultBeans) {
             processLogFromResult(company, resultBean);
@@ -177,18 +180,18 @@ public class MediationFacade {
         return new AsyncResult<>(null);
     }
 
-    public LogResultBean processLog(LogInputBean input) {
+    public LogResultBean processLog(LogInputBean input)  throws DatagioException{
         MetaHeader header = trackService.getHeader(null, input.getMetaKey());
         return processLogForHeader(header, input);
     }
 
-    private LogResultBean processCompanyLog(Company company, TrackResultBean resultBean) {
+    private LogResultBean processCompanyLog(Company company, TrackResultBean resultBean)  throws DatagioException{
         MetaHeader header = resultBean.getMetaHeader();
         if (header == null) header = trackService.getHeader(company, resultBean.getMetaKey());
         return processLogForHeader(header, resultBean.getLog());
     }
 
-    private void processLogFromResult(Company company, TrackResultBean resultBean) {
+    private void processLogFromResult(Company company, TrackResultBean resultBean)  throws DatagioException{
         LogInputBean logBean = resultBean.getLog();
         MetaHeader header = resultBean.getMetaHeader();
         // Here on could be spun in to a separate thread. The log has to happen eventually
@@ -214,10 +217,10 @@ public class MediationFacade {
             if (resultBean.getMetaInputBean().isTrackSuppressed())
                 // If we aren't tracking in the graph, then we have to be searching
                 // else why even call this service??
-                trackService.makeHeaderSearchable(company, resultBean, resultBean.getMetaInputBean().getEvent(), resultBean.getMetaInputBean().getWhen());
+                searchService.makeHeaderSearchable(company, resultBean, resultBean.getMetaInputBean().getEvent(), resultBean.getMetaInputBean().getWhen());
             else if (!resultBean.isDuplicate() &&
                     resultBean.getMetaInputBean().getEvent() != null && !"".equals(resultBean.getMetaInputBean().getEvent())) {
-                trackService.makeHeaderSearchable(company, resultBean, resultBean.getMetaInputBean().getEvent(), resultBean.getMetaInputBean().getWhen());
+                searchService.makeHeaderSearchable(company, resultBean, resultBean.getMetaInputBean().getEvent(), resultBean.getMetaInputBean().getWhen());
             }
         }
     }
@@ -228,7 +231,7 @@ public class MediationFacade {
      * @param input   payload containing at least the metaKey
      * @return result of the log
      */
-    public LogResultBean processLogForCompany(Company company, LogInputBean input) {
+    public LogResultBean processLogForCompany(Company company, LogInputBean input)  throws DatagioException{
         MetaHeader header = trackService.getHeader(company, input.getMetaKey());
         if (header == null )
             throw new DatagioException("Unable to find the request auditHeader "+input.getMetaKey());
@@ -248,7 +251,7 @@ public class MediationFacade {
         class DeadLockCommand implements Command {
             LogResultBean result = null;
             @Override
-            public Command execute() {
+            public Command execute() throws DatagioException {
                 result = trackService.createLog(header, logInputBean);
                 return this;
             }
@@ -257,7 +260,7 @@ public class MediationFacade {
         DeadlockRetry.execute(c, "processing log for header", 20);
 
         if (c.result != null && c.result.getStatus() == LogInputBean.LogStatus.OK)
-            trackService.makeChangeSearchable(c.result.getSearchDocument());
+            searchService.makeChangeSearchable(c.result.getSearchChange());
 
         return c.result;
 
@@ -317,17 +320,17 @@ public class MediationFacade {
 
     private Long reindexHeaders(Collection<MetaHeader> headers, Long skipCount) {
         for (MetaHeader header : headers) {
-            trackService.rebuild(header);
+            searchService.rebuild(header);
             skipCount++;
         }
         return skipCount;
     }
 
-    public TrackedSummaryBean getTrackedSummary(String metaKey) {
+    public TrackedSummaryBean getTrackedSummary(String metaKey)  throws DatagioException{
         return getTrackedSummary(null, metaKey);
     }
 
-    public TrackedSummaryBean getTrackedSummary(Company company, String metaKey) {
+    public TrackedSummaryBean getTrackedSummary(Company company, String metaKey)  throws DatagioException{
         return trackService.getMetaSummary(company, metaKey);
     }
 

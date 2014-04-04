@@ -19,9 +19,12 @@
 
 package com.auditbucket.engine.repo.neo4j;
 
+import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
+
+import java.util.Collection;
 
 /**
  * User: Mike Holdsworth
@@ -31,9 +34,15 @@ import org.springframework.data.neo4j.repository.GraphRepository;
 public interface SchemaTypeRepo extends GraphRepository<DocumentTypeNode> {
     @Query(elementClass = DocumentTypeNode.class,
             value =
-                    "MATCH fortress-[:documents]->documentType " +
-                    "        where id(fortress)={0} and documentType.companyKey ={1}" +
+                    "MATCH fortress<-[:FORTRESS_DOC]-documentType " +
+                    "        where id(fortress)={0} and documentType.code ={1}" +
                     "       return documentType")
     DocumentTypeNode findFortressDocType(Long fortressId, String docKey);
 
+    @Query(elementClass = DocumentTypeNode.class,
+            value =
+                    "MATCH fortress<-[:FORTRESS_DOC]-documentTypes " +
+                            "        where id(fortress)={0} " +
+                            "       return documentTypes")
+    Collection<DocumentType> getDocumentsInUse(Long id);
 }

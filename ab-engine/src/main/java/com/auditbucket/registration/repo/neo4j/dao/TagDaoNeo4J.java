@@ -19,9 +19,10 @@
 
 package com.auditbucket.registration.repo.neo4j.dao;
 
-import com.auditbucket.engine.repo.neo4j.SchemaTypeRepo;
+import com.auditbucket.dao.SchemaDao;
+import com.auditbucket.dao.TagDao;
 import com.auditbucket.engine.service.EngineConfig;
-import com.auditbucket.helper.TagException;
+import com.auditbucket.helper.DatagioTagException;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
@@ -44,10 +45,10 @@ import java.util.*;
  * Time: 8:33 PM
  */
 @Repository
-public class TagDaoNeo4j implements com.auditbucket.dao.TagDao {
+public class TagDaoNeo4j implements TagDao {
 
     @Autowired
-    SchemaTypeRepo documentTypeRepo;
+    SchemaDao schemaDao;
 
     @Autowired
     Neo4jTemplate template;
@@ -59,7 +60,7 @@ public class TagDaoNeo4j implements com.auditbucket.dao.TagDao {
 
     public Tag save(Company company, TagInputBean tagInput) {
         String tagSuffix = engineAdmin.getTagSuffix(company);
-        List<String> createdValues = new ArrayList();
+        List<String> createdValues = new ArrayList<>();
         return save(company, tagInput, tagSuffix, createdValues);
     }
 
@@ -68,25 +69,33 @@ public class TagDaoNeo4j implements com.auditbucket.dao.TagDao {
         return save(company, tagInput, tagSuffix, createdValues);
     }
 
-    public Iterable<Tag> save(Company company, Iterable<TagInputBean> tags) {
+    public Collection<TagInputBean> save(Company company, Iterable<TagInputBean> tagInputs) {
         String tagSuffix = engineAdmin.getTagSuffix(company);
-        List<Tag> result = new ArrayList<>();
-        List<String> createdValues = new ArrayList();
-        for (TagInputBean tag : tags) {
-            result.add(save(company, tag, tagSuffix, createdValues));
+        List<TagInputBean> errorResults = new ArrayList<>();
+        List<String> createdValues = new ArrayList<>();
+        for (TagInputBean tagInputBean : tagInputs) {
+            try {
+                save(company, tagInputBean, tagSuffix, createdValues) ;
+            } catch (DatagioTagException te){
+                logger.error ("Tag Exception [{}]",te.getMessage());
+                tagInputBean.setServerMessage(te.getMessage());
+                errorResults.add(tagInputBean);
+            }
+
         }
-        return result;
+        return errorResults;
     }
 
-    Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection createdValues) {
+    Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> createdValues) {
         // Check exists
         TagNode existingTag = (TagNode) findOne(company, tagInput.getName(), tagInput.getIndex());
         Node start;
         if (existingTag == null) {
             if (tagInput.isMustExist()) {
-                throw new TagException("Tag [" + tagInput.getName() + "] is expected to exist for ["+tagInput.getIndex()+"] but doesn't. Ignoring this request.");
+                tagInput.setServerMessage("Tag [" + tagInput.getName() + "] should exist for ["+tagInput.getIndex()+"] but doesn't. Ignoring this request.");
+                throw new DatagioTagException("Tag [" + tagInput.getName() + "] should exist for ["+tagInput.getIndex()+"] but doesn't. Ignoring this request.");
             } else
-                start = createTag(tagInput, tagSuffix);
+                start = createTag(company, tagInput, tagSuffix);
         } else {
             start = template.getNode(existingTag.getId());
         }
@@ -102,7 +111,7 @@ public class TagDaoNeo4j implements com.auditbucket.dao.TagDao {
         return new TagNode(start);
     }
 
-    private Node createTag(TagInputBean tagInput, String tagSuffix) {
+    private Node createTag(Company company, TagInputBean tagInput, String tagSuffix) {
         TagNode tag = new TagNode(tagInput);
 
         // ToDo: Should a type be suffixed with company in multi-tenanted? - more time to think!!
@@ -110,11 +119,12 @@ public class TagDaoNeo4j implements com.auditbucket.dao.TagDao {
         //       audit data.
         if (tagInput.isDefault())
             tagSuffix = Tag.DEFAULT + tagSuffix;
-        else
+        else {
+            schemaDao.registerTagIndex(company, tagInput.getIndex());
             tagSuffix = tagInput.getIndex() + " " + Tag.DEFAULT + tagSuffix;
+        }
 
-
-        // ToDo: Multi-tenanted custom tags?
+        // ToDo: Multi-tenanted custom tagInputs?
         // _Tag only exists for SDN projection
         String query = "merge (tag" + tagSuffix + " {code:{code}, name:{name}, key:{key}";
         Map<String, Object> params = new HashMap<>();
@@ -147,12 +157,12 @@ public class TagDaoNeo4j implements com.auditbucket.dao.TagDao {
      * @param startNode     notional start node
      * @param associatedTag tag to make or get
      * @param rlxName       relationship name
-     * @param createdValues
+     * @param createdValues running list of values already created - performance op.
      * @return the created tag
      */
     Tag createRelationship(Company company, Node startNode, TagInputBean associatedTag, String rlxName, Collection<String> createdValues) {
         // Careful - this save can be recursive
-        // ToDo - idea = create all tags first then just create the relationships
+        // ToDo - idea = create all tagInputs first then just create the relationships
         Tag tag = save(company, associatedTag, createdValues);
         Node endNode = template.getNode(tag.getId());
 

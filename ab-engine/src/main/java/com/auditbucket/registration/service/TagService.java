@@ -22,7 +22,9 @@ package com.auditbucket.registration.service;
 import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.dao.SchemaDao;
 import com.auditbucket.dao.TagDao;
+import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.helper.Command;
+import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
@@ -58,36 +60,56 @@ public class TagService {
     @Autowired
     private SchemaDao schemaDao;
 
+    @Autowired
+    EngineConfig engineConfig;
+
+
     private Logger logger = LoggerFactory.getLogger(TagService.class);
 
     public Tag processTag(TagInputBean inputBean) {
         Company company = securityHelper.getCompany();
-        return processTag(inputBean, company);
+        return processTag(company, inputBean);
 
     }
 
-    public Tag processTag(TagInputBean tagInput, Company company) {
-        //
+    public Tag processTag(Company company, TagInputBean tagInput) {
+        engineConfig.ensureIndex(company, tagInput);
         return tagDao.save(company, tagInput);
     }
 
-    public Iterable<Tag> processTags(Iterable<TagInputBean> tagInputs) {
+    public Collection<TagInputBean> processTags(Iterable<TagInputBean> tagInputs) {
         Company company = securityHelper.getCompany();
         return processTags(company, tagInputs);
     }
 
-    public Iterable<Tag> processTags(final Company company, final Iterable<TagInputBean> tagInputs) {
+    /**
+     *
+     * @param company   who owns this collection
+     * @param tagInputs tags to establish
+     * @return tagInputs that failed processing
+     */
+    public Collection<TagInputBean> processTags(final Company company, final Iterable<TagInputBean> tagInputs) {
+        // Schema constraints have to be issued in a separate transaction
+        // Make sure that a unique constraint exists for a given custom index
+        engineConfig.ensureIndex(company, tagInputs);
+
+
         class DLCommand implements Command {
-            Iterable<Tag> results;
+            Collection<TagInputBean> failedInput;
+
             @Override
             public Command execute() {
-                results = tagDao.save(company, tagInputs);
+                failedInput = tagDao.save(company, tagInputs);
                 return this;
             }
         }
         DLCommand c = new DLCommand();
-        com.auditbucket.helper.DeadlockRetry.execute(c, "creating tags", 10);
-        return c.results;
+        try {
+            com.auditbucket.helper.DeadlockRetry.execute(c, "creating tags", 10);
+        } catch (DatagioException e) {
+            logger.error(" Tag errors detected");
+        }
+        return c.failedInput;
     }
 
     public Tag findTag(Company company, String tagName) {
@@ -105,7 +127,6 @@ public class TagService {
     /**
      * Finds a company document type and creates it if it is missing
      *
-     *
      * @param fortress
      * @param documentType
      * @return
@@ -116,7 +137,6 @@ public class TagService {
 
     /**
      * finds or creates a Document Type for the caller's company
-     *
      *
      * @param fortress
      * @param documentType    name of the document
@@ -136,18 +156,20 @@ public class TagService {
         return tagDao.findDirectedTags(startTag, securityHelper.getCompany(), true); // outbound
     }
 
-    public Map<String, Tag> findTags(String type) {
+    public Map<String, Tag> findTags(String index) {
         Company company = securityHelper.getCompany();
-        return findTags(company, type);
+        return findTags(company, index);
     }
 
     public Map<String, Tag> findTags(Company company, String index) {
-        return tagDao.findTags(company, index );
+        if (!index.startsWith(":"))
+            index = ":" + index;
+        return tagDao.findTags(company, index);
     }
 
     public Tag findTag(Company company, String tagName, String index) {
-        if ( !index.startsWith(":"))
-            index =":"+index;
+        if (!index.startsWith(":"))
+            index = ":" + index;
         return tagDao.findOne(company, tagName, index);  //To change body of created methods use File | Settings | File Templates.
     }
 }

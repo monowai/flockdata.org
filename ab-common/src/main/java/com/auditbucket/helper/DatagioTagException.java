@@ -26,15 +26,15 @@ package com.auditbucket.helper;
  * Time: 6:51 AM
  * To change this template use File | Settings | File Templates.
  */
-public class TagException extends RuntimeException {
-    public TagException() {
+public class DatagioTagException extends RuntimeException {
+    public DatagioTagException() {
     }
 
-    public TagException(String message) {
+    public DatagioTagException(String message) {
         super(message);
     }
 
-    public TagException(String message, Throwable t) {
+    public DatagioTagException(String message, Throwable t) {
         super(message, t);
     }
 }

@@ -27,5 +27,5 @@ package com.auditbucket.helper;
  * To change this template use File | Settings | File Templates.
  */
 public interface Command<T> {
-    public Command execute();
+    public Command execute() throws DatagioException;
 }

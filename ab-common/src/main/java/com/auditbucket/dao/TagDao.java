@@ -32,7 +32,7 @@ import java.util.Map;
  * Time: 8:12 PM
  */
 public interface TagDao {
-    Iterable<Tag> save(Company company, Iterable<TagInputBean> tags);
+    Collection<TagInputBean> save(Company company, Iterable<TagInputBean> tags);
 
     Tag save(Company company, TagInputBean tagInput);
 

@@ -20,6 +20,8 @@
 package com.auditbucket.registration.service;
 
 
+import com.auditbucket.audit.model.DocumentType;
+import com.auditbucket.dao.SchemaDao;
 import com.auditbucket.engine.service.AbSearchGateway;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
@@ -54,6 +56,9 @@ public class FortressService {
 
     @Autowired
     private CompanyDao companyDao;
+
+    @Autowired
+    private SchemaDao schemaDao;
 
     @Autowired
     private SecurityHelper securityHelper;
@@ -219,4 +224,8 @@ public class FortressService {
     }
 
 
+    public Collection<DocumentType> getDocumentsInUse(Company company, String fortressName) {
+        Fortress fortress = findByName(company, fortressName);
+        return schemaDao.getDocumentsInUse(fortress);
+    }
 }

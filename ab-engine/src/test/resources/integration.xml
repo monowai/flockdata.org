@@ -45,7 +45,7 @@
     </int:object-to-json-transformer>
 
     <int:channel id="makeSearchRequest">
-        <int:dispatcher task-executor="ab-engineExec"/>
+        <int:dispatcher task-executor="ab-engine"/>
     </int:channel>
 
     <int:channel id="searchResult">

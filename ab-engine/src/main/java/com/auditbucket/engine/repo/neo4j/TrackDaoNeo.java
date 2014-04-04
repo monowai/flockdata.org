@@ -114,16 +114,16 @@ public class TrackDaoNeo implements TrackDao {
     }
 
     @Override
-    public MetaHeader findByCallerRefUnique(Long id, String callerRef) {
+    public MetaHeader findByCallerRefUnique(Long fortressId, String callerRef) throws DatagioException {
         int count = 0;
-        Iterable<MetaHeader> headers = findByCallerRef(id, callerRef);
+        Iterable<MetaHeader> headers = findByCallerRef(fortressId, callerRef);
         MetaHeader result = null;
         for (MetaHeader header : headers) {
             count ++;
             result = header;
             if ( count >1) break;
         }
-        if ( count !=1 )
+        if ( count >1 )
             throw new DatagioException("Unable to find exactly one record for the callerRef ["+callerRef+"]");
 
         return result;
@@ -386,7 +386,7 @@ public class TrackDaoNeo implements TrackDao {
         Node n = template.getPersistentState(header);
 
         RelationshipType r=  DynamicRelationshipType.withName(xRefName);
-        Iterable<Relationship> rlxs = n.getRelationships( r );
+        Iterable<Relationship> rlxs = n.getRelationships(r);
         Map<String, Collection<MetaHeader>> results = new HashMap<>();
         Collection<MetaHeader> headers = new ArrayList<>();
         results.put(xRefName, headers);

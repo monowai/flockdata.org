@@ -74,8 +74,8 @@ public class AbRestClient {
         this.simulateOnly = simulateOnly;
     }
 
-    public int writeXReferences(List<CrossReferenceInputBean> referenceInputBeans, String message) {
-        logger.info("Processing cross references [{}]", referenceInputBeans.size());
+    public int flushXReferences(List<CrossReferenceInputBean> referenceInputBeans, String message) {
+        logger.info("Processing [{}] cross references - simulate [{}]", referenceInputBeans.size(), simulateOnly);
         if (simulateOnly)
             return 0;
         RestTemplate restTemplate = new RestTemplate();
@@ -83,7 +83,8 @@ public class AbRestClient {
         HttpHeaders httpHeaders = getHeaders(userName, password);
         HttpEntity<List<CrossReferenceInputBean>> requestEntity = new HttpEntity<>(referenceInputBeans, httpHeaders);
         try {
-            restTemplate.exchange(CROSS_REFERENCES, HttpMethod.POST, requestEntity, Map.class);
+            ResponseEntity<ArrayList> response = restTemplate.exchange(CROSS_REFERENCES, HttpMethod.POST, requestEntity, ArrayList.class);
+            logServerMessages(response);
             return referenceInputBeans.size();
         } catch (HttpClientErrorException e) {
             // ToDo: Rest error handling pretty useless. need to know why it's failing
@@ -95,6 +96,64 @@ public class AbRestClient {
 
         }
 
+    }
+
+    private String flushAudit(List<MetaInputBean> auditInput) {
+        if (simulateOnly)
+            return "OK";
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+
+        HttpHeaders httpHeaders = getHeaders(userName, password);
+        HttpEntity<List<MetaInputBean>> requestEntity = new HttpEntity<>(auditInput, httpHeaders);
+
+        try {
+            restTemplate.exchange(NEW_HEADER, HttpMethod.PUT, requestEntity, TrackResultBean.class);
+            return "OK";
+        } catch (HttpClientErrorException e) {
+            // ToDo: Rest error handling pretty useless. need to know why it's failing
+            logger.error("AB Client Audit error {}", getErrorMessage(e));
+            return null;
+        } catch (HttpServerErrorException e) {
+            logger.error("AB Server Audit error {}", getErrorMessage(e));
+            return null;
+
+        }
+    }
+
+    public String flushTags(List<TagInputBean> tagInputBean) {
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+
+        HttpHeaders httpHeaders = getHeaders(userName, password);
+        HttpEntity<List<TagInputBean>> requestEntity = new HttpEntity<>(tagInputBean, httpHeaders);
+
+        //logger.info("template {}", restTemplate);
+        try {
+            // ToDo logServerMessage - error state will be returned in arraylist
+            ResponseEntity<ArrayList> response = restTemplate.exchange(NEW_TAG, HttpMethod.PUT, requestEntity, ArrayList.class);
+            logServerMessages(response);
+            return "OK";
+        } catch (HttpClientErrorException e) {
+            // to test, try to log against no existing fortress.
+            logger.error("Datagio server error processing Tags {}", getErrorMessage(e));
+            return null;
+        } catch (HttpServerErrorException e) {
+            logger.error("Datagio server error processing Tags {}", getErrorMessage(e));
+            return null;
+
+        }
+    }
+
+    private void logServerMessages(ResponseEntity<ArrayList> response) {
+        ArrayList x = response.getBody();
+        for (Object val : x) {
+            //JsonNode tree = mapper.readTree("");
+            Map map  = (Map)val;
+            Object serviceMessage = map.get("serviceMessage");
+            if (serviceMessage != null)
+                logger.error("Service returned [{}]", serviceMessage.toString());
+        }
     }
 
     public enum type {AUDIT, TAG}
@@ -143,28 +202,7 @@ public class AbRestClient {
 
     }
 
-    private String flushAudit(List<MetaInputBean> auditInput) {
-        if (simulateOnly)
-            return "OK";
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
-        HttpHeaders httpHeaders = getHeaders(userName, password);
-        HttpEntity<List<MetaInputBean>> requestEntity = new HttpEntity<>(auditInput, httpHeaders);
-
-        try {
-            restTemplate.exchange(NEW_HEADER, HttpMethod.PUT, requestEntity, TrackResultBean.class);
-            return "OK";
-        } catch (HttpClientErrorException e) {
-            // ToDo: Rest error handling pretty useless. need to know why it's failing
-            logger.error("AB Client Audit error {}", getErrorMessage(e));
-            return null;
-        } catch (HttpServerErrorException e) {
-            logger.error("AB Server Audit error {}", getErrorMessage(e));
-            return null;
-
-        }
-    }
 
 
     public String getErrorMessage(HttpStatusCodeException e) {
@@ -299,28 +337,6 @@ public class AbRestClient {
             }
         }
 
-    }
-
-    public String flushTags(List<TagInputBean> tagInputBean) {
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-
-        HttpHeaders httpHeaders = getHeaders(userName, password);
-        HttpEntity<List<TagInputBean>> requestEntity = new HttpEntity<>(tagInputBean, httpHeaders);
-
-        //logger.info("template {}", restTemplate);
-        try {
-            restTemplate.exchange(NEW_TAG, HttpMethod.PUT, requestEntity, TrackResultBean.class);
-            return "OK";
-        } catch (HttpClientErrorException e) {
-            // to test, try to log against no existing fortress.
-            logger.error("AB Client Tag error {}", getErrorMessage(e));
-            return null;
-        } catch (HttpServerErrorException e) {
-            logger.error("AB Server Tag error {}", getErrorMessage(e));
-            return null;
-
-        }
     }
 
     static final ObjectMapper mapper = new ObjectMapper();

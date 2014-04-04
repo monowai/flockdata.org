@@ -26,6 +26,7 @@ import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.service.MediationFacade;
 import com.auditbucket.engine.service.TrackService;
 import com.auditbucket.fortress.endpoint.FortressEP;
+import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.endpoint.RegistrationEP;
@@ -236,6 +237,8 @@ public class TestCallerRef {
             } catch (RuntimeException e) {
 
                 logger.error("Help!!", e);
+            } catch (DatagioException e) {
+                logger.error(e.getMessage());
             } finally {
                 latch.countDown();
             }

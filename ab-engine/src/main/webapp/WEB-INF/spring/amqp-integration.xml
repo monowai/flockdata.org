@@ -54,7 +54,7 @@
             reply-timeout="${reply.timeout}"
             amqp-template="amqpTemplate"/>
 
-    <!--<int:outbound-channel-adapter id="idMakeSearch" channel="sendRequest" ref="abSearchGateway" >-->
+    <!--<int:outbound-channel-adapter fortressId="idMakeSearch" channel="sendRequest" ref="abSearchGateway" >-->
     <!--</int:outbound-channel-adapter>-->
 
 

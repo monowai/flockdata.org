@@ -336,7 +336,7 @@ public class TestAuditIntegration {
      */
     @Test
     public void suppressIndexingOnDemand() throws Exception {
-        //assumeTrue(ignoreMe);
+        assumeTrue(!ignoreMe);
 
         String escJson = "{\"who\":";
         SecurityContextHolder.getContext().setAuthentication(authA);
@@ -527,7 +527,7 @@ public class TestAuditIntegration {
             i++;
         }
         if (i > 10)
-            logger.info("Wait for search got to " + i);
+            logger.info("Wait for search got to [{}] for metaId [{}]",i, metaHeader.getId());
         boolean searchWorking = metaHeader.getSearchKey() != null;
         assertTrue("Search reply not received from ab-search", searchWorking);
         return i;
@@ -559,7 +559,7 @@ public class TestAuditIntegration {
 
                     //logger.info(header.getMetaKey() + " - " + when);
                     assertTrue("fortress " + fortress + " run " + x + " header " + header.getMetaKey() + " - " + trackLog.getId(), trackLog.isIndexed());
-                    String result = doEsFieldQuery(header.getIndexName(), "@auditKey", header.getMetaKey(), 1);
+                    String result = doEsFieldQuery(header.getIndexName(), MetaSearchSchema.META_KEY, header.getMetaKey(), 1);
                     totalSearchRequests++;
                     validateResultFieds(result);
 
@@ -679,7 +679,7 @@ public class TestAuditIntegration {
         assertNotNull(message, result.getJsonObject().getAsJsonObject("hits"));
         assertNotNull(message, result.getJsonObject().getAsJsonObject("hits").get("total"));
         int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
-        Assert.assertEquals(result.getJsonString(), expectedHitCount, nbrResult);
+        Assert.assertEquals("Unexpected hit count", expectedHitCount, nbrResult);
         return result.getJsonObject()
                 .getAsJsonObject("hits")
                 .getAsJsonArray("hits")

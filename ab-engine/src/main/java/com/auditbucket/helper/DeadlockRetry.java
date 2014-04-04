@@ -36,7 +36,7 @@ import org.springframework.dao.InvalidDataAccessResourceUsageException;
 public class DeadlockRetry {
     private static Logger logger = LoggerFactory.getLogger(DeadlockRetry.class);
 
-    public static Command execute(Command command, String block, int maxRetry) {
+    public static Command execute(Command command, String block, int maxRetry) throws DatagioException {
         // Deadlock re-try fun
         int retryCount = 0;
         while (retryCount < maxRetry) {

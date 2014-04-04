@@ -50,6 +50,7 @@ public class TagInputBean {
 
     private String metaLink = null;
     private boolean mustExist = false;
+    private static String serverMessage;
 
 
     protected TagInputBean() {
@@ -112,6 +113,14 @@ public class TagInputBean {
 
         addMetaLink(metaRelationshipName, relationshipProperties);
 
+    }
+
+    public void setServerMessage(String serverMessage) {
+        TagInputBean.serverMessage = serverMessage;
+    }
+
+    public String getServerMessage() {
+        return serverMessage;
     }
 
     public String getName() {

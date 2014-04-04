@@ -19,6 +19,8 @@
 
 package com.auditbucket.fortress.endpoint;
 
+import com.auditbucket.audit.model.DocumentType;
+import com.auditbucket.helper.ApiKeyHelper;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
@@ -86,7 +88,7 @@ public class FortressEP {
         fortressService.purge(fortressName);
     }
 
-    @RequestMapping(value = "/{fortressName}/delete", method = RequestMethod.POST)
+    @RequestMapping(value = "/{fortressName}/delete", method = RequestMethod.DELETE)
     public void rebuildFortress(@PathVariable("fortressName") String fortressName) throws DatagioException {
         fortressService.purge(fortressName);
     }
@@ -104,4 +106,11 @@ public class FortressEP {
         return new ResponseEntity<>(fortressService.getFortressUser(fortress, userName), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/{fortressName}/docs", method = RequestMethod.GET)
+    @ResponseBody
+    public Collection<DocumentType> getDocumentTypes(String fortressName,
+                                                     String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+        Company company = securityHelper.getCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+        return fortressService.getDocumentsInUse(company, fortressName);
+    }
 }

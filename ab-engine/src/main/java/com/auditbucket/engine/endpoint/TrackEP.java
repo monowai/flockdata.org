@@ -132,7 +132,7 @@ public class TrackEP {
 
         TrackResultBean trackResultBean;
         trackResultBean = mediationFacade.createHeader(input, ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
-        trackResultBean.setStatus("OK");
+        trackResultBean.setServiceMessage("OK");
         return new ResponseEntity<>(trackResultBean, HttpStatus.OK);
 
     }
@@ -176,7 +176,7 @@ public class TrackEP {
         input.setCallerRef(callerRef);
         input.setMetaKey(null);
         trackResultBean = mediationFacade.createHeader(input, ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
-        trackResultBean.setStatus("OK");
+        trackResultBean.setServiceMessage("OK");
         return new ResponseEntity<>(trackResultBean, HttpStatus.OK);
 
     }
@@ -215,7 +215,7 @@ public class TrackEP {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    private Company getCompany(String apiHeaderKey, String apiRequestKey) {
+    private Company getCompany(String apiHeaderKey, String apiRequestKey) throws DatagioException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiRequestKey));
         if (company == null)
             throw new DatagioException("Unable to resolve supplied API key to a valid company");
@@ -448,14 +448,20 @@ public class TrackEP {
     @ResponseBody
     @RequestMapping(value = "/xref", produces = "application/json", method = RequestMethod.POST)
     public List<CrossReferenceInputBean> putCrossReferenceByCallerRef(@RequestBody List<CrossReferenceInputBean> crossReferenceInputBeans,
-                                                           String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+                                                                      String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey)
+                                                                throws DatagioException {
         Company company = getCompany(apiHeaderKey, apiKey);
 
         for (CrossReferenceInputBean crossReferenceInputBean : crossReferenceInputBeans) {
-            Map<String,List<String>>references = crossReferenceInputBean.getReferences();
-            for(String xRefName: references.keySet()){
-                List<String> notFound = trackService.crossReferenceByCallerRef(company, crossReferenceInputBean.getFortress(), crossReferenceInputBean.getCallerRef(), references.get(xRefName), xRefName);
-                references.put(xRefName, notFound);
+            Map<String, List<String>> references = crossReferenceInputBean.getReferences();
+            for (String xRefName : references.keySet()) {
+                try {
+                    List<String> notFound = trackService.crossReferenceByCallerRef(company, crossReferenceInputBean.getFortress(), crossReferenceInputBean.getCallerRef(), references.get(xRefName), xRefName);
+                    references.put(xRefName, notFound);
+                } catch (DatagioException de) {
+                    logger.error("Exception while cross-referencing MetaHeaders. This message is being returned to the caller - [{}]", de.getMessage());
+                    crossReferenceInputBean.setServiceMessage(de.getMessage());
+                }
             }
         }
         return crossReferenceInputBeans;

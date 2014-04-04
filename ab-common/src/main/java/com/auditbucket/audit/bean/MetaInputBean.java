@@ -39,7 +39,7 @@ public class MetaInputBean {
     private Date when = null;
     private LogInputBean log;
     private Collection<TagInputBean> tags = new ArrayList<>();
-    private Map<String,Collection<String>> crossReferences = new HashMap<>();
+    private Map<String,List<String>> crossReferences = new HashMap<>();
 
     private String event;
     private String description;
@@ -269,7 +269,7 @@ public class MetaInputBean {
     }
 
     public void addCrossReference(String name, String callerRef){
-        Collection<String>refs = crossReferences.get(name);
+        List<String>refs = crossReferences.get(name);
         if ( refs == null ){
             refs = new ArrayList<>();
             crossReferences.put(name, refs);
@@ -284,7 +284,17 @@ public class MetaInputBean {
      *
      * @return crossReferences
      */
-    public Map<String,Collection<String>> getCrossReferences(){
+    public Map<String,List<String>> getCrossReferences(){
         return crossReferences;
+    }
+
+    @Override
+    public String toString() {
+        return "MetaInputBean{" +
+                "fortress='" + getFortress() + '\'' +
+                ", documentType='" + getDocumentType() + '\'' +
+                ", callerRef='" + getCallerRef() + '\'' +
+                ", metaKey='" + getMetaKey() + '\'' +
+                '}';
     }
 }

@@ -58,6 +58,10 @@
         <level value="info"/>
     </logger>
 
+    <logger name="com.sun.jersey.server">
+        <level value="info"/>
+    </logger>
+
     <logger name="org.springframework">
         <level value="info"/>
     </logger>
@@ -77,7 +81,7 @@
     </logger>
     <!-- Root Logger -->
     <root>
-        <priority value="info"/>
+        <priority value="debug"/>
         <appender-ref ref="console"/>
     </root>
 

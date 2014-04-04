@@ -23,7 +23,7 @@ package com.auditbucket.helper;
  * User: Mike Holdsworth
  * Since: 27/09/13
  */
-public class DatagioException extends RuntimeException {
+public class DatagioException extends Exception {
     public DatagioException() {
     }
 

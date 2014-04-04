@@ -13,6 +13,7 @@ public class CrossReferenceInputBean {
     Map<String,List<String>>references;
     private String fortress;
     private String callerRef;
+    private String serviceMessage;
 
     protected CrossReferenceInputBean(){}
 
@@ -53,5 +54,22 @@ public class CrossReferenceInputBean {
         int result = fortress != null ? fortress.hashCode() : 0;
         result = 31 * result + (callerRef != null ? callerRef.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "CrossReferenceInputBean{" +
+                "callerRef='" + callerRef + '\'' +
+                ", references=" + references.size() +
+                ", fortress='" + fortress + '\'' +
+                '}';
+    }
+
+    public void setServiceMessage(String serviceMessage) {
+        this.serviceMessage = serviceMessage;
+    }
+
+    public String getServiceMessage() {
+        return serviceMessage;
     }
 }

@@ -215,7 +215,7 @@ public class Importer {
                 abExporter.flush(mappable.getClass().getCanonicalName(), mappable.getABType());
             }
             if ( ! referenceInputBeans.isEmpty()){
-                writeCrossReferences( abExporter, referenceInputBeans, "Cross References");
+                logger.debug ("Wrote [{}] cross references",writeCrossReferences( abExporter, referenceInputBeans, "Cross References"));
             }
             return endProcess(watch, rows);
 
@@ -226,7 +226,7 @@ public class Importer {
     }
 
     private static int writeCrossReferences(AbRestClient abExporter, List<CrossReferenceInputBean> referenceInputBeans, String message) {
-        return abExporter.writeXReferences (referenceInputBeans, message);
+        return abExporter.flushXReferences(referenceInputBeans, message);
     }
 
     static long processCSVFile(String file, AbRestClient abExporter, DelimitedMappable mappable, int skipCount) throws IOException, IllegalAccessException, InstantiationException, DatagioException {

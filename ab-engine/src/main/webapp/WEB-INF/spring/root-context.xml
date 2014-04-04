@@ -24,7 +24,7 @@
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:task="http://www.springframework.org/schema/task"
        xmlns:p="http://www.springframework.org/schema/p"
-       xmlns:cache="http://www.springframework.org/schema/cache"
+       xmlns:cache="http://www.springframework.org/schema/cache" xmlns:aop="http://www.springframework.org/schema/aop"
 
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
@@ -33,7 +33,7 @@
 		http://www.springframework.org/schema/task
 		http://www.springframework.org/schema/task/spring-task.xsd
 		http://www.springframework.org/schema/cache
-		http://www.springframework.org/schema/cache/spring-cache.xsd">
+		http://www.springframework.org/schema/cache/spring-cache.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
     <context:spring-configured/>
     <context:annotation-config/>
@@ -56,6 +56,7 @@
     <task:executor id="ab-engineExec" pool-size="20-20" keep-alive="180" queue-capacity="10"
                    rejection-policy="CALLER_RUNS"/>
 
+    <aop:aspectj-autoproxy/>
     <cache:annotation-driven/>
     <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager" p:cacheManager-ref="ehcache"/>
     <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
