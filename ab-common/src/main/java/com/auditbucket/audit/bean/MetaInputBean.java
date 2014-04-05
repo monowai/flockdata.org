@@ -38,7 +38,7 @@ public class MetaInputBean {
     private String documentType;
     private Date when = null;
     private LogInputBean log;
-    private Collection<TagInputBean> tags = new ArrayList<>();
+    private List<TagInputBean> tags = new ArrayList<>();
     private Map<String,List<String>> crossReferences = new HashMap<>();
 
     private String event;
@@ -212,7 +212,7 @@ public class MetaInputBean {
      * @return Tag values to created
      */
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Collection<TagInputBean> getTags() {
+    public List<TagInputBean> getTags() {
         return tags;
     }
 

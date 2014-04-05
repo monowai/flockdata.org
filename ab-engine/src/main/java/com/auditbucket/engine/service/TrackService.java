@@ -688,7 +688,7 @@ public class TrackService {
     public Collection<String> crossReference(Company company, String metaKey, Collection<String> xRef, String reference) throws DatagioException{
         MetaHeader header = getHeader(company, metaKey);
         if ( header == null ){
-            throw new DatagioException("Unable to find the Meta Header ["+metaKey+"]");
+            throw new DatagioException("Unable to find the Meta Header ["+metaKey+"]. Perhaps it has not been processed yet?");
         }
         Collection<MetaHeader>targets = new ArrayList<>();
         Collection<String>ignored = new ArrayList<>();
@@ -708,7 +708,7 @@ public class TrackService {
     public Map<String, Collection<MetaHeader>> getCrossReference(Company company, String metaKey, String xRefName) throws DatagioException{
         MetaHeader header = getHeader(company, metaKey);
         if ( header == null ){
-            throw new DatagioException("Unable to find the Meta Header ["+metaKey+"]");
+            throw new DatagioException("Unable to find the Meta Header ["+metaKey+"]. Perhaps it has not been processed yet?");
         }
 
         return trackDao.getCrossReference (company, header, xRefName);

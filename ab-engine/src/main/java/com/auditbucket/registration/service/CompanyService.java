@@ -98,7 +98,7 @@ public class CompanyService {
 
     public Company save(String companyName) {
         Company company = companyDao.create(companyName, keyGenService.getUniqueKey());
-        engineAdmin.createTagIndex(company);
+        engineAdmin.ensureSystemIndexes(company);
         return company;
     }
 

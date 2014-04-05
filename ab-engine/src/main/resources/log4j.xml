@@ -80,7 +80,7 @@
         <level value="error"/>
     </logger>
     <logger name="org.springframework.data.neo4j.support.query">
-        <level value="debug"/>
+        <level value="info"/>
     </logger>
     <!-- Root Logger -->
     <root>

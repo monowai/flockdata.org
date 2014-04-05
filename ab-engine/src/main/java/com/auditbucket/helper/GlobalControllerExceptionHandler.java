@@ -51,6 +51,7 @@ public class GlobalControllerExceptionHandler {
     @ExceptionHandler(DatagioException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ModelAndView handleAuditException( DatagioException ex){
+        logger.error("Datagio Exception", ex);
         return new JsonError(ex.getMessage()).asModelAndView();
     }
 
@@ -69,6 +70,7 @@ public class GlobalControllerExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ModelAndView handleInternal( Exception ex) {
+        logger.error("Error 500", ex);
         return new JsonError(ex.getMessage()).asModelAndView();
     }
 

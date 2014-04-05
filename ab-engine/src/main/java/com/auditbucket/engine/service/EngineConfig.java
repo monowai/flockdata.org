@@ -110,7 +110,7 @@ public class EngineConfig {
     Neo4jTemplate template;
 
     @Async
-    public void createTagIndex(Company company) {
+    public void ensureSystemIndexes(Company company) {
         //template.query("create index on (t:Tag" + getTagSuffix(company) + ")", null) ;
         // Performance issue with constraints?
         logger.info("MultiTenant suffix = [" + getTagSuffix(company) + "]");

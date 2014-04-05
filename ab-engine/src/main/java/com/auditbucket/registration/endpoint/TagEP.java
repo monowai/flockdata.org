@@ -31,6 +31,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -50,7 +51,7 @@ public class TagEP {
 
     @ResponseBody
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
-    public Collection<TagInputBean> createAuditTags(@RequestBody Collection<TagInputBean> input, String apiKey,
+    public Collection<TagInputBean> createAuditTags(@RequestBody List<TagInputBean> input, String apiKey,
                                 @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
         return tagService.processTags(company, input);

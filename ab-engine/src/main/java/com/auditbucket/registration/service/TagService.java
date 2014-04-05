@@ -30,13 +30,16 @@ import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.Tag;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -77,7 +80,7 @@ public class TagService {
         return tagDao.save(company, tagInput);
     }
 
-    public Collection<TagInputBean> processTags(Iterable<TagInputBean> tagInputs) {
+    public Collection<TagInputBean> processTags(List<TagInputBean> tagInputs) {
         Company company = securityHelper.getCompany();
         return processTags(company, tagInputs);
     }
@@ -88,27 +91,38 @@ public class TagService {
      * @param tagInputs tags to establish
      * @return tagInputs that failed processing
      */
-    public Collection<TagInputBean> processTags(final Company company, final Iterable<TagInputBean> tagInputs) {
+    public Collection<TagInputBean> processTags(final Company company, final List<TagInputBean> tagInputs) {
         // Schema constraints have to be issued in a separate transaction
         // Make sure that a unique constraint exists for a given custom index
         // ToDo: Figure this out
         //schemaDao.ensureIndexes(company, tagInputs);
+
+        Collection<TagInputBean>failedInput= new ArrayList<>();
         class DLCommand implements Command {
             Collection<TagInputBean> failedInput;
+            private final List<TagInputBean> inputs;
+            public DLCommand(List<TagInputBean> tagInputBeans) {
+                this.inputs = tagInputBeans;
+            }
 
             @Override
             public Command execute() {
-                failedInput = tagDao.save(company, tagInputs);
+                failedInput = tagDao.save(company, inputs);
                 return this;
             }
         }
-        DLCommand c = new DLCommand();
-        try {
-            com.auditbucket.helper.DeadlockRetry.execute(c, "creating tags", 10);
-        } catch (DatagioException e) {
-            logger.error(" Tag errors detected");
+
+        List<List<TagInputBean>> splitList = Lists.partition(tagInputs, 5);
+        for (List<TagInputBean> tagInputBeans : splitList) {
+            DLCommand c = new DLCommand(tagInputBeans);
+            try {
+                com.auditbucket.helper.DeadlockRetry.execute(c, "creating tags", 15);
+            } catch (DatagioException e) {
+                logger.error(" Tag errors detected");
+            }
+            failedInput.addAll(c.failedInput);
         }
-        return c.failedInput;
+        return failedInput;
     }
 
     public Tag findTag(Company company, String tagName) {
