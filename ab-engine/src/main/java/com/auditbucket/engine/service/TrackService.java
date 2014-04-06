@@ -31,6 +31,7 @@ import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.*;
 import com.auditbucket.search.model.MetaSearchChange;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -286,7 +287,7 @@ public class TrackService {
                     logger.trace("Ignoring a change we already have {}", input);
                     input.setStatus(LogInputBean.LogStatus.IGNORE);
                     if (input.isForceReindex()) { // Caller is recreating the search index
-                        searchFacade.makeChangeSearchable(searchFacade.prepareSearchDocument(authorisedHeader, input, existingLog.getChange().getEvent(), searchActive, fortressWhen, existingLog));
+                        searchFacade.makeChangeSearchable(prepareSearchDocument(authorisedHeader, input, existingLog.getChange().getEvent(), searchActive, fortressWhen, existingLog));
                         resultBean.setMessage("Ignoring a change we already have. Honouring request to re-index");
                     } else
                         resultBean.setMessage("Ignoring a change we already have");
@@ -338,7 +339,7 @@ public class TrackService {
             }
 
             try {
-                resultBean.setSearchChange(searchFacade.prepareSearchDocument(authorisedHeader, input, input.getChangeEvent(), searchActive, fortressWhen, newLog));
+                resultBean.setSearchChange(prepareSearchDocument(authorisedHeader, input, input.getChangeEvent(), searchActive, fortressWhen, newLog));
             } catch (JsonProcessingException e) {
                 resultBean.setMessage("Error processing JSON document");
                 resultBean.setStatus(LogInputBean.LogStatus.ILLEGAL_ARGUMENT);
@@ -348,6 +349,35 @@ public class TrackService {
         return resultBean;
 
     }
+
+    private static final ObjectMapper om = new ObjectMapper();
+
+    public SearchChange prepareSearchDocument(MetaHeader metaHeader, LogInputBean logInput, ChangeEvent event, Boolean searchActive, DateTime fortressWhen, TrackLog trackLog) throws JsonProcessingException {
+
+        if (!searchActive || metaHeader.isSearchSuppressed())
+            return null;
+        SearchChange searchDocument;
+        searchDocument = new MetaSearchChange(metaHeader, logInput.getMapWhat(), event.getCode(), fortressWhen);
+        searchDocument.setWho(trackLog.getChange().getWho().getCode());
+        searchDocument.setTags(tagTrackService.findTrackTags(metaHeader.getFortress().getCompany(), metaHeader));
+        searchDocument.setDescription(metaHeader.getName());
+        try {
+            logger.trace("JSON {}", om.writeValueAsString(searchDocument));
+        } catch (JsonProcessingException e) {
+            logger.error(e.getMessage());
+            throw (e);
+        }
+        if (trackLog != null && trackLog.getSysWhen() != 0)
+            searchDocument.setSysWhen(trackLog.getSysWhen());
+        else
+            searchDocument.setSysWhen(metaHeader.getWhenCreated());
+
+        // Used to reconcile that the change was actually indexed
+        logger.trace("Preparing Search Document [{}]", trackLog);
+        searchDocument.setLogId(trackLog.getId());
+        return searchDocument;
+    }
+
 
 
     public Collection<MetaHeader> getHeaders(Fortress fortress, Long skipTo) {

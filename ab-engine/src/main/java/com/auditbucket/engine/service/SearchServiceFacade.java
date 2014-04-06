@@ -1,15 +1,15 @@
 package com.auditbucket.engine.service;
 
-import com.auditbucket.audit.bean.LogInputBean;
 import com.auditbucket.audit.bean.TrackResultBean;
-import com.auditbucket.audit.model.*;
+import com.auditbucket.audit.model.ChangeLog;
+import com.auditbucket.audit.model.MetaHeader;
+import com.auditbucket.audit.model.SearchChange;
+import com.auditbucket.audit.model.TrackLog;
 import com.auditbucket.dao.TrackDao;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.search.model.MetaSearchChange;
 import com.auditbucket.search.model.SearchResult;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,15 +46,11 @@ public class SearchServiceFacade {
     TagTrackService tagTrackService;
 
     @Autowired
-    TrackService trackService;
-
-    @Autowired
     WhatService whatService;
 
     @Autowired
     FortressService fortressService;
 
-    private static final ObjectMapper om = new ObjectMapper();
 
     /**
      * Callback handler that is invoked from ab-search. This routine ties the generated search document ID
@@ -153,35 +149,9 @@ public class SearchServiceFacade {
         return searchDocument;
     }
 
-    public SearchChange prepareSearchDocument(MetaHeader metaHeader, LogInputBean logInput, ChangeEvent event, Boolean searchActive, DateTime fortressWhen, TrackLog trackLog) throws JsonProcessingException {
-
-        if (!searchActive || metaHeader.isSearchSuppressed())
-            return null;
-        SearchChange searchDocument;
-        searchDocument = new MetaSearchChange(metaHeader, logInput.getMapWhat(), event.getCode(), fortressWhen);
-        searchDocument.setWho(trackLog.getChange().getWho().getCode());
-        searchDocument.setTags(tagTrackService.findTrackTags(metaHeader.getFortress().getCompany(), metaHeader));
-        searchDocument.setDescription(metaHeader.getName());
+    public void rebuild(MetaHeader metaHeader, TrackLog lastLog) {
         try {
-            logger.trace("JSON {}", om.writeValueAsString(searchDocument));
-        } catch (JsonProcessingException e) {
-            logger.error(e.getMessage());
-            throw (e);
-        }
-        if (trackLog != null && trackLog.getSysWhen() != 0)
-            searchDocument.setSysWhen(trackLog.getSysWhen());
-        else
-            searchDocument.setSysWhen(metaHeader.getWhenCreated());
 
-        // Used to reconcile that the change was actually indexed
-        logger.trace("Preparing Search Document [{}]", trackLog);
-        searchDocument.setLogId(trackLog.getId());
-        return searchDocument;
-    }
-
-    public void rebuild(MetaHeader metaHeader) {
-        try {
-            TrackLog lastLog = trackService.getLastLog(metaHeader.getId());
             ChangeLog lastChange = null;
             if (lastLog != null)
                 lastChange = lastLog.getChange();

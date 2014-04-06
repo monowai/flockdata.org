@@ -21,6 +21,7 @@ package com.auditbucket.engine.service;
 
 import com.auditbucket.audit.bean.*;
 import com.auditbucket.audit.model.MetaHeader;
+import com.auditbucket.audit.model.TrackLog;
 import com.auditbucket.helper.Command;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.DeadlockRetry;
@@ -320,7 +321,8 @@ public class MediationFacade {
 
     private Long reindexHeaders(Collection<MetaHeader> headers, Long skipCount) {
         for (MetaHeader header : headers) {
-            searchService.rebuild(header);
+            TrackLog lastLog = trackService.getLastLog(header.getId());
+            searchService.rebuild(header, lastLog);
             skipCount++;
         }
         return skipCount;
