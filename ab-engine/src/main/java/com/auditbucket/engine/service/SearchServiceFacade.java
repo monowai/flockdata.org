@@ -110,6 +110,7 @@ public class SearchServiceFacade {
         }
     }
 
+    @Async
     public Future<Void> makeHeaderSearchable(Company company, TrackResultBean resultBean, String event, Date when) {
         MetaHeader header = resultBean.getMetaHeader();
         if (header.isSearchSuppressed() || !header.getFortress().isSearchActive())

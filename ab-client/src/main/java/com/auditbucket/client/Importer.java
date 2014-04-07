@@ -226,7 +226,7 @@ public class Importer {
     }
 
     private static int writeCrossReferences(AbRestClient abExporter, List<CrossReferenceInputBean> referenceInputBeans, String message) {
-        return abExporter.flushXReferences(referenceInputBeans, message);
+        return abExporter.flushXReferences(referenceInputBeans);
     }
 
     static long processCSVFile(String file, AbRestClient abExporter, DelimitedMappable mappable, int skipCount) throws IOException, IllegalAccessException, InstantiationException, DatagioException {

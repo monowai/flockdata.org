@@ -195,7 +195,7 @@ public class MetaSearchChange implements SearchChange {
 
             setTagValue("name", tag.getTag().getName(), tagValues);
             setTagValue("key", tag.getTag().getKey(), tagValues);
-            setTagValue("code", tag.getTag().getCode(), tagValues);
+            setTagValue("code", tag.getTag().getCode().toLowerCase(), tagValues);
             setTagValue("weight", tag.getWeight(), tagValues);
             if (tag.getGeoData() != null) {
                 setTagValue("iso", tag.getGeoData().getIsoCode(), tagValues);

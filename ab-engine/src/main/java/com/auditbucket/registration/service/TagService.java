@@ -96,8 +96,6 @@ public class TagService {
         // Make sure that a unique constraint exists for a given custom index
         // ToDo: Figure this out
 
-        //schemaDao.ensureIndexes(company, tagInputs);
-
         Collection<TagInputBean>failedInput= new ArrayList<>();
         class DLCommand implements Command {
             Collection<TagInputBean> failedInput;

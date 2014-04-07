@@ -100,9 +100,9 @@ public class TagDaoNeo4j implements TagDao {
             start = template.getNode(existingTag.getId());
         }
 
-        Map<String, TagInputBean[]> tags = tagInput.getTargets();
+        Map<String, Collection<TagInputBean>> tags = tagInput.getTargets();
         for (String rlxName : tags.keySet()) {
-            TagInputBean[] associatedTag = tags.get(rlxName);
+            Collection<TagInputBean> associatedTag = tags.get(rlxName);
             for (TagInputBean tagInputBean : associatedTag) {
                 createRelationship(company, start, tagInputBean, rlxName, createdValues);
             }

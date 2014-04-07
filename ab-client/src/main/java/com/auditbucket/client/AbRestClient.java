@@ -65,7 +65,7 @@ public class AbRestClient {
     private static boolean compress = true;
     private boolean simulateOnly;
     private List<MetaInputBean> batchHeader = new ArrayList<>();
-    private List<TagInputBean> batchTag = new ArrayList<>();
+    private Map<String, TagInputBean> batchTag = new HashMap<>();
     private final String headerSync = "BatchSync";
     private final String tagSync = "TagSync";
     private String defaultFortress;
@@ -74,7 +74,7 @@ public class AbRestClient {
         this.simulateOnly = simulateOnly;
     }
 
-    public int flushXReferences(List<CrossReferenceInputBean> referenceInputBeans, String message) {
+    public int flushXReferences(List<CrossReferenceInputBean> referenceInputBeans) {
         logger.info("Processing [{}] cross references - simulate [{}]", referenceInputBeans.size(), simulateOnly);
         if (simulateOnly)
             return 0;
@@ -128,7 +128,6 @@ public class AbRestClient {
         HttpHeaders httpHeaders = getHeaders(userName, password);
         HttpEntity<List<TagInputBean>> requestEntity = new HttpEntity<>(tagInputBean, httpHeaders);
 
-        //logger.info("template {}", restTemplate);
         try {
             // ToDo logServerMessage - error state will be returned in arraylist
             ResponseEntity<ArrayList> response = restTemplate.exchange(NEW_TAG, HttpMethod.PUT, requestEntity, ArrayList.class);
@@ -198,12 +197,7 @@ public class AbRestClient {
             logger.error("AB Server Audit error {}", getErrorMessage(e));
 
         }
-
-
     }
-
-
-
 
     public String getErrorMessage(HttpStatusCodeException e) {
 
@@ -285,8 +279,13 @@ public class AbRestClient {
     private void batchTags(MetaInputBean metaInputBeans) {
 
         for (TagInputBean tag : metaInputBeans.getTags()) {
-            if (!batchTag.contains(tag))
-                batchTag.add(tag);
+            String indexKey = tag.getCode()+tag.getIndex();
+            TagInputBean cachedTag = batchTag.get(indexKey);
+            if (cachedTag==null )
+                batchTag.put(indexKey, tag);
+            else {
+                cachedTag.mergeTags(tag);
+            }
         }
     }
 
@@ -306,12 +305,12 @@ public class AbRestClient {
                 if (batchHeader.size() >= 1) {
                     logger.debug("Flushing....");
                     // process the tags independently to reduce the chance of a deadlock when processing the header
-                    flushTags(batchTag);
+                    flushTags(new ArrayList<>(batchTag.values()));
                     flushAudit(batchHeader);
                     logger.debug("Flushed " + message + " Batch [{}]", batchHeader.size());
                 }
                 batchHeader = new ArrayList<>();
-                batchTag = new ArrayList<>();
+                batchTag = new HashMap<>();
             }
 
         }
@@ -326,12 +325,12 @@ public class AbRestClient {
 
         synchronized (tagSync) {
             if (tagInputBean != null)
-                batchTag.add(tagInputBean);
+                batchTag.put(tagInputBean.getCode() + tagInputBean.getIndex(), tagInputBean);
 
             if (flush || batchTag.size() == batchSize) {
                 logger.debug("Flushing " + message + " Tag Batch [{}]", batchTag.size());
                 if (batchTag.size() >= 0)
-                    flushTags(batchTag);
+                    flushTags(new ArrayList<>(batchTag.values()));
                 logger.debug("Tag Batch Flushed");
                 batchHeader = new ArrayList<>();
             }

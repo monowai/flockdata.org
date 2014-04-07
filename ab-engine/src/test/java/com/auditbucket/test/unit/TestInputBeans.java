@@ -124,5 +124,25 @@ public class TestInputBeans {
         assertEquals(":Testing", tib.getIndex());
     }
 
+    @Test
+    public void mergeTags(){
+        TagInputBean dest   = new TagInputBean("hello");
+        TagInputBean source = new TagInputBean("hello");
+
+        TagInputBean target = new TagInputBean("target");
+        TagInputBean other = new TagInputBean("other");
+
+        source.addMetaLink("abc");
+        source.setTargets("somerlx", target);
+        source.setTargets("otherrlx", target);
+
+        dest.setTargets("somerlx", other );// This one appends to somerlx collection
+
+        dest.mergeTags(source);
+        assertEquals(1, dest.getMetaLinks().size());
+        assertEquals("Should be 2 relationships", 2, dest.getTargets().size());
+        assertEquals("TagInput did not merge into somerlx", 2, dest.getTargets().get("somerlx").size());
+    }
+
 
 }

@@ -23,8 +23,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
 /**
  * All data necessary to create a simple Tag. If no index is provided then the tag is
  * created under the default index of _Tag
@@ -41,7 +44,7 @@ public class TagInputBean {
 
     private boolean reverse = false;
 
-    private Map<String, TagInputBean[]> targets = new HashMap<>();
+    private Map<String, Collection<TagInputBean>> targets = new HashMap<>();
 
     Map<String, Object> properties = new HashMap<>();
     private String index = "";
@@ -141,15 +144,37 @@ public class TagInputBean {
     }
 
     public void setTargets(String tagRelationship, TagInputBean tagInputBean) {
-        TagInputBean[] put = {tagInputBean};
-        targets.put(tagRelationship, put);
+        ArrayList<TagInputBean> val = new ArrayList<>() ;
+        val.add(tagInputBean);
+        setTargets(tagRelationship, val);
+
     }
 
-    public void setTargets(String relationshipName, TagInputBean[] tagInputBeans) {
-        targets.put(relationshipName, tagInputBeans);
+    public void setTargets(String relationshipName, Collection<TagInputBean> fromThoseTags) {
+        Collection<TagInputBean> theseTags = targets.get(relationshipName);
+        if ( theseTags == null )
+            targets.put(relationshipName, fromThoseTags);
+        else {
+            for (TagInputBean tagToAdd : fromThoseTags) {
+                if ( !theseTags.contains(tagToAdd))
+                    theseTags.add(tagToAdd);
+            }
+        }
+
     }
 
-    public Map<String, TagInputBean[]> getTargets() {
+    public void mergeTags (TagInputBean mergeFrom){
+        if ( !mergeFrom.getMetaLinks().isEmpty() ) {
+            for (String next : mergeFrom.getMetaLinks().keySet())
+                addMetaLink(next);
+        }
+        for (String next : mergeFrom.getTargets().keySet()) {
+            setTargets(next, mergeFrom.getTargets().get(next));
+        }
+
+    }
+
+    public Map<String, Collection<TagInputBean>> getTargets() {
         return this.targets;
     }
 
@@ -223,16 +248,16 @@ public class TagInputBean {
     /**
      * Associates this tag with the MetaHeader
      *
-     * @param auditRelationship name of the relationship to the Audit Header
+     * @param relationshipName name of the relationship to the Audit Header
      * @param properties        properties to store against the relationship
      */
-    public void addMetaLink(String auditRelationship, Map<String, Object> properties) {
-        this.metaLinks.put(auditRelationship, properties);
+    public void addMetaLink(String relationshipName, Map<String, Object> properties) {
+        this.metaLinks.put(relationshipName, properties);
 
     }
 
-    public void addMetaLink(String auditRelationship) {
-        addMetaLink(auditRelationship, null);
+    public void addMetaLink(String relationshipName) {
+        addMetaLink(relationshipName, null);
     }
 
     public Map<String, Object> getMetaLinks() {
