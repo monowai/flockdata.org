@@ -19,6 +19,7 @@
 
 package com.auditbucket.registration.endpoint;
 
+import com.auditbucket.dao.SchemaDao;
 import com.auditbucket.helper.ApiKeyHelper;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.TagInputBean;
@@ -46,15 +47,19 @@ public class TagEP {
     TagService tagService;
 
     @Autowired
+    SchemaDao schemaDao;
+
+    @Autowired
     private RegistrationService registrationService;
 
 
     @ResponseBody
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
-    public Collection<TagInputBean> createAuditTags(@RequestBody List<TagInputBean> input, String apiKey,
-                                @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+    public Collection<TagInputBean> createTags(@RequestBody List<TagInputBean> tagInputs, String apiKey,
+                                               @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
-        return tagService.processTags(company, input);
+        schemaDao.ensureUniqueIndexes(company, tagInputs);
+        return tagService.processTags(company, tagInputs);
 
     }
 

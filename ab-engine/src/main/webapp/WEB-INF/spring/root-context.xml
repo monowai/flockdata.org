@@ -1,7 +1,7 @@
 <?xml version=
         "1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2012-2014 "Monowai Developments Limited"
+  ~ Copyright (company) 2012-2014 "Monowai Developments Limited"
   ~
   ~ This file is part of AuditBucket.
   ~
@@ -53,7 +53,7 @@
     <task:annotation-driven executor="ab-engineExec"/>
 
     <!--Pool size is the number of executors that will handle Bulk Uploads and incoming search responses-->
-    <task:executor id="ab-engineExec" pool-size="20-20" keep-alive="180" queue-capacity="10"
+    <task:executor id="ab-engineExec" pool-size="40-60" keep-alive="120" queue-capacity="40"
                    rejection-policy="CALLER_RUNS"/>
 
     <aop:aspectj-autoproxy/>

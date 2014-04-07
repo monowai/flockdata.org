@@ -39,18 +39,21 @@ public class SchemaDaoNeo4j implements SchemaDao {
     private Logger logger = LoggerFactory.getLogger(SchemaDaoNeo4j.class);
 
     @Override
-    public boolean registerTagIndex (Company c, String indexName ){
-        if ( !tagExists(c, indexName)){
-            //logger.info("Create tag "+Thread.currentThread().getName() );
-            String cypher = "merge (tagLabel:_TagLabel :TagLabel{ name:{name}, companyKey:{key}}) " +
+    public boolean registerTagIndex(Company company, String indexName) {
+        if (isSystemIndex(indexName))
+            return true;
+
+        if (!tagExists(company, indexName)) {
+
+            String cypher = "merge (tagLabel:_TagLabel { name:{name}, companyKey:{key}}) " +
                     "with tagLabel " +
-                    "match (c:Company) where id(c) = {cid} " +
-                    "merge (c)<-[:TAG_INDEX]-(tagLabel) " +
+                    "match (c:ABCompany) where id(c) = {cid} " +
+                    "merge (c)<-[:TAG_INDEX]-(tagLabel:_TagLabel) " +
                     "return tagLabel";
             Map<String, Object> params = new HashMap<>();
             params.put("name", indexName);
-            params.put("key", parseTagIndex(c,indexName));
-            params.put("cid", c.getId());
+            params.put("key", parseTagIndex(company, indexName));
+            params.put("cid", company.getId());
 
             template.query(cypher, params);
 
@@ -58,13 +61,14 @@ public class SchemaDaoNeo4j implements SchemaDao {
         }
         return true;
     }
+
     /**
      * Tracks the DocumentTypes used by a Fortress that can be used to find MetaHeader objects
      *
-     * @param fortress          fortress generating
-     * @param indexName         name of the Label
-     * @param createIfMissing   if not found will create
-     * @return  the node
+     * @param fortress        fortress generating
+     * @param indexName       name of the Label
+     * @param createIfMissing if not found will create
+     * @return the node
      */
     public DocumentType findDocumentType(Fortress fortress, String indexName, Boolean createIfMissing) {
         DocumentType docResult = documentExists(fortress, indexName);
@@ -95,48 +99,65 @@ public class SchemaDaoNeo4j implements SchemaDao {
         return schemaTypeRepo.getDocumentsInUse(fortress.getId());
     }
 
-    @Cacheable(value = "companySchemaType", unless = "#result == null")
+    @Cacheable(value = "companyDocType", unless = "#result == null")
     private DocumentType documentExists(Fortress fortress, String indexName) {
-        //String key = fortress.getId() + ".d." + indexName.toLowerCase().replaceAll("\\s", "");
-        //return schemaDao.findFortressDocType(fortress.getId(), key);
         return schemaTypeRepo.findFortressDocType(fortress.getId(), indexName.toLowerCase().replaceAll("\\s", ""));
-        //return schemaDao.findBySchemaPropertyValue("companyKey", key);
     }
 
-    @Cacheable(value = "companySchemaType", unless = "#result == null")
-    public boolean tagExists(Company company, String indexName) {
-        return schemaTypeRepo.findBySchemaPropertyValue("companyKey", parseTagIndex(company, indexName))!=null;
+    @Cacheable(value = "companySchemaTag", unless = "#result == false")
+    private boolean tagExists(Company company, String indexName) {
+        //logger.info("Looking for co{}, {}", company.getId(), parseTagIndex(company, indexName));
+        Object o = schemaTypeRepo.findCompanyTag(company.getId(), parseTagIndex(company, indexName));
+        return (o != null);
+        //return schemaTypeRepo.findBySchemaPropertyValue("companyKey", parseTagIndex(company, indexName)) != null;
     }
 
-    public void ensureIndexes(Company c, Iterable<TagInputBean> tagInputs) {
+    /**
+     * Make sure a unique index exists for the tag
+     * Being a schema alteration function this is synchronised to avoid concurrent modifications
+     *
+     * @param company   who owns the tags
+     * @param tagInputs collection to process
+     */
+    public synchronized void ensureUniqueIndexes(Company company, Iterable<TagInputBean> tagInputs) {
         Collection<String> added = new ArrayList<>();
         for (TagInputBean tagInput : tagInputs) {
-            if (!added.contains(tagInput.getIndex())) {
-                if (tagInput.getIndex() != null) {
-                    ensureIndex(c, tagInput);
-                    added.add(tagInput.getIndex());
+            String index = tagInput.getIndex();
+            if (!added.contains(index)) {
+                if (index != null && !tagExists(company, index)) {
+                    ensureIndex(company, tagInput);
                 }
-
+                added.add(tagInput.getIndex());
             }
         }
     }
 
-    @Override
-    @Transactional
     @Async
-    public void ensureIndex(Company c, TagInputBean tagInput) {
+    public void ensureSystemIndexes(Company company, String suffix) {
+        // Performance issue with constraints?
+        logger.info("Creating System Indexes...");
+        template.query("create constraint on (t:Country) assert t.key is unique", null);
+        template.query("create constraint on (t:City) assert t.key is unique", null);
+    }
+
+
+    @Transactional
+    private void ensureIndex(Company company, TagInputBean tagInput) {
         // _Tag is a special label that can be used to find all tags so we have to allow it to handle duplicates
-        if ( tagInput.isDefault())
+        if (tagInput.isDefault() || isSystemIndex(tagInput.getIndex()))
             return;
         template.query("create constraint on (t" + tagInput.getIndex() + ") assert t.key is unique", null);
         logger.info("Creating constraint on [{}]", tagInput.getIndex());
 
     }
 
-    private String parseTagIndex(Company company, String indexName){
-        return company.getId() + ".t." + indexName.toLowerCase().replaceAll("\\s", "");
+    private boolean isSystemIndex(String index) {
+        return (index.equals(":Country") || index.equals(":City"));
     }
 
+    private String parseTagIndex(Company company, String indexName) {
+        return company.getId() + ".t." + indexName.toLowerCase().replaceAll("\\s", "");
+    }
 
 
 }

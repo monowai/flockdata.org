@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -109,14 +108,8 @@ public class EngineConfig {
     @Autowired
     Neo4jTemplate template;
 
-    @Async
     public void ensureSystemIndexes(Company company) {
-        //template.query("create index on (t:Tag" + getTagSuffix(company) + ")", null) ;
-        // Performance issue with constraints?
-        logger.info("MultiTenant suffix = [" + getTagSuffix(company) + "]");
-        template.query("create constraint on (t:Country) assert t.key is unique", null);
-        template.query("create constraint on (t:City) assert t.key is unique", null);
-        //template.query("create index on (t:Tag" + getTagSuffix(company)+ ")", null);
+        schemaDao.ensureSystemIndexes(company, getTagSuffix(company));
     }
 
     public String getTagSuffix(Company company) {

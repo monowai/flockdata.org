@@ -1,7 +1,7 @@
 <?xml version=
         "1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2012-2014 "Monowai Developments Limited"
+  ~ Copyright (company) 2012-2014 "Monowai Developments Limited"
   ~
   ~ This file is part of AuditBucket.
   ~
@@ -48,11 +48,11 @@
     <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true"
                                   location="classpath:/config.properties"/>
 
-    <task:executor id="ab-engine" pool-size="10-15" keep-alive="180" queue-capacity="15"
+    <task:executor id="ab-engine" pool-size="30-50" keep-alive="120" queue-capacity="30"
                    rejection-policy="CALLER_RUNS"/>
     <cache:annotation-driven/>
 
-    <aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+    <aop:aspectj-autoproxy/>
 
     <bean id="cacheManager" class="org.springframework.cache.support.NoOpCacheManager">
     </bean>

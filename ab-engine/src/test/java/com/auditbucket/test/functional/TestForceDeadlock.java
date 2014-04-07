@@ -100,13 +100,42 @@ public class TestForceDeadlock {
             Neo4jHelper.cleanDb(template);
     }
 
+    @Test
+    public void tagsUnderLoad() throws Exception {
+        cleanUpGraph(); // No transaction so need to clear down the graph
+
+        String monowai = "Monowai";
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
+        SecurityContextHolder.getContext().setAuthentication(authMike);
+        Fortress fortress = fortressService.registerFortress("auditTest" + System.currentTimeMillis());
+
+        CountDownLatch latch = new CountDownLatch(4);
+        List<TagInputBean> tags = getTags(10);
+
+        Map<Integer, TagRunner> runners = new HashMap<>();
+        int threadMax = 3;
+        boolean worked = true;
+        for (int i = 0; i < threadMax; i++) {
+            runners.put(i, addTagRunner(fortress, 5, tags, latch));
+        }
+
+        //latch.await();
+        for (int i = 0; i < threadMax; i++) {
+            while (runners.get(i) == null || !runners.get(i).isDone()) {
+                Thread.yield();
+            }
+            assertEquals("Error occurred creating tags under load", true, runners.get(i).isWorked());
+        }
+        assertEquals(true, worked);
+    }
+
     /**
      * Multi threaded test that tests to make sure duplicate Doc Types and Headers are not created
      *
      * @throws Exception
      */
     @Test
-    public void forceDeadlockUnderLoadIsHandled() throws Exception {
+    public void metaHeaderUnderLoad() throws Exception {
         cleanUpGraph(); // No transaction so need to clear down the graph
 
         String monowai = "Monowai";
@@ -178,6 +207,14 @@ public class TestForceDeadlock {
         return runner;
     }
 
+    private TagRunner addTagRunner(Fortress fortress, int docCount, List<TagInputBean> tags, CountDownLatch latch) {
+
+        TagRunner runner = new TagRunner(fortress, tags, docCount, latch);
+        Thread thread = new Thread(runner);
+        thread.start();
+        return runner;
+    }
+
     class CallerRefRunner implements Runnable {
         String docType;
         String callerRef;
@@ -196,7 +233,11 @@ public class TestForceDeadlock {
             this.latch = latch;
             this.tags = tags;
             this.maxRun = maxRun;
-            inputBeans = new ArrayList<>(maxRun) ;
+            inputBeans = new ArrayList<>(maxRun);
+        }
+
+        public boolean isWorked() {
+            return worked;
         }
 
         public int getMaxRun() {
@@ -211,7 +252,7 @@ public class TestForceDeadlock {
         public void run() {
             int count = 0;
             SecurityContextHolder.getContext().setAuthentication(authMike);
-            logger.info("Hello from thread {}, Creating {} AuditHeaders", callerRef, maxRun);
+            logger.info("Hello from thread {}, Creating {} MetaHeaders", callerRef, maxRun);
             try {
                 while (count < maxRun) {
                     MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef + count);
@@ -223,7 +264,7 @@ public class TestForceDeadlock {
                 }
                 worked = true;
             } catch (Exception e) {
-
+                worked = false;
                 logger.error("Help!!", e);
             } finally {
                 latch.countDown();
@@ -232,5 +273,61 @@ public class TestForceDeadlock {
 
         }
 
+    }
+
+    class TagRunner implements Runnable {
+        Fortress fortress;
+        CountDownLatch latch;
+        int maxRun = 30;
+        List<TagInputBean> tags;
+
+        boolean worked = false;
+        private boolean done;
+
+        public TagRunner(Fortress fortress, List<TagInputBean> tags, int maxRun, CountDownLatch latch) {
+            this.fortress = fortress;
+            this.latch = latch;
+            this.tags = tags;
+            this.maxRun = maxRun;
+        }
+
+        public boolean isWorked() {
+            return worked;
+        }
+
+        @Override
+        public void run() {
+            int count = 0;
+            SecurityContextHolder.getContext().setAuthentication(authMike);
+            logger.info("Hello from TagRunner {}, Creating {} Tags", Thread.currentThread().getName(), maxRun);
+            try {
+                while (count < maxRun) {
+                    tagEP.createTags(tags, null, null);
+                    count++;
+                }
+                worked = true;
+            } catch (Exception e) {
+                worked = false;
+                logger.error("Help!!", e);
+
+            } finally {
+                latch.countDown();
+                done = true;
+            }
+
+
+        }
+
+        public List<TagInputBean> getTags() {
+            return tags;
+        }
+
+        public boolean isDone() {
+            return done;
+        }
+
+        public void setDone(boolean done) {
+            this.done = done;
+        }
     }
 }

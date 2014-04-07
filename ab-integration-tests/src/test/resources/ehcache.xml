@@ -46,6 +46,11 @@
            eternal="true"
            memoryStoreEvictionPolicy="LFU"/>
 
+    <cache name="companySchemaTag"
+           maxElementsInMemory="200"
+           eternal="true"
+           memoryStoreEvictionPolicy="LFU"/>
+
     <cache name="metaKey"
            maxElementsInMemory="200"
            eternal="false"

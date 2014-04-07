@@ -40,6 +40,14 @@ public interface SchemaTypeRepo extends GraphRepository<DocumentTypeNode> {
     DocumentTypeNode findFortressDocType(Long fortressId, String docKey);
 
     @Query(elementClass = DocumentTypeNode.class,
+    value =
+            "MATCH (company:ABCompany)<-[:TAG_INDEX]-(tag:_TagLabel) " +
+            "        where id(company)={0} and tag.companyKey ={1}" +
+            "       return tag")
+    DocumentTypeNode findCompanyTag(Long companyId, String companyKey);
+
+
+    @Query(elementClass = DocumentTypeNode.class,
             value =
                     "MATCH fortress<-[:FORTRESS_DOC]-documentTypes " +
                             "        where id(fortress)={0} " +

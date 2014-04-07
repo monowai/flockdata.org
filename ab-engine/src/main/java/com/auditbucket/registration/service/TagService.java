@@ -95,6 +95,7 @@ public class TagService {
         // Schema constraints have to be issued in a separate transaction
         // Make sure that a unique constraint exists for a given custom index
         // ToDo: Figure this out
+
         //schemaDao.ensureIndexes(company, tagInputs);
 
         Collection<TagInputBean>failedInput= new ArrayList<>();

@@ -108,7 +108,7 @@ public class MediationFacade {
         if (newMode) {
 
             // Tune to balance against concurrency and batch transaction insert efficiency.
-            List<List<MetaInputBean>> splitList = Lists.partition(inputBeans, 5);
+            List<List<MetaInputBean>> splitList = Lists.partition(inputBeans, 20);
 
             for (List<MetaInputBean> metaInputBeans : splitList) {
 
