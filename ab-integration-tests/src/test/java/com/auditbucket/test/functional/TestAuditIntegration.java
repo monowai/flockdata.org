@@ -22,6 +22,7 @@ package com.auditbucket.test.functional;
 import com.auditbucket.audit.bean.*;
 import com.auditbucket.audit.model.MetaHeader;
 import com.auditbucket.audit.model.TrackLog;
+import com.auditbucket.audit.model.TrackTag;
 import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.service.MediationFacade;
 import com.auditbucket.engine.service.TrackService;
@@ -30,6 +31,7 @@ import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
+import com.auditbucket.registration.endpoint.TagEP;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
@@ -82,7 +84,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 public class TestAuditIntegration {
-    private boolean ignoreMe = false;
+    private boolean ignoreMe = true;
     private static int fortressMax = 1;
     private static JestClient client;
     @Autowired
@@ -368,7 +370,38 @@ public class TestAuditIntegration {
         doEsQuery(indexName, "bob", 0);
         doEsQuery(indexName, "andy");
     }
+    @Autowired
+    TagEP tagEP;
+    @Test
+    public void tagKeyReturnsUniqueResult() throws Exception {
+        assumeTrue(ignoreMe);
 
+        String escJson = "{\"who\":";
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        regService.registerSystemUser(new RegistrationBean("TestTrack", email, "bah"));
+        Fortress iFortress = fortressService.registerFortress(new FortressInputBean("suppress", false));
+        MetaInputBean metaInput = new MetaInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
+        String tagSearch = "example"; // Relationship names is indexed as @tag.relationship.key in ES
+        TagInputBean tag = new TagInputBean("Key Test Works", tagSearch);
+        metaInput.setTag(tag);
+
+
+        TrackResultBean indexedResult = mediationFacade.createHeader(metaInput, null);
+        MetaHeader indexHeader = trackService.getHeader(indexedResult.getMetaKey());
+
+        Set<TrackTag> tags = trackEP.getAuditTags(indexHeader.getMetaKey(), null, null).getBody();
+        assertNotNull ( tags);
+        assertEquals(1, tags.size());
+
+        LogResultBean resultBean = mediationFacade.processLog(new LogInputBean(indexHeader.getMetaKey(), metaInput.getFortressUser(), new DateTime(), escJson + "\"andy\"}"));
+        assertNotNull(resultBean);
+        Thread.sleep(2000);
+
+        waitForHeaderToUpdate(indexHeader);
+        String indexName = indexHeader.getIndexName();
+        doEsFieldQuery(indexName, "@tag."+tagSearch+".key", "keytestworks", 1);
+
+    }
     @Test
     public void testWhatIndexingDefaultAttributeWithNGram() throws Exception {
         assumeTrue(!ignoreMe);
@@ -679,7 +712,8 @@ public class TestAuditIntegration {
         assertNotNull(message, result.getJsonObject().getAsJsonObject("hits"));
         assertNotNull(message, result.getJsonObject().getAsJsonObject("hits").get("total"));
         int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
-        Assert.assertEquals("Unexpected hit count", expectedHitCount, nbrResult);
+
+        Assert.assertEquals("Unexpected hit count searching for {"+queryString+"} in field {"+field +"}", expectedHitCount, nbrResult);
         return result.getJsonObject()
                 .getAsJsonObject("hits")
                 .getAsJsonArray("hits")

@@ -46,6 +46,14 @@
         <level value="error"/>
     </logger>
 
+    <logger name="net.sf.ehcache">
+        <level value="info"/>
+    </logger>
+
+    <logger name="org.jboss">
+        <level value="info"/>
+    </logger>
+
     <logger name="org.codehaus.jackson">
         <level value="info"/>
     </logger>

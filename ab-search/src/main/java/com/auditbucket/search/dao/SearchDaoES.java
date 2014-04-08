@@ -390,10 +390,10 @@ public class SearchDaoES implements AuditSearchDao {
                             .field("type", "string")
                             .field("index", NOT_ANALYZED)
                         .endObject()
-                        .startObject(MetaSearchSchema.TAG + ".lead.key")
-                            .field("type", "string")
-                            .field("index", NOT_ANALYZED)
-                        .endObject()
+//                        .startObject(MetaSearchSchema.TAG + ".lead.key")
+//                            .field("type", "string")
+//                            .field("index", NOT_ANALYZED)
+//                        .endObject()
                         .startObject(MetaSearchSchema.TIMESTAMP)
                             .field("type", "date")
                         .endObject()
@@ -422,12 +422,26 @@ public class SearchDaoES implements AuditSearchDao {
                     .field("type", "date")
                     .endObject()
                     .startObject(MetaSearchSchema.WHO)       //@who
-                    .field("type", "string")
-                    .field("index", NOT_ANALYZED)
+                        .field("type", "string")
+                        .field("index", NOT_ANALYZED)
                     .endObject()
-                    .endObject()
-                    .endObject()
-                    .endObject();
+                    .endObject() // End properties
+                    .startArray("dynamic_templates")
+                        .startObject()
+                            .startObject("tag-template")
+                                .field("path_match", MetaSearchSchema.TAG+".*.key")
+                                .field("match_mapping_type", "string")
+                                .startObject("mapping")
+                                    .field("type", "string")
+                                    .field("boost", 3d)
+                                    .field("index", "not_analyzed")
+                                    .field("store", "yes")
+                                .endObject()
+                            .endObject() // Tag Template
+                        .endObject()
+                    .endArray()
+                    .endObject() // End document type
+                    .endObject(); // root;
         } catch (IOException e) {
             return null;
         }

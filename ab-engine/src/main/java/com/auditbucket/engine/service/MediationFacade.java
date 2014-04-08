@@ -40,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
 
 import java.text.DecimalFormat;
@@ -274,22 +275,23 @@ public class MediationFacade {
      * @throws com.auditbucket.helper.DatagioException
      */
     @Async
+    @Transactional
     public void reindex(Company company, String fortressName) throws DatagioException {
         Fortress fortress = fortressService.findByName(company, fortressName);
         if (fortress == null)
             throw new DatagioException("Fortress [" + fortress + "] could not be found");
         Long skipCount = 0l;
-        long result = reindex(skipCount, fortress);
+        long result = reindex(fortress, skipCount);
         logger.info("Reindex Search request completed. Processed [" + result + "] headers for [" + fortressName + "]");
     }
 
-    private long reindex(Long skipCount, Fortress fortress) {
+    private long reindex(Fortress fortress, Long skipCount) {
 
         Collection<MetaHeader> headers = trackService.getHeaders(fortress, skipCount);
         if (headers.isEmpty())
             return skipCount;
-        skipCount = reindexHeaders(headers, skipCount);
-        return reindex(skipCount, fortress);
+        skipCount = reindexHeaders(fortress.getCompany(), headers, skipCount);
+        return reindex(fortress, skipCount);
 
     }
 
@@ -314,15 +316,15 @@ public class MediationFacade {
         Collection<MetaHeader> headers = trackService.getHeaders(fortress, docType, skipCount);
         if (headers.isEmpty())
             return skipCount;
-        skipCount = reindexHeaders(headers, skipCount);
+        skipCount = reindexHeaders(fortress.getCompany(), headers, skipCount);
         return reindexByDocType(skipCount, fortress, docType);
 
     }
 
-    private Long reindexHeaders(Collection<MetaHeader> headers, Long skipCount) {
+    private Long reindexHeaders(Company company, Collection<MetaHeader> headers, Long skipCount) {
         for (MetaHeader header : headers) {
             TrackLog lastLog = trackService.getLastLog(header.getId());
-            searchService.rebuild(header, lastLog);
+            searchService.rebuild(company, header, lastLog);
             skipCount++;
         }
         return skipCount;

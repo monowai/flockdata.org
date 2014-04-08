@@ -46,14 +46,14 @@ public interface MetaDataRepo extends GraphRepository<MetaHeaderNode> {
     Set<MetaHeader> findHeadersByTxRef(Long txRef);
 
     @Query(elementClass = MetaHeaderNode.class, value =
-            "start fortress = node({0}) " +
-                    " match fortress-[:TRACKS]->audit " +
+                    " match (fortress:Fortress)-[:TRACKS]->(audit:MetaHeader) " +
+                    " where id(fortress)={0} " +
                     " return audit ORDER BY audit.dateCreated ASC" +
                     " skip {1} limit 100 ")
     Set<MetaHeader> findHeadersFrom(Long fortressId, Long skip);
 
     @Query(elementClass = MetaHeaderNode.class, value =
-                    " match (fortress)-[:TRACKS]->(header) where id(fortress)={0} " +
+                    " match (fortress:Fortress)-[:TRACKS]->(header:MetaHeader) where id(fortress)={0} " +
                     " and header.callerRef ={1}" +
                     " return header ")
     Iterable<MetaHeader> findByCallerRef(Long fortressId, String callerRef);

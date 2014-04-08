@@ -92,10 +92,6 @@ public class TagService {
      * @return tagInputs that failed processing
      */
     public Collection<TagInputBean> processTags(final Company company, final List<TagInputBean> tagInputs) {
-        // Schema constraints have to be issued in a separate transaction
-        // Make sure that a unique constraint exists for a given custom index
-        // ToDo: Figure this out
-
         Collection<TagInputBean>failedInput= new ArrayList<>();
         class DLCommand implements Command {
             Collection<TagInputBean> failedInput;

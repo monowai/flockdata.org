@@ -164,10 +164,10 @@ public class TagInputBean {
     }
 
     public void mergeTags (TagInputBean mergeFrom){
-        if ( !mergeFrom.getMetaLinks().isEmpty() ) {
-            for (String next : mergeFrom.getMetaLinks().keySet())
-                addMetaLink(next);
-        }
+//        if ( !mergeFrom.getMetaLinks().isEmpty() ) {
+//            for (String next : mergeFrom.getMetaLinks().keySet())
+//                addMetaLink(next);
+//        }
         for (String next : mergeFrom.getTargets().keySet()) {
             setTargets(next, mergeFrom.getTargets().get(next));
         }

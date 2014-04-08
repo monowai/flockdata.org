@@ -150,7 +150,7 @@ public class SearchServiceFacade {
         return searchDocument;
     }
 
-    public void rebuild(MetaHeader metaHeader, TrackLog lastLog) {
+    public void rebuild(Company company, MetaHeader metaHeader, TrackLog lastLog) {
         try {
 
             ChangeLog lastChange = null;
@@ -170,7 +170,7 @@ public class SearchServiceFacade {
                     return; // ToDo: fix reindex header only scenario, i.e. no "change/what"
 
                 MetaSearchChange searchDocument = new MetaSearchChange(metaHeader, lastWhat, lastChange.getEvent().getCode(), new DateTime(lastLog.getFortressWhen()));
-                searchDocument.setTags(tagTrackService.findTrackTags(metaHeader));
+                searchDocument.setTags(tagTrackService.findTrackTags(company, metaHeader));
                 searchDocument.setReplyRequired(false);
                 searchDocument.setWho(lastChange.getWho().getCode());
                 makeChangeSearchable(searchDocument);
