@@ -61,21 +61,26 @@ public class TagDaoNeo4j implements TagDao {
     public Tag save(Company company, TagInputBean tagInput) {
         String tagSuffix = engineAdmin.getTagSuffix(company);
         List<String> createdValues = new ArrayList<>();
-        return save(company, tagInput, tagSuffix, createdValues);
+        return save(company, tagInput, tagSuffix, createdValues, false);
     }
 
-    Tag save(Company company, TagInputBean tagInput, Collection<String> createdValues) {
+    Tag save(Company company, TagInputBean tagInput, Collection<String> createdValues, boolean suppressRelationships) {
         String tagSuffix = engineAdmin.getTagSuffix(company);
-        return save(company, tagInput, tagSuffix, createdValues);
+        return save(company, tagInput, tagSuffix, createdValues, suppressRelationships);
     }
 
     public Collection<TagInputBean> save(Company company, Iterable<TagInputBean> tagInputs) {
+        return save(company, tagInputs, false);
+    }
+
+    @Override
+    public Collection<TagInputBean> save(Company company, Iterable<TagInputBean> tagInputs, boolean suppressRelationships) {
         String tagSuffix = engineAdmin.getTagSuffix(company);
         List<TagInputBean> errorResults = new ArrayList<>();
         List<String> createdValues = new ArrayList<>();
         for (TagInputBean tagInputBean : tagInputs) {
             try {
-                save(company, tagInputBean, tagSuffix, createdValues) ;
+                save(company, tagInputBean, tagSuffix, createdValues, suppressRelationships) ;
             } catch (DatagioTagException te){
                 logger.error ("Tag Exception [{}]",te.getMessage());
                 tagInputBean.setServerMessage(te.getMessage());
@@ -86,7 +91,7 @@ public class TagDaoNeo4j implements TagDao {
         return errorResults;
     }
 
-    Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> createdValues) {
+    Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> createdValues, boolean suppressRelationships) {
         // Check exists
         TagNode existingTag = (TagNode) findOne(company, tagInput.getName(), tagInput.getIndex());
         Node start;
@@ -104,7 +109,7 @@ public class TagDaoNeo4j implements TagDao {
         for (String rlxName : tags.keySet()) {
             Collection<TagInputBean> associatedTag = tags.get(rlxName);
             for (TagInputBean tagInputBean : associatedTag) {
-                createRelationship(company, start, tagInputBean, rlxName, createdValues);
+                createRelationship(company, start, tagInputBean, rlxName, createdValues, suppressRelationships);
             }
 
         }
@@ -153,17 +158,21 @@ public class TagDaoNeo4j implements TagDao {
     /**
      * Create unique relationship between the tag and the node
      *
+     *
      * @param company       associate the tag with this company
      * @param startNode     notional start node
      * @param associatedTag tag to make or get
      * @param rlxName       relationship name
      * @param createdValues running list of values already created - performance op.
+     * @param suppressRelationships
      * @return the created tag
      */
-    Tag createRelationship(Company company, Node startNode, TagInputBean associatedTag, String rlxName, Collection<String> createdValues) {
+    Tag createRelationship(Company company, Node startNode, TagInputBean associatedTag, String rlxName, Collection<String> createdValues, boolean suppressRelationships) {
         // Careful - this save can be recursive
         // ToDo - idea = create all tagInputs first then just create the relationships
-        Tag tag = save(company, associatedTag, createdValues);
+        Tag tag = save(company, associatedTag, createdValues, suppressRelationships);
+        if (suppressRelationships)
+            return tag;
         Node endNode = template.getNode(tag.getId());
 
         Long startId = (!associatedTag.isReverse() ? startNode.getId() : endNode.getId());
@@ -232,6 +241,12 @@ public class TagDaoNeo4j implements TagDao {
 
         }
         return tagResults;
+    }
+
+    @Override
+    public Collection<String> getExistingIndexes() {
+        return template.getGraphDatabase().getAllLabelNames();
+
     }
 
     @Override
