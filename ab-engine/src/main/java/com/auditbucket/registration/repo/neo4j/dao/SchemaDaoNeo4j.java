@@ -16,7 +16,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -119,27 +118,25 @@ public class SchemaDaoNeo4j implements SchemaDao {
      * @param company   who owns the tags
      * @param tagInputs collection to process
      */
-    public synchronized void ensureUniqueIndexes(Company company, Iterable<TagInputBean> tagInputs) {
-        Collection<String> added = new ArrayList<>();
+    public synchronized void ensureUniqueIndexes(Company company, Iterable<TagInputBean> tagInputs, Collection<String> added ) {
+
         for (TagInputBean tagInput : tagInputs) {
-            String index = tagInput.getIndex();
+            String index = tagInput.getIndex().substring(1);
             if (!added.contains(index)) {
-                if (index != null && !tagExists(company, index)) {
+                //if (index != null && !tagExists(company, index)) { // This check causes deadlocks in TagEP ?
                     ensureIndex(company, tagInput);
-                }
+                //}
                 added.add(tagInput.getIndex());
             }
+            if (!tagInput.getTargets().isEmpty()){
+                for(String key: tagInput.getTargets().keySet()){
+                    ensureUniqueIndexes(company, tagInput.getTargets().get(key), added);
+                }
+            }
+
         }
-    }
 
-    @Async
-    public void ensureSystemIndexes(Company company, String suffix) {
-        // Performance issue with constraints?
-        logger.info("Creating System Indexes...");
-        template.query("create constraint on (t:Country) assert t.key is unique", null);
-        template.query("create constraint on (t:City) assert t.key is unique", null);
     }
-
 
     @Transactional
     private void ensureIndex(Company company, TagInputBean tagInput) {
@@ -149,6 +146,14 @@ public class SchemaDaoNeo4j implements SchemaDao {
         template.query("create constraint on (t" + tagInput.getIndex() + ") assert t.key is unique", null);
         logger.info("Creating constraint on [{}]", tagInput.getIndex());
 
+    }
+
+    @Async
+    public void ensureSystemIndexes(Company company, String suffix) {
+        // Performance issue with constraints?
+        logger.debug("Creating System Indexes...");
+        template.query("create constraint on (t:Country) assert t.key is unique", null);
+        template.query("create constraint on (t:City) assert t.key is unique", null);
     }
 
     private boolean isSystemIndex(String index) {

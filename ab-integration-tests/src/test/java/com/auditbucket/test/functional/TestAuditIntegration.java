@@ -84,7 +84,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 public class TestAuditIntegration {
-    private boolean ignoreMe = true;
+    private boolean ignoreMe = false;
     private static int fortressMax = 1;
     private static JestClient client;
     @Autowired
@@ -374,7 +374,7 @@ public class TestAuditIntegration {
     TagEP tagEP;
     @Test
     public void tagKeyReturnsUniqueResult() throws Exception {
-        assumeTrue(ignoreMe);
+        assumeTrue(!ignoreMe);
 
         String escJson = "{\"who\":";
         SecurityContextHolder.getContext().setAuthentication(authA);

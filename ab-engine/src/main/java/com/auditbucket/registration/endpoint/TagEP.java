@@ -58,7 +58,9 @@ public class TagEP {
     public Collection<TagInputBean> createTags(@RequestBody List<TagInputBean> tagInputs, String apiKey,
                                                @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
-        schemaDao.ensureUniqueIndexes(company, tagInputs);
+
+        schemaDao.ensureUniqueIndexes(company, tagInputs, tagService.getExistingIndexes());
+        tagService.createTagsNoRelationships(company, tagInputs);
         return tagService.processTags(company, tagInputs);
 
     }

@@ -32,7 +32,10 @@ import java.util.Map;
  * Time: 8:12 PM
  */
 public interface TagDao {
+
     Collection<TagInputBean> save(Company company, Iterable<TagInputBean> tags);
+
+    Collection<TagInputBean> save(Company company, Iterable<TagInputBean> tagInputs, boolean suppressRelationships);
 
     Tag save(Company company, TagInputBean tagInput);
 
@@ -53,4 +56,8 @@ public interface TagDao {
     Map<String, Tag> findTags(Company company);
 
     public Map<String, Tag> findTags(Company company, String index);
+
+    Collection<String> getExistingIndexes();
+
+
 }

@@ -186,6 +186,9 @@ public class TestForceDeadlock {
         for (int i = 0; i < tagCount; i++) {
             TagInputBean tag = new TagInputBean("tag" + i, "tagRlx" + i);
             tag.setIndex("Deadlock");
+            TagInputBean subTag = new TagInputBean("subtag" +i);
+            subTag.setIndex("DeadlockSub");
+            tag.setTargets("subtag",subTag);
             tags.add(tag);
         }
         return tags;

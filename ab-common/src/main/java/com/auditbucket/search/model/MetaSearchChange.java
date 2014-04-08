@@ -192,10 +192,13 @@ public class MetaSearchChange implements SearchChange {
                 tagValues = new HashMap<>();
                 this.tagValues.put(tag.getTagType(), tagValues);
             }
-
-            setTagValue("name", tag.getTag().getName(), tagValues);
+            // Always store the key.
             setTagValue("key", tag.getTag().getKey(), tagValues);
-            setTagValue("code", tag.getTag().getCode().toLowerCase(), tagValues);
+            // Case sensitive, only show the name if it is different to the key
+            if ( !tag.getTag().getName().equals(tag.getTag().getKey()))
+                setTagValue("name", tag.getTag().getName(), tagValues);
+            if ( !tag.getTag().getCode().equals(tag.getTag().getKey()))
+                setTagValue("code", tag.getTag().getCode().toLowerCase(), tagValues);
             setTagValue("weight", tag.getWeight(), tagValues);
             if (tag.getGeoData() != null) {
                 setTagValue("iso", tag.getGeoData().getIsoCode(), tagValues);

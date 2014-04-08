@@ -21,7 +21,7 @@ public interface SchemaDao {
 
     public boolean registerTagIndex (Company c, String indexName );
 
-    public void ensureUniqueIndexes(Company c, Iterable<TagInputBean> tagInputs);
+    public void ensureUniqueIndexes(Company c, Iterable<TagInputBean> tagInputs, Collection<String> existingIndexes );
 
     void ensureSystemIndexes(Company company, String tagSuffix);
 }

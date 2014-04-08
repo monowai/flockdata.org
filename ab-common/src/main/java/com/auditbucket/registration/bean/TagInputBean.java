@@ -164,10 +164,6 @@ public class TagInputBean {
     }
 
     public void mergeTags (TagInputBean mergeFrom){
-//        if ( !mergeFrom.getMetaLinks().isEmpty() ) {
-//            for (String next : mergeFrom.getMetaLinks().keySet())
-//                addMetaLink(next);
-//        }
         for (String next : mergeFrom.getTargets().keySet()) {
             setTargets(next, mergeFrom.getTargets().get(next));
         }
@@ -252,7 +248,8 @@ public class TagInputBean {
      * @param properties        properties to store against the relationship
      */
     public void addMetaLink(String relationshipName, Map<String, Object> properties) {
-        this.metaLinks.put(relationshipName, properties);
+        if ( metaLinks.get(relationshipName) == null )
+            this.metaLinks.put(relationshipName, properties);
 
     }
 

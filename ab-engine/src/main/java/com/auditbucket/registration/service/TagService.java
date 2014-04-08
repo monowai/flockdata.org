@@ -34,6 +34,8 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +43,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * Handles management of a companies tags.
@@ -85,13 +89,27 @@ public class TagService {
         return processTags(company, tagInputs);
     }
 
+    public Collection<TagInputBean> processTags(final Company company, final List<TagInputBean> tagInputs) {
+        //schemaDao.ensureUniqueIndexes(company, tagInputs);
+        Future<Collection<TagInputBean>> future = makeTags(company, tagInputs);
+        while (!future.isDone())
+            Thread.yield();
+        try {
+            return future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Processing tags", e);
+        }
+        return null;
+    }
+
     /**
      *
      * @param company   who owns this collection
      * @param tagInputs tags to establish
      * @return tagInputs that failed processing
      */
-    public Collection<TagInputBean> processTags(final Company company, final List<TagInputBean> tagInputs) {
+    @Async
+    public Future<Collection<TagInputBean>> makeTags(final Company company, final List<TagInputBean> tagInputs) {
         Collection<TagInputBean>failedInput= new ArrayList<>();
         class DLCommand implements Command {
             Collection<TagInputBean> failedInput;
@@ -102,12 +120,13 @@ public class TagService {
 
             @Override
             public Command execute() {
+                // Creates the relationships
                 failedInput = tagDao.save(company, inputs);
                 return this;
             }
         }
 
-        List<List<TagInputBean>> splitList = Lists.partition(tagInputs, 5);
+        List<List<TagInputBean>> splitList = Lists.partition(tagInputs, 20);
         for (List<TagInputBean> tagInputBeans : splitList) {
             DLCommand c = new DLCommand(tagInputBeans);
             try {
@@ -117,7 +136,7 @@ public class TagService {
             }
             failedInput.addAll(c.failedInput);
         }
-        return failedInput;
+        return new AsyncResult<>(failedInput);
     }
 
     public Tag findTag(Company company, String tagName) {
@@ -133,11 +152,10 @@ public class TagService {
     }
 
     /**
-     * Finds a company document type and creates it if it is missing
      *
-     * @param fortress
-     * @param documentType
-     * @return
+     * @param fortress     system that has an interest
+     * @param documentType name of the doc type
+     * @return resolved document. Created if missing
      */
     public DocumentType resolveDocType(Fortress fortress, String documentType) {
         return resolveDocType(fortress, documentType, true);
@@ -146,9 +164,9 @@ public class TagService {
     /**
      * finds or creates a Document Type for the caller's company
      *
-     * @param fortress
+     * @param fortress        system that has an interest
      * @param documentType    name of the document
-     * @param createIfMissing
+     * @param createIfMissing create document types that are missing
      * @return created DocumentType
      */
     public DocumentType resolveDocType(Fortress fortress, String documentType, Boolean createIfMissing) {
@@ -179,5 +197,14 @@ public class TagService {
         if (!index.startsWith(":"))
             index = ":" + index;
         return tagDao.findOne(company, tagName, index);  //To change body of created methods use File | Settings | File Templates.
+    }
+
+    public Collection<String> getExistingIndexes() {
+        return tagDao.getExistingIndexes();
+    }
+
+    public void createTagsNoRelationships(Company company, List<TagInputBean> tagInputs) {
+        boolean suppressRelationships = true;
+        tagDao.save(company, tagInputs, suppressRelationships);
     }
 }
