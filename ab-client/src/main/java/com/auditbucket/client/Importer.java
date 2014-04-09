@@ -161,16 +161,17 @@ public class Importer {
 
     static long processFile(String server, String file, Class clazz, int batchSize, int skipCount) throws IllegalAccessException, InstantiationException, IOException, ParserConfigurationException, SAXException, JDOMException, DatagioException {
         AbRestClient abExporter = new AbRestClient(server, "mike", "123", batchSize);
-        abExporter.setSimulateOnly(batchSize <= 0);
+        boolean simulateOnly = batchSize <= 0;
+        abExporter.setSimulateOnly(simulateOnly);
 
         Mappable mappable = (Mappable) clazz.newInstance();
         //String file = path;
         logger.info("Starting the processing of {}", file);
         try {
             if (mappable.getImporter() == Importer.importer.CSV)
-                return processCSVFile(file, abExporter, (DelimitedMappable) mappable, skipCount);
+                return processCSVFile(file, abExporter, (DelimitedMappable) mappable, skipCount, simulateOnly );
             else if (mappable.getImporter() == Importer.importer.XML)
-                return processXMLFile(file, abExporter, (XmlMappable) mappable);
+                return processXMLFile(file, abExporter, (XmlMappable) mappable, simulateOnly);
 
         } finally {
             abExporter.flush(mappable.getClass().getCanonicalName(), mappable.getABType());
@@ -179,7 +180,7 @@ public class Importer {
         return 0;
     }
 
-    static long processXMLFile(String file, AbRestClient abExporter, XmlMappable mappable) throws ParserConfigurationException, IOException, SAXException, JDOMException, DatagioException {
+    static long processXMLFile(String file, AbRestClient abExporter, XmlMappable mappable, boolean simulateOnly) throws ParserConfigurationException, IOException, SAXException, JDOMException, DatagioException {
         try {
             long rows = 0;
             StopWatch watch = new StopWatch();
@@ -194,7 +195,7 @@ public class Importer {
             try {
                 long then = new DateTime().getMillis();
                 while (xsr.getLocalName().equals(docType)) {
-                    XmlMappable row = mappable.newInstance();
+                    XmlMappable row = mappable.newInstance(simulateOnly);
                     String json = row.setXMLData(xsr);
                     MetaInputBean header = (MetaInputBean) row;
                     if ( !header.getCrossReferences().isEmpty()){
@@ -207,7 +208,7 @@ public class Importer {
                     xsr.nextTag();
                     writeAudit(abExporter, header, mappable.getClass().getCanonicalName());
                     rows++;
-                    if (rows % 500 == 0)
+                    if (rows % 500 == 0 && !simulateOnly)
                         logger.info("Processed {} elapsed seconds {}", rows, new DateTime().getMillis()-then /1000d);
 
                 }
@@ -229,10 +230,10 @@ public class Importer {
         return abExporter.flushXReferences(referenceInputBeans);
     }
 
-    static long processCSVFile(String file, AbRestClient abExporter, DelimitedMappable mappable, int skipCount) throws IOException, IllegalAccessException, InstantiationException, DatagioException {
+    static long processCSVFile(String file, AbRestClient abExporter, DelimitedMappable mappable, int skipCount, boolean simulateOnly) throws IOException, IllegalAccessException, InstantiationException, DatagioException {
 
         StopWatch watch = new StopWatch();
-        DelimitedMappable row = mappable.newInstance();
+        DelimitedMappable row = mappable.newInstance(simulateOnly);
         int rows = 0;
 
         BufferedReader br;
@@ -259,7 +260,7 @@ public class Importer {
                     if (rows >= skipCount) {
                         if (rows == skipCount)
                             logger.info("Starting to process from row {}", skipCount);
-                        row = mappable.newInstance();
+                        row = mappable.newInstance(simulateOnly);
 
                         String jsonData = row.setData(headerRow, nextLine);
                         //logger.info(jsonData);
@@ -282,11 +283,12 @@ public class Importer {
                             }
                         }
                         if (rows % 500 == 0) {
-                            logger.info("Processed {} ", rows);
+                            if ( !simulateOnly)
+                                logger.info("Processed {} ", rows);
                         }
                     }
                 } else {
-                    if (rows % 500 == 0)
+                    if (rows % 500 == 0 && !simulateOnly)
                         logger.info("Skipping {} of {}", rows, skipCount);
                 }
             }

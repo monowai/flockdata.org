@@ -36,7 +36,7 @@ public interface XmlMappable extends Mappable {
     @JsonIgnore
     public String getDataType();
 
-    XmlMappable newInstance();
+    XmlMappable newInstance(boolean simulateOnly);
 
     public String setXMLData(XMLStreamReader xsr) throws JAXBException, JsonProcessingException, DatagioException;
 
