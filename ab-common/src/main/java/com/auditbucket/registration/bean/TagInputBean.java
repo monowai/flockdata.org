@@ -53,7 +53,7 @@ public class TagInputBean {
 
     private String metaLink = null;
     private boolean mustExist = false;
-    private static String serverMessage;
+    private String serviceMessage;
 
 
     protected TagInputBean() {
@@ -118,12 +118,12 @@ public class TagInputBean {
 
     }
 
-    public void setServerMessage(String serverMessage) {
-        TagInputBean.serverMessage = serverMessage;
+    public void getServiceMessage(String getServiceMessage) {
+        this.serviceMessage = getServiceMessage;
     }
 
-    public String getServerMessage() {
-        return serverMessage;
+    public String getServiceMessage() {
+        return serviceMessage;
     }
 
     public String getName() {

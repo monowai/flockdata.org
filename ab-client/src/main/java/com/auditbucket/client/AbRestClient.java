@@ -70,6 +70,29 @@ public class AbRestClient {
     private final String tagSync = "TagSync";
     private String defaultFortress;
 
+
+    public enum type {AUDIT, TAG}
+
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(AbRestClient.class);
+
+    public AbRestClient(String serverName, String userName, String password, int batchSize) {
+        this(serverName, userName, password, batchSize, null);
+    }
+
+    public AbRestClient(String serverName, String userName, String password, int batchSize, String defaultFortress) {
+        this.userName = userName;
+        this.password = password;
+        // Urls to write Audit/Tag/Fortress information
+        this.NEW_HEADER = serverName + "/v1/track/";
+        this.CROSS_REFERENCES = serverName + "/v1/track/xref";
+        this.NEW_TAG = serverName + "/v1/tag/";
+        this.FORTRESS = serverName + "/v1/fortress/";
+        this.batchSize = batchSize;
+        this.defaultFortress = defaultFortress;
+    }
+
+
+
     public void setSimulateOnly(boolean simulateOnly) {
         this.simulateOnly = simulateOnly;
     }
@@ -147,34 +170,12 @@ public class AbRestClient {
     private void logServerMessages(ResponseEntity<ArrayList> response) {
         ArrayList x = response.getBody();
         for (Object val : x) {
-            //JsonNode tree = mapper.readTree("");
             Map map  = (Map)val;
             Object serviceMessage = map.get("serviceMessage");
             if (serviceMessage != null)
                 logger.error("Service returned [{}]", serviceMessage.toString());
         }
     }
-
-    public enum type {AUDIT, TAG}
-
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(AbRestClient.class);
-
-    public AbRestClient(String serverName, String userName, String password, int batchSize) {
-        this(serverName, userName, password, batchSize, null);
-    }
-
-    public AbRestClient(String serverName, String userName, String password, int batchSize, String defaultFortress) {
-        this.userName = userName;
-        this.password = password;
-        // Urls to write Audit/Tag/Fortress information
-        this.NEW_HEADER = serverName + "/v1/track/";
-        this.CROSS_REFERENCES = serverName + "/v1/track/xref";
-        this.NEW_TAG = serverName + "/v1/tag/";
-        this.FORTRESS = serverName + "/v1/fortress/";
-        this.batchSize = batchSize;
-        this.defaultFortress = defaultFortress;
-    }
-
     public void ensureFortress(String fortressName) {
         if (fortressName == null)
             return;

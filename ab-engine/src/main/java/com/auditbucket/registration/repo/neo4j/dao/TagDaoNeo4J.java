@@ -83,7 +83,7 @@ public class TagDaoNeo4j implements TagDao {
                 save(company, tagInputBean, tagSuffix, createdValues, suppressRelationships) ;
             } catch (DatagioTagException te){
                 logger.error ("Tag Exception [{}]",te.getMessage());
-                tagInputBean.setServerMessage(te.getMessage());
+                tagInputBean.getServiceMessage(te.getMessage());
                 errorResults.add(tagInputBean);
             }
 
@@ -97,7 +97,7 @@ public class TagDaoNeo4j implements TagDao {
         Node start;
         if (existingTag == null) {
             if (tagInput.isMustExist()) {
-                tagInput.setServerMessage("Tag [" + tagInput.getName() + "] should exist for ["+tagInput.getIndex()+"] but doesn't. Ignoring this request.");
+                tagInput.getServiceMessage("Tag [" + tagInput.getName() + "] should exist for [" + tagInput.getIndex() + "] but doesn't. Ignoring this request.");
                 throw new DatagioTagException("Tag [" + tagInput.getName() + "] should exist for ["+tagInput.getIndex()+"] but doesn't. Ignoring this request.");
             } else
                 start = createTag(company, tagInput, tagSuffix);
