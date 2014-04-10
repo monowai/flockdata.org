@@ -236,7 +236,7 @@ public class TrackEP {
     @ResponseBody
     @RequestMapping(value = "/{metaKey}/summary", produces = "application/json", method = RequestMethod.GET)
     public ResponseEntity<TrackedSummaryBean> getAuditSummary(@PathVariable("metaKey") String metaKey,
-                                                              String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+                                 String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = getCompany(apiHeaderKey, apiKey);
         return new ResponseEntity<>(mediationFacade.getTrackedSummary(company, metaKey), HttpStatus.OK);
 
@@ -332,7 +332,7 @@ public class TrackEP {
 
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/{metaKey}
         MetaHeader result = trackService.getHeader(company, metaKey);
-        return new ResponseEntity<>(tagTrackService.findTrackTags(result), HttpStatus.OK);
+        return new ResponseEntity<>(tagTrackService.findTrackTags(company, result), HttpStatus.OK);
     }
 
 

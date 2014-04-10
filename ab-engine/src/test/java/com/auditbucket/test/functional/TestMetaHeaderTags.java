@@ -840,7 +840,7 @@ public class TestMetaHeaderTags {
 
 //    @Test
 //    public void headerTagsAreUpdatedWithTagDetailsInAnAuditLog() throws Exception {
-//        regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
+//        regEP.registerSystemUser(new RegistrationBean(company, uid, "bah"));
 //        fortressEP.registerFortress("ABC");
 //
 //        TagInputBean tagInput = new TagInputBean("FLOP");

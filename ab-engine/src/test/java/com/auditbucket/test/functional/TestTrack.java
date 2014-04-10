@@ -28,13 +28,11 @@ import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.service.MediationFacade;
 import com.auditbucket.engine.service.TrackService;
 import com.auditbucket.fortress.endpoint.FortressEP;
-import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
-import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.FortressService;
 import junit.framework.Assert;
 import org.apache.commons.lang.time.StopWatch;
@@ -114,59 +112,6 @@ public class TestTrack {
         // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
         if (!"rest".equals(System.getProperty("neo4j")))
             Neo4jHelper.cleanDb(template);
-    }
-
-    @Test
-    public void testApiKeysWorkInPrecedence() throws Exception {
-        // No Security Access necessary.
-        SecurityContextHolder.getContext().setAuthentication(null);
-        SystemUser sysUser = regService.register(new RegistrationBean(monowai, mike, "bah")).getBody();
-        assertNotNull(sysUser);
-        String apiKey = sysUser.getCompany().getApiKey();
-
-        Assert.assertNotNull(apiKey);
-        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("testApiKeysWorkInPrecedence"), sysUser.getCompany().getApiKey()).getBody();
-        MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
-
-        // Fails due to NoAuth or key
-        TrackResultBean result ;
-        try {
-            result= trackEP.trackHeader(inputBean, null, null).getBody();
-            assertNull(result);
-            fail("Security Exception did not occur");
-        } catch (SecurityException e) {
-            // Good
-        }
-
-        // Should work now
-        SecurityContextHolder.getContext().setAuthentication(authMike);//
-
-        result = trackEP.trackHeader(inputBean, null, null).getBody(); // Works due to basic authz
-        assertNotNull(result);  // works coz basic authz
-
-        final MetaHeader header = trackEP.getAudit(result.getMetaKey(), apiKey, apiKey).getBody();
-        assertNotNull (header);
-        SecurityContextHolder.getContext().setAuthentication(authMark);// Wrong user, but valid API key
-        assertNotNull(trackEP.trackHeader(inputBean, apiKey, null));// works
-        assertNotNull(trackEP.trackHeader(inputBean, null, apiKey));// works
-        assertNotNull(trackEP.trackHeader(inputBean, "invalidApiKey", apiKey));// Header overrides request
-        try {
-            assertNull(trackEP.trackHeader(inputBean, apiKey, "123")); // Illegal result
-            Assert.fail("this should not have worked due to invalid api key");
-        } catch (DatagioException e) {
-            // this should happen due to invalid api key
-        }
-        SecurityContextHolder.getContext().setAuthentication(null);// No user context, but valid API key
-        assertNotNull(trackEP.trackHeader(inputBean, apiKey, null));// works
-        assertNotNull(trackEP.trackHeader(inputBean, null, apiKey));// works
-        assertNotNull(trackEP.trackHeader(inputBean, "invalidApiKey", apiKey));// Header overrides request
-        try {
-            assertNull(trackEP.trackHeader(inputBean, apiKey, "123")); // Illegal result
-            Assert.fail("this should not have worked due to invalid api key");
-        } catch (DatagioException e) {
-            // this should happen due to invalid api key
-        }
-
     }
 
     @Test

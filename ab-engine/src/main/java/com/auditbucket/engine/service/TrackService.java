@@ -663,7 +663,7 @@ public class TrackService {
         if (header == null)
             throw new DatagioException("Invalid Meta Key [" + metaKey + "]");
         Set<TrackLog> changes = getLogs(header.getId());
-        Set<TrackTag> tags = tagTrackService.findTrackTags(header);
+        Set<TrackTag> tags = tagTrackService.findTrackTags(company, header);
         return new TrackedSummaryBean(header, changes, tags);
     }
 
