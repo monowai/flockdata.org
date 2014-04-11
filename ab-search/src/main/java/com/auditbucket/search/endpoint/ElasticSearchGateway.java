@@ -34,6 +34,7 @@ public interface ElasticSearchGateway {
     @Gateway(requestChannel = "sendRequest")
     public void createSearchableChange(MetaSearchChange thisChange);
 
+
     //@Gateway(requestChannel = "esDelete")
     public void delete(@Payload MetaHeader metaHeader);
 }

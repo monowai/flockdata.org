@@ -19,8 +19,8 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.audit.model.AuditSearchDao;
 import com.auditbucket.audit.model.SearchChange;
+import com.auditbucket.audit.model.TrackSearchDao;
 import com.auditbucket.search.model.MetaSearchChange;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.action.get.GetResponse;
@@ -55,7 +55,7 @@ public class TestElasticSearch {
     private Logger log = LoggerFactory.getLogger(TestElasticSearch.class);
 
     @Autowired
-    AuditSearchDao alRepo;
+    TrackSearchDao alRepo;
 
     @Test
     public void testMappingJson() throws Exception {

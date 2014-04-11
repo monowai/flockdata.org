@@ -19,7 +19,7 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.search.service.AbSearchService;
+import com.auditbucket.search.service.QueryService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -40,7 +40,7 @@ import org.springframework.security.core.Authentication;
 public class TestAuditSearch {
 
     @Autowired
-    AbSearchService searchService;
+    QueryService searchService;
 
 
     ObjectMapper om = new ObjectMapper();

@@ -19,7 +19,7 @@
 
 package com.auditbucket.search.service;
 
-import com.auditbucket.audit.model.AuditSearchDao;
+import com.auditbucket.audit.model.TrackSearchDao;
 import com.auditbucket.helper.VersionHelper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,7 +42,7 @@ import java.util.Map;
 @Service
 public class SearchAdmin {
     @Autowired
-    AuditSearchDao auditSearch;
+    TrackSearchDao auditSearch;
 
     @Value("${abengine.result}")
     String abEngine;

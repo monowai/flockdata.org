@@ -26,8 +26,11 @@ import org.springframework.integration.annotation.Gateway;
  * User: Mike Holdsworth
  * Since: 13/07/13
  */
-public interface AbEngineGateway {
+public interface EngineGateway {
     @Gateway(requestChannel = "searchReply")
     void handleSearchResult(SearchResult searchResult);
+
+//    @Gateway(requestChannel = "validateAPI")
+//    public String validateApiKey(String apiKey);
 
 }

@@ -26,7 +26,7 @@ import java.util.Map;
  * Date: 26/04/13
  * Time: 12:26 PM
  */
-public interface AuditSearchDao {
+public interface TrackSearchDao {
 
     /**
      * Rewrites an existing document

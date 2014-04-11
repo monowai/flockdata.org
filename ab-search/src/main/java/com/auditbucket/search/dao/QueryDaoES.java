@@ -33,12 +33,12 @@ import org.springframework.stereotype.Repository;
  * Time: 2:23 PM
  */
 @Repository
-public class AuditQueryDaoES implements AuditQueryDao {
+public class QueryDaoES implements AuditQueryDao {
 
     @Autowired
     private Client client;
 
-    private Logger log = LoggerFactory.getLogger(AuditQueryDaoES.class);
+    private Logger log = LoggerFactory.getLogger(QueryDaoES.class);
 
     @Override
     public long getHitCount(String index) {
@@ -52,5 +52,7 @@ public class AuditQueryDaoES implements AuditQueryDao {
         return response.getHits().getTotalHits();
 
     }
+
+
 
 }

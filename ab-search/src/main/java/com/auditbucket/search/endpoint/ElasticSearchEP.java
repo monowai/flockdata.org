@@ -19,10 +19,12 @@
 
 package com.auditbucket.search.endpoint;
 
-import com.auditbucket.search.service.AbSearchService;
+import com.auditbucket.helper.DatagioException;
+import com.auditbucket.search.service.QueryService;
 import com.auditbucket.search.service.SearchAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -39,7 +41,7 @@ import java.util.Map;
 @Controller
 public class ElasticSearchEP {
     @Autowired
-    AbSearchService searchService;
+    QueryService searchService;
 
     @Autowired
     SearchAdmin searchAdmin;
@@ -57,5 +59,16 @@ public class ElasticSearchEP {
         // curl -u mike:123 -X GET http://localhost:8081/ab-search/v1/health
         return searchAdmin.getHealth();
     }
+
+    @RequestMapping(value = "/query", produces = "application/json", method = RequestMethod.POST)
+    @ResponseBody
+    public void simpleQuery(String queryString,
+                            @RequestHeader(value = "Api-Key", required = false)
+                            String apiHeaderKey) throws DatagioException {
+        searchService.doSearch(queryString, "ab.*");
+        // curl -u mike:123 -X GET http://localhost:8081/ab-search/v1/health
+        //return searchAdmin.getHealth();
+    }
+
 
 }

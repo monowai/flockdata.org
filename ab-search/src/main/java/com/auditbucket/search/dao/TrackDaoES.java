@@ -19,9 +19,9 @@
 
 package com.auditbucket.search.dao;
 
-import com.auditbucket.audit.model.AuditSearchDao;
 import com.auditbucket.audit.model.MetaHeader;
 import com.auditbucket.audit.model.SearchChange;
+import com.auditbucket.audit.model.TrackSearchDao;
 import com.auditbucket.search.model.MetaSearchSchema;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -57,13 +57,13 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
  * Time: 12:00 PM
  */
 @Repository("esAuditChange")
-public class SearchDaoES implements AuditSearchDao {
+public class TrackDaoES implements TrackSearchDao {
 
     private static final String NOT_ANALYZED = "not_analyzed";
     @Autowired
     private Client esClient;
 
-    private Logger logger = LoggerFactory.getLogger(SearchDaoES.class);
+    private Logger logger = LoggerFactory.getLogger(TrackDaoES.class);
 
     @Override
     public void delete(MetaHeader header, String existingIndexKey) {
