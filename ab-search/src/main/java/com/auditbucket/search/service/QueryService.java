@@ -19,14 +19,15 @@
 
 package com.auditbucket.search.service;
 
-import com.auditbucket.audit.model.MetaHeader;
 import com.auditbucket.audit.model.TrackSearchDao;
-import com.auditbucket.dao.AuditQueryDao;
+import com.auditbucket.dao.QueryDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.stereotype.Service;
+
+import java.util.Collection;
 
 /**
  * User: Mike Holdsworth
@@ -37,32 +38,25 @@ import org.springframework.stereotype.Service;
 @MessageEndpoint
 public class QueryService  {
     @Autowired
-    private TrackSearchDao auditSearch;
+    private TrackSearchDao trackDao;
 
     @Autowired
-    private AuditQueryDao auditQuery;
+    private QueryDao queryDao;
 
     private Logger logger = LoggerFactory.getLogger(QueryService.class);
 
-    public void doSearch (String query, String index ){
+    public String doSearch(String index, String query){
+        return queryDao.doSearch(index, query);
+    }
 
+    public Collection<String> doMetaKeySearch(String index, String query){
+        return queryDao.doMetaKeySearch(index, query);
     }
 
     public Long getHitCount(String index) {
-        return auditQuery.getHitCount(index);
+        return queryDao.getHitCount(index);
     }
 
-    public void delete(MetaHeader metaHeader) {
-        auditSearch.delete(metaHeader, null);
-    }
-
-    public byte[] findOne(MetaHeader header) {
-        return auditSearch.findOne(header);
-    }
-
-    public byte[] findOne(MetaHeader header, String id) {
-        return auditSearch.findOne(header, id);
-    }
 
 
 }

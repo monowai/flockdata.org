@@ -1,5 +1,6 @@
 package com.auditbucket.search.service;
 
+import com.auditbucket.audit.model.MetaHeader;
 import com.auditbucket.audit.model.TrackSearchDao;
 import com.auditbucket.search.model.MetaSearchChange;
 import com.auditbucket.search.model.SearchResult;
@@ -48,6 +49,19 @@ public class TrackService {
             logger.debug("Dispatching searchResult to ab-engine {}", result);
             engineGateway.handleSearchResult(result);
         }
+    }
+    public void delete(MetaHeader metaHeader) {
+        //trackDao.delete(metaHeader, null);
+    }
+
+    public byte[] findOne(MetaHeader header) {
+        return null;
+        //return trackDao.findOne(header);
+    }
+
+    public byte[] findOne(MetaHeader header, String id) {
+        return null;
+        //return trackDao.findOne(header, id);
     }
 
 }

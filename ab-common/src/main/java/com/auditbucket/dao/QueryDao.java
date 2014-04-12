@@ -19,11 +19,17 @@
 
 package com.auditbucket.dao;
 
+import java.util.Collection;
+
 /**
  * User: Mike Holdsworth
  * Date: 28/04/13
  * Time: 8:44 PM
  */
-public interface AuditQueryDao {
+public interface QueryDao {
     long getHitCount(String index);
+
+    String doSearch(String index, String queryString);
+
+    public Collection<String> doMetaKeySearch(String index, String queryString);
 }

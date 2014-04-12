@@ -86,7 +86,7 @@
 
         <dependency>
             <groupId>com.monowai</groupId>
-            <artifactId>ab-common</artifactId>
+            <artifactId>ab-client</artifactId>
             <version>${project.version}</version>
             <type>jar</type>
         </dependency>
@@ -143,7 +143,7 @@
         <dependency>
             <groupId>io.searchbox</groupId>
             <artifactId>jest</artifactId>
-            <version>0.0.4</version>
+            <version>0.1.0</version>
         </dependency>
     </dependencies>
 

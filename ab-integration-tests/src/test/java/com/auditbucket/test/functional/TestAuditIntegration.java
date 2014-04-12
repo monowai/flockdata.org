@@ -23,6 +23,7 @@ import com.auditbucket.audit.bean.*;
 import com.auditbucket.audit.model.MetaHeader;
 import com.auditbucket.audit.model.TrackLog;
 import com.auditbucket.audit.model.TrackTag;
+import com.auditbucket.client.AbRestClient;
 import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.service.MediationFacade;
 import com.auditbucket.engine.service.TrackService;
@@ -33,15 +34,17 @@ import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.endpoint.TagEP;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.search.model.MetaSearchSchema;
+import com.auditbucket.search.model.QueryParams;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.JestResult;
-import io.searchbox.client.config.ClientConfig;
+import io.searchbox.client.config.HttpClientConfig;
 import io.searchbox.core.Search;
 import io.searchbox.indices.DeleteIndex;
 import org.apache.commons.lang.time.StopWatch;
@@ -56,6 +59,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.data.neo4j.support.node.Neo4jHelper;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -63,6 +70,9 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestTemplate;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -84,9 +94,10 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 public class TestAuditIntegration {
-    private boolean ignoreMe = false;
+    private boolean ignoreMe = true;
     private static int fortressMax = 1;
-    private static JestClient client;
+    private static JestClient esClient;
+
     @Autowired
     TrackService trackService;
     @Autowired
@@ -112,28 +123,28 @@ public class TestAuditIntegration {
     @BeforeClass
     @Rollback(false)
     public static void cleanupElasticSearch() throws Exception {
-        ClientConfig clientConfig = new ClientConfig.Builder("http://localhost:9201").multiThreaded(false).build();
-
+        HttpClientConfig clientConfig = new HttpClientConfig.Builder("http://localhost:9201").multiThreaded(false).build();
         // Construct a new Jest client according to configuration via factory
         JestClientFactory factory = new JestClientFactory();
-        factory.setClientConfig(clientConfig);
-        client = factory.getObject();
+        factory.setHttpClientConfig(clientConfig);
+        //factory.setClientConfig(clientConfig);
+        esClient = factory.getObject();
 
-        client.execute(new DeleteIndex.Builder("ab.testaudit.suppress").build());
-        client.execute(new DeleteIndex.Builder("ab.testaudit.ngram").build());
-        client.execute(new DeleteIndex.Builder("ab.companywithspace.audittest").build());
-        client.execute(new DeleteIndex.Builder("ab.monowai.trackgraph").build());
-        client.execute(new DeleteIndex.Builder("ab.monowai.audittest").build());
+        esClient.execute(new DeleteIndex.Builder("ab.testaudit.suppress").build());
+        esClient.execute(new DeleteIndex.Builder("ab.testaudit.ngram").build());
+        esClient.execute(new DeleteIndex.Builder("ab.companywithspace.audittest").build());
+        esClient.execute(new DeleteIndex.Builder("ab.monowai.trackgraph").build());
+        esClient.execute(new DeleteIndex.Builder("ab.monowai.audittest").build());
 
         for (int i = 1; i < fortressMax + 1; i++) {
-            client.execute(new DeleteIndex.Builder("ab.testaudit.bulkloada" + i).build());
+            esClient.execute(new DeleteIndex.Builder("ab.testaudit.bulkloada" + i).build());
         }
 
     }
 
     @AfterClass
     public static void shutDownElasticSearch() throws Exception {
-        client.shutdownClient();
+        esClient.shutdownClient();
     }
 
     @Rollback(false)
@@ -274,7 +285,7 @@ public class TestAuditIntegration {
                 .addIndex(metaHeader.getIndexName())
                 .build();
 
-        JestResult result = client.execute(search);
+        JestResult result = esClient.execute(search);
         assertNotNull(result);
         assertNotNull(result.getJsonObject());
         assertNotNull(result.getJsonObject().getAsJsonObject("hits"));
@@ -331,6 +342,7 @@ public class TestAuditIntegration {
         doEsQuery(indexName, "*", 3);
 
     }
+
     /**
      * Suppresses the indexing of a log record even if the fortress is set to index everything
      *
@@ -370,8 +382,10 @@ public class TestAuditIntegration {
         doEsQuery(indexName, "bob", 0);
         doEsQuery(indexName, "andy");
     }
+
     @Autowired
     TagEP tagEP;
+
     @Test
     public void tagKeyReturnsUniqueResult() throws Exception {
         assumeTrue(!ignoreMe);
@@ -390,7 +404,7 @@ public class TestAuditIntegration {
         MetaHeader indexHeader = trackService.getHeader(indexedResult.getMetaKey());
 
         Set<TrackTag> tags = trackEP.getAuditTags(indexHeader.getMetaKey(), null, null).getBody();
-        assertNotNull ( tags);
+        assertNotNull(tags);
         assertEquals(1, tags.size());
 
         LogResultBean resultBean = mediationFacade.processLog(new LogInputBean(indexHeader.getMetaKey(), metaInput.getFortressUser(), new DateTime(), escJson + "\"andy\"}"));
@@ -399,9 +413,10 @@ public class TestAuditIntegration {
 
         waitForHeaderToUpdate(indexHeader);
         String indexName = indexHeader.getIndexName();
-        doEsFieldQuery(indexName, "@tag."+tagSearch+".key", "keytestworks", 1);
+        doEsFieldQuery(indexName, "@tag." + tagSearch + ".key", "keytestworks", 1);
 
     }
+
     @Test
     public void testWhatIndexingDefaultAttributeWithNGram() throws Exception {
         assumeTrue(!ignoreMe);
@@ -516,6 +531,49 @@ public class TestAuditIntegration {
         doSearchTests(auditMax, list, watch);
     }
 
+    @Test
+    public void simpleQueryEPWorksForImportedRecord() throws Exception {
+        assumeTrue(ignoreMe);
+
+        String searchFor = "testing";
+        String escJson = "{\"who\":\""+searchFor+"\"}";
+
+//        RestTemplate restTemplate = new RestTemplate();
+//        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+//        AbRestClient restClient = new AbRestClient("http://localhost:9081/", "mike", "123", 1);
+//        assertEquals("Pong!", restClient.ping());
+        SystemUser su = regService.registerSystemUser(new RegistrationBean("TestCo", "mike", "123"));
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("TestFortress", false));
+        MetaInputBean input = new MetaInputBean("TestFortress", "mikeTest", "Query", new DateTime(), "abzz");
+        LogInputBean log = new LogInputBean("mikeTest", new DateTime(), escJson );
+        input.setLog(log);
+        TrackResultBean result = trackEP.trackHeader(input, su.getCompany().getApiKey(), su.getCompany().getApiKey() ).getBody();
+        waitForHeaderToUpdate(result.getMetaHeader(), su.getCompany().getApiKey());
+//        restClient.writeAudit(input, "Hello World");
+
+
+        QueryParams q = new QueryParams().setSimpleQuery(searchFor);
+        m(q);
+
+    }
+
+    private void m(QueryParams queryParams) throws Exception {
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+
+        HttpHeaders httpHeaders = AbRestClient.getHeaders("mike", "123");
+        HttpEntity<QueryParams> requestEntity = new HttpEntity<>(queryParams, httpHeaders);
+
+        try {
+            restTemplate.exchange("http://localhost:9081/ab-search/v1/query/", HttpMethod.POST, requestEntity, QueryParams.class);
+        } catch (HttpClientErrorException e) {
+            logger.error("AB Client Audit error {}", e);
+        } catch (HttpServerErrorException e) {
+            logger.error("AB Server Audit error {}", e);
+
+        }
+    }
+
     private void createLog(String simpleJson, MetaInputBean aib, TrackResultBean arb, int log) throws DatagioException {
         mediationFacade.processLog(new LogInputBean(arb.getMetaKey(), aib.getFortressUser(), new DateTime(), simpleJson + log + "}"));
     }
@@ -545,25 +603,29 @@ public class TestAuditIntegration {
         }
 
     }
-
-    private int waitForHeaderToUpdate(MetaHeader header) throws Exception {
+    private int waitForHeaderToUpdate(MetaHeader header, String apiKey) throws Exception{
         // Looking for the first searchKey to be logged against the metaHeader
         int i = 0;
         int timeout = 50;
 
-        MetaHeader metaHeader = trackService.getHeader(header.getMetaKey());
+        MetaHeader metaHeader = trackEP.getMetaHeader(header.getMetaKey(), apiKey, apiKey).getBody();
         if (metaHeader.getSearchKey() != null)
             return 0;
         while (metaHeader.getSearchKey() == null && i <= timeout) {
-            metaHeader = trackService.getHeader(header.getMetaKey());
+            metaHeader = trackEP.getMetaHeader(header.getMetaKey(), apiKey, apiKey).getBody();
             Thread.sleep(400);
             i++;
         }
         if (i > 10)
-            logger.info("Wait for search got to [{}] for metaId [{}]",i, metaHeader.getId());
+            logger.info("Wait for search got to [{}] for metaId [{}]", i, metaHeader.getId());
         boolean searchWorking = metaHeader.getSearchKey() != null;
         assertTrue("Search reply not received from ab-search", searchWorking);
         return i;
+    }
+
+
+    private int waitForHeaderToUpdate(MetaHeader header) throws Exception {
+        return waitForHeaderToUpdate(header, null);
     }
 
     private void doSearchTests(int auditCount, ArrayList<Long> list, StopWatch watch) throws Exception {
@@ -642,7 +704,7 @@ public class TestAuditIntegration {
                 .addIndex(index)
                 .build();
 
-        JestResult result = client.execute(search);
+        JestResult result = esClient.execute(search);
         assertNotNull(result);
         assertNotNull(result.getErrorMessage(), result.getJsonObject());
         assertNotNull(result.getErrorMessage(), result.getJsonObject().getAsJsonObject("hits"));
@@ -668,7 +730,7 @@ public class TestAuditIntegration {
                 .addIndex(index)
                 .build();
 
-        JestResult result = client.execute(search);
+        JestResult result = esClient.execute(search);
         String message = index + " - " + field + " - " + queryString + (result == null ? "[noresult]" : "\r\n" + result.getJsonString());
         assertNotNull(message, result);
         assertNotNull(message, result.getJsonObject());
@@ -705,7 +767,7 @@ public class TestAuditIntegration {
                 .addIndex(index)
                 .build();
 
-        JestResult result = client.execute(search);
+        JestResult result = esClient.execute(search);
         String message = index + " - " + field + " - " + queryString + (result == null ? "[noresult]" : "\r\n" + result.getJsonString());
         assertNotNull(message, result);
         assertNotNull(message, result.getJsonObject());
@@ -713,7 +775,7 @@ public class TestAuditIntegration {
         assertNotNull(message, result.getJsonObject().getAsJsonObject("hits").get("total"));
         int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
 
-        Assert.assertEquals("Unexpected hit count searching for {"+queryString+"} in field {"+field +"}", expectedHitCount, nbrResult);
+        Assert.assertEquals("Unexpected hit count searching for {" + queryString + "} in field {" + field + "}", expectedHitCount, nbrResult);
         return result.getJsonObject()
                 .getAsJsonObject("hits")
                 .getAsJsonArray("hits")

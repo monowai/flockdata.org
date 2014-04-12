@@ -96,7 +96,7 @@ public class TrackAPIKeys {
         result = trackEP.trackHeader(inputBean, null, null).getBody(); // Works due to basic authz
         assertNotNull(result);  // works coz basic authz
 
-        final MetaHeader header = trackEP.getAudit(result.getMetaKey(), apiKey, apiKey).getBody();
+        final MetaHeader header = trackEP.getMetaHeader(result.getMetaKey(), apiKey, apiKey).getBody();
         assertNotNull(header);
         SecurityContextHolder.getContext().setAuthentication(authMark);// Wrong user, but valid API key
         assertNotNull(trackEP.trackHeader(inputBean, apiKey, null));// works
@@ -136,7 +136,7 @@ public class TrackAPIKeys {
 
         TrackResultBean result = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody(); // Works due to basic authz
 
-        assertNotNull(trackEP.getAudit(result.getMetaKey(), apiKey, apiKey).getBody());
+        assertNotNull(trackEP.getMetaHeader(result.getMetaKey(), apiKey, apiKey).getBody());
         assertNotNull(trackEP.getAuditSummary(result.getMetaKey(), apiKey, apiKey).getBody());
         assertNotNull(trackEP.getAuditTags(result.getMetaKey(), apiKey, apiKey).getBody());
         assertNotNull(trackEP.getByCallerRef(result.getFortressName(), result.getDocumentType(), result.getCallerRef(), apiKey, apiKey));

@@ -204,8 +204,8 @@ public class TrackEP {
 
     @ResponseBody
     @RequestMapping(value = "/{metaKey}", method = RequestMethod.GET)
-    public ResponseEntity<MetaHeader> getAudit(@PathVariable("metaKey") String metaKey, String apiKey,
-                                               @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+    public ResponseEntity<MetaHeader> getMetaHeader(@PathVariable("metaKey") String metaKey, String apiKey,
+                                                    @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8081/ab-engine/track/{metaKey}/ -d '{"eventType":"change","metaKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10", "what": "{\"name\": \"val\"}" }'
         Company company = getCompany(apiHeaderKey, apiKey);
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/{metaKey}

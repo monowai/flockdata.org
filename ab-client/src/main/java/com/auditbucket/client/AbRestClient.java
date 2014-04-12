@@ -59,6 +59,7 @@ public class AbRestClient {
     private String NEW_TAG;
     private String CROSS_REFERENCES;
     private String FORTRESS;
+    private String PING;
     private final String userName;
     private final String password;
     private int batchSize;
@@ -69,6 +70,26 @@ public class AbRestClient {
     private final String headerSync = "BatchSync";
     private final String tagSync = "TagSync";
     private String defaultFortress;
+
+    public String ping() {
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+        HttpHeaders httpHeaders = getHeaders(userName, password);
+        HttpEntity requestEntity = new HttpEntity<>( httpHeaders);
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(PING, HttpMethod.GET, requestEntity, String.class);
+            return response.getBody();
+        } catch (HttpClientErrorException e) {
+            // ToDo: Rest error handling pretty useless. need to know why it's failing
+            logger.error("AB Client Audit error {}", getErrorMessage(e));
+            return "err";
+        } catch (HttpServerErrorException e) {
+            logger.error("AB Server Audit error {}", getErrorMessage(e));
+            return "err";
+
+        }
+
+    }
 
 
     public enum type {AUDIT, TAG}
@@ -84,6 +105,7 @@ public class AbRestClient {
         this.password = password;
         // Urls to write Audit/Tag/Fortress information
         this.NEW_HEADER = serverName + "/v1/track/";
+        this.PING = serverName + "/v1/track/ping";
         this.CROSS_REFERENCES = serverName + "/v1/track/xref";
         this.NEW_TAG = serverName + "/v1/tag/";
         this.FORTRESS = serverName + "/v1/fortress/";
@@ -122,7 +144,7 @@ public class AbRestClient {
     }
 
     private String flushAudit(List<MetaInputBean> auditInput) {
-        if (simulateOnly)
+        if (simulateOnly || auditInput.isEmpty())
             return "OK";
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
@@ -145,6 +167,8 @@ public class AbRestClient {
     }
 
     public String flushTags(List<TagInputBean> tagInputBean) {
+        if (tagInputBean.isEmpty())
+            return "OK";
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
@@ -225,7 +249,7 @@ public class AbRestClient {
 
     private static HttpHeaders headers = null;
 
-    private static HttpHeaders getHeaders(final String username, final String password) {
+    public static HttpHeaders getHeaders(final String username, final String password) {
         if (headers != null)
             return headers;
 

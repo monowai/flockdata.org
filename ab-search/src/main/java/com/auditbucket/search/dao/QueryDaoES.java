@@ -19,13 +19,17 @@
 
 package com.auditbucket.search.dao;
 
-import com.auditbucket.dao.AuditQueryDao;
+import com.auditbucket.dao.QueryDao;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * User: Mike Holdsworth
@@ -33,12 +37,12 @@ import org.springframework.stereotype.Repository;
  * Time: 2:23 PM
  */
 @Repository
-public class QueryDaoES implements AuditQueryDao {
+public class QueryDaoES implements QueryDao {
 
     @Autowired
     private Client client;
 
-    private Logger log = LoggerFactory.getLogger(QueryDaoES.class);
+    private Logger logger = LoggerFactory.getLogger(QueryDaoES.class);
 
     @Override
     public long getHitCount(String index) {
@@ -46,13 +50,49 @@ public class QueryDaoES implements AuditQueryDao {
                 .execute()
                 .actionGet();
 
-        if (log.isDebugEnabled())
-            log.debug("Searching index [" + index + "] for hit counts");
+        if (logger.isDebugEnabled())
+            logger.debug("Searching index [" + index + "] for hit counts");
 
         return response.getHits().getTotalHits();
 
     }
 
+    @Override
+    public String doSearch(String index, String queryString) {
+        SearchResponse result = client.prepareSearch(index)
+                .setSource(getSimpleQuery(queryString))
+                .execute()
+                .actionGet();
+
+        return result.toString();
+
+    }
+
+    @Override
+    public Collection<String> doMetaKeySearch(String index, String queryString) {
+        SearchResponse result = client.prepareSearch(index)
+                .setSource(getSimpleQuery(queryString))
+                .execute()
+                .actionGet();
+        Collection<String> results = new ArrayList<>();
+        // return the meta keys??
+        for (SearchHit searchHitFields : result.getHits().getHits()) {
+            results.add(searchHitFields.getSource().get("@metaKey").toString());
+        }
+
+        return results;
+
+    }
+
+
+    private String getSimpleQuery(String queryString) {
+        logger.info("getSimpleQuery {}", queryString);
+
+        return "{ query: { " +
+                "          query_string : { " +
+                "              \"query\" : \"" + queryString + "\" }" +
+                "      }}";
+    }
 
 
 }
