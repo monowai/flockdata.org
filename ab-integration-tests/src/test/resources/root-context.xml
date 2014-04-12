@@ -1,7 +1,7 @@
 <?xml version=
         "1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2012-2013 "Monowai Developments Limited"
+  ~ Copyright (company) 2012-2013 "Monowai Developments Limited"
   ~
   ~ This file is part of AuditBucket.
   ~
@@ -24,7 +24,7 @@
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:p="http://www.springframework.org/schema/p"
        xmlns:task="http://www.springframework.org/schema/task"
-       xmlns:cache="http://www.springframework.org/schema/cache"
+       xmlns:cache="http://www.springframework.org/schema/cache" xmlns:aop="http://www.springframework.org/schema/aop"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 		http://www.springframework.org/schema/context
@@ -32,7 +32,7 @@
 		http://www.springframework.org/schema/task
 		http://www.springframework.org/schema/task/spring-task.xsd
 		http://www.springframework.org/schema/cache
-		http://www.springframework.org/schema/cache/spring-cache.xsd"
+		http://www.springframework.org/schema/cache/spring-cache.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd"
        xml:id="ab-integration-tests">
 
     <context:spring-configured/>
@@ -52,6 +52,8 @@
     <import resource="kv-context.xml"/>
 
     <task:annotation-driven executor="executor"/>
+
+    <aop:aspectj-autoproxy/>
 
     <!--Pool size is the number of executors that will handle Bulk Uploads and incoming search responses-->
     <task:executor id="executor" pool-size="20-20" keep-alive="180" queue-capacity="10"

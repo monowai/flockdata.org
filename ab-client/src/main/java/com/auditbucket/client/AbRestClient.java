@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -19,13 +19,16 @@
 
 package com.auditbucket.client;
 
-import com.auditbucket.audit.bean.AuditHeaderInputBean;
-import com.auditbucket.audit.bean.AuditResultBean;
+import com.auditbucket.audit.bean.CrossReferenceInputBean;
+import com.auditbucket.audit.bean.MetaInputBean;
+import com.auditbucket.audit.bean.TrackResultBean;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.FortressResultBean;
 import com.auditbucket.registration.bean.TagInputBean;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -46,29 +49,48 @@ import java.util.Map;
  * Template to support writing Audit and Tag information to a remote AuditBucket instance.
  *
  * @see Importer
- *
- * User: Mike Holdsworth
- * Since: 13/10/13
+ *      <p/>
+ *      User: Mike Holdsworth
+ *      Since: 13/10/13
  */
 public class AbRestClient {
 
     private String NEW_HEADER;
     private String NEW_TAG;
+    private String CROSS_REFERENCES;
     private String FORTRESS;
+    private String PING;
     private final String userName;
     private final String password;
     private int batchSize;
-    private static boolean compress = false;
+    private static boolean compress = true;
     private boolean simulateOnly;
-    private List<AuditHeaderInputBean> batchHeader = new ArrayList<>();
-    private List<TagInputBean> batchTag = new ArrayList<>();
-    private final String batchSync = "BatchSync";
+    private List<MetaInputBean> batchHeader = new ArrayList<>();
+    private Map<String, TagInputBean> batchTag = new HashMap<>();
+    private final String headerSync = "BatchSync";
     private final String tagSync = "TagSync";
     private String defaultFortress;
 
-    public void setSimulateOnly(boolean simulateOnly) {
-        this.simulateOnly = simulateOnly;
+    public String ping() {
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+        HttpHeaders httpHeaders = getHeaders(userName, password);
+        HttpEntity requestEntity = new HttpEntity<>( httpHeaders);
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(PING, HttpMethod.GET, requestEntity, String.class);
+            return response.getBody();
+        } catch (HttpClientErrorException e) {
+            // ToDo: Rest error handling pretty useless. need to know why it's failing
+            logger.error("AB Client Audit error {}", getErrorMessage(e));
+            return "err";
+        } catch (HttpServerErrorException e) {
+            logger.error("AB Server Audit error {}", getErrorMessage(e));
+            return "err";
+
+        }
+
     }
+
 
     public enum type {AUDIT, TAG}
 
@@ -82,13 +104,102 @@ public class AbRestClient {
         this.userName = userName;
         this.password = password;
         // Urls to write Audit/Tag/Fortress information
-        this.NEW_HEADER = serverName + "/v1/audit/";
+        this.NEW_HEADER = serverName + "/v1/track/";
+        this.PING = serverName + "/v1/track/ping";
+        this.CROSS_REFERENCES = serverName + "/v1/track/xref";
         this.NEW_TAG = serverName + "/v1/tag/";
         this.FORTRESS = serverName + "/v1/fortress/";
         this.batchSize = batchSize;
         this.defaultFortress = defaultFortress;
     }
 
+
+
+    public void setSimulateOnly(boolean simulateOnly) {
+        this.simulateOnly = simulateOnly;
+    }
+
+    public int flushXReferences(List<CrossReferenceInputBean> referenceInputBeans) {
+        logger.info("Processing [{}] cross references - simulate [{}]", referenceInputBeans.size(), simulateOnly);
+        if (simulateOnly)
+            return 0;
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+        HttpHeaders httpHeaders = getHeaders(userName, password);
+        HttpEntity<List<CrossReferenceInputBean>> requestEntity = new HttpEntity<>(referenceInputBeans, httpHeaders);
+        try {
+            ResponseEntity<ArrayList> response = restTemplate.exchange(CROSS_REFERENCES, HttpMethod.POST, requestEntity, ArrayList.class);
+            logServerMessages(response);
+            return referenceInputBeans.size();
+        } catch (HttpClientErrorException e) {
+            // ToDo: Rest error handling pretty useless. need to know why it's failing
+            logger.error("AB Client Audit error {}", getErrorMessage(e));
+            return 0;
+        } catch (HttpServerErrorException e) {
+            logger.error("AB Server Audit error {}", getErrorMessage(e));
+            return 0;
+
+        }
+
+    }
+
+    private String flushAudit(List<MetaInputBean> auditInput) {
+        if (simulateOnly || auditInput.isEmpty())
+            return "OK";
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+
+        HttpHeaders httpHeaders = getHeaders(userName, password);
+        HttpEntity<List<MetaInputBean>> requestEntity = new HttpEntity<>(auditInput, httpHeaders);
+
+        try {
+            restTemplate.exchange(NEW_HEADER, HttpMethod.PUT, requestEntity, TrackResultBean.class);
+            return "OK";
+        } catch (HttpClientErrorException e) {
+            // ToDo: Rest error handling pretty useless. need to know why it's failing
+            logger.error("AB Client Audit error {}", getErrorMessage(e));
+            return null;
+        } catch (HttpServerErrorException e) {
+            logger.error("AB Server Audit error {}", getErrorMessage(e));
+            return null;
+
+        }
+    }
+
+    public String flushTags(List<TagInputBean> tagInputBean) {
+        if (tagInputBean.isEmpty())
+            return "OK";
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+
+        HttpHeaders httpHeaders = getHeaders(userName, password);
+        HttpEntity<List<TagInputBean>> requestEntity = new HttpEntity<>(tagInputBean, httpHeaders);
+
+        try {
+            // ToDo logServerMessage - error state will be returned in arraylist
+            ResponseEntity<ArrayList> response = restTemplate.exchange(NEW_TAG, HttpMethod.PUT, requestEntity, ArrayList.class);
+            logServerMessages(response);
+            return "OK";
+        } catch (HttpClientErrorException e) {
+            // to test, try to log against no existing fortress.
+            logger.error("Datagio server error processing Tags {}", getErrorMessage(e));
+            return null;
+        } catch (HttpServerErrorException e) {
+            logger.error("Datagio server error processing Tags {}", getErrorMessage(e));
+            return null;
+
+        }
+    }
+
+    private void logServerMessages(ResponseEntity<ArrayList> response) {
+        ArrayList x = response.getBody();
+        for (Object val : x) {
+            Map map  = (Map)val;
+            Object serviceMessage = map.get("serviceMessage");
+            if (serviceMessage != null)
+                logger.error("Service returned [{}]", serviceMessage.toString());
+        }
+    }
     public void ensureFortress(String fortressName) {
         if (fortressName == null)
             return;
@@ -111,33 +222,7 @@ public class AbRestClient {
             logger.error("AB Server Audit error {}", getErrorMessage(e));
 
         }
-
-
     }
-    private String flushAudit(List<AuditHeaderInputBean> auditInput) {
-        if (simulateOnly)
-            return "OK";
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-
-        HttpHeaders httpHeaders = getHeaders(userName, password);
-        HttpEntity<List<AuditHeaderInputBean>> requestEntity = new HttpEntity<>(auditInput, httpHeaders);
-
-        try {
-            restTemplate.exchange(NEW_HEADER, HttpMethod.PUT, requestEntity, AuditResultBean.class);
-            return "OK";
-        } catch (HttpClientErrorException e) {
-            // ToDo: Rest error handling pretty useless. need to know why it's failing
-            logger.error("AB Client Audit error {}", getErrorMessage(e));
-            return null;
-        } catch (HttpServerErrorException e) {
-            logger.error("AB Server Audit error {}", getErrorMessage(e));
-            return null;
-
-        }
-    }
-
-
 
     public String getErrorMessage(HttpStatusCodeException e) {
 
@@ -164,7 +249,7 @@ public class AbRestClient {
 
     private static HttpHeaders headers = null;
 
-    private static HttpHeaders getHeaders(final String username, final String password) {
+    public static HttpHeaders getHeaders(final String username, final String password) {
         if (headers != null)
             return headers;
 
@@ -185,14 +270,6 @@ public class AbRestClient {
         return headers;
     }
 
-    static final ObjectMapper mapper = new ObjectMapper();
-
-    public static Map<String, Object> getWeightedMap(int weight) {
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("weight", weight);
-        return properties;
-    }
-
     public void flush(String message) {
         flush(message, type.TAG);
         flush(message, type.AUDIT);
@@ -205,7 +282,7 @@ public class AbRestClient {
         if (simulateOnly)
             return;
         if (abType.equals(type.AUDIT)) {
-            synchronized (batchSync) {
+            synchronized (headerSync) {
                 writeAudit(null, true, message);
             }
         } else {
@@ -218,30 +295,49 @@ public class AbRestClient {
     /**
      * send the data to AuditBucket
      *
-     * @param auditHeaderInputBean Input to push
+     * @param metaInputBean Input to push
      */
-    public void writeAudit(AuditHeaderInputBean auditHeaderInputBean, String message) {
-        writeAudit(auditHeaderInputBean, false, message);
+    public void writeAudit(MetaInputBean metaInputBean, String message) {
+        writeAudit(metaInputBean, false, message);
     }
 
-    void writeAudit(AuditHeaderInputBean auditHeaderInputBean, boolean flush, String message) {
+    private void batchTags(MetaInputBean metaInputBeans) {
 
-        synchronized (batchSync) {
-            if (auditHeaderInputBean != null) {
-                if (auditHeaderInputBean.getFortress() == null)
-                    auditHeaderInputBean.setFortress(defaultFortress);
-                batchHeader.add(auditHeaderInputBean);
+        for (TagInputBean tag : metaInputBeans.getTags()) {
+            String indexKey = tag.getCode()+tag.getIndex();
+            TagInputBean cachedTag = batchTag.get(indexKey);
+            if (cachedTag==null )
+                batchTag.put(indexKey, tag);
+            else {
+                cachedTag.mergeTags(tag);
+            }
+        }
+    }
+
+
+    void writeAudit(MetaInputBean metaInputBean, boolean flush, String message) {
+
+        synchronized (headerSync) {
+            if (metaInputBean != null) {
+                if (metaInputBean.getFortress() == null)
+                    metaInputBean.setFortress(defaultFortress);
+                batchHeader.add(metaInputBean);
+                batchTags(metaInputBean);
             }
 
             if (flush || batchHeader.size() == batchSize) {
 
                 if (batchHeader.size() >= 1) {
                     logger.debug("Flushing....");
+                    // process the tags independently to reduce the chance of a deadlock when processing the header
+                    flushTags(new ArrayList<>(batchTag.values()));
                     flushAudit(batchHeader);
                     logger.debug("Flushed " + message + " Batch [{}]", batchHeader.size());
                 }
                 batchHeader = new ArrayList<>();
+                batchTag = new HashMap<>();
             }
+
         }
 
     }
@@ -254,12 +350,12 @@ public class AbRestClient {
 
         synchronized (tagSync) {
             if (tagInputBean != null)
-                batchTag.add(tagInputBean);
+                batchTag.put(tagInputBean.getCode() + tagInputBean.getIndex(), tagInputBean);
 
             if (flush || batchTag.size() == batchSize) {
                 logger.debug("Flushing " + message + " Tag Batch [{}]", batchTag.size());
                 if (batchTag.size() >= 0)
-                    flushTags(batchTag);
+                    flushTags(new ArrayList<>(batchTag.values()));
                 logger.debug("Tag Batch Flushed");
                 batchHeader = new ArrayList<>();
             }
@@ -267,27 +363,29 @@ public class AbRestClient {
 
     }
 
-    public String flushTags(List<TagInputBean> tagInputBean) {
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+    static final ObjectMapper mapper = new ObjectMapper();
 
-        HttpHeaders httpHeaders = getHeaders(userName, password);
-        HttpEntity<List<TagInputBean>> requestEntity = new HttpEntity<>(tagInputBean, httpHeaders);
-
-        //logger.info("template {}", restTemplate);
-        try {
-            restTemplate.exchange(NEW_TAG, HttpMethod.PUT, requestEntity, AuditResultBean.class);
-            return "OK";
-        } catch (HttpClientErrorException e) {
-            // to test, try to log against no existing fortress.
-            logger.error("AB Client Tag error {}", getErrorMessage(e));
-            return null;
-        } catch (HttpServerErrorException e) {
-            logger.error("AB Server Tag error {}", getErrorMessage(e));
-            return null;
-
-        }
+    public static Map<String, Object> getWeightedMap(int weight) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("weight", weight);
+        return properties;
     }
 
+
+    /**
+     * Converts the strings to a simple JSON representation
+     *
+     * @param headerRow - keys
+     * @param line      - values
+     * @return JSON Object
+     * @throws JsonProcessingException
+     */
+    public static String convertToJson(String[] headerRow, String[] line) throws JsonProcessingException {
+        ObjectNode node = mapper.createObjectNode();
+        for (int i = 0; i < headerRow.length; i++) {
+            node.put(headerRow[i], line[i].trim());
+        }
+        return node.toString();
+    }
 
 }

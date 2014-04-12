@@ -19,8 +19,8 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.audit.bean.AuditHeaderInputBean;
-import com.auditbucket.audit.bean.AuditLogInputBean;
+import com.auditbucket.audit.bean.LogInputBean;
+import com.auditbucket.audit.bean.MetaInputBean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpResponse;
@@ -73,9 +73,9 @@ public class TestWebServiceIntegration {
             HttpPost auditPost = new HttpPost(url);
             auditPost.addHeader("content-type", "application/json");
             auditPost.addHeader("Authorization", "Basic bWlrZToxMjM=");
-            AuditHeaderInputBean inputBean = new AuditHeaderInputBean("capacity", "system", "TrainProfile", DateTime.now(), profile.get("profileID").asText());
-            AuditLogInputBean log = new AuditLogInputBean("moira", null, profile.toString());
-            inputBean.setAuditLog(log);
+            MetaInputBean inputBean = new MetaInputBean("capacity", "system", "TrainProfile", DateTime.now(), profile.get("profileID").asText());
+            LogInputBean log = new LogInputBean("moira", null, profile.toString());
+            inputBean.setLog(log);
             log.setForceReindex(true);
             StringEntity json = new StringEntity(mapper.writeValueAsString(inputBean));
             auditPost.setEntity(json);

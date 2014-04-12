@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -20,8 +20,10 @@
 package com.auditbucket.registration.service;
 
 
+import com.auditbucket.audit.model.DocumentType;
+import com.auditbucket.dao.SchemaDao;
 import com.auditbucket.engine.service.AbSearchGateway;
-import com.auditbucket.helper.AuditException;
+import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Company;
@@ -56,6 +58,9 @@ public class FortressService {
     private CompanyDao companyDao;
 
     @Autowired
+    private SchemaDao schemaDao;
+
+    @Autowired
     private SecurityHelper securityHelper;
 
     public Fortress getFortress(Long id) {
@@ -65,11 +70,15 @@ public class FortressService {
     public FortressUser getUser(Long id) {
         return fortressDao.findOneUser(id);
     }
-
     @Cacheable(value = "fortressName", unless = "#result == null")
+    public Fortress findByName(Company company, String fortressName) {
+        return companyDao.getFortressByName(company.getId(), fortressName);
+    }
+
+
     public Fortress findByName(String fortressName) {
         Company ownedBy = getCompany();
-        return companyDao.getFortressByName(ownedBy.getId(), fortressName);
+        return findByName(ownedBy, fortressName);
     }
 
     public Fortress findByCode(String fortressCode) {
@@ -87,7 +96,7 @@ public class FortressService {
     }
 
 
-    public Fortress save(Company company, FortressInputBean fortress) {
+    private Fortress save(Company company, FortressInputBean fortress) {
         return fortressDao.save(company, fortress);
     }
 
@@ -139,7 +148,7 @@ public class FortressService {
     }
 
     public Fortress registerFortress(FortressInputBean fib) {
-       return registerFortress(fib, getCompany());
+       return registerFortress(getCompany(), fib, true);
 
     }
 
@@ -181,20 +190,30 @@ public class FortressService {
     @Autowired
     AbSearchGateway searchGateway;
 
-    public void purge(String name) throws AuditException {
+    public void purge(String name) throws DatagioException {
         Fortress fortress = findByName(name);
         if (fortress == null)
-            throw new AuditException("Fortress [" + fortress + "] could not be found");
+            throw new DatagioException("Fortress [" + fortress + "] could not be found");
         fortressDao.delete(fortress);
         String indexName = "ab." + fortress.getCompany().getCode() + "." + fortress.getCode();
         // ToDo: Delete the ES index
         //searchGateway.delete(indexName);
     }
 
-    public Fortress registerFortress(FortressInputBean fib, Company company) {
+    /**
+     * Creates a fortress if it's missing.
+     * @param company   who to crate for
+     * @param fortressInputBean payload
+     * @return existing or newly created fortress
+     */
+    public Fortress registerFortress(Company company, FortressInputBean fortressInputBean) {
+        return registerFortress(company, fortressInputBean, true);
+    }
+
+    public Fortress registerFortress(Company company, FortressInputBean fib, boolean createIfMissing) {
         Fortress fortress = companyService.getFortress(company, fib.getName());
 
-        if (fortress != null) {
+        if (fortress != null || !createIfMissing) {
             // Already associated, get out of here
             return fortress;
         }
@@ -202,5 +221,11 @@ public class FortressService {
         fortress = save(company, fib);
         fortress.setCompany(company);
         return fortress;
+    }
+
+
+    public Collection<DocumentType> getDocumentsInUse(Company company, String fortressName) {
+        Fortress fortress = findByName(company, fortressName);
+        return schemaDao.getDocumentsInUse(fortress);
     }
 }

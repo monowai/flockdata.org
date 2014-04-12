@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2012-2013 "Monowai Developments Limited"
+  ~ Copyright (c) 2012-2014 "Monowai Developments Limited"
   ~
   ~ This file is part of AuditBucket.
   ~
@@ -46,6 +46,14 @@
         <level value="error"/>
     </logger>
 
+    <logger name="net.sf.ehcache">
+        <level value="info"/>
+    </logger>
+
+    <logger name="org.jboss">
+        <level value="info"/>
+    </logger>
+
     <logger name="org.codehaus.jackson">
         <level value="info"/>
     </logger>
@@ -58,11 +66,15 @@
         <level value="info"/>
     </logger>
 
+    <logger name="com.sun.jersey.server">
+        <level value="info"/>
+    </logger>
+
     <logger name="org.springframework">
         <level value="info"/>
     </logger>
     <logger name="com.auditbucket">
-        <level value="debug"/>
+        <level value="info"/>
     </logger>
 
     <logger name="com.jersey">
@@ -74,6 +86,9 @@
     </logger>
     <logger name="o.e.jetty">
         <level value="error"/>
+    </logger>
+    <logger name="org.springframework.data.neo4j.support.query">
+        <level value="info"/>
     </logger>
     <!-- Root Logger -->
     <root>

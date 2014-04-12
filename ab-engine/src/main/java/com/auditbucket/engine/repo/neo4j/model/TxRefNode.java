@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -19,7 +19,7 @@
 
 package com.auditbucket.engine.repo.neo4j.model;
 
-import com.auditbucket.audit.model.AuditHeader;
+import com.auditbucket.audit.model.MetaHeader;
 import com.auditbucket.audit.model.TxRef;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
@@ -50,8 +50,8 @@ public class TxRefNode implements TxRef {
     @RelatedTo(elementClass = CompanyNode.class, type = "TX", direction = Direction.INCOMING)
     private CompanyNode company;
 
-    @RelatedTo(elementClass = AuditHeaderNode.class, type = "AFFECTED")
-    private Set<AuditHeader> auditHeaders;
+    @RelatedTo(elementClass = MetaHeaderNode.class, type = "AFFECTED")
+    private Set<MetaHeader> metaHeaders;
 
     @Indexed
     private String name;
@@ -91,8 +91,8 @@ public class TxRefNode implements TxRef {
 
     @Override
     @JsonIgnore
-    public Set<AuditHeader> getHeaders() {
-        return auditHeaders;
+    public Set<MetaHeader> getHeaders() {
+        return metaHeaders;
     }
 
     @Override

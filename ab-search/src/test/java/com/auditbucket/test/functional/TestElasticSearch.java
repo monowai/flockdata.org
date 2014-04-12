@@ -19,9 +19,10 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.audit.model.AuditSearchDao;
-import com.auditbucket.audit.model.SearchChange;
-import com.auditbucket.search.model.AuditSearchChange;
+import com.auditbucket.audit.model.TrackSearchDao;
+import com.auditbucket.search.endpoint.ElasticSearchEP;
+import com.auditbucket.search.model.MetaSearchChange;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
@@ -33,13 +34,9 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,21 +47,24 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({"classpath:root-context.xml"})
 public class TestElasticSearch {
-    private String uid = "mike@monowai.com";
-    private Authentication auth = new UsernamePasswordAuthenticationToken(uid, "user1");
+
     private Logger log = LoggerFactory.getLogger(TestElasticSearch.class);
+    ObjectMapper om = new ObjectMapper();
 
     @Autowired
-    AuditSearchDao alRepo;
+    TrackSearchDao alRepo;
+
+    @Autowired
+    ElasticSearchEP searchEP;
 
     @Test
     public void testMappingJson() throws Exception {
         String escWhat = "{\"house\": \"house\"}";
         ObjectMapper om = new ObjectMapper();
 
-        Map<String, Object> indexMe = new HashMap<String, Object>(40);
+        Map<String, Object> indexMe = new HashMap<>(40);
         indexMe.put("auditKey", "abc");
-        Map<String, Object> what = om.readValue(escWhat, Map.class);
+        Map what = om.readValue(escWhat, Map.class);
         indexMe.put("what", what);
         log.info(indexMe.get("what").toString());
     }
@@ -73,105 +73,53 @@ public class TestElasticSearch {
     public void testJson() throws Exception {
         // Basic JSON/ES tests to figure our what is going on
 
-//        Fortress fortress = new Fortress(new FortressInputBean("fortress"), new Company("Monowai"));
-//        fortress.setSearchActive(false);
-//        FortressUser fu = new FortressUser(fortress, uid);
-//        AuditHeaderInputBean hib = new AuditHeaderInputBean("fortress", "Test", "Test", new DateTime().toDate(), "testRef");
-//        AuditLogResultBean auditHeader = new AuditLogResultBean(fu, hib, new DocumentType("TestJson", fu.getFortress().getFortress()));
-//
-        AuditSearchChange auditChange = new AuditSearchChange();
-//
-        //auditChange.setName("Create");
-        auditChange.setWhen(new DateTime());
+        MetaSearchChange change = new MetaSearchChange();
+        change.setWhen(new DateTime());
 
-        // Add Who Parameter because it's used in creating the Document in ES as a Type .  
-        auditChange.setWho("Who");
+        // Add Who Parameter because it's used in creating the Document in ES as a Type .
+        change.setWho("Who");
 
-        //// What changed?
-        ObjectMapper om = new ObjectMapper();
-        Map<String, Object> name = new HashMap<String, Object>();
+        Map<String, Object> name = new HashMap<>();
         name.put("first", "Joe");
         name.put("last", "Sixpack");
-        auditChange.setWhat(name);
+        change.setWhat(name);
 
+        GetResponse response = writeSimple(change);
+        assertNotNull(response);
 
-        try {
+        MetaSearchChange found = om.readValue(response.getSourceAsBytes(), MetaSearchChange.class);
+        assertNotNull(found);
+        assertEquals(0, change.getWhen().compareTo(found.getWhen()));
 
-            // Elasticsearch
-            Node node = nodeBuilder().local(true).node();
-            Client client = node.client();
-            String indexKey = auditChange.getIndexName() == null ? "indexkey" : auditChange.getIndexName();
-
-            // Write the object to Lucene
-            IndexResponse ir =
-                    client.prepareIndex(indexKey, auditChange.getWho())
-                            .setSource(om.writeValueAsString(auditChange))
-                            .setRouting(auditChange.getAuditKey())
-                            .execute()
-                            .actionGet();
-
-            assertNotNull(ir);
-            log.info(ir.getId());
-
-            // Retrieve from Lucene
-            GetResponse response = client.prepareGet(indexKey, auditChange.getWho(), ir.getId())
-                    .setRouting(auditChange.getAuditKey())
-                    .execute()
-                    .actionGet();
-            assertNotNull(response);
-
-            AuditSearchChange found = om.readValue(response.getSourceAsBytes(), AuditSearchChange.class);
-            assertNotNull(found);
-            assertEquals(0, auditChange.getWhen().compareTo(found.getWhen()));
-
-            node.close();
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
     }
 
 
-    public void testViaSpringData() throws Exception {
+    private GetResponse writeSimple(MetaSearchChange change) throws JsonProcessingException {
 
-        SecurityContextHolder.getContext().setAuthentication(auth);
-        // As per JSON test, except this time we're doing it all via Spring.
+        // Elasticsearch
+        Node node = nodeBuilder().local(true).node();
+        Client client = node.client();
+        String indexKey = change.getIndexName() == null ? "indexkey" : change.getIndexName();
 
-//        Fortress fortress = new Fortress(new FortressInputBean("fortress"), new Company("Monowai"));
-//        fortress.setSearchActive(false);
-//        FortressUser fu = new FortressUser(fortress, uid);
-//        AuditHeaderInputBean hib = new AuditHeaderInputBean("fortress", "Test", "Test", new DateTime().toDate(), "testRef");
-//        AuditLogResultBean auditHeader = new AuditLogResultBean(fu, hib, new DocumentType("TestJson", fu.getFortress().getFortress()));
+        // Write the object to Lucene
+        IndexResponse ir =
+                client.prepareIndex(indexKey, change.getWho())
+                        .setSource(om.writeValueAsString(change))
+                        .setRouting(change.getMetaKey())
+                        .execute()
+                        .actionGet();
 
-        SearchChange auditChange = new AuditSearchChange();
-//        String auditKey = "auditHeader.getAuditKey()";
-//
-//        auditChange.setWhen(new DateTime());
-//        ObjectMapper om = new ObjectMapper();
-//
-//        Map<String, Object> node = new HashMap<String, Object>();
-//        node.put("first", "Joe");
-//        node.put("last", "Sixpack");
-//
-//        auditChange.setWhat(node);
+        assertNotNull(ir);
+        log.info(ir.getId());
 
-        auditChange = alRepo.save(auditChange);
-        assertNotNull(auditChange);
-        String searchKey = auditChange.getSearchKey();
-        assertNotNull(searchKey);
-
-        // Retrieve parent from Lucene
-//        byte[] parent = alRepo.findOne(auditHeader, searchKey);
-//
-//        assertNotNull(parent);
-//        Map<String, Object> ac = om.readValue(parent, Map.class);
-//        assertNotNull(ac);
-//        assertEquals(auditKey, ac.get("auditKey"));
-//        assertEquals("Joe", ac.get("first"));
-//        assertEquals("Sixpack", ac.get("last"));
-
+        // Retrieve from Lucene
+        GetResponse response = client.prepareGet(indexKey, change.getWho(), ir.getId())
+                .setRouting(change.getMetaKey())
+                .execute()
+                .actionGet();
+        node.close();
+        return response;
     }
 
 }

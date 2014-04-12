@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -19,14 +19,12 @@
 
 package com.auditbucket.registration.repo.neo4j.dao;
 
-import com.auditbucket.audit.model.DocumentType;
-import com.auditbucket.engine.repo.neo4j.DocumentTypeRepo;
-import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
+import com.auditbucket.dao.SchemaDao;
+import com.auditbucket.dao.TagDao;
 import com.auditbucket.engine.service.EngineConfig;
-import com.auditbucket.helper.TagException;
+import com.auditbucket.helper.DatagioTagException;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.repo.neo4j.model.TagNode;
 import org.neo4j.graphdb.Node;
@@ -47,10 +45,10 @@ import java.util.*;
  * Time: 8:33 PM
  */
 @Repository
-public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
+public class TagDaoNeo4j implements TagDao {
 
     @Autowired
-    DocumentTypeRepo documentTypeRepo;
+    SchemaDao schemaDao;
 
     @Autowired
     Neo4jTemplate template;
@@ -58,78 +56,95 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
     @Autowired
     EngineConfig engineAdmin;
 
-    private Logger logger = LoggerFactory.getLogger(TagDaoNeo4J.class);
+    private Logger logger = LoggerFactory.getLogger(TagDaoNeo4j.class);
 
     public Tag save(Company company, TagInputBean tagInput) {
         String tagSuffix = engineAdmin.getTagSuffix(company);
-        List<String> createdValues = new ArrayList();
-        return save(company, tagInput, tagSuffix, createdValues);
+        List<String> createdValues = new ArrayList<>();
+        return save(company, tagInput, tagSuffix, createdValues, false);
     }
 
-    Tag save(Company company, TagInputBean tagInput, Collection<String> createdValues) {
+    Tag save(Company company, TagInputBean tagInput, Collection<String> createdValues, boolean suppressRelationships) {
         String tagSuffix = engineAdmin.getTagSuffix(company);
-        return save(company, tagInput, tagSuffix, createdValues);
+        return save(company, tagInput, tagSuffix, createdValues, suppressRelationships);
     }
 
-    public Iterable<Tag> save(Company company, Iterable<TagInputBean> tags) {
+    public Collection<TagInputBean> save(Company company, Iterable<TagInputBean> tagInputs) {
+        return save(company, tagInputs, false);
+    }
+
+    @Override
+    public Collection<TagInputBean> save(Company company, Iterable<TagInputBean> tagInputs, boolean suppressRelationships) {
         String tagSuffix = engineAdmin.getTagSuffix(company);
-        List<Tag> result = new ArrayList<>();
-        List<String> createdValues = new ArrayList();
-        for (TagInputBean tag : tags) {
-            result.add(save(company, tag, tagSuffix, createdValues));
+        List<TagInputBean> errorResults = new ArrayList<>();
+        List<String> createdValues = new ArrayList<>();
+        for (TagInputBean tagInputBean : tagInputs) {
+            try {
+                save(company, tagInputBean, tagSuffix, createdValues, suppressRelationships) ;
+            } catch (DatagioTagException te){
+                logger.error ("Tag Exception [{}]",te.getMessage());
+                tagInputBean.getServiceMessage(te.getMessage());
+                errorResults.add(tagInputBean);
+            }
+
         }
-        return result;
+        return errorResults;
     }
 
-    Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection createdValues) {
+    Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> createdValues, boolean suppressRelationships) {
         // Check exists
-        TagNode existingTag = (TagNode) findOne(tagInput.getName(), company);
+        TagNode existingTag = (TagNode) findOne(company, tagInput.getName(), tagInput.getIndex());
         Node start;
         if (existingTag == null) {
-            if ( tagInput.isMustExist()){
-                throw new TagException("Tag "+tagInput.getName()+" is expected to exist but doesn't. Ignoring this request.");
-            }
-            else
-                start = createTag(tagInput, tagSuffix);
+            if (tagInput.isMustExist()) {
+                tagInput.getServiceMessage("Tag [" + tagInput.getName() + "] should exist for [" + tagInput.getIndex() + "] but doesn't. Ignoring this request.");
+                throw new DatagioTagException("Tag [" + tagInput.getName() + "] should exist for ["+tagInput.getIndex()+"] but doesn't. Ignoring this request.");
+            } else
+                start = createTag(company, tagInput, tagSuffix);
         } else {
             start = template.getNode(existingTag.getId());
         }
 
-        Map<String, TagInputBean[]> tags = tagInput.getTargets();
+        Map<String, Collection<TagInputBean>> tags = tagInput.getTargets();
         for (String rlxName : tags.keySet()) {
-            TagInputBean[] associatedTag = tags.get(rlxName);
+            Collection<TagInputBean> associatedTag = tags.get(rlxName);
             for (TagInputBean tagInputBean : associatedTag) {
-                createRelationship(company, start, tagInputBean, rlxName, createdValues);
+                createRelationship(company, start, tagInputBean, rlxName, createdValues, suppressRelationships);
             }
 
         }
         return new TagNode(start);
     }
 
-    private Node createTag(TagInputBean tagInput, String tagSuffix) {
+    private Node createTag(Company company, TagInputBean tagInput, String tagSuffix) {
         TagNode tag = new TagNode(tagInput);
 
         // ToDo: Should a type be suffixed with company in multi-tenanted? - more time to think!!
         //       do we care that one company can see another companies tag value? Certainly not the
         //       audit data.
-        if (tagInput.getIndex() != null && !":".equals(tagInput.getIndex()))
-            tagSuffix = tagSuffix + " " + tagInput.getIndex();
+        if (tagInput.isDefault())
+            tagSuffix = Tag.DEFAULT + tagSuffix;
+        else {
+            schemaDao.registerTagIndex(company, tagInput.getIndex());
+            tagSuffix = tagInput.getIndex() + " " + Tag.DEFAULT + tagSuffix;
+        }
 
-        // ToDo: Multi-tenanted custom tags?
+        // ToDo: Multi-tenanted custom tagInputs?
         // _Tag only exists for SDN projection
-        String query = "merge (tag:_Tag :Tag" + tagSuffix + " {code:{code}, name:{name}, key:{key}";
+        String query = "merge (tag" + tagSuffix + " {code:{code}, name:{name}, key:{key}";
         Map<String, Object> params = new HashMap<>();
         params.put("code", tag.getCode());
         params.put("key", tag.getKey());
+        //params.put("typeKey", tag.getKey());
         params.put("name", tag.getName());
         // ToDo: - set custom properties
 
 //        Map<String, Object> properties = tagInput.getProperties();
 //        for (Map.Entry<String, Object> prop : properties.entrySet()) {
-//            if (! PropertyConversion.isSystemColumn(prop.getKey())) {
+//            if (! PropertyConversion.isSystemColumn(prop.getMetaKey())) {
 //                if (prop.getValue() != null) {
 //                    DefinedProperty property = PropertyConversion.convertProperty(1, prop.getValue());
-//                    query = query + ", " + PropertyConversion.toJsonColumn(prop.getKey(), property.value());
+//                    query = query + ", " + PropertyConversion.toJsonColumn(prop.getMetaKey(), property.value());
 //                }
 //            }
 //        }
@@ -143,17 +158,21 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
     /**
      * Create unique relationship between the tag and the node
      *
+     *
      * @param company       associate the tag with this company
      * @param startNode     notional start node
      * @param associatedTag tag to make or get
      * @param rlxName       relationship name
-     * @param createdValues
+     * @param createdValues running list of values already created - performance op.
+     * @param suppressRelationships
      * @return the created tag
      */
-    Tag createRelationship(Company company, Node startNode, TagInputBean associatedTag, String rlxName, Collection<String> createdValues) {
+    Tag createRelationship(Company company, Node startNode, TagInputBean associatedTag, String rlxName, Collection<String> createdValues, boolean suppressRelationships) {
         // Careful - this save can be recursive
-        // ToDo - idea = create all tags first then just create the relationships
-        Tag tag = save(company, associatedTag, createdValues);
+        // ToDo - idea = create all tagInputs first then just create the relationships
+        Tag tag = save(company, associatedTag, createdValues, suppressRelationships);
+        if (suppressRelationships)
+            return tag;
         Node endNode = template.getNode(tag.getId());
 
         Long startId = (!associatedTag.isReverse() ? startNode.getId() : endNode.getId());
@@ -181,7 +200,7 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
         //Long coTags = getCompanyTagManager(companyId);
         //"MATCH audit<-[tagType]-(tag:Tag"+engineAdmin.getTagSuffix(company)+") " +
         String query = "start tag=node({tagId}) " +
-                " match (tag)-->(otherTag:Tag" + engineAdmin.getTagSuffix(company) + ") " +
+                " match (tag)-->(otherTag" + Tag.DEFAULT + engineAdmin.getTagSuffix(company) + ") " +
                 "       return otherTag";
         Map<String, Object> params = new HashMap<>();
         params.put("tagId", startTag.getId());
@@ -205,9 +224,14 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
     }
 
     @Override
-    public Map<String, Tag> findTags(Company company, String type) {
+    public Map<String, Tag> findTags(Company company) {
+        return findTags(company, Tag.DEFAULT+ (engineAdmin.getTagSuffix(company)));
+    }
+    @Override
+    public Map<String, Tag> findTags(Company company, String index) {
         Map<String, Tag> tagResults = new HashMap<>();
-        String query = "match (tag:" + type + (engineAdmin.getTagSuffix(company)) + ") return tag";
+
+        String query = "match (tag" + index+ ") return tag";
         // Look at PAGE
         Result<Map<String, Object>> results = template.query(query, null);
         for (Map<String, Object> row : results) {
@@ -220,12 +244,23 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
     }
 
     @Override
+    public Collection<String> getExistingIndexes() {
+        return template.getGraphDatabase().getAllLabelNames();
+
+    }
+
+    @Override
     @Cacheable(value = "companyTag", unless = "#result == null")
-    public Tag findOne(String tagName, Company company) {
+    public Tag findOne(Company company, String tagName, String index) {
         if (tagName == null || company == null)
             throw new IllegalArgumentException("Null can not be used to find a tag ");
 
-        String query = "match (tag:Tag" + engineAdmin.getTagSuffix(company) + ") where tag.key ={tagKey} return tag";
+        String query;
+        if ("".equals(engineAdmin.getTagSuffix(company)))
+            query = "match (tag" + index + ") where tag.key ={tagKey} return tag";
+        else
+            query = "match (tag" + index + engineAdmin.getTagSuffix(company) + ") where tag.key ={tagKey} return tag";
+
         Map<String, Object> params = new HashMap<>();
         params.put("tagKey", tagName.toLowerCase().replaceAll("\\s", "")); // ToDo- formula to static method
         Result<Map<String, Object>> result = template.query(query, params);
@@ -237,22 +272,5 @@ public class TagDaoNeo4J implements com.auditbucket.dao.TagDao {
 
     }
 
-    @Cacheable(value = "companyDocType", unless = "#result == null")
-    private DocumentType findFortressDocument(String documentType, Fortress fortress) {
-        String key = fortress.getCompany().getId() + "." + documentType.toLowerCase().replaceAll("\\s", "");
-        return documentTypeRepo.findFortressDocType(fortress.getId(), key);
-        //return documentTypeRepo.findBySchemaPropertyValue("companyKey", key);
-    }
 
-    public DocumentType findDocumentType(Fortress fortress, String documentType, Boolean createIfMissing) {
-        DocumentType docResult = findFortressDocument(documentType, fortress);
-        if (docResult == null && createIfMissing) {
-            DocumentTypeNode docType = new DocumentTypeNode(fortress, documentType);
-            logger.debug("Creating document type {}", documentType);
-            docResult = documentTypeRepo.save(docType);
-
-        }
-        return docResult;
-
-    }
 }

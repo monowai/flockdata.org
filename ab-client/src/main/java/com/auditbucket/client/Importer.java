@@ -1,9 +1,29 @@
+/*
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
+ *
+ * This file is part of AuditBucket.
+ *
+ * AuditBucket is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AuditBucket is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.auditbucket.client;
 
 import au.com.bytecode.opencsv.CSVReader;
-import com.auditbucket.audit.bean.AuditHeaderInputBean;
-import com.auditbucket.audit.bean.AuditLogInputBean;
-import com.auditbucket.helper.AuditException;
+import com.auditbucket.audit.bean.CrossReferenceInputBean;
+import com.auditbucket.audit.bean.LogInputBean;
+import com.auditbucket.audit.bean.MetaInputBean;
+import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.TagInputBean;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
@@ -26,6 +46,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -36,7 +57,7 @@ import java.util.List;
  * <p/>
  * Will send information to AuditBucket as either tags or audit information.
  * <p/>
- * You should extend AuditHeaderInputBean or TagInputBean and implement XMLMappable or DelimitedMappable
+ * You should extend MetaInputBean or TagInputBean and implement XMLMappable or DelimitedMappable
  * to massage your data prior to dispatch to AB.
  * <p/>
  * Parameters:
@@ -51,7 +72,7 @@ import java.util.List;
  * @see AbRestClient
  * @see Mappable
  * @see TagInputBean
- * @see AuditHeaderInputBean
+ * @see com.auditbucket.audit.bean.MetaInputBean
  *      <p/>
  *      User: Mike Holdsworth
  *      Since: 13/10/13
@@ -77,6 +98,10 @@ public class Importer {
             parser.addArgument("-b", "--batch")
                     .setDefault(100)
                     .help("Default batch size");
+
+            parser.addArgument("-x", "--xref")
+                    .setDefault(false)
+                    .help("Cross References Only");
 
             parser.addArgument("files").nargs("*")
                      .help("Path and filename of Audit records to import in the format \"[/filepath/filename.ext],[com.import.YourClass],{skipCount}\"");
@@ -134,18 +159,19 @@ public class Importer {
         }
     }
 
-    static long processFile(String server, String file, Class clazz, int batchSize, int skipCount) throws IllegalAccessException, InstantiationException, IOException, ParserConfigurationException, SAXException, JDOMException, AuditException {
+    static long processFile(String server, String file, Class clazz, int batchSize, int skipCount) throws IllegalAccessException, InstantiationException, IOException, ParserConfigurationException, SAXException, JDOMException, DatagioException {
         AbRestClient abExporter = new AbRestClient(server, "mike", "123", batchSize);
-        abExporter.setSimulateOnly(batchSize <= 0);
+        boolean simulateOnly = batchSize <= 0;
+        abExporter.setSimulateOnly(simulateOnly);
 
         Mappable mappable = (Mappable) clazz.newInstance();
         //String file = path;
         logger.info("Starting the processing of {}", file);
         try {
             if (mappable.getImporter() == Importer.importer.CSV)
-                return processCSVFile(file, abExporter, (DelimitedMappable) mappable, skipCount);
+                return processCSVFile(file, abExporter, (DelimitedMappable) mappable, skipCount, simulateOnly );
             else if (mappable.getImporter() == Importer.importer.XML)
-                return processXMLFile(file, abExporter, (XmlMappable) mappable);
+                return processXMLFile(file, abExporter, (XmlMappable) mappable, simulateOnly);
 
         } finally {
             abExporter.flush(mappable.getClass().getCanonicalName(), mappable.getABType());
@@ -154,7 +180,7 @@ public class Importer {
         return 0;
     }
 
-    static long processXMLFile(String file, AbRestClient abExporter, XmlMappable mappable) throws ParserConfigurationException, IOException, SAXException, JDOMException, AuditException {
+    static long processXMLFile(String file, AbRestClient abExporter, XmlMappable mappable, boolean simulateOnly) throws ParserConfigurationException, IOException, SAXException, JDOMException, DatagioException {
         try {
             long rows = 0;
             StopWatch watch = new StopWatch();
@@ -162,28 +188,36 @@ public class Importer {
             XMLInputFactory xif = XMLInputFactory.newFactory();
             XMLStreamReader xsr = xif.createXMLStreamReader(source);
             mappable.positionReader(xsr);
+            List<CrossReferenceInputBean> referenceInputBeans= new ArrayList<>();
 
             String docType = mappable.getDataType();
             watch.start();
             try {
+                long then = new DateTime().getMillis();
                 while (xsr.getLocalName().equals(docType)) {
-                    XmlMappable row = mappable.newInstance();
+                    XmlMappable row = mappable.newInstance(simulateOnly);
                     String json = row.setXMLData(xsr);
-                    AuditHeaderInputBean header = (AuditHeaderInputBean) row;
-                    AuditLogInputBean logInputBean = new AuditLogInputBean("system", new DateTime(header.getWhen()), json);
-                    header.setAuditLog(logInputBean);
+                    MetaInputBean header = (MetaInputBean) row;
+                    if ( !header.getCrossReferences().isEmpty()){
+                        referenceInputBeans.add(new CrossReferenceInputBean(header.getFortress(),header.getCallerRef(),header.getCrossReferences()));
+                        rows = rows + header.getCrossReferences().size();
+                    }
+                    LogInputBean logInputBean = new LogInputBean("system", new DateTime(header.getWhen()), json);
+                    header.setLog(logInputBean);
                     //logger.info(json);
                     xsr.nextTag();
                     writeAudit(abExporter, header, mappable.getClass().getCanonicalName());
                     rows++;
-                    if (rows % 500 == 0)
-                        logger.info("Processed {} elapsed seconds {}", rows, watch.getTotalTimeSeconds());
+                    if (rows % 500 == 0 && !simulateOnly)
+                        logger.info("Processed {} elapsed seconds {}", rows, new DateTime().getMillis()-then /1000d);
 
                 }
             } finally {
                 abExporter.flush(mappable.getClass().getCanonicalName(), mappable.getABType());
             }
-
+            if ( ! referenceInputBeans.isEmpty()){
+                logger.debug ("Wrote [{}] cross references",writeCrossReferences( abExporter, referenceInputBeans, "Cross References"));
+            }
             return endProcess(watch, rows);
 
 
@@ -192,10 +226,14 @@ public class Importer {
         }
     }
 
-    static long processCSVFile(String file, AbRestClient abExporter, DelimitedMappable mappable, int skipCount) throws IOException, IllegalAccessException, InstantiationException, AuditException {
+    private static int writeCrossReferences(AbRestClient abExporter, List<CrossReferenceInputBean> referenceInputBeans, String message) {
+        return abExporter.flushXReferences(referenceInputBeans);
+    }
+
+    static long processCSVFile(String file, AbRestClient abExporter, DelimitedMappable mappable, int skipCount, boolean simulateOnly) throws IOException, IllegalAccessException, InstantiationException, DatagioException {
 
         StopWatch watch = new StopWatch();
-        DelimitedMappable row = mappable.newInstance();
+        DelimitedMappable row = mappable.newInstance(simulateOnly);
         int rows = 0;
 
         BufferedReader br;
@@ -222,17 +260,17 @@ public class Importer {
                     if (rows >= skipCount) {
                         if (rows == skipCount)
                             logger.info("Starting to process from row {}", skipCount);
-                        row = mappable.newInstance();
+                        row = mappable.newInstance(simulateOnly);
 
                         String jsonData = row.setData(headerRow, nextLine);
                         //logger.info(jsonData);
                         if (type == AbRestClient.type.AUDIT) {
-                            AuditHeaderInputBean header = (AuditHeaderInputBean) row;
+                            MetaInputBean header = (MetaInputBean) row;
 
                             if (!"".equals(jsonData)) {
                                 jsonData = jsonData.replaceAll("[\\x00-\\x09\\x11\\x12\\x14-\\x1F\\x7F]", "");
-                                AuditLogInputBean logInputBean = new AuditLogInputBean("system", new DateTime(), jsonData);
-                                header.setAuditLog(logInputBean);
+                                LogInputBean logInputBean = new LogInputBean("system", new DateTime(), jsonData);
+                                header.setLog(logInputBean);
                             } else {
                                 // It's all Meta baby - no audit information
                             }
@@ -245,11 +283,12 @@ public class Importer {
                             }
                         }
                         if (rows % 500 == 0) {
-                            logger.info("Processed {} ", rows);
+                            if ( !simulateOnly)
+                                logger.info("Processed {} ", rows);
                         }
                     }
                 } else {
-                    if (rows % 500 == 0)
+                    if (rows % 500 == 0 && !simulateOnly)
                         logger.info("Skipping {} of {}", rows, skipCount);
                 }
             }
@@ -274,8 +313,8 @@ public class Importer {
         abExporter.writeTag(tagInputBean, message);
     }
 
-    private static void writeAudit(AbRestClient abExporter, AuditHeaderInputBean auditHeaderInputBean, String message) {
-        abExporter.writeAudit(auditHeaderInputBean, message);
+    private static void writeAudit(AbRestClient abExporter, MetaInputBean metaInputBean, String message) {
+        abExporter.writeAudit(metaInputBean, message);
     }
 
 

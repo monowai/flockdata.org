@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -24,26 +24,30 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 /**
+ * Generates unique keys based on various algorithms.
+ *
  * User: Mike Holdsworth
  * Since: 11/09/13
  */
 @Service
 public class KeyGenService {
     public enum METHOD {
-        UUID, SNOWFLAKE
+        UUID, SNOWFLAKE, BASE64
     }
 
     public String getUniqueKey() {
-        return getUniqueKey(METHOD.UUID);
+        return getUniqueKey(METHOD.BASE64);
     }
 
     String getUniqueKey(METHOD method) {
         // Snowflake?
         if (method.equals(METHOD.SNOWFLAKE))
             return getSnowFlake();
+        else if (method.equals(METHOD.BASE64))
+            return Base64.format(UUID.randomUUID());
         else
 
-            return getUUID();
+        return getUUID();
     }
 
     //ToDo: Implement!
@@ -54,5 +58,7 @@ public class KeyGenService {
     private String getUUID() {
         return UUID.randomUUID().toString();
     }
+
+
 
 }

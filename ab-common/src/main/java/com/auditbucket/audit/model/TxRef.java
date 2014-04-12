@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -34,7 +34,7 @@ public interface TxRef {
 
     public Company getCompany();
 
-    public Set<AuditHeader> getHeaders();
+    public Set<MetaHeader> getHeaders();
 
     Long getId();
 

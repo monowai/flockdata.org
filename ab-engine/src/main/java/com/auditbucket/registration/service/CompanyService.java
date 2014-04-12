@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -98,7 +98,7 @@ public class CompanyService {
 
     public Company save(String companyName) {
         Company company = companyDao.create(companyName, keyGenService.getUniqueKey());
-        engineAdmin.createTagIndex(company);
+        engineAdmin.ensureSystemIndexes(company);
         return company;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -41,7 +41,7 @@ public interface SearchChange {
      *
      * @return GUID
      */
-    String getAuditKey();
+    String getMetaKey();
 
     public void setWhat(Map<String, Object> what);
 
@@ -49,7 +49,7 @@ public interface SearchChange {
 
     public Map<String, Object> getTagValues();
 
-    public void setTags(Iterable<AuditTag> tagSet);
+    public void setTags(Iterable<TrackTag> tagSet);
 
     /**
      * @return who made this change
@@ -91,7 +91,7 @@ public interface SearchChange {
     Long getLogId();
 
 
-    Long getAuditId();
+    Long getMetaId();
 
     Long getCreatedDate();
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
-  ~ Copyright (c) 2012-2013 "Monowai Developments Limited"
+  ~ Copyright (company) 2012-2014 "Monowai Developments Limited"
   ~
   ~ This file is part of AuditBucket.
   ~
@@ -26,6 +26,7 @@
 
     <util:map id="config">
         <entry key="remote_shell_enabled" value="true"/>
+        <entry key="cache-type" value="weak"/>
     </util:map>
 
     <bean id="graphDbFactory" class="org.neo4j.graphdb.factory.GraphDatabaseFactory"/>

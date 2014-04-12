@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2012-2013 "Monowai Developments Limited"
+  ~ Copyright (c) 2012-2014 "Monowai Developments Limited"
   ~
   ~ This file is part of AuditBucket.
   ~
@@ -46,21 +46,26 @@
            eternal="true"
            memoryStoreEvictionPolicy="LFU"/>
 
-    <cache name="auditKey"
+    <cache name="companySchemaTag"
+           maxElementsInMemory="200"
+           eternal="true"
+           memoryStoreEvictionPolicy="LFU"/>
+
+    <cache name="metaKey"
            maxElementsInMemory="200"
            eternal="false"
            timeToIdleSeconds="120"
            timeToLiveSeconds="120"
            memoryStoreEvictionPolicy="LFU"/>
 
-    <cache name="auditCallerKey"
+    <cache name="callerKey"
            maxElementsInMemory="400"
            eternal="false"
            timeToIdleSeconds="120"
            timeToLiveSeconds="120"
            memoryStoreEvictionPolicy="LFU"/>
 
-    <cache name="auditHeaderId"
+    <cache name="headerId"
            maxElementsInMemory="200"
            eternal="false"
            timeToIdleSeconds="120"
@@ -72,7 +77,7 @@
            eternal="true"
            memoryStoreEvictionPolicy="LRU"/>
 
-    <cache name="auditLog"
+    <cache name="trackLog"
            maxElementsInMemory="200"
            eternal="true"
            memoryStoreEvictionPolicy="LRU"/>

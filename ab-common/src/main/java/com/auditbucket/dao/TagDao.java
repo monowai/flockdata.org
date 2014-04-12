@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -19,10 +19,8 @@
 
 package com.auditbucket.dao;
 
-import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.Tag;
 
 import java.util.Collection;
@@ -34,22 +32,32 @@ import java.util.Map;
  * Time: 8:12 PM
  */
 public interface TagDao {
-    Iterable<Tag> save(Company company, Iterable<TagInputBean> tags);
+
+    Collection<TagInputBean> save(Company company, Iterable<TagInputBean> tags);
+
+    Collection<TagInputBean> save(Company company, Iterable<TagInputBean> tagInputs, boolean suppressRelationships);
 
     Tag save(Company company, TagInputBean tagInput);
 
     /**
      * Locates a tag
      *
-     * @param tagName name to find
+     *
+     *
      * @param company
+     * @param tagName name to find
+     * @param index
      * @return the tag if it exists or null
      */
-    Tag findOne(String tagName, Company company);
-
-    DocumentType findDocumentType(Fortress company, String documentType, Boolean createIfMissing);
+    Tag findOne(Company company, String tagName, String index);
 
     Collection<Tag> findDirectedTags(Tag startTag, Company company, boolean b);
 
-    Map<String, Tag> findTags(Company company, String type);
+    Map<String, Tag> findTags(Company company);
+
+    public Map<String, Tag> findTags(Company company, String index);
+
+    Collection<String> getExistingIndexes();
+
+
 }

@@ -1,17 +1,35 @@
+/*
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
+ *
+ * This file is part of AuditBucket.
+ *
+ * AuditBucket is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AuditBucket is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.auditbucket.test.functional;
 
-import com.auditbucket.audit.bean.AuditHeaderInputBean;
-import com.auditbucket.audit.bean.AuditLogInputBean;
-import com.auditbucket.engine.endpoint.AuditEP;
-import com.auditbucket.engine.service.AuditService;
+import com.auditbucket.audit.bean.MetaInputBean;
+import com.auditbucket.engine.endpoint.TrackEP;
+import com.auditbucket.engine.service.TrackService;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.endpoint.TagEP;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
-import com.auditbucket.test.unit.TestJson;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +52,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 
 /**
  * User: Mike Holdsworth
@@ -49,7 +68,7 @@ public class TestForceDeadlock {
     TagService tagService;
 
     @Autowired
-    private AuditEP auditEP;
+    private TrackEP trackEP;
 
     @Autowired
     private TagEP tagEP;
@@ -62,7 +81,7 @@ public class TestForceDeadlock {
     private String mike = "test@ab.com";
     private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
     @Autowired
-    AuditService auditService;
+    TrackService trackService;
 
     @Autowired
     RegistrationService regService;
@@ -81,13 +100,42 @@ public class TestForceDeadlock {
             Neo4jHelper.cleanDb(template);
     }
 
+    @Test
+    public void tagsUnderLoad() throws Exception {
+        cleanUpGraph(); // No transaction so need to clear down the graph
+
+        String monowai = "Monowai";
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
+        SecurityContextHolder.getContext().setAuthentication(authMike);
+        Fortress fortress = fortressService.registerFortress("auditTest" + System.currentTimeMillis());
+
+        CountDownLatch latch = new CountDownLatch(4);
+        List<TagInputBean> tags = getTags(10);
+
+        Map<Integer, TagRunner> runners = new HashMap<>();
+        int threadMax = 3;
+        boolean worked = true;
+        for (int i = 0; i < threadMax; i++) {
+            runners.put(i, addTagRunner(fortress, 5, tags, latch));
+        }
+
+        //latch.await();
+        for (int i = 0; i < threadMax; i++) {
+            while (runners.get(i) == null || !runners.get(i).isDone()) {
+                Thread.yield();
+            }
+            assertEquals("Error occurred creating tags under load", true, runners.get(i).isWorked());
+        }
+        assertEquals(true, worked);
+    }
+
     /**
      * Multi threaded test that tests to make sure duplicate Doc Types and Headers are not created
      *
      * @throws Exception
      */
     @Test
-    public void forceDeadlockUnderLoadIsHandled() throws Exception {
+    public void metaHeaderUnderLoad() throws Exception {
         cleanUpGraph(); // No transaction so need to clear down the graph
 
         String monowai = "Monowai";
@@ -97,7 +145,7 @@ public class TestForceDeadlock {
         String docType = "TestAuditX";
 
         CountDownLatch latch = new CountDownLatch(4);
-        ArrayList<TagInputBean> tags = getTags(10, 20);
+        ArrayList<TagInputBean> tags = getTags(10);
 
         Map<Integer, CallerRefRunner> runners = new HashMap<>();
         int threadMax = 15;
@@ -111,8 +159,7 @@ public class TestForceDeadlock {
         String apiKey = fortress.getCompany().getApiKey();
         try {
             for (int i = 0; i < threadMax; i++) {
-                //tagEP.createAuditTags(runners.get(i).getTags(), apiKey, apiKey);
-                futures.put(i, auditEP.createHeadersAsync(runners.get(i).getInputBeans(), true, apiKey));
+                futures.put(i, trackEP.trackHeadersAsync(runners.get(i).getInputBeans(), true, apiKey));
             }
             working = true;
         } catch (RuntimeException e) {
@@ -127,16 +174,21 @@ public class TestForceDeadlock {
             }
         }
         assertEquals(true, working);
+        assertNotNull(tagService.findTag(fortress.getCompany(), tags.get(0).getName(), tags.get(0).getIndex()));
+
+        Map<String, Tag> createdTags = tagService.findTags(fortress.getCompany(), tags.get(0).getIndex());
+        assertEquals(false, createdTags.isEmpty());
+        assertEquals(10, createdTags.size());
     }
 
-    private ArrayList<TagInputBean> getTags(int auditTag, int regTag) {
+    private ArrayList<TagInputBean> getTags(int tagCount) {
         ArrayList<TagInputBean> tags = new ArrayList<>();
-        for (int i = 0; i < auditTag; i++) {
-            tags.add(new TagInputBean("audittag" + i, "tagRlx" + i));
-        }
-
-        for (int i = 0; i < regTag; i++) {
-            TagInputBean tag = new TagInputBean("tag" + i);
+        for (int i = 0; i < tagCount; i++) {
+            TagInputBean tag = new TagInputBean("tag" + i, "tagRlx" + i);
+            tag.setIndex("Deadlock");
+            TagInputBean subTag = new TagInputBean("subtag" +i);
+            subTag.setIndex("DeadlockSub");
+            tag.setTargets("subtag",subTag);
             tags.add(tag);
         }
         return tags;
@@ -158,13 +210,21 @@ public class TestForceDeadlock {
         return runner;
     }
 
+    private TagRunner addTagRunner(Fortress fortress, int docCount, List<TagInputBean> tags, CountDownLatch latch) {
+
+        TagRunner runner = new TagRunner(fortress, tags, docCount, latch);
+        Thread thread = new Thread(runner);
+        thread.start();
+        return runner;
+    }
+
     class CallerRefRunner implements Runnable {
         String docType;
         String callerRef;
         Fortress fortress;
         CountDownLatch latch;
         int maxRun = 30;
-        List<AuditHeaderInputBean> inputBeans;
+        List<MetaInputBean> inputBeans;
         Collection<TagInputBean> tags;
 
         boolean worked = false;
@@ -176,15 +236,62 @@ public class TestForceDeadlock {
             this.latch = latch;
             this.tags = tags;
             this.maxRun = maxRun;
-            inputBeans = new ArrayList<>(maxRun) ;
+            inputBeans = new ArrayList<>(maxRun);
+        }
+
+        public boolean isWorked() {
+            return worked;
         }
 
         public int getMaxRun() {
             return maxRun;
         }
 
-        public List<AuditHeaderInputBean> getInputBeans() {
+        public List<MetaInputBean> getInputBeans() {
             return inputBeans;
+        }
+
+        @Override
+        public void run() {
+            int count = 0;
+            SecurityContextHolder.getContext().setAuthentication(authMike);
+            logger.info("Hello from thread {}, Creating {} MetaHeaders", callerRef, maxRun);
+            try {
+                while (count < maxRun) {
+                    MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef + count);
+                    inputBean.setTags(tags);
+                    //inputBean.setLog(new LogInputBean("john" + count, null, TestJson.getBigJsonText(count)));
+
+                    inputBeans.add(inputBean);
+                    count++;
+                }
+                worked = true;
+            } catch (Exception e) {
+                worked = false;
+                logger.error("Help!!", e);
+            } finally {
+                latch.countDown();
+            }
+
+
+        }
+
+    }
+
+    class TagRunner implements Runnable {
+        Fortress fortress;
+        CountDownLatch latch;
+        int maxRun = 30;
+        List<TagInputBean> tags;
+
+        boolean worked = false;
+        private boolean done;
+
+        public TagRunner(Fortress fortress, List<TagInputBean> tags, int maxRun, CountDownLatch latch) {
+            this.fortress = fortress;
+            this.latch = latch;
+            this.tags = tags;
+            this.maxRun = maxRun;
         }
 
         public boolean isWorked() {
@@ -195,33 +302,35 @@ public class TestForceDeadlock {
         public void run() {
             int count = 0;
             SecurityContextHolder.getContext().setAuthentication(authMike);
-            logger.info("Hello from thread {}, Creating {} AuditHeaders", callerRef, maxRun);
+            logger.info("Hello from TagRunner {}, Creating {} Tags", Thread.currentThread().getName(), maxRun);
             try {
                 while (count < maxRun) {
-                    AuditHeaderInputBean inputBean = new AuditHeaderInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef + count);
-                    inputBean.setTags(tags);
-                    inputBean.setAuditLog( new AuditLogInputBean("john"+count, null, TestJson.getBigJsonText(count) ));
-
-                    inputBeans.add(inputBean);
+                    tagEP.createTags(tags, null, null);
                     count++;
                 }
                 worked = true;
             } catch (Exception e) {
-
+                worked = false;
                 logger.error("Help!!", e);
+
             } finally {
                 latch.countDown();
+                done = true;
             }
 
 
         }
 
-        public Collection<TagInputBean> getTags() {
+        public List<TagInputBean> getTags() {
             return tags;
         }
 
-        public void setTags(Collection<TagInputBean> tags) {
-            this.tags = tags;
+        public boolean isDone() {
+            return done;
+        }
+
+        public void setDone(boolean done) {
+            this.done = done;
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -27,6 +27,8 @@ import java.util.Map;
  * Time: 9:11 PM
  */
 public interface Tag {
+
+    public static String DEFAULT=":_Tag";
 
     public String getName();
 

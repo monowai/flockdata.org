@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2012-2013 "Monowai Developments Limited"
+  ~ Copyright (company) 2012-2014 "Monowai Developments Limited"
   ~
   ~ This file is part of AuditBucket.
   ~
@@ -54,7 +54,7 @@
             reply-timeout="${reply.timeout}"
             amqp-template="amqpTemplate"/>
 
-    <!--<int:outbound-channel-adapter id="idMakeSearch" channel="sendRequest" ref="abSearchGateway" >-->
+    <!--<int:outbound-channel-adapter fortressId="idMakeSearch" channel="sendRequest" ref="abSearchGateway" >-->
     <!--</int:outbound-channel-adapter>-->
 
 

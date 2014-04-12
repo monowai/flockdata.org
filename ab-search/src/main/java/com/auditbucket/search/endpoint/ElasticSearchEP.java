@@ -19,14 +19,15 @@
 
 package com.auditbucket.search.endpoint;
 
-import com.auditbucket.search.service.AbSearchService;
+import com.auditbucket.helper.DatagioException;
+import com.auditbucket.search.model.QueryParams;
+import com.auditbucket.search.service.QueryService;
 import com.auditbucket.search.service.SearchAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -35,11 +36,11 @@ import java.util.Map;
  * Date: 7/07/13
  * Time: 10:03 PM
  */
-@RequestMapping("/")
+@RequestMapping("/query")
 @Controller
 public class ElasticSearchEP {
     @Autowired
-    AbSearchService searchService;
+    QueryService searchService;
 
     @Autowired
     SearchAdmin searchAdmin;
@@ -56,6 +57,28 @@ public class ElasticSearchEP {
     public Map<String, Object> getHealth() throws Exception {
         // curl -u mike:123 -X GET http://localhost:8081/ab-search/v1/health
         return searchAdmin.getHealth();
+    }
+
+    @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.POST)
+    @ResponseBody
+    public String simpleQuery(@RequestBody QueryParams queryParams,
+                            @RequestHeader(value = "Api-Key", required = false)
+                            String apiHeaderKey) throws DatagioException {
+
+        return searchService.doSearch("*", queryParams.getSimpleQuery());
+        // curl -u mike:123 -X GET http://localhost:8081/ab-search/v1/health
+        //return searchAdmin.getHealth();
+    }
+
+    @RequestMapping(value = "/metaKeys", produces = "application/json", method = RequestMethod.POST)
+    @ResponseBody
+    public Collection<String> metaKeys(@RequestBody QueryParams queryParams,
+                              @RequestHeader(value = "Api-Key", required = false)
+                              String apiHeaderKey) throws DatagioException {
+
+        return searchService.doMetaKeySearch("*", queryParams.getSimpleQuery());
+        // curl -u mike:123 -X GET http://localhost:8081/ab-search/v1/health
+        //return searchAdmin.getHealth();
     }
 
 }

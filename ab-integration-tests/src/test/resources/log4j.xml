@@ -66,6 +66,10 @@
     <logger name="io.searchbox">
         <level value="info"/>
     </logger>
+    <logger name="org.springframework.data.neo4j.support.query">
+        <level value="info"/>
+    </logger>
+
 
     <!-- Root Logger. If you're diagnosling integration test issues, up this value to debug -->
     <root>

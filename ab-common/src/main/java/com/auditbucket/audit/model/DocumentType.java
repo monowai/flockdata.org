@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -35,4 +35,6 @@ public interface DocumentType {
     Long getId();
 
     String getCode();
+
+    String getCompanyKey();
 }

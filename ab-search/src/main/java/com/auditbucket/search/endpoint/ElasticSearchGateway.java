@@ -19,8 +19,8 @@
 
 package com.auditbucket.search.endpoint;
 
-import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.search.model.AuditSearchChange;
+import com.auditbucket.audit.model.MetaHeader;
+import com.auditbucket.search.model.MetaSearchChange;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.Payload;
 import org.springframework.stereotype.Component;
@@ -32,8 +32,9 @@ import org.springframework.stereotype.Component;
 @Component
 public interface ElasticSearchGateway {
     @Gateway(requestChannel = "sendRequest")
-    public void createSearchableChange(AuditSearchChange thisChange);
+    public void createSearchableChange(MetaSearchChange thisChange);
+
 
     //@Gateway(requestChannel = "esDelete")
-    public void delete(@Payload AuditHeader auditHeader);
+    public void delete(@Payload MetaHeader metaHeader);
 }

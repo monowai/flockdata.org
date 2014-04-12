@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -19,8 +19,8 @@
 
 package com.auditbucket.test.unit;
 
-import com.auditbucket.audit.bean.AuditHeaderInputBean;
-import com.auditbucket.audit.bean.AuditLogInputBean;
+import com.auditbucket.audit.bean.LogInputBean;
+import com.auditbucket.audit.bean.MetaInputBean;
 import com.auditbucket.audit.model.TxRef;
 import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
 import com.auditbucket.registration.bean.FortressInputBean;
@@ -35,7 +35,6 @@ import java.util.Date;
 
 import static junit.framework.Assert.*;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
 
 /**
  * User: Mike Holdsworth
@@ -81,17 +80,17 @@ public class TestInputBeans {
     @Test
     public void testAuditInputBean() throws Exception {
         DateTime dateA = DateTime.now();
-        AuditHeaderInputBean aib = new AuditHeaderInputBean("fortress", "user", "booking", dateA, "myRef");
-        assertNull(aib.getAuditKey());
-        aib.setAuditKey("AbC");
-        assertNotNull(aib.getAuditKey());
+        MetaInputBean aib = new MetaInputBean("fortress", "user", "booking", dateA, "myRef");
+        assertNull(aib.getMetaKey());
+        aib.setMetaKey("AbC");
+        assertNotNull(aib.getMetaKey());
 
 
         // NonNull tx ref sets the inputBean to be transactional
         String what = "{\"abc\":0}";
         DateTime dateB = DateTime.now();
-        AuditLogInputBean alb = new AuditLogInputBean("aaa", "user", dateB, what, "", "txreftest");
-        aib.setAuditLog(alb); // Creation dates defer to the Log
+        LogInputBean alb = new LogInputBean("aaa", "user", dateB, what, "", "txreftest");
+        aib.setLog(alb); // Creation dates defer to the Log
         assertTrue(alb.isTransactional());
         assertEquals(dateB.getMillis(), aib.getWhen().getTime());
         // Try to override the
@@ -103,42 +102,15 @@ public class TestInputBeans {
         alb.setWhen(dateA.toDate());
         assertEquals(dateA.getMillis(), aib.getWhen().getTime());
         // Null the log
-        aib.setAuditLog(null);
+        aib.setLog(null);
         Date dateC = new Date();
         alb.setWhen(dateC);
-        aib.setAuditLog(alb);
+        aib.setLog(alb);
         assertEquals(dateC.getTime(), aib.getWhen().getTime());
 
-        alb = new AuditLogInputBean("aaa", "user", null, what);
+        alb = new LogInputBean("aaa", "user", null, what);
         assertFalse(alb.isTransactional());
 
-
-    }
-
-    @Test
-    public void labeledTagInputBreaksOut(){
-        String input ="Name:Label";
-        TagInputBean t = new TagInputBean(input);
-        assertEquals(":Label", t.getIndex());
-        assertEquals("Name", t.getName());
-
-        input = "Name:LabelA:LabelB";
-        t = new TagInputBean(input);
-        assertEquals(":LabelA :LabelB", t.getIndex());
-        assertEquals("Name", t.getName());
-
-        input = "Name";
-        t = new TagInputBean(input);
-        assertEquals("Name", t.getName());
-        assertEquals("", t.getIndex());
-        try {
-            new TagInputBean("Hello There:White Space Not Allowed");
-            fail("Whitespace is not allowed in a tag type");
-            new TagInputBean("Hello There:White Space Not Allowed");
-            fail("Whitespace is not allowed in a tag type");
-        } catch (Exception e ){
-            // This is good
-        }
 
     }
 
@@ -150,6 +122,26 @@ public class TestInputBeans {
         assertEquals("hello", tib.getCode());
         tib.setIndex("Testing");
         assertEquals(":Testing", tib.getIndex());
+    }
+
+    @Test
+    public void mergeTags(){
+        TagInputBean dest   = new TagInputBean("hello");
+        TagInputBean source = new TagInputBean("hello");
+
+        TagInputBean target = new TagInputBean("target");
+        TagInputBean other = new TagInputBean("other");
+
+        //source.addMetaLink("abc");
+        source.setTargets("somerlx", target);
+        source.setTargets("otherrlx", target);
+
+        dest.setTargets("somerlx", other );// This one appends to somerlx collection
+
+        dest.mergeTags(source);
+        //assertEquals(1, dest.getMetaLinks().size());
+        assertEquals("Should be 2 relationships", 2, dest.getTargets().size());
+        assertEquals("TagInput did not merge into somerlx", 2, dest.getTargets().get("somerlx").size());
     }
 
 

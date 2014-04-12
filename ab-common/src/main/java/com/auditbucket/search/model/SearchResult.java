@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -19,6 +19,8 @@
 
 package com.auditbucket.search.model;
 
+import com.auditbucket.audit.model.SearchChange;
+
 /**
  * Object to tie the keys between ab-engine and ab-search so that ab-engine can keep the document up-to-date
  * <p/>
@@ -26,9 +28,9 @@ package com.auditbucket.search.model;
  * Since: 13/07/13
  */
 public class SearchResult {
-    private String auditKey, fortress, searchKey, documentType;
+    private String metaKey, fortress, searchKey, documentType;
     private Long logId;
-    private Long auditId;
+    private Long metaId;
 
     protected SearchResult() {
     }
@@ -37,29 +39,29 @@ public class SearchResult {
 //        throw new RuntimeException(what);
 //    }
 
-    SearchResult(Long auditId, String fortress, String searchKey, String documentType) {
-        this.auditId = auditId;
+    SearchResult(Long metaId, String fortress, String searchKey, String documentType) {
+        this.metaId = metaId;
         this.fortress = fortress;
         this.searchKey = searchKey;
         this.documentType = documentType;
 
     }
 
-    public SearchResult(com.auditbucket.audit.model.SearchChange thisChange) {
-        this(thisChange.getAuditId(), thisChange.getFortressName(), thisChange.getSearchKey(), thisChange.getDocumentType());
+    public SearchResult(SearchChange thisChange) {
+        this(thisChange.getMetaId(), thisChange.getFortressName(), thisChange.getSearchKey(), thisChange.getDocumentType());
     }
 
     /**
-     * GUID for the auditKey
+     * GUID for the metaKey
      *
      * @return string
      */
-    public String getAuditKey() {
-        return auditKey;
+    public String getMetaKey() {
+        return metaKey;
     }
 
     /**
-     * name of the fortress that owns the auditKey
+     * name of the fortress that owns the metaKey
      *
      * @return string
      */
@@ -88,7 +90,7 @@ public class SearchResult {
     @Override
     public String toString() {
         return "SearchResult{" +
-                "auditId='" + auditId + '\'' +
+                "metaId='" + metaId + '\'' +
                 ", logId='" + logId + '\'' +
                 ", fortress='" + fortress + '\'' +
                 ", documentType='" + documentType + '\'' +
@@ -103,11 +105,11 @@ public class SearchResult {
         this.logId = logId;
     }
 
-    public Long getAuditId() {
-        return auditId;
+    public Long getMetaId() {
+        return metaId;
     }
 
-    public void setAuditId(Long auditId) {
-        this.auditId = auditId;
+    public void setMetaId(Long metaId) {
+        this.metaId = metaId;
     }
 }

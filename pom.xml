@@ -42,7 +42,7 @@
         <!--Weird AMQP integration error when using 3.0.1 of SI -->
         <org.springintegration.version>2.2.6.RELEASE</org.springintegration.version>
         <org.aspectj-version>1.7.2</org.aspectj-version>
-        <org.slf4j-version>1.7.5</org.slf4j-version>
+        <org.slf4j-version>1.7.6</org.slf4j-version>
         <jackson.version>2.2.3</jackson.version>
     </properties>
     <dependencies>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -19,9 +19,9 @@
 
 package com.auditbucket.audit.bean;
 
-import com.auditbucket.audit.model.AuditChange;
-import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.audit.model.AuditLog;
+import com.auditbucket.audit.model.ChangeLog;
+import com.auditbucket.audit.model.MetaHeader;
+import com.auditbucket.audit.model.TrackLog;
 
 
 /**
@@ -39,26 +39,26 @@ public class AuditTXResult {
     private Long lastSystemChange;
     private Long fortressWhen = 0l;
 
-    private AuditLog auditLog;
+    private TrackLog trackLog;
 
     private AuditTXResult() {
     }
 
 
-    public AuditTXResult(AuditHeader header, AuditChange change, AuditLog log) {
+    public AuditTXResult(MetaHeader header, ChangeLog change, TrackLog log) {
         this();
         this.fortressWhen = log.getFortressWhen();
-        this.auditKey = header.getAuditKey();
+        this.auditKey = header.getMetaKey();
         this.documentType = header.getDocumentType();
         this.callerRef = header.getCallerRef();
         this.fortressName = header.getFortress().getName();
         this.fortressKey = header.getFortress().getFortressKey();
         this.lastSystemChange = header.getLastUpdated();
-        this.auditLog = log;
+        this.trackLog = log;
     }
 
-    public Object getAuditLog() {
-        return auditLog;
+    public Object getTrackLog() {
+        return trackLog;
     }
 
     public String getAuditKey() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -19,7 +19,8 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.dao.AuditDao;
+import com.auditbucket.dao.SchemaDao;
+import com.auditbucket.dao.TrackDao;
 import com.auditbucket.helper.VersionHelper;
 import com.auditbucket.registration.model.Company;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,7 +46,7 @@ import java.util.Map;
 public class EngineConfig {
 
     @Autowired
-    AuditDao auditDAO;
+    TrackDao trackDAO;
 
     private String abSearch;
 
@@ -57,7 +57,12 @@ public class EngineConfig {
     private Logger logger = LoggerFactory.getLogger(EngineConfig.class);
 
     private Boolean multiTenanted = false;
-    private WhatService.KV_STORE kvStore =null;
+    private WhatService.KV_STORE kvStore = null;
+
+
+    @Autowired
+    SchemaDao schemaDao;
+
 
     @Value("${rabbit.host:@null}")
     protected void setRabbitHost(String rabbitHost) {
@@ -85,13 +90,13 @@ public class EngineConfig {
     }
 
     @Value("${abengine.kvStore}")
-    public void setKvStore (String kvStore){
+    public void setKvStore(String kvStore) {
         if ("@null".equals(kvStore) || kvStore.equalsIgnoreCase("redis"))
             this.kvStore = WhatService.KV_STORE.REDIS;
-        else if ( kvStore.equalsIgnoreCase("riak"))
+        else if (kvStore.equalsIgnoreCase("riak"))
             this.kvStore = WhatService.KV_STORE.RIAK;
         else {
-            logger.error("Unable to resolve the abengine.kvstore property [" + kvStore +"]. Defaulting to REDIS");
+            logger.error("Unable to resolve the abengine.kvstore property [" + kvStore + "]. Defaulting to REDIS");
         }
 
     }
@@ -103,13 +108,8 @@ public class EngineConfig {
     @Autowired
     Neo4jTemplate template;
 
-    @Async
-    public void createTagIndex(Company company) {
-        //template.query("create index on (t:Tag" + getTagSuffix(company) + ")", null) ;
-        // Performance issue with constraints?
-        logger.info("MultiTenant suffix = [" + getTagSuffix(company) + "]");
-        template.query("create constraint on (t:Tag" + getTagSuffix(company) + ") assert t.key is unique", null);
-        //template.query("create index on (t:Tag" + getTagSuffix(company)+ ")", null);
+    public void ensureSystemIndexes(Company company) {
+        schemaDao.ensureSystemIndexes(company, getTagSuffix(company));
     }
 
     public String getTagSuffix(Company company) {
@@ -122,7 +122,7 @@ public class EngineConfig {
         String version = VersionHelper.getABVersion();
         Map<String, String> healthResults = new HashMap<>();
         healthResults.put("ab-engine.version", version);
-        healthResults.put("ab-engine", auditDAO.ping());
+        healthResults.put("ab-engine", trackDAO.ping());
         String config = System.getProperty("ab.config");
         if (config == null || config.equals(""))
             config = "system-default";

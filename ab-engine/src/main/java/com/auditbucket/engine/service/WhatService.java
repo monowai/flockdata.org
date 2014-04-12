@@ -1,12 +1,31 @@
+/*
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
+ *
+ * This file is part of AuditBucket.
+ *
+ * AuditBucket is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AuditBucket is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.auditbucket.engine.service;
 
 import com.auditbucket.audit.bean.AuditDeltaBean;
-import com.auditbucket.audit.model.AuditChange;
-import com.auditbucket.audit.model.AuditHeader;
-import com.auditbucket.audit.model.AuditWhat;
-import com.auditbucket.dao.AuditDao;
-import com.auditbucket.engine.repo.AuditWhatData;
+import com.auditbucket.audit.model.ChangeLog;
+import com.auditbucket.audit.model.LogWhat;
+import com.auditbucket.audit.model.MetaHeader;
+import com.auditbucket.dao.TrackDao;
 import com.auditbucket.engine.repo.KvRepo;
+import com.auditbucket.engine.repo.LogWhatData;
 import com.auditbucket.engine.repo.redis.RedisRepo;
 import com.auditbucket.engine.repo.riak.RiakRepo;
 import com.auditbucket.helper.CompressionHelper;
@@ -43,7 +62,7 @@ public class WhatService {
     public enum KV_STORE {REDIS, RIAK}
     private static final ObjectMapper om = new ObjectMapper();
     @Autowired(required = false)
-    AuditDao auditDao = null;
+    TrackDao trackDao = null;
     @Autowired
     RedisRepo redisRepo;
     @Autowired
@@ -53,7 +72,7 @@ public class WhatService {
 
     private Logger logger = LoggerFactory.getLogger(WhatService.class);
 
-    public AuditChange logWhat(AuditHeader auditHeader, AuditChange change, String jsonText) {
+    public ChangeLog logWhat(MetaHeader metaHeader, ChangeLog change, String jsonText) {
         // Compress the Value of JSONText
         CompressionResult dataBlock = CompressionHelper.compress(jsonText);
         Boolean compressed = (dataBlock.getMethod() == CompressionResult.Method.GZIP);
@@ -61,17 +80,17 @@ public class WhatService {
         change.setWhatStore(String.valueOf(engineAdmin.getKvStore()));
         change.setCompressed(compressed);
         // Store First all information In Neo4j
-        change = auditDao.save(change, compressed);
-        Future<Void> r = doKvWrite(auditHeader, change, dataBlock);
+        change = trackDao.save(change, compressed);
+        Future<Void> r = doKvWrite(metaHeader, change, dataBlock);
 
         return change;
     }
 
     @Async //Only public methods are Async using this annotation
-    public Future<Void> doKvWrite(AuditHeader auditHeader, AuditChange change, CompressionResult dataBlock) {
+    public Future<Void> doKvWrite(MetaHeader metaHeader, ChangeLog change, CompressionResult dataBlock) {
         try {
             // ToDo: deal with this via spring integration??
-            getKvRepo(change).add(auditHeader, change.getId(), dataBlock.getAsBytes());
+            getKvRepo(change).add(metaHeader, change.getId(), dataBlock.getAsBytes());
         } catch (IOException e) {
             logger.error("KV storage issue", e);
         }
@@ -81,7 +100,7 @@ public class WhatService {
     private KvRepo getKvRepo(){
         return getKvRepo(String.valueOf(engineAdmin.getKvStore()));
     }
-    private KvRepo getKvRepo(AuditChange change) {
+    private KvRepo getKvRepo(ChangeLog change) {
         return getKvRepo(change.getWhatStore());
     }
 
@@ -95,24 +114,24 @@ public class WhatService {
         }
 
     }
-    public AuditWhat getWhat(AuditHeader auditHeader, AuditChange change) {
+    public LogWhat getWhat(MetaHeader metaHeader, ChangeLog change) {
         if (change == null )
             return null;
         try {
-            byte[] whatInformation = getKvRepo(change).getValue(auditHeader, change.getId());
-            AuditWhat auditWhat = new AuditWhatData(whatInformation, change.isCompressed());
-            return auditWhat;
+            byte[] whatInformation = getKvRepo(change).getValue(metaHeader, change.getId());
+            LogWhat logWhat = new LogWhatData(whatInformation, change.isCompressed());
+            return logWhat;
         } catch ( RuntimeException re){
-            logger.error("KV Error Audit["+auditHeader.getAuditKey() +"] change ["+change.getId()+"]", re);
+            logger.error("KV Error Audit["+ metaHeader.getMetaKey() +"] change ["+change.getId()+"]", re);
 
             //throw (re);
         }
         return null;
     }
 
-    public void delete(AuditHeader auditHeader, AuditChange change) {
+    public void delete(MetaHeader metaHeader, ChangeLog change) {
 
-        getKvRepo(change).delete(auditHeader, change.getId());
+        getKvRepo(change).delete(metaHeader, change.getId());
     }
 
 
@@ -121,15 +140,15 @@ public class WhatService {
      * Locate and compare the two JSON What documents to determine if they have changed
      *
      *
-     * @param auditHeader
+     * @param metaHeader
      * @param compareFrom existing change to compare from
      * @param compareWith new Change to compare with - JSON format
      * @return false if different, true if same
      */
-    public boolean isSame(AuditHeader auditHeader, AuditChange compareFrom, String compareWith) {
+    public boolean isSame(MetaHeader metaHeader, ChangeLog compareFrom, String compareWith) {
         if (compareFrom == null)
             return false;
-        AuditWhat what = getWhat(auditHeader, compareFrom);
+        LogWhat what = getWhat(metaHeader, compareFrom);
 
         if (what == null)
             return false;
@@ -154,11 +173,11 @@ public class WhatService {
 
     }
 
-    public AuditDeltaBean getDelta(AuditHeader header, AuditChange from, AuditChange to) {
+    public AuditDeltaBean getDelta(MetaHeader header, ChangeLog from, ChangeLog to) {
         if ( header == null || from == null || to == null )
             throw new IllegalArgumentException("Unable to compute delta due to missing arguments");
-        AuditWhat source = getWhat(header, from);
-        AuditWhat dest = getWhat(header, to);
+        LogWhat source = getWhat(header, from);
+        LogWhat dest = getWhat(header, to);
         MapDifference<String, Object> diffMap = Maps.difference(source.getWhatMap(), dest.getWhatMap());
         AuditDeltaBean result = new AuditDeltaBean();
         result.setAdded(new HashMap<>(diffMap.entriesOnlyOnRight()));

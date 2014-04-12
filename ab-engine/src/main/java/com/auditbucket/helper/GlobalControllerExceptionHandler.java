@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -26,7 +26,6 @@ import org.springframework.data.keyvalue.riak.DataStoreOperationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -49,9 +48,10 @@ public class GlobalControllerExceptionHandler {
         return new JsonError("Internal KV Error. Contact Support").asModelAndView();
     }
 
-    @ExceptionHandler(AuditException.class)
+    @ExceptionHandler(DatagioException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ModelAndView handleAuditException( AuditException ex){
+    public ModelAndView handleAuditException( DatagioException ex){
+        logger.error("Datagio Exception", ex);
         return new JsonError(ex.getMessage()).asModelAndView();
     }
 
@@ -70,6 +70,7 @@ public class GlobalControllerExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ModelAndView handleInternal( Exception ex) {
+        logger.error("Error 500", ex);
         return new JsonError(ex.getMessage()).asModelAndView();
     }
 

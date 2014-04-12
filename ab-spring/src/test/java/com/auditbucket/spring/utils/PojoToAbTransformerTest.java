@@ -1,10 +1,10 @@
 package com.auditbucket.spring.utils;
 
-import com.auditbucket.audit.bean.AuditHeaderInputBean;
-import com.auditbucket.helper.AuditException;
-import com.auditbucket.spring.annotations.AuditClientRef;
-import com.auditbucket.spring.annotations.AuditKey;
-import com.auditbucket.spring.annotations.Auditable;
+import com.auditbucket.audit.bean.MetaInputBean;
+import com.auditbucket.helper.DatagioException;
+import com.auditbucket.spring.annotations.DatagioCallerRef;
+import com.auditbucket.spring.annotations.DatagioUid;
+import com.auditbucket.spring.annotations.Trackable;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -13,65 +13,65 @@ import java.io.IOException;
 public class PojoToAbTransformerTest {
 
     @Test
-    public void testTransformPojoPublicField() throws IllegalAccessException, IOException, AuditException {
+    public void testTransformPojoPublicField() throws IllegalAccessException, IOException, DatagioException {
         Pojo1 pojo1 = new Pojo1();
         pojo1.email = "email@email.com";
         pojo1.id = 1L;
         pojo1.name = "name";
-        AuditHeaderInputBean auditHeaderInputBean = PojoToAbTransformer.transformToAbFormat(pojo1);
-        //Assert.assertEquals(auditHeaderInputBean.getAuditKey(), "1");
-        Assert.assertEquals(auditHeaderInputBean.getDocumentType(), "pojo1");
-        Assert.assertEquals(auditHeaderInputBean.getCallerRef(), "email@email.com");
+        MetaInputBean metaInputBean = PojoToAbTransformer.transformToAbFormat(pojo1);
+        //Assert.assertEquals(metaInputBean.getMetaKey(), "1");
+        Assert.assertEquals(metaInputBean.getDocumentType(), "pojo1");
+        Assert.assertEquals(metaInputBean.getCallerRef(), "email@email.com");
     }
 
     @Test
-    public void testTransformPojoPublicFieldWithCustomDocType() throws IllegalAccessException, IOException, AuditException {
+    public void testTransformPojoPublicFieldWithCustomDocType() throws IllegalAccessException, IOException, DatagioException {
         Pojo2 pojo2 = new Pojo2();
         pojo2.email = "email@email.com";
         pojo2.id = 1L;
         pojo2.name = "name";
-        AuditHeaderInputBean auditHeaderInputBean = PojoToAbTransformer.transformToAbFormat(pojo2);
-        //Assert.assertEquals(auditHeaderInputBean.getAuditKey(), "1");
-        Assert.assertEquals(auditHeaderInputBean.getDocumentType(), "testDocType");
-        Assert.assertEquals(auditHeaderInputBean.getCallerRef(), "email@email.com");
+        MetaInputBean metaInputBean = PojoToAbTransformer.transformToAbFormat(pojo2);
+        //Assert.assertEquals(metaInputBean.getMetaKey(), "1");
+        Assert.assertEquals(metaInputBean.getDocumentType(), "testDocType");
+        Assert.assertEquals(metaInputBean.getCallerRef(), "email@email.com");
     }
 
     @Test
-    public void testTransformPojoPrivateField() throws IllegalAccessException, IOException, AuditException {
+    public void testTransformPojoPrivateField() throws IllegalAccessException, IOException, DatagioException {
         Pojo3 pojo3 = new Pojo3();
         pojo3.email = "email@email.com";
         pojo3.id = 1L;
         pojo3.name = "name";
-        AuditHeaderInputBean auditHeaderInputBean = PojoToAbTransformer.transformToAbFormat(pojo3);
-        //Assert.assertEquals(auditHeaderInputBean.getAuditKey(), "1");
-        Assert.assertEquals(auditHeaderInputBean.getDocumentType(), "pojo3");
-        Assert.assertEquals(auditHeaderInputBean.getCallerRef(), "email@email.com");
+        MetaInputBean metaInputBean = PojoToAbTransformer.transformToAbFormat(pojo3);
+        //Assert.assertEquals(metaInputBean.getMetaKey(), "1");
+        Assert.assertEquals(metaInputBean.getDocumentType(), "pojo3");
+        Assert.assertEquals(metaInputBean.getCallerRef(), "email@email.com");
     }
 
-    @Auditable
+    @Trackable
     public static class Pojo1 {
-        @AuditKey
+        @DatagioUid
         public Long id;
         public String name;
-        @AuditClientRef
+        @DatagioCallerRef
         public String email;
     }
 
-    @Auditable(documentType = "testDocType")
+    @Trackable(documentType = "testDocType")
     public static class Pojo2 {
-        @AuditKey
+        @DatagioUid
         public Long id;
         public String name;
-        @AuditClientRef
+        @DatagioCallerRef
         public String email;
     }
 
-    @Auditable
+    @Trackable
     public static class Pojo3 {
-        @AuditKey
+        @DatagioUid
         private Long id;
         private String name;
-        @AuditClientRef
+        @DatagioCallerRef
         private String email;
     }
 }

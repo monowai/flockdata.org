@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -19,9 +19,11 @@
 
 package com.auditbucket.test.functional;
 
+import com.auditbucket.engine.PropertyConversion;
 import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
+import com.auditbucket.registration.endpoint.TagEP;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.FortressService;
@@ -54,8 +56,6 @@ import static junit.framework.Assert.*;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
-@Transactional
-
 public class TestTags {
     @Autowired
     FortressService fortressService;
@@ -67,6 +67,9 @@ public class TestTags {
     TagService tagService;
 
     @Autowired
+    TagEP tagEP;
+
+    @Autowired
     EngineConfig engineAdmin;
 
 
@@ -75,7 +78,6 @@ public class TestTags {
     //private Logger log = LoggerFactory.getLogger(TestTags.class);
     private String company = "Monowai";
     private String mike = "mike@monowai.com";
-    private String mark = "mark@monowai.com";
     private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
 
 
@@ -88,7 +90,6 @@ public class TestTags {
         Neo4jHelper.cleanDb(template);
     }
 
-    //ToDo: disabled until Neo4j2 and indexes. @org.junit.Test
     public void duplicateTagLists() throws Exception {
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
         assertNotNull(iSystemUser);
@@ -101,12 +102,12 @@ public class TestTags {
         tags.add(new TagInputBean("FLOP"));
         tags.add(new TagInputBean("FLOP"));
 
-        Iterable<Tag> tagResult = tagService.processTagsFast(tags);
-        assertNotNull(tagResult);
+        Iterable<TagInputBean> tagResults = tagService.processTags(tags);
+        assertNotNull(tagResults);
         int count = 0;
-        for (Tag next : tagResult) {
+        for (TagInputBean next : tagResults) {
             assertEquals("FLOP", next.getName());
-            assertEquals("flop", next.getKey());
+            //assertEquals("flop", next.getKey());
             count++;
         }
         assertEquals(1, count);
@@ -117,9 +118,9 @@ public class TestTags {
         tags.add(new TagInputBean("FLOPSY"));
         tags.add(new TagInputBean("FLOPPO"));
         tags.add(new TagInputBean("FLOPER"));
-        tagResult = tagService.processTagsFast(tags);
+        tagResults = tagService.processTags(tags);
         count = 0;
-        for (Tag next : tagResult) {
+        for (TagInputBean next : tagResults) {
             assertNotNull(next);
             count++;
         }
@@ -128,6 +129,7 @@ public class TestTags {
     }
 
     @org.junit.Test
+    @Transactional
     public void secureMultiTenantedTags() throws Exception {
         engineAdmin.setMultiTenanted(true);
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
@@ -136,13 +138,9 @@ public class TestTags {
         List<TagInputBean> tags = new ArrayList<>();
         TagInputBean tagInput = new TagInputBean("FLOP");
         tags.add(tagInput);
-        Iterable<Tag> tagResult = tagService.processTags(tags);
+        Iterable<TagInputBean> tagResult = tagService.processTags(tags);
         assertNotNull(tagResult);
-        assertTrue(tagResult.iterator().hasNext());
-        // ToDo: FindService assertNull(tagService.findTag("ABC"));
-
-        // ToDo: FindService assertNotNull(tagService.findTag("FLOP"));
-
+        assertFalse(tagResult.iterator().hasNext()); // No errors were detected
         regService.registerSystemUser(new RegistrationBean("ABC", "gina", "bah"));
         Authentication authGina = new UsernamePasswordAuthenticationToken("gina", "user1");
         SecurityContextHolder.getContext().setAuthentication(authGina);
@@ -158,8 +156,9 @@ public class TestTags {
     public void updateExistingTag() throws Exception {
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
         assertNotNull(iSystemUser);
+        SecurityContextHolder.getContext().setAuthentication(authMike);
 
-        assertNull(tagService.findTag("ABC"));
+        assertNull(tagService.findTag(iSystemUser.getCompany(), "ABC"));
         Tag tag = tagService.processTag(new TagInputBean("FLOP"));
         assertNotNull(tag);
 
@@ -255,7 +254,8 @@ public class TestTags {
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
         assertNotNull(iSystemUser);
 
-        TagInputBean tagInput = new TagInputBean("Source:TestTag");
+        TagInputBean tagInput = new TagInputBean("Source");
+        tagInput.setIndex(":TestTag");
         tagInput.setCode("CodeA");
         tagInput.setName("NameA");
         Tag tag = tagService.processTag(tagInput);
@@ -275,7 +275,8 @@ public class TestTags {
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
         assertNotNull(iSystemUser);
 
-        TagInputBean tagInput = new TagInputBean("Source:TestTag");
+        TagInputBean tagInput = new TagInputBean("Source");
+        tagInput.setIndex(":TestTag");
         tagInput.setCode("CodeA");
         tagInput.setName("NameA");
         Tag tag = tagService.processTag(tagInput);
@@ -287,6 +288,102 @@ public class TestTags {
         assertNotNull ( results);
         assertFalse(results.isEmpty());
         assertNotNull ( results.get(tagInput.getName()));
+    }
+
+    @Test
+    public void sameKeyForDifferentTagTypes() throws Exception {
+        engineAdmin.setMultiTenanted(false);
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
+        assertNotNull(iSystemUser);
+
+        TagInputBean tagInputA = new TagInputBean("Source");
+        tagInputA.setIndex(":TestTagA");
+        tagInputA.setCode("CodeA");
+        tagInputA.setName("NameA");
+        Tag tagA = tagService.processTag(tagInputA);
+        assertNotNull (tagA);
+        assertEquals(tagInputA.getCode(), tagA.getCode());
+        assertEquals(tagInputA.getName(), tagA.getName());
+        assertNotNull(tagA.getKey());
+        Map<String, Tag> results = tagService.findTags("TestTagA");
+        assertNotNull ( results);
+        assertFalse(results.isEmpty());
+        assertNotNull ( results.get(tagInputA.getName()));
+
+        // This should work as the tag is in a different index
+        TagInputBean tagInputB = new TagInputBean("Source");
+        tagInputB.setIndex(":TestTagB");
+        tagInputB.setCode("CodeA");
+        tagInputB.setName("NameA");
+        Tag tagB = tagService.processTag(tagInputB);
+        assertNotNull (tagB);
+        assertNotSame(tagA.getId(), tagB.getId());
+
+        assertEquals(tagInputB.getCode(), tagB.getCode());
+        assertEquals(tagInputB.getName(), tagB.getName());
+        assertNotNull(tagA.getKey());
+        Map<String, Tag> resultsB = tagService.findTags("TestTagB");
+        assertNotNull ( resultsB);
+        assertFalse(resultsB.isEmpty());
+        assertNotNull ( resultsB.get(tagInputB.getName()));
+
+
+    }
+
+    @Test
+    public void duplicateTagsForSameIndexReturnSingleTag() throws Exception {
+        engineAdmin.setMultiTenanted(false);
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
+        assertNotNull(iSystemUser);
+
+        TagInputBean tagInputA = new TagInputBean("Source");
+        tagInputA.setIndex(":TestTagA");
+        tagInputA.setCode("CodeA");
+        tagInputA.setName("NameA");
+        Tag tagA = tagService.processTag(tagInputA);
+        assertNotNull (tagA);
+
+        // This should work as the tag is in a different index
+        TagInputBean tagInputB = new TagInputBean("Source");
+        tagInputB.setIndex(":TestTagA");
+        tagInputB.setCode("CodeA");
+        tagInputB.setName("NameA");
+        Tag tagB = tagService.processTag(tagInputB);
+        assertNotNull (tagB);
+        assertEquals(tagA.getId(), tagB.getId());
+
+    }
+    @Test
+    public void systemPropertiesHonoured() throws Exception{
+        // Case insensitive test
+        assertTrue(PropertyConversion.isSystemColumn("Name"));
+        assertTrue(PropertyConversion.isSystemColumn("code"));
+        assertTrue(PropertyConversion.isSystemColumn("keY"));
+
+    }
+    @Test
+    public void tagUniqueForIndex(){
+        engineAdmin.setMultiTenanted(false);
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
+        assertNotNull(iSystemUser);
+
+        TagInputBean tagInputA = new TagInputBean("Source");
+        tagInputA.setIndex(":TestTagA");
+        tagInputA.setCode("CodeA");
+        tagInputA.setName("NameA");
+        Tag tagA = tagService.processTag(tagInputA);
+        assertNotNull (tagA);
+
+        // Same code, but different label. Should create a new tag
+        TagInputBean tagInputB = new TagInputBean("Source");
+        tagInputB.setIndex(":TestTagB");
+        tagInputB.setCode("CodeA");
+        tagInputB.setName("NameA");
+        Tag tagB = tagService.processTag(tagInputB);
+        Tag tagC = tagService.processTag(tagInputB);
+        assertNotNull (tagB);
+        assertTrue(!tagA.getId().equals(tagB.getId()));
+        assertTrue (tagC.getId().equals(tagB.getId()));
     }
 
 

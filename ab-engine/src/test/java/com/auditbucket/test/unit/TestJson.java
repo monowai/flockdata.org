@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -19,7 +19,7 @@
 
 package com.auditbucket.test.unit;
 
-import com.auditbucket.audit.bean.AuditLogInputBean;
+import com.auditbucket.audit.bean.LogInputBean;
 import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.helper.CompressionResult;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -42,7 +42,7 @@ public class TestJson {
     public void compressLotsOfBytes() throws Exception {
         String json = getBigJsonText(99);
         System.out.println("Pretty JSON          - " + json.getBytes().length);
-        AuditLogInputBean log = new AuditLogInputBean("", "", null, json);
+        LogInputBean log = new LogInputBean("", "", null, json);
         System.out.println("JSON Node (unpretty) - " + log.getWhat().getBytes().length);
 
         CompressionResult result = CompressionHelper.compress(json);

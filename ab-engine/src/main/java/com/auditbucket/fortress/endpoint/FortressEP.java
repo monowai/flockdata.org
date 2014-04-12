@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -19,10 +19,11 @@
 
 package com.auditbucket.fortress.endpoint;
 
-import com.auditbucket.helper.AuditException;
+import com.auditbucket.audit.model.DocumentType;
+import com.auditbucket.helper.ApiKeyHelper;
+import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.bean.FortressResultBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
@@ -65,7 +66,7 @@ public class FortressEP {
     @ResponseBody
     public ResponseEntity<Fortress> registerFortress(@RequestBody FortressInputBean fortressInputBean, String apiKey) {
         Company company = securityHelper.getCompany(apiKey);
-        Fortress fortress = fortressService.registerFortress(fortressInputBean, company);
+        Fortress fortress = fortressService.registerFortress(company, fortressInputBean, true);
         fortressInputBean.setFortressKey(fortress.getFortressKey());
         return new ResponseEntity<>(fortress, HttpStatus.CREATED);
 
@@ -83,12 +84,12 @@ public class FortressEP {
     }
 
     @RequestMapping(value = "/{fortressName}", method = RequestMethod.DELETE)
-    public void purgeFortress(@PathVariable("fortressName") String fortressName) throws AuditException {
+    public void purgeFortress(@PathVariable("fortressName") String fortressName) throws DatagioException {
         fortressService.purge(fortressName);
     }
 
-    @RequestMapping(value = "/{fortressName}/delete", method = RequestMethod.POST)
-    public void rebuildFortress(@PathVariable("fortressName") String fortressName) throws AuditException {
+    @RequestMapping(value = "/{fortressName}/delete", method = RequestMethod.DELETE)
+    public void rebuildFortress(@PathVariable("fortressName") String fortressName) throws DatagioException {
         fortressService.purge(fortressName);
     }
 
@@ -105,4 +106,11 @@ public class FortressEP {
         return new ResponseEntity<>(fortressService.getFortressUser(fortress, userName), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/{fortressName}/docs", method = RequestMethod.GET)
+    @ResponseBody
+    public Collection<DocumentType> getDocumentTypes(String fortressName,
+                                                     String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+        Company company = securityHelper.getCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+        return fortressService.getDocumentsInUse(company, fortressName);
+    }
 }

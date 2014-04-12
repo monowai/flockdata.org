@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 "Monowai Developments Limited"
+ * Copyright (c) 2012-2014 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -20,12 +20,12 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.audit.bean.AuditDeltaBean;
-import com.auditbucket.audit.bean.AuditHeaderInputBean;
-import com.auditbucket.audit.bean.AuditLogInputBean;
-import com.auditbucket.audit.bean.AuditResultBean;
-import com.auditbucket.audit.model.AuditLog;
-import com.auditbucket.engine.service.AuditManagerService;
-import com.auditbucket.engine.service.AuditService;
+import com.auditbucket.audit.bean.LogInputBean;
+import com.auditbucket.audit.bean.MetaInputBean;
+import com.auditbucket.audit.bean.TrackResultBean;
+import com.auditbucket.audit.model.TrackLog;
+import com.auditbucket.engine.service.MediationFacade;
+import com.auditbucket.engine.service.TrackService;
 import com.auditbucket.engine.service.WhatService;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
@@ -65,7 +65,7 @@ import static org.junit.Assert.assertNotNull;
 @Transactional
 public class TestDelta {
     @Autowired
-    AuditService auditService;
+    TrackService trackService;
 
     @Autowired
     RegistrationService regService;
@@ -80,9 +80,9 @@ public class TestDelta {
     private Neo4jTemplate template;
 
     @Autowired
-    private AuditManagerService auditManagerService;
+    private MediationFacade mediationFacade;
 
-    private Logger logger = LoggerFactory.getLogger(TestAudit.class);
+    private Logger logger = LoggerFactory.getLogger(TestTrack.class);
     private String monowai = "Monowai";
     private String mike = "mike";
     private String mark = "mark@null.com";
@@ -117,19 +117,19 @@ public class TestDelta {
         String jsonB = "{\"house\": \"green\", \"bedrooms\": 2, \"list\": [1,2,3]}";
 
 
-        AuditHeaderInputBean header = new AuditHeaderInputBean("DELTAForce", "auditTestz", "Delta", new DateTime(), "abdelta");
-        AuditLogInputBean log = new AuditLogInputBean("Mike", new DateTime(), jsonA);
-        header.setAuditLog(log);
-        AuditResultBean result = auditManagerService.createHeader(header, null);
-        AuditLog first = auditService.getLastAuditLog(result.getAuditHeader());
+        MetaInputBean header = new MetaInputBean("DELTAForce", "auditTestz", "Delta", new DateTime(), "abdelta");
+        LogInputBean log = new LogInputBean("Mike", new DateTime(), jsonA);
+        header.setLog(log);
+        TrackResultBean result = mediationFacade.createHeader(header, null);
+        TrackLog first = trackService.getLastLog(result.getMetaHeader());
         Assert.assertNotNull(first);
-        log = new AuditLogInputBean(result.getAuditKey(), "Mike", new DateTime(), jsonB);
-        auditManagerService.createLog(log);
-        AuditLog second = auditService.getLastAuditLog(result.getAuditHeader());
+        log = new LogInputBean(result.getMetaKey(), "Mike", new DateTime(), jsonB);
+        mediationFacade.processLog(log);
+        TrackLog second = trackService.getLastLog(result.getMetaHeader());
         Assert.assertNotNull(second);
 
 
-        AuditDeltaBean deltaBean = whatService.getDelta(result.getAuditHeader(), first.getAuditChange(), second.getAuditChange());
+        AuditDeltaBean deltaBean = whatService.getDelta(result.getMetaHeader(), first.getChange(), second.getChange());
         Map added = deltaBean.getAdded();
         Assert.assertNotNull(added);
         assertTrue (added.containsKey("list"));

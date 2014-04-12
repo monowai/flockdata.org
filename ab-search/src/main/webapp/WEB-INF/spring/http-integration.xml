@@ -37,7 +37,7 @@
                               path="/api/esMake"
                               reply-timeout="${reply.timeout}"
                               request-timeout="${request.timeout}"
-                              request-payload-type="com.auditbucket.search.model.AuditSearchChange"
+                              request-payload-type="com.auditbucket.search.model.MetaSearchChange"
                               supported-methods="POST"/>
 
 
