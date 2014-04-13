@@ -558,9 +558,11 @@ public class TestAuditIntegration {
         QueryParams q = new QueryParams().setSimpleQuery(searchFor);
         q.setCompany(su.getCompany().getName());
         q.setFortress(fortress.getName());
+        doEsQuery("*",searchFor,1);
 
         String qResult = runQuery(q);
         assertNotNull(qResult);
+        assertTrue("Couldn't find a hit in the result ["+result+"]", qResult.contains("total\" : 1"));
 
     }
 
