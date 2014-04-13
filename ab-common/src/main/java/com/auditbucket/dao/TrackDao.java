@@ -120,4 +120,5 @@ public interface TrackDao {
 
     Map<String,Collection<MetaHeader>> getCrossReference(Company company, MetaHeader header, String xRefName);
 
+    Collection<MetaHeader> findHeaders(Company company, Collection<String> toFind);
 }

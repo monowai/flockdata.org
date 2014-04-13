@@ -397,6 +397,12 @@ public class TrackDaoNeo implements TrackDao {
 
     }
 
+    @Override
+    public Collection<MetaHeader> findHeaders(Company company, Collection<String> toFind) {
+        logger.debug("Looking for {} headers for company [{}] ", toFind.size(), company);
+        return metaRepo.findHeaders(company.getId(), toFind);
+    }
+
 
     public TrackLog getLastLog(Long metaHeaderId) {
         TrackLogRelationship log = null;

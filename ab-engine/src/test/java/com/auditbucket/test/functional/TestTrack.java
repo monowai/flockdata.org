@@ -33,6 +33,7 @@ import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
+import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.FortressService;
 import junit.framework.Assert;
 import org.apache.commons.lang.time.StopWatch;
@@ -54,9 +55,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
 
 import static junit.framework.Assert.*;
 import static org.junit.Assert.assertNotNull;
@@ -675,7 +674,36 @@ public class TestTrack {
         assertEquals("Case sensitivity failed", 2, trackService.getHeaders(fortress, "typea", 0l).size());
         assertEquals(1, trackService.getHeaders(fortress, typeB, 0l).size());
         assertEquals("Case sensitivity failed", 1, trackService.getHeaders(fortress, "type b", 0l).size());
+    }
 
+    @Test
+    public void findMetaHeadersForCollectionOfMetaKeys() throws Exception{
+        SystemUser suB = regService.register(new RegistrationBean("othercompany", mark, "bah")).getBody();
+        SystemUser suA = regService.register(new RegistrationBean(monowai, mike, "bah")).getBody();
+
+        Fortress fortressA = fortressService.registerFortress("ABC");
+        assertNotNull(fortressA);
+        Fortress fortressB = fortressService.registerFortress("XYZ");
+
+        String typeA = "TypeA";
+        String typeB = "Type B";
+
+        TrackResultBean ra = mediationFacade.createHeader(new MetaInputBean(fortressA.getName(), "auditTest", typeA, new DateTime(), "aba"), suA.getCompany().getApiKey());
+        TrackResultBean rb = mediationFacade.createHeader(new MetaInputBean(fortressA.getName(), "auditTest", typeA, new DateTime(), "abb"), suA.getCompany().getApiKey());
+        TrackResultBean rc = mediationFacade.createHeader(new MetaInputBean(fortressA.getName(), "auditTest", typeB, new DateTime(), "abc"), suA.getCompany().getApiKey());
+        TrackResultBean validButNotForCallerA = mediationFacade.createHeader(new MetaInputBean(fortressB.getName(), "auditTest", typeB, new DateTime(), "abc"), suB.getCompany().getApiKey());
+        Collection<String>toFind = new ArrayList<>();
+        toFind.add(ra.getMetaKey());
+        toFind.add(rb.getMetaKey());
+        toFind.add(rc.getMetaKey());
+        toFind.add(validButNotForCallerA.getMetaKey());
+
+        Collection<MetaHeader>foundHeaders = trackEP.getMetaHeaders(toFind, suA.getCompany().getApiKey(), suA.getCompany().getApiKey());
+        assertEquals("Caller was authorised to find 3 headers", 3, foundHeaders.size());
+
+        // This is the other user, and despite there being valid keys, they will only get theirs back
+        foundHeaders = trackEP.getMetaHeaders(toFind, suA.getCompany().getApiKey(), suB.getCompany().getApiKey());
+        assertEquals("Caller was only authorised to find 1 header", 1, foundHeaders.size());
 
     }
 

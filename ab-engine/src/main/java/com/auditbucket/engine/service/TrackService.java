@@ -780,4 +780,8 @@ public class TrackService {
         trackDao.crossReference(header, targets, xRefName);
         return ignored;
     }
+
+    public Collection<MetaHeader> getHeaders(Company company, Collection<String> toFind) {
+        return trackDao.findHeaders(company, toFind);
+    }
 }

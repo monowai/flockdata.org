@@ -204,8 +204,8 @@ public class TrackEP {
 
     @ResponseBody
     @RequestMapping(value = "/{metaKey}", method = RequestMethod.GET)
-    public ResponseEntity<MetaHeader> getMetaHeader(@PathVariable("metaKey") String metaKey, String apiKey,
-                                                    @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+    public ResponseEntity<MetaHeader> getMetaHeader(@PathVariable("metaKey") String metaKey,
+                                                    String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8081/ab-engine/track/{metaKey}/ -d '{"eventType":"change","metaKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10", "what": "{\"name\": \"val\"}" }'
         Company company = getCompany(apiHeaderKey, apiKey);
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/{metaKey}
@@ -215,6 +215,25 @@ public class TrackEP {
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
+
+    /**
+     * locates a collection of MetaHeaders based on incoming collection of MetaKeys
+     *
+     * @param toFind keys to look for
+     * @param apiKey who you purport to be
+     * @param apiHeaderKey as per apiKey but in the header
+     *
+     * @return Matching metaHeaders you are authorised to receive
+     * @throws DatagioException
+     */
+    @ResponseBody
+    @RequestMapping(value = "/", method = RequestMethod.POST)
+    public Collection<MetaHeader> getMetaHeaders(@RequestBody Collection<String> toFind,
+                                                 String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+        Company company = getCompany(apiHeaderKey, apiKey);
+        return trackService.getHeaders(company, toFind);
+    }
+
 
     private Company getCompany(String apiHeaderKey, String apiRequestKey) throws DatagioException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiRequestKey));
@@ -487,4 +506,5 @@ public class TrackEP {
         Company company = getCompany(apiHeaderKey, apiKey);
         return trackService.getCrossReference(company, fortress, callerRef, xRefName);
     }
+
 }

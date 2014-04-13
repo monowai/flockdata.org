@@ -33,7 +33,7 @@
         <module>ab-integration-tests</module>
     </modules>
     <packaging>pom</packaging>
-    <version>0.92-BUILD-SNAPSHOT</version>
+    <version>0.93-BUILD-SNAPSHOT</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java-version>1.7</java-version>
