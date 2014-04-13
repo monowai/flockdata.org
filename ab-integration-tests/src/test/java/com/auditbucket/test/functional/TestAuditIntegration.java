@@ -94,7 +94,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 public class TestAuditIntegration {
-    private boolean ignoreMe = true;
+    private boolean ignoreMe = false;
     private static int fortressMax = 1;
     private static JestClient esClient;
 
@@ -533,7 +533,7 @@ public class TestAuditIntegration {
 
     @Test
     public void simpleQueryEPWorksForImportedRecord() throws Exception {
-        assumeTrue(ignoreMe);
+        assumeTrue(!ignoreMe);
 
         String searchFor = "testing";
         String escJson = "{\"who\":\""+searchFor+"\"}";
@@ -544,20 +544,27 @@ public class TestAuditIntegration {
 //        assertEquals("Pong!", restClient.ping());
         SystemUser su = regService.registerSystemUser(new RegistrationBean("TestCo", "mike", "123"));
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("TestFortress", false));
-        MetaInputBean input = new MetaInputBean("TestFortress", "mikeTest", "Query", new DateTime(), "abzz");
+        Thread.sleep(300);
+
         LogInputBean log = new LogInputBean("mikeTest", new DateTime(), escJson );
+        MetaInputBean input = new MetaInputBean("TestFortress", "mikeTest", "Query", new DateTime(), "abzz");
         input.setLog(log);
+
         TrackResultBean result = trackEP.trackHeader(input, su.getCompany().getApiKey(), su.getCompany().getApiKey() ).getBody();
         waitForHeaderToUpdate(result.getMetaHeader(), su.getCompany().getApiKey());
 //        restClient.writeAudit(input, "Hello World");
 
 
         QueryParams q = new QueryParams().setSimpleQuery(searchFor);
-        m(q);
+        q.setCompany(su.getCompany().getName());
+        q.setFortress(fortress.getName());
+
+        String qResult = runQuery(q);
+        assertNotNull(qResult);
 
     }
 
-    private void m(QueryParams queryParams) throws Exception {
+    private String runQuery(QueryParams queryParams) throws Exception {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
@@ -565,13 +572,14 @@ public class TestAuditIntegration {
         HttpEntity<QueryParams> requestEntity = new HttpEntity<>(queryParams, httpHeaders);
 
         try {
-            restTemplate.exchange("http://localhost:9081/ab-search/v1/query/", HttpMethod.POST, requestEntity, QueryParams.class);
+            return restTemplate.exchange("http://localhost:9081/ab-search/v1/query/", HttpMethod.POST, requestEntity, String.class).getBody();
         } catch (HttpClientErrorException e) {
             logger.error("AB Client Audit error {}", e);
         } catch (HttpServerErrorException e) {
             logger.error("AB Server Audit error {}", e);
 
         }
+        return null;
     }
 
     private void createLog(String simpleJson, MetaInputBean aib, TrackResultBean arb, int log) throws DatagioException {

@@ -64,6 +64,7 @@ public class QueryDaoES implements QueryDao {
                 .execute()
                 .actionGet();
 
+        //logger.debug("looking for {} in index {}", queryString, index);
         return result.toString();
 
     }

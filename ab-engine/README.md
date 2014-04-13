@@ -15,6 +15,8 @@ Please see our [PostMan API gist](https://gist.github.com/monowai/8077021)  for 
 ## Dependencies
 Only mandatory dependency at this time is REDIS or RIAK as a KV store; This should be installed separately according to your OS instructions. It is recommended that you install RabbitMQ in order to use reliable AMQP cooms between ab-engine an ab-search, however if you are just experimenting, then http integration is fine.
 
+Start your supported KV Store
+
 ## Installation
 Get the source
 ```
@@ -31,6 +33,8 @@ Run the tests
 $ mvn -Dtest=Test* test -Dab.integration=http -Dneo4j=java
 ```
 
+You may see an error suggesting that RIAK could not be found. This can be ignored or remidied by starting RIAK.
+
 ## Configuration
 ab-engine exchanges information with ab-search over http or amqp integration; you control which with the '-Dab.integration' property at boot time.
 
@@ -40,13 +44,13 @@ If you want to use AMQP, and we suggest you do, the default message platform we 
 
 Note that if ab-engine is integrating via AMQP then ab-search must use this approach as well.
 
-## Container Deployment
-While this all looks rather technical, it is simply a matter of getting the WAR file deployed in a webserver.
+## Start Your Engines
+You can either deploy ab-engine to an existing servlet container or run it standalone.
 
-If you just want to evaluate and are pressed for time, then run ab-engine straight from the ab-engine/target folder with the following command
+Tun ab-engine straight from the ab-engine/target folder with the following command
 ```
 $ cd ab-engine/target
-$ java -jar ab-engine-0.91-BUILD-SNAPSHOT-war-exec.jar -Dneo4j=java -Dab.integration=http -httpPort=8080 -Dab.config=./classes/config.properties -Dlog4j.configuration=file:./classes/log4j.xml
+$ java -jar ab-engine-war.jar -Dneo4j=java -Dab.integration=http -httpPort=8080 -Dab.config=./classes/config.properties -Dlog4j.configuration=file:./classes/log4j.xml
 ```
 
 Deploy in TomCat or whatever be your favourite container. Maven will build an executable Tomcat7 package for you that you can run from the Java command line. We will assume that you are going to deploy the WAR to TC7 via your IDE.
@@ -59,7 +63,7 @@ Once you have the .war file installed in your app server, you can start firing o
 HTTP, REST and JSON is the lingua franca.
 
 ### Security
-Note that the user id is 'mike' and the password is '123'. This is basic configuration stuff hacked in to spring-security.xml. I'm sure you can configure your own lovely security domain, or help me out with an OAuth configuration ;)
+Note that the user id is 'mike' and the password is '123'. This is basic configuration stuff hacked in to spring-security.xml. You are free to configure your own security domain, or help me out with an OAuth configuration ;)
 
 ## Tracking Data
 By default, information is tracked in Neo4J and ElasticSearch. You can, at the point of POST, request that the information be only tracked in Neo4j or only ElasticSearch. This depends on your use case. You might be simply tracking event type information that never changes, so simply storing in ElasticSearch is functional enough as the data is not require the meshing of connections.
@@ -69,7 +73,7 @@ In the examples below, /ab-engine/ represents the application context with the e
 
 ###Register yourself with an account
 ```
-curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/v1/profiles/ -d '{"name":"mike", "companyName":"Monowai","password":"whocares"}'
+curl -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/v1/profiles/ -d '{"name":"mike", "companyName":"Monowai","password":"whocares"}'
 ```
 ### See who you are
 ```
@@ -78,13 +82,13 @@ curl -u mike:123 -X GET http://localhost:8080/ab-engine/v1/profiles/me
 ### Create an Application Fortress
 This is one of your computer systems that you want to audit
 ```
-curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/v1/fortress/ -d '{"name": "SAP-AR","searchActive": true}'
+curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/v1/fortress/ -d '{"name": "demo-app","searchActive": true}'
 ```
 ### Create an Audit Record
 You should have started [ab-search](../ab-search) before doing this if you're not using RabbitMQ otherwise expect a communications error!
 ```
 curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/v1/audit/ -d '{
-  "fortress":"SAP-AR", 
+  "fortress":"demo-app", 
   "fortressUser": "ak0919",
   "documentType":"Debtor",
   "callerRef":"myRef",
