@@ -148,11 +148,6 @@ public class TrackDaoNeo implements TrackDao {
     }
 
     @Override
-    public void fetch(LogWhat what) {
-        template.fetch(what);
-    }
-
-    @Override
     public Set<MetaHeader> findHeadersByTxRef(Long txRef) {
         return metaRepo.findHeadersByTxRef(txRef);
     }
@@ -274,11 +269,6 @@ public class TrackDaoNeo implements TrackDao {
 //            return "Neo4J has problems";
 //        }
         return "Neo4J is OK";
-    }
-
-    @Override
-    public ChangeLog save(FortressUser fUser, LogInputBean input) {
-        return save(fUser, input, null, null);
     }
 
     @Override

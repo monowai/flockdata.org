@@ -133,7 +133,7 @@ public class TestCallerRef {
     @Test
     @Transactional
     public void findByCallerRefAcrossDocumentTypes() throws Exception {
-        registrationEP.register(new RegistrationBean(monowai, mike, "bah"));
+        registrationEP.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         Fortress fortress = fortressEP.registerFortress(new FortressInputBean("auditTest", true), null).getBody();
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");

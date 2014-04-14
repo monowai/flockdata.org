@@ -81,8 +81,8 @@ public class CompanyDaoNeo implements CompanyDao {
     }
 
     @Override
-    public Collection<Company> findCompanies(Long companyId) {
-        return companyRepo.getCompaniesForUser(companyId);
+    public Collection<Company> findCompanies(Long sysUserId) {
+        return companyRepo.getCompaniesForUser(sysUserId);
     }
 
 

@@ -20,6 +20,8 @@
 package com.auditbucket.registration.service;
 
 
+import com.auditbucket.audit.model.DocumentType;
+import com.auditbucket.dao.SchemaDao;
 import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
@@ -43,6 +45,9 @@ public class CompanyService {
 
     @Autowired
     KeyGenService keyGenService;
+
+    @Autowired
+    SchemaDao schemaDao;
 
     @Autowired
     private SecurityHelper securityHelper;
@@ -115,5 +120,10 @@ public class CompanyService {
 
         return companyDao.findCompanies(su.getId());
     }
+
+    public Collection<DocumentType> getCompanyDocumentsInUse(Company company) {
+        return schemaDao.getCompanyDocumentsInUse(company);
+    }
+
 
 }

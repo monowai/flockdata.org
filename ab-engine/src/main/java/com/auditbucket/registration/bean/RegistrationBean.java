@@ -33,6 +33,7 @@ public class RegistrationBean implements SystemUser {
     private String password;
     private String companyName;
     private Company company;
+    private boolean unique = true;
 
     public RegistrationBean() {
     }
@@ -78,5 +79,16 @@ public class RegistrationBean implements SystemUser {
 
     public void setCompany(Company company) {
         this.company = company;
+    }
+
+
+    public RegistrationBean setIsUnique(boolean mustBeUnique) {
+        this.unique = mustBeUnique;
+        return this;
+    }
+
+    @JsonIgnore
+    public boolean isUnique() {
+        return unique;
     }
 }

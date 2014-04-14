@@ -99,7 +99,7 @@ public class TestForceDuplicateRlx {
     public void uniqueChangeRLXUnderLoad() throws Exception {
         logger.info("uniqueChangeRLXUnderLoad started");
         SecurityContextHolder.getContext().setAuthentication(authMike);
-        regService.registerSystemUser(new RegistrationBean("TestTrack", mike, "bah"));
+        regService.registerSystemUser(new RegistrationBean("TestTrack", mike, "bah").setIsUnique(false));
 
         int auditMax = 10;
         int logMax = 10;

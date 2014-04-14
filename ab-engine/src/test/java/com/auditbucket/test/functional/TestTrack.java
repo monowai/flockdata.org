@@ -115,7 +115,7 @@ public class TestTrack {
 
     @Test
     public void logChangeWithNullAuditKeyButCallerRefExists() throws Exception {
-        regService.register(new RegistrationBean(monowai, mike, "bah"));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         Fortress fortress = fortressService.registerFortress("auditTest");
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         assertNotNull(trackEP.trackHeader(inputBean, null, null));
@@ -132,7 +132,7 @@ public class TestTrack {
 
     @Test
     public void locatingByCallerRefWillThrowAuthorizationException() throws Exception {
-        regService.register(new RegistrationBean(monowai, mike, "bah"));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         Fortress fortressA = fortressService.registerFortress("auditTest");
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         String key = mediationFacade.createHeader(inputBean, null).getMetaKey();
@@ -143,7 +143,7 @@ public class TestTrack {
 
         Authentication authB = new UsernamePasswordAuthenticationToken("swagger", "user2");
         SecurityContextHolder.getContext().setAuthentication(authB);
-        regService.register(new RegistrationBean("TestTow", "swagger", "bah"));
+        regService.registerSystemUser(new RegistrationBean("TestTow", "swagger", "bah"));
         Fortress fortressB = fortressService.registerFortress("auditTestB");
         mediationFacade.createHeader(new MetaInputBean(fortressB.getName(), "wally", "TestTrack", new DateTime(), "123ABC"), null);
 
@@ -170,7 +170,7 @@ public class TestTrack {
     @Test
     public void createHeaderTimeLogs() throws Exception {
 
-        regService.register(new RegistrationBean(monowai, mike, "bah"));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("auditTest", true));
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
@@ -206,7 +206,7 @@ public class TestTrack {
     @Test
     public void noDuplicateLogsWithCompression() throws Exception {
 
-        regService.register(new RegistrationBean(monowai, mike, "bah"));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         Fortress fortress = fortressService.registerFortress("auditTest");
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "testDupe", new DateTime(), "ndlwcqw2");
@@ -241,7 +241,7 @@ public class TestTrack {
     @Test
     public void correctLogCountsReturnedForAFortress() throws Exception {
 
-        regService.register(new RegistrationBean(monowai, mike, "bah"));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
         TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
@@ -257,7 +257,7 @@ public class TestTrack {
 
     @Test
     public void testHeaderWithLogChange() throws Exception {
-        regService.register(new RegistrationBean(monowai, mike, "bah"));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         Fortress fo = fortressService.registerFortress("auditTest");
 
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "uouu87");
@@ -271,7 +271,7 @@ public class TestTrack {
 
     @Test
     public void testHeaderWithLogChangeTransactional() throws Exception {
-        regService.register(new RegistrationBean(monowai, mike, "bah"));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         Fortress fo = fortressService.registerFortress("auditTest");
 
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "232146");
@@ -285,7 +285,7 @@ public class TestTrack {
 
     @Test
     public void updateByCallerRefNoAuditKeyMultipleClients() throws Exception {
-        regService.register(new RegistrationBean(monowai, mike, "bah"));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         Fortress fortressA = fortressService.registerFortress("auditTest" + System.currentTimeMillis());
         String docType = "TestAuditX";
         String callerRef = "ABC123X";
@@ -298,7 +298,7 @@ public class TestTrack {
         assertEquals(keyA, arb.getMetaKey());
 
         SecurityContextHolder.getContext().setAuthentication(authMark);
-        regService.register(new RegistrationBean("TWEE", mark, "bah"));
+        regService.registerSystemUser(new RegistrationBean("TWEE", mark, "bah"));
         Fortress fortressB = fortressService.registerFortress("auditTestB" + System.currentTimeMillis());
         inputBean = new MetaInputBean(fortressB.getName(), "wally", docType, new DateTime(), callerRef);
         String keyB = mediationFacade.createHeader(inputBean, null).getMetaKey();
@@ -312,7 +312,7 @@ public class TestTrack {
 
     @Test
     public void companyAndFortressWithSpaces() throws Exception {
-        regService.register(new RegistrationBean("Company With Space", mike, "bah"));
+        regService.registerSystemUser(new RegistrationBean("Company With Space", mike, "bah"));
         Fortress fortressA = fortressService.registerFortress("audit Test" + System.currentTimeMillis());
         String docType = "TestAuditX";
         String callerRef = "ABC123X";
@@ -324,9 +324,9 @@ public class TestTrack {
     @Test
     public void headersForDifferentCompaniesAreNotVisible() throws Exception {
 
-        regService.register(new RegistrationBean(monowai, mike, "bah"));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         String hummingbird = "Hummingbird";
-        regService.register(new RegistrationBean(hummingbird, mark, "bah"));
+        regService.registerSystemUser(new RegistrationBean(hummingbird, mark, "bah"));
         //Monowai/Mike
         SecurityContextHolder.getContext().setAuthentication(authMike);
         Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
@@ -359,7 +359,7 @@ public class TestTrack {
 
     @Test
     public void lastChangedWorks() throws Exception {
-        regService.register(new RegistrationBean(monowai, mike, "bah"));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         // Create a second log record in order to workout who last change the MetaHeaderNode
         SecurityContextHolder.getContext().setAuthentication(authMike);
 
@@ -388,7 +388,7 @@ public class TestTrack {
 
     @Test
     public void outOfSequenceLogsWorking() throws Exception {
-        regService.register(new RegistrationBean(monowai, mike, "bah"));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         // Create a second log record in order to workout who last change the MetaHeaderNode
         SecurityContextHolder.getContext().setAuthentication(authMike);
         DateTime dt = new DateTime().toDateTime();
@@ -425,7 +425,7 @@ public class TestTrack {
      */
     @Test
     public void logDateRangesWorking() throws Exception {
-        regService.register(new RegistrationBean(monowai, mike, "bah"));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         // Create a second log record in order to workout who last change the MetaHeaderNode
         SecurityContextHolder.getContext().setAuthentication(authMike);
 
@@ -472,7 +472,7 @@ public class TestTrack {
     @Test
     public void cancelLastChangeBehaves() throws Exception {
         // For use in compensating transaction cases only
-        regService.register(new RegistrationBean(monowai, mike, "bah"));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         SecurityContextHolder.getContext().setAuthentication(authMike);
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
         DateTime dt = new DateTime().toDateTime();
@@ -497,7 +497,7 @@ public class TestTrack {
 
     @Test
     public void lastChangeDatesReconcileWithFortressInput() throws Exception {
-        regService.register(new RegistrationBean(monowai, mike, "bah"));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         SecurityContextHolder.getContext().setAuthentication(authMike);
         Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
         MetaInputBean inputBean = new MetaInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime(), "ABC1");
@@ -516,7 +516,7 @@ public class TestTrack {
 
     @Test
     public void dateCreatedAndLastUpdated() throws Exception {
-        regService.register(new RegistrationBean(monowai, mike, "bah"));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         SecurityContextHolder.getContext().setAuthentication(authMike);
         Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
         DateTime fortressDateCreated = DateTime.now();
@@ -546,7 +546,7 @@ public class TestTrack {
 
     @Test
     public void missingLogDateGeneratesSystemDate() throws Exception {
-        regService.register(new RegistrationBean(monowai, mike, "bah"));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         SecurityContextHolder.getContext().setAuthentication(authMike);
         Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
         DateTime dt = new DateTime().toDateTime();
@@ -584,7 +584,7 @@ public class TestTrack {
 
     @Test
     public void auditSummaryWorking() throws Exception {
-        regService.register(new RegistrationBean(monowai, mike, "bah"));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         SecurityContextHolder.getContext().setAuthentication(authMike);
         Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
         DateTime dt = new DateTime().toDateTime();
@@ -614,7 +614,7 @@ public class TestTrack {
 
     @Test
     public void fullHeaderDetailsByCallerRef() throws Exception {
-        regService.register(new RegistrationBean(monowai, mike, "bah"));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         SecurityContextHolder.getContext().setAuthentication(authMike);
         Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
         MetaInputBean inputBean = new MetaInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "ABC1");
@@ -628,7 +628,7 @@ public class TestTrack {
 
     @Test
     public void testFortressTimeBoundaries() throws Exception {
-        regService.register(new RegistrationBean(monowai, mike, "bah"));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         SecurityContextHolder.getContext().setAuthentication(authMike);
 
         FortressInputBean usFortress = new FortressInputBean("usFortress", true);
@@ -657,7 +657,7 @@ public class TestTrack {
 
     @Test
     public void headersByFortressAndDocType() throws Exception {
-        regService.register(new RegistrationBean(monowai, mike, "bah"));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
 
         Fortress fortress = fortressService.registerFortress("ABC");
         assertNotNull(fortress);
@@ -678,8 +678,8 @@ public class TestTrack {
 
     @Test
     public void findMetaHeadersForCollectionOfMetaKeys() throws Exception{
-        SystemUser suB = regService.register(new RegistrationBean("othercompany", mark, "bah")).getBody();
-        SystemUser suA = regService.register(new RegistrationBean(monowai, mike, "bah")).getBody();
+        SystemUser suB = regService.registerSystemUser(new RegistrationBean("othercompany", mark, "bah")).getBody();
+        SystemUser suA = regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah")).getBody();
 
         Fortress fortressA = fortressService.registerFortress("ABC");
         assertNotNull(fortressA);

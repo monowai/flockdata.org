@@ -17,7 +17,9 @@ import java.util.Collection;
 public interface SchemaDao {
     DocumentType findDocumentType(Fortress company, String documentType, Boolean createIfMissing);
 
-    Collection<DocumentType> getDocumentsInUse(Fortress fortress);
+    Collection<DocumentType> getFortressDocumentsInUse(Fortress fortress);
+
+    public Collection<DocumentType> getCompanyDocumentsInUse(Company company);
 
     public boolean registerTagIndex (Company c, String indexName );
 

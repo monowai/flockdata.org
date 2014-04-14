@@ -379,7 +379,7 @@ public class TestMetaHeaderTags {
     }
 
     @Test
-    public void documentTypesWork() {
+    public void documentTypesWork() throws DatagioException {
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         Fortress fortress = fortressService.registerFortress("ABC");
 

@@ -72,7 +72,7 @@ public class TrackAPIKeys {
     public void testApiKeysWorkInPrecedence() throws Exception {
         // No Security Access necessary.
         SecurityContextHolder.getContext().setAuthentication(null);
-        SystemUser sysUser = regEP.register(new RegistrationBean(monowai, mike, "bah")).getBody();
+        SystemUser sysUser = regEP.registerSystemUser(new RegistrationBean(monowai, mike, "bah")).getBody();
         assertNotNull(sysUser);
         String apiKey = sysUser.getCompany().getApiKey();
 
@@ -124,7 +124,7 @@ public class TrackAPIKeys {
     public void apiCallsSecuredByAccessKey() throws Exception {
         // No authorization - only API keys
         SecurityContextHolder.getContext().setAuthentication(null);
-        SystemUser sysUser = regEP.register(new RegistrationBean(monowai, mike, "bah")).getBody();
+        SystemUser sysUser = regEP.registerSystemUser(new RegistrationBean(monowai, mike, "bah")).getBody();
         assertNotNull(sysUser);
         String apiKey = sysUser.getCompany().getApiKey();
 

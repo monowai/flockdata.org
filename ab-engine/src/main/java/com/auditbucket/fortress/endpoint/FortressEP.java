@@ -111,6 +111,6 @@ public class FortressEP {
     public Collection<DocumentType> getDocumentTypes(String fortressName,
                                                      String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = securityHelper.getCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
-        return fortressService.getDocumentsInUse(company, fortressName);
+        return fortressService.getFortressDocumentsInUse(company, fortressName);
     }
 }

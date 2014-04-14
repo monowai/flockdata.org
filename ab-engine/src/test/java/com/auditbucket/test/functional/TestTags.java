@@ -21,6 +21,7 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.engine.PropertyConversion;
 import com.auditbucket.engine.service.EngineConfig;
+import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.endpoint.TagEP;
@@ -203,7 +204,7 @@ public class TestTags {
 
     @Test
     public void prohibitedPropertiesIgnored() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, "barry", "bah"));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInput = new TagInputBean("FLOP");
@@ -223,7 +224,7 @@ public class TestTags {
 
     @Test
     public void targetRelationships() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, "targetRelationships", "bah"));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInput = new TagInputBean("Source");
@@ -251,7 +252,7 @@ public class TestTags {
     @Test
     public void customLabelsSingleTenant() throws Exception {
         engineAdmin.setMultiTenanted(false);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, "aaaa", "bah"));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInput = new TagInputBean("Source");
@@ -272,7 +273,7 @@ public class TestTags {
     // ToDo: Multi-tenanted custom tags
     public void customLabelsMultiTenant() throws Exception {
         engineAdmin.setMultiTenanted(true);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, "bbbb", "bah"));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInput = new TagInputBean("Source");
@@ -293,7 +294,7 @@ public class TestTags {
     @Test
     public void sameKeyForDifferentTagTypes() throws Exception {
         engineAdmin.setMultiTenanted(false);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah").setIsUnique(false));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInputA = new TagInputBean("Source");
@@ -333,7 +334,7 @@ public class TestTags {
     @Test
     public void duplicateTagsForSameIndexReturnSingleTag() throws Exception {
         engineAdmin.setMultiTenanted(false);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah").setIsUnique(false));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInputA = new TagInputBean("Source");
@@ -362,9 +363,9 @@ public class TestTags {
 
     }
     @Test
-    public void tagUniqueForIndex(){
+    public void tagUniqueForIndex() throws DatagioException {
         engineAdmin.setMultiTenanted(false);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah").setIsUnique(false));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInputA = new TagInputBean("Source");

@@ -19,8 +19,10 @@
 
 package com.auditbucket.test.functional;
 
+import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
+import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.model.*;
 import com.auditbucket.registration.repo.neo4j.model.CompanyUserNode;
 import com.auditbucket.registration.service.CompanyService;
@@ -30,9 +32,6 @@ import com.auditbucket.registration.service.SystemUserService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.neo4j.graphdb.PropertyContainer;
-import org.neo4j.graphdb.index.Index;
-import org.neo4j.graphdb.index.IndexHits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +75,9 @@ public class TestRegistration {
     private FortressService fortressService;
 
     @Autowired
+    private RegistrationEP registrationEP;
+
+    @Autowired
     private RegistrationService registrationService;
 
     @Autowired
@@ -98,16 +100,14 @@ public class TestRegistration {
     }
 
     @Test
-    public void createPersonsTest() {
+    public void createPersonsTest() throws DatagioException {
         createCompanyUsers("", 3);
 
     }
 
-    private String testCompanyName = "testco";
-
-    private void createCompanyUsers(String userNamePrefix, int count) {
+    private void createCompanyUsers(String userNamePrefix, int count) throws DatagioException {
         SecurityContextHolder.getContext().setAuthentication(authA);
-        SystemUser su = registrationService.registerSystemUser(new RegistrationBean("CompanyA", "mike", "whocares"));
+        SystemUser su = registrationEP.registerSystemUser(new RegistrationBean("CompanyA", "mike", "whocares")).getBody();
         Company company = su.getCompany();
         int i = 1;
         while (i <= count) {
@@ -121,7 +121,7 @@ public class TestRegistration {
     }
 
     @Test
-    public void findByName() {
+    public void findByName() throws DatagioException {
         createCompanyUsers("MTest", 3);
         String name = "mtest2@sunnybell.com";
         //SystemUser systemUser = registrationService.registerSystemUser(new RegistrationBean("test", "mike", "password"));
@@ -139,7 +139,7 @@ public class TestRegistration {
 
         // Create the company.
         SecurityContextHolder.getContext().setAuthentication(authA);
-        SystemUser systemUser = registrationService.registerSystemUser(new RegistrationBean(companyName, adminName, "password"));
+        SystemUser systemUser = registrationEP.registerSystemUser(new RegistrationBean(companyName, adminName, "password")).getBody();
         assertNotNull(systemUser);
 
         fortressService.registerFortress("fortressA");
@@ -159,16 +159,16 @@ public class TestRegistration {
     }
 
     @Test
-    public void testCompanyUsers() {
+    public void testCompanyUsers() throws DatagioException {
         createCompanyUsers("mike", 10);
         Iterable<CompanyUser> users = companyService.getUsers();
         assertTrue(users.iterator().hasNext());
     }
 
     @Test
-    public void companiesForUser() {
+    public void companiesForUser() throws DatagioException {
         SecurityContextHolder.getContext().setAuthentication(authA);
-        registrationService.registerSystemUser(new RegistrationBean("CompanyAA", "mike", "whocares"));
+        registrationEP.registerSystemUser(new RegistrationBean("CompanyAA", "mike", "whocares"));
         Fortress fA = fortressService.registerFortress("FortressA");
         Fortress fB = fortressService.registerFortress("FortressB");
         Fortress fC = fortressService.registerFortress("FortressC");
@@ -182,7 +182,7 @@ public class TestRegistration {
         assertEquals(3, fortresses.size());
 
         SecurityContextHolder.getContext().setAuthentication(authB);
-        registrationService.registerSystemUser(new RegistrationBean("CompanyBB", "harry", "whocares"));
+        registrationEP.registerSystemUser(new RegistrationBean("CompanyBB", "harry", "whocares"));
 
         //Should be seeing different fortresses
         assertNotSame(fA.getId(), fortressService.registerFortress("FortressA").getId());
@@ -191,26 +191,15 @@ public class TestRegistration {
 
     }
 
-    public void testFulltextIndex() {
-        // Not a valid test - no assertions. Not sure what it's trying to prove
-        createCompanyUsers("mike", 3);
-        Index<PropertyContainer> index = template.getIndex("CompanyUserNode");
-        IndexHits<PropertyContainer> indexHits = index.query("name", "Test*");
-        for (PropertyContainer c : indexHits) {
-            String name = (String) c.getProperty("name");
-            System.out.println(name);
-        }
-    }
-
     @Test
-    public void testRegistration() {
+    public void testRegistration() throws DatagioException {
         String companyName = "testReg";
         String adminName = "mike";
         String userName = "gina@hummingbird.com";
 
         // Create the company.
         SecurityContextHolder.getContext().setAuthentication(null);
-        SystemUser systemUser = registrationService.registerSystemUser(new RegistrationBean(companyName, adminName, "password"));
+        SystemUser systemUser = registrationEP.registerSystemUser(new RegistrationBean(companyName, adminName, "password")).getBody();
         assertNotNull(systemUser);
 
         // Assume the user has now logged in.
@@ -279,7 +268,7 @@ public class TestRegistration {
     }
 
     @Test
-    public void companyNameCodeWithSpaces() {
+    public void companyNameCodeWithSpaces() throws DatagioException {
         String uid = "mike";
         String name = "Monowai Developments";
         SystemUser su = registrationService.registerSystemUser(new RegistrationBean(name, uid, "bah"));
@@ -295,7 +284,7 @@ public class TestRegistration {
     }
 
     @Test
-    public void fortressTZLocaleChecks() {
+    public void fortressTZLocaleChecks() throws DatagioException {
         String uid = "mike";
         registrationService.registerSystemUser(new RegistrationBean("Monowai", uid, "bah"));
         SecurityContextHolder.getContext().setAuthentication(authA);
@@ -341,7 +330,20 @@ public class TestRegistration {
     }
 
     @Test
-//    @Transactional
+    public void duplicateRegistrationFails() throws Exception{
+        String companyA = "companya";
+        String companyB = "companyb";
+        try {
+            registrationEP.registerSystemUser(new RegistrationBean(companyA, "mike", "password"));
+            registrationEP.registerSystemUser(new RegistrationBean(companyB, "mike", "password"));
+            Assert.fail("You can't have a duplicate registration");
+        } catch ( DatagioException e ){
+            // Expected
+        }
+
+    }
+
+    @Test
     public void multipleFortressUserErrors() throws Exception {
         Long uid;
         String uname = "mike";

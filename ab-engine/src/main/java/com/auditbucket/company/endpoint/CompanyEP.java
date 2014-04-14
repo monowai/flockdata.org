@@ -19,18 +19,19 @@
 
 package com.auditbucket.company.endpoint;
 
+import com.auditbucket.audit.model.DocumentType;
+import com.auditbucket.helper.ApiKeyHelper;
+import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.CompanyService;
+import com.auditbucket.registration.service.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 
@@ -49,21 +50,28 @@ public class CompanyEP {
     @Autowired
     SecurityHelper securityHelper;
 
-    @RequestMapping(value = "/list", produces = "application/json", method = RequestMethod.GET)
+    @Autowired
+    RegistrationService registrationService;
+
+    @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
     @ResponseBody
-    public Collection<Company> findCompanies() throws Exception {
+    public Collection<Company> findCompanies() throws DatagioException {
+        // Only works if you are authorised and logged in
         return companyService.findCompanies();
     }
 
 
     @RequestMapping(value = "/{companyName}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Company> getCompany(@PathVariable("companyName") String companyName) throws Exception {
+    public ResponseEntity<Company> getCompany(@PathVariable("companyName") String companyName,
+                                              String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         // curl -u mike:123 -X GET http://localhost:8080/ab/company/Monowai
+
+        getCompany(apiHeaderKey, apiKey);
         Company company = companyService.findByName(companyName);
         if (company == null)
             return new ResponseEntity<>(company, HttpStatus.NOT_FOUND);
-
+        //ToDo figure out companyName strategy
         SystemUser sysUser = securityHelper.getSysUser(true);
         if (!sysUser.getCompany().getId().equals(company.getId())) {
             // Not Authorised
@@ -72,5 +80,28 @@ public class CompanyEP {
             return new ResponseEntity<>(company, HttpStatus.OK);
         }
     }
+
+
+    /**
+     * All documents in use by a company
+     */
+    @RequestMapping(value = "/documents", method = RequestMethod.GET)
+    @ResponseBody
+    public Collection<DocumentType> getDocumentTypes(
+            String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+
+        // ToDo: figure out if the API Key can resolve to multiple companies
+        Company company = getCompany(apiHeaderKey, apiKey);
+        return companyService.getCompanyDocumentsInUse(company);
+
+    }
+
+    private Company getCompany(String apiHeaderKey, String apiRequestKey) throws DatagioException {
+        Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiRequestKey));
+        if (company == null)
+            throw new DatagioException("Unable to resolve supplied API key to a valid company");
+        return company;
+    }
+
 
 }
