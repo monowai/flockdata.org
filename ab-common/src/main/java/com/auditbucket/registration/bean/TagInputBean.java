@@ -132,8 +132,9 @@ public class TagInputBean {
         return name;
     }
 
-    public void setName(String name) {
+    public TagInputBean setName(String name) {
         this.name = name;
+        return this;
     }
 
     @JsonIgnore
@@ -145,14 +146,15 @@ public class TagInputBean {
         return code;
     }
 
-    public void setTargets(String tagRelationship, TagInputBean tagInputBean) {
+    public TagInputBean setTargets(String tagRelationship, TagInputBean tagInputBean) {
         ArrayList<TagInputBean> val = new ArrayList<>() ;
         val.add(tagInputBean);
         setTargets(tagRelationship, val);
+        return this;
 
     }
 
-    public void setTargets(String relationshipName, Collection<TagInputBean> fromThoseTags) {
+    public TagInputBean setTargets(String relationshipName, Collection<TagInputBean> fromThoseTags) {
         Collection<TagInputBean> theseTags = targets.get(relationshipName);
         if ( theseTags == null )
             targets.put(relationshipName, fromThoseTags);
@@ -162,14 +164,15 @@ public class TagInputBean {
                     theseTags.add(tagToAdd);
             }
         }
+        return this;
 
     }
 
-    public void mergeTags (TagInputBean mergeFrom){
+    public TagInputBean mergeTags (TagInputBean mergeFrom){
         for (String next : mergeFrom.getTargets().keySet()) {
             setTargets(next, mergeFrom.getTargets().get(next));
         }
-
+        return this;
     }
 
     public Map<String, Collection<TagInputBean>> getTargets() {
@@ -180,29 +183,32 @@ public class TagInputBean {
         return properties;
     }
 
-    public void setProperty(String key, Serializable value) {
+    public TagInputBean setProperty(String key, Serializable value) {
         properties.put(key, value);
+        return this;
     }
 
     public boolean isReverse() {
         return reverse;
     }
 
-    public void setReverse(boolean reverse) {
+    public TagInputBean setReverse(boolean reverse) {
         this.reverse = reverse;
+        return this;
     }
 
-    public void setCode(String code) {
+    public TagInputBean setCode(String code) {
         this.code = code;
+        return this;
     }
 
     /**
      * Index name cannot contain spaces and will begin with a single :
      * Will add the leading : if it is missing
      */
-    public void setIndex(String index) {
+    public TagInputBean setIndex(String index) {
         if (index == null)
-            return;
+            return this;
 
         if (!index.startsWith(":"))
             this.index = ":" + index.trim();
@@ -222,6 +228,7 @@ public class TagInputBean {
 //            isValid(parseIndex);
 //            this.index = parseIndex;
 //        }
+        return this;
 
     }
 
@@ -249,14 +256,14 @@ public class TagInputBean {
      * @param relationshipName name of the relationship to the Audit Header
      * @param properties        properties to store against the relationship
      */
-    public void addMetaLink(String relationshipName, Map<String, Object> properties) {
+    public TagInputBean addMetaLink(String relationshipName, Map<String, Object> properties) {
         if ( metaLinks.get(relationshipName) == null )
             this.metaLinks.put(relationshipName, properties);
-
+        return this;
     }
 
-    public void addMetaLink(String relationshipName) {
-        addMetaLink(relationshipName, null);
+    public TagInputBean addMetaLink(String relationshipName) {
+        return addMetaLink(relationshipName, null);
     }
 
     public Map<String, Object> getMetaLinks() {
@@ -309,8 +316,9 @@ public class TagInputBean {
         return mustExist;
     }
 
-    public void setMustExist(boolean mustExist) {
+    public TagInputBean setMustExist(boolean mustExist) {
         this.mustExist = mustExist;
+        return this;
     }
 
     @JsonIgnore

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (company) 2012-2013 "Monowai Developments Limited"
+  ~ Copyright (c) 2012-2013 "Monowai Developments Limited"
   ~
   ~ This file is part of AuditBucket.
   ~
@@ -24,11 +24,11 @@
              xsi:schemaLocation="http://www.springframework.org/schema/beans
                     http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
                     http://www.springframework.org/schema/security
-                    http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+                    http://www.springframework.org/schema/security/spring-security-3.2.xsd">
 
 
     <http auto-config="true" use-expressions="true">
-        <intercept-url pattern="/*" access="permitAll"/>
+        <intercept-url pattern="/**" access="permitAll"/>
         <http-basic/>
     </http>
 
@@ -37,7 +37,7 @@
     <authentication-manager>
         <authentication-provider>
             <user-service>
-                <user name="test@ab.com" password="123" authorities="ROLE_USER"/>
+                <user name="mike" password="123" authorities="ROLE_USER"/>
             </user-service>
         </authentication-provider>
     </authentication-manager>

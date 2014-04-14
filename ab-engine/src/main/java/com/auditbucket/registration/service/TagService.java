@@ -126,7 +126,7 @@ public class TagService {
             }
         }
 
-        List<List<TagInputBean>> splitList = Lists.partition(tagInputs, 20);
+        List<List<TagInputBean>> splitList = Lists.partition(tagInputs, 5);
         for (List<TagInputBean> tagInputBeans : splitList) {
             DLCommand c = new DLCommand(tagInputBeans);
             try {
