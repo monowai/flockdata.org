@@ -91,7 +91,6 @@ public class AbRestClient {
 
     }
 
-
     public enum type {AUDIT, TAG}
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(AbRestClient.class);
@@ -112,8 +111,6 @@ public class AbRestClient {
         this.batchSize = batchSize;
         this.defaultFortress = defaultFortress;
     }
-
-
 
     public void setSimulateOnly(boolean simulateOnly) {
         this.simulateOnly = simulateOnly;
@@ -200,6 +197,7 @@ public class AbRestClient {
                 logger.error("Service returned [{}]", serviceMessage.toString());
         }
     }
+
     public void ensureFortress(String fortressName) {
         if (fortressName == null)
             return;
@@ -314,7 +312,6 @@ public class AbRestClient {
         }
     }
 
-
     void writeAudit(MetaInputBean metaInputBean, boolean flush, String message) {
 
         synchronized (headerSync) {
@@ -346,18 +343,18 @@ public class AbRestClient {
         writeTag(tagInputBean, false, message);
     }
 
-    void writeTag(TagInputBean tagInputBean, boolean flush, String message) {
+    private void writeTag(TagInputBean tagInputBean, boolean flush, String message) {
 
         synchronized (tagSync) {
             if (tagInputBean != null)
-                batchTag.put(tagInputBean.getCode() + tagInputBean.getIndex(), tagInputBean);
+                batchTag.put(tagInputBean.getName() + tagInputBean.getIndex(), tagInputBean);
 
             if (flush || batchTag.size() == batchSize) {
                 logger.debug("Flushing " + message + " Tag Batch [{}]", batchTag.size());
                 if (batchTag.size() >= 0)
                     flushTags(new ArrayList<>(batchTag.values()));
                 logger.debug("Tag Batch Flushed");
-                batchHeader = new ArrayList<>();
+                batchTag = new HashMap<>();
             }
         }
 
@@ -370,7 +367,6 @@ public class AbRestClient {
         properties.put("weight", weight);
         return properties;
     }
-
 
     /**
      * Converts the strings to a simple JSON representation

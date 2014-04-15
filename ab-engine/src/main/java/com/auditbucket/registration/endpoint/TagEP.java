@@ -65,6 +65,8 @@ public class TagEP {
 
     }
 
+
+
     @ResponseBody
     @RequestMapping(value = "/{type}", produces = "application/json", consumes = "application/json", method = RequestMethod.GET)
     public Map<String, Tag> getTags(@PathVariable("type") String index) throws DatagioException {
