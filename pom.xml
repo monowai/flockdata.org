@@ -85,7 +85,7 @@
         </repository>
         <repository>
             <id>spring.org</id>
-            <url>http://repo1.maven.org/maven2</url>
+            <url>≤</url>
 
         </repository>
     </repositories>

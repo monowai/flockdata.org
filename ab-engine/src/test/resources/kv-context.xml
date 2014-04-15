@@ -31,7 +31,8 @@
             class='org.springframework.data.redis.connection.jedis.JedisConnectionFactory'
             p:hostName="localhost"
             p:port="6379"
-            p:usePool="true"/>
+            p:usePool=
+                    "true"/>
 
     <!-- redis template definition -->
     <bean
@@ -47,8 +48,9 @@
 
 
     <!--http://docs.spring.io/spring-data/data-keyvalue/riak/docs/current/reference/html/#riak:template:config-->
-    <bean id="riakTemplate" class="org.springframework.data.keyvalue.riak.core.RiakTemplate"
-          p:defaultUri="${riak.url}/{bucket}/{key}"
-          p:mapReduceUri="${riak.mapurl}"
-          p:useCache="true"/>
+    <!--<bean id="riakTemplate" class="org.springframework.data.keyvalue.riak.core.RiakTemplate"-->
+          <!--p:defaultUri="${riak.url}/{bucket}/{key}"-->
+          <!--p:mapReduceUri="${riak.mapurl}"-->
+          <!--p:useCache="true"-->
+          <!--p:ignoreNotFound="true"/>-->
 </beans>
