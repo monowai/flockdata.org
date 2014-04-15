@@ -83,7 +83,7 @@ public class Importer {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(Importer.class);
 
-    public enum importer {CSV, XML, TAGS}
+    public enum importer {CSV, XML}
 
     public static void main(String args[]) {
 
@@ -149,7 +149,7 @@ public class Importer {
                     item++;
                 }
                 logger.debug("*** Calculated process args {}, {}, {}, {}", fileName, fileClass, batchSize, skipCount);
-                totalRows = totalRows + processFile(ns.get("server").toString(), fileName, Class.forName(fileClass), batchSize, skipCount);
+                totalRows = totalRows + processFile(ns.get("server").toString(), fileName, (fileClass!=null ?Class.forName(fileClass):null), batchSize, skipCount);
             }
             endProcess(watch, totalRows);
 
@@ -164,20 +164,27 @@ public class Importer {
         AbRestClient abExporter = new AbRestClient(server, "mike", "123", batchSize);
         boolean simulateOnly = batchSize <= 0;
         abExporter.setSimulateOnly(simulateOnly);
+        Mappable mappable =null;
 
-        Mappable mappable = (Mappable) clazz.newInstance();
+        if (clazz !=null ){
+            mappable =(Mappable) clazz.newInstance();
+        }
+
         //String file = path;
         logger.info("Starting the processing of {}", file);
         try {
-            if (mappable.getImporter() == Importer.importer.CSV)
+            if ( clazz == null )
+                return processJsonTags(file, abExporter, skipCount, simulateOnly);
+            else if (mappable.getImporter() == Importer.importer.CSV)
                 return processCSVFile(file, abExporter, (DelimitedMappable) mappable, skipCount, simulateOnly );
             else if (mappable.getImporter() == Importer.importer.XML)
                 return processXMLFile(file, abExporter, (XmlMappable) mappable, simulateOnly);
-            else if ( mappable.getImporter() == importer.TAGS)
-                return processJsonTags(file, abExporter, skipCount, simulateOnly);
 
         } finally {
-            abExporter.flush(mappable.getClass().getCanonicalName(), mappable.getABType());
+            if ( mappable != null )
+                abExporter.flush(mappable.getClass().getCanonicalName(), mappable.getABType());
+            else
+                abExporter.flush("Tags", AbRestClient.type.TAG);
 
         }
         return 0;
