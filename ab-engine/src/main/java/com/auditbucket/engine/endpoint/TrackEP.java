@@ -21,7 +21,10 @@ package com.auditbucket.engine.endpoint;
 
 import com.auditbucket.audit.bean.*;
 import com.auditbucket.audit.model.*;
-import com.auditbucket.engine.service.*;
+import com.auditbucket.engine.service.MediationFacade;
+import com.auditbucket.engine.service.TagTrackService;
+import com.auditbucket.engine.service.TrackService;
+import com.auditbucket.engine.service.WhatService;
 import com.auditbucket.helper.ApiKeyHelper;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
@@ -56,9 +59,6 @@ public class TrackEP {
     TrackService trackService;
 
     @Autowired
-    EngineConfig engineConfig;
-
-    @Autowired
     MediationFacade mediationFacade;
 
     @Autowired
@@ -76,23 +76,10 @@ public class TrackEP {
     @Autowired
     WhatService whatService;
 
-    private static Logger logger = LoggerFactory.getLogger(TrackEP.class);
     @Autowired
     private RegistrationService registrationService;
 
-    @ResponseBody
-    @RequestMapping(value = "/ping", method = RequestMethod.GET)
-    public String get() {
-        // curl -X GET http://localhost:8081/ab-engine/v1/track/ping
-        return "Pong!";
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/health", method = RequestMethod.GET)
-    @Secured({"ROLE_USER"})
-    public Map<String, String> getHealth() {
-        return engineConfig.getHealth();
-    }
+    private static Logger logger = LoggerFactory.getLogger(TrackEP.class);
 
     @ResponseBody
     @RequestMapping(value = "/", consumes = "application/json", method = RequestMethod.PUT)
@@ -393,28 +380,6 @@ public class TrackEP {
         }
 
         return new ResponseEntity<Map>(result, HttpStatus.OK);
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/{fortressName}/rebuild", method = RequestMethod.POST)
-    public ResponseEntity<String> rebuildSearch(@PathVariable("fortressName") String fortressName,
-                                                String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company company = getCompany(apiHeaderKey, apiKey);
-        logger.info("Reindex command received for " + fortressName + " from [" + securityHelper.getLoggedInUser() + "]");
-        mediationFacade.reindex(company, fortressName);
-        return new ResponseEntity<>("Request to reindex has been received", HttpStatus.OK);
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/{fortressName}/{docType}/rebuild", method = RequestMethod.POST)
-    public ResponseEntity<String> rebuildSearch(@PathVariable("fortressName") String fortressName, @PathVariable("docType") String docType
-            , String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-
-        Company company = getCompany(apiHeaderKey, apiKey);
-
-        logger.info("Reindex command received for " + fortressName + " & docType " + docType + " from [" + securityHelper.getLoggedInUser() + "]");
-        mediationFacade.reindexByDocType(company, fortressName, docType);
-        return new ResponseEntity<>("Request to reindex has been received", HttpStatus.OK);
     }
 
     @ResponseBody

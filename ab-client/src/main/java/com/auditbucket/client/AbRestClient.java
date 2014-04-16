@@ -104,7 +104,7 @@ public class AbRestClient {
         this.password = password;
         // Urls to write Audit/Tag/Fortress information
         this.NEW_HEADER = serverName + "/v1/track/";
-        this.PING = serverName + "/v1/track/ping";
+        this.PING = serverName + "/v1/admin/ping";
         this.CROSS_REFERENCES = serverName + "/v1/track/xref";
         this.NEW_TAG = serverName + "/v1/tag/";
         this.FORTRESS = serverName + "/v1/fortress/";

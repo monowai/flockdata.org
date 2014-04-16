@@ -230,7 +230,9 @@ public class TagDaoNeo4j implements TagDao {
     @Override
     public Map<String, Tag> findTags(Company company, String index) {
         Map<String, Tag> tagResults = new HashMap<>();
-
+        // ToDo: Match to company - something like this.....
+        //match (t:Law)-[:_TagLabel]-(c:ABCompany) where id(c)=0  return t,c;
+        //match (t:Law)-[*..2]-(c:ABCompany) where id(c)=0  return t,c;
         String query = "match (tag" + index+ ") return tag";
         // Look at PAGE
         Result<Map<String, Object>> results = template.query(query, null);
