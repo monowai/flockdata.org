@@ -152,8 +152,7 @@ public class TrackService {
             ah = makeHeader(inputBean, fu, documentType);
         } catch (DatagioException e) {
             logger.error(e.getMessage());
-            TrackResultBean result = new TrackResultBean("Error processing inputBean [{}]"+inputBean+". Error "+e.getMessage());
-            return result;
+            return  new TrackResultBean("Error processing inputBean [{}]"+inputBean+". Error "+e.getMessage());
         }
         TrackResultBean resultBean = new TrackResultBean(ah);
         resultBean.setMetaInputBean(inputBean);

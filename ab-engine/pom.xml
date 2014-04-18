@@ -34,15 +34,14 @@
         <!--You need to keep the SDN lib in line with the Neo4J version otherwise
         odd errors involving REAL_TIME occur during startup-->
 
-        <org.springdata.neo4j>3.0.1.RELEASE</org.springdata.neo4j>
-        <neo4j.version>2.0.1</neo4j.version>
+        <org.springdata.neo4j>3.0.2.RELEASE</org.springdata.neo4j>
 
         <ehcache.version>2.6.7</ehcache.version>
 
         <!--Default properties for test. integration over http and Neo4J running embedded-->
         <ab.integration>http</ab.integration>
         <neo4j>java</neo4j>
-        <neo4j.version>2.0.1</neo4j.version>
+        <neo4j.version>2.0.2</neo4j.version>
 
     </properties>
 
@@ -67,11 +66,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-rest-graphdb</artifactId>
-            <version>${neo4j.version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.neo4j</groupId>-->
+            <!--<artifactId>neo4j-rest-graphdb</artifactId>-->
+            <!--<version>${neo4j.version}</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
@@ -196,17 +195,17 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-neo4j-rest</artifactId>
-            <version>${org.springdata.neo4j}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.neo4j</groupId>
-                    <artifactId>neo4j-community</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.springframework.data</groupId>-->
+            <!--<artifactId>spring-data-neo4j-rest</artifactId>-->
+            <!--<version>${org.springdata.neo4j}</version>-->
+            <!--<exclusions>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.neo4j</groupId>-->
+                    <!--<artifactId>neo4j-community</artifactId>-->
+                <!--</exclusion>-->
+            <!--</exclusions>-->
+        <!--</dependency>-->
         <!-- Required for embedding the neo4j rest API-->
         <dependency>
             <groupId>com.sun.jersey</groupId>
@@ -587,6 +586,7 @@
     </build>
 
     <repositories>
+
         <repository>
             <id>neo4j-snapshots</id>
             <name>Neo4j Snapshots</name>
@@ -611,3 +611,4 @@
     </repositories>
 
 </project>
+
