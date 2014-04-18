@@ -1,9 +1,9 @@
 package com.auditbucket.search.service;
 
-import com.auditbucket.audit.model.MetaHeader;
-import com.auditbucket.audit.model.TrackSearchDao;
 import com.auditbucket.search.model.MetaSearchChange;
 import com.auditbucket.search.model.SearchResult;
+import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.TrackSearchDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,5 @@
 package com.auditbucket.test.functional;
 
-import com.auditbucket.audit.bean.MetaInputBean;
-import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.company.endpoint.CompanyEP;
 import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.fortress.endpoint.FortressEP;
@@ -10,6 +8,8 @@ import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.model.DocumentType;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;

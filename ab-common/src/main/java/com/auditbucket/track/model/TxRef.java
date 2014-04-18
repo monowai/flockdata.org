@@ -17,24 +17,32 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.audit.model;
+package com.auditbucket.track.model;
 
-import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.Company;
+
+import java.util.Set;
 
 /**
  * User: Mike Holdsworth
- * Date: 30/06/13
- * Time: 10:06 AM
+ * Date: 15/06/13
+ * Time: 9:11 AM
  */
-public interface DocumentType {
+public interface TxRef {
 
     public String getName();
 
-    public Fortress getFortress();
+    public Company getCompany();
+
+    public Set<MetaHeader> getHeaders();
 
     Long getId();
 
-    String getCode();
+    public TxStatus getTxStatus();
 
-    String getCompanyKey();
+    public long getTxDate();
+
+    enum TxStatus {
+        TX_CREATED, TX_ROLLBACK, TX_COMMITTED
+    }
 }

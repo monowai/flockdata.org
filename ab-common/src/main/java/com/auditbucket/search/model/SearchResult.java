@@ -19,7 +19,7 @@
 
 package com.auditbucket.search.model;
 
-import com.auditbucket.audit.model.SearchChange;
+import com.auditbucket.track.model.SearchChange;
 
 /**
  * Object to tie the keys between ab-engine and ab-search so that ab-engine can keep the document up-to-date

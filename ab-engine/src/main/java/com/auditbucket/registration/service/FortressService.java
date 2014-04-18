@@ -20,7 +20,6 @@
 package com.auditbucket.registration.service;
 
 
-import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.dao.SchemaDao;
 import com.auditbucket.engine.service.AbSearchGateway;
 import com.auditbucket.helper.DatagioException;
@@ -32,6 +31,7 @@ import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.repo.neo4j.dao.CompanyDao;
 import com.auditbucket.registration.repo.neo4j.dao.FortressDao;
+import com.auditbucket.track.model.DocumentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;

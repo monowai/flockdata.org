@@ -1,8 +1,5 @@
 package com.auditbucket.test.functional;
 
-import com.auditbucket.audit.bean.CrossReferenceInputBean;
-import com.auditbucket.audit.bean.MetaInputBean;
-import com.auditbucket.audit.model.MetaHeader;
 import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.fortress.endpoint.FortressEP;
 import com.auditbucket.helper.DatagioException;
@@ -10,6 +7,9 @@ import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.track.bean.CrossReferenceInputBean;
+import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.model.MetaHeader;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;

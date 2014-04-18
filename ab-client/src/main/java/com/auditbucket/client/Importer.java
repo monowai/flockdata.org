@@ -20,11 +20,11 @@
 package com.auditbucket.client;
 
 import au.com.bytecode.opencsv.CSVReader;
-import com.auditbucket.audit.bean.CrossReferenceInputBean;
-import com.auditbucket.audit.bean.LogInputBean;
-import com.auditbucket.audit.bean.MetaInputBean;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.TagInputBean;
+import com.auditbucket.track.bean.CrossReferenceInputBean;
+import com.auditbucket.track.bean.LogInputBean;
+import com.auditbucket.track.bean.MetaInputBean;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -56,7 +56,7 @@ import java.util.*;
  * General importer with support for CSV and XML parsing. Interacts with AbRestClient to send
  * information via a RESTful interface
  * <p/>
- * Will send information to AuditBucket as either tags or audit information.
+ * Will send information to AuditBucket as either tags or track information.
  * <p/>
  * You should extend MetaInputBean or TagInputBean and implement XMLMappable or DelimitedMappable
  * to massage your data prior to dispatch to AB.
@@ -73,7 +73,7 @@ import java.util.*;
  * @see AbRestClient
  * @see Mappable
  * @see TagInputBean
- * @see com.auditbucket.audit.bean.MetaInputBean
+ * @see com.auditbucket.track.bean.MetaInputBean
  *      <p/>
  *      User: Mike Holdsworth
  *      Since: 13/10/13
@@ -308,7 +308,7 @@ public class Importer {
                                 LogInputBean logInputBean = new LogInputBean("system", new DateTime(), jsonData);
                                 header.setLog(logInputBean);
                             } else {
-                                // It's all Meta baby - no audit information
+                                // It's all Meta baby - no track information
                             }
                             writeAudit(abExporter, header, mappable.getClass().getCanonicalName());
                         } else {// Tag

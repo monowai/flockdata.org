@@ -1,9 +1,9 @@
 package com.auditbucket.dao;
 
-import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.track.model.DocumentType;
 
 import java.util.Collection;
 

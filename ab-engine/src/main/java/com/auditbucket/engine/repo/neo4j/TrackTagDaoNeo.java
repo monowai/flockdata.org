@@ -19,9 +19,6 @@
 
 package com.auditbucket.engine.repo.neo4j;
 
-import com.auditbucket.audit.model.GeoData;
-import com.auditbucket.audit.model.MetaHeader;
-import com.auditbucket.audit.model.TrackTag;
 import com.auditbucket.dao.TagDao;
 import com.auditbucket.dao.TrackTagDao;
 import com.auditbucket.engine.repo.neo4j.model.MetaHeaderNode;
@@ -32,6 +29,9 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.repo.neo4j.model.TagNode;
 import com.auditbucket.registration.service.TagService;
+import com.auditbucket.track.model.GeoData;
+import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.TrackTag;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
@@ -44,7 +44,7 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 
 /**
- * Data Access Object that manipulates tag nodes against audit headers
+ * Data Access Object that manipulates tag nodes against track headers
  * <p/>
  * User: Mike Holdsworth
  * Date: 28/06/13
@@ -80,7 +80,7 @@ public class TrackTagDaoNeo implements TrackTagDao {
      * @param tag              tag
      * @param relationshipName name
      * @param isReversed
-     *@param propMap          properties to associate with an audit tag (weight)  @return Null or TrackTag
+     *@param propMap          properties to associate with an track tag (weight)  @return Null or TrackTag
      */
     public TrackTag save(MetaHeader metaHeader, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap) {
         // ToDo: this will only set properties for the "current" tag to Header. it will not version it.
@@ -143,7 +143,7 @@ public class TrackTagDaoNeo implements TrackTagDao {
     /**
      * Rewrites the relationship type between the nodes copying the properties
      *
-     * @param metaHeader audit
+     * @param metaHeader track
      * @param existingTag current
      * @param newType     new type name
      */
@@ -164,14 +164,14 @@ public class TrackTagDaoNeo implements TrackTagDao {
     @Override
     public Set<MetaHeader> findTrackTags(Tag tag) {
         String query = "start tag=node({tagId}) " +
-                "       match tag-[]->audit" +
-                "      return audit";
+                "       match tag-[]->track" +
+                "      return track";
         Map<String, Object> params = new HashMap<>();
         params.put("tagId", tag.getId());
         Result<Map<String, Object>> result = template.query(query, params);
         Set<MetaHeader> results = new HashSet<>();
         for (Map<String, Object> row : result) {
-            MetaHeader audit = template.convert(row.get("audit"), MetaHeaderNode.class);
+            MetaHeader audit = template.convert(row.get("track"), MetaHeaderNode.class);
             results.add(audit);
         }
 
@@ -194,8 +194,8 @@ public class TrackTagDaoNeo implements TrackTagDao {
         Set<TrackTag> tagResults = new HashSet<>();
         if ( null == metaHeader.getId())
             return tagResults;
-        String query = "match (audit:MetaHeader)-[tagType]->(tag"+Tag.DEFAULT + engineAdmin.getTagSuffix(company) + ") " +
-                "where id(audit)={auditId} \n" +
+        String query = "match (track:MetaHeader)-[tagType]->(tag"+Tag.DEFAULT + engineAdmin.getTagSuffix(company) + ") " +
+                "where id(track)={auditId} \n" +
                 "optional match tag-[:located]-(located)-[*0..2]-(country:Country) \n" +
                 "optional match located-[*0..2]->(state:State) " +
                 "return tag,tagType,located,state, country";
@@ -209,8 +209,8 @@ public class TrackTagDaoNeo implements TrackTagDao {
         Set<TrackTag> tagResults = new HashSet<>();
         if ( null == metaHeader.getId())
             return tagResults;
-        String query = "match (audit:MetaHeader)-[tagType]-(tag" +Tag.DEFAULT+ engineAdmin.getTagSuffix(company) + ") " +
-                "where id(audit)={auditId} \n" +
+        String query = "match (track:MetaHeader)-[tagType]-(tag" +Tag.DEFAULT+ engineAdmin.getTagSuffix(company) + ") " +
+                "where id(track)={auditId} \n" +
                 "optional match tag-[:located]-(located)-[*0..2]-(country:Country) \n" +
                 "optional match located-[*0..2]->(state:State) " +
                 "return tag,tagType,located,state, country";

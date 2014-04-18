@@ -17,11 +17,11 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.audit.bean;
+package com.auditbucket.track.bean;
 
-import com.auditbucket.audit.model.SearchChange;
-import com.auditbucket.audit.model.TrackLog;
-import com.auditbucket.audit.model.TxRef;
+import com.auditbucket.track.model.SearchChange;
+import com.auditbucket.track.model.TrackLog;
+import com.auditbucket.track.model.TxRef;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 

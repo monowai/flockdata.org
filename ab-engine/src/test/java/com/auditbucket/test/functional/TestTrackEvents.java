@@ -19,13 +19,6 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.audit.bean.LogInputBean;
-import com.auditbucket.audit.bean.MetaInputBean;
-import com.auditbucket.audit.bean.TrackResultBean;
-import com.auditbucket.audit.model.ChangeEvent;
-import com.auditbucket.audit.model.ChangeLog;
-import com.auditbucket.audit.model.MetaHeader;
-import com.auditbucket.audit.model.TrackLog;
 import com.auditbucket.engine.service.MediationFacade;
 import com.auditbucket.engine.service.TrackEventService;
 import com.auditbucket.engine.service.TrackService;
@@ -35,6 +28,13 @@ import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.FortressService;
+import com.auditbucket.track.bean.LogInputBean;
+import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.bean.TrackResultBean;
+import com.auditbucket.track.model.ChangeEvent;
+import com.auditbucket.track.model.ChangeLog;
+import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.TrackLog;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;

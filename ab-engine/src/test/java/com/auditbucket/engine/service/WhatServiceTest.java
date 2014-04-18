@@ -19,11 +19,6 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.audit.bean.LogInputBean;
-import com.auditbucket.audit.bean.MetaInputBean;
-import com.auditbucket.audit.model.LogWhat;
-import com.auditbucket.audit.model.MetaHeader;
-import com.auditbucket.audit.model.TrackLog;
 import com.auditbucket.dao.TrackDao;
 import com.auditbucket.engine.repo.redis.RedisRepo;
 import com.auditbucket.registration.bean.FortressInputBean;
@@ -32,6 +27,11 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.test.utils.AbstractRedisSupport;
+import com.auditbucket.track.bean.LogInputBean;
+import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.model.LogWhat;
+import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.TrackLog;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import junit.framework.Assert;

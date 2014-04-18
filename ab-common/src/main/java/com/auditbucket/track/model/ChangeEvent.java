@@ -17,32 +17,18 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.audit.model;
-
-import com.auditbucket.registration.model.Company;
-
-import java.util.Set;
+package com.auditbucket.track.model;
 
 /**
  * User: Mike Holdsworth
- * Date: 15/06/13
- * Time: 9:11 AM
+ * Date: 29/06/13
+ * Time: 12:52 PM
  */
-public interface TxRef {
+public interface ChangeEvent {
 
-    public String getName();
+    public Long getId();
 
-    public Company getCompany();
+    public String getCode();
 
-    public Set<MetaHeader> getHeaders();
-
-    Long getId();
-
-    public TxStatus getTxStatus();
-
-    public long getTxDate();
-
-    enum TxStatus {
-        TX_CREATED, TX_ROLLBACK, TX_COMMITTED
-    }
+    String getName();
 }

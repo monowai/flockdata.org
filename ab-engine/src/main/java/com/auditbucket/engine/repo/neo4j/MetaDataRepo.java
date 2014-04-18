@@ -19,9 +19,9 @@
 
 package com.auditbucket.engine.repo.neo4j;
 
-import com.auditbucket.audit.model.MetaHeader;
 import com.auditbucket.engine.repo.neo4j.model.MetaHeaderNode;
 import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
+import com.auditbucket.track.model.MetaHeader;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
@@ -47,9 +47,9 @@ public interface MetaDataRepo extends GraphRepository<MetaHeaderNode> {
     Set<MetaHeader> findHeadersByTxRef(Long txRef);
 
     @Query(elementClass = MetaHeaderNode.class, value =
-                    " match (fortress:Fortress)-[:TRACKS]->(audit:MetaHeader) " +
+                    " match (fortress:Fortress)-[:TRACKS]->(track:MetaHeader) " +
                     " where id(fortress)={0} " +
-                    " return audit ORDER BY audit.dateCreated ASC" +
+                    " return track ORDER BY track.dateCreated ASC" +
                     " skip {1} limit 100 ")
     Set<MetaHeader> findHeadersFrom(Long fortressId, Long skip);
 

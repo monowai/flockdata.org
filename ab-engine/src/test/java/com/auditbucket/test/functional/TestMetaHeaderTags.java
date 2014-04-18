@@ -25,11 +25,6 @@ package com.auditbucket.test.functional;
  * Time: 4:49 PM
  */
 
-import com.auditbucket.audit.bean.*;
-import com.auditbucket.audit.model.DocumentType;
-import com.auditbucket.audit.model.MetaHeader;
-import com.auditbucket.audit.model.SearchChange;
-import com.auditbucket.audit.model.TrackTag;
 import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.service.MediationFacade;
 import com.auditbucket.engine.service.SearchServiceFacade;
@@ -45,6 +40,11 @@ import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
+import com.auditbucket.track.bean.*;
+import com.auditbucket.track.model.DocumentType;
+import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.SearchChange;
+import com.auditbucket.track.model.TrackTag;
 import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -328,7 +328,7 @@ public class TestMetaHeaderTags {
         LogInputBean alib = new LogInputBean("InvalidKey", "Harry", new DateTime(),"{\"xx\":1}");
         try {
             trackEp.trackLog(alib, null, null);
-            fail("Invalid audit header. This should not have worked");
+            fail("Invalid track header. This should not have worked");
         } catch (DatagioException e ){
             // Good stuff
         }
@@ -705,7 +705,7 @@ public class TestMetaHeaderTags {
         institution.addMetaLink("located");
         cityTag.addMetaLink("city");
 
-        inputBean.setTag(cityTag); // Not attached to audit
+        inputBean.setTag(cityTag); // Not attached to track
         inputBean.setTag(countryTag);
         inputBean.setTag(institution);
 
@@ -835,7 +835,7 @@ public class TestMetaHeaderTags {
         auditManager.createHeader(removeTag, null);
         validateTag(metaHeader, "TagB", 1);
 
-        assertTrue ( "TagA has no audit headers so should have been removed", tagService.findTag("TagA")==null);
+        assertTrue ( "TagA has no track headers so should have been removed", tagService.findTag("TagA")==null);
     }
 
 //    @Test

@@ -19,11 +19,6 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.audit.bean.*;
-import com.auditbucket.audit.model.ChangeLog;
-import com.auditbucket.audit.model.LogWhat;
-import com.auditbucket.audit.model.MetaHeader;
-import com.auditbucket.audit.model.TrackLog;
 import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.service.MediationFacade;
 import com.auditbucket.engine.service.TrackService;
@@ -35,6 +30,11 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.FortressService;
+import com.auditbucket.track.bean.*;
+import com.auditbucket.track.model.ChangeLog;
+import com.auditbucket.track.model.LogWhat;
+import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.TrackLog;
 import junit.framework.Assert;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
@@ -313,7 +313,7 @@ public class TestTrack {
     @Test
     public void companyAndFortressWithSpaces() throws Exception {
         regService.registerSystemUser(new RegistrationBean("Company With Space", mike, "bah"));
-        Fortress fortressA = fortressService.registerFortress("audit Test" + System.currentTimeMillis());
+        Fortress fortressA = fortressService.registerFortress("track Test" + System.currentTimeMillis());
         String docType = "TestAuditX";
         String callerRef = "ABC123X";
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);

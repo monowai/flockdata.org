@@ -17,10 +17,10 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.audit.bean;
+package com.auditbucket.track.bean;
 
-import com.auditbucket.audit.model.MetaHeader;
-import com.auditbucket.audit.model.TrackTag;
+import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.TrackTag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -93,7 +93,7 @@ public class TrackResultBean {
 
     public String getServiceMessage() {
         if (wasDuplicate)
-            return "Existing audit record found was found and returned";
+            return "Existing track record found was found and returned";
         return serviceMessage;
     }
 

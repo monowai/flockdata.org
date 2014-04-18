@@ -19,9 +19,9 @@
 
 package com.auditbucket.engine.repo.neo4j.model;
 
-import com.auditbucket.audit.model.ChangeLog;
-import com.auditbucket.audit.model.MetaHeader;
-import com.auditbucket.audit.model.TrackLog;
+import com.auditbucket.track.model.ChangeLog;
+import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.TrackLog;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;

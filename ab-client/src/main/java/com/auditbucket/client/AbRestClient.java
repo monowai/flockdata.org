@@ -19,12 +19,12 @@
 
 package com.auditbucket.client;
 
-import com.auditbucket.audit.bean.CrossReferenceInputBean;
-import com.auditbucket.audit.bean.MetaInputBean;
-import com.auditbucket.audit.bean.TrackResultBean;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.FortressResultBean;
 import com.auditbucket.registration.bean.TagInputBean;
+import com.auditbucket.track.bean.CrossReferenceInputBean;
+import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.bean.TrackResultBean;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

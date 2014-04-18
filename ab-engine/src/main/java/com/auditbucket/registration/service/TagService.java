@@ -19,7 +19,6 @@
 
 package com.auditbucket.registration.service;
 
-import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.dao.SchemaDao;
 import com.auditbucket.dao.TagDao;
 import com.auditbucket.engine.service.EngineConfig;
@@ -30,6 +29,7 @@ import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.Tag;
+import com.auditbucket.track.model.DocumentType;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

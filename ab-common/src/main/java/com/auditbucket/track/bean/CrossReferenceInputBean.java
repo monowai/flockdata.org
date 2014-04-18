@@ -1,4 +1,4 @@
-package com.auditbucket.audit.bean;
+package com.auditbucket.track.bean;
 
 import java.util.List;
 import java.util.Map;

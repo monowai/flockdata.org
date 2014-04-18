@@ -19,9 +19,9 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.audit.model.TrackSearchDao;
 import com.auditbucket.search.endpoint.ElasticSearchEP;
 import com.auditbucket.search.model.MetaSearchChange;
+import com.auditbucket.track.model.TrackSearchDao;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.action.get.GetResponse;

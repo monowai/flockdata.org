@@ -1,9 +1,9 @@
 package com.auditbucket.spring.utils;
 
-import com.auditbucket.audit.bean.LogInputBean;
-import com.auditbucket.audit.bean.MetaInputBean;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.spring.annotations.*;
+import com.auditbucket.track.bean.LogInputBean;
+import com.auditbucket.track.bean.MetaInputBean;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTime;
 
@@ -69,7 +69,7 @@ public class PojoToAbTransformer {
                         // The case when the value of field are not NULL
                         // ToDo: When can we get the Fortress or DocumentType?
                         // ToDo: should be an annotation around the service.method,
-                        // ToDo: i.e. @audit (docType="Booking", fortress="Fortress")
+                        // ToDo: i.e. @track (docType="Booking", fortress="Fortress")
                         if (field.get(pojo) != null) {
                             if (fieldAnnotation instanceof DatagioUid) {
                                 auditWhat = false;
@@ -139,7 +139,7 @@ public class PojoToAbTransformer {
      * @return
      * @throws IllegalAccessException
      * @throws IOException
-     * @What is EVERY other attribute and object that is not @audit* annotated
+     * @What is EVERY other attribute and object that is not @track* annotated
      * "what": "{\"name\": \"99\", \"thing\": {\"status\": \"android\"}}"
      * }
      */

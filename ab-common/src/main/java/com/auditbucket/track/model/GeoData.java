@@ -17,7 +17,7 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.audit.model;
+package com.auditbucket.track.model;
 
 /**
  * Geographic type data

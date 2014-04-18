@@ -19,10 +19,6 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.audit.bean.AuditDeltaBean;
-import com.auditbucket.audit.model.ChangeLog;
-import com.auditbucket.audit.model.LogWhat;
-import com.auditbucket.audit.model.MetaHeader;
 import com.auditbucket.dao.TrackDao;
 import com.auditbucket.engine.repo.KvRepo;
 import com.auditbucket.engine.repo.LogWhatData;
@@ -31,6 +27,10 @@ import com.auditbucket.engine.repo.riak.RiakRepo;
 import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.helper.CompressionResult;
 import com.auditbucket.helper.DatagioException;
+import com.auditbucket.track.bean.AuditDeltaBean;
+import com.auditbucket.track.model.ChangeLog;
+import com.auditbucket.track.model.LogWhat;
+import com.auditbucket.track.model.MetaHeader;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.MapDifference;

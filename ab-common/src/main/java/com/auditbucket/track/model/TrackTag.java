@@ -17,7 +17,7 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.audit.model;
+package com.auditbucket.track.model;
 
 import com.auditbucket.registration.model.Tag;
 
@@ -48,7 +48,7 @@ public interface TrackTag {
     public Map<String, Object> getProperties();
 
     /**
-     * useful to understand a relative weighting between the tag and the audit for this
+     * useful to understand a relative weighting between the tag and the track for this
      * class of tagType.
      *
      * @return weight of the attribute in the relationship

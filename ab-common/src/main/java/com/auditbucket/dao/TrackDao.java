@@ -19,12 +19,12 @@
 
 package com.auditbucket.dao;
 
-import com.auditbucket.audit.bean.LogInputBean;
-import com.auditbucket.audit.bean.MetaInputBean;
-import com.auditbucket.audit.model.*;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.FortressUser;
+import com.auditbucket.track.bean.LogInputBean;
+import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.model.*;
 import org.joda.time.DateTime;
 
 import java.util.Collection;
@@ -59,7 +59,7 @@ public interface TrackDao {
     public MetaHeader findHeader(String key, boolean inflate);
 
     /**
-     * @param id audit Header PK
+     * @param id track Header PK
      * @return count of log records for the PK
      */
     public int getLogCount(Long id);

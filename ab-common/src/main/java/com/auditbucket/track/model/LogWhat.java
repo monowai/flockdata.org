@@ -17,33 +17,27 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.audit.model;
+package com.auditbucket.track.model;
+
+import java.util.Map;
 
 /**
  * User: Mike Holdsworth
- * Date: 21/06/13
- * Time: 1:21 PM
+ * Since: 4/09/13
  */
-public interface TrackLog {
-
-    public ChangeLog getChange();
-
-    public MetaHeader getMetaHeader();
-
-    public boolean isIndexed();
+public interface LogWhat {
 
     /**
-     * flags this audit as having been indexed at some point.
+     * @return uncompressed Json String
      */
-    public void setIsIndexed();
+    public String getWhat();
 
     /**
-     * @return When this log file was created in AuditBucket
+     * @return map converted to map via Json ObjectMapper
      */
-    public Long getSysWhen();
+    public Map<String, Object> getWhatMap();
 
-    public Long getFortressWhen();
+    public boolean isCompressed();
 
-    Long getId();
 
 }

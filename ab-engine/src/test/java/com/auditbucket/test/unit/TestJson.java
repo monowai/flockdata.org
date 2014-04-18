@@ -19,9 +19,9 @@
 
 package com.auditbucket.test.unit;
 
-import com.auditbucket.audit.bean.LogInputBean;
 import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.helper.CompressionResult;
+import com.auditbucket.track.bean.LogInputBean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.MapDifference;

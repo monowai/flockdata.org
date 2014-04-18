@@ -19,10 +19,10 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.audit.model.ChangeEvent;
 import com.auditbucket.dao.TrackEventDao;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
+import com.auditbucket.track.model.ChangeEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;

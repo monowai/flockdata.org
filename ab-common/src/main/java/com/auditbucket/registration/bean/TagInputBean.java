@@ -271,7 +271,7 @@ public class TagInputBean {
     }
 
     /**
-     * @return name to relate this to an audit record
+     * @return name to relate this to an track record
      */
     public String getMetaLink() {
         return metaLink;

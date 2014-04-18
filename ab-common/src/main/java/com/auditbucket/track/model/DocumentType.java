@@ -17,36 +17,24 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.audit.bean;
+package com.auditbucket.track.model;
 
-import com.auditbucket.audit.model.LogWhat;
-import com.auditbucket.audit.model.TrackLog;
+import com.auditbucket.registration.model.Fortress;
 
 /**
  * User: Mike Holdsworth
- * Since: 4/09/13
+ * Date: 30/06/13
+ * Time: 10:06 AM
  */
-public class LogDetailBean {
+public interface DocumentType {
 
-    private LogDetailBean() {
-    }
+    public String getName();
 
-    public LogDetailBean(TrackLog log, LogWhat what) {
-        this();
-        this.log = log;
-        this.what = what;
+    public Fortress getFortress();
 
-    }
+    Long getId();
 
-    private TrackLog log;
-    private LogWhat what;
+    String getCode();
 
-    public TrackLog getLog() {
-        return this.log;
-    }
-
-    public LogWhat getWhat() {
-        return this.what;
-    }
-
+    String getCompanyKey();
 }

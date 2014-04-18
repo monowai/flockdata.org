@@ -17,18 +17,33 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.audit.model;
+package com.auditbucket.track.model;
 
 /**
  * User: Mike Holdsworth
- * Date: 29/06/13
- * Time: 12:52 PM
+ * Date: 21/06/13
+ * Time: 1:21 PM
  */
-public interface ChangeEvent {
+public interface TrackLog {
 
-    public Long getId();
+    public ChangeLog getChange();
 
-    public String getCode();
+    public MetaHeader getMetaHeader();
 
-    String getName();
+    public boolean isIndexed();
+
+    /**
+     * flags this track as having been indexed at some point.
+     */
+    public void setIsIndexed();
+
+    /**
+     * @return When this log file was created in AuditBucket
+     */
+    public Long getSysWhen();
+
+    public Long getFortressWhen();
+
+    Long getId();
+
 }

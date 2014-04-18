@@ -19,8 +19,8 @@
 
 package com.auditbucket.dao;
 
-import com.auditbucket.audit.model.ChangeEvent;
 import com.auditbucket.registration.model.Company;
+import com.auditbucket.track.model.ChangeEvent;
 
 import java.util.Set;
 

@@ -19,8 +19,8 @@
 
 package com.auditbucket.engine.repo.riak;
 
-import com.auditbucket.audit.model.MetaHeader;
 import com.auditbucket.engine.repo.KvRepo;
+import com.auditbucket.track.model.MetaHeader;
 import com.basho.riak.client.IRiakClient;
 import com.basho.riak.client.IRiakObject;
 import com.basho.riak.client.RiakException;

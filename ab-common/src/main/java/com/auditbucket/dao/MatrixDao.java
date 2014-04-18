@@ -1,8 +1,9 @@
 package com.auditbucket.dao;
 
 import com.auditbucket.registration.model.Company;
+import com.auditbucket.track.query.MatrixResult;
 
-import java.util.Map;
+import java.util.Collection;
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,5 +14,5 @@ import java.util.Map;
  */
 public interface MatrixDao {
 
-    Map<String, Map<String, Long>> getMatrix(Company company, String metaLabel);
+    Collection<MatrixResult> getMatrix(Company company, String metaLabel);
 }

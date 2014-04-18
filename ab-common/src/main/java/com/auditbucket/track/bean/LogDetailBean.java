@@ -17,42 +17,36 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.audit.bean;
+package com.auditbucket.track.bean;
 
-import com.auditbucket.audit.model.MetaHeader;
-import com.auditbucket.audit.model.TrackLog;
-import com.auditbucket.audit.model.TrackTag;
-
-import java.util.Set;
+import com.auditbucket.track.model.LogWhat;
+import com.auditbucket.track.model.TrackLog;
 
 /**
  * User: Mike Holdsworth
- * Since: 25/08/13
+ * Since: 4/09/13
  */
-public class TrackedSummaryBean {
-    private MetaHeader header;
-    private Set<TrackLog> changes;
-    private Set<TrackTag> tags;
+public class LogDetailBean {
 
-    private TrackedSummaryBean() {
+    private LogDetailBean() {
     }
 
-    public TrackedSummaryBean(MetaHeader header, Set<TrackLog> changes, Set<TrackTag> tags) {
+    public LogDetailBean(TrackLog log, LogWhat what) {
         this();
-        this.header = header;
-        this.changes = changes;
-        this.tags = tags;
+        this.log = log;
+        this.what = what;
+
     }
 
-    public MetaHeader getHeader() {
-        return header;
+    private TrackLog log;
+    private LogWhat what;
+
+    public TrackLog getLog() {
+        return this.log;
     }
 
-    public Set<TrackLog> getChanges() {
-        return changes;
+    public LogWhat getWhat() {
+        return this.what;
     }
 
-    public Set<TrackTag> getTags() {
-        return tags;
-    }
 }

@@ -19,8 +19,8 @@
 
 package com.auditbucket.engine.repo.neo4j;
 
-import com.auditbucket.audit.model.ChangeEvent;
 import com.auditbucket.engine.repo.neo4j.model.ChangeEventNode;
+import com.auditbucket.track.model.ChangeEvent;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 

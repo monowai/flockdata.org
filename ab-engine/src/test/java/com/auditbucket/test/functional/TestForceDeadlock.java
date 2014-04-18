@@ -19,7 +19,6 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.audit.bean.MetaInputBean;
 import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.service.TrackService;
 import com.auditbucket.registration.bean.RegistrationBean;
@@ -30,6 +29,7 @@ import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
+import com.auditbucket.track.bean.MetaInputBean;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;

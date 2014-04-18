@@ -19,8 +19,8 @@
 
 package com.auditbucket.search.service;
 
-import com.auditbucket.audit.model.TrackSearchDao;
 import com.auditbucket.dao.QueryDao;
+import com.auditbucket.track.model.TrackSearchDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

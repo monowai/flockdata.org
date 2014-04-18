@@ -19,10 +19,6 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.audit.bean.*;
-import com.auditbucket.audit.model.MetaHeader;
-import com.auditbucket.audit.model.TrackLog;
-import com.auditbucket.audit.model.TrackTag;
 import com.auditbucket.client.AbRestClient;
 import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.service.MediationFacade;
@@ -39,6 +35,10 @@ import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.search.model.MetaSearchSchema;
 import com.auditbucket.search.model.QueryParams;
+import com.auditbucket.track.bean.*;
+import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.TrackLog;
+import com.auditbucket.track.model.TrackTag;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.searchbox.client.JestClient;

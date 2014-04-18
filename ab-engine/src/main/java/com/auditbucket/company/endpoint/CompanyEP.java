@@ -19,7 +19,6 @@
 
 package com.auditbucket.company.endpoint;
 
-import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.helper.ApiKeyHelper;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
@@ -27,6 +26,7 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.RegistrationService;
+import com.auditbucket.track.model.DocumentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
