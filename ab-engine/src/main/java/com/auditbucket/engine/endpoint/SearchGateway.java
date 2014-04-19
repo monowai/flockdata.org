@@ -36,4 +36,7 @@ public interface SearchGateway {
 
     @Gateway(requestChannel = "searchDelete")
     public void delete(@Payload MetaHeader metaHeader);
+
+    //ToDo:
+    // Add an HTTP gateway call to ElasticSearchEP.getMetaKeys(QueryParams);
 }
