@@ -21,10 +21,13 @@ package com.auditbucket.search.service;
 
 import com.auditbucket.dao.QueryDao;
 import com.auditbucket.track.model.TrackSearchDao;
+import com.auditbucket.search.model.EsSearchResult;
+import com.auditbucket.search.model.QueryParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.annotation.MessageEndpoint;
+import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -57,6 +60,12 @@ public class QueryService  {
         return queryDao.getHitCount(index);
     }
 
+    @ServiceActivator(inputChannel = "makeSendSearchRequest",outputChannel = "makeSendSearchReply") // Subscriber
+    public EsSearchResult search(QueryParams queryParams) {
+        logger.info("searchRequest received for {}", queryParams);
+        Collection<String> results = queryDao.doMetaKeySearch("ab." + queryParams.getCompany() + "." + queryParams.getFortress(), queryParams.getSimpleQuery());
+        return new EsSearchResult(results);
+    }
 
 
 }

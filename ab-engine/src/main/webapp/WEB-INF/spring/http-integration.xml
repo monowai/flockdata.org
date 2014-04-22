@@ -46,4 +46,13 @@
                               request-payload-type="com.auditbucket.search.model.SearchResult"
                               supported-methods="POST"/>
 
+    <int-http:outbound-gateway request-channel="makeSendSearchRequest"
+                               reply-channel="makeSendSearchReply"
+                               reply-timeout="${reply.timeout}"
+                               url="${absearch.search}"
+                               extract-request-payload="true"
+                               expected-response-type="java.lang.String" />
+
+
+
 </beans>

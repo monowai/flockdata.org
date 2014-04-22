@@ -3,7 +3,9 @@ package com.auditbucket.engine.service;
 import com.auditbucket.dao.TrackDao;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.service.FortressService;
+import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.MetaSearchChange;
+import com.auditbucket.search.model.QueryParams;
 import com.auditbucket.search.model.SearchResult;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.ChangeLog;
@@ -179,5 +181,9 @@ public class SearchServiceFacade {
             logger.error("error", e);
         }
 
+    }
+
+    public EsSearchResult search(QueryParams queryParams){
+        return searchGateway.search(queryParams);
     }
 }

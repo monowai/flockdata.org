@@ -19,8 +19,8 @@
 
 package com.auditbucket.search.endpoint;
 
-import com.auditbucket.search.model.MetaSearchChange;
 import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.search.model.MetaSearchChange;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.Payload;
 import org.springframework.stereotype.Component;

@@ -45,7 +45,7 @@ import java.util.*;
  * Time: 8:33 PM
  */
 @Repository
-public class TagDaoNeo4j implements TagDao {
+class TagDaoNeo4j implements TagDao {
 
     @Autowired
     SchemaDao schemaDao;
