@@ -37,6 +37,12 @@
                                     type="com.auditbucket.search.model.SearchResult">
     </int:json-to-object-transformer>
 
+    <int:json-to-object-transformer id="jsonToObject2"
+                                    input-channel="makeSendSearchReply"
+                                    output-channel="sendSearchReply"
+                                    type="com.auditbucket.search.model.EsSearchResult">
+    </int:json-to-object-transformer>
+
 
     <int:object-to-json-transformer id="objectToJson"
                                     input-channel="sendRequest"
@@ -44,7 +50,17 @@
                                     content-type="application/json">
     </int:object-to-json-transformer>
 
+    <int:object-to-json-transformer id="objectToJson2"
+                                    input-channel="sendSearchRequest"
+                                    output-channel="makeSendSearchRequest"
+                                    content-type="application/json">
+    </int:object-to-json-transformer>
+
     <int:channel id="makeSearchRequest">
+        <int:dispatcher task-executor="ab-engine"/>
+    </int:channel>
+
+    <int:channel id="makeSendSearchRequest">
         <int:dispatcher task-executor="ab-engine"/>
     </int:channel>
 
@@ -54,4 +70,7 @@
     </int:channel>
     <int:channel id="sendRequest"/>
     <int:channel id="searchReply"/>
+
+    <int:channel id="sendSearchRequest"/>
+    <int:channel id="sendSearchReply"/>
 </beans>

@@ -49,7 +49,7 @@
     <int-http:outbound-gateway request-channel="makeSendSearchRequest"
                                reply-channel="makeSendSearchReply"
                                reply-timeout="${reply.timeout}"
-                               url="http://localhost:8081/ab-search/v1/api/esSearch"
+                               url="${absearch.search}"
                                extract-request-payload="true"
                                expected-response-type="java.lang.String" />
 
