@@ -8,7 +8,9 @@ import com.auditbucket.audit.model.TrackLog;
 import com.auditbucket.dao.TrackDao;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.service.FortressService;
+import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.MetaSearchChange;
+import com.auditbucket.search.model.QueryParams;
 import com.auditbucket.search.model.SearchResult;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -179,5 +181,9 @@ public class SearchServiceFacade {
             logger.error("error", e);
         }
 
+    }
+
+    public EsSearchResult search(QueryParams queryParams){
+        return searchGateway.search(queryParams);
     }
 }

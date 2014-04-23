@@ -41,6 +41,14 @@
                               supported-methods="POST"/>
 
 
+    <int-http:inbound-gateway request-channel="makeSendSearchRequest"
+                              reply-channel="makeSendSearchReply"
+                              path="/api/esSearch"
+                              reply-timeout="${reply.timeout}"
+                              request-timeout="${request.timeout}"
+                              request-payload-type="com.auditbucket.search.model.QueryParams"
+                              supported-methods="POST"/>
+
     <int-http:outbound-gateway reply-timeout="1000"
                                request-channel="searchResult"
                                reply-channel="nullChannel"

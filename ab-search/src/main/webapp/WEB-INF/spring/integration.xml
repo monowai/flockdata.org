@@ -51,6 +51,8 @@
     </int:channel>
     <int:channel id="searchReply"/>
     <int:channel id="errors"/>
+    <int:channel id="makeSendSearchRequest"/>
+    <int:channel id="makeSendSearchReply"/>
 
     <int:service-activator id="abErrorLogger" input-channel="errors" ref="abloggingHandler"/>
 
