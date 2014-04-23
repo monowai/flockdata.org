@@ -19,8 +19,8 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.audit.bean.LogInputBean;
-import com.auditbucket.audit.bean.MetaInputBean;
+import com.auditbucket.track.bean.LogInputBean;
+import com.auditbucket.track.bean.MetaInputBean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpResponse;
@@ -68,7 +68,7 @@ public class TestWebServiceIntegration {
 
         System.out.println("node Count = " + node.size());
         HttpClient httpclient = new DefaultHttpClient();
-        String url = "http://localhost:8080/ab-engine/audit/header/new";
+        String url = "http://localhost:8080/ab-engine/track/header/new";
         for (JsonNode profile : node.elements().next()) {
             HttpPost auditPost = new HttpPost(url);
             auditPost.addHeader("content-type", "application/json");

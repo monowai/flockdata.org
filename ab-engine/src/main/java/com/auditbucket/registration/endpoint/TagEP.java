@@ -55,7 +55,8 @@ public class TagEP {
 
     @ResponseBody
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
-    public Collection<TagInputBean> createTags(@RequestBody List<TagInputBean> tagInputs, String apiKey,
+    public Collection<TagInputBean> createTags(@RequestBody List<TagInputBean> tagInputs,
+                                               String apiKey,
                                                @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
 
@@ -65,9 +66,14 @@ public class TagEP {
 
     }
 
+
+
     @ResponseBody
     @RequestMapping(value = "/{type}", produces = "application/json", consumes = "application/json", method = RequestMethod.GET)
-    public Map<String, Tag> getTags(@PathVariable("type") String index) throws DatagioException {
-        return tagService.findTags(index);
+    public Map<String, Tag> getTags(@PathVariable("type") String index,
+                                    String apiKey,
+                                    @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+        Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+        return tagService.findTags(company, index);
     }
 }

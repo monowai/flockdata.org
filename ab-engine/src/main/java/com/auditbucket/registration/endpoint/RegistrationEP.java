@@ -19,6 +19,7 @@
 
 package com.auditbucket.registration.endpoint;
 
+import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.RegistrationService;
@@ -46,7 +47,7 @@ public class RegistrationEP {
 
     @RequestMapping(value = "/", consumes = "application/json", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<SystemUser> register(@RequestBody RegistrationBean regBean) throws Exception {
+    public ResponseEntity<SystemUser> registerSystemUser(@RequestBody RegistrationBean regBean) throws DatagioException {
         // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/profiles/register -d '{"name":"mikey", "companyName":"Monowai Dev","password":"whocares"}'
         SystemUser su = regService.registerSystemUser(regBean);
         if (su == null)

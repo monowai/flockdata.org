@@ -54,6 +54,7 @@ public class DeadlockRetry {
                         throw (re);
                     }
                 } else {
+                    logger.error("DeadlockRetry error could not be handled {}",re.getMessage());
                     throw (re);
                 }
             }

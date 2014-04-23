@@ -50,11 +50,17 @@ public class RegistrationService {
 
     private static SystemUser GUEST = new SystemUserNode("Guest", null, null, false);
 
-    public SystemUser registerSystemUser(RegistrationBean regBean) {
+    public SystemUser registerSystemUser(RegistrationBean regBean) throws DatagioException {
         SystemUser systemUser = systemUserService.findByName(regBean.getName());
 
-        if (systemUser != null)
-            return systemUser; // ToDo - throw RegistrationException
+        if (systemUser != null) {
+            if (regBean.isUnique())
+
+                throw new DatagioException("Duplicate registration is not allowed. ");
+            else
+                return systemUser; // ToDo - throw RegistrationException
+        }
+
 
         Company company = companyService.findByName(regBean.getCompanyName());
         if (company == null) {
@@ -111,8 +117,7 @@ public class RegistrationService {
     }
 
     public Company resolveCompany(String apiKey) throws DatagioException {
-        Company c;
-        c = securityHelper.getCompany(apiKey);
+        Company c = securityHelper.getCompany(apiKey);
         if (c == null)
             throw new DatagioException("Invalid API Key");
         return c;

@@ -19,10 +19,6 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.audit.bean.MetaInputBean;
-import com.auditbucket.audit.bean.TrackTagInputBean;
-import com.auditbucket.audit.model.MetaHeader;
-import com.auditbucket.audit.model.TrackTag;
 import com.auditbucket.dao.TrackTagDao;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
@@ -30,6 +26,10 @@ import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.TagService;
+import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.bean.TrackTagInputBean;
+import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.TrackTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,7 +124,7 @@ public class TagTrackService {
             if (tagInput.getMetaLinks() != null) {
                 rlxs = processRelationships(ah, tag, tagInput.getMetaLinks(), tagInput.isReverse());
             }
-            if (tagInput.getMetaLink() != null) // Simple relationship to the audit header
+            if (tagInput.getMetaLink() != null) // Simple relationship to the track header
                 // Makes it easier for the API to call
                 rlxs.add(trackTagDao.save(ah, tag, tagInput.getMetaLink(), tagInput.isReverse()));
 

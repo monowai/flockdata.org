@@ -17,9 +17,9 @@ Which customers influence other customer purchases? Which customers who buy beer
 
 AuditBucket is a data mediation service to track and store business information into both an ElasticSearch datastore and Neo4J graph database with minimal upfront analysis or effort.
 
-AB assumes you want to aggreate data from your existing system and look at it new ways to uncover insights you didn't know existed. This real-time anaysis saves time and enables you to identify signal from noise with free-form exploration. This is hugely useful when you are not quite sure what you are looking for in your information and are forming hypotheses on the journey to insight.
+AB assumes you want to aggregate data from your existing system and look at it new ways to uncover insights you didn't know existed. This real-time anaysis saves time and enables you to identify signal from noise with free-form exploration. This is hugely useful when you are not quite sure what you are looking for in your information and are forming hypotheses on the journey to insight.
 
-All your data is stored as industry asstandard JSON documents in open-source database accessible to any application that can talk to a website. This lets you take advantage of next generation visulisation tools and existing number crunching tools like Excel. 
+All your data is stored as industry as standard JSON documents in open-source database accessible to any application that can talk to a website. This lets you take advantage of next generation visulisation tools and existing number crunching tools like Excel.
 
 Turn your information in to an accessible resource.
 
@@ -45,7 +45,7 @@ AB coordinates and directs information to various highly scalable data sources t
 * Track data to support compensating transactions across distributed fortress boundaries
 * Free text searching of your business domain data
 * Keep audit data out of your transaction processing fortress
-* Discover graphs, search engines and loosley coupled application development.
+* Discover graphs, search engines and loosely coupled application development.
 
 ## Features
 ### Search
@@ -75,7 +75,7 @@ A big thanks to the people who inspired me over the last few years to look at bu
 * [Jeremy Snyder](http://entiviti.com)
 * StackOverflow contributors - naturally
 
-While the talks, techiques and ideas of these people have inspired AuditBucket, the interpretation and implementation is my own work and this isn't, and shouldn't, be taken as any sign of their endorsement of AB. 
+While the talks, techniques and ideas of these people have inspired AuditBucket, the interpretation and implementation is my own work and this isn't, and shouldn't, be taken as any sign of their endorsement of AB. 
 
 ## Contributing
 We encourage contributions to AuditBucket from the community. Here’s how to get started.

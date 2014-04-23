@@ -19,10 +19,10 @@
 
 package com.auditbucket.search.dao;
 
-import com.auditbucket.audit.model.MetaHeader;
-import com.auditbucket.audit.model.SearchChange;
-import com.auditbucket.audit.model.TrackSearchDao;
 import com.auditbucket.search.model.MetaSearchSchema;
+import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.SearchChange;
+import com.auditbucket.track.model.TrackSearchDao;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.action.ListenableActionFuture;

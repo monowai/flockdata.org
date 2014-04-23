@@ -19,8 +19,8 @@
 
 package com.auditbucket.engine.repo.neo4j;
 
-import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
+import com.auditbucket.track.model.DocumentType;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
@@ -35,22 +35,26 @@ public interface SchemaTypeRepo extends GraphRepository<DocumentTypeNode> {
     @Query(elementClass = DocumentTypeNode.class,
             value =
                     "MATCH fortress<-[:FORTRESS_DOC]-documentType " +
-                    "        where id(fortress)={0} and documentType.code ={1}" +
-                    "       return documentType")
+                            "        where id(fortress)={0} and documentType.code ={1}" +
+                            "       return documentType")
     DocumentTypeNode findFortressDocType(Long fortressId, String docKey);
 
     @Query(elementClass = DocumentTypeNode.class,
-    value =
-            "MATCH (company:ABCompany)<-[:TAG_INDEX]-(tag:_TagLabel) " +
-            "        where id(company)={0} and tag.companyKey ={1}" +
-            "       return tag")
+            value =
+                    "MATCH (company:ABCompany)<-[:TAG_INDEX]-(tag:_TagLabel) " +
+                            "        where id(company)={0} and tag.companyKey ={1}" +
+                            "       return tag")
     DocumentTypeNode findCompanyTag(Long companyId, String companyKey);
 
 
     @Query(elementClass = DocumentTypeNode.class,
-            value =
-                    "MATCH fortress<-[:FORTRESS_DOC]-documentTypes " +
-                            "        where id(fortress)={0} " +
-                            "       return documentTypes")
-    Collection<DocumentType> getDocumentsInUse(Long id);
+            value = "MATCH fortress<-[:FORTRESS_DOC]-documentTypes " +
+                    "        where id(fortress)={0} " +
+                    "       return documentTypes")
+    Collection<DocumentType> getFortressDocumentsInUse(Long fortressId);
+
+    @Query(elementClass = DocumentTypeNode.class,
+            value = "match (docTypes:_DocType)-[*..2]-(company:ABCompany) " +
+                    "where id(company) = {0} return docTypes")
+    Collection<DocumentType> getCompanyDocumentsInUse(Long companyId);
 }

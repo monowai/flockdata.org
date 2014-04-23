@@ -17,22 +17,24 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.engine.repo;
+package com.auditbucket.track.model;
 
-import com.auditbucket.track.model.MetaHeader;
-
-import java.io.IOException;
+import com.auditbucket.registration.model.Fortress;
 
 /**
  * User: Mike Holdsworth
- * Since: 31/01/14
+ * Date: 30/06/13
+ * Time: 10:06 AM
  */
-public interface KvRepo {
-    public void add(MetaHeader metaHeader, Long key, byte[] value) throws IOException;
+public interface DocumentType {
 
-    public byte[] getValue(MetaHeader metaHeader, Long key);
+    public String getName();
 
-    public void delete(MetaHeader metaHeader, Long key);
+    public Fortress getFortress();
 
-    String ping();
+    Long getId();
+
+    String getCode();
+
+    String getCompanyKey();
 }

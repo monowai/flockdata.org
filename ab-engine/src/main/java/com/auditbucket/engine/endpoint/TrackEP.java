@@ -19,9 +19,10 @@
 
 package com.auditbucket.engine.endpoint;
 
-import com.auditbucket.audit.bean.*;
-import com.auditbucket.audit.model.*;
-import com.auditbucket.engine.service.*;
+import com.auditbucket.engine.service.MediationFacade;
+import com.auditbucket.engine.service.TagTrackService;
+import com.auditbucket.engine.service.TrackService;
+import com.auditbucket.engine.service.WhatService;
 import com.auditbucket.helper.ApiKeyHelper;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
@@ -31,6 +32,8 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
+import com.auditbucket.track.bean.*;
+import com.auditbucket.track.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,9 +59,6 @@ public class TrackEP {
     TrackService trackService;
 
     @Autowired
-    EngineConfig engineConfig;
-
-    @Autowired
     MediationFacade mediationFacade;
 
     @Autowired
@@ -76,23 +76,10 @@ public class TrackEP {
     @Autowired
     WhatService whatService;
 
-    private static Logger logger = LoggerFactory.getLogger(TrackEP.class);
     @Autowired
     private RegistrationService registrationService;
 
-    @ResponseBody
-    @RequestMapping(value = "/ping", method = RequestMethod.GET)
-    public String get() {
-        // curl -X GET http://localhost:8081/ab-engine/v1/track/ping
-        return "Pong!";
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/health", method = RequestMethod.GET)
-    @Secured({"ROLE_USER"})
-    public Map<String, String> getHealth() {
-        return engineConfig.getHealth();
-    }
+    private static Logger logger = LoggerFactory.getLogger(TrackEP.class);
 
     @ResponseBody
     @RequestMapping(value = "/", consumes = "application/json", method = RequestMethod.PUT)
@@ -204,8 +191,8 @@ public class TrackEP {
 
     @ResponseBody
     @RequestMapping(value = "/{metaKey}", method = RequestMethod.GET)
-    public ResponseEntity<MetaHeader> getMetaHeader(@PathVariable("metaKey") String metaKey, String apiKey,
-                                                    @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+    public ResponseEntity<MetaHeader> getMetaHeader(@PathVariable("metaKey") String metaKey,
+                                                    String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8081/ab-engine/track/{metaKey}/ -d '{"eventType":"change","metaKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10", "what": "{\"name\": \"val\"}" }'
         Company company = getCompany(apiHeaderKey, apiKey);
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/{metaKey}
@@ -215,6 +202,25 @@ public class TrackEP {
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
+
+    /**
+     * locates a collection of MetaHeaders based on incoming collection of MetaKeys
+     *
+     * @param toFind keys to look for
+     * @param apiKey who you purport to be
+     * @param apiHeaderKey as per apiKey but in the header
+     *
+     * @return Matching metaHeaders you are authorised to receive
+     * @throws DatagioException
+     */
+    @ResponseBody
+    @RequestMapping(value = "/", method = RequestMethod.POST)
+    public Collection<MetaHeader> getMetaHeaders(@RequestBody Collection<String> toFind,
+                                                 String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+        Company company = getCompany(apiHeaderKey, apiKey);
+        return trackService.getHeaders(company, toFind);
+    }
+
 
     private Company getCompany(String apiHeaderKey, String apiRequestKey) throws DatagioException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiRequestKey));
@@ -377,28 +383,6 @@ public class TrackEP {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/{fortressName}/rebuild", method = RequestMethod.POST)
-    public ResponseEntity<String> rebuildSearch(@PathVariable("fortressName") String fortressName,
-                                                String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company company = getCompany(apiHeaderKey, apiKey);
-        logger.info("Reindex command received for " + fortressName + " from [" + securityHelper.getLoggedInUser() + "]");
-        mediationFacade.reindex(company, fortressName);
-        return new ResponseEntity<>("Request to reindex has been received", HttpStatus.OK);
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/{fortressName}/{docType}/rebuild", method = RequestMethod.POST)
-    public ResponseEntity<String> rebuildSearch(@PathVariable("fortressName") String fortressName, @PathVariable("docType") String docType
-            , String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-
-        Company company = getCompany(apiHeaderKey, apiKey);
-
-        logger.info("Reindex command received for " + fortressName + " & docType " + docType + " from [" + securityHelper.getLoggedInUser() + "]");
-        mediationFacade.reindexByDocType(company, fortressName, docType);
-        return new ResponseEntity<>("Request to reindex has been received", HttpStatus.OK);
-    }
-
-    @ResponseBody
     @RequestMapping(value = "/{metaKey}/{xRefName}/xref", produces = "application/json", method = RequestMethod.POST)
     public Collection<String> putCrossReference(@PathVariable("metaKey") String metaKey, Collection<String> metaKeys, @PathVariable("xRefName") String reference,
                                                 String apiKey,
@@ -487,4 +471,5 @@ public class TrackEP {
         Company company = getCompany(apiHeaderKey, apiKey);
         return trackService.getCrossReference(company, fortress, callerRef, xRefName);
     }
+
 }

@@ -19,8 +19,8 @@
 
 package com.auditbucket.engine.repo.redis;
 
-import com.auditbucket.audit.model.MetaHeader;
 import com.auditbucket.engine.repo.KvRepo;
+import com.auditbucket.track.model.MetaHeader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;

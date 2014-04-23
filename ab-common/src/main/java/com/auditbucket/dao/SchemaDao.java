@@ -1,9 +1,9 @@
 package com.auditbucket.dao;
 
-import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.track.model.DocumentType;
 
 import java.util.Collection;
 
@@ -17,7 +17,9 @@ import java.util.Collection;
 public interface SchemaDao {
     DocumentType findDocumentType(Fortress company, String documentType, Boolean createIfMissing);
 
-    Collection<DocumentType> getDocumentsInUse(Fortress fortress);
+    Collection<DocumentType> getFortressDocumentsInUse(Fortress fortress);
+
+    public Collection<DocumentType> getCompanyDocumentsInUse(Company company);
 
     public boolean registerTagIndex (Company c, String indexName );
 

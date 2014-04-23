@@ -17,11 +17,11 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.audit.bean;
+package com.auditbucket.track.bean;
 
-import com.auditbucket.audit.model.ChangeLog;
-import com.auditbucket.audit.model.MetaHeader;
-import com.auditbucket.audit.model.TrackLog;
+import com.auditbucket.track.model.ChangeLog;
+import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.TrackLog;
 
 
 /**

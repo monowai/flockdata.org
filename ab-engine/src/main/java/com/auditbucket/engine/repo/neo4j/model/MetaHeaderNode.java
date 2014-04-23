@@ -19,15 +19,15 @@
 
 package com.auditbucket.engine.repo.neo4j.model;
 
-import com.auditbucket.audit.bean.MetaInputBean;
-import com.auditbucket.audit.model.DocumentType;
-import com.auditbucket.audit.model.MetaHeader;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.repo.neo4j.model.FortressNode;
 import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
 import com.auditbucket.search.model.MetaSearchSchema;
+import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.model.DocumentType;
+import com.auditbucket.track.model.MetaHeader;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.hibernate.validator.constraints.NotEmpty;

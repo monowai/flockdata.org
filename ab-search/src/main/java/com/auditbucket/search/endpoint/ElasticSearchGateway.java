@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "Monowai Developments Limited"
+ * Copyright (c) 2012-2013 "Monowai Developments Limited"
  *
  * This file is part of AuditBucket.
  *
@@ -17,24 +17,24 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.audit.model;
+package com.auditbucket.search.endpoint;
 
-import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.audit.model.MetaHeader;
+import com.auditbucket.search.model.MetaSearchChange;
+import org.springframework.integration.annotation.Gateway;
+import org.springframework.integration.annotation.Payload;
+import org.springframework.stereotype.Component;
 
 /**
  * User: Mike Holdsworth
- * Date: 30/06/13
- * Time: 10:06 AM
+ * Since: 9/07/13
  */
-public interface DocumentType {
+@Component
+public interface ElasticSearchGateway {
+    @Gateway(requestChannel = "sendRequest")
+    public void createSearchableChange(MetaSearchChange thisChange);
 
-    public String getName();
 
-    public Fortress getFortress();
-
-    Long getId();
-
-    String getCode();
-
-    String getCompanyKey();
+    //@Gateway(requestChannel = "esDelete")
+    public void delete(@Payload MetaHeader metaHeader);
 }

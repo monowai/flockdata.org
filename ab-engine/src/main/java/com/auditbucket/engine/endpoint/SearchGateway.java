@@ -17,36 +17,26 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.audit.bean;
+package com.auditbucket.engine.endpoint;
 
-import com.auditbucket.audit.model.LogWhat;
-import com.auditbucket.audit.model.TrackLog;
+import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.SearchChange;
+import org.springframework.integration.annotation.Gateway;
+import org.springframework.integration.annotation.Payload;
 
 /**
  * User: Mike Holdsworth
- * Since: 4/09/13
+ * Date: 7/07/13
+ * Time: 8:54 AM
  */
-public class LogDetailBean {
+public interface SearchGateway {
 
-    private LogDetailBean() {
-    }
+    @Gateway(requestChannel = "makeSearchRequest")
+    public SearchChange createSearchableChange(@Payload SearchChange thisChange);
 
-    public LogDetailBean(TrackLog log, LogWhat what) {
-        this();
-        this.log = log;
-        this.what = what;
+    @Gateway(requestChannel = "searchDelete")
+    public void delete(@Payload MetaHeader metaHeader);
 
-    }
-
-    private TrackLog log;
-    private LogWhat what;
-
-    public TrackLog getLog() {
-        return this.log;
-    }
-
-    public LogWhat getWhat() {
-        return this.what;
-    }
-
+    //ToDo:
+    // Add an HTTP gateway call to ElasticSearchEP.getMetaKeys(QueryParams);
 }

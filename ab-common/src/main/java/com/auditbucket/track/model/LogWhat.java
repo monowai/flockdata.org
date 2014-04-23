@@ -17,18 +17,27 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.audit.model;
+package com.auditbucket.track.model;
+
+import java.util.Map;
 
 /**
  * User: Mike Holdsworth
- * Date: 29/06/13
- * Time: 12:52 PM
+ * Since: 4/09/13
  */
-public interface ChangeEvent {
+public interface LogWhat {
 
-    public Long getId();
+    /**
+     * @return uncompressed Json String
+     */
+    public String getWhat();
 
-    public String getCode();
+    /**
+     * @return map converted to map via Json ObjectMapper
+     */
+    public Map<String, Object> getWhatMap();
 
-    String getName();
+    public boolean isCompressed();
+
+
 }

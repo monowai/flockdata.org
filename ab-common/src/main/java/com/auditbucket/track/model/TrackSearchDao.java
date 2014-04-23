@@ -17,7 +17,7 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.audit.model;
+package com.auditbucket.track.model;
 
 import java.util.Map;
 
@@ -49,7 +49,7 @@ public interface TrackSearchDao {
      * If ID is null then the call is the same as findOne(header)
      * where the searchKey is taken to be LogResultBean.searchKey
      *
-     * @return found audit change or null if none
+     * @return found track change or null if none
      */
     byte[] findOne(MetaHeader header, String id);
 

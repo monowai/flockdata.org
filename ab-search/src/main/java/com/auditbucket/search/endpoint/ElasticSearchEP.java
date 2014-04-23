@@ -65,7 +65,7 @@ public class ElasticSearchEP {
                             @RequestHeader(value = "Api-Key", required = false)
                             String apiHeaderKey) throws DatagioException {
 
-        return searchService.doSearch("*", queryParams.getSimpleQuery());
+        return searchService.doSearch("ab.*", queryParams.getSimpleQuery());
         // curl -u mike:123 -X GET http://localhost:8081/ab-search/v1/health
         //return searchAdmin.getHealth();
     }
@@ -76,7 +76,7 @@ public class ElasticSearchEP {
                               @RequestHeader(value = "Api-Key", required = false)
                               String apiHeaderKey) throws DatagioException {
 
-        return searchService.doMetaKeySearch("*", queryParams.getSimpleQuery());
+        return searchService.doMetaKeySearch("ab.*", queryParams.getSimpleQuery());
         // curl -u mike:123 -X GET http://localhost:8081/ab-search/v1/health
         //return searchAdmin.getHealth();
     }

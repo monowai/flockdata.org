@@ -19,8 +19,6 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.audit.bean.*;
-import com.auditbucket.audit.model.*;
 import com.auditbucket.dao.TrackDao;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
@@ -30,6 +28,8 @@ import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.*;
 import com.auditbucket.search.model.MetaSearchChange;
+import com.auditbucket.track.bean.*;
+import com.auditbucket.track.model.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -152,8 +152,7 @@ public class TrackService {
             ah = makeHeader(inputBean, fu, documentType);
         } catch (DatagioException e) {
             logger.error(e.getMessage());
-            TrackResultBean result = new TrackResultBean("Error processing inputBean [{}]"+inputBean+". Error "+e.getMessage());
-            return result;
+            return  new TrackResultBean("Error processing inputBean [{}]"+inputBean+". Error "+e.getMessage());
         }
         TrackResultBean resultBean = new TrackResultBean(ah);
         resultBean.setMetaInputBean(inputBean);
@@ -779,5 +778,9 @@ public class TrackService {
         }
         trackDao.crossReference(header, targets, xRefName);
         return ignored;
+    }
+
+    public Collection<MetaHeader> getHeaders(Company company, Collection<String> toFind) {
+        return trackDao.findHeaders(company, toFind);
     }
 }

@@ -19,8 +19,8 @@
 
 package com.auditbucket.search.service;
 
-import com.auditbucket.audit.model.TrackSearchDao;
 import com.auditbucket.dao.QueryDao;
+import com.auditbucket.track.model.TrackSearchDao;
 import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.QueryParams;
 import org.slf4j.Logger;

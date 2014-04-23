@@ -17,10 +17,10 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.audit.bean;
+package com.auditbucket.track.bean;
 
-import com.auditbucket.audit.model.ChangeEvent;
 import com.auditbucket.helper.DatagioException;
+import com.auditbucket.track.model.ChangeEvent;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTime;

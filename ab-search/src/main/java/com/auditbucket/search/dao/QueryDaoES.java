@@ -20,6 +20,7 @@
 package com.auditbucket.search.dao;
 
 import com.auditbucket.dao.QueryDao;
+import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.search.SearchHit;
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.ExecutionException;
 
 /**
  * User: Mike Holdsworth
@@ -71,13 +73,18 @@ public class QueryDaoES implements QueryDao {
 
     @Override
     public Collection<String> doMetaKeySearch(String index, String queryString) {
-        SearchResponse result = client.prepareSearch(index)
+        ListenableActionFuture<SearchResponse> future = client.prepareSearch(index)
                 .setSource(getSimpleQuery(queryString))
-                .execute()
-                .actionGet();
+                .execute();
         Collection<String> results = new ArrayList<>();
+        SearchResponse response = null;
+        try {
+            response = future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error ("",e);
+        }
         // return the meta keys??
-        for (SearchHit searchHitFields : result.getHits().getHits()) {
+        for (SearchHit searchHitFields : response.getHits().getHits()) {
             results.add(searchHitFields.getSource().get("@metaKey").toString());
         }
 

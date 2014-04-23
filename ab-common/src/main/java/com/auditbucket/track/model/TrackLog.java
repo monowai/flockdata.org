@@ -17,22 +17,33 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.engine.repo;
-
-import com.auditbucket.track.model.MetaHeader;
-
-import java.io.IOException;
+package com.auditbucket.track.model;
 
 /**
  * User: Mike Holdsworth
- * Since: 31/01/14
+ * Date: 21/06/13
+ * Time: 1:21 PM
  */
-public interface KvRepo {
-    public void add(MetaHeader metaHeader, Long key, byte[] value) throws IOException;
+public interface TrackLog {
 
-    public byte[] getValue(MetaHeader metaHeader, Long key);
+    public ChangeLog getChange();
 
-    public void delete(MetaHeader metaHeader, Long key);
+    public MetaHeader getMetaHeader();
 
-    String ping();
+    public boolean isIndexed();
+
+    /**
+     * flags this track as having been indexed at some point.
+     */
+    public void setIsIndexed();
+
+    /**
+     * @return When this log file was created in AuditBucket
+     */
+    public Long getSysWhen();
+
+    public Long getFortressWhen();
+
+    Long getId();
+
 }

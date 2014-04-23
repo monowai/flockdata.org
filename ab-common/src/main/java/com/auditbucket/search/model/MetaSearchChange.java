@@ -19,10 +19,10 @@
 
 package com.auditbucket.search.model;
 
-import com.auditbucket.audit.model.MetaHeader;
-import com.auditbucket.audit.model.SearchChange;
-import com.auditbucket.audit.model.TrackTag;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.SearchChange;
+import com.auditbucket.track.model.TrackTag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.joda.time.DateTime;
@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Encapsulates the information to make an audit header and log a searchable document
+ * Encapsulates the information to make an track header and log a searchable document
  * according to the way AuditBucket deals with search docs.
  * <p/>
  * This object becomes the payload dispatch to ab-search for indexing.

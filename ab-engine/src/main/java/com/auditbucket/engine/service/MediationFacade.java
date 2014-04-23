@@ -19,9 +19,6 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.audit.bean.*;
-import com.auditbucket.audit.model.MetaHeader;
-import com.auditbucket.audit.model.TrackLog;
 import com.auditbucket.helper.Command;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.DeadlockRetry;
@@ -32,6 +29,9 @@ import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
+import com.auditbucket.track.bean.*;
+import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.TrackLog;
 import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.QueryParams;
 import com.google.common.collect.Lists;
@@ -231,7 +231,7 @@ public class MediationFacade {
     }
 
     /**
-     * Will locate the audit header from the supplied input
+     * Will locate the track header from the supplied input
      * @param company valid company the caller can operate on
      * @param input   payload containing at least the metaKey
      * @return result of the log

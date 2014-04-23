@@ -20,11 +20,14 @@
 package com.auditbucket.client;
 
 import au.com.bytecode.opencsv.CSVReader;
-import com.auditbucket.audit.bean.CrossReferenceInputBean;
-import com.auditbucket.audit.bean.LogInputBean;
-import com.auditbucket.audit.bean.MetaInputBean;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.TagInputBean;
+import com.auditbucket.track.bean.CrossReferenceInputBean;
+import com.auditbucket.track.bean.LogInputBean;
+import com.auditbucket.track.bean.MetaInputBean;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
@@ -42,20 +45,18 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.stream.StreamSource;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * General importer with support for CSV and XML parsing. Interacts with AbRestClient to send
  * information via a RESTful interface
  * <p/>
- * Will send information to AuditBucket as either tags or audit information.
+ * Will send information to AuditBucket as either tags or track information.
  * <p/>
  * You should extend MetaInputBean or TagInputBean and implement XMLMappable or DelimitedMappable
  * to massage your data prior to dispatch to AB.
@@ -72,7 +73,7 @@ import java.util.List;
  * @see AbRestClient
  * @see Mappable
  * @see TagInputBean
- * @see com.auditbucket.audit.bean.MetaInputBean
+ * @see com.auditbucket.track.bean.MetaInputBean
  *      <p/>
  *      User: Mike Holdsworth
  *      Since: 13/10/13
@@ -148,7 +149,7 @@ public class Importer {
                     item++;
                 }
                 logger.debug("*** Calculated process args {}, {}, {}, {}", fileName, fileClass, batchSize, skipCount);
-                totalRows = totalRows + processFile(ns.get("server").toString(), fileName, Class.forName(fileClass), batchSize, skipCount);
+                totalRows = totalRows + processFile(ns.get("server").toString(), fileName, (fileClass!=null ?Class.forName(fileClass):null), batchSize, skipCount);
             }
             endProcess(watch, totalRows);
 
@@ -163,21 +164,56 @@ public class Importer {
         AbRestClient abExporter = new AbRestClient(server, "mike", "123", batchSize);
         boolean simulateOnly = batchSize <= 0;
         abExporter.setSimulateOnly(simulateOnly);
+        Mappable mappable =null;
 
-        Mappable mappable = (Mappable) clazz.newInstance();
+        if (clazz !=null ){
+            mappable =(Mappable) clazz.newInstance();
+        }
+
         //String file = path;
         logger.info("Starting the processing of {}", file);
         try {
-            if (mappable.getImporter() == Importer.importer.CSV)
+            if ( clazz == null )
+                return processJsonTags(file, abExporter, skipCount, simulateOnly);
+            else if (mappable.getImporter() == Importer.importer.CSV)
                 return processCSVFile(file, abExporter, (DelimitedMappable) mappable, skipCount, simulateOnly );
             else if (mappable.getImporter() == Importer.importer.XML)
                 return processXMLFile(file, abExporter, (XmlMappable) mappable, simulateOnly);
 
         } finally {
-            abExporter.flush(mappable.getClass().getCanonicalName(), mappable.getABType());
+            if ( mappable != null )
+                abExporter.flush(mappable.getClass().getCanonicalName(), mappable.getABType());
+            else
+                abExporter.flush("Tags", AbRestClient.type.TAG);
 
         }
         return 0;
+    }
+
+    private static long processJsonTags(String fileName, AbRestClient abExporter, int skipCount, boolean simulateOnly) {
+        Collection<TagInputBean> tags;
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                File file = new File(fileName);
+                if (!file.exists()) {
+                    logger.error("{} does not exist", fileName);
+                    return 0;
+                }
+                TypeFactory typeFactory = mapper.getTypeFactory();
+                CollectionType collType = typeFactory.constructCollectionType(ArrayList.class, TagInputBean.class);
+
+                tags = mapper.readValue(file, collType);
+                for (TagInputBean tag : tags) {
+                    abExporter.writeTag(tag, "JSON Tag Importer");
+                }
+            } catch (IOException e) {
+                logger.error("Error writing exceptions with {} [{}]",fileName, e);
+                throw new RuntimeException("IO Exception ", e);
+            } finally {
+                abExporter.flush("Finishing processing of TagInputBeans " +fileName);
+
+            }
+        return tags.size();  //To change body of created methods use File | Settings | File Templates.
     }
 
     static long processXMLFile(String file, AbRestClient abExporter, XmlMappable mappable, boolean simulateOnly) throws ParserConfigurationException, IOException, SAXException, JDOMException, DatagioException {
@@ -272,7 +308,7 @@ public class Importer {
                                 LogInputBean logInputBean = new LogInputBean("system", new DateTime(), jsonData);
                                 header.setLog(logInputBean);
                             } else {
-                                // It's all Meta baby - no audit information
+                                // It's all Meta baby - no track information
                             }
                             writeAudit(abExporter, header, mappable.getClass().getCanonicalName());
                         } else {// Tag

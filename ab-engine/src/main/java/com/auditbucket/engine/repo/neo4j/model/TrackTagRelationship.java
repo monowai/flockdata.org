@@ -19,10 +19,10 @@
 
 package com.auditbucket.engine.repo.neo4j.model;
 
-import com.auditbucket.audit.model.GeoData;
-import com.auditbucket.audit.model.MetaHeader;
-import com.auditbucket.audit.model.TrackTag;
 import com.auditbucket.registration.model.Tag;
+import com.auditbucket.track.model.GeoData;
+import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.TrackTag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.neo4j.graphdb.Relationship;

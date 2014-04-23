@@ -19,9 +19,6 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.audit.bean.MetaInputBean;
-import com.auditbucket.audit.bean.TrackResultBean;
-import com.auditbucket.audit.model.MetaHeader;
 import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.service.MediationFacade;
 import com.auditbucket.engine.service.TrackService;
@@ -33,6 +30,9 @@ import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
+import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.bean.TrackResultBean;
+import com.auditbucket.track.model.MetaHeader;
 import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -133,7 +133,7 @@ public class TestCallerRef {
     @Test
     @Transactional
     public void findByCallerRefAcrossDocumentTypes() throws Exception {
-        registrationEP.register(new RegistrationBean(monowai, mike, "bah"));
+        registrationEP.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         Fortress fortress = fortressEP.registerFortress(new FortressInputBean("auditTest", true), null).getBody();
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");

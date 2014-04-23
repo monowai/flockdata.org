@@ -19,9 +19,9 @@
 
 package com.auditbucket.engine.repo.neo4j.model;
 
-import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.repo.neo4j.model.FortressNode;
+import com.auditbucket.track.model.DocumentType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;

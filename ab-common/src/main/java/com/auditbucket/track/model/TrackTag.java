@@ -17,33 +17,44 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.audit.model;
+package com.auditbucket.track.model;
+
+import com.auditbucket.registration.model.Tag;
+
+import java.util.Map;
 
 /**
  * User: Mike Holdsworth
- * Date: 21/06/13
- * Time: 1:21 PM
+ * Date: 29/06/13
+ * Time: 12:52 PM
  */
-public interface TrackLog {
+public interface TrackTag {
 
-    public ChangeLog getChange();
+    public Long getId();
 
-    public MetaHeader getMetaHeader();
+    public Tag getTag();
 
-    public boolean isIndexed();
-
-    /**
-     * flags this audit as having been indexed at some point.
-     */
-    public void setIsIndexed();
+    //ToDo - should this be a taggable interface?
+    public Long getMetaId();
 
     /**
-     * @return When this log file was created in AuditBucket
+     * @return relationship name
      */
-    public Long getSysWhen();
+    public String getTagType();
 
-    public Long getFortressWhen();
+    /**
+     * @return property map of custom properties associated with the tag
+     */
+    public Map<String, Object> getProperties();
 
-    Long getId();
+    /**
+     * useful to understand a relative weighting between the tag and the track for this
+     * class of tagType.
+     *
+     * @return weight of the attribute in the relationship
+     */
+    Integer getWeight();
+
+    public GeoData getGeoData();
 
 }

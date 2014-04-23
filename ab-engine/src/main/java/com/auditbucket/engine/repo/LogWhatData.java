@@ -19,8 +19,8 @@
 
 package com.auditbucket.engine.repo;
 
-import com.auditbucket.audit.model.LogWhat;
 import com.auditbucket.helper.CompressionHelper;
+import com.auditbucket.track.model.LogWhat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.annotation.Transient;

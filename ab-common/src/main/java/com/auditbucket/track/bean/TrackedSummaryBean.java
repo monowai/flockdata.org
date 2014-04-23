@@ -17,27 +17,42 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.audit.model;
+package com.auditbucket.track.bean;
 
-import java.util.Map;
+import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.TrackLog;
+import com.auditbucket.track.model.TrackTag;
+
+import java.util.Set;
 
 /**
  * User: Mike Holdsworth
- * Since: 4/09/13
+ * Since: 25/08/13
  */
-public interface LogWhat {
+public class TrackedSummaryBean {
+    private MetaHeader header;
+    private Set<TrackLog> changes;
+    private Set<TrackTag> tags;
 
-    /**
-     * @return uncompressed Json String
-     */
-    public String getWhat();
+    private TrackedSummaryBean() {
+    }
 
-    /**
-     * @return map converted to map via Json ObjectMapper
-     */
-    public Map<String, Object> getWhatMap();
+    public TrackedSummaryBean(MetaHeader header, Set<TrackLog> changes, Set<TrackTag> tags) {
+        this();
+        this.header = header;
+        this.changes = changes;
+        this.tags = tags;
+    }
 
-    public boolean isCompressed();
+    public MetaHeader getHeader() {
+        return header;
+    }
 
+    public Set<TrackLog> getChanges() {
+        return changes;
+    }
 
+    public Set<TrackTag> getTags() {
+        return tags;
+    }
 }

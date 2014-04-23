@@ -17,44 +17,18 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.audit.model;
-
-import com.auditbucket.registration.model.Tag;
-
-import java.util.Map;
+package com.auditbucket.track.model;
 
 /**
  * User: Mike Holdsworth
  * Date: 29/06/13
  * Time: 12:52 PM
  */
-public interface TrackTag {
+public interface ChangeEvent {
 
     public Long getId();
 
-    public Tag getTag();
+    public String getCode();
 
-    //ToDo - should this be a taggable interface?
-    public Long getMetaId();
-
-    /**
-     * @return relationship name
-     */
-    public String getTagType();
-
-    /**
-     * @return property map of custom properties associated with the tag
-     */
-    public Map<String, Object> getProperties();
-
-    /**
-     * useful to understand a relative weighting between the tag and the audit for this
-     * class of tagType.
-     *
-     * @return weight of the attribute in the relationship
-     */
-    Integer getWeight();
-
-    public GeoData getGeoData();
-
+    String getName();
 }

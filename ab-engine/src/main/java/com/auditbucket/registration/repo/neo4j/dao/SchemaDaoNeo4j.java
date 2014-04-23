@@ -1,12 +1,12 @@
 package com.auditbucket.registration.repo.neo4j.dao;
 
-import com.auditbucket.audit.model.DocumentType;
 import com.auditbucket.dao.SchemaDao;
 import com.auditbucket.engine.repo.neo4j.SchemaTypeRepo;
 import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.track.model.DocumentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +61,10 @@ public class SchemaDaoNeo4j implements SchemaDao {
         return true;
     }
 
+    public void getDocumentTypes(Company company){
+
+    }
+
     /**
      * Tracks the DocumentTypes used by a Fortress that can be used to find MetaHeader objects
      *
@@ -94,9 +98,15 @@ public class SchemaDaoNeo4j implements SchemaDao {
     }
 
     @Override
-    public Collection<DocumentType> getDocumentsInUse(Fortress fortress) {
-        return schemaTypeRepo.getDocumentsInUse(fortress.getId());
+    public Collection<DocumentType> getFortressDocumentsInUse(Fortress fortress) {
+        return schemaTypeRepo.getFortressDocumentsInUse(fortress.getId());
     }
+
+    @Override
+    public Collection<DocumentType> getCompanyDocumentsInUse(Company company) {
+        return schemaTypeRepo.getCompanyDocumentsInUse(company.getId());
+    }
+
 
     @Cacheable(value = "companyDocType", unless = "#result == null")
     private DocumentType documentExists(Fortress fortress, String indexName) {

@@ -1,10 +1,10 @@
 package com.auditbucket.spring.utils;
 
-import com.auditbucket.audit.bean.MetaInputBean;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.spring.annotations.DatagioCallerRef;
 import com.auditbucket.spring.annotations.DatagioUid;
 import com.auditbucket.spring.annotations.Trackable;
+import com.auditbucket.track.bean.MetaInputBean;
 import org.junit.Assert;
 import org.junit.Test;
 

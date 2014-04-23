@@ -121,7 +121,7 @@ class TagDaoNeo4j implements TagDao {
 
         // ToDo: Should a type be suffixed with company in multi-tenanted? - more time to think!!
         //       do we care that one company can see another companies tag value? Certainly not the
-        //       audit data.
+        //       track data.
         if (tagInput.isDefault())
             tagSuffix = Tag.DEFAULT + tagSuffix;
         else {
@@ -198,7 +198,7 @@ class TagDaoNeo4j implements TagDao {
     @Override
     public Collection<Tag> findDirectedTags(Tag startTag, Company company, boolean b) {
         //Long coTags = getCompanyTagManager(companyId);
-        //"MATCH audit<-[tagType]-(tag:Tag"+engineAdmin.getTagSuffix(company)+") " +
+        //"MATCH track<-[tagType]-(tag:Tag"+engineAdmin.getTagSuffix(company)+") " +
         String query = "start tag=node({tagId}) " +
                 " match (tag)-->(otherTag" + Tag.DEFAULT + engineAdmin.getTagSuffix(company) + ") " +
                 "       return otherTag";
@@ -230,7 +230,9 @@ class TagDaoNeo4j implements TagDao {
     @Override
     public Map<String, Tag> findTags(Company company, String index) {
         Map<String, Tag> tagResults = new HashMap<>();
-
+        // ToDo: Match to company - something like this.....
+        //match (t:Law)-[:_TagLabel]-(c:ABCompany) where id(c)=0  return t,c;
+        //match (t:Law)-[*..2]-(c:ABCompany) where id(c)=0  return t,c;
         String query = "match (tag" + index+ ") return tag";
         // Look at PAGE
         Result<Map<String, Object>> results = template.query(query, null);

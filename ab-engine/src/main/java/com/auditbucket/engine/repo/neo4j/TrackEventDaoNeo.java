@@ -19,10 +19,10 @@
 
 package com.auditbucket.engine.repo.neo4j;
 
-import com.auditbucket.audit.model.ChangeEvent;
 import com.auditbucket.dao.TrackEventDao;
 import com.auditbucket.engine.repo.neo4j.model.ChangeEventNode;
 import com.auditbucket.registration.model.Company;
+import com.auditbucket.track.model.ChangeEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.neo4j.conversion.Result;

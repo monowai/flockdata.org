@@ -19,12 +19,12 @@
 
 package com.auditbucket.client;
 
-import com.auditbucket.audit.bean.CrossReferenceInputBean;
-import com.auditbucket.audit.bean.MetaInputBean;
-import com.auditbucket.audit.bean.TrackResultBean;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.FortressResultBean;
 import com.auditbucket.registration.bean.TagInputBean;
+import com.auditbucket.track.bean.CrossReferenceInputBean;
+import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.bean.TrackResultBean;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -91,7 +91,6 @@ public class AbRestClient {
 
     }
 
-
     public enum type {AUDIT, TAG}
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(AbRestClient.class);
@@ -105,15 +104,13 @@ public class AbRestClient {
         this.password = password;
         // Urls to write Audit/Tag/Fortress information
         this.NEW_HEADER = serverName + "/v1/track/";
-        this.PING = serverName + "/v1/track/ping";
+        this.PING = serverName + "/v1/admin/ping";
         this.CROSS_REFERENCES = serverName + "/v1/track/xref";
         this.NEW_TAG = serverName + "/v1/tag/";
         this.FORTRESS = serverName + "/v1/fortress/";
         this.batchSize = batchSize;
         this.defaultFortress = defaultFortress;
     }
-
-
 
     public void setSimulateOnly(boolean simulateOnly) {
         this.simulateOnly = simulateOnly;
@@ -200,6 +197,7 @@ public class AbRestClient {
                 logger.error("Service returned [{}]", serviceMessage.toString());
         }
     }
+
     public void ensureFortress(String fortressName) {
         if (fortressName == null)
             return;
@@ -314,7 +312,6 @@ public class AbRestClient {
         }
     }
 
-
     void writeAudit(MetaInputBean metaInputBean, boolean flush, String message) {
 
         synchronized (headerSync) {
@@ -346,18 +343,18 @@ public class AbRestClient {
         writeTag(tagInputBean, false, message);
     }
 
-    void writeTag(TagInputBean tagInputBean, boolean flush, String message) {
+    private void writeTag(TagInputBean tagInputBean, boolean flush, String message) {
 
         synchronized (tagSync) {
             if (tagInputBean != null)
-                batchTag.put(tagInputBean.getCode() + tagInputBean.getIndex(), tagInputBean);
+                batchTag.put(tagInputBean.getName() + tagInputBean.getIndex(), tagInputBean);
 
             if (flush || batchTag.size() == batchSize) {
                 logger.debug("Flushing " + message + " Tag Batch [{}]", batchTag.size());
                 if (batchTag.size() >= 0)
                     flushTags(new ArrayList<>(batchTag.values()));
                 logger.debug("Tag Batch Flushed");
-                batchHeader = new ArrayList<>();
+                batchTag = new HashMap<>();
             }
         }
 
@@ -370,7 +367,6 @@ public class AbRestClient {
         properties.put("weight", weight);
         return properties;
     }
-
 
     /**
      * Converts the strings to a simple JSON representation

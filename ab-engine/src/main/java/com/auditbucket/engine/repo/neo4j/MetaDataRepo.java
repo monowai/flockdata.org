@@ -19,12 +19,13 @@
 
 package com.auditbucket.engine.repo.neo4j;
 
-import com.auditbucket.audit.model.MetaHeader;
 import com.auditbucket.engine.repo.neo4j.model.MetaHeaderNode;
 import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
+import com.auditbucket.track.model.MetaHeader;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -46,9 +47,9 @@ public interface MetaDataRepo extends GraphRepository<MetaHeaderNode> {
     Set<MetaHeader> findHeadersByTxRef(Long txRef);
 
     @Query(elementClass = MetaHeaderNode.class, value =
-                    " match (fortress:Fortress)-[:TRACKS]->(audit:MetaHeader) " +
+                    " match (fortress:Fortress)-[:TRACKS]->(track:MetaHeader) " +
                     " where id(fortress)={0} " +
-                    " return audit ORDER BY audit.dateCreated ASC" +
+                    " return track ORDER BY track.dateCreated ASC" +
                     " skip {1} limit 100 ")
     Set<MetaHeader> findHeadersFrom(Long fortressId, Long skip);
 
@@ -58,10 +59,11 @@ public interface MetaDataRepo extends GraphRepository<MetaHeaderNode> {
                     " return header ")
     Iterable<MetaHeader> findByCallerRef(Long fortressId, String callerRef);
 
-//    @Query(elementClass = MetaHeaderNode.class, value =
-//            "start fortress = node({0}), docType=node({1}) " +
-//                    " match fortress-[:TRACKS]->audit-[:CLASSIFIED_AS]->docType " +
-//                    " return audit ORDER BY audit.dateCreated ASC" +
-//                    " skip {2} limit 100 ")
-//    Set<MetaHeader> findHeadersFrom(Long fortressId, Long docTypeId, Long skipTo);
+    @Query (elementClass = MetaHeaderNode.class, value = "match (company:ABCompany), (metaHeaders:MetaHeader) " +
+            " where id(company)={0} " +
+            "   and metaHeaders.metaKey in {1}  " +
+            "  with company, metaHeaders match (company)-[*..2]-(metaHeaders) " +
+            "return metaHeaders ")
+    Collection<MetaHeader> findHeaders(Long id, Collection<String> toFind );
+
 }

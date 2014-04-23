@@ -19,11 +19,11 @@
 
 package com.auditbucket.dao;
 
-import com.auditbucket.audit.model.MetaHeader;
-import com.auditbucket.audit.model.TrackTag;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
+import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.TrackTag;
 
 import java.util.Collection;
 import java.util.Map;

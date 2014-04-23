@@ -19,10 +19,6 @@
 
 package com.auditbucket.engine.repo.neo4j;
 
-import com.auditbucket.audit.bean.AuditTXResult;
-import com.auditbucket.audit.bean.LogInputBean;
-import com.auditbucket.audit.bean.MetaInputBean;
-import com.auditbucket.audit.model.*;
 import com.auditbucket.dao.TrackDao;
 import com.auditbucket.engine.repo.LogWhatData;
 import com.auditbucket.engine.repo.neo4j.model.ChangeLogNode;
@@ -33,6 +29,10 @@ import com.auditbucket.engine.service.TrackEventService;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.FortressUser;
+import com.auditbucket.track.bean.AuditTXResult;
+import com.auditbucket.track.bean.LogInputBean;
+import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.model.*;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.neo4j.graphdb.*;
@@ -148,11 +148,6 @@ public class TrackDaoNeo implements TrackDao {
     }
 
     @Override
-    public void fetch(LogWhat what) {
-        template.fetch(what);
-    }
-
-    @Override
     public Set<MetaHeader> findHeadersByTxRef(Long txRef) {
         return metaRepo.findHeadersByTxRef(txRef);
     }
@@ -225,8 +220,8 @@ public class TrackDaoNeo implements TrackDao {
         //Example showing how to use cypher and extract
 
         String findByTagRef = "start tag =node({txRef}) " +
-                "              match tag-[:AFFECTED]->auditLog<-[logs:LOGGED]-audit " +
-                "             return logs, audit, auditLog " +
+                "              match tag-[:AFFECTED]->auditLog<-[logs:LOGGED]-track " +
+                "             return logs, track, auditLog " +
                 "           order by logs.sysWhen";
         Map<String, Object> params = new HashMap<>();
         params.put("txRef", txRef.getId());
@@ -244,7 +239,7 @@ public class TrackDaoNeo implements TrackDao {
             Map<String, Object> row = rows.next();
             TrackLog log = template.convert(row.get("logs"), TrackLogRelationship.class);
             ChangeLog change = template.convert(row.get("auditLog"), ChangeLogNode.class);
-            MetaHeader audit = template.convert(row.get("audit"), MetaHeaderNode.class);
+            MetaHeader audit = template.convert(row.get("track"), MetaHeaderNode.class);
             simpleResult.add(new AuditTXResult(audit, change, log));
             i++;
 
@@ -257,7 +252,7 @@ public class TrackDaoNeo implements TrackDao {
     }
 
     public TrackLog save(TrackLog log) {
-        logger.debug("Saving audit log [{}] - ChangeLog ID [{}]", log, log.getChange().getId());
+        logger.debug("Saving track log [{}] - ChangeLog ID [{}]", log, log.getChange().getId());
         return template.save((TrackLogRelationship) log);
     }
 
@@ -274,11 +269,6 @@ public class TrackDaoNeo implements TrackDao {
 //            return "Neo4J has problems";
 //        }
         return "Neo4J is OK";
-    }
-
-    @Override
-    public ChangeLog save(FortressUser fUser, LogInputBean input) {
-        return save(fUser, input, null, null);
     }
 
     @Override
@@ -395,6 +385,12 @@ public class TrackDaoNeo implements TrackDao {
         }
         return results;
 
+    }
+
+    @Override
+    public Collection<MetaHeader> findHeaders(Company company, Collection<String> toFind) {
+        logger.debug("Looking for {} headers for company [{}] ", toFind.size(), company);
+        return metaRepo.findHeaders(company.getId(), toFind);
     }
 
 

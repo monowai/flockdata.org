@@ -22,7 +22,6 @@ package com.auditbucket.helper;
 import com.fasterxml.jackson.core.JsonParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.keyvalue.riak.DataStoreOperationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -41,12 +40,12 @@ import org.springframework.web.servlet.ModelAndView;
 public class GlobalControllerExceptionHandler {
     private Logger logger = LoggerFactory.getLogger(GlobalControllerExceptionHandler.class);
 
-    @ExceptionHandler(DataStoreOperationException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ModelAndView handleKVStore( DataStoreOperationException ex){
-        logger.error("KV Store Error", ex);
-        return new JsonError("Internal KV Error. Contact Support").asModelAndView();
-    }
+//    @ExceptionHandler(DataStoreOperationException.class)
+//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+//    public ModelAndView handleKVStore( DataStoreOperationException ex){
+//        logger.error("KV Store Error", ex);
+//        return new JsonError("Internal KV Error. Contact Support").asModelAndView();
+//    }
 
     @ExceptionHandler(DatagioException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)

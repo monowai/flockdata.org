@@ -1,10 +1,5 @@
 package com.auditbucket.engine.service;
 
-import com.auditbucket.audit.bean.TrackResultBean;
-import com.auditbucket.audit.model.ChangeLog;
-import com.auditbucket.audit.model.MetaHeader;
-import com.auditbucket.audit.model.SearchChange;
-import com.auditbucket.audit.model.TrackLog;
 import com.auditbucket.dao.TrackDao;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.service.FortressService;
@@ -12,6 +7,11 @@ import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.MetaSearchChange;
 import com.auditbucket.search.model.QueryParams;
 import com.auditbucket.search.model.SearchResult;
+import com.auditbucket.track.bean.TrackResultBean;
+import com.auditbucket.track.model.ChangeLog;
+import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.SearchChange;
+import com.auditbucket.track.model.TrackLog;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

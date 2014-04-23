@@ -37,16 +37,14 @@ public interface CompanyRepository extends GraphRepository<CompanyNode> {
     Collection<CompanyUser> getCompanyUsers(Long companyId);
 
     @Query(elementClass = FortressNode.class, value =
-            "start company=node({0}) " +
-                    "match company-[r:OWNS]->fortress " +
-                    "where fortress.name ={1} " +
+                    "match (company)-[r:OWNS]->(fortress) " +
+                    "where id(company)={0} and fortress.name ={1} " +
                     "return fortress")
     FortressNode getFortressByName(Long companyId, String fortressName);
 
     @Query(elementClass = FortressNode.class, value =
-            "start company=node({0}) " +
-                    "match company-[r:OWNS]->fortress " +
-                    "where fortress.code ={1} " +
+                    "match (company)-[r:OWNS]->(fortress) " +
+                    "where  id(company)={0}  and fortress.code ={1} " +
                     "return fortress")
     FortressNode getFortressByCode(Long companyId, String fortressCode);
 
@@ -66,5 +64,5 @@ public interface CompanyRepository extends GraphRepository<CompanyNode> {
             value = "start su=node({0}) " +
                     "match su-[r:ADMINISTERS]->company " +
                     "return company ")
-    Collection<Company> getCompaniesForUser(Long id);
+    Collection<Company> getCompaniesForUser(Long sysUserId);
 }

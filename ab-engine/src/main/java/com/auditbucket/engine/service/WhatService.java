@@ -19,10 +19,6 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.audit.bean.AuditDeltaBean;
-import com.auditbucket.audit.model.ChangeLog;
-import com.auditbucket.audit.model.LogWhat;
-import com.auditbucket.audit.model.MetaHeader;
 import com.auditbucket.dao.TrackDao;
 import com.auditbucket.engine.repo.KvRepo;
 import com.auditbucket.engine.repo.LogWhatData;
@@ -30,6 +26,11 @@ import com.auditbucket.engine.repo.redis.RedisRepo;
 import com.auditbucket.engine.repo.riak.RiakRepo;
 import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.helper.CompressionResult;
+import com.auditbucket.helper.DatagioException;
+import com.auditbucket.track.bean.AuditDeltaBean;
+import com.auditbucket.track.model.ChangeLog;
+import com.auditbucket.track.model.LogWhat;
+import com.auditbucket.track.model.MetaHeader;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.MapDifference;
@@ -72,7 +73,7 @@ public class WhatService {
 
     private Logger logger = LoggerFactory.getLogger(WhatService.class);
 
-    public ChangeLog logWhat(MetaHeader metaHeader, ChangeLog change, String jsonText) {
+    public ChangeLog logWhat(MetaHeader metaHeader, ChangeLog change, String jsonText) throws DatagioException {
         // Compress the Value of JSONText
         CompressionResult dataBlock = CompressionHelper.compress(jsonText);
         Boolean compressed = (dataBlock.getMethod() == CompressionResult.Method.GZIP);
@@ -81,18 +82,19 @@ public class WhatService {
         change.setCompressed(compressed);
         // Store First all information In Neo4j
         change = trackDao.save(change, compressed);
-        Future<Void> r = doKvWrite(metaHeader, change, dataBlock);
+        doKvWrite(metaHeader, change, dataBlock);
 
         return change;
     }
 
-    @Async //Only public methods are Async using this annotation
-    public Future<Void> doKvWrite(MetaHeader metaHeader, ChangeLog change, CompressionResult dataBlock) {
+    @Async //Only public methods execute Async
+    public Future<Void> doKvWrite(MetaHeader metaHeader, ChangeLog change, CompressionResult dataBlock) throws DatagioException {
         try {
             // ToDo: deal with this via spring integration??
             getKvRepo(change).add(metaHeader, change.getId(), dataBlock.getAsBytes());
-        } catch (IOException e) {
+        } catch (IOException | RuntimeException e) {
             logger.error("KV storage issue", e);
+            throw new DatagioException("KV Storage Issue", e);
         }
         return null ;
     }
@@ -119,8 +121,7 @@ public class WhatService {
             return null;
         try {
             byte[] whatInformation = getKvRepo(change).getValue(metaHeader, change.getId());
-            LogWhat logWhat = new LogWhatData(whatInformation, change.isCompressed());
-            return logWhat;
+            return new LogWhatData(whatInformation, change.isCompressed());
         } catch ( RuntimeException re){
             logger.error("KV Error Audit["+ metaHeader.getMetaKey() +"] change ["+change.getId()+"]", re);
 
@@ -140,7 +141,7 @@ public class WhatService {
      * Locate and compare the two JSON What documents to determine if they have changed
      *
      *
-     * @param metaHeader
+     * @param metaHeader  thing being tracked
      * @param compareFrom existing change to compare from
      * @param compareWith new Change to compare with - JSON format
      * @return false if different, true if same

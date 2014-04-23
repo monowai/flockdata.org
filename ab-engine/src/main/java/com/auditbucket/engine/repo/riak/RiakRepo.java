@@ -19,39 +19,83 @@
 
 package com.auditbucket.engine.repo.riak;
 
-import com.auditbucket.audit.model.MetaHeader;
 import com.auditbucket.engine.repo.KvRepo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.keyvalue.riak.core.RiakTemplate;
+import com.auditbucket.track.model.MetaHeader;
+import com.basho.riak.client.IRiakClient;
+import com.basho.riak.client.IRiakObject;
+import com.basho.riak.client.RiakException;
+import com.basho.riak.client.RiakFactory;
+import com.basho.riak.client.bucket.Bucket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Date;
 
 @Component
 public class RiakRepo implements KvRepo {
 
-    @Autowired
-    private RiakTemplate riak;
+    private static Logger logger = LoggerFactory.getLogger(RiakRepo.class);
+    private IRiakClient client = null;
+    private final Object synLock = "RiakRepoLock";
 
-    //private Logger logger = LoggerFactory.getLogger(RiakRepo.class);
+    private IRiakClient getClient()  {
+        if ( client == null ){
+            synchronized (synLock){
+                if ( client == null )
+                    try {
+                        // ToDo: set server and host
+                        client = RiakFactory.pbcClient();
+                        client.generateAndSetClientId();
+                    } catch (RiakException e) {
+                        logger.error("Unable to create Riak Client", e);
+                    }
+            }
 
+        }
+        return client;
+    }
     public void add(MetaHeader metaHeader, Long key, byte[] value) throws IOException {
-        riak.setAsBytes(metaHeader.getIndexName(), key, value);
+        //riak.put(metaHeader.getIndexName(), key);
+        try {
+            Bucket bucket = getClient().createBucket(metaHeader.getIndexName()).execute();
+            bucket.store(String.valueOf(key), value).execute();
+        } catch (RiakException e) {
+            logger.error("KV Error", e);
+            throw new IOException ("KV Error",e);
+        }
     }
 
     public byte[] getValue(MetaHeader metaHeader, Long key) {
-        return riak.getAsBytes(metaHeader.getIndexName(), key);
+        try {
+            Bucket bucket = getClient().createBucket(metaHeader.getIndexName()).execute();
+            IRiakObject result = bucket.fetch(String.valueOf(key)).execute();
+            if (result!=null )
+                return result.getValue();
+        } catch (RiakException e) {
+            logger.error("KV Error", e);
+            return null;
+        }
+        return null;
     }
 
     public void delete(MetaHeader metaHeader, Long key) {
-        riak.delete(metaHeader.getIndexName(), key);
+        try {
+            Bucket bucket = getClient().fetchBucket(metaHeader.getIndexName()).execute();
+            bucket.delete(String.valueOf(key)).execute();
+        } catch (RiakException e) {
+            logger.error("KV Error", e);
+        }
+
     }
 
     @Override
     public String ping() {
-        riak.setIfKeyNonExistent("ab.ping", "ping", new Date());
-        riak.delete("ab.ping", "ping");
+        try {
+            getClient().ping();
+        } catch (RiakException e) {
+            return "Error pinging RIAK";
+        }
         return "Riak is OK";
 
     }
