@@ -48,4 +48,14 @@ public class QueryParams {
     public void setType(String type) {
         this.type = type;
     }
+
+    @Override
+    public String toString() {
+        return "QueryParams{" +
+                "simpleQuery='" + simpleQuery + '\'' +
+                ", company='" + company + '\'' +
+                ", fortress='" + fortress + '\'' +
+                ", type='" + type + '\'' +
+                '}';
+    }
 }
