@@ -42,6 +42,7 @@
     <import resource="spring-security.xml"/>
     <import resource="es-context.xml"/>
     <import resource="integration.xml"/>
+    <import resource="http-proxy-integration.xml"/>
     <import resource="${ab.integration}-integration.xml"/>
 
     <task:annotation-driven executor="taskExecutor"/>
