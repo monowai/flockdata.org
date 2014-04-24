@@ -4,11 +4,11 @@ This application is a client side batch processing tool that communicates with t
 
 ab-client can process Tags and Track information. If your Track data has tags associated with it, then the Tags will be created first. This is to reduce the likelihood of deadlocks during the multi-threaded processing that happens when processing Track events.
 
-parameter  _description_ __example__
+_parameter_  description __example__
 - _-b_	batch size to process __-b=100__
 - _-s_	server address __-s=http://localhost:8081/ab-engine__
-- _"{file},{handler},{skipcount}"_ __the file to import and optional handler
-to process file content__
+- _"{file},{handler},{skipcount}"_ the file to import and optional handler
+to process file content __"./cow.txt,com.auditbucket.health.Countries,0"__
 
 The last parameter is a repeating block will be processed sequentially. Skip count can be applied to each file. Setting skipCount of -1 will force the client to simulate and not call ab-engine.  
 Otherwise processing will begin at skipcount + 1 	
