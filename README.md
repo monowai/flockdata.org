@@ -26,7 +26,7 @@ Turn your information in to an accessible resource.
 ##Architecture
 AB follows the design concepts of a [Microservice](http://martinfowler.com/articles/microservices.html). As a service it is in fact itself made up of microservices.
 
-![Alt text](/micro-service.jpg?raw=true "Microservice mind-map")
+![Alt text](/micro-service.png?raw=true "Microservice mind-map")
 
 AB is well suited to Domain Driven Design, ROA & SOA architectures. It integrates sophisticated index technologies and document management logic in to highly scalable JSON databases. The result lets you look at your information in new and innovative ways to discover patterns in information. 
 
