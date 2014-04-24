@@ -54,4 +54,5 @@ When the above has been loaded, you can query it in the Neo4j Query Browser as
 ````
 match (tag:MS) return tag;
 ````
-
+Which will produce this visualization
+![Alt text](/ms-neo.png?raw=true "Microservice mind-map")
