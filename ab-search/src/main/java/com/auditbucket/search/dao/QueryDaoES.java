@@ -80,14 +80,16 @@ public class QueryDaoES implements QueryDao {
     @Override
     public Collection<String> doMetaKeySearch(QueryParams queryParams) throws DatagioException {
         String[] types = Strings.EMPTY_ARRAY;
-        if ( queryParams.getTypes()!= null && !queryParams.getTypes().equals("")){
+        if ( queryParams.getTypes()!= null){
             types = queryParams.getTypes();
         }
         ListenableActionFuture<SearchResponse> future = client.prepareSearch(MetaSearchSchema.parseIndex(queryParams))
                 .setTypes(types)
                 .setSource(getSimpleQuery(queryParams.getSimpleQuery()))
                 .execute();
+
         Collection<String> results = new ArrayList<>();
+
         SearchResponse response ;
         try {
             response = future.get();
@@ -96,7 +98,7 @@ public class QueryDaoES implements QueryDao {
             // ToDo: No sensible error being returned to the caller
             return results;
         }
-        // return the meta keys??
+
         for (SearchHit searchHitFields : response.getHits().getHits()) {
             results.add(searchHitFields.getSource().get("@metaKey").toString());
         }
