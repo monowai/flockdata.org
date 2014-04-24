@@ -60,6 +60,16 @@ public class CompanyEP {
         return companyService.findCompanies();
     }
 
+    /**
+     * Use the / version instead
+     */
+    @Deprecated
+    @RequestMapping(value = "/list", produces = "application/json", method = RequestMethod.GET)
+    @ResponseBody
+    public Collection<Company> findCompaniesOld() throws Exception {
+        return findCompanies();
+    }
+
 
     @RequestMapping(value = "/{companyName}", method = RequestMethod.GET)
     @ResponseBody
