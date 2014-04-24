@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.ws.rs.QueryParam;
 import java.util.Collection;
 
 /**
@@ -46,21 +45,32 @@ public class QueryEP {
         return service.getMatrix( company, metaHeader);
     }
 
+//    @ResponseBody
+//    @RequestMapping(value = "/", method = RequestMethod.GET)
+//    public Collection<MetaHeader> search(@QueryParam(value = "simpleQuery") String simpleQuery,
+//                               @QueryParam(value = "company") String company,
+//                               @QueryParam(value = "fortress") String fortress,
+//                               @QueryParam(value = "type") String type,
+//                               String apiKey,
+//                               @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+//
+//        Company abCompany = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+//        QueryParams queryParams = new QueryParams();
+//        queryParams.setSimpleQuery(simpleQuery);
+//        queryParams.setCompany(company);
+//        queryParams.setFortress(fortress);
+//        queryParams.setType(type);
+//        return mediationFacade.search(abCompany, queryParams);
+//    }
+
     @ResponseBody
-    @RequestMapping(value = "/", method = RequestMethod.GET)
-    public Collection<MetaHeader> search(@QueryParam(value = "simpleQuery") String simpleQuery,
-                               @QueryParam(value = "company") String company,
-                               @QueryParam(value = "fortress") String fortress,
-                               @QueryParam(value = "type") String type,
-                               String apiKey,
-                               @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+    @RequestMapping(value = "/", method = RequestMethod.POST    )
+    public Collection<MetaHeader> searchQueryParam(@RequestBody QueryParams queryParams,
+                                         String apiKey,
+                                         @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
 
         Company abCompany = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
-        QueryParams queryParams = new QueryParams();
-        queryParams.setSimpleQuery(simpleQuery);
-        queryParams.setCompany(company);
-        queryParams.setFortress(fortress);
-        queryParams.setType(type);
+        queryParams.setCompany(abCompany.getName());
         return mediationFacade.search(abCompany, queryParams);
     }
 

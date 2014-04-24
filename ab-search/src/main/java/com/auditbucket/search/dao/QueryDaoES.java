@@ -20,9 +20,13 @@
 package com.auditbucket.search.dao;
 
 import com.auditbucket.dao.QueryDao;
+import com.auditbucket.helper.DatagioException;
+import com.auditbucket.search.model.MetaSearchSchema;
+import com.auditbucket.search.model.QueryParams;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.Strings;
 import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,9 +64,9 @@ public class QueryDaoES implements QueryDao {
     }
 
     @Override
-    public String doSearch(String index, String queryString) {
-        SearchResponse result = client.prepareSearch(index)
-                .setSource(getSimpleQuery(queryString))
+    public String doSearch(QueryParams queryParams) throws DatagioException {
+        SearchResponse result = client.prepareSearch(MetaSearchSchema.parseIndex(queryParams))
+                .setSource(getSimpleQuery(queryParams.getSimpleQuery()))
                 .execute()
                 .actionGet();
 
@@ -71,17 +75,26 @@ public class QueryDaoES implements QueryDao {
 
     }
 
+
+
     @Override
-    public Collection<String> doMetaKeySearch(String index, String queryString) {
-        ListenableActionFuture<SearchResponse> future = client.prepareSearch(index)
-                .setSource(getSimpleQuery(queryString))
+    public Collection<String> doMetaKeySearch(QueryParams queryParams) throws DatagioException {
+        String[] types = Strings.EMPTY_ARRAY;
+        if ( queryParams.getTypes()!= null && !queryParams.getTypes().equals("")){
+            types = queryParams.getTypes();
+        }
+        ListenableActionFuture<SearchResponse> future = client.prepareSearch(MetaSearchSchema.parseIndex(queryParams))
+                .setTypes(types)
+                .setSource(getSimpleQuery(queryParams.getSimpleQuery()))
                 .execute();
         Collection<String> results = new ArrayList<>();
-        SearchResponse response = null;
+        SearchResponse response ;
         try {
             response = future.get();
         } catch (InterruptedException | ExecutionException e) {
-            logger.error ("",e);
+            logger.error ("Search Exception processing query", e);
+            // ToDo: No sensible error being returned to the caller
+            return results;
         }
         // return the meta keys??
         for (SearchHit searchHitFields : response.getHits().getHits()) {

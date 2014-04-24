@@ -20,9 +20,10 @@
 package com.auditbucket.search.service;
 
 import com.auditbucket.dao.QueryDao;
-import com.auditbucket.track.model.TrackSearchDao;
+import com.auditbucket.helper.DatagioException;
 import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.QueryParams;
+import com.auditbucket.track.model.TrackSearchDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,24 +49,24 @@ public class QueryService  {
 
     private Logger logger = LoggerFactory.getLogger(QueryService.class);
 
-    public String doSearch(String index, String query){
-        return queryDao.doSearch(index, query);
-    }
-
-    public Collection<String> doMetaKeySearch(String index, String query){
-        return queryDao.doMetaKeySearch(index, query);
-    }
 
     public Long getHitCount(String index) {
         return queryDao.getHitCount(index);
     }
 
     @ServiceActivator(inputChannel = "makeSendSearchRequest",outputChannel = "makeSendSearchReply") // Subscriber
-    public EsSearchResult search(QueryParams queryParams) {
+    public EsSearchResult search(QueryParams queryParams) throws DatagioException {
         logger.info("searchRequest received for {}", queryParams);
-        Collection<String> results = queryDao.doMetaKeySearch("ab." + queryParams.getCompany() + "." + queryParams.getFortress(), queryParams.getSimpleQuery());
+        Collection<String> results = queryDao.doMetaKeySearch(queryParams);
         return new EsSearchResult(results);
     }
 
 
+    public String doSearch(QueryParams queryParams) throws DatagioException {
+        return queryDao.doSearch(queryParams);
+    }
+
+    public Collection<String> doMetaKeySearch(QueryParams queryParams) throws DatagioException {
+        return queryDao.doMetaKeySearch(queryParams);
+    }
 }
