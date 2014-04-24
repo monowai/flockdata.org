@@ -3,7 +3,7 @@
 ## Project Status
 Full support for ElasticSearch 1.1 and Neo4j2 in place. API is settled.
 
-Currently working on support for visulisation tools.
+Currently working on support for visualization tools.
 
 ## How to get going
 You need to gain a brief understanding of the two AuditBucket scalable micro services
@@ -24,7 +24,9 @@ All your data is stored as industry as standard JSON documents in open-source da
 Turn your information in to an accessible resource.
 
 ##Architecture
-AB follows the design concepts of a [Microservice](http://martinfowler.com/articles/microservices.html). As a service it is in fact itself made up of microservices. 
+AB follows the design concepts of a [Microservice](http://martinfowler.com/articles/microservices.html). As a service it is in fact itself made up of microservices.
+
+![Alt text](/micro-service.jpg?raw=true "Microservice mind-map")
 
 AB is well suited to Domain Driven Design, ROA & SOA architectures. It integrates sophisticated index technologies and document management logic in to highly scalable JSON databases. The result lets you look at your information in new and innovative ways to discover patterns in information. 
 
