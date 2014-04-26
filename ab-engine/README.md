@@ -87,18 +87,20 @@ curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:808
 ### Create an Audit Record
 You should have started [ab-search](../ab-search) before doing this if you're not using RabbitMQ otherwise expect a communications error!
 ```
-curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/v1/audit/ -d '{
+curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/v1/track/ -d '{
   "fortress":"demo-app", 
   "fortressUser": "ak0919",
   "documentType":"Debtor",
   "callerRef":"myRef",
 
-  "trackLog": {  "transactional": true,
+  "log": {  
            		 "what": "{\"BusinessData\": \"Escaped JSON goes here\", \"nestedObject\": {\"serviceMessage\": \"kool for kats\"}}"
   }
 }'
 ```
 ### Find that doc in ElasticSearch
+Note that ab-search is configured by defualt to have ElasticSearch listening on port 9201. This command is an ElasticSearch query, not an ab-search one.
+
 ```
 curl -H "Content-Type:application/json" -X POST http://localhost:9201/ab.*/_search -d '{
     query: {
