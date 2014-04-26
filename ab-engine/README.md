@@ -84,12 +84,13 @@ This is one of your computer systems that you want to audit
 ```
 curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/v1/fortress/ -d '{"name": "demo-app","searchActive": true}'
 ```
-### Create an Audit Record
+### Track a Data Event
 You should have started [ab-search](../ab-search) before doing this if you're not using RabbitMQ otherwise expect a communications error!
 ```
 curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/v1/track/ -d '{
   "fortress":"demo-app", 
   "fortressUser": "ak0919",
+  "event":"Create",
   "documentType":"Debtor",
   "callerRef":"myRef",
 
