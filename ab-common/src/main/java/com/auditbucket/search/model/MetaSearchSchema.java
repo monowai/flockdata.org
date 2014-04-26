@@ -63,7 +63,24 @@ public class MetaSearchSchema {
     public static String parseIndex(Fortress fortress) throws DatagioException {
         if (fortress.getCompany().getCode() == null)
             throw new DatagioException("Company code is null");
-        return "ab." + fortress.getCompany().getCode() + "." + fortress.getCode();
+        return parseIndex(fortress.getCompany().getCode()) + fortress.getCode();
+    }
+
+    public static String parseIndex(String company) throws DatagioException {
+        // ToDo: Add multi tenant test. Company must always be present if MultiTenanted
+        if (company == null || company.equals(""))
+            company = "*";
+
+        return "ab." + company.toLowerCase() + ".";
+    }
+
+    public static String parseIndex(QueryParams queryParams) throws DatagioException {
+        String prefix = parseIndex(queryParams.getCompany());
+        if (queryParams.getFortress() == null)
+            return prefix + "*";
+
+
+        return prefix + queryParams.getFortress().toLowerCase() ;
     }
 
 }

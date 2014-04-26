@@ -29,11 +29,11 @@ import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
+import com.auditbucket.search.model.EsSearchResult;
+import com.auditbucket.search.model.QueryParams;
 import com.auditbucket.track.bean.*;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
-import com.auditbucket.search.model.EsSearchResult;
-import com.auditbucket.search.model.QueryParams;
 import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -46,7 +46,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -342,14 +341,13 @@ public class MediationFacade {
     }
 
     public Collection<MetaHeader> search(Company company, QueryParams queryParams){
-        Collection<MetaHeader> metaHeaders = new ArrayList<MetaHeader>();
-
         EsSearchResult esSearchResult = searchService.search(queryParams);
-        for(String metaHeaderKey : esSearchResult.getResults()){
-            metaHeaders.add(trackService.getHeader(company, metaHeaderKey));
-        }
+        return trackService.getHeaders(company, esSearchResult.getResults());
+        //for(String metaHeaderKey : esSearchResult.getResults()){
+            //metaHeaders.add(trackService.getHeader(company, metaHeaderKey));
+        //}
 
-        return metaHeaders;
+        //return metaHeaders;
     }
 
 }

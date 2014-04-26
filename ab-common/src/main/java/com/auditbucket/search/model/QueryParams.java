@@ -1,7 +1,5 @@
 package com.auditbucket.search.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 /**
  * Encapsulated search parameters
  * User: mike
@@ -13,7 +11,7 @@ public class QueryParams {
     private String simpleQuery;
     private String company;
     private String fortress;
-    private String type ="";
+    private String[] types;
 
 
     public String getSimpleQuery() {
@@ -40,13 +38,23 @@ public class QueryParams {
     public void setFortress(String fortress) {
         this.fortress = fortress;
     }
-    @JsonIgnore ()
-    public String getType() {
-        return type;
+
+    @Override
+    public String toString() {
+        return "QueryParams{" +
+                "simpleQuery='" + simpleQuery + '\'' +
+                ", company='" + company + '\'' +
+                ", fortress='" + fortress + '\'' +
+                ", type='" + types + '\'' +
+                '}';
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public String[] getTypes() {
+        return types;
+    }
+
+    public void setTypes(String... types) {
+        this.types = types;
     }
 
     @Override
