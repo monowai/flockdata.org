@@ -25,10 +25,14 @@ import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.track.bean.CrossReferenceInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -40,10 +44,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Template to support writing Audit and Tag information to a remote AuditBucket instance.
@@ -53,12 +54,13 @@ import java.util.Map;
  *      User: Mike Holdsworth
  *      Since: 13/10/13
  */
-public class AbRestClient {
+public class AbRestClient implements StaticDataResolver {
 
     private String NEW_HEADER;
     private String NEW_TAG;
     private String CROSS_REFERENCES;
     private String FORTRESS;
+    private String COUNTRIES;
     private String PING;
     private final String userName;
     private final String password;
@@ -108,6 +110,7 @@ public class AbRestClient {
         this.CROSS_REFERENCES = serverName + "/v1/track/xref";
         this.NEW_TAG = serverName + "/v1/tag/";
         this.FORTRESS = serverName + "/v1/fortress/";
+        this.COUNTRIES = serverName +"/v1/geo/";
         this.batchSize = batchSize;
         this.defaultFortress = defaultFortress;
     }
@@ -139,6 +142,61 @@ public class AbRestClient {
         }
 
     }
+
+    public Collection<TagInputBean> getCountries() {
+        if (simulateOnly)
+            return null;
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+        HttpHeaders httpHeaders = getHeaders(userName, password);
+        HttpEntity<List<TagInputBean>> requestEntity = new HttpEntity<>(httpHeaders);
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(COUNTRIES, HttpMethod.GET, requestEntity, String.class);
+            TypeFactory typeFactory = mapper.getTypeFactory();
+            CollectionType collectionType = typeFactory.constructCollectionType(ArrayList.class, TagInputBean.class);
+            return mapper.readValue(response.getBody(), collectionType);
+        } catch (HttpClientErrorException e) {
+            // ToDo: Rest error handling pretty useless. need to know why it's failing
+            logger.error("AB Client Audit error {}", getErrorMessage(e));
+            return null;
+        } catch (HttpServerErrorException e) {
+            logger.error("AB Server Audit error {}", getErrorMessage(e));
+            return null;
+
+        } catch (JsonMappingException | JsonParseException  e) {
+            logger.error("Unexpected", e);
+        } catch (IOException e) {
+            logger.error("Unexpected", e);
+        }
+        return null;
+    }
+
+    Map<String,TagInputBean>countriesByName = null;
+    /**
+     * resolves the country Name to an ISO code
+     * @param name long name of the country
+     * @return iso code to use
+     */
+    @Override
+    public String resolveCountryISOFromName(String name){
+        if (simulateOnly)
+            return name;
+        if (countriesByName == null ){
+
+            Collection<TagInputBean>countries = getCountries();
+            countriesByName = new HashMap<>(countries.size());
+            for (TagInputBean next : countries) {
+                countriesByName.put(next.getName(), next);
+            }
+        }
+        TagInputBean tag = countriesByName.get(name);
+        if ( tag == null ){
+            logger.error("Unable to resolve country name [{}]", name);
+            return null;
+        }
+        return tag.getCode();
+    }
+
 
     private String flushAudit(List<MetaInputBean> auditInput) {
         if (simulateOnly || auditInput.isEmpty())

@@ -27,6 +27,7 @@ import com.auditbucket.registration.repo.neo4j.FortressRepository;
 import com.auditbucket.registration.repo.neo4j.FortressUserRepository;
 import com.auditbucket.registration.repo.neo4j.model.FortressNode;
 import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
+import com.auditbucket.registration.service.KeyGenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
@@ -46,10 +47,13 @@ public class FortressDaoNeo implements FortressDao {
     @Autowired
     private FortressUserRepository fortressUserRepo;
 
+    @Autowired
+    private KeyGenService keyGenService;
+
     @Override
     public Fortress save(Company company, FortressInputBean fortressInput) {
         FortressNode fortress = new FortressNode(fortressInput, company);
-
+        fortress.setFortressKey(keyGenService.getUniqueKey());
         return fortressRepo.save( fortress);
     }
 

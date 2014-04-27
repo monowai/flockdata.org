@@ -47,7 +47,7 @@ public class TagInputBean {
 
     private Map<String, Collection<TagInputBean>> targets = new HashMap<>();
 
-    Map<String, Object> properties = new HashMap<>();
+    Map<String, Object> properties = null;
     private String index = "";
 
     Map<String, Object> metaLinks = new HashMap<>();
@@ -179,11 +179,14 @@ public class TagInputBean {
         return this.targets;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Map<String, Object> getProperties() {
         return properties;
     }
 
     public TagInputBean setProperty(String key, Serializable value) {
+        if ( properties == null )
+            properties = new HashMap<>();
         properties.put(key, value);
         return this;
     }

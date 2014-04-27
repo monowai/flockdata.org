@@ -38,7 +38,7 @@ public interface XmlMappable extends Mappable {
 
     XmlMappable newInstance(boolean simulateOnly);
 
-    public String setXMLData(XMLStreamReader xsr) throws JAXBException, JsonProcessingException, DatagioException;
+    public String setXMLData(XMLStreamReader xsr, StaticDataResolver staticDataResolver) throws JAXBException, JsonProcessingException, DatagioException;
 
     /**
      * Some XML files require skipping.

@@ -33,7 +33,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 /**
  * User: Mike Holdsworth
@@ -70,9 +69,9 @@ public class TagEP {
 
     @ResponseBody
     @RequestMapping(value = "/{type}", produces = "application/json", consumes = "application/json", method = RequestMethod.GET)
-    public Map<String, Tag> getTags(@PathVariable("type") String index,
-                                    String apiKey,
-                                    @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+    public Collection<Tag> getTags(@PathVariable("type") String index,
+                                   String apiKey,
+                                   @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
         return tagService.findTags(company, index);
     }

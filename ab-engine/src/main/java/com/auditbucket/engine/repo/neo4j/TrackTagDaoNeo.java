@@ -239,9 +239,9 @@ public class TrackTagDaoNeo implements TrackTagDao {
                 geoData.setCity((String) loc.getProperty("name"));
 
                 if (country != null && country.hasProperty("name")) {
-                    // ToDo: Needs to be a Country object, not a tag. Properties here don't make sense
-                    geoData.setIsoCode((String) country.getProperty("name"));
-                    geoData.setCountry((String) country.getProperty("code"));
+                    // ToDo: Needs to be a Country object
+                    geoData.setIsoCode((String) country.getProperty("code"));
+                    geoData.setCountry((String) country.getProperty("name"));
                 }
                 if (state != null && state.hasProperty("name"))
                     geoData.setState((String) state.getProperty("name"));
