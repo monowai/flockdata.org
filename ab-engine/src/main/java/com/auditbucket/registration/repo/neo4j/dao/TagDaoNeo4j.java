@@ -93,12 +93,12 @@ class TagDaoNeo4j implements TagDao {
 
     Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> createdValues, boolean suppressRelationships) {
         // Check exists
-        TagNode existingTag = (TagNode) findOne(company, tagInput.getName(), tagInput.getIndex());
+        TagNode existingTag = (TagNode) findOne(company, tagInput.getCode(), tagInput.getIndex());
         Node start;
         if (existingTag == null) {
             if (tagInput.isMustExist()) {
-                tagInput.getServiceMessage("Tag [" + tagInput.getName() + "] should exist for [" + tagInput.getIndex() + "] but doesn't. Ignoring this request.");
-                throw new DatagioTagException("Tag [" + tagInput.getName() + "] should exist for ["+tagInput.getIndex()+"] but doesn't. Ignoring this request.");
+                tagInput.getServiceMessage("Tag [" + tagInput.getCode() + "] should exist for [" + tagInput.getIndex() + "] but doesn't. Ignoring this request.");
+                throw new DatagioTagException("Tag [" + tagInput.getCode() + "] should exist for ["+tagInput.getIndex()+"] but doesn't. Ignoring this request.");
             } else
                 start = createTag(company, tagInput, tagSuffix);
         } else {
@@ -224,12 +224,12 @@ class TagDaoNeo4j implements TagDao {
     }
 
     @Override
-    public Map<String, Tag> findTags(Company company) {
+    public Collection<Tag> findTags(Company company) {
         return findTags(company, Tag.DEFAULT+ (engineAdmin.getTagSuffix(company)));
     }
     @Override
-    public Map<String, Tag> findTags(Company company, String index) {
-        Map<String, Tag> tagResults = new HashMap<>();
+    public Collection<Tag> findTags(Company company, String index) {
+        Collection<Tag> tagResults = new ArrayList<>();
         // ToDo: Match to company - something like this.....
         //match (t:Law)-[:_TagLabel]-(c:ABCompany) where id(c)=0  return t,c;
         //match (t:Law)-[*..2]-(c:ABCompany) where id(c)=0  return t,c;
@@ -239,7 +239,7 @@ class TagDaoNeo4j implements TagDao {
         for (Map<String, Object> row : results) {
             Object o = row.get("tag");
             Tag t = new TagNode((NodeProxy) o);
-            tagResults.put(t.getName(), t);
+            tagResults.add(t);
 
         }
         return tagResults;

@@ -29,13 +29,12 @@ import org.springframework.data.neo4j.annotation.*;
 
 import java.util.Locale;
 import java.util.TimeZone;
-import java.util.UUID;
 
 @NodeEntity
 @TypeAlias("Fortress")
 public class FortressNode implements Fortress {
 
-    private UUID fortressKey;
+    private String fortressKey;
 
     @GraphId
     Long id;
@@ -75,7 +74,7 @@ public class FortressNode implements Fortress {
         else
             getLanguageTag();
 
-        fortressKey = UUID.randomUUID();
+
     }
 
     public String getFortressKey() {
@@ -158,5 +157,9 @@ public class FortressNode implements Fortress {
     @JsonIgnore
     public String getCode() {
         return code;
+    }
+
+    public void setFortressKey(String fortressKey) {
+        this.fortressKey = fortressKey;
     }
 }

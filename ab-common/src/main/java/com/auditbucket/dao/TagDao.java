@@ -24,7 +24,6 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 
 import java.util.Collection;
-import java.util.Map;
 
 /**
  * User: Mike Holdsworth
@@ -53,9 +52,9 @@ public interface TagDao {
 
     Collection<Tag> findDirectedTags(Tag startTag, Company company, boolean b);
 
-    Map<String, Tag> findTags(Company company);
+    Collection<Tag> findTags(Company company);
 
-    public Map<String, Tag> findTags(Company company, String index);
+    public Collection<Tag> findTags(Company company, String index);
 
     Collection<String> getExistingIndexes();
 

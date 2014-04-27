@@ -42,7 +42,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -182,12 +181,12 @@ public class TagService {
         return tagDao.findDirectedTags(startTag, securityHelper.getCompany(), true); // outbound
     }
 
-    public Map<String, Tag> findTags(String index) {
+    public Collection<Tag> findTags(String index) {
         Company company = securityHelper.getCompany();
         return findTags(company, index);
     }
 
-    public Map<String, Tag> findTags(Company company, String index) {
+    public Collection<Tag> findTags(Company company, String index) {
         if (!index.startsWith(":"))
             index = ":" + index;
         return tagDao.findTags(company, index);

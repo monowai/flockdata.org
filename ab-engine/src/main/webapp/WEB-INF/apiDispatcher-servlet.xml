@@ -28,7 +28,7 @@
         http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
     <context:component-scan
-            base-package="com.auditbucket.fortress.endpoint, com.auditbucket.registration.endpoint, com.auditbucket.engine.endpoint, com.auditbucket.company.endpoint"/>
+            base-package="com.auditbucket.fortress.endpoint, com.auditbucket.registration.endpoint, com.auditbucket.engine.endpoint, com.auditbucket.geography.endpoint, com.auditbucket.company.endpoint"/>
     <tx:annotation-driven/>
 
     <mvc:annotation-driven/>

@@ -63,8 +63,9 @@ public class TagNode implements Tag {
             setCode(tagInput.getCode());
 
         this.key = getCode().toLowerCase().replaceAll("\\s", "");
-        if ( !tagInput.getProperties().isEmpty())
+        if ( tagInput.getProperties()!=null && !tagInput.getProperties().isEmpty()) {
             properties.putAll(tagInput.getProperties());
+        }
     }
     @Deprecated
     public TagNode(Node tag) {

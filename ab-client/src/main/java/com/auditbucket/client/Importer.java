@@ -207,7 +207,7 @@ public class Importer {
                     abExporter.writeTag(tag, "JSON Tag Importer");
                 }
             } catch (IOException e) {
-                logger.error("Error writing exceptions with {} [{}]",fileName, e);
+                logger.error("Error writing exceptions with {} [{}]",fileName, e.getMessage());
                 throw new RuntimeException("IO Exception ", e);
             } finally {
                 abExporter.flush("Finishing processing of TagInputBeans " +fileName);
@@ -232,7 +232,7 @@ public class Importer {
                 long then = new DateTime().getMillis();
                 while (xsr.getLocalName().equals(docType)) {
                     XmlMappable row = mappable.newInstance(simulateOnly);
-                    String json = row.setXMLData(xsr);
+                    String json = row.setXMLData(xsr, abExporter);
                     MetaInputBean header = (MetaInputBean) row;
                     if ( !header.getCrossReferences().isEmpty()){
                         referenceInputBeans.add(new CrossReferenceInputBean(header.getFortress(),header.getCallerRef(),header.getCrossReferences()));
@@ -271,9 +271,13 @@ public class Importer {
         StopWatch watch = new StopWatch();
         DelimitedMappable row = mappable.newInstance(simulateOnly);
         int rows = 0;
+        Collection<TagInputBean>tags = new ArrayList<>();
+        boolean writeToFile = true; // Haven't figured out how to integrate this yet
+                                     // purpose is to write all the tags to an import stucture
 
         BufferedReader br;
-        br = new BufferedReader(new FileReader(file));
+        FileReader fileObject = new FileReader(file);
+        br = new BufferedReader(fileObject);
         try {
             CSVReader csvReader = new CSVReader(br, row.getDelimiter());
 
@@ -298,7 +302,7 @@ public class Importer {
                             logger.info("Starting to process from row {}", skipCount);
                         row = mappable.newInstance(simulateOnly);
 
-                        String jsonData = row.setData(headerRow, nextLine);
+                        String jsonData = row.setData(headerRow, nextLine, abExporter);
                         //logger.info(jsonData);
                         if (type == AbRestClient.type.AUDIT) {
                             MetaInputBean header = (MetaInputBean) row;
@@ -314,8 +318,11 @@ public class Importer {
                         } else {// Tag
                             if (!"".equals(jsonData)) {
                                 TagInputBean tagInputBean = (TagInputBean) row;
-                                logger.info(tagInputBean.toString());
-                                writeTag(abExporter, tagInputBean, mappable.getClass().getCanonicalName());
+
+                                if ( writeToFile )
+                                    tags.add(tagInputBean);
+                                else
+                                    writeTag(abExporter, tagInputBean, mappable.getClass().getCanonicalName());
                             }
                         }
                         if (rows % 500 == 0) {
@@ -331,6 +338,15 @@ public class Importer {
         } finally {
             abExporter.flush(mappable.getClass().getCanonicalName(), mappable.getABType());
             br.close();
+        }
+        if ( writeToFile){
+            ObjectMapper om = new ObjectMapper();
+            try {
+
+                om.writerWithDefaultPrettyPrinter().writeValue(new File( file+".json"), tags);
+            } catch (IOException e) {
+                logger.error("Error writing exceptions", e);
+            }
         }
 
         return endProcess(watch, rows);

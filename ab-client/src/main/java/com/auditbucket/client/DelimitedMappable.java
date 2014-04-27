@@ -34,7 +34,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
  */
 public interface DelimitedMappable extends Mappable {
 
-    String setData(String[] headerRow, String[] line) throws JsonProcessingException;
+    String setData(String[] headerRow, String[] line, StaticDataResolver staticDataResolver) throws JsonProcessingException;
 
     @JsonIgnore
     boolean hasHeader();

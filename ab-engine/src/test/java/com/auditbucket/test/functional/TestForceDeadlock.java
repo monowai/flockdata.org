@@ -73,7 +73,6 @@ public class TestForceDeadlock {
     @Autowired
     private TagEP tagEP;
 
-
     @Autowired
     private Neo4jTemplate template;
 
@@ -176,7 +175,7 @@ public class TestForceDeadlock {
         assertEquals(true, working);
         assertNotNull(tagService.findTag(fortress.getCompany(), tags.get(0).getName(), tags.get(0).getIndex()));
 
-        Map<String, Tag> createdTags = tagService.findTags(fortress.getCompany(), tags.get(0).getIndex());
+        Collection<Tag> createdTags = tagService.findTags(fortress.getCompany(), tags.get(0).getIndex());
         assertEquals(false, createdTags.isEmpty());
         assertEquals(10, createdTags.size());
     }

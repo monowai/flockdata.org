@@ -55,7 +55,7 @@ public class FortressEP {
     @Autowired
     SecurityHelper securityHelper;
 
-    @RequestMapping(value = "/list", produces = "application/json", method = RequestMethod.GET)
+    @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
     @ResponseBody
     public Collection<Fortress> findFortresses() {
         // curl -u mike:123 -X GET  http://localhost:8080/ab/company/Monowai/fortresses
