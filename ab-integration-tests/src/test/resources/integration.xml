@@ -1,7 +1,7 @@
 <?xml version=
         "1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (company) 2012-2013 "Monowai Developments Limited"
+  ~ Copyright (company) 2012-2014 "Monowai Developments Limited"
   ~
   ~ This file is part of AuditBucket.
   ~
@@ -22,13 +22,14 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:task="http://www.springframework.org/schema/task"
 
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 
 
 	   http://www.springframework.org/schema/integration
-	   http://www.springframework.org/schema/integration/spring-integration.xsd">
+	   http://www.springframework.org/schema/integration/spring-integration.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
     <int:gateway id=" abSearchGateway"
                  service-interface="com.auditbucket.engine.service.AbSearchGateway"/>
@@ -39,37 +40,60 @@
                                     type="com.auditbucket.search.model.SearchResult">
     </int:json-to-object-transformer>
 
+    <int:json-to-object-transformer id="jsonToObject2"
+                                    input-channel="makeSendSearchReply"
+                                    output-channel="sendSearchReply"
+                                    type="com.auditbucket.search.model.EsSearchResult">
+    </int:json-to-object-transformer>
+
+
     <int:object-to-json-transformer id="objectToJson"
                                     input-channel="sendRequest"
                                     output-channel="makeSearchRequest"
                                     content-type="application/json">
     </int:object-to-json-transformer>
 
+    <int:object-to-json-transformer id="objectToJson2"
+                                    input-channel="sendSearchRequest"
+                                    output-channel="makeSendSearchRequest"
+                                    content-type="application/json">
+    </int:object-to-json-transformer>
+
     <int:channel id="makeSearchRequest">
-        <int:dispatcher task-executor="executor"/>
+        <int:dispatcher task-executor="qExecutor"/>
     </int:channel>
+
+    <int:channel id="makeSendSearchRequest">
+        <int:dispatcher task-executor="qExecutor"/>
+    </int:channel>
+
 
     <int:channel id="searchResult">
         <int:dispatcher task-executor="qExecutor"/>
     </int:channel>
     <int:channel id="sendRequest"/>
     <int:channel id="searchReply"/>
+
+    <int:channel id="sendSearchRequest"/>
+    <int:channel id="sendSearchReply"/>
+
     <int:channel id="errors"/>
 
-
     <int:service-activator id="abErrorLogger" input-channel="errors" ref="abloggingHandler"/>
+
     <bean id="abloggingHandler" class="org.springframework.integration.handler.LoggingHandler">
         <constructor-arg index="0" value="DEBUG"/>
-        <!-- <property eventName="loggerName" value="com.app.travelerpayments.loggingHandler"/> -->
     </bean>
 
-    <bean id="qExecutor" class="org.springframework.scheduling.concurrent.ConcurrentTaskExecutor">
-        <property name="concurrentExecutor" ref="executor"/>
-    </bean>
-    <bean id="qThreadPoolExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-        <property name="keepAliveSeconds" value="5"/>
-        <property name="allowCoreThreadTimeOut" value="true"/>
-        <property name="queueCapacity" value="-1"/>
-    </bean>
+    <task:executor id="qExecutor" pool-size="40-40" keep-alive="180" queue-capacity="100"
+                   rejection-policy="CALLER_RUNS"/>
+
+
+    <!--<bean fortressId="qThreadPoolExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">-->
+    <!--<property name="allowCoreThreadTimeOut" value="true"/>-->
+    <!--<property name="queueCapacity" value="50"/>-->
+    <!--<property name="rejectedExecutionHandler" value="CALLER_RUNS"/>-->
+    <!--&lt;!&ndash;Was -1&ndash;&gt;-->
+    <!--</bean>-->
 
 </beans>
