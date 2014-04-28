@@ -93,7 +93,7 @@ class TagDaoNeo4j implements TagDao {
 
     Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> createdValues, boolean suppressRelationships) {
         // Check exists
-        TagNode existingTag = (TagNode) findOne(company, tagInput.getCode(), tagInput.getIndex());
+        TagNode existingTag = (TagNode) findOne(company, (tagInput.getCode()==null?tagInput.getName(): tagInput.getCode()), tagInput.getIndex());
         Node start;
         if (existingTag == null) {
             if (tagInput.isMustExist()) {

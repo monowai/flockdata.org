@@ -44,10 +44,7 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.stream.StreamSource;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -83,7 +80,7 @@ public class Importer {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(Importer.class);
 
-    public enum importer {CSV, XML}
+    public enum importer {CSV, JSON, XML}
 
     public static void main(String args[]) {
 
@@ -105,7 +102,7 @@ public class Importer {
                     .help("Cross References Only");
 
             parser.addArgument("files").nargs("*")
-                     .help("Path and filename of Audit records to import in the format \"[/filepath/filename.ext],[com.import.YourClass],{skipCount}\"");
+                    .help("Path and filename of file to import and the import profile in the format \"[/filepath/filename.ext],[/importProfile/profile.json\"");
 
             Namespace ns = null;
             try {
@@ -121,7 +118,7 @@ public class Importer {
             }
             String b = ns.getString("batch");
             int batchSize = 100;
-            if ( b !=null && !"".equals(b))
+            if (b != null && !"".equals(b))
                 batchSize = Integer.parseInt(b);
 
 
@@ -137,19 +134,38 @@ public class Importer {
                     parser.handleError(new ArgumentParserException("No file arguments to process", parser));
                 int item = 0;
                 String fileName = null;
-                String fileClass = null;
+                String importProfile = null;
                 for (String itemArg : items) {
                     if (item == 0) {
                         fileName = itemArg;
                     } else if (item == 1) {
-                        fileClass = itemArg;
+                        importProfile = itemArg;
                     } else if (item == 2)
                         skipCount = Integer.parseInt(itemArg);
 
                     item++;
                 }
-                logger.debug("*** Calculated process args {}, {}, {}, {}", fileName, fileClass, batchSize, skipCount);
-                totalRows = totalRows + processFile(ns.get("server").toString(), fileName, (fileClass!=null ?Class.forName(fileClass):null), batchSize, skipCount);
+                ImportParams importParams ;
+                AbRestClient restClient = getRestClient(ns.get("server").toString(), batchSize);
+                if ( importProfile !=null ){
+                    ObjectMapper om = new ObjectMapper();
+                    File fileIO = new File(importProfile);
+                    if (fileIO.exists()) {
+                        importParams = new ImportParams(om.readValue(fileIO, HashMap.class), restClient);
+
+                    }  else {
+                        InputStream stream = ClassLoader.class.getResourceAsStream(importProfile);
+                        if ( stream != null )
+                            importParams = new ImportParams(om.readValue(stream, HashMap.class), restClient);
+                        else
+                            importParams = new ImportParams(importProfile, restClient);
+                    }
+                } else {
+                    logger.error("No import parameters to work with");
+                    return ;
+                }
+                logger.debug("*** Calculated process args {}, {}, {}, {}", fileName, importParams, batchSize, skipCount);
+                totalRows = totalRows + processFile(importParams, fileName, skipCount);
             }
             endProcess(watch, totalRows);
 
@@ -159,100 +175,108 @@ public class Importer {
             logger.error("Import error", e);
         }
     }
-
-    static long processFile(String server, String file, Class clazz, int batchSize, int skipCount) throws IllegalAccessException, InstantiationException, IOException, ParserConfigurationException, SAXException, JDOMException, DatagioException {
+    static AbRestClient getRestClient(String server, int batchSize){
         AbRestClient abExporter = new AbRestClient(server, "mike", "123", batchSize);
         boolean simulateOnly = batchSize <= 0;
         abExporter.setSimulateOnly(simulateOnly);
-        Mappable mappable =null;
+        return abExporter;
 
-        if (clazz !=null ){
-            mappable =(Mappable) clazz.newInstance();
-        }
+    }
+    static long processFile(ImportParams importParams, String file, int skipCount) throws IllegalAccessException, InstantiationException, IOException, ParserConfigurationException, SAXException, JDOMException, DatagioException, ClassNotFoundException {
+        Mappable mappable= importParams.getMappable();
 
         //String file = path;
         logger.info("Starting the processing of {}", file);
         try {
-            if ( clazz == null )
-                return processJsonTags(file, abExporter, skipCount, simulateOnly);
-            else if (mappable.getImporter() == Importer.importer.CSV)
-                return processCSVFile(file, abExporter, (DelimitedMappable) mappable, skipCount, simulateOnly );
-            else if (mappable.getImporter() == Importer.importer.XML)
-                return processXMLFile(file, abExporter, (XmlMappable) mappable, simulateOnly);
+            if (importParams.getImportType() == importer.CSV )
+                return processCSVFile(file, importParams, skipCount);
+            else if (importParams.getImportType() == importer.XML)
+                return processXMLFile(file, importParams);
+            else if ( importParams.getImportType()== importer.JSON)
+                return processJsonTags(file, importParams, skipCount);
 
         } finally {
-            if ( mappable != null )
-                abExporter.flush(mappable.getClass().getCanonicalName(), mappable.getABType());
+            if (mappable != null)
+                importParams.getRestClient().flush(mappable.getClass().getCanonicalName(), mappable.getABType());
             else
-                abExporter.flush("Tags", AbRestClient.type.TAG);
+                importParams.getRestClient().flush("Tags", AbRestClient.type.TAG);
 
         }
         return 0;
     }
 
-    private static long processJsonTags(String fileName, AbRestClient abExporter, int skipCount, boolean simulateOnly) {
+    private static long processJsonTags(String fileName, ImportParams importParams, int skipCount) {
         Collection<TagInputBean> tags;
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                File file = new File(fileName);
-                if (!file.exists()) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            File file = new File(fileName);
+            InputStream stream = null;
+            if (!file.exists()) {
+                // Try as a resource
+                stream = ClassLoader.class.getResourceAsStream(fileName);
+                if ( stream == null ){
                     logger.error("{} does not exist", fileName);
                     return 0;
                 }
-                TypeFactory typeFactory = mapper.getTypeFactory();
-                CollectionType collType = typeFactory.constructCollectionType(ArrayList.class, TagInputBean.class);
-
-                tags = mapper.readValue(file, collType);
-                for (TagInputBean tag : tags) {
-                    abExporter.writeTag(tag, "JSON Tag Importer");
-                }
-            } catch (IOException e) {
-                logger.error("Error writing exceptions with {} [{}]",fileName, e.getMessage());
-                throw new RuntimeException("IO Exception ", e);
-            } finally {
-                abExporter.flush("Finishing processing of TagInputBeans " +fileName);
-
             }
+            TypeFactory typeFactory = mapper.getTypeFactory();
+            CollectionType collType = typeFactory.constructCollectionType(ArrayList.class, TagInputBean.class);
+
+            if ( file.exists())
+                tags = mapper.readValue(file, collType);
+            else
+                tags = mapper.readValue(stream, collType);
+            for (TagInputBean tag : tags) {
+                importParams.getRestClient().writeTag(tag, "JSON Tag Importer");
+            }
+        } catch (IOException e) {
+            logger.error("Error writing exceptions with {} [{}]", fileName, e.getMessage());
+            throw new RuntimeException("IO Exception ", e);
+        } finally {
+            importParams.getRestClient().flush("Finishing processing of TagInputBeans " + fileName);
+
+        }
         return tags.size();  //To change body of created methods use File | Settings | File Templates.
     }
 
-    static long processXMLFile(String file, AbRestClient abExporter, XmlMappable mappable, boolean simulateOnly) throws ParserConfigurationException, IOException, SAXException, JDOMException, DatagioException {
+    static long processXMLFile(String file, ImportParams importParams) throws ParserConfigurationException, IOException, SAXException, JDOMException, DatagioException, IllegalAccessException, InstantiationException, ClassNotFoundException {
         try {
             long rows = 0;
+            XmlMappable mappable = (XmlMappable)importParams.getMappable();
             StopWatch watch = new StopWatch();
             StreamSource source = new StreamSource(file);
             XMLInputFactory xif = XMLInputFactory.newFactory();
             XMLStreamReader xsr = xif.createXMLStreamReader(source);
             mappable.positionReader(xsr);
-            List<CrossReferenceInputBean> referenceInputBeans= new ArrayList<>();
+            List<CrossReferenceInputBean> referenceInputBeans = new ArrayList<>();
 
             String docType = mappable.getDataType();
             watch.start();
             try {
                 long then = new DateTime().getMillis();
                 while (xsr.getLocalName().equals(docType)) {
-                    XmlMappable row = mappable.newInstance(simulateOnly);
-                    String json = row.setXMLData(xsr, abExporter);
+                    XmlMappable row = mappable.newInstance(importParams.isSimulateOnly());
+                    String json = row.setXMLData(xsr, importParams.getRestClient());
                     MetaInputBean header = (MetaInputBean) row;
-                    if ( !header.getCrossReferences().isEmpty()){
-                        referenceInputBeans.add(new CrossReferenceInputBean(header.getFortress(),header.getCallerRef(),header.getCrossReferences()));
+                    if (!header.getCrossReferences().isEmpty()) {
+                        referenceInputBeans.add(new CrossReferenceInputBean(header.getFortress(), header.getCallerRef(), header.getCrossReferences()));
                         rows = rows + header.getCrossReferences().size();
                     }
                     LogInputBean logInputBean = new LogInputBean("system", new DateTime(header.getWhen()), json);
                     header.setLog(logInputBean);
                     //logger.info(json);
                     xsr.nextTag();
-                    writeAudit(abExporter, header, mappable.getClass().getCanonicalName());
+                    writeAudit(importParams.getRestClient(), header, mappable.getClass().getCanonicalName());
                     rows++;
-                    if (rows % 500 == 0 && !simulateOnly)
-                        logger.info("Processed {} elapsed seconds {}", rows, new DateTime().getMillis()-then /1000d);
+                    if (rows % 500 == 0 && !importParams.isSimulateOnly())
+                        logger.info("Processed {} elapsed seconds {}", rows, (new DateTime().getMillis() - then) / 1000d);
 
                 }
             } finally {
-                abExporter.flush(mappable.getClass().getCanonicalName(), mappable.getABType());
+                importParams.getRestClient().flush(mappable.getClass().getCanonicalName(), mappable.getABType());
             }
-            if ( ! referenceInputBeans.isEmpty()){
-                logger.debug ("Wrote [{}] cross references",writeCrossReferences( abExporter, referenceInputBeans, "Cross References"));
+            if (!referenceInputBeans.isEmpty()) {
+                logger.debug("Wrote [{}] cross references", writeCrossReferences(importParams.getRestClient(), referenceInputBeans, "Cross References"));
             }
             return endProcess(watch, rows);
 
@@ -266,20 +290,37 @@ public class Importer {
         return abExporter.flushXReferences(referenceInputBeans);
     }
 
-    static long processCSVFile(String file, AbRestClient abExporter, DelimitedMappable mappable, int skipCount, boolean simulateOnly) throws IOException, IllegalAccessException, InstantiationException, DatagioException {
+    static long processCSVFile(String file, ImportParams importParams, int skipCount) throws IOException, IllegalAccessException, InstantiationException, DatagioException, ClassNotFoundException {
 
         StopWatch watch = new StopWatch();
-        DelimitedMappable row = mappable.newInstance(simulateOnly);
+        DelimitedMappable row;
+        DelimitedMappable mappable = (DelimitedMappable) importParams.getMappable();
+
         int rows = 0;
-        Collection<TagInputBean>tags = new ArrayList<>();
-        boolean writeToFile = true; // Haven't figured out how to integrate this yet
-                                     // purpose is to write all the tags to an import stucture
+        Collection<TagInputBean> tags = new ArrayList<>();
+        boolean writeToFile = false; // Haven't figured out how to integrate this yet
+        // purpose is to write all the tags to an import structure
 
         BufferedReader br;
-        FileReader fileObject = new FileReader(file);
-        br = new BufferedReader(fileObject);
+        InputStream stream = ClassLoader.class.getResourceAsStream(file);
+
+        Reader fileObject = null;
         try {
-            CSVReader csvReader = new CSVReader(br, row.getDelimiter());
+            fileObject = new FileReader(file);
+        } catch ( FileNotFoundException e ){
+            if (stream !=null )
+                fileObject = new InputStreamReader(stream);
+
+        }
+        if ( fileObject == null ){
+            logger.error ( "Unable to resolve the file [{}]", file);
+            return 0;
+        }
+
+        br = new BufferedReader(fileObject);
+
+        try {
+            CSVReader csvReader = new CSVReader(br, importParams.getDelimiter());
 
             String[] headerRow = null;
             String[] nextLine;
@@ -300,11 +341,12 @@ public class Importer {
                     if (rows >= skipCount) {
                         if (rows == skipCount)
                             logger.info("Starting to process from row {}", skipCount);
-                        row = mappable.newInstance(simulateOnly);
 
-                        String jsonData = row.setData(headerRow, nextLine, abExporter);
+                        row = (DelimitedMappable) importParams.getMappable();
+
+                        String jsonData = row.setData(headerRow, nextLine, importParams.getStaticDataResolver());
                         //logger.info(jsonData);
-                        if (type == AbRestClient.type.AUDIT) {
+                        if (type == AbRestClient.type.TRACK) {
                             MetaInputBean header = (MetaInputBean) row;
 
                             if (!"".equals(jsonData)) {
@@ -314,36 +356,36 @@ public class Importer {
                             } else {
                                 // It's all Meta baby - no track information
                             }
-                            writeAudit(abExporter, header, mappable.getClass().getCanonicalName());
+                            writeAudit(importParams.getRestClient(), header, mappable.getClass().getCanonicalName());
                         } else {// Tag
                             if (!"".equals(jsonData)) {
                                 TagInputBean tagInputBean = (TagInputBean) row;
 
-                                if ( writeToFile )
+                                if (writeToFile)
                                     tags.add(tagInputBean);
                                 else
-                                    writeTag(abExporter, tagInputBean, mappable.getClass().getCanonicalName());
+                                    writeTag(importParams.getRestClient(), tagInputBean, mappable.getClass().getCanonicalName());
                             }
                         }
                         if (rows % 500 == 0) {
-                            if ( !simulateOnly)
+                            if (!importParams.isSimulateOnly())
                                 logger.info("Processed {} ", rows);
                         }
                     }
                 } else {
-                    if (rows % 500 == 0 && !simulateOnly)
+                    if (rows % 500 == 0 && !importParams.isSimulateOnly())
                         logger.info("Skipping {} of {}", rows, skipCount);
                 }
             }
         } finally {
-            abExporter.flush(mappable.getClass().getCanonicalName(), mappable.getABType());
+            importParams.getRestClient().flush(mappable.getClass().getCanonicalName(), mappable.getABType());
             br.close();
         }
-        if ( writeToFile){
+        if (writeToFile) {
             ObjectMapper om = new ObjectMapper();
             try {
 
-                om.writerWithDefaultPrettyPrinter().writeValue(new File( file+".json"), tags);
+                om.writerWithDefaultPrettyPrinter().writeValue(new File(file + ".json"), tags);
             } catch (IOException e) {
                 logger.error("Error writing exceptions", e);
             }

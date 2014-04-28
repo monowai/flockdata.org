@@ -111,8 +111,11 @@ public class MetaHeaderNode implements MetaHeader {
         //if ( callerRef!=null )
         callerKeyRef = this.fortress.getId() + "." + documentType.getId() + "." + (callerRef != null ? callerRef : metaKey);
 
-        if ( name ==null )
+        if ( metaInput.getName() ==null || metaInput.getName().equals(""))
             this.name = (callerRef == null ? this.documentType : (this.documentType + "." + callerRef));
+        else
+            this.name = metaInput.getName();
+
         this.description = metaInput.getDescription();
 
 

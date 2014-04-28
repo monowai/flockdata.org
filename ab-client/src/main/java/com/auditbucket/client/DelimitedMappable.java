@@ -39,10 +39,7 @@ public interface DelimitedMappable extends Mappable {
     @JsonIgnore
     boolean hasHeader();
 
-    DelimitedMappable newInstance(boolean simulateOnly);
-
     @JsonIgnore
     char getDelimiter();
-
 
 }

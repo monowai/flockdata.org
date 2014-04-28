@@ -92,8 +92,11 @@ public class AbRestClient implements StaticDataResolver {
         }
 
     }
+    public boolean isSimulateOnly(){
+        return simulateOnly;
+    }
 
-    public enum type {AUDIT, TAG}
+    public enum type {TRACK, TAG}
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(AbRestClient.class);
 
@@ -264,7 +267,7 @@ public class AbRestClient implements StaticDataResolver {
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
         HttpHeaders httpHeaders = getHeaders(userName, password);
-        HttpEntity<FortressInputBean> request = new HttpEntity<>(new FortressInputBean(fortressName, false), httpHeaders);
+        HttpEntity<FortressInputBean> request = new HttpEntity<>(new FortressInputBean(fortressName), httpHeaders);
         try {
             restTemplate.exchange(FORTRESS, HttpMethod.POST, request, FortressResultBean.class);
             if (defaultFortress != null && !defaultFortress.equals(fortressName)) {
@@ -328,7 +331,7 @@ public class AbRestClient implements StaticDataResolver {
 
     public void flush(String message) {
         flush(message, type.TAG);
-        flush(message, type.AUDIT);
+        flush(message, type.TRACK);
     }
 
     /**
@@ -337,7 +340,7 @@ public class AbRestClient implements StaticDataResolver {
     public void flush(String message, type abType) {
         if (simulateOnly)
             return;
-        if (abType.equals(type.AUDIT)) {
+        if (abType.equals(type.TRACK)) {
             synchronized (headerSync) {
                 writeAudit(null, true, message);
             }
@@ -437,7 +440,14 @@ public class AbRestClient implements StaticDataResolver {
     public static String convertToJson(String[] headerRow, String[] line) throws JsonProcessingException {
         ObjectNode node = mapper.createObjectNode();
         for (int i = 0; i < headerRow.length; i++) {
-            node.put(headerRow[i], line[i].trim());
+            String header =headerRow[i];
+
+            if ( header.startsWith("@!"))
+                header = headerRow[i].substring(2, headerRow[i].length());
+            else if ( header.startsWith("@")||header.startsWith("$")||header.startsWith("*"))
+                header = headerRow[i].substring(1, headerRow[i].length());
+
+            node.put(header, line[i].trim());
         }
         return node.toString();
     }

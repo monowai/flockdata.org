@@ -60,6 +60,7 @@ public class FortressInputBean {
 
     public FortressInputBean(@NotEmpty String name) {
         this.name = name;
+        searchActive=true;
     }
 
     public String getName() {
