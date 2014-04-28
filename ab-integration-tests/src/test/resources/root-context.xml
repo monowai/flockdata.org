@@ -46,6 +46,7 @@
 
 
     <import resource="spring-security.xml"/>
+    <import resource="http-proxy-integration.xml"/>
     <import resource="neo4j-context-test.xml"/>
     <import resource="integration.xml"/>
     <import resource="amqp-integration-test.xml"/>
