@@ -106,7 +106,7 @@ public class TrackDaoES implements TrackSearchDao {
 
         String searchKey = searchChange.getSearchKey();
         if (searchKey == null && searchChange.getCallerRef() != null)
-            searchKey = searchChange.getCallerRef().toLowerCase();
+            searchKey = searchChange.getCallerRef();
 
         // Rebuilding a document after a reindex - preserving the unique key.
         if (searchKey != null) {

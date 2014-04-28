@@ -110,8 +110,6 @@ public class MetaSearchChange implements SearchChange {
     }
 
     public String getSearchKey() {
-        if (searchKey != null)
-            return searchKey.toLowerCase();
         return searchKey;
     }
 
