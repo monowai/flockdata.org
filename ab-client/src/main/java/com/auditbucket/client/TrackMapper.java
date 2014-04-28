@@ -42,9 +42,16 @@ public class TrackMapper extends MetaInputBean implements DelimitedMappable {
             }else if ( column.startsWith("@")){
                 boolean mustExist = column.startsWith("@!");
 
+                String thisColumn = column.substring(1, column.length());
+                if ( column.startsWith("@!") )
+                    thisColumn = column.substring(2, column.length());
+
                 String val = line[col];
-                if ( val!=null && !val.equals(""))
-                    setTag( new TagInputBean(line[col]).setMustExist(mustExist));
+                if ( val!=null && !val.equals("")){
+                    TagInputBean tag = new TagInputBean(line[col]).setMustExist(mustExist).setIndex(thisColumn);
+                    tag.addMetaLink("specialty");
+                    setTag(tag);
+                }
             } else if ( column.startsWith("*")){
                 setName(line[col]);
             }
