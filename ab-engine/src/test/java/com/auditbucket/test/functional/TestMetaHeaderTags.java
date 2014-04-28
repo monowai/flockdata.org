@@ -271,6 +271,27 @@ public class TestMetaHeaderTags {
     }
 
     @Test
+    public void nullCodeValue() throws Exception {
+        regService.registerSystemUser(new RegistrationBean(company, uid, "bah").setIsUnique(false));
+        fortressService.registerFortress("ABC");
+
+        TagInputBean tagInput = new TagInputBean("FLOP");
+
+        tagService.processTag(tagInput);
+        //assertNotNull(result);
+        MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
+        // In this scenario, the Tag name is the key if the value is null
+        TagInputBean tag = new TagInputBean("TagD", "DDDD");
+        tag.setCode(null ); // This gets set to null if not supplied over an endpoint
+        aib.setTag(tag);
+        TrackResultBean resultBean = auditManager.createHeader(aib, null);
+        MetaHeader metaHeader = trackService.getHeader(resultBean.getMetaKey());
+        Set<TrackTag> tagSet = tagTrackService.findTrackTags(metaHeader);
+        assertNotNull(tagSet);
+        assertEquals(1, tagSet.size());
+
+    }
+    @Test
     public void duplicateTagNotCreated() throws Exception {
         regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         fortressService.registerFortress("ABC");
