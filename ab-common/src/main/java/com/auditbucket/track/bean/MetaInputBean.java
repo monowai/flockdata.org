@@ -43,6 +43,7 @@ public class MetaInputBean {
 
     private String event;
     private String description;
+    private String name;
     private boolean searchSuppressed;
     private boolean trackSuppressed = false;
 
@@ -293,8 +294,17 @@ public class MetaInputBean {
         return "MetaInputBean{" +
                 "fortress='" + getFortress() + '\'' +
                 ", documentType='" + getDocumentType() + '\'' +
+                ", name='" + getName() + '\'' +
                 ", callerRef='" + getCallerRef() + '\'' +
                 ", metaKey='" + getMetaKey() + '\'' +
                 '}';
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = (name!=null? name.trim():name);
     }
 }

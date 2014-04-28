@@ -28,8 +28,6 @@ import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.model.TxRef;
 import org.joda.time.DateTime;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
@@ -42,7 +40,7 @@ import static org.junit.Assert.assertFalse;
  * Time: 5:02 AM
  */
 public class TestInputBeans {
-    private Logger log = LoggerFactory.getLogger(TestInputBeans.class);
+    //private Logger log = LoggerFactory.getLogger(TestInputBeans.class);
 
     @Test
     public void testTxStatus() {
@@ -61,10 +59,9 @@ public class TestInputBeans {
 
     @Test
     public void testFortressInputBean() {
-        CompanyNode c = new CompanyNode("test");
 
         FortressInputBean fib = new FortressInputBean("ABC");
-        assertFalse(fib.getSearchActive());
+        assertTrue(fib.getSearchActive());
 
         fib = new FortressInputBean("ABC", false);
         assertTrue(fib.getSearchActive());
