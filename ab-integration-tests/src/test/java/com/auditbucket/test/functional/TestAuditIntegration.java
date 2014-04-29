@@ -119,7 +119,11 @@ public class TestAuditIntegration {
     private Logger logger = LoggerFactory.getLogger(TestAuditIntegration.class);
     private String email = "test@ab.com";
     private Authentication authA = new UsernamePasswordAuthenticationToken(email, "user1");
-
+    @AfterClass
+    public static void pauseForAWhile() throws Exception{
+        System.out.println("Waiting for a while");
+        Thread.sleep(5000);
+    }
     @BeforeClass
     @Rollback(false)
     public static void cleanupElasticSearch() throws Exception {
@@ -176,7 +180,7 @@ public class TestAuditIntegration {
         assertNotNull(ahKey);
         MetaHeader header = trackService.getHeader(ahKey);
         mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + 1 + "}"));
-        Thread.sleep(2000);
+        Thread.sleep(3000);
         doEsQuery(header.getIndexName(), header.getMetaKey());
     }
 
@@ -328,14 +332,14 @@ public class TestAuditIntegration {
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(indexName, "*", 2);
 
-        inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "abc124");
+        inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setTrackSuppressed(true);
         mediationFacade.createHeader(inputBean, null);
         Thread.sleep(2000); // Let the messaging take effect
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(indexName, "*", 2);
 
-        inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "abc125");
+        inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC125");
         inputBean.setTrackSuppressed(true);
         mediationFacade.createHeader(inputBean, null);
         Thread.sleep(2000); // Let the messaging take effect
