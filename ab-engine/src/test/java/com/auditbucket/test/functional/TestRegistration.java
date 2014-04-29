@@ -107,7 +107,7 @@ public class TestRegistration {
 
     private void createCompanyUsers(String userNamePrefix, int count) throws DatagioException {
         SecurityContextHolder.getContext().setAuthentication(authA);
-        SystemUser su = registrationEP.registerSystemUser(new RegistrationBean("CompanyA", "mike", "whocares")).getBody();
+        SystemUser su = registrationEP.registerSystemUser(new RegistrationBean("CompanyA", "mike", "whocares").setIsUnique(false)).getBody();
         Company company = su.getCompany();
         int i = 1;
         while (i <= count) {
@@ -139,7 +139,7 @@ public class TestRegistration {
 
         // Create the company.
         SecurityContextHolder.getContext().setAuthentication(authA);
-        SystemUser systemUser = registrationEP.registerSystemUser(new RegistrationBean(companyName, adminName, "password")).getBody();
+        SystemUser systemUser = registrationEP.registerSystemUser(new RegistrationBean(companyName, adminName, "password").setIsUnique(false)).getBody();
         assertNotNull(systemUser);
 
         fortressService.registerFortress("fortressA");
@@ -168,7 +168,7 @@ public class TestRegistration {
     @Test
     public void companiesForUser() throws DatagioException {
         SecurityContextHolder.getContext().setAuthentication(authA);
-        registrationEP.registerSystemUser(new RegistrationBean("CompanyAA", "mike", "whocares"));
+        registrationEP.registerSystemUser(new RegistrationBean("CompanyAA", "mike", "whocares").setIsUnique(false));
         Fortress fA = fortressService.registerFortress("FortressA");
         Fortress fB = fortressService.registerFortress("FortressB");
         Fortress fC = fortressService.registerFortress("FortressC");
@@ -252,12 +252,12 @@ public class TestRegistration {
     @Test
     public void twoDifferentCompanyFortressSameName() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(authA);
-        registrationService.registerSystemUser(new RegistrationBean("companya", "mike", "123"));
+        registrationService.registerSystemUser(new RegistrationBean("companya", "mike", "123").setIsUnique(false));
         Fortress fortressA = fortressService.registerFortress("fortress-same");
         FortressUser fua = fortressService.getFortressUser(fortressA, "mike");
 
         SecurityContextHolder.getContext().setAuthentication(authB);
-        registrationService.registerSystemUser(new RegistrationBean("companyb", "harry", "123"));
+        registrationService.registerSystemUser(new RegistrationBean("companyb", "harry", "123").setIsUnique(false));
         Fortress fortressB = fortressService.registerFortress("fortress-same");
         FortressUser fub = fortressService.getFortressUser(fortressB, "mike");
         FortressUser fudupe = fortressService.getFortressUser(fortressB, "mike");
@@ -371,7 +371,7 @@ public class TestRegistration {
         // Assume the user has now logged in.
         //org.neo4j.graphdb.Transaction t = graphDatabaseService.beginTx();
         String company = "MFURT";
-        registrationService.registerSystemUser(new RegistrationBean(company, uname, "password"));
+        registrationService.registerSystemUser(new RegistrationBean(company, uname, "password").setIsUnique(false));
         SecurityContextHolder.getContext().setAuthentication(authA);
         CompanyUser nonAdmin = registrationService.addCompanyUser(uname, company);
         assertNotNull(nonAdmin);
