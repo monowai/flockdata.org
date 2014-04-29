@@ -44,8 +44,10 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.TimeZone;
@@ -376,32 +378,34 @@ public class TestRegistration {
         CompanyUser nonAdmin = registrationService.addCompanyUser(uname, company);
         assertNotNull(nonAdmin);
 
-        Fortress fortress = fortressService.registerFortress("auditbucket");
-        //t.success();
+        Fortress fortress = fortressService.registerFortress("multipleFortressUserRequestsThreaded");
         assertNotNull(fortress);
+        fortress = fortressService.findByCode(fortress.getCode());
+        assertNotNull(fortress);
+        int count = 5;
 
-        CountDownLatch latch = new CountDownLatch(3);
+        CountDownLatch latch = new CountDownLatch(count);
         // Run threaded tests
-        FuAction fua1 = new FuAction(fortress, "mike", latch);
-        FuAction fua2 = new FuAction(fortress, "mike", latch);
-        FuAction fua3 = new FuAction(fortress, "mike", latch);
-
-        Thread fu1 = new Thread(fua1);
-        Thread fu2 = new Thread(fua2);
-        Thread fu3 = new Thread(fua3);
-
-        fu1.start();
-        fu2.start();
-        fu3.start();
+        ArrayList<FuAction> actions = new ArrayList<>();
+        ArrayList<Thread> threads= new ArrayList<>();
+        int i = 0;
+        while (i<=count){
+            FuAction action = new FuAction(fortress, Integer.toString(i), "mike", latch);
+            actions.add( action);
+            threads.add( new Thread(action));
+            threads.get(i).start();
+            i ++;
+        }
 
         latch.await();
 
         // Check we only get one back
         FortressUser fu = fortressService.getFortressUser(fortress, uname);
         assertNotNull(fu);
-        assertFalse(fua1.isFailed());
-        assertFalse(fua2.isFailed());
-        assertFalse(fua3.isFailed());
+        while (i<count){
+            assertFalse("Fu"+i+"Fail", actions.get(i).isFailed());
+            i++;
+        }
 
     }
 
@@ -409,13 +413,15 @@ public class TestRegistration {
         Fortress fortress;
         String uname;
         CountDownLatch latch;
-        boolean failed = true;
+        boolean failed ;
+        boolean done = false;
 
-        public FuAction(Fortress fortress, String uname, CountDownLatch latch) {
-            logger.info("Preparing FuAction");
+        public FuAction(Fortress fortress, String id, String uname, CountDownLatch latch) {
+            logger.info("Preparing FuAction {}, {}", id, latch.getCount());
             this.fortress = fortress;
             this.uname = uname;
             this.latch = latch;
+
 
         }
 
@@ -425,20 +431,21 @@ public class TestRegistration {
 
         public void run() {
             logger.info("Running " + this);
-            int max = 100;
+            int max = 50;
             int i = 0;
+            failed = false;
             try {
                 while (i < max) {
-                    fortressService.getFortressUser(fortress, uname);
-                    fortressService.getFortressUser(fortress, uname);
+                    Assert.assertNotNull(fortressService.getFortressUser(this.fortress, uname));
                     i++;
                 }
             } catch (Exception e) {
+                e.printStackTrace();
+                logger.info("Exception caught {}", e.getMessage());
                 failed = true;
-            } finally {
-                latch.countDown();
             }
-            failed = false;
+            done= true;
+            latch.countDown();
 
         }
     }

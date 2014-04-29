@@ -28,6 +28,9 @@ import com.auditbucket.registration.repo.neo4j.FortressUserRepository;
 import com.auditbucket.registration.repo.neo4j.model.FortressNode;
 import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
 import com.auditbucket.registration.service.KeyGenService;
+import org.neo4j.graphdb.Label;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
@@ -50,20 +53,23 @@ public class FortressDaoNeo implements FortressDao {
     @Autowired
     private KeyGenService keyGenService;
 
+    private Logger logger = LoggerFactory.getLogger(FortressDaoNeo.class);
+
     @Override
     public Fortress save(Company company, FortressInputBean fortressInput) {
         FortressNode fortress = new FortressNode(fortressInput, company);
         fortress.setFortressKey(keyGenService.getUniqueKey());
-        return fortressRepo.save( fortress);
+        return fortressRepo.save(fortress);
     }
 
     @Override
     public Fortress findByPropertyValue(String property, Object value) {
-        return fortressRepo.findByPropertyValue(property, value);
+        return fortressRepo.findBySchemaPropertyValue(property, value);
     }
 
     @Override
     public Fortress findOne(Long fortressId) {
+        logger.info("Looking for {}", fortressId);
         return fortressRepo.findOne(fortressId);
     }
 
@@ -72,21 +78,11 @@ public class FortressDaoNeo implements FortressDao {
 
     @Override
     public FortressUser getFortressUser(Long fortressId, String name) {
-
         return fortressRepo.getFortressUser(fortressId, name);
-
     }
 
     @Override
     public List<Fortress> findFortresses(Long companyID) {
-
-//        TraversalDescription td = Traversal.description()
-//                .breadthFirst()
-//                .relationships( DynamicRelationshipType.withName("owns"), Direction.OUTGOING )
-//                .evaluator( Evaluators.excludeStartPosition() );
-
-        //return fortressRepo.findAllByTraversal(companyID, td );
-
         return fortressRepo.findCompanyFortresses(companyID);
     }
 
