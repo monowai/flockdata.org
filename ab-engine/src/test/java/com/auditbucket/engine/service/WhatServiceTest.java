@@ -41,7 +41,6 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -115,8 +114,8 @@ public class WhatServiceTest extends AbstractRedisSupport {
         String whatString = getJsonFromObject(what);
         try{
             auditManager.processLog(new LogInputBean(ahKey, "wally", new DateTime(), whatString));
-        } catch (DataAccessException e ){
-            logger.error("KV Stores are configured in config.properties. This test is failing to find the {} server.",engineConfig.getKvStore());
+        } catch (Exception e ){
+            logger.error("KV Stores are configured in config.properties. This test is failing to find the {} server. Is it even installed?",engineConfig.getKvStore());
             return;
         }
         TrackLog trackLog = trackDAO.getLastLog(header.getId());
