@@ -19,6 +19,7 @@
 
 package com.auditbucket.client;
 
+import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.*;
 import com.auditbucket.track.bean.CrossReferenceInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
@@ -102,7 +103,7 @@ public class AbRestClient implements StaticDataResolver {
     public String ping() {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-        HttpHeaders httpHeaders = getHeaders(null, null, null);// Unauthorized ping is ok
+        HttpHeaders httpHeaders = getHeaders(apiKey, null, null);// Unauthorized ping is ok
         HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
         try {
             ResponseEntity<String> response = restTemplate.exchange(PING, HttpMethod.GET, requestEntity, String.class);
@@ -175,7 +176,7 @@ public class AbRestClient implements StaticDataResolver {
         this.simulateOnly = simulateOnly;
     }
 
-    public int flushXReferences(List<CrossReferenceInputBean> referenceInputBeans) {
+    public int flushXReferences(List<CrossReferenceInputBean> referenceInputBeans) throws DatagioException{
         logger.info("Processing [{}] cross references - simulate [{}]", referenceInputBeans.size(), simulateOnly);
         if (simulateOnly)
             return 0;
@@ -188,7 +189,6 @@ public class AbRestClient implements StaticDataResolver {
             logServerMessages(response);
             return referenceInputBeans.size();
         } catch (HttpClientErrorException e) {
-            // ToDo: Rest error handling pretty useless. need to know why it's failing
             logger.error("AB Client Audit error {}", getErrorMessage(e));
             return 0;
         } catch (HttpServerErrorException e) {
@@ -199,7 +199,7 @@ public class AbRestClient implements StaticDataResolver {
 
     }
 
-    public Collection<TagInputBean> getCountries() {
+    public Collection<TagInputBean> getCountries() throws DatagioException{
         if (simulateOnly)
             return null;
         RestTemplate restTemplate = new RestTemplate();
@@ -236,7 +236,7 @@ public class AbRestClient implements StaticDataResolver {
      * @return iso code to use
      */
     @Override
-    public String resolveCountryISOFromName(String name) {
+    public String resolveCountryISOFromName(String name) throws DatagioException{
         if (simulateOnly)
             return name;
         if (countriesByName == null) {
@@ -256,7 +256,7 @@ public class AbRestClient implements StaticDataResolver {
     }
 
 
-    private String flushAudit(List<MetaInputBean> auditInput) {
+    private String flushAudit(List<MetaInputBean> auditInput) throws DatagioException{
         if (simulateOnly || auditInput.isEmpty())
             return "OK";
         RestTemplate restTemplate = new RestTemplate();
@@ -279,7 +279,7 @@ public class AbRestClient implements StaticDataResolver {
         }
     }
 
-    public String flushTags(List<TagInputBean> tagInputBean) {
+    public String flushTags(List<TagInputBean> tagInputBean) throws DatagioException{
         if (tagInputBean.isEmpty())
             return "OK";
         RestTemplate restTemplate = new RestTemplate();
@@ -295,7 +295,7 @@ public class AbRestClient implements StaticDataResolver {
             return "OK";
         } catch (HttpClientErrorException e) {
             // to test, try to log against no existing fortress.
-            logger.error("Datagio server error processing Tags {}", getErrorMessage(e));
+            logger.error("Datagio client error processing Tags {}", getErrorMessage(e));
             return null;
         } catch (HttpServerErrorException e) {
             logger.error("Datagio server error processing Tags {}", getErrorMessage(e));
@@ -314,7 +314,7 @@ public class AbRestClient implements StaticDataResolver {
         }
     }
 
-    public void ensureFortress(String fortressName) {
+    public void ensureFortress(String fortressName) throws DatagioException{
         if (fortressName == null)
             return;
 
@@ -338,11 +338,14 @@ public class AbRestClient implements StaticDataResolver {
         }
     }
 
-    public String getErrorMessage(HttpStatusCodeException e) {
+    public String getErrorMessage(HttpStatusCodeException e) throws DatagioException{
 
-        if (e.getStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR) {
+        if (e.getStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR || e.getStatusCode()== HttpStatus.BAD_REQUEST) {
             logger.error(e.getResponseBodyAsString());
-            return e.getResponseBodyAsString();
+            String error = e.getResponseBodyAsString();
+            if ( error.contains("Invalid API"))
+                logger.info("Your API key appears to be invalid. Have you run the configure process?");
+            throw new DatagioException(error);
         }
 
         JsonNode n = null;
@@ -387,7 +390,7 @@ public class AbRestClient implements StaticDataResolver {
         return headers;
     }
 
-    public void flush(String message) {
+    public void flush(String message) throws DatagioException{
         flush(message, type.TAG);
         flush(message, type.TRACK);
     }
@@ -395,7 +398,7 @@ public class AbRestClient implements StaticDataResolver {
     /**
      * push any remaining updates
      */
-    public void flush(String message, type abType) {
+    public void flush(String message, type abType) throws DatagioException{
         if (simulateOnly)
             return;
         if (abType.equals(type.TRACK)) {
@@ -414,7 +417,7 @@ public class AbRestClient implements StaticDataResolver {
      *
      * @param metaInputBean Input to push
      */
-    public void writeAudit(MetaInputBean metaInputBean, String message) {
+    public void writeAudit(MetaInputBean metaInputBean, String message) throws DatagioException{
         writeAudit(metaInputBean, false, message);
     }
 
@@ -431,7 +434,7 @@ public class AbRestClient implements StaticDataResolver {
         }
     }
 
-    void writeAudit(MetaInputBean metaInputBean, boolean flush, String message) {
+    void writeAudit(MetaInputBean metaInputBean, boolean flush, String message) throws DatagioException{
 
         synchronized (headerSync) {
             if (metaInputBean != null) {
@@ -458,11 +461,11 @@ public class AbRestClient implements StaticDataResolver {
 
     }
 
-    public void writeTag(TagInputBean tagInputBean, String message) {
+    public void writeTag(TagInputBean tagInputBean, String message) throws DatagioException{
         writeTag(tagInputBean, false, message);
     }
 
-    private void writeTag(TagInputBean tagInputBean, boolean flush, String message) {
+    private void writeTag(TagInputBean tagInputBean, boolean flush, String message) throws DatagioException{
 
         synchronized (tagSync) {
             if (tagInputBean != null)

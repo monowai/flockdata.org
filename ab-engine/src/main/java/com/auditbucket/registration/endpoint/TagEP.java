@@ -65,8 +65,6 @@ public class TagEP {
 
     }
 
-
-
     @ResponseBody
     @RequestMapping(value = "/{type}", produces = "application/json", consumes = "application/json", method = RequestMethod.GET)
     public Collection<Tag> getTags(@PathVariable("type") String index,

@@ -23,20 +23,15 @@ import java.util.Map;
  */
 public class Configure {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(Configure.class);
-
+    static String configFile = "client.config";
     public static void main(String args[]) {
-        String configFile = "client.config";
+
 
         Namespace ns = getCommandLineArgs(args);
         internalPass = ns.getString("pass");
         internalUser = ns.getString("user");
 
-        File file = new File(ns.getString("path") + "/" + configFile);
-        File path = new File(ns.getString("path"));
-        if (!path.exists() && !path.mkdir()) {
-            logger.error("Error making path {}", ns.getString("path"));
-            System.exit(-1);
-        }
+        File file = getFile(configFile, ns);
         ConfigProperties defaults = readConfiguration(file);
 
         boolean reconfigure = ns.getBoolean("reconfig");
@@ -72,10 +67,21 @@ public class Configure {
 
 
     }
+
+    static File getFile(String configFile, Namespace ns) {
+        File file = new File(ns.getString("path") + "/" + configFile);
+        File path = new File(ns.getString("path"));
+        if (!path.exists() && !path.mkdir()) {
+            logger.error("Error making path {}", ns.getString("path"));
+            System.exit(-1);
+        }
+        return file;
+    }
+
     private static String internalUser = "mike";
     private static String internalPass = "123";
 
-    private static Namespace getCommandLineArgs(String[] args) {
+    static Namespace getCommandLineArgs(String[] args) {
         ArgumentParser parser = ArgumentParsers.newArgumentParser("configure")
                 .defaultHelp(true)
                 .description("Configures the client for connectivity to AuditBucket");
@@ -200,7 +206,7 @@ public class Configure {
         }
     }
 
-    private static ConfigProperties readConfiguration(File file) {
+    static ConfigProperties readConfiguration(File file) {
         if (file.exists()) {
             // Load the defaults
             try {
@@ -222,12 +228,12 @@ public class Configure {
         return restClient.registerProfile(userName, null, company);
     }
 
-    private static String pingServer(String serverName, String userName, String password) {
+    static String pingServer(String serverName, String userName, String password) {
         AbRestClient restClient = new AbRestClient(serverName, userName, password, 0);
         return restClient.ping();
     }
 
-    private static String getVersion(String serverName, String apiKey) {
+    static String getVersion(String serverName, String apiKey) {
         AbRestClient restClient = new AbRestClient(serverName, apiKey, 0);
         Map<String, Object> result = restClient.health();
         if (result == null || result.get("error") != null)
