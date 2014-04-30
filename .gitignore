@@ -51,6 +51,7 @@ data/
 
 
 ab-engine/.shell_history
+dependency-reduced-pom.xml
 
 ab-integration-tests/.shell_history
 

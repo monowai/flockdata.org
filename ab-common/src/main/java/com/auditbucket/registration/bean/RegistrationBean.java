@@ -20,7 +20,6 @@
 package com.auditbucket.registration.bean;
 
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.SystemUser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
@@ -28,7 +27,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * Date: 14/05/13
  * Time: 5:53 PM
  */
-public class RegistrationBean implements SystemUser {
+public class RegistrationBean {
     private String name;
     private String password;
     private String companyName;
@@ -61,20 +60,12 @@ public class RegistrationBean implements SystemUser {
     }
 
 
-    @Override
     public String getName() {
         return name;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    @Override
     public Company getCompany() {
         return this.company;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    @JsonIgnore
-    public Long getId() {
-        return null;
     }
 
     public void setCompany(Company company) {
@@ -87,7 +78,6 @@ public class RegistrationBean implements SystemUser {
         return this;
     }
 
-    @JsonIgnore
     public boolean isUnique() {
         return unique;
     }

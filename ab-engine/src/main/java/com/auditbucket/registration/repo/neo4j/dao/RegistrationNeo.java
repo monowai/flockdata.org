@@ -24,6 +24,7 @@ import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.repo.neo4j.SystemUserRepository;
 import com.auditbucket.registration.repo.neo4j.model.SystemUserNode;
+import com.auditbucket.registration.service.KeyGenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
@@ -41,17 +42,36 @@ public class RegistrationNeo implements com.auditbucket.dao.RegistrationDao {
     @Autowired
     Neo4jTemplate template;
 
+    @Autowired
+    KeyGenService keyGenService;
+
     SystemUser save(SystemUser systemUser) {
         return suRepo.save((SystemUserNode) systemUser);
     }
 
+    public SystemUser findByApiKey(String apiKey){
+        if ( apiKey == null )
+            return null;
+        return suRepo.findBySchemaPropertyValue("uid", apiKey);
+    }
+
     public SystemUser findSysUserByName(String name) {
-        return suRepo.getSystemUser(name);
+        SystemUser su = suRepo.getSystemUser(name);
+        if (su !=null ){
+            if (su.getUid()== null){
+                // ToDo: Remove this in 0.94 - this is for upgrading only.
+                su.setUid(keyGenService.getUniqueKey());
+                su = save(su);
+            }
+            return su;
+        }
+        return null;
     }
 
     @Override
     public SystemUser save(Company company, String userName, String password) {
         SystemUser su = new SystemUserNode(userName, password, company, true);
+        su.setUid(keyGenService.getUniqueKey());
         su = save(su);
         return su;
     }

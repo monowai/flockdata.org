@@ -28,7 +28,6 @@ import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
-import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.track.bean.*;
 import com.auditbucket.track.model.ChangeLog;
@@ -678,8 +677,8 @@ public class TestTrack {
 
     @Test
     public void findMetaHeadersForCollectionOfMetaKeys() throws Exception{
-        SystemUser suB = regService.registerSystemUser(new RegistrationBean("othercompany", mark, "bah")).getBody();
-        SystemUser suA = regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah")).getBody();
+        String suB = regService.registerSystemUser(new RegistrationBean("othercompany", mark, "bah")).getBody().getApiKey();
+        String suA = regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah")).getBody().getApiKey();
 
         Fortress fortressA = fortressService.registerFortress("ABC");
         assertNotNull(fortressA);
@@ -688,21 +687,21 @@ public class TestTrack {
         String typeA = "TypeA";
         String typeB = "Type B";
 
-        TrackResultBean ra = mediationFacade.createHeader(new MetaInputBean(fortressA.getName(), "auditTest", typeA, new DateTime(), "aba"), suA.getCompany().getApiKey());
-        TrackResultBean rb = mediationFacade.createHeader(new MetaInputBean(fortressA.getName(), "auditTest", typeA, new DateTime(), "abb"), suA.getCompany().getApiKey());
-        TrackResultBean rc = mediationFacade.createHeader(new MetaInputBean(fortressA.getName(), "auditTest", typeB, new DateTime(), "abc"), suA.getCompany().getApiKey());
-        TrackResultBean validButNotForCallerA = mediationFacade.createHeader(new MetaInputBean(fortressB.getName(), "auditTest", typeB, new DateTime(), "abc"), suB.getCompany().getApiKey());
+        TrackResultBean ra = mediationFacade.createHeader(new MetaInputBean(fortressA.getName(), "auditTest", typeA, new DateTime(), "aba"), suA);
+        TrackResultBean rb = mediationFacade.createHeader(new MetaInputBean(fortressA.getName(), "auditTest", typeA, new DateTime(), "abb"), suA);
+        TrackResultBean rc = mediationFacade.createHeader(new MetaInputBean(fortressA.getName(), "auditTest", typeB, new DateTime(), "abc"), suA);
+        TrackResultBean validButNotForCallerA = mediationFacade.createHeader(new MetaInputBean(fortressB.getName(), "auditTest", typeB, new DateTime(), "abc"), suB);
         Collection<String>toFind = new ArrayList<>();
         toFind.add(ra.getMetaKey());
         toFind.add(rb.getMetaKey());
         toFind.add(rc.getMetaKey());
         toFind.add(validButNotForCallerA.getMetaKey());
 
-        Collection<MetaHeader>foundHeaders = trackEP.getMetaHeaders(toFind, suA.getCompany().getApiKey(), suA.getCompany().getApiKey());
+        Collection<MetaHeader>foundHeaders = trackEP.getMetaHeaders(toFind, suA, suA);
         assertEquals("Caller was authorised to find 3 headers", 3, foundHeaders.size());
 
         // This is the other user, and despite there being valid keys, they will only get theirs back
-        foundHeaders = trackEP.getMetaHeaders(toFind, suA.getCompany().getApiKey(), suB.getCompany().getApiKey());
+        foundHeaders = trackEP.getMetaHeaders(toFind, suA, suB);
         assertEquals("Caller was only authorised to find 1 header", 1, foundHeaders.size());
 
     }

@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +28,7 @@ import java.util.Map;
 @Controller
 @RequestMapping("/admin")
 
-public class EngineEP {
+public class AdminEP {
 
     @Autowired
     MediationFacade mediationFacade;
@@ -42,13 +41,13 @@ public class EngineEP {
 
     @Autowired
     EngineConfig engineConfig;
-    private static Logger logger = LoggerFactory.getLogger(EngineEP.class);
+    private static Logger logger = LoggerFactory.getLogger(AdminEP.class);
 
     @RequestMapping(value = "/cache", method = RequestMethod.DELETE)
     @CacheEvict(value = {"companyFortress", "fortressName", "trackLog", "companyKeys", "companyTag",
             "fortressUser", "callerKey" }, allEntries = true)
     public void resetCache (){
-        LoggerFactory.getLogger(EngineEP.class).info("Reset the cache");
+        LoggerFactory.getLogger(AdminEP.class).info("Reset the cache");
     }
 
     @ResponseBody
@@ -60,8 +59,9 @@ public class EngineEP {
 
     @ResponseBody
     @RequestMapping(value = "/health", method = RequestMethod.GET)
-    @Secured({"ROLE_USER"})
-    public Map<String, String> getHealth() {
+    public Map<String, String> getHealth(String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+        if(registrationService.getSystemUser(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey)).equals(RegistrationService.GUEST))
+            return null;
         return engineConfig.getHealth();
     }
 

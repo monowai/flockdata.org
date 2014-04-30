@@ -33,4 +33,8 @@ public interface SystemUser {
     public abstract Company getCompany();
 
     Long getId();
+
+    public String getUid();
+
+    public void setUid(String uid);
 }

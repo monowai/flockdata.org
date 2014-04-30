@@ -19,9 +19,7 @@
 
 package com.auditbucket.client;
 
-import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.bean.FortressResultBean;
-import com.auditbucket.registration.bean.TagInputBean;
+import com.auditbucket.registration.bean.*;
 import com.auditbucket.track.bean.CrossReferenceInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
@@ -37,10 +35,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.*;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -62,8 +57,11 @@ public class AbRestClient implements StaticDataResolver {
     private String FORTRESS;
     private String COUNTRIES;
     private String PING;
+    private String HEALTH;
+    private String REGISTER;
     private final String userName;
     private final String password;
+    private final String apiKey;
     private int batchSize;
     private static boolean compress = true;
     private boolean simulateOnly;
@@ -73,50 +71,105 @@ public class AbRestClient implements StaticDataResolver {
     private final String tagSync = "TagSync";
     private String defaultFortress;
 
+    @Deprecated
+    public AbRestClient(String serverName, String userName, String password, int batchSize) {
+        this(serverName, null, userName, password, batchSize, null);
+    }
+
+    public AbRestClient(String serverName, String apiKey, String userName, String password, int batchSize, String defaultFortress) {
+        headers = null;
+        this.userName = userName;
+        this.password = password;
+        this.apiKey = apiKey;
+        // Urls to write Audit/Tag/Fortress information
+        this.NEW_HEADER = serverName + "/v1/track/";
+        this.PING = serverName + "/v1/admin/ping/";
+        this.REGISTER = serverName + "/v1/profiles/";
+        this.HEALTH = serverName + "/v1/admin/health/";
+        this.CROSS_REFERENCES = serverName + "/v1/track/xref/";
+        this.NEW_TAG = serverName + "/v1/tag/";
+        this.FORTRESS = serverName + "/v1/fortress/";
+        this.COUNTRIES = serverName + "/v1/geo/";
+        this.batchSize = batchSize;
+        this.defaultFortress = defaultFortress;
+    }
+
+    public AbRestClient(String serverName, String apiKey, int i) {
+        this(serverName, apiKey, null, null, i, null);
+
+    }
+
     public String ping() {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-        HttpHeaders httpHeaders = getHeaders(userName, password);
-        HttpEntity requestEntity = new HttpEntity<>( httpHeaders);
+        HttpHeaders httpHeaders = getHeaders(null, null, null);// Unauthorized ping is ok
+        HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
         try {
             ResponseEntity<String> response = restTemplate.exchange(PING, HttpMethod.GET, requestEntity, String.class);
             return response.getBody();
         } catch (HttpClientErrorException e) {
-            // ToDo: Rest error handling pretty useless. need to know why it's failing
-            logger.error("AB Client Audit error {}", getErrorMessage(e));
-            return "err";
+            if (e.getMessage().startsWith("401"))
+                return "auth";
+            else
+                return e.getMessage();
         } catch (HttpServerErrorException e) {
-            logger.error("AB Server Audit error {}", getErrorMessage(e));
             return "err";
-
+        } catch (ResourceAccessException e) {
+            return "err";
         }
 
     }
-    public boolean isSimulateOnly(){
+
+    public Map<String, Object> health() {
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+        HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
+        HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
+        Map<String, Object> result = new HashMap<>();
+        try {
+            ResponseEntity<Map> response = restTemplate.exchange(HEALTH, HttpMethod.GET, requestEntity, Map.class);
+            return response.getBody();
+        } catch (HttpClientErrorException e) {
+            if (e.getMessage().startsWith("401")) {
+                result.put("error", "auth");
+            } else {
+                result.put("error", e.getMessage());
+            }
+
+        } catch (HttpServerErrorException | ResourceAccessException e) {
+            result.put("error", e.getMessage());
+        }
+        return result;
+
+    }
+
+    public boolean isSimulateOnly() {
         return simulateOnly;
+    }
+
+    public SystemUserResultBean registerProfile(String userName, String password, String company) {
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+        HttpHeaders httpHeaders = getHeaders(null, userName, password); // Internal application authorisation
+        RegistrationBean registrationBean = new RegistrationBean(company, userName, password).setIsUnique(false);
+        HttpEntity requestEntity = new HttpEntity<>(registrationBean, httpHeaders);
+
+        try {
+            ResponseEntity<SystemUserResultBean> response = restTemplate.exchange(REGISTER, HttpMethod.POST, requestEntity, SystemUserResultBean.class);
+            return response.getBody();
+        } catch (HttpClientErrorException e) {
+            return null;
+        } catch (HttpServerErrorException e) {
+            return null;
+        } catch (ResourceAccessException e) {
+            return null;
+        }
+
     }
 
     public enum type {TRACK, TAG}
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(AbRestClient.class);
-
-    public AbRestClient(String serverName, String userName, String password, int batchSize) {
-        this(serverName, userName, password, batchSize, null);
-    }
-
-    public AbRestClient(String serverName, String userName, String password, int batchSize, String defaultFortress) {
-        this.userName = userName;
-        this.password = password;
-        // Urls to write Audit/Tag/Fortress information
-        this.NEW_HEADER = serverName + "/v1/track/";
-        this.PING = serverName + "/v1/admin/ping";
-        this.CROSS_REFERENCES = serverName + "/v1/track/xref";
-        this.NEW_TAG = serverName + "/v1/tag/";
-        this.FORTRESS = serverName + "/v1/fortress/";
-        this.COUNTRIES = serverName +"/v1/geo/";
-        this.batchSize = batchSize;
-        this.defaultFortress = defaultFortress;
-    }
 
     public void setSimulateOnly(boolean simulateOnly) {
         this.simulateOnly = simulateOnly;
@@ -128,7 +181,7 @@ public class AbRestClient implements StaticDataResolver {
             return 0;
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-        HttpHeaders httpHeaders = getHeaders(userName, password);
+        HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
         HttpEntity<List<CrossReferenceInputBean>> requestEntity = new HttpEntity<>(referenceInputBeans, httpHeaders);
         try {
             ResponseEntity<ArrayList> response = restTemplate.exchange(CROSS_REFERENCES, HttpMethod.POST, requestEntity, ArrayList.class);
@@ -151,7 +204,7 @@ public class AbRestClient implements StaticDataResolver {
             return null;
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-        HttpHeaders httpHeaders = getHeaders(userName, password);
+        HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
         HttpEntity<List<TagInputBean>> requestEntity = new HttpEntity<>(httpHeaders);
         try {
             ResponseEntity<String> response = restTemplate.exchange(COUNTRIES, HttpMethod.GET, requestEntity, String.class);
@@ -166,7 +219,7 @@ public class AbRestClient implements StaticDataResolver {
             logger.error("AB Server Audit error {}", getErrorMessage(e));
             return null;
 
-        } catch (JsonMappingException | JsonParseException  e) {
+        } catch (JsonMappingException | JsonParseException e) {
             logger.error("Unexpected", e);
         } catch (IOException e) {
             logger.error("Unexpected", e);
@@ -174,26 +227,28 @@ public class AbRestClient implements StaticDataResolver {
         return null;
     }
 
-    Map<String,TagInputBean>countriesByName = null;
+    Map<String, TagInputBean> countriesByName = null;
+
     /**
      * resolves the country Name to an ISO code
+     *
      * @param name long name of the country
      * @return iso code to use
      */
     @Override
-    public String resolveCountryISOFromName(String name){
+    public String resolveCountryISOFromName(String name) {
         if (simulateOnly)
             return name;
-        if (countriesByName == null ){
+        if (countriesByName == null) {
 
-            Collection<TagInputBean>countries = getCountries();
+            Collection<TagInputBean> countries = getCountries();
             countriesByName = new HashMap<>(countries.size());
             for (TagInputBean next : countries) {
                 countriesByName.put(next.getName(), next);
             }
         }
         TagInputBean tag = countriesByName.get(name);
-        if ( tag == null ){
+        if (tag == null) {
             logger.error("Unable to resolve country name [{}]", name);
             return null;
         }
@@ -207,7 +262,7 @@ public class AbRestClient implements StaticDataResolver {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
-        HttpHeaders httpHeaders = getHeaders(userName, password);
+        HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
         HttpEntity<List<MetaInputBean>> requestEntity = new HttpEntity<>(auditInput, httpHeaders);
 
         try {
@@ -230,7 +285,7 @@ public class AbRestClient implements StaticDataResolver {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
-        HttpHeaders httpHeaders = getHeaders(userName, password);
+        HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
         HttpEntity<List<TagInputBean>> requestEntity = new HttpEntity<>(tagInputBean, httpHeaders);
 
         try {
@@ -252,7 +307,7 @@ public class AbRestClient implements StaticDataResolver {
     private void logServerMessages(ResponseEntity<ArrayList> response) {
         ArrayList x = response.getBody();
         for (Object val : x) {
-            Map map  = (Map)val;
+            Map map = (Map) val;
             Object serviceMessage = map.get("serviceMessage");
             if (serviceMessage != null)
                 logger.error("Service returned [{}]", serviceMessage.toString());
@@ -266,7 +321,7 @@ public class AbRestClient implements StaticDataResolver {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
-        HttpHeaders httpHeaders = getHeaders(userName, password);
+        HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
         HttpEntity<FortressInputBean> request = new HttpEntity<>(new FortressInputBean(fortressName), httpHeaders);
         try {
             restTemplate.exchange(FORTRESS, HttpMethod.POST, request, FortressResultBean.class);
@@ -308,17 +363,20 @@ public class AbRestClient implements StaticDataResolver {
 
     private static HttpHeaders headers = null;
 
-    public static HttpHeaders getHeaders(final String username, final String password) {
+    public static HttpHeaders getHeaders(final String apiKey, final String username, final String password) {
         if (headers != null)
             return headers;
 
         headers = new HttpHeaders() {
             {
-                String auth = username + ":" + password;
-                byte[] encodedAuth = Base64.encodeBase64(
-                        auth.getBytes(Charset.forName("US-ASCII")));
-                String authHeader = "Basic " + new String(encodedAuth);
-                set("Authorization", authHeader);
+                if (username != null && password != null) {
+                    String auth = username + ":" + password;
+                    byte[] encodedAuth = Base64.encodeBase64(
+                            auth.getBytes(Charset.forName("US-ASCII")));
+                    String authHeader = "Basic " + new String(encodedAuth);
+                    set("Authorization", authHeader);
+                } else if ( apiKey != null )
+                    set("Api-Key", apiKey);
                 setContentType(MediaType.APPLICATION_JSON);
                 set("charset", "UTF-8");
                 if (compress)
@@ -363,9 +421,9 @@ public class AbRestClient implements StaticDataResolver {
     private void batchTags(MetaInputBean metaInputBeans) {
 
         for (TagInputBean tag : metaInputBeans.getTags()) {
-            String indexKey = tag.getCode()+tag.getIndex();
+            String indexKey = tag.getCode() + tag.getIndex();
             TagInputBean cachedTag = batchTag.get(indexKey);
-            if (cachedTag==null )
+            if (cachedTag == null)
                 batchTag.put(indexKey, tag);
             else {
                 cachedTag.mergeTags(tag);
@@ -440,11 +498,11 @@ public class AbRestClient implements StaticDataResolver {
     public static String convertToJson(String[] headerRow, String[] line) throws JsonProcessingException {
         ObjectNode node = mapper.createObjectNode();
         for (int i = 0; i < headerRow.length; i++) {
-            String header =headerRow[i];
+            String header = headerRow[i];
 
-            if ( header.startsWith("@!"))
+            if (header.startsWith("@!"))
                 header = headerRow[i].substring(2, headerRow[i].length());
-            else if ( header.startsWith("@")||header.startsWith("$")||header.startsWith("*"))
+            else if (header.startsWith("@") || header.startsWith("$") || header.startsWith("*"))
                 header = headerRow[i].substring(1, headerRow[i].length());
 
             node.put(header, line[i].trim());

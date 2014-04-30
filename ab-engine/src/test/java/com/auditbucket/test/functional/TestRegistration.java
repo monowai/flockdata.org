@@ -22,9 +22,9 @@ package com.auditbucket.test.functional;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
+import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.model.*;
-import com.auditbucket.registration.repo.neo4j.model.CompanyUserNode;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
@@ -44,7 +44,6 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -109,12 +108,11 @@ public class TestRegistration {
 
     private void createCompanyUsers(String userNamePrefix, int count) throws DatagioException {
         SecurityContextHolder.getContext().setAuthentication(authA);
-        SystemUser su = registrationEP.registerSystemUser(new RegistrationBean("CompanyA", "mike", "whocares").setIsUnique(false)).getBody();
-        Company company = su.getCompany();
+        SystemUserResultBean su = registrationEP.registerSystemUser(new RegistrationBean("CompanyA", "mike", "whocares").setIsUnique(false)).getBody();
+
         int i = 1;
         while (i <= count) {
-            CompanyUser test = new CompanyUserNode(userNamePrefix + i + "@sunnybell.com", company);
-
+            CompanyUser test = registrationService.addCompanyUser(userNamePrefix + i + "@sunnybell.com", su.getCompanyName());
             test = companyService.save(test);
             assertNotNull(test);
             i++;
@@ -134,6 +132,7 @@ public class TestRegistration {
 
     }
 
+
     @Test
     public void companyFortressNameSearch() throws Exception {
         String companyName = "Monowai";
@@ -141,7 +140,7 @@ public class TestRegistration {
 
         // Create the company.
         SecurityContextHolder.getContext().setAuthentication(authA);
-        SystemUser systemUser = registrationEP.registerSystemUser(new RegistrationBean(companyName, adminName, "password").setIsUnique(false)).getBody();
+        SystemUserResultBean systemUser = registrationEP.registerSystemUser(new RegistrationBean(companyName, adminName, "password").setIsUnique(false)).getBody();
         assertNotNull(systemUser);
 
         fortressService.registerFortress("fortressA");
@@ -201,7 +200,7 @@ public class TestRegistration {
 
         // Create the company.
         SecurityContextHolder.getContext().setAuthentication(null);
-        SystemUser systemUser = registrationEP.registerSystemUser(new RegistrationBean(companyName, adminName, "password")).getBody();
+        SystemUserResultBean systemUser = registrationEP.registerSystemUser(new RegistrationBean(companyName, adminName, "password")).getBody();
         assertNotNull(systemUser);
 
         // Assume the user has now logged in.

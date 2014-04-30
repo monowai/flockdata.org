@@ -72,12 +72,10 @@ public class TrackAPIKeys {
     public void testApiKeysWorkInPrecedence() throws Exception {
         // No Security Access necessary.
         SecurityContextHolder.getContext().setAuthentication(null);
-        SystemUser sysUser = regEP.registerSystemUser(new RegistrationBean(monowai, mike, "bah")).getBody();
-        assertNotNull(sysUser);
-        String apiKey = sysUser.getCompany().getApiKey();
+        String apiKey = regEP.registerSystemUser(new RegistrationBean(monowai, mike, "bah")).getBody().getApiKey();
 
         Assert.assertNotNull(apiKey);
-        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("testApiKeysWorkInPrecedence"), sysUser.getCompany().getApiKey()).getBody();
+        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("testApiKeysWorkInPrecedence"), apiKey).getBody();
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
 
         // Fails due to NoAuth or key
@@ -124,11 +122,9 @@ public class TrackAPIKeys {
     public void apiCallsSecuredByAccessKey() throws Exception {
         // No authorization - only API keys
         SecurityContextHolder.getContext().setAuthentication(null);
-        SystemUser sysUser = regEP.registerSystemUser(new RegistrationBean(monowai, mike, "bah")).getBody();
-        assertNotNull(sysUser);
-        String apiKey = sysUser.getCompany().getApiKey();
+        String apiKey = regEP.registerSystemUser(new RegistrationBean(monowai, mike, "bah")).getBody().getApiKey();
 
-        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("apiCallsSecuredByAccessKey"), sysUser.getCompany().getApiKey()).getBody();
+        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("apiCallsSecuredByAccessKey"), apiKey).getBody();
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC9990");
         String what = "{\"house\": \"house\"}";
         LogInputBean log = new LogInputBean("harry", new DateTime(), what);
