@@ -35,5 +35,5 @@ findBaseDirAndCdThere
 
 ## Countries
 ## match (c:Country) return c;
-$JAVA -classpath $AB_APP/ab-client.jar com.auditbucket.client.Importer -p ${AB_CONFIG} "/countries.json, /JsonTags.json"
+$JAVA -classpath $AB_APP/ab-client.jar com.auditbucket.client.Importer -c ${AB_CONFIG} "/countries.json, /JsonTags.json"
 

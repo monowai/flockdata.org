@@ -33,4 +33,4 @@ if [ ! -x "$JAVA" ]; then
 fi
 findBaseDirAndCdThere
 
-$JAVA -classpath $AB_APP/ab-client.jar com.auditbucket.client.Configure -p ${AB_CONFIG} $1 $2 $3
+$JAVA -classpath $AB_APP/ab-client.jar com.auditbucket.client.Configure -c ${AB_CONFIG} $1 $2 $3

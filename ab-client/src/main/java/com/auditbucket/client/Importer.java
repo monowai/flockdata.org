@@ -88,7 +88,7 @@ public class Importer {
                 .description("Client side batch importer to AuditBucket");
 
         parser.addArgument("-b", "--batch")
-                .setDefault(100)
+                .required(false)
                 .help("Default batch size");
 
         parser.addArgument("-c", "--path")
