@@ -139,6 +139,7 @@ public class TrackService {
             TrackResultBean arb = new TrackResultBean(ah);
             arb.setMetaInputBean(inputBean);
             arb.setWasDuplicate();
+            arb.setLogInput(inputBean.getLog());
             // Could be rewriting tags
             tagTrackService.associateTags(company, ah, inputBean.getTags());
 
@@ -464,6 +465,8 @@ public class TrackService {
     }
 
     public TrackLog getLastLog(MetaHeader metaHeader) throws DatagioException {
+        if ( metaHeader == null )
+            return null;
         logger.debug("Getting lastLog MetaID [{}]", metaHeader.getId());
         return trackDao.getLastLog(metaHeader.getId());
     }

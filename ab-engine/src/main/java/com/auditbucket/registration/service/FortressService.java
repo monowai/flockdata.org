@@ -123,16 +123,14 @@ public class FortressService {
 
         FortressUser fu = fortressDao.getFortressUser(fortress.getId(), fortressUser.toLowerCase());
         if (createIfMissing && fu == null)
-            fu = addFortressUser(fortress.getId(), fortressUser.toLowerCase().trim());
+            fu = addFortressUser(fortress, fortressUser.toLowerCase().trim());
         return fu;
     }
 
-    private FortressUser addFortressUser(Long fortressId, String fortressUser) {
+    private FortressUser addFortressUser(Fortress fortress, String fortressUser) {
 
-        Fortress fortress = getFortress(fortressId);
         if (fortress == null)
             throw new IllegalArgumentException("Unable to find requested fortress");
-
 
         Company company = fortress.getCompany();
         // this should never happen

@@ -38,6 +38,8 @@ public class ApiKeyHelper {
      */
     public static String resolveKey(String headerKey, String requestKey){
         String key = requestKey;
+        if (headerKey !=null && (headerKey.startsWith("{{") && headerKey.endsWith("}}"))) // Postman "not-set" value
+            headerKey = null;
         if (headerKey != null)
             key = headerKey;
         return key;

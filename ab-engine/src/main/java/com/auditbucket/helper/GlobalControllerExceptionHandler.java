@@ -40,13 +40,6 @@ import org.springframework.web.servlet.ModelAndView;
 public class GlobalControllerExceptionHandler {
     private Logger logger = LoggerFactory.getLogger(GlobalControllerExceptionHandler.class);
 
-//    @ExceptionHandler(DataStoreOperationException.class)
-//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-//    public ModelAndView handleKVStore( DataStoreOperationException ex){
-//        logger.error("KV Store Error", ex);
-//        return new JsonError("Internal KV Error. Contact Support").asModelAndView();
-//    }
-
     @ExceptionHandler(DatagioException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ModelAndView handleAuditException( DatagioException ex){
@@ -63,6 +56,12 @@ public class GlobalControllerExceptionHandler {
     @ExceptionHandler(JsonParseException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ModelAndView handleJsonError(final JsonParseException ex) {
+        return new JsonError(ex.getMessage()).asModelAndView();
+    }
+
+    @ExceptionHandler(SecurityException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ModelAndView handleSecException(final SecurityException ex){
         return new JsonError(ex.getMessage()).asModelAndView();
     }
 

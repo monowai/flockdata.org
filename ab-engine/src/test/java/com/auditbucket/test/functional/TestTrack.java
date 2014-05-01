@@ -127,36 +127,38 @@ public class TestTrack {
         Assert.assertNotNull(trackService.findByCallerRef(fortress, aib.getDocumentType(), aib.getCallerRef()));
     }
 
-//    @Test
-//    public void metaHeaderDifferentLogsBulkEndpoint() throws Exception {
-//        SecurityContextHolder.getContext().setAuthentication(authMike);
-//        SystemUserResultBean su = regService.registerSystemUser(new RegistrationBean(monowai, "mike", "bah")).getBody();
-//        Fortress fortress = fortressService.registerFortress("auditTest");
-//        MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
-//        LogInputBean logInputBean = new LogInputBean("mike", new DateTime(), "{\"col\": 123}");
-//        inputBean.setLog(logInputBean);
-//        List<MetaInputBean>inputBeans = new ArrayList<>();
-//        inputBeans.add(inputBean);
-//        trackEP.trackHeaders(inputBeans, su.getApiKey(), su.getApiKey());
-//        Thread.sleep(500);
-//
-//        MetaHeader created = trackEP.getByCallerRef(fortress.getName(), "TestTrack", "ABC123", su.getApiKey(), su.getApiKey() ).getBody();
-//        Thread.sleep(30000);
-//        assertNotNull (created);
-//        // Now we record a change
-//        logInputBean = new LogInputBean("mike", new DateTime(), "{\"col\": 321}");
-//        inputBean.setLog(logInputBean);
-//        inputBeans = new ArrayList<>();
-//        inputBeans.add(inputBean);
-//        trackEP.trackHeaders(inputBeans, null, null);
-//        Thread.sleep (600);
-//
-//        LogWhat what = trackEP.getLastChangeWhat(created.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody();
-//        assertNotNull ( what);
-//        Object value = what.getWhatMap().get("col");
-//        Assert.assertNotNull(value);
-//        assertEquals("321", value.toString());
-//    }
+    @Test
+    public void metaHeaderDifferentLogsBulkEndpoint() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(authMike);
+        SystemUserResultBean su = regService.registerSystemUser(new RegistrationBean(monowai, "mike", "bah")).getBody();
+        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("auditTest",true), su.getApiKey()).getBody();
+
+        MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
+        LogInputBean logInputBean = new LogInputBean("mike", new DateTime(), "{\"col\": 123}");
+        inputBean.setLog(logInputBean);
+        List<MetaInputBean>inputBeans = new ArrayList<>();
+        inputBeans.add(inputBean);
+        trackEP.trackHeadersAsync(inputBeans, false, su.getApiKey());
+        Thread.yield();
+        Thread.sleep(900);
+
+        MetaHeader created = trackEP.getByCallerRef(fortress.getName(), "TestTrack", "ABC123", su.getApiKey(), su.getApiKey() ).getBody();
+        Thread.sleep(600);
+        assertNotNull (created);
+        // Now we record a change
+        logInputBean = new LogInputBean("mike", new DateTime(), "{\"col\": 321}");
+        inputBean.setLog(logInputBean);
+        inputBeans = new ArrayList<>();
+        inputBeans.add(inputBean);
+        trackEP.trackHeadersAsync(inputBeans, false, su.getApiKey());
+        Thread.sleep (600);
+
+        LogWhat what = trackEP.getLastChangeWhat(created.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody();
+        assertNotNull ( what);
+        Object value = what.getWhatMap().get("col");
+        Assert.assertNotNull(value);
+        assertEquals("321", value.toString());
+    }
 
 
     @Test

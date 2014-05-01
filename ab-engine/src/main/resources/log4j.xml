@@ -91,7 +91,7 @@
         <level value="info"/>
     </logger>
     <logger name="com.auditbucket.engine.service.TrackService">
-        <level value="trace"/>
+        <level value="info"/>
     </logger>
     <!-- Root Logger -->
     <root>
