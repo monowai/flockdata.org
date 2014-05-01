@@ -16,7 +16,7 @@ public class SystemUserResultBean {
     public SystemUserResultBean(SystemUser su) {
         this();
         this.companyName = su.getCompany().getName();
-        this.apiKey = su.getUid();
+        this.apiKey = su.getApiKey();
         this.name = su.getName();
 
     }

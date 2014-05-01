@@ -52,15 +52,15 @@ public class RegistrationNeo implements com.auditbucket.dao.RegistrationDao {
     public SystemUser findByApiKey(String apiKey){
         if ( apiKey == null )
             return null;
-        return suRepo.findBySchemaPropertyValue("uid", apiKey);
+        return suRepo.findBySchemaPropertyValue("apiKey", apiKey);
     }
 
     public SystemUser findSysUserByName(String name) {
         SystemUser su = suRepo.getSystemUser(name);
         if (su !=null ){
-            if (su.getUid()== null){
+            if (su.getApiKey()== null){
                 // ToDo: Remove this in 0.94 - this is for upgrading only.
-                su.setUid(keyGenService.getUniqueKey());
+                su.setApiKey(keyGenService.getUniqueKey());
                 su = save(su);
             }
             return su;
@@ -71,7 +71,7 @@ public class RegistrationNeo implements com.auditbucket.dao.RegistrationDao {
     @Override
     public SystemUser save(Company company, String userName, String password) {
         SystemUser su = new SystemUserNode(userName, password, company, true);
-        su.setUid(keyGenService.getUniqueKey());
+        su.setApiKey(keyGenService.getUniqueKey());
         su = save(su);
         return su;
     }

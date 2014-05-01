@@ -392,7 +392,7 @@ public class TestMetaHeaderTags {
         assertNotNull(tagSet);
         assertEquals(3, tagSet.size());
 
-        String apiKey = iSystemUser.getUid();
+        String apiKey = iSystemUser.getApiKey();
         TrackedSummaryBean summaryBean = trackEp.getAuditSummary(metaHeader.getMetaKey(),apiKey, apiKey ).getBody();
         assertNotNull(summaryBean);
         assertEquals(3, summaryBean.getTags().size());

@@ -340,7 +340,7 @@ public class AbRestClient implements StaticDataResolver {
 
     public String getErrorMessage(HttpStatusCodeException e) throws DatagioException{
 
-        if (e.getStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR || e.getStatusCode()== HttpStatus.BAD_REQUEST) {
+        if (e.getStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR || e.getStatusCode()== HttpStatus.BAD_REQUEST|| e.getStatusCode()== HttpStatus.BAD_REQUEST) {
             logger.error(e.getResponseBodyAsString());
             String error = e.getResponseBodyAsString();
             if ( error.contains("Invalid API"))

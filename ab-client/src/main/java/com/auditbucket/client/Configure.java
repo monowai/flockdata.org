@@ -144,13 +144,13 @@ public class Configure {
         while (version == null) {
 
             do {
-                String message = "** Enter a user name to register ";
+                String message = "** Enter a unique login name to register default = ";
                 if ( user!=null )
                     message = message + "({})";
                 user = getValue(message, user);
             } while (user == null );
             do{
-                String message="** Enter the company name for the user ";
+                String message="** Enter the company name for the login ["+user+"] default = ";
                 if ( company != null )
                     message = message + "({})";
                 company = getValue(message, company);
@@ -160,14 +160,18 @@ public class Configure {
 
             if (suResult != null) {
                 version = getVersion(engineURL, suResult.getApiKey());
-                if (version != null) {
-                    defaults.setDefaultUser(user);
-                    defaults.setCompany(company);
-                    defaults.setApiKey(suResult.getApiKey());
-                }
             } else {
                 logger.info("Unable to register the system user");
                 System.exit(-1);
+            }
+            if ( !suResult.getCompanyName().equalsIgnoreCase(company)){
+                logger.error ("The Login name [{}] is already in use with another company. Login names must be unique. Try using an email address", user);
+                System.exit(-1);
+            }
+            if (version != null) {
+                defaults.setDefaultUser(user);
+                defaults.setCompany(suResult.getCompanyName());
+                defaults.setApiKey(suResult.getApiKey());
             }
         }
 

@@ -34,7 +34,7 @@ public interface SystemUser {
 
     Long getId();
 
-    public String getUid();
+    public String getApiKey();
 
-    public void setUid(String uid);
+    public void setApiKey(String uid);
 }

@@ -23,6 +23,9 @@ public class ConfigProperties {
         o = prop.get("batchSize");
         if ( o!=null)
             setBatchSize(Integer.parseInt(o.toString()));
+        o = prop.get("company");
+        if ( o!=null)
+            setCompany(o.toString());
 
     }
 
@@ -88,6 +91,7 @@ public class ConfigProperties {
         Properties properties = new Properties();
         properties.setProperty("engineURL", engineURL);
         properties.setProperty("defaultUser", defaultUser);
+        properties.setProperty("company", company);
         properties.setProperty("apiKey", apiKey);
         properties.setProperty("batchSize", Long.toString(batchSize));
         return properties;

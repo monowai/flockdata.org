@@ -156,7 +156,7 @@ public class TestForceDeadlock {
         latch.await();
         boolean working = false;
         Map<Integer, Future<Integer>> futures = new HashMap<>();
-        String apiKey = su.getUid();
+        String apiKey = su.getApiKey();
         try {
             for (int i = 0; i < threadMax; i++) {
                 futures.put(i, trackEP.trackHeadersAsync(runners.get(i).getInputBeans(), true, apiKey));

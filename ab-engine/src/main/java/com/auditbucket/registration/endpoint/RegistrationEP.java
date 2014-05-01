@@ -55,7 +55,7 @@ public class RegistrationEP {
         SystemUser su = regService.registerSystemUser(regBean);
 
         if (su == null)
-            return new ResponseEntity<>(new SystemUserResultBean(su), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new SystemUserResultBean(su), HttpStatus.CONFLICT);
 
         return new ResponseEntity<>(new SystemUserResultBean(su), HttpStatus.CREATED);
     }

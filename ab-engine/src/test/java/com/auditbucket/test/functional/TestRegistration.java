@@ -19,6 +19,7 @@
 
 package com.auditbucket.test.functional;
 
+import com.auditbucket.company.endpoint.CompanyEP;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
@@ -65,12 +66,14 @@ import static org.junit.Assert.assertTrue;
 @Transactional
 public class TestRegistration {
 
-
     @Autowired
     private SystemUserService systemUserService;
 
     @Autowired
     private CompanyService companyService;
+
+    @Autowired
+    private CompanyEP companyEP;
 
     @Autowired
     private FortressService fortressService;
@@ -124,7 +127,6 @@ public class TestRegistration {
     public void findByName() throws DatagioException {
         createCompanyUsers("MTest", 3);
         String name = "mtest2@sunnybell.com";
-        //SystemUser systemUser = registrationService.registerSystemUser(new RegistrationBean("test", "mike", "password"));
         SecurityContextHolder.getContext().setAuthentication(authA);
         CompanyUser p = companyService.getCompanyUser(name);
         assertNotNull(p);
@@ -157,6 +159,28 @@ public class TestRegistration {
             Assert.assertNotNull(fCode);
             assertEquals("Fortress Space Name", fCode.getName());
         }
+    }
+
+    @Test
+    public void onlyOneCompanyCreatedWithMixedCase() throws Exception {
+        String companyName = "Monowai";
+        String adminName = "mike";
+
+        // Create the company.
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        SystemUserResultBean systemUser = registrationEP.registerSystemUser(new RegistrationBean(companyName, adminName, "password").setIsUnique(false)).getBody();
+        assertNotNull(systemUser);
+        Collection<Company>companies = companyEP.findCompanies(systemUser.getApiKey(), null);
+        assertEquals(1, companies.size());
+        String cKey = companies.iterator().next().getApiKey();
+
+        SystemUserResultBean systemUserB = registrationEP.registerSystemUser(new RegistrationBean(companyName.toLowerCase(), "xyz", "password").setIsUnique(false)).getBody();
+        assertNotNull(systemUserB);
+
+        companyEP.findCompanies(systemUserB.getApiKey(), null);
+
+        assertEquals(1, companies.size());
+        assertEquals("Company keys should be the same irrespective of name case create with", companies.iterator().next().getApiKey(), cKey);
     }
 
     @Test
@@ -200,11 +224,19 @@ public class TestRegistration {
 
         // Create the company.
         SecurityContextHolder.getContext().setAuthentication(null);
-        SystemUserResultBean systemUser = registrationEP.registerSystemUser(new RegistrationBean(companyName, adminName, "password")).getBody();
-        assertNotNull(systemUser);
+        try {
+            // Unauthenticated users can't register accounts
+            SystemUserResultBean systemUser = registrationEP.registerSystemUser(new RegistrationBean(companyName, adminName, "password")).getBody();
+            assertNotNull(systemUser);
+        } catch (Exception e){
+            // this is good
+        }
 
         // Assume the user has now logged in.
         SecurityContextHolder.getContext().setAuthentication(authA);
+        SystemUserResultBean systemUser = registrationEP.registerSystemUser(new RegistrationBean(companyName, adminName, "password")).getBody();
+        assertNotNull(systemUser);
+
         CompanyUser nonAdmin = registrationService.addCompanyUser(userName, companyName);
         assertNotNull(nonAdmin);
 
