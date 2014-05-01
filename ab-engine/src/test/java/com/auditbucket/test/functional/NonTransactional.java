@@ -3,13 +3,15 @@ package com.auditbucket.test.functional;
 import com.auditbucket.fortress.endpoint.FortressEP;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
-import com.auditbucket.registration.model.*;
+import com.auditbucket.registration.model.CompanyUser;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.FortressUser;
+import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.kernel.DeadlockDetectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +62,7 @@ public class NonTransactional {
         // Assume the user has now logged in.
         //org.neo4j.graphdb.Transaction t = graphDatabaseService.beginTx();
         String company = "MFURT";
-        SystemUser su= registrationService.registerSystemUser(new RegistrationBean(company, uname, "password").setIsUnique(false));
+        SystemUser su = registrationService.registerSystemUser(new RegistrationBean(company, uname, "password").setIsUnique(false));
         SecurityContextHolder.getContext().setAuthentication(authA);
         CompanyUser nonAdmin = registrationService.addCompanyUser(uname, company);
         assertNotNull(nonAdmin);
@@ -81,23 +83,23 @@ public class NonTransactional {
         CountDownLatch latch = new CountDownLatch(count);
         // Run threaded tests
         ArrayList<FuAction> actions = new ArrayList<>();
-        ArrayList<Thread> threads= new ArrayList<>();
+        ArrayList<Thread> threads = new ArrayList<>();
         int i = 0;
-        while (i<=count){
+        while (i <= count) {
             FuAction action = new FuAction(fortress, Integer.toString(i), "mike", latch);
-            actions.add( action);
-            threads.add( new Thread(action));
+            actions.add(action);
+            threads.add(new Thread(action));
             threads.get(i).start();
-            i ++;
+            i++;
         }
 
         boolean timedOut = !latch.await(60, TimeUnit.SECONDS);
         assertFalse(timedOut);
 
         assertNotNull(fortressService.findByName(fortress.getCompany(), fortress.getName()));
-        i=0;
-        while (i<count){
-            assertFalse("Fu"+i+"Fail", actions.get(i).isFailed());
+        i = 0;
+        while (i < count) {
+            assertFalse("Fu" + i + "Fail", actions.get(i).isFailed());
             i++;
         }
         // Check we only get one back
@@ -111,7 +113,7 @@ public class NonTransactional {
         Fortress fortress;
         String uname;
         CountDownLatch latch;
-        boolean failed ;
+        boolean failed;
         boolean done = false;
 
         public FuAction(Fortress fortress, String id, String uname, CountDownLatch latch) {
@@ -127,39 +129,32 @@ public class NonTransactional {
 
         public void run() {
             logger.info("Running " + this);
-            int max = 50;
+            int runCount = 50;
             int i = 0;
-            failed = true;
-            try {
-                int deadLockCount =0;
-                while (i < max) {
-                    boolean deadlocked = false;
-                    try {
-                        FortressUser fu = fortressService.getFortressUser(this.fortress, uname);
-                        assertNotNull(fu);
-                    } catch (DeadlockDetectedException e){
-                        deadLockCount++;
-                        Thread.yield();
-                        if (deadLockCount == 100){
-                            failed = true;
-                            logger.error("Deadlock retry exceeded");
-                            return;
-                        }
-                        deadlocked = true;
+            failed = false;
+            int deadLockCount = 0;
+            while (i < runCount) {
+                boolean deadlocked = false;
+                try {
+                    FortressUser fu = fortressService.getFortressUser(this.fortress, uname);
+                    assertNotNull(fu);
+                } catch (Exception e) {
+                    deadLockCount++;
+                    Thread.yield();
+                    if (deadLockCount == 100) {
+                        failed = true;
+                        logger.error("Exception count exceeded");
+                        return;
                     }
-
-                    if ( !deadlocked)
-                        i++;
+                    deadlocked = true;
                 }
-                failed = false;
-            } catch (Exception e) {
-                logger.error("Error!", e);
-            } finally{
-                latch.countDown();
-            }
 
-
-
+                if (!deadlocked)
+                    i++;
+            } // End while
+            logger.info("Finishing {}", failed);
+            failed = false;
+            latch.countDown();
         }
     }
 }
