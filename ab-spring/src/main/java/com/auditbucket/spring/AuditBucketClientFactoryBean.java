@@ -21,6 +21,7 @@ public class AuditBucketClientFactoryBean extends AuditBucketAbstractClientFacto
         else
             batchSize = Integer.parseInt("1");
         AbRestClient exporter = new AbRestClient(properties.get("server.name").toString(),
+                null,
                 properties.get("ab.username").toString(),
                 properties.get("ab.password").toString(),
                 batchSize,
