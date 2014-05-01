@@ -52,6 +52,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
@@ -428,7 +429,8 @@ public class TestRegistration {
             i ++;
         }
 
-        latch.await();
+        latch.await(3000l, TimeUnit.MILLISECONDS);
+
 
         // Check we only get one back
         FortressUser fu = fortressService.getFortressUser(fortress, uname);
@@ -467,16 +469,18 @@ public class TestRegistration {
             failed = false;
             try {
                 while (i < max) {
+                    //Thread.sleep(100);
                     Assert.assertNotNull(fortressService.getFortressUser(this.fortress, uname));
                     i++;
                 }
             } catch (Exception e) {
-                e.printStackTrace();
                 logger.info("Exception caught {}", e.getMessage());
                 failed = true;
+            } finally{
+                latch.countDown();
             }
-            done= true;
-            latch.countDown();
+
+
 
         }
     }

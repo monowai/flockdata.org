@@ -116,7 +116,6 @@ public class FortressService {
     }
 
     @Cacheable(value = "fortressUser", unless = "#result==null" )
-    @Transactional(propagation = Propagation.SUPPORTS)
     public FortressUser getFortressUser(Fortress fortress, String fortressUser, boolean createIfMissing) {
         if (fortressUser == null || fortress == null)
             throw new IllegalArgumentException("Don't go throwing null in here [" + (fortressUser == null ? "FortressUserNode]" : "FortressNode]"));
