@@ -91,7 +91,8 @@ public class NonTransactional {
             i ++;
         }
 
-        latch.await();
+        boolean timedOut = !latch.await(60, TimeUnit.SECONDS);
+        assertFalse(timedOut);
 
         assertNotNull(fortressService.findByName(fortress.getCompany(), fortress.getName()));
         i=0;
