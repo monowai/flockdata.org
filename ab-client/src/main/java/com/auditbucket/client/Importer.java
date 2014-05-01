@@ -127,7 +127,7 @@ public class Importer {
                 System.exit(1);
             }
             Integer cmdLineBatchSize = ns.getInt("batch");
-            int batchSize = defaults.getDefaultBatch();
+            int batchSize = defaults.getBatchSize();
             if (cmdLineBatchSize != null)
                 batchSize = cmdLineBatchSize;
 
@@ -185,12 +185,12 @@ public class Importer {
     }
 
     static AbRestClient getRestClient(ConfigProperties defaults) {
-        AbRestClient abClient = new AbRestClient(defaults.getEngineURL(), defaults.getApiKey(), null, null, defaults.getDefaultBatch(), null);
+        AbRestClient abClient = new AbRestClient(defaults.getEngineURL(), defaults.getApiKey(), null, null, defaults.getBatchSize(), null);
         String ping = abClient.ping();
         if (!ping.equalsIgnoreCase("pong!")) {
             logger.error("Error communicating with ab-engine");
         }
-        boolean simulateOnly = defaults.getDefaultBatch() <= 0;
+        boolean simulateOnly = defaults.getBatchSize() <= 0;
         abClient.setSimulateOnly(simulateOnly);
         return abClient;
 

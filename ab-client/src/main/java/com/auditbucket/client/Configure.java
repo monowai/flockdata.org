@@ -10,11 +10,9 @@ import net.sourceforge.argparse4j.inf.MutuallyExclusiveGroup;
 import net.sourceforge.argparse4j.inf.Namespace;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * User: mike
@@ -197,9 +195,12 @@ public class Configure {
 
     private static void writeConfiguration(File file, ConfigProperties defaults) {
         try {
-            ObjectMapper om = new ObjectMapper();
+            Properties properties = defaults.getAsProperties();
+            OutputStream out = new FileOutputStream(file);
+            properties.store(out, null);
+            //ObjectMapper om = new ObjectMapper();
 
-            om.writerWithDefaultPrettyPrinter().writeValue(file, defaults);
+            //om.writerWithDefaultPrettyPrinter().writeValue(file, defaults);
             logger.info("** Configuration defaults written to {} ", file.getAbsoluteFile().toString());
         } catch (IOException e) {
             logger.error("Unexpected", e);
@@ -210,10 +211,9 @@ public class Configure {
         if (file.exists()) {
             // Load the defaults
             try {
-                ObjectMapper om = new ObjectMapper();
-                ConfigProperties defaults = om.readValue(file, ConfigProperties.class);
-                logger.info("Loaded config properties from {}", file.getAbsoluteFile().toString());
-                return defaults;
+                Properties prop = new Properties();
+                prop.load(new FileInputStream(file));
+                return new ConfigProperties(prop);
             } catch (IOException e) {
                 logger.error("Unexpected", e);
             }
