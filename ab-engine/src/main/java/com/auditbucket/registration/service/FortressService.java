@@ -107,6 +107,25 @@ public class FortressService {
      * FortressUser Name is deemed to always be unique and is converted to a lowercase trimmed
      * string to enforce this
      *
+     *
+     * @param company
+     * @param fortressUser user to locate
+     * @return fortressUser identity
+     */
+    public FortressUser getFortressUser(Company company, String fortressName, String fortressUser) {
+        Fortress fortress = findByName(company, fortressName);
+        if ( fortress == null )
+            return null;
+        return getFortressUser(fortress, fortressUser, true);
+    }
+
+    /**
+     * Returns an object representing the user in the supplied fortress. User is created
+     * if it does not exist
+     * <p/>
+     * FortressUser Name is deemed to always be unique and is converted to a lowercase trimmed
+     * string to enforce this
+     *
      * @param fortress     fortress to search
      * @param fortressUser user to locate
      * @return fortressUser identity
