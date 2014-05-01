@@ -576,7 +576,7 @@ public class TestAuditIntegration {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
-        HttpHeaders httpHeaders = AbRestClient.getHeaders("mike", "123");
+        HttpHeaders httpHeaders = AbRestClient.getHeaders(null, "mike", "123");
         HttpEntity<QueryParams> requestEntity = new HttpEntity<>(queryParams, httpHeaders);
 
         try {
