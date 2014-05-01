@@ -69,7 +69,7 @@ public class FortressDaoNeo implements FortressDao {
 
     @Override
     public Fortress findOne(Long fortressId) {
-        logger.info("Looking for {}", fortressId);
+        logger.debug("Looking for {}", fortressId);
         return fortressRepo.findOne(fortressId);
     }
 

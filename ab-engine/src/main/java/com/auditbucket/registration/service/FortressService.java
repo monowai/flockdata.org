@@ -107,6 +107,25 @@ public class FortressService {
      * FortressUser Name is deemed to always be unique and is converted to a lowercase trimmed
      * string to enforce this
      *
+     *
+     * @param company
+     * @param fortressUser user to locate
+     * @return fortressUser identity
+     */
+    public FortressUser getFortressUser(Company company, String fortressName, String fortressUser) {
+        Fortress fortress = findByName(company, fortressName);
+        if ( fortress == null )
+            return null;
+        return getFortressUser(fortress, fortressUser, true);
+    }
+
+    /**
+     * Returns an object representing the user in the supplied fortress. User is created
+     * if it does not exist
+     * <p/>
+     * FortressUser Name is deemed to always be unique and is converted to a lowercase trimmed
+     * string to enforce this
+     *
      * @param fortress     fortress to search
      * @param fortressUser user to locate
      * @return fortressUser identity
@@ -116,23 +135,20 @@ public class FortressService {
     }
 
     @Cacheable(value = "fortressUser", unless = "#result==null" )
-    @Transactional(propagation = Propagation.SUPPORTS)
     public FortressUser getFortressUser(Fortress fortress, String fortressUser, boolean createIfMissing) {
         if (fortressUser == null || fortress == null)
             throw new IllegalArgumentException("Don't go throwing null in here [" + (fortressUser == null ? "FortressUserNode]" : "FortressNode]"));
 
         FortressUser fu = fortressDao.getFortressUser(fortress.getId(), fortressUser.toLowerCase());
         if (createIfMissing && fu == null)
-            fu = addFortressUser(fortress.getId(), fortressUser.toLowerCase().trim());
+            fu = addFortressUser(fortress, fortressUser.toLowerCase().trim());
         return fu;
     }
 
-    private FortressUser addFortressUser(Long fortressId, String fortressUser) {
+    private FortressUser addFortressUser(Fortress fortress, String fortressUser) {
 
-        Fortress fortress = getFortress(fortressId);
         if (fortress == null)
             throw new IllegalArgumentException("Unable to find requested fortress");
-
 
         Company company = fortress.getCompany();
         // this should never happen

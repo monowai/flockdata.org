@@ -55,9 +55,10 @@ public class CompanyEP {
 
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
     @ResponseBody
-    public Collection<Company> findCompanies() throws DatagioException {
+    public Collection<Company> findCompanies(String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+        getCompany(apiHeaderKey, apiKey);
         // Only works if you are authorised and logged in
-        return companyService.findCompanies();
+        return companyService.findCompanies(apiKey);
     }
 
     /**
@@ -67,7 +68,7 @@ public class CompanyEP {
     @RequestMapping(value = "/list", produces = "application/json", method = RequestMethod.GET)
     @ResponseBody
     public Collection<Company> findCompaniesOld() throws Exception {
-        return findCompanies();
+        return findCompanies(null, null);
     }
 
 

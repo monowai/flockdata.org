@@ -189,7 +189,7 @@ public class TestAuditIntegration {
         assumeTrue(!ignoreMe);
         SecurityContextHolder.getContext().setAuthentication(authA);
         String company = "Monowai";
-        String apiKey = regService.registerSystemUser(new RegistrationBean(company, email, "bah").setIsUnique(false)).getCompany().getApiKey();
+        String apiKey = regService.registerSystemUser(new RegistrationBean(company, email, "bah").setIsUnique(false)).getApiKey();
         Fortress fo = fortressService.registerFortress(new FortressInputBean("headerWithTagsProcess", false));
         DateTime now = new DateTime();
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", now, "ZZZ123");
@@ -555,8 +555,8 @@ public class TestAuditIntegration {
         MetaInputBean input = new MetaInputBean("TestFortress", "mikeTest", "Query", new DateTime(), "abzz");
         input.setLog(log);
 
-        TrackResultBean result = trackEP.trackHeader(input, su.getCompany().getApiKey(), su.getCompany().getApiKey() ).getBody();
-        waitForHeaderToUpdate(result.getMetaHeader(), su.getCompany().getApiKey());
+        TrackResultBean result = trackEP.trackHeader(input, su.getApiKey(), su.getApiKey() ).getBody();
+        waitForHeaderToUpdate(result.getMetaHeader(), su.getApiKey());
         Thread.sleep(2000);
 //        restClient.writeAudit(input, "Hello World");
 
@@ -576,15 +576,15 @@ public class TestAuditIntegration {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
-        HttpHeaders httpHeaders = AbRestClient.getHeaders("mike", "123");
+        HttpHeaders httpHeaders = AbRestClient.getHeaders(null, "mike", "123");
         HttpEntity<QueryParams> requestEntity = new HttpEntity<>(queryParams, httpHeaders);
 
         try {
             return restTemplate.exchange("http://localhost:9081/ab-search/v1/query/", HttpMethod.POST, requestEntity, String.class).getBody();
         } catch (HttpClientErrorException e) {
-            logger.error("AB Client Audit error {}", e);
+            logger.error("AB Client Audit error {}", e.getMessage());
         } catch (HttpServerErrorException e) {
-            logger.error("AB Server Audit error {}", e);
+            logger.error("AB Server Audit error {}", e.getMessage());
 
         }
         return null;

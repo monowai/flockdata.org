@@ -85,6 +85,11 @@ public class CompanyDaoNeo implements CompanyDao {
         return companyRepo.getCompaniesForUser(sysUserId);
     }
 
+    @Override
+    public Collection<Company> findCompanies(String userApiKey) {
+        return companyRepo.findCompanies(userApiKey);
+    }
+
 
     @Override
     public SystemUser getAdminUser(Long companyId, String name) {

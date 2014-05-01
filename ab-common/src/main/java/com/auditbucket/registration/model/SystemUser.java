@@ -33,4 +33,8 @@ public interface SystemUser {
     public abstract Company getCompany();
 
     Long getId();
+
+    public String getApiKey();
+
+    public void setApiKey(String uid);
 }

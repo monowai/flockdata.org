@@ -21,11 +21,13 @@ package com.auditbucket.registration.endpoint;
 
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.RegistrationBean;
+import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,13 +49,15 @@ public class RegistrationEP {
 
     @RequestMapping(value = "/", consumes = "application/json", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<SystemUser> registerSystemUser(@RequestBody RegistrationBean regBean) throws DatagioException {
+    @Secured({"ROLE_USER"})
+    public ResponseEntity<SystemUserResultBean> registerSystemUser(@RequestBody RegistrationBean regBean) throws DatagioException {
         // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/profiles/register -d '{"name":"mikey", "companyName":"Monowai Dev","password":"whocares"}'
         SystemUser su = regService.registerSystemUser(regBean);
-        if (su == null)
-            return new ResponseEntity<>(su, HttpStatus.INTERNAL_SERVER_ERROR);
 
-        return new ResponseEntity<>(su, HttpStatus.CREATED);
+        if (su == null)
+            return new ResponseEntity<>(new SystemUserResultBean(su), HttpStatus.CONFLICT);
+
+        return new ResponseEntity<>(new SystemUserResultBean(su), HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/me", method = RequestMethod.GET)

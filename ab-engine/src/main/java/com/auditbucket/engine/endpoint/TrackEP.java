@@ -257,7 +257,7 @@ public class TrackEP {
         if (changed != null)
             return new ResponseEntity<>(changed, HttpStatus.OK);
 
-        return new ResponseEntity<>((TrackLog) null, HttpStatus.OK);
+        return new ResponseEntity<>((TrackLog) null, HttpStatus.NOT_FOUND);
 
     }
 
@@ -274,7 +274,7 @@ public class TrackEP {
                 return new ResponseEntity<>(what, HttpStatus.OK);
         }
 
-        return new ResponseEntity<>((LogWhat) null, HttpStatus.OK);
+        return new ResponseEntity<>((LogWhat) null, HttpStatus.NOT_FOUND);
 
     }
 
@@ -295,7 +295,7 @@ public class TrackEP {
             }
         }
 
-        return new ResponseEntity<>((AuditDeltaBean) null, HttpStatus.OK);
+        return new ResponseEntity<>((AuditDeltaBean) null, HttpStatus.NOT_FOUND);
 
     }
 
@@ -309,7 +309,7 @@ public class TrackEP {
         if (change != null)
             return new ResponseEntity<>(change, HttpStatus.OK);
 
-        return new ResponseEntity<>((LogDetailBean) null, HttpStatus.OK);
+        return new ResponseEntity<>((LogDetailBean) null, HttpStatus.NOT_FOUND);
 
     }
 
@@ -326,7 +326,7 @@ public class TrackEP {
                 return new ResponseEntity<>(whatService.getWhat(header, log.getChange()), HttpStatus.OK);
         }
 
-        return new ResponseEntity<>((LogWhat) null, HttpStatus.OK);
+        return new ResponseEntity<>((LogWhat) null, HttpStatus.NOT_FOUND);
 
     }
 

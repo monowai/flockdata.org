@@ -36,7 +36,8 @@ public class FortressUserNode implements FortressUser {
     @Fetch
     private FortressNode fortress;
 
-    @Indexed
+    @Indexed(unique = true)
+    private String key = null ;
     private String code = null;
 
     private String name;
@@ -47,6 +48,7 @@ public class FortressUserNode implements FortressUser {
     public FortressUserNode(Fortress fortress, String fortressUserName) {
         this();
         setCode(fortressUserName);
+        key =fortress.getId()+"."+fortressUserName;
         setFortress(fortress);
     }
 

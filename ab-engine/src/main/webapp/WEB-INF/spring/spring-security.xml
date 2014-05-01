@@ -38,6 +38,7 @@
         <authentication-provider>
             <user-service>
                 <user name="mike" password="123" authorities="ROLE_USER"/>
+                <user name="${reg.user}" password="${reg.pass}" authorities="ROLE_USER"/>
             </user-service>
         </authentication-provider>
     </authentication-manager>

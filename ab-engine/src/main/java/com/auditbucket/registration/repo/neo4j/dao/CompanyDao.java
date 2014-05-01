@@ -54,4 +54,6 @@ public interface CompanyDao {
     Fortress getFortressByCode(Long companyId, String fortressCode);
 
     Collection<Company> findCompanies(Long sysUserId);
+
+    Collection<Company> findCompanies(String userApiKey);
 }

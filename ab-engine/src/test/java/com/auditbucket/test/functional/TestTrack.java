@@ -25,10 +25,10 @@ import com.auditbucket.engine.service.TrackService;
 import com.auditbucket.fortress.endpoint.FortressEP;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
+import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
-import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.track.bean.*;
 import com.auditbucket.track.model.ChangeLog;
@@ -93,10 +93,10 @@ public class TestTrack {
 
     private Logger logger = LoggerFactory.getLogger(TestTrack.class);
     private String monowai = "Monowai";
-    private String mike = "test@ab.com";
-    private String mark = "mark@null.com";
-    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
-    private Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "user1");
+    private String mike = "mike";
+    private String mark = "mark";
+    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "123");
+    private Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "123");
     private String what = "{\"house\": \"house";
 
     @Before
@@ -125,10 +125,41 @@ public class TestTrack {
         LogResultBean input = mediationFacade.processLog(aib);
         assertNotNull(input.getMetaKey());
         Assert.assertNotNull(trackService.findByCallerRef(fortress, aib.getDocumentType(), aib.getCallerRef()));
-
-
-
     }
+
+    @Test
+    public void metaHeaderDifferentLogsBulkEndpoint() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(authMike);
+        SystemUserResultBean su = regService.registerSystemUser(new RegistrationBean(monowai, "mike", "bah")).getBody();
+        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("auditTest",true), su.getApiKey()).getBody();
+
+        MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
+        LogInputBean logInputBean = new LogInputBean("mike", new DateTime(), "{\"col\": 123}");
+        inputBean.setLog(logInputBean);
+        List<MetaInputBean>inputBeans = new ArrayList<>();
+        inputBeans.add(inputBean);
+        trackEP.trackHeadersAsync(inputBeans, false, su.getApiKey());
+        Thread.yield();
+        Thread.sleep(900);
+
+        MetaHeader created = trackEP.getByCallerRef(fortress.getName(), "TestTrack", "ABC123", su.getApiKey(), su.getApiKey() ).getBody();
+        Thread.sleep(600);
+        assertNotNull (created);
+        // Now we record a change
+        logInputBean = new LogInputBean("mike", new DateTime(), "{\"col\": 321}");
+        inputBean.setLog(logInputBean);
+        inputBeans = new ArrayList<>();
+        inputBeans.add(inputBean);
+        trackEP.trackHeadersAsync(inputBeans, false, su.getApiKey());
+        Thread.sleep (600);
+
+        LogWhat what = trackEP.getLastChangeWhat(created.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody();
+        assertNotNull ( what);
+        Object value = what.getWhatMap().get("col");
+        Assert.assertNotNull(value);
+        assertEquals("321", value.toString());
+    }
+
 
     @Test
     public void locatingByCallerRefWillThrowAuthorizationException() throws Exception {
@@ -141,9 +172,9 @@ public class TestTrack {
         String keyB = mediationFacade.createHeader(inputBean, null).getMetaKey();
         assertEquals(key, keyB);
 
-        Authentication authB = new UsernamePasswordAuthenticationToken("swagger", "user2");
+        Authentication authB = new UsernamePasswordAuthenticationToken("sally", "123");
         SecurityContextHolder.getContext().setAuthentication(authB);
-        regService.registerSystemUser(new RegistrationBean("TestTow", "swagger", "bah"));
+        regService.registerSystemUser(new RegistrationBean("TestTow", "sally", "bah"));
         Fortress fortressB = fortressService.registerFortress("auditTestB");
         mediationFacade.createHeader(new MetaInputBean(fortressB.getName(), "wally", "TestTrack", new DateTime(), "123ABC"), null);
 
@@ -298,7 +329,7 @@ public class TestTrack {
         assertEquals(keyA, arb.getMetaKey());
 
         SecurityContextHolder.getContext().setAuthentication(authMark);
-        regService.registerSystemUser(new RegistrationBean("TWEE", mark, "bah"));
+        regService.registerSystemUser(new RegistrationBean("TWEE", mark, "123"));
         Fortress fortressB = fortressService.registerFortress("auditTestB" + System.currentTimeMillis());
         inputBean = new MetaInputBean(fortressB.getName(), "wally", docType, new DateTime(), callerRef);
         String keyB = mediationFacade.createHeader(inputBean, null).getMetaKey();
@@ -678,8 +709,8 @@ public class TestTrack {
 
     @Test
     public void findMetaHeadersForCollectionOfMetaKeys() throws Exception{
-        SystemUser suB = regService.registerSystemUser(new RegistrationBean("othercompany", mark, "bah")).getBody();
-        SystemUser suA = regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah")).getBody();
+        String suB = regService.registerSystemUser(new RegistrationBean("othercompany", mark, "bah")).getBody().getApiKey();
+        String suA = regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah")).getBody().getApiKey();
 
         Fortress fortressA = fortressService.registerFortress("ABC");
         assertNotNull(fortressA);
@@ -688,21 +719,21 @@ public class TestTrack {
         String typeA = "TypeA";
         String typeB = "Type B";
 
-        TrackResultBean ra = mediationFacade.createHeader(new MetaInputBean(fortressA.getName(), "auditTest", typeA, new DateTime(), "aba"), suA.getCompany().getApiKey());
-        TrackResultBean rb = mediationFacade.createHeader(new MetaInputBean(fortressA.getName(), "auditTest", typeA, new DateTime(), "abb"), suA.getCompany().getApiKey());
-        TrackResultBean rc = mediationFacade.createHeader(new MetaInputBean(fortressA.getName(), "auditTest", typeB, new DateTime(), "abc"), suA.getCompany().getApiKey());
-        TrackResultBean validButNotForCallerA = mediationFacade.createHeader(new MetaInputBean(fortressB.getName(), "auditTest", typeB, new DateTime(), "abc"), suB.getCompany().getApiKey());
+        TrackResultBean ra = mediationFacade.createHeader(new MetaInputBean(fortressA.getName(), "auditTest", typeA, new DateTime(), "aba"), suA);
+        TrackResultBean rb = mediationFacade.createHeader(new MetaInputBean(fortressA.getName(), "auditTest", typeA, new DateTime(), "abb"), suA);
+        TrackResultBean rc = mediationFacade.createHeader(new MetaInputBean(fortressA.getName(), "auditTest", typeB, new DateTime(), "abc"), suA);
+        TrackResultBean validButNotForCallerA = mediationFacade.createHeader(new MetaInputBean(fortressB.getName(), "auditTest", typeB, new DateTime(), "abc"), suB);
         Collection<String>toFind = new ArrayList<>();
         toFind.add(ra.getMetaKey());
         toFind.add(rb.getMetaKey());
         toFind.add(rc.getMetaKey());
         toFind.add(validButNotForCallerA.getMetaKey());
 
-        Collection<MetaHeader>foundHeaders = trackEP.getMetaHeaders(toFind, suA.getCompany().getApiKey(), suA.getCompany().getApiKey());
+        Collection<MetaHeader>foundHeaders = trackEP.getMetaHeaders(toFind, suA, suA);
         assertEquals("Caller was authorised to find 3 headers", 3, foundHeaders.size());
 
         // This is the other user, and despite there being valid keys, they will only get theirs back
-        foundHeaders = trackEP.getMetaHeaders(toFind, suA.getCompany().getApiKey(), suB.getCompany().getApiKey());
+        foundHeaders = trackEP.getMetaHeaders(toFind, suA, suB);
         assertEquals("Caller was only authorised to find 1 header", 1, foundHeaders.size());
 
     }

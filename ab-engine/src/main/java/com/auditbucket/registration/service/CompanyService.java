@@ -112,7 +112,10 @@ public class CompanyService {
         return companyDao.findByPropertyValue("apiKey", apiKey);
     }
 
+    public Collection<Company> findCompanies(String userApiKey) {
+        return companyDao.findCompanies(userApiKey);
 
+    }
     public Collection<Company> findCompanies() {
         SystemUser su = securityHelper.getSysUser(true);
         if (su == null)
@@ -120,6 +123,7 @@ public class CompanyService {
 
         return companyDao.findCompanies(su.getId());
     }
+
 
     public Collection<DocumentType> getCompanyDocumentsInUse(Company company) {
         return schemaDao.getCompanyDocumentsInUse(company);

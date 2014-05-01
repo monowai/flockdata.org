@@ -7,7 +7,6 @@ import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
@@ -54,9 +53,9 @@ public class TrackAPIKeys {
     private Neo4jTemplate template;
 
     private String monowai = "Monowai";
-    private String mike = "test@ab.com";
+    private String mike = "mike";
     private String mark = "mark@null.com";
-    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
+    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "123");
     private Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "user1");
 
     @Rollback(false)
@@ -70,14 +69,12 @@ public class TrackAPIKeys {
 
     @Test
     public void testApiKeysWorkInPrecedence() throws Exception {
-        // No Security Access necessary.
+        // Auth only required to register the sys user
+        SecurityContextHolder.getContext().setAuthentication(authMike);
+        String apiKey = regEP.registerSystemUser(new RegistrationBean(monowai, mike, "123")).getBody().getApiKey();
         SecurityContextHolder.getContext().setAuthentication(null);
-        SystemUser sysUser = regEP.registerSystemUser(new RegistrationBean(monowai, mike, "bah")).getBody();
-        assertNotNull(sysUser);
-        String apiKey = sysUser.getCompany().getApiKey();
-
         Assert.assertNotNull(apiKey);
-        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("testApiKeysWorkInPrecedence"), sysUser.getCompany().getApiKey()).getBody();
+        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("testApiKeysWorkInPrecedence"), apiKey).getBody();
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
 
         // Fails due to NoAuth or key
@@ -122,13 +119,13 @@ public class TrackAPIKeys {
 
     @Test
     public void apiCallsSecuredByAccessKey() throws Exception {
+
+        SecurityContextHolder.getContext().setAuthentication(authMike);
+        String apiKey = regEP.registerSystemUser(new RegistrationBean(monowai, mike, "123")).getBody().getApiKey();
         // No authorization - only API keys
         SecurityContextHolder.getContext().setAuthentication(null);
-        SystemUser sysUser = regEP.registerSystemUser(new RegistrationBean(monowai, mike, "bah")).getBody();
-        assertNotNull(sysUser);
-        String apiKey = sysUser.getCompany().getApiKey();
 
-        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("apiCallsSecuredByAccessKey"), sysUser.getCompany().getApiKey()).getBody();
+        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("apiCallsSecuredByAccessKey"), apiKey).getBody();
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC9990");
         String what = "{\"house\": \"house\"}";
         LogInputBean log = new LogInputBean("harry", new DateTime(), what);

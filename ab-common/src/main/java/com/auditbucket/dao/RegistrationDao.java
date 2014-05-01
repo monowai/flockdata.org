@@ -30,6 +30,8 @@ import com.auditbucket.registration.model.SystemUser;
 public interface RegistrationDao {
     public SystemUser findSysUserByName(String name);
 
+    public SystemUser findByApiKey(String apiKey);
+
     SystemUser save(Company company, String userName, String password);
 
 }

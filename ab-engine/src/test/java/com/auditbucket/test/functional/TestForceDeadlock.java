@@ -25,6 +25,7 @@ import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.endpoint.TagEP;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
@@ -138,7 +139,7 @@ public class TestForceDeadlock {
         cleanUpGraph(); // No transaction so need to clear down the graph
 
         String monowai = "Monowai";
-        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
         SecurityContextHolder.getContext().setAuthentication(authMike);
         Fortress fortress = fortressService.registerFortress("auditTest" + System.currentTimeMillis());
         String docType = "TestAuditX";
@@ -155,7 +156,7 @@ public class TestForceDeadlock {
         latch.await();
         boolean working = false;
         Map<Integer, Future<Integer>> futures = new HashMap<>();
-        String apiKey = fortress.getCompany().getApiKey();
+        String apiKey = su.getApiKey();
         try {
             for (int i = 0; i < threadMax; i++) {
                 futures.put(i, trackEP.trackHeadersAsync(runners.get(i).getInputBeans(), true, apiKey));

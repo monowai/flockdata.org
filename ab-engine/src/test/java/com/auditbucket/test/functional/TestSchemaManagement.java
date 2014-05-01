@@ -6,7 +6,6 @@ import com.auditbucket.fortress.endpoint.FortressEP;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.endpoint.RegistrationEP;
-import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.model.DocumentType;
@@ -66,30 +65,31 @@ public class TestSchemaManagement {
         Neo4jHelper.cleanDb(template);
     }
 
-    private String uid = "mike@monowai.com";
-    private Authentication authA = new UsernamePasswordAuthenticationToken(uid, "user1");
+    private String uid = "mike";
+    private Authentication authA = new UsernamePasswordAuthenticationToken(uid, "123");
     private String monowai = "Monowai";
-    private String mike = "test@ab.com";
+    private String mike = "mike";
 
     @Test
     public void documentTypesTrackedPerFortress() throws Exception {
-        Company c = registrationEP.registerSystemUser(new RegistrationBean(monowai, mike, "bah")).getBody().getCompany();
-        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("auditTestA", true), c.getApiKey()).getBody();
-        Fortress fortressB = fortressEP.registerFortress(new FortressInputBean("auditTestB", true), c.getApiKey()).getBody();
+        String apiKey = registrationEP.registerSystemUser(new RegistrationBean(monowai, mike, "bah")).getBody().getApiKey();
+
+        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("auditTestA", true), apiKey).getBody();
+        Fortress fortressB = fortressEP.registerFortress(new FortressInputBean("auditTestB", true), apiKey).getBody();
 
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
-        String metaKeyA = trackEP.trackHeader(inputBean, c.getApiKey(), c.getApiKey()).getBody().getMetaKey();
+        String metaKeyA = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody().getMetaKey();
 
         inputBean = new MetaInputBean(fortressB.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
-        String metaKeyB = trackEP.trackHeader(inputBean, c.getApiKey(), c.getApiKey()).getBody().getMetaKey();
+        String metaKeyB = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody().getMetaKey();
 
         assertFalse(metaKeyA.equals(metaKeyB));
         // There should be a doc type per fortress and it should have the same Id.
         // ToDo: fortress actions based on fortress api-key
-        Collection<DocumentType> docTypesA = fortressEP.getDocumentTypes (fortressA.getName(), c.getApiKey(), c.getApiKey());
+        Collection<DocumentType> docTypesA = fortressEP.getDocumentTypes (fortressA.getName(), apiKey, apiKey);
         assertEquals(1, docTypesA.size());
 
-        Collection<DocumentType> docTypesB = fortressEP.getDocumentTypes (fortressB.getName(), c.getApiKey(), c.getApiKey());
+        Collection<DocumentType> docTypesB = fortressEP.getDocumentTypes (fortressB.getName(), apiKey, apiKey);
         assertEquals(1, docTypesB.size());
 
         // Should be the same key
@@ -98,22 +98,22 @@ public class TestSchemaManagement {
 
     @Test
     public void documentTypesTrackedPerCompany() throws Exception {
-        Company c = registrationEP.registerSystemUser(new RegistrationBean("OtherCo", "harry", "bah")).getBody().getCompany();
-        String cOtherAPI = c.getApiKey();
+
+        String cOtherAPI = registrationEP.registerSystemUser(new RegistrationBean("OtherCo", "harry", "bah")).getBody().getApiKey();
 
 
-        c = registrationEP.registerSystemUser(new RegistrationBean(monowai, mike, "bah")).getBody().getCompany();
-        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("auditTestA", true), c.getApiKey()).getBody();
-        Fortress fortressB = fortressEP.registerFortress(new FortressInputBean("auditTestB", true), c.getApiKey()).getBody();
+        String apiKey = registrationEP.registerSystemUser(new RegistrationBean(monowai, mike, "bah")).getBody().getApiKey();
+        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("auditTestA", true), apiKey).getBody();
+        Fortress fortressB = fortressEP.registerFortress(new FortressInputBean("auditTestB", true), apiKey).getBody();
 
         // Same name different company
         Fortress fortressC = fortressEP.registerFortress(new FortressInputBean("auditTestB", true), cOtherAPI).getBody();
 
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
-        String metaKeyA = trackEP.trackHeader(inputBean, c.getApiKey(), c.getApiKey()).getBody().getMetaKey();
+        String metaKeyA = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody().getMetaKey();
 
         inputBean = new MetaInputBean(fortressB.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
-        String metaKeyB = trackEP.trackHeader(inputBean, c.getApiKey(), c.getApiKey()).getBody().getMetaKey();
+        String metaKeyB = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody().getMetaKey();
 
         assertFalse(metaKeyA.equals(metaKeyB));
 
@@ -123,7 +123,7 @@ public class TestSchemaManagement {
         assertFalse(metaKeyC.equals(metaKeyB));
 
         // There should be a doc type per fortress and it should have the same Id.
-        Collection<DocumentType> docTypesA = companyEP.getDocumentTypes(c.getApiKey(), c.getApiKey());
+        Collection<DocumentType> docTypesA = companyEP.getDocumentTypes(apiKey, apiKey);
         assertEquals(2, docTypesA.size());
         // Companies can't see each other stuff
         docTypesA = companyEP.getDocumentTypes(cOtherAPI, cOtherAPI);

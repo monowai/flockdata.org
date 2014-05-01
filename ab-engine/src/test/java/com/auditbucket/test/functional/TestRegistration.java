@@ -19,12 +19,14 @@
 
 package com.auditbucket.test.functional;
 
+import com.auditbucket.company.endpoint.CompanyEP;
+import com.auditbucket.fortress.endpoint.FortressEP;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
+import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.model.*;
-import com.auditbucket.registration.repo.neo4j.model.CompanyUserNode;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
@@ -32,6 +34,7 @@ import com.auditbucket.registration.service.SystemUserService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +47,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
-import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -52,6 +55,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
@@ -66,12 +70,14 @@ import static org.junit.Assert.assertTrue;
 @Transactional
 public class TestRegistration {
 
-
     @Autowired
     private SystemUserService systemUserService;
 
     @Autowired
     private CompanyService companyService;
+
+    @Autowired
+    private CompanyEP companyEP;
 
     @Autowired
     private FortressService fortressService;
@@ -95,9 +101,11 @@ public class TestRegistration {
     public void cleanUpGraph() {
         // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
         // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
+
         SecurityContextHolder.getContext().setAuthentication(authA);
         if ("http".equals(System.getProperty("neo4j")))
             return;
+        logger.info("Clearing Down the Graph");
         Neo4jHelper.cleanDb(template);
     }
 
@@ -109,12 +117,11 @@ public class TestRegistration {
 
     private void createCompanyUsers(String userNamePrefix, int count) throws DatagioException {
         SecurityContextHolder.getContext().setAuthentication(authA);
-        SystemUser su = registrationEP.registerSystemUser(new RegistrationBean("CompanyA", "mike", "whocares").setIsUnique(false)).getBody();
-        Company company = su.getCompany();
+        SystemUserResultBean su = registrationEP.registerSystemUser(new RegistrationBean("CompanyA", "mike", "whocares").setIsUnique(false)).getBody();
+
         int i = 1;
         while (i <= count) {
-            CompanyUser test = new CompanyUserNode(userNamePrefix + i + "@sunnybell.com", company);
-
+            CompanyUser test = registrationService.addCompanyUser(userNamePrefix + i + "@sunnybell.com", su.getCompanyName());
             test = companyService.save(test);
             assertNotNull(test);
             i++;
@@ -126,13 +133,13 @@ public class TestRegistration {
     public void findByName() throws DatagioException {
         createCompanyUsers("MTest", 3);
         String name = "mtest2@sunnybell.com";
-        //SystemUser systemUser = registrationService.registerSystemUser(new RegistrationBean("test", "mike", "password"));
         SecurityContextHolder.getContext().setAuthentication(authA);
         CompanyUser p = companyService.getCompanyUser(name);
         assertNotNull(p);
         assertEquals(name, p.getName());
 
     }
+
 
     @Test
     public void companyFortressNameSearch() throws Exception {
@@ -141,7 +148,7 @@ public class TestRegistration {
 
         // Create the company.
         SecurityContextHolder.getContext().setAuthentication(authA);
-        SystemUser systemUser = registrationEP.registerSystemUser(new RegistrationBean(companyName, adminName, "password").setIsUnique(false)).getBody();
+        SystemUserResultBean systemUser = registrationEP.registerSystemUser(new RegistrationBean(companyName, adminName, "password").setIsUnique(false)).getBody();
         assertNotNull(systemUser);
 
         fortressService.registerFortress("fortressA");
@@ -158,6 +165,28 @@ public class TestRegistration {
             Assert.assertNotNull(fCode);
             assertEquals("Fortress Space Name", fCode.getName());
         }
+    }
+
+    @Test
+    public void onlyOneCompanyCreatedWithMixedCase() throws Exception {
+        String companyName = "Monowai";
+        String adminName = "mike";
+
+        // Create the company.
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        SystemUserResultBean systemUser = registrationEP.registerSystemUser(new RegistrationBean(companyName, adminName, "password").setIsUnique(false)).getBody();
+        assertNotNull(systemUser);
+        Collection<Company>companies = companyEP.findCompanies(systemUser.getApiKey(), null);
+        assertEquals(1, companies.size());
+        String cKey = companies.iterator().next().getApiKey();
+
+        SystemUserResultBean systemUserB = registrationEP.registerSystemUser(new RegistrationBean(companyName.toLowerCase(), "xyz", "password").setIsUnique(false)).getBody();
+        assertNotNull(systemUserB);
+
+        companyEP.findCompanies(systemUserB.getApiKey(), null);
+
+        assertEquals(1, companies.size());
+        assertEquals("Company keys should be the same irrespective of name case create with", companies.iterator().next().getApiKey(), cKey);
     }
 
     @Test
@@ -201,11 +230,19 @@ public class TestRegistration {
 
         // Create the company.
         SecurityContextHolder.getContext().setAuthentication(null);
-        SystemUser systemUser = registrationEP.registerSystemUser(new RegistrationBean(companyName, adminName, "password")).getBody();
-        assertNotNull(systemUser);
+        try {
+            // Unauthenticated users can't register accounts
+            SystemUserResultBean systemUser = registrationEP.registerSystemUser(new RegistrationBean(companyName, adminName, "password")).getBody();
+            assertNotNull(systemUser);
+        } catch (Exception e){
+            // this is good
+        }
 
         // Assume the user has now logged in.
         SecurityContextHolder.getContext().setAuthentication(authA);
+        SystemUserResultBean systemUser = registrationEP.registerSystemUser(new RegistrationBean(companyName, adminName, "password")).getBody();
+        assertNotNull(systemUser);
+
         CompanyUser nonAdmin = registrationService.addCompanyUser(userName, companyName);
         assertNotNull(nonAdmin);
 
@@ -367,86 +404,5 @@ public class TestRegistration {
         assertEquals(uid, fu.getId());
     }
 
-    @Test
-    public void multipleFortressUserRequestsThreaded() throws Exception {
-        String uname = "mike";
-        // Assume the user has now logged in.
-        //org.neo4j.graphdb.Transaction t = graphDatabaseService.beginTx();
-        String company = "MFURT";
-        registrationService.registerSystemUser(new RegistrationBean(company, uname, "password").setIsUnique(false));
-        SecurityContextHolder.getContext().setAuthentication(authA);
-        CompanyUser nonAdmin = registrationService.addCompanyUser(uname, company);
-        assertNotNull(nonAdmin);
 
-        Fortress fortress = fortressService.registerFortress("multipleFortressUserRequestsThreaded");
-        assertNotNull(fortress);
-        fortress = fortressService.findByCode(fortress.getCode());
-        assertNotNull(fortress);
-        int count = 5;
-
-        CountDownLatch latch = new CountDownLatch(count);
-        // Run threaded tests
-        ArrayList<FuAction> actions = new ArrayList<>();
-        ArrayList<Thread> threads= new ArrayList<>();
-        int i = 0;
-        while (i<=count){
-            FuAction action = new FuAction(fortress, Integer.toString(i), "mike", latch);
-            actions.add( action);
-            threads.add( new Thread(action));
-            threads.get(i).start();
-            i ++;
-        }
-
-        latch.await();
-
-        // Check we only get one back
-        FortressUser fu = fortressService.getFortressUser(fortress, uname);
-        assertNotNull(fu);
-        while (i<count){
-            assertFalse("Fu"+i+"Fail", actions.get(i).isFailed());
-            i++;
-        }
-
-    }
-
-    class FuAction implements Runnable {
-        Fortress fortress;
-        String uname;
-        CountDownLatch latch;
-        boolean failed ;
-        boolean done = false;
-
-        public FuAction(Fortress fortress, String id, String uname, CountDownLatch latch) {
-            logger.info("Preparing FuAction {}, {}", id, latch.getCount());
-            this.fortress = fortress;
-            this.uname = uname;
-            this.latch = latch;
-
-
-        }
-
-        public boolean isFailed() {
-            return failed;
-        }
-
-        public void run() {
-            logger.info("Running " + this);
-            int max = 50;
-            int i = 0;
-            failed = false;
-            try {
-                while (i < max) {
-                    Assert.assertNotNull(fortressService.getFortressUser(this.fortress, uname));
-                    i++;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                logger.info("Exception caught {}", e.getMessage());
-                failed = true;
-            }
-            done= true;
-            latch.countDown();
-
-        }
-    }
 }

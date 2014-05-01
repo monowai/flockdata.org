@@ -48,7 +48,7 @@ public class RegistrationService {
     @Autowired
     private SecurityHelper securityHelper;
 
-    private static SystemUser GUEST = new SystemUserNode("Guest", null, null, false);
+    public static SystemUser GUEST = new SystemUserNode("Guest", null, null, false);
 
     public SystemUser registerSystemUser(RegistrationBean regBean) throws DatagioException {
         SystemUser systemUser = systemUserService.findByName(regBean.getName());
@@ -56,7 +56,7 @@ public class RegistrationService {
         if (systemUser != null) {
             if (regBean.isUnique())
 
-                throw new DatagioException("Duplicate registration is not allowed. ");
+                throw new DatagioException("Username already exists");
             else
                 return systemUser; // ToDo - throw RegistrationException
         }
@@ -112,8 +112,13 @@ public class RegistrationService {
         } else {
             return iSystemUser;
         }
+    }
 
-
+    public SystemUser getSystemUser(String apiKey){
+        SystemUser su = systemUserService.findByApiKey(apiKey);
+        if ( su == null )
+            return getSystemUser();
+        return su;
     }
 
     public Company resolveCompany(String apiKey) throws DatagioException {

@@ -123,8 +123,7 @@ public class TrackService {
      * @return unique primary key to be used for subsequent log calls
      */
     public TrackResultBean createHeader(Company company, Fortress fortress, MetaInputBean inputBean)  {
-        DocumentType documentType;
-        documentType = tagService.resolveDocType(fortress, inputBean.getDocumentType());
+        DocumentType documentType = tagService.resolveDocType(fortress, inputBean.getDocumentType(), true);
 
         // Create thisFortressUser if missing
         FortressUser fu = fortressService.getFortressUser(fortress, inputBean.getFortressUser(), true);
@@ -133,7 +132,6 @@ public class TrackService {
         MetaHeader ah = null;
         if (inputBean.getCallerRef() != null && !inputBean.getCallerRef().equals(EMPTY))
             ah = findByCallerRef(fortress, documentType, inputBean.getCallerRef());
-
         if (ah != null) {
             logger.debug("Existing metaHeader record found by Caller Ref [{}] found [{}]", inputBean.getCallerRef(), ah.getMetaKey());
             inputBean.setMetaKey(ah.getMetaKey());
@@ -141,6 +139,7 @@ public class TrackService {
             TrackResultBean arb = new TrackResultBean(ah);
             arb.setMetaInputBean(inputBean);
             arb.setWasDuplicate();
+            arb.setLogInput(inputBean.getLog());
             // Could be rewriting tags
             tagTrackService.associateTags(company, ah, inputBean.getTags());
 
@@ -466,6 +465,8 @@ public class TrackService {
     }
 
     public TrackLog getLastLog(MetaHeader metaHeader) throws DatagioException {
+        if ( metaHeader == null )
+            return null;
         logger.debug("Getting lastLog MetaID [{}]", metaHeader.getId());
         return trackDao.getLastLog(metaHeader.getId());
     }

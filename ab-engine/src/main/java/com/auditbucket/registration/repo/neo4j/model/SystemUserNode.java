@@ -36,7 +36,8 @@ public class SystemUserNode implements SystemUser {
 
     private String password;
 
-    private String openUID;
+    @Indexed
+    private String apiKey;
 
 //    @RelatedTo (elementClass = CompanyUserNode.class, type ="isA", direction = Direction.INCOMING)
 //    private CompanyUser companyUser;
@@ -73,12 +74,12 @@ public class SystemUserNode implements SystemUser {
         this.password = password;
     }
 
-    public String getOpenUID() {
-        return openUID;
+    public String getApiKey() {
+        return apiKey;
     }
 
-    public void setOpenUID(String openUID) {
-        this.openUID = openUID;
+    public void setApiKey(String openUID) {
+        this.apiKey = openUID;
     }
 
     public Company getCompany() {

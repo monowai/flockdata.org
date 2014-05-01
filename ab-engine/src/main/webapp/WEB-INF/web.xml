@@ -59,11 +59,11 @@
         <filter-class>com.thetransactioncompany.cors.CORSFilter</filter-class>
         <init-param>
             <param-name>cors.supportedHeaders</param-name>
-            <param-value>Content-Type,Accept,Origin,Authorization,x-requested-with</param-value>
+            <param-value>Content-Type,Accept,Origin,Authorization,x-requested-with,Api-Key</param-value>
         </init-param>
         <init-param>
             <param-name>cors.supportedMethods</param-name>
-            <param-value>GET, POST, HEAD, OPTIONS, PUT</param-value>
+            <param-value>GET, POST, HEAD, OPTIONS, PUT, DELETE</param-value>
         </init-param>
 
     </filter>

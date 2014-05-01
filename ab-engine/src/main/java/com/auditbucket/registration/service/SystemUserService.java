@@ -54,4 +54,7 @@ public class SystemUserService {
     }
 
 
+    public SystemUser findByApiKey(String apiKey) {
+        return regDao.findByApiKey(apiKey);
+    }
 }

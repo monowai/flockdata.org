@@ -61,8 +61,14 @@ public interface CompanyRepository extends GraphRepository<CompanyNode> {
 
 
     @Query(elementClass = CompanyNode.class,
-            value = "start su=node({0}) " +
-                    "match su-[r:ADMINISTERS]->company " +
+            value = "match (su:SystemUser)-[:ADMINISTERS]->(company:ABCompany) " +
+                    "where id(su)={0}" +
                     "return company ")
     Collection<Company> getCompaniesForUser(Long sysUserId);
+
+    @Query(elementClass = CompanyNode.class,
+            value = "match (su:SystemUser)-[:ADMINISTERS]->(company:ABCompany) " +
+                    "where su.apiKey={0}" +
+                    "return company ")
+    Collection<Company> findCompanies(String userApiKey);
 }
