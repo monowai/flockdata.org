@@ -90,9 +90,12 @@
     <logger name="org.springframework.data.neo4j.support.query">
         <level value="info"/>
     </logger>
+    <logger name="com.auditbucket.engine.service.TrackService">
+        <level value="trace"/>
+    </logger>
     <!-- Root Logger -->
     <root>
-        <priority value="debug"/>
+        <priority value="info"/>
         <appender-ref ref="console"/>
     </root>
 

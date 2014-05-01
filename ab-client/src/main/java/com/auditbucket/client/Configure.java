@@ -144,15 +144,15 @@ public class Configure {
         while (version == null) {
 
             do {
-                String message = "** Enter a unique login name to register default = ";
+                String message = "** Enter a unique login name to register ";
                 if ( user!=null )
-                    message = message + "({})";
+                    message = message + "default = ({})";
                 user = getValue(message, user);
             } while (user == null );
             do{
-                String message="** Enter the company name for the login ["+user+"] default = ";
+                String message="** Enter the company name for the login ["+user+"] ";
                 if ( company != null )
-                    message = message + "({})";
+                    message = message + "default = ({})";
                 company = getValue(message, company);
             } while (company == null );
 

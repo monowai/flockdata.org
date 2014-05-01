@@ -65,10 +65,10 @@ public class TestSchemaManagement {
         Neo4jHelper.cleanDb(template);
     }
 
-    private String uid = "mike@monowai.com";
-    private Authentication authA = new UsernamePasswordAuthenticationToken(uid, "user1");
+    private String uid = "mike";
+    private Authentication authA = new UsernamePasswordAuthenticationToken(uid, "123");
     private String monowai = "Monowai";
-    private String mike = "test@ab.com";
+    private String mike = "mike";
 
     @Test
     public void documentTypesTrackedPerFortress() throws Exception {

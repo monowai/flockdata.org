@@ -55,8 +55,9 @@ public class TestMetaXReference {
     private Neo4jTemplate template;
 
     private String monowai = "Monowai";
-    private String mike = "test@ab.com";
-    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
+    private String mike = "mike";
+    // This has to be a user in spring-security.xml that is authorised to create registrations
+    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "123");
     private String what = "{\"house\": \"house";
 
     @Before
@@ -75,7 +76,7 @@ public class TestMetaXReference {
 
     @Test
     public void crossReferenceMetaKeysForSameCompany() throws Exception {
-        registrationEP.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
+        registrationEP.registerSystemUser(new RegistrationBean(monowai, mike, "123"));
         Fortress fortress = fortressEP.registerFortress(new FortressInputBean("auditTest", true), null).getBody();
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");

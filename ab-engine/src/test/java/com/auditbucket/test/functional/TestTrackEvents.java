@@ -86,8 +86,9 @@ public class TestTrackEvents {
 
     private Logger logger = LoggerFactory.getLogger(TestTrackEvents.class);
     private String monowai = "Monowai";
-    private String mike = "test@ab.com";
-    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
+    private String mike = "mike";
+    // This has to be a user in spring-security.xml that is authorised to create registrations
+    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "123");
 
     @Before
     public void setSecurity() {

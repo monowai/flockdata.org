@@ -25,6 +25,7 @@ import com.auditbucket.engine.service.TrackService;
 import com.auditbucket.fortress.endpoint.FortressEP;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
+import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
@@ -92,10 +93,10 @@ public class TestTrack {
 
     private Logger logger = LoggerFactory.getLogger(TestTrack.class);
     private String monowai = "Monowai";
-    private String mike = "test@ab.com";
-    private String mark = "mark@null.com";
-    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
-    private Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "user1");
+    private String mike = "mike";
+    private String mark = "mark";
+    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "123");
+    private Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "123");
     private String what = "{\"house\": \"house";
 
     @Before
@@ -124,10 +125,39 @@ public class TestTrack {
         LogResultBean input = mediationFacade.processLog(aib);
         assertNotNull(input.getMetaKey());
         Assert.assertNotNull(trackService.findByCallerRef(fortress, aib.getDocumentType(), aib.getCallerRef()));
-
-
-
     }
+
+//    @Test
+//    public void metaHeaderDifferentLogsBulkEndpoint() throws Exception {
+//        SecurityContextHolder.getContext().setAuthentication(authMike);
+//        SystemUserResultBean su = regService.registerSystemUser(new RegistrationBean(monowai, "mike", "bah")).getBody();
+//        Fortress fortress = fortressService.registerFortress("auditTest");
+//        MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
+//        LogInputBean logInputBean = new LogInputBean("mike", new DateTime(), "{\"col\": 123}");
+//        inputBean.setLog(logInputBean);
+//        List<MetaInputBean>inputBeans = new ArrayList<>();
+//        inputBeans.add(inputBean);
+//        trackEP.trackHeaders(inputBeans, su.getApiKey(), su.getApiKey());
+//        Thread.sleep(500);
+//
+//        MetaHeader created = trackEP.getByCallerRef(fortress.getName(), "TestTrack", "ABC123", su.getApiKey(), su.getApiKey() ).getBody();
+//        Thread.sleep(30000);
+//        assertNotNull (created);
+//        // Now we record a change
+//        logInputBean = new LogInputBean("mike", new DateTime(), "{\"col\": 321}");
+//        inputBean.setLog(logInputBean);
+//        inputBeans = new ArrayList<>();
+//        inputBeans.add(inputBean);
+//        trackEP.trackHeaders(inputBeans, null, null);
+//        Thread.sleep (600);
+//
+//        LogWhat what = trackEP.getLastChangeWhat(created.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody();
+//        assertNotNull ( what);
+//        Object value = what.getWhatMap().get("col");
+//        Assert.assertNotNull(value);
+//        assertEquals("321", value.toString());
+//    }
+
 
     @Test
     public void locatingByCallerRefWillThrowAuthorizationException() throws Exception {
@@ -140,9 +170,9 @@ public class TestTrack {
         String keyB = mediationFacade.createHeader(inputBean, null).getMetaKey();
         assertEquals(key, keyB);
 
-        Authentication authB = new UsernamePasswordAuthenticationToken("swagger", "user2");
+        Authentication authB = new UsernamePasswordAuthenticationToken("sally", "123");
         SecurityContextHolder.getContext().setAuthentication(authB);
-        regService.registerSystemUser(new RegistrationBean("TestTow", "swagger", "bah"));
+        regService.registerSystemUser(new RegistrationBean("TestTow", "sally", "bah"));
         Fortress fortressB = fortressService.registerFortress("auditTestB");
         mediationFacade.createHeader(new MetaInputBean(fortressB.getName(), "wally", "TestTrack", new DateTime(), "123ABC"), null);
 
@@ -297,7 +327,7 @@ public class TestTrack {
         assertEquals(keyA, arb.getMetaKey());
 
         SecurityContextHolder.getContext().setAuthentication(authMark);
-        regService.registerSystemUser(new RegistrationBean("TWEE", mark, "bah"));
+        regService.registerSystemUser(new RegistrationBean("TWEE", mark, "123"));
         Fortress fortressB = fortressService.registerFortress("auditTestB" + System.currentTimeMillis());
         inputBean = new MetaInputBean(fortressB.getName(), "wally", docType, new DateTime(), callerRef);
         String keyB = mediationFacade.createHeader(inputBean, null).getMetaKey();
