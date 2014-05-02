@@ -37,4 +37,8 @@ public interface SystemUser {
     public String getApiKey();
 
     public void setApiKey(String uid);
+
+    void setLogin(String loginName);
+
+    public String getLogin();
 }

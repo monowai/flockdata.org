@@ -106,7 +106,7 @@ public class TestTrackEvents {
 
     @Test
     public void noDuplicateEventsForACompany() throws Exception {
-        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike));
         Fortress fortressA = fortressService.registerFortress("auditTest");
         Company company = fortressA.getCompany();
         assertNotNull(company);
@@ -132,7 +132,7 @@ public class TestTrackEvents {
     @Test
     public void defaultEventTypesAreHandled() throws Exception {
 
-        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike));
         Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
 
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");

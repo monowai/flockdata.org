@@ -62,11 +62,10 @@ public class NonTransactional {
         // Assume the user has now logged in.
         //org.neo4j.graphdb.Transaction t = graphDatabaseService.beginTx();
         String company = "MFURT";
-        SystemUser su = registrationService.registerSystemUser(new RegistrationBean(company, uname, "password").setIsUnique(false));
+        SystemUser su = registrationService.registerSystemUser(new RegistrationBean(company, uname).setIsUnique(false));
         SecurityContextHolder.getContext().setAuthentication(authA);
         CompanyUser nonAdmin = registrationService.addCompanyUser(uname, company);
         assertNotNull(nonAdmin);
-
 
         Fortress fortress = fortressEP.registerFortress(new FortressInputBean("multipleFortressUserRequestsThreaded", true), su.getApiKey()).getBody();
         // This is being done to create the schema index which otherwise errors when the threads kick off

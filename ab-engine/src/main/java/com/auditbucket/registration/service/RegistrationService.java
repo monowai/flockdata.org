@@ -52,7 +52,7 @@ public class RegistrationService {
     @Secured({"ROLE_AB_ADMIN"})
     public SystemUser registerSystemUser(RegistrationBean regBean) throws DatagioException {
 
-        SystemUser systemUser = systemUserService.findByName(regBean.getName());
+        SystemUser systemUser = systemUserService.findByLogin(regBean.getLogin());
 
         if (systemUser != null) {
             if (regBean.isUnique())
@@ -104,7 +104,7 @@ public class RegistrationService {
         String systemUser = securityHelper.getUserName(false, false);
         if (systemUser == null)
             return GUEST;
-        SystemUser iSystemUser = systemUserService.findByName(systemUser);
+        SystemUser iSystemUser = systemUserService.findByLogin(systemUser);
         if (iSystemUser == null) {
             return GUEST;
         } else {

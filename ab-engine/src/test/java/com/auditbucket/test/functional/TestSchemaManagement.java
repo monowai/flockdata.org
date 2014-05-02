@@ -72,7 +72,7 @@ public class TestSchemaManagement {
 
     @Test
     public void documentTypesTrackedPerFortress() throws Exception {
-        String apiKey = registrationEP.registerSystemUser(new RegistrationBean(monowai, mike, "bah")).getBody().getApiKey();
+        String apiKey = registrationEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody().getApiKey();
 
         Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("auditTestA", true), apiKey).getBody();
         Fortress fortressB = fortressEP.registerFortress(new FortressInputBean("auditTestB", true), apiKey).getBody();
@@ -99,10 +99,10 @@ public class TestSchemaManagement {
     @Test
     public void documentTypesTrackedPerCompany() throws Exception {
 
-        String cOtherAPI = registrationEP.registerSystemUser(new RegistrationBean("OtherCo", "harry", "bah")).getBody().getApiKey();
+        String cOtherAPI = registrationEP.registerSystemUser(new RegistrationBean("OtherCo", "harry")).getBody().getApiKey();
 
 
-        String apiKey = registrationEP.registerSystemUser(new RegistrationBean(monowai, mike, "bah")).getBody().getApiKey();
+        String apiKey = registrationEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody().getApiKey();
         Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("auditTestA", true), apiKey).getBody();
         Fortress fortressB = fortressEP.registerFortress(new FortressInputBean("auditTestB", true), apiKey).getBody();
 

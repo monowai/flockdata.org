@@ -76,7 +76,7 @@ public class TestMetaXReference {
 
     @Test
     public void crossReferenceMetaKeysForSameCompany() throws Exception {
-        registrationEP.registerSystemUser(new RegistrationBean(monowai, mike, "123"));
+        registrationEP.registerSystemUser(new RegistrationBean(monowai, mike));
         Fortress fortress = fortressEP.registerFortress(new FortressInputBean("auditTest", true), null).getBody();
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
@@ -110,7 +110,7 @@ public class TestMetaXReference {
 
     @Test
     public void duplicateCallerRefForFortressFails() throws Exception {
-        registrationEP.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
+        registrationEP.registerSystemUser(new RegistrationBean(monowai, mike));
         Fortress fortress = fortressEP.registerFortress(new FortressInputBean("auditTest", true), null).getBody();
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
@@ -137,7 +137,7 @@ public class TestMetaXReference {
 
     @Test
     public void crossReferenceByCallerRefsForFortress() throws Exception {
-        registrationEP.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
+        registrationEP.registerSystemUser(new RegistrationBean(monowai, mike));
         Fortress fortress = fortressEP.registerFortress(new FortressInputBean("auditTest", true), null).getBody();
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
@@ -168,7 +168,7 @@ public class TestMetaXReference {
     }
     @Test
     public void crossReferenceWithInputBean() throws Exception {
-        registrationEP.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
+        registrationEP.registerSystemUser(new RegistrationBean(monowai, mike));
         Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("auditTest", true), null).getBody();
         //Fortress fortressB = fortressEP.registerFortress(new FortressInputBean("auditTestB", true), null).getBody();
 

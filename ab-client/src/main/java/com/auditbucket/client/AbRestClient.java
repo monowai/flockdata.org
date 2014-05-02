@@ -159,7 +159,7 @@ public class AbRestClient implements StaticDataResolver {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         HttpHeaders httpHeaders = getHeaders(null, authUser, authPass); // Internal application authorisation
-        RegistrationBean registrationBean = new RegistrationBean(company, userName, null).setIsUnique(false);
+        RegistrationBean registrationBean = new RegistrationBean(company, null, userName).setIsUnique(false);
         HttpEntity requestEntity = new HttpEntity<>(registrationBean, httpHeaders);
 
         try {

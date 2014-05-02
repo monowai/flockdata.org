@@ -183,7 +183,7 @@ public class TrackService {
      */
     public MetaHeader getHeader(@NotEmpty String metaKey) {
         String userName = securityHelper.getLoggedInUser();
-        SystemUser su = sysUserService.findByName(userName);
+        SystemUser su = sysUserService.findByLogin(userName);
         if (su == null)
             throw new SecurityException(userName + "Not authorised to retrieve headers");
 
@@ -434,7 +434,7 @@ public class TrackService {
 
     TxRef findTx(String txRef, boolean fetchHeaders) {
         String userName = securityHelper.getLoggedInUser();
-        SystemUser su = sysUserService.findByName(userName);
+        SystemUser su = sysUserService.findByLogin(userName);
 
         if (su == null)
             throw new SecurityException("Not authorised");
@@ -584,7 +584,7 @@ public class TrackService {
             throw new DatagioException("No metaHeader for [" + headerKey + "]");
         }
         String userName = securityHelper.getLoggedInUser();
-        SystemUser sysUser = sysUserService.findByName(userName);
+        SystemUser sysUser = sysUserService.findByLogin(userName);
 
         if (!header.getFortress().getCompany().getId().equals(sysUser.getCompany().getId())) {
             throw new SecurityException("Not authorised to work with this meta data");

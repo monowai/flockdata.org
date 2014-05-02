@@ -21,7 +21,7 @@
     <!--
       NOTE:  By default, no user is included in the "manager-gui" role required
       to operate the "/manager/html" web application.  If you wish to use this app,
-      you must define such a user - the username and password are arbitrary.
+      you must define such a user - the username and login are arbitrary.
     -->
     <!--
       NOTE:  The sample user and role entries below are wrapped in a comment

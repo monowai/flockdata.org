@@ -63,7 +63,7 @@ Once you have the .war file installed in your app server, you can start firing o
 HTTP, REST and JSON is the lingua franca.
 
 ### Security
-Note that the user id is 'mike' and the password is '123'. This is basic configuration stuff hacked in to spring-security.xml. You are free to configure your own security domain, or help me out with an OAuth configuration ;)
+Note that the user id is 'mike' and the login is '123'. This is basic configuration stuff hacked in to spring-security.xml. You are free to configure your own security domain, or help me out with an OAuth configuration ;)
 
 ## Tracking Data
 By default, information is tracked in Neo4J and ElasticSearch. You can, at the point of POST, request that the information be only tracked in Neo4j or only ElasticSearch. This depends on your use case. You might be simply tracking event type information that never changes, so simply storing in ElasticSearch is functional enough as the data is not require the meshing of connections.
@@ -73,7 +73,7 @@ In the examples below, /ab-engine/ represents the application context with the e
 
 ###Register yourself with an account
 ```
-curl -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/v1/profiles/ -d '{"name":"mike", "companyName":"Monowai","password":"whocares"}'
+curl -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/v1/profiles/ -d '{"name":"mike", "companyName":"Monowai","login":"whocares"}'
 ```
 ### See who you are
 ```

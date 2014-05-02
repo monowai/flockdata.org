@@ -60,6 +60,7 @@ public class RegistrationNeo implements com.auditbucket.dao.RegistrationDao {
         if (su !=null ){
             if (su.getApiKey()== null){
                 // ToDo: Remove this in 0.94 - this is for upgrading only.
+                su.setLogin(su.getName());
                 su.setApiKey(keyGenService.getUniqueKey());
                 su = save(su);
             }
@@ -69,8 +70,8 @@ public class RegistrationNeo implements com.auditbucket.dao.RegistrationDao {
     }
 
     @Override
-    public SystemUser save(Company company, String userName, String password) {
-        SystemUser su = new SystemUserNode(userName, password, company, true);
+    public SystemUser save(Company company, String name, String login) {
+        SystemUser su = new SystemUserNode(name, login, company, true);
         su.setApiKey(keyGenService.getUniqueKey());
         su = save(su);
         return su;

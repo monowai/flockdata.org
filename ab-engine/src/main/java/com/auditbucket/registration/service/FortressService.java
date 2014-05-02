@@ -35,7 +35,6 @@ import com.auditbucket.track.model.DocumentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -88,7 +87,7 @@ public class FortressService {
 
     private Company getCompany() {
         String userName = securityHelper.getUserName(true, false);
-        SystemUser su = sysUserService.findByName(userName);
+        SystemUser su = sysUserService.findByLogin(userName);
         if (su == null) {
             throw new SecurityException("Invalid user or password");
         }

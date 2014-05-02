@@ -105,7 +105,7 @@ public class TestForceDeadlock {
         cleanUpGraph(); // No transaction so need to clear down the graph
 
         String monowai = "Monowai";
-        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike));
         SecurityContextHolder.getContext().setAuthentication(authMike);
         Fortress fortress = fortressService.registerFortress("auditTest" + System.currentTimeMillis());
 
@@ -139,7 +139,7 @@ public class TestForceDeadlock {
         cleanUpGraph(); // No transaction so need to clear down the graph
 
         String monowai = "Monowai";
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike));
         SecurityContextHolder.getContext().setAuthentication(authMike);
         Fortress fortress = fortressService.registerFortress("auditTest" + System.currentTimeMillis());
         String docType = "TestAuditX";

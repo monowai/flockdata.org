@@ -107,7 +107,7 @@ public class TestDelta {
     @Test
     public void jsonDeltasAreFound() throws Exception {
         setSecurity();
-        regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike));
 
         Fortress fortress = fortressService.registerFortress("DELTAForce");
         assertNotNull(fortress);

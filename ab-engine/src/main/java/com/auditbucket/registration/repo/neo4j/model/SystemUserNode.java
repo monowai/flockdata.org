@@ -31,10 +31,10 @@ public class SystemUserNode implements SystemUser {
     @GraphId
     Long id;
 
-    @Indexed(unique = true)
     private String name = null;
 
-    private String password;
+    @Indexed(unique = true)
+    private String login;
 
     @Indexed
     private String apiKey;
@@ -43,16 +43,18 @@ public class SystemUserNode implements SystemUser {
 //    private CompanyUser companyUser;
 
     @Fetch
-    @RelatedTo(elementClass = CompanyNode.class, type = "ADMINISTERS", direction = Direction.OUTGOING)
+    @RelatedTo(elementClass = CompanyNode.class, type = "ACCESSES", direction = Direction.OUTGOING)
     private CompanyNode company;
 
 
     protected SystemUserNode() {
     }
 
-    public SystemUserNode(String name, String password, Company company, boolean admin) {
+    public SystemUserNode(String name, String login, Company company, boolean admin) {
         setName(name);
-        setPassword(password);
+        if ( login == null )
+            login = name;
+        setLogin(login);
 
         if (admin)
             setAdministers(company);
@@ -63,15 +65,15 @@ public class SystemUserNode implements SystemUser {
     }
 
     void setName(String name) {
-        this.name = name.toLowerCase();
+        this.name = name;
     }
 
-    public String getPassword() {
-        return password;
+    public String getLogin() {
+        return login;
     }
 
-    void setPassword(String password) {
-        this.password = password;
+    public void setLogin(String login) {
+        this.login = login.toLowerCase();
     }
 
     public String getApiKey() {

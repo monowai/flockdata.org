@@ -52,11 +52,11 @@ public class TrackAPIKeys {
     @Autowired
     private Neo4jTemplate template;
 
-    private String monowai = "Monowai";
+    private String companyName = "Monowai";
     private String mike = "mike";
-    private String mark = "mark@null.com";
+    private String mark = "mark";
     private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "123");
-    private Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "user1");
+    private Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "123");
 
     @Rollback(false)
     @BeforeTransaction
@@ -71,7 +71,7 @@ public class TrackAPIKeys {
     public void testApiKeysWorkInPrecedence() throws Exception {
         // Auth only required to register the sys user
         SecurityContextHolder.getContext().setAuthentication(authMike);
-        String apiKey = regEP.registerSystemUser(new RegistrationBean(monowai, mike, "123")).getBody().getApiKey();
+        String apiKey = regEP.registerSystemUser(new RegistrationBean(companyName, authMike.getName())).getBody().getApiKey();
         SecurityContextHolder.getContext().setAuthentication(null);
         Assert.assertNotNull(apiKey);
         Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("testApiKeysWorkInPrecedence"), apiKey).getBody();
@@ -121,7 +121,7 @@ public class TrackAPIKeys {
     public void apiCallsSecuredByAccessKey() throws Exception {
 
         SecurityContextHolder.getContext().setAuthentication(authMike);
-        String apiKey = regEP.registerSystemUser(new RegistrationBean(monowai, mike, "123")).getBody().getApiKey();
+        String apiKey = regEP.registerSystemUser(new RegistrationBean(companyName, "123", mike)).getBody().getApiKey();
         // No authorization - only API keys
         SecurityContextHolder.getContext().setAuthentication(null);
 

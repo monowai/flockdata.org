@@ -36,9 +36,9 @@ public class SystemUserService {
     RegistrationNeo regDao;
 
     @Cacheable(value = "systemUsers", unless = "#result == null")
-    public SystemUser findByName(String name) {
+    public SystemUser findByLogin(String name) {
         if (name == null) {
-            throw new IllegalArgumentException("Name cannot be null");
+            throw new IllegalArgumentException("Login name cannot be null");
         }
         return regDao.findSysUserByName(name.toLowerCase());
     }
@@ -47,12 +47,9 @@ public class SystemUserService {
         return regDao.getFortressUser(userName, fortressName, fortressUser);
     }
 
-    //@Transactional
-
     public SystemUser save(RegistrationBean regBean) {
-        return regDao.save(regBean.getCompany(), regBean.getName(), regBean.getPassword());
+        return regDao.save(regBean.getCompany(), regBean.getName(), regBean.getLogin());
     }
-
 
     public SystemUser findByApiKey(String apiKey) {
         return regDao.findByApiKey(apiKey);

@@ -20,7 +20,6 @@
 package com.auditbucket.registration.bean;
 
 import com.auditbucket.registration.model.Company;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * User: Mike Holdsworth
@@ -29,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 public class RegistrationBean {
     private String name;
-    private String password;
+    private String login;
     private String companyName;
     private Company company;
     private boolean unique = true;
@@ -37,10 +36,15 @@ public class RegistrationBean {
     public RegistrationBean() {
     }
 
-    public RegistrationBean(String companyName, String userName, String password) {
+    public RegistrationBean(String companyName, String login) {
         this.companyName = companyName;
-        this.name = userName;
-        this.password = password;
+        this.login = login;
+    }
+
+    public RegistrationBean(String companyName, String login, String name) {
+        this.companyName = companyName;
+        this.login = login;
+        this.name = name;
     }
 
     public String getCompanyName() {
@@ -51,14 +55,13 @@ public class RegistrationBean {
         this.companyName = companyName;
     }
 
-    public String getPassword() {
-        return password;
+    public String getLogin() {
+        return login;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setLogin(String login) {
+        this.login = login;
     }
-
 
     public String getName() {
         return name;  //To change body of implemented methods use File | Settings | File Templates.
@@ -71,7 +74,6 @@ public class RegistrationBean {
     public void setCompany(Company company) {
         this.company = company;
     }
-
 
     public RegistrationBean setIsUnique(boolean mustBeUnique) {
         this.unique = mustBeUnique;

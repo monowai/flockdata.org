@@ -72,16 +72,16 @@ public class SecurityHelper {
             else
                 return null;
 
-        return sysUserService.findByName(a.getName());
+        return sysUserService.findByLogin(a.getName());
     }
 
     SystemUser getSysUser(String loginName) {
-        return sysUserService.findByName(loginName);
+        return sysUserService.findByLogin(loginName);
     }
 
     public Company getCompany() {
         String userName = getLoggedInUser();
-        SystemUser su = sysUserService.findByName(userName);
+        SystemUser su = sysUserService.findByLogin(userName);
 
         if (su == null)
             throw new SecurityException("Not authorised");

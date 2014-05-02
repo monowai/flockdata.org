@@ -101,7 +101,7 @@ public class WhatServiceTest extends AbstractRedisSupport {
 
     private void testKVStore() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(authA);
-        regService.registerSystemUser(new RegistrationBean("Company", email, "bah"));
+        regService.registerSystemUser(new RegistrationBean("Company", email));
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("Audit Test", true));
         String docType = "TestAuditX";
         String callerRef = "ABC123R";

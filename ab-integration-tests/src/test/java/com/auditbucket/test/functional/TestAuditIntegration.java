@@ -169,7 +169,7 @@ public class TestAuditIntegration {
     public void companyAndFortressWithSpaces() throws Exception {
         assumeTrue(!ignoreMe);
         SecurityContextHolder.getContext().setAuthentication(authA);
-        regService.registerSystemUser(new RegistrationBean("Company With Space", email, "bah").setIsUnique(false));
+        regService.registerSystemUser(new RegistrationBean("Company With Space", email).setIsUnique(false));
         Thread.sleep(1000);
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("Audit Test", false));
         String docType = "TestAuditX";
@@ -189,7 +189,7 @@ public class TestAuditIntegration {
         assumeTrue(!ignoreMe);
         SecurityContextHolder.getContext().setAuthentication(authA);
         String company = "Monowai";
-        String apiKey = regService.registerSystemUser(new RegistrationBean(company, email, "bah").setIsUnique(false)).getApiKey();
+        String apiKey = regService.registerSystemUser(new RegistrationBean(company, email).setIsUnique(false)).getApiKey();
         Fortress fo = fortressService.registerFortress(new FortressInputBean("headerWithTagsProcess", false));
         DateTime now = new DateTime();
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", now, "ZZZ123");
@@ -212,7 +212,7 @@ public class TestAuditIntegration {
         assumeTrue(!ignoreMe);
         SecurityContextHolder.getContext().setAuthentication(authA);
         String company = "Monowai";
-        regService.registerSystemUser(new RegistrationBean(company, email, "bah").setIsUnique(false));
+        regService.registerSystemUser(new RegistrationBean(company, email).setIsUnique(false));
         Fortress fo = fortressService.registerFortress(new FortressInputBean("immutableHeadersWithNoLogsAreIndexed", false));
         DateTime now = new DateTime();
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", now, "ZZZ123");
@@ -246,7 +246,7 @@ public class TestAuditIntegration {
         logger.info("createHeaderTimeLogsWithSearchActivated started");
         SecurityContextHolder.getContext().setAuthentication(authA);
         String company = "Monowai";
-        regService.registerSystemUser(new RegistrationBean(company, email, "bah").setIsUnique(false));
+        regService.registerSystemUser(new RegistrationBean(company, email).setIsUnique(false));
         Fortress fo = fortressService.registerFortress(new FortressInputBean("111", false));
 
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
@@ -307,7 +307,7 @@ public class TestAuditIntegration {
         logger.info("auditsByPassGraphByCallerRef started");
         SecurityContextHolder.getContext().setAuthentication(authA);
         String company = "Monowai";
-        regService.registerSystemUser(new RegistrationBean(company, email, "bah").setIsUnique(false));
+        regService.registerSystemUser(new RegistrationBean(company, email).setIsUnique(false));
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("TrackGraph", false));
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
@@ -359,7 +359,7 @@ public class TestAuditIntegration {
 
         String escJson = "{\"who\":";
         SecurityContextHolder.getContext().setAuthentication(authA);
-        regService.registerSystemUser(new RegistrationBean("TestTrack", email, "bah").setIsUnique(false));
+        regService.registerSystemUser(new RegistrationBean("TestTrack", email).setIsUnique(false));
         Fortress iFortress = fortressService.registerFortress(new FortressInputBean("suppress", false));
         MetaInputBean inputBean = new MetaInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
 
@@ -397,7 +397,7 @@ public class TestAuditIntegration {
 
         String escJson = "{\"who\":";
         SecurityContextHolder.getContext().setAuthentication(authA);
-        regService.registerSystemUser(new RegistrationBean("TestTrack", email, "bah").setIsUnique(false));
+        regService.registerSystemUser(new RegistrationBean("TestTrack", email).setIsUnique(false));
         Fortress iFortress = fortressService.registerFortress(new FortressInputBean("suppress", false));
         MetaInputBean metaInput = new MetaInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
         String tagSearch = "example"; // Relationship names is indexed as @tag.relationship.key in ES
@@ -426,7 +426,7 @@ public class TestAuditIntegration {
     public void testWhatIndexingDefaultAttributeWithNGram() throws Exception {
         assumeTrue(!ignoreMe);
         SecurityContextHolder.getContext().setAuthentication(authA);
-        regService.registerSystemUser(new RegistrationBean("TestTrack", email, "bah").setIsUnique(false));
+        regService.registerSystemUser(new RegistrationBean("TestTrack", email).setIsUnique(false));
         Fortress iFortress = fortressService.registerFortress(new FortressInputBean("ngram", false));
         MetaInputBean inputBean = new MetaInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
 
@@ -462,7 +462,7 @@ public class TestAuditIntegration {
         logger.info("stressWithHighVolume started");
         SecurityContextHolder.getContext().setAuthentication(authA);
         //Neo4jHelper.cleanDb(graphDatabaseService, true);
-        regService.registerSystemUser(new RegistrationBean("TestTrack", email, "bah").setIsUnique(false));
+        regService.registerSystemUser(new RegistrationBean("TestTrack", email).setIsUnique(false));
 
         int auditMax = 10;
         int logMax = 10;
@@ -547,7 +547,7 @@ public class TestAuditIntegration {
 //        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 //        AbRestClient restClient = new AbRestClient("http://localhost:9081/", "mike", "123", 1);
 //        assertEquals("Pong!", restClient.ping());
-        SystemUser su = regService.registerSystemUser(new RegistrationBean("TestCo", "mike", "123").setIsUnique(false));
+        SystemUser su = regService.registerSystemUser(new RegistrationBean("TestCo", "mike").setIsUnique(false));
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("TestFortress", false));
         Thread.sleep(300);
 

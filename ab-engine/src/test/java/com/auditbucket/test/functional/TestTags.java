@@ -94,7 +94,7 @@ public class TestTags {
 
     public void duplicateTagLists() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(authMike);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike));
         assertNotNull(iSystemUser);
 
         List<TagInputBean> tags = new ArrayList<>();
@@ -136,7 +136,7 @@ public class TestTags {
     public void secureMultiTenantedTags() throws Exception {
         engineAdmin.setMultiTenanted(true);
         SecurityContextHolder.getContext().setAuthentication(authMike);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike));
         assertNotNull(iSystemUser);
 
         List<TagInputBean> tags = new ArrayList<>();
@@ -145,7 +145,7 @@ public class TestTags {
         Iterable<TagInputBean> tagResult = tagService.processTags(tags);
         assertNotNull(tagResult);
         assertFalse(tagResult.iterator().hasNext()); // No errors were detected
-        regService.registerSystemUser(new RegistrationBean("ABC", "gina", "bah"));
+        regService.registerSystemUser(new RegistrationBean("ABC", "gina"));
         Authentication authGina = new UsernamePasswordAuthenticationToken("gina", "user1");
         SecurityContextHolder.getContext().setAuthentication(authGina);
         assertNull(tagService.findTag("FLOP")); // Can't see the Monowai company tag
@@ -159,7 +159,7 @@ public class TestTags {
     @Test
     public void updateExistingTag() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(authMike);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike));
         assertNotNull(iSystemUser);
         SecurityContextHolder.getContext().setAuthentication(authMike);
 
@@ -183,7 +183,7 @@ public class TestTags {
     // @Test // Not yet supported.
     public void tagWithProperties() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(authMike);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah"));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInput = new TagInputBean("FLOP");
@@ -210,7 +210,7 @@ public class TestTags {
     @Test
     public void prohibitedPropertiesIgnored() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(authMike);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, "mike", "bah").setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, "mike").setIsUnique(false));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInput = new TagInputBean("FLOP");
@@ -230,7 +230,7 @@ public class TestTags {
 
     @Test
     public void targetRelationships() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, "mike", "bah").setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, "mike").setIsUnique(false));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInput = new TagInputBean("Source");
@@ -258,7 +258,7 @@ public class TestTags {
     @Test
     public void customLabelsSingleTenant() throws Exception {
         engineAdmin.setMultiTenanted(false);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, "mike", "bah").setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, "mike").setIsUnique(false));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInput = new TagInputBean("Source");
@@ -281,7 +281,7 @@ public class TestTags {
     public void customLabelsMultiTenant() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(authMike);
         engineAdmin.setMultiTenanted(true);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, "mike", "bah"));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, "mike"));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInput = new TagInputBean("Source");
@@ -314,7 +314,7 @@ public class TestTags {
     @Test
     public void sameKeyForDifferentTagTypes() throws Exception {
         engineAdmin.setMultiTenanted(false);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah").setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike).setIsUnique(false));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInputA = new TagInputBean("Source");
@@ -356,7 +356,7 @@ public class TestTags {
     @Test
     public void duplicateTagsForSameIndexReturnSingleTag() throws Exception {
         engineAdmin.setMultiTenanted(false);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah").setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike).setIsUnique(false));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInputA = new TagInputBean("Source");
@@ -387,7 +387,7 @@ public class TestTags {
     @Test
     public void tagUniqueForIndex() throws DatagioException {
         engineAdmin.setMultiTenanted(false);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike, "bah").setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike).setIsUnique(false));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInputA = new TagInputBean("Source");
