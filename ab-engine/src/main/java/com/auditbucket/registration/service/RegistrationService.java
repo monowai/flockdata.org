@@ -16,9 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.auditbucket.registration.service;
-
 
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
@@ -58,12 +56,10 @@ public class RegistrationService {
 
         if (systemUser != null) {
             if (regBean.isUnique())
-
                 throw new DatagioException("Username already exists");
             else
                 return systemUser; // ToDo - throw RegistrationException
         }
-
 
         Company company = companyService.findByName(regBean.getCompanyName());
         if (company == null) {
@@ -71,7 +67,6 @@ public class RegistrationService {
         }
         regBean.setCompany(company);
         systemUser = systemUserService.save(regBean);
-
 
         return systemUser;
     }
@@ -130,6 +125,4 @@ public class RegistrationService {
             throw new DatagioException("Invalid API Key");
         return c;
     }
-
-
 }

@@ -56,9 +56,7 @@ public class CompanyEP {
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
     @ResponseBody
     public Collection<Company> findCompanies(String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        getCompany(apiHeaderKey, apiKey);
-        // Only works if you are authorised and logged in
-        return companyService.findCompanies(apiKey);
+        return companyService.findCompanies(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
     }
 
     /**

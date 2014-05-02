@@ -19,6 +19,7 @@
 
 package com.auditbucket.registration.endpoint;
 
+import com.auditbucket.helper.ApiKeyHelper;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.RegistrationBean;
@@ -30,10 +31,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * User: Mike Holdsworth
@@ -64,10 +62,10 @@ public class RegistrationEP {
 
     @RequestMapping(value = "/me", method = RequestMethod.GET)
     @ResponseBody
-    public SystemUser get() throws Exception {
+    public SystemUser get(String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         // curl -u mike:123 -X GET http://localhost:8080/ab/profiles/me
 
-        return regService.getSystemUser();
+        return regService.getSystemUser(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
     }
 
 

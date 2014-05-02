@@ -123,8 +123,7 @@ public class CompanyService {
                 userApiKey = su.getApiKey();
         }
         if ( userApiKey==null ){
-            logger.error("Unable to resolve user API key");
-            return null;
+            throw new SecurityException("Unable to resolve user API key");
         }
         return companyDao.findCompanies(userApiKey);
 
