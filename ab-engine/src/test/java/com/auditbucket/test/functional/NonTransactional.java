@@ -67,10 +67,10 @@ public class NonTransactional {
         CompanyUser nonAdmin = registrationService.addCompanyUser(uname, company);
         assertNotNull(nonAdmin);
 
-        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("multipleFortressUserRequestsThreaded", true), su.getApiKey()).getBody();
+        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("multipleFortressUserRequestsThreaded", true), su.getApiKey(), null).getBody();
         // This is being done to create the schema index which otherwise errors when the threads kick off
         fortressService.getFortressUser(fortress, "don'tcare");
-        fortress = fortressEP.registerFortress(new FortressInputBean("testThis", true), su.getApiKey()).getBody();
+        fortress = fortressEP.registerFortress(new FortressInputBean("testThis", true), su.getApiKey(), null).getBody();
         assertNotNull(fortress);
 
         t.success();

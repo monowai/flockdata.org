@@ -187,6 +187,11 @@ public class FortressService {
 
     }
 
+    public Collection<Fortress> findFortresses(Company company) {
+        return fortressDao.findFortresses(company.getId());
+
+    }
+
     public List<Fortress> findFortresses(String companyName) {
         Company company = companyService.findByName(companyName);
         if (company == null)

@@ -77,7 +77,7 @@ public class TestMetaXReference {
     @Test
     public void crossReferenceMetaKeysForSameCompany() throws Exception {
         registrationEP.registerSystemUser(new RegistrationBean(monowai, mike));
-        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("auditTest", true), null).getBody();
+        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("auditTest", true), null, null).getBody();
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
         String sourceKey = trackEP.trackHeader(inputBean, null, null).getBody().getMetaKey();
@@ -111,7 +111,7 @@ public class TestMetaXReference {
     @Test
     public void duplicateCallerRefForFortressFails() throws Exception {
         registrationEP.registerSystemUser(new RegistrationBean(monowai, mike));
-        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("auditTest", true), null).getBody();
+        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("auditTest", true), null, null).getBody();
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
         String sourceKey = trackEP.trackHeader(inputBean, null, null).getBody().getMetaKey();
@@ -138,7 +138,7 @@ public class TestMetaXReference {
     @Test
     public void crossReferenceByCallerRefsForFortress() throws Exception {
         registrationEP.registerSystemUser(new RegistrationBean(monowai, mike));
-        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("auditTest", true), null).getBody();
+        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("auditTest", true), null, null).getBody();
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
         trackEP.trackHeader(inputBean, null, null).getBody();
@@ -169,7 +169,7 @@ public class TestMetaXReference {
     @Test
     public void crossReferenceWithInputBean() throws Exception {
         registrationEP.registerSystemUser(new RegistrationBean(monowai, mike));
-        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("auditTest", true), null).getBody();
+        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("auditTest", true),null,  null).getBody();
         //Fortress fortressB = fortressEP.registerFortress(new FortressInputBean("auditTestB", true), null).getBody();
 
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");

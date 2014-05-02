@@ -74,7 +74,7 @@ public class TrackAPIKeys {
         String apiKey = regEP.registerSystemUser(new RegistrationBean(companyName, authMike.getName())).getBody().getApiKey();
         SecurityContextHolder.getContext().setAuthentication(null);
         Assert.assertNotNull(apiKey);
-        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("testApiKeysWorkInPrecedence"), apiKey).getBody();
+        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("testApiKeysWorkInPrecedence"), apiKey, null).getBody();
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
 
         // Fails due to NoAuth or key
@@ -125,7 +125,7 @@ public class TrackAPIKeys {
         // No authorization - only API keys
         SecurityContextHolder.getContext().setAuthentication(null);
 
-        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("apiCallsSecuredByAccessKey"), apiKey).getBody();
+        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("apiCallsSecuredByAccessKey"), apiKey, null).getBody();
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC9990");
         String what = "{\"house\": \"house\"}";
         LogInputBean log = new LogInputBean("harry", new DateTime(), what);

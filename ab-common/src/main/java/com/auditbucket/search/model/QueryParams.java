@@ -1,5 +1,7 @@
 package com.auditbucket.search.model;
 
+import com.auditbucket.registration.model.Fortress;
+
 /**
  * Encapsulated search parameters
  * User: mike
@@ -12,6 +14,14 @@ public class QueryParams {
     private String company;
     private String fortress;
     private String[] types;
+
+    public QueryParams() {}
+    public QueryParams(Fortress fortress) {
+        this();
+        setFortress(fortress.getCode());
+        setCompany(fortress.getCompany().getCode());
+        //To change body of created methods use File | Settings | File Templates.
+    }
 
 
     public String getSimpleQuery() {

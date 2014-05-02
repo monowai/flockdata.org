@@ -75,8 +75,6 @@ public class QueryDaoES implements QueryDao {
 
     }
 
-
-
     @Override
     public Collection<String> doMetaKeySearch(QueryParams queryParams) throws DatagioException {
         String[] types = Strings.EMPTY_ARRAY;

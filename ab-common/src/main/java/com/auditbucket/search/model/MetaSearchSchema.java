@@ -66,7 +66,7 @@ public class MetaSearchSchema {
         return parseIndex(fortress.getCompany().getCode()) + fortress.getCode();
     }
 
-    public static String parseIndex(String company) throws DatagioException {
+    private static String parseIndex(String company) throws DatagioException {
         // ToDo: Add multi tenant test. Company must always be present if MultiTenanted
         if (company == null || company.equals(""))
             company = "*";

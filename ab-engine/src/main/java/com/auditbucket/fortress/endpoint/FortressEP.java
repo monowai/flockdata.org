@@ -32,6 +32,7 @@ import com.auditbucket.track.model.DocumentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,15 +58,16 @@ public class FortressEP {
 
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
     @ResponseBody
-    public Collection<Fortress> findFortresses() {
+    public Collection<Fortress> findFortresses(String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         // curl -u mike:123 -X GET  http://localhost:8080/ab/company/Monowai/fortresses
-        return fortressService.findFortresses();
+        Company company = securityHelper.getCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+        return fortressService.findFortresses(company);
     }
 
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Fortress> registerFortress(@RequestBody FortressInputBean fortressInputBean, String apiKey) {
-        Company company = securityHelper.getCompany(apiKey);
+    public ResponseEntity<Fortress> registerFortress(@RequestBody FortressInputBean fortressInputBean, String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+        Company company = securityHelper.getCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
         Fortress fortress = fortressService.registerFortress(company, fortressInputBean, true);
         fortressInputBean.setFortressKey(fortress.getFortressKey());
         return new ResponseEntity<>(fortress, HttpStatus.CREATED);
@@ -74,9 +76,10 @@ public class FortressEP {
 
     @RequestMapping(value = "/{fortressName}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Fortress> getFortress(@PathVariable("fortressName") String fortressName) {
+    public ResponseEntity<Fortress> getFortress(@PathVariable("fortressName") String fortressName, String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         // curl -u mike:123 -X GET  http://localhost:8080/ab/fortress/ABC
-        Fortress fortress = fortressService.findByName(fortressName);
+        Company company = securityHelper.getCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+        Fortress fortress = fortressService.findByName(company, fortressName);
         if (fortress == null)
             return new ResponseEntity<>(fortress, HttpStatus.NOT_FOUND);
         else
@@ -84,11 +87,13 @@ public class FortressEP {
     }
 
     @RequestMapping(value = "/{fortressName}", method = RequestMethod.DELETE)
+    @Secured({"ROLE_AB_ADMIN"})
     public void purgeFortress(@PathVariable("fortressName") String fortressName) throws DatagioException {
         fortressService.purge(fortressName);
     }
 
     @RequestMapping(value = "/{fortressName}/delete", method = RequestMethod.DELETE)
+    @Secured({"ROLE_AB_ADMIN"})
     public void rebuildFortress(@PathVariable("fortressName") String fortressName) throws DatagioException {
         fortressService.purge(fortressName);
     }
@@ -96,9 +101,12 @@ public class FortressEP {
 
     @RequestMapping(value = "/{fortressName}/{userName}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<FortressUser> getFortressUsers(@PathVariable("fortressName") String fortressName, @PathVariable("userName") String userName) {
+    public ResponseEntity<FortressUser> getFortressUsers(@PathVariable("fortressName") String fortressName, @PathVariable("userName") String userName,
+                                                         String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+        Company company = securityHelper.getCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+
         FortressUser result = null;
-        Fortress fortress = fortressService.findByName(fortressName);
+        Fortress fortress = fortressService.findByName(company, fortressName);
 
         if (fortress == null) {
             return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);

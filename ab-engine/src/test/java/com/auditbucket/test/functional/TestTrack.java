@@ -131,7 +131,7 @@ public class TestTrack {
     public void metaHeaderDifferentLogsBulkEndpoint() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(authMike);
         SystemUserResultBean su = regService.registerSystemUser(new RegistrationBean(monowai, "mike")).getBody();
-        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("auditTest",true), su.getApiKey()).getBody();
+        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("auditTest",true), su.getApiKey(), null).getBody();
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         LogInputBean logInputBean = new LogInputBean("mike", new DateTime(), "{\"col\": 123}");

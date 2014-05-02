@@ -29,6 +29,7 @@ import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.endpoint.TagEP;
+import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.FortressService;
@@ -548,6 +549,7 @@ public class TestAuditIntegration {
 //        AbRestClient restClient = new AbRestClient("http://localhost:9081/", "mike", "123", 1);
 //        assertEquals("Pong!", restClient.ping());
         SystemUser su = regService.registerSystemUser(new RegistrationBean("TestCo", "mike").setIsUnique(false));
+
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("TestFortress", false));
         Thread.sleep(300);
 
@@ -561,9 +563,7 @@ public class TestAuditIntegration {
 //        restClient.writeAudit(input, "Hello World");
 
 
-        QueryParams q = new QueryParams().setSimpleQuery(searchFor);
-        q.setCompany(su.getCompany().getName());
-        q.setFortress(fortress.getName());
+        QueryParams q = new QueryParams( fortress).setSimpleQuery(searchFor);
         doEsQuery("ab.*",searchFor,1);
 
         String qResult = runQuery(q);

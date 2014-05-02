@@ -74,8 +74,8 @@ public class TestSchemaManagement {
     public void documentTypesTrackedPerFortress() throws Exception {
         String apiKey = registrationEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody().getApiKey();
 
-        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("auditTestA", true), apiKey).getBody();
-        Fortress fortressB = fortressEP.registerFortress(new FortressInputBean("auditTestB", true), apiKey).getBody();
+        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("auditTestA", true), apiKey, apiKey).getBody();
+        Fortress fortressB = fortressEP.registerFortress(new FortressInputBean("auditTestB", true), apiKey, apiKey).getBody();
 
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
         String metaKeyA = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody().getMetaKey();
@@ -103,11 +103,11 @@ public class TestSchemaManagement {
 
 
         String apiKey = registrationEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody().getApiKey();
-        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("auditTestA", true), apiKey).getBody();
-        Fortress fortressB = fortressEP.registerFortress(new FortressInputBean("auditTestB", true), apiKey).getBody();
+        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("auditTestA", true), apiKey, apiKey).getBody();
+        Fortress fortressB = fortressEP.registerFortress(new FortressInputBean("auditTestB", true), apiKey, apiKey).getBody();
 
         // Same name different company
-        Fortress fortressC = fortressEP.registerFortress(new FortressInputBean("auditTestB", true), cOtherAPI).getBody();
+        Fortress fortressC = fortressEP.registerFortress(new FortressInputBean("auditTestB", true), cOtherAPI, cOtherAPI).getBody();
 
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
         String metaKeyA = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody().getMetaKey();

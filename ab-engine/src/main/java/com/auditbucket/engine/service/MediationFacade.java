@@ -150,7 +150,7 @@ public class MediationFacade {
             logBean.setWhat(logBean.getWhat());
 
         Company company = registrationService.resolveCompany(apiKey);
-        Fortress fortress = fortressService.registerFortress(company, new FortressInputBean(inputBean.getFortress(), true));
+        Fortress fortress = fortressService.registerFortress(company, new FortressInputBean(inputBean.getFortress(), false));
         fortress.setCompany(company);
         return createHeader(company, fortress, inputBean);
     }

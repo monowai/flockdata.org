@@ -115,7 +115,7 @@ public class TestCallerRef {
         regService.registerSystemUser(new RegistrationBean(monowai, mike));
 
         FortressInputBean fib = new FortressInputBean("auditTest" + System.currentTimeMillis());
-        Fortress fortress = fortressEP.registerFortress(fib, null).getBody();
+        Fortress fortress = fortressEP.registerFortress(fib, null, null).getBody();
         // Duplicate null caller ref keys
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "harry", "TestTrack", new DateTime(), null);
         Assert.assertNotNull(mediationFacade.createHeader(inputBean, null).getMetaKey());
@@ -136,7 +136,7 @@ public class TestCallerRef {
     @Transactional
     public void findByCallerRefAcrossDocumentTypes() throws Exception {
         registrationEP.registerSystemUser(new RegistrationBean(monowai, mike));
-        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("auditTest", true), null).getBody();
+        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("auditTest", true), null, null).getBody();
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
 
@@ -171,7 +171,7 @@ public class TestCallerRef {
         cleanUpGraph(); // No transaction so need to clear down the graph
         regService.registerSystemUser(new RegistrationBean(monowai, mike));
 
-        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("auditTest" + System.currentTimeMillis()), null).getBody();
+        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("auditTest" + System.currentTimeMillis()), null, null).getBody();
 
         String docType = "TestAuditX";
         String callerRef = "ABC123X";
