@@ -29,6 +29,8 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.repo.neo4j.dao.CompanyDao;
 import com.auditbucket.track.model.DocumentType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -54,6 +56,8 @@ public class CompanyService {
 
     @Autowired
     private EngineConfig engineAdmin;
+
+    private static Logger logger = LoggerFactory.getLogger(CompanyService.class);
 
     public Company findByName(String companyName) {
         return companyDao.findByPropertyValue("name", companyName);
@@ -113,6 +117,15 @@ public class CompanyService {
     }
 
     public Collection<Company> findCompanies(String userApiKey) {
+        if ( userApiKey == null ) {
+            SystemUser su = securityHelper.getSysUser(true);
+            if (su !=null )
+                userApiKey = su.getApiKey();
+        }
+        if ( userApiKey==null ){
+            logger.error("Unable to resolve user API key");
+            return null;
+        }
         return companyDao.findCompanies(userApiKey);
 
     }

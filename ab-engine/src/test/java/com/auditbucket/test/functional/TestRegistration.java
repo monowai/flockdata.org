@@ -404,5 +404,16 @@ public class TestRegistration {
         assertEquals(uid, fu.getId());
     }
 
+    @Test
+    public void findCompanyByNullApiKey() throws Exception {
+        String uname = "mike";
+        // Assume the user has now logged in.
+        String company = "MultiFortTest";
+        registrationService.registerSystemUser(new RegistrationBean(company, uname, "password"));
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        Collection<Company> co = companyEP.findCompanies(null, null);
+        Assert.assertFalse(co.isEmpty());
+    }
+
 
 }
