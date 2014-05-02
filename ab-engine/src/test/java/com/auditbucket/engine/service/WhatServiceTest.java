@@ -82,8 +82,8 @@ public class WhatServiceTest extends AbstractRedisSupport {
     @Autowired
     private EngineConfig engineConfig;
 
-    private String email = "test@ab.com";
-    private Authentication authA = new UsernamePasswordAuthenticationToken(email, "user1");
+    private String email = "mike";
+    private Authentication authA = new UsernamePasswordAuthenticationToken("mike", "123");
 
     @Test
     public void getWhatFromRiak() throws Exception {

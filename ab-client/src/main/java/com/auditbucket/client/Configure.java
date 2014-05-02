@@ -23,6 +23,9 @@ import java.util.Properties;
 public class Configure {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(Configure.class);
     static String configFile = "client.config";
+    static String internalUser = null;
+    static String internalPass = null;
+
     public static void main(String args[]) {
 
 
@@ -82,9 +85,6 @@ public class Configure {
         return file;
     }
 
-    private static String internalUser = "mike";
-    private static String internalPass = "123";
-
     static Namespace getCommandLineArgs(String[] args) {
         ArgumentParser parser = ArgumentParsers.newArgumentParser("configure")
                 .defaultHelp(true)
@@ -132,6 +132,8 @@ public class Configure {
         String version;
 
         pingResult = pingServer(engineURL, null, null);
+
+
         while (!pingResult.equalsIgnoreCase("pong!") && !pingResult.equalsIgnoreCase("auth")) {
             logger.error("** Unable to ping AbEngine on [{}]", engineURL);
             engineURL = getValue("** Enter AbEngine URL ({})", engineURL);
@@ -167,7 +169,7 @@ public class Configure {
             if (suResult != null) {
                 version = getVersion(engineURL, suResult.getApiKey());
             } else {
-                logger.info("Unable to register the system user");
+                logger.info("Unable to register the system user with the login [{}]", internalUser);
                 System.exit(-1);
             }
             if ( !suResult.getCompanyName().equalsIgnoreCase(company)){
@@ -235,7 +237,7 @@ public class Configure {
 
     private static SystemUserResultBean registerUser(String serverName, String intName, String intPass, String userName, String company) {
         AbRestClient restClient = new AbRestClient(serverName, intName, intPass, 0);
-        return restClient.registerProfile(userName, null, company);
+        return restClient.registerProfile(intName, intPass, userName, company);
     }
 
     static String pingServer(String serverName, String userName, String password) {

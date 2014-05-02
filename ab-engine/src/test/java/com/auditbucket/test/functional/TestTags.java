@@ -80,7 +80,7 @@ public class TestTags {
     //private Logger log = LoggerFactory.getLogger(TestTags.class);
     private String company = "Monowai";
     private String mike = "mike";
-    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
+    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "123");
 
 
     @Rollback(false)

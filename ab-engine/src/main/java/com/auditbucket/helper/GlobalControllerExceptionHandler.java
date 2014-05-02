@@ -23,6 +23,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -62,6 +63,12 @@ public class GlobalControllerExceptionHandler {
     @ExceptionHandler(SecurityException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ModelAndView handleSecException(final SecurityException ex){
+        return new JsonError(ex.getMessage()).asModelAndView();
+    }
+    //.class
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ModelAndView handleAuthException(final AccessDeniedException ex){
         return new JsonError(ex.getMessage()).asModelAndView();
     }
 
