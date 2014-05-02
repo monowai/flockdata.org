@@ -72,7 +72,14 @@ public class AbRestClient implements StaticDataResolver {
     private final String tagSync = "TagSync";
     private String defaultFortress;
 
-    @Deprecated
+    /**
+     * Use this version for administrative access where the username and password must exist
+     *
+     * @param serverName   where are we talking to?
+     * @param userName     configured user in the security domain
+     * @param password     configured password in the security domain
+     * @param batchSize    default batch command size
+     */
     public AbRestClient(String serverName, String userName, String password, int batchSize) {
         this(serverName, null, userName, password, batchSize, null);
     }
@@ -148,11 +155,11 @@ public class AbRestClient implements StaticDataResolver {
         return simulateOnly;
     }
 
-    public SystemUserResultBean registerProfile(String userName, String password, String company) {
+    public SystemUserResultBean registerProfile(String authUser, String authPass, String userName, String company) {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-        HttpHeaders httpHeaders = getHeaders(null, userName, password); // Internal application authorisation
-        RegistrationBean registrationBean = new RegistrationBean(company, userName, password).setIsUnique(false);
+        HttpHeaders httpHeaders = getHeaders(null, authUser, authPass); // Internal application authorisation
+        RegistrationBean registrationBean = new RegistrationBean(company, userName, null).setIsUnique(false);
         HttpEntity requestEntity = new HttpEntity<>(registrationBean, httpHeaders);
 
         try {

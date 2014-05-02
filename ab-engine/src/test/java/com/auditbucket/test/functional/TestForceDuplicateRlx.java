@@ -72,8 +72,8 @@ public class TestForceDuplicateRlx {
     private Neo4jTemplate template;
 
     private Logger logger = LoggerFactory.getLogger(TestForceDuplicateRlx.class);
-    private String mike = "test@ab.com";
-    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
+    private String mike = "mike";
+    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "123");
     @Autowired
     TrackService trackService;
 

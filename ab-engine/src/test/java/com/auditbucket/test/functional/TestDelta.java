@@ -85,9 +85,9 @@ public class TestDelta {
     private Logger logger = LoggerFactory.getLogger(TestTrack.class);
     private String monowai = "Monowai";
     private String mike = "mike";
-    private String mark = "mark@null.com";
-    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "user1");
-    private Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "user1");
+    private String mark = "mark";
+    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "123");
+    private Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "123");
 
     @Before
     public void setSecurity() {
@@ -106,8 +106,9 @@ public class TestDelta {
 
     @Test
     public void jsonDeltasAreFound() throws Exception {
+        setSecurity();
         regService.registerSystemUser(new RegistrationBean(monowai, mike, "bah"));
-         setSecurity();
+
         Fortress fortress = fortressService.registerFortress("DELTAForce");
         assertNotNull(fortress);
 

@@ -280,7 +280,7 @@ public class TrackEP {
 
     @ResponseBody
     @RequestMapping(value = "/{metaKey}/{logId}/delta/{withId}", produces = "application/json", method = RequestMethod.GET)
-    @Secured({"ROLE_USER"})
+    @Secured({"ROLE_AB_ADMIN"})
     public ResponseEntity<AuditDeltaBean> getDelta(@PathVariable("metaKey") String metaKey, @PathVariable("logId") Long logId, @PathVariable("withId") Long withId) {
         MetaHeader header = trackService.getHeader(metaKey);
 
@@ -344,7 +344,7 @@ public class TrackEP {
 
     @ResponseBody
     @RequestMapping(value = "/tx/{txRef}", produces = "application/json", method = RequestMethod.GET)
-    @Secured({"ROLE_USER"})
+    @Secured({"ROLE_AB_ADMIN"})
     public ResponseEntity<TxRef> getAuditTx(@PathVariable("txRef") String txRef) {
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/{metaKey}
         TxRef result;
@@ -355,7 +355,7 @@ public class TrackEP {
 
     @ResponseBody
     @RequestMapping(value = "/tx/{txRef}/headers", produces = "application/json", method = RequestMethod.GET)
-    @Secured({"ROLE_USER"})
+    @Secured({"ROLE_AB_ADMIN"})
     public ResponseEntity<Map<String, Object>> getAuditTxHeaders(@PathVariable("txRef") String txRef) {
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/{metaKey}
         Set<MetaHeader> headers;
@@ -368,7 +368,7 @@ public class TrackEP {
 
     @ResponseBody
     @RequestMapping(value = "/tx/{txRef}/logs", produces = "application/json", method = RequestMethod.GET)
-    @Secured({"ROLE_USER"})
+    @Secured({"ROLE_AB_ADMIN"})
     public ResponseEntity<Map> getAuditTxLogs(@PathVariable("txRef") String txRef) {
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/tx/{txRef}/logs
         Map<String, Object> result;

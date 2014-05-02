@@ -91,17 +91,17 @@ public class TestTxReference {
         Neo4jHelper.cleanDb(template);
     }
 
-    private String uid = "mike@monowai.com";
-    private Authentication authA = new UsernamePasswordAuthenticationToken(uid, "user1");
+    private String uid = "mike";
+    private Authentication authA = new UsernamePasswordAuthenticationToken(uid, "123");
 
 
     @Test
     public void testAuthorisedToViewTransaction() throws Exception {
-        SystemUser suABC = regService.registerSystemUser(new RegistrationBean("ABC", "mike@monowai.com", "bah"));
-        SystemUser suCBA = regService.registerSystemUser(new RegistrationBean("CBA", "null@monowai.com", "bah"));
+        SystemUser suABC = regService.registerSystemUser(new RegistrationBean("ABC", "mike", "bah"));
+        SystemUser suCBA = regService.registerSystemUser(new RegistrationBean("CBA", "sally", "bah"));
 
-        Authentication authABC = new UsernamePasswordAuthenticationToken(suABC.getName(), "user1");
-        Authentication authCBA = new UsernamePasswordAuthenticationToken(suCBA.getName(), "user1");
+        Authentication authABC = new UsernamePasswordAuthenticationToken(suABC.getName(), "123");
+        Authentication authCBA = new UsernamePasswordAuthenticationToken(suCBA.getName(), "123");
 
 // ABC Data
         Fortress fortressABC = fortressService.registerFortress("abcTest");

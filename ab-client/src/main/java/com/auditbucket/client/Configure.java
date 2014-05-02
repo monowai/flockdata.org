@@ -1,5 +1,6 @@
 package com.auditbucket.client;
 
+import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.sourceforge.argparse4j.ArgumentParsers;
@@ -22,6 +23,9 @@ import java.util.Properties;
 public class Configure {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(Configure.class);
     static String configFile = "client.config";
+    static String internalUser = null;
+    static String internalPass = null;
+
     public static void main(String args[]) {
 
 
@@ -35,6 +39,11 @@ public class Configure {
         boolean reconfigure = ns.getBoolean("reconfig");
 
         if (!file.exists() || reconfigure) {
+            if ( internalUser == null ){
+                logger.error("No admin user supplied to register accounts. Please call configure -u=user -p=pass");
+
+                System.exit (-2);
+            }
             logger.info("** Starting default configuration process");
             String engineURL = defaults.getEngineURL();
             logger.info("** Looking for server with all system defaults");
@@ -76,9 +85,6 @@ public class Configure {
         return file;
     }
 
-    private static String internalUser = "mike";
-    private static String internalPass = "123";
-
     static Namespace getCommandLineArgs(String[] args) {
         ArgumentParser parser = ArgumentParsers.newArgumentParser("configure")
                 .defaultHelp(true)
@@ -94,7 +100,7 @@ public class Configure {
 
         group.addArgument("-t", "--test")
                 .required(false)
-                .setDefault(false)
+                .setDefault(true)
                 .help("Test the stored configuration")
                 .action(Arguments.storeTrue());
 
@@ -104,11 +110,11 @@ public class Configure {
                 .help("Configuration file path");
 
         parser.addArgument("-u", "--user")
-                .required(true)
+                .required(false)
                 .help("User authorised to create registrations");
 
         parser.addArgument("-p", "--pass")
-                .required(true)
+                .required(false)
                 .help("Password for --user");
 
         Namespace ns = null;
@@ -126,6 +132,8 @@ public class Configure {
         String version;
 
         pingResult = pingServer(engineURL, null, null);
+
+
         while (!pingResult.equalsIgnoreCase("pong!") && !pingResult.equalsIgnoreCase("auth")) {
             logger.error("** Unable to ping AbEngine on [{}]", engineURL);
             engineURL = getValue("** Enter AbEngine URL ({})", engineURL);
@@ -161,7 +169,7 @@ public class Configure {
             if (suResult != null) {
                 version = getVersion(engineURL, suResult.getApiKey());
             } else {
-                logger.info("Unable to register the system user");
+                logger.info("Unable to register the system user with the login [{}]", internalUser);
                 System.exit(-1);
             }
             if ( !suResult.getCompanyName().equalsIgnoreCase(company)){
@@ -190,7 +198,7 @@ public class Configure {
     }
 
     private static void testConfig(ConfigProperties defaults) {
-        String version = getVersion(defaults.getEngineURL(), defaults.getDefaultUser());
+        String version = getVersion(defaults.getEngineURL(), defaults.getApiKey());
         if (version == null)
             logger.error("** Error communicating with AuditBucket using parameters {}", defaults);
         else
@@ -229,7 +237,7 @@ public class Configure {
 
     private static SystemUserResultBean registerUser(String serverName, String intName, String intPass, String userName, String company) {
         AbRestClient restClient = new AbRestClient(serverName, intName, intPass, 0);
-        return restClient.registerProfile(userName, null, company);
+        return restClient.registerProfile(intName, intPass, userName, company);
     }
 
     static String pingServer(String serverName, String userName, String password) {

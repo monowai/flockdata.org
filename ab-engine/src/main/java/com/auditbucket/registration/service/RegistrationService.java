@@ -29,6 +29,7 @@ import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.repo.neo4j.model.CompanyUserNode;
 import com.auditbucket.registration.repo.neo4j.model.SystemUserNode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,7 +51,9 @@ public class RegistrationService {
 
     public static SystemUser GUEST = new SystemUserNode("Guest", null, null, false);
 
+    @Secured({"ROLE_AB_ADMIN"})
     public SystemUser registerSystemUser(RegistrationBean regBean) throws DatagioException {
+
         SystemUser systemUser = systemUserService.findByName(regBean.getName());
 
         if (systemUser != null) {

@@ -110,8 +110,8 @@ public class TestMetaHeaderTags {
 
     //private Logger log = LoggerFactory.getLogger(TestMetaHeaderTags.class);
     private String company = "Monowai";
-    private String uid = "mike@monowai.com";
-    private Authentication authA = new UsernamePasswordAuthenticationToken(uid, "user1");
+    private String uid = "mike";
+    private Authentication authA = new UsernamePasswordAuthenticationToken(uid, "123");
 
     @Rollback(false)
     @BeforeTransaction
@@ -416,8 +416,8 @@ public class TestMetaHeaderTags {
 
     @Test
     public void duplicateDocumentTypes() throws Exception {
-        String mark = "mark@monowai.com";
-        Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "user1");
+        String mark = "mark";
+        Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "123");
 
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         Assert.assertNotNull(iSystemUser);
@@ -432,7 +432,7 @@ public class TestMetaHeaderTags {
 
         // Company 2 gets a different tag with the same name
         SecurityContextHolder.getContext().setAuthentication(authMark);
-        regService.registerSystemUser(new RegistrationBean("secondcompany", mark, "bah"));
+        regService.registerSystemUser(new RegistrationBean("secondcompany", mark, "123"));
         // Same fortress name, but different company
         dType = tagService.resolveDocType(fortressService.registerFortress("duplicateDocumentTypes"), "ABC123"); // Creates if missing
         Assert.assertNotNull(dType);
@@ -589,9 +589,10 @@ public class TestMetaHeaderTags {
     @Test
     public void nestedStructureInHeader() throws Exception {
 
+        SecurityContextHolder.getContext().setAuthentication(authA);
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid, "bah"));
         assertNotNull(iSystemUser);
-        SecurityContextHolder.getContext().setAuthentication(authA);
+
         Fortress fortress = fortressService.registerFortress("ABC");
         assertNotNull(fortress);
 

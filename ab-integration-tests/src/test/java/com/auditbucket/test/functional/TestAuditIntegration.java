@@ -117,8 +117,8 @@ public class TestAuditIntegration {
     private Neo4jTemplate template;
 
     private Logger logger = LoggerFactory.getLogger(TestAuditIntegration.class);
-    private String email = "test@ab.com";
-    private Authentication authA = new UsernamePasswordAuthenticationToken(email, "user1");
+    private String email = "mike";
+    private Authentication authA = new UsernamePasswordAuthenticationToken(email, "123");
     @AfterClass
     public static void pauseForAWhile() throws Exception{
         System.out.println("Waiting for a while");
@@ -547,7 +547,7 @@ public class TestAuditIntegration {
 //        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 //        AbRestClient restClient = new AbRestClient("http://localhost:9081/", "mike", "123", 1);
 //        assertEquals("Pong!", restClient.ping());
-        SystemUser su = regService.registerSystemUser(new RegistrationBean("TestCo", "mike", "123"));
+        SystemUser su = regService.registerSystemUser(new RegistrationBean("TestCo", "mike", "123").setIsUnique(false));
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("TestFortress", false));
         Thread.sleep(300);
 
