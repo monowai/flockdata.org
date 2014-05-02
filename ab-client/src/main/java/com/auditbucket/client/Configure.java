@@ -1,5 +1,6 @@
 package com.auditbucket.client;
 
+import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.sourceforge.argparse4j.ArgumentParsers;
@@ -35,6 +36,11 @@ public class Configure {
         boolean reconfigure = ns.getBoolean("reconfig");
 
         if (!file.exists() || reconfigure) {
+            if ( internalUser == null ){
+                logger.error("No admin user supplied to register accounts. Please call configure -u=user -p=pass");
+
+                System.exit (-2);
+            }
             logger.info("** Starting default configuration process");
             String engineURL = defaults.getEngineURL();
             logger.info("** Looking for server with all system defaults");
@@ -94,7 +100,7 @@ public class Configure {
 
         group.addArgument("-t", "--test")
                 .required(false)
-                .setDefault(false)
+                .setDefault(true)
                 .help("Test the stored configuration")
                 .action(Arguments.storeTrue());
 
@@ -104,11 +110,11 @@ public class Configure {
                 .help("Configuration file path");
 
         parser.addArgument("-u", "--user")
-                .required(true)
+                .required(false)
                 .help("User authorised to create registrations");
 
         parser.addArgument("-p", "--pass")
-                .required(true)
+                .required(false)
                 .help("Password for --user");
 
         Namespace ns = null;
@@ -190,7 +196,7 @@ public class Configure {
     }
 
     private static void testConfig(ConfigProperties defaults) {
-        String version = getVersion(defaults.getEngineURL(), defaults.getDefaultUser());
+        String version = getVersion(defaults.getEngineURL(), defaults.getApiKey());
         if (version == null)
             logger.error("** Error communicating with AuditBucket using parameters {}", defaults);
         else
