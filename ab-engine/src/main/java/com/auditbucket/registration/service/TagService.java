@@ -39,6 +39,7 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -129,7 +130,11 @@ public class TagService {
         for (List<TagInputBean> tagInputBeans : splitList) {
             DLCommand c = new DLCommand(tagInputBeans);
             try {
-                com.auditbucket.helper.DeadlockRetry.execute(c, "creating tags", 15);
+                try {
+                    com.auditbucket.helper.DeadlockRetry.execute(c, "creating tags", 15);
+                } catch (IOException e) {
+                    logger.error("KV Error?", e);
+                }
             } catch (DatagioException e) {
                 logger.error(" Tag errors detected");
             }
