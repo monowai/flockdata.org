@@ -29,6 +29,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.io.IOException;
+
 /**
  * User: Mike Holdsworth
  * Date: 15/06/13
@@ -72,7 +74,7 @@ public class GlobalControllerExceptionHandler {
         return new JsonError(ex.getMessage()).asModelAndView();
     }
 
-    @ExceptionHandler(Exception.class)
+    @ExceptionHandler(Exception.class )
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ModelAndView handleInternal( Exception ex) {
         logger.error("Error 500", ex);

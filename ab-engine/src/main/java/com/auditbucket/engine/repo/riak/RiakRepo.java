@@ -39,30 +39,31 @@ public class RiakRepo implements KvRepo {
     private IRiakClient client = null;
     private final Object synLock = "RiakRepoLock";
 
-    private IRiakClient getClient()  {
-        if ( client == null ){
-            synchronized (synLock){
-                if ( client == null )
-                    try {
-                        // ToDo: set server and host
-                        client = RiakFactory.pbcClient();
-                        client.generateAndSetClientId();
-                    } catch (RiakException e) {
-                        logger.error("Unable to create Riak Client", e);
-                    }
+    private IRiakClient getClient() throws RiakException {
+        if (client == null) {
+            synchronized (synLock) {
+                if (client == null) {
+                    // ToDo: set server and host
+                    client = RiakFactory.pbcClient();
+                    client.generateAndSetClientId();
+
+                }
             }
 
         }
         return client;
     }
+
     public void add(MetaHeader metaHeader, Long key, byte[] value) throws IOException {
         //riak.put(metaHeader.getIndexName(), key);
         try {
             Bucket bucket = getClient().createBucket(metaHeader.getIndexName()).execute();
             bucket.store(String.valueOf(key), value).execute();
         } catch (RiakException e) {
-            logger.error("KV Error", e);
-            throw new IOException ("KV Error",e);
+            logger.error("RIAK Repo Error", e);
+            client.shutdown();
+            client = null;
+            throw new IOException("RIAK Repo Error [" + e.getMessage() + "]", e);
         }
     }
 
@@ -70,10 +71,12 @@ public class RiakRepo implements KvRepo {
         try {
             Bucket bucket = getClient().createBucket(metaHeader.getIndexName()).execute();
             IRiakObject result = bucket.fetch(String.valueOf(key)).execute();
-            if (result!=null )
+            if (result != null)
                 return result.getValue();
         } catch (RiakException e) {
             logger.error("KV Error", e);
+            client.shutdown();
+            client = null;
             return null;
         }
         return null;
@@ -84,7 +87,9 @@ public class RiakRepo implements KvRepo {
             Bucket bucket = getClient().fetchBucket(metaHeader.getIndexName()).execute();
             bucket.delete(String.valueOf(key)).execute();
         } catch (RiakException e) {
-            logger.error("KV Error", e);
+            logger.error("RIAK Repo Error", e);
+            client.shutdown();
+            client = null;
         }
 
     }

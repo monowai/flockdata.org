@@ -19,6 +19,8 @@
 
 package com.auditbucket.helper;
 
+import java.io.IOException;
+
 /**
  * Created with IntelliJ IDEA.
  * User: mike
@@ -27,5 +29,5 @@ package com.auditbucket.helper;
  * To change this template use File | Settings | File Templates.
  */
 public interface Command<T> {
-    public Command execute() throws DatagioException;
+    public Command execute() throws DatagioException, IOException;
 }

@@ -45,6 +45,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.List;
@@ -96,12 +97,12 @@ public class MediationFacade {
      */
 
     @Async
-    public Future<Integer> createHeadersAsync(final Company company, final Fortress fortress, List<MetaInputBean> inputBeans) throws DatagioException {
+    public Future<Integer> createHeadersAsync(final Company company, final Fortress fortress, List<MetaInputBean> inputBeans) throws DatagioException, IOException {
         // ToDo: Return strings which could contain only the caller ref data that failed.
         return new AsyncResult<>(createHeaders(company, fortress, inputBeans));
     }
 
-    public Integer createHeaders(final Company company, final Fortress fortress, final List<MetaInputBean> inputBeans) throws DatagioException {
+    public Integer createHeaders(final Company company, final Fortress fortress, final List<MetaInputBean> inputBeans) throws DatagioException, IOException {
         fortress.setCompany(company);
         Long id = DateTime.now().getMillis();
         StopWatch watch = new StopWatch();
@@ -121,7 +122,7 @@ public class MediationFacade {
                         this.headers = new CopyOnWriteArrayList<>(processList);
                     }
                     @Override
-                    public Command execute() throws DatagioException {
+                    public Command execute() throws DatagioException, IOException {
                         //fortressService.registerFortress(company, new FortressInputBean(headers.iterator().next().getFortress()), true);
                         Iterable<TrackResultBean> resultBeans = trackService.createHeaders(headers, company, fortress);
                         processLogs(company, resultBeans);
@@ -142,7 +143,7 @@ public class MediationFacade {
         return inputBeans.size();
     }
 
-    public TrackResultBean createHeader(MetaInputBean inputBean, String apiKey) throws DatagioException {
+    public TrackResultBean createHeader(MetaInputBean inputBean, String apiKey) throws DatagioException, IOException {
         if (inputBean == null)
             throw new DatagioException("No input to process");
         LogInputBean logBean = inputBean.getLog();
@@ -155,14 +156,14 @@ public class MediationFacade {
         return createHeader(company, fortress, inputBean);
     }
 
-    public TrackResultBean createHeader(final Company company, final Fortress fortress, final MetaInputBean inputBean) throws DatagioException {
+    public TrackResultBean createHeader(final Company company, final Fortress fortress, final MetaInputBean inputBean) throws DatagioException, IOException {
         if (inputBean == null)
             throw new DatagioException("No input to process!");
 
         class HeaderDeadlockRetry implements Command {
             TrackResultBean result = null;
             @Override
-            public Command execute() throws DatagioException {
+            public Command execute() throws DatagioException, IOException {
                 result = trackService.createHeader(company, fortress, inputBean);
                 processLogFromResult(company, result);
 
@@ -176,7 +177,7 @@ public class MediationFacade {
     }
 
     @Async
-    public Future<Void> processLogs(Company company, Iterable<TrackResultBean> resultBeans) throws DatagioException {
+    public Future<Void> processLogs(Company company, Iterable<TrackResultBean> resultBeans) throws DatagioException, IOException {
 
         for (TrackResultBean resultBean : resultBeans) {
             processLogFromResult(company, resultBean);
@@ -184,18 +185,18 @@ public class MediationFacade {
         return new AsyncResult<>(null);
     }
 
-    public LogResultBean processLog(LogInputBean input)  throws DatagioException{
+    public LogResultBean processLog(LogInputBean input) throws DatagioException, IOException {
         MetaHeader header = trackService.getHeader(null, input.getMetaKey());
         return processLogForHeader(header, input);
     }
 
-    private LogResultBean processCompanyLog(Company company, TrackResultBean resultBean)  throws DatagioException{
+    private LogResultBean processCompanyLog(Company company, TrackResultBean resultBean) throws DatagioException, IOException {
         MetaHeader header = resultBean.getMetaHeader();
         if (header == null) header = trackService.getHeader(company, resultBean.getMetaKey());
         return processLogForHeader(header, resultBean.getLog());
     }
 
-    private void processLogFromResult(Company company, TrackResultBean resultBean)  throws DatagioException{
+    private void processLogFromResult(Company company, TrackResultBean resultBean) throws DatagioException, IOException {
         LogInputBean logBean = resultBean.getLog();
         MetaHeader header = resultBean.getMetaHeader();
         // Here on could be spun in to a separate thread. The log has to happen eventually
@@ -235,7 +236,7 @@ public class MediationFacade {
      * @param input   payload containing at least the metaKey
      * @return result of the log
      */
-    public LogResultBean processLogForCompany(Company company, LogInputBean input)  throws DatagioException{
+    public LogResultBean processLogForCompany(Company company, LogInputBean input) throws DatagioException, IOException {
         MetaHeader header = trackService.getHeader(company, input.getMetaKey());
         if (header == null )
             throw new DatagioException("Unable to find the request auditHeader "+input.getMetaKey());
@@ -250,12 +251,12 @@ public class MediationFacade {
      * @return result details
      * @throws com.auditbucket.helper.DatagioException
      */
-    public LogResultBean processLogForHeader(final MetaHeader header, final LogInputBean logInputBean) throws DatagioException {
+    public LogResultBean processLogForHeader(final MetaHeader header, final LogInputBean logInputBean) throws DatagioException, IOException {
         logInputBean.setWhat(logInputBean.getWhat());
         class DeadLockCommand implements Command {
             LogResultBean result = null;
             @Override
-            public Command execute() throws DatagioException {
+            public Command execute() throws DatagioException, IOException {
                 result = trackService.createLog(header, logInputBean);
                 return this;
             }

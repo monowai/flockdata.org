@@ -52,6 +52,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.Assert.assertEquals;
@@ -241,6 +242,8 @@ public class TestCallerRef {
                 logger.error("Help!!", e);
             } catch (DatagioException e) {
                 logger.error(e.getMessage());
+            } catch (IOException e) {
+                logger.error("Unexpected", e);
             } finally {
                 latch.countDown();
             }

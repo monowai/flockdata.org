@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
 
+import java.io.IOException;
+
 /**
  * Created with IntelliJ IDEA.
  * User: mike
@@ -36,7 +38,7 @@ import org.springframework.dao.InvalidDataAccessResourceUsageException;
 public class DeadlockRetry {
     private static Logger logger = LoggerFactory.getLogger(DeadlockRetry.class);
 
-    public static Command execute(Command command, String block, int maxRetry) throws DatagioException {
+    public static Command execute(Command command, String block, int maxRetry) throws DatagioException, IOException {
         // Deadlock re-try fun
         int retryCount = 0;
         while (retryCount < maxRetry) {

@@ -222,7 +222,7 @@ public class TrackService {
      * @param input log details
      * @return populated log information with any error messages
      */
-    public LogResultBean createLog(MetaHeader header, LogInputBean input) throws DatagioException{
+    public LogResultBean createLog(MetaHeader header, LogInputBean input) throws DatagioException, IOException {
         LogResultBean resultBean = new LogResultBean(input);
 
         if (header == null) {
@@ -255,7 +255,7 @@ public class TrackService {
      * @param thisFortressUser User name in calling system that is making the change
      * @return populated log information with any error messages
      */
-    private LogResultBean createLog(MetaHeader authorisedHeader, LogInputBean input, FortressUser thisFortressUser) throws DatagioException {
+    private LogResultBean createLog(MetaHeader authorisedHeader, LogInputBean input, FortressUser thisFortressUser) throws DatagioException, IOException {
         // Warning - making this private means it doesn't get a transaction!
         LogResultBean resultBean = new LogResultBean(input);
         //ToDo: May want to track a "View" event which would not change the What data.

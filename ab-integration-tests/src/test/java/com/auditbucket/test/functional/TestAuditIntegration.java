@@ -75,6 +75,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Set;
@@ -590,7 +591,7 @@ public class TestAuditIntegration {
         return null;
     }
 
-    private void createLog(String simpleJson, MetaInputBean aib, TrackResultBean arb, int log) throws DatagioException {
+    private void createLog(String simpleJson, MetaInputBean aib, TrackResultBean arb, int log) throws DatagioException, IOException {
         mediationFacade.processLog(new LogInputBean(arb.getMetaKey(), aib.getFortressUser(), new DateTime(), simpleJson + log + "}"));
     }
 

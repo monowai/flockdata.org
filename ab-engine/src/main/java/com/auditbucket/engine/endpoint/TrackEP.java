@@ -44,6 +44,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Future;
 
@@ -84,12 +85,12 @@ public class TrackEP {
     @ResponseBody
     @RequestMapping(value = "/", consumes = "application/json", method = RequestMethod.PUT)
     public void trackHeaders(@RequestBody List<MetaInputBean> inputBeans,
-                             String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+                             String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, IOException {
         trackHeadersAsync(inputBeans, true, ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
     }
 
 
-    public Future<Integer> trackHeadersAsync(List<MetaInputBean> inputBeans, boolean async, String apiKey) throws DatagioException {
+    public Future<Integer> trackHeadersAsync(List<MetaInputBean> inputBeans, boolean async, String apiKey) throws DatagioException, IOException {
         Company company = registrationService.resolveCompany(apiKey);
         Fortress fortress = fortressService.registerFortress(company, new FortressInputBean(inputBeans.iterator().next().getFortress()), true);
         if (async) {
@@ -114,7 +115,7 @@ public class TrackEP {
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
     public ResponseEntity<TrackResultBean> trackHeader(@RequestBody MetaInputBean input,
                                                        String apiKey,
-                                                       @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+                                                       @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, IOException {
         // curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8081/ab-engine/track/track/ -d '"fortress":"MyFortressName", "fortressUser": "yoursystemuser", "documentType":"CompanyNode","when":"2012-11-10"}'
 
         TrackResultBean trackResultBean;
@@ -127,7 +128,7 @@ public class TrackEP {
     @ResponseBody
     @RequestMapping(value = "/log/", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
     public ResponseEntity<LogResultBean> trackLog(@RequestBody LogInputBean input, String apiKey,
-                                                  @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+                                                  @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, IOException {
 
         // If we have a valid company we are good to go.
         Company company = getCompany(apiHeaderKey, apiKey);
@@ -156,7 +157,7 @@ public class TrackEP {
                                                             @PathVariable("recordType") String recordType,
                                                             @PathVariable("callerRef") String callerRef,
                                                             String apiKey,
-                                                            @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+                                                            @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, IOException {
 
         TrackResultBean trackResultBean;
         input.setFortress(fortress);
@@ -270,8 +271,7 @@ public class TrackEP {
             TrackLog changed = trackService.getLastLog(header);
             LogWhat what = whatService.getWhat(header, changed.getChange());
 
-            if (changed != null)
-                return new ResponseEntity<>(what, HttpStatus.OK);
+            return new ResponseEntity<>(what, HttpStatus.OK);
         }
 
         return new ResponseEntity<>((LogWhat) null, HttpStatus.NOT_FOUND);

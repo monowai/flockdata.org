@@ -61,6 +61,7 @@ public class WhatService {
     }
 
     public enum KV_STORE {REDIS, RIAK}
+
     private static final ObjectMapper om = new ObjectMapper();
     @Autowired(required = false)
     TrackDao trackDao = null;
@@ -73,7 +74,7 @@ public class WhatService {
 
     private Logger logger = LoggerFactory.getLogger(WhatService.class);
 
-    public ChangeLog logWhat(MetaHeader metaHeader, ChangeLog change, String jsonText) throws DatagioException {
+    public ChangeLog logWhat(MetaHeader metaHeader, ChangeLog change, String jsonText) throws IOException {
         // Compress the Value of JSONText
         CompressionResult dataBlock = CompressionHelper.compress(jsonText);
         Boolean compressed = (dataBlock.getMethod() == CompressionResult.Method.GZIP);
@@ -88,42 +89,39 @@ public class WhatService {
     }
 
     @Async //Only public methods execute Async
-    public Future<Void> doKvWrite(MetaHeader metaHeader, ChangeLog change, CompressionResult dataBlock) throws DatagioException {
-        try {
-            // ToDo: deal with this via spring integration??
-            getKvRepo(change).add(metaHeader, change.getId(), dataBlock.getAsBytes());
-        } catch (IOException | RuntimeException e) {
-            logger.error("KV storage issue", e);
-            throw new DatagioException("KV Storage Issue", e);
-        }
-        return null ;
+    public Future<Void> doKvWrite(MetaHeader metaHeader, ChangeLog change, CompressionResult dataBlock) throws IOException {
+        // ToDo: deal with this via spring integration??
+        getKvRepo(change).add(metaHeader, change.getId(), dataBlock.getAsBytes());
+        return null;
     }
 
-    private KvRepo getKvRepo(){
+    private KvRepo getKvRepo() {
         return getKvRepo(String.valueOf(engineAdmin.getKvStore()));
     }
+
     private KvRepo getKvRepo(ChangeLog change) {
         return getKvRepo(change.getWhatStore());
     }
 
-    private KvRepo getKvRepo(String kvStore){
+    private KvRepo getKvRepo(String kvStore) {
         if (kvStore.equalsIgnoreCase(String.valueOf(KV_STORE.REDIS))) {
             return redisRepo;
         } else if (kvStore.equalsIgnoreCase(String.valueOf(KV_STORE.RIAK))) {
-            return riakRepo ;
+            return riakRepo;
         } else {
             throw new IllegalStateException("The only supported KV Stores supported are redis & riak");
         }
 
     }
+
     public LogWhat getWhat(MetaHeader metaHeader, ChangeLog change) {
-        if (change == null )
+        if (change == null)
             return null;
         try {
             byte[] whatInformation = getKvRepo(change).getValue(metaHeader, change.getId());
             return new LogWhatData(whatInformation, change.isCompressed());
-        } catch ( RuntimeException re){
-            logger.error("KV Error Audit["+ metaHeader.getMetaKey() +"] change ["+change.getId()+"]", re);
+        } catch (RuntimeException re) {
+            logger.error("KV Error Audit[" + metaHeader.getMetaKey() + "] change [" + change.getId() + "]", re);
 
             //throw (re);
         }
@@ -136,10 +134,8 @@ public class WhatService {
     }
 
 
-
     /**
      * Locate and compare the two JSON What documents to determine if they have changed
-     *
      *
      * @param metaHeader  thing being tracked
      * @param compareFrom existing change to compare from
@@ -175,7 +171,7 @@ public class WhatService {
     }
 
     public AuditDeltaBean getDelta(MetaHeader header, ChangeLog from, ChangeLog to) {
-        if ( header == null || from == null || to == null )
+        if (header == null || from == null || to == null)
             throw new IllegalArgumentException("Unable to compute delta due to missing arguments");
         LogWhat source = getWhat(header, from);
         LogWhat dest = getWhat(header, to);
@@ -184,7 +180,7 @@ public class WhatService {
         result.setAdded(new HashMap<>(diffMap.entriesOnlyOnRight()));
         result.setRemoved(new HashMap<>(diffMap.entriesOnlyOnLeft()));
         HashMap<String, Object> differences = new HashMap<>();
-        Set<String> keys =diffMap.entriesDiffering().keySet();
+        Set<String> keys = diffMap.entriesDiffering().keySet();
         for (String key : keys) {
             differences.put(key, diffMap.entriesDiffering().get(key).toString());
         }
