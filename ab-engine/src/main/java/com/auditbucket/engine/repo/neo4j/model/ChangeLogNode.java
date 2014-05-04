@@ -192,6 +192,7 @@ public class ChangeLogNode implements ChangeLog {
     }
 
     @Override
+    @JsonIgnore
     public TrackLog getLog() {
         return log;  //To change body of implemented methods use File | Settings | File Templates.
     }
