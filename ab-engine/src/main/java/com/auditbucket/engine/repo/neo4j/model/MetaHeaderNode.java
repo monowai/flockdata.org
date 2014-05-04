@@ -75,9 +75,11 @@ public class MetaHeaderNode implements MetaHeader {
     private Long id;
 
     @RelatedTo(elementClass = FortressUserNode.class, type = "CREATED_BY", direction = Direction.OUTGOING, enforceTargetType = true)
+    @Fetch
     private FortressUserNode createdBy;
 
     @RelatedTo(elementClass = FortressUserNode.class, type = "LASTCHANGED_BY", direction = Direction.OUTGOING)
+    @Fetch
     private FortressUserNode lastWho;
 
     public static final String UUID_KEY = "metaKey";
