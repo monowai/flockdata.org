@@ -42,22 +42,6 @@ public class ElasticSearchEP {
     @Autowired
     QueryService searchService;
 
-    @Autowired
-    SearchAdmin searchAdmin;
-
-    @RequestMapping(value = "/ping", method = RequestMethod.GET)
-    @ResponseBody
-    String ping() throws Exception {
-        // curl -X GET http://localhost:8081/ab-search/v1/ping
-        return "Pong!";
-    }
-
-    @RequestMapping(value = "/health", produces = "application/json", method = RequestMethod.GET)
-    @ResponseBody
-    public Map<String, Object> getHealth() throws Exception {
-        // curl -u mike:123 -X GET http://localhost:8081/ab-search/v1/health
-        return searchAdmin.getHealth();
-    }
 
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.POST)
     @ResponseBody
