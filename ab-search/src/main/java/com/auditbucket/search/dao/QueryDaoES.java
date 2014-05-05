@@ -56,11 +56,9 @@ public class QueryDaoES implements QueryDao {
                 .execute()
                 .actionGet();
 
-        if (logger.isDebugEnabled())
-            logger.debug("Searching index [" + index + "] for hit counts");
+        logger.debug("Searching index [{}] for hit counts", index);
 
         return response.getHits().getTotalHits();
-
     }
 
     @Override
@@ -72,13 +70,12 @@ public class QueryDaoES implements QueryDao {
 
         //logger.debug("looking for {} in index {}", queryString, index);
         return result.toString();
-
     }
 
     @Override
     public Collection<String> doMetaKeySearch(QueryParams queryParams) throws DatagioException {
         String[] types = Strings.EMPTY_ARRAY;
-        if ( queryParams.getTypes()!= null){
+        if (queryParams.getTypes() != null) {
             types = queryParams.getTypes();
         }
         ListenableActionFuture<SearchResponse> future = client.prepareSearch(MetaSearchSchema.parseIndex(queryParams))
@@ -90,38 +87,37 @@ public class QueryDaoES implements QueryDao {
 
         Collection<String> results = new ArrayList<>();
 
-        SearchResponse response ;
+        SearchResponse response;
         try {
             response = future.get();
         } catch (InterruptedException | ExecutionException e) {
-            logger.error ("Search Exception processing query", e);
+            logger.error("Search Exception processing query", e);
             // ToDo: No sensible error being returned to the caller
             return results;
         }
 
         for (SearchHit searchHitFields : response.getHits().getHits()) {
             Object hit = searchHitFields.getSource().get(MetaSearchSchema.META_KEY);
-            if ( hit!=null )
+            if (hit != null)
                 results.add(hit.toString());
         }
-
         return results;
-
     }
 
 
     private String getSimpleQuery(String queryString, boolean metaKeysOnly) {
-        logger.info("getSimpleQuery {}", queryString);
-        String metaKeyFields = "{ \"fields\": [\""+MetaSearchSchema.META_KEY+"\"]";
-        String generalQuery =" query: { " +
+        logger.debug("getSimpleQuery {}", queryString);
+        String metaKeyFields = "{ \"fields\": [\"" + MetaSearchSchema.META_KEY + "\"]";
+        String generalQuery = " query: { " +
                 "          query_string : { " +
                 "              \"query\" : \"" + queryString + "\" }" +
                 "      }}";
 
-        if (!metaKeysOnly)
-            return "{"+ generalQuery;
-        else
+        if (metaKeysOnly)
             return metaKeyFields + generalQuery;
+        else
+            return "{" + generalQuery;
+
     }
 
 
