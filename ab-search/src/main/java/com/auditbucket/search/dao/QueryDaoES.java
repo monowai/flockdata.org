@@ -66,7 +66,7 @@ public class QueryDaoES implements QueryDao {
     @Override
     public String doSearch(QueryParams queryParams) throws DatagioException {
         SearchResponse result = client.prepareSearch(MetaSearchSchema.parseIndex(queryParams))
-                .setSource(getSimpleQuery(queryParams.getSimpleQuery()))
+                .setSource(getSimpleQuery(queryParams.getSimpleQuery(), false))
                 .execute()
                 .actionGet();
 
@@ -83,7 +83,9 @@ public class QueryDaoES implements QueryDao {
         }
         ListenableActionFuture<SearchResponse> future = client.prepareSearch(MetaSearchSchema.parseIndex(queryParams))
                 .setTypes(types)
-                .setSource(getSimpleQuery(queryParams.getSimpleQuery()))
+                .setSize(queryParams.getRowsPerPage())
+                .setFrom(queryParams.getStartFrom())
+                .setSource(getSimpleQuery(queryParams.getSimpleQuery(), true))
                 .execute();
 
         Collection<String> results = new ArrayList<>();
@@ -98,7 +100,9 @@ public class QueryDaoES implements QueryDao {
         }
 
         for (SearchHit searchHitFields : response.getHits().getHits()) {
-            results.add(searchHitFields.getSource().get("@metaKey").toString());
+            Object hit = searchHitFields.getSource().get(MetaSearchSchema.META_KEY);
+            if ( hit!=null )
+                results.add(hit.toString());
         }
 
         return results;
@@ -106,13 +110,18 @@ public class QueryDaoES implements QueryDao {
     }
 
 
-    private String getSimpleQuery(String queryString) {
+    private String getSimpleQuery(String queryString, boolean metaKeys) {
         logger.info("getSimpleQuery {}", queryString);
-
-        return "{ query: { " +
+        String metaKeyFields = "{ \"fields\": [\""+MetaSearchSchema.META_KEY+"\"]";
+        String generalQuery =" query: { " +
                 "          query_string : { " +
                 "              \"query\" : \"" + queryString + "\" }" +
                 "      }}";
+
+        if (!metaKeys)
+            return "{"+ generalQuery;
+        else
+            return metaKeyFields + generalQuery;
     }
 
 

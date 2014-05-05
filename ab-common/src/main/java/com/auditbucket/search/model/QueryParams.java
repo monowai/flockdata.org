@@ -14,6 +14,8 @@ public class QueryParams {
     private String company;
     private String fortress;
     private String[] types;
+    private int rowsPerPage =20;
+    private int startFrom= 0;
 
     public QueryParams() {}
     public QueryParams(Fortress fortress) {
@@ -65,5 +67,21 @@ public class QueryParams {
 
     public void setTypes(String... types) {
         this.types = types;
+    }
+
+    public int getRowsPerPage() {
+        return rowsPerPage;
+    }
+
+    public void setRowsPerPage(int rowsPerPage) {
+        this.rowsPerPage = rowsPerPage;
+    }
+
+    public int getStartFrom() {
+        return startFrom;
+    }
+
+    public void setStartFrom(int startFrom) {
+        this.startFrom = startFrom;
     }
 }
