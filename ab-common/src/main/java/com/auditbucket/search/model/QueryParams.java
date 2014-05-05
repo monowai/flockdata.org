@@ -7,14 +7,13 @@ import com.auditbucket.registration.model.Fortress;
  * User: mike
  * Date: 12/04/14
  * Time: 9:44 AM
- * To change this template use File | Settings | File Templates.
  */
 public class QueryParams {
     private String simpleQuery;
     private String company;
     private String fortress;
     private String[] types;
-    private int rowsPerPage =20;
+    private int rowsPerPage =15;
     private int startFrom= 0;
 
     public QueryParams() {}
@@ -22,9 +21,7 @@ public class QueryParams {
         this();
         setFortress(fortress.getCode());
         setCompany(fortress.getCompany().getCode());
-        //To change body of created methods use File | Settings | File Templates.
     }
-
 
     public String getSimpleQuery() {
         return simpleQuery;
@@ -51,16 +48,6 @@ public class QueryParams {
         this.fortress = fortress;
     }
 
-    @Override
-    public String toString() {
-        return "QueryParams{" +
-                "simpleQuery='" + simpleQuery + '\'' +
-                ", company='" + company + '\'' +
-                ", fortress='" + fortress + '\'' +
-                ", type='" + types + '\'' +
-                '}';
-    }
-
     public String[] getTypes() {
         return types;
     }
@@ -83,5 +70,14 @@ public class QueryParams {
 
     public void setStartFrom(int startFrom) {
         this.startFrom = startFrom;
+    }
+
+    @Override
+    public String toString() {
+        return "QueryParams{" +
+                "simpleQuery='" + simpleQuery + '\'' +
+                ", company='" + company + '\'' +
+                ", fortress='" + fortress + '\'' +
+                '}';
     }
 }
