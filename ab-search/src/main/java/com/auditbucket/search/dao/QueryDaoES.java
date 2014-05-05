@@ -110,7 +110,7 @@ public class QueryDaoES implements QueryDao {
     }
 
 
-    private String getSimpleQuery(String queryString, boolean metaKeys) {
+    private String getSimpleQuery(String queryString, boolean metaKeysOnly) {
         logger.info("getSimpleQuery {}", queryString);
         String metaKeyFields = "{ \"fields\": [\""+MetaSearchSchema.META_KEY+"\"]";
         String generalQuery =" query: { " +
@@ -118,7 +118,7 @@ public class QueryDaoES implements QueryDao {
                 "              \"query\" : \"" + queryString + "\" }" +
                 "      }}";
 
-        if (!metaKeys)
+        if (!metaKeysOnly)
             return "{"+ generalQuery;
         else
             return metaKeyFields + generalQuery;
