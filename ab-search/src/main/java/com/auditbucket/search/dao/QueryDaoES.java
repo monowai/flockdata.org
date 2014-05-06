@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StopWatch;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -64,7 +65,7 @@ public class QueryDaoES implements QueryDao {
     @Override
     public String doSearch(QueryParams queryParams) throws DatagioException {
         SearchResponse result = client.prepareSearch(MetaSearchSchema.parseIndex(queryParams))
-                .setSource(getSimpleQuery(queryParams.getSimpleQuery(), false))
+                .setExtraSource(getSimpleQuery(queryParams.getSimpleQuery()))
                 .execute()
                 .actionGet();
 
@@ -74,15 +75,18 @@ public class QueryDaoES implements QueryDao {
 
     @Override
     public Collection<String> doMetaKeySearch(QueryParams queryParams) throws DatagioException {
+        StopWatch watch = new StopWatch();
+        watch.start(queryParams.toString());
         String[] types = Strings.EMPTY_ARRAY;
         if (queryParams.getTypes() != null) {
             types = queryParams.getTypes();
         }
         ListenableActionFuture<SearchResponse> future = client.prepareSearch(MetaSearchSchema.parseIndex(queryParams))
                 .setTypes(types)
+                .addField(MetaSearchSchema.META_KEY)
                 .setSize(queryParams.getRowsPerPage())
                 .setFrom(queryParams.getStartFrom())
-                .setSource(getSimpleQuery(queryParams.getSimpleQuery(), true))
+                .setExtraSource(getSimpleQuery(queryParams.getSimpleQuery()))
                 .execute();
 
         Collection<String> results = new ArrayList<>();
@@ -97,27 +101,31 @@ public class QueryDaoES implements QueryDao {
         }
 
         for (SearchHit searchHitFields : response.getHits().getHits()) {
-            Object hit = searchHitFields.getSource().get(MetaSearchSchema.META_KEY);
+            Object hit = searchHitFields.getFields().get(MetaSearchSchema.META_KEY).getValue();
             if (hit != null)
                 results.add(hit.toString());
         }
+        watch.stop();
+        logger.info("ES Query took [{}]", watch.prettyPrint());
         return results;
     }
 
 
-    private String getSimpleQuery(String queryString, boolean metaKeysOnly) {
+    private String getSimpleQuery(String queryString) {
         logger.debug("getSimpleQuery {}", queryString);
-        String metaKeyFields = "{ \"fields\": [\"" + MetaSearchSchema.META_KEY + "\"]";
-        String generalQuery = " query: { " +
-                "          query_string : { " +
-                "              \"query\" : \"" + queryString + "\" }" +
-                "      }}";
-
-        if (metaKeysOnly)
-            return metaKeyFields + generalQuery;
-        else
-            return "{" + generalQuery;
-
+        return "{\n" +
+                "      \"query\": {\n" +
+                "        \"bool\": {\n" +
+                "          \"should\": [\n" +
+                "            {\n" +
+                "              \"query_string\": {\n" +
+                "                \"query\": \""+queryString+"\"\n" +
+                "              }\n" +
+                "            }\n" +
+                "          ]\n" +
+                "        }\n" +
+                "      }\n" +
+                "  }";
     }
 
 

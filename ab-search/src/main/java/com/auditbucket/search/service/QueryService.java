@@ -56,7 +56,6 @@ public class QueryService  {
 
     @ServiceActivator(inputChannel = "makeSendSearchRequest",outputChannel = "makeSendSearchReply") // Subscriber
     public EsSearchResult search(QueryParams queryParams) throws DatagioException {
-        logger.info("searchRequest received for {}", queryParams);
         Collection<String> results = queryDao.doMetaKeySearch(queryParams);
         return new EsSearchResult(results);
     }
