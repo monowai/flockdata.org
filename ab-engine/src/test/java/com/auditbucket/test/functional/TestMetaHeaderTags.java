@@ -466,7 +466,7 @@ public class TestMetaHeaderTags {
 
     @Test
     public void mapRelationshipsWithNullProperties() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid).setIsUnique(false));
         assertNotNull(iSystemUser);
 
         Fortress fortress = fortressService.registerFortress("ABC");
@@ -743,7 +743,7 @@ public class TestMetaHeaderTags {
 
     @Test
     public void geoTag() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid).setIsUnique(false));
         assertNotNull(iSystemUser);
 
         Fortress fortress = fortressService.registerFortress("ABC");
