@@ -25,6 +25,8 @@ import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.QueryParams;
 import org.springframework.integration.annotation.Gateway;
 
+import java.util.Collection;
+
 /**
  * Facades the call to the underlying auditbucket-search implementation.
  * User: Mike Holdsworth
@@ -37,7 +39,7 @@ public interface AbSearchGateway {
     public void makeChangeSearchable(SearchChange searchDocumentBean);
 
     @Gateway(requestChannel = "sendSearchRequest", replyChannel = "sendSearchReply")
-    public EsSearchResult search(QueryParams queryParams);
+    public EsSearchResult<Collection<String>> search(QueryParams queryParams);
 
     public void delete(MetaHeader metaHeader, String searchKey);
 

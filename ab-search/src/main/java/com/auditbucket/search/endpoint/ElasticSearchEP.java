@@ -20,15 +20,12 @@
 package com.auditbucket.search.endpoint;
 
 import com.auditbucket.helper.DatagioException;
+import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.QueryParams;
 import com.auditbucket.search.service.QueryService;
-import com.auditbucket.search.service.SearchAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Collection;
-import java.util.Map;
 
 /**
  * ElasticSearch input end-point
@@ -50,20 +47,15 @@ public class ElasticSearchEP {
                             String apiHeaderKey) throws DatagioException {
 
         return searchService.doSearch(queryParams);
-        // curl -u mike:123 -X GET http://localhost:8081/ab-search/v1/health
-        //return searchAdmin.getHealth();
     }
 
     @RequestMapping(value = "/metaKeys", produces = "application/json", method = RequestMethod.POST)
     @ResponseBody
-    public Collection<String> metaKeys(@RequestBody QueryParams queryParams,
+    public EsSearchResult metaKeys(@RequestBody QueryParams queryParams,
                               @RequestHeader(value = "Api-Key", required = false)
                               String apiHeaderKey) throws DatagioException {
 
-
-        return searchService.doMetaKeySearch(queryParams);
-        // curl -u mike:123 -X GET http://localhost:8081/ab-search/v1/health
-        //return searchAdmin.getHealth();
+        return searchService.metaKeySearch(queryParams);
     }
 
 }

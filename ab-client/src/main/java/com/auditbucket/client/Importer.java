@@ -111,7 +111,8 @@ public class Importer {
     }
 
     public static void main(String args[]) {
-
+        StopWatch watch = new StopWatch("Batch Import");
+        long totalRows = 0;
         try {
             Namespace ns = getCommandLineArgs(args);
             File file = Configure.getFile(Configure.configFile, ns);
@@ -126,15 +127,16 @@ public class Importer {
                 logger.error("No files to parse!");
                 System.exit(1);
             }
-            Integer cmdLineBatchSize = ns.getInt("batch");
-            int batchSize = defaults.getBatchSize();
-            if (cmdLineBatchSize != null)
-                batchSize = cmdLineBatchSize;
+            String batch= ns.getString("batch");
 
-            StopWatch watch = new StopWatch();
+            int batchSize = defaults.getBatchSize();
+            if (batch != null && !batch.equals(""))
+                batchSize = Integer.parseInt(batch);
+
+
             watch.start();
-            logger.info("*** Starting {}", DateFormat.getDateTimeInstance().format(new Date()));
-            long totalRows = 0;
+            //logger.info("*** Starting {}", DateFormat.getDateTimeInstance().format(new Date()));
+
             for (String thisFile : files) {
 
                 int skipCount = 0;
@@ -175,12 +177,14 @@ public class Importer {
                 logger.debug("*** Calculated process args {}, {}, {}, {}", fileName, importParams, batchSize, skipCount);
                 totalRows = totalRows + processFile(importParams, fileName, skipCount);
             }
-            endProcess(watch, totalRows);
-
             logger.info("Finished at {}", DateFormat.getDateTimeInstance().format(new Date()));
 
         } catch (Exception e) {
             logger.error("Import error", e);
+        } finally {
+            endProcess(watch, totalRows);
+
+
         }
     }
 
