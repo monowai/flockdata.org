@@ -22,6 +22,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.Future;
@@ -101,7 +102,7 @@ public class SearchServiceFacade {
         }
 
         // Another thread may have processed this so save an update
-        if (when != null && !when.isIndexed()) {
+        if (!when.isIndexed()) {
             // We need to know that the change we requested to index has been indexed.
             logger.debug("Updating index status for {}", when);
             when.setIsIndexed();
@@ -183,7 +184,7 @@ public class SearchServiceFacade {
 
     }
 
-    public EsSearchResult search(QueryParams queryParams){
+    public EsSearchResult<Collection<String>> search(QueryParams queryParams){
         return searchGateway.search(queryParams);
     }
 }

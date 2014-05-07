@@ -20,6 +20,7 @@
 package com.auditbucket.dao;
 
 import com.auditbucket.helper.DatagioException;
+import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.QueryParams;
 
 import java.util.Collection;
@@ -32,7 +33,7 @@ import java.util.Collection;
 public interface QueryDao {
     long getHitCount(String index);
 
-    Collection<String> doMetaKeySearch(QueryParams queryParams) throws DatagioException;
+    EsSearchResult doMetaKeySearch(QueryParams queryParams) throws DatagioException;
 
     String doSearch(QueryParams queryParams) throws DatagioException;
 }

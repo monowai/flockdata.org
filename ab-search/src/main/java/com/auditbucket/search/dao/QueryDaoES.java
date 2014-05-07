@@ -21,6 +21,7 @@ package com.auditbucket.search.dao;
 
 import com.auditbucket.dao.QueryDao;
 import com.auditbucket.helper.DatagioException;
+import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.MetaSearchSchema;
 import com.auditbucket.search.model.QueryParams;
 import org.elasticsearch.action.ListenableActionFuture;
@@ -74,8 +75,9 @@ public class QueryDaoES implements QueryDao {
     }
 
     @Override
-    public Collection<String> doMetaKeySearch(QueryParams queryParams) throws DatagioException {
+    public EsSearchResult doMetaKeySearch(QueryParams queryParams) throws DatagioException {
         StopWatch watch = new StopWatch();
+        EsSearchResult<Collection<String>> searchResult = new EsSearchResult<>();
         watch.start(queryParams.toString());
         String[] types = Strings.EMPTY_ARRAY;
         if (queryParams.getTypes() != null) {
@@ -97,7 +99,7 @@ public class QueryDaoES implements QueryDao {
         } catch (InterruptedException | ExecutionException e) {
             logger.error("Search Exception processing query", e);
             // ToDo: No sensible error being returned to the caller
-            return results;
+            return searchResult;
         }
 
         for (SearchHit searchHitFields : response.getHits().getHits()) {
@@ -105,9 +107,12 @@ public class QueryDaoES implements QueryDao {
             if (hit != null)
                 results.add(hit.toString());
         }
+        searchResult.setTotalHits(response.getHits().getTotalHits());
+        searchResult.setStartedFrom(queryParams.getStartFrom());
+        searchResult.setResults(results);
         watch.stop();
-        logger.info("ES Query took [{}]", watch.prettyPrint());
-        return results;
+        logger.info("ES Query. Results [{}] took [{}]", results.size(), watch.prettyPrint());
+        return searchResult;
     }
 
 

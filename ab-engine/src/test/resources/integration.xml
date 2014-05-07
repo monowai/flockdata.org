@@ -38,7 +38,7 @@
     </int:json-to-object-transformer>
 
     <int:json-to-object-transformer id="jsonToObject2"
-                                    input-channel="makeSendSearchReply"
+                                    input-channel="doMetaKeyReply"
                                     output-channel="sendSearchReply"
                                     type="com.auditbucket.search.model.EsSearchResult">
     </int:json-to-object-transformer>
@@ -52,7 +52,7 @@
 
     <int:object-to-json-transformer id="objectToJson2"
                                     input-channel="sendSearchRequest"
-                                    output-channel="makeSendSearchRequest"
+                                    output-channel="doMetaKeyQuery"
                                     content-type="application/json">
     </int:object-to-json-transformer>
 
@@ -60,7 +60,7 @@
         <int:dispatcher task-executor="ab-engine"/>
     </int:channel>
 
-    <int:channel id="makeSendSearchRequest">
+    <int:channel id="doMetaKeyQuery">
         <int:dispatcher task-executor="ab-engine"/>
     </int:channel>
 

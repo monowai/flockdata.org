@@ -1,24 +1,41 @@
 package com.auditbucket.search.model;
 
-import java.util.Collection;
+public class EsSearchResult<E> {
 
-public class EsSearchResult {
-
-    private Collection<String> results;
+    private E results;
+    private long totalHits;
+    private int startedFrom;
 
     public EsSearchResult() {
     }
 
-    public EsSearchResult(Collection<String> results) {
-        this.results = results;
+    public EsSearchResult(EsSearchResult results) {
+        this();
+        totalHits= results.getStartedFrom();
+        totalHits = results.getTotalHits();
     }
 
-    public Collection<String> getResults() {
+    public E getResults() {
         return results;
     }
 
-    public void setResults(Collection<String> results) {
+    public void setResults(E results) {
         this.results = results;
     }
 
+    public void setTotalHits(long totalHits) {
+        this.totalHits = totalHits;
+    }
+
+    public long getTotalHits() {
+        return totalHits;
+    }
+
+    public void setStartedFrom(int startedFrom) {
+        this.startedFrom = startedFrom;
+    }
+
+    public int getStartedFrom() {
+        return startedFrom;
+    }
 }

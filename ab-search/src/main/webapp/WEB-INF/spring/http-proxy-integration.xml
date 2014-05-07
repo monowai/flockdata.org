@@ -32,8 +32,8 @@
     <int:annotation-config/>
     <beans:bean class="org.springframework.integration.http.inbound.UriPathHandlerMapping"/>
 
-    <int-http:inbound-gateway request-channel="makeSendSearchRequest"
-                              reply-channel="makeSendSearchReply"
+    <int-http:inbound-gateway request-channel="doMetaKeyQuery"
+                              reply-channel="doMetaKeyReply"
                               path="/api/esSearch"
                               reply-timeout="${reply.timeout}"
                               request-timeout="${request.timeout}"
