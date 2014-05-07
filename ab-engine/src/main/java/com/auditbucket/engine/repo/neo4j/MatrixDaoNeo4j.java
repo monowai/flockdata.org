@@ -42,7 +42,6 @@ public class MatrixDaoNeo4j implements MatrixDao {
 
         Iterator<Map<String, Object>> rows = result.iterator();
         Collection<MatrixResult>matrixResults = new ArrayList<>();
-        Map<String, Map<String,Long>> results = new HashMap<>();
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
             Collection<String>tag2 = (Collection<String>) row.get("tag2");

@@ -33,8 +33,8 @@
 
     <bean class="org.springframework.integration.http.inbound.UriPathHandlerMapping"/>
 
-    <int-http:outbound-gateway request-channel="makeSendSearchRequest"
-                               reply-channel="makeSendSearchReply"
+    <int-http:outbound-gateway request-channel="doMetaKeyQuery"
+                               reply-channel="doMetaKeyReply"
                                reply-timeout="${reply.timeout}"
                                url="${absearch.search}"
                                extract-request-payload="true"

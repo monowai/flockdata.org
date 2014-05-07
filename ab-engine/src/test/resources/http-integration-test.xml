@@ -43,8 +43,8 @@
                               request-payload-type="com.auditbucket.search.model.SearchResult"
                               supported-methods="POST"/>
 
-    <int-http:outbound-gateway request-channel="makeSendSearchRequest"
-                               reply-channel="makeSendSearchReply"
+    <int-http:outbound-gateway request-channel="doMetaKeyQuery"
+                               reply-channel="doMetaKeyReply"
                                reply-timeout="${reply.timeout}"
                                url="${absearch.search}"
                                extract-request-payload="true"

@@ -6,8 +6,8 @@ import com.auditbucket.helper.ApiKeyHelper;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.service.RegistrationService;
+import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.QueryParams;
-import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.query.MatrixResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -65,7 +65,7 @@ public class QueryEP {
 
     @ResponseBody
     @RequestMapping(value = "/", method = RequestMethod.POST    )
-    public Collection<MetaHeader> searchQueryParam(@RequestBody QueryParams queryParams,
+    public EsSearchResult searchQueryParam(@RequestBody QueryParams queryParams,
                                          String apiKey,
                                          @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
 
