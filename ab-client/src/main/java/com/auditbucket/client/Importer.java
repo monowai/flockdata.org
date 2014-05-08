@@ -156,6 +156,7 @@ public class Importer {
                     item++;
                 }
                 ImportParams importParams;
+                defaults.setBatchSize(batchSize);
                 AbRestClient restClient = getRestClient(defaults);
                 if (importProfile != null) {
                     ObjectMapper om = new ObjectMapper();
@@ -355,7 +356,7 @@ public class Importer {
             String[] nextLine;
             if (mappable.hasHeader()) {
                 while ((nextLine = csvReader.readNext()) != null) {
-                    if (!((nextLine[0].charAt(0) == '#') || nextLine[0].charAt(1) == '#')) {
+                    if (!((nextLine[0].charAt(0) == '#') )) {
                         headerRow = nextLine;
                         break;
                     }
@@ -380,7 +381,7 @@ public class Importer {
 
                             if (!"".equals(jsonData)) {
                                 jsonData = jsonData.replaceAll("[\\x00-\\x09\\x11\\x12\\x14-\\x1F\\x7F]", "");
-                                LogInputBean logInputBean = new LogInputBean("system", new DateTime(), jsonData);
+                                LogInputBean logInputBean = new LogInputBean(importParams.getFortressUser(), new DateTime(), jsonData);
                                 header.setLog(logInputBean);
                             } else {
                                 // It's all Meta baby - no track information

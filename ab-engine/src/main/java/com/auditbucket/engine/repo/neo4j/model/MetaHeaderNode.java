@@ -91,7 +91,7 @@ public class MetaHeaderNode implements MetaHeader {
 
     private long fortressDate;
 
-    @Indexed
+    //@Indexed
     private String searchKey = null;
 
     private boolean searchSuppressed;
@@ -249,7 +249,7 @@ public class MetaHeaderNode implements MetaHeader {
 
     @JsonIgnore
     public String getSearchKey() {
-        return this.searchKey;
+        return this.metaKey;
     }
 
 

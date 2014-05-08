@@ -118,7 +118,7 @@ public class TestInputBeans {
         tib.setCode("hello");
         assertEquals("hello", tib.getCode());
         tib.setIndex("Testing");
-        assertEquals(":Testing", tib.getIndex());
+        assertEquals("Testing", tib.getIndex());
     }
 
     @Test

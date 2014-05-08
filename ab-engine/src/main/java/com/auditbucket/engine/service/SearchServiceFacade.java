@@ -84,7 +84,7 @@ public class SearchServiceFacade {
             return;
         }
 
-        if (header.getSearchKey() == null) {
+        if (header.getSearchKey() == null && !searchResult.getSearchKey().equals(header.getMetaKey())) {
             header.setSearchKey(searchResult.getSearchKey());
             trackDao.save(header);
             logger.trace("Updating Header{} search searchResult =[{}]", header.getMetaKey(), searchResult);

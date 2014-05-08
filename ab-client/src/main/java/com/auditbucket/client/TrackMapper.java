@@ -1,8 +1,12 @@
 package com.auditbucket.client;
 
+import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.fasterxml.jackson.core.JsonProcessingException;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * User: mike
@@ -27,42 +31,75 @@ public class TrackMapper extends MetaInputBean implements DelimitedMappable {
         return AbRestClient.type.TRACK;
     }
 
-    @Override
-    public String setData(String[] headerRow, String[] line, StaticDataResolver staticDataResolver) throws JsonProcessingException {
+    private Map<String, Object> toMap(String[] headerRow, String[] line){
         int col = 0;
+        Map<String, Object>row = new HashMap<>();
         for (String column : headerRow) {
-            if ( column.startsWith("$") && !(line[col]==null || line[col].equals(""))){
+            row.put(column, line[col]);
+            col++;
+        }
+        return row;
+    }
+
+    @Override
+    public String setData(String[] headerRow, String[] line, StaticDataResolver staticDataResolver) throws JsonProcessingException, DatagioException {
+        int col = 0;
+        Map<String,Object>row = toMap(headerRow, line);
+        for (String column : headerRow) {
+            CSVColumnHelper columnHelper = new CSVColumnHelper(column, line[col]);
+            headerRow[col] = columnHelper.getKey();
+            if (columnHelper.isCallerRef()) {
                 String callerRef = getCallerRef();
-                if (callerRef== null)
-                    callerRef=line[col];
+                if (callerRef == null)
+                    callerRef = columnHelper.getValue();
                 else
-                    callerRef = callerRef+"."+line[col];
+                    callerRef = callerRef + "." + columnHelper.getValue();
 
                 setCallerRef(callerRef);
-            }else if ( column.startsWith("@")){
-                boolean mustExist = column.startsWith("@!");
+            } else if (columnHelper.isTagName()) {
+                String thisColumn = columnHelper.getKey();
 
-                String thisColumn = column.substring(1, column.length());
-                if ( column.startsWith("@!") )
-                    thisColumn = column.substring(2, column.length());
+                String val = columnHelper.getValue();
+                if (val != null && !val.equals("")) {
+                    TagInputBean tag;
+                    val = columnHelper.getValue();
+                    if (columnHelper.isCountry()) {
+                        val = staticDataResolver.resolveCountryISOFromName(val);
+                    }
+                    Map<String, Object> properties = new HashMap<>();
+                    if (columnHelper.isTagToValue()) {
+                        tag = new TagInputBean(thisColumn).setMustExist(columnHelper.isMustExist()).setIndex(thisColumn);
+                        properties.put("value", columnHelper.getValue());
+                        if ( columnHelper.getIndirectColumn()!=null){
+                            tag.addMetaLink(row.get(columnHelper.getIndirectColumn()).toString(), properties);
+                        } else
+                            tag.addMetaLink("undefined", properties);
+                    } else {
+                        // Assume column of "Specialist" and value of "Orthopedic"
+                        // Index == Specialist and Type = Orthopedic
+                        String index = columnHelper.getKey();
 
-                String val = line[col];
-                if ( val!=null && !val.equals("")){
-                    TagInputBean tag = new TagInputBean(line[col]).setMustExist(mustExist).setIndex(thisColumn);
-                    tag.addMetaLink("specialty");
+                        tag = new TagInputBean(val).setMustExist(columnHelper.isMustExist()).setIndex(columnHelper.isCountry()?"Country":index);
+                        if (columnHelper.isCountry())
+                            tag.addMetaLink(columnHelper.getKey());
+                        else
+                            tag.addMetaLink(tag.getName());
+                    }
+
                     setTag(tag);
                 }
-            } else if ( column.startsWith("*")){
+            }
+            if (columnHelper.isTitle()) {
                 setName(line[col]);
             }
-            col ++;
+            col++;
         }
         return AbRestClient.convertToJson(headerRow, line);
     }
 
     @Override
     public boolean hasHeader() {
-        return true;  //To change body of implemented methods use File | Settings | File Templates.
+        return true;
     }
 
     public static DelimitedMappable newInstance(ImportParams importParams) {
@@ -71,7 +108,7 @@ public class TrackMapper extends MetaInputBean implements DelimitedMappable {
 
     @Override
     public char getDelimiter() {
-        return ',';  //To change body of implemented methods use File | Settings | File Templates.
+        return ',';
     }
 
 

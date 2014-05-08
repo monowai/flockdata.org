@@ -24,6 +24,7 @@ package com.auditbucket.client;
  * Since: 25/01/14
  */
 
+import com.auditbucket.helper.DatagioException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -34,7 +35,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
  */
 public interface DelimitedMappable extends Mappable {
 
-    String setData(String[] headerRow, String[] line, StaticDataResolver staticDataResolver) throws JsonProcessingException;
+    String setData(String[] headerRow, String[] line, StaticDataResolver staticDataResolver) throws JsonProcessingException, DatagioException;
 
     @JsonIgnore
     boolean hasHeader();

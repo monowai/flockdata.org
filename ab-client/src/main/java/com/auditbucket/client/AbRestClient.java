@@ -246,6 +246,11 @@ public class AbRestClient implements StaticDataResolver {
     public String resolveCountryISOFromName(String name) throws DatagioException{
         if (simulateOnly)
             return name;
+
+        // 2 char country? it's already ISO
+        if ( name.length()==2)
+            return name;
+
         if (countriesByName == null) {
 
             Collection<TagInputBean> countries = getCountries();

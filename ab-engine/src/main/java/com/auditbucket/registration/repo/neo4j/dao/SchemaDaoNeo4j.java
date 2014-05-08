@@ -131,7 +131,7 @@ public class SchemaDaoNeo4j implements SchemaDao {
     public synchronized void ensureUniqueIndexes(Company company, Iterable<TagInputBean> tagInputs, Collection<String> added ) {
 
         for (TagInputBean tagInput : tagInputs) {
-            String index = tagInput.getIndex().substring(1);
+            String index = tagInput.getIndex();
             if (!added.contains(index)) {
                 //if (index != null && !tagExists(company, index)) { // This check causes deadlocks in TagEP ?
                     ensureIndex(company, tagInput);
@@ -153,7 +153,9 @@ public class SchemaDaoNeo4j implements SchemaDao {
         // _Tag is a special label that can be used to find all tags so we have to allow it to handle duplicates
         if (tagInput.isDefault() || isSystemIndex(tagInput.getIndex()))
             return;
-        template.query("create constraint on (t" + tagInput.getIndex() + ") assert t.key is unique", null);
+        String index = tagInput.getIndex();
+
+        template.query("create constraint on (t:`" + index + "`) assert t.key is unique", null);
         logger.info("Creating constraint on [{}]", tagInput.getIndex());
 
     }
@@ -167,7 +169,7 @@ public class SchemaDaoNeo4j implements SchemaDao {
     }
 
     private boolean isSystemIndex(String index) {
-        return (index.equals(":Country") || index.equals(":City"));
+        return (index.equals("Country") || index.equals("City"));
     }
 
     private String parseTagIndex(Company company, String indexName) {

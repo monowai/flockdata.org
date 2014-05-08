@@ -241,19 +241,6 @@ public class TagInputBean {
     }
 
     /**
-     * Indexes should not contain spaces and should begin with a single :
-     *
-     * @return Colon prefixed name of the tag
-     */
-
-    public String getIndex() {
-        if ( "".equals(index) )
-            return ":_Tag";
-        else
-            return index;
-    }
-
-    /**
      * Associates this tag with the MetaHeader
      *
      * @param relationshipName name of the relationship to the Audit Header
@@ -327,5 +314,24 @@ public class TagInputBean {
     @JsonIgnore
     public boolean isDefault() {
         return index == null || "".equals(index);
+    }
+
+    /**
+     *
+     *
+     * @return Default tag index or the name to assign
+     */
+    private String getIndexValue() {
+        if ( "".equals(index) )
+            return "_Tag";
+        else
+            return index;
+    }
+
+    public String getIndex() {
+        String thisIndex = getIndexValue();
+        if ( thisIndex.startsWith(":"))
+            thisIndex= thisIndex.substring(1, thisIndex.length());
+        return thisIndex;
     }
 }
