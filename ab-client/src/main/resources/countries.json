@@ -3353,7 +3353,7 @@
   "metaLink" : null,
   "mustExist" : false
 }, {
-  "name" : "Korea, North",
+  "name" : "North Korea",
   "code" : "KP",
   "reverse" : false,
   "targets" : {
@@ -3383,7 +3383,7 @@
   "metaLink" : null,
   "mustExist" : false
 }, {
-  "name" : "Korea, South",
+  "name" : "South Korea",
   "code" : "KR",
   "reverse" : false,
   "targets" : {

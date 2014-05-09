@@ -5,18 +5,11 @@ package com.auditbucket.client;
  * Date: 8/05/14
  * Time: 11:43 AM
  */
-public class CSVColumnHelper {
+public class CsvColumnHelper {
 
     private String key;
     private String value;
-    private boolean callerRef;
-    private boolean title;
-    private boolean tagName;
-    private boolean mustExist;
-    private boolean tagToValue;
-    private boolean country;
-    private String indirectColumn;
-
+    private CsvColumnDefinition columnDefinition = null;
 
     public String getKey() {
         return key;
@@ -27,91 +20,54 @@ public class CSVColumnHelper {
     }
 
     public Boolean isCallerRef() {
-        return callerRef;
+        return columnDefinition.isCallerRef();
     }
 
     public Boolean isTitle() {
-        return title;
+        return columnDefinition.isTitle();
     }
 
-    public Boolean isTagName() {
-        return tagName;
+    public Boolean isTag() {
+        return columnDefinition.isTag();
     }
 
     public Boolean isMustExist() {
-        return mustExist;
+        return columnDefinition.isMustExist();
     }
 
     @Override
     public String toString() {
-        return "CSVColumnHelper{" +
+        return "CsvColumnHelper{" +
                 "value='" + value + '\'' +
                 ", key='" + key + '\'' +
                 '}';
     }
-
-    public CSVColumnHelper(String columnName, String value) {
-        int i = 0;
+    public CsvColumnHelper(String column, String value, CsvColumnDefinition columnDefinition){
+        this.columnDefinition = columnDefinition;
+        this.key = column;
         this.value = value;
-        while (i < columnName.length()) {
-            String match = Character.toString(columnName.charAt(i));
-            boolean isChar = match.matches("[a-zA-z]");
-            boolean isDigit = match.matches("\\d");
-            if (!isChar && !isDigit) {
-                switch (match) {
-                    case "#":
-                        title = true;
-                        break;
-                    case "$":
-                        callerRef = true;
-                        break;
-                    case "@":
-                        tagName = true;
-                        break;
-                    case "!":
-                        mustExist = true;
-                        break;
-                    case "*":
-                        tagToValue = true;
-                        break;
-                    case "%":
-                        country = true;
-                        mustExist = true;
-                        tagName = true;
-                        break;
-                }
-                i++;
-            } else {
-                if (i == 0)
-                    key = columnName;
-                else {
-                    key = columnName.substring(i, columnName.length());
-                }
-                int indirectStart = key.indexOf('[');
-                if (indirectStart > 0) {
-                    int indirectEnd = key.indexOf(']');
-                    indirectColumn = key.substring(indirectStart+1, indirectEnd);
-                    key = key.substring(0, indirectStart - 1);
-
-                }
-                break;
-            }
-        }
     }
-
-    public boolean isTagToValue() {
-        return tagToValue;
+    public boolean isValueAsProperty() {
+        return columnDefinition.isValueAsProperty();
     }
 
     public boolean isCountry() {
-        return country;
+        return columnDefinition.isCountry();
     }
 
-    public void setCountry(boolean country) {
-        this.country = country;
+    public String getNameColumn() {
+        return columnDefinition.getNameColumn();
     }
 
-    public String getIndirectColumn() {
-        return indirectColumn;
+    public String getAppendJoinText() {
+        return columnDefinition.getAppendJoinText();
+    }
+
+    public boolean ignoreMe() {
+        return columnDefinition == null;
+    }
+
+    public String getRelationshipName() {
+        return columnDefinition.getRelationshipName();
     }
 }

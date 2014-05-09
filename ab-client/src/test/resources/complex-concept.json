@@ -1,0 +1,22 @@
+{
+    "documentType": "Athlete Medals",
+    "importType": "csv",
+    "tagOrTrack": "track",
+    "metaOnly": true,
+    "fortress": { "name": "Olympic", "search": true},
+    "fortressUser": "mike",
+    "header": true,
+    "metaHeader": "Medals",
+    "csvHeaders": {
+        "Athlete":{"tag": true },
+        "Country":{"country": true},
+        "Sport": {"tag": true, "mustExist":false},
+        "Age": {"tag": true, "mustExist":false},
+        "Medals": {"callerRef": true,
+            "refColumns": ["Athlete", "Year"],
+            "metaValues": ["Gold Medals", "Silver Medals", "Bronze Medals"]},
+        "Gold Medals":   {"tag": true},
+        "Silver Medals": {"tag": true},
+        "Bronze Medals": {"tag": true}
+    }
+}

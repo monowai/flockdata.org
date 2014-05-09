@@ -18,7 +18,6 @@ public class TrackMapper extends MetaInputBean implements DelimitedMappable {
         setDocumentType(importParams.getDocumentType());
         setFortress(importParams.getFortress());
         setFortressUser(importParams.getFortressUser());
-
     }
 
     @Override
@@ -31,9 +30,9 @@ public class TrackMapper extends MetaInputBean implements DelimitedMappable {
         return AbRestClient.type.TRACK;
     }
 
-    private Map<String, Object> toMap(String[] headerRow, String[] line){
+    private Map<String, Object> toMap(String[] headerRow, String[] line) {
         int col = 0;
-        Map<String, Object>row = new HashMap<>();
+        Map<String, Object> row = new HashMap<>();
         for (String column : headerRow) {
             row.put(column, line[col]);
             col++;
@@ -42,57 +41,79 @@ public class TrackMapper extends MetaInputBean implements DelimitedMappable {
     }
 
     @Override
-    public String setData(String[] headerRow, String[] line, StaticDataResolver staticDataResolver) throws JsonProcessingException, DatagioException {
+    public String setData(String[] headerRow, String[] line, ImportParams importParams) throws JsonProcessingException, DatagioException {
         int col = 0;
-        Map<String,Object>row = toMap(headerRow, line);
+        Map<String, Object> row = toMap(headerRow, line);
+
         for (String column : headerRow) {
-            CSVColumnHelper columnHelper = new CSVColumnHelper(column, line[col]);
-            headerRow[col] = columnHelper.getKey();
-            if (columnHelper.isCallerRef()) {
-                String callerRef = getCallerRef();
-                if (callerRef == null)
-                    callerRef = columnHelper.getValue();
-                else
-                    callerRef = callerRef + "." + columnHelper.getValue();
+            CsvColumnHelper columnHelper = new CsvColumnHelper(column, line[col], importParams.getColumnDef(headerRow[col]));
+            if (!columnHelper.ignoreMe()) {
+                headerRow[col] = columnHelper.getKey();
+                if (columnHelper.isCallerRef()) {
+                    String callerRef = getCallerRef();
+                    if (callerRef == null)
+                        callerRef = columnHelper.getValue();
+                    else
+                        callerRef = callerRef + "." + columnHelper.getValue();
 
-                setCallerRef(callerRef);
-            } else if (columnHelper.isTagName()) {
-                String thisColumn = columnHelper.getKey();
+                    setCallerRef(callerRef);
+                } else if (columnHelper.isTag()) {
+                    String thisColumn = columnHelper.getKey();
 
-                String val = columnHelper.getValue();
-                if (val != null && !val.equals("")) {
-                    TagInputBean tag;
-                    val = columnHelper.getValue();
-                    if (columnHelper.isCountry()) {
-                        val = staticDataResolver.resolveCountryISOFromName(val);
+                    String val = columnHelper.getValue();
+                    if (val != null && !val.equals("")) {
+                        TagInputBean tag;
+                        val = columnHelper.getValue();
+                        if (columnHelper.isCountry()) {
+                            val = importParams.getStaticDataResolver().resolveCountryISOFromName(val);
+                        }
+                        Map<String, Object> properties = new HashMap<>();
+                        if (columnHelper.isValueAsProperty()) {
+                            tag = new TagInputBean(thisColumn).setMustExist(columnHelper.isMustExist()).setIndex(thisColumn);
+
+                            if ( Integer.decode(columnHelper.getValue()) !=0 ) {
+                                properties.put("value", Integer.decode(columnHelper.getValue()));
+                                if (columnHelper.getNameColumn() != null) {
+                                    tag.addMetaLink(row.get(columnHelper.getNameColumn()).toString(), properties);
+                                } else if ( columnHelper.getRelationshipName() != null ){
+                                    tag.addMetaLink(row.get(columnHelper.getRelationshipName()).toString(), properties);
+                                } else
+                                    tag.addMetaLink("undefined", properties);
+                            } else {
+                                break; // Don't set a 0 value tag
+                            }
+                        } else {
+                            // Assume column of "Specialist" and value of "Orthopedic"
+                            // Index == Specialist and Type = Orthopedic
+                            String index = columnHelper.getKey();
+
+                            tag = new TagInputBean(val).setMustExist(columnHelper.isMustExist()).setIndex(columnHelper.isCountry() ? "Country" : index);
+                            if (columnHelper.isCountry())
+                                tag.addMetaLink(columnHelper.getKey());
+                            else
+                                tag.addMetaLink(columnHelper.getRelationshipName());
+                        }
+
+                        setTag(tag);
                     }
-                    Map<String, Object> properties = new HashMap<>();
-                    if (columnHelper.isTagToValue()) {
-                        tag = new TagInputBean(thisColumn).setMustExist(columnHelper.isMustExist()).setIndex(thisColumn);
-                        properties.put("value", columnHelper.getValue());
-                        if ( columnHelper.getIndirectColumn()!=null){
-                            tag.addMetaLink(row.get(columnHelper.getIndirectColumn()).toString(), properties);
-                        } else
-                            tag.addMetaLink("undefined", properties);
-                    } else {
-                        // Assume column of "Specialist" and value of "Orthopedic"
-                        // Index == Specialist and Type = Orthopedic
-                        String index = columnHelper.getKey();
-
-                        tag = new TagInputBean(val).setMustExist(columnHelper.isMustExist()).setIndex(columnHelper.isCountry()?"Country":index);
-                        if (columnHelper.isCountry())
-                            tag.addMetaLink(columnHelper.getKey());
-                        else
-                            tag.addMetaLink(tag.getName());
-                    }
-
-                    setTag(tag);
                 }
-            }
-            if (columnHelper.isTitle()) {
-                setName(line[col]);
-            }
+                if (columnHelper.isTitle()) {
+                    setName(line[col]);
+                }
+            } // ignoreMe
             col++;
+        }
+        if ( importParams.getMetaHeader() !=null ){
+            CsvColumnDefinition columnDefinition = importParams.getColumnDef(importParams.getMetaHeader());
+            if ( columnDefinition !=null ){
+                String[]metaCols = columnDefinition.getRefColumns();
+                String callerRef = "";
+                for (String metaCol : metaCols) {
+                    callerRef = callerRef + (!callerRef.equals("") ? "." : "") + row.get(metaCol);
+                }
+                setCallerRef(callerRef);
+            }
+
         }
         return AbRestClient.convertToJson(headerRow, line);
     }
@@ -110,6 +131,4 @@ public class TrackMapper extends MetaInputBean implements DelimitedMappable {
     public char getDelimiter() {
         return ',';
     }
-
-
 }

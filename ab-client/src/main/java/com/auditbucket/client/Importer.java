@@ -25,7 +25,9 @@ import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.track.bean.CrossReferenceInputBean;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
+import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import net.sourceforge.argparse4j.ArgumentParsers;
@@ -159,18 +161,7 @@ public class Importer {
                 defaults.setBatchSize(batchSize);
                 AbRestClient restClient = getRestClient(defaults);
                 if (importProfile != null) {
-                    ObjectMapper om = new ObjectMapper();
-                    File fileIO = new File(importProfile);
-                    if (fileIO.exists()) {
-                        importParams = new ImportParams(om.readValue(fileIO, HashMap.class), restClient);
-
-                    } else {
-                        InputStream stream = ClassLoader.class.getResourceAsStream(importProfile);
-                        if (stream != null)
-                            importParams = new ImportParams(om.readValue(stream, HashMap.class), restClient);
-                        else
-                            importParams = new ImportParams(importProfile, restClient);
-                    }
+                    importParams = getImportParams(importProfile, restClient);
                 } else {
                     logger.error("No import parameters to work with");
                     return;
@@ -187,6 +178,37 @@ public class Importer {
 
 
         }
+    }
+
+    public static ImportParams getImportParams(String importProfile, AbRestClient restClient) throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+        /**
+         *                 TypeFactory typeFactory = mapper.getTypeFactory();
+         MapType mapType = typeFactory.constructMapType(HashMap.class, String.class, PubmedAffiliation.class);
+
+         exceptions = mapper.readValue(file, mapType);
+
+         */
+        ImportParams importParams;
+        ObjectMapper om = new ObjectMapper();
+
+        SimpleModule iModule = new SimpleModule("ImportParameters", new Version(1,0,0,null))
+                .addDeserializer(ImportParams.class, new ImportParamsDeserializer());
+        om.registerModule(iModule);
+
+        File fileIO = new File(importProfile);
+        if (fileIO.exists()) {
+            importParams = om.readValue(fileIO, ImportParams.class);
+
+        } else {
+            InputStream stream = ClassLoader.class.getResourceAsStream(importProfile);
+            if (stream != null) {
+                importParams = om.readValue(stream, ImportParams.class);
+            }else
+                // Defaults??
+                importParams = new ImportParams(importProfile, restClient);
+        }
+        importParams.setRestClient(restClient);
+        return importParams;
     }
 
     static AbRestClient getRestClient(ConfigProperties defaults) {
@@ -374,17 +396,17 @@ public class Importer {
 
                         row = (DelimitedMappable) importParams.getMappable();
 
-                        String jsonData = row.setData(headerRow, nextLine, importParams.getStaticDataResolver());
+                        String jsonData = row.setData(headerRow, nextLine, importParams);
                         //logger.info(jsonData);
                         if (type == AbRestClient.type.TRACK) {
                             MetaInputBean header = (MetaInputBean) row;
 
-                            if (!"".equals(jsonData)) {
+                            if (importParams.isMetaOnly() || "".equals(jsonData)) {
+                                // It's all Meta baby - no track information
+                            } else {
                                 jsonData = jsonData.replaceAll("[\\x00-\\x09\\x11\\x12\\x14-\\x1F\\x7F]", "");
                                 LogInputBean logInputBean = new LogInputBean(importParams.getFortressUser(), new DateTime(), jsonData);
                                 header.setLog(logInputBean);
-                            } else {
-                                // It's all Meta baby - no track information
                             }
                             writeAudit(importParams.getRestClient(), header, mappable.getClass().getCanonicalName());
                         } else {// Tag

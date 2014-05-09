@@ -120,7 +120,6 @@ public class MetaHeaderNode implements MetaHeader {
 
         this.description = metaInput.getDescription();
 
-
         indexName = MetaSearchSchema.parseIndex(this.fortress);
 
         Date when = metaInput.getWhen();
@@ -243,13 +242,17 @@ public class MetaHeaderNode implements MetaHeader {
     }
 
     @JsonIgnore
-    public void setSearchKey(String parentKey) {
-        this.searchKey = parentKey;
+    public void setSearchKey(String searchKey) {
+        this.searchKey = searchKey;
     }
 
     @JsonIgnore
     public String getSearchKey() {
-        return this.metaKey;
+        if (searchKey == null )
+            return this.metaKey;
+        else
+            return searchKey;
+
     }
 
 

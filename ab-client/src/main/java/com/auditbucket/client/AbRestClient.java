@@ -256,10 +256,10 @@ public class AbRestClient implements StaticDataResolver {
             Collection<TagInputBean> countries = getCountries();
             countriesByName = new HashMap<>(countries.size());
             for (TagInputBean next : countries) {
-                countriesByName.put(next.getName(), next);
+                countriesByName.put(next.getName().toLowerCase(), next);
             }
         }
-        TagInputBean tag = countriesByName.get(name);
+        TagInputBean tag = countriesByName.get(name.toLowerCase());
         if (tag == null) {
             logger.error("Unable to resolve country name [{}]", name);
             return null;

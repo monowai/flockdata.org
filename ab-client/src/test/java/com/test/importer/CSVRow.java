@@ -1,11 +1,9 @@
 package com.test.importer;
 
-import com.auditbucket.client.CSVColumnHelper;
-import com.auditbucket.client.ImportParams;
-import com.auditbucket.client.StaticDataResolver;
-import com.auditbucket.client.TrackMapper;
+import com.auditbucket.client.*;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.TagInputBean;
+import com.auditbucket.track.bean.MetaInputBean;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
@@ -23,17 +21,18 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 public class CSVRow {
     @Test
     public void headerRow() throws Exception {
-        ImportParams params = new ImportParams();
-        TrackMapper mapper = new TrackMapper(params);
-        // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
-        String[] headers= new String[]{"$#Title",   "@Tag",    "@!TagVal", "@*ValTag", "%SomeCountry", "Year", "@*Gold Medals [Year]" };
-        String[] data = new String[]{  "TitleTests","TagName", "Gold",     "8",        "New Zealand",  "2008", "12"};
-        String json = mapper.setData(headers, data, new StaticDataResolver() {
+        ImportParams params = Importer.getImportParams("/csvtest.json", null);
+        params.setStaticDataResolver(new StaticDataResolver() {
             @Override
             public String resolveCountryISOFromName(String name) throws DatagioException {
                 return name;
             }
         });
+        TrackMapper mapper = new TrackMapper(params);
+        // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
+        String[] headers= new String[]{"Title",     "Tag",     "TagVal", "ValTag", "Origin",      "Year", "Gold Medals" };
+        String[] data = new String[]{  "TitleTests","TagName", "Gold",   "8",      "New Zealand", "2008", "12"};
+        String json = mapper.setData(headers, data, params);
         assertNotNull (json);
         ObjectMapper om = new ObjectMapper();
         Map values = om.readValue(json, Map.class);
@@ -45,7 +44,7 @@ public class CSVRow {
         assertEquals(data[0], mapper.getCallerRef());
         List<TagInputBean> tags = mapper.getTags();
         assertEquals(5, tags.size());
-        assertEquals(true, tags.contains("Gold Medals"));
+        //assertEquals(true, tags.contains("Gold Medals"));
         for (TagInputBean tag : tags) {
             switch (tag.getName()){
                 case "Gold Medals":
@@ -73,54 +72,73 @@ public class CSVRow {
         }
     }
     @Test
-    public void columnHelperWorks(){
-        String[] headers= new String[]{"$#Title","@Tag", "@!TagVal", "@*TagVal", "%Origin","Year", "@*Gold Medals [Year]"  };
+    public void columnHelperWorks() throws Exception{
+        //
+        String[] headers= new String[]{"Title", "Tag", "TagVal", "ValTag", "Origin", "Year", "Gold Medals"  };
         String[] data = new String[]{"TitleTests", "TagName", "Gold", "8", "New Zealand"  ,"2008", "12"};
-
-        CSVColumnHelper columnHelper = new CSVColumnHelper(headers[0], data[0]);
+        ImportParams params = Importer.getImportParams("/csvtest.json", null );
+        CsvColumnHelper columnHelper = new CsvColumnHelper(headers[0], data[0], params.getColumnDef(headers[0]));
         assertTrue("CallerRef was wrong", columnHelper.isCallerRef());
         assertTrue("Title was wrong", columnHelper.isTitle());
         assertEquals("Title", columnHelper.getKey());
         assertEquals(data[0], columnHelper.getValue());
-        assertFalse("Shouldn't be a tag", columnHelper.isTagName());
+        assertFalse("Shouldn't be a tag", columnHelper.isTag());
 
-        columnHelper = new CSVColumnHelper(headers[1], data[1]);
-        assertTrue("Should be a tag", columnHelper.isTagName());
+        columnHelper = new CsvColumnHelper(headers[1], data[1], params.getColumnDef(headers[1]));
+        assertTrue("Should be a tag", columnHelper.isTag());
         assertEquals(data[1], columnHelper.getValue());
         assertFalse("Shouldn't be a title", columnHelper.isTitle());
         assertFalse("Shouldn't be a callerRef", columnHelper.isCallerRef());
 
-        columnHelper = new CSVColumnHelper(headers[2], data[2]);
-        assertTrue("Should be a tag", columnHelper.isTagName());
+        columnHelper = new CsvColumnHelper(headers[2], data[2], params.getColumnDef(headers[2]));
+        assertTrue("Should be a tag", columnHelper.isTag());
         assertEquals(data[2], columnHelper.getValue());
         assertFalse("Shouldn't be a title", columnHelper.isTitle());
         assertFalse("Shouldn't be a callerRef", columnHelper.isCallerRef());
         assertTrue("Should exist", columnHelper.isMustExist());
 
-        columnHelper = new CSVColumnHelper(headers[3], data[3]);
-        assertTrue("Should be a tag", columnHelper.isTagName());
-        assertTrue("Tag to value", columnHelper.isTagToValue());
+        columnHelper = new CsvColumnHelper(headers[3], data[3], params.getColumnDef(headers[3]));
+        assertTrue("Should be a tag", columnHelper.isTag());
+        assertTrue("Tag to value", columnHelper.isValueAsProperty());
         assertEquals(data[3], columnHelper.getValue());
         assertFalse("Shouldn't be a title", columnHelper.isTitle());
         assertFalse("Shouldn't be a callerRef", columnHelper.isCallerRef());
         assertFalse("Doesn't have to exist", columnHelper.isMustExist());
 
-        columnHelper = new CSVColumnHelper(headers[4], data[4]);
-        assertTrue("Should be a tag", columnHelper.isTagName());
+        columnHelper = new CsvColumnHelper(headers[4], data[4], params.getColumnDef(headers[4]));
+        assertTrue("Should be a tag", columnHelper.isTag());
         assertTrue("Should be a country", columnHelper.isCountry());
         assertTrue("must exist", columnHelper.isMustExist());
 
-        columnHelper = new CSVColumnHelper(headers[6], data[6]);
-        assertTrue("Should be a tag", columnHelper.isTagName());
+        columnHelper = new CsvColumnHelper(headers[6], data[6], params.getColumnDef(headers[6]));
+        assertTrue("Should be a tag", columnHelper.isTag());
         assertEquals("Gold Medals", columnHelper.getKey());
-        assertTrue("Should have an indirect lookup", columnHelper.getIndirectColumn()!=null);
-        assertEquals("Year", columnHelper.getIndirectColumn());
-        assertTrue("Tag to value", columnHelper.isTagToValue());
+        assertTrue("Should have an indirect lookup", columnHelper.getNameColumn()!=null);
+        assertEquals("Year", columnHelper.getNameColumn());
+        assertTrue("Tag to value", columnHelper.isValueAsProperty());
         assertEquals(data[6], columnHelper.getValue());
         assertFalse("Shouldn't be a title", columnHelper.isTitle());
         assertFalse("Shouldn't be a callerRef", columnHelper.isCallerRef());
         assertFalse("Doesn't have to exist", columnHelper.isMustExist());
         //assertEquals("Country index is always Country", "Country", columnHelper.getKey());
 
+    }
+
+    @Test
+    public void complexCSVStructure() throws Exception {
+        ImportParams params = Importer.getImportParams("/complex-concept.json", null);
+        params.setStaticDataResolver(new StaticDataResolver() {
+            @Override
+            public String resolveCountryISOFromName(String name) throws DatagioException {
+                return name;
+            }
+        });
+        //TrackMapper mapper = new TrackMapper(params);
+        String[]headers = {"Athlete","Age","Country","Year","Sport","Gold Medals","Silver Medals","Bronze Medals"};
+        String[]values = { "Michael Phelps","23","United States","Swimming","8","0","0","8"};
+        DelimitedMappable row = (DelimitedMappable) params.getMappable();
+        MetaInputBean header = (MetaInputBean) row;
+        row.setData(headers, values, params);
+        assertEquals(values[0]+"."+values[3], header.getCallerRef());
     }
 }
