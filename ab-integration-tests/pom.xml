@@ -174,9 +174,6 @@
                     </excludes>
                     <junitArtifactName>junit:junit</junitArtifactName>
                     <argLine>-Xmx512m</argLine>
-                    <systemPropertyVariables>
-                        <ab.config>./src/test/resources/config.properties</ab.config>
-                    </systemPropertyVariables>
                 </configuration>
             </plugin>
         </plugins>
@@ -193,9 +190,6 @@
                         <configuration>
                             <junitArtifactName>junit:junit</junitArtifactName>
                             <argLine>-Xmx512m</argLine>
-                            <systemPropertyVariables>
-                                <ab.config>./src/test/resources/config.properties</ab.config>
-                            </systemPropertyVariables>
 
                         </configuration>
                         <executions>
@@ -211,10 +205,6 @@
                                     </excludes>
                                     <junitArtifactName>junit:junit</junitArtifactName>
                                     <argLine>-Xmx512m</argLine>
-                                    <systemPropertyVariables>
-                                        <ab.config>./src/test/resources/config.properties</ab.config>
-                                    </systemPropertyVariables>
-
                                 </configuration>
                             </execution>
                         </executions>
@@ -234,7 +224,7 @@
                                 </zipUrlInstaller>
                                 <systemProperties>
                                     <ab.integration>amqp</ab.integration>
-                                    <ab.config>./src/test/resources/config.properties</ab.config>
+                                    <ab.config>${project.basedir}/src/test/resources/config.properties</ab.config>
                                 </systemProperties>
                             </container>
                             <configuration>

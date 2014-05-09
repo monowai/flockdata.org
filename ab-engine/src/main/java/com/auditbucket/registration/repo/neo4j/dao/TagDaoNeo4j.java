@@ -97,8 +97,8 @@ class TagDaoNeo4j implements TagDao {
         Node start;
         if (existingTag == null) {
             if (tagInput.isMustExist()) {
-                tagInput.getServiceMessage("Tag [" + tagInput.getCode() + "] should exist for [" + tagInput.getIndex() + "] but doesn't. Ignoring this request.");
-                throw new DatagioTagException("Tag [" + tagInput.getCode() + "] should exist for ["+tagInput.getIndex()+"] but doesn't. Ignoring this request.");
+                tagInput.getServiceMessage("Tag [" + tagInput + "] should exist for [" + tagInput.getIndex() + "] but doesn't. Ignoring this request.");
+                throw new DatagioTagException("Tag [" + tagInput + "] should exist for ["+tagInput.getIndex()+"] but doesn't. Ignoring this request.");
             } else
                 start = createTag(company, tagInput, tagSuffix);
         } else {
