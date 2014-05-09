@@ -94,10 +94,16 @@ public class SearchServiceFacade {
             // Indexing header meta data only
             return;
         }
+        TrackLog when ;
         // The change has been indexed
-        TrackLog when = trackDao.getLog(searchResult.getLogId());
-        if (when == null) {
-            logger.error("Illegal node requested from handleSearchResult [{}]", searchResult.getLogId());
+        try {
+            when = trackDao.getLog(searchResult.getLogId());
+            if (when == null) {
+                logger.error("Illegal node requested from handleSearchResult [{}]", searchResult.getLogId());
+                return;
+            }
+        }catch (DataRetrievalFailureException e) {
+            logger.error("Unable to locate track log {} for metaId {} in order to handle the search callerRef. Ignoring.", searchResult.getLogId(), metaId);
             return;
         }
 

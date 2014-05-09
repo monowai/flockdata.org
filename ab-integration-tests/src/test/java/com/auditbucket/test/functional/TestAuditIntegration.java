@@ -29,7 +29,6 @@ import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.endpoint.TagEP;
-import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.FortressService;
@@ -541,7 +540,7 @@ public class TestAuditIntegration {
     @Test
     public void simpleQueryEPWorksForImportedRecord() throws Exception {
         assumeTrue(!ignoreMe);
-
+        SecurityContextHolder.getContext().setAuthentication(authA);
         String searchFor = "testing";
         String escJson = "{\"who\":\""+searchFor+"\"}";
 
@@ -620,6 +619,7 @@ public class TestAuditIntegration {
         }
 
     }
+
     private int waitForHeaderToUpdate(MetaHeader header, String apiKey) throws Exception{
         // Looking for the first searchKey to be logged against the metaHeader
         int i = 0;
@@ -639,7 +639,6 @@ public class TestAuditIntegration {
         assertTrue("Search reply not received from ab-search", searchWorking);
         return i;
     }
-
 
     private int waitForHeaderToUpdate(MetaHeader header) throws Exception {
         return waitForHeaderToUpdate(header, null);
