@@ -104,7 +104,7 @@ public class CsvColumnDefinition {
 
     public String getRelationshipName() {
         if ( relationshipName== null )
-            return "undefined";
+            return (isCountry()? null :"undefined");
         return relationshipName;
     }
 

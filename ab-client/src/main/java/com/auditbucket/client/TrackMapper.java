@@ -71,11 +71,11 @@ public class TrackMapper extends MetaInputBean implements DelimitedMappable {
                         if (columnHelper.isValueAsProperty()) {
                             tag = new TagInputBean(thisColumn).setMustExist(columnHelper.isMustExist()).setIndex(thisColumn);
 
-                            if ( Integer.decode(columnHelper.getValue()) !=0 ) {
+                            if (Integer.decode(columnHelper.getValue()) != 0) {
                                 properties.put("value", Integer.decode(columnHelper.getValue()));
                                 if (columnHelper.getNameColumn() != null) {
                                     tag.addMetaLink(row.get(columnHelper.getNameColumn()).toString(), properties);
-                                } else if ( columnHelper.getRelationshipName() != null ){
+                                } else if (columnHelper.getRelationshipName() != null) {
                                     tag.addMetaLink(row.get(columnHelper.getRelationshipName()).toString(), properties);
                                 } else
                                     tag.addMetaLink("undefined", properties);
@@ -88,10 +88,7 @@ public class TrackMapper extends MetaInputBean implements DelimitedMappable {
                             String index = columnHelper.getKey();
 
                             tag = new TagInputBean(val).setMustExist(columnHelper.isMustExist()).setIndex(columnHelper.isCountry() ? "Country" : index);
-                            if (columnHelper.isCountry())
-                                tag.addMetaLink(columnHelper.getKey());
-                            else
-                                tag.addMetaLink(columnHelper.getRelationshipName());
+                            tag.addMetaLink(columnHelper.getRelationshipName());
                         }
 
                         setTag(tag);
@@ -103,10 +100,10 @@ public class TrackMapper extends MetaInputBean implements DelimitedMappable {
             } // ignoreMe
             col++;
         }
-        if ( importParams.getMetaHeader() !=null ){
+        if (importParams.getMetaHeader() != null) {
             CsvColumnDefinition columnDefinition = importParams.getColumnDef(importParams.getMetaHeader());
-            if ( columnDefinition !=null ){
-                String[]metaCols = columnDefinition.getRefColumns();
+            if (columnDefinition != null) {
+                String[] metaCols = columnDefinition.getRefColumns();
                 String callerRef = "";
                 for (String metaCol : metaCols) {
                     callerRef = callerRef + (!callerRef.equals("") ? "." : "") + row.get(metaCol);

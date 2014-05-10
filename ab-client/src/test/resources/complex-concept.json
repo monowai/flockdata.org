@@ -8,15 +8,15 @@
     "header": true,
     "metaHeader": "Medals",
     "csvHeaders": {
-        "Athlete":{"tag": true },
+        "Athlete":{"tag": true, "relationshipName": "won" },
         "Country":{"country": true},
         "Sport": {"tag": true, "mustExist":false},
         "Age": {"tag": true, "mustExist":false},
         "Medals": {"callerRef": true,
             "refColumns": ["Athlete", "Year"],
             "metaValues": ["Gold Medals", "Silver Medals", "Bronze Medals"]},
-        "Gold Medals":   {"tag": true},
-        "Silver Medals": {"tag": true},
-        "Bronze Medals": {"tag": true}
+        "Gold Medals":   {"tag": true, "relationshipName": "competed"},
+        "Silver Medals": {"tag": true, "relationshipName": "competed"},
+        "Bronze Medals": {"tag": true, "relationshipName": "competed"}
     }
 }

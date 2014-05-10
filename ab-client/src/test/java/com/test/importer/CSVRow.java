@@ -139,6 +139,22 @@ public class CSVRow {
         DelimitedMappable row = (DelimitedMappable) params.getMappable();
         MetaInputBean header = (MetaInputBean) row;
         row.setData(headers, values, params);
-        assertEquals(values[0]+"."+values[3], header.getCallerRef());
+        assertEquals(values[0] + "." + values[3], header.getCallerRef());
+        assertEquals(7, header.getTags().size());
+        for (TagInputBean tagInputBean : header.getTags()) {
+            if (tagInputBean.getName().equals("Gold Medals")){
+                assertEquals("Custom relationship name not working","competed", tagInputBean.getMetaLink());
+            }
+            if ( tagInputBean.getName().equals("Athlete")){
+                assertEquals("Custom relationship name not working","won", tagInputBean.getMetaLink());
+            }
+            if ( tagInputBean.getName().equals("Sport")){
+                assertEquals("Default relationship name not working","undefined", tagInputBean.getMetaLink());
+            }
+            if ( tagInputBean.getName().equals("Country")){
+                assertEquals("Default relationship name not working","Country", tagInputBean.getMetaLink());
+            }
+
+        }
     }
 }
