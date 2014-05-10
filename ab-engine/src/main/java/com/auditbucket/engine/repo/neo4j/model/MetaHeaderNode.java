@@ -113,7 +113,7 @@ public class MetaHeaderNode implements MetaHeader {
         //if ( callerRef!=null )
         callerKeyRef = this.fortress.getId() + "." + documentType.getId() + "." + (callerRef != null ? callerRef : metaKey);
 
-        if ( metaInput.getName() ==null || metaInput.getName().equals(""))
+        if (metaInput.getName() == null || metaInput.getName().equals(""))
             this.name = (callerRef == null ? this.documentType : (this.documentType + "." + callerRef));
         else
             this.name = metaInput.getName();
@@ -248,13 +248,9 @@ public class MetaHeaderNode implements MetaHeader {
 
     @JsonIgnore
     public String getSearchKey() {
-        if (searchKey == null )
-            return this.metaKey;
-        else
-            return searchKey;
+        return searchKey;
 
     }
-
 
     @Override
     @JsonInclude(JsonInclude.Include.NON_NULL)

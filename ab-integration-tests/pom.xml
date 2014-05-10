@@ -225,6 +225,8 @@
                                 <systemProperties>
                                     <ab.integration>amqp</ab.integration>
                                     <ab.config>${project.basedir}/src/test/resources/config.properties</ab.config>
+                                    <log4j.configuration>file://${project.basedir}/src/test/resources/log4j-search.xml</log4j.configuration>
+                                    <java.awt.headless>true</java.awt.headless>
                                 </systemProperties>
                             </container>
                             <configuration>

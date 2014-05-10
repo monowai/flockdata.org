@@ -49,7 +49,7 @@
             request-channel="searchResult"
             exchange-name="${ab.engine.exchange}"
             reply-timeout="${reply.timeout}"
-            routing-key="ab.engine.binding"
+            routing-key="${ab.engine.binding}"
             amqp-template="amqpTemplate"/>
 
 

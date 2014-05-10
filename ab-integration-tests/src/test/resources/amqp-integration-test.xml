@@ -50,7 +50,7 @@
             request-channel="makeSearchRequest"
             reply-channel="nullChannel"
             routing-key="${ab.search.binding}"
-            exchange-name="ab.search.exchange"
+            exchange-name="${ab.search.exchange}"
             reply-timeout="${reply.timeout}"
             amqp-template="amqpTemplate"/>
 
