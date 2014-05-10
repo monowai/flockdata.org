@@ -7,6 +7,7 @@ import com.auditbucket.track.bean.MetaInputBean;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -135,26 +136,40 @@ public class CSVRow {
         });
         //TrackMapper mapper = new TrackMapper(params);
         String[]headers = {"Athlete","Age","Country","Year","Sport","Gold Medals","Silver Medals","Bronze Medals"};
-        String[]values = { "Michael Phelps","23","United States","Swimming","8","0","0","8"};
+        String[]values = { "Michael Phelps","23","United States","2008", "Swimming","8","0","0","8"};
         DelimitedMappable row = (DelimitedMappable) params.getMappable();
         MetaInputBean header = (MetaInputBean) row;
         row.setData(headers, values, params);
         assertEquals(values[0] + "." + values[3], header.getCallerRef());
-        assertEquals(7, header.getTags().size());
+        boolean goldTag=false, athleteTag=false, sportTag=false, countryTag=false;
+        assertEquals("Silver and Bronze medal values are 0 so should not be included", 5, header.getTags().size());
         for (TagInputBean tagInputBean : header.getTags()) {
             if (tagInputBean.getName().equals("Gold Medals")){
-                assertEquals("Custom relationship name not working","competed", tagInputBean.getMetaLink());
+                assertEquals("Gold Medals", tagInputBean.getIndex());
+                Object o = tagInputBean.getMetaLinks().get("competed");
+                assertNotNull("Custom relationship name not working", o);
+                assertEquals(8, ((HashMap) o).get("value"));
+                goldTag = true;
             }
-            if ( tagInputBean.getName().equals("Athlete")){
-                assertEquals("Custom relationship name not working","won", tagInputBean.getMetaLink());
+            if ( tagInputBean.getName().equals("Michael Phelps")){
+                assertNotNull("Custom relationship name not working", tagInputBean.getMetaLinks().containsKey("won"));
+                assertEquals("Athlete", tagInputBean.getIndex());
+                athleteTag = true;
             }
-            if ( tagInputBean.getName().equals("Sport")){
-                assertEquals("Default relationship name not working","undefined", tagInputBean.getMetaLink());
+            if ( tagInputBean.getName().equals("Swimming")){
+                assertNotNull("Default relationship name not working", tagInputBean.getMetaLinks().containsKey("undefined"));
+                assertEquals("Sport", tagInputBean.getIndex());
+                sportTag = true;
             }
-            if ( tagInputBean.getName().equals("Country")){
-                assertEquals("Default relationship name not working","Country", tagInputBean.getMetaLink());
+            if ( tagInputBean.getName().equals("United States")){
+                assertNotNull("Default relationship name not working", tagInputBean.getMetaLinks().containsKey("Country"));
+                countryTag = true;
             }
-
         }
+        assertTrue("Gold Tag not evaluated", goldTag);
+        assertTrue("Athlete Tag not evaluated", athleteTag);
+        assertTrue("Sport Tag not evaluated", sportTag);
+        assertTrue("Country Tag not evaluated", countryTag);
+
     }
 }

@@ -76,7 +76,7 @@ public class TrackMapper extends MetaInputBean implements DelimitedMappable {
                                 if (columnHelper.getNameColumn() != null) {
                                     tag.addMetaLink(row.get(columnHelper.getNameColumn()).toString(), properties);
                                 } else if (columnHelper.getRelationshipName() != null) {
-                                    tag.addMetaLink(row.get(columnHelper.getRelationshipName()).toString(), properties);
+                                    tag.addMetaLink(columnHelper.getRelationshipName(), properties);
                                 } else
                                     tag.addMetaLink("undefined", properties);
                             } else {

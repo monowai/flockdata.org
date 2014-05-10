@@ -67,7 +67,16 @@ public class CsvColumnHelper {
         return columnDefinition == null;
     }
 
+    /**
+     * The name of the relationship. If relationshipName is not set then undefined
+     * will be returned unless it's a country in which case the name of the column is returned
+     *
+     * @return non-null value the caller can use as a name for the relationship.
+     */
     public String getRelationshipName() {
-        return columnDefinition.getRelationshipName();
+        String rlxName = columnDefinition.getRelationshipName();
+        if (rlxName == null )
+            rlxName = getKey();
+        return rlxName;
     }
 }
