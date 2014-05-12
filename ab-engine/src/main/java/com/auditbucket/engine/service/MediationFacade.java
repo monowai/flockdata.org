@@ -99,10 +99,10 @@ public class MediationFacade {
     @Async
     public Future<Integer> createHeadersAsync(final Company company, final Fortress fortress, List<MetaInputBean> inputBeans) throws DatagioException, IOException {
         // ToDo: Return strings which could contain only the caller ref data that failed.
-        return new AsyncResult<>(createHeaders(company, fortress, inputBeans));
+        return new AsyncResult<>(createHeaders(company, fortress, inputBeans, 5));
     }
 
-    public Integer createHeaders(final Company company, final Fortress fortress, final List<MetaInputBean> inputBeans) throws DatagioException, IOException {
+    public Integer createHeaders(final Company company, final Fortress fortress, final List<MetaInputBean> inputBeans, int listSize) throws DatagioException, IOException {
         fortress.setCompany(company);
         Long id = DateTime.now().getMillis();
         StopWatch watch = new StopWatch();
@@ -112,7 +112,7 @@ public class MediationFacade {
         if (newMode) {
 
             // Tune to balance against concurrency and batch transaction insert efficiency.
-            List<List<MetaInputBean>> splitList = Lists.partition(inputBeans, 5);
+            List<List<MetaInputBean>> splitList = Lists.partition(inputBeans, listSize);
 
             for (List<MetaInputBean> metaInputBeans : splitList) {
 

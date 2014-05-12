@@ -91,7 +91,7 @@ public class MetaHeaderNode implements MetaHeader {
 
     private long fortressDate;
 
-    @Indexed
+    //@Indexed
     private String searchKey = null;
 
     private boolean searchSuppressed;
@@ -113,13 +113,12 @@ public class MetaHeaderNode implements MetaHeader {
         //if ( callerRef!=null )
         callerKeyRef = this.fortress.getId() + "." + documentType.getId() + "." + (callerRef != null ? callerRef : metaKey);
 
-        if ( metaInput.getName() ==null || metaInput.getName().equals(""))
+        if (metaInput.getName() == null || metaInput.getName().equals(""))
             this.name = (callerRef == null ? this.documentType : (this.documentType + "." + callerRef));
         else
             this.name = metaInput.getName();
 
         this.description = metaInput.getDescription();
-
 
         indexName = MetaSearchSchema.parseIndex(this.fortress);
 
@@ -243,15 +242,15 @@ public class MetaHeaderNode implements MetaHeader {
     }
 
     @JsonIgnore
-    public void setSearchKey(String parentKey) {
-        this.searchKey = parentKey;
+    public void setSearchKey(String searchKey) {
+        this.searchKey = searchKey;
     }
 
     @JsonIgnore
     public String getSearchKey() {
-        return this.searchKey;
-    }
+        return searchKey;
 
+    }
 
     @Override
     @JsonInclude(JsonInclude.Include.NON_NULL)

@@ -86,7 +86,7 @@ public class TrackEP {
     @RequestMapping(value = "/", consumes = "application/json", method = RequestMethod.PUT)
     public void trackHeaders(@RequestBody List<MetaInputBean> inputBeans,
                              String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, IOException {
-        trackHeadersAsync(inputBeans, true, ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+        trackHeadersAsync(inputBeans, false, ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
     }
 
 
@@ -99,7 +99,7 @@ public class TrackEP {
             return batch;
 
         } else {
-            return new AsyncResult<>(mediationFacade.createHeaders(company, fortress, inputBeans));
+            return new AsyncResult<>(mediationFacade.createHeaders(company, fortress, inputBeans, inputBeans.size()));
         }
     }
 

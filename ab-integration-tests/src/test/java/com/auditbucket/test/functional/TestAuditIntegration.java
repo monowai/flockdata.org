@@ -29,7 +29,6 @@ import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.endpoint.TagEP;
-import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.FortressService;
@@ -75,9 +74,14 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.Set;
 
 import static junit.framework.Assert.assertEquals;
@@ -121,6 +125,7 @@ public class TestAuditIntegration {
     private Logger logger = LoggerFactory.getLogger(TestAuditIntegration.class);
     private String email = "mike";
     private Authentication authA = new UsernamePasswordAuthenticationToken(email, "123");
+    static Properties properties = new Properties() ;
     @AfterClass
     public static void pauseForAWhile() throws Exception{
         System.out.println("Waiting for a while");
@@ -129,7 +134,10 @@ public class TestAuditIntegration {
     @BeforeClass
     @Rollback(false)
     public static void cleanupElasticSearch() throws Exception {
-        HttpClientConfig clientConfig = new HttpClientConfig.Builder("http://localhost:9201").multiThreaded(false).build();
+        FileInputStream f = new FileInputStream("./src/test/resources/config.properties");
+        properties.load(f);
+
+        HttpClientConfig clientConfig = new HttpClientConfig.Builder("http://localhost:"+properties.get("es.http.port")).multiThreaded(false).build();
         // Construct a new Jest client according to configuration via factory
         JestClientFactory factory = new JestClientFactory();
         factory.setHttpClientConfig(clientConfig);
@@ -234,7 +242,7 @@ public class TestAuditIntegration {
         auditResult = mediationFacade.createHeader(inputBean, null);
         summary = mediationFacade.getTrackedSummary(auditResult.getMetaKey());
         assertNotNull(summary);
-        assertSame("Not change logs were expected", 0, summary.getChanges().size());
+        assertSame("No change logs were expected", 0, summary.getChanges().size());
         assertNull(summary.getHeader().getSearchKey());
         // Check we can find the Event in ElasticSearch
         doEsQuery(summary.getHeader().getIndexName(), "ZZZ999", 0);
@@ -541,7 +549,7 @@ public class TestAuditIntegration {
     @Test
     public void simpleQueryEPWorksForImportedRecord() throws Exception {
         assumeTrue(!ignoreMe);
-
+        SecurityContextHolder.getContext().setAuthentication(authA);
         String searchFor = "testing";
         String escJson = "{\"who\":\""+searchFor+"\"}";
 
@@ -620,6 +628,7 @@ public class TestAuditIntegration {
         }
 
     }
+
     private int waitForHeaderToUpdate(MetaHeader header, String apiKey) throws Exception{
         // Looking for the first searchKey to be logged against the metaHeader
         int i = 0;
@@ -639,7 +648,6 @@ public class TestAuditIntegration {
         assertTrue("Search reply not received from ab-search", searchWorking);
         return i;
     }
-
 
     private int waitForHeaderToUpdate(MetaHeader header) throws Exception {
         return waitForHeaderToUpdate(header, null);

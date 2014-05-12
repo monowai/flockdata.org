@@ -43,18 +43,18 @@
 
     <rabbit:admin connection-factory="connectionFactory"/>
 
-    <rabbit:queue name="ab-search.queue"/>
-    <rabbit:queue name="ab-engine.queue"/>
+    <rabbit:queue name="${ab.search.queue}"/>
+    <rabbit:queue name="${ab.engine.queue}"/>
 
-    <rabbit:direct-exchange name="ab.search.exchange">
+    <rabbit:direct-exchange name="${ab.search.exchange}">
         <rabbit:bindings>
-            <rabbit:binding queue="ab-search.queue" key="ab.search.binding"/>
+            <rabbit:binding queue="${ab.search.queue}" key="${ab.search.binding}"/>
         </rabbit:bindings>
     </rabbit:direct-exchange>
 
-    <rabbit:direct-exchange name="ab.engine.exchange">
+    <rabbit:direct-exchange name="${ab.engine.exchange}">
         <rabbit:bindings>
-            <rabbit:binding queue="ab-engine.queue" key="ab.engine.binding"/>
+            <rabbit:binding queue="${ab.engine.queue}" key="${ab.engine.binding}"/>
         </rabbit:bindings>
     </rabbit:direct-exchange>
 

@@ -84,7 +84,7 @@ public class SearchServiceFacade {
             return;
         }
 
-        if (header.getSearchKey() == null) {
+        if (header.getSearchKey() == null ) {
             header.setSearchKey(searchResult.getSearchKey());
             trackDao.save(header);
             logger.trace("Updating Header{} search searchResult =[{}]", header.getMetaKey(), searchResult);
@@ -94,10 +94,16 @@ public class SearchServiceFacade {
             // Indexing header meta data only
             return;
         }
+        TrackLog when ;
         // The change has been indexed
-        TrackLog when = trackDao.getLog(searchResult.getLogId());
-        if (when == null) {
-            logger.error("Illegal node requested from handleSearchResult [{}]", searchResult.getLogId());
+        try {
+            when = trackDao.getLog(searchResult.getLogId());
+            if (when == null) {
+                logger.error("Illegal node requested from handleSearchResult [{}]", searchResult.getLogId());
+                return;
+            }
+        }catch (DataRetrievalFailureException e) {
+            logger.error("Unable to locate track log {} for metaId {} in order to handle the search callerRef. Ignoring.", searchResult.getLogId(), metaId);
             return;
         }
 
@@ -113,16 +119,14 @@ public class SearchServiceFacade {
         }
     }
 
-    @Async
-    public Future<Void> makeHeaderSearchable(Company company, TrackResultBean resultBean, String event, Date when) {
+    public void makeHeaderSearchable(Company company, TrackResultBean resultBean, String event, Date when) {
         MetaHeader header = resultBean.getMetaHeader();
         if (header.isSearchSuppressed() || !header.getFortress().isSearchActive())
-            return null;
+            return ;
 
         SearchChange searchDocument = getSearchChange(company, resultBean, event, when);
-        if (searchDocument == null) return null;
+        if (searchDocument == null) return ;
         makeChangeSearchable(searchDocument);
-        return null;
     }
 
     @Async
@@ -143,6 +147,7 @@ public class SearchServiceFacade {
             searchDocument.setTags(resultBean.getTags());
             searchDocument.setReplyRequired(false);
             searchDocument.setSearchKey(header.getCallerRef());
+
             if (header.getId() == null)
                 searchDocument.setWhen(null);
             searchDocument.setSysWhen(header.getWhenCreated());

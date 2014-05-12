@@ -98,7 +98,7 @@ public class TrackDaoES implements TrackSearchDao {
         logger.debug("Received request to Save [{}]", searchChange.getMetaKey());
 
         ensureIndex(indexName, documentType);
-        ensureMapping(indexName, documentType);
+        //ensureMapping(indexName, documentType);
 
         String source = makeIndexJson(searchChange);
         IndexRequestBuilder irb = esClient.prepareIndex(indexName, documentType)
@@ -106,9 +106,11 @@ public class TrackDaoES implements TrackSearchDao {
         //.setRouting(searchChange.getMetaKey());
 
         String searchKey = searchChange.getSearchKey();
+
         if (searchKey == null && searchChange.getCallerRef() != null)
             searchKey = searchChange.getCallerRef();
 
+        logger.debug("SearchKey =[{}]", searchChange.getSearchKey());
         // Rebuilding a document after a reindex - preserving the unique key.
         if (searchKey != null) {
             irb.setId(searchKey);
@@ -130,6 +132,7 @@ public class TrackDaoES implements TrackSearchDao {
     }
 
     private void ensureMapping(String indexName, String documentType) {
+        logger.debug("Checking mapping for {}, {}",indexName, documentType);
         XContentBuilder mappingEs = mapping(documentType);
         // Test if Type exist
         String[] indexNames = new String[1];
@@ -137,7 +140,12 @@ public class TrackDaoES implements TrackSearchDao {
         String[] documentTypes = new String[1];
         documentTypes[0] = documentType;
 
-        boolean hasType = esClient.admin().indices().typesExists(new TypesExistsRequest(indexNames, documentTypes)).actionGet().isExists();
+        boolean hasType = esClient.admin()
+                .indices()
+                .typesExists(new TypesExistsRequest(indexNames, documentTypes))
+                .actionGet()
+                .isExists();
+        logger.info("Has Type returns {}", hasType);
         if (!hasType) {
             // Type Don't exist ==> Insert Mapping
             if (mappingEs != null) {
@@ -146,14 +154,24 @@ public class TrackDaoES implements TrackSearchDao {
                         .setType(documentType)
                         .setSource(mappingEs)
                         .execute().actionGet();
+                logger.debug("Created default mapping for {}, {}", indexName, documentType);
             }
         }
     }
 
     private synchronized void ensureIndex(String indexName, String documentType) {
-        boolean hasIndex = esClient.admin().indices().exists(new IndicesExistsRequest(indexName)).actionGet().isExists();
-        if (hasIndex)
+        logger.debug("Ensuring index {}, {}", indexName, documentType);
+
+        boolean hasIndex = esClient
+                .admin()
+                .indices()
+                .exists(new IndicesExistsRequest(indexName))
+                .actionGet().isExists();
+        if (hasIndex){
+            logger.debug("Index {}, {} exists", indexName, documentType);
             return;
+        }
+
         XContentBuilder mappingEs = mapping(documentType);
         // create Index  and Set Mapping
         if (mappingEs != null) {
@@ -162,10 +180,16 @@ public class TrackDaoES implements TrackSearchDao {
             String settingDefinition = settingDefinition();
             if (settingDefinition != null) {
                 Settings settings = ImmutableSettings.settingsBuilder().loadFromSource(settingDefinition).build();
-                esClient.admin().indices().prepareCreate(indexName).addMapping(documentType, mappingEs).setSettings(settings).execute().actionGet();
+                esClient.admin().
+                        indices()
+                            .prepareCreate(indexName).addMapping(documentType, mappingEs)
+                            .setSettings(settings)
+                        .execute()
+                        .actionGet();
             } else {
                 esClient.admin().indices().prepareCreate(indexName).addMapping(documentType, mappingEs).execute().actionGet();
             }
+//            ensureMapping(indexName, documentType);
         }
     }
 
@@ -179,7 +203,7 @@ public class TrackDaoES implements TrackSearchDao {
         try {
             logger.debug("Received request to Update [{}]", incoming.getMetaKey());
             ensureIndex(incoming.getIndexName(), incoming.getDocumentType());
-            ensureMapping(incoming.getIndexName(), incoming.getDocumentType());
+            //ensureMapping(incoming.getIndexName(), incoming.getDocumentType());
             GetResponse response =
                     esClient.prepareGet(incoming.getIndexName(),
                             incoming.getDocumentType(),
@@ -187,6 +211,7 @@ public class TrackDaoES implements TrackSearchDao {
                             //.setRouting(incoming.getMetaKey())
                             .execute()
                             .actionGet();
+            logger.debug("executed get request for {}", incoming.toString());
             if (response.isExists() && !response.isSourceEmpty()) {
                 // Messages can be received out of sequence
                 // Check to ensure we don't accidentally overwrite a more current
@@ -207,6 +232,7 @@ public class TrackDaoES implements TrackSearchDao {
             } else {
                 // No response, to a search key we expect to exist. Create a new one
                 // Likely to be in response to rebuilding an ES index from Graph data.
+                logger.debug("About to save in response to update request for {}", incoming.toString());
                 return save(incoming);
             }
 

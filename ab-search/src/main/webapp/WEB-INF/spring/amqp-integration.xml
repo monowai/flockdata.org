@@ -34,7 +34,7 @@
     <int-amqp:inbound-gateway
             id="inboundGateway"
             request-channel="makeSearchRequest"
-            queue-names="ab-search.queue"
+            queue-names="${ab.search.queue}"
             concurrent-consumers="50"
             prefetch-count="10"   acknowledge-mode="AUTO"
             task-executor="AMQPPoolTaskExecutor"
@@ -47,9 +47,9 @@
     <!--async-executor="taskExecutor"-->
     <int-amqp:outbound-gateway
             request-channel="searchResult"
-            exchange-name="ab.engine.exchange"
+            exchange-name="${ab.engine.exchange}"
             reply-timeout="${reply.timeout}"
-            routing-key="ab.engine.binding"
+            routing-key="${ab.engine.binding}"
             amqp-template="amqpTemplate"/>
 
 

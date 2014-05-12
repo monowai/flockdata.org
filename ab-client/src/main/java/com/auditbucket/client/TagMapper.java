@@ -26,7 +26,7 @@ public class TagMapper extends TagInputBean implements DelimitedMappable{
     }
 
     @Override
-    public String setData(String[] headerRow, String[] line, StaticDataResolver staticDataResolver) throws JsonProcessingException {
+    public String setData(String[] headerRow, String[] line, ImportParams staticDataResolver) throws JsonProcessingException {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 

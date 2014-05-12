@@ -97,8 +97,8 @@ class TagDaoNeo4j implements TagDao {
         Node start;
         if (existingTag == null) {
             if (tagInput.isMustExist()) {
-                tagInput.getServiceMessage("Tag [" + tagInput.getCode() + "] should exist for [" + tagInput.getIndex() + "] but doesn't. Ignoring this request.");
-                throw new DatagioTagException("Tag [" + tagInput.getCode() + "] should exist for ["+tagInput.getIndex()+"] but doesn't. Ignoring this request.");
+                tagInput.getServiceMessage("Tag [" + tagInput + "] should exist for [" + tagInput.getIndex() + "] but doesn't. Ignoring this request.");
+                throw new DatagioTagException("Tag [" + tagInput + "] should exist for ["+tagInput.getIndex()+"] but doesn't. Ignoring this request.");
             } else
                 start = createTag(company, tagInput, tagSuffix);
         } else {
@@ -126,7 +126,7 @@ class TagDaoNeo4j implements TagDao {
             tagSuffix = Tag.DEFAULT + tagSuffix;
         else {
             schemaDao.registerTagIndex(company, tagInput.getIndex());
-            tagSuffix = tagInput.getIndex() + " " + Tag.DEFAULT + tagSuffix;
+            tagSuffix = ":`"+tagInput.getIndex() + "` " + Tag.DEFAULT + tagSuffix;
         }
 
         // ToDo: Multi-tenanted custom tagInputs?
@@ -233,7 +233,7 @@ class TagDaoNeo4j implements TagDao {
         // ToDo: Match to company - something like this.....
         //match (t:Law)-[:_TagLabel]-(c:ABCompany) where id(c)=0  return t,c;
         //match (t:Law)-[*..2]-(c:ABCompany) where id(c)=0  return t,c;
-        String query = "match (tag" + index+ ") return tag";
+        String query = "match (tag:`" + index+ "`) return tag";
         // Look at PAGE
         Result<Map<String, Object>> results = template.query(query, null);
         for (Map<String, Object> row : results) {
@@ -257,11 +257,13 @@ class TagDaoNeo4j implements TagDao {
         if (tagName == null || company == null)
             throw new IllegalArgumentException("Null can not be used to find a tag ");
 
+        if ( index.startsWith(":"))
+            index = index.substring(1);
         String query;
         if ("".equals(engineAdmin.getTagSuffix(company)))
-            query = "match (tag" + index + ") where tag.key ={tagKey} return tag";
+            query = "match (tag:`" + index + "`) where tag.key ={tagKey} return tag";
         else
-            query = "match (tag" + index + engineAdmin.getTagSuffix(company) + ") where tag.key ={tagKey} return tag";
+            query = "match (tag:`" + index + engineAdmin.getTagSuffix(company) + "`) where tag.key ={tagKey} return tag";
 
         Map<String, Object> params = new HashMap<>();
         params.put("tagKey", tagName.toLowerCase().replaceAll("\\s", "")); // ToDo- formula to static method

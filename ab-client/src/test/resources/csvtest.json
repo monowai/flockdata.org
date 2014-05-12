@@ -1,0 +1,18 @@
+{
+    "documentType": "Athlete",
+    "importType": "csv",
+    "tagOrTrack": "track",
+    "metaOnly": true,
+    "fortress": { "name": "Olympic", "search": true},
+    "fortressUser": "mike",
+    "batchSize": -1,
+    "header": true,
+    "csvHeaders": {
+        "Title":{"callerRef": true, "title": true},
+        "Origin":{"country": true},
+        "Tag": {"tag": true, "mustExist":false},
+        "TagVal": {"tag": true, "mustExist":true},
+        "ValTag": {"valueAsProperty": true},
+        "Gold Medals": {"nameColumn": "Year", "valueAsProperty": true}
+    }
+}

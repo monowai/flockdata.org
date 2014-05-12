@@ -1,7 +1,8 @@
-package com.auditbucket.search.service;
+package com.auditbucket.search.endpoint;
 
 import com.auditbucket.search.model.MetaSearchChange;
 import com.auditbucket.search.model.SearchResult;
+import com.auditbucket.search.service.EngineGateway;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackSearchDao;
 import org.slf4j.Logger;
@@ -19,11 +20,11 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @MessageEndpoint
-public class TrackService {
+public class TrackServiceEP {
     @Autowired
     private TrackSearchDao auditSearch;
 
-    private Logger logger = LoggerFactory.getLogger(TrackService.class);
+    private Logger logger = LoggerFactory.getLogger(TrackServiceEP.class);
 
     @Autowired(required = false)
     private EngineGateway engineGateway;
