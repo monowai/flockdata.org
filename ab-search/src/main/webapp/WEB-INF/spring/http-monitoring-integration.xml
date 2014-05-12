@@ -32,7 +32,7 @@
     <int:annotation-config/>
     <beans:bean class="org.springframework.integration.http.inbound.UriPathHandlerMapping"/>
 
-    <!-- Channels Definitions -->
+    <!-- Channels Definitions for Ping AB-Engine ==> Ab-Search -->
     <int:channel id="doEsPingRequest"/>
     <int:channel id="doEsPingResponse"/>
 
@@ -42,5 +42,37 @@
                               reply-timeout="${reply.timeout}"
                               request-timeout="${request.timeout}"
                               supported-methods="GET"/>
+
+    <!-- Channels Definitions for Ping AB-Search ==> Ab-Engine -->
+    <int:gateway id="abMonitoringGateway"
+                 service-interface="com.auditbucket.search.service.AbMonitoringGateway"/>
+
+    <int:channel id="doAbEnginePingRequest">
+        <int:dispatcher task-executor="qExecutor"/>
+    </int:channel>
+
+    <int:channel id="pingAbEngineRequest"/>
+    <int:channel id="pingAbEngineReply"/>
+
+    <int:json-to-object-transformer id="jsonToObject3"
+                                    input-channel="doAbEnginePingResponse"
+                                    output-channel="pingAbEngineReply"
+                                    type="com.auditbucket.search.model.PingResult">
+    </int:json-to-object-transformer>
+
+    <int:object-to-json-transformer id="objectToJson3"
+                                    input-channel="pingAbEngineRequest"
+                                    output-channel="doAbEnginePingRequest"
+                                    content-type="application/json">
+    </int:object-to-json-transformer>
+
+    <int-http:outbound-gateway request-channel="doAbEnginePingRequest"
+                               reply-channel="doAbEnginePingResponse"
+                               reply-timeout="${reply.timeout}"
+                               url="${abengine.ping}"
+                               http-method="GET"
+                               extract-request-payload="true"
+                               expected-response-type="java.lang.String" />
+
 
 </beans:beans>
