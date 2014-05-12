@@ -60,7 +60,7 @@
         <!--<level value="info"/>-->
     <!--</logger>-->
     <logger name="org.springframework.integration">
-        <level value="debug"/>
+        <level value="info"/>
     </logger>
 
     <logger name="org.auditbucket">
@@ -70,7 +70,7 @@
 
     <!-- Root Logger -->
     <root>
-        <priority value="debug"/>
+        <priority value="info"/>
         <appender-ref ref="console"/>
     </root>
 
