@@ -50,7 +50,6 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.core.GraphDatabase;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.data.neo4j.support.node.Neo4jHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -122,9 +121,6 @@ public class TestMetaHeaderTags {
         if (!"http".equals(System.getProperty("neo4j")))
             Neo4jHelper.cleanDb(template);
     }
-
-    @Autowired
-    GraphDatabase graphDatabase;
 
     @Test
     public void tagAuditRecords() throws Exception {
