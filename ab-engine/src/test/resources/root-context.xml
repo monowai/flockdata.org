@@ -42,6 +42,8 @@
     <import resource="integration.xml"/>
     <import resource="spring-security.xml"/>
     <import resource="kv-context.xml"/>
+    <import resource="http-monitoring-integration.xml"/>
+
 
     <task:annotation-driven executor="ab-engine"/>
 

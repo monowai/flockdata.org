@@ -121,10 +121,11 @@ public class TestForceDeadlock {
 
         //latch.await();
         for (int i = 0; i < threadMax; i++) {
-            while (runners.get(i) == null || !runners.get(i).isDone()) {
+            TagRunner runner = runners.get(i);
+            while (runner == null || !runner.isDone()) {
                 Thread.yield();
             }
-            assertEquals("Error occurred creating tags under load", true, runners.get(i).isWorked());
+            assertEquals("Error occurred creating tags under load", true, runner.isWorked());
         }
         assertEquals(true, worked);
     }
@@ -166,11 +167,12 @@ public class TestForceDeadlock {
             logger.error("rte ", e);
         }
         for (int i = 0; i < threadMax; i++) {
-            if (futures.get(i) != null) {
-                while (!futures.get(i).isDone()) {
+            Future<Integer> f = futures.get(i);
+            if (f != null) {
+                while (!f.isDone()) {
                     Thread.yield();
                 }
-                doFutureWorked(futures.get(i), runners.get(i).getMaxRun());
+                doFutureWorked(f, runners.get(i).getMaxRun());
             }
         }
         assertEquals(true, working);
@@ -309,6 +311,7 @@ public class TestForceDeadlock {
                     count++;
                 }
                 worked = true;
+                done=true;
             } catch (Exception e) {
                 worked = false;
                 logger.error("Help!!", e);
