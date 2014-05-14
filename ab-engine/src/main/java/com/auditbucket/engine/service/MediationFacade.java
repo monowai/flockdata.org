@@ -208,7 +208,6 @@ public class MediationFacade {
             // Secret back door so that the log result can quickly get the auditid
             logBean.setMetaId(resultBean.getAuditId());
             logBean.setMetaKey(resultBean.getMetaKey());
-            logBean.setFortressUser(resultBean.getMetaInputBean().getFortressUser());
             logBean.setCallerRef(resultBean.getCallerRef());
 
             LogResultBean logResult;

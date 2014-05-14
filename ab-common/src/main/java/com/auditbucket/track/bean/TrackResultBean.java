@@ -92,8 +92,6 @@ public class TrackResultBean {
     }
 
     public String getServiceMessage() {
-        if (wasDuplicate)
-            return "Existing track record found was found and returned";
         return serviceMessage;
     }
 

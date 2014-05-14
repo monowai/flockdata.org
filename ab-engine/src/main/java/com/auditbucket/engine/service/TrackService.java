@@ -95,7 +95,7 @@ public class TrackService {
     @Autowired
     private KeyGenService keyGenService;
 
-    public LogWhat getWhat(MetaHeader metaHeader, ChangeLog change) {
+    public LogWhat getWhat(MetaHeader metaHeader, Log change) {
         return whatService.getWhat(metaHeader, change);
     }
 
@@ -123,12 +123,6 @@ public class TrackService {
     public TrackResultBean createHeader(Company company, Fortress fortress, MetaInputBean inputBean) {
         DocumentType documentType = tagService.resolveDocType(fortress, inputBean.getDocumentType(), true);
 
-        FortressUser fu =null;
-        // Create thisFortressUser if missing
-        // ToDo: Remove fortressUser as being mandatory
-        fu = fortressService.getFortressUser(fortress, inputBean.getFortressUser(), true);
-        fu.setFortress(fortress);// Save fetching it twice
-
         MetaHeader ah = null;
         if (inputBean.getCallerRef() != null && !inputBean.getCallerRef().equals(EMPTY))
             ah = findByCallerRef(fortress, documentType, inputBean.getCallerRef());
@@ -147,7 +141,7 @@ public class TrackService {
         }
 
         try {
-            ah = makeHeader(inputBean, fu, documentType);
+            ah = makeHeader(inputBean, fortress, documentType);
         } catch (DatagioException e) {
             logger.error(e.getMessage());
             return new TrackResultBean("Error processing inputBean [{}]" + inputBean + ". Error " + e.getMessage());
@@ -166,11 +160,11 @@ public class TrackService {
 
     }
 
-    private MetaHeader makeHeader(MetaInputBean inputBean, FortressUser fu, DocumentType documentType) throws DatagioException {
+    private MetaHeader makeHeader(MetaInputBean inputBean, Fortress fortress, DocumentType documentType) throws DatagioException {
         inputBean.setMetaKey(keyGenService.getUniqueKey());
-        MetaHeader ah = trackDao.create(inputBean, fu, documentType);
+        MetaHeader ah = trackDao.create(inputBean, fortress, documentType);
         if (ah.getId() == null)
-            inputBean.setMetaKey("NT " + fu.getFortress().getFortressKey()); // We ain't tracking this
+            inputBean.setMetaKey("NT " + fortress.getFortressKey()); // We ain't tracking this
         logger.debug("Meta Header created:{} key=[{}]", ah.getId(), ah.getMetaKey());
         return ah;
     }
@@ -298,7 +292,7 @@ public class TrackService {
                 return resultBean;
             }
             if (input.getEvent() == null) {
-                input.setEvent(ChangeLog.UPDATE);
+                input.setEvent(Log.UPDATE);
             }
             if (searchActive)
                 authorisedHeader = waitOnInitialSearchResult(authorisedHeader);
@@ -306,16 +300,17 @@ public class TrackService {
 
         } else { // first ever log for the metaHeader
             if (input.getEvent() == null) {
-                input.setEvent(ChangeLog.CREATE);
+                input.setEvent(Log.CREATE);
             }
             //if (!metaHeader.getLastUser().getId().equals(thisFortressUser.getId())){
             authorisedHeader.setLastUser(thisFortressUser);
+            authorisedHeader.setCreatedBy(thisFortressUser);
             authorisedHeader = trackDao.save(authorisedHeader);
 
             //}
         }
 
-        ChangeLog thisChange = trackDao.save(thisFortressUser, input, txRef, (existingLog != null ? existingLog.getChange() : null));
+        Log thisChange = trackDao.save(thisFortressUser, input, txRef, (existingLog != null ? existingLog.getChange() : null));
         input.setChangeEvent(thisChange.getEvent());
 
         // ToDo: WhatService call should occur after this function is finished.
@@ -365,7 +360,7 @@ public class TrackService {
             logger.error(e.getMessage());
             throw (e);
         }
-        if (trackLog != null && trackLog.getSysWhen() != 0)
+        if (trackLog.getSysWhen() != 0)
             searchDocument.setSysWhen(trackLog.getSysWhen());
         else
             searchDocument.setSysWhen(metaHeader.getWhenCreated());
@@ -514,7 +509,7 @@ public class TrackService {
     /**
      * This could be used toa assist in compensating transactions to roll back the last change
      * if the caller decides a rollback is required after the log has been written.
-     * If there are no ChangeLog records left, then the metaHeader will also be removed and the
+     * If there are no Log records left, then the metaHeader will also be removed and the
      * AB headerKey will be forever invalid.
      *
      * @param headerKey UID of the metaHeader
@@ -527,8 +522,8 @@ public class TrackService {
         if (currentLog == null)
             return null;
         trackDao.fetch(currentLog.getChange());
-        ChangeLog currentChange = currentLog.getChange();
-        ChangeLog priorChange = currentLog.getChange().getPreviousChange();
+        Log currentChange = currentLog.getChange();
+        Log priorChange = currentLog.getChange().getPreviousLog();
 
         if (priorChange != null) {
             trackDao.makeLastChange(metaHeader, priorChange);
@@ -554,7 +549,7 @@ public class TrackService {
         // Sync the update to ab-search.
         if (metaHeader.getFortress().isSearchActive() && !metaHeader.isSearchSuppressed()) {
             // Update against the MetaHeader only by re-indexing the search document
-            Map<String, Object> priorWhat = whatService.getWhat(metaHeader, priorChange).getWhatMap();
+            Map<String, Object> priorWhat = whatService.getWhat(metaHeader, priorChange).getWhat();
 
             MetaSearchChange searchDocument = new MetaSearchChange(metaHeader, priorWhat, priorChange.getEvent().getCode(), new DateTime(priorChange.getLog().getFortressWhen()));
             searchDocument.setTags(tagTrackService.findTrackTags(metaHeader));

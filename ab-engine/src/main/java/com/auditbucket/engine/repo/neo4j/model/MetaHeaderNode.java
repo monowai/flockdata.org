@@ -104,13 +104,14 @@ public class MetaHeaderNode implements MetaHeader {
         this.lastUpdated = dateCreated;
     }
 
-    public MetaHeaderNode(String uniqueKey, @NotEmpty FortressUser createdBy, @NotEmpty MetaInputBean metaInput, @NotEmpty DocumentType documentType) throws DatagioException {
+    public MetaHeaderNode(String uniqueKey, @NotEmpty Fortress fortress, @NotEmpty MetaInputBean metaInput, @NotEmpty DocumentType documentType) throws DatagioException {
         this();
         metaKey = uniqueKey;
-        this.fortress = (FortressNode) createdBy.getFortress();
+        this.fortress = (FortressNode)fortress;
         this.documentType = (documentType != null ? documentType.getName().toLowerCase() : "");
         callerRef = metaInput.getCallerRef();
         //if ( callerRef!=null )
+        assert documentType != null;
         callerKeyRef = this.fortress.getId() + "." + documentType.getId() + "." + (callerRef != null ? callerRef : metaKey);
 
         if (metaInput.getName() == null || metaInput.getName().equals(""))
@@ -131,8 +132,9 @@ public class MetaHeaderNode implements MetaHeader {
 
         lastUpdated = fortressDate;
 
-        this.createdBy = (FortressUserNode) createdBy;
-        this.lastWho = (FortressUserNode) createdBy;
+
+//        this.createdBy = (FortressUserNode) createdBy;
+//        this.lastWho = (FortressUserNode) createdBy;
         this.event = metaInput.getEvent();
 
         this.suppressSearch(metaInput.isSearchSuppressed());
@@ -293,5 +295,9 @@ public class MetaHeaderNode implements MetaHeader {
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
+    }
+
+    public void setCreatedBy(FortressUser createdBy) {
+        this.createdBy = (FortressUserNode)createdBy;
     }
 }

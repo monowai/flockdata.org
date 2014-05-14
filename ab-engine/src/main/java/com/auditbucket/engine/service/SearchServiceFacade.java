@@ -8,7 +8,7 @@ import com.auditbucket.search.model.MetaSearchChange;
 import com.auditbucket.search.model.QueryParams;
 import com.auditbucket.search.model.SearchResult;
 import com.auditbucket.track.bean.TrackResultBean;
-import com.auditbucket.track.model.ChangeLog;
+import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.SearchChange;
 import com.auditbucket.track.model.TrackLog;
@@ -141,7 +141,8 @@ public class SearchServiceFacade {
     public SearchChange getSearchChange(Company company, TrackResultBean resultBean, String event, Date when) {
         MetaHeader header = resultBean.getMetaHeader();
 
-        fortressService.fetch(header.getLastUser());
+        if ( header.getLastUser()!=null )
+            fortressService.fetch(header.getLastUser());
         SearchChange searchDocument = new MetaSearchChange(header, null, event, new DateTime(when));
         if (resultBean.getTags() != null) {
             searchDocument.setTags(resultBean.getTags());
@@ -161,7 +162,7 @@ public class SearchServiceFacade {
     public void rebuild(Company company, MetaHeader metaHeader, TrackLog lastLog) {
         try {
 
-            ChangeLog lastChange = null;
+            Log lastChange = null;
             if (lastLog != null)
                 lastChange = lastLog.getChange();
             else {
@@ -173,7 +174,7 @@ public class SearchServiceFacade {
                 // Update against the MetaHeader only by re-indexing the search document
                 Map<String, Object> lastWhat;
                 if (lastChange != null)
-                    lastWhat = whatService.getWhat(metaHeader, lastChange).getWhatMap();
+                    lastWhat = whatService.getWhat(metaHeader, lastChange).getWhat();
                 else
                     return; // ToDo: fix reindex header only scenario, i.e. no "change/what"
 
