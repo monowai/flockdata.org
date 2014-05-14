@@ -31,18 +31,14 @@
     <artifactId>ab-engine</artifactId>
 
     <properties>
-        <!--You need to keep the SDN lib in line with the Neo4J version otherwise
-        odd errors involving REAL_TIME occur during startup-->
-
-        <org.springdata.neo4j>3.0.2.RELEASE</org.springdata.neo4j>
-
+        <license-text.header>GPL-3-header.txt</license-text.header>
+        <docs.url>http://www.monowai.com/wiki/display/DAT/</docs.url>
         <ehcache.version>2.6.7</ehcache.version>
-
         <!--Default properties for test. integration over http and Neo4J running embedded-->
         <ab.integration>http</ab.integration>
         <neo4j>java</neo4j>
-        <neo4j.version>2.0.1</neo4j.version>
-
+        <org.springdata.neo4j>3.1.0.RC1</org.springdata.neo4j>
+        <neo4j.version>2.0.3</neo4j.version>
     </properties>
 
     <dependencies>
@@ -248,6 +244,30 @@
 
         </dependency>
 
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j</artifactId>
+            <version>${neo4j.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-access</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>javax.servlet-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>javax.servlet</artifactId>
+                    <groupId>org.eclipse.jetty.orbit</groupId>
+                </exclusion>
+            </exclusions>
+
+        </dependency>
         <dependency>
             <groupId>org.neo4j.app</groupId>
             <artifactId>neo4j-server</artifactId>

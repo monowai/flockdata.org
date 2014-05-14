@@ -31,6 +31,4 @@ http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springfr
     <bean id="graphDatabaseService" class="org.neo4j.test.ImpermanentGraphDatabase" destroy-method="shutdown"/>
 
 
-
-
 </beans>
