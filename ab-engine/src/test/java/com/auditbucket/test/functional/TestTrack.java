@@ -31,7 +31,7 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.track.bean.*;
-import com.auditbucket.track.model.ChangeLog;
+import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.LogWhat;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
@@ -155,7 +155,7 @@ public class TestTrack {
 
         LogWhat what = trackEP.getLastChangeWhat(created.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody();
         assertNotNull ( what);
-        Object value = what.getWhatMap().get("col");
+        Object value = what.getWhat().get("col");
         Assert.assertNotNull(value);
         assertEquals("321", value.toString());
     }
@@ -480,7 +480,7 @@ public class TestTrack {
         assertEquals(max, aLogs.size());
 
         TrackLog lastLog = trackService.getLastLog(metaHeader.getMetaKey());
-        ChangeLog lastChange = lastLog.getChange();
+        Log lastChange = lastLog.getChange();
         assertNotNull(lastChange);
         assertEquals(workingDate.toDate(), new Date(lastLog.getFortressWhen()));
         metaHeader = trackService.getHeader(ahWP);
@@ -542,7 +542,7 @@ public class TestTrack {
 //        assertNotNull(lastLog.getAuditChange().getWhat());
         LogWhat whatResult = trackService.getWhat(metaHeader, lastLog.getChange());
         assertNotNull(whatResult);
-        assertTrue(whatResult.getWhatMap().containsKey("house"));
+        assertTrue(whatResult.getWhat().containsKey("house"));
     }
 
     @Test
@@ -635,11 +635,11 @@ public class TestTrack {
         assertNotNull(auditSummary.getHeader().getFortress());
         assertEquals(2, auditSummary.getChanges().size());
         for (TrackLog log : auditSummary.getChanges()) {
-            ChangeLog change = log.getChange();
+            Log change = log.getChange();
             assertNotNull(change.getEvent());
             assertNotNull(change.getWho().getCode());
             LogWhat whatResult = trackService.getWhat(metaHeader, change);
-            assertTrue(whatResult.getWhatMap().containsKey("house"));
+            assertTrue(whatResult.getWhat().containsKey("house"));
         }
     }
 

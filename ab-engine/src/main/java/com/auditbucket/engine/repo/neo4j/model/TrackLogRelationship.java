@@ -19,7 +19,8 @@
 
 package com.auditbucket.engine.repo.neo4j.model;
 
-import com.auditbucket.track.model.ChangeLog;
+import com.auditbucket.track.model.Log;
+import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -46,7 +47,7 @@ public class TrackLogRelationship implements TrackLog {
 
     @EndNode
     @Fetch
-    private ChangeLogNode changeLog;
+    private LogNode changeLog;
 
     @Indexed
     private Long sysWhen = 0l;
@@ -63,10 +64,10 @@ public class TrackLogRelationship implements TrackLog {
         this.sysWhen = now.getMillis();
     }
 
-    public TrackLogRelationship(MetaHeader header, ChangeLog log, DateTime fortressWhen) {
+    public TrackLogRelationship(MetaHeader header, Log log, DateTime fortressWhen) {
         this();
         this.metaHeader = (MetaHeaderNode) header;
-        this.changeLog = (ChangeLogNode) log;
+        this.changeLog = (LogNode) log;
         if (fortressWhen != null && fortressWhen.getMillis() != 0) {
             this.fortressWhen = fortressWhen.getMillis();
         } else {
@@ -88,7 +89,7 @@ public class TrackLogRelationship implements TrackLog {
         this.sysWhen = sysWhen;
     }
 
-    public ChangeLog getChange() {
+    public Log getChange() {
         return changeLog;
     }
 
@@ -97,7 +98,7 @@ public class TrackLogRelationship implements TrackLog {
         return metaHeader;
     }
 
-    public void setChange(ChangeLogNode auditLog) {
+    public void setChange(LogNode auditLog) {
         this.changeLog = auditLog;
     }
 

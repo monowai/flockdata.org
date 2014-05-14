@@ -26,7 +26,7 @@ import com.auditbucket.registration.model.FortressUser;
  * Date: 15/04/13
  * Time: 5:49 AM
  */
-public interface ChangeLog {
+public interface Log {
 
     String CREATE = "Create";
     String UPDATE = "Update";
@@ -50,9 +50,9 @@ public interface ChangeLog {
 
     public boolean isCompressed();
 
-    void setPreviousChange(ChangeLog previousChange);
+    void setPreviousLog(Log previousChange);
 
-    ChangeLog getPreviousChange();
+    Log getPreviousLog();
 
     long getId();
 

@@ -131,15 +131,15 @@ public class WhatServiceTest extends AbstractRedisSupport {
         // Testing that cancel works
         trackService.cancelLastLogSync(ahKey);
         Assert.assertNull(trackService.getLastLog(header));
-        Assert.assertNull(whatService.getWhat(header, trackLog.getChange()).getWhat());
+        Assert.assertNull(whatService.getWhat(header, trackLog.getChange()).getWhatString());
     }
 
     private void validateWhat(Map<String, Object> what, LogWhat logWhat) {
-        assertEquals(what.get("lval"), logWhat.getWhatMap().get("lval"));
-        assertEquals(what.get("dval"), logWhat.getWhatMap().get("dval"));
-        assertEquals(what.get("sval"), logWhat.getWhatMap().get("sval"));
-        assertEquals(what.get("ival"), logWhat.getWhatMap().get("ival"));
-        assertEquals(what.get("bval"), logWhat.getWhatMap().get("bval"));
+        assertEquals(what.get("lval"), logWhat.getWhat().get("lval"));
+        assertEquals(what.get("dval"), logWhat.getWhat().get("dval"));
+        assertEquals(what.get("sval"), logWhat.getWhat().get("sval"));
+        assertEquals(what.get("ival"), logWhat.getWhat().get("ival"));
+        assertEquals(what.get("bval"), logWhat.getWhat().get("bval"));
     }
 
 

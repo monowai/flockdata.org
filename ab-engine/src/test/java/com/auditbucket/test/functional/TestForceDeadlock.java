@@ -20,6 +20,7 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.engine.endpoint.TrackEP;
+import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.engine.service.TrackService;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
@@ -74,8 +75,12 @@ public class TestForceDeadlock {
     @Autowired
     private TagEP tagEP;
 
+
     @Autowired
     private Neo4jTemplate template;
+    @Autowired
+    private EngineConfig engineConfig;
+
 
     private Logger logger = LoggerFactory.getLogger(TestForceDeadlock.class);
     private String mike = "mike";
@@ -96,6 +101,7 @@ public class TestForceDeadlock {
     public void cleanUpGraph() {
         // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
         // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
+        engineConfig.setMultiTenanted(false);
         if (!"rest".equals(System.getProperty("neo4j")))
             Neo4jHelper.cleanDb(template);
     }

@@ -125,4 +125,6 @@ public interface MetaHeader {
     DateTime getFortressDateCreated();
 
     void setMetaKey(String o);
+
+    void setCreatedBy(FortressUser thisFortressUser);
 }

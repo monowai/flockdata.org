@@ -19,7 +19,7 @@
 
 package com.auditbucket.engine.repo.neo4j;
 
-import com.auditbucket.engine.repo.neo4j.model.ChangeLogNode;
+import com.auditbucket.engine.repo.neo4j.model.LogNode;
 import com.auditbucket.engine.repo.neo4j.model.TrackLogRelationship;
 import com.auditbucket.track.model.TrackLog;
 import org.springframework.data.neo4j.annotation.Query;
@@ -32,22 +32,22 @@ import java.util.Set;
  * Date: 14/04/13
  * Time: 8:00 PM
  */
-public interface TrackLogRepo extends GraphRepository<ChangeLogNode> {
+public interface TrackLogRepo extends GraphRepository<LogNode> {
 
     @Query(value = "start auditHeader=node({0}) match auditHeader-[cw:LOGGED]->auditLog return count(cw)")
     int getLogCount(Long auditHeaderID);
 
     @Query(elementClass = TrackLogRelationship.class,
-            value = "match (change:Change)<-[log:LOGGED]-() where id(change)={0} " +
+            value = "match (change:Log)<-[log:LOGGED]-() where id(change)={0} " +
                     "   return log")
-    TrackLogRelationship getLastAuditLog(Long auditHeaderID);
+    TrackLogRelationship getLastLog(Long auditHeaderID);
 
     @Query(elementClass = TrackLogRelationship.class, value = "start header=node({0}) match (header)-[log:LOGGED]->(auditLog) where log.fortressWhen >= {1} and log.fortressWhen <= {2} return log ")
-    Set<TrackLog> getAuditLogs(Long auditHeaderID, Long from, Long to);
+    Set<TrackLog> getLogs(Long auditHeaderID, Long from, Long to);
 
     @Query(elementClass = TrackLogRelationship.class, value = "start track=node({0}) " +
             "   MATCH track-[log:LOGGED]->auditChange " +
             "return log order by log.fortressWhen desc")
-    Set<TrackLog> findAuditLogs(Long auditHeaderID);
+    Set<TrackLog> findLogs(Long auditHeaderID);
 
 }

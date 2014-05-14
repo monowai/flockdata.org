@@ -21,6 +21,7 @@ package com.auditbucket.dao;
 
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
@@ -84,13 +85,13 @@ public interface TrackDao {
 
     public Map<String, Object> findByTransaction(TxRef txRef);
 
-    TrackLog addLog(MetaHeader header, ChangeLog al, DateTime fortressWhen, TrackLog existingLog);
+    TrackLog addLog(MetaHeader header, Log al, DateTime fortressWhen, TrackLog existingLog);
 
     TrackLog save(TrackLog log);
 
-    public ChangeLog save(FortressUser fUser, LogInputBean input, TxRef tagRef, ChangeLog lastChange);
+    public Log save(FortressUser fUser, LogInputBean input, TxRef tagRef, Log lastChange);
 
-    MetaHeader create(MetaInputBean inputBean, FortressUser fu, DocumentType documentType) throws DatagioException;
+    MetaHeader create(MetaInputBean inputBean, Fortress fortress, DocumentType documentType) throws DatagioException;
 
     TrackLog getLog(Long logId);
 
@@ -98,9 +99,9 @@ public interface TrackDao {
 
     MetaHeader getHeader(Long id);
 
-    ChangeLog fetch(ChangeLog lastChange);
+    Log fetch(Log lastChange);
 
-    ChangeLog save(ChangeLog change, Boolean compressed);
+    Log save(Log change, Boolean compressed);
 
     Set<MetaHeader> findHeadersByTxRef(Long txName);
 
@@ -108,9 +109,9 @@ public interface TrackDao {
 
     Collection<MetaHeader> findHeaders(Long id, String docType, Long skipTo);
 
-    void delete(ChangeLog currentChange);
+    void delete(Log currentChange);
 
-    void makeLastChange(MetaHeader metaHeader, ChangeLog priorChange);
+    void makeLastChange(MetaHeader metaHeader, Log priorChange);
 
     void crossReference(MetaHeader header, Collection<MetaHeader> targets, String refName);
 
