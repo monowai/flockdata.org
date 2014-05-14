@@ -120,6 +120,12 @@ public class MetaInputBean {
         this.fortress = fortress;
     }
 
+    /**
+     * This is unused in the MetaHeader
+     * Obtain this from the InputBean that you are logging, not the
+     * @return
+     */
+    @Deprecated
     public String getFortressUser() {
         return fortressUser;
     }

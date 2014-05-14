@@ -192,14 +192,10 @@ public class TagService {
     }
 
     public Collection<Tag> findTags(Company company, String index) {
-        if (!index.startsWith(":"))
-            index = ":" + index;
         return tagDao.findTags(company, index);
     }
 
     public Tag findTag(Company company, String tagName, String index) {
-        if (!index.startsWith(":"))
-            index = ":" + index;
         return tagDao.findOne(company, tagName, index);  //To change body of created methods use File | Settings | File Templates.
     }
 

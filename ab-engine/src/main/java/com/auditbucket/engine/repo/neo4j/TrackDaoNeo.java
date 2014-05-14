@@ -21,13 +21,14 @@ package com.auditbucket.engine.repo.neo4j;
 
 import com.auditbucket.dao.TrackDao;
 import com.auditbucket.engine.repo.LogWhatData;
-import com.auditbucket.engine.repo.neo4j.model.ChangeLogNode;
+import com.auditbucket.engine.repo.neo4j.model.LogNode;
 import com.auditbucket.engine.repo.neo4j.model.MetaHeaderNode;
 import com.auditbucket.engine.repo.neo4j.model.TrackLogRelationship;
 import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
 import com.auditbucket.engine.service.TrackEventService;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.track.bean.AuditTXResult;
 import com.auditbucket.track.bean.LogInputBean;
@@ -182,8 +183,8 @@ public class TrackDaoNeo implements TrackDao {
     }
 
     @Override
-    public void delete(ChangeLog currentChange) {
-        trackLogRepo.delete((ChangeLogNode) currentChange);
+    public void delete(Log currentChange) {
+        trackLogRepo.delete((LogNode) currentChange);
     }
 
     @Override
@@ -209,11 +210,11 @@ public class TrackDaoNeo implements TrackDao {
     }
 
     public Set<TrackLog> getLogs(Long auditLogID, Date from, Date to) {
-        return trackLogRepo.getAuditLogs(auditLogID, from.getTime(), to.getTime());
+        return trackLogRepo.getLogs(auditLogID, from.getTime(), to.getTime());
     }
 
     public Set<TrackLog> getLogs(Long auditHeaderID) {
-        return trackLogRepo.findAuditLogs(auditHeaderID);
+        return trackLogRepo.findLogs(auditHeaderID);
     }
 
     public Map<String, Object> findByTransaction(TxRef txRef) {
@@ -238,7 +239,7 @@ public class TrackDaoNeo implements TrackDao {
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
             TrackLog log = template.convert(row.get("logs"), TrackLogRelationship.class);
-            ChangeLog change = template.convert(row.get("auditLog"), ChangeLogNode.class);
+            Log change = template.convert(row.get("auditLog"), LogNode.class);
             MetaHeader audit = template.convert(row.get("track"), MetaHeaderNode.class);
             simpleResult.add(new AuditTXResult(audit, change, log));
             i++;
@@ -252,7 +253,7 @@ public class TrackDaoNeo implements TrackDao {
     }
 
     public TrackLog save(TrackLog log) {
-        logger.debug("Saving track log [{}] - ChangeLog ID [{}]", log, log.getChange().getId());
+        logger.debug("Saving track log [{}] - Log ID [{}]", log, log.getChange().getId());
         return template.save((TrackLogRelationship) log);
     }
 
@@ -272,17 +273,17 @@ public class TrackDaoNeo implements TrackDao {
     }
 
     @Override
-    public ChangeLog save(FortressUser fUser, LogInputBean input, TxRef txRef, ChangeLog previousChange) {
+    public Log save(FortressUser fUser, LogInputBean input, TxRef txRef, Log previousChange) {
         ChangeEvent event = trackEventService.processEvent(fUser.getFortress().getCompany(), input.getEvent());
-        ChangeLog changeLog = new ChangeLogNode(fUser, input, txRef);
+        Log changeLog = new LogNode(fUser, input, txRef);
         changeLog.setEvent(event);
-        changeLog.setPreviousChange(previousChange);
+        changeLog.setPreviousLog(previousChange);
         return template.save(changeLog);
     }
 
     @Override
-    public MetaHeader create(MetaInputBean inputBean, FortressUser fu, DocumentType documentType) throws DatagioException {
-        MetaHeader metaHeader = new MetaHeaderNode(inputBean.getMetaKey(), fu, inputBean, documentType);
+    public MetaHeader create(MetaInputBean inputBean, Fortress fortress, DocumentType documentType) throws DatagioException {
+        MetaHeader metaHeader = new MetaHeaderNode(inputBean.getMetaKey(), fortress, inputBean, documentType);
         if (inputBean.isTrackSuppressed()) {
             metaHeader.setMetaKey(null);
             return metaHeader;
@@ -312,7 +313,7 @@ public class TrackDaoNeo implements TrackDao {
     }
 
     @Override
-    public ChangeLog fetch(ChangeLog lastChange) {
+    public Log fetch(Log lastChange) {
         return template.fetch(lastChange);
     }
 
@@ -323,7 +324,7 @@ public class TrackDaoNeo implements TrackDao {
     private static final String LAST_CHANGE = "LAST_CHANGE";
 
     @Override
-    public TrackLog addLog(MetaHeader metaHeader, ChangeLog newChange, DateTime fortressWhen, TrackLog existingLog) {
+    public TrackLog addLog(MetaHeader metaHeader, Log newChange, DateTime fortressWhen, TrackLog existingLog) {
         TrackLog newLog = template.save(new TrackLogRelationship(metaHeader, newChange, fortressWhen));
         boolean moreRecent = (existingLog == null || existingLog.getFortressWhen() <= newLog.getFortressWhen());
         if (moreRecent) {
@@ -355,7 +356,7 @@ public class TrackDaoNeo implements TrackDao {
     }
 
     @Override
-    public void makeLastChange(MetaHeader metaHeader, ChangeLog lastChange) {
+    public void makeLastChange(MetaHeader metaHeader, Log lastChange) {
         Node metaNode = template.getPersistentState(metaHeader);
         Node logNode = template.getPersistentState(lastChange);
         Relationship r = template.createRelationshipBetween(metaNode, logNode, LAST_CHANGE, null);
@@ -399,14 +400,14 @@ public class TrackDaoNeo implements TrackDao {
 
         Relationship r = template.getNode(metaHeaderId).getSingleRelationship(LastChange.LAST_CHANGE, Direction.BOTH);
         if (r != null) {
-            trackLogRepo.getLastAuditLog(metaHeaderId);
-            log = trackLogRepo.getLastAuditLog(r.getEndNode().getId());
+            trackLogRepo.getLastLog(metaHeaderId);
+            log = trackLogRepo.getLastLog(r.getEndNode().getId());
         }
         return log;
     }
 
     @Override
-    public ChangeLog save(ChangeLog change, Boolean compressed) {
+    public Log save(Log change, Boolean compressed) {
         logger.debug("Saving Audit Change [{}]", change);
         return template.save(change);
     }

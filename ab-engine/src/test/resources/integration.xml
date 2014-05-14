@@ -22,11 +22,12 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:task="http://www.springframework.org/schema/task"
 
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 		http://www.springframework.org/schema/integration
-		http://www.springframework.org/schema/integration/spring-integration.xsd">
+		http://www.springframework.org/schema/integration/spring-integration.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
     <int:gateway id=" abSearchGateway"
                  service-interface="com.auditbucket.engine.service.AbSearchGateway"/>
@@ -38,7 +39,7 @@
     </int:json-to-object-transformer>
 
     <int:json-to-object-transformer id="jsonToObject2"
-                                    input-channel="makeSendSearchReply"
+                                    input-channel="doMetaKeyReply"
                                     output-channel="sendSearchReply"
                                     type="com.auditbucket.search.model.EsSearchResult">
     </int:json-to-object-transformer>
@@ -52,15 +53,19 @@
 
     <int:object-to-json-transformer id="objectToJson2"
                                     input-channel="sendSearchRequest"
-                                    output-channel="makeSendSearchRequest"
+                                    output-channel="doMetaKeyQuery"
                                     content-type="application/json">
     </int:object-to-json-transformer>
+
+    <task:executor id="qExecutor" pool-size="40-40" keep-alive="180" queue-capacity="100"
+                   rejection-policy="CALLER_RUNS"/>
+
 
     <int:channel id="makeSearchRequest">
         <int:dispatcher task-executor="ab-engine"/>
     </int:channel>
 
-    <int:channel id="makeSendSearchRequest">
+    <int:channel id="doMetaKeyQuery">
         <int:dispatcher task-executor="ab-engine"/>
     </int:channel>
 

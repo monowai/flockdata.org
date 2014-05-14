@@ -135,7 +135,7 @@ public class Configure {
 
 
         while (!pingResult.equalsIgnoreCase("pong!") && !pingResult.equalsIgnoreCase("auth")) {
-            logger.error("** Unable to ping AbEngine on [{}]", engineURL);
+            logger.error("!! Unable to ping AbEngine on [{}]", engineURL);
             engineURL = getValue("** Enter AbEngine URL ({})", engineURL);
             if (engineURL != null) {
                 pingResult = pingServer(engineURL, null, null);

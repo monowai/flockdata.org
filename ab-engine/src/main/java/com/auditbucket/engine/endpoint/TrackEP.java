@@ -86,7 +86,7 @@ public class TrackEP {
     @RequestMapping(value = "/", consumes = "application/json", method = RequestMethod.PUT)
     public void trackHeaders(@RequestBody List<MetaInputBean> inputBeans,
                              String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, IOException {
-        trackHeadersAsync(inputBeans, true, ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+        trackHeadersAsync(inputBeans, false, ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
     }
 
 
@@ -99,7 +99,7 @@ public class TrackEP {
             return batch;
 
         } else {
-            return new AsyncResult<>(mediationFacade.createHeaders(company, fortress, inputBeans));
+            return new AsyncResult<>(mediationFacade.createHeaders(company, fortress, inputBeans, inputBeans.size()));
         }
     }
 
@@ -281,8 +281,10 @@ public class TrackEP {
     @ResponseBody
     @RequestMapping(value = "/{metaKey}/{logId}/delta/{withId}", produces = "application/json", method = RequestMethod.GET)
     @Secured({"ROLE_AB_ADMIN"})
-    public ResponseEntity<AuditDeltaBean> getDelta(@PathVariable("metaKey") String metaKey, @PathVariable("logId") Long logId, @PathVariable("withId") Long withId) {
-        MetaHeader header = trackService.getHeader(metaKey);
+    public ResponseEntity<AuditDeltaBean> getDelta(@PathVariable("metaKey") String metaKey, @PathVariable("logId") Long logId, @PathVariable("withId") Long withId
+            , String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+        Company company = getCompany(apiHeaderKey, apiKey);
+        MetaHeader header = trackService.getHeader(company, metaKey);
 
         if (header != null) {
             TrackLog left = trackService.getLogForHeader(header, logId);

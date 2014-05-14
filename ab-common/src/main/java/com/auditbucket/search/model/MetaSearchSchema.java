@@ -76,7 +76,7 @@ public class MetaSearchSchema {
 
     public static String parseIndex(QueryParams queryParams) throws DatagioException {
         String prefix = parseIndex(queryParams.getCompany());
-        if (queryParams.getFortress() == null)
+        if (queryParams.getFortress() == null || queryParams.getFortress().equals(""))
             return prefix + "*";
 
 

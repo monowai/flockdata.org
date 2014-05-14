@@ -56,9 +56,13 @@
     <!--<level value="info"/>-->
     <!--</logger>-->
 
-    <logger name="org.springframework">
+    <!--<logger name="org.springframework">-->
+        <!--<level value="info"/>-->
+    <!--</logger>-->
+    <logger name="org.springframework.integration">
         <level value="info"/>
     </logger>
+
     <logger name="org.auditbucket">
         <level value="debug"/>
     </logger>

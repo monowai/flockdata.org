@@ -50,12 +50,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 /**
- *
  * Transactional services to support record and working with headers and logs
- *
+ * <p/>
  * User: Mike Holdsworth
  * Date: 8/04/13
- *
  */
 
 @Service(value = "ab.TrackerService")
@@ -97,7 +95,7 @@ public class TrackService {
     @Autowired
     private KeyGenService keyGenService;
 
-    public LogWhat getWhat(MetaHeader metaHeader, ChangeLog change) {
+    public LogWhat getWhat(MetaHeader metaHeader, Log change) {
         return whatService.getWhat(metaHeader, change);
     }
 
@@ -122,12 +120,8 @@ public class TrackService {
      *
      * @return unique primary key to be used for subsequent log calls
      */
-    public TrackResultBean createHeader(Company company, Fortress fortress, MetaInputBean inputBean)  {
+    public TrackResultBean createHeader(Company company, Fortress fortress, MetaInputBean inputBean) {
         DocumentType documentType = tagService.resolveDocType(fortress, inputBean.getDocumentType(), true);
-
-        // Create thisFortressUser if missing
-        FortressUser fu = fortressService.getFortressUser(fortress, inputBean.getFortressUser(), true);
-        fu.setFortress(fortress);// Save fetching it twice
 
         MetaHeader ah = null;
         if (inputBean.getCallerRef() != null && !inputBean.getCallerRef().equals(EMPTY))
@@ -147,11 +141,10 @@ public class TrackService {
         }
 
         try {
-
-            ah = makeHeader(inputBean, fu, documentType);
+            ah = makeHeader(inputBean, fortress, documentType);
         } catch (DatagioException e) {
             logger.error(e.getMessage());
-            return  new TrackResultBean("Error processing inputBean [{}]"+inputBean+". Error "+e.getMessage());
+            return new TrackResultBean("Error processing inputBean [{}]" + inputBean + ". Error " + e.getMessage());
         }
         TrackResultBean resultBean = new TrackResultBean(ah);
         resultBean.setMetaInputBean(inputBean);
@@ -167,17 +160,18 @@ public class TrackService {
 
     }
 
-    private MetaHeader makeHeader(MetaInputBean inputBean, FortressUser fu, DocumentType documentType) throws DatagioException {
+    private MetaHeader makeHeader(MetaInputBean inputBean, Fortress fortress, DocumentType documentType) throws DatagioException {
         inputBean.setMetaKey(keyGenService.getUniqueKey());
-        MetaHeader ah = trackDao.create(inputBean, fu, documentType);
+        MetaHeader ah = trackDao.create(inputBean, fortress, documentType);
         if (ah.getId() == null)
-            inputBean.setMetaKey("NT " + fu.getFortress().getFortressKey()); // We ain't tracking this
+            inputBean.setMetaKey("NT " + fortress.getFortressKey()); // We ain't tracking this
         logger.debug("Meta Header created:{} key=[{}]", ah.getId(), ah.getMetaKey());
         return ah;
     }
 
     /**
      * When you have no API key, find if authorised
+     *
      * @param metaKey known GUID
      * @return header the caller is authorised to view
      */
@@ -191,9 +185,9 @@ public class TrackService {
     }
 
     public MetaHeader getHeader(Company company, String metaKey) {
-        if ( company == null && metaKey !=null)
+        if (company == null && metaKey != null)
             return getHeader(metaKey); // we could find by basicauth
-        if ( company == null )
+        if (company == null)
             return null;
 
         return getHeader(company, metaKey, false);
@@ -203,7 +197,7 @@ public class TrackService {
 
     public MetaHeader getHeader(Company company, @NotEmpty String headerKey, boolean inflate) {
 
-        if ( company == null )
+        if (company == null)
             return getHeader(headerKey);
         MetaHeader ah = trackDao.findHeader(headerKey, inflate);
         if (ah == null)
@@ -298,7 +292,7 @@ public class TrackService {
                 return resultBean;
             }
             if (input.getEvent() == null) {
-                input.setEvent(ChangeLog.UPDATE);
+                input.setEvent(Log.UPDATE);
             }
             if (searchActive)
                 authorisedHeader = waitOnInitialSearchResult(authorisedHeader);
@@ -306,16 +300,17 @@ public class TrackService {
 
         } else { // first ever log for the metaHeader
             if (input.getEvent() == null) {
-                input.setEvent(ChangeLog.CREATE);
+                input.setEvent(Log.CREATE);
             }
             //if (!metaHeader.getLastUser().getId().equals(thisFortressUser.getId())){
             authorisedHeader.setLastUser(thisFortressUser);
+            authorisedHeader.setCreatedBy(thisFortressUser);
             authorisedHeader = trackDao.save(authorisedHeader);
 
             //}
         }
 
-        ChangeLog thisChange = trackDao.save(thisFortressUser, input, txRef, (existingLog!=null ?existingLog.getChange():null));
+        Log thisChange = trackDao.save(thisFortressUser, input, txRef, (existingLog != null ? existingLog.getChange() : null));
         input.setChangeEvent(thisChange.getEvent());
 
         // ToDo: WhatService call should occur after this function is finished.
@@ -365,7 +360,7 @@ public class TrackService {
             logger.error(e.getMessage());
             throw (e);
         }
-        if (trackLog != null && trackLog.getSysWhen() != 0)
+        if (trackLog.getSysWhen() != 0)
             searchDocument.setSysWhen(trackLog.getSysWhen());
         else
             searchDocument.setSysWhen(metaHeader.getWhenCreated());
@@ -375,7 +370,6 @@ public class TrackService {
         searchDocument.setLogId(trackLog.getId());
         return searchDocument;
     }
-
 
 
     public Collection<MetaHeader> getHeaders(Fortress fortress, Long skipTo) {
@@ -454,18 +448,20 @@ public class TrackService {
     public void updateHeader(MetaHeader metaHeader) {
         trackDao.save(metaHeader);
     }
+
     public TrackLog getLastLog(String metaKey) throws DatagioException {
         MetaHeader header = getValidHeader(metaKey);
         return getLastLog(header.getId());
 
     }
-    public TrackLog getLastLog(Company company, String metaKey)  throws DatagioException{
+
+    public TrackLog getLastLog(Company company, String metaKey) throws DatagioException {
         MetaHeader header = getHeader(company, metaKey);
         return getLastLog(header);
     }
 
     public TrackLog getLastLog(MetaHeader metaHeader) throws DatagioException {
-        if ( metaHeader == null )
+        if (metaHeader == null)
             return null;
         logger.debug("Getting lastLog MetaID [{}]", metaHeader.getId());
         return trackDao.getLastLog(metaHeader.getId());
@@ -513,7 +509,7 @@ public class TrackService {
     /**
      * This could be used toa assist in compensating transactions to roll back the last change
      * if the caller decides a rollback is required after the log has been written.
-     * If there are no ChangeLog records left, then the metaHeader will also be removed and the
+     * If there are no Log records left, then the metaHeader will also be removed and the
      * AB headerKey will be forever invalid.
      *
      * @param headerKey UID of the metaHeader
@@ -526,8 +522,8 @@ public class TrackService {
         if (currentLog == null)
             return null;
         trackDao.fetch(currentLog.getChange());
-        ChangeLog currentChange = currentLog.getChange();
-        ChangeLog priorChange = currentLog.getChange().getPreviousChange();
+        Log currentChange = currentLog.getChange();
+        Log priorChange = currentLog.getChange().getPreviousLog();
 
         if (priorChange != null) {
             trackDao.makeLastChange(metaHeader, priorChange);
@@ -553,7 +549,7 @@ public class TrackService {
         // Sync the update to ab-search.
         if (metaHeader.getFortress().isSearchActive() && !metaHeader.isSearchSuppressed()) {
             // Update against the MetaHeader only by re-indexing the search document
-            Map<String, Object> priorWhat = whatService.getWhat(metaHeader, priorChange).getWhatMap();
+            Map<String, Object> priorWhat = whatService.getWhat(metaHeader, priorChange).getWhat();
 
             MetaSearchChange searchDocument = new MetaSearchChange(metaHeader, priorWhat, priorChange.getEvent().getCode(), new DateTime(priorChange.getLog().getFortressWhen()));
             searchDocument.setTags(tagTrackService.findTrackTags(metaHeader));
@@ -624,18 +620,18 @@ public class TrackService {
      * Locates all the MetaHeaders irrespective of the document type. Use this when you know that that callerRef is
      * unique for the entire fortressName
      *
-     * @param company       Company you are authorised to work with
-     * @param fortressName  Fortress to restrict the search to
-     * @param callerRef     key to locate
-     *
+     * @param company      Company you are authorised to work with
+     * @param fortressName Fortress to restrict the search to
+     * @param callerRef    key to locate
      * @return metaHeaders
      */
     public Iterable<MetaHeader> findByCallerRef(Company company, String fortressName, String callerRef) {
         Fortress fortress = fortressService.findByName(company, fortressName);
         return findByCallerRef(fortress, callerRef);
     }
+
     public Iterable<MetaHeader> findByCallerRef(Fortress fortress, String callerRef) {
-        return trackDao.findByCallerRef ( fortress.getId(), callerRef.trim());
+        return trackDao.findByCallerRef(fortress.getId(), callerRef.trim());
     }
 
 
@@ -648,7 +644,7 @@ public class TrackService {
     }
 
     /**
-     * @param fortress owning system
+     * @param fortress     owning system
      * @param documentType class of document
      * @param callerRef    fortressName primary key
      * @return LogResultBean or NULL.
@@ -668,10 +664,11 @@ public class TrackService {
     }
 
 
-    public LogDetailBean getFullDetail( String metaKey, Long logId) {
+    public LogDetailBean getFullDetail(String metaKey, Long logId) {
         Company company = securityHelper.getCompany();
         return getFullDetail(company, metaKey, logId);
     }
+
     public LogDetailBean getFullDetail(Company company, String metaKey, Long logId) {
         MetaHeader metaHeader = getHeader(company, metaKey, true);
         if (metaHeader == null)
@@ -698,7 +695,7 @@ public class TrackService {
     }
 
     public Iterable<TrackResultBean> createHeaders(Iterable<MetaInputBean> inputBeans, Company company, Fortress fortress) {
-        Collection<TrackResultBean>arb = new CopyOnWriteArrayList<>();
+        Collection<TrackResultBean> arb = new CopyOnWriteArrayList<>();
         for (MetaInputBean inputBean : inputBeans) {
             logger.trace("Batch Processing callerRef=[{}], documentType=[{}]", inputBean.getCallerRef(), inputBean.getDocumentType());
             arb.add(createHeader(company, fortress, inputBean));
@@ -715,47 +712,47 @@ public class TrackService {
      * @param xRef      target for the xref
      * @param reference name of the relationship
      */
-    public Collection<String> crossReference(Company company, String metaKey, Collection<String> xRef, String reference) throws DatagioException{
+    public Collection<String> crossReference(Company company, String metaKey, Collection<String> xRef, String reference) throws DatagioException {
         MetaHeader header = getHeader(company, metaKey);
-        if ( header == null ){
-            throw new DatagioException("Unable to find the Meta Header ["+metaKey+"]. Perhaps it has not been processed yet?");
+        if (header == null) {
+            throw new DatagioException("Unable to find the Meta Header [" + metaKey + "]. Perhaps it has not been processed yet?");
         }
-        Collection<MetaHeader>targets = new ArrayList<>();
-        Collection<String>ignored = new ArrayList<>();
+        Collection<MetaHeader> targets = new ArrayList<>();
+        Collection<String> ignored = new ArrayList<>();
         for (String next : xRef) {
             MetaHeader m = getHeader(company, next);
-            if ( m!= null ){
+            if (m != null) {
                 targets.add(m);
             } else {
                 ignored.add(next);
                 //logger.info ("Unable to find MetaKey ["+metaKey+"]. Skipping");
             }
         }
-        trackDao.crossReference (header, targets, reference);
+        trackDao.crossReference(header, targets, reference);
         return ignored;
     }
 
-    public Map<String, Collection<MetaHeader>> getCrossReference(Company company, String metaKey, String xRefName) throws DatagioException{
+    public Map<String, Collection<MetaHeader>> getCrossReference(Company company, String metaKey, String xRefName) throws DatagioException {
         MetaHeader header = getHeader(company, metaKey);
-        if ( header == null ){
-            throw new DatagioException("Unable to find the Meta Header ["+metaKey+"]. Perhaps it has not been processed yet?");
+        if (header == null) {
+            throw new DatagioException("Unable to find the Meta Header [" + metaKey + "]. Perhaps it has not been processed yet?");
         }
 
-        return trackDao.getCrossReference (company, header, xRefName);
+        return trackDao.getCrossReference(company, header, xRefName);
     }
 
     public Map<String, Collection<MetaHeader>> getCrossReference(Company company, String fortressName, String callerRef, String xRefName) throws DatagioException {
         Fortress fortress = fortressService.findByName(company, fortressName);
 
-        MetaHeader source = trackDao.findByCallerRefUnique(fortress.getId(),callerRef );
-        if ( source == null ){
-            throw new DatagioException("Unable to find the Meta Header ["+callerRef+"]");
+        MetaHeader source = trackDao.findByCallerRefUnique(fortress.getId(), callerRef);
+        if (source == null) {
+            throw new DatagioException("Unable to find the Meta Header [" + callerRef + "]");
         }
 
         return trackDao.getCrossReference(company, source, xRefName);
     }
 
-    public List<String> crossReferenceByCallerRef(Company company, String fortressName, String sourceKey, Collection<String> callerRefs, String xRefName)  throws DatagioException{
+    public List<String> crossReferenceByCallerRef(Company company, String fortressName, String sourceKey, Collection<String> callerRefs, String xRefName) throws DatagioException {
         Fortress f = fortressService.findByName(company, fortressName);
         MetaHeader header = trackDao.findByCallerRefUnique(f.getId(), sourceKey);
         if (header == null)

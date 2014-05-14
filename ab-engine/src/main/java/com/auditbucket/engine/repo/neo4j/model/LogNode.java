@@ -41,8 +41,8 @@ import java.util.Map;
  * Time: 5:57 PM
  */
 @NodeEntity(useShortNames = true)
-@TypeAlias("Change")
-public class ChangeLogNode implements ChangeLog {
+@TypeAlias("Log")
+public class LogNode implements Log {
     private static final String COLON = ":";
     @GraphId
     private Long id;
@@ -66,7 +66,7 @@ public class ChangeLogNode implements ChangeLog {
 
     @Override
     public String toString() {
-        return "ChangeLogNode{" +
+        return "LogNode{" +
                 "id=" + id +
                 ", madeBy=" + madeBy +
                 ", event=" + event +
@@ -78,16 +78,16 @@ public class ChangeLogNode implements ChangeLog {
     private boolean compressed = false;
     private String name;
 
-    @RelatedTo(type = "PREVIOUS_CHANGE", direction = Direction.OUTGOING)
-    private ChangeLogNode previousChange;
+    @RelatedTo(type = "PREVIOUS_LOG", direction = Direction.OUTGOING)
+    private LogNode previousLog;
 
     private LogWhatData auditWhat;
 
-    protected ChangeLogNode() {
+    protected LogNode() {
 
     }
 
-    public ChangeLogNode(FortressUser madeBy, LogInputBean inputBean, TxRef txRef) {
+    public LogNode(FortressUser madeBy, LogInputBean inputBean, TxRef txRef) {
         this();
         this.madeBy = (FortressUserNode) madeBy;
 
@@ -134,14 +134,14 @@ public class ChangeLogNode implements ChangeLog {
     }
 
     @Override
-    public void setPreviousChange(ChangeLog previousChange) {
-        this.previousChange = (ChangeLogNode) previousChange;
+    public void setPreviousLog(Log previousLog) {
+        this.previousLog = (LogNode) previousLog;
     }
 
     @Override
     @JsonIgnore
-    public ChangeLog getPreviousChange() {
-        return previousChange;
+    public Log getPreviousLog() {
+        return previousLog;
     }
     @Transient
     private Map<String, Object> what;
@@ -177,9 +177,9 @@ public class ChangeLogNode implements ChangeLog {
 
         if (id == null) return false;
 
-        if (! (other instanceof ChangeLogNode)) return false;
+        if (! (other instanceof LogNode)) return false;
 
-        return id.equals(((ChangeLogNode) other).id);
+        return id.equals(((LogNode) other).id);
     }
 
     public int hashCode() {

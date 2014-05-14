@@ -53,9 +53,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Future;
 
 /**
- *
  * Non transactional coordinator for mediation services
- *
+ * <p/>
  * User: Mike Holdsworth
  * Since: 28/08/13
  */
@@ -89,20 +88,21 @@ public class MediationFacade {
     /**
      * Process the MetaHeader input for a company asynchronously
      *
-     * @param company     for
-     * @param fortress    system
-     * @param inputBeans  data
+     * @param company    for
+     * @param fortress   system
+     * @param inputBeans data
      * @return process count - don't rely on it, why would you want it?
      * @throws com.auditbucket.helper.DatagioException
+     *
      */
 
     @Async
     public Future<Integer> createHeadersAsync(final Company company, final Fortress fortress, List<MetaInputBean> inputBeans) throws DatagioException, IOException {
         // ToDo: Return strings which could contain only the caller ref data that failed.
-        return new AsyncResult<>(createHeaders(company, fortress, inputBeans));
+        return new AsyncResult<>(createHeaders(company, fortress, inputBeans, 5));
     }
 
-    public Integer createHeaders(final Company company, final Fortress fortress, final List<MetaInputBean> inputBeans) throws DatagioException, IOException {
+    public Integer createHeaders(final Company company, final Fortress fortress, final List<MetaInputBean> inputBeans, int listSize) throws DatagioException, IOException {
         fortress.setCompany(company);
         Long id = DateTime.now().getMillis();
         StopWatch watch = new StopWatch();
@@ -112,15 +112,17 @@ public class MediationFacade {
         if (newMode) {
 
             // Tune to balance against concurrency and batch transaction insert efficiency.
-            List<List<MetaInputBean>> splitList = Lists.partition(inputBeans, 20);
+            List<List<MetaInputBean>> splitList = Lists.partition(inputBeans, listSize);
 
             for (List<MetaInputBean> metaInputBeans : splitList) {
 
                 class DLCommand implements Command {
                     Iterable<MetaInputBean> headers = null;
-                    DLCommand (List<MetaInputBean> processList){
+
+                    DLCommand(List<MetaInputBean> processList) {
                         this.headers = new CopyOnWriteArrayList<>(processList);
                     }
+
                     @Override
                     public Command execute() throws DatagioException, IOException {
                         //fortressService.registerFortress(company, new FortressInputBean(headers.iterator().next().getFortress()), true);
@@ -162,6 +164,7 @@ public class MediationFacade {
 
         class HeaderDeadlockRetry implements Command {
             TrackResultBean result = null;
+
             @Override
             public Command execute() throws DatagioException, IOException {
                 result = trackService.createHeader(company, fortress, inputBean);
@@ -205,11 +208,10 @@ public class MediationFacade {
             // Secret back door so that the log result can quickly get the auditid
             logBean.setMetaId(resultBean.getAuditId());
             logBean.setMetaKey(resultBean.getMetaKey());
-            logBean.setFortressUser(resultBean.getMetaInputBean().getFortressUser());
             logBean.setCallerRef(resultBean.getCallerRef());
 
-            LogResultBean logResult ;
-            if ( header!= null )
+            LogResultBean logResult;
+            if (header != null)
                 logResult = processLogForHeader(header, logBean);
             else
                 logResult = processCompanyLog(company, resultBean);
@@ -232,29 +234,32 @@ public class MediationFacade {
 
     /**
      * Will locate the track header from the supplied input
+     *
      * @param company valid company the caller can operate on
      * @param input   payload containing at least the metaKey
      * @return result of the log
      */
     public LogResultBean processLogForCompany(Company company, LogInputBean input) throws DatagioException, IOException {
         MetaHeader header = trackService.getHeader(company, input.getMetaKey());
-        if (header == null )
-            throw new DatagioException("Unable to find the request auditHeader "+input.getMetaKey());
+        if (header == null)
+            throw new DatagioException("Unable to find the request auditHeader " + input.getMetaKey());
         return processLogForHeader(header, input);
     }
 
     /**
      * Deadlock safe processor that creates the log then indexes the change to the search service if necessary
      *
-     * @param header Header that the caller is authorised to work with
+     * @param header       Header that the caller is authorised to work with
      * @param logInputBean log details to apply to the authorised header
      * @return result details
      * @throws com.auditbucket.helper.DatagioException
+     *
      */
     public LogResultBean processLogForHeader(final MetaHeader header, final LogInputBean logInputBean) throws DatagioException, IOException {
         logInputBean.setWhat(logInputBean.getWhat());
         class DeadLockCommand implements Command {
             LogResultBean result = null;
+
             @Override
             public Command execute() throws DatagioException, IOException {
                 result = trackService.createLog(header, logInputBean);
@@ -276,6 +281,7 @@ public class MediationFacade {
      *
      * @param fortressName name of the fortress to rebuild
      * @throws com.auditbucket.helper.DatagioException
+     *
      */
     @Async
     @Transactional
@@ -303,6 +309,7 @@ public class MediationFacade {
      *
      * @param fortressName name of the fortress to rebuild
      * @throws com.auditbucket.helper.DatagioException
+     *
      */
     @Async
     public void reindexByDocType(Company company, String fortressName, String docType) throws DatagioException {
@@ -333,22 +340,27 @@ public class MediationFacade {
         return skipCount;
     }
 
-    public TrackedSummaryBean getTrackedSummary(String metaKey)  throws DatagioException{
+    public TrackedSummaryBean getTrackedSummary(String metaKey) throws DatagioException {
         return getTrackedSummary(null, metaKey);
     }
 
-    public TrackedSummaryBean getTrackedSummary(Company company, String metaKey)  throws DatagioException{
+    public TrackedSummaryBean getTrackedSummary(Company company, String metaKey) throws DatagioException {
         return trackService.getMetaSummary(company, metaKey);
     }
 
-    public Collection<MetaHeader> search(Company company, QueryParams queryParams){
-        EsSearchResult esSearchResult = searchService.search(queryParams);
-        return trackService.getHeaders(company, esSearchResult.getResults());
-        //for(String metaHeaderKey : esSearchResult.getResults()){
-            //metaHeaders.add(trackService.getHeader(company, metaHeaderKey));
-        //}
+    public EsSearchResult<Collection<MetaHeader>> search(Company company, QueryParams queryParams) {
 
-        //return metaHeaders;
+        StopWatch watch = new StopWatch(queryParams.toString());
+        watch.start("Get ES Query Results");
+        EsSearchResult<Collection<String>> esSearchResult = searchService.search(queryParams);
+        watch.stop();
+        watch.start("Get Graph Headers");
+        Collection<MetaHeader> headers = trackService.getHeaders(company, esSearchResult.getResults());
+        EsSearchResult<Collection<MetaHeader>> results = new EsSearchResult<>(esSearchResult);
+        results.setResults(headers);
+        watch.stop();
+        logger.info(watch.prettyPrint());
+        return results;
     }
 
 }

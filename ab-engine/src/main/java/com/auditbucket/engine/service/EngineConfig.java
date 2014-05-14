@@ -23,6 +23,7 @@ import com.auditbucket.dao.SchemaDao;
 import com.auditbucket.dao.TrackDao;
 import com.auditbucket.helper.VersionHelper;
 import com.auditbucket.registration.model.Company;
+import com.auditbucket.search.model.PingResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -33,6 +34,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -59,10 +61,14 @@ public class EngineConfig {
     private Boolean multiTenanted = false;
     private WhatService.KV_STORE kvStore = null;
 
+    @Autowired
+    AbMonitoringGateway abMonitoringGateway;
 
     @Autowired
     SchemaDao schemaDao;
 
+    @Autowired
+    Neo4jTemplate template;
 
     @Value("${rabbit.host:@null}")
     protected void setRabbitHost(String rabbitHost) {
@@ -105,9 +111,6 @@ public class EngineConfig {
         return kvStore;
     }
 
-    @Autowired
-    Neo4jTemplate template;
-
     public void ensureSystemIndexes(Company company) {
         schemaDao.ensureSystemIndexes(company, getTagSuffix(company));
     }
@@ -130,6 +133,14 @@ public class EngineConfig {
         String integration = System.getProperty("ab.integration");
         healthResults.put("ab.integration", integration);
         healthResults.put("abengine.kvStore", String.valueOf(kvStore));
+        String esPingResult ;
+        try {
+            PingResult esPing = abMonitoringGateway.ping();
+            esPingResult = (esPing == null || !esPing.getMessage().equals("Pong!")?"Problem":"Ok");
+        } catch (ResourceAccessException ce){
+            esPingResult="!Unreachable! "+ce.getCause().getMessage();
+        }
+        healthResults.put("ab-search", esPingResult);
 
         //healthResults.put("ab.multiTenanted", multiTenanted.toString());
         if ("http".equalsIgnoreCase(integration)) {

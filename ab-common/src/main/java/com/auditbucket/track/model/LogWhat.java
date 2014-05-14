@@ -30,12 +30,12 @@ public interface LogWhat {
     /**
      * @return uncompressed Json String
      */
-    public String getWhat();
+    public String getWhatString();
 
     /**
      * @return map converted to map via Json ObjectMapper
      */
-    public Map<String, Object> getWhatMap();
+    public Map<String, Object> getWhat();
 
     public boolean isCompressed();
 

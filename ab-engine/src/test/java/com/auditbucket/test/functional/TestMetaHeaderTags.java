@@ -26,10 +26,7 @@ package com.auditbucket.test.functional;
  */
 
 import com.auditbucket.engine.endpoint.TrackEP;
-import com.auditbucket.engine.service.MediationFacade;
-import com.auditbucket.engine.service.SearchServiceFacade;
-import com.auditbucket.engine.service.TagTrackService;
-import com.auditbucket.engine.service.TrackService;
+import com.auditbucket.engine.service.*;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
@@ -50,7 +47,6 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.core.GraphDatabase;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.data.neo4j.support.node.Neo4jHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -106,6 +102,10 @@ public class TestMetaHeaderTags {
     SearchServiceFacade searchService;
 
     @Autowired
+    EngineConfig engineConfig;
+
+
+    @Autowired
     private Neo4jTemplate template;
 
     //private Logger log = LoggerFactory.getLogger(TestMetaHeaderTags.class);
@@ -119,12 +119,10 @@ public class TestMetaHeaderTags {
         // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
         // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
         SecurityContextHolder.getContext().setAuthentication(authA);
+        engineConfig.setMultiTenanted(false);
         if (!"http".equals(System.getProperty("neo4j")))
             Neo4jHelper.cleanDb(template);
     }
-
-    @Autowired
-    GraphDatabase graphDatabase;
 
     @Test
     public void tagAuditRecords() throws Exception {
@@ -466,7 +464,7 @@ public class TestMetaHeaderTags {
 
     @Test
     public void mapRelationshipsWithNullProperties() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid).setIsUnique(false));
         assertNotNull(iSystemUser);
 
         Fortress fortress = fortressService.registerFortress("ABC");
@@ -563,6 +561,7 @@ public class TestMetaHeaderTags {
 
     @Test
     public void tagsAndValuesWithSpaces() throws Exception {
+
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid));
         assertNotNull(iSystemUser);
 
@@ -743,7 +742,7 @@ public class TestMetaHeaderTags {
 
     @Test
     public void geoTag() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid).setIsUnique(false));
         assertNotNull(iSystemUser);
 
         Fortress fortress = fortressService.registerFortress("ABC");

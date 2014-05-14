@@ -8,7 +8,7 @@ import com.auditbucket.search.model.MetaSearchChange;
 import com.auditbucket.search.model.QueryParams;
 import com.auditbucket.search.model.SearchResult;
 import com.auditbucket.track.bean.TrackResultBean;
-import com.auditbucket.track.model.ChangeLog;
+import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.SearchChange;
 import com.auditbucket.track.model.TrackLog;
@@ -22,6 +22,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.Future;
@@ -83,7 +84,7 @@ public class SearchServiceFacade {
             return;
         }
 
-        if (header.getSearchKey() == null) {
+        if (header.getSearchKey() == null ) {
             header.setSearchKey(searchResult.getSearchKey());
             trackDao.save(header);
             logger.trace("Updating Header{} search searchResult =[{}]", header.getMetaKey(), searchResult);
@@ -93,15 +94,21 @@ public class SearchServiceFacade {
             // Indexing header meta data only
             return;
         }
+        TrackLog when ;
         // The change has been indexed
-        TrackLog when = trackDao.getLog(searchResult.getLogId());
-        if (when == null) {
-            logger.error("Illegal node requested from handleSearchResult [{}]", searchResult.getLogId());
+        try {
+            when = trackDao.getLog(searchResult.getLogId());
+            if (when == null) {
+                logger.error("Illegal node requested from handleSearchResult [{}]", searchResult.getLogId());
+                return;
+            }
+        }catch (DataRetrievalFailureException e) {
+            logger.error("Unable to locate track log {} for metaId {} in order to handle the search callerRef. Ignoring.", searchResult.getLogId(), metaId);
             return;
         }
 
         // Another thread may have processed this so save an update
-        if (when != null && !when.isIndexed()) {
+        if (!when.isIndexed()) {
             // We need to know that the change we requested to index has been indexed.
             logger.debug("Updating index status for {}", when);
             when.setIsIndexed();
@@ -112,16 +119,14 @@ public class SearchServiceFacade {
         }
     }
 
-    @Async
-    public Future<Void> makeHeaderSearchable(Company company, TrackResultBean resultBean, String event, Date when) {
+    public void makeHeaderSearchable(Company company, TrackResultBean resultBean, String event, Date when) {
         MetaHeader header = resultBean.getMetaHeader();
         if (header.isSearchSuppressed() || !header.getFortress().isSearchActive())
-            return null;
+            return ;
 
         SearchChange searchDocument = getSearchChange(company, resultBean, event, when);
-        if (searchDocument == null) return null;
+        if (searchDocument == null) return ;
         makeChangeSearchable(searchDocument);
-        return null;
     }
 
     @Async
@@ -136,12 +141,14 @@ public class SearchServiceFacade {
     public SearchChange getSearchChange(Company company, TrackResultBean resultBean, String event, Date when) {
         MetaHeader header = resultBean.getMetaHeader();
 
-        fortressService.fetch(header.getLastUser());
+        if ( header.getLastUser()!=null )
+            fortressService.fetch(header.getLastUser());
         SearchChange searchDocument = new MetaSearchChange(header, null, event, new DateTime(when));
         if (resultBean.getTags() != null) {
             searchDocument.setTags(resultBean.getTags());
             searchDocument.setReplyRequired(false);
             searchDocument.setSearchKey(header.getCallerRef());
+
             if (header.getId() == null)
                 searchDocument.setWhen(null);
             searchDocument.setSysWhen(header.getWhenCreated());
@@ -155,7 +162,7 @@ public class SearchServiceFacade {
     public void rebuild(Company company, MetaHeader metaHeader, TrackLog lastLog) {
         try {
 
-            ChangeLog lastChange = null;
+            Log lastChange = null;
             if (lastLog != null)
                 lastChange = lastLog.getChange();
             else {
@@ -167,7 +174,7 @@ public class SearchServiceFacade {
                 // Update against the MetaHeader only by re-indexing the search document
                 Map<String, Object> lastWhat;
                 if (lastChange != null)
-                    lastWhat = whatService.getWhat(metaHeader, lastChange).getWhatMap();
+                    lastWhat = whatService.getWhat(metaHeader, lastChange).getWhat();
                 else
                     return; // ToDo: fix reindex header only scenario, i.e. no "change/what"
 
@@ -183,7 +190,7 @@ public class SearchServiceFacade {
 
     }
 
-    public EsSearchResult search(QueryParams queryParams){
+    public EsSearchResult<Collection<String>> search(QueryParams queryParams){
         return searchGateway.search(queryParams);
     }
 }

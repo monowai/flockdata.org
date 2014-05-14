@@ -26,9 +26,8 @@ import com.auditbucket.engine.repo.redis.RedisRepo;
 import com.auditbucket.engine.repo.riak.RiakRepo;
 import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.helper.CompressionResult;
-import com.auditbucket.helper.DatagioException;
 import com.auditbucket.track.bean.AuditDeltaBean;
-import com.auditbucket.track.model.ChangeLog;
+import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.LogWhat;
 import com.auditbucket.track.model.MetaHeader;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -74,7 +73,7 @@ public class WhatService {
 
     private Logger logger = LoggerFactory.getLogger(WhatService.class);
 
-    public ChangeLog logWhat(MetaHeader metaHeader, ChangeLog change, String jsonText) throws IOException {
+    public Log logWhat(MetaHeader metaHeader, Log change, String jsonText) throws IOException {
         // Compress the Value of JSONText
         CompressionResult dataBlock = CompressionHelper.compress(jsonText);
         Boolean compressed = (dataBlock.getMethod() == CompressionResult.Method.GZIP);
@@ -89,7 +88,7 @@ public class WhatService {
     }
 
     @Async //Only public methods execute Async
-    public Future<Void> doKvWrite(MetaHeader metaHeader, ChangeLog change, CompressionResult dataBlock) throws IOException {
+    public Future<Void> doKvWrite(MetaHeader metaHeader, Log change, CompressionResult dataBlock) throws IOException {
         // ToDo: deal with this via spring integration??
         getKvRepo(change).add(metaHeader, change.getId(), dataBlock.getAsBytes());
         return null;
@@ -99,7 +98,7 @@ public class WhatService {
         return getKvRepo(String.valueOf(engineAdmin.getKvStore()));
     }
 
-    private KvRepo getKvRepo(ChangeLog change) {
+    private KvRepo getKvRepo(Log change) {
         return getKvRepo(change.getWhatStore());
     }
 
@@ -114,7 +113,7 @@ public class WhatService {
 
     }
 
-    public LogWhat getWhat(MetaHeader metaHeader, ChangeLog change) {
+    public LogWhat getWhat(MetaHeader metaHeader, Log change) {
         if (change == null)
             return null;
         try {
@@ -128,7 +127,7 @@ public class WhatService {
         return null;
     }
 
-    public void delete(MetaHeader metaHeader, ChangeLog change) {
+    public void delete(MetaHeader metaHeader, Log change) {
 
         getKvRepo(change).delete(metaHeader, change.getId());
     }
@@ -142,7 +141,7 @@ public class WhatService {
      * @param compareWith new Change to compare with - JSON format
      * @return false if different, true if same
      */
-    public boolean isSame(MetaHeader metaHeader, ChangeLog compareFrom, String compareWith) {
+    public boolean isSame(MetaHeader metaHeader, Log compareFrom, String compareWith) {
         if (compareFrom == null)
             return false;
         LogWhat what = getWhat(metaHeader, compareFrom);
@@ -150,7 +149,7 @@ public class WhatService {
         if (what == null)
             return false;
 
-        String jsonThis = what.getWhat();
+        String jsonThis = what.getWhatString();
         if (jsonThis == null || compareWith == null)
             return false;
 
@@ -170,12 +169,12 @@ public class WhatService {
 
     }
 
-    public AuditDeltaBean getDelta(MetaHeader header, ChangeLog from, ChangeLog to) {
+    public AuditDeltaBean getDelta(MetaHeader header, Log from, Log to) {
         if (header == null || from == null || to == null)
             throw new IllegalArgumentException("Unable to compute delta due to missing arguments");
         LogWhat source = getWhat(header, from);
         LogWhat dest = getWhat(header, to);
-        MapDifference<String, Object> diffMap = Maps.difference(source.getWhatMap(), dest.getWhatMap());
+        MapDifference<String, Object> diffMap = Maps.difference(source.getWhat(), dest.getWhat());
         AuditDeltaBean result = new AuditDeltaBean();
         result.setAdded(new HashMap<>(diffMap.entriesOnlyOnRight()));
         result.setRemoved(new HashMap<>(diffMap.entriesOnlyOnLeft()));

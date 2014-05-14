@@ -32,7 +32,7 @@ import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.ChangeEvent;
-import com.auditbucket.track.model.ChangeLog;
+import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
 import org.joda.time.DateTime;
@@ -151,8 +151,8 @@ public class TestTrackEvents {
 
         TrackLog when = trackService.getLastLog(ahKey);
         assertNotNull(when);
-        assertEquals(ChangeLog.CREATE, when.getChange().getEvent().getName()); // log event default
-        assertEquals(ChangeLog.CREATE.toLowerCase(), when.getChange().getEvent().getName().toLowerCase()); // log event default
+        assertEquals(Log.CREATE, when.getChange().getEvent().getName()); // log event default
+        assertEquals(Log.CREATE.toLowerCase(), when.getChange().getEvent().getName().toLowerCase()); // log event default
 
         mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 1}"));
         TrackLog whenB = trackService.getLastLog(ahKey);
@@ -160,6 +160,6 @@ public class TestTrackEvents {
 
         assertFalse(whenB.equals(when));
         assertNotNull(whenB.getChange().getEvent());
-        assertEquals(ChangeLog.UPDATE, whenB.getChange().getEvent().getName());  // log event default
+        assertEquals(Log.UPDATE, whenB.getChange().getEvent().getName());  // log event default
     }
 }

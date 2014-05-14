@@ -96,6 +96,11 @@ public interface MetaHeader {
      */
     public void suppressSearch(boolean searchSuppressed);
 
+    /**
+     * Enables the header to track the search services key. Don't bother setting if it's
+     * the same as the metaKey
+     * @param parentKey
+     */
     void setSearchKey(String parentKey);
 
     /**
@@ -120,4 +125,6 @@ public interface MetaHeader {
     DateTime getFortressDateCreated();
 
     void setMetaKey(String o);
+
+    void setCreatedBy(FortressUser thisFortressUser);
 }

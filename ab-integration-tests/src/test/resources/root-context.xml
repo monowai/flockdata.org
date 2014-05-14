@@ -37,13 +37,13 @@
 
     <context:spring-configured/>
     <context:annotation-config/>
+    <!--ab-engine test integration file-->
 
     <!-- Root Context: defines shared resources visible to all other web components -->
     <context:component-scan base-package="com.auditbucket"/>
 
-    <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true"
-                                  location="classpath:/config.properties,file:${ab.config}"/>
-
+    <context:property-placeholder ignore-resource-not-found="false" ignore-unresolvable="false"
+                                  location="file:${ab.config}"/>
 
     <import resource="spring-security.xml"/>
     <import resource="http-proxy-integration.xml"/>
@@ -51,6 +51,8 @@
     <import resource="integration.xml"/>
     <import resource="amqp-integration-test.xml"/>
     <import resource="kv-context.xml"/>
+    <import resource="http-monitoring-integration.xml"/>
+
 
     <task:annotation-driven executor="executor"/>
 

@@ -91,7 +91,7 @@ public class MetaHeaderNode implements MetaHeader {
 
     private long fortressDate;
 
-    @Indexed
+    //@Indexed
     private String searchKey = null;
 
     private boolean searchSuppressed;
@@ -104,22 +104,22 @@ public class MetaHeaderNode implements MetaHeader {
         this.lastUpdated = dateCreated;
     }
 
-    public MetaHeaderNode(String uniqueKey, @NotEmpty FortressUser createdBy, @NotEmpty MetaInputBean metaInput, @NotEmpty DocumentType documentType) throws DatagioException {
+    public MetaHeaderNode(String uniqueKey, @NotEmpty Fortress fortress, @NotEmpty MetaInputBean metaInput, @NotEmpty DocumentType documentType) throws DatagioException {
         this();
         metaKey = uniqueKey;
-        this.fortress = (FortressNode) createdBy.getFortress();
+        this.fortress = (FortressNode)fortress;
         this.documentType = (documentType != null ? documentType.getName().toLowerCase() : "");
         callerRef = metaInput.getCallerRef();
         //if ( callerRef!=null )
+        assert documentType != null;
         callerKeyRef = this.fortress.getId() + "." + documentType.getId() + "." + (callerRef != null ? callerRef : metaKey);
 
-        if ( metaInput.getName() ==null || metaInput.getName().equals(""))
+        if (metaInput.getName() == null || metaInput.getName().equals(""))
             this.name = (callerRef == null ? this.documentType : (this.documentType + "." + callerRef));
         else
             this.name = metaInput.getName();
 
         this.description = metaInput.getDescription();
-
 
         indexName = MetaSearchSchema.parseIndex(this.fortress);
 
@@ -132,8 +132,9 @@ public class MetaHeaderNode implements MetaHeader {
 
         lastUpdated = fortressDate;
 
-        this.createdBy = (FortressUserNode) createdBy;
-        this.lastWho = (FortressUserNode) createdBy;
+
+//        this.createdBy = (FortressUserNode) createdBy;
+//        this.lastWho = (FortressUserNode) createdBy;
         this.event = metaInput.getEvent();
 
         this.suppressSearch(metaInput.isSearchSuppressed());
@@ -243,15 +244,15 @@ public class MetaHeaderNode implements MetaHeader {
     }
 
     @JsonIgnore
-    public void setSearchKey(String parentKey) {
-        this.searchKey = parentKey;
+    public void setSearchKey(String searchKey) {
+        this.searchKey = searchKey;
     }
 
     @JsonIgnore
     public String getSearchKey() {
-        return this.searchKey;
-    }
+        return searchKey;
 
+    }
 
     @Override
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -294,5 +295,9 @@ public class MetaHeaderNode implements MetaHeader {
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
+    }
+
+    public void setCreatedBy(FortressUser createdBy) {
+        this.createdBy = (FortressUserNode)createdBy;
     }
 }

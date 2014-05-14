@@ -277,6 +277,28 @@ public class TestTags {
         assertTrue(found);
     }
 
+    @Test
+    public void tagWithSpacesWorks() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(authMike);
+        engineAdmin.setMultiTenanted(false);
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, "mike").setIsUnique(false));
+        assertNotNull(iSystemUser);
+
+        TagInputBean tagInput = new TagInputBean("Source");
+        tagInput.setIndex(":Test Tag");
+        tagInput.setCode("CodeA");
+        tagInput.setName("NameA");
+        Tag tag = tagService.processTag(tagInput);
+        assertNotNull (tag);
+        assertEquals(tagInput.getCode(), tag.getCode());
+        assertEquals(tagInput.getName(), tag.getName());
+        assertNotNull(tag.getKey());
+        Collection<Tag> results = tagService.findTags("Test Tag");
+        assertNotNull ( results);
+        assertFalse(results.isEmpty());
+        Boolean found = isNameFound(tagInput, results);
+        assertTrue(found);
+    }
     // ToDo: Multi-tenanted custom tags
     public void customLabelsMultiTenant() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(authMike);

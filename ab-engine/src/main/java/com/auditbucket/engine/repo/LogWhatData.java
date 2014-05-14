@@ -60,18 +60,18 @@ public class LogWhatData implements LogWhat {
 
     @Override
     @JsonIgnore
-    public String getWhat() {
+    public String getWhatString() {
         return CompressionHelper.decompress(whatBytes, compressed);
     }
 
 
-    public Map<String, Object> getWhatMap() {
+    public Map<String, Object> getWhat() {
 
         if (what != null)
             return what;
         try {
             if (whatBytes != null) {
-                what = objectMapper.readValue(getWhat(), Map.class);
+                what = objectMapper.readValue(getWhatString(), Map.class);
                 return what;
             }
 

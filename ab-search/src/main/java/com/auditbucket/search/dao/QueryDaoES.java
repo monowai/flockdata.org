@@ -21,6 +21,7 @@ package com.auditbucket.search.dao;
 
 import com.auditbucket.dao.QueryDao;
 import com.auditbucket.helper.DatagioException;
+import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.MetaSearchSchema;
 import com.auditbucket.search.model.QueryParams;
 import org.elasticsearch.action.ListenableActionFuture;
@@ -32,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StopWatch;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,63 +58,79 @@ public class QueryDaoES implements QueryDao {
                 .execute()
                 .actionGet();
 
-        if (logger.isDebugEnabled())
-            logger.debug("Searching index [" + index + "] for hit counts");
+        logger.debug("Searching index [{}] for hit counts", index);
 
         return response.getHits().getTotalHits();
-
     }
 
     @Override
     public String doSearch(QueryParams queryParams) throws DatagioException {
         SearchResponse result = client.prepareSearch(MetaSearchSchema.parseIndex(queryParams))
-                .setSource(getSimpleQuery(queryParams.getSimpleQuery()))
+                .setExtraSource(getSimpleQuery(queryParams.getSimpleQuery()))
                 .execute()
                 .actionGet();
 
         //logger.debug("looking for {} in index {}", queryString, index);
         return result.toString();
-
     }
 
     @Override
-    public Collection<String> doMetaKeySearch(QueryParams queryParams) throws DatagioException {
+    public EsSearchResult doMetaKeySearch(QueryParams queryParams) throws DatagioException {
+        StopWatch watch = new StopWatch();
+        EsSearchResult<Collection<String>> searchResult = new EsSearchResult<>();
+        watch.start(queryParams.toString());
         String[] types = Strings.EMPTY_ARRAY;
-        if ( queryParams.getTypes()!= null){
+        if (queryParams.getTypes() != null) {
             types = queryParams.getTypes();
         }
         ListenableActionFuture<SearchResponse> future = client.prepareSearch(MetaSearchSchema.parseIndex(queryParams))
                 .setTypes(types)
-                .setSource(getSimpleQuery(queryParams.getSimpleQuery()))
+                .addField(MetaSearchSchema.META_KEY)
+                .setSize(queryParams.getRowsPerPage())
+                .setFrom(queryParams.getStartFrom())
+                .setExtraSource(getSimpleQuery(queryParams.getSimpleQuery()))
                 .execute();
 
         Collection<String> results = new ArrayList<>();
 
-        SearchResponse response ;
+        SearchResponse response;
         try {
             response = future.get();
         } catch (InterruptedException | ExecutionException e) {
-            logger.error ("Search Exception processing query", e);
+            logger.error("Search Exception processing query", e);
             // ToDo: No sensible error being returned to the caller
-            return results;
+            return searchResult;
         }
 
         for (SearchHit searchHitFields : response.getHits().getHits()) {
-            results.add(searchHitFields.getSource().get("@metaKey").toString());
+            Object hit = searchHitFields.getFields().get(MetaSearchSchema.META_KEY).getValue();
+            if (hit != null)
+                results.add(hit.toString());
         }
-
-        return results;
-
+        searchResult.setTotalHits(response.getHits().getTotalHits());
+        searchResult.setStartedFrom(queryParams.getStartFrom());
+        searchResult.setResults(results);
+        watch.stop();
+        logger.info("ES Query. Results [{}] took [{}]", results.size(), watch.prettyPrint());
+        return searchResult;
     }
 
 
     private String getSimpleQuery(String queryString) {
-        logger.info("getSimpleQuery {}", queryString);
-
-        return "{ query: { " +
-                "          query_string : { " +
-                "              \"query\" : \"" + queryString + "\" }" +
-                "      }}";
+        logger.debug("getSimpleQuery {}", queryString);
+        return "{\n" +
+                "      \"query\": {\n" +
+                "        \"bool\": {\n" +
+                "          \"should\": [\n" +
+                "            {\n" +
+                "              \"query_string\": {\n" +
+                "                \"query\": \""+queryString+"\"\n" +
+                "              }\n" +
+                "            }\n" +
+                "          ]\n" +
+                "        }\n" +
+                "      }\n" +
+                "  }";
     }
 
 
