@@ -348,7 +348,7 @@ public class MediationFacade {
         return trackService.getMetaSummary(company, metaKey);
     }
 
-    public EsSearchResult search(Company company, QueryParams queryParams) {
+    public EsSearchResult<Collection<MetaHeader>> search(Company company, QueryParams queryParams) {
 
         StopWatch watch = new StopWatch(queryParams.toString());
         watch.start("Get ES Query Results");
@@ -360,7 +360,7 @@ public class MediationFacade {
         results.setResults(headers);
         watch.stop();
         logger.info(watch.prettyPrint());
-        return esSearchResult;
+        return results;
     }
 
 }
