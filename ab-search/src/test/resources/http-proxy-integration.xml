@@ -38,8 +38,8 @@
     <int-http:inbound-gateway request-channel="doMetaKeyQuery"
                               reply-channel="doMetaKeyReply"
                               path="/api/esSearch"
-                              reply-timeout="${reply.timeout}"
-                              request-timeout="${request.timeout}"
+                              reply-timeout="700"
+                              request-timeout="700"
                               request-payload-type="com.auditbucket.search.model.QueryParams"
                               supported-methods="POST"/>
 
