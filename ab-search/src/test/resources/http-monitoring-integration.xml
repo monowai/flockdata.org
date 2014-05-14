@@ -68,7 +68,7 @@
 
     <int-http:outbound-gateway request-channel="doAbEnginePingRequest"
                                reply-channel="doAbEnginePingResponse"
-                               reply-timeout="${reply.timeout}"
+                               reply-timeout="700"
                                url="${abengine.ping}"
                                http-method="GET"
                                extract-request-payload="true"
