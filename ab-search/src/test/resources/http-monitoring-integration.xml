@@ -39,8 +39,8 @@
     <int-http:inbound-gateway request-channel="doEsPingRequest"
                               reply-channel="doEsPingResponse"
                               path="/monitoring/esPing"
-                              reply-timeout="${reply.timeout}"
-                              request-timeout="${request.timeout}"
+                              reply-timeout="700"
+                              request-timeout="700"
                               supported-methods="GET"/>
 
     <!-- Channels Definitions for Ping AB-Search ==> Ab-Engine -->
