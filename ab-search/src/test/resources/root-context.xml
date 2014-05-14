@@ -34,8 +34,6 @@
 
     <import resource="es-context.xml"/>
     <import resource="spring-security.xml"/>
-    <import resource="http-proxy-integration.xml"/>
-    <import resource="http-monitoring-integration.xml"/>
 
 
 </beans>
