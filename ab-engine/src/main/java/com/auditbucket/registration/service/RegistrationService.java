@@ -49,6 +49,7 @@ public class RegistrationService {
 
     public static SystemUser GUEST = new SystemUserNode("Guest", null, null, false);
 
+
     @Secured({"ROLE_AB_ADMIN"})
     public SystemUser registerSystemUser(RegistrationBean regBean) throws DatagioException {
 
@@ -105,8 +106,9 @@ public class RegistrationService {
         if (systemUser == null)
             return GUEST;
         SystemUser iSystemUser = systemUserService.findByLogin(systemUser);
-        if (iSystemUser == null) {
-            return GUEST;
+        if (iSystemUser == null ) {
+            // Authenticated in the security system, but not in the graph
+            return new SystemUserNode(systemUser, null, null, true);
         } else {
             return iSystemUser;
         }

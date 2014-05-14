@@ -74,11 +74,15 @@
             <url>http://clojars.org/repo</url>
         </repository>
         <repository>
-            <id>spring.org</id>
-            <url>≤</url>
-
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>http://repo.spring.io/libs-milestone/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
     </repositories>
+
 
     <organization>
         <name>Monowai</name>

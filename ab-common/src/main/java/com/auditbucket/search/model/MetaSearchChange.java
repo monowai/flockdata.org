@@ -78,7 +78,9 @@ public class MetaSearchChange implements SearchChange {
         this.indexName = header.getIndexName();
         this.searchKey = header.getSearchKey();
         this.callerRef = header.getCallerRef();
-        this.who = header.getLastUser().getCode();
+        if ( header.getLastUser()!=null)
+            this.who = header.getLastUser().getCode();
+
         this.createdDate = header.getWhenCreated(); // When created in AuditBucket
 
     }

@@ -208,7 +208,6 @@ public class MediationFacade {
             // Secret back door so that the log result can quickly get the auditid
             logBean.setMetaId(resultBean.getAuditId());
             logBean.setMetaKey(resultBean.getMetaKey());
-            logBean.setFortressUser(resultBean.getMetaInputBean().getFortressUser());
             logBean.setCallerRef(resultBean.getCallerRef());
 
             LogResultBean logResult;
@@ -349,7 +348,7 @@ public class MediationFacade {
         return trackService.getMetaSummary(company, metaKey);
     }
 
-    public EsSearchResult search(Company company, QueryParams queryParams) {
+    public EsSearchResult<Collection<MetaHeader>> search(Company company, QueryParams queryParams) {
 
         StopWatch watch = new StopWatch(queryParams.toString());
         watch.start("Get ES Query Results");
@@ -361,7 +360,7 @@ public class MediationFacade {
         results.setResults(headers);
         watch.stop();
         logger.info(watch.prettyPrint());
-        return esSearchResult;
+        return results;
     }
 
 }

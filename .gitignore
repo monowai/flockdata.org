@@ -54,5 +54,6 @@ ab-engine/.shell_history
 dependency-reduced-pom.xml
 
 ab-integration-tests/.shell_history
+atlassian-ide-plugin.xml
 
 ab-search/.shell_history

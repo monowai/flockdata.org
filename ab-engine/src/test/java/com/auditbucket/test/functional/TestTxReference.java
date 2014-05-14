@@ -31,7 +31,8 @@ import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.LogResultBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
-import com.auditbucket.track.model.ChangeLog;
+import com.auditbucket.track.model.Log;
+import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.MetaHeader;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -173,7 +174,7 @@ public class TestTxReference {
         Map<String, Object> result = trackService.findByTXRef(txStart);
         assertNotNull(result);
         assertEquals(tagRef, result.get("txRef"));
-        Collection<ChangeLog> logs = (Collection<ChangeLog>) result.get("logs");
+        Collection<Log> logs = (Collection<Log>) result.get("logs");
         assertNotNull(logs);
         assertEquals(2, logs.size());
 
@@ -192,14 +193,14 @@ public class TestTxReference {
         result = trackService.findByTXRef(txStart);
         assertNotNull(result);
         assertEquals(tagRef, result.get("txRef"));
-        logs = (Collection<ChangeLog>) result.get("logs");
+        logs = (Collection<Log>) result.get("logs");
         assertNotNull(logs);
         assertEquals(2, logs.size());
 
         result = trackService.findByTXRef(txEnd);
         assertNotNull(result);
         assertEquals(txEnd, result.get("txRef"));
-        logs = (Collection<ChangeLog>) result.get("logs");
+        logs = (Collection<Log>) result.get("logs");
         assertNotNull(logs);
         assertEquals(1, logs.size());
 
