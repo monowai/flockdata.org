@@ -31,6 +31,8 @@
 
     <int:annotation-config/>
 
+    <!-- Channels Definitions for Ping AB-Engine ==> Ab-Search -->
+
     <int:gateway id="abMonitoringGateway"
                  service-interface="com.auditbucket.engine.service.AbMonitoringGateway"/>
 
@@ -66,5 +68,16 @@
                                http-method="GET"
                                extract-request-payload="true"
                                expected-response-type="java.lang.String" />
+
+    <!-- Channels Definitions for Ping AB-Search ==> Ab-Engine -->
+    <int:channel id="doAbEnginePingRequest"/>
+    <int:channel id="doAbEnginePingResponse"/>
+
+    <int-http:inbound-gateway request-channel="doAbEnginePingRequest"
+                              reply-channel="doAbEnginePingResponse"
+                              path="/monitoring/abPing"
+                              reply-timeout="${reply.timeout}"
+                              request-timeout="${request.timeout}"
+                              supported-methods="GET"/>
 
 </beans>
