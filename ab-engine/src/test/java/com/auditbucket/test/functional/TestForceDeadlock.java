@@ -20,7 +20,6 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.engine.endpoint.TrackEP;
-import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.engine.service.TrackService;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
@@ -75,12 +74,8 @@ public class TestForceDeadlock {
     @Autowired
     private TagEP tagEP;
 
-
     @Autowired
     private Neo4jTemplate template;
-    @Autowired
-    private EngineConfig engineConfig;
-
 
     private Logger logger = LoggerFactory.getLogger(TestForceDeadlock.class);
     private String mike = "mike";
@@ -101,7 +96,6 @@ public class TestForceDeadlock {
     public void cleanUpGraph() {
         // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
         // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-        engineConfig.setMultiTenanted(false);
         if (!"rest".equals(System.getProperty("neo4j")))
             Neo4jHelper.cleanDb(template);
     }
@@ -127,11 +121,10 @@ public class TestForceDeadlock {
 
         //latch.await();
         for (int i = 0; i < threadMax; i++) {
-            TagRunner runner = runners.get(i);
-            while (runner == null || !runner.isDone()) {
+            while (runners.get(i) == null || !runners.get(i).isDone()) {
                 Thread.yield();
             }
-            assertEquals("Error occurred creating tags under load", true, runner.isWorked());
+            assertEquals("Error occurred creating tags under load", true, runners.get(i).isWorked());
         }
         assertEquals(true, worked);
     }
@@ -151,37 +144,29 @@ public class TestForceDeadlock {
         Fortress fortress = fortressService.registerFortress("auditTest" + System.currentTimeMillis());
         String docType = "TestAuditX";
 
-        CountDownLatch latch = new CountDownLatch(4);
+        //CountDownLatch latch = new CountDownLatch(4);
         ArrayList<TagInputBean> tags = getTags(10);
+        String apiKey = su.getApiKey();
 
         Map<Integer, CallerRefRunner> runners = new HashMap<>();
         int threadMax = 15;
+        Map<Integer, Future<Integer>> futures = new HashMap<>();
         for (int i = 0; i < threadMax; i++) {
-            runners.put(i, addRunner(fortress, docType, "ABC" + i, 20, tags, latch));
+            CallerRefRunner runner = addRunner(fortress, docType, "ABC" + i, 20, tags);
+            runners.put(i, runner);
+            List<MetaInputBean> inputBeans = runners.get(i).getInputBeans();
+            futures.put(i, trackEP.trackHeadersAsync(inputBeans, true, apiKey));
         }
 
-        latch.await();
-        boolean working = false;
-        Map<Integer, Future<Integer>> futures = new HashMap<>();
-        String apiKey = su.getApiKey();
-        try {
-            for (int i = 0; i < threadMax; i++) {
-                futures.put(i, trackEP.trackHeadersAsync(runners.get(i).getInputBeans(), true, apiKey));
-            }
-            working = true;
-        } catch (RuntimeException e) {
-            logger.error("rte ", e);
-        }
         for (int i = 0; i < threadMax; i++) {
-            Future<Integer> f = futures.get(i);
-            if (f != null) {
-                while (!f.isDone()) {
+            Future<Integer> future = futures.get(i);
+            if (future != null) {
+                while (!future.isDone()) {
                     Thread.yield();
                 }
-                doFutureWorked(f, runners.get(i).getMaxRun());
+                doFutureWorked(future, runners.get(i).getMaxRun());
             }
         }
-        assertEquals(true, working);
         assertNotNull(tagService.findTag(fortress.getCompany(), tags.get(0).getName(), tags.get(0).getIndex()));
 
         Collection<Tag> createdTags = tagService.findTags(fortress.getCompany(), tags.get(0).getIndex());
@@ -210,12 +195,9 @@ public class TestForceDeadlock {
 
     }
 
-    private CallerRefRunner addRunner(Fortress fortress, String docType, String callerRef, int docCount, ArrayList<TagInputBean> tags, CountDownLatch latch) {
+    private CallerRefRunner addRunner(Fortress fortress, String docType, String callerRef, int docCount, ArrayList<TagInputBean> tags) {
 
-        CallerRefRunner runner = new CallerRefRunner(callerRef, docType, fortress, tags, docCount, latch);
-        Thread thread = new Thread(runner);
-        thread.start();
-        return runner;
+        return new CallerRefRunner(callerRef, docType, fortress, tags, docCount);
     }
 
     private TagRunner addTagRunner(Fortress fortress, int docCount, List<TagInputBean> tags, CountDownLatch latch) {
@@ -226,22 +208,20 @@ public class TestForceDeadlock {
         return runner;
     }
 
-    class CallerRefRunner implements Runnable {
+    class CallerRefRunner  {
         String docType;
         String callerRef;
         Fortress fortress;
-        CountDownLatch latch;
         int maxRun = 30;
         List<MetaInputBean> inputBeans;
         Collection<TagInputBean> tags;
 
         boolean worked = false;
 
-        public CallerRefRunner(String callerRef, String docType, Fortress fortress, Collection<TagInputBean> tags, int maxRun, CountDownLatch latch) {
+        public CallerRefRunner(String callerRef, String docType, Fortress fortress, Collection<TagInputBean> tags, int maxRun) {
             this.callerRef = callerRef;
             this.docType = docType;
             this.fortress = fortress;
-            this.latch = latch;
             this.tags = tags;
             this.maxRun = maxRun;
             inputBeans = new ArrayList<>(maxRun);
@@ -256,11 +236,6 @@ public class TestForceDeadlock {
         }
 
         public List<MetaInputBean> getInputBeans() {
-            return inputBeans;
-        }
-
-        @Override
-        public void run() {
             int count = 0;
             SecurityContextHolder.getContext().setAuthentication(authMike);
             logger.info("Hello from thread {}, Creating {} MetaHeaders", callerRef, maxRun);
@@ -268,8 +243,6 @@ public class TestForceDeadlock {
                 while (count < maxRun) {
                     MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef + count);
                     inputBean.setTags(tags);
-                    //inputBean.setLog(new LogInputBean("john" + count, null, TestJson.getBigJsonText(count)));
-
                     inputBeans.add(inputBean);
                     count++;
                 }
@@ -277,12 +250,10 @@ public class TestForceDeadlock {
             } catch (Exception e) {
                 worked = false;
                 logger.error("Help!!", e);
-            } finally {
-                latch.countDown();
             }
-
-
+            return inputBeans;
         }
+
 
     }
 
@@ -317,7 +288,6 @@ public class TestForceDeadlock {
                     count++;
                 }
                 worked = true;
-                done=true;
             } catch (Exception e) {
                 worked = false;
                 logger.error("Help!!", e);
