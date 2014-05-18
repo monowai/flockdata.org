@@ -173,7 +173,7 @@
                         <exclude>**/*Integration.java</exclude>
                     </excludes>
                     <junitArtifactName>junit:junit</junitArtifactName>
-                    <argLine>-Xmx256m</argLine>
+                    <argLine>-Xmx384m</argLine>
                 </configuration>
             </plugin>
         </plugins>
@@ -204,7 +204,7 @@
                                         <exclude>**/Abstract*.java</exclude>
                                     </excludes>
                                     <junitArtifactName>junit:junit</junitArtifactName>
-                                    <argLine>-Xmx256m -Xss256k</argLine>
+                                    <argLine>-Xmx384m -Xss256k</argLine>
                                 </configuration>
                             </execution>
                         </executions>
