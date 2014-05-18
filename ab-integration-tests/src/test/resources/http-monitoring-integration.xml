@@ -67,4 +67,15 @@
                                extract-request-payload="true"
                                expected-response-type="java.lang.String" />
 
+    <!-- Channels Definitions for Ping AB-Search ==> Ab-Engine -->
+    <int:channel id="doAbEnginePingRequest"/>
+    <int:channel id="doAbEnginePingResponse"/>
+
+    <int-http:inbound-gateway request-channel="doAbEnginePingRequest"
+                              reply-channel="doAbEnginePingResponse"
+                              path="/monitoring/abPing"
+                              reply-timeout="${reply.timeout}"
+                              request-timeout="${request.timeout}"
+                              supported-methods="GET"/>
+
 </beans>
