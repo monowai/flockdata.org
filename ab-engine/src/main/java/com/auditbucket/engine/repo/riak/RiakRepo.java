@@ -94,6 +94,17 @@ public class RiakRepo implements KvRepo {
 
     }
 
+    public void purge(String index){
+        try {
+            getClient().resetBucket(index);
+        } catch (RiakException e) {
+            logger.error("RIAK Repo Error", e);
+            client.shutdown();
+            client = null;
+        }
+
+    }
+
     @Override
     public String ping() {
         try {

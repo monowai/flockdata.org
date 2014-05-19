@@ -29,8 +29,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.io.IOException;
-
 /**
  * User: Mike Holdsworth
  * Date: 15/06/13
@@ -47,38 +45,38 @@ public class GlobalControllerExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ModelAndView handleAuditException( DatagioException ex){
         logger.error("Datagio Exception", ex);
-        return new JsonError(ex.getMessage()).asModelAndView();
+        return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ModelAndView handleIAException( IllegalArgumentException ex){
-        return new JsonError(ex.getMessage()).asModelAndView();
+        return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 
     @ExceptionHandler(JsonParseException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ModelAndView handleJsonError(final JsonParseException ex) {
-        return new JsonError(ex.getMessage()).asModelAndView();
+        return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 
     @ExceptionHandler(SecurityException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ModelAndView handleSecException(final SecurityException ex){
-        return new JsonError(ex.getMessage()).asModelAndView();
+        return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
     //.class
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ModelAndView handleAuthException(final AccessDeniedException ex){
-        return new JsonError(ex.getMessage()).asModelAndView();
+        return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 
     @ExceptionHandler(Exception.class )
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ModelAndView handleInternal( Exception ex) {
         logger.error("Error 500", ex);
-        return new JsonError(ex.getMessage()).asModelAndView();
+        return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 
 }

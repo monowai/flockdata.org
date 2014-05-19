@@ -57,4 +57,8 @@ public interface SchemaTypeRepo extends GraphRepository<DocumentTypeNode> {
             value = "match (docTypes:_DocType)-[*..2]-(company:ABCompany) " +
                     "where id(company) = {0} return docTypes")
     Collection<DocumentType> getCompanyDocumentsInUse(Long companyId);
+
+    @Query (value = "match (fortress:Fortress)-[fd:FORTRESS_DOC]-(d:_DocType) " +
+            "where id(fortress) = {0} delete fd")
+    void purgeFortressDocuments(Long fortressId);
 }

@@ -59,6 +59,10 @@ public class WhatService {
         return repo.ping();
     }
 
+    public void purge(String indexName) {
+        getKvRepo().purge(indexName);
+    }
+
     public enum KV_STORE {REDIS, RIAK}
 
     private static final ObjectMapper om = new ObjectMapper();

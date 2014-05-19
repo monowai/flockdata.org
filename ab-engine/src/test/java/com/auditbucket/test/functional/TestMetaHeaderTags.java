@@ -49,6 +49,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.data.neo4j.support.node.Neo4jHelper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -103,7 +104,6 @@ public class TestMetaHeaderTags {
 
     @Autowired
     EngineConfig engineConfig;
-
 
     @Autowired
     private Neo4jTemplate template;
@@ -859,45 +859,80 @@ public class TestMetaHeaderTags {
         assertTrue ( "TagA has no track headers so should have been removed", tagService.findTag("TagA")==null);
     }
 
-//    @Test
-//    public void headerTagsAreUpdatedWithTagDetailsInAnAuditLog() throws Exception {
-//        regEP.registerSystemUser(new RegistrationBean(company, uid, "bah"));
-//        fortressEP.registerFortress("ABC");
-//
-//        TagInputBean tagInput = new TagInputBean("FLOP");
-//        String what = "{\"house\": \"house";
-//
-//        tagService.processTag(tagInput);
-//        //assertNotNull(result);
-//        MetaInputBean inputBean = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc1");
-//        LogInputBean logBean = new LogInputBean("mike", new DateTime(), what + "1\"}");
-//        inputBean.setLog(logBean);
-//        // This should create the same Tag object
-//        inputBean.setTag(new TagInputBean("TagA", "camel"));
-//        ResponseEntity<TrackResultBean> response = auditEp.createHeader(inputBean);
-//        assertNotNull (response);
-//
-//        TrackResultBean resultBean = response.getBody();
-//        assertNotNull(resultBean);
-//        MetaHeader header = auditEp.getAudit(resultBean.getMetaKey()).getBody();
-//        assertNotNull(header);
-//
-//        // Now change the tag via the Audit Log
-//        LogInputBean alb = new LogInputBean("mike", new DateTime(), what + "1\"}");
-//
-//        validateTag(header, "TagA", 1);
-//
-//
-//    }
+    @Test
+    public void addNewTagToExistingMetaHeader() throws Exception {
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(company, uid));
+        fortressService.registerFortress("ABC");
 
+        String what = "{\"house\": \"house";
 
-    private void validateTag(MetaHeader metaHeader,  String expected, int i) {
+        //assertNotNull(result);
+        MetaInputBean inputBean = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc1");
+        LogInputBean logBean = new LogInputBean("mike", new DateTime(), what + "1\"}");
+        inputBean.setLog(logBean);
+        // This should create the same Tag object
+        inputBean.setTag(new TagInputBean("TagA", "camel"));
+        ResponseEntity<TrackResultBean> response = trackEp.trackHeader(inputBean, su.getApiKey(), su.getApiKey());
+        // At this point we have a metaHeader, log and a tag.
+
+        assertNotNull (response);
+
+        TrackResultBean resultBean = response.getBody();
+        assertNotNull(resultBean);
+        MetaHeader header = trackEp.getMetaHeader(resultBean.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody();
+        assertNotNull(header);
+
+        validateTag(header, "TagA", 1);
+
+        //Adding a second tag (the first is already in the metaHeader
+        inputBean.setTag( new TagInputBean("TagB", "horse"));
+        trackEp.trackHeader(inputBean, su.getApiKey(), su.getApiKey());
+        validateTag(header, "TagB", 2);
+
+    }
+    @Test
+    public void addNewTagToExistingMetaHeaderWithNoLog() throws Exception {
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(company, uid));
+        fortressService.registerFortress("ABC");
+
+        //assertNotNull(result);
+        MetaInputBean inputBean = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc1");
+        // This should create the same Tag object
+        inputBean.setTag(new TagInputBean("TagA", "camel"));
+        ResponseEntity<TrackResultBean> response = trackEp.trackHeader(inputBean, su.getApiKey(), su.getApiKey());
+        // At this point we have a metaHeader, log and a tag.
+
+        assertNotNull (response);
+
+        TrackResultBean resultBean = response.getBody();
+        assertNotNull(resultBean);
+        MetaHeader header = trackEp.getMetaHeader(resultBean.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody();
+        assertNotNull(header);
+
+        validateTag(header, "TagA", 1);
+
+        //Adding a second tag (the first is already in the metaHeader
+        inputBean.setTag( new TagInputBean("TagB", "horse"));
+        trackEp.trackHeader(inputBean, su.getApiKey(), su.getApiKey());
+        validateTag(header, "TagB", 2);
+
+    }
+
+    private void validateTag(MetaHeader metaHeader,  String mustExist, int totalExpected) {
         Collection<TrackTag> tags;
         tags = tagTrackService.findTrackTags(metaHeader);
-        assertEquals(expected, i, tags.size() );
+        assertEquals("Total Expected Tags is incorrect", totalExpected, tags.size() );
+        if ( mustExist == null )
+            return;
+
+        boolean expectedExisted = false;
         for (TrackTag tag : tags){
-            assertEquals(expected, tag.getTag().getName());
+            if (tag.getTag().getName().equals(mustExist))
+                expectedExisted = true;
+
         }
+
+        assertTrue("The expected tag ["+mustExist +"] was not found", expectedExisted);
     }
 
 }

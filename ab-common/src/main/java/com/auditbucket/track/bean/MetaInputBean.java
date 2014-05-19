@@ -68,8 +68,8 @@ public class MetaInputBean {
         this.callerRef = callerRef;
     }
 
-    public MetaInputBean(String description, String s, String companyNode, DateTime fortressWhen) {
-        this(description, s, companyNode, fortressWhen, null);
+    public MetaInputBean(String description, String fortressUser, String companyNode, DateTime fortressWhen) {
+        this(description, fortressUser, companyNode, fortressWhen, null);
 
     }
 

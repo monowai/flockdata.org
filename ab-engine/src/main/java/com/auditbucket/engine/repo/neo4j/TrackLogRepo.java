@@ -50,4 +50,11 @@ public interface TrackLogRepo extends GraphRepository<LogNode> {
             "return log order by log.fortressWhen desc")
     Set<TrackLog> findLogs(Long auditHeaderID);
 
+    @Query (value = "match (f:_Fortress)-[:TRACKS]->(m:MetaHeader)-[l:LOGGED]-(log:Log)-[people]-(:FortressUser) where id(f)={0} delete l, people, log")
+    void purgeFortressLogs(Long fortressId);
+
+    @Query (value = "match (f:_Fortress)-[track:TRACKS]->(m:MetaHeader)-[tagRlx]-(:_Tag) where id(f)={0} delete tagRlx")
+    void purgeTagRelationships(Long fortressId);
+
+
 }

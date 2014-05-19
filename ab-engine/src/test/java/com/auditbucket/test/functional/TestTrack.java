@@ -57,8 +57,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotSame;
+import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 /**
@@ -737,6 +741,9 @@ public class TestTrack {
         assertEquals("Caller was only authorised to find 1 header", 1, foundHeaders.size());
 
     }
+
+
+
 
     private void compareUser(MetaHeader header, String userName) {
         FortressUser fu = fortressService.getUser(header.getLastUser().getId());

@@ -25,6 +25,7 @@ import com.auditbucket.helper.DeadlockRetry;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
@@ -82,6 +83,9 @@ public class MediationFacade {
 
     @Autowired
     private RegistrationService registrationService;
+
+    @Autowired
+    EngineConfig engineConfig;
 
     static DecimalFormat f = new DecimalFormat();
 
@@ -362,5 +366,30 @@ public class MediationFacade {
         logger.info(watch.prettyPrint());
         return results;
     }
+    @Autowired
+    WhatService whatService;
 
+    public void purge(String fortressName, String apiKey) throws DatagioException {
+        if ( fortressName== null )
+            throw new DatagioException("Illegal value for fortress name");
+        SystemUser su = registrationService.getSystemUser(apiKey);
+        if ( su == null || su.getCompany() == null )
+            throw new SecurityException("Unable to verify that the caller can work with the requested fortress");
+        Fortress fortress = fortressService.findByName(su.getCompany(), fortressName);
+        if (fortress == null)
+            throw new DatagioException("Fortress [" + fortressName + "] does not exist");
+        purge(fortress, su);
+    }
+
+    private void purge(Fortress fortress, SystemUser su) throws DatagioException {
+        logger.info("Purging fortress [{}] on behalf of [{}]", fortress, su.getLogin());
+
+        String indexName = "ab." + fortress.getCompany().getCode() + "." + fortress.getCode();
+        trackService.purge(fortress);
+
+        whatService.purge(indexName);
+        fortressService.purge(fortress);
+        engineConfig.resetCache();
+        searchService.purge(indexName);
+    }
 }
