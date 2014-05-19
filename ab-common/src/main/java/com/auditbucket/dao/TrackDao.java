@@ -118,4 +118,14 @@ public interface TrackDao {
     Map<String,Collection<MetaHeader>> getCrossReference(Company company, MetaHeader header, String xRefName);
 
     Collection<MetaHeader> findHeaders(Company company, Collection<String> toFind);
+
+    void purgeTagRelationships(Fortress fortress);
+
+    void purgeFortressLogs(Fortress fortress);
+
+    void purgePeopleRelationships(Fortress fortress);
+
+    void purgeHeaders(Fortress fortress);
+
+    void purgeFortressDocuments(Fortress fortress);
 }

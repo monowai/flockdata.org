@@ -64,6 +64,9 @@ public class TrackDaoNeo implements TrackDao {
     TrackLogRepo trackLogRepo;
 
     @Autowired
+    SchemaTypeRepo schemaTypeRepo;
+
+    @Autowired
     TrackEventService trackEventService;
 
     @Autowired
@@ -94,7 +97,7 @@ public class TrackDaoNeo implements TrackDao {
         return template.save((TxRefNode) tagRef);
     }
 
-    @Cacheable(value = "metaKey", unless = "#result==null")
+//    @Cacheable(value = "metaKey", unless = "#result==null")
     private MetaHeader getCachedHeader(String key) {
         return metaRepo.findBySchemaPropertyValue(MetaHeaderNode.UUID_KEY, key);
     }
@@ -392,6 +395,32 @@ public class TrackDaoNeo implements TrackDao {
     public Collection<MetaHeader> findHeaders(Company company, Collection<String> toFind) {
         logger.debug("Looking for {} headers for company [{}] ", toFind.size(), company);
         return metaRepo.findHeaders(company.getId(), toFind);
+    }
+
+    @Override
+    public void purgeTagRelationships(Fortress fortress) {
+        // ToDo: Check if this works with huge datasets
+        trackLogRepo.purgeTagRelationships(fortress.getId());
+    }
+
+    @Override
+    public void purgeFortressLogs(Fortress fortress) {
+        trackLogRepo.purgeFortressLogs(fortress.getId());
+    }
+
+    @Override
+    public void purgePeopleRelationships(Fortress fortress) {
+        metaRepo.purgePeopleRelationships(fortress.getId());
+    }
+
+    @Override
+    public void purgeHeaders(Fortress fortress) {
+        metaRepo.purgeHeaders(fortress.getId());
+    }
+
+    @Override
+    public void purgeFortressDocuments(Fortress fortress) {
+        schemaTypeRepo.purgeFortressDocuments(fortress.getId());
     }
 
 

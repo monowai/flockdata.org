@@ -193,4 +193,9 @@ public class SearchServiceFacade {
     public EsSearchResult<Collection<String>> search(QueryParams queryParams){
         return searchGateway.search(queryParams);
     }
+
+    public void purge(String indexName) {
+        // ToDO: Implement this
+        logger.info("Purge the search Fortress {}",indexName);
+    }
 }

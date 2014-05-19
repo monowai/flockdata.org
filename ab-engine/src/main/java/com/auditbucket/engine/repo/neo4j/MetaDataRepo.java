@@ -66,4 +66,11 @@ public interface MetaDataRepo extends GraphRepository<MetaHeaderNode> {
             "return metaHeaders ")
     Collection<MetaHeader> findHeaders(Long id, Collection<String> toFind );
 
+    @Query (value = "match (f:_Fortress)-[track:TRACKS]->(meta:_MetaHeader)-[other]-(:FortressUser) where id(f)={0} delete other")
+    public void purgePeopleRelationships(Long fortressId);
+
+    @Query (value = "match (f:_Fortress)-[track:TRACKS]->(meta:_MetaHeader) where id(f)={0} delete track, meta")
+    public void purgeHeaders(Long fortressId);
+
+
 }

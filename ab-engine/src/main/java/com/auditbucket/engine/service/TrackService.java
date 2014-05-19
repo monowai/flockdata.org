@@ -781,4 +781,13 @@ public class TrackService {
     public Collection<MetaHeader> getHeaders(Company company, Collection<String> toFind) {
         return trackDao.findHeaders(company, toFind);
     }
+
+    public void purge(Fortress fortress) {
+        trackDao.purgeTagRelationships(fortress);
+        trackDao.purgeFortressLogs(fortress);
+        trackDao.purgePeopleRelationships(fortress);
+        trackDao.purgeFortressDocuments(fortress);
+        trackDao.purgeHeaders(fortress);
+        tagService.purgeUnusedTags(fortress.getCompany());
+    }
 }

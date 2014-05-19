@@ -10,7 +10,6 @@ import com.auditbucket.registration.service.RegistrationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -44,10 +43,9 @@ public class AdminEP {
     private static Logger logger = LoggerFactory.getLogger(AdminEP.class);
 
     @RequestMapping(value = "/cache", method = RequestMethod.DELETE)
-    @CacheEvict(value = {"companyFortress", "fortressName", "trackLog", "companyKeys", "companyTag",
-            "fortressUser", "callerKey" }, allEntries = true)
     public void resetCache (){
-        LoggerFactory.getLogger(AdminEP.class).info("Reset the cache");
+        engineConfig.resetCache();
+
     }
 
     @ResponseBody
@@ -73,7 +71,7 @@ public class AdminEP {
         Company company = getCompany(apiHeaderKey, apiKey);
         logger.info("Reindex command received for " + fortressName + " from [" + securityHelper.getLoggedInUser() + "]");
         mediationFacade.reindex(company, fortressName);
-        return new ResponseEntity<>("Request to reindex has been received", HttpStatus.OK);
+        return new ResponseEntity<>("Request to reindex has been received", HttpStatus.ACCEPTED);
     }
 
     @ResponseBody
@@ -85,7 +83,7 @@ public class AdminEP {
 
         logger.info("Reindex command received for " + fortressName + " & docType " + docType + " from [" + securityHelper.getLoggedInUser() + "]");
         mediationFacade.reindexByDocType(company, fortressName, docType);
-        return new ResponseEntity<>("Request to reindex has been received", HttpStatus.OK);
+        return new ResponseEntity<>("Request to reindex fortress document type has been received", HttpStatus.ACCEPTED);
     }
     private Company getCompany(String apiHeaderKey, String apiRequestKey) throws DatagioException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiRequestKey));
@@ -93,6 +91,18 @@ public class AdminEP {
             throw new DatagioException("Unable to resolve supplied API key to a valid company");
         return company;
     }
+
+    @ResponseBody
+    @RequestMapping(value = "/{fortressName}", method = RequestMethod.DELETE)
+    public ResponseEntity<String> purgeFortress(@PathVariable("fortressName") String fortressName,
+                                      String apiKey,
+                                      @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+
+        mediationFacade.purge(fortressName, ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+        return new ResponseEntity<>( "Purged " + fortressName, HttpStatus.OK);
+
+    }
+
 
 
 }

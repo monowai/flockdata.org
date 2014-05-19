@@ -34,5 +34,7 @@ public interface KvRepo {
 
     public void delete(MetaHeader metaHeader, Long key);
 
+    public void purge(String index);
+
     String ping();
 }
