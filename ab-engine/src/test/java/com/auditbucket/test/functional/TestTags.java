@@ -159,7 +159,7 @@ public class TestTags {
     @Test
     public void updateExistingTag() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(authMike);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike).setIsUnique(false));
         assertNotNull(iSystemUser);
         SecurityContextHolder.getContext().setAuthentication(authMike);
 
