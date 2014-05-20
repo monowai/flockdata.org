@@ -468,7 +468,7 @@ public class TrackService {
         return trackDao.getLastLog(metaHeader.getId());
     }
 
-    TrackLog getLastLog(Long headerId) {
+    public TrackLog getLastLog(Long headerId) {
         return trackDao.getLastLog(headerId);
     }
 

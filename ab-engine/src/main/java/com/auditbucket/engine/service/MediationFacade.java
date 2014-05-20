@@ -44,7 +44,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
 
 import java.io.IOException;
@@ -306,14 +305,14 @@ public class MediationFacade {
      *
      */
     @Async
-    @Transactional
-    public void reindex(Company company, String fortressName) throws DatagioException {
+    public Future<Long> reindex(Company company, String fortressName) throws DatagioException {
         Fortress fortress = fortressService.findByName(company, fortressName);
         if (fortress == null)
             throw new DatagioException("Fortress [" + fortress + "] could not be found");
         Long skipCount = 0l;
         long result = reindex(fortress, skipCount);
         logger.info("Reindex Search request completed. Processed [" + result + "] headers for [" + fortressName + "]");
+        return new AsyncResult<>(result);
     }
 
     private long reindex(Fortress fortress, Long skipCount) {

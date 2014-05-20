@@ -76,6 +76,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertSame;
@@ -93,7 +94,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 public class TestAuditIntegration {
-    private boolean ignoreMe = false;
+    private boolean ignoreMe = true;
     private static int fortressMax = 1;
     private static JestClient esClient;
 
@@ -117,9 +118,9 @@ public class TestAuditIntegration {
     private static Authentication authA = new UsernamePasswordAuthenticationToken("mike", "123");
     static Properties properties = new Properties() ;
     @AfterClass
-    public static void pauseForAWhile() throws Exception{
+    public static void waitAWhile() throws Exception{
         System.out.println("Waiting for a while");
-        Thread.sleep(5000);
+        Thread.sleep(3000);
     }
     @BeforeClass
     @Rollback(false)
@@ -134,19 +135,23 @@ public class TestAuditIntegration {
         //factory.setClientConfig(clientConfig);
         esClient = factory.getObject();
 
-        esClient.execute(new DeleteIndex.Builder("ab.testaudit.suppress").build());
-        esClient.execute(new DeleteIndex.Builder("ab.testco.testfortress").build());
-        esClient.execute(new DeleteIndex.Builder("ab.testaudit.ngram").build());
-        esClient.execute(new DeleteIndex.Builder("ab.companywithspace.audittest").build());
-        esClient.execute(new DeleteIndex.Builder("ab.companywithspace.suppress").build());
-
-        esClient.execute(new DeleteIndex.Builder("ab.monowai.trackgraph").build());
-        esClient.execute(new DeleteIndex.Builder("ab.monowai.audittest").build());
+        deleteEsIndex("ab.testaudit.suppress");
+        deleteEsIndex("ab.testco.testfortress");
+        deleteEsIndex("ab.testaudit.ngram");
+        deleteEsIndex("ab.companywithspace.audittest");
+        deleteEsIndex("ab.companywithspace.suppress");
+        deleteEsIndex("ab.monowai.trackgraph");
+        deleteEsIndex("ab.monowai.audittest");
+        deleteEsIndex("ab.monowai.111");
 
         for (int i = 1; i < fortressMax + 1; i++) {
-            esClient.execute(new DeleteIndex.Builder("ab.testaudit.bulkloada" + i).build());
+            deleteEsIndex("ab.testaudit.bulkloada" + i);
         }
         SecurityContextHolder.getContext().setAuthentication(authA);
+    }
+
+    private static void deleteEsIndex(String indexName) throws Exception {
+        esClient.execute(new DeleteIndex.Builder(indexName).build());
     }
 
     @AfterClass
@@ -226,10 +231,39 @@ public class TestAuditIntegration {
         // Check we can find the Event in ElasticSearch
         doEsQuery(summary.getHeader().getIndexName(), "ZZZ999", 0);
     }
+    @Test
+    public void rebuildESIndexFromEngine() throws Exception {
+        assumeTrue(ignoreMe);
+        deleteEsIndex("ab.monowai.rebuildtest");
+        logger.info("rebuildIndex started");
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        String company = "Monowai";
+        regService.registerSystemUser(new RegistrationBean(company, email).setIsUnique(false));
+        Fortress fo = fortressService.registerFortress(new FortressInputBean("rebuildTest", false));
 
+        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
+        inputBean.setLog(new LogInputBean("wally", new DateTime(), "{\"blah\":1}"));
+        TrackResultBean auditResult = mediationFacade.createHeader(inputBean, null);
+
+        MetaHeader metaHeader = trackService.getHeader(auditResult.getMetaKey());
+        waitForHeaderToUpdate(metaHeader);
+
+        waitAWhile();
+        doEsQuery(metaHeader.getIndexName(), "*");
+
+        deleteEsIndex(metaHeader.getIndexName());
+        // Rebuild....
+        Future<Long> fResult = mediationFacade.reindex(fo.getCompany(), fo.getName());
+
+        Assert.assertEquals(1l, fResult.get().longValue());
+        waitAWhile();
+        doEsQuery(metaHeader.getIndexName(), "*");
+
+    }
     @Test
     public void createHeaderTimeLogsWithSearchActivated() throws Exception {
-        assumeTrue(!ignoreMe);
+        assumeTrue(ignoreMe);
+        deleteEsIndex("ab.monowai.111");
         int max = 3;
         String ahKey;
         logger.info("createHeaderTimeLogsWithSearchActivated started");
@@ -261,33 +295,12 @@ public class TestAuditIntegration {
             i++;
         }
         watch.stop();
-        Thread.sleep(8000);
+        Thread.sleep(2000);
         // Test that we get the expected number of log events
         if (!"rest".equals(System.getProperty("neo4j"))) // Don't check if running over rest
             assertEquals("This will fail if the DB is not cleared down, i.e. testing over REST", max, trackService.getLogCount(ahKey));
 
-        // Putting asserts On elasticsearch
-        String query = "{" +
-                "   \"query\": {  " +
-                "\"query_string\" : { " +
-                " \"default_field\" :\"" + MetaSearchSchema.WHAT + ".blah\", " +
-                " \"query\" :\"*\" " +
-                "}  " +
-                "}  " +
-                "}";
-        Search search = new Search.Builder(query)
-                .addIndex(metaHeader.getIndexName())
-                .build();
-
-        JestResult result = esClient.execute(search);
-        assertNotNull(result);
-        assertNotNull(result.getJsonObject());
-        assertNotNull(result.getJsonObject().getAsJsonObject("hits"));
-        assertNotNull(result.getJsonObject().getAsJsonObject("hits").get("total"));
-        int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
-        // Only the last change is indexed, so there should be one result
-        Assert.assertEquals(1, nbrResult);
-
+        doEsFieldQuery(metaHeader.getIndexName(), MetaSearchSchema.WHAT + ".blah", "*", 1);
     }
 
     @Test
