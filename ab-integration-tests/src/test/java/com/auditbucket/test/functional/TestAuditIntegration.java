@@ -28,7 +28,6 @@ import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
-import com.auditbucket.registration.endpoint.TagEP;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.FortressService;
@@ -394,9 +393,6 @@ public class TestAuditIntegration {
         doEsQuery(indexName, "bob", 0);
         doEsQuery(indexName, "andy");
     }
-
-    @Autowired
-    TagEP tagEP;
 
     @Test
     public void tagKeyReturnsUniqueResult() throws Exception {

@@ -41,7 +41,7 @@ public class MetaInputBean {
     private List<TagInputBean> tags = new ArrayList<>();
     private Map<String,List<String>> crossReferences = new HashMap<>();
 
-    private String event;
+    private String event = "Create";
     private String description;
     private String name;
     private boolean searchSuppressed;
