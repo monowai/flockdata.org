@@ -94,7 +94,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 public class TestAuditIntegration {
-    private boolean ignoreMe = true;
+    private boolean ignoreMe = false;
     private static int fortressMax = 1;
     private static JestClient esClient;
 
@@ -113,14 +113,16 @@ public class TestAuditIntegration {
     @Autowired
     WhatService whatService;
 
-    private Logger logger = LoggerFactory.getLogger(TestAuditIntegration.class);
+    private static Logger logger = LoggerFactory.getLogger(TestAuditIntegration.class);
     private String email = "mike";
     private static Authentication authA = new UsernamePasswordAuthenticationToken("mike", "123");
     static Properties properties = new Properties() ;
+
     @AfterClass
     public static void waitAWhile() throws Exception{
-        System.out.println("Waiting for a while");
-        Thread.sleep(3000);
+        Long pauseCount = 2000l;
+        logger.info("Waiting for {} seconds", pauseCount/1000d);
+        Thread.sleep(pauseCount);
     }
     @BeforeClass
     @Rollback(false)
@@ -233,7 +235,7 @@ public class TestAuditIntegration {
     }
     @Test
     public void rebuildESIndexFromEngine() throws Exception {
-        assumeTrue(ignoreMe);
+        assumeTrue(!ignoreMe);
         deleteEsIndex("ab.monowai.rebuildtest");
         logger.info("rebuildIndex started");
         SecurityContextHolder.getContext().setAuthentication(authA);
@@ -262,7 +264,7 @@ public class TestAuditIntegration {
     }
     @Test
     public void createHeaderTimeLogsWithSearchActivated() throws Exception {
-        assumeTrue(ignoreMe);
+        assumeTrue(!ignoreMe);
         deleteEsIndex("ab.monowai.111");
         int max = 3;
         String ahKey;
@@ -295,7 +297,7 @@ public class TestAuditIntegration {
             i++;
         }
         watch.stop();
-        Thread.sleep(2000);
+        waitAWhile();
         // Test that we get the expected number of log events
         if (!"rest".equals(System.getProperty("neo4j"))) // Don't check if running over rest
             assertEquals("This will fail if the DB is not cleared down, i.e. testing over REST", max, trackService.getLogCount(ahKey));
@@ -319,32 +321,32 @@ public class TestAuditIntegration {
         String indexName = MetaSearchSchema.parseIndex(fortress);
 
         // Putting asserts On elasticsearch
-        Thread.sleep(2000); // Let the messaging take effect
+        waitAWhile();
         doEsQuery(indexName, "*", 1);
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setTrackSuppressed(true);
         mediationFacade.createHeader(inputBean, null);
-        Thread.sleep(2000); // Let the messaging take effect
+        waitAWhile();
         doEsQuery(indexName, "*", 2);
 
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setTrackSuppressed(true);
         mediationFacade.createHeader(inputBean, null);
-        Thread.sleep(2000); // Let the messaging take effect
+        waitAWhile();
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(indexName, "*", 2);
 
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setTrackSuppressed(true);
         mediationFacade.createHeader(inputBean, null);
-        Thread.sleep(2000); // Let the messaging take effect
+        waitAWhile();
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(indexName, "*", 2);
 
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC125");
         inputBean.setTrackSuppressed(true);
         mediationFacade.createHeader(inputBean, null);
-        Thread.sleep(2000); // Let the messaging take effect
+        waitAWhile();
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(indexName, "*", 3);
 
@@ -373,7 +375,7 @@ public class TestAuditIntegration {
         junit.framework.Assert.assertNotNull(resultBean);
 
         waitForHeaderToUpdate(indexHeader);
-        Thread.sleep(1000);
+        waitAWhile();
         String indexName = indexHeader.getIndexName();
 
         doEsQuery(indexName, "andy");
@@ -384,7 +386,7 @@ public class TestAuditIntegration {
         MetaHeader noIndexHeader = trackService.getHeader(noIndex.getMetaKey());
 
         mediationFacade.processLog(new LogInputBean(noIndexHeader.getMetaKey(), inputBean.getFortressUser(), new DateTime(), escJson + "\"bob\"}"));
-        Thread.sleep(1000);
+        waitAWhile();
         // Bob's not there because we said we didn't want to index that header
         doEsQuery(indexName, "bob", 0);
         doEsQuery(indexName, "andy");
@@ -413,7 +415,7 @@ public class TestAuditIntegration {
 
         LogResultBean resultBean = mediationFacade.processLog(new LogInputBean(indexHeader.getMetaKey(), metaInput.getFortressUser(), new DateTime(), escJson + "\"andy\"}"));
         assertNotNull(resultBean);
-        Thread.sleep(2000);
+        waitAWhile();
 
         waitForHeaderToUpdate(indexHeader);
         doEsFieldQuery(indexName, "@tag." + relationshipName + ".key", "keytestworks", 1);
@@ -434,7 +436,7 @@ public class TestAuditIntegration {
         mediationFacade.processLog(new LogInputBean(indexHeader.getMetaKey(), inputBean.getFortressUser(), new DateTime(), what));
         waitForHeaderToUpdate(indexHeader);
         String indexName = indexHeader.getIndexName();
-        Thread.sleep(1000);
+        waitAWhile();
 
         doEsTermQuery(indexName, MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "des", 1);
         doEsTermQuery(indexName, MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "de", 0);
@@ -496,11 +498,7 @@ public class TestAuditIntegration {
                 requests++;
                 int log = 1;
                 while (log <= logMax) {
-                    //String escJson = Helper.getBigJsonText(log);
-                    //trackService.createLog(new LogInputBean(arb.getMetaKey(), aib.getFortressUser(), new DateTime(), escJson ));
-
                     createLog(simpleJson, aib, arb, log);
-                    //Thread.sleep(100);
                     requests++;
                     if (!searchChecked) {
                         searchChecked = true;
@@ -528,9 +526,10 @@ public class TestAuditIntegration {
 
         logger.info("*** Created data set in " + f.format(splitTotals) + " fortress avg = " + f.format(splitTotals / fortressMax) + " avg processing time per request " + f.format(splitTotals / totalRows) + ". Requests per second " + f.format(totalRows / splitTotals));
         watch.reset();
-        Thread.sleep(5000); // give things a final chance to complete
+        waitAWhile();
 
         validateLogsIndexed(list, auditMax, logMax);
+        waitAWhile();
         doSearchTests(auditMax, list, watch);
     }
 
@@ -548,7 +547,7 @@ public class TestAuditIntegration {
         SystemUser su = regService.registerSystemUser(new RegistrationBean("TestCo", "mike").setIsUnique(false));
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("TestFortress", false));
-        Thread.sleep(300);
+        waitAWhile();
 
         LogInputBean log = new LogInputBean("mikeTest", new DateTime(), escJson );
         MetaInputBean input = new MetaInputBean("TestFortress", "mikeTest", "Query", new DateTime(), "abzz");
@@ -556,7 +555,7 @@ public class TestAuditIntegration {
 
         TrackResultBean result = trackEP.trackHeader(input, su.getApiKey(), su.getApiKey() ).getBody();
         waitForHeaderToUpdate(result.getMetaHeader(), su.getApiKey());
-        Thread.sleep(2000);
+        waitAWhile();
 //        restClient.writeAudit(input, "Hello World");
 
 
@@ -620,17 +619,19 @@ public class TestAuditIntegration {
     private int waitForHeaderToUpdate(MetaHeader header, String apiKey) throws Exception{
         // Looking for the first searchKey to be logged against the metaHeader
         int i = 0;
-        int timeout = 50;
+        int timeout = 300;
 
         MetaHeader metaHeader = trackEP.getMetaHeader(header.getMetaKey(), apiKey, apiKey).getBody();
         if (metaHeader.getSearchKey() != null)
             return 0;
         while (metaHeader.getSearchKey() == null && i <= timeout) {
             metaHeader = trackEP.getMetaHeader(header.getMetaKey(), apiKey, apiKey).getBody();
-            Thread.sleep(400);
+            Thread.yield();
+            if (i > 20)
+                waitAWhile();
             i++;
         }
-        if (i > 10)
+        if (i > 20)
             logger.info("Wait for search got to [{}] for metaId [{}]", i, metaHeader.getId());
         boolean searchWorking = metaHeader.getSearchKey() != null;
         assertTrue("Search reply not received from ab-search", searchWorking);
