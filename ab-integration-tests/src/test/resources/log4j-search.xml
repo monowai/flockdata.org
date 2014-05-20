@@ -64,6 +64,9 @@
         <level value="info"/>
     </logger>
 
+    <logger name="com.auditbucket">
+        <level value="info"/>
+    </logger>
 
     <!-- Root Logger. If you're diagnosing integration test issues, up this value to debug -->
     <root>

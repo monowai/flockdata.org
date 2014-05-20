@@ -16,7 +16,7 @@ import java.util.ArrayList;
  * Convert incoming bytes to an ArrayList<MetaSearchChange>
  *
  */
-@Component("jsonToAuditSearchChangeConverter")
+@Component("jsonToSearchChangeConverter")
 public class JsonSearchChangeConverter extends SimpleMessageConverter {
 
     @Override
