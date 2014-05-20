@@ -208,7 +208,7 @@ public class TagService {
         tagDao.save(company, tagInputs, suppressRelationships);
     }
 
-    public void purgeUnusedTags (Company company){
+    public void purgeUnusedConcepts(Company company){
         tagDao.purgeUnusedConcepts(company);
     }
 }

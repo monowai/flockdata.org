@@ -28,6 +28,8 @@ import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -62,6 +64,18 @@ public class TagEP {
         schemaDao.ensureUniqueIndexes(company, tagInputs, tagService.getExistingIndexes());
         tagService.createTagsNoRelationships(company, tagInputs);
         return tagService.processTags(company, tagInputs);
+
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.DELETE)
+    public ResponseEntity<String> purgeUnusedConcepts(
+                                               String apiKey,
+                                               @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+        Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+
+        tagService.purgeUnusedConcepts(company);
+        return new ResponseEntity<>("Purged unused concepts", HttpStatus.ACCEPTED);
 
     }
 

@@ -788,6 +788,5 @@ public class TrackService {
         trackDao.purgePeopleRelationships(fortress);
         trackDao.purgeFortressDocuments(fortress);
         trackDao.purgeHeaders(fortress);
-        tagService.purgeUnusedTags(fortress.getCompany());
     }
 }
