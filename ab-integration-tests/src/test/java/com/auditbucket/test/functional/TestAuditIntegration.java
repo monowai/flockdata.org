@@ -56,8 +56,6 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.data.neo4j.support.node.Neo4jHelper;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -68,7 +66,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -96,7 +93,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 public class TestAuditIntegration {
-    private boolean ignoreMe = true;
+    private boolean ignoreMe = false;
     private static int fortressMax = 1;
     private static JestClient esClient;
 
@@ -115,12 +112,9 @@ public class TestAuditIntegration {
     @Autowired
     WhatService whatService;
 
-    @Autowired
-    private Neo4jTemplate template;
-
     private Logger logger = LoggerFactory.getLogger(TestAuditIntegration.class);
     private String email = "mike";
-    private Authentication authA = new UsernamePasswordAuthenticationToken(email, "123");
+    private static Authentication authA = new UsernamePasswordAuthenticationToken("mike", "123");
     static Properties properties = new Properties() ;
     @AfterClass
     public static void pauseForAWhile() throws Exception{
@@ -144,31 +138,20 @@ public class TestAuditIntegration {
         esClient.execute(new DeleteIndex.Builder("ab.testco.testfortress").build());
         esClient.execute(new DeleteIndex.Builder("ab.testaudit.ngram").build());
         esClient.execute(new DeleteIndex.Builder("ab.companywithspace.audittest").build());
+        esClient.execute(new DeleteIndex.Builder("ab.companywithspace.suppress").build());
+
         esClient.execute(new DeleteIndex.Builder("ab.monowai.trackgraph").build());
         esClient.execute(new DeleteIndex.Builder("ab.monowai.audittest").build());
 
         for (int i = 1; i < fortressMax + 1; i++) {
             esClient.execute(new DeleteIndex.Builder("ab.testaudit.bulkloada" + i).build());
         }
-
+        SecurityContextHolder.getContext().setAuthentication(authA);
     }
 
     @AfterClass
     public static void shutDownElasticSearch() throws Exception {
         esClient.shutdownClient();
-    }
-
-    @Rollback(false)
-    @BeforeTransaction
-    public void cleanUpGraph() throws Exception {
-        // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
-        // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-
-        SecurityContextHolder.getContext().setAuthentication(authA);
-        if ("rest".equals(System.getProperty("neo4j")))
-            return;
-        Neo4jHelper.cleanDb(template);
-
     }
 
     @Test
@@ -395,21 +378,21 @@ public class TestAuditIntegration {
     }
 
     @Test
-    public void tagKeyReturnsUniqueResult() throws Exception {
+    public void tagKeyReturnsSingleSearchResult() throws Exception {
         assumeTrue(!ignoreMe);
 
         String escJson = "{\"who\":";
-        SecurityContextHolder.getContext().setAuthentication(authA);
-        regService.registerSystemUser(new RegistrationBean("TestTrack", email).setIsUnique(false));
-        Fortress iFortress = fortressService.registerFortress(new FortressInputBean("suppress", false));
+        regService.registerSystemUser(new RegistrationBean("TestTrack", "mike").setIsUnique(false));
+        Fortress iFortress = fortressService.registerFortress(new FortressInputBean("suppress"));
         MetaInputBean metaInput = new MetaInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
-        String tagSearch = "example"; // Relationship names is indexed as @tag.relationship.key in ES
-        TagInputBean tag = new TagInputBean("Key Test Works", tagSearch);
+        String relationshipName = "example"; // Relationship names is indexed are @tag.relationshipName.key in ES
+        TagInputBean tag = new TagInputBean("Key Test Works", relationshipName);
         metaInput.setTag(tag);
-
 
         TrackResultBean indexedResult = mediationFacade.createHeader(metaInput, null);
         MetaHeader indexHeader = trackService.getHeader(indexedResult.getMetaKey());
+        String indexName = indexHeader.getIndexName();
+//        doEsFieldQuery(indexName, "@tag." + relationshipName + ".key", "keytestworks", 1);
 
         Set<TrackTag> tags = trackEP.getAuditTags(indexHeader.getMetaKey(), null, null).getBody();
         assertNotNull(tags);
@@ -420,8 +403,7 @@ public class TestAuditIntegration {
         Thread.sleep(2000);
 
         waitForHeaderToUpdate(indexHeader);
-        String indexName = indexHeader.getIndexName();
-        doEsFieldQuery(indexName, "@tag." + tagSearch + ".key", "keytestworks", 1);
+        doEsFieldQuery(indexName, "@tag." + relationshipName + ".key", "keytestworks", 1);
 
     }
 
@@ -461,7 +443,7 @@ public class TestAuditIntegration {
 
     @Test
     public void stressWithHighVolume() throws Exception {
-        assumeTrue(ignoreMe);
+        assumeTrue(!ignoreMe);
         logger.info("stressWithHighVolume started");
         SecurityContextHolder.getContext().setAuthentication(authA);
         //Neo4jHelper.cleanDb(graphDatabaseService, true);
@@ -793,7 +775,7 @@ public class TestAuditIntegration {
         assertNotNull(message, result.getJsonObject().getAsJsonObject("hits").get("total"));
         int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
 
-        Assert.assertEquals("Unexpected hit count searching for {" + queryString + "} in field {" + field + "}", expectedHitCount, nbrResult);
+        Assert.assertEquals("Unexpected hit count searching '"+index+"' for {" + queryString + "} in field {" + field + "}", expectedHitCount, nbrResult);
         return result.getJsonObject()
                 .getAsJsonObject("hits")
                 .getAsJsonArray("hits")
