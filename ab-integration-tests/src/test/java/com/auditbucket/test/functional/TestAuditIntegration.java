@@ -96,7 +96,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 public class TestAuditIntegration {
-    private boolean ignoreMe = false;
+    private boolean ignoreMe = true;
     private static int fortressMax = 1;
     private static JestClient esClient;
 
@@ -461,7 +461,7 @@ public class TestAuditIntegration {
 
     @Test
     public void stressWithHighVolume() throws Exception {
-        assumeTrue(!ignoreMe);
+        assumeTrue(ignoreMe);
         logger.info("stressWithHighVolume started");
         SecurityContextHolder.getContext().setAuthentication(authA);
         //Neo4jHelper.cleanDb(graphDatabaseService, true);

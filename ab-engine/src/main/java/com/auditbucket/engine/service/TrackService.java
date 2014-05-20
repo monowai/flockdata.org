@@ -326,7 +326,7 @@ public class TrackService {
         input.setStatus(LogInputBean.LogStatus.OK);
 
         if (moreRecent) {
-            if (!authorisedHeader.getLastUser().getId().equals(thisFortressUser.getId())) {
+            if (authorisedHeader.getLastUser()== null || (!authorisedHeader.getLastUser().getId().equals(thisFortressUser.getId()))) {
                 authorisedHeader.setLastUser(thisFortressUser);
                 trackDao.save(authorisedHeader);
             }
@@ -355,7 +355,8 @@ public class TrackService {
         searchDocument.setTags(tagTrackService.findTrackTags(metaHeader.getFortress().getCompany(), metaHeader));
         searchDocument.setDescription(metaHeader.getName());
         try {
-            logger.trace("JSON {}", om.writeValueAsString(searchDocument));
+            if ( logger.isTraceEnabled())
+                logger.trace("JSON {}", om.writeValueAsString(searchDocument));
         } catch (JsonProcessingException e) {
             logger.error(e.getMessage());
             throw (e);
