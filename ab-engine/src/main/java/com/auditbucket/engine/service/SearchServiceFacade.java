@@ -22,6 +22,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -118,23 +119,40 @@ public class SearchServiceFacade {
             logger.debug("Skipping {}", when);
         }
     }
-
-    public void makeHeaderSearchable(Company company, TrackResultBean resultBean, String event, Date when) {
+    public SearchChange getSearchDocument(Company company, TrackResultBean resultBean){
+        SearchChange searchChange = null;
         MetaHeader header = resultBean.getMetaHeader();
-        if (header.isSearchSuppressed() || !header.getFortress().isSearchActive())
-            return ;
+        if (!(header.isSearchSuppressed() || !header.getFortress().isSearchActive())){
+            //result, result.getMetaInputBean().getEvent(), result.getMetaInputBean().getWhen()
+            searchChange = getSearchChange(company, resultBean, resultBean.getMetaInputBean().getEvent(), resultBean.getMetaInputBean().getWhen());
+        }
+        return searchChange;
 
-        SearchChange searchDocument = getSearchChange(company, resultBean, event, when);
-        if (searchDocument == null) return ;
-        makeChangeSearchable(searchDocument);
+
+    }
+
+//    public Collection<SearchChange> getSearchDocuments(Company company, Collection<TrackResultBean> resultBeans) {
+//        Collection<SearchChange>searchChanges = new ArrayList<>();
+//        for (TrackResultBean resultBean : resultBeans) {
+//            searchChanges.add(getSearchDocument(company, resultBean));
+//        }
+//        return searchChanges;
+//    }
+
+    public void makeChangeSearchable (SearchChange searchChange){
+        if ( searchChange == null )
+            return;
+        Collection<SearchChange>searchChanges = new ArrayList<>();
+        searchChanges.add(searchChange);
+        makeChangeSearchable(searchChanges);
     }
 
     @Async
-    public Future<Void> makeChangeSearchable(SearchChange searchDocument) {
+    public Future<Void> makeChangeSearchable(Collection<SearchChange> searchDocument) {
         if (searchDocument == null)
             return null;
-        logger.debug("Sending request to index trackLog [{}]]", searchDocument);
-        searchGateway.makeChangeSearchable(searchDocument);
+        logger.debug("Sending request to index [{}]] logs", searchDocument.size());
+        searchGateway.makeSearchChanges(searchDocument);
         return null;
     }
 

@@ -34,6 +34,7 @@ import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.QueryParams;
 import com.auditbucket.track.bean.*;
 import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.SearchChange;
 import com.auditbucket.track.model.TrackLog;
 import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
@@ -48,6 +49,7 @@ import org.springframework.util.StopWatch;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -140,9 +142,13 @@ public class MediationFacade {
 
         } else {
             logger.info("Processing in slow Transaction mode");
+            Collection<SearchChange> searchChanges = new ArrayList<>();
             for (MetaInputBean inputBean : inputBeans) {
-                createHeader(company, fortress, inputBean);
+                TrackResultBean result = createHeader(company, fortress, inputBean);
+                if ( result!=null )
+                    searchChanges.add(searchService.getSearchDocument(company, result));
             }
+            searchService.makeChangeSearchable(searchChanges);
         }
         watch.stop();
         logger.info("Completed Batch [{}] - secs= {}, RPS={}", id, f.format(watch.getTotalTimeSeconds()), f.format(inputBeans.size() / watch.getTotalTimeSeconds()));
@@ -159,7 +165,19 @@ public class MediationFacade {
         Company company = registrationService.resolveCompany(apiKey);
         Fortress fortress = fortressService.registerFortress(company, new FortressInputBean(inputBean.getFortress(), false));
         fortress.setCompany(company);
-        return createHeader(company, fortress, inputBean);
+        TrackResultBean result =  createHeader(company, fortress, inputBean);
+        SearchChange searchChange = null;
+        if (result.getMetaInputBean().isTrackSuppressed()){
+            // If we aren't tracking in the graph, then we have to be searching
+            // else why even call this service??
+            searchChange = searchService.getSearchDocument(company, result);
+        }
+        else if (!result.isDuplicate() &&
+                result.getMetaInputBean().getEvent() != null && !"".equals(result.getMetaInputBean().getEvent())) {
+            searchChange =searchService.getSearchDocument(company, result);
+        }
+        searchService.makeChangeSearchable(searchChange);
+        return result;
     }
 
     public TrackResultBean createHeader(final Company company, final Fortress fortress, final MetaInputBean inputBean) throws DatagioException, IOException {
@@ -172,7 +190,7 @@ public class MediationFacade {
             @Override
             public Command execute() throws DatagioException, IOException {
                 result = trackService.createHeader(company, fortress, inputBean);
-                processLogFromResult(company, result);
+                result = processLogFromResult(company, result);
 
                 return this;
             }
@@ -187,7 +205,15 @@ public class MediationFacade {
     public Future<Void> processLogs(Company company, Iterable<TrackResultBean> resultBeans) throws DatagioException, IOException {
 
         for (TrackResultBean resultBean : resultBeans) {
-            processLogFromResult(company, resultBean);
+            TrackResultBean trackResultBean = processLogFromResult(company, resultBean);
+            if (resultBean.getMetaInputBean().isTrackSuppressed())
+                // If we aren't tracking in the graph, then we have to be searching
+                // else why even call this service??
+                searchService.getSearchDocument(company, trackResultBean);
+            else if (!resultBean.isDuplicate() &&
+                    resultBean.getMetaInputBean().getEvent() != null && !"".equals(resultBean.getMetaInputBean().getEvent())) {
+                searchService.getSearchDocument(company, trackResultBean);
+            }
         }
         return new AsyncResult<>(null);
     }
@@ -203,7 +229,7 @@ public class MediationFacade {
         return processLogForHeader(header, resultBean.getLog());
     }
 
-    private void processLogFromResult(Company company, TrackResultBean resultBean) throws DatagioException, IOException {
+    private TrackResultBean processLogFromResult(Company company, TrackResultBean resultBean) throws DatagioException, IOException {
         LogInputBean logBean = resultBean.getLog();
         MetaHeader header = resultBean.getMetaHeader();
         // Here on could be spun in to a separate thread. The log has to happen eventually
@@ -224,16 +250,8 @@ public class MediationFacade {
             logResult.setFortressUser(null);
             resultBean.setLogResult(logResult);
 
-        } else {
-            if (resultBean.getMetaInputBean().isTrackSuppressed())
-                // If we aren't tracking in the graph, then we have to be searching
-                // else why even call this service??
-                searchService.makeHeaderSearchable(company, resultBean, resultBean.getMetaInputBean().getEvent(), resultBean.getMetaInputBean().getWhen());
-            else if (!resultBean.isDuplicate() &&
-                    resultBean.getMetaInputBean().getEvent() != null && !"".equals(resultBean.getMetaInputBean().getEvent())) {
-                searchService.makeHeaderSearchable(company, resultBean, resultBean.getMetaInputBean().getEvent(), resultBean.getMetaInputBean().getWhen());
-            }
         }
+        return resultBean;
     }
 
     /**
