@@ -458,9 +458,12 @@ public class TestAuditIntegration {
 
     }
 
-    private SystemUser registerSystemUser(String companyName, String loginToCreate) throws DatagioException {
+    private SystemUser registerSystemUser(String companyName, String loginToCreate) throws DatagioException, InterruptedException {
         SecurityContextHolder.getContext().setAuthentication(authA);
         SystemUser su = regService.registerSystemUser(new RegistrationBean(companyName, loginToCreate).setIsUnique(false));
+        // creating company alters the schema that sometimes throws a heuristic exception.
+        Thread.yield();
+        Thread.sleep(300);
         Thread.yield();
         return su;
     }
