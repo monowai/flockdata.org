@@ -140,6 +140,7 @@ public class TestAuditIntegration {
         deleteEsIndex("ab.testaudit.suppress");
         deleteEsIndex("ab.testco.testfortress");
         deleteEsIndex("ab.testaudit.ngram");
+        deleteEsIndex("ab.testaudit.rebuildtest");
         deleteEsIndex("ab.companywithspace.audittest");
         deleteEsIndex("ab.companywithspace.suppress");
         deleteEsIndex("ab.monowai.trackgraph");
@@ -473,6 +474,7 @@ public class TestAuditIntegration {
         assumeTrue(!ignoreMe);
         logger.info("## stressWithHighVolume");
         registerSystemUser("TestAudit", email);
+        waitAWhile();
 
         int auditMax = 10;
         int logMax = 10;
