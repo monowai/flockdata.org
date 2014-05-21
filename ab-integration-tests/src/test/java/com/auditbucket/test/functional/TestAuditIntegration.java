@@ -143,12 +143,13 @@ public class TestAuditIntegration {
         deleteEsIndex("ab.testaudit.rebuildtest");
         deleteEsIndex("ab.companywithspace.audittest");
         deleteEsIndex("ab.companywithspace.suppress");
+        deleteEsIndex("ab.companywithspace.headerwithtagsprocess");
         deleteEsIndex("ab.monowai.trackgraph");
         deleteEsIndex("ab.monowai.audittest");
         deleteEsIndex("ab.monowai.111");
 
         for (int i = 1; i < fortressMax + 1; i++) {
-            deleteEsIndex("ab.testaudit.bulkloada" + i);
+            deleteEsIndex("ab.companywithspace.bulkloada" + i);
         }
         SecurityContextHolder.getContext().setAuthentication(authA);
     }
@@ -198,7 +199,7 @@ public class TestAuditIntegration {
         inputBean.setEvent("TagTest");
         TrackResultBean auditResult;
         auditResult = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody();
-        Thread.sleep(4000);
+        waitForHeaderToUpdate(auditResult.getMetaHeader());
         TrackedSummaryBean summary = trackEP.getAuditSummary(auditResult.getMetaKey(), apiKey, apiKey).getBody();
         assertNotNull(summary);
         // Check we can find the Event in ElasticSearch
@@ -221,7 +222,7 @@ public class TestAuditIntegration {
         inputBean.setIsMetaOnly(true); // Must be true to make over to search
         TrackResultBean auditResult;
         auditResult = mediationFacade.createHeader(inputBean, null);
-        Thread.sleep(4000);
+        waitForHeaderToUpdate(auditResult.getMetaHeader());
         TrackedSummaryBean summary = mediationFacade.getTrackedSummary(auditResult.getMetaKey());
         assertNotNull(summary);
         assertSame("change logs were not expected", 0, summary.getChanges().size());
