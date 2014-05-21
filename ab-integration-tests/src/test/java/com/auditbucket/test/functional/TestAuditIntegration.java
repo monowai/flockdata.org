@@ -139,7 +139,7 @@ public class TestAuditIntegration {
 
         deleteEsIndex("ab.testaudit.suppress");
         deleteEsIndex("ab.testco.testfortress");
-        deleteEsIndex("ab.testaudit.ngram");
+        deleteEsIndex("ab.ngram.ngram");
         deleteEsIndex("ab.testaudit.rebuildtest");
         deleteEsIndex("ab.companywithspace.audittest");
         deleteEsIndex("ab.companywithspace.suppress");
@@ -431,7 +431,8 @@ public class TestAuditIntegration {
     public void testWhatIndexingDefaultAttributeWithNGram() throws Exception {
         assumeTrue(!ignoreMe);
         logger.info("## testWhatIndexingDefaultAttributeWithNGram");
-        registerSystemUser("TestTrack", email);
+        registerSystemUser("ngram", email);
+        waitAWhile(); //Trying to avoid Heuristic completion
         Fortress iFortress = fortressService.registerFortress(new FortressInputBean("ngram", false));
         MetaInputBean inputBean = new MetaInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
 
