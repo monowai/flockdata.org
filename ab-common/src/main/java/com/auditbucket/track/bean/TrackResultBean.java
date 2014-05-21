@@ -70,6 +70,11 @@ public class TrackResultBean {
         this.metaHeader = input;
     }
 
+    public TrackResultBean(LogResultBean logResultBean, LogInputBean input) {
+        this.logResult = logResultBean;
+        this.log = input;
+    }
+
     public String getFortressName() {
         return fortressName;
     }
