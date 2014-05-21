@@ -336,6 +336,7 @@ public class TrackDaoNeo implements TrackDao {
         }
 
         logger.debug("Added Log - MetaHeader [{}], Log [{}], Change [{}]", metaHeader.getId(), newLog, newChange.getId());
+        newLog.setMetaHeader(metaHeader);
         return newLog;
 
     }

@@ -46,6 +46,7 @@ public class MetaInputBean {
     private String name;
     private boolean searchSuppressed;
     private boolean trackSuppressed = false;
+    private boolean isMetaOnly;
 
 
     public MetaInputBean() {
@@ -168,6 +169,7 @@ public class MetaInputBean {
     public void setLog(LogInputBean log) {
         this.log = log;
         if (log != null) {
+            this.isMetaOnly = false;
             this.when = log.getWhen();
         }
     }
@@ -312,5 +314,23 @@ public class MetaInputBean {
 
     public void setName(String name) {
         this.name = (name!=null? name.trim():name);
+    }
+
+    /**
+     * Flags that this Header will never have a log. Rather it is a MetaHeader thing
+     * that we want to see in the Search Service.
+     *
+     * @param metaOnly if false then the header will not be indexed in search until a log is added
+     */
+    public void setIsMetaOnly(boolean metaOnly) {
+        isMetaOnly = metaOnly;
+    }
+
+    public boolean isMetaOnly() {
+        return isMetaOnly;
+    }
+
+    public void setMetaOnly(boolean metaOnly) {
+        isMetaOnly = metaOnly;
     }
 }

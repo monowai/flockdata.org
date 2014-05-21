@@ -7,11 +7,11 @@ import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.MetaSearchChange;
 import com.auditbucket.search.model.QueryParams;
 import com.auditbucket.search.model.SearchResult;
+import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
-import com.auditbucket.track.model.Log;
-import com.auditbucket.track.model.MetaHeader;
-import com.auditbucket.track.model.SearchChange;
-import com.auditbucket.track.model.TrackLog;
+import com.auditbucket.track.model.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,7 +120,7 @@ public class SearchServiceFacade {
         }
     }
 
-    public SearchChange getSearchDocument(Company company, TrackResultBean resultBean) {
+    public SearchChange getSearchChange(Company company, TrackResultBean resultBean) {
         SearchChange searchChange = null;
         MetaHeader header = resultBean.getMetaHeader();
         if (!(header.isSearchSuppressed() || !header.getFortress().isSearchActive())) {
@@ -175,6 +175,35 @@ public class SearchServiceFacade {
         } else {
             searchDocument.setTags(tagTrackService.findTrackTags(company, header));
         }
+        return searchDocument;
+    }
+
+    private static final ObjectMapper om = new ObjectMapper();
+
+    public SearchChange prepareSearchDocument(MetaHeader metaHeader, LogInputBean logInput, ChangeEvent event, DateTime fortressWhen, TrackLog trackLog) throws JsonProcessingException {
+
+        if (metaHeader.isSearchSuppressed())
+            return null;
+        SearchChange searchDocument;
+        searchDocument = new MetaSearchChange(metaHeader, logInput.getMapWhat(), event.getCode(), fortressWhen);
+        searchDocument.setWho(trackLog.getChange().getWho().getCode());
+        searchDocument.setTags(tagTrackService.findTrackTags(metaHeader.getFortress().getCompany(), metaHeader));
+        searchDocument.setDescription(metaHeader.getName());
+        try {
+            if (logger.isTraceEnabled())
+                logger.trace("JSON {}", om.writeValueAsString(searchDocument));
+        } catch (JsonProcessingException e) {
+            logger.error(e.getMessage());
+            throw (e);
+        }
+        if (trackLog.getSysWhen() != 0)
+            searchDocument.setSysWhen(trackLog.getSysWhen());
+        else
+            searchDocument.setSysWhen(metaHeader.getWhenCreated());
+
+        // Used to reconcile that the change was actually indexed
+        logger.trace("Preparing Search Document [{}]", trackLog);
+        searchDocument.setLogId(trackLog.getId());
         return searchDocument;
     }
 
