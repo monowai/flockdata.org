@@ -306,7 +306,7 @@ public class MediationFacade {
      */
     @Async
     public Future<Long> reindex(Company company, String fortressName) throws DatagioException {
-        Fortress fortress = fortressService.findByName(company, fortressName);
+        Fortress fortress = fortressService.findByCode(company, fortressName);
         if (fortress == null)
             throw new DatagioException("Fortress [" + fortress + "] could not be found");
         Long skipCount = 0l;
@@ -353,11 +353,13 @@ public class MediationFacade {
     }
 
     private Long reindexHeaders(Company company, Collection<MetaHeader> headers, Long skipCount) {
+        Collection<SearchChange>searchDocuments = new ArrayList<>(headers.size());
         for (MetaHeader header : headers) {
             TrackLog lastLog = trackService.getLastLog(header.getId());
-            searchService.rebuild(company, header, lastLog);
+            searchDocuments.add(searchService.rebuild(company, header, lastLog));
             skipCount++;
         }
+        searchService.makeChangeSearchable(searchDocuments);
         return skipCount;
     }
 
