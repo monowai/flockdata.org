@@ -150,6 +150,7 @@ public class TestAuditIntegration {
 
         for (int i = 1; i < fortressMax + 1; i++) {
             deleteEsIndex("ab.companywithspace.bulkloada" + i);
+            deleteEsIndex("ab.testaudit.bulkloada"+i);
         }
         SecurityContextHolder.getContext().setAuthentication(authA);
     }
