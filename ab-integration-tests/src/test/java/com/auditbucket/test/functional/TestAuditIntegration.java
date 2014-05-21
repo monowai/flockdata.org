@@ -164,6 +164,7 @@ public class TestAuditIntegration {
     @Test
     public void companyAndFortressWithSpaces() throws Exception {
         assumeTrue(!ignoreMe);
+        logger.info("## companyAndFortressWithSpaces");
         registerSystemUser("Company With Space", email);
         regService.registerSystemUser(new RegistrationBean("Company With Space", email).setIsUnique(false));
         Thread.sleep(1000);
@@ -183,6 +184,7 @@ public class TestAuditIntegration {
     @Test
     public void headerWithTagsProcess() throws Exception {
         assumeTrue(!ignoreMe);
+        logger.info("## headersWithTagsProcess");
         SecurityContextHolder.getContext().setAuthentication(authA);
         String company = "Monowai";
         SystemUser su = registerSystemUser(company, email);
@@ -208,7 +210,7 @@ public class TestAuditIntegration {
     @Test
     public void immutableHeadersWithNoLogsAreIndexed() throws Exception {
         assumeTrue(!ignoreMe);
-
+        logger.info("## immutableHeadersWithNoLogsAreIndexed");
         String company = "Monowai";
         regService.registerSystemUser(new RegistrationBean(company, email).setIsUnique(false));
         Fortress fo = fortressService.registerFortress(new FortressInputBean("immutableHeadersWithNoLogsAreIndexed", false));
@@ -239,6 +241,7 @@ public class TestAuditIntegration {
     @Test
     public void rebuildESIndexFromEngine() throws Exception {
         assumeTrue(!ignoreMe);
+        logger.info("## rebuildESIndexFromEngine");
         deleteEsIndex("ab.monowai.rebuildtest");
         logger.info("rebuildIndex started");
         String company = "Monowai";
@@ -309,7 +312,7 @@ public class TestAuditIntegration {
     @Test
     public void auditsByPassGraphByCallerRef() throws Exception {
         assumeTrue(!ignoreMe);
-        logger.info("auditsByPassGraphByCallerRef started");
+        logger.info("## auditsByPassGraphByCallerRef started");
         String company = "Monowai";
         registerSystemUser(company, email);
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("TrackGraph", false));
@@ -360,7 +363,7 @@ public class TestAuditIntegration {
     @Test
     public void suppressIndexingOnDemand() throws Exception {
         assumeTrue(!ignoreMe);
-
+        logger.info("## suppressIndexOnDemand");
         String escJson = "{\"who\":";
         registerSystemUser("TestTrack", email);
         Fortress iFortress = fortressService.registerFortress(new FortressInputBean("suppress", false));
@@ -394,7 +397,7 @@ public class TestAuditIntegration {
     @Test
     public void tagKeyReturnsSingleSearchResult() throws Exception {
         assumeTrue(!ignoreMe);
-
+        logger.info("## tagKeyReturnsSingleSearchResult");
         String escJson = "{\"who\":";
         registerSystemUser("TestTrack", "mike");
         Fortress iFortress = fortressService.registerFortress(new FortressInputBean("suppress"));
@@ -424,6 +427,7 @@ public class TestAuditIntegration {
     @Test
     public void testWhatIndexingDefaultAttributeWithNGram() throws Exception {
         assumeTrue(!ignoreMe);
+        logger.info("## testWhatIndexingDefaultAttributeWithNGram");
         registerSystemUser("TestTrack", email);
         Fortress iFortress = fortressService.registerFortress(new FortressInputBean("ngram", false));
         MetaInputBean inputBean = new MetaInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
@@ -464,7 +468,7 @@ public class TestAuditIntegration {
     @Test
     public void stressWithHighVolume() throws Exception {
         assumeTrue(!ignoreMe);
-        logger.info("stressWithHighVolume started");
+        logger.info("## stressWithHighVolume");
         registerSystemUser("TestAudit", email);
 
         int auditMax = 10;
