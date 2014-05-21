@@ -85,7 +85,7 @@ public class SearchServiceFacade {
             return;
         }
 
-        if (header.getSearchKey() == null ) {
+        if (header.getSearchKey() == null) {
             header.setSearchKey(searchResult.getSearchKey());
             trackDao.save(header);
             logger.trace("Updating Header{} search searchResult =[{}]", header.getMetaKey(), searchResult);
@@ -95,7 +95,7 @@ public class SearchServiceFacade {
             // Indexing header meta data only
             return;
         }
-        TrackLog when ;
+        TrackLog when;
         // The change has been indexed
         try {
             when = trackDao.getLog(searchResult.getLogId());
@@ -103,7 +103,7 @@ public class SearchServiceFacade {
                 logger.error("Illegal node requested from handleSearchResult [{}]", searchResult.getLogId());
                 return;
             }
-        }catch (DataRetrievalFailureException e) {
+        } catch (DataRetrievalFailureException e) {
             logger.error("Unable to locate track log {} for metaId {} in order to handle the search callerRef. Ignoring.", searchResult.getLogId(), metaId);
             return;
         }
@@ -119,10 +119,11 @@ public class SearchServiceFacade {
             logger.debug("Skipping {}", when);
         }
     }
-    public SearchChange getSearchDocument(Company company, TrackResultBean resultBean){
+
+    public SearchChange getSearchDocument(Company company, TrackResultBean resultBean) {
         SearchChange searchChange = null;
         MetaHeader header = resultBean.getMetaHeader();
-        if (!(header.isSearchSuppressed() || !header.getFortress().isSearchActive())){
+        if (!(header.isSearchSuppressed() || !header.getFortress().isSearchActive())) {
             //result, result.getMetaInputBean().getEvent(), result.getMetaInputBean().getWhen()
             searchChange = getSearchChange(company, resultBean, resultBean.getMetaInputBean().getEvent(), resultBean.getMetaInputBean().getWhen());
         }
@@ -139,10 +140,10 @@ public class SearchServiceFacade {
 //        return searchChanges;
 //    }
 
-    public void makeChangeSearchable (SearchChange searchChange){
-        if ( searchChange == null )
+    public void makeChangeSearchable(SearchChange searchChange) {
+        if (searchChange == null)
             return;
-        Collection<SearchChange>searchChanges = new ArrayList<>();
+        Collection<SearchChange> searchChanges = new ArrayList<>();
         searchChanges.add(searchChange);
         makeChangeSearchable(searchChanges);
     }
@@ -159,7 +160,7 @@ public class SearchServiceFacade {
     public SearchChange getSearchChange(Company company, TrackResultBean resultBean, String event, Date when) {
         MetaHeader header = resultBean.getMetaHeader();
 
-        if ( header.getLastUser()!=null )
+        if (header.getLastUser() != null)
             fortressService.fetch(header.getLastUser());
         SearchChange searchDocument = new MetaSearchChange(header, null, event, new DateTime(when));
         if (resultBean.getTags() != null) {
@@ -177,43 +178,44 @@ public class SearchServiceFacade {
         return searchDocument;
     }
 
-    public void rebuild(Company company, MetaHeader metaHeader, TrackLog lastLog) {
-        try {
+    public MetaSearchChange rebuild(Company company, MetaHeader metaHeader, TrackLog lastLog) {
 
+        try {
             Log lastChange = null;
             if (lastLog != null)
                 lastChange = lastLog.getChange();
-            else {
-                // ToDo: This will not work for meta-data index headers. Work loop also needs looking at
-                logger.info("No last change for {}, ignoring the re-index request for this header", metaHeader.getCallerRef());
-            }
 
             if (metaHeader.getFortress().isSearchActive() && !metaHeader.isSearchSuppressed()) {
                 // Update against the MetaHeader only by re-indexing the search document
                 Map<String, Object> lastWhat;
-                if (lastChange != null)
+                MetaSearchChange searchDocument;
+                if (lastChange != null) {
                     lastWhat = whatService.getWhat(metaHeader, lastChange).getWhat();
-                else
-                    return; // ToDo: fix reindex header only scenario, i.e. no "change/what"
+                    searchDocument = new MetaSearchChange(metaHeader, lastWhat, lastChange.getEvent().getCode(), new DateTime(lastLog.getFortressWhen()));
+                    searchDocument.setWho(lastChange.getWho().getCode());
+                } else {
+                    searchDocument = new MetaSearchChange(metaHeader, null, metaHeader.getEvent(), metaHeader.getFortressDateCreated());
+                    if (metaHeader.getCreatedBy() != null)
+                        searchDocument.setWho(metaHeader.getCreatedBy().getCode());
+                }
 
-                MetaSearchChange searchDocument = new MetaSearchChange(metaHeader, lastWhat, lastChange.getEvent().getCode(), new DateTime(lastLog.getFortressWhen()));
                 searchDocument.setTags(tagTrackService.findTrackTags(company, metaHeader));
                 searchDocument.setReplyRequired(false);
-                searchDocument.setWho(lastChange.getWho().getCode());
-                makeChangeSearchable(searchDocument);
+
+                return searchDocument;
             }
         } catch (Exception e) {
             logger.error("error", e);
         }
-
+        return null;
     }
 
-    public EsSearchResult<Collection<String>> search(QueryParams queryParams){
+    public EsSearchResult<Collection<String>> search(QueryParams queryParams) {
         return searchGateway.search(queryParams);
     }
 
     public void purge(String indexName) {
         // ToDO: Implement this
-        logger.info("Purge the search Fortress {}",indexName);
+        logger.info("Purge the search Fortress {}", indexName);
     }
 }
