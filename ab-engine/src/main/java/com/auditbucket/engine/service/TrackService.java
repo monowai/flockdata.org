@@ -30,8 +30,6 @@ import com.auditbucket.registration.service.*;
 import com.auditbucket.search.model.MetaSearchChange;
 import com.auditbucket.track.bean.*;
 import com.auditbucket.track.model.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -274,21 +272,14 @@ public class TrackService {
         DateTime fortressWhen = (input.getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(input.getWhen()));
 
         if (existingLog != null) {
-            try {
-                if (whatService.isSame(authorisedHeader, existingLog.getChange(), input.getWhat())) {
-                    logger.trace("Ignoring a change we already have {}", input);
-                    input.setStatus(LogInputBean.LogStatus.IGNORE);
-                    if (input.isForceReindex()) { // Caller is recreating the search index
-                        searchFacade.makeChangeSearchable(prepareSearchDocument(authorisedHeader, input, existingLog.getChange().getEvent(), searchActive, fortressWhen, existingLog));
-                        resultBean.setMessage("Ignoring a change we already have. Honouring request to re-index");
-                    } else
-                        resultBean.setMessage("Ignoring a change we already have");
-                    return resultBean;
-                }
-            } catch (IOException e) {
-                input.setStatus(LogInputBean.LogStatus.ILLEGAL_ARGUMENT);
-                resultBean.setMessage("Error comparing JSON data: " + e.getMessage());
-                logger.error("Error comparing JSON Data", e);
+            if (whatService.isSame(authorisedHeader, existingLog.getChange(), input.getWhat())) {
+                logger.trace("Ignoring a change we already have {}", input);
+                input.setStatus(LogInputBean.LogStatus.IGNORE);
+                if (input.isForceReindex()) { // Caller is recreating the search index
+                    resultBean.setLogToIndex(existingLog);
+                    resultBean.setMessage("Ignoring a change we already have. Honouring request to re-index");
+                } else
+                    resultBean.setMessage("Ignoring a change we already have");
                 return resultBean;
             }
             if (input.getEvent() == null) {
@@ -326,51 +317,18 @@ public class TrackService {
         input.setStatus(LogInputBean.LogStatus.OK);
 
         if (moreRecent) {
-            if (!authorisedHeader.getLastUser().getId().equals(thisFortressUser.getId())) {
+            if (authorisedHeader.getLastUser() == null || (!authorisedHeader.getLastUser().getId().equals(thisFortressUser.getId()))) {
                 authorisedHeader.setLastUser(thisFortressUser);
                 trackDao.save(authorisedHeader);
             }
 
-            try {
-                resultBean.setSearchChange(prepareSearchDocument(authorisedHeader, input, input.getChangeEvent(), searchActive, fortressWhen, newLog));
-            } catch (JsonProcessingException e) {
-                resultBean.setMessage("Error processing JSON document");
-                resultBean.setStatus(LogInputBean.LogStatus.ILLEGAL_ARGUMENT);
-            }
+            if (searchActive)
+                resultBean.setLogToIndex(newLog);
         }
 
         return resultBean;
 
     }
-
-    private static final ObjectMapper om = new ObjectMapper();
-
-    public SearchChange prepareSearchDocument(MetaHeader metaHeader, LogInputBean logInput, ChangeEvent event, Boolean searchActive, DateTime fortressWhen, TrackLog trackLog) throws JsonProcessingException {
-
-        if (!searchActive || metaHeader.isSearchSuppressed())
-            return null;
-        SearchChange searchDocument;
-        searchDocument = new MetaSearchChange(metaHeader, logInput.getMapWhat(), event.getCode(), fortressWhen);
-        searchDocument.setWho(trackLog.getChange().getWho().getCode());
-        searchDocument.setTags(tagTrackService.findTrackTags(metaHeader.getFortress().getCompany(), metaHeader));
-        searchDocument.setDescription(metaHeader.getName());
-        try {
-            logger.trace("JSON {}", om.writeValueAsString(searchDocument));
-        } catch (JsonProcessingException e) {
-            logger.error(e.getMessage());
-            throw (e);
-        }
-        if (trackLog.getSysWhen() != 0)
-            searchDocument.setSysWhen(trackLog.getSysWhen());
-        else
-            searchDocument.setSysWhen(metaHeader.getWhenCreated());
-
-        // Used to reconcile that the change was actually indexed
-        logger.trace("Preparing Search Document [{}]", trackLog);
-        searchDocument.setLogId(trackLog.getId());
-        return searchDocument;
-    }
-
 
     public Collection<MetaHeader> getHeaders(Fortress fortress, Long skipTo) {
         return trackDao.findHeaders(fortress.getId(), skipTo);
@@ -467,7 +425,7 @@ public class TrackService {
         return trackDao.getLastLog(metaHeader.getId());
     }
 
-    TrackLog getLastLog(Long headerId) {
+    public TrackLog getLastLog(Long headerId) {
         return trackDao.getLastLog(headerId);
     }
 
@@ -788,6 +746,5 @@ public class TrackService {
         trackDao.purgePeopleRelationships(fortress);
         trackDao.purgeFortressDocuments(fortress);
         trackDao.purgeHeaders(fortress);
-        tagService.purgeUnusedTags(fortress.getCompany());
     }
 }

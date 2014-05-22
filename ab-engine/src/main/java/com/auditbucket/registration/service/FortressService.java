@@ -81,8 +81,13 @@ public class FortressService {
 
     public Fortress findByCode(String fortressCode) {
         Company ownedBy = getCompany();
-        return companyDao.getFortressByCode(ownedBy.getId(), fortressCode);
+        return findByCode(ownedBy, fortressCode) ;
     }
+
+    public Fortress findByCode(Company company, String fortressCode) {
+        return companyDao.getFortressByCode(company.getId(), fortressCode);
+    }
+
 
     private Company getCompany() {
         String userName = securityHelper.getUserName(true, false);

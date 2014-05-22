@@ -107,10 +107,13 @@ public class TrackDaoES implements TrackSearchDao {
 
         String searchKey = searchChange.getSearchKey();
 
-        if (searchKey == null && searchChange.getCallerRef() != null)
+        if (searchKey == null )
             searchKey = searchChange.getCallerRef();
 
-        logger.debug("SearchKey =[{}]", searchChange.getSearchKey());
+        if (searchKey == null )
+            searchKey = searchChange.getMetaKey();
+
+        logger.debug("SearchKey =[{}]", searchKey);
         // Rebuilding a document after a reindex - preserving the unique key.
         if (searchKey != null) {
             irb.setId(searchKey);

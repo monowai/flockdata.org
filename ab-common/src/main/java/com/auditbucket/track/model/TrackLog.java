@@ -46,4 +46,5 @@ public interface TrackLog {
 
     Long getId();
 
+    void setMetaHeader(MetaHeader metaHeader);
 }

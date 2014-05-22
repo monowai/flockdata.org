@@ -402,6 +402,7 @@ public class Importer {
                             MetaInputBean header = (MetaInputBean) row;
 
                             if (importParams.isMetaOnly() || "".equals(jsonData)) {
+                                header.setIsMetaOnly(true);
                                 // It's all Meta baby - no track information
                             } else {
                                 jsonData = jsonData.replaceAll("[\\x00-\\x09\\x11\\x12\\x14-\\x1F\\x7F]", "");
