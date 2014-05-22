@@ -28,7 +28,6 @@ import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
-import com.auditbucket.registration.endpoint.TagEP;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.FortressService;
@@ -57,8 +56,6 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.data.neo4j.support.node.Neo4jHelper;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -69,7 +66,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -80,6 +76,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertSame;
@@ -116,17 +113,16 @@ public class TestAuditIntegration {
     @Autowired
     WhatService whatService;
 
-    @Autowired
-    private Neo4jTemplate template;
-
-    private Logger logger = LoggerFactory.getLogger(TestAuditIntegration.class);
+    private static Logger logger = LoggerFactory.getLogger(TestAuditIntegration.class);
     private String email = "mike";
-    private Authentication authA = new UsernamePasswordAuthenticationToken(email, "123");
+    private static Authentication authA = new UsernamePasswordAuthenticationToken("mike", "123");
     static Properties properties = new Properties() ;
+
     @AfterClass
-    public static void pauseForAWhile() throws Exception{
-        System.out.println("Waiting for a while");
-        Thread.sleep(5000);
+    public static void waitAWhile() throws Exception{
+        Long pauseCount = 2000l;
+        logger.info("Waiting for {} seconds", pauseCount/1000d);
+        Thread.sleep(pauseCount);
     }
     @BeforeClass
     @Rollback(false)
@@ -141,17 +137,26 @@ public class TestAuditIntegration {
         //factory.setClientConfig(clientConfig);
         esClient = factory.getObject();
 
-        esClient.execute(new DeleteIndex.Builder("ab.testaudit.suppress").build());
-        esClient.execute(new DeleteIndex.Builder("ab.testco.testfortress").build());
-        esClient.execute(new DeleteIndex.Builder("ab.testaudit.ngram").build());
-        esClient.execute(new DeleteIndex.Builder("ab.companywithspace.audittest").build());
-        esClient.execute(new DeleteIndex.Builder("ab.monowai.trackgraph").build());
-        esClient.execute(new DeleteIndex.Builder("ab.monowai.audittest").build());
+        deleteEsIndex("ab.testaudit.suppress");
+        deleteEsIndex("ab.testco.testfortress");
+        deleteEsIndex("ab.ngram.ngram");
+        deleteEsIndex("ab.testaudit.rebuildtest");
+        deleteEsIndex("ab.companywithspace.audittest");
+        deleteEsIndex("ab.companywithspace.suppress");
+        deleteEsIndex("ab.companywithspace.headerwithtagsprocess");
+        deleteEsIndex("ab.monowai.trackgraph");
+        deleteEsIndex("ab.monowai.audittest");
+        deleteEsIndex("ab.monowai.111");
 
         for (int i = 1; i < fortressMax + 1; i++) {
-            esClient.execute(new DeleteIndex.Builder("ab.testaudit.bulkloada" + i).build());
+            deleteEsIndex("ab.companywithspace.bulkloada" + i);
+            deleteEsIndex("ab.testaudit.bulkloada"+i);
         }
+        SecurityContextHolder.getContext().setAuthentication(authA);
+    }
 
+    private static void deleteEsIndex(String indexName) throws Exception {
+        esClient.execute(new DeleteIndex.Builder(indexName).build());
     }
 
     @AfterClass
@@ -159,23 +164,11 @@ public class TestAuditIntegration {
         esClient.shutdownClient();
     }
 
-    @Rollback(false)
-    @BeforeTransaction
-    public void cleanUpGraph() throws Exception {
-        // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
-        // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-
-        SecurityContextHolder.getContext().setAuthentication(authA);
-        if ("rest".equals(System.getProperty("neo4j")))
-            return;
-        Neo4jHelper.cleanDb(template);
-
-    }
-
     @Test
     public void companyAndFortressWithSpaces() throws Exception {
         assumeTrue(!ignoreMe);
-        SecurityContextHolder.getContext().setAuthentication(authA);
+        logger.info("## companyAndFortressWithSpaces");
+        registerSystemUser("Company With Space", email);
         regService.registerSystemUser(new RegistrationBean("Company With Space", email).setIsUnique(false));
         Thread.sleep(1000);
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("Audit Test", false));
@@ -194,17 +187,20 @@ public class TestAuditIntegration {
     @Test
     public void headerWithTagsProcess() throws Exception {
         assumeTrue(!ignoreMe);
+        logger.info("## headersWithTagsProcess");
         SecurityContextHolder.getContext().setAuthentication(authA);
         String company = "Monowai";
-        String apiKey = regService.registerSystemUser(new RegistrationBean(company, email).setIsUnique(false)).getApiKey();
+        SystemUser su = registerSystemUser(company, email);
+        String apiKey = su.getApiKey();
         Fortress fo = fortressService.registerFortress(new FortressInputBean("headerWithTagsProcess", false));
         DateTime now = new DateTime();
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", now, "ZZZ123");
+        inputBean.setIsMetaOnly(true);
         inputBean.setTag(new TagInputBean("testTagNameZZ", "someAuditRLX"));
         inputBean.setEvent("TagTest");
         TrackResultBean auditResult;
         auditResult = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody();
-        Thread.sleep(4000);
+        waitForHeaderToUpdate(auditResult.getMetaHeader());
         TrackedSummaryBean summary = trackEP.getAuditSummary(auditResult.getMetaKey(), apiKey, apiKey).getBody();
         assertNotNull(summary);
         // Check we can find the Event in ElasticSearch
@@ -217,16 +213,17 @@ public class TestAuditIntegration {
     @Test
     public void immutableHeadersWithNoLogsAreIndexed() throws Exception {
         assumeTrue(!ignoreMe);
-        SecurityContextHolder.getContext().setAuthentication(authA);
+        logger.info("## immutableHeadersWithNoLogsAreIndexed");
         String company = "Monowai";
         regService.registerSystemUser(new RegistrationBean(company, email).setIsUnique(false));
         Fortress fo = fortressService.registerFortress(new FortressInputBean("immutableHeadersWithNoLogsAreIndexed", false));
         DateTime now = new DateTime();
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", now, "ZZZ123");
         inputBean.setEvent("immutableHeadersWithNoLogsAreIndexed");
+        inputBean.setIsMetaOnly(true); // Must be true to make over to search
         TrackResultBean auditResult;
         auditResult = mediationFacade.createHeader(inputBean, null);
-        Thread.sleep(4000);
+        waitForHeaderToUpdate(auditResult.getMetaHeader());
         TrackedSummaryBean summary = mediationFacade.getTrackedSummary(auditResult.getMetaKey());
         assertNotNull(summary);
         assertSame("change logs were not expected", 0, summary.getChanges().size());
@@ -234,7 +231,7 @@ public class TestAuditIntegration {
         // Check we can find the Event in ElasticSearch
         doEsQuery(summary.getHeader().getIndexName(), inputBean.getEvent(), 1);
 
-        // No Event, so should not be in elasticsearch
+        // Not flagged as meta only so will not appear in the search index until a log is created
         inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", now, "ZZZ999");
         auditResult = mediationFacade.createHeader(inputBean, null);
         summary = mediationFacade.getTrackedSummary(auditResult.getMetaKey());
@@ -244,16 +241,44 @@ public class TestAuditIntegration {
         // Check we can find the Event in ElasticSearch
         doEsQuery(summary.getHeader().getIndexName(), "ZZZ999", 0);
     }
+    @Test
+    public void rebuildESIndexFromEngine() throws Exception {
+        assumeTrue(!ignoreMe);
+        logger.info("## rebuildESIndexFromEngine");
+        deleteEsIndex("ab.monowai.rebuildtest");
+        logger.info("rebuildIndex started");
+        String company = "Monowai";
+        registerSystemUser(company, email);
+        Fortress fo = fortressService.registerFortress(new FortressInputBean("rebuildTest", false));
 
+        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
+        inputBean.setLog(new LogInputBean("wally", new DateTime(), "{\"blah\":1}"));
+        TrackResultBean auditResult = mediationFacade.createHeader(inputBean, null);
+
+        MetaHeader metaHeader = trackService.getHeader(auditResult.getMetaKey());
+        waitForHeaderToUpdate(metaHeader);
+
+        waitAWhile();
+        doEsQuery(metaHeader.getIndexName(), "*");
+
+        deleteEsIndex(metaHeader.getIndexName());
+        // Rebuild....
+        Future<Long> fResult = mediationFacade.reindex(fo.getCompany(), fo.getCode());
+
+        Assert.assertEquals(1l, fResult.get().longValue());
+        waitAWhile();
+        doEsQuery(metaHeader.getIndexName(), "*");
+
+    }
     @Test
     public void createHeaderTimeLogsWithSearchActivated() throws Exception {
         assumeTrue(!ignoreMe);
+        deleteEsIndex("ab.monowai.111");
         int max = 3;
         String ahKey;
         logger.info("createHeaderTimeLogsWithSearchActivated started");
-        SecurityContextHolder.getContext().setAuthentication(authA);
         String company = "Monowai";
-        regService.registerSystemUser(new RegistrationBean(company, email).setIsUnique(false));
+        registerSystemUser(company, email);
         Fortress fo = fortressService.registerFortress(new FortressInputBean("111", false));
 
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
@@ -279,42 +304,20 @@ public class TestAuditIntegration {
             i++;
         }
         watch.stop();
-        Thread.sleep(8000);
+        waitAWhile();
         // Test that we get the expected number of log events
         if (!"rest".equals(System.getProperty("neo4j"))) // Don't check if running over rest
             assertEquals("This will fail if the DB is not cleared down, i.e. testing over REST", max, trackService.getLogCount(ahKey));
 
-        // Putting asserts On elasticsearch
-        String query = "{" +
-                "   \"query\": {  " +
-                "\"query_string\" : { " +
-                " \"default_field\" :\"" + MetaSearchSchema.WHAT + ".blah\", " +
-                " \"query\" :\"*\" " +
-                "}  " +
-                "}  " +
-                "}";
-        Search search = new Search.Builder(query)
-                .addIndex(metaHeader.getIndexName())
-                .build();
-
-        JestResult result = esClient.execute(search);
-        assertNotNull(result);
-        assertNotNull(result.getJsonObject());
-        assertNotNull(result.getJsonObject().getAsJsonObject("hits"));
-        assertNotNull(result.getJsonObject().getAsJsonObject("hits").get("total"));
-        int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
-        // Only the last change is indexed, so there should be one result
-        Assert.assertEquals(1, nbrResult);
-
+        doEsFieldQuery(metaHeader.getIndexName(), MetaSearchSchema.WHAT + ".blah", "*", 1);
     }
 
     @Test
     public void auditsByPassGraphByCallerRef() throws Exception {
         assumeTrue(!ignoreMe);
-        logger.info("auditsByPassGraphByCallerRef started");
-        SecurityContextHolder.getContext().setAuthentication(authA);
+        logger.info("## auditsByPassGraphByCallerRef started");
         String company = "Monowai";
-        regService.registerSystemUser(new RegistrationBean(company, email).setIsUnique(false));
+        registerSystemUser(company, email);
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("TrackGraph", false));
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
@@ -324,32 +327,32 @@ public class TestAuditIntegration {
         String indexName = MetaSearchSchema.parseIndex(fortress);
 
         // Putting asserts On elasticsearch
-        Thread.sleep(2000); // Let the messaging take effect
+        waitAWhile();
         doEsQuery(indexName, "*", 1);
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setTrackSuppressed(true);
         mediationFacade.createHeader(inputBean, null);
-        Thread.sleep(2000); // Let the messaging take effect
+        waitAWhile();
         doEsQuery(indexName, "*", 2);
 
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setTrackSuppressed(true);
         mediationFacade.createHeader(inputBean, null);
-        Thread.sleep(2000); // Let the messaging take effect
+        waitAWhile();
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(indexName, "*", 2);
 
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setTrackSuppressed(true);
         mediationFacade.createHeader(inputBean, null);
-        Thread.sleep(2000); // Let the messaging take effect
+        waitAWhile();
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(indexName, "*", 2);
 
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC125");
         inputBean.setTrackSuppressed(true);
         mediationFacade.createHeader(inputBean, null);
-        Thread.sleep(2000); // Let the messaging take effect
+        waitAWhile();
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(indexName, "*", 3);
 
@@ -363,10 +366,9 @@ public class TestAuditIntegration {
     @Test
     public void suppressIndexingOnDemand() throws Exception {
         assumeTrue(!ignoreMe);
-
+        logger.info("## suppressIndexOnDemand");
         String escJson = "{\"who\":";
-        SecurityContextHolder.getContext().setAuthentication(authA);
-        regService.registerSystemUser(new RegistrationBean("TestTrack", email).setIsUnique(false));
+        registerSystemUser("TestTrack", email);
         Fortress iFortress = fortressService.registerFortress(new FortressInputBean("suppress", false));
         MetaInputBean inputBean = new MetaInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
 
@@ -374,11 +376,11 @@ public class TestAuditIntegration {
         TrackResultBean indexedResult = mediationFacade.createHeader(inputBean, null);
         MetaHeader indexHeader = trackService.getHeader(indexedResult.getMetaKey());
 
-        LogResultBean resultBean = mediationFacade.processLog(new LogInputBean(indexHeader.getMetaKey(), inputBean.getFortressUser(), new DateTime(), escJson + "\"andy\"}"));
+        LogResultBean resultBean = mediationFacade.processLog(new LogInputBean(indexHeader.getMetaKey(), "olivia@sunnybell.com", new DateTime(), escJson + "\"andy\"}"));
         junit.framework.Assert.assertNotNull(resultBean);
 
         waitForHeaderToUpdate(indexHeader);
-        Thread.sleep(1000);
+        waitAWhile();
         String indexName = indexHeader.getIndexName();
 
         doEsQuery(indexName, "andy");
@@ -388,62 +390,59 @@ public class TestAuditIntegration {
         TrackResultBean noIndex = mediationFacade.createHeader(inputBean, null);
         MetaHeader noIndexHeader = trackService.getHeader(noIndex.getMetaKey());
 
-        mediationFacade.processLog(new LogInputBean(noIndexHeader.getMetaKey(), inputBean.getFortressUser(), new DateTime(), escJson + "\"bob\"}"));
-        Thread.sleep(1000);
+        mediationFacade.processLog(new LogInputBean(noIndexHeader.getMetaKey(), "olivia@sunnybell.com", new DateTime(), escJson + "\"bob\"}"));
+        waitAWhile();
         // Bob's not there because we said we didn't want to index that header
         doEsQuery(indexName, "bob", 0);
         doEsQuery(indexName, "andy");
     }
 
-    @Autowired
-    TagEP tagEP;
-
     @Test
-    public void tagKeyReturnsUniqueResult() throws Exception {
+    public void tagKeyReturnsSingleSearchResult() throws Exception {
         assumeTrue(!ignoreMe);
-
+        logger.info("## tagKeyReturnsSingleSearchResult");
         String escJson = "{\"who\":";
-        SecurityContextHolder.getContext().setAuthentication(authA);
-        regService.registerSystemUser(new RegistrationBean("TestTrack", email).setIsUnique(false));
-        Fortress iFortress = fortressService.registerFortress(new FortressInputBean("suppress", false));
+        registerSystemUser("TestTrack", "mike");
+        Fortress iFortress = fortressService.registerFortress(new FortressInputBean("suppress"));
         MetaInputBean metaInput = new MetaInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
-        String tagSearch = "example"; // Relationship names is indexed as @tag.relationship.key in ES
-        TagInputBean tag = new TagInputBean("Key Test Works", tagSearch);
+        String relationshipName = "example"; // Relationship names is indexed are @tag.relationshipName.key in ES
+        TagInputBean tag = new TagInputBean("Key Test Works", relationshipName);
         metaInput.setTag(tag);
-
 
         TrackResultBean indexedResult = mediationFacade.createHeader(metaInput, null);
         MetaHeader indexHeader = trackService.getHeader(indexedResult.getMetaKey());
+        String indexName = indexHeader.getIndexName();
+//        doEsFieldQuery(indexName, "@tag." + relationshipName + ".key", "keytestworks", 1);
 
         Set<TrackTag> tags = trackEP.getAuditTags(indexHeader.getMetaKey(), null, null).getBody();
         assertNotNull(tags);
         assertEquals(1, tags.size());
 
-        LogResultBean resultBean = mediationFacade.processLog(new LogInputBean(indexHeader.getMetaKey(), metaInput.getFortressUser(), new DateTime(), escJson + "\"andy\"}"));
+        LogResultBean resultBean = mediationFacade.processLog(new LogInputBean(indexHeader.getMetaKey(), "olivia@sunnybell.com", new DateTime(), escJson + "\"andy\"}"));
         assertNotNull(resultBean);
-        Thread.sleep(2000);
+        waitAWhile();
 
         waitForHeaderToUpdate(indexHeader);
-        String indexName = indexHeader.getIndexName();
-        doEsFieldQuery(indexName, "@tag." + tagSearch + ".key", "keytestworks", 1);
+        doEsFieldQuery(indexName, "@tag." + relationshipName + ".key", "keytestworks", 1);
 
     }
 
     @Test
     public void testWhatIndexingDefaultAttributeWithNGram() throws Exception {
         assumeTrue(!ignoreMe);
-        SecurityContextHolder.getContext().setAuthentication(authA);
-        regService.registerSystemUser(new RegistrationBean("TestTrack", email).setIsUnique(false));
+        logger.info("## testWhatIndexingDefaultAttributeWithNGram");
+        registerSystemUser("ngram", email);
+        waitAWhile(); //Trying to avoid Heuristic completion
         Fortress iFortress = fortressService.registerFortress(new FortressInputBean("ngram", false));
         MetaInputBean inputBean = new MetaInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
 
         TrackResultBean indexedResult = mediationFacade.createHeader(inputBean, null);
         MetaHeader indexHeader = trackService.getHeader(indexedResult.getMetaKey());
         String what = "{\"code\":\"AZERTY\",\"name\":\"NameText\",\"description\":\"this is a description\"}";
-        mediationFacade.processLog(new LogInputBean(indexHeader.getMetaKey(), inputBean.getFortressUser(), new DateTime(), what));
+        mediationFacade.processLog(new LogInputBean(indexHeader.getMetaKey(), "olivia@sunnybell.com", new DateTime(), what));
         waitForHeaderToUpdate(indexHeader);
         String indexName = indexHeader.getIndexName();
-        Thread.sleep(1000);
+        waitAWhile();
 
         doEsTermQuery(indexName, MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "des", 1);
         doEsTermQuery(indexName, MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "de", 0);
@@ -463,13 +462,22 @@ public class TestAuditIntegration {
 
     }
 
+    private SystemUser registerSystemUser(String companyName, String loginToCreate) throws DatagioException, InterruptedException {
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(companyName, loginToCreate).setIsUnique(false));
+        // creating company alters the schema that sometimes throws a heuristic exception.
+        Thread.yield();
+        Thread.sleep(300);
+        Thread.yield();
+        return su;
+    }
+
     @Test
     public void stressWithHighVolume() throws Exception {
         assumeTrue(!ignoreMe);
-        logger.info("stressWithHighVolume started");
-        SecurityContextHolder.getContext().setAuthentication(authA);
-        //Neo4jHelper.cleanDb(graphDatabaseService, true);
-        regService.registerSystemUser(new RegistrationBean("TestTrack", email).setIsUnique(false));
+        logger.info("## stressWithHighVolume");
+        registerSystemUser("TestAudit", email);
+        waitAWhile();
 
         int auditMax = 10;
         int logMax = 10;
@@ -485,7 +493,7 @@ public class TestAuditIntegration {
         watch.start();
         double splitTotals = 0;
         long totalRows = 0;
-        int auditSleepCount;  // Discount all the time we spent sleeping
+        long auditSleepCount;  // Discount all the time we spent sleeping
 
         DecimalFormat f = new DecimalFormat("##.000");
 
@@ -505,18 +513,14 @@ public class TestAuditIntegration {
                 requests++;
                 int log = 1;
                 while (log <= logMax) {
-                    //String escJson = Helper.getBigJsonText(log);
-                    //trackService.createLog(new LogInputBean(arb.getMetaKey(), aib.getFortressUser(), new DateTime(), escJson ));
-
-                    createLog(simpleJson, aib, arb, log);
-                    //Thread.sleep(100);
+                    createLog(simpleJson, arb, log);
                     requests++;
                     if (!searchChecked) {
                         searchChecked = true;
                         MetaHeader metaHeader = trackService.getHeader(arb.getMetaKey());
                         requests++;
-                        int checkCount = waitForHeaderToUpdate(metaHeader);
-                        auditSleepCount = auditSleepCount + (400 * checkCount);
+                        long checkCount = waitForHeaderToUpdate(metaHeader);
+                        auditSleepCount = auditSleepCount + checkCount;
                         requests = requests + checkCount;
                     } // searchCheck done
                     log++;
@@ -537,16 +541,16 @@ public class TestAuditIntegration {
 
         logger.info("*** Created data set in " + f.format(splitTotals) + " fortress avg = " + f.format(splitTotals / fortressMax) + " avg processing time per request " + f.format(splitTotals / totalRows) + ". Requests per second " + f.format(totalRows / splitTotals));
         watch.reset();
-        Thread.sleep(5000); // give things a final chance to complete
+        waitAWhile();
 
         validateLogsIndexed(list, auditMax, logMax);
+        waitAWhile();
         doSearchTests(auditMax, list, watch);
     }
 
     @Test
     public void simpleQueryEPWorksForImportedRecord() throws Exception {
         assumeTrue(!ignoreMe);
-        SecurityContextHolder.getContext().setAuthentication(authA);
         String searchFor = "testing";
         String escJson = "{\"who\":\""+searchFor+"\"}";
 
@@ -554,10 +558,11 @@ public class TestAuditIntegration {
 //        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 //        AbRestClient restClient = new AbRestClient("http://localhost:9081/", "mike", "123", 1);
 //        assertEquals("Pong!", restClient.ping());
-        SystemUser su = regService.registerSystemUser(new RegistrationBean("TestCo", "mike").setIsUnique(false));
+
+        SystemUser su = registerSystemUser("TestCo", "mike");
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("TestFortress", false));
-        Thread.sleep(300);
+        waitAWhile();
 
         LogInputBean log = new LogInputBean("mikeTest", new DateTime(), escJson );
         MetaInputBean input = new MetaInputBean("TestFortress", "mikeTest", "Query", new DateTime(), "abzz");
@@ -565,7 +570,7 @@ public class TestAuditIntegration {
 
         TrackResultBean result = trackEP.trackHeader(input, su.getApiKey(), su.getApiKey() ).getBody();
         waitForHeaderToUpdate(result.getMetaHeader(), su.getApiKey());
-        Thread.sleep(2000);
+        waitAWhile();
 //        restClient.writeAudit(input, "Hello World");
 
 
@@ -596,8 +601,8 @@ public class TestAuditIntegration {
         return null;
     }
 
-    private void createLog(String simpleJson, MetaInputBean aib, TrackResultBean arb, int log) throws DatagioException, IOException {
-        mediationFacade.processLog(new LogInputBean(arb.getMetaKey(), aib.getFortressUser(), new DateTime(), simpleJson + log + "}"));
+    private void createLog(String simpleJson, TrackResultBean arb, int log) throws DatagioException, IOException {
+        mediationFacade.processLog(new LogInputBean(arb.getMetaKey(), "olivia@sunnybell.com", new DateTime(), simpleJson + log + "}"));
     }
 
     private void validateLogsIndexed(ArrayList<Long> list, int auditMax, int expectedLogCount) throws Exception {
@@ -626,27 +631,30 @@ public class TestAuditIntegration {
 
     }
 
-    private int waitForHeaderToUpdate(MetaHeader header, String apiKey) throws Exception{
+    private long waitForHeaderToUpdate(MetaHeader header, String apiKey) throws Exception{
         // Looking for the first searchKey to be logged against the metaHeader
+        long thenTime = System.currentTimeMillis();
         int i = 0;
-        int timeout = 50;
+        int timeout = 300;
 
         MetaHeader metaHeader = trackEP.getMetaHeader(header.getMetaKey(), apiKey, apiKey).getBody();
         if (metaHeader.getSearchKey() != null)
             return 0;
         while (metaHeader.getSearchKey() == null && i <= timeout) {
             metaHeader = trackEP.getMetaHeader(header.getMetaKey(), apiKey, apiKey).getBody();
-            Thread.sleep(400);
+            Thread.yield();
+            if (i > 20)
+                waitAWhile();
             i++;
         }
-        if (i > 10)
+        if (i > 20)
             logger.info("Wait for search got to [{}] for metaId [{}]", i, metaHeader.getId());
         boolean searchWorking = metaHeader.getSearchKey() != null;
         assertTrue("Search reply not received from ab-search", searchWorking);
-        return i;
+        return System.currentTimeMillis() - thenTime;
     }
 
-    private int waitForHeaderToUpdate(MetaHeader header) throws Exception {
+    private long waitForHeaderToUpdate(MetaHeader header) throws Exception {
         return waitForHeaderToUpdate(header, null);
     }
 
@@ -797,7 +805,7 @@ public class TestAuditIntegration {
         assertNotNull(message, result.getJsonObject().getAsJsonObject("hits").get("total"));
         int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
 
-        Assert.assertEquals("Unexpected hit count searching for {" + queryString + "} in field {" + field + "}", expectedHitCount, nbrResult);
+        Assert.assertEquals("Unexpected hit count searching '"+index+"' for {" + queryString + "} in field {" + field + "}", expectedHitCount, nbrResult);
         return result.getJsonObject()
                 .getAsJsonObject("hits")
                 .getAsJsonArray("hits")

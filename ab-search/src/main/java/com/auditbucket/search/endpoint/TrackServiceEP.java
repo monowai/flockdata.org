@@ -12,6 +12,8 @@ import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
+
 /**
  * Services TRACK requests from the Engine
  * User: mike
@@ -37,18 +39,21 @@ public class TrackServiceEP {
      * @param thisChange change to process
      */
     @ServiceActivator(inputChannel = "makeSearchRequest") // Subscriber
-    public void createSearchableChange(MetaSearchChange thisChange) {
-        logger.debug("searchRequest received for {}", thisChange);
+    public void createSearchableChange(Collection<MetaSearchChange> thisChange) {
 
-        SearchResult result;
-        result = new SearchResult(auditSearch.update(thisChange));
+        for (MetaSearchChange metaSearchChange : thisChange) {
+            logger.debug("searchRequest received for {}", metaSearchChange);
+            SearchResult result;
+            result = new SearchResult(auditSearch.update(metaSearchChange));
 
-        // Used to tie the fact that the doc was updated back to the engine
-        result.setLogId(thisChange.getLogId());
-        result.setMetaId(thisChange.getMetaId());
-        if (thisChange.isReplyRequired()){
-            logger.debug("Dispatching searchResult to ab-engine {}", result);
-            engineGateway.handleSearchResult(result);
+            // Used to tie the fact that the doc was updated back to the engine
+            result.setLogId(metaSearchChange.getLogId());
+            result.setMetaId(metaSearchChange.getMetaId());
+            if (metaSearchChange.isReplyRequired()){
+                logger.debug("Dispatching searchResult to ab-engine {}", result);
+                engineGateway.handleSearchResult(result);
+            }
+
         }
     }
     public void delete(MetaHeader metaHeader) {

@@ -127,4 +127,6 @@ public interface MetaHeader {
     void setMetaKey(String o);
 
     void setCreatedBy(FortressUser thisFortressUser);
+
+    String getEvent();
 }
