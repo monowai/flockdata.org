@@ -3,10 +3,7 @@ package com.auditbucket.engine.service;
 import com.auditbucket.dao.TrackDao;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.service.FortressService;
-import com.auditbucket.search.model.EsSearchResult;
-import com.auditbucket.search.model.MetaSearchChange;
-import com.auditbucket.search.model.QueryParams;
-import com.auditbucket.search.model.SearchResult;
+import com.auditbucket.search.model.*;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.*;
@@ -153,7 +150,8 @@ public class SearchServiceFacade {
         if (searchDocument == null)
             return null;
         logger.debug("Sending request to index [{}]] logs", searchDocument.size());
-        searchGateway.makeSearchChanges(searchDocument);
+
+        searchGateway.makeSearchChanges(new MetaSearchChanges(searchDocument));
         return null;
     }
 
