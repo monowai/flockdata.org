@@ -168,6 +168,7 @@ public class TestAuditIntegration {
     public void companyAndFortressWithSpaces() throws Exception {
         assumeTrue(!ignoreMe);
         logger.info("## companyAndFortressWithSpaces");
+        deleteEsIndex("ab.companywithspace.audittest");
         registerSystemUser("Company With Space", email);
         regService.registerSystemUser(new RegistrationBean("Company With Space", email).setIsUnique(false));
         Thread.sleep(1000);
