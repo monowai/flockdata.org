@@ -264,7 +264,7 @@ public class TestAuditIntegration {
         deleteEsIndex(metaHeader.getIndexName());
         // Rebuild....
         Future<Long> fResult = mediationFacade.reindex(fo.getCompany(), fo.getCode());
-
+        waitForHeaderToUpdate(metaHeader);
         Assert.assertEquals(1l, fResult.get().longValue());
         waitAWhile();
         doEsQuery(metaHeader.getIndexName(), "*");
