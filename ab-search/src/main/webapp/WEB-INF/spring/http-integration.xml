@@ -37,7 +37,8 @@
                               path="/api/esMake"
                               reply-timeout="${reply.timeout}"
                               request-timeout="${request.timeout}"
-                              request-payload-type="com.auditbucket.search.model.MetaSearchChange"
+                              message-converters=""
+                              request-payload-type="com.auditbucket.search.model.MetaSearchChanges"
                               supported-methods="POST"/>
 
     <int-http:outbound-gateway reply-timeout="1000"
