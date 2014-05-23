@@ -477,6 +477,11 @@ public class TestAuditIntegration {
         assumeTrue(!ignoreMe);
         logger.info("## stressWithHighVolume");
         registerSystemUser("TestAudit", email);
+        for (int i = 1; i < fortressMax + 1; i++) {
+            deleteEsIndex("ab.companywithspace.bulkloada" + i);
+            deleteEsIndex("ab.testaudit.bulkloada"+i);
+        }
+
         waitAWhile();
 
         int auditMax = 10;
