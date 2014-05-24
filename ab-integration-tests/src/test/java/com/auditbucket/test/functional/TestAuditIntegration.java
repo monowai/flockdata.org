@@ -269,8 +269,6 @@ public class TestAuditIntegration {
     public void rebuildESIndexFromEngine() throws Exception {
         assumeTrue(!ignoreMe);
         logger.info("## rebuildESIndexFromEngine");
-        deleteEsIndex("ab.monowai.rebuildtest");
-        logger.info("rebuildIndex started");
         SystemUser su = registerSystemUser("David");
         Fortress fo = fortressService.registerFortress(new FortressInputBean("rebuildTest", false));
 
