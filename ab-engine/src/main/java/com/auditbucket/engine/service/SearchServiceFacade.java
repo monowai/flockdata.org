@@ -147,7 +147,7 @@ public class SearchServiceFacade {
 
     @Async
     public Future<Void> makeChangeSearchable(Collection<SearchChange> searchDocument) {
-        if (searchDocument == null)
+        if (searchDocument == null || searchDocument.size() == 0)
             return null;
         logger.debug("Sending request to index [{}]] logs", searchDocument.size());
 
