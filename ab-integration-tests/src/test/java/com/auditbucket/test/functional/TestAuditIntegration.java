@@ -507,8 +507,7 @@ public class TestAuditIntegration {
         SecurityContextHolder.getContext().setAuthentication(authA);
         SystemUser su = regService.registerSystemUser(new RegistrationBean(company, loginToCreate));
         // creating company alters the schema that sometimes throws a heuristic exception.
-        Thread.yield();
-        Thread.sleep(300);
+        Thread.sleep(600);
         Thread.yield();
         return su;
     }
