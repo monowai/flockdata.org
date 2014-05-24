@@ -138,13 +138,13 @@ public class TestAuditIntegration {
      * Likewise, waiting for results from ab-search can take a while. We can't know how long this
      * is so you can experiment on your own environment by passing in -DsleepSeconds=1
      *
-     * @param pauseCount seconds to pause
+     * @param milliseconds to pause for
      *
      * @throws Exception
      */
-    public static void waitAWhile(long pauseCount) throws Exception {
-        logger.info("Waiting for {} seconds", pauseCount / 1000d);
-        Thread.sleep(pauseCount);
+    public static void waitAWhile(long milliseconds) throws Exception {
+        logger.info("Waiting for {} seconds", milliseconds / 1000d);
+        Thread.sleep(milliseconds);
     }
 
     @BeforeClass
@@ -178,6 +178,7 @@ public class TestAuditIntegration {
     }
 
     private static void deleteEsIndex(String indexName) throws Exception {
+        logger.info ("%% Delete Index {}", indexName);
         esClient.execute(new DeleteIndex.Builder(indexName).build());
     }
 
@@ -279,10 +280,9 @@ public class TestAuditIntegration {
         MetaHeader metaHeader = trackService.getHeader(auditResult.getMetaKey());
         waitForHeaderToUpdate(metaHeader, su.getApiKey());
 
-        waitAWhile();
         doEsQuery(metaHeader.getIndexName(), "*");
-
         deleteEsIndex(metaHeader.getIndexName());
+
         // Rebuild....
         Future<Long> fResult = mediationFacade.reindex(fo.getCompany(), fo.getCode());
         waitForHeaderToUpdate(metaHeader, su.getApiKey());
@@ -495,7 +495,7 @@ public class TestAuditIntegration {
         if (!defaultAuthUser){
             defaultAuthUser = true;
             regService.registerSystemUser(new RegistrationBean(company, "mike").setIsUnique(false));
-            waitAWhile(1);
+            waitAWhile(1000);
 
         }
 
