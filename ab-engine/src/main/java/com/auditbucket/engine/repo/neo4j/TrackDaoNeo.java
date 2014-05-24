@@ -99,6 +99,8 @@ public class TrackDaoNeo implements TrackDao {
 
 //    @Cacheable(value = "metaKey", unless = "#result==null")
     private MetaHeader getCachedHeader(String key) {
+        if ( key == null )
+            return null;
         return metaRepo.findBySchemaPropertyValue(MetaHeaderNode.UUID_KEY, key);
     }
 

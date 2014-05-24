@@ -132,6 +132,13 @@ public class TestTrack {
     }
 
     @Test
+    public void nullMetaKey() throws Exception {
+        regService.registerSystemUser(new RegistrationBean(monowai, mike));
+        assertNull (trackService.getHeader(null));
+
+    }
+
+    @Test
     public void metaHeaderDifferentLogsBulkEndpoint() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(authMike);
         SystemUserResultBean su = regService.registerSystemUser(new RegistrationBean(monowai, "mike")).getBody();
@@ -328,6 +335,7 @@ public class TestTrack {
         String keyA = mediationFacade.createHeader(inputBean, null).getMetaKey();
         LogInputBean alb = new LogInputBean("logTest", new DateTime(), "{\"blah\":" + 0 + "}");
         alb.setCallerRef(fortressA.getName(), docType, callerRef);
+        //assertNotNull (alb);
         LogResultBean arb = mediationFacade.processLog(alb);
         assertNotNull(arb);
         assertEquals(keyA, arb.getMetaKey());
