@@ -19,7 +19,6 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.client.AbRestClient;
 import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.service.MediationFacade;
 import com.auditbucket.engine.service.TrackService;
@@ -46,6 +45,7 @@ import io.searchbox.client.JestResult;
 import io.searchbox.client.config.HttpClientConfig;
 import io.searchbox.core.Search;
 import io.searchbox.indices.DeleteIndex;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
 import org.junit.*;
@@ -56,6 +56,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -69,6 +70,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Properties;
@@ -143,8 +145,9 @@ public class TestAuditIntegration {
      * @throws Exception
      */
     public static void waitAWhile(long milliseconds) throws Exception {
-        logger.info("Waiting for {} seconds", milliseconds / 1000d);
+        logger.debug("Waiting for {} seconds", milliseconds / 1000d);
         Thread.sleep(milliseconds);
+        logger.debug("Finished waiting");
     }
 
     @BeforeClass
@@ -630,7 +633,7 @@ public class TestAuditIntegration {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
-        HttpHeaders httpHeaders = AbRestClient.getHeaders(null, "mike", "123");
+        HttpHeaders httpHeaders = getHeaders(null, "mike", "123");
         HttpEntity<QueryParams> requestEntity = new HttpEntity<>(queryParams, httpHeaders);
 
         try {
@@ -853,5 +856,25 @@ public class TestAuditIntegration {
                 .next()
                 .getAsJsonObject().get("_source").toString();
     }
+
+    public static HttpHeaders getHeaders(final String apiKey, final String username, final String password) {
+
+        return new HttpHeaders() {
+            {
+                if (username != null && password != null) {
+                    String auth = username + ":" + password;
+                    byte[] encodedAuth = Base64.encodeBase64(
+                            auth.getBytes(Charset.forName("US-ASCII")));
+                    String authHeader = "Basic " + new String(encodedAuth);
+                    set("Authorization", authHeader);
+                } else if ( apiKey != null )
+                    set("Api-Key", apiKey);
+                setContentType(MediaType.APPLICATION_JSON);
+                set("charset", "UTF-8");
+            }
+        };
+
+    }
+
 
 }
