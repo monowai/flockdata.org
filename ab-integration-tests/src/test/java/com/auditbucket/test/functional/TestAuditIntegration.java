@@ -100,7 +100,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 public class TestAuditIntegration {
-    private boolean runMe = false;
+    private boolean runMe = true;
     private static int fortressMax = 1;
     private static JestClient esClient;
 
@@ -345,11 +345,13 @@ public class TestAuditIntegration {
     public void auditsByPassGraphByCallerRef() throws Exception {
 //        assumeTrue(runMe);
         logger.info("## auditsByPassGraphByCallerRef started");
+        deleteEsIndex("ab.monowai.trackgraph");
         SystemUser su = registerSystemUser("Isabella");
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("TrackGraph", false));
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         inputBean.setTrackSuppressed(true);
+        // Track suppressed but search is enabled
         mediationFacade.createHeader(inputBean, su.getApiKey());
 
         String indexName = MetaSearchSchema.parseIndex(fortress);
