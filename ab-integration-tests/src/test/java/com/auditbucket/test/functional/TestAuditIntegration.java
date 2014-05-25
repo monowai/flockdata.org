@@ -285,6 +285,7 @@ public class TestAuditIntegration {
 
         MetaHeader metaHeader = trackService.getHeader(auditResult.getMetaKey());
         waitForHeaderToUpdate(metaHeader, su.getApiKey());
+        assertEquals("ab.monowai.rebuildtest", metaHeader.getIndexName());
 
         waitAWhile();
         doEsQuery(metaHeader.getIndexName(), "*");
@@ -302,10 +303,10 @@ public class TestAuditIntegration {
     @Test
     public void createHeaderTimeLogsWithSearchActivated() throws Exception {
         assumeTrue(!debugMe);
+        logger.info("## createHeaderTimeLogsWithSearchActivated");
         deleteEsIndex("ab.monowai.111");
         int max = 3;
         String ahKey;
-        logger.info("createHeaderTimeLogsWithSearchActivated started");
         registerSystemUser("Olivia");
         Fortress fo = fortressService.registerFortress(new FortressInputBean("111", false));
 
@@ -344,7 +345,7 @@ public class TestAuditIntegration {
     public void auditsByPassGraphByCallerRef() throws Exception {
         assumeTrue(!debugMe);
         logger.info("## auditsByPassGraphByCallerRef started");
-        registerSystemUser("Isabella");
+        SystemUser su = registerSystemUser("Isabella");
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("TrackGraph", false));
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
@@ -364,7 +365,8 @@ public class TestAuditIntegration {
 
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setTrackSuppressed(true);
-        mediationFacade.createHeader(inputBean, null);
+        MetaHeader header = mediationFacade.createHeader(inputBean, null).getMetaHeader();
+        waitForHeaderToUpdate(header, su.getApiKey()) ;
         waitAWhile();
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(indexName, "*", 2);
