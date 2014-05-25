@@ -343,7 +343,7 @@ public class TestAuditIntegration {
 
     @Test
     public void auditsByPassGraphByCallerRef() throws Exception {
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## auditsByPassGraphByCallerRef started");
         deleteEsIndex("ab.monowai.trackgraph");
         SystemUser su = registerSystemUser("Isabella");
