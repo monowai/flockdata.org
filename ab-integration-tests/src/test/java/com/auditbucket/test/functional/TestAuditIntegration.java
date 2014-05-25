@@ -196,8 +196,7 @@ public class TestAuditIntegration {
         logger.info("## companyAndFortressWithSpaces");
 
         registerSystemUser("co-fortress");
-        regService.registerSystemUser(new RegistrationBean("Company With Space", "Eva"));
-        waitAWhile();
+        SystemUser su = regService.registerSystemUser(new RegistrationBean("Company With Space", "Eva"));
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("Audit Test", false));
         String docType = "TestAuditX";
         String callerRef = "ABC123X";
@@ -209,7 +208,8 @@ public class TestAuditIntegration {
         header = trackService.getHeader(ahKey);
         assertEquals("ab.monowai.audittest", header.getIndexName());
         mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + 1 + "}"));
-        Thread.sleep(3000);
+        waitForHeaderToUpdate(header, su.getApiKey());
+        waitAWhile();
         doEsQuery(header.getIndexName(), header.getMetaKey());
     }
 
