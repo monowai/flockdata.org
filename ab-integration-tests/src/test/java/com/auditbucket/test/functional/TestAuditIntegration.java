@@ -48,7 +48,10 @@ import io.searchbox.indices.DeleteIndex;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,6 +127,7 @@ public class TestAuditIntegration {
 
     String company = "Monowai";
     static Properties properties = new Properties();
+
     @AfterClass
     public static void waitAWhile() throws Exception {
         String ss = System.getProperty("sleepSeconds");
@@ -134,7 +138,7 @@ public class TestAuditIntegration {
 
     /**
      *
-     * Builds a processing delay for things to complete. If you start getting sporadic
+     * Processing delay for threads and integration to complete. If you start getting sporadic
      * Heuristic exceptions, chances are you need to call this routine to give other threads
      * time to commit their work.
      * Likewise, waiting for results from ab-search can take a while. We can't know how long this
@@ -195,8 +199,7 @@ public class TestAuditIntegration {
         assumeTrue(!ignoreMe);
         logger.info("## companyAndFortressWithSpaces");
 
-        registerSystemUser("co-fortress");
-        SystemUser su = regService.registerSystemUser(new RegistrationBean("Company With Space", "Eva"));
+        SystemUser su = registerSystemUser("co-fortress");
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("Audit Test", false));
         String docType = "TestAuditX";
         String callerRef = "ABC123X";
@@ -208,8 +211,9 @@ public class TestAuditIntegration {
         header = trackService.getHeader(ahKey);
         assertEquals("ab.monowai.audittest", header.getIndexName());
         mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + 1 + "}"));
-        waitForHeaderToUpdate(header, su.getApiKey());
         waitAWhile();
+        waitForHeaderToUpdate(header, su.getApiKey());
+
         doEsQuery(header.getIndexName(), header.getMetaKey());
     }
 
@@ -493,12 +497,12 @@ public class TestAuditIntegration {
      *
      * @throws Exception
      */
-    @Before
+    @BeforeClass
     public void secureSystemUserCanWriteData() throws Exception{
         if (!defaultAuthUser){
             defaultAuthUser = true;
             regService.registerSystemUser(new RegistrationBean(company, "mike").setIsUnique(false));
-            waitAWhile(1000);
+            waitAWhile(-1000);
 
         }
 
