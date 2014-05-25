@@ -100,8 +100,8 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 public class TestAuditIntegration {
-    private boolean runMe = true;
-    private static int fortressMax = 1;
+    private boolean runMe = false;
+    private static int fortressMax = 2;
     private static JestClient esClient;
 
     @Autowired
@@ -127,10 +127,15 @@ public class TestAuditIntegration {
 
     @AfterClass
     public static void waitAWhile() throws Exception {
+        waitAWhile(null);
+    }
+    public static void waitAWhile(String message) throws Exception {
         String ss = System.getProperty("sleepSeconds");
         if ( ss==null || ss.equals(""))
             ss = "2";
-        waitAWhile(Long.decode(ss)*1000);
+        if ( message == null )
+            message = "Slept for {} seconds";
+        waitAWhile(message, Long.decode(ss)*1000);
     }
 
     @BeforeClass
@@ -187,7 +192,7 @@ public class TestAuditIntegration {
         if (!defaultAuthUser){
             defaultAuthUser = true;
             regService.registerSystemUser(new RegistrationBean(company, "mike").setIsUnique(false));
-            waitAWhile(1000);
+            waitAWhile("Secure System User created. Pause {}", 1000);
 
         }
 
@@ -505,18 +510,20 @@ public class TestAuditIntegration {
 
     @Test
     public void stressWithHighVolume() throws Exception {
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## stressWithHighVolume");
+        int auditMax = 10, logMax = 10, fortress = 1;
+
         for (int i = 1; i < fortressMax + 1; i++) {
             deleteEsIndex("ab.monowai.bulkloada" + i);
+            waitAWhile();
+            doEsQuery("ab.monowai.bulkloada"+i, "*", -1);
         }
+
+        waitAWhile("For index to delete");
 
         SystemUser su = registerSystemUser("Gina");
 
-        int auditMax = 10;
-        int logMax = 10;
-        int fortress = 1;
-        //fortressMax = 10;
         String simpleJson = "{\"who\":";
         ArrayList<Long> list = new ArrayList<>();
 
@@ -524,18 +531,18 @@ public class TestAuditIntegration {
         logger.info("We will be expecting a total of " + (auditMax * logMax * fortressMax) + " messages to be handled");
 
         StopWatch watch = new StopWatch();
-        watch.start();
-        double splitTotals = 0;
         long totalRows = 0;
-        long auditSleepCount;  // Discount all the time we spent sleeping
 
         DecimalFormat f = new DecimalFormat("##.000");
 
+        watch.start();
         while (fortress <= fortressMax) {
+
             String fortressName = "bulkloada" + fortress;
+            StopWatch fortressWatch = new StopWatch();
+            fortressWatch.start();
             int audit = 1;
             long requests = 0;
-            auditSleepCount = 0;
 
             Fortress iFortress = fortressService.registerFortress(new FortressInputBean(fortressName, false));
             requests++;
@@ -553,32 +560,41 @@ public class TestAuditIntegration {
                         searchChecked = true;
                         MetaHeader metaHeader = trackService.getHeader(arb.getMetaKey());
                         requests++;
-                        long checkCount = waitForHeaderToUpdate(metaHeader, su.getApiKey());
-                        auditSleepCount = auditSleepCount + checkCount;
-                        requests = requests + checkCount;
+                        watch.suspend();
+                        fortressWatch.suspend();
+                        waitForHeaderToUpdate(metaHeader, su.getApiKey());
+                        watch.resume();
+                        fortressWatch.resume();
                     } // searchCheck done
                     log++;
                 } // Logs created
                 audit++;
             } // Audit headers finished with
+            fortressWatch.stop();
+            double fortressRunTime = (fortressWatch.getTime()) / 1000d;
+            logger.info("*** {} took {}  [{}] Avg processing time= {}. Requests per second {}",
+                    iFortress.getName(),
+                    fortressRunTime,
+                    requests,
+                    f.format(fortressRunTime / requests),
+                    f.format(requests / fortressRunTime));
             watch.split();
-            double fortressRunTime = (watch.getSplitTime() - auditSleepCount) / 1000d;
-            logger.info("*** " + iFortress.getName() + " took " + fortressRunTime + "  avg processing time for [" + requests + "] RPS= " + f.format(fortressRunTime / requests) + ". Requests per second " + f.format(requests / fortressRunTime));
-
-            splitTotals = splitTotals + fortressRunTime;
+            //splitTotals = splitTotals + fortressRunTime;
             totalRows = totalRows + requests;
-            watch.reset();
-            watch.start();
             list.add(iFortress.getId());
             fortress++;
         }
+        watch.stop();
+        double totalTime = watch.getTime()/1000d;
+        logger.info("*** Processed {} requests. Data sets created in {} secs. Fortress avg = {} avg requests per second {}",
+                totalRows,
+                f.format(totalTime),
+                f.format(totalTime / fortressMax),
+                f.format(totalRows / totalTime));
 
-        logger.info("*** Created data set in " + f.format(splitTotals) + " fortress avg = " + f.format(splitTotals / fortressMax) + " avg processing time per request " + f.format(splitTotals / totalRows) + ". Requests per second " + f.format(totalRows / splitTotals));
-        watch.reset();
-        waitAWhile(8000);
+        waitAWhile("Ending Stress Test. Pausing for {}", 8000);
         validateLogsIndexed(list, auditMax, logMax);
-
-        doSearchTests(auditMax, list, watch);
+        doSearchTests(auditMax, list);
     }
 
     @Test
@@ -640,18 +656,14 @@ public class TestAuditIntegration {
 
     private void validateLogsIndexed(ArrayList<Long> list, int auditMax, int expectedLogCount) throws Exception {
         logger.info("Validating logs are indexed");
-        int fortress = 2;
+        int fortress = 1;
         int audit = 1;
         //DecimalFormat f = new DecimalFormat("##.000");
         while (fortress <= fortressMax) {
             while (audit <= auditMax) {
                 MetaHeader header = trackService.findByCallerRefFull(list.get(fortress), "CompanyNode", "ABC" + audit);
-                StopWatch watch = new StopWatch();
-                watch.start();
                 Set<TrackLog> logs = trackService.getLogs(header.getId());
-                watch.split();
                 assertNotNull(logs);
-                //logger.info("retrieved [{}] logs in [{}] millis", logs.size(), f.format(watch.getSplitTime()));
                 assertEquals("Wrong number of logs returned", expectedLogCount, logs.size());
                 for (TrackLog log : logs) {
                     assertEquals("logId [" + log.getId() + "] changeId[" + log.getChange().getId() + "], event[ " + log.getChange().getEvent() + "]", true, log.isIndexed());
@@ -687,16 +699,17 @@ public class TestAuditIntegration {
         return System.currentTimeMillis() - thenTime;
     }
 
-    private void doSearchTests(int auditCount, ArrayList<Long> list, StopWatch watch) throws Exception {
+    private void doSearchTests(int auditCount, ArrayList<Long> list) throws Exception {
         int fortress;
         int searchLoops = 200;
         int search = 0;
         int totalSearchRequests = 0;
-
+        logger.info ("Performing Search Tests for {} fortresses", fortressMax);
+        StopWatch watch = new StopWatch();
         watch.start();
 
         do {
-            fortress = 0;
+            fortress = 1;
             do {
                 int x = 1;
                 do {
@@ -707,11 +720,9 @@ public class TestAuditIntegration {
                     MetaHeader header = trackService.findByCallerRefFull(list.get(fortress), "CompanyNode", "ABC" + random);
                     assertNotNull("ABC" + random, header);
                     assertNotNull("Looks like ab-search is not sending back results", header.getSearchKey());
-                    //TrackLog when = trackService.getLastAuditLog(header);
                     TrackLog trackLog = trackService.getLastLog(header);
                     assertNotNull(trackLog);
 
-                    //logger.info(header.getMetaKey() + " - " + when);
                     assertTrue("fortress " + fortress + " run " + x + " header " + header.getMetaKey() + " - " + trackLog.getId(), trackLog.isIndexed());
                     String result = doEsFieldQuery(header.getIndexName(), MetaSearchSchema.META_KEY, header.getMetaKey(), 1);
                     totalSearchRequests++;
@@ -765,6 +776,11 @@ public class TestAuditIntegration {
 
         JestResult result = esClient.execute(search);
         assertNotNull(result);
+        if ( expectedHitCount == -1 ){
+            assertEquals("Expected the index [" + index + "] to be deleted but message was [" + result.getErrorMessage() + "]", true, result.getErrorMessage().contains("IndexMissingException"));
+            logger.debug("Confimed index {} was deleted and empty", index);
+            return null;
+        }
         assertNotNull(result.getErrorMessage(), result.getJsonObject());
         assertNotNull(result.getErrorMessage(), result.getJsonObject().getAsJsonObject("hits"));
         assertNotNull(result.getErrorMessage(), result.getJsonObject().getAsJsonObject("hits").get("total"));
@@ -875,9 +891,9 @@ public class TestAuditIntegration {
      *
      * @throws Exception
      */
-    public static void waitAWhile(long milliseconds) throws Exception {
+    public static void waitAWhile(String message, long milliseconds) throws Exception {
         Thread.sleep(milliseconds);
-        logger.debug("Slept for {} seconds", milliseconds / 1000d);
+        logger.debug(message, milliseconds / 1000d);
     }
 
 
