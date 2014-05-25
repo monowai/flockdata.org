@@ -36,8 +36,12 @@
     <logger name="org.springframework.data.neo4j">
         <level value="error"/>
     </logger>
+    <logger name="org.springframework.amqp">
+        <level value="error"/>
+    </logger>
+
     <logger name="org.elasticsearch">
-        <level value="info"/>
+        <level value="debug"/>
     </logger>
     <logger name="org.hibernate">
         <level value="error"/>
