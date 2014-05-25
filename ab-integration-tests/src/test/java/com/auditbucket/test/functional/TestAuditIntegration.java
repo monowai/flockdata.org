@@ -48,10 +48,7 @@ import io.searchbox.indices.DeleteIndex;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,7 +100,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 public class TestAuditIntegration {
-    private boolean ignoreMe = false;
+    private boolean debugMe = false;
     private static int fortressMax = 1;
     private static JestClient esClient;
 
@@ -134,24 +131,6 @@ public class TestAuditIntegration {
         if ( ss==null || ss.equals(""))
             ss = "2";
         waitAWhile(Long.decode(ss)*1000);
-    }
-
-    /**
-     *
-     * Processing delay for threads and integration to complete. If you start getting sporadic
-     * Heuristic exceptions, chances are you need to call this routine to give other threads
-     * time to commit their work.
-     * Likewise, waiting for results from ab-search can take a while. We can't know how long this
-     * is so you can experiment on your own environment by passing in -DsleepSeconds=1
-     *
-     * @param milliseconds to pause for
-     *
-     * @throws Exception
-     */
-    public static void waitAWhile(long milliseconds) throws Exception {
-        logger.debug("Waiting for {} seconds", milliseconds / 1000d);
-        Thread.sleep(milliseconds);
-        logger.debug("Finished waiting");
     }
 
     @BeforeClass
@@ -194,9 +173,29 @@ public class TestAuditIntegration {
         esClient.shutdownClient();
     }
 
+    private boolean defaultAuthUser;
+
+    /**
+     * A lot of calls in this class assume that the BasicAuth user can create and read data
+     * In order for the authenticated user to create data they have to belong to the company.
+     * By default the secured user does not belong, so we set that up here
+     *
+     * @throws Exception
+     */
+    @Before
+    public void secureSystemUserCanWriteData() throws Exception{
+        if (!defaultAuthUser){
+            defaultAuthUser = true;
+            regService.registerSystemUser(new RegistrationBean(company, "mike").setIsUnique(false));
+            waitAWhile(1000);
+
+        }
+
+    }
+
     @Test
     public void companyAndFortressWithSpaces() throws Exception {
-        assumeTrue(!ignoreMe);
+        assumeTrue(!debugMe);
         logger.info("## companyAndFortressWithSpaces");
 
         SystemUser su = registerSystemUser("co-fortress");
@@ -219,7 +218,7 @@ public class TestAuditIntegration {
 
     @Test
     public void headerWithTagsProcess() throws Exception {
-        assumeTrue(!ignoreMe);
+        assumeTrue(!debugMe);
         logger.info("## headersWithTagsProcess");
         SecurityContextHolder.getContext().setAuthentication(authA);
         SystemUser su = registerSystemUser("Mark");
@@ -244,7 +243,7 @@ public class TestAuditIntegration {
 
     @Test
     public void immutableHeadersWithNoLogsAreIndexed() throws Exception {
-        assumeTrue(!ignoreMe);
+        assumeTrue(!debugMe);
         logger.info("## immutableHeadersWithNoLogsAreIndexed");
         SystemUser su = registerSystemUser("Manfred");
         Fortress fo = fortressService.registerFortress(new FortressInputBean("immutableHeadersWithNoLogsAreIndexed", false));
@@ -275,7 +274,7 @@ public class TestAuditIntegration {
 
     @Test
     public void rebuildESIndexFromEngine() throws Exception {
-        assumeTrue(!ignoreMe);
+        assumeTrue(!debugMe);
         logger.info("## rebuildESIndexFromEngine");
         SystemUser su = registerSystemUser("David");
         Fortress fo = fortressService.registerFortress(new FortressInputBean("rebuildTest", false));
@@ -287,6 +286,7 @@ public class TestAuditIntegration {
         MetaHeader metaHeader = trackService.getHeader(auditResult.getMetaKey());
         waitForHeaderToUpdate(metaHeader, su.getApiKey());
 
+        waitAWhile();
         doEsQuery(metaHeader.getIndexName(), "*");
         deleteEsIndex(metaHeader.getIndexName());
 
@@ -301,7 +301,7 @@ public class TestAuditIntegration {
 
     @Test
     public void createHeaderTimeLogsWithSearchActivated() throws Exception {
-        assumeTrue(!ignoreMe);
+        assumeTrue(!debugMe);
         deleteEsIndex("ab.monowai.111");
         int max = 3;
         String ahKey;
@@ -342,7 +342,7 @@ public class TestAuditIntegration {
 
     @Test
     public void auditsByPassGraphByCallerRef() throws Exception {
-        assumeTrue(!ignoreMe);
+        assumeTrue(!debugMe);
         logger.info("## auditsByPassGraphByCallerRef started");
         registerSystemUser("Isabella");
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("TrackGraph", false));
@@ -392,7 +392,7 @@ public class TestAuditIntegration {
      */
     @Test
     public void suppressIndexingOnDemand() throws Exception {
-        assumeTrue(!ignoreMe);
+        assumeTrue(!debugMe);
         logger.info("## suppressIndexOnDemand");
         String escJson = "{\"who\":";
         SystemUser su = registerSystemUser("Barbara");
@@ -426,7 +426,7 @@ public class TestAuditIntegration {
 
     @Test
     public void tagKeyReturnsSingleSearchResult() throws Exception {
-        assumeTrue(!ignoreMe);
+        assumeTrue(!debugMe);
         logger.info("## tagKeyReturnsSingleSearchResult");
         String escJson = "{\"who\":";
         SystemUser su = registerSystemUser("Peter");
@@ -456,7 +456,7 @@ public class TestAuditIntegration {
 
     @Test
     public void testWhatIndexingDefaultAttributeWithNGram() throws Exception {
-        assumeTrue(!ignoreMe);
+        assumeTrue(!debugMe);
         logger.info("## testWhatIndexingDefaultAttributeWithNGram");
         SystemUser su = registerSystemUser("Romeo");
         waitAWhile(); //Trying to avoid Heuristic completion
@@ -488,25 +488,6 @@ public class TestAuditIntegration {
         doEsTermQuery(indexName, MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_CODE, "AZERTY", 0);
 
     }
-    private boolean defaultAuthUser;
-
-    /**
-     * A lot of calls in this class assume that the BasicAuth user can create and read data
-     * In order for an authenticated user to create data they have to belong to the company.
-     * By default the secured user does not belong, so this is done here
-     *
-     * @throws Exception
-     */
-    @BeforeClass
-    public void secureSystemUserCanWriteData() throws Exception{
-        if (!defaultAuthUser){
-            defaultAuthUser = true;
-            regService.registerSystemUser(new RegistrationBean(company, "mike").setIsUnique(false));
-            waitAWhile(-1000);
-
-        }
-
-    }
 
     private SystemUser registerSystemUser(String loginToCreate) throws Exception {
         SecurityContextHolder.getContext().setAuthentication(authA);
@@ -519,15 +500,13 @@ public class TestAuditIntegration {
 
     @Test
     public void stressWithHighVolume() throws Exception {
-        assumeTrue(!ignoreMe);
+        assumeTrue(!debugMe);
         logger.info("## stressWithHighVolume");
-        SystemUser su = registerSystemUser("Gina");
         for (int i = 1; i < fortressMax + 1; i++) {
-            deleteEsIndex("ab.companywithspace.bulkloada" + i);
-            deleteEsIndex("ab.testaudit.bulkloada" + i);
+            deleteEsIndex("ab.monowai.bulkloada" + i);
         }
 
-        waitAWhile();
+        SystemUser su = registerSystemUser("Gina");
 
         int auditMax = 10;
         int logMax = 10;
@@ -600,7 +579,7 @@ public class TestAuditIntegration {
 
     @Test
     public void simpleQueryEPWorksForImportedRecord() throws Exception {
-        assumeTrue(!ignoreMe);
+        assumeTrue(!debugMe);
         String searchFor = "testing";
         String escJson = "{\"who\":\"" + searchFor + "\"}";
 
@@ -878,6 +857,23 @@ public class TestAuditIntegration {
             }
         };
 
+    }
+
+    /**
+     *
+     * Processing delay for threads and integration to complete. If you start getting sporadic
+     * Heuristic exceptions, chances are you need to call this routine to give other threads
+     * time to commit their work.
+     * Likewise, waiting for results from ab-search can take a while. We can't know how long this
+     * is so you can experiment on your own environment by passing in -DsleepSeconds=1
+     *
+     * @param milliseconds to pause for
+     *
+     * @throws Exception
+     */
+    public static void waitAWhile(long milliseconds) throws Exception {
+        Thread.sleep(milliseconds);
+        logger.debug("Slept for {} seconds", milliseconds / 1000d);
     }
 
 
