@@ -100,7 +100,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 public class TestAuditIntegration {
-    private boolean debugMe = false;
+    private boolean runMe = true;
     private static int fortressMax = 1;
     private static JestClient esClient;
 
@@ -195,7 +195,7 @@ public class TestAuditIntegration {
 
     @Test
     public void companyAndFortressWithSpaces() throws Exception {
-        assumeTrue(!debugMe);
+        assumeTrue(runMe);
         logger.info("## companyAndFortressWithSpaces");
 
         SystemUser su = registerSystemUser("co-fortress");
@@ -218,7 +218,7 @@ public class TestAuditIntegration {
 
     @Test
     public void headerWithTagsProcess() throws Exception {
-        assumeTrue(!debugMe);
+        assumeTrue(runMe);
         logger.info("## headersWithTagsProcess");
         SecurityContextHolder.getContext().setAuthentication(authA);
         SystemUser su = registerSystemUser("Mark");
@@ -243,7 +243,7 @@ public class TestAuditIntegration {
 
     @Test
     public void immutableHeadersWithNoLogsAreIndexed() throws Exception {
-        assumeTrue(!debugMe);
+        assumeTrue(runMe);
         logger.info("## immutableHeadersWithNoLogsAreIndexed");
         SystemUser su = registerSystemUser("Manfred");
         Fortress fo = fortressService.registerFortress(new FortressInputBean("immutableHeadersWithNoLogsAreIndexed", false));
@@ -274,7 +274,7 @@ public class TestAuditIntegration {
 
     @Test
     public void rebuildESIndexFromEngine() throws Exception {
-        assumeTrue(!debugMe);
+        assumeTrue(runMe);
         logger.info("## rebuildESIndexFromEngine");
         SystemUser su = registerSystemUser("David");
         Fortress fo = fortressService.registerFortress(new FortressInputBean("rebuildTest", false));
@@ -302,7 +302,7 @@ public class TestAuditIntegration {
 
     @Test
     public void createHeaderTimeLogsWithSearchActivated() throws Exception {
-        assumeTrue(!debugMe);
+        assumeTrue(runMe);
         logger.info("## createHeaderTimeLogsWithSearchActivated");
         deleteEsIndex("ab.monowai.111");
         int max = 3;
@@ -343,7 +343,7 @@ public class TestAuditIntegration {
 
     @Test
     public void auditsByPassGraphByCallerRef() throws Exception {
-        assumeTrue(!debugMe);
+        assumeTrue(runMe);
         logger.info("## auditsByPassGraphByCallerRef started");
         SystemUser su = registerSystemUser("Isabella");
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("TrackGraph", false));
@@ -366,7 +366,7 @@ public class TestAuditIntegration {
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setTrackSuppressed(true);
         MetaHeader header = mediationFacade.createHeader(inputBean, null).getMetaHeader();
-        waitForHeaderToUpdate(header, su.getApiKey()) ;
+        junit.framework.Assert.assertNull(header.getMetaKey());
         waitAWhile();
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(indexName, "*", 2);
@@ -394,7 +394,7 @@ public class TestAuditIntegration {
      */
     @Test
     public void suppressIndexingOnDemand() throws Exception {
-        assumeTrue(!debugMe);
+        assumeTrue(runMe);
         logger.info("## suppressIndexOnDemand");
         String escJson = "{\"who\":";
         SystemUser su = registerSystemUser("Barbara");
@@ -428,7 +428,7 @@ public class TestAuditIntegration {
 
     @Test
     public void tagKeyReturnsSingleSearchResult() throws Exception {
-        assumeTrue(!debugMe);
+        assumeTrue(runMe);
         logger.info("## tagKeyReturnsSingleSearchResult");
         String escJson = "{\"who\":";
         SystemUser su = registerSystemUser("Peter");
@@ -458,7 +458,7 @@ public class TestAuditIntegration {
 
     @Test
     public void testWhatIndexingDefaultAttributeWithNGram() throws Exception {
-        assumeTrue(!debugMe);
+        assumeTrue(runMe);
         logger.info("## testWhatIndexingDefaultAttributeWithNGram");
         SystemUser su = registerSystemUser("Romeo");
         waitAWhile(); //Trying to avoid Heuristic completion
@@ -502,7 +502,7 @@ public class TestAuditIntegration {
 
     @Test
     public void stressWithHighVolume() throws Exception {
-        assumeTrue(!debugMe);
+        assumeTrue(runMe);
         logger.info("## stressWithHighVolume");
         for (int i = 1; i < fortressMax + 1; i++) {
             deleteEsIndex("ab.monowai.bulkloada" + i);
@@ -572,16 +572,15 @@ public class TestAuditIntegration {
 
         logger.info("*** Created data set in " + f.format(splitTotals) + " fortress avg = " + f.format(splitTotals / fortressMax) + " avg processing time per request " + f.format(splitTotals / totalRows) + ". Requests per second " + f.format(totalRows / splitTotals));
         watch.reset();
-        waitAWhile();
-
+        waitAWhile(8000);
         validateLogsIndexed(list, auditMax, logMax);
-        waitAWhile();
+
         doSearchTests(auditMax, list, watch);
     }
 
     @Test
     public void simpleQueryEPWorksForImportedRecord() throws Exception {
-        assumeTrue(!debugMe);
+        assumeTrue(runMe);
         String searchFor = "testing";
         String escJson = "{\"who\":\"" + searchFor + "\"}";
 

@@ -421,7 +421,7 @@ public class TrackService {
     public TrackLog getLastLog(MetaHeader metaHeader) throws DatagioException {
         if (metaHeader == null)
             return null;
-        logger.debug("Getting lastLog MetaID [{}]", metaHeader.getId());
+        //logger.debug("Getting lastLog MetaID [{}]", metaHeader.getId());
         return trackDao.getLastLog(metaHeader.getId());
     }
 
