@@ -100,7 +100,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 public class TestAuditIntegration {
-    private boolean runMe = true;
+    private boolean runMe = false;
     private static int fortressMax = 1;
     private static JestClient esClient;
 
@@ -343,16 +343,17 @@ public class TestAuditIntegration {
 
     @Test
     public void auditsByPassGraphByCallerRef() throws Exception {
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## auditsByPassGraphByCallerRef started");
         SystemUser su = registerSystemUser("Isabella");
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("TrackGraph", false));
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         inputBean.setTrackSuppressed(true);
-        mediationFacade.createHeader(inputBean, null);
+        mediationFacade.createHeader(inputBean, su.getApiKey());
 
         String indexName = MetaSearchSchema.parseIndex(fortress);
+        assertEquals("ab.monowai.trackgraph", indexName);
 
         // Putting asserts On elasticsearch
         waitAWhile();
@@ -366,7 +367,7 @@ public class TestAuditIntegration {
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setTrackSuppressed(true);
         MetaHeader header = mediationFacade.createHeader(inputBean, null).getMetaHeader();
-        junit.framework.Assert.assertNull(header.getMetaKey());
+        Assert.assertNull(header.getMetaKey());
         waitAWhile();
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(indexName, "*", 2);
