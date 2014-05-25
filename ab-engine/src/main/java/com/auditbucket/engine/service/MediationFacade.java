@@ -209,8 +209,16 @@ public class MediationFacade {
         return logResults;
     }
 
-    public LogResultBean processLog(LogInputBean input) throws DatagioException, IOException {
-        MetaHeader header = trackService.getHeader(null, input.getMetaKey());
+    public LogResultBean processLog( LogInputBean input) throws DatagioException, IOException {
+        return processLog(registrationService.resolveCompany(null), input);
+    }
+
+//    public LogResultBean processLog( String apiKey, LogInputBean input) throws DatagioException, IOException {
+//        return processLog(registrationService.resolveCompany(apiKey), input);
+//    }
+
+    public LogResultBean processLog(Company company, LogInputBean input) throws DatagioException, IOException {
+        MetaHeader header = trackService.getHeader(company, input.getMetaKey());
         LogResultBean logResultBean = writeLogForHeaderNoSearch(header, input);
         makeChangeSearchable(new TrackResultBean(logResultBean, input));
         return logResultBean;

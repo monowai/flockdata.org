@@ -1,9 +1,10 @@
 package com.auditbucket.search.endpoint;
 
-import com.auditbucket.search.model.MetaSearchChange;
+import com.auditbucket.search.model.MetaSearchChanges;
 import com.auditbucket.search.model.SearchResult;
 import com.auditbucket.search.service.EngineGateway;
 import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.SearchChange;
 import com.auditbucket.track.model.TrackSearchDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.stereotype.Service;
-
-import java.util.Collection;
 
 /**
  * Services TRACK requests from the Engine
@@ -36,12 +35,12 @@ public class TrackServiceEP {
      *
      * It may or may not already exist.
      *
-     * @param thisChange change to process
+     * @param changes to process
      */
     @ServiceActivator(inputChannel = "makeSearchRequest") // Subscriber
-    public void createSearchableChange(Collection<MetaSearchChange> thisChange) {
-
-        for (MetaSearchChange metaSearchChange : thisChange) {
+    public void createSearchableChange(MetaSearchChanges changes) {
+        Iterable<SearchChange>thisChange = changes.getChanges();
+        for (SearchChange metaSearchChange : thisChange) {
             logger.debug("searchRequest received for {}", metaSearchChange);
             SearchResult result;
             result = new SearchResult(auditSearch.update(metaSearchChange));

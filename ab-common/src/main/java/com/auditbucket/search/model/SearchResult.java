@@ -91,6 +91,7 @@ public class SearchResult {
     public String toString() {
         return "SearchResult{" +
                 "metaId='" + metaId + '\'' +
+                "metaKey='" + metaKey + '\'' +
                 ", logId='" + logId + '\'' +
                 ", fortress='" + fortress + '\'' +
                 ", documentType='" + documentType + '\'' +
