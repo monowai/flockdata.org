@@ -764,6 +764,7 @@ public class TestAuditIntegration {
     private String doEsQuery(String index, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
+        logger.debug("running ES query");
         String query = "{\n" +
                 "    query: {\n" +
                 "          query_string : {\n" +
@@ -788,6 +789,7 @@ public class TestAuditIntegration {
         assertNotNull(result.getErrorMessage(), result.getJsonObject().getAsJsonObject("hits"));
         assertNotNull(result.getErrorMessage(), result.getJsonObject().getAsJsonObject("hits").get("total"));
         int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
+        logger.debug("ran ES query - result count {}", nbrResult);
         Assert.assertEquals(index + "\r\n" + result.getJsonString(), expectedHitCount, nbrResult);
         return null;
 
