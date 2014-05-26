@@ -815,7 +815,7 @@ public class TestAuditIntegration {
         assertNotNull(message, result.getJsonObject().getAsJsonObject("hits"));
         assertNotNull(message, result.getJsonObject().getAsJsonObject("hits").get("total"));
         int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
-        logger.info("searching index [{}] for [{}]", index, queryString);
+        logger.trace("searching index [{}] field [{}] for [{}]", index, field, queryString);
         Assert.assertEquals(result.getJsonString(), expectedHitCount, nbrResult);
         if (nbrResult != 0) {
             return result.getJsonObject()
