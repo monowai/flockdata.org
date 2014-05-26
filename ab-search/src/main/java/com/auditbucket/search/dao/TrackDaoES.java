@@ -113,7 +113,7 @@ public class TrackDaoES implements TrackSearchDao {
         if (searchKey == null )
             searchKey = searchChange.getMetaKey();
 
-        logger.debug("SearchKey =[{}]", searchKey);
+        logger.debug("Resolved SearchKey to [{}]", searchKey);
         // Rebuilding a document after a reindex - preserving the unique key.
         if (searchKey != null) {
             irb.setId(searchKey);
@@ -125,7 +125,13 @@ public class TrackDaoES implements TrackSearchDao {
             searchChange.setSearchKey(ir.getId());
 
             if (logger.isDebugEnabled())
-                logger.debug("Added Document [" + searchChange.getMetaKey() + "], logId=" + searchChange.getLogId() + " searchId [" + ir.getId() + "] to " + indexName + "/" + documentType);
+                logger.debug("Save:Document [{}], logId= [{}] searchKey [{}] index [{}/{}]",
+                        searchChange.getMetaKey(),
+                        searchChange.getLogId() ,
+                        ir.getId(),
+                        indexName,
+                        documentType);
+
             return searchChange;
         } catch (Exception e) {
             logger.error("Unexpected error", e);
@@ -134,6 +140,46 @@ public class TrackDaoES implements TrackSearchDao {
 
     }
 
+    private synchronized void ensureIndex(String indexName, String documentType) {
+        logger.debug("Ensuring index {}, {}", indexName, documentType);
+
+        boolean hasIndex = esClient
+                .admin()
+                .indices()
+                .exists(new IndicesExistsRequest(indexName))
+                .actionGet().isExists();
+        if (hasIndex){
+            logger.trace("Index {}, {} exists", indexName, documentType);
+            return;
+        }
+
+        XContentBuilder mappingEs = mapping(documentType);
+        // create Index  and Set Mapping
+        if (mappingEs != null) {
+            //Settings settings = Builder
+            logger.debug("Creating new index {} for document type {}", indexName, documentType);
+            String settingDefinition = settingDefinition();
+            if (settingDefinition != null) {
+                logger.debug("Setting defn not null");
+                Settings settings = ImmutableSettings.settingsBuilder().loadFromSource(settingDefinition).build();
+                esClient.admin()
+                        .indices()
+                        .prepareCreate(indexName).addMapping(documentType, mappingEs)
+                        .setSettings(settings)
+                        .execute()
+                        .actionGet();
+            } else {
+                logger.debug("Setting defn was null");
+                esClient.admin()
+                    .indices()
+                    .prepareCreate(indexName)
+                    .addMapping(documentType, mappingEs)
+                    .execute()
+                    .actionGet();
+            }
+//            ensureMapping(indexName, documentType);
+        }
+    }
     private void ensureMapping(String indexName, String documentType) {
         logger.debug("Checking mapping for {}, {}",indexName, documentType);
         XContentBuilder mappingEs = mapping(documentType);
@@ -148,7 +194,8 @@ public class TrackDaoES implements TrackSearchDao {
                 .typesExists(new TypesExistsRequest(indexNames, documentTypes))
                 .actionGet()
                 .isExists();
-        logger.info("Has Type returns {}", hasType);
+
+
         if (!hasType) {
             // Type Don't exist ==> Insert Mapping
             if (mappingEs != null) {
@@ -162,49 +209,17 @@ public class TrackDaoES implements TrackSearchDao {
         }
     }
 
-    private synchronized void ensureIndex(String indexName, String documentType) {
-        logger.debug("Ensuring index {}, {}", indexName, documentType);
-
-        boolean hasIndex = esClient
-                .admin()
-                .indices()
-                .exists(new IndicesExistsRequest(indexName))
-                .actionGet().isExists();
-        if (hasIndex){
-            logger.debug("Index {}, {} exists", indexName, documentType);
-            return;
-        }
-
-        XContentBuilder mappingEs = mapping(documentType);
-        // create Index  and Set Mapping
-        if (mappingEs != null) {
-            //Settings settings = Builder
-            logger.debug("Creating new index {} for document type {}", indexName, documentType);
-            String settingDefinition = settingDefinition();
-            if (settingDefinition != null) {
-                Settings settings = ImmutableSettings.settingsBuilder().loadFromSource(settingDefinition).build();
-                esClient.admin().
-                        indices()
-                            .prepareCreate(indexName).addMapping(documentType, mappingEs)
-                            .setSettings(settings)
-                        .execute()
-                        .actionGet();
-            } else {
-                esClient.admin().indices().prepareCreate(indexName).addMapping(documentType, mappingEs).execute().actionGet();
-            }
-//            ensureMapping(indexName, documentType);
-        }
-    }
-
     @Override
     public SearchChange update(SearchChange incoming) {
 
         String source = makeIndexJson(incoming);
-        if (incoming.getSearchKey() == null)
+        if (incoming.getSearchKey() == null){
+            logger.debug("No search key, creating as a new document [{}]", incoming.getMetaKey());
             return save(incoming);
+        }
 
         try {
-            logger.debug("Received request to Update [{}]", incoming.getMetaKey());
+            logger.debug("Update request for [{}]", incoming.getMetaKey());
             ensureIndex(incoming.getIndexName(), incoming.getDocumentType());
             //ensureMapping(incoming.getIndexName(), incoming.getDocumentType());
             GetResponse response =
@@ -216,13 +231,16 @@ public class TrackDaoES implements TrackSearchDao {
                             .actionGet();
             logger.debug("executed get request for {}", incoming.toString());
             if (response.isExists() && !response.isSourceEmpty()) {
+                logger.debug("Document exists!");
                 // Messages can be received out of sequence
                 // Check to ensure we don't accidentally overwrite a more current
                 // document with an older one. We assume the calling fortress understands
                 // what the most recent doc is.
                 Object o = response.getSource().get(MetaSearchSchema.WHEN); // fortress view of WHEN, not AuditBuckets!
                 if (o != null) {
+
                     Long existingWhen = Long.decode(o.toString());
+                    logger.debug("Comparing incoming when {} with stored when {}", incoming.getWhen(), existingWhen);
                     if (existingWhen > incoming.getWhen()) {
                         logger.debug("ignoring a request to update as the existing document dated [{}] is newer than the incoming document dated [{}]", new Date(existingWhen), new Date(incoming.getWhen()));
                         return incoming; // Don't overwrite the most current doc!
@@ -231,11 +249,12 @@ public class TrackDaoES implements TrackSearchDao {
                         // Likely scenario is a batch is being reprocessed
                         return incoming;
                     }
+                    logger.debug("Document is more recent. Proceeding with update");
                 }
             } else {
                 // No response, to a search key we expect to exist. Create a new one
                 // Likely to be in response to rebuilding an ES index from Graph data.
-                logger.debug("About to save in response to update request for {}", incoming.toString());
+                logger.debug("About to create in response to an update request for {}", incoming.toString());
                 return save(incoming);
             }
 
