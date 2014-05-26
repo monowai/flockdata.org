@@ -100,8 +100,8 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 public class TestAuditIntegration {
-    private boolean runMe = false;
-    private static int fortressMax = 2;
+    private static boolean runMe = true; // pass -Dab.debug=true to disable all tests
+    private static int fortressMax = 1;
     private static JestClient esClient;
 
     @Autowired
@@ -143,6 +143,9 @@ public class TestAuditIntegration {
     public static void cleanupElasticSearch() throws Exception {
         FileInputStream f = new FileInputStream("./src/test/resources/config.properties");
         properties.load(f);
+        String abDebug = System.getProperty("ab.debug");
+        if ( abDebug!= null )
+            runMe= !Boolean.parseBoolean(abDebug);
 
         HttpClientConfig clientConfig = new HttpClientConfig.Builder("http://localhost:" + properties.get("es.http.port")).multiThreaded(false).build();
         // Construct a new Jest client according to configuration via factory
@@ -460,7 +463,7 @@ public class TestAuditIntegration {
         waitAWhile();
 
         waitForHeaderToUpdate(indexHeader, su.getApiKey());
-        doEsFieldQuery(indexName, "@tag." + relationshipName + ".key", "keytestworks", 1);
+        doEsTermQuery(indexName, "@tag." + relationshipName + ".key", "keytestworks", 1);
 
     }
 
@@ -510,7 +513,7 @@ public class TestAuditIntegration {
 
     @Test
     public void stressWithHighVolume() throws Exception {
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## stressWithHighVolume");
         int auditMax = 10, logMax = 10, fortress = 1;
 
@@ -520,7 +523,7 @@ public class TestAuditIntegration {
             doEsQuery("ab.monowai.bulkloada"+i, "*", -1);
         }
 
-        waitAWhile("For index to delete");
+        waitAWhile("Wait {} secs for index to delete ");
 
         SystemUser su = registerSystemUser("Gina");
 
@@ -656,10 +659,10 @@ public class TestAuditIntegration {
 
     private void validateLogsIndexed(ArrayList<Long> list, int auditMax, int expectedLogCount) throws Exception {
         logger.info("Validating logs are indexed");
-        int fortress = 1;
+        int fortress = 0;
         int audit = 1;
         //DecimalFormat f = new DecimalFormat("##.000");
-        while (fortress <= fortressMax) {
+        while (fortress < fortressMax) {
             while (audit <= auditMax) {
                 MetaHeader header = trackService.findByCallerRefFull(list.get(fortress), "CompanyNode", "ABC" + audit);
                 Set<TrackLog> logs = trackService.getLogs(header.getId());
@@ -709,7 +712,7 @@ public class TestAuditIntegration {
         watch.start();
 
         do {
-            fortress = 1;
+            fortress = 0;
             do {
                 int x = 1;
                 do {
@@ -724,7 +727,7 @@ public class TestAuditIntegration {
                     assertNotNull(trackLog);
 
                     assertTrue("fortress " + fortress + " run " + x + " header " + header.getMetaKey() + " - " + trackLog.getId(), trackLog.isIndexed());
-                    String result = doEsFieldQuery(header.getIndexName(), MetaSearchSchema.META_KEY, header.getMetaKey(), 1);
+                    String result = doEsTermQuery(header.getIndexName(), MetaSearchSchema.META_KEY, header.getMetaKey(), 1);
                     totalSearchRequests++;
                     validateResultFieds(result);
 
@@ -769,7 +772,7 @@ public class TestAuditIntegration {
                 "      }\n" +
                 "}";
 
-        logger.info("searching index [{}] for [{}]", index, queryString);
+        //
         Search search = new Search.Builder(query)
                 .addIndex(index)
                 .build();
@@ -778,7 +781,7 @@ public class TestAuditIntegration {
         assertNotNull(result);
         if ( expectedHitCount == -1 ){
             assertEquals("Expected the index [" + index + "] to be deleted but message was [" + result.getErrorMessage() + "]", true, result.getErrorMessage().contains("IndexMissingException"));
-            logger.debug("Confimed index {} was deleted and empty", index);
+            logger.debug("Confirmed index {} was deleted and empty", index);
             return null;
         }
         assertNotNull(result.getErrorMessage(), result.getJsonObject());
@@ -812,7 +815,7 @@ public class TestAuditIntegration {
         assertNotNull(message, result.getJsonObject().getAsJsonObject("hits"));
         assertNotNull(message, result.getJsonObject().getAsJsonObject("hits").get("total"));
         int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
-        logger.info("searching index [{}] for [{}]", index, queryString);
+        logger.trace("searching index [{}] field [{}] for [{}]", index, field, queryString);
         Assert.assertEquals(result.getJsonString(), expectedHitCount, nbrResult);
         if (nbrResult != 0) {
             return result.getJsonObject()
@@ -827,6 +830,16 @@ public class TestAuditIntegration {
         }
     }
 
+    /**
+     * Use this carefully. Due to ranked search results, you can get more results than you expect. If
+     * you are looking for an exact match then consider doEsTermQuery
+     * @param index     to search
+     * @param field     field containing queryString
+     * @param queryString text to search for
+     * @param expectedHitCount result count
+     * @return query _source
+     * @throws Exception if expectedHitCount != actual hit count
+     */
     private String doEsFieldQuery(String index, String field, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
@@ -893,7 +906,7 @@ public class TestAuditIntegration {
      */
     public static void waitAWhile(String message, long milliseconds) throws Exception {
         Thread.sleep(milliseconds);
-        logger.debug(message, milliseconds / 1000d);
+        logger.trace(message, milliseconds / 1000d);
     }
 
 
