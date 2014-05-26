@@ -772,7 +772,7 @@ public class TestAuditIntegration {
                 "      }\n" +
                 "}";
 
-        logger.trace("searching index [{}] for [{}]", index, queryString);
+        //
         Search search = new Search.Builder(query)
                 .addIndex(index)
                 .build();
@@ -781,7 +781,7 @@ public class TestAuditIntegration {
         assertNotNull(result);
         if ( expectedHitCount == -1 ){
             assertEquals("Expected the index [" + index + "] to be deleted but message was [" + result.getErrorMessage() + "]", true, result.getErrorMessage().contains("IndexMissingException"));
-            logger.debug("Confimed index {} was deleted and empty", index);
+            logger.debug("Confirmed index {} was deleted and empty", index);
             return null;
         }
         assertNotNull(result.getErrorMessage(), result.getJsonObject());
