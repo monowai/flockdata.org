@@ -764,7 +764,6 @@ public class TestAuditIntegration {
     private String doEsQuery(String index, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
-        logger.debug("running ES query");
         String query = "{\n" +
                 "    query: {\n" +
                 "          query_string : {\n" +
