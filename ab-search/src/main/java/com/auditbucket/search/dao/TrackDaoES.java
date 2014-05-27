@@ -29,7 +29,6 @@ import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
-import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
@@ -160,7 +159,6 @@ public class TrackDaoES implements TrackSearchDao {
             logger.debug("Creating new index {} for document type {}", indexName, documentType);
             String settingDefinition = settingDefinition();
             if (settingDefinition != null) {
-                logger.debug("Setting defn not null");
                 Settings settings = ImmutableSettings.settingsBuilder().loadFromSource(settingDefinition).build();
                 esClient.admin()
                         .indices()
@@ -169,7 +167,6 @@ public class TrackDaoES implements TrackSearchDao {
                         .execute()
                         .actionGet();
             } else {
-                logger.debug("Setting defn was null");
                 esClient.admin()
                     .indices()
                     .prepareCreate(indexName)
@@ -180,40 +177,13 @@ public class TrackDaoES implements TrackSearchDao {
 //            ensureMapping(indexName, documentType);
         }
     }
-    private void ensureMapping(String indexName, String documentType) {
-        logger.debug("Checking mapping for {}, {}",indexName, documentType);
-        XContentBuilder mappingEs = mapping(documentType);
-        // Test if Type exist
-        String[] indexNames = new String[1];
-        indexNames[0] = indexName;
-        String[] documentTypes = new String[1];
-        documentTypes[0] = documentType;
-
-        boolean hasType = esClient.admin()
-                .indices()
-                .typesExists(new TypesExistsRequest(indexNames, documentTypes))
-                .actionGet()
-                .isExists();
-
-
-        if (!hasType) {
-            // Type Don't exist ==> Insert Mapping
-            if (mappingEs != null) {
-                esClient.admin().indices()
-                        .preparePutMapping(indexName)
-                        .setType(documentType)
-                        .setSource(mappingEs)
-                        .execute().actionGet();
-                logger.debug("Created default mapping for {}, {}", indexName, documentType);
-            }
-        }
-    }
 
     @Override
     public SearchChange update(SearchChange incoming) {
 
         String source = makeIndexJson(incoming);
-        if (incoming.getSearchKey() == null){
+        logger.debug("Determining create or update for searchKey [{}]", incoming);
+        if (incoming.getSearchKey() == null || incoming.getSearchKey().equals("")){
             logger.debug("No search key, creating as a new document [{}]", incoming.getMetaKey());
             return save(incoming);
         }

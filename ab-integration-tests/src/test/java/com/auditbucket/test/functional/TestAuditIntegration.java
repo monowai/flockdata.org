@@ -127,12 +127,12 @@ public class TestAuditIntegration {
 
     @AfterClass
     public static void waitAWhile() throws Exception {
-        waitAWhile(null);
+        waitAWhile(null, 3000);
     }
     public static void waitAWhile(String message) throws Exception {
         String ss = System.getProperty("sleepSeconds");
         if ( ss==null || ss.equals(""))
-            ss = "2";
+            ss = "1";
         if ( message == null )
             message = "Slept for {} seconds";
         waitAWhile(message, Long.decode(ss)*1000);
@@ -195,7 +195,7 @@ public class TestAuditIntegration {
         if (!defaultAuthUser){
             defaultAuthUser = true;
             regService.registerSystemUser(new RegistrationBean(company, "mike").setIsUnique(false));
-            waitAWhile("Secure System User created. Pause {}", 1000);
+            waitAWhile("Registering Auth user System Access {}");
 
         }
 
@@ -218,7 +218,6 @@ public class TestAuditIntegration {
         header = trackService.getHeader(ahKey);
         assertEquals("ab.monowai.audittest", header.getIndexName());
         mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + 1 + "}"));
-        waitAWhile();
         waitForHeaderToUpdate(header, su.getApiKey());
 
         doEsQuery(header.getIndexName(), header.getMetaKey());
@@ -295,7 +294,6 @@ public class TestAuditIntegration {
         waitForHeaderToUpdate(metaHeader, su.getApiKey());
         assertEquals("ab.monowai.rebuildtest", metaHeader.getIndexName());
 
-        waitAWhile();
         doEsQuery(metaHeader.getIndexName(), "*");
         deleteEsIndex(metaHeader.getIndexName());
 
@@ -303,7 +301,6 @@ public class TestAuditIntegration {
         Future<Long> fResult = mediationFacade.reindex(fo.getCompany(), fo.getCode());
         waitForHeaderToUpdate(metaHeader, su.getApiKey());
         Assert.assertEquals(1l, fResult.get().longValue());
-        waitAWhile();
         doEsQuery(metaHeader.getIndexName(), "*");
 
     }
@@ -341,7 +338,6 @@ public class TestAuditIntegration {
             i++;
         }
         watch.stop();
-        waitAWhile();
         // Test that we get the expected number of log events
         if (!"rest".equals(System.getProperty("neo4j"))) // Don't check if running over rest
             assertEquals("This will fail if the DB is not cleared down, i.e. testing over REST", max, trackService.getLogCount(ahKey));
@@ -366,33 +362,28 @@ public class TestAuditIntegration {
         assertEquals("ab.monowai.trackgraph", indexName);
 
         // Putting asserts On elasticsearch
-        waitAWhile();
         doEsQuery(indexName, "*", 1);
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setTrackSuppressed(true);
         mediationFacade.createHeader(inputBean, null);
-        waitAWhile();
         doEsQuery(indexName, "*", 2);
 
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setTrackSuppressed(true);
         MetaHeader header = mediationFacade.createHeader(inputBean, null).getMetaHeader();
         Assert.assertNull(header.getMetaKey());
-        waitAWhile();
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(indexName, "*", 2);
 
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setTrackSuppressed(true);
         mediationFacade.createHeader(inputBean, null);
-        waitAWhile();
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(indexName, "*", 2);
 
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC125");
         inputBean.setTrackSuppressed(true);
         mediationFacade.createHeader(inputBean, null);
-        waitAWhile();
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(indexName, "*", 3);
 
@@ -420,7 +411,6 @@ public class TestAuditIntegration {
         junit.framework.Assert.assertNotNull(resultBean);
 
         waitForHeaderToUpdate(indexHeader, su.getApiKey());
-        waitAWhile();
         String indexName = indexHeader.getIndexName();
 
         doEsQuery(indexName, "andy");
@@ -431,7 +421,6 @@ public class TestAuditIntegration {
         MetaHeader noIndexHeader = trackService.getHeader(su.getCompany(), noIndex.getMetaKey());
 
         mediationFacade.processLog(su.getCompany(), new LogInputBean(noIndexHeader.getMetaKey(), "olivia@sunnybell.com", new DateTime(), escJson + "\"bob\"}"));
-        waitAWhile();
         // Bob's not there because we said we didn't want to index that header
         doEsQuery(indexName, "bob", 0);
         doEsQuery(indexName, "andy");
@@ -460,7 +449,6 @@ public class TestAuditIntegration {
 
         LogResultBean resultBean = mediationFacade.processLog(new LogInputBean(indexHeader.getMetaKey(), "olivia@sunnybell.com", new DateTime(), escJson + "\"andy\"}"));
         assertNotNull(resultBean);
-        waitAWhile();
 
         waitForHeaderToUpdate(indexHeader, su.getApiKey());
         doEsTermQuery(indexName, "@tag." + relationshipName + ".key", "keytestworks", 1);
@@ -472,7 +460,6 @@ public class TestAuditIntegration {
         assumeTrue(runMe);
         logger.info("## testWhatIndexingDefaultAttributeWithNGram");
         SystemUser su = registerSystemUser("Romeo");
-        waitAWhile(); //Trying to avoid Heuristic completion
         Fortress iFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ngram", false));
         MetaInputBean inputBean = new MetaInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
 
@@ -482,7 +469,6 @@ public class TestAuditIntegration {
         mediationFacade.processLog(su.getCompany(), new LogInputBean(indexHeader.getMetaKey(), "olivia@sunnybell.com", new DateTime(), what));
         waitForHeaderToUpdate(indexHeader, su.getApiKey());
         String indexName = indexHeader.getIndexName();
-        waitAWhile();
 
         doEsTermQuery(indexName, MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "des", 1);
         doEsTermQuery(indexName, MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "de", 0);
@@ -519,7 +505,6 @@ public class TestAuditIntegration {
 
         for (int i = 1; i < fortressMax + 1; i++) {
             deleteEsIndex("ab.monowai.bulkloada" + i);
-            waitAWhile();
             doEsQuery("ab.monowai.bulkloada"+i, "*", -1);
         }
 
@@ -595,7 +580,6 @@ public class TestAuditIntegration {
                 f.format(totalTime / fortressMax),
                 f.format(totalRows / totalTime));
 
-        waitAWhile("Ending Stress Test. Pausing for {}", 8000);
         validateLogsIndexed(list, auditMax, logMax);
         doSearchTests(auditMax, list);
     }
@@ -614,7 +598,6 @@ public class TestAuditIntegration {
         SystemUser su = registerSystemUser("Nik");
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("TestFortress", false));
-        waitAWhile();
 
         LogInputBean log = new LogInputBean("mikeTest", new DateTime(), escJson);
         MetaInputBean input = new MetaInputBean("TestFortress", "mikeTest", "Query", new DateTime(), "abzz");
@@ -622,8 +605,6 @@ public class TestAuditIntegration {
 
         TrackResultBean result = trackEP.trackHeader(input, su.getApiKey(), su.getApiKey()).getBody();
         waitForHeaderToUpdate(result.getMetaHeader(), su.getApiKey());
-        waitAWhile();
-//        restClient.writeAudit(input, "Hello World");
 
 
         QueryParams q = new QueryParams(fortress).setSimpleQuery(searchFor);
@@ -692,7 +673,7 @@ public class TestAuditIntegration {
             metaHeader = trackEP.getMetaHeader(header.getMetaKey(), apiKey, apiKey).getBody();
             Thread.yield();
             if (i > 20)
-                waitAWhile();
+                waitAWhile("Sleeping for the header to update {}");
             i++;
         }
         if (i > 20)
@@ -764,31 +745,46 @@ public class TestAuditIntegration {
     private String doEsQuery(String index, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
-        String query = "{\n" +
-                "    query: {\n" +
-                "          query_string : {\n" +
-                "              \"query\" : \"" + queryString + "\"" +
-                "           }\n" +
-                "      }\n" +
-                "}";
+        //waitAWhile();
+        int runCount = 0, nbrResult ;
+        int timeout = 5; // 5 attempts
+        JestResult jResult ;
+        do {
+            if (runCount >0)
+                waitAWhile("Sleep {} for ES Query to work");
+            String query = "{\n" +
+                    "    query: {\n" +
+                    "          query_string : {\n" +
+                    "              \"query\" : \"" + queryString + "\"" +
+                    "           }\n" +
+                    "      }\n" +
+                    "}";
 
-        //
-        Search search = new Search.Builder(query)
-                .addIndex(index)
-                .build();
+            //
+            Search search = new Search.Builder(query)
+                    .addIndex(index)
+                    .build();
 
-        JestResult result = esClient.execute(search);
-        assertNotNull(result);
-        if ( expectedHitCount == -1 ){
-            assertEquals("Expected the index [" + index + "] to be deleted but message was [" + result.getErrorMessage() + "]", true, result.getErrorMessage().contains("IndexMissingException"));
-            logger.debug("Confirmed index {} was deleted and empty", index);
-            return null;
-        }
-        assertNotNull(result.getErrorMessage(), result.getJsonObject());
-        assertNotNull(result.getErrorMessage(), result.getJsonObject().getAsJsonObject("hits"));
-        assertNotNull(result.getErrorMessage(), result.getJsonObject().getAsJsonObject("hits").get("total"));
-        int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
-        Assert.assertEquals(index + "\r\n" + result.getJsonString(), expectedHitCount, nbrResult);
+            jResult = esClient.execute(search);
+            assertNotNull(jResult);
+            if ( expectedHitCount == -1 ){
+                assertEquals("Expected the index [" + index + "] to be deleted but message was [" + jResult.getErrorMessage() + "]", true, jResult.getErrorMessage().contains("IndexMissingException"));
+                logger.debug("Confirmed index {} was deleted and empty", index);
+                return null;
+            }
+            if (jResult.getErrorMessage()==null || !jResult.getErrorMessage().contains("IndexMissingException")){
+                assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject());
+                assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits"));
+                assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits").get("total"));
+                nbrResult = jResult.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
+            } else
+                nbrResult =0;// Index has not yet been created in ElasticSearch, we'll try again
+            runCount ++;
+        } while ( nbrResult != expectedHitCount && runCount < timeout );
+        logger.debug("ran ES query - result count {}", nbrResult);
+
+        junit.framework.Assert.assertNotNull(jResult);
+        Assert.assertEquals(index + "\r\n" + jResult.getJsonString(), expectedHitCount, nbrResult);
         return null;
 
         //return result.getJsonString();
@@ -797,28 +793,42 @@ public class TestAuditIntegration {
     private String doEsTermQuery(String index, String field, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
-        String query = "{\n" +
-                "    query: {\n" +
-                "          term : {\n" +
-                "              \"" + field + "\" : \"" + queryString + "\"\n" +
-                "           }\n" +
-                "      }\n" +
-                "}";
-        Search search = new Search.Builder(query)
-                .addIndex(index)
-                .build();
+        int runCount = 0, nbrResult ;
+        int timeout = 5; // 5 attempts
 
-        JestResult result = esClient.execute(search);
-        String message = index + " - " + field + " - " + queryString + (result == null ? "[noresult]" : "\r\n" + result.getJsonString());
-        assertNotNull(message, result);
-        assertNotNull(message, result.getJsonObject());
-        assertNotNull(message, result.getJsonObject().getAsJsonObject("hits"));
-        assertNotNull(message, result.getJsonObject().getAsJsonObject("hits").get("total"));
-        int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
+        JestResult jResult;
+        do{
+            if (runCount >0)
+                waitAWhile("Sleep {} for ES Query to work");
+             runCount++;
+                String query = "{\n" +
+                    "    query: {\n" +
+                    "          term : {\n" +
+                    "              \"" + field + "\" : \"" + queryString + "\"\n" +
+                    "           }\n" +
+                    "      }\n" +
+                    "}";
+            Search search = new Search.Builder(query)
+                    .addIndex(index)
+                    .build();
+
+            jResult = esClient.execute(search);
+            String message = index + " - " + field + " - " + queryString + (jResult == null ? "[noresult]" : "\r\n" + jResult.getJsonString());
+            assertNotNull(message, jResult);
+            if (jResult.getErrorMessage()==null || !jResult.getErrorMessage().contains("IndexMissingException")){
+                assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject());
+                assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits"));
+                assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits").get("total"));
+                nbrResult = jResult.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
+            } else
+                nbrResult =0;// Index has not yet been created in ElasticSearch, we'll try again
+
+        }while ( nbrResult != expectedHitCount && runCount < timeout );
+
         logger.trace("searching index [{}] field [{}] for [{}]", index, field, queryString);
-        Assert.assertEquals(result.getJsonString(), expectedHitCount, nbrResult);
+        Assert.assertEquals(jResult.getJsonString(), expectedHitCount, nbrResult);
         if (nbrResult != 0) {
-            return result.getJsonObject()
+            return jResult.getJsonObject()
                     .getAsJsonObject("hits")
                     .getAsJsonArray("hits")
                     .getAsJsonArray()
@@ -843,27 +853,37 @@ public class TestAuditIntegration {
     private String doEsFieldQuery(String index, String field, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
-        String query = "{\n" +
-                "    query: {\n" +
-                "          query_string : {\n" +
-                "              \"default_field\" : \"" + field + "\",\n" +
-                "              \"query\" : \"" + queryString + "\"\n" +
-                "           }\n" +
-                "      }\n" +
-                "}";
-        Search search = new Search.Builder(query)
-                .addIndex(index)
-                .build();
+        int runCount = 0, nbrResult ;
+        int timeout = 5; // 5 attempts
 
-        JestResult result = esClient.execute(search);
-        String message = index + " - " + field + " - " + queryString + (result == null ? "[noresult]" : "\r\n" + result.getJsonString());
-        assertNotNull(message, result);
-        assertNotNull(message, result.getJsonObject());
-        assertNotNull(message, result.getJsonObject().getAsJsonObject("hits"));
-        assertNotNull(message, result.getJsonObject().getAsJsonObject("hits").get("total"));
-        int nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
+        JestResult result;
+        do{
+            if (runCount >0)
+                waitAWhile("Sleep {} for ES Query to work");
 
-        Assert.assertEquals("Unexpected hit count searching '" + index + "' for {" + queryString + "} in field {" + field + "}", expectedHitCount, nbrResult);
+            runCount++;
+            String query = "{\n" +
+                    "    query: {\n" +
+                    "          query_string : {\n" +
+                    "              \"default_field\" : \"" + field + "\",\n" +
+                    "              \"query\" : \"" + queryString + "\"\n" +
+                    "           }\n" +
+                    "      }\n" +
+                    "}";
+            Search search = new Search.Builder(query)
+                    .addIndex(index)
+                    .build();
+
+            result = esClient.execute(search);
+            String message = index + " - " + field + " - " + queryString + (result == null ? "[noresult]" : "\r\n" + result.getJsonString());
+            assertNotNull(message, result);
+            assertNotNull(message, result.getJsonObject());
+            assertNotNull(message, result.getJsonObject().getAsJsonObject("hits"));
+            assertNotNull(message, result.getJsonObject().getAsJsonObject("hits").get("total"));
+            nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
+        } while ( nbrResult != expectedHitCount && runCount < timeout );
+
+        Assert.assertEquals("Unexpected hit count searching '" + index + "' for {" + queryString + "} in field {" + field+ "}", expectedHitCount, nbrResult);
         return result.getJsonObject()
                 .getAsJsonObject("hits")
                 .getAsJsonArray("hits")
