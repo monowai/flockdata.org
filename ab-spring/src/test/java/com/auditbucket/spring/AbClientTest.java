@@ -1,6 +1,6 @@
 package com.auditbucket.spring;
 
-import com.auditbucket.client.AbRestClient;
+import com.auditbucket.client.rest.AbRestClient;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 

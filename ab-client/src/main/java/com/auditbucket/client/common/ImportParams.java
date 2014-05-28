@@ -1,5 +1,9 @@
-package com.auditbucket.client;
+package com.auditbucket.client.common;
 
+import com.auditbucket.client.Importer;
+import com.auditbucket.client.csv.CsvColumnDefinition;
+import com.auditbucket.client.rest.AbRestClient;
+import com.auditbucket.client.rest.StaticDataResolver;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +28,7 @@ public class ImportParams {
     private String fortressUser;
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(ImportParams.class);
     private boolean metaOnly;
+
     private Map<String, CsvColumnDefinition> csvHeaders;
     private StaticDataResolver staticDataResolver;
     private String metaHeader;

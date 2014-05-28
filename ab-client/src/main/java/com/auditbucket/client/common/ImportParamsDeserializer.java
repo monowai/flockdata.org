@@ -1,13 +1,12 @@
-package com.auditbucket.client;
+package com.auditbucket.client.common;
 
+import com.auditbucket.client.Importer;
+import com.auditbucket.client.csv.CsvColumnDefinition;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -21,7 +20,7 @@ import java.util.Map;
  */
 public class ImportParamsDeserializer extends JsonDeserializer<ImportParams> {
     @Override
-    public ImportParams deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+    public ImportParams deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         ImportParams importParams = new ImportParams();
         JsonNode node = jp.getCodec().readTree(jp);
         JsonNode column = node.get("documentType");
@@ -88,10 +87,6 @@ public class ImportParamsDeserializer extends JsonDeserializer<ImportParams> {
                 csvHeaders.put(colName, columnDefinition);
             }
             importParams.setCsvHeaders(csvHeaders);
-//            for (JsonNode jsonNode : column) {
-//                CsvColumnDefinition columnDefinition = mapper.readValue(jsonNode.toString(), CsvColumnDefinition.class);
-//            }
-            //column.textValue();
         }
         return importParams;  //To change body of implemented methods use File | Settings | File Templates.
     }

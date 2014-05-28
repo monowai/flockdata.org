@@ -1,4 +1,4 @@
-package com.auditbucket.client;
+package com.auditbucket.client.csv;
 
 /**
  * User: mike
@@ -9,6 +9,7 @@ public class CsvColumnHelper {
 
     private String key;
     private String value;
+
     private CsvColumnDefinition columnDefinition = null;
 
     public String getKey() {
@@ -79,4 +80,10 @@ public class CsvColumnHelper {
             rlxName = getKey();
         return rlxName;
     }
+
+    public CsvColumnDefinition getColumnDefinition() {
+        return columnDefinition;
+    }
+
+
 }

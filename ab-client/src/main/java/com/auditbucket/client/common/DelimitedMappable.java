@@ -17,7 +17,7 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.client;
+package com.auditbucket.client.common;
 
 /**
  * User: Mike Holdsworth
