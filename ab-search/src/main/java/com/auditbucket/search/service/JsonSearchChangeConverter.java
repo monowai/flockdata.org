@@ -12,7 +12,6 @@ import org.springframework.amqp.support.converter.SimpleMessageConverter;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 /**
  * Convert incoming bytes to an ArrayList<MetaSearchChange>

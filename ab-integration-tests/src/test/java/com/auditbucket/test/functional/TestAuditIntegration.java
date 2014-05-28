@@ -804,8 +804,8 @@ public class TestAuditIntegration {
         do{
             if (runCount >0)
                 waitAWhile("Sleep {} for ES Query to work");
-             runCount++;
-                String query = "{\n" +
+            runCount++;
+            String query = "{\n" +
                     "    query: {\n" +
                     "          term : {\n" +
                     "              \"" + field + "\" : \"" + queryString + "\"\n" +

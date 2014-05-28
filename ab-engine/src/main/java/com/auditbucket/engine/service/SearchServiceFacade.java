@@ -57,7 +57,7 @@ public class SearchServiceFacade {
      * <p/>
      * ToDo: On completion of this, an outbound message should be posted so that the caller can be made aware(?)
      *
-     * @param searchResult contains keys to tie the search to the meta header
+     * @param searchResults contains keys to tie the search to the meta header
      */
 
     @ServiceActivator(inputChannel = "searchResult")
