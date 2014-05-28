@@ -40,7 +40,7 @@ public class TrackServiceEP {
      */
     @ServiceActivator(inputChannel = "makeSearchRequest") // Subscriber
     public void createSearchableChange(MetaSearchChanges changes) {
-        Iterable<MetaSearchChange>thisChange = changes.getChanges();
+        Iterable<MetaSearchChange>thisChange = changes.getSearchChanges();
         for (SearchChange metaSearchChange : thisChange) {
             logger.debug("searchRequest received for {}", metaSearchChange);
             SearchResult result;
