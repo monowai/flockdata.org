@@ -43,8 +43,7 @@ public class JsonToSearchResultConverter extends SimpleMessageConverter {
         try {
             if (content instanceof String) {
                 ObjectMapper mapper = new ObjectMapper();
-                SearchResult searchResult = mapper.readValue(((String) content).getBytes(), SearchResult.class);
-                return searchResult;
+                return mapper.readValue(((String) content).getBytes(DEFAULT_CHARSET), SearchResult.class);
             }
         } catch (IOException e1) {
             throw new MessageConversionException("failed to convert text-based Message content", e1);

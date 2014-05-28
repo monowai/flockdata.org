@@ -11,6 +11,7 @@ import org.springframework.amqp.support.converter.SimpleMessageConverter;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 /**
  * Convert incoming bytes to an ArrayList<MetaSearchChange>
@@ -30,10 +31,7 @@ public class JsonSearchChangeConverter extends SimpleMessageConverter {
                         .addDeserializer(MetaSearchChanges.class, new JsonSearchChange());
                 mapper.registerModule(iModule);
 
-                return mapper.readValue(((String) content).getBytes(), MetaSearchChanges.class);
-                        //TypeFactory typeFactory = mapper.getTypeFactory();
-                //CollectionLikeType collectionType = typeFactory.constructCollectionType(ArrayList.class, MetaSearchChange.class);
-                //return mapper.readValue(((String) content).getBytes(), collectionType);
+                return mapper.readValue(((String) content).getBytes(Charset.forName("UTF-8")), MetaSearchChanges.class);
             }
         } catch (IOException e1) {
             e1.printStackTrace();
