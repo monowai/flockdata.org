@@ -265,7 +265,7 @@ public class TrackService {
 
         // https://github.com/monowai/auditbucket/issues/7
         TrackLog existingLog = null;
-        if (authorisedHeader.getLastUpdated() != authorisedHeader.getWhenCreated()) // Will there even be a change to find
+        if (authorisedHeader.getLastUpdated() != 0l) // Will there even be a change to find
             existingLog = getLastLog(authorisedHeader);
 
         Boolean searchActive = fortress.isSearchActive();
@@ -301,15 +301,19 @@ public class TrackService {
             //}
         }
 
-        Log thisChange = trackDao.save(thisFortressUser, input, txRef, (existingLog != null ? existingLog.getChange() : null));
-        input.setChangeEvent(thisChange.getEvent());
+        Log thisLog = trackDao.save(thisFortressUser, input, txRef, (existingLog != null ? existingLog.getChange() : null));
+        input.setChangeEvent(thisLog.getEvent());
 
         // ToDo: WhatService call should occur after this function is finished.
         //       change should then be written back to the graph via @ServiceActivator as called
         //       by as yet to be extracted ab-what service
-        thisChange = whatService.logWhat(authorisedHeader, thisChange, input.getWhat());
 
-        TrackLog newLog = trackDao.addLog(authorisedHeader, thisChange, fortressWhen, existingLog);
+        // Prepares the change
+        thisLog = whatService.prepareLog(thisLog, input.getWhat());
+        trackDao.save(thisLog, thisLog.isCompressed());
+        resultBean.setWhatLog(thisLog);
+
+        TrackLog newLog = trackDao.addLog(authorisedHeader, thisLog, fortressWhen, existingLog);
         resultBean.setSysWhen(newLog.getSysWhen());
 
         boolean moreRecent = (existingLog == null || existingLog.getFortressWhen() <= newLog.getFortressWhen());

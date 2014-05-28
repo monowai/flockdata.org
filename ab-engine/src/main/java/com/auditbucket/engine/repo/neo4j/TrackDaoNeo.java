@@ -429,18 +429,22 @@ public class TrackDaoNeo implements TrackDao {
 
     public TrackLog getLastLog(Long metaHeaderId) {
         TrackLogRelationship log = null;
-
-        Relationship r = template.getNode(metaHeaderId).getSingleRelationship(LastChange.LAST_CHANGE, Direction.BOTH);
-        if (r != null) {
-            trackLogRepo.getLastLog(metaHeaderId);
-            log = trackLogRepo.getLastLog(r.getEndNode().getId());
+        Iterable<Relationship> rlxs = template.getNode(metaHeaderId).getRelationships(LastChange.LAST_CHANGE, Direction.OUTGOING);
+        int count = 0;
+        for (Relationship rlx : rlxs) {
+            if (count>0){
+                logger.error("Multiple relationships found for {} - returning the first found - {}", metaHeaderId, log.getId());
+            } else {
+                log = trackLogRepo.getLastLog(rlx.getEndNode().getId());
+                count++;
+            }
         }
         return log;
     }
 
     @Override
     public Log save(Log change, Boolean compressed) {
-        logger.debug("Saving Audit Change [{}]", change);
+        logger.debug("Saving Change Log [{}]", change);
         return template.save(change);
     }
 

@@ -19,6 +19,7 @@
 
 package com.auditbucket.track.bean;
 
+import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.TrackLog;
 import com.auditbucket.track.model.TxRef;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -41,6 +42,7 @@ public class LogResultBean {
     private String txReference = null;
     private Long sysWhen;
     private TrackLog logToIndex;
+    private Log whatLog;
 
     public LogResultBean(LogInputBean input) {
         this();
@@ -144,4 +146,12 @@ public class LogResultBean {
         return logToIndex;
     }
 
+    @JsonIgnore
+    public void setWhatLog(Log whatLog) {
+        this.whatLog = whatLog;
+    }
+
+    public Log getWhatLog() {
+        return whatLog;
+    }
 }

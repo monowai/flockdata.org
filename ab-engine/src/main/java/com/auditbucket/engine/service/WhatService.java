@@ -19,7 +19,6 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.dao.TrackDao;
 import com.auditbucket.engine.repo.KvRepo;
 import com.auditbucket.engine.repo.LogWhatData;
 import com.auditbucket.engine.repo.redis.RedisRepo;
@@ -27,6 +26,7 @@ import com.auditbucket.engine.repo.riak.RiakRepo;
 import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.helper.CompressionResult;
 import com.auditbucket.track.bean.AuditDeltaBean;
+import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.LogWhat;
 import com.auditbucket.track.model.MetaHeader;
@@ -44,7 +44,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
-import java.util.concurrent.Future;
 
 /**
  * User: Mike Holdsworth
@@ -63,39 +62,56 @@ public class WhatService {
         getKvRepo().purge(indexName);
     }
 
+    @Async
+    public void doKvWrite(Iterable<TrackResultBean> resultBeans) throws IOException{
+        for (TrackResultBean resultBean : resultBeans) {
+            doKvWrite(resultBean.getMetaHeader(),resultBean.getLogResult().getWhatLog() );
+        }
+    }
+
+    @Async
+    public void doKvWrite(TrackResultBean resultBean) throws IOException{
+        doKvWrite(resultBean.getMetaHeader(),resultBean.getLogResult().getWhatLog() );
+    }
+
     public enum KV_STORE {REDIS, RIAK}
 
     private static final ObjectMapper om = new ObjectMapper();
-    @Autowired(required = false)
-    TrackDao trackDao = null;
+
     @Autowired
     RedisRepo redisRepo;
+
     @Autowired
     RiakRepo riakRepo;
+
     @Autowired
     EngineConfig engineAdmin;
 
     private Logger logger = LoggerFactory.getLogger(WhatService.class);
 
-    public Log logWhat(MetaHeader metaHeader, Log change, String jsonText) throws IOException {
+    /**
+     * adds what store details to the log that will be index in Neo4j
+     * Subsequently, this data will make it to a KV store
+     * @param logChange Log
+     * @param jsonText  Escaped Json
+     * @return          logChange
+     * @throws IOException
+     */
+    public Log prepareLog(Log logChange, String jsonText) throws IOException {
         // Compress the Value of JSONText
         CompressionResult dataBlock = CompressionHelper.compress(jsonText);
         Boolean compressed = (dataBlock.getMethod() == CompressionResult.Method.GZIP);
+        logChange.setWhatStore(String.valueOf(engineAdmin.getKvStore()));
+        logChange.setCompressed(compressed);
+        logChange.setDataBlock(dataBlock);
 
-        change.setWhatStore(String.valueOf(engineAdmin.getKvStore()));
-        change.setCompressed(compressed);
-        // Store First all information In Neo4j
-        change = trackDao.save(change, compressed);
-        doKvWrite(metaHeader, change, dataBlock);
-
-        return change;
+        return logChange;
     }
 
-    @Async //Only public methods execute Async
-    public Future<Void> doKvWrite(MetaHeader metaHeader, Log change, CompressionResult dataBlock) throws IOException {
+    private void doKvWrite(MetaHeader metaHeader, Log change) throws IOException {
         // ToDo: deal with this via spring integration??
+        CompressionResult dataBlock = change.getDataBlock();
         getKvRepo(change).add(metaHeader, change.getId(), dataBlock.getAsBytes());
-        return null;
     }
 
     private KvRepo getKvRepo() {
@@ -117,14 +133,19 @@ public class WhatService {
 
     }
 
-    public LogWhat getWhat(MetaHeader metaHeader, Log change) {
-        if (change == null)
+    public LogWhat getWhat(MetaHeader metaHeader, Log log) {
+        if (log == null)
             return null;
         try {
-            byte[] whatInformation = getKvRepo(change).getValue(metaHeader, change.getId());
-            return new LogWhatData(whatInformation, change.isCompressed());
+            byte[] whatInformation = getKvRepo(log).getValue(metaHeader, log.getId());
+            if ( whatInformation != null )
+                return new LogWhatData(whatInformation, log.isCompressed());
+            else {
+                //logger.error("Unable to obtain What data from {}", log.getWhatStore());
+                return new LogWhatData(null, false);
+            }
         } catch (RuntimeException re) {
-            logger.error("KV Error Audit[" + metaHeader.getMetaKey() + "] change [" + change.getId() + "]", re);
+            logger.error("KV Error Audit[" + metaHeader.getMetaKey() + "] change [" + log.getId() + "]", re);
 
             //throw (re);
         }

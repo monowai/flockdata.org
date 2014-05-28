@@ -1,5 +1,6 @@
 package com.auditbucket.search.endpoint;
 
+import com.auditbucket.search.model.MetaSearchChange;
 import com.auditbucket.search.model.MetaSearchChanges;
 import com.auditbucket.search.model.SearchResult;
 import com.auditbucket.search.service.EngineGateway;
@@ -39,7 +40,7 @@ public class TrackServiceEP {
      */
     @ServiceActivator(inputChannel = "makeSearchRequest") // Subscriber
     public void createSearchableChange(MetaSearchChanges changes) {
-        Iterable<SearchChange>thisChange = changes.getChanges();
+        Iterable<MetaSearchChange>thisChange = changes.getChanges();
         for (SearchChange metaSearchChange : thisChange) {
             logger.debug("searchRequest received for {}", metaSearchChange);
             SearchResult result;

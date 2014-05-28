@@ -134,7 +134,10 @@ public class MediationFacade {
                     public Command execute() throws DatagioException, IOException {
                         resultBeans = trackService.createHeaders(headers, company, fortress);
                         resultBeans = processLogs(company, resultBeans);
-                        makeChangeSearchable(resultBeans);
+                        logger.debug("createHeaders {}", Thread.currentThread().getName());
+
+                        distributeChanges(resultBeans);
+                        logger.debug("dispatched");
                         return this;
                     }
                 }
@@ -150,12 +153,22 @@ public class MediationFacade {
                 if (result != null)
                     searchChanges.add(searchService.getSearchChange(company, result));
             }
-            searchService.makeChangeSearchable(searchChanges);
+            searchService.makeChangesSearchable(searchChanges);
         }
         watch.stop();
         logger.info("Completed Batch [{}] - secs= {}, RPS={}", id, f.format(watch.getTotalTimeSeconds()), f.format(inputBeans.size() / watch.getTotalTimeSeconds()));
         return inputBeans.size();
     }
+
+    public void storeWhat(Iterable<TrackResultBean> resultBeans) throws IOException {
+        whatService.doKvWrite(resultBeans);
+    }
+
+    public void storeWhat(TrackResultBean result) throws IOException {
+        whatService.doKvWrite(result);
+    }
+
+
 
     public TrackResultBean createHeader(MetaInputBean inputBean, String apiKey) throws DatagioException, IOException {
         if (inputBean == null)
@@ -176,6 +189,7 @@ public class MediationFacade {
         } else if (!result.isDuplicate() && inputBean.isMetaOnly()) {
             searchChange = searchService.getSearchChange(company, result);
         }
+        storeWhat(result);
         searchService.makeChangeSearchable(searchChange);
         return result;
     }
@@ -191,7 +205,7 @@ public class MediationFacade {
             public Command execute() throws DatagioException, IOException {
                 result = trackService.createHeader(company, fortress, inputBean);
                 result = processLogFromResult(company, result);
-                makeChangeSearchable(result);
+                distributeChange(result);
                 return this;
             }
         }
@@ -220,7 +234,7 @@ public class MediationFacade {
     public LogResultBean processLog(Company company, LogInputBean input) throws DatagioException, IOException {
         MetaHeader header = trackService.getHeader(company, input.getMetaKey());
         LogResultBean logResultBean = writeLogForHeaderNoSearch(header, input);
-        makeChangeSearchable(new TrackResultBean(logResultBean, input));
+        distributeChange(new TrackResultBean(logResultBean, input));
         return logResultBean;
     }
 
@@ -267,22 +281,24 @@ public class MediationFacade {
         if (header == null)
             throw new DatagioException("Unable to find the request auditHeader " + input.getMetaKey());
         LogResultBean logResultBean = writeLogForHeaderNoSearch(header, input);
-        makeChangeSearchable(new TrackResultBean(logResultBean, input));
+        distributeChange(new TrackResultBean(logResultBean, input));
         return logResultBean;
     }
 
-    public void makeChangeSearchable(Iterable<TrackResultBean> resultBeans) {
+    public void distributeChanges(Iterable<TrackResultBean> resultBeans) throws IOException {
+        storeWhat(resultBeans);
         Collection<SearchChange> changes = new ArrayList<>();
         for (TrackResultBean resultBean : resultBeans) {
             SearchChange change = getSearchChange(resultBean);
             if (change!=null )
                 changes.add(change);
         }
-        searchService.makeChangeSearchable(changes);
+        searchService.makeChangesSearchable(changes);
     }
 
 
-    public void makeChangeSearchable(TrackResultBean trackResultBean) {
+    public void distributeChange(TrackResultBean trackResultBean) throws IOException {
+        storeWhat(trackResultBean);
         searchService.makeChangeSearchable(getSearchChange(trackResultBean));
     }
 
@@ -302,7 +318,7 @@ public class MediationFacade {
     }
 
     /**
-     * Deadlock safe processor that creates the log then indexes the change to the search service if necessary
+     * Deadlock safe processor to creates a log
      *
      * @param header       Header that the caller is authorised to work with
      * @param logInputBean log details to apply to the authorised header
@@ -390,7 +406,7 @@ public class MediationFacade {
             searchDocuments.add(searchService.rebuild(company, header, lastLog));
             skipCount++;
         }
-        searchService.makeChangeSearchable(searchDocuments);
+        searchService.makeChangesSearchable(searchDocuments);
         return skipCount;
     }
 

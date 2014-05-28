@@ -90,7 +90,7 @@
     <logger name="org.springframework.data.neo4j.support.query">
         <level value="info"/>
     </logger>
-    <logger name="com.auditbucket.engine.service.TrackService">
+    <logger name="com.auditbucket">
         <level value="info"/>
     </logger>
     <!-- Root Logger -->
