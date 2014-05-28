@@ -17,8 +17,10 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.client;
+package com.auditbucket.client.common;
 
+import com.auditbucket.client.Importer;
+import com.auditbucket.client.rest.AbRestClient;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**

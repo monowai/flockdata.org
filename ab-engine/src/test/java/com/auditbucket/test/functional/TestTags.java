@@ -49,6 +49,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static junit.framework.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * User: Mike Holdsworth
@@ -180,8 +181,9 @@ public class TestTags {
     }
 
 
-    // @Test // Not yet supported.
+    @Test
     public void tagWithProperties() throws Exception {
+        assumeTrue(false);// Not yet supported
         SecurityContextHolder.getContext().setAuthentication(authMike);
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike));
         assertNotNull(iSystemUser);
@@ -430,7 +432,32 @@ public class TestTags {
         assertTrue(!tagA.getId().equals(tagB.getId()));
         assertTrue (tagC.getId().equals(tagB.getId()));
     }
+    @Test
+    public void tagAppleNameIssue() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(authMike);
+        engineAdmin.setMultiTenanted(false);
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike).setIsUnique(false));
+        assertNotNull(iSystemUser);
+        Thread.sleep (400);
+        // Exists in one index
+        TagInputBean tagInputA = new TagInputBean("Apple");
+        tagInputA.setIndex(":Law");
+        Tag tagA = tagService.processTag(tagInputA);
+        assertNotNull (tagA);
 
+        // Same code, and default index. Should be found in the _Tag index
+        TagInputBean tagInputB = new TagInputBean("Apple");
+        tagInputB.setIndex("_Tag");
+
+        TagInputBean tagInputC = new TagInputBean("Samsung");
+        tagInputC.setIndex("Law");
+        tagInputC.setTargets("sues", tagInputB);
+
+
+        Tag tagC = tagService.processTag(tagInputC);
+        assertNotNull (tagC);
+        //assertTrue(tagA.getId().equals(tagB.getId()));
+    }
 
 
 }

@@ -22,6 +22,7 @@ package com.auditbucket.test.functional;
 import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.engine.service.TrackService;
+import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.endpoint.TagEP;
@@ -146,7 +147,7 @@ public class TestForceDeadlock {
         String monowai = "Monowai";
         SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike));
         SecurityContextHolder.getContext().setAuthentication(authMike);
-        Fortress fortress = fortressService.registerFortress("auditTest" + System.currentTimeMillis());
+        Fortress fortress = fortressService.registerFortress(new FortressInputBean("auditTest" + System.currentTimeMillis(),true));
         String docType = "TestAuditX";
 
         //CountDownLatch latch = new CountDownLatch(4);

@@ -273,6 +273,7 @@ public class MetaSearchChange implements SearchChange {
         return "MetaSearchChange{" +
                 "fortressName='" + fortressName + '\'' +
                 ", documentType='" + documentType + '\'' +
+                ", callerRef='" + callerRef + '\'' +
                 ", metaKey='" + metaKey + '\'' +
                 '}';
     }

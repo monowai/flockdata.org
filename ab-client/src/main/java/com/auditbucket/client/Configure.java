@@ -1,5 +1,7 @@
 package com.auditbucket.client;
 
+import com.auditbucket.client.common.ConfigProperties;
+import com.auditbucket.client.rest.AbRestClient;
 import com.auditbucket.registration.bean.SystemUserResultBean;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
