@@ -1,16 +1,16 @@
 package com.auditbucket.search.service;
 
-import com.auditbucket.search.model.MetaSearchChange;
+import com.auditbucket.search.model.JsonSearchChange;
+import com.auditbucket.search.model.MetaSearchChanges;
+import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.CollectionLikeType;
-import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.support.converter.MessageConversionException;
 import org.springframework.amqp.support.converter.SimpleMessageConverter;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  * Convert incoming bytes to an ArrayList<MetaSearchChange>
@@ -26,12 +26,17 @@ public class JsonSearchChangeConverter extends SimpleMessageConverter {
         try {
             if (content instanceof String) {
                 ObjectMapper mapper = new ObjectMapper();
-                TypeFactory typeFactory = mapper.getTypeFactory();
-                CollectionLikeType collectionType = typeFactory.constructCollectionType(ArrayList.class, MetaSearchChange.class);
+                SimpleModule iModule = new SimpleModule("ImportParameters", new Version(1,0,0,null))
+                        .addDeserializer(MetaSearchChanges.class, new JsonSearchChange());
+                mapper.registerModule(iModule);
 
-                return mapper.readValue(((String) content).getBytes(), collectionType);
+                return mapper.readValue(((String) content).getBytes(), MetaSearchChanges.class);
+                        //TypeFactory typeFactory = mapper.getTypeFactory();
+                //CollectionLikeType collectionType = typeFactory.constructCollectionType(ArrayList.class, MetaSearchChange.class);
+                //return mapper.readValue(((String) content).getBytes(), collectionType);
             }
         } catch (IOException e1) {
+            e1.printStackTrace();
             throw new MessageConversionException("failed to convert text-based Message content", e1);
         }
         return content;

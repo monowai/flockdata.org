@@ -1,4 +1,9 @@
-package com.auditbucket.client;
+package com.auditbucket.client.csv;
+
+import com.auditbucket.client.common.CsvColumnTargetDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import java.util.ArrayList;
 
 /**
  * User: mike
@@ -17,6 +22,9 @@ public class CsvColumnDefinition {
     private String relationshipName;
     private String[] refColumns;
     private String[] metaValues;
+
+    @JsonDeserialize(using = CsvColumnTargetDeserializer.class)
+    private ArrayList<CsvTag>targets = new ArrayList<>();
 
     public String[] getRefColumns() {
         return refColumns;
@@ -111,4 +119,9 @@ public class CsvColumnDefinition {
     public void setRelationshipName(String relationshipName) {
         this.relationshipName = relationshipName;
     }
+
+    public ArrayList<CsvTag> getTargets() {
+        return targets;
+    }
+
 }

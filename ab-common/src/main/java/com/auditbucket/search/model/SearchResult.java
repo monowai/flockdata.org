@@ -35,20 +35,14 @@ public class SearchResult {
     protected SearchResult() {
     }
 
-//    public SearchResult(String what) {
-//        throw new RuntimeException(what);
-//    }
-
-    SearchResult(Long metaId, String fortress, String searchKey, String documentType) {
-        this.metaId = metaId;
-        this.fortress = fortress;
-        this.searchKey = searchKey;
-        this.documentType = documentType;
-
-    }
-
     public SearchResult(SearchChange thisChange) {
-        this(thisChange.getMetaId(), thisChange.getFortressName(), thisChange.getSearchKey(), thisChange.getDocumentType());
+        this();
+        this.metaId = thisChange.getMetaId();
+        this.fortress = thisChange.getFortressName();
+        this.searchKey = thisChange.getSearchKey();
+        this.documentType = thisChange.getDocumentType();
+        this.metaKey = thisChange.getMetaKey();
+
     }
 
     /**
@@ -91,6 +85,7 @@ public class SearchResult {
     public String toString() {
         return "SearchResult{" +
                 "metaId='" + metaId + '\'' +
+                ", metaKey='" + metaKey + '\'' +
                 ", logId='" + logId + '\'' +
                 ", fortress='" + fortress + '\'' +
                 ", documentType='" + documentType + '\'' +

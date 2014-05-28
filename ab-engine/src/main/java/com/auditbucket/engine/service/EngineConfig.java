@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.ResourceAccessException;
 
@@ -112,6 +113,7 @@ public class EngineConfig {
         return kvStore;
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void ensureSystemIndexes(Company company) {
         schemaDao.ensureSystemIndexes(company, getTagSuffix(company));
     }

@@ -163,7 +163,7 @@ public class TrackService {
         MetaHeader ah = trackDao.create(inputBean, fortress, documentType);
         if (ah.getId() == null)
             inputBean.setMetaKey("NT " + fortress.getFortressKey()); // We ain't tracking this
-        logger.debug("Meta Header created:{} key=[{}]", ah.getId(), ah.getMetaKey());
+        logger.debug("MetaHeader created:{} key=[{}] for fortress [{}]", ah.getId(), ah.getMetaKey(), fortress.getCode());
         return ah;
     }
 
@@ -421,7 +421,7 @@ public class TrackService {
     public TrackLog getLastLog(MetaHeader metaHeader) throws DatagioException {
         if (metaHeader == null)
             return null;
-        logger.debug("Getting lastLog MetaID [{}]", metaHeader.getId());
+        //logger.debug("Getting lastLog MetaID [{}]", metaHeader.getId());
         return trackDao.getLastLog(metaHeader.getId());
     }
 

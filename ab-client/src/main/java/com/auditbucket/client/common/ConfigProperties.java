@@ -1,4 +1,4 @@
-package com.auditbucket.client;
+package com.auditbucket.client.common;
 
 import java.util.Properties;
 
