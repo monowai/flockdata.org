@@ -41,9 +41,9 @@ public class TestJson {
     @Test
     public void compressLotsOfBytes() throws Exception {
         String json = getBigJsonText(99);
-        System.out.println("Pretty JSON          - " + json.getBytes().length);
+        System.out.println("Pretty JSON          - " + json.getBytes("UTF-8").length);
         LogInputBean log = new LogInputBean("", "", null, json);
-        System.out.println("JSON Node (unpretty) - " + log.getWhat().getBytes().length);
+        System.out.println("JSON Node (unpretty) - " + log.getWhat().getBytes("UTF-8").length);
 
         CompressionResult result = CompressionHelper.compress(json);
         System.out.println("Compress Pretty      - " + result.length());
@@ -64,7 +64,7 @@ public class TestJson {
     @Test
     public void simpleTextRemainsUncompressed() throws Exception {
         String json = "{\"colname\": \"tinytext.......................\"}";
-        System.out.println("Before Comppression" + json.getBytes().length);
+        System.out.println("Before Comppression" + json.getBytes("UTF-8").length);
 
         CompressionResult result = CompressionHelper.compress(json);
         Assert.assertEquals(CompressionResult.Method.NONE, result.getMethod());
