@@ -17,7 +17,7 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.client;
+package com.auditbucket.client.rest;
 
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.*;
@@ -45,7 +45,7 @@ import java.util.*;
 /**
  * Template to support writing Audit and Tag information to a remote AuditBucket instance.
  *
- * @see Importer
+ * @see com.auditbucket.client.Importer
  *      <p/>
  *      User: Mike Holdsworth
  *      Since: 13/10/13

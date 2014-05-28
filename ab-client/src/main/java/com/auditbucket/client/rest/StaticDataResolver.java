@@ -1,4 +1,4 @@
-package com.auditbucket.client;
+package com.auditbucket.client.rest;
 
 import com.auditbucket.helper.DatagioException;
 

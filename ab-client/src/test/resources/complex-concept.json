@@ -10,8 +10,8 @@
     "csvHeaders": {
         "Athlete":{"tag": true, "relationshipName": "won" },
         "Country":{"country": true},
-        "Sport": {"tag": true, "mustExist":false},
-        "Age": {"tag": true, "mustExist":false},
+        "Sport": {"tag": true, "mustExist":false, "targets": [{"column":"Athlete", "relationship":"competes-in", "reverse": true}]},
+        "Age": {"tag": true, "mustExist":false, "targets": [{"column":"Athlete", "relationship":"at-age"}]},
         "Medals": {"callerRef": true,
             "refColumns": ["Athlete", "Year"],
             "metaValues": ["Gold Medals", "Silver Medals", "Bronze Medals"]},

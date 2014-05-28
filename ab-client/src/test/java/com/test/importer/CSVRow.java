@@ -1,6 +1,11 @@
 package com.test.importer;
 
-import com.auditbucket.client.*;
+import com.auditbucket.client.Importer;
+import com.auditbucket.client.common.DelimitedMappable;
+import com.auditbucket.client.common.ImportParams;
+import com.auditbucket.client.common.TrackMapper;
+import com.auditbucket.client.csv.CsvColumnHelper;
+import com.auditbucket.client.rest.StaticDataResolver;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
@@ -51,7 +56,7 @@ public class CSVRow {
                 case "Gold Medals":
                     Object o=tag.getMetaLinks().get("2008");
                     assertNotNull(o);
-                    assertEquals("12",((Map)o).get("value") );
+                    assertEquals(12,((Map)o).get("value") );
                     break;
                 case "TagName":
                     assertEquals("TagName", tag.getCode());
@@ -64,7 +69,7 @@ public class CSVRow {
                     assertEquals(1, tag.getMetaLinks().size());
                     assertEquals("ValTag", tag.getName());
                     assertEquals("ValTag", tag.getIndex());
-                    assertEquals("8", ((Map)tag.getMetaLinks().get("undefined")).get("value"));
+                    assertEquals(8, ((Map)tag.getMetaLinks().get("undefined")).get("value"));
                     break;
                 case "New Zealand":
                     assertEquals("Country", tag.getIndex());
@@ -165,6 +170,24 @@ public class CSVRow {
                 assertNotNull("Default relationship name not working", tagInputBean.getMetaLinks().containsKey("Country"));
                 countryTag = true;
             }
+            if ( tagInputBean.getName().equals("Sport")){
+                assertEquals("No targets tag present", 1, tagInputBean.getTargets().size());
+                TagInputBean athlete = tagInputBean.getTargets().get("competes-in").iterator().next();
+                assertNotNull ( athlete);
+                assertEquals("Michael Phelps", athlete.getName());
+                assertEquals("Athlete", athlete.getIndex());
+                assertTrue("Direction not reversed", athlete.isReverse());
+            }
+
+            if ( tagInputBean.getName().equals("23")){
+                assertEquals("No targets tag present", 1, tagInputBean.getTargets().size());
+                TagInputBean athlete = tagInputBean.getTargets().get("at-age").iterator().next();
+                assertNotNull ( athlete);
+                assertEquals("Michael Phelps", athlete.getName());
+                assertEquals("Athlete", athlete.getIndex());
+                assertFalse("Direction not defaulted", athlete.isReverse());
+            }
+
         }
         assertTrue("Gold Tag not evaluated", goldTag);
         assertTrue("Athlete Tag not evaluated", athleteTag);

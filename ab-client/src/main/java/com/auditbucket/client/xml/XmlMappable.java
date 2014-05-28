@@ -17,9 +17,11 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.client;
+package com.auditbucket.client.xml;
 
 
+import com.auditbucket.client.common.Mappable;
+import com.auditbucket.client.rest.StaticDataResolver;
 import com.auditbucket.helper.DatagioException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
