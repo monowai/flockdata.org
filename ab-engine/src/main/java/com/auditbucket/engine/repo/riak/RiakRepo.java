@@ -75,8 +75,10 @@ public class RiakRepo implements KvRepo {
                 return result.getValue();
         } catch (RiakException e) {
             logger.error("KV Error", e);
-            client.shutdown();
-            client = null;
+            if (client != null) {
+                client.shutdown();
+                client = null;
+            }
             return null;
         }
         return null;
@@ -94,7 +96,7 @@ public class RiakRepo implements KvRepo {
 
     }
 
-    public void purge(String index){
+    public void purge(String index) {
         try {
             getClient().resetBucket(index);
         } catch (RiakException e) {

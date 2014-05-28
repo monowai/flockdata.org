@@ -130,7 +130,7 @@ public class MetaHeaderNode implements MetaHeader {
         else
             fortressDate = when.getTime();
 
-        lastUpdated = fortressDate;
+        lastUpdated = 0l;
 
 
 //        this.createdBy = (FortressUserNode) createdBy;
@@ -225,7 +225,8 @@ public class MetaHeaderNode implements MetaHeader {
 
     @Override
     public void bumpUpdate() {
-        lastUpdated = new DateTime().toDateTime(DateTimeZone.UTC).toDateTime().getMillis();
+        if ( id != null )
+            lastUpdated = new DateTime().toDateTime(DateTimeZone.UTC).toDateTime().getMillis();
     }
 
     /**

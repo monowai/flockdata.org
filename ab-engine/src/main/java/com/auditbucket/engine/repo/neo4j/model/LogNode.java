@@ -20,6 +20,7 @@
 package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.engine.repo.LogWhatData;
+import com.auditbucket.helper.CompressionResult;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
 import com.auditbucket.track.bean.LogInputBean;
@@ -195,6 +196,19 @@ public class LogNode implements Log {
     @JsonIgnore
     public TrackLog getLog() {
         return log;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    private CompressionResult compressionResult = null ;
+    @Override
+    @JsonIgnore
+    public void setDataBlock(CompressionResult dataBlock) {
+        this.compressionResult = dataBlock;
+
+    }
+
+    @Override
+    public CompressionResult getDataBlock() {
+        return compressionResult;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
 

@@ -142,11 +142,12 @@ public class SearchServiceFacade {
             return;
         Collection<SearchChange> searchChanges = new ArrayList<>();
         searchChanges.add(searchChange);
-        makeChangeSearchable(searchChanges);
+        makeChangesSearchable(searchChanges);
     }
 
     @Async
-    public Future<Void> makeChangeSearchable(Collection<SearchChange> searchDocument) {
+    public Future<Void> makeChangesSearchable(Collection<SearchChange> searchDocument) {
+        logger.debug("makeChangesSearchable {}", Thread.currentThread().getName());
         if (searchDocument == null || searchDocument.size() == 0)
             return null;
         logger.debug("Sending request to index [{}]] logs", searchDocument.size());
