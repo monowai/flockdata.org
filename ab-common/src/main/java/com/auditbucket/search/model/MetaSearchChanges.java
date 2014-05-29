@@ -30,17 +30,17 @@ import java.util.Collection;
  * Time: 12:10 PM
  */
 public class MetaSearchChanges {
-    Collection <MetaSearchChange> searchChanges = new ArrayList<>();
+    Collection <MetaSearchChange> changes = new ArrayList<>();
     public MetaSearchChanges(){}
     public MetaSearchChanges(Collection<SearchChange> searchDocuments) {
         this();
-        this.searchChanges = (Collection <MetaSearchChange>)(Collection)searchDocuments;
+        this.changes = (Collection <MetaSearchChange>)(Collection)searchDocuments;
     }
-    public Iterable<MetaSearchChange> getSearchChanges() {
-        return searchChanges;
+    public Iterable<MetaSearchChange> getChanges() {
+        return changes;
     }
 
     public void addChange(MetaSearchChange change) {
-        searchChanges.add(change);
+        changes.add(change);
     }
 }
