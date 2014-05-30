@@ -330,6 +330,12 @@ public class MetaInputBean {
         return isMetaOnly;
     }
 
+    /**
+     * Being Meta only tells the track process that the header CAN be indexed.
+     * Normally the service would wait for an associated log to be provided
+     *
+     * @param metaOnly if true, expect no log data and index this
+     */
     public void setMetaOnly(boolean metaOnly) {
         isMetaOnly = metaOnly;
     }

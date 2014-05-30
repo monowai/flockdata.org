@@ -355,6 +355,7 @@ public class TestAuditIntegration {
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         inputBean.setTrackSuppressed(true);
+        inputBean.setMetaOnly(true); // If true, the header will be indexed
         // Track suppressed but search is enabled
         mediationFacade.createHeader(inputBean, su.getApiKey());
 
@@ -365,11 +366,13 @@ public class TestAuditIntegration {
         doEsQuery(indexName, "*", 1);
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setTrackSuppressed(true);
+        inputBean.setMetaOnly(true);
         mediationFacade.createHeader(inputBean, null);
         doEsQuery(indexName, "*", 2);
 
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setTrackSuppressed(true);
+        inputBean.setMetaOnly(true);
         MetaHeader header = mediationFacade.createHeader(inputBean, null).getMetaHeader();
         Assert.assertNull(header.getMetaKey());
         // Updating the same caller ref should not create a 3rd record
@@ -377,12 +380,14 @@ public class TestAuditIntegration {
 
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setTrackSuppressed(true);
+        inputBean.setMetaOnly(true);
         mediationFacade.createHeader(inputBean, null);
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(indexName, "*", 2);
 
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC125");
         inputBean.setTrackSuppressed(true);
+        inputBean.setMetaOnly(true);
         mediationFacade.createHeader(inputBean, null);
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(indexName, "*", 3);
@@ -741,13 +746,12 @@ public class TestAuditIntegration {
     private String doEsQuery(String index, String queryString) throws Exception {
         return doEsQuery(index, queryString, 1);
     }
-
+    int esTimeout = 5; // Max attempts to find the result in ES
     private String doEsQuery(String index, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
         //waitAWhile();
         int runCount = 0, nbrResult ;
-        int timeout = 5; // 5 attempts
         JestResult jResult ;
         do {
             if (runCount >0)
@@ -772,16 +776,17 @@ public class TestAuditIntegration {
                 logger.debug("Confirmed index {} was deleted and empty", index);
                 return null;
             }
-            if (jResult.getErrorMessage()==null || !jResult.getErrorMessage().contains("IndexMissingException")){
+            if (jResult.getErrorMessage()==null ){
                 assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject());
                 assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits"));
                 assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits").get("total"));
                 nbrResult = jResult.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
-            } else
+            } else {
                 nbrResult =0;// Index has not yet been created in ElasticSearch, we'll try again
+            }
             runCount ++;
-        } while ( nbrResult != expectedHitCount && runCount < timeout );
-        logger.debug("ran ES query - result count {}", nbrResult);
+        } while ( nbrResult != expectedHitCount && runCount < esTimeout );
+        logger.debug("ran ES query - result count {}, runCount {}", nbrResult, runCount);
 
         junit.framework.Assert.assertNotNull(jResult);
         Assert.assertEquals(index + "\r\n" + jResult.getJsonString(), expectedHitCount, nbrResult);
@@ -794,9 +799,8 @@ public class TestAuditIntegration {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
         int runCount = 0, nbrResult ;
-        int timeout = 5; // 5 attempts
-
         JestResult jResult;
+
         do{
             if (runCount >0)
                 waitAWhile("Sleep {} for ES Query to work");
@@ -815,7 +819,7 @@ public class TestAuditIntegration {
             jResult = esClient.execute(search);
             String message = index + " - " + field + " - " + queryString + (jResult == null ? "[noresult]" : "\r\n" + jResult.getJsonString());
             assertNotNull(message, jResult);
-            if (jResult.getErrorMessage()==null || !jResult.getErrorMessage().contains("IndexMissingException")){
+            if (jResult.getErrorMessage()==null ){
                 assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject());
                 assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits"));
                 assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits").get("total"));
@@ -823,8 +827,8 @@ public class TestAuditIntegration {
             } else
                 nbrResult =0;// Index has not yet been created in ElasticSearch, we'll try again
 
-        }while ( nbrResult != expectedHitCount && runCount < timeout );
-
+        }while ( nbrResult != expectedHitCount && runCount < esTimeout );
+        logger.debug("ran ES Term Query - result count {}, runCount {}", nbrResult, runCount);
         logger.trace("searching index [{}] field [{}] for [{}]", index, field, queryString);
         Assert.assertEquals(jResult.getJsonString(), expectedHitCount, nbrResult);
         if (nbrResult != 0) {
@@ -854,7 +858,6 @@ public class TestAuditIntegration {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
         int runCount = 0, nbrResult ;
-        int timeout = 5; // 5 attempts
 
         JestResult result;
         do{
@@ -881,8 +884,9 @@ public class TestAuditIntegration {
             assertNotNull(message, result.getJsonObject().getAsJsonObject("hits"));
             assertNotNull(message, result.getJsonObject().getAsJsonObject("hits").get("total"));
             nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
-        } while ( nbrResult != expectedHitCount && runCount < timeout );
+        } while ( nbrResult != expectedHitCount && runCount < esTimeout );
 
+        logger.debug("ran ES Field Query - result count {}, runCount {}", nbrResult, runCount);
         Assert.assertEquals("Unexpected hit count searching '" + index + "' for {" + queryString + "} in field {" + field+ "}", expectedHitCount, nbrResult);
         return result.getJsonObject()
                 .getAsJsonObject("hits")

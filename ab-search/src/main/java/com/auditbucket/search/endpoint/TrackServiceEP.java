@@ -3,6 +3,7 @@ package com.auditbucket.search.endpoint;
 import com.auditbucket.search.model.MetaSearchChange;
 import com.auditbucket.search.model.MetaSearchChanges;
 import com.auditbucket.search.model.SearchResult;
+import com.auditbucket.search.model.SearchResults;
 import com.auditbucket.search.service.EngineGateway;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.SearchChange;
@@ -41,8 +42,12 @@ public class TrackServiceEP {
     @ServiceActivator(inputChannel = "makeSearchRequest") // Subscriber
     public void createSearchableChange(MetaSearchChanges changes) {
         Iterable<MetaSearchChange>thisChange = changes.getChanges();
+        logger.info("Received request to index Batch ");
+        SearchResults results = new SearchResults();
+        int processed= 0;
         for (SearchChange metaSearchChange : thisChange) {
-            logger.debug("searchRequest received for {}", metaSearchChange);
+            processed ++;
+            logger.trace("searchRequest received for {}", metaSearchChange);
             SearchResult result;
             result = new SearchResult(auditSearch.update(metaSearchChange));
 
@@ -50,11 +55,16 @@ public class TrackServiceEP {
             result.setLogId(metaSearchChange.getLogId());
             result.setMetaId(metaSearchChange.getMetaId());
             if (metaSearchChange.isReplyRequired()){
-                logger.debug("Dispatching searchResult to ab-engine {}", result);
-                engineGateway.handleSearchResult(result);
+                results.addSearchResult(result);
+                logger.trace("Dispatching searchResult to ab-engine {}", result);
             }
 
         }
+        if ( !results.isEmpty()) {
+            logger.debug("Processed {} requests. Sending back {} SearchChanges", processed, results.getSearchResults().size());
+            engineGateway.handleSearchResult(results);
+        }
+
     }
     public void delete(MetaHeader metaHeader) {
         //trackDao.delete(metaHeader, null);

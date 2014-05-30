@@ -52,14 +52,7 @@
         <level value="info"/>
     </logger>
 
-    <!--<logger name="org.springframework.integration">-->
-    <!--<level value="info"/>-->
-    <!--</logger>-->
-
-    <!--<logger name="org.springframework">-->
-        <!--<level value="info"/>-->
-    <!--</logger>-->
-    <logger name="org.springframework.integration">
+    <logger name="org.springframework">
         <level value="info"/>
     </logger>
 
@@ -67,10 +60,13 @@
         <level value="debug"/>
     </logger>
 
+    <logger name="com.auditbucket.search.dao.TrackDaoES">
+        <level value="info"/>
+    </logger>
 
     <!-- Root Logger -->
     <root>
-        <priority value="info"/>
+        <priority value="debug"/>
         <appender-ref ref="console"/>
     </root>
 

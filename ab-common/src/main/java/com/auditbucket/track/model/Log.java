@@ -79,7 +79,7 @@ public interface Log {
 
     TrackLog getLog();
 
-    void setDataBlock(CompressionResult dataBlock);
+    void setDataBlock(byte[] dataBlock);
 
-    CompressionResult getDataBlock();
+    byte[] getDataBlock();
 }

@@ -19,8 +19,8 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.service.EngineConfig;
+import com.auditbucket.engine.service.MediationFacade;
 import com.auditbucket.engine.service.TrackService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
@@ -71,7 +71,7 @@ public class TestForceDeadlock {
     TagService tagService;
 
     @Autowired
-    private TrackEP trackEP;
+    private MediationFacade mediationFacade;
 
     @Autowired
     private TagEP tagEP;
@@ -113,7 +113,7 @@ public class TestForceDeadlock {
         String monowai = "Monowai";
         regService.registerSystemUser(new RegistrationBean(monowai, mike));
         SecurityContextHolder.getContext().setAuthentication(authMike);
-        Fortress fortress = fortressService.registerFortress("auditTest" + System.currentTimeMillis());
+        Fortress fortress = fortressService.registerFortress(new FortressInputBean("auditTest" + System.currentTimeMillis(), true));
 
         CountDownLatch latch = new CountDownLatch(4);
         List<TagInputBean> tags = getTags(10);
@@ -161,7 +161,7 @@ public class TestForceDeadlock {
             CallerRefRunner runner = addRunner(fortress, docType, "ABC" + i, 20, tags);
             runners.put(i, runner);
             List<MetaInputBean> inputBeans = runners.get(i).getInputBeans();
-            futures.put(i, trackEP.trackHeadersAsync(inputBeans, true, apiKey));
+            futures.put(i, mediationFacade.createHeadersAsync(su.getCompany(), fortress, inputBeans));
         }
 
         for (int i = 0; i < threadMax; i++) {
