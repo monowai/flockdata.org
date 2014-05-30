@@ -44,7 +44,7 @@ public class TestJson {
         String json = "{\"Athlete\":\"Katerina Neumannová\",\"Age\":\"28\",\"Country\":\"Czech Republic\",\"Year\":\"2002\",\"Closing Ceremony Date\":\"2/24/02\",\"Sport\":\"Cross Country Skiing\",\"Gold Medals\":\"0\",\"Silver Medals\":\"2\",\"Bronze Medals\":\"0\",\"Total Medals\":\"2\"}";
         CompressionResult dataBlock = CompressionHelper.compress(json);
 
-        String uncompressed = CompressionHelper.decompress(dataBlock.getAsBytes(), false);
+        String uncompressed = CompressionHelper.decompress(dataBlock);
         Assert.assertEquals(uncompressed, json);
 
     }
