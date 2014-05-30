@@ -20,7 +20,6 @@
 package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.engine.repo.LogWhatData;
-import com.auditbucket.helper.CompressionResult;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
 import com.auditbucket.track.bean.LogInputBean;
@@ -58,7 +57,7 @@ public class LogNode implements Log {
     @RelatedTo(elementClass = MetaHeaderNode.class, type ="LOGGED", direction = Direction.OUTGOING)
     private TrackLogRelationship log;
 
-    @RelatedTo(elementClass = ChangeEventNode.class, type = "AUDIT_EVENT", direction = Direction.OUTGOING)
+    @RelatedTo(elementClass = ChangeEventNode.class, type = "TRACK_EVENT", direction = Direction.OUTGOING)
     @Fetch
     private ChangeEventNode event;
 
@@ -198,17 +197,19 @@ public class LogNode implements Log {
         return log;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    private CompressionResult compressionResult = null ;
+    @Transient
+    private byte[] dataBlock = null ;
     @Override
     @JsonIgnore
-    public void setDataBlock(CompressionResult dataBlock) {
-        this.compressionResult = dataBlock;
+    public void setDataBlock(byte[] dataBlock) {
+        this.dataBlock = dataBlock;
 
     }
 
     @Override
-    public CompressionResult getDataBlock() {
-        return compressionResult;  //To change body of implemented methods use File | Settings | File Templates.
+    @JsonIgnore
+    public byte[] getDataBlock() {
+        return dataBlock;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
 

@@ -44,7 +44,7 @@ public class GlobalControllerExceptionHandler {
     @ExceptionHandler(DatagioException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ModelAndView handleAuditException( DatagioException ex){
-        logger.error("Datagio Exception", ex);
+        logger.error("Datagio Exception- {}", ex.getLocalizedMessage());
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 

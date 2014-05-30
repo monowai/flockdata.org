@@ -129,4 +129,6 @@ public interface MetaHeader {
     void setCreatedBy(FortressUser thisFortressUser);
 
     String getEvent();
+
+    void setLastChange(Log newChange);
 }

@@ -301,16 +301,12 @@ public class TrackService {
             //}
         }
 
-        Log thisLog = trackDao.save(thisFortressUser, input, txRef, (existingLog != null ? existingLog.getChange() : null));
-        input.setChangeEvent(thisLog.getEvent());
 
-        // ToDo: WhatService call should occur after this function is finished.
-        //       change should then be written back to the graph via @ServiceActivator as called
-        //       by as yet to be extracted ab-what service
+        Log thisLog = trackDao.prepareLog(thisFortressUser, input, txRef, (existingLog != null ? existingLog.getChange() : null));
 
         // Prepares the change
-        thisLog = whatService.prepareLog(thisLog, input.getWhat());
-        trackDao.save(thisLog, thisLog.isCompressed());
+        input.setChangeEvent(thisLog.getEvent());
+
         resultBean.setWhatLog(thisLog);
 
         TrackLog newLog = trackDao.addLog(authorisedHeader, thisLog, fortressWhen, existingLog);
@@ -329,7 +325,6 @@ public class TrackService {
             if (searchActive)
                 resultBean.setLogToIndex(newLog);
         }
-
         return resultBean;
 
     }

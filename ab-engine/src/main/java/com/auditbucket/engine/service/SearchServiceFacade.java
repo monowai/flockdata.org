@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.integration.annotation.ServiceActivator;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
-import java.util.concurrent.Future;
 
 /**
  * Search Service interactions
@@ -63,58 +61,65 @@ public class SearchServiceFacade {
      */
 
     @ServiceActivator(inputChannel = "searchResult")
-    public void handleSearchResult(SearchResult searchResult) {
-
-        logger.trace("Updating from search metaKey =[{}]", searchResult);
-        Long metaId = searchResult.getMetaId();
-        if (metaId == null)
-            return;
-        MetaHeader header;
-        try {
-            header = trackDao.getHeader(metaId); // Happens during development when Graph is cleared down and incoming search results are on the q
-        } catch (DataRetrievalFailureException e) {
-            logger.error("Unable to locate header for metaId {} in order to handle the search callerRef. Ignoring.", metaId);
-            return;
-        }
-
-        if (header == null) {
-            logger.error("metaKey could not be found for [{}]", searchResult);
-            return;
-        }
-
-        if (header.getSearchKey() == null) {
-            header.setSearchKey(searchResult.getSearchKey());
-            trackDao.save(header);
-            logger.trace("Updating Header{} search searchResult =[{}]", header.getMetaKey(), searchResult);
-        }
-
-        if (searchResult.getLogId() == null) {
-            // Indexing header meta data only
-            return;
-        }
-        TrackLog when;
-        // The change has been indexed
-        try {
-            when = trackDao.getLog(searchResult.getLogId());
-            if (when == null) {
-                logger.error("Illegal node requested from handleSearchResult [{}]", searchResult.getLogId());
+    public void handleSearchResult(SearchResults searchResults) {
+        Collection<SearchResult> theResults = searchResults.getSearchResults();
+        int count = 0;
+        int size = theResults.size();
+        logger.debug("Start processing {} search results", size);
+        for (SearchResult searchResult : theResults) {
+            count ++;
+            logger.trace("Updating {}/{} from search metaKey =[{}]", count, size, searchResult);
+            Long metaId = searchResult.getMetaId();
+            if (metaId == null)
+                return;
+            MetaHeader header;
+            try {
+                header = trackDao.getHeader(metaId); // Happens during development when Graph is cleared down and incoming search results are on the q
+            } catch (DataRetrievalFailureException e) {
+                logger.error("Unable to locate header for metaId {} in order to handle the search callerRef. Ignoring.", metaId);
                 return;
             }
-        } catch (DataRetrievalFailureException e) {
-            logger.error("Unable to locate track log {} for metaId {} in order to handle the search callerRef. Ignoring.", searchResult.getLogId(), metaId);
-            return;
-        }
 
-        // Another thread may have processed this so save an update
-        if (!when.isIndexed()) {
-            // We need to know that the change we requested to index has been indexed.
-            logger.debug("Updating index status for {}", when);
-            when.setIsIndexed();
-            trackDao.save(when);
+            if (header == null) {
+                logger.error("metaKey could not be found for [{}]", searchResult);
+                return;
+            }
 
-        } else {
-            logger.debug("Skipping {}", when);
+            if (header.getSearchKey() == null) {
+                header.setSearchKey(searchResult.getSearchKey());
+                trackDao.save(header);
+                logger.trace("Updating Header{} search searchResult =[{}]", header.getMetaKey(), searchResult);
+            }
+
+            if (searchResult.getLogId() == null) {
+                // Indexing header meta data only
+                return;
+            }
+            TrackLog when;
+            // The change has been indexed
+            try {
+                when = trackDao.getLog(searchResult.getLogId());
+                if (when == null) {
+                    logger.error("Illegal node requested from handleSearchResult [{}]", searchResult.getLogId());
+                    return;
+                }
+            } catch (DataRetrievalFailureException e) {
+                logger.error("Unable to locate track log {} for metaId {} in order to handle the search callerRef. Ignoring.", searchResult.getLogId(), metaId);
+                return;
+            }
+
+            // Another thread may have processed this so save an update
+            if (!when.isIndexed()) {
+                // We need to know that the change we requested to index has been indexed.
+                logger.trace("Updating index status for {}", when);
+                when.setIsIndexed();
+                trackDao.save(when);
+
+            } else {
+                logger.debug("Skipping {}", when);
+            }
         }
+        logger.debug("Finished processing search results");
     }
 
     public SearchChange getSearchChange(Company company, TrackResultBean resultBean) {
@@ -145,15 +150,13 @@ public class SearchServiceFacade {
         makeChangesSearchable(searchChanges);
     }
 
-    @Async
-    public Future<Void> makeChangesSearchable(Collection<SearchChange> searchDocument) {
-        logger.debug("makeChangesSearchable {}", Thread.currentThread().getName());
+    public void makeChangesSearchable(Collection<SearchChange> searchDocument) {
         if (searchDocument == null || searchDocument.size() == 0)
-            return null;
+            return ;
         logger.debug("Sending request to index [{}]] logs", searchDocument.size());
 
         searchGateway.makeSearchChanges(new MetaSearchChanges(searchDocument));
-        return null;
+        logger.debug("Requests sent [{}]] logs", searchDocument.size());
     }
 
     public SearchChange getSearchChange(Company company, TrackResultBean resultBean, String event, Date when) {

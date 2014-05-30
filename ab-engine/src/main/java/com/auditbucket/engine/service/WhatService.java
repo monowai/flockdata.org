@@ -37,7 +37,6 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,16 +61,16 @@ public class WhatService {
         getKvRepo().purge(indexName);
     }
 
-    @Async
     public void doKvWrite(Iterable<TrackResultBean> resultBeans) throws IOException{
         for (TrackResultBean resultBean : resultBeans) {
-            doKvWrite(resultBean.getMetaHeader(),resultBean.getLogResult().getWhatLog() );
+            if ( resultBean.getLog()!=null )
+                doKvWrite(resultBean.getMetaHeader(),resultBean.getLogResult().getWhatLog() );
         }
     }
 
-    @Async
     public void doKvWrite(TrackResultBean resultBean) throws IOException{
-        doKvWrite(resultBean.getMetaHeader(),resultBean.getLogResult().getWhatLog() );
+        if ( resultBean.getLog() !=null )
+            doKvWrite(resultBean.getMetaHeader(),resultBean.getLogResult().getWhatLog() );
     }
 
     public enum KV_STORE {REDIS, RIAK}
@@ -92,26 +91,29 @@ public class WhatService {
     /**
      * adds what store details to the log that will be index in Neo4j
      * Subsequently, this data will make it to a KV store
-     * @param logChange Log
+     * @param log Log
      * @param jsonText  Escaped Json
      * @return          logChange
      * @throws IOException
      */
-    public Log prepareLog(Log logChange, String jsonText) throws IOException {
+    public Log prepareLog(Log log, String jsonText) throws IOException {
         // Compress the Value of JSONText
         CompressionResult dataBlock = CompressionHelper.compress(jsonText);
         Boolean compressed = (dataBlock.getMethod() == CompressionResult.Method.GZIP);
-        logChange.setWhatStore(String.valueOf(engineAdmin.getKvStore()));
-        logChange.setCompressed(compressed);
-        logChange.setDataBlock(dataBlock);
+        log.setWhatStore(String.valueOf(engineAdmin.getKvStore()));
+        log.setCompressed(compressed);
+        log.setDataBlock(dataBlock.getAsBytes());
 
-        return logChange;
+        return log;
     }
 
-    private void doKvWrite(MetaHeader metaHeader, Log change) throws IOException {
+    private void doKvWrite(MetaHeader metaHeader, Log log) throws IOException {
         // ToDo: deal with this via spring integration??
-        CompressionResult dataBlock = change.getDataBlock();
-        getKvRepo(change).add(metaHeader, change.getId(), dataBlock.getAsBytes());
+        if ( log == null ){
+            return;
+        }
+        byte[] dataBlock = log.getDataBlock();
+        getKvRepo(log).add(metaHeader, log.getId(), dataBlock);
     }
 
     private KvRepo getKvRepo() {

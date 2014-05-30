@@ -54,11 +54,11 @@ public class RiakRepo implements KvRepo {
         return client;
     }
 
-    public void add(MetaHeader metaHeader, Long key, byte[] value) throws IOException {
+    public void add(MetaHeader metaHeader, Long key, byte[] what) throws IOException {
         //riak.put(metaHeader.getIndexName(), key);
         try {
             Bucket bucket = getClient().createBucket(metaHeader.getIndexName()).execute();
-            bucket.store(String.valueOf(key), value).execute();
+            bucket.store(String.valueOf(key), what).execute();
         } catch (RiakException e) {
             logger.error("RIAK Repo Error", e);
             client.shutdown();

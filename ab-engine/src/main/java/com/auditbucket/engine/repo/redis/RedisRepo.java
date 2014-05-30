@@ -36,8 +36,8 @@ public class RedisRepo implements KvRepo {
     private RedisTemplate<Long, byte[]> template;
     private static Logger logger = LoggerFactory.getLogger(RedisRepo.class);
 
-    public void add(MetaHeader metaHeader, Long key, byte[] value) {
-        template.opsForValue().set(key, value);
+    public void add(MetaHeader metaHeader, Long key, byte[] what) {
+        template.opsForValue().set(key, what);
     }
 
     public byte[] getValue(MetaHeader metaHeader, Long key) {

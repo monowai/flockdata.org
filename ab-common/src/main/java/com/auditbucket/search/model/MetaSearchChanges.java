@@ -29,6 +29,7 @@ import java.util.Collection;
  * Date: 23/05/14
  * Time: 12:10 PM
  */
+
 public class MetaSearchChanges {
     Collection <MetaSearchChange> searchChanges = new ArrayList<>();
     public MetaSearchChanges(){}

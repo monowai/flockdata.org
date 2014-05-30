@@ -71,7 +71,7 @@ public class WhatServiceTest extends AbstractRedisSupport {
     @Autowired
     FortressService fortressService;
     @Autowired
-    MediationFacade auditManager;
+    MediationFacade mediationFacade;
     @Autowired
     TrackDao trackDAO;
     @Autowired
@@ -108,13 +108,13 @@ public class WhatServiceTest extends AbstractRedisSupport {
         String callerRef = "ABC123R";
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
 
-        String ahKey = auditManager.createHeader(inputBean, null).getMetaKey();
+        String ahKey = mediationFacade.createHeader(inputBean, null).getMetaKey();
         assertNotNull(ahKey);
         MetaHeader header = trackService.getHeader(ahKey);
         Map<String, Object> what = getWhatMap();
         String whatString = getJsonFromObject(what);
         try{
-            auditManager.processLog(new LogInputBean(ahKey, "wally", new DateTime(), whatString));
+            mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(), whatString));
         } catch (Exception e ){
             logger.error("KV Stores are configured in config.properties. This test is failing to find the {} server. Is it even installed?",engineConfig.getKvStore());
             return;
@@ -129,7 +129,6 @@ public class WhatServiceTest extends AbstractRedisSupport {
             Assert.assertNotNull(logWhat);
             // Redis should always be available. RIAK is trickier to install
             if ( engineConfig.getKvStore().equals(WhatService.KV_STORE.REDIS)||logWhat.getWhat().keySet().size()>1 ){
-                Thread.sleep (1000);
                 validateWhat(what, logWhat);
 
                 Assert.assertTrue(whatService.isSame(header, trackLog.getChange(), whatString));
@@ -146,7 +145,8 @@ public class WhatServiceTest extends AbstractRedisSupport {
         }
     }
 
-    private void validateWhat(Map<String, Object> what, LogWhat logWhat) {
+    private void validateWhat(Map<String, Object> what, LogWhat logWhat) throws InterruptedException {
+        Thread.sleep(1500);
         assertEquals(what.get("sval"), logWhat.getWhat().get("sval"));
         assertEquals(what.get("lval"), logWhat.getWhat().get("lval"));
         assertEquals(what.get("dval"), logWhat.getWhat().get("dval"));
