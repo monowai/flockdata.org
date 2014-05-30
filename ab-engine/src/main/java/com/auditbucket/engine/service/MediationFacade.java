@@ -296,6 +296,10 @@ public class MediationFacade {
 
         LogResultBean logResultBean = trackResultBean.getLogResult();
         LogInputBean input = trackResultBean.getLog();
+
+        if ( !trackResultBean.processLog())
+            return null;
+
         if (logResultBean != null && logResultBean.getLogToIndex() != null && logResultBean.getStatus() == LogInputBean.LogStatus.OK) {
             try {
                 DateTime fWhen = new DateTime(logResultBean.getLogToIndex().getFortressWhen());

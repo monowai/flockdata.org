@@ -26,7 +26,7 @@ package com.auditbucket.track.model;
  */
 public interface TrackLog {
 
-    public Log getChange();
+    public Log getLog();
 
     public MetaHeader getMetaHeader();
 

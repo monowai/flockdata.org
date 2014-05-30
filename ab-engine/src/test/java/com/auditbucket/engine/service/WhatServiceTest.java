@@ -124,18 +124,19 @@ public class WhatServiceTest extends AbstractRedisSupport {
 
         //When
         try {
-            LogWhat logWhat = whatService.getWhat(header, trackLog.getChange());
+            LogWhat logWhat = whatService.getWhat(header, trackLog.getLog());
 
             Assert.assertNotNull(logWhat);
             // Redis should always be available. RIAK is trickier to install
             if ( engineConfig.getKvStore().equals(WhatService.KV_STORE.REDIS)||logWhat.getWhat().keySet().size()>1 ){
                 validateWhat(what, logWhat);
 
-                Assert.assertTrue(whatService.isSame(header, trackLog.getChange(), whatString));
+                Assert.assertTrue(whatService.isSame(header, trackLog.getLog(), whatString));
                 // Testing that cancel works
                 trackService.cancelLastLogSync(ahKey);
                 Assert.assertNull(trackService.getLastLog(header));
-                Assert.assertNull(whatService.getWhat(header, trackLog.getChange()).getWhatString());
+                Assert.assertNull(whatService.getWhat(header, trackLog.getLog()).getWhatString());
+                Assert.assertTrue(whatService.isSame(logWhat.getWhat().get("utf-8").toString(), getWhatMap().get("utf-8").toString()));
             } else {
                 // ToDo: Mock RIAK
                 logger.error("Silently passing. No what data to process for {}. Possibly KV store is not running",engineConfig.getKvStore());
@@ -152,6 +153,8 @@ public class WhatServiceTest extends AbstractRedisSupport {
         assertEquals(what.get("dval"), logWhat.getWhat().get("dval"));
         assertEquals(what.get("ival"), logWhat.getWhat().get("ival"));
         assertEquals(what.get("bval"), logWhat.getWhat().get("bval"));
+        String json = "{\"Athlete\":\"Katerina Neumannová\",\"Age\":\"28\",\"Country\":\"Czech Republic\",\"Year\":\"2002\",\"Closing Ceremony Date\":\"2/24/02\",\"Sport\":\"Cross Country Skiing\",\"Gold Medals\":\"0\",\"Silver Medals\":\"2\",\"Bronze Medals\":\"0\",\"Total Medals\":\"2\"}";
+        assertEquals(json, logWhat.getWhat().get("utf-8"));
     }
 
 
@@ -188,6 +191,7 @@ public class WhatServiceTest extends AbstractRedisSupport {
         what.put("sval4", "Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party");
         what.put("ival", 12345);
         what.put("bval", Boolean.TRUE);
+        what.put("utf-8", "{\"Athlete\":\"Katerina Neumannová\",\"Age\":\"28\",\"Country\":\"Czech Republic\",\"Year\":\"2002\",\"Closing Ceremony Date\":\"2/24/02\",\"Sport\":\"Cross Country Skiing\",\"Gold Medals\":\"0\",\"Silver Medals\":\"2\",\"Bronze Medals\":\"0\",\"Total Medals\":\"2\"}");
         return what;
     }
 

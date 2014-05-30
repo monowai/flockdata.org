@@ -263,7 +263,7 @@ public class TrackDaoNeo implements TrackDao {
     }
 
     public TrackLog save(TrackLog log) {
-        logger.debug("Saving track log [{}] - Log ID [{}]", log, log.getChange().getId());
+        logger.debug("Saving track log [{}] - Log ID [{}]", log, log.getLog().getId());
         return template.save((TrackLogRelationship) log);
     }
 
@@ -359,8 +359,8 @@ public class TrackDaoNeo implements TrackDao {
     private void removeLastChange(MetaHeader metaHeader, TrackLog existingLog) {
         if (existingLog != null) {
             Node auditNode = template.getPersistentState(metaHeader);
-            if (existingLog.getChange() != null) {
-                Node logNode = template.getPersistentState(existingLog.getChange());
+            if (existingLog.getLog() != null) {
+                Node logNode = template.getPersistentState(existingLog.getLog());
                 Relationship r = template.getRelationshipBetween(auditNode, logNode, LAST_CHANGE);
                 if (r != null) {
                     logger.debug("removeLastChange MetaHeader[{}], [{}]", metaHeader.getId(), r);

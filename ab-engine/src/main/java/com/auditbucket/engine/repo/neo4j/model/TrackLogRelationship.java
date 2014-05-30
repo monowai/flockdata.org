@@ -46,7 +46,7 @@ public class TrackLogRelationship implements TrackLog {
 
     @EndNode
     @Fetch
-    private LogNode changeLog;
+    private LogNode log;
 
     @Indexed
     private Long sysWhen = 0l;
@@ -66,7 +66,7 @@ public class TrackLogRelationship implements TrackLog {
     public TrackLogRelationship(MetaHeader header, Log log, DateTime fortressWhen) {
         this();
         this.metaHeader = (MetaHeaderNode) header;
-        this.changeLog = (LogNode) log;
+        this.log = (LogNode) log;
         if (fortressWhen != null && fortressWhen.getMillis() != 0) {
             this.fortressWhen = fortressWhen.getMillis();
         } else {
@@ -88,8 +88,8 @@ public class TrackLogRelationship implements TrackLog {
         this.sysWhen = sysWhen;
     }
 
-    public Log getChange() {
-        return changeLog;
+    public Log getLog() {
+        return log;
     }
 
     @JsonIgnore
@@ -102,7 +102,7 @@ public class TrackLogRelationship implements TrackLog {
     }
 
     public void setChange(LogNode auditLog) {
-        this.changeLog = auditLog;
+        this.log = auditLog;
     }
 
     public boolean isIndexed() {
@@ -123,7 +123,7 @@ public class TrackLogRelationship implements TrackLog {
 
         TrackLogRelationship that = (TrackLogRelationship) o;
 
-        if (changeLog != null ? !changeLog.equals(that.changeLog) : that.changeLog != null) return false;
+        if (log != null ? !log.equals(that.log) : that.log != null) return false;
         if (metaHeader != null ? !metaHeader.equals(that.metaHeader) : that.metaHeader != null) return false;
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
 
@@ -134,7 +134,7 @@ public class TrackLogRelationship implements TrackLog {
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (metaHeader != null ? metaHeader.hashCode() : 0);
-        result = 31 * result + (changeLog != null ? changeLog.hashCode() : 0);
+        result = 31 * result + (log != null ? log.hashCode() : 0);
         return result;
     }
 

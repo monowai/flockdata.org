@@ -22,6 +22,7 @@ package com.auditbucket.test.functional;
 import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.service.MediationFacade;
 import com.auditbucket.engine.service.TrackService;
+import com.auditbucket.engine.service.WhatService;
 import com.auditbucket.fortress.endpoint.FortressEP;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
@@ -496,7 +497,7 @@ public class TestTrack {
         assertEquals(max, aLogs.size());
 
         TrackLog lastLog = trackService.getLastLog(metaHeader.getMetaKey());
-        Log lastChange = lastLog.getChange();
+        Log lastChange = lastLog.getLog();
         assertNotNull(lastChange);
         assertEquals(workingDate.toDate(), new Date(lastLog.getFortressWhen()));
         metaHeader = trackService.getHeader(ahWP);
@@ -556,7 +557,7 @@ public class TestTrack {
         TrackLog lastLog = trackService.getLastLog(metaHeader.getMetaKey());
         assertNotNull(lastLog);
 //        assertNotNull(lastLog.getAuditChange().getWhat());
-        LogWhat whatResult = trackService.getWhat(metaHeader, lastLog.getChange());
+        LogWhat whatResult = trackService.getWhat(metaHeader, lastLog.getLog());
         assertNotNull(whatResult);
         assertTrue(whatResult.getWhat().containsKey("house"));
     }
@@ -626,7 +627,7 @@ public class TestTrack {
         }
         TrackLog lastLog = trackService.getLastLog(ahWP);
         logger.info("L " + new Date(lastLog.getSysWhen()).toString());
-        assertNotSame("Last log in should be the last", lastLog.getChange().getId(), thirdLog.getChange().getId());
+        assertNotSame("Last log in should be the last", lastLog.getLog().getId(), thirdLog.getLog().getId());
     }
 
     @Test
@@ -651,7 +652,7 @@ public class TestTrack {
         assertNotNull(auditSummary.getHeader().getFortress());
         assertEquals(2, auditSummary.getChanges().size());
         for (TrackLog log : auditSummary.getChanges()) {
-            Log change = log.getChange();
+            Log change = log.getLog();
             assertNotNull(change.getEvent());
             assertNotNull(change.getWho().getCode());
             LogWhat whatResult = trackService.getWhat(metaHeader, change);
@@ -775,7 +776,28 @@ public class TestTrack {
 
         trackEP.trackHeaders(metaInputBeans, su.getApiKey(), su.getApiKey());
     }
+    @Test
+    public void utf8Strings() throws Exception{
+        String json = "{\"Athlete\":\"Katerina Neumannová\",\"Age\":\"28\",\"Country\":\"Czech Republic\",\"Year\":\"2002\",\"Closing Ceremony Date\":\"2/24/02\",\"Sport\":\"Cross Country Skiing\",\"Gold Medals\":\"0\",\"Silver Medals\":\"2\",\"Bronze Medals\":\"0\",\"Total Medals\":\"2\"}";
+        SecurityContextHolder.getContext().setAuthentication(authMike);
+        SystemUserResultBean su = regService.registerSystemUser(new RegistrationBean(monowai, mike)).getBody();
 
+        Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
+        MetaInputBean inputBean = new MetaInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), "ABC1");
+        inputBean.setLog(new LogInputBean("poppy", DateTime.now(), json));
+        TrackResultBean trackResultBean = trackEP.trackHeader(inputBean, su.getApiKey(), su.getApiKey()).getBody();
+        TrackLog lastLog = trackService.getLastLog(trackResultBean.getMetaHeader());
+
+        LogWhat what = whatService.getWhat(trackResultBean.getMetaHeader(),  lastLog.getLog());
+        assertEquals(json, what.getWhatString());
+
+        // Second call should say that nothing has changed
+        TrackResultBean result = trackEP.trackHeader(inputBean, su.getApiKey(), su.getApiKey()).getBody();
+        Assert.assertNotNull(result);
+        assertEquals(LogInputBean.LogStatus.IGNORE, result.getLogResult().getStatus());
+    }
+    @Autowired
+    WhatService whatService;
     private void compareUser(MetaHeader header, String userName) {
         FortressUser fu = fortressService.getUser(header.getLastUser().getId());
         assertEquals(userName, fu.getCode());

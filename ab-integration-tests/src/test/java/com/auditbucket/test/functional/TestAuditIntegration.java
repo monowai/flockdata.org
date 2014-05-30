@@ -655,7 +655,7 @@ public class TestAuditIntegration {
                 assertNotNull(logs);
                 assertEquals("Wrong number of logs returned", expectedLogCount, logs.size());
                 for (TrackLog log : logs) {
-                    assertEquals("logId [" + log.getId() + "] changeId[" + log.getChange().getId() + "], event[ " + log.getChange().getEvent() + "]", true, log.isIndexed());
+                    assertEquals("logId [" + log.getId() + "] changeId[" + log.getLog().getId() + "], event[ " + log.getLog().getEvent() + "]", true, log.isIndexed());
                 }
 
                 audit++;

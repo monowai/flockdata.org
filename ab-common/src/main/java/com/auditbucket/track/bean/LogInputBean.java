@@ -56,6 +56,7 @@ public class LogInputBean {
     private static final ObjectMapper om = new ObjectMapper();
     private boolean forceReindex;
     private Long metaId;
+    private boolean status;
 
     protected LogInputBean() {
     }
@@ -260,8 +261,12 @@ public class LogInputBean {
         this.changeEvent = changeEvent;
     }
 
+    public LogStatus getStatus() {
+        return abStatus;
+    }
+
     public enum LogStatus {
-        IGNORE, OK, FORBIDDEN, NOT_FOUND, ILLEGAL_ARGUMENT
+        IGNORE, OK, FORBIDDEN, NOT_FOUND, REINDEX, ILLEGAL_ARGUMENT
     }
 
     @Override

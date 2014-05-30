@@ -63,7 +63,7 @@ public class WhatService {
 
     public void doKvWrite(Iterable<TrackResultBean> resultBeans) throws IOException{
         for (TrackResultBean resultBean : resultBeans) {
-            if ( resultBean.getLog()!=null )
+            if ( resultBean.processLog())
                 doKvWrite(resultBean.getMetaHeader(),resultBean.getLogResult().getWhatLog() );
         }
     }
@@ -177,22 +177,27 @@ public class WhatService {
             return false;
 
         String jsonThis = what.getWhatString();
-        if (jsonThis == null || compareWith == null)
+        return isSame(jsonThis, compareWith);
+    }
+    public boolean isSame (String compareFrom, String compareWith){
+
+        if (compareFrom == null || compareWith == null)
             return false;
 
-        if (jsonThis.length() != compareWith.length())
+        if (compareFrom.length() != compareWith.length())
             return false;
 
         // Compare values
-        JsonNode compareTo = null;
-        JsonNode other = null;
+        JsonNode jCompareFrom = null;
+        JsonNode jCompareWith = null;
         try {
-            compareTo = om.readTree(jsonThis);
-            other = om.readTree(compareWith);
+            jCompareFrom = om.readTree(compareFrom);
+            jCompareWith = om.readTree(compareWith);
         } catch (IOException e) {
             logger.error("Comparing JSON docs");
         }
-        return !(compareTo == null || other == null) && compareTo.equals(other);
+        boolean result = !(jCompareFrom == null || jCompareWith == null) && jCompareFrom.equals(jCompareWith);
+        return result;
 
     }
 
