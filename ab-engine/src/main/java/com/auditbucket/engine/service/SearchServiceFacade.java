@@ -116,7 +116,7 @@ public class SearchServiceFacade {
                 trackDao.save(when);
 
             } else {
-                logger.debug("Skipping {}", when);
+                logger.trace("Skipping {} as it is already indexed", when);
             }
         }
         logger.debug("Finished processing search results");
@@ -188,7 +188,7 @@ public class SearchServiceFacade {
             return null;
         SearchChange searchDocument;
         searchDocument = new MetaSearchChange(metaHeader, logInput.getMapWhat(), event.getCode(), fortressWhen);
-        searchDocument.setWho(trackLog.getChange().getWho().getCode());
+        searchDocument.setWho(trackLog.getLog().getWho().getCode());
         searchDocument.setTags(tagTrackService.findTrackTags(metaHeader.getFortress().getCompany(), metaHeader));
         searchDocument.setDescription(metaHeader.getName());
         try {
@@ -214,7 +214,7 @@ public class SearchServiceFacade {
         try {
             Log lastChange = null;
             if (lastLog != null)
-                lastChange = lastLog.getChange();
+                lastChange = lastLog.getLog();
 
             if (metaHeader.getFortress().isSearchActive() && !metaHeader.isSearchSuppressed()) {
                 // Update against the MetaHeader only by re-indexing the search document

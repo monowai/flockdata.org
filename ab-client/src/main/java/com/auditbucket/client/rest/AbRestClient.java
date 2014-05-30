@@ -19,6 +19,7 @@
 
 package com.auditbucket.client.rest;
 
+import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.*;
 import com.auditbucket.track.bean.CrossReferenceInputBean;
@@ -393,7 +394,7 @@ public class AbRestClient implements StaticDataResolver {
                 } else if ( apiKey != null )
                     set("Api-Key", apiKey);
                 setContentType(MediaType.APPLICATION_JSON);
-                set("charset", "UTF-8");
+                set("charset", CompressionHelper.charSet.toString());
                 if (compress)
                     set("Accept-Encoding", "gzip,deflate");
             }

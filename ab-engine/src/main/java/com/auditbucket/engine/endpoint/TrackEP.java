@@ -274,7 +274,7 @@ public class TrackEP {
         if (header != null) {
             TrackLog lastLog = trackService.getLastLog(header);
             if (lastLog != null) {
-                LogWhat what = whatService.getWhat(header, lastLog.getChange());
+                LogWhat what = whatService.getWhat(header, lastLog.getLog());
                 return new ResponseEntity<>(what, HttpStatus.OK);
             }
         }
@@ -295,7 +295,7 @@ public class TrackEP {
             TrackLog left = trackService.getLogForHeader(header, logId);
             TrackLog right = trackService.getLogForHeader(header, withId);
             if (left != null && right != null) {
-                AuditDeltaBean deltaBean = whatService.getDelta(header, left.getChange(), right.getChange());
+                AuditDeltaBean deltaBean = whatService.getDelta(header, left.getLog(), right.getLog());
 
                 if (deltaBean != null)
                     return new ResponseEntity<>(deltaBean, HttpStatus.OK);
@@ -330,7 +330,7 @@ public class TrackEP {
         if (header != null) {
             TrackLog log = trackService.getLogForHeader(header, logId);
             if (log != null)
-                return new ResponseEntity<>(whatService.getWhat(header, log.getChange()), HttpStatus.OK);
+                return new ResponseEntity<>(whatService.getWhat(header, log.getLog()), HttpStatus.OK);
         }
 
         return new ResponseEntity<>((LogWhat) null, HttpStatus.NOT_FOUND);

@@ -272,10 +272,12 @@ public class TrackService {
         DateTime fortressWhen = (input.getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(input.getWhen()));
 
         if (existingLog != null) {
-            if (whatService.isSame(authorisedHeader, existingLog.getChange(), input.getWhat())) {
+            boolean unchanged = whatService.isSame(authorisedHeader, existingLog.getLog(), input.getWhat());
+            if (unchanged) {
                 logger.trace("Ignoring a change we already have {}", input);
-                input.setStatus(LogInputBean.LogStatus.IGNORE);
+                resultBean.setStatus(LogInputBean.LogStatus.IGNORE);
                 if (input.isForceReindex()) { // Caller is recreating the search index
+                    resultBean.setStatus((LogInputBean.LogStatus.REINDEX));
                     resultBean.setLogToIndex(existingLog);
                     resultBean.setMessage("Ignoring a change we already have. Honouring request to re-index");
                 } else
@@ -302,7 +304,7 @@ public class TrackService {
         }
 
 
-        Log thisLog = trackDao.prepareLog(thisFortressUser, input, txRef, (existingLog != null ? existingLog.getChange() : null));
+        Log thisLog = trackDao.prepareLog(thisFortressUser, input, txRef, (existingLog != null ? existingLog.getLog() : null));
 
         // Prepares the change
         input.setChangeEvent(thisLog.getEvent());
@@ -478,9 +480,9 @@ public class TrackService {
         TrackLog currentLog = getLastLog(metaHeader.getId());
         if (currentLog == null)
             return null;
-        trackDao.fetch(currentLog.getChange());
-        Log currentChange = currentLog.getChange();
-        Log priorChange = currentLog.getChange().getPreviousLog();
+        trackDao.fetch(currentLog.getLog());
+        Log currentChange = currentLog.getLog();
+        Log priorChange = currentLog.getLog().getPreviousLog();
 
         if (priorChange != null) {
             trackDao.makeLastChange(metaHeader, priorChange);
@@ -632,9 +634,9 @@ public class TrackService {
             return null;
 
         TrackLog log = trackDao.getLog(logId);
-        trackDao.fetch(log.getChange());
-        LogWhat what = whatService.getWhat(metaHeader, log.getChange());
-        log.getChange().setWhat(what);
+        trackDao.fetch(log.getLog());
+        LogWhat what = whatService.getWhat(metaHeader, log.getLog());
+        log.getLog().setWhat(what);
         return new LogDetailBean(log, what);
     }
 
@@ -645,7 +647,7 @@ public class TrackService {
             if (!log.getMetaHeader().getId().equals(header.getId()))
                 return null;
 
-            trackDao.fetch(log.getChange());
+            trackDao.fetch(log.getLog());
             return log;
         }
         return null;

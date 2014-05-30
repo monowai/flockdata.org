@@ -164,4 +164,8 @@ public class TrackResultBean {
         return metaInputBean;
     }
 
+    public boolean processLog() {
+        return getLog()!=null && log.getStatus() != LogInputBean.LogStatus.IGNORE;
+
+    }
 }
