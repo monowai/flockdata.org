@@ -169,15 +169,7 @@ public class MediationFacade {
         Fortress fortress = fortressService.registerFortress(company, new FortressInputBean(inputBean.getFortress(), false));
         fortress.setCompany(company);
         TrackResultBean result = createHeader(company, fortress, inputBean);
-        SearchChange searchChange = null;
-        if (result.getMetaInputBean().isTrackSuppressed()) {
-            // If we aren't tracking in the graph, then we have to be searching
-            // else why even call this service??
-            searchChange = searchService.getSearchChange(company, result);
-        } else if (!result.isDuplicate() && inputBean.isMetaOnly()) {
-            searchChange = searchService.getSearchChange(company, result);
-        }
-        searchService.makeChangeSearchable(searchChange);
+        distributeChange(result);
         return result;
     }
 
@@ -192,7 +184,7 @@ public class MediationFacade {
             public Command execute() throws DatagioException, IOException {
                 result = trackService.createHeader(company, fortress, inputBean);
                 result = processLogFromResult(company, result);
-                makeChangeSearchable(result);
+                distributeChange(result);
                 return this;
             }
         }
@@ -210,17 +202,26 @@ public class MediationFacade {
         return logResults;
     }
 
-    public LogResultBean processLog(LogInputBean input) throws DatagioException, IOException {
-        MetaHeader header = trackService.getHeader(null, input.getMetaKey());
-        LogResultBean logResultBean = writeLogForHeaderNoSearch(header, input);
-        makeChangeSearchable(new TrackResultBean(logResultBean, input));
+    public LogResultBean processLog( LogInputBean input) throws DatagioException, IOException {
+        return processLog(registrationService.resolveCompany(null), input);
+    }
+
+//    public LogResultBean processLog( String apiKey, LogInputBean input) throws DatagioException, IOException {
+//        return processLog(registrationService.resolveCompany(apiKey), input);
+//    }
+
+    public LogResultBean processLog(Company company, LogInputBean input) throws DatagioException, IOException {
+        MetaHeader header = trackService.getHeader(company, input.getMetaKey());
+        LogResultBean logResultBean = writeLog(header, input);
+        distributeChange(new TrackResultBean(logResultBean, input));
         return logResultBean;
     }
 
     private LogResultBean processCompanyLog(Company company, TrackResultBean resultBean) throws DatagioException, IOException {
         MetaHeader header = resultBean.getMetaHeader();
-        if (header == null) header = trackService.getHeader(company, resultBean.getMetaKey());
-        return writeLogForHeaderNoSearch(header, resultBean.getLog());
+        if (header == null)
+            header = trackService.getHeader(company, resultBean.getMetaKey());
+        return writeLog(header, resultBean.getLog());
     }
 
     private TrackResultBean processLogFromResult(Company company, TrackResultBean resultBean) throws DatagioException, IOException {
@@ -236,7 +237,7 @@ public class MediationFacade {
 
             LogResultBean logResult;
             if (header != null)
-                logResult = writeLogForHeaderNoSearch(header, logBean);
+                logResult = writeLog(header, logBean);
             else
                 logResult = processCompanyLog(company, resultBean);
 
@@ -259,29 +260,46 @@ public class MediationFacade {
         MetaHeader header = trackService.getHeader(company, input.getMetaKey());
         if (header == null)
             throw new DatagioException("Unable to find the request auditHeader " + input.getMetaKey());
-        LogResultBean logResultBean = writeLogForHeaderNoSearch(header, input);
-        makeChangeSearchable(new TrackResultBean(logResultBean, input));
+        LogResultBean logResultBean = writeLog(header, input);
+        distributeChange(new TrackResultBean(logResultBean, input));
         return logResultBean;
     }
 
-    public void makeChangeSearchable(Iterable<TrackResultBean> resultBeans) {
+    @Async
+    public void distributeChanges(Iterable<TrackResultBean> resultBeans) throws IOException {
+        logger.debug("Distributing changes to KV and Search. Batch Mode");
+        whatService.doKvWrite(resultBeans);
         Collection<SearchChange> changes = new ArrayList<>();
         for (TrackResultBean resultBean : resultBeans) {
             SearchChange change = getSearchChange(resultBean);
             if (change!=null )
                 changes.add(change);
         }
-        searchService.makeChangeSearchable(changes);
+        searchService.makeChangesSearchable(changes);
     }
 
-
-    public void makeChangeSearchable(TrackResultBean trackResultBean) {
+    @Async
+    public void distributeChange(TrackResultBean trackResultBean) throws IOException {
+        logger.debug("Distributing change to KV and Search.");
+        whatService.doKvWrite(trackResultBean);
         searchService.makeChangeSearchable(getSearchChange(trackResultBean));
     }
 
+    private SearchChange getMetaSearchChange(TrackResultBean trackResultBean) {
+        return searchService.getSearchChange(trackResultBean.getMetaHeader().getFortress().getCompany(), trackResultBean);
+    }
+
     private SearchChange getSearchChange(TrackResultBean trackResultBean) {
+        if (trackResultBean.getMetaInputBean()!=null && trackResultBean.getMetaInputBean().isMetaOnly()){
+            return getMetaSearchChange(trackResultBean);
+        }
+
         LogResultBean logResultBean = trackResultBean.getLogResult();
         LogInputBean input = trackResultBean.getLog();
+
+        if ( !trackResultBean.processLog())
+            return null;
+
         if (logResultBean != null && logResultBean.getLogToIndex() != null && logResultBean.getStatus() == LogInputBean.LogStatus.OK) {
             try {
                 DateTime fWhen = new DateTime(logResultBean.getLogToIndex().getFortressWhen());
@@ -295,7 +313,7 @@ public class MediationFacade {
     }
 
     /**
-     * Deadlock safe processor that creates the log then indexes the change to the search service if necessary
+     * Deadlock safe processor to creates a log
      *
      * @param header       Header that the caller is authorised to work with
      * @param logInputBean log details to apply to the authorised header
@@ -303,7 +321,7 @@ public class MediationFacade {
      * @throws com.auditbucket.helper.DatagioException
      *
      */
-    public LogResultBean writeLogForHeaderNoSearch(final MetaHeader header, final LogInputBean logInputBean) throws DatagioException, IOException {
+    public LogResultBean writeLog(final MetaHeader header, final LogInputBean logInputBean) throws DatagioException, IOException {
         logInputBean.setWhat(logInputBean.getWhat());
         class DeadLockCommand implements Command {
             LogResultBean result = null;
@@ -383,7 +401,7 @@ public class MediationFacade {
             searchDocuments.add(searchService.rebuild(company, header, lastLog));
             skipCount++;
         }
-        searchService.makeChangeSearchable(searchDocuments);
+        searchService.makeChangesSearchable(searchDocuments);
         return skipCount;
     }
 
