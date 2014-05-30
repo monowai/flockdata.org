@@ -194,10 +194,10 @@ public class WhatService {
             jCompareFrom = om.readTree(compareFrom);
             jCompareWith = om.readTree(compareWith);
         } catch (IOException e) {
-            logger.error("Comparing JSON docs");
+            logger.error("Comparing JSON docs", e);
         }
-        boolean result = !(jCompareFrom == null || jCompareWith == null) && jCompareFrom.equals(jCompareWith);
-        return result;
+        boolean same = !(jCompareFrom == null || jCompareWith == null) && jCompareFrom.equals(jCompareWith);
+        return same;
 
     }
 
