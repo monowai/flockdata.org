@@ -621,6 +621,24 @@ public class TestAuditIntegration {
 
     }
 
+    @Test
+    public void utfText()throws Exception{
+        assumeTrue(runMe);
+        String json = "{\"Athlete\":\"Katerina Neumannová\",\"Age\":\"28\",\"Country\":\"Czech Republic\",\"Year\":\"2002\",\"Closing Ceremony Date\":\"2/24/02\",\"Sport\":\"Cross Country Skiing\",\"Gold Medals\":\"0\",\"Silver Medals\":\"2\",\"Bronze Medals\":\"0\",\"Total Medals\":\"2\"}";
+        SystemUser su = registerSystemUser("Nik");
+
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("UTF8-Test", false));
+
+        LogInputBean log = new LogInputBean("mikeTest", new DateTime(), json);
+        MetaInputBean input = new MetaInputBean(fortress.getName(), "mikeTest", "Query", new DateTime(), "abzz");
+        input.setLog(log);
+
+        TrackResultBean result = trackEP.trackHeader(input, su.getApiKey(), su.getApiKey()).getBody();
+        waitForHeaderToUpdate(result.getMetaHeader(), su.getApiKey());
+        doEsQuery(result.getMetaHeader().getIndexName(), "Neumannová", 1);
+
+    }
+
     private String runQuery(QueryParams queryParams) throws Exception {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
