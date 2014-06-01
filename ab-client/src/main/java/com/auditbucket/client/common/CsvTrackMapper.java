@@ -92,17 +92,17 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
                                 break; // Don't set a 0 value tag
                             }
                         } else {
-                            if ( columnHelper.isCountry()){
-                                tag = new TagInputBean(val).setMustExist(true).setIndex("Country" );
-                                tag.addMetaLink("located", properties);
-                            } else {
+//                            if ( columnHelper.isCountry()){
+//                                tag = new TagInputBean(val).setMustExist(true).setIndex("Country" );
+//                                tag.addMetaLink("located", properties);
+//                            } else {
                                 // Assume column of "Specialist" and value of "Orthopedic"
                                 // Index == Specialist and Type = Orthopedic
                                 String index = columnHelper.getKey();
 
                                 tag = new TagInputBean(val).setMustExist(columnHelper.isMustExist()).setIndex(columnHelper.isCountry() ? "Country" : index);
                                 tag.addMetaLink(columnHelper.getRelationshipName());
-                            }
+                            //}
                         }
                         ArrayList<CsvTag> targets = columnHelper.getColumnDefinition().getTargets();
                         for (CsvTag target : targets) {
