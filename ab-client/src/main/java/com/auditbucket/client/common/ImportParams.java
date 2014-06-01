@@ -133,7 +133,7 @@ public class ImportParams {
         if (!(clazz == null || clazz.equals("")))
             mappable = (Mappable) Class.forName(getClazz()).newInstance();
         else if (getTagOrTrack().equalsIgnoreCase("track")) {
-            mappable = TrackMapper.newInstance(this);
+            mappable = CsvTrackMapper.newInstance(this);
         } else if (getTagOrTrack().equalsIgnoreCase("tag")) {
             mappable = TagMapper.newInstance(this);
         } else
