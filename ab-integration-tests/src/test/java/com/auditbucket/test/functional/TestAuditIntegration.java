@@ -625,7 +625,7 @@ public class TestAuditIntegration {
     public void utfText()throws Exception{
         assumeTrue(runMe);
         String json = "{\"Athlete\":\"Katerina Neumannová\",\"Age\":\"28\",\"Country\":\"Czech Republic\",\"Year\":\"2002\",\"Closing Ceremony Date\":\"2/24/02\",\"Sport\":\"Cross Country Skiing\",\"Gold Medals\":\"0\",\"Silver Medals\":\"2\",\"Bronze Medals\":\"0\",\"Total Medals\":\"2\"}";
-        SystemUser su = registerSystemUser("Nik");
+        SystemUser su = registerSystemUser("Utf8");
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("UTF8-Test", false));
 
