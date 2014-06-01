@@ -1,9 +1,9 @@
 package com.test.importer;
 
 import com.auditbucket.client.Importer;
+import com.auditbucket.client.common.CsvTrackMapper;
 import com.auditbucket.client.common.DelimitedMappable;
 import com.auditbucket.client.common.ImportParams;
-import com.auditbucket.client.common.TrackMapper;
 import com.auditbucket.client.csv.CsvColumnHelper;
 import com.auditbucket.client.rest.StaticDataResolver;
 import com.auditbucket.helper.DatagioException;
@@ -34,7 +34,7 @@ public class CSVRow {
                 return name;
             }
         });
-        TrackMapper mapper = new TrackMapper(params);
+        CsvTrackMapper mapper = new CsvTrackMapper(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers= new String[]{"Title",     "Tag",     "TagVal", "ValTag", "Origin",      "Year", "Gold Medals" };
         String[] data = new String[]{  "TitleTests","TagName", "Gold",   "8",      "New Zealand", "2008", "12"};
@@ -139,7 +139,7 @@ public class CSVRow {
                 return name;
             }
         });
-        //TrackMapper mapper = new TrackMapper(params);
+        //CsvTrackMapper mapper = new CsvTrackMapper(params);
         String[]headers = {"Athlete","Age","Country","Year","Sport","Gold Medals","Silver Medals","Bronze Medals"};
         String[]values = { "Michael Phelps","23","United States","2008", "Swimming","8","0","0","8"};
         DelimitedMappable row = (DelimitedMappable) params.getMappable();
