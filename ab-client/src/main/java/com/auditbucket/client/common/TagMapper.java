@@ -1,5 +1,7 @@
-package com.auditbucket.client;
+package com.auditbucket.client.common;
 
+import com.auditbucket.client.Importer;
+import com.auditbucket.client.rest.AbRestClient;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -8,7 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
  * Date: 27/04/14
  * Time: 4:36 PM
  */
-public class TagMapper extends TagInputBean implements DelimitedMappable{
+public class TagMapper extends TagInputBean implements DelimitedMappable {
     private boolean hasHeader = true;
     public TagMapper(ImportParams importParams) {
         setIndex(importParams.getDocumentType());

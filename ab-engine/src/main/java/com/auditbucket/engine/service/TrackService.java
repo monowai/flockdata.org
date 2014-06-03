@@ -30,8 +30,6 @@ import com.auditbucket.registration.service.*;
 import com.auditbucket.search.model.MetaSearchChange;
 import com.auditbucket.track.bean.*;
 import com.auditbucket.track.model.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -165,7 +163,7 @@ public class TrackService {
         MetaHeader ah = trackDao.create(inputBean, fortress, documentType);
         if (ah.getId() == null)
             inputBean.setMetaKey("NT " + fortress.getFortressKey()); // We ain't tracking this
-        logger.debug("Meta Header created:{} key=[{}]", ah.getId(), ah.getMetaKey());
+        logger.debug("MetaHeader created:{} key=[{}] for fortress [{}]", ah.getId(), ah.getMetaKey(), fortress.getCode());
         return ah;
     }
 
@@ -267,28 +265,23 @@ public class TrackService {
 
         // https://github.com/monowai/auditbucket/issues/7
         TrackLog existingLog = null;
-        if (authorisedHeader.getLastUpdated() != authorisedHeader.getWhenCreated()) // Will there even be a change to find
+        if (authorisedHeader.getLastUpdated() != 0l) // Will there even be a change to find
             existingLog = getLastLog(authorisedHeader);
 
         Boolean searchActive = fortress.isSearchActive();
         DateTime fortressWhen = (input.getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(input.getWhen()));
 
         if (existingLog != null) {
-            try {
-                if (whatService.isSame(authorisedHeader, existingLog.getChange(), input.getWhat())) {
-                    logger.trace("Ignoring a change we already have {}", input);
-                    input.setStatus(LogInputBean.LogStatus.IGNORE);
-                    if (input.isForceReindex()) { // Caller is recreating the search index
-                        searchFacade.makeChangeSearchable(prepareSearchDocument(authorisedHeader, input, existingLog.getChange().getEvent(), searchActive, fortressWhen, existingLog));
-                        resultBean.setMessage("Ignoring a change we already have. Honouring request to re-index");
-                    } else
-                        resultBean.setMessage("Ignoring a change we already have");
-                    return resultBean;
-                }
-            } catch (IOException e) {
-                input.setStatus(LogInputBean.LogStatus.ILLEGAL_ARGUMENT);
-                resultBean.setMessage("Error comparing JSON data: " + e.getMessage());
-                logger.error("Error comparing JSON Data", e);
+            boolean unchanged = whatService.isSame(authorisedHeader, existingLog.getLog(), input.getWhat());
+            if (unchanged) {
+                logger.trace("Ignoring a change we already have {}", input);
+                resultBean.setStatus(LogInputBean.LogStatus.IGNORE);
+                if (input.isForceReindex()) { // Caller is recreating the search index
+                    resultBean.setStatus((LogInputBean.LogStatus.REINDEX));
+                    resultBean.setLogToIndex(existingLog);
+                    resultBean.setMessage("Ignoring a change we already have. Honouring request to re-index");
+                } else
+                    resultBean.setMessage("Ignoring a change we already have");
                 return resultBean;
             }
             if (input.getEvent() == null) {
@@ -310,15 +303,15 @@ public class TrackService {
             //}
         }
 
-        Log thisChange = trackDao.save(thisFortressUser, input, txRef, (existingLog != null ? existingLog.getChange() : null));
-        input.setChangeEvent(thisChange.getEvent());
 
-        // ToDo: WhatService call should occur after this function is finished.
-        //       change should then be written back to the graph via @ServiceActivator as called
-        //       by as yet to be extracted ab-what service
-        thisChange = whatService.logWhat(authorisedHeader, thisChange, input.getWhat());
+        Log thisLog = trackDao.prepareLog(thisFortressUser, input, txRef, (existingLog != null ? existingLog.getLog() : null));
 
-        TrackLog newLog = trackDao.addLog(authorisedHeader, thisChange, fortressWhen, existingLog);
+        // Prepares the change
+        input.setChangeEvent(thisLog.getEvent());
+
+        resultBean.setWhatLog(thisLog);
+
+        TrackLog newLog = trackDao.addLog(authorisedHeader, thisLog, fortressWhen, existingLog);
         resultBean.setSysWhen(newLog.getSysWhen());
 
         boolean moreRecent = (existingLog == null || existingLog.getFortressWhen() <= newLog.getFortressWhen());
@@ -326,51 +319,17 @@ public class TrackService {
         input.setStatus(LogInputBean.LogStatus.OK);
 
         if (moreRecent) {
-            if (!authorisedHeader.getLastUser().getId().equals(thisFortressUser.getId())) {
+            if (authorisedHeader.getLastUser() == null || (!authorisedHeader.getLastUser().getId().equals(thisFortressUser.getId()))) {
                 authorisedHeader.setLastUser(thisFortressUser);
                 trackDao.save(authorisedHeader);
             }
 
-            try {
-                resultBean.setSearchChange(prepareSearchDocument(authorisedHeader, input, input.getChangeEvent(), searchActive, fortressWhen, newLog));
-            } catch (JsonProcessingException e) {
-                resultBean.setMessage("Error processing JSON document");
-                resultBean.setStatus(LogInputBean.LogStatus.ILLEGAL_ARGUMENT);
-            }
+            if (searchActive)
+                resultBean.setLogToIndex(newLog);
         }
-
         return resultBean;
 
     }
-
-    private static final ObjectMapper om = new ObjectMapper();
-
-    public SearchChange prepareSearchDocument(MetaHeader metaHeader, LogInputBean logInput, ChangeEvent event, Boolean searchActive, DateTime fortressWhen, TrackLog trackLog) throws JsonProcessingException {
-
-        if (!searchActive || metaHeader.isSearchSuppressed())
-            return null;
-        SearchChange searchDocument;
-        searchDocument = new MetaSearchChange(metaHeader, logInput.getMapWhat(), event.getCode(), fortressWhen);
-        searchDocument.setWho(trackLog.getChange().getWho().getCode());
-        searchDocument.setTags(tagTrackService.findTrackTags(metaHeader.getFortress().getCompany(), metaHeader));
-        searchDocument.setDescription(metaHeader.getName());
-        try {
-            logger.trace("JSON {}", om.writeValueAsString(searchDocument));
-        } catch (JsonProcessingException e) {
-            logger.error(e.getMessage());
-            throw (e);
-        }
-        if (trackLog.getSysWhen() != 0)
-            searchDocument.setSysWhen(trackLog.getSysWhen());
-        else
-            searchDocument.setSysWhen(metaHeader.getWhenCreated());
-
-        // Used to reconcile that the change was actually indexed
-        logger.trace("Preparing Search Document [{}]", trackLog);
-        searchDocument.setLogId(trackLog.getId());
-        return searchDocument;
-    }
-
 
     public Collection<MetaHeader> getHeaders(Fortress fortress, Long skipTo) {
         return trackDao.findHeaders(fortress.getId(), skipTo);
@@ -463,11 +422,11 @@ public class TrackService {
     public TrackLog getLastLog(MetaHeader metaHeader) throws DatagioException {
         if (metaHeader == null)
             return null;
-        logger.debug("Getting lastLog MetaID [{}]", metaHeader.getId());
+        //logger.debug("Getting lastLog MetaID [{}]", metaHeader.getId());
         return trackDao.getLastLog(metaHeader.getId());
     }
 
-    TrackLog getLastLog(Long headerId) {
+    public TrackLog getLastLog(Long headerId) {
         return trackDao.getLastLog(headerId);
     }
 
@@ -521,9 +480,9 @@ public class TrackService {
         TrackLog currentLog = getLastLog(metaHeader.getId());
         if (currentLog == null)
             return null;
-        trackDao.fetch(currentLog.getChange());
-        Log currentChange = currentLog.getChange();
-        Log priorChange = currentLog.getChange().getPreviousLog();
+        trackDao.fetch(currentLog.getLog());
+        Log currentChange = currentLog.getLog();
+        Log priorChange = currentLog.getLog().getPreviousLog();
 
         if (priorChange != null) {
             trackDao.makeLastChange(metaHeader, priorChange);
@@ -675,9 +634,9 @@ public class TrackService {
             return null;
 
         TrackLog log = trackDao.getLog(logId);
-        trackDao.fetch(log.getChange());
-        LogWhat what = whatService.getWhat(metaHeader, log.getChange());
-        log.getChange().setWhat(what);
+        trackDao.fetch(log.getLog());
+        LogWhat what = whatService.getWhat(metaHeader, log.getLog());
+        log.getLog().setWhat(what);
         return new LogDetailBean(log, what);
     }
 
@@ -688,7 +647,7 @@ public class TrackService {
             if (!log.getMetaHeader().getId().equals(header.getId()))
                 return null;
 
-            trackDao.fetch(log.getChange());
+            trackDao.fetch(log.getLog());
             return log;
         }
         return null;
@@ -780,5 +739,13 @@ public class TrackService {
 
     public Collection<MetaHeader> getHeaders(Company company, Collection<String> toFind) {
         return trackDao.findHeaders(company, toFind);
+    }
+
+    public void purge(Fortress fortress) {
+        trackDao.purgeTagRelationships(fortress);
+        trackDao.purgeFortressLogs(fortress);
+        trackDao.purgePeopleRelationships(fortress);
+        trackDao.purgeFortressDocuments(fortress);
+        trackDao.purgeHeaders(fortress);
     }
 }

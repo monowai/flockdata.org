@@ -19,6 +19,7 @@
 
 package com.auditbucket.engine.endpoint;
 
+import com.auditbucket.search.model.MetaSearchChanges;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.SearchChange;
 import org.springframework.integration.annotation.Gateway;
@@ -32,7 +33,7 @@ import org.springframework.integration.annotation.Payload;
 public interface SearchGateway {
 
     @Gateway(requestChannel = "makeSearchRequest")
-    public SearchChange createSearchableChange(@Payload SearchChange thisChange);
+    public SearchChange createSearchableChange(@Payload MetaSearchChanges changes);
 
     @Gateway(requestChannel = "searchDelete")
     public void delete(@Payload MetaHeader metaHeader);

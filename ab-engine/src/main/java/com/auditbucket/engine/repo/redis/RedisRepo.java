@@ -21,6 +21,8 @@ package com.auditbucket.engine.repo.redis;
 
 import com.auditbucket.engine.repo.KvRepo;
 import com.auditbucket.track.model.MetaHeader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -32,9 +34,10 @@ public class RedisRepo implements KvRepo {
 
     @Autowired
     private RedisTemplate<Long, byte[]> template;
+    private static Logger logger = LoggerFactory.getLogger(RedisRepo.class);
 
-    public void add(MetaHeader metaHeader, Long key, byte[] value) {
-        template.opsForValue().set(key, value);
+    public void add(MetaHeader metaHeader, Long key, byte[] what) {
+        template.opsForValue().set(key, what);
     }
 
     public byte[] getValue(MetaHeader metaHeader, Long key) {
@@ -43,6 +46,11 @@ public class RedisRepo implements KvRepo {
 
     public void delete(MetaHeader metaHeader, Long key) {
         template.opsForValue().getOperations().delete(key);
+    }
+
+    @Override
+    public void purge(String index) {
+        logger.debug("Purge not supported for REDIS. Ignoring this request") ;
     }
 
     @Override

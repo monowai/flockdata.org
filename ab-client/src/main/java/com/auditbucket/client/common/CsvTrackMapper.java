@@ -1,10 +1,17 @@
-package com.auditbucket.client;
+package com.auditbucket.client.common;
 
+import com.auditbucket.client.Importer;
+import com.auditbucket.client.csv.CsvColumnDefinition;
+import com.auditbucket.client.csv.CsvColumnHelper;
+import com.auditbucket.client.csv.CsvTag;
+import com.auditbucket.client.rest.AbRestClient;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,8 +20,10 @@ import java.util.Map;
  * Date: 27/04/14
  * Time: 4:34 PM
  */
-public class TrackMapper extends MetaInputBean implements DelimitedMappable {
-    public TrackMapper(ImportParams importParams) {
+public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(CsvTrackMapper.class);
+
+    public CsvTrackMapper(ImportParams importParams) {
         setDocumentType(importParams.getDocumentType());
         setFortress(importParams.getFortress());
         setFortressUser(importParams.getFortressUser());
@@ -83,14 +92,30 @@ public class TrackMapper extends MetaInputBean implements DelimitedMappable {
                                 break; // Don't set a 0 value tag
                             }
                         } else {
-                            // Assume column of "Specialist" and value of "Orthopedic"
-                            // Index == Specialist and Type = Orthopedic
-                            String index = columnHelper.getKey();
+//                            if ( columnHelper.isCountry()){
+//                                tag = new TagInputBean(val).setMustExist(true).setIndex("Country" );
+//                                tag.addMetaLink("located", properties);
+//                            } else {
+                                // Assume column of "Specialist" and value of "Orthopedic"
+                                // Index == Specialist and Type = Orthopedic
+                                String index = columnHelper.getKey();
 
-                            tag = new TagInputBean(val).setMustExist(columnHelper.isMustExist()).setIndex(columnHelper.isCountry() ? "Country" : index);
-                            tag.addMetaLink(columnHelper.getRelationshipName());
+                                tag = new TagInputBean(val).setMustExist(columnHelper.isMustExist()).setIndex(columnHelper.isCountry() ? "Country" : index);
+                                tag.addMetaLink(columnHelper.getRelationshipName());
+                            //}
                         }
-
+                        ArrayList<CsvTag> targets = columnHelper.getColumnDefinition().getTargets();
+                        for (CsvTag target : targets) {
+                            Object tagName =row.get(target.getColumn());
+                            if ( tagName == null) {
+                                logger.error("No 'column' value found for {} in the {} entry ", target.getColumn(), column);
+                            } else {
+                                TagInputBean targetTag = new TagInputBean(tagName.toString())
+                                        .setIndex(target.getColumn());
+                                targetTag.setReverse(target.getReverse());
+                                tag.setTargets(target.getRelationship(), targetTag);
+                            }
+                        }
                         setTag(tag);
                     }
                 }
@@ -121,7 +146,7 @@ public class TrackMapper extends MetaInputBean implements DelimitedMappable {
     }
 
     public static DelimitedMappable newInstance(ImportParams importParams) {
-        return new TrackMapper(importParams);
+        return new CsvTrackMapper(importParams);
     }
 
     @Override

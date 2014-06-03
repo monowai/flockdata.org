@@ -17,34 +17,32 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.track.model;
+package com.auditbucket.search.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
- * User: Mike Holdsworth
- * Date: 21/06/13
- * Time: 1:21 PM
+ * User: mike
+ * Date: 28/05/14
+ * Time: 8:22 PM
  */
-public interface TrackLog {
+public class SearchResults {
 
-    public Log getLog();
+    private ArrayList<SearchResult>searchResults = new ArrayList<>();
 
-    public MetaHeader getMetaHeader();
+    public void addSearchResult(SearchResult result){
+        searchResults.add(result);
+    }
 
-    public boolean isIndexed();
+    public Collection<SearchResult> getSearchResults() {
+        return searchResults;
+    }
 
-    /**
-     * flags this track as having been indexed at some point.
-     */
-    public void setIsIndexed();
-
-    /**
-     * @return When this log file was created in AuditBucket
-     */
-    public Long getSysWhen();
-
-    public Long getFortressWhen();
-
-    Long getId();
-
-    void setMetaHeader(MetaHeader metaHeader);
+    @JsonIgnore
+    public boolean isEmpty() {
+        return searchResults.isEmpty();
+    }
 }

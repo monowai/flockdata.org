@@ -17,30 +17,31 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.client;
+package com.auditbucket.search.model;
+
+import com.auditbucket.track.model.SearchChange;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
- * User: Mike Holdsworth
- * Since: 25/01/14
+ * User: mike
+ * Date: 23/05/14
+ * Time: 12:10 PM
  */
 
-import com.auditbucket.helper.DatagioException;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonProcessingException;
+public class MetaSearchChanges {
+    Collection <MetaSearchChange> searchChanges = new ArrayList<>();
+    public MetaSearchChanges(){}
+    public MetaSearchChanges(Collection<SearchChange> searchDocuments) {
+        this();
+        this.searchChanges = (Collection <MetaSearchChange>)(Collection)searchDocuments;
+    }
+    public Iterable<MetaSearchChange> getChanges() {
+        return searchChanges;
+    }
 
-/**
- * Support class to handle mapping from one format to another format
- * User: Mike Holdsworth
- * Since: 13/10/13
- */
-public interface DelimitedMappable extends Mappable {
-
-    String setData(String[] headerRow, String[] line, ImportParams staticDataResolver) throws JsonProcessingException, DatagioException;
-
-    @JsonIgnore
-    boolean hasHeader();
-
-    @JsonIgnore
-    char getDelimiter();
-
+    public void addChange(MetaSearchChange change) {
+        searchChanges.add(change);
+    }
 }

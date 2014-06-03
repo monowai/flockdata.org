@@ -1,7 +1,7 @@
 package com.auditbucket.search.helper;
 
 import com.auditbucket.helper.DatagioException;
-import com.auditbucket.helper.JsonError;
+import com.auditbucket.helper.JsonMessage;
 import com.fasterxml.jackson.core.JsonParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,25 +24,25 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ModelAndView handleAuditException( DatagioException ex){
         logger.error("Datagio Exception", ex);
-        return new JsonError(ex.getMessage()).asModelAndView();
+        return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ModelAndView handleIAException( IllegalArgumentException ex){
-        return new JsonError(ex.getMessage()).asModelAndView();
+        return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 
     @ExceptionHandler(JsonParseException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ModelAndView handleJsonError(final JsonParseException ex) {
-        return new JsonError(ex.getMessage()).asModelAndView();
+        return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ModelAndView handleInternal( Exception ex) {
         logger.error("Error 500", ex);
-        return new JsonError(ex.getMessage()).asModelAndView();
+        return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 }

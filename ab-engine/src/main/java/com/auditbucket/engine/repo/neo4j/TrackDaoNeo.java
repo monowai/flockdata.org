@@ -26,6 +26,7 @@ import com.auditbucket.engine.repo.neo4j.model.MetaHeaderNode;
 import com.auditbucket.engine.repo.neo4j.model.TrackLogRelationship;
 import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
 import com.auditbucket.engine.service.TrackEventService;
+import com.auditbucket.engine.service.WhatService;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
@@ -48,6 +49,7 @@ import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -64,7 +66,13 @@ public class TrackDaoNeo implements TrackDao {
     TrackLogRepo trackLogRepo;
 
     @Autowired
+    SchemaTypeRepo schemaTypeRepo;
+
+    @Autowired
     TrackEventService trackEventService;
+
+    @Autowired
+    WhatService whatService;
 
     @Autowired
     Neo4jTemplate template;
@@ -94,8 +102,10 @@ public class TrackDaoNeo implements TrackDao {
         return template.save((TxRefNode) tagRef);
     }
 
-    @Cacheable(value = "metaKey", unless = "#result==null")
+    //    @Cacheable(value = "metaKey", unless = "#result==null")
     private MetaHeader getCachedHeader(String key) {
+        if (key == null)
+            return null;
         return metaRepo.findBySchemaPropertyValue(MetaHeaderNode.UUID_KEY, key);
     }
 
@@ -110,7 +120,7 @@ public class TrackDaoNeo implements TrackDao {
 
     @Override
     public Iterable<MetaHeader> findByCallerRef(Long fortressId, String callerRef) {
-          return metaRepo.findByCallerRef (fortressId, callerRef);
+        return metaRepo.findByCallerRef(fortressId, callerRef);
 
     }
 
@@ -120,18 +130,18 @@ public class TrackDaoNeo implements TrackDao {
         Iterable<MetaHeader> headers = findByCallerRef(fortressId, callerRef);
         MetaHeader result = null;
         for (MetaHeader header : headers) {
-            count ++;
+            count++;
             result = header;
-            if ( count >1) break;
+            if (count > 1) break;
         }
-        if ( count >1 )
-            throw new DatagioException("Unable to find exactly one record for the callerRef ["+callerRef+"]");
+        if (count > 1)
+            throw new DatagioException("Unable to find exactly one record for the callerRef [" + callerRef + "]");
 
         return result;
 
     }
 
-    @Cacheable(value = "callerKey", unless = "#result==null")
+    //@Cacheable(value = "callerKey", unless = "#result==null")
     public MetaHeader findByCallerRef(Long fortressId, Long documentId, String callerRef) {
         if (logger.isTraceEnabled())
             logger.trace("findByCallerRef fortress [" + fortressId + "] docType[" + documentId + "], callerRef[" + callerRef + "]");
@@ -253,7 +263,7 @@ public class TrackDaoNeo implements TrackDao {
     }
 
     public TrackLog save(TrackLog log) {
-        logger.debug("Saving track log [{}] - Log ID [{}]", log, log.getChange().getId());
+        logger.debug("Saving track log [{}] - Log ID [{}]", log, log.getLog().getId());
         return template.save((TrackLogRelationship) log);
     }
 
@@ -273,12 +283,17 @@ public class TrackDaoNeo implements TrackDao {
     }
 
     @Override
-    public Log save(FortressUser fUser, LogInputBean input, TxRef txRef, Log previousChange) {
+    public Log prepareLog(FortressUser fUser, LogInputBean input, TxRef txRef, Log previousChange) throws DatagioException {
         ChangeEvent event = trackEventService.processEvent(fUser.getFortress().getCompany(), input.getEvent());
         Log changeLog = new LogNode(fUser, input, txRef);
         changeLog.setEvent(event);
         changeLog.setPreviousLog(previousChange);
-        return template.save(changeLog);
+        try {
+            changeLog = whatService.prepareLog(changeLog, input.getWhat());
+        } catch (IOException e) {
+            throw new DatagioException("Unexpected error talking to What Service", e);
+        }
+        return changeLog;
     }
 
     @Override
@@ -306,7 +321,7 @@ public class TrackDaoNeo implements TrackDao {
     }
 
 
-    @Cacheable(value = "headerId",unless = "#result==null")
+    @Cacheable(value = "headerId", unless = "#result==null")
     @Override
     public MetaHeader getHeader(Long id) {
         return template.findOne(id, MetaHeaderNode.class);
@@ -325,14 +340,18 @@ public class TrackDaoNeo implements TrackDao {
 
     @Override
     public TrackLog addLog(MetaHeader metaHeader, Log newChange, DateTime fortressWhen, TrackLog existingLog) {
+        newChange = template.save(newChange);
         TrackLog newLog = template.save(new TrackLogRelationship(metaHeader, newChange, fortressWhen));
-        boolean moreRecent = (existingLog == null || existingLog.getFortressWhen() <= newLog.getFortressWhen());
+        boolean moreRecent = (existingLog == null || existingLog.getFortressWhen() <= fortressWhen.getMillis());
         if (moreRecent) {
-            removeLastChange(metaHeader, existingLog);
-            makeLastChange(metaHeader, newChange);
-        }
+            metaHeader.setLastChange(newChange);
+            template.save(metaHeader);
 
+            //  removeLastChange(metaHeader, existingLog);
+//            makeLastChange(metaHeader, newChange);
+        }
         logger.debug("Added Log - MetaHeader [{}], Log [{}], Change [{}]", metaHeader.getId(), newLog, newChange.getId());
+        newLog.setMetaHeader(metaHeader);
         return newLog;
 
     }
@@ -340,9 +359,9 @@ public class TrackDaoNeo implements TrackDao {
     private void removeLastChange(MetaHeader metaHeader, TrackLog existingLog) {
         if (existingLog != null) {
             Node auditNode = template.getPersistentState(metaHeader);
-            if (existingLog.getChange() != null) {
-                Node changeNode = template.getPersistentState(existingLog.getChange());
-                Relationship r = template.getRelationshipBetween(auditNode, changeNode, LAST_CHANGE);
+            if (existingLog.getLog() != null) {
+                Node logNode = template.getPersistentState(existingLog.getLog());
+                Relationship r = template.getRelationshipBetween(auditNode, logNode, LAST_CHANGE);
                 if (r != null) {
                     logger.debug("removeLastChange MetaHeader[{}], [{}]", metaHeader.getId(), r);
                     r.delete();
@@ -357,10 +376,12 @@ public class TrackDaoNeo implements TrackDao {
 
     @Override
     public void makeLastChange(MetaHeader metaHeader, Log lastChange) {
-        Node metaNode = template.getPersistentState(metaHeader);
-        Node logNode = template.getPersistentState(lastChange);
-        Relationship r = template.createRelationshipBetween(metaNode, logNode, LAST_CHANGE, null);
-        logger.debug("makeLastChange - MetaHeader [{}], LAST_CHANGE [{}], auditChange [{}]", metaHeader.getId(), r.getId(), logNode.getId());
+        //Node metaNode = template.getPersistentState(metaHeader);
+        //Node logNode = template.getPersistentState(lastChange);
+        //Relationship r = template.createRelationshipBetween(metaNode, logNode, LAST_CHANGE, null);
+        logger.debug("makeLastChange - MetaHeader [{}], LAST_CHANGE [{}]", metaHeader.getId(), lastChange.getId());
+        metaHeader.setLastChange(lastChange);
+        template.save(metaHeader);
     }
 
     @Override
@@ -376,7 +397,7 @@ public class TrackDaoNeo implements TrackDao {
     public Map<String, Collection<MetaHeader>> getCrossReference(Company company, MetaHeader header, String xRefName) {
         Node n = template.getPersistentState(header);
 
-        RelationshipType r=  DynamicRelationshipType.withName(xRefName);
+        RelationshipType r = DynamicRelationshipType.withName(xRefName);
         Iterable<Relationship> rlxs = n.getRelationships(r);
         Map<String, Collection<MetaHeader>> results = new HashMap<>();
         Collection<MetaHeader> headers = new ArrayList<>();
@@ -394,22 +415,47 @@ public class TrackDaoNeo implements TrackDao {
         return metaRepo.findHeaders(company.getId(), toFind);
     }
 
+    @Override
+    public void purgeTagRelationships(Fortress fortress) {
+        // ToDo: Check if this works with huge datasets
+        trackLogRepo.purgeTagRelationships(fortress.getId());
+    }
+
+    @Override
+    public void purgeFortressLogs(Fortress fortress) {
+        trackLogRepo.purgeFortressLogs(fortress.getId());
+    }
+
+    @Override
+    public void purgePeopleRelationships(Fortress fortress) {
+        metaRepo.purgePeopleRelationships(fortress.getId());
+    }
+
+    @Override
+    public void purgeHeaders(Fortress fortress) {
+        metaRepo.purgeHeaders(fortress.getId());
+    }
+
+    @Override
+    public void purgeFortressDocuments(Fortress fortress) {
+        schemaTypeRepo.purgeFortressDocuments(fortress.getId());
+    }
+
 
     public TrackLog getLastLog(Long metaHeaderId) {
         TrackLogRelationship log = null;
-
-        Relationship r = template.getNode(metaHeaderId).getSingleRelationship(LastChange.LAST_CHANGE, Direction.BOTH);
-        if (r != null) {
-            trackLogRepo.getLastLog(metaHeaderId);
-            log = trackLogRepo.getLastLog(r.getEndNode().getId());
+        Iterable<Relationship> rlxs = template.getNode(metaHeaderId).getRelationships(LastChange.LAST_CHANGE, Direction.OUTGOING);
+        int count = 0;
+        for (Relationship rlx : rlxs) {
+            if (count > 0) {
+                logger.error("Multiple relationships found for {} - returning the first found - {}", metaHeaderId, log.getId());
+            } else {
+                log = trackLogRepo.getLastLog(rlx.getEndNode().getId());
+                count++;
+            }
         }
         return log;
     }
 
-    @Override
-    public Log save(Log change, Boolean compressed) {
-        logger.debug("Saving Audit Change [{}]", change);
-        return template.save(change);
-    }
 
 }

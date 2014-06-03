@@ -17,30 +17,30 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.helper;
-
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.json.MappingJacksonJsonView;
-
-import java.util.HashMap;
+package com.auditbucket.client.common;
 
 /**
- * Created with IntelliJ IDEA.
- * User: mike
- * Date: 31/01/14
- * Time: 6:27 PM
- * http://www.asyncdev.net/2011/12/spring-restful-controllers-and-error-handling/
+ * User: Mike Holdsworth
+ * Since: 25/01/14
  */
-public class JsonError {
-    private String message;
 
-    public JsonError(String message) {
-        this.message = message;
-    }
-    public ModelAndView asModelAndView() {
-        MappingJacksonJsonView jsonView = new MappingJacksonJsonView();
-        HashMap<String,Object> map = new HashMap<>();
-        map.put("error", message);
-        return new ModelAndView(jsonView, map );
-    }
+import com.auditbucket.helper.DatagioException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+/**
+ * Support class to handle mapping from one format to another format
+ * User: Mike Holdsworth
+ * Since: 13/10/13
+ */
+public interface DelimitedMappable extends Mappable {
+
+    String setData(String[] headerRow, String[] line, ImportParams staticDataResolver) throws JsonProcessingException, DatagioException;
+
+    @JsonIgnore
+    boolean hasHeader();
+
+    @JsonIgnore
+    char getDelimiter();
+
 }

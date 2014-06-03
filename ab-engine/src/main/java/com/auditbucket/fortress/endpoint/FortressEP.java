@@ -32,7 +32,6 @@ import com.auditbucket.track.model.DocumentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -85,19 +84,6 @@ public class FortressEP {
         else
             return new ResponseEntity<>(fortress, HttpStatus.OK);
     }
-
-    @RequestMapping(value = "/{fortressName}", method = RequestMethod.DELETE)
-    @Secured({"ROLE_AB_ADMIN"})
-    public void purgeFortress(@PathVariable("fortressName") String fortressName) throws DatagioException {
-        fortressService.purge(fortressName);
-    }
-
-    @RequestMapping(value = "/{fortressName}/delete", method = RequestMethod.DELETE)
-    @Secured({"ROLE_AB_ADMIN"})
-    public void rebuildFortress(@PathVariable("fortressName") String fortressName) throws DatagioException {
-        fortressService.purge(fortressName);
-    }
-
 
     @RequestMapping(value = "/{fortressName}/{userName}", method = RequestMethod.GET)
     @ResponseBody

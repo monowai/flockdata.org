@@ -1,5 +1,7 @@
 package com.auditbucket.client;
 
+import com.auditbucket.client.common.ConfigProperties;
+import com.auditbucket.client.rest.AbRestClient;
 import com.auditbucket.registration.bean.SystemUserResultBean;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
@@ -291,7 +293,13 @@ public class Configure {
             // prints
             return String.copyValueOf(pwd);
         } else {
-            logger.error ("Could not get Console");
+            try {
+                logger.info("Password:");
+                return new BufferedReader(new InputStreamReader(System.in)).readLine();
+            } catch (IOException e) {
+                logger.error("Unexpected", e);
+            }
+
         }
 
         return null;
@@ -299,24 +307,29 @@ public class Configure {
 
     private static String getValue(String prompt, String message, String defaultValue) {
         Console console = System.console();
+        String result = null;
+        if ( defaultValue != null)
+            logger.info(message, defaultValue);
+        else
+            logger.info(message);
+
         if (console != null) {
             // read password into the char array
-            if ( defaultValue != null)
-                logger.info(message, defaultValue);
-            else
-                logger.info(message);
 
-            String result = console.readLine(prompt);
-            if ( result == null || result.equals(""))
-                return defaultValue;
-            else
-                return result;
+            result = console.readLine(prompt);
 
         } else {
-            logger.error ("Could not get Console");
-            System.exit(2);
+            try {
+                logger.info(prompt);
+                result = new BufferedReader(new InputStreamReader(System.in)).readLine();
+            } catch (IOException e) {
+                logger.error("Unexpected", e);
+            }
         }
-        return defaultValue;
+        if ( result == null || result.equals(""))
+            return defaultValue;
+
+        return result;
 
     }
 }

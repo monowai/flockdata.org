@@ -28,7 +28,6 @@ import com.auditbucket.registration.repo.neo4j.FortressUserRepository;
 import com.auditbucket.registration.repo.neo4j.model.FortressNode;
 import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
 import com.auditbucket.registration.service.KeyGenService;
-import org.neo4j.graphdb.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +68,7 @@ public class FortressDaoNeo implements FortressDao {
 
     @Override
     public Fortress findOne(Long fortressId) {
-        logger.debug("Looking for {}", fortressId);
+//        logger.debug("Looking for {}", fortressId);
         return fortressRepo.findOne(fortressId);
     }
 
@@ -104,11 +103,7 @@ public class FortressDaoNeo implements FortressDao {
 
     @Override
     public void delete(Fortress fortress) {
-        // ToDo: figure this out!!
-        //String query = "START f = node({fortressId}) WITH f MATCH f-[TRACKS]->a-[r:LOGGED|CREATED_BY|LASTCHANGED_BY|CAUSED_BY]-x DELETE a, r, x";
-        //Map<String,Object> params = new HashMap<>();
-        //params.put("fortressId", fortress.getId());
-        //template.execute(query, params);
+        template.delete(fortress);
     }
 
 

@@ -20,14 +20,18 @@
 package com.auditbucket.client;
 
 import au.com.bytecode.opencsv.CSVReader;
+import com.auditbucket.client.common.ConfigProperties;
+import com.auditbucket.client.common.DelimitedMappable;
+import com.auditbucket.client.common.ImportParams;
+import com.auditbucket.client.common.Mappable;
+import com.auditbucket.client.rest.AbRestClient;
+import com.auditbucket.client.xml.XmlMappable;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.track.bean.CrossReferenceInputBean;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
-import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import net.sourceforge.argparse4j.ArgumentParsers;
@@ -69,8 +73,8 @@ import java.util.*;
  * if BatchSize is set to -1, then a simulation only is run; information is not dispatched to the server.
  * This is useful to debug the class implementing Delimited
  *
- * @see AbRestClient
- * @see Mappable
+ * @see com.auditbucket.client.rest.AbRestClient
+ * @see com.auditbucket.client.common.Mappable
  * @see TagInputBean
  * @see com.auditbucket.track.bean.MetaInputBean
  *      <p/>
@@ -129,7 +133,7 @@ public class Importer {
                 logger.error("No files to parse!");
                 System.exit(1);
             }
-            String batch= ns.getString("batch");
+            String batch = ns.getString("batch");
 
             int batchSize = defaults.getBatchSize();
             if (batch != null && !batch.equals(""))
@@ -181,19 +185,8 @@ public class Importer {
     }
 
     public static ImportParams getImportParams(String importProfile, AbRestClient restClient) throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
-        /**
-         *                 TypeFactory typeFactory = mapper.getTypeFactory();
-         MapType mapType = typeFactory.constructMapType(HashMap.class, String.class, PubmedAffiliation.class);
-
-         exceptions = mapper.readValue(file, mapType);
-
-         */
         ImportParams importParams;
         ObjectMapper om = new ObjectMapper();
-
-        SimpleModule iModule = new SimpleModule("ImportParameters", new Version(1,0,0,null))
-                .addDeserializer(ImportParams.class, new ImportParamsDeserializer());
-        om.registerModule(iModule);
 
         File fileIO = new File(importProfile);
         if (fileIO.exists()) {
@@ -203,7 +196,7 @@ public class Importer {
             InputStream stream = ClassLoader.class.getResourceAsStream(importProfile);
             if (stream != null) {
                 importParams = om.readValue(stream, ImportParams.class);
-            }else
+            } else
                 // Defaults??
                 importParams = new ImportParams(importProfile, restClient);
         }
@@ -284,8 +277,8 @@ public class Importer {
             logger.error("Error writing exceptions with {} [{}]", fileName, e.getMessage());
             throw new RuntimeException("IO Exception ", e);
         } finally {
-            if ( processed >0l )
-            importParams.getRestClient().flush("Finishing processing of TagInputBeans " + fileName);
+            if (processed > 0l)
+                importParams.getRestClient().flush("Finishing processing of TagInputBeans " + fileName);
 
         }
         return tags.size();  //To change body of created methods use File | Settings | File Templates.
@@ -378,7 +371,7 @@ public class Importer {
             String[] nextLine;
             if (mappable.hasHeader()) {
                 while ((nextLine = csvReader.readNext()) != null) {
-                    if (!((nextLine[0].charAt(0) == '#') )) {
+                    if (!((nextLine[0].charAt(0) == '#'))) {
                         headerRow = nextLine;
                         break;
                     }
@@ -402,6 +395,7 @@ public class Importer {
                             MetaInputBean header = (MetaInputBean) row;
 
                             if (importParams.isMetaOnly() || "".equals(jsonData)) {
+                                header.setIsMetaOnly(true);
                                 // It's all Meta baby - no track information
                             } else {
                                 jsonData = jsonData.replaceAll("[\\x00-\\x09\\x11\\x12\\x14-\\x1F\\x7F]", "");

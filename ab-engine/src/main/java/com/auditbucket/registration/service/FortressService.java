@@ -21,7 +21,6 @@ package com.auditbucket.registration.service;
 
 
 import com.auditbucket.dao.SchemaDao;
-import com.auditbucket.engine.service.AbSearchGateway;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
@@ -82,8 +81,13 @@ public class FortressService {
 
     public Fortress findByCode(String fortressCode) {
         Company ownedBy = getCompany();
-        return companyDao.getFortressByCode(ownedBy.getId(), fortressCode);
+        return findByCode(ownedBy, fortressCode) ;
     }
+
+    public Fortress findByCode(Company company, String fortressCode) {
+        return companyDao.getFortressByCode(company.getId(), fortressCode);
+    }
+
 
     private Company getCompany() {
         String userName = securityHelper.getUserName(true, false);
@@ -107,7 +111,7 @@ public class FortressService {
      * string to enforce this
      *
      *
-     * @param company
+     * @param company pre-authorised company
      * @param fortressUser user to locate
      * @return fortressUser identity
      */
@@ -207,18 +211,10 @@ public class FortressService {
 
     }
 
-    @Autowired
-    AbSearchGateway searchGateway;
-
-    public void purge(String name) throws DatagioException {
-        Fortress fortress = findByName(name);
-        if (fortress == null)
-            throw new DatagioException("Fortress [" + fortress + "] could not be found");
+    public void purge(Fortress fortress) throws DatagioException {
         fortressDao.delete(fortress);
-        String indexName = "ab." + fortress.getCompany().getCode() + "." + fortress.getCode();
-        // ToDo: Delete the ES index
-        //searchGateway.delete(indexName);
     }
+
 
     /**
      * Creates a fortress if it's missing.

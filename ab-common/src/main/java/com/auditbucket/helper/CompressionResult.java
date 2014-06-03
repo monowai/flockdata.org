@@ -19,6 +19,8 @@
 
 package com.auditbucket.helper;
 
+import java.io.UnsupportedEncodingException;
+
 /**
  * User: Mike Holdsworth
  * Since: 20/07/13
@@ -64,10 +66,10 @@ public class CompressionResult {
     }
 
 
-    public CompressionResult(String value) {
+    public CompressionResult(String value) throws UnsupportedEncodingException {
         this();
         method = Method.NONE;
-        this.bytes = value.getBytes();
+        this.bytes = value.getBytes(CompressionHelper.charSet);// DAT-75
     }
 
 
