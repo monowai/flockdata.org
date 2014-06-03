@@ -135,7 +135,7 @@ public class TestAuditIntegration {
             ss = "1";
         if ( message == null )
             message = "Slept for {} seconds";
-        waitAWhile(message, Long.decode(ss)*1000);
+        waitAWhile(message, Long.decode(ss) * 1000);
     }
 
     @BeforeClass
@@ -731,7 +731,7 @@ public class TestAuditIntegration {
                     assertNotNull(trackLog);
 
                     assertTrue("fortress " + fortress + " run " + x + " header " + header.getMetaKey() + " - " + trackLog.getId(), trackLog.isIndexed());
-                    String result = doEsTermQuery(header.getIndexName(), MetaSearchSchema.META_KEY, header.getMetaKey(), 1);
+                    String result = doEsTermQuery(header.getIndexName(), MetaSearchSchema.META_KEY, header.getMetaKey(), 1, true);
                     totalSearchRequests++;
                     validateResultFieds(result);
 
@@ -764,7 +764,7 @@ public class TestAuditIntegration {
     private String doEsQuery(String index, String queryString) throws Exception {
         return doEsQuery(index, queryString, 1);
     }
-    int esTimeout = 5; // Max attempts to find the result in ES
+    int esTimeout = 10; // Max attempts to find the result in ES
     private String doEsQuery(String index, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
@@ -813,7 +813,11 @@ public class TestAuditIntegration {
         //return result.getJsonString();
     }
 
-    private String doEsTermQuery(String index, String field, String queryString, int expectedHitCount) throws Exception {
+    private String doEsTermQuery(String indexName, String metaKey, String metaKey1, int i ) throws Exception{
+        return doEsTermQuery(indexName, metaKey, metaKey1, i, false);
+    }
+
+    private String doEsTermQuery(String index, String field, String queryString, int expectedHitCount, boolean supressLog) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
         int runCount = 0, nbrResult ;
@@ -845,9 +849,12 @@ public class TestAuditIntegration {
             } else
                 nbrResult =0;// Index has not yet been created in ElasticSearch, we'll try again
 
-        }while ( nbrResult != expectedHitCount && runCount < esTimeout );
-        logger.debug("ran ES Term Query - result count {}, runCount {}", nbrResult, runCount);
-        logger.trace("searching index [{}] field [{}] for [{}]", index, field, queryString);
+        } while ( nbrResult != expectedHitCount && runCount < esTimeout );
+
+        if ( !supressLog ){
+            logger.debug("ran ES Term Query - result count {}, runCount {}", nbrResult, runCount);
+            logger.trace("searching index [{}] field [{}] for [{}]", index, field, queryString);
+        }
         Assert.assertEquals(jResult.getJsonString(), expectedHitCount, nbrResult);
         if (nbrResult != 0) {
             return jResult.getJsonObject()
