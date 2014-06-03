@@ -20,7 +20,6 @@
 package com.auditbucket.helper;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 
 /**
  * User: Mike Holdsworth
