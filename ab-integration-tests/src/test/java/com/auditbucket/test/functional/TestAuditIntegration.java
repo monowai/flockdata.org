@@ -393,7 +393,37 @@ public class TestAuditIntegration {
         doEsQuery(indexName, "*", 3);
 
     }
+    @Test
+    public void searchIndexWithNoMetaKeysDoesNotError() throws Exception {
+        // DAT-83
+        assumeTrue(runMe);
+        logger.info("## searchDocWithNoMetaKeyWorks");
+        SystemUser su = registerSystemUser("Harry");
+        Fortress fo = fortressService.registerFortress(new FortressInputBean("noMetaKey", false));
 
+        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
+        inputBean.setTrackSuppressed(true); // Write a search doc only
+        inputBean.setLog(new LogInputBean("wally", new DateTime(), "{\"blah\":124}"));
+        mediationFacade.createHeader(inputBean, null); // Mock result as we're not tracking
+
+        inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
+        inputBean.setLog(new LogInputBean("wally", new DateTime(), "{\"blah\":124}"));
+        TrackResultBean auditResult = mediationFacade.createHeader(inputBean, null);
+        MetaHeader metaHeader = trackService.getHeader(auditResult.getMetaKey());
+        assertEquals("ab.monowai.nometakey", metaHeader.getIndexName());
+
+        waitForHeaderToUpdate(metaHeader, su.getApiKey()); // 2nd document in the index
+        // We have one with a metaKey and one without
+        doEsQuery("ab.monowai.nometakey", "*", 2);
+
+        QueryParams qp = new QueryParams(fo);
+        qp.setSimpleQuery("*");
+        String queryResult = runMetaQuery(qp);
+        logger.info(queryResult);
+
+        // Two search docs,but one without a metaKey
+
+    }
     /**
      * Suppresses the indexing of a log record even if the fortress is set to index everything
      *
@@ -657,6 +687,23 @@ public class TestAuditIntegration {
         return null;
     }
 
+    private String runMetaQuery(QueryParams queryParams) throws Exception {
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+
+        HttpHeaders httpHeaders = getHeaders(null, "mike", "123");
+        HttpEntity<QueryParams> requestEntity = new HttpEntity<>(queryParams, httpHeaders);
+
+        try {
+            return restTemplate.exchange("http://localhost:9081/ab-search/v1/query/metaKeys", HttpMethod.POST, requestEntity, String.class).getBody();
+        } catch (HttpClientErrorException e) {
+            logger.error("AB Client Audit error {}", e.getMessage());
+        } catch (HttpServerErrorException e) {
+            logger.error("AB Server Audit error {}", e.getMessage());
+
+        }
+        return null;
+    }
     private void createLog(String simpleJson, TrackResultBean arb, int log) throws DatagioException, IOException {
         mediationFacade.processLog(new LogInputBean(arb.getMetaKey(), "olivia@sunnybell.com", new DateTime(), simpleJson + log + "}"));
     }
