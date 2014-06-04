@@ -188,7 +188,7 @@ public class TestTags {
 
     @Test
     public void tagWithProperties() throws Exception {
-        assumeTrue(false);;// Not yet supported
+        assumeTrue(false);// Not yet supported
         SecurityContextHolder.getContext().setAuthentication(authMike);
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike));
         assertNotNull(iSystemUser);
@@ -384,6 +384,7 @@ public class TestTags {
 
     @Test
     public void duplicateTagsForSameIndexReturnSingleTag() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(authMike);
         engineAdmin.setMultiTenanted(false);
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike).setIsUnique(false));
         assertNotNull(iSystemUser);
@@ -415,6 +416,7 @@ public class TestTags {
     }
     @Test
     public void tagUniqueForIndex() throws DatagioException {
+        SecurityContextHolder.getContext().setAuthentication(authMike);
         engineAdmin.setMultiTenanted(false);
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike).setIsUnique(false));
         assertNotNull(iSystemUser);
