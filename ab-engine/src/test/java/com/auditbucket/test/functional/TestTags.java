@@ -50,6 +50,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static junit.framework.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * User: Mike Holdsworth
@@ -187,7 +188,7 @@ public class TestTags {
 
     @Test
     public void tagWithProperties() throws Exception {
-        assumeTrue(false);// Not yet supported
+        assumeTrue(false);;// Not yet supported
         SecurityContextHolder.getContext().setAuthentication(authMike);
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike));
         assertNotNull(iSystemUser);
