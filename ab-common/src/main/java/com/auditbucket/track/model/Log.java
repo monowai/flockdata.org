@@ -19,6 +19,7 @@
 
 package com.auditbucket.track.model;
 
+import com.auditbucket.helper.CompressionResult;
 import com.auditbucket.registration.model.FortressUser;
 
 /**
