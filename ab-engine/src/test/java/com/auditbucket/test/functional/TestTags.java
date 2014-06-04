@@ -30,6 +30,7 @@ import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,6 +84,10 @@ public class TestTags {
     private String mike = "mike";
     private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "123");
 
+    @Before
+    public void setSecurity() {
+        SecurityContextHolder.getContext().setAuthentication(authMike);
+    }
 
     @Rollback(false)
     @BeforeTransaction
@@ -379,6 +384,7 @@ public class TestTags {
 
     @Test
     public void duplicateTagsForSameIndexReturnSingleTag() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(authMike);
         engineAdmin.setMultiTenanted(false);
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike).setIsUnique(false));
         assertNotNull(iSystemUser);
@@ -410,6 +416,7 @@ public class TestTags {
     }
     @Test
     public void tagUniqueForIndex() throws DatagioException {
+        SecurityContextHolder.getContext().setAuthentication(authMike);
         engineAdmin.setMultiTenanted(false);
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike).setIsUnique(false));
         assertNotNull(iSystemUser);
