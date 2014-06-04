@@ -30,6 +30,7 @@ import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +50,6 @@ import java.util.Collection;
 import java.util.List;
 
 import static junit.framework.Assert.*;
-import static org.junit.Assume.assumeTrue;
 
 /**
  * User: Mike Holdsworth
@@ -83,6 +83,10 @@ public class TestTags {
     private String mike = "mike";
     private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "123");
 
+    @Before
+    public void setSecurity() {
+        SecurityContextHolder.getContext().setAuthentication(authMike);
+    }
 
     @Rollback(false)
     @BeforeTransaction
