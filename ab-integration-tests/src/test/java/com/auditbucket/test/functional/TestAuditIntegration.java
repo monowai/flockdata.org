@@ -396,7 +396,7 @@ public class TestAuditIntegration {
     @Test
     public void searchIndexWithNoMetaKeysDoesNotError() throws Exception {
         // DAT-83
-        //assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## searchDocWithNoMetaKeyWorks");
         SystemUser su = registerSystemUser("Harry");
         Fortress fo = fortressService.registerFortress(new FortressInputBean("noMetaKey", false));
