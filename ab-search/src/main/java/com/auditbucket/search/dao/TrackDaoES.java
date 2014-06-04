@@ -311,27 +311,30 @@ public class TrackDaoES implements TrackSearchDao {
         Map<String, Object> indexMe = new HashMap<>();
         if (searchChange.getWhat() != null)
             indexMe.put(MetaSearchSchema.WHAT, searchChange.getWhat());
-
-        indexMe.put(MetaSearchSchema.META_KEY, searchChange.getMetaKey());
-        indexMe.put(MetaSearchSchema.WHO, searchChange.getWho());
+        if ( searchChange.getMetaKey()!=null ) //DAT-83 No need to track NULL metaKey
+        // This occurs if the search doc is not being tracked in ab-engine's graph
+            indexMe.put(MetaSearchSchema.META_KEY, searchChange.getMetaKey());
+        if ( searchChange.getWho() !=null )
+            indexMe.put(MetaSearchSchema.WHO, searchChange.getWho());
         if (searchChange.getEvent() != null)
             indexMe.put(MetaSearchSchema.LAST_EVENT, searchChange.getEvent());
 
         indexMe.put(MetaSearchSchema.WHEN, searchChange.getWhen());
+
         // When the MetaHeader was created
         indexMe.put(MetaSearchSchema.CREATED, searchChange.getCreatedDate());
+
         // When the log was created
         indexMe.put(MetaSearchSchema.TIMESTAMP, new Date(searchChange.getSysWhen()));
-        // https://github.com/monowai/auditbucket/issues/21
 
         indexMe.put(MetaSearchSchema.FORTRESS, searchChange.getFortressName());
         indexMe.put(MetaSearchSchema.DOC_TYPE, searchChange.getDocumentType());
         indexMe.put(MetaSearchSchema.CALLER_REF, searchChange.getCallerRef());
-        indexMe.put(MetaSearchSchema.DESCRIPTION, searchChange.getDescription());
+        if ( searchChange.getDescription()!=null )
+            indexMe.put(MetaSearchSchema.DESCRIPTION, searchChange.getDescription());
 
         if (!searchChange.getTagValues().isEmpty())
             indexMe.put(MetaSearchSchema.TAG, searchChange.getTagValues());
-        // ToDo: Force the index mapping to handle the tags
 
         return indexMe;
     }
@@ -410,10 +413,6 @@ public class TrackDaoES implements TrackSearchDao {
                             .field("type", "string")
                             .field("index", NOT_ANALYZED)
                         .endObject()
-//                        .startObject(MetaSearchSchema.TAG + ".lead.key")
-//                            .field("type", "string")
-//                            .field("index", NOT_ANALYZED)
-//                        .endObject()
                         .startObject(MetaSearchSchema.TIMESTAMP)
                             .field("type", "date")
                         .endObject()

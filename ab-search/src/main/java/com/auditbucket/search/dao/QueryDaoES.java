@@ -103,9 +103,11 @@ public class QueryDaoES implements QueryDao {
         }
 
         for (SearchHit searchHitFields : response.getHits().getHits()) {
-            Object hit = searchHitFields.getFields().get(MetaSearchSchema.META_KEY).getValue();
-            if (hit != null)
-                results.add(hit.toString());
+            if ( !searchHitFields.getFields().isEmpty()) { // DAT-83
+                Object hit = searchHitFields.getFields().get(MetaSearchSchema.META_KEY).getValue();
+                if (hit != null)
+                    results.add(hit.toString());
+            }
         }
         searchResult.setTotalHits(response.getHits().getTotalHits());
         searchResult.setStartedFrom(queryParams.getStartFrom());
@@ -114,7 +116,6 @@ public class QueryDaoES implements QueryDao {
         logger.info("ES Query. Results [{}] took [{}]", results.size(), watch.prettyPrint());
         return searchResult;
     }
-
 
     private String getSimpleQuery(String queryString) {
         logger.debug("getSimpleQuery {}", queryString);
