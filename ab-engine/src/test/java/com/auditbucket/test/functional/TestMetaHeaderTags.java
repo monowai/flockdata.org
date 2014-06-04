@@ -356,7 +356,7 @@ public class TestMetaHeaderTags {
     @Test
     public void createLogForValidHeaderWithNoWhatDetail() throws Exception{
         regService.registerSystemUser(new RegistrationBean(company, uid));
-        fortressService.registerFortress(new FortressInputBean("ABC"));
+        fortressService.registerFortress(new FortressInputBean("ABC", true));
 
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         // This should create the same Tag object
@@ -370,7 +370,7 @@ public class TestMetaHeaderTags {
     @Test
     public void differentTagTypeSameTagName() throws Exception {
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid));
-        fortressService.registerFortress("ABC");
+        fortressService.registerFortress( new FortressInputBean("ABC", true));
 
         TagInputBean tagInput = new TagInputBean("FLOP");
 
@@ -893,7 +893,7 @@ public class TestMetaHeaderTags {
     @Test
     public void addNewTagToExistingMetaHeaderWithNoLog() throws Exception {
         SystemUser su = regService.registerSystemUser(new RegistrationBean(company, uid));
-        fortressService.registerFortress("ABC");
+        fortressService.registerFortress(new FortressInputBean("ABC", true));
 
         //assertNotNull(result);
         MetaInputBean inputBean = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc1");

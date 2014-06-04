@@ -19,7 +19,7 @@
 
 package com.auditbucket.search.service;
 
-import com.auditbucket.search.model.SearchResult;
+import com.auditbucket.search.model.SearchResults;
 import org.springframework.integration.annotation.Gateway;
 
 /**
@@ -28,7 +28,7 @@ import org.springframework.integration.annotation.Gateway;
  */
 public interface EngineGateway {
     @Gateway(requestChannel = "searchReply")
-    void handleSearchResult(SearchResult searchResult);
+    void handleSearchResult(SearchResults searchResult);
 
 //    @Gateway(requestChannel = "validateAPI")
 //    public String validateApiKey(String apiKey);

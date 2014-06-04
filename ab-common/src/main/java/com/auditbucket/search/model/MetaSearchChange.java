@@ -190,7 +190,7 @@ public class MetaSearchChange implements SearchChange {
             HashMap<String, Object> tagValues = (HashMap<String, Object>) this.tagValues.get(tag.getTagType());
             if (tagValues == null) {
                 tagValues = new HashMap<>();
-                this.tagValues.put(tag.getTagType(), tagValues);
+                this.tagValues.put(tag.getTagType().toLowerCase(), tagValues);
             }
             // Always store the key.
             setTagValue("key", tag.getTag().getKey(), tagValues);
@@ -273,6 +273,7 @@ public class MetaSearchChange implements SearchChange {
         return "MetaSearchChange{" +
                 "fortressName='" + fortressName + '\'' +
                 ", documentType='" + documentType + '\'' +
+                ", callerRef='" + callerRef + '\'' +
                 ", metaKey='" + metaKey + '\'' +
                 '}';
     }

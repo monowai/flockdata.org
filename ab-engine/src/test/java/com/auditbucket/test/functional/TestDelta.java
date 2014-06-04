@@ -130,7 +130,7 @@ public class TestDelta {
         Assert.assertNotNull(second);
 
 
-        AuditDeltaBean deltaBean = whatService.getDelta(result.getMetaHeader(), first.getChange(), second.getChange());
+        AuditDeltaBean deltaBean = whatService.getDelta(result.getMetaHeader(), first.getLog(), second.getLog());
         Map added = deltaBean.getAdded();
         Assert.assertNotNull(added);
         assertTrue (added.containsKey("list"));

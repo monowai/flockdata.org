@@ -28,7 +28,7 @@ import java.io.IOException;
  * Since: 31/01/14
  */
 public interface KvRepo {
-    public void add(MetaHeader metaHeader, Long key, byte[] value) throws IOException;
+    public void add(MetaHeader metaHeader, Long key, byte[] what) throws IOException;
 
     public byte[] getValue(MetaHeader metaHeader, Long key);
 

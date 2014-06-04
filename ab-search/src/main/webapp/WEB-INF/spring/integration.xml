@@ -34,10 +34,13 @@
     <int:gateway id="engineGateway"
                  service-interface="com.auditbucket.search.service.EngineGateway" />
 
+
+
     <int:json-to-object-transformer id="jsonToObject"
                                     input-channel="searchRequest"
                                     output-channel="searchResult"
-                                    type="com.auditbucket.search.model.MetaSearchChange"/>
+
+                                    type="com.auditbucket.search.model.MetaSearchChanges"/>
 
     <int:object-to-json-transformer id="objectToJson"
                                     input-channel="searchReply"

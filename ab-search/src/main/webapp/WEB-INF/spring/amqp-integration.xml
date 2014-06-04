@@ -41,7 +41,7 @@
             shutdown-timeout="3000"
             receive-timeout="${request.timeout}"
             connection-factory="connectionFactory"
-            message-converter="jsonToAuditSearchChangeConverter"
+            message-converter="jsonToSearchChangeConverter"
             />
 
     <!--async-executor="taskExecutor"-->
