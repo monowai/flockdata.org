@@ -27,6 +27,7 @@ import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
 import com.auditbucket.search.model.MetaSearchSchema;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.model.DocumentType;
+import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.MetaHeader;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -82,6 +83,9 @@ public class MetaHeaderNode implements MetaHeader {
     @Fetch
     private FortressUserNode lastWho;
 
+    @RelatedTo(elementClass = LogNode.class, type = "LAST_CHANGE", direction = Direction.OUTGOING)
+    private LogNode lastChange;
+
     public static final String UUID_KEY = "metaKey";
 
     @Indexed
@@ -130,7 +134,7 @@ public class MetaHeaderNode implements MetaHeader {
         else
             fortressDate = when.getTime();
 
-        lastUpdated = fortressDate;
+        lastUpdated = 0l;
 
 
 //        this.createdBy = (FortressUserNode) createdBy;
@@ -209,6 +213,11 @@ public class MetaHeaderNode implements MetaHeader {
     }
 
     @Override
+    public void setLastChange(Log newChange) {
+        this.lastChange = (LogNode) newChange;
+    }
+
+    @Override
     @JsonIgnore
     public String getIndexName() {
         return indexName;
@@ -225,7 +234,8 @@ public class MetaHeaderNode implements MetaHeader {
 
     @Override
     public void bumpUpdate() {
-        lastUpdated = new DateTime().toDateTime(DateTimeZone.UTC).toDateTime().getMillis();
+        if ( id != null )
+            lastUpdated = new DateTime().toDateTime(DateTimeZone.UTC).toDateTime().getMillis();
     }
 
     /**
@@ -299,5 +309,13 @@ public class MetaHeaderNode implements MetaHeader {
 
     public void setCreatedBy(FortressUser createdBy) {
         this.createdBy = (FortressUserNode)createdBy;
+    }
+
+    public LogNode getLastChange() {
+        return lastChange;
+    }
+
+    public void setLastChange(LogNode lastChange) {
+        this.lastChange = lastChange;
     }
 }

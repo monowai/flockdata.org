@@ -19,7 +19,7 @@
 
 package com.auditbucket.helper;
 
-import com.auditbucket.search.model.SearchResult;
+import com.auditbucket.search.model.SearchResults;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.support.converter.MessageConversionException;
@@ -35,16 +35,13 @@ import java.io.IOException;
 @Component("jsonToSearchResultConverter")
 public class JsonToSearchResultConverter extends SimpleMessageConverter {
 
-    private static final String DEFAULT_CHARSET = "UTF-8";
-
     @Override
     public Object fromMessage(final Message message) throws MessageConversionException {
         final Object content = super.fromMessage(message);
         try {
             if (content instanceof String) {
                 ObjectMapper mapper = new ObjectMapper();
-                SearchResult searchResult = mapper.readValue(((String) content).getBytes(), SearchResult.class);
-                return searchResult;
+                return mapper.readValue(((String) content).getBytes(CompressionHelper.charSet), SearchResults.class);
             }
         } catch (IOException e1) {
             throw new MessageConversionException("failed to convert text-based Message content", e1);

@@ -1,6 +1,6 @@
 package com.auditbucket.spring;
 
-import com.auditbucket.client.AbRestClient;
+import com.auditbucket.client.rest.AbRestClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

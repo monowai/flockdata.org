@@ -17,34 +17,31 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.track.model;
+package com.auditbucket.search.model;
+
+import com.auditbucket.track.model.SearchChange;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
- * User: Mike Holdsworth
- * Date: 21/06/13
- * Time: 1:21 PM
+ * User: mike
+ * Date: 23/05/14
+ * Time: 12:10 PM
  */
-public interface TrackLog {
 
-    public Log getLog();
+public class MetaSearchChanges {
+    Collection <MetaSearchChange> searchChanges = new ArrayList<>();
+    public MetaSearchChanges(){}
+    public MetaSearchChanges(Collection<SearchChange> searchDocuments) {
+        this();
+        this.searchChanges = (Collection <MetaSearchChange>)(Collection)searchDocuments;
+    }
+    public Iterable<MetaSearchChange> getChanges() {
+        return searchChanges;
+    }
 
-    public MetaHeader getMetaHeader();
-
-    public boolean isIndexed();
-
-    /**
-     * flags this track as having been indexed at some point.
-     */
-    public void setIsIndexed();
-
-    /**
-     * @return When this log file was created in AuditBucket
-     */
-    public Long getSysWhen();
-
-    public Long getFortressWhen();
-
-    Long getId();
-
-    void setMetaHeader(MetaHeader metaHeader);
+    public void addChange(MetaSearchChange change) {
+        searchChanges.add(change);
+    }
 }

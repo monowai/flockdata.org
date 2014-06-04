@@ -88,6 +88,8 @@ We encourage contributions to AuditBucket from the community. Here’s how to ge
 * Open pull-requests for the appropriate projects.
 * A Bucketeer will review your pull-request, suggest changes, and merge it when it’s ready and/or offer feedback.
 
+Latest code is on the develop branch
+
 To report a bug or issue, please open a new [issue](https://github.com/monowai/auditbucket/issues) against this repository.
 
 ### Licensing
@@ -96,4 +98,3 @@ AuditBucket is an open source product. We support a Community edition under the 
 Have fun and please share your experiences.
 
 -Mike
-

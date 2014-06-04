@@ -151,15 +151,15 @@ public class TestTrackEvents {
 
         TrackLog when = trackService.getLastLog(ahKey);
         assertNotNull(when);
-        assertEquals(Log.CREATE, when.getChange().getEvent().getName()); // log event default
-        assertEquals(Log.CREATE.toLowerCase(), when.getChange().getEvent().getName().toLowerCase()); // log event default
+        assertEquals(Log.CREATE, when.getLog().getEvent().getName()); // log event default
+        assertEquals(Log.CREATE.toLowerCase(), when.getLog().getEvent().getName().toLowerCase()); // log event default
 
         mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 1}"));
         TrackLog whenB = trackService.getLastLog(ahKey);
         assertNotNull(whenB);
 
         assertFalse(whenB.equals(when));
-        assertNotNull(whenB.getChange().getEvent());
-        assertEquals(Log.UPDATE, whenB.getChange().getEvent().getName());  // log event default
+        assertNotNull(whenB.getLog().getEvent());
+        assertEquals(Log.UPDATE, whenB.getLog().getEvent().getName());  // log event default
     }
 }

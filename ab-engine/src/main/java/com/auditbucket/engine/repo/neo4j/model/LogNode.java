@@ -57,7 +57,7 @@ public class LogNode implements Log {
     @RelatedTo(elementClass = MetaHeaderNode.class, type ="LOGGED", direction = Direction.OUTGOING)
     private TrackLogRelationship log;
 
-    @RelatedTo(elementClass = ChangeEventNode.class, type = "AUDIT_EVENT", direction = Direction.OUTGOING)
+    @RelatedTo(elementClass = ChangeEventNode.class, type = "TRACK_EVENT", direction = Direction.OUTGOING)
     @Fetch
     private ChangeEventNode event;
 
@@ -195,6 +195,21 @@ public class LogNode implements Log {
     @JsonIgnore
     public TrackLog getLog() {
         return log;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Transient
+    private byte[] dataBlock = null ;
+    @Override
+    @JsonIgnore
+    public void setDataBlock(byte[] dataBlock) {
+        this.dataBlock = dataBlock;
+
+    }
+
+    @Override
+    @JsonIgnore
+    public byte[] getDataBlock() {
+        return dataBlock;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
 

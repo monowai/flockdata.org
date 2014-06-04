@@ -40,7 +40,7 @@
 
     <int-http:inbound-gateway request-channel="searchResult"
                               path="/api/searchResult"
-                              request-payload-type="com.auditbucket.search.model.SearchResult"
+                              request-payload-type="com.auditbucket.search.model.SearchResults"
                               supported-methods="POST"/>
 
     <int-http:outbound-gateway request-channel="doMetaKeyQuery"

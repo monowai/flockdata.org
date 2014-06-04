@@ -125,7 +125,7 @@ public class TrackAPIKeys {
         // No authorization - only API keys
         SecurityContextHolder.getContext().setAuthentication(null);
 
-        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("apiCallsSecuredByAccessKey"), apiKey, null).getBody();
+        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("apiCallsSecuredByAccessKey", true), apiKey, null).getBody();
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC9990");
         String what = "{\"house\": \"house\"}";
         LogInputBean log = new LogInputBean("harry", new DateTime(), what);

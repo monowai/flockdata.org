@@ -89,7 +89,7 @@ public interface TrackDao {
 
     TrackLog save(TrackLog log);
 
-    public Log save(FortressUser fUser, LogInputBean input, TxRef tagRef, Log lastChange);
+    public Log prepareLog(FortressUser fUser, LogInputBean input, TxRef tagRef, Log lastChange) throws DatagioException;
 
     MetaHeader create(MetaInputBean inputBean, Fortress fortress, DocumentType documentType) throws DatagioException;
 
@@ -100,8 +100,6 @@ public interface TrackDao {
     MetaHeader getHeader(Long id);
 
     Log fetch(Log lastChange);
-
-    Log save(Log change, Boolean compressed);
 
     Set<MetaHeader> findHeadersByTxRef(Long txName);
 
