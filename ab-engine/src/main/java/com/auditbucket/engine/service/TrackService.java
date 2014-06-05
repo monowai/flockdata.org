@@ -28,6 +28,7 @@ import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.*;
 import com.auditbucket.search.model.MetaSearchChange;
+import com.auditbucket.search.model.SearchResult;
 import com.auditbucket.track.bean.*;
 import com.auditbucket.track.model.*;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -36,6 +37,7 @@ import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
@@ -198,7 +200,7 @@ public class TrackService {
         if (company == null)
             return getHeader(headerKey);
         MetaHeader ah = trackDao.findHeader(headerKey, inflate);
-        if (ah == null)
+        if (ah == null || ah.getFortress() == null )
             return null;
 
         if (!(ah.getFortress().getCompany().getId().equals(company.getId())))
@@ -363,7 +365,7 @@ public class TrackService {
 
     }
 
-    private MetaHeader getHeader(Long id) {
+    MetaHeader getHeader(Long id) {
         return trackDao.getHeader(id);
     }
 
@@ -666,12 +668,12 @@ public class TrackService {
     /**
      * Cross references to meta headers to create a link
      *
-     * @param company   validated company the caller is authorised to work with
-     * @param metaKey   source from which a xref will be created
-     * @param xRef      target for the xref
-     * @param reference name of the relationship
+     * @param company          validated company the caller is authorised to work with
+     * @param metaKey          source from which a xref will be created
+     * @param xRef             target for the xref
+     * @param relationshipName name of the relationship
      */
-    public Collection<String> crossReference(Company company, String metaKey, Collection<String> xRef, String reference) throws DatagioException {
+    public Collection<String> crossReference(Company company, String metaKey, Collection<String> xRef, String relationshipName) throws DatagioException {
         MetaHeader header = getHeader(company, metaKey);
         if (header == null) {
             throw new DatagioException("Unable to find the Meta Header [" + metaKey + "]. Perhaps it has not been processed yet?");
@@ -687,7 +689,7 @@ public class TrackService {
                 //logger.info ("Unable to find MetaKey ["+metaKey+"]. Skipping");
             }
         }
-        trackDao.crossReference(header, targets, reference);
+        trackDao.crossReference(header, targets, relationshipName);
         return ignored;
     }
 
@@ -747,5 +749,55 @@ public class TrackService {
         trackDao.purgePeopleRelationships(fortress);
         trackDao.purgeFortressDocuments(fortress);
         trackDao.purgeHeaders(fortress);
+    }
+
+    public void saveMetaData(SearchResult searchResult, Long metaId) {
+        // Only exists and is public because we need the transaction
+        MetaHeader header;
+        try {
+            header = getHeader(metaId); // Happens during development when Graph is cleared down and incoming search results are on the q
+        } catch (DataRetrievalFailureException e) {
+            logger.error("Unable to locate header for metaId {} in order to handle the search callerRef. Ignoring.", metaId);
+            return;
+        }
+
+        if (header == null) {
+            logger.error("metaKey could not be found for [{}]", searchResult);
+            return;
+        }
+
+        if (header.getSearchKey() == null) {
+            header.setSearchKey(searchResult.getSearchKey());
+            trackDao.save(header);
+            logger.trace("Updating Header{} search searchResult =[{}]", header.getMetaKey(), searchResult);
+        }
+
+        if (searchResult.getLogId() == null) {
+            // Indexing header meta data only
+            return;
+        }
+        TrackLog when;
+        // The change has been indexed
+        try {
+            when = trackDao.getLog(searchResult.getLogId());
+            if (when == null) {
+                logger.error("Illegal node requested from handleSearchResult [{}]", searchResult.getLogId());
+                return;
+            }
+        } catch (DataRetrievalFailureException e) {
+            logger.error("Unable to locate track log {} for metaId {} in order to handle the search callerRef. Ignoring.", searchResult.getLogId(), header.getId());
+            return;
+        }
+
+        // Another thread may have processed this so save an update
+        if (!when.isIndexed()) {
+            // We need to know that the change we requested to index has been indexed.
+            logger.trace("Updating index status for {}", when);
+            when.setIsIndexed();
+            trackDao.save(when);
+
+        } else {
+            logger.trace("Skipping {} as it is already indexed", when);
+        }
     }
 }
