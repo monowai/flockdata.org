@@ -27,7 +27,6 @@ import com.auditbucket.fortress.endpoint.FortressEP;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.SystemUserResultBean;
-import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
@@ -753,43 +752,6 @@ public class TestTrack {
         // This is the other user, and despite there being valid keys, they will only get theirs back
         foundHeaders = trackEP.getMetaHeaders(toFind, suA, suB);
         assertEquals("Caller was only authorised to find 1 header", 1, foundHeaders.size());
-
-    }
-
-    @Test
-    public void purgeFortressClearsDown() throws Exception{
-        SystemUserResultBean su = regService.registerSystemUser(new RegistrationBean(monowai, mike)).getBody();
-        SecurityContextHolder.getContext().setAuthentication(authMike);
-        String json = "{\"Athlete\":\"Katerina Neumannová\",\"Age\":\"28\",\"Country\":\"Czech Republic\",\"Year\":\"2002\",\"Closing Ceremony Date\":\"2/24/02\",\"Sport\":\"Cross Country Skiing\",\"Gold Medals\":\"0\",\"Silver Medals\":\"2\",\"Bronze Medals\":\"0\",\"Total Medals\":\"2\"}";
-        FortressInputBean fortress = new FortressInputBean("aFortress", true);
-
-        MetaInputBean trackBean = new MetaInputBean(fortress.getName(), "olivia@ast.com", "CompanyNode", null, "abc2");
-        trackBean.setTag( new TagInputBean("anyName", "rlx"));
-        trackBean.setTag( new TagInputBean("otherName", "rlxValue").setReverse(true));
-        LogInputBean logBean = new LogInputBean("me", DateTime.now(), json );
-        trackBean.setLog(logBean);
-        String resultA = mediationFacade.createHeader(trackBean, null).getMetaKey();
-        assertNotNull(resultA);
-
-        trackBean = new MetaInputBean(fortress.getName(), "olivia@ast.com", "CompanyNode", null, "abc3");
-        trackBean.setTag( new TagInputBean("anyName", "rlx"));
-        trackBean.setTag( new TagInputBean("otherName", "rlxValue").setReverse(true));
-        logBean = new LogInputBean("me", DateTime.now(), json );
-        trackBean.setLog(logBean);
-
-        String resultB = mediationFacade.createHeader(trackBean, su.getApiKey()).getMetaKey();
-
-        Collection<String>others = new ArrayList<>();
-        others.add(resultB);
-        trackEP.putCrossReference(resultA, others, "rlxName", su.getApiKey(), su.getApiKey());
-
-        others = new ArrayList<>();
-        others.add(resultA);
-        trackEP.putCrossReference(resultB, others, "rlxNameB", su.getApiKey(), su.getApiKey());
-
-        mediationFacade.purge(fortress.getName(), su.getApiKey());
-        assertNull ( trackService.getHeader(resultA) );
-        assertNull ( trackService.getHeader(resultB) );
 
     }
 
