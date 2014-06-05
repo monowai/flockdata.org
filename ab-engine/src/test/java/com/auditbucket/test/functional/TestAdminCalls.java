@@ -52,6 +52,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.*;
 
@@ -214,4 +217,42 @@ public class TestAdminCalls {
 
 
     }
+    @Test
+    public void purgeFortressClearsDown() throws Exception{
+        SecurityContextHolder.getContext().setAuthentication(authMike);
+        SystemUserResultBean su = regService.registerSystemUser(new RegistrationBean(monowai, mike)).getBody();
+        String json = "{\"Athlete\":\"Katerina Neumannová\",\"Age\":\"28\",\"Country\":\"Czech Republic\",\"Year\":\"2002\",\"Closing Ceremony Date\":\"2/24/02\",\"Sport\":\"Cross Country Skiing\",\"Gold Medals\":\"0\",\"Silver Medals\":\"2\",\"Bronze Medals\":\"0\",\"Total Medals\":\"2\"}";
+        Fortress fortress = fortressService.registerFortress(new FortressInputBean("purgeFortressClearsDown", true));
+
+        MetaInputBean trackBean = new MetaInputBean(fortress.getName(), "olivia@ast.com", "CompanyNode", null, "abc2");
+        trackBean.setTag( new TagInputBean("anyName", "rlx"));
+        trackBean.setTag( new TagInputBean("otherName", "rlxValue").setReverse(true));
+        LogInputBean logBean = new LogInputBean("me", DateTime.now(), json );
+        trackBean.setLog(logBean);
+        String resultA = mediationFacade.createHeader(trackBean, null).getMetaKey();
+
+        assertNotNull(resultA);
+
+        trackBean = new MetaInputBean(fortress.getName(), "olivia@ast.com", "CompanyNode", null, "abc3");
+        trackBean.setTag( new TagInputBean("anyName", "rlx"));
+        trackBean.setTag( new TagInputBean("otherName", "rlxValue").setReverse(true));
+        logBean = new LogInputBean("me", DateTime.now(), json );
+        trackBean.setLog(logBean);
+
+        String resultB = mediationFacade.createHeader(trackBean, su.getApiKey()).getMetaKey();
+
+        Collection<String> others = new ArrayList<>();
+        others.add(resultB);
+        trackEP.putCrossReference(resultA, others, "rlxName", su.getApiKey(), su.getApiKey());
+
+        others = new ArrayList<>();
+        others.add(resultA);
+        trackEP.putCrossReference(resultB, others, "rlxNameB", su.getApiKey(), su.getApiKey());
+
+        mediationFacade.purge(fortress.getName(), su.getApiKey());
+        assertNull ( trackService.getHeader(resultA) );
+        assertNull ( trackService.getHeader(resultB) );
+
+    }
+
 }
