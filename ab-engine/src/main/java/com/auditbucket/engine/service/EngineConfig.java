@@ -30,13 +30,13 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.ResourceAccessException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -63,6 +63,7 @@ public class EngineConfig {
     private Boolean multiTenanted = false;
     private WhatService.KV_STORE kvStore = null;
 
+    @Qualifier("abMonitoringGateway")
     @Autowired
     AbMonitoringGateway abMonitoringGateway;
 
@@ -125,6 +126,8 @@ public class EngineConfig {
     }
 
     public Map<String, String> getHealth() {
+        if ( System.getProperty("neo4j")!=null )
+            logger.warn("[-Dneo4j] is now an unsupported property. Ignoring this setting");
         String version = VersionHelper.getABVersion();
         Map<String, String> healthResults = new HashMap<>();
         healthResults.put("ab-engine.version", version);
@@ -140,7 +143,7 @@ public class EngineConfig {
         try {
             PingResult esPing = abMonitoringGateway.ping();
             esPingResult = (esPing == null || !esPing.getMessage().equals("Pong!")?"Problem":"Ok");
-        } catch (ResourceAccessException ce){
+        } catch (Exception ce){
             esPingResult="!Unreachable! "+ce.getCause().getMessage();
         }
         healthResults.put("ab-search", esPingResult);
