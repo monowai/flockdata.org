@@ -737,8 +737,8 @@ public class TrackService {
         return ignored;
     }
 
-    public Collection<MetaHeader> getHeaders(Company company, Collection<String> toFind) {
-        return trackDao.findHeaders(company, toFind);
+    public Collection<MetaHeader> getHeaders(Company company, Collection<String> metaKeys) {
+        return trackDao.findHeaders(company, metaKeys);
     }
 
     public void purge(Fortress fortress) {
