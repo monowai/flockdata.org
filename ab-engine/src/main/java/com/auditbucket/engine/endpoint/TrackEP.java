@@ -391,11 +391,11 @@ public class TrackEP {
 
     @ResponseBody
     @RequestMapping(value = "/{metaKey}/{xRefName}/xref", produces = "application/json", method = RequestMethod.POST)
-    public Collection<String> putCrossReference(@PathVariable("metaKey") String metaKey, Collection<String> metaKeys, @PathVariable("xRefName") String reference,
+    public Collection<String> putCrossReference(@PathVariable("metaKey") String metaKey, Collection<String> metaKeys, @PathVariable("xRefName") String relationshipName,
                                                 String apiKey,
                                                 @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = getCompany(apiHeaderKey, apiKey);
-        return trackService.crossReference(company, metaKey, metaKeys, reference);
+        return trackService.crossReference(company, metaKey, metaKeys, relationshipName);
     }
 
     /**

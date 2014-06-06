@@ -293,6 +293,8 @@ public class MediationFacade {
         if (trackResultBean.getMetaInputBean()!=null && trackResultBean.getMetaInputBean().isMetaOnly()){
             return getMetaSearchChange(trackResultBean);
         }
+        if ( !trackResultBean.getMetaHeader().getFortress().isSearchActive())
+            return null;
 
         LogResultBean logResultBean = trackResultBean.getLogResult();
         LogInputBean input = trackResultBean.getLog();
