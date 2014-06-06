@@ -66,7 +66,6 @@
                                reply-timeout="${reply.timeout}"
                                url="${absearch.ping}"
                                http-method="GET"
-                               extract-request-payload="true"
                                expected-response-type="java.lang.String" />
 
     <!-- Channels Definitions for Ping AB-Search ==> Ab-Engine -->

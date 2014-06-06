@@ -298,13 +298,13 @@ public class MetaHeaderNode implements MetaHeader {
 
         MetaHeaderNode that = (MetaHeaderNode) o;
 
-        return !(id != null ? !id.equals(that.id) : that.id != null);
+        return !(metaKey != null ? !metaKey.equals(that.metaKey) : that.metaKey != null);
 
     }
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        return metaKey != null ? metaKey.hashCode() : 0;
     }
 
     public void setCreatedBy(FortressUser createdBy) {
