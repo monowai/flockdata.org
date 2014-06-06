@@ -217,7 +217,6 @@ public class TrackService {
      * @return populated log information with any error messages
      */
     public LogResultBean createLog(MetaHeader header, LogInputBean input) throws DatagioException, IOException {
-        LogResultBean resultBean = new LogResultBean(input);
 
         if (header == null) {
             String metaKey = input.getMetaKey();
@@ -231,6 +230,7 @@ public class TrackService {
             } else
                 header = getHeader(input.getMetaId());  // Only set internally by AuditBucket. Never rely on the caller
         }
+        LogResultBean resultBean = new LogResultBean(input, header);
 
         if (header == null) {
             resultBean.setStatus(LogInputBean.LogStatus.NOT_FOUND);
@@ -251,7 +251,7 @@ public class TrackService {
      */
     private LogResultBean createLog(MetaHeader authorisedHeader, LogInputBean input, FortressUser thisFortressUser) throws DatagioException, IOException {
         // Warning - making this private means it doesn't get a transaction!
-        LogResultBean resultBean = new LogResultBean(input);
+        LogResultBean resultBean = new LogResultBean(input, authorisedHeader);
         //ToDo: May want to track a "View" event which would not change the What data.
         if (input.getMapWhat() == null || input.getMapWhat().isEmpty()) {
             resultBean.setStatus(LogInputBean.LogStatus.IGNORE);

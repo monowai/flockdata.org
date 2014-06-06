@@ -73,6 +73,7 @@ public class TrackResultBean {
     public TrackResultBean(LogResultBean logResultBean, LogInputBean input) {
         this.logResult = logResultBean;
         this.log = input;
+        this.metaHeader = logResultBean.getMetaHeader();
     }
 
     public String getFortressName() {
