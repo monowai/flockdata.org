@@ -391,10 +391,14 @@ public class AbRestClient implements StaticDataResolver {
                             auth.getBytes(Charset.forName("US-ASCII")));
                     String authHeader = "Basic " + new String(encodedAuth);
                     set("Authorization", authHeader);
-                } else if ( apiKey != null )
+                }
+
+                if ( apiKey != null )
                     set("Api-Key", apiKey);
+
                 setContentType(MediaType.APPLICATION_JSON);
                 set("charset", CompressionHelper.charSet.toString());
+
                 if (compress)
                     set("Accept-Encoding", "gzip,deflate");
             }
