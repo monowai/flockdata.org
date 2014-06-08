@@ -136,7 +136,7 @@ public class AbRestClient implements StaticDataResolver {
         HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
         Map<String, Object> result = new HashMap<>();
         try {
-            ResponseEntity<Map> response = restTemplate.exchange(HEALTH, HttpMethod.GET, requestEntity, Map.class);
+            ResponseEntity<HashMap> response = restTemplate.exchange(HEALTH, HttpMethod.GET, requestEntity, HashMap.class);
             return response.getBody();
         } catch (HttpClientErrorException e) {
             if (e.getMessage().startsWith("401")) {

@@ -33,6 +33,8 @@ public class ConfigProperties {
     }
 
     public String getEngineURL() {
+        if ( engineURL!=null && !engineURL.equals("") && !engineURL.startsWith("http"))
+            engineURL=  "http://" +engineURL;
         return engineURL;
     }
 
