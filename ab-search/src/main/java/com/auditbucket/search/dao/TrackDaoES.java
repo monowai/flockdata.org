@@ -29,6 +29,7 @@ import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
+import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
@@ -97,7 +98,7 @@ public class TrackDaoES implements TrackSearchDao {
         logger.debug("Received request to Save [{}]", searchChange.getMetaKey());
 
         ensureIndex(indexName, documentType);
-        //ensureMapping(indexName, documentType);
+        ensureMapping(indexName, documentType);
 
         String source = makeIndexJson(searchChange);
         IndexRequestBuilder irb = esClient.prepareIndex(indexName, documentType)
@@ -138,6 +139,34 @@ public class TrackDaoES implements TrackSearchDao {
         }
 
     }
+    private void ensureMapping(String indexName, String documentType) {
+        logger.debug("Checking mapping for {}, {}",indexName, documentType);
+        XContentBuilder mappingEs = mapping(documentType);
+        // Test if Type exist
+        String[] indexNames = new String[1];
+        indexNames[0] = indexName;
+        String[] documentTypes = new String[1];
+        documentTypes[0] = documentType;
+
+        boolean hasType = esClient.admin()
+                .indices()
+                .typesExists(new TypesExistsRequest(indexNames, documentTypes))
+                .actionGet()
+                .isExists();
+        logger.info("Has Type returns {}", hasType);
+        if (!hasType) {
+            // Type Don't exist ==> Insert Mapping
+            if (mappingEs != null) {
+                esClient.admin().indices()
+                        .preparePutMapping(indexName)
+                        .setType(documentType)
+                        .setSource(mappingEs)
+                        .execute().actionGet();
+                logger.debug("Created default mapping for {}, {}", indexName, documentType);
+            }
+        }
+    }
+
 
     private synchronized void ensureIndex(String indexName, String documentType) {
         logger.debug("Ensuring index {}, {}", indexName, documentType);
