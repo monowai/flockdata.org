@@ -199,7 +199,6 @@ public class TrackEP {
     @RequestMapping(value = "/{metaKey}", method = RequestMethod.GET)
     public ResponseEntity<MetaHeader> getMetaHeader(@PathVariable("metaKey") String metaKey,
                                                     String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8081/ab-engine/track/{metaKey}/ -d '{"eventType":"change","metaKey":"c27ec2e5-2e17-4855-be18-bd8f82249157","fortressUser":"miketest","when":"2012-11-10", "what": "{\"name\": \"val\"}" }'
         Company company = getCompany(apiHeaderKey, apiKey);
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/{metaKey}
         MetaHeader result = trackService.getHeader(company, metaKey, true);
@@ -348,6 +347,21 @@ public class TrackEP {
         return new ResponseEntity<>(tagTrackService.findTrackTags(company, result), HttpStatus.OK);
     }
 
+    @ResponseBody
+    @RequestMapping(value = "/{metaKey}/lastlog", method = RequestMethod.DELETE)
+    public ResponseEntity<String> cancelLastLog(@PathVariable("metaKey") String metaKey,
+                                                String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, IOException {
+
+        Company company = getCompany(apiHeaderKey, apiKey);
+        MetaHeader result = trackService.getHeader(company, metaKey);
+        if (result != null) {
+            mediationFacade.cancelLastLogSync(result.getMetaKey());
+            return new ResponseEntity<>("OK", HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>("Not Found", HttpStatus.NOT_FOUND);
+
+    }
 
     @ResponseBody
     @RequestMapping(value = "/tx/{txRef}", produces = "application/json", method = RequestMethod.GET)

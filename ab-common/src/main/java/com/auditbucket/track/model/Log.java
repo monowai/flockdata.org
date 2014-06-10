@@ -19,7 +19,6 @@
 
 package com.auditbucket.track.model;
 
-import com.auditbucket.helper.CompressionResult;
 import com.auditbucket.registration.model.FortressUser;
 
 /**
@@ -77,9 +76,11 @@ public interface Log {
 
     void setCompressed(Boolean compressed);
 
-    TrackLog getLog();
+    TrackLog getTrackLog();
 
     void setDataBlock(byte[] dataBlock);
 
     byte[] getDataBlock();
+
+    void setTrackLog(TrackLog newLog);
 }
