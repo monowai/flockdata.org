@@ -17,10 +17,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Search Service interactions
@@ -145,7 +142,7 @@ public class SearchServiceFacade {
         if (metaHeader.isSearchSuppressed())
             return null;
         SearchChange searchDocument;
-        searchDocument = new MetaSearchChange(metaHeader, logInput.getMapWhat(), event.getCode(), fortressWhen);
+        searchDocument = new MetaSearchChange(metaHeader, (HashMap<String, Object>) logInput.getMapWhat(), event.getCode(), fortressWhen);
         searchDocument.setWho(trackLog.getLog().getWho().getCode());
         searchDocument.setTags(tagTrackService.findTrackTags(metaHeader.getFortress().getCompany(), metaHeader));
         searchDocument.setDescription(metaHeader.getName());
@@ -176,10 +173,10 @@ public class SearchServiceFacade {
 
             if (metaHeader.getFortress().isSearchActive() && !metaHeader.isSearchSuppressed()) {
                 // Update against the MetaHeader only by re-indexing the search document
-                Map<String, Object> lastWhat;
+                HashMap<String, Object> lastWhat;
                 MetaSearchChange searchDocument;
                 if (lastChange != null) {
-                    lastWhat = whatService.getWhat(metaHeader, lastChange).getWhat();
+                    lastWhat = (HashMap<String, Object>) whatService.getWhat(metaHeader, lastChange).getWhat();
                     searchDocument = new MetaSearchChange(metaHeader, lastWhat, lastChange.getEvent().getCode(), new DateTime(lastLog.getFortressWhen()));
                     searchDocument.setWho(lastChange.getWho().getCode());
                 } else {

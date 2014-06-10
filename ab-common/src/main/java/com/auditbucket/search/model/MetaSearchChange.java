@@ -45,7 +45,7 @@ public class MetaSearchChange implements SearchChange {
 
     private String documentType;
     private String description;
-    private Map<String, Object> what;
+    private HashMap<String, Object> what;
     private Long when;
     private String fortressName;
     private String companyName;
@@ -55,7 +55,7 @@ public class MetaSearchChange implements SearchChange {
     private String callerRef;
     private Long logId;
     // String, Object?
-    private Map<String, Object> tagValues = new HashMap<>();
+    private HashMap<String, Object> tagValues = new HashMap<>();
     private Long version;
     private Long metaId;
 
@@ -88,7 +88,7 @@ public class MetaSearchChange implements SearchChange {
     public MetaSearchChange() {
     }
 
-    public MetaSearchChange(MetaHeader header, Map<String, Object> mapWhat, String event, DateTime when) {
+    public MetaSearchChange(MetaHeader header, HashMap<String, Object> mapWhat, String event, DateTime when) {
         this(header);
         this.what = mapWhat;
         this.event = event;
@@ -101,7 +101,7 @@ public class MetaSearchChange implements SearchChange {
     }
 
     @Override
-    public void setWhat(Map<String, Object> what) {
+    public void setWhat(HashMap<String, Object> what) {
         this.what = what;
     }
 
