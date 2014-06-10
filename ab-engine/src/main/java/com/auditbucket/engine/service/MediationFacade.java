@@ -168,9 +168,7 @@ public class MediationFacade {
         Company company = registrationService.resolveCompany(apiKey);
         Fortress fortress = fortressService.registerFortress(company, new FortressInputBean(inputBean.getFortress(), false));
         fortress.setCompany(company);
-        TrackResultBean result = createHeader(company, fortress, inputBean);
-        distributeChange(result);
-        return result;
+        return createHeader(company, fortress, inputBean);
     }
 
     public TrackResultBean createHeader(final Company company, final Fortress fortress, final MetaInputBean inputBean) throws DatagioException, IOException {
@@ -279,10 +277,11 @@ public class MediationFacade {
     }
 
     @Async
-    public void distributeChange(TrackResultBean trackResultBean) throws IOException {
+    public TrackResultBean distributeChange(TrackResultBean trackResultBean) throws IOException {
         logger.debug("Distributing change to KV and Search.");
         whatService.doKvWrite(trackResultBean);
         searchService.makeChangeSearchable(getSearchChange(trackResultBean));
+        return trackResultBean;
     }
 
     private SearchChange getMetaSearchChange(TrackResultBean trackResultBean) {

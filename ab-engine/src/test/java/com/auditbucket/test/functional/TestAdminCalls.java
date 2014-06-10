@@ -121,7 +121,7 @@ public class TestAdminCalls {
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
 
         TagInputBean tagInputBean = new TagInputBean("DeleteTest", "NamedTag", "deltest");
-        inputBean.setTag(tagInputBean);
+        inputBean.addTag(tagInputBean);
 
 
         TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
@@ -131,7 +131,7 @@ public class TestAdminCalls {
         assertNotNull(trackService.getHeader(ahKey));
 
         inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
-        inputBean.setTag(tagInputBean);
+        inputBean.addTag(tagInputBean);
 
         mediationFacade.createHeader(inputBean, null);
 
@@ -188,7 +188,7 @@ public class TestAdminCalls {
         Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
         TagInputBean tagInputBean = new TagInputBean("DeleteTest", "NamedTag", "deltest");
-        inputBean.setTag(tagInputBean);
+        inputBean.addTag(tagInputBean);
 
         TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
         String ahKey = resultBean.getMetaKey();
@@ -225,8 +225,8 @@ public class TestAdminCalls {
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("purgeFortressClearsDown", true));
 
         MetaInputBean trackBean = new MetaInputBean(fortress.getName(), "olivia@ast.com", "CompanyNode", null, "abc2");
-        trackBean.setTag( new TagInputBean("anyName", "rlx"));
-        trackBean.setTag( new TagInputBean("otherName", "rlxValue").setReverse(true));
+        trackBean.addTag(new TagInputBean("anyName", "rlx"));
+        trackBean.addTag(new TagInputBean("otherName", "rlxValue").setReverse(true));
         LogInputBean logBean = new LogInputBean("me", DateTime.now(), json );
         trackBean.setLog(logBean);
         String resultA = mediationFacade.createHeader(trackBean, null).getMetaKey();
@@ -234,8 +234,8 @@ public class TestAdminCalls {
         assertNotNull(resultA);
 
         trackBean = new MetaInputBean(fortress.getName(), "olivia@ast.com", "CompanyNode", null, "abc3");
-        trackBean.setTag( new TagInputBean("anyName", "rlx"));
-        trackBean.setTag( new TagInputBean("otherName", "rlxValue").setReverse(true));
+        trackBean.addTag(new TagInputBean("anyName", "rlx"));
+        trackBean.addTag(new TagInputBean("otherName", "rlxValue").setReverse(true));
         logBean = new LogInputBean("me", DateTime.now(), json );
         trackBean.setLog(logBean);
 
