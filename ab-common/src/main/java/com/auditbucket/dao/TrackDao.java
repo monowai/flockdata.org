@@ -109,8 +109,6 @@ public interface TrackDao {
 
     void delete(Log currentChange);
 
-    void makeLastChange(MetaHeader metaHeader, Log priorChange);
-
     void crossReference(MetaHeader header, Collection<MetaHeader> targets, String refName);
 
     Map<String,Collection<MetaHeader>> getCrossReference(Company company, MetaHeader header, String xRefName);

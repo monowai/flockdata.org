@@ -46,8 +46,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * Transactional services to support record and working with headers and logs
@@ -55,8 +53,7 @@ import java.util.concurrent.Future;
  * User: Mike Holdsworth
  * Date: 8/04/13
  */
-
-@Service(value = "ab.TrackerService")
+@Service
 @Transactional
 public class TrackService {
     private static final String EMPTY = "";
@@ -86,9 +83,6 @@ public class TrackService {
 
     @Autowired
     private SecurityHelper securityHelper;
-
-    @Autowired
-    private SearchServiceFacade searchFacade;
 
     private Logger logger = LoggerFactory.getLogger(TrackService.class);
 
@@ -200,7 +194,7 @@ public class TrackService {
         if (company == null)
             return getHeader(headerKey);
         MetaHeader ah = trackDao.findHeader(headerKey, inflate);
-        if (ah == null || ah.getFortress() == null )
+        if (ah == null || ah.getFortress() == null)
             return null;
 
         if (!(ah.getFortress().getCompany().getId().equals(company.getId())))
@@ -267,7 +261,7 @@ public class TrackService {
 
         // https://github.com/monowai/auditbucket/issues/7
         TrackLog existingLog = null;
-        if (authorisedHeader.getLastUpdated() != 0l) // Will there even be a change to find
+        if (authorisedHeader.getLastUpdate() != 0l) // Will there even be a change to find
             existingLog = getLastLog(authorisedHeader);
 
         Boolean searchActive = fortress.isSearchActive();
@@ -300,9 +294,6 @@ public class TrackService {
             //if (!metaHeader.getLastUser().getId().equals(thisFortressUser.getId())){
             authorisedHeader.setLastUser(thisFortressUser);
             authorisedHeader.setCreatedBy(thisFortressUser);
-            authorisedHeader = trackDao.save(authorisedHeader);
-
-            //}
         }
 
 
@@ -323,12 +314,16 @@ public class TrackService {
         if (moreRecent) {
             if (authorisedHeader.getLastUser() == null || (!authorisedHeader.getLastUser().getId().equals(thisFortressUser.getId()))) {
                 authorisedHeader.setLastUser(thisFortressUser);
-                trackDao.save(authorisedHeader);
             }
+            authorisedHeader.setFortressLastWhen(fortressWhen.getMillis());
+            trackDao.save(authorisedHeader);
 
             if (searchActive)
                 resultBean.setLogToIndex(newLog);
+        } else {
+            trackDao.save(authorisedHeader);
         }
+
         return resultBean;
 
     }
@@ -451,20 +446,16 @@ public class TrackService {
     }
 
     /**
-     * blocks until the header has been cancelled
+     * blocking call. This will not update the search store. For that call the
+     * function in the MediationFacade
      *
      * @param headerKey UID of the Header
-     * @return LogResultBean
+     * @return MetaSearchChange the search change to index, or null if there are no logs
      * @throws IOException
      */
-    public MetaHeader cancelLastLogSync(String headerKey) throws IOException, DatagioException {
-        Future<MetaHeader> futureHeader = cancelLastLog(headerKey);
-        try {
-            return futureHeader.get();
-        } catch (InterruptedException | ExecutionException e) {
-            logger.error(e.getMessage());
-            throw new DatagioException("This is bad - Interrupted Exception ", e);
-        }
+    public MetaSearchChange cancelLastLogSync(String headerKey) throws IOException, DatagioException {
+        AsyncResult<MetaSearchChange> futureHeader = cancelLastLog(headerKey);
+        return futureHeader.get();
     }
 
     /**
@@ -474,49 +465,51 @@ public class TrackService {
      * AB headerKey will be forever invalid.
      *
      * @param headerKey UID of the metaHeader
-     * @return Future<LogResultBean> record or null if no metaHeader exists.
+     * @return Future<MetaSearchChange> search change to index, or null if there are no logs
      */
     @Async
-    Future<MetaHeader> cancelLastLog(String headerKey) throws IOException, DatagioException {
+    public AsyncResult<MetaSearchChange> cancelLastLog(String headerKey) throws IOException, DatagioException {
         MetaHeader metaHeader = getValidHeader(headerKey, true);
-        TrackLog currentLog = getLastLog(metaHeader.getId());
-        if (currentLog == null)
+        TrackLog existingLog = getLastLog(metaHeader.getId());
+        if (existingLog == null)
             return null;
-        trackDao.fetch(currentLog.getLog());
-        Log currentChange = currentLog.getLog();
-        Log priorChange = currentLog.getLog().getPreviousLog();
+        //trackDao.fetch(existingLog.getLog());
+        Log currentLog = existingLog.getLog();
+        Log previousLog = currentLog.getPreviousLog();
 
-        if (priorChange != null) {
-            trackDao.makeLastChange(metaHeader, priorChange);
-            trackDao.fetch(priorChange);
-            metaHeader.setLastUser(fortressService.getFortressUser(metaHeader.getFortress(), priorChange.getWho().getCode()));
+        if (previousLog != null) {
+            trackDao.fetch(previousLog);
+            TrackLog newTrack = trackDao.getLog(previousLog.getTrackLog().getId());
+            metaHeader.setLastChange(previousLog);
+            metaHeader.setLastUser(fortressService.getFortressUser(metaHeader.getFortress(), previousLog.getWho().getCode()));
+            metaHeader.setFortressLastWhen(newTrack.getFortressWhen());
             metaHeader = trackDao.save(metaHeader);
-            whatService.delete(metaHeader, currentChange);
-            trackDao.delete(currentChange);
-        } else if (currentChange != null) {
+            trackDao.delete(currentLog);
+
+        } else {
             // No changes left, there is now just a header
             // What to to? Delete the metaHeader? Store the "canceled By" User? Assign the log to a Cancelled RLX?
             // ToDo: Delete from ElasticSearch??
             metaHeader.setLastUser(fortressService.getFortressUser(metaHeader.getFortress(), metaHeader.getCreatedBy().getCode()));
+            metaHeader.setFortressLastWhen(0l); // ToDo: What are we setting this to when there are no logs? SysWhen is updated
             metaHeader = trackDao.save(metaHeader);
-            whatService.delete(metaHeader, currentChange);
-            trackDao.delete(currentChange);
+            trackDao.delete(currentLog);
         }
+        whatService.delete(metaHeader, currentLog); // ToDo: Move to mediation facade
 
-        if (priorChange == null)
+        if (previousLog == null)
             // Nothing to index, no changes left so we're done
-            return new AsyncResult<>(metaHeader);
-
+            return new AsyncResult<>(null);
+        MetaSearchChange searchDocument = null;
         // Sync the update to ab-search.
         if (metaHeader.getFortress().isSearchActive() && !metaHeader.isSearchSuppressed()) {
             // Update against the MetaHeader only by re-indexing the search document
-            HashMap<String, Object> priorWhat = (HashMap<String, Object>) whatService.getWhat(metaHeader, priorChange).getWhat();
+            HashMap<String, Object> priorWhat = (HashMap<String, Object>) whatService.getWhat(metaHeader, previousLog).getWhat();
 
-            MetaSearchChange searchDocument = new MetaSearchChange(metaHeader, priorWhat, priorChange.getEvent().getCode(), new DateTime(priorChange.getLog().getFortressWhen()));
+            searchDocument = new MetaSearchChange(metaHeader, priorWhat, previousLog.getEvent().getCode(), new DateTime(previousLog.getTrackLog().getFortressWhen()));
             searchDocument.setTags(tagTrackService.findTrackTags(metaHeader));
-            searchFacade.makeChangeSearchable(searchDocument);
         }
-        return new AsyncResult<>(metaHeader);
+        return new AsyncResult<>(searchDocument);
     }
 
     /**

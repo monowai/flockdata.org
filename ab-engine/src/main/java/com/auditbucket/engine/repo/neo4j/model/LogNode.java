@@ -28,10 +28,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.TypeAlias;
-import org.springframework.data.neo4j.annotation.Fetch;
-import org.springframework.data.neo4j.annotation.GraphId;
-import org.springframework.data.neo4j.annotation.NodeEntity;
-import org.springframework.data.neo4j.annotation.RelatedTo;
+import org.springframework.data.neo4j.annotation.*;
 
 import java.util.Map;
 
@@ -54,8 +51,8 @@ public class LogNode implements Log {
     @RelatedTo(elementClass = TxRefNode.class, type = "AFFECTED", direction = Direction.INCOMING, enforceTargetType = true)
     private TxRef txRef;
 
-    @RelatedTo(elementClass = MetaHeaderNode.class, type ="LOGGED", direction = Direction.OUTGOING)
-    private TrackLogRelationship log;
+    @RelatedToVia(elementClass = LoggedRelationship.class, type ="LOGGED", direction = Direction.INCOMING)
+    private TrackLog trackLog;
 
     @RelatedTo(elementClass = ChangeEventNode.class, type = "TRACK_EVENT", direction = Direction.OUTGOING)
     @Fetch
@@ -63,16 +60,6 @@ public class LogNode implements Log {
 
     private String comment;
     private String storage ;
-
-    @Override
-    public String toString() {
-        return "LogNode{" +
-                "id=" + id +
-                ", madeBy=" + madeBy +
-                ", event=" + event +
-                '}';
-    }
-
     // Neo4J will not persist a byte[] over it's http interface. Probably fixed in V2, but not in our version
     @JsonIgnore
     private boolean compressed = false;
@@ -83,9 +70,16 @@ public class LogNode implements Log {
 
     private LogWhatData auditWhat;
 
-    protected LogNode() {
-
+    @Override
+    public String toString() {
+        return "LogNode{" +
+                "id=" + id +
+                ", madeBy=" + madeBy +
+                ", event=" + event +
+                '}';
     }
+
+    protected LogNode() {}
 
     public LogNode(FortressUser madeBy, LogInputBean inputBean, TxRef txRef) {
         this();
@@ -123,6 +117,10 @@ public class LogNode implements Log {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public void setTrackLog(LoggedRelationship trackLog){
+        this.trackLog = trackLog;
     }
 
     /**
@@ -193,8 +191,8 @@ public class LogNode implements Log {
 
     @Override
     @JsonIgnore
-    public TrackLog getLog() {
-        return log;  //To change body of implemented methods use File | Settings | File Templates.
+    public TrackLog getTrackLog() {
+        return trackLog;
     }
 
     @Transient
@@ -210,6 +208,11 @@ public class LogNode implements Log {
     @JsonIgnore
     public byte[] getDataBlock() {
         return dataBlock;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void setTrackLog(TrackLog trackLog) {
+        this.trackLog = trackLog;
     }
 
 

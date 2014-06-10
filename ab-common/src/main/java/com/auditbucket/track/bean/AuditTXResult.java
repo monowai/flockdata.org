@@ -20,7 +20,6 @@
 package com.auditbucket.track.bean;
 
 import com.auditbucket.track.model.Log;
-import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
 
@@ -54,7 +53,7 @@ public class AuditTXResult {
         this.callerRef = header.getCallerRef();
         this.fortressName = header.getFortress().getName();
         this.fortressKey = header.getFortress().getFortressKey();
-        this.lastSystemChange = header.getLastUpdated();
+        this.lastSystemChange = header.getLastUpdate();
         this.trackLog = log;
     }
 

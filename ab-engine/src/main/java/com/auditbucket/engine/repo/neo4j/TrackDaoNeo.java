@@ -22,8 +22,8 @@ package com.auditbucket.engine.repo.neo4j;
 import com.auditbucket.dao.TrackDao;
 import com.auditbucket.engine.repo.LogWhatData;
 import com.auditbucket.engine.repo.neo4j.model.LogNode;
+import com.auditbucket.engine.repo.neo4j.model.LoggedRelationship;
 import com.auditbucket.engine.repo.neo4j.model.MetaHeaderNode;
-import com.auditbucket.engine.repo.neo4j.model.TrackLogRelationship;
 import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
 import com.auditbucket.engine.service.TrackEventService;
 import com.auditbucket.engine.service.WhatService;
@@ -248,7 +248,7 @@ public class TrackDaoNeo implements TrackDao {
         //Result<Map<String, Object>> results =
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
-            TrackLog log = template.convert(row.get("logs"), TrackLogRelationship.class);
+            TrackLog log = template.convert(row.get("logs"), LoggedRelationship.class);
             Log change = template.convert(row.get("auditLog"), LogNode.class);
             MetaHeader audit = template.convert(row.get("track"), MetaHeaderNode.class);
             simpleResult.add(new AuditTXResult(audit, change, log));
@@ -264,7 +264,7 @@ public class TrackDaoNeo implements TrackDao {
 
     public TrackLog save(TrackLog log) {
         logger.debug("Saving track log [{}] - Log ID [{}]", log, log.getLog().getId());
-        return template.save((TrackLogRelationship) log);
+        return template.save((LoggedRelationship) log);
     }
 
     @Override
@@ -307,11 +307,11 @@ public class TrackDaoNeo implements TrackDao {
     }
 
     @Override
-    @Cacheable(value = "trackLog", unless = "#result==null")
+//    @Cacheable(value = "trackLog", unless = "#result==null")
     public TrackLog getLog(Long logId) {
         Relationship change = template.getRelationship(logId);
         if (change != null)
-            return (TrackLog) template.getDefaultConverter().convert(change, TrackLogRelationship.class);
+            return (TrackLog) template.getDefaultConverter().convert(change, LoggedRelationship.class);
         return null;
     }
 
@@ -340,19 +340,19 @@ public class TrackDaoNeo implements TrackDao {
 
     @Override
     public TrackLog addLog(MetaHeader metaHeader, Log newChange, DateTime fortressWhen, TrackLog existingLog) {
+
+        newChange.setTrackLog(new LoggedRelationship(metaHeader, newChange, fortressWhen));
         newChange = template.save(newChange);
-        TrackLog newLog = template.save(new TrackLogRelationship(metaHeader, newChange, fortressWhen));
+        template.fetch(newChange.getTrackLog());
         boolean moreRecent = (existingLog == null || existingLog.getFortressWhen() <= fortressWhen.getMillis());
         if (moreRecent) {
             metaHeader.setLastChange(newChange);
             template.save(metaHeader);
 
-            //  removeLastChange(metaHeader, existingLog);
-//            makeLastChange(metaHeader, newChange);
         }
-        logger.debug("Added Log - MetaHeader [{}], Log [{}], Change [{}]", metaHeader.getId(), newLog, newChange.getId());
-        newLog.setMetaHeader(metaHeader);
-        return newLog;
+        logger.debug("Added Log - MetaHeader [{}], Log [{}], Change [{}]", metaHeader.getId(), newChange.getTrackLog(), newChange.getId());
+        newChange.getTrackLog().setMetaHeader(metaHeader);
+        return newChange.getTrackLog();
 
     }
 
@@ -372,16 +372,6 @@ public class TrackDaoNeo implements TrackDao {
                 }
             }
         }
-    }
-
-    @Override
-    public void makeLastChange(MetaHeader metaHeader, Log lastChange) {
-        //Node metaNode = template.getPersistentState(metaHeader);
-        //Node logNode = template.getPersistentState(lastChange);
-        //Relationship r = template.createRelationshipBetween(metaNode, logNode, LAST_CHANGE, null);
-        logger.debug("makeLastChange - MetaHeader [{}], LAST_CHANGE [{}]", metaHeader.getId(), lastChange.getId());
-        metaHeader.setLastChange(lastChange);
-        template.save(metaHeader);
     }
 
     @Override
@@ -456,7 +446,7 @@ public class TrackDaoNeo implements TrackDao {
 
 
     public TrackLog getLastLog(Long metaHeaderId) {
-        TrackLogRelationship log = null;
+        LoggedRelationship log = null;
         Iterable<Relationship> rlxs = template.getNode(metaHeaderId).getRelationships(LastChange.LAST_CHANGE, Direction.OUTGOING);
         int count = 0;
         for (Relationship rlx : rlxs) {

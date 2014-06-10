@@ -520,6 +520,7 @@ public class TestTrack {
     @Test
     public void cancelLastChangeBehaves() throws Exception {
         // For use in compensating transaction cases only
+        // DAT-53
         regService.registerSystemUser(new RegistrationBean(monowai, mike));
         SecurityContextHolder.getContext().setAuthentication(authMike);
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
@@ -529,18 +530,28 @@ public class TestTrack {
         String ahWP = mediationFacade.createHeader(inputBean, null).getMetaKey();
 
         MetaHeader metaHeader = trackService.getHeader(ahWP);
-        mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", firstDate, what + 1 + "\"}"));
-        mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}"));
+        LogResultBean firstLog  = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", firstDate, what + 1 + "\"}"));
+        LogResultBean secondLog = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}"));
+        assertNotSame(0l, firstLog.getWhatLog().getTrackLog().getFortressWhen());
+        assertNotSame(0l, secondLog.getWhatLog().getTrackLog().getFortressWhen());
         Set<TrackLog> logs = trackService.getLogs(fortress.getCompany(), metaHeader.getMetaKey());
         assertEquals(2, logs.size());
         metaHeader = trackService.getHeader(ahWP);
-        compareUser(metaHeader, "isabella@sunnybell.com");
-        metaHeader = trackService.cancelLastLogSync(metaHeader.getMetaKey());
+        compareUser(metaHeader, secondLog.getFortressUser());
+        assertEquals(secondLog.getWhatLog().getTrackLog().getFortressWhen(), metaHeader.getFortressLastWhen());
 
-        assertNotNull(metaHeader);
-        compareUser(metaHeader, "olivia@sunnybell.com");
-        metaHeader = trackService.cancelLastLogSync(metaHeader.getMetaKey());
-        assertNotNull(metaHeader);
+        // Test block
+        trackService.cancelLastLogSync(metaHeader.getMetaKey());
+        logs = trackService.getLogs(fortress.getCompany(), metaHeader.getMetaKey());
+        assertEquals(1, logs.size());
+        metaHeader = trackService.getHeader(ahWP); // Refresh the header
+        compareUser(metaHeader, firstLog.getFortressUser());
+        assertEquals(firstLog.getWhatLog().getTrackLog().getFortressWhen(), metaHeader.getFortressLastWhen());
+
+        // Last change cancelled
+        trackService.cancelLastLogSync(metaHeader.getMetaKey());
+        logs = trackService.getLogs(fortress.getCompany(), metaHeader.getMetaKey());
+        assertTrue(logs.isEmpty());
     }
 
     @Test
@@ -776,6 +787,7 @@ public class TestTrack {
 
         trackEP.trackHeaders(metaInputBeans, su.getApiKey(), su.getApiKey());
     }
+
     @Test
     public void utf8Strings() throws Exception{
         String json = "{\"Athlete\":\"Katerina Neumannová\",\"Age\":\"28\",\"Country\":\"Czech Republic\",\"Year\":\"2002\",\"Closing Ceremony Date\":\"2/24/02\",\"Sport\":\"Cross Country Skiing\",\"Gold Medals\":\"0\",\"Silver Medals\":\"2\",\"Bronze Medals\":\"0\",\"Total Medals\":\"2\"}";
@@ -796,6 +808,28 @@ public class TestTrack {
         Assert.assertNotNull(result);
         assertEquals(LogInputBean.LogStatus.IGNORE, result.getLogResult().getStatus());
     }
+
+    @Test
+    public void datesInHeadersAndLogs() throws Exception{
+        String json = "{\"name\": \"value\"}";
+        SecurityContextHolder.getContext().setAuthentication(authMike);
+        SystemUserResultBean su = regService.registerSystemUser(new RegistrationBean(monowai, mike)).getBody();
+        FortressInputBean f = new FortressInputBean("dateFun", true);
+        Fortress fortress = fortressService.registerFortress(f);
+
+        DateTime past = new DateTime(2010, 10, 1, 11,35);
+
+        MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "poppy", "CompanyNode", past, "ABC1");
+        inputBean.setLog(new LogInputBean("poppy", past, json));
+        TrackResultBean trackResultBean = trackEP.trackHeader(inputBean, su.getApiKey(), su.getApiKey()).getBody();
+        TrackLog lastLog = trackService.getLastLog(trackResultBean.getMetaHeader());
+        assertEquals(past.getMillis(), lastLog.getFortressWhen().longValue());
+        assertEquals(past.getMillis(), trackResultBean.getMetaHeader().getFortressDateCreated().getMillis());
+        assertEquals("Modified " + new Date(trackResultBean.getMetaHeader().getLastUpdate()), past.getMillis(), trackResultBean.getMetaHeader().getFortressLastWhen().longValue());
+
+        logger.info(lastLog.toString());
+    }
+
     @Autowired
     WhatService whatService;
     private void compareUser(MetaHeader header, String userName) {

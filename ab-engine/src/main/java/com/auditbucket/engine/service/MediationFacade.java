@@ -31,6 +31,7 @@ import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
 import com.auditbucket.search.model.EsSearchResult;
+import com.auditbucket.search.model.MetaSearchChange;
 import com.auditbucket.search.model.QueryParams;
 import com.auditbucket.track.bean.*;
 import com.auditbucket.track.model.MetaHeader;
@@ -454,5 +455,14 @@ public class MediationFacade {
         fortressService.purge(fortress);
         engineConfig.resetCache();
         searchService.purge(indexName);
+    }
+
+    public void cancelLastLogSync(String metaKey) throws IOException, DatagioException {
+        MetaSearchChange searchChange = trackService.cancelLastLogSync(metaKey);
+        if (searchChange != null ){
+            searchService.makeChangeSearchable(searchChange);
+        } else {
+            logger.info("ToDo: Delete the search document {}", metaKey);
+        }
     }
 }
