@@ -234,7 +234,7 @@ public class TestAuditIntegration {
         DateTime now = new DateTime();
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", now, "ZZZ123");
         inputBean.setIsMetaOnly(true);
-        inputBean.setTag(new TagInputBean("testTagNameZZ", "someAuditRLX"));
+        inputBean.addTag(new TagInputBean("testTagNameZZ", "someAuditRLX"));
         inputBean.setEvent("TagTest");
         TrackResultBean auditResult;
         auditResult = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody();
@@ -393,6 +393,31 @@ public class TestAuditIntegration {
         doEsQuery(indexName, "*", 3);
 
     }
+
+    @Test
+    public void tagKeySearch() throws Exception {
+        // DAT-95
+        assumeTrue(runMe);
+        logger.info("## tagKeySearch");
+        SystemUser su = registerSystemUser("Cameron");
+        Fortress fo = fortressService.registerFortress(new FortressInputBean("tagKeySearch", false));
+        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
+        LogInputBean log = new LogInputBean("wally", new DateTime(), "{\"blah\":124}");
+        inputBean.addTag(new TagInputBean("Happy").addMetaLink("testinga"));
+        inputBean.addTag(new TagInputBean("Happy Days").addMetaLink("testingb"));
+        inputBean.addTag(new TagInputBean("Sad Days").addMetaLink("testingb"));
+        inputBean.addTag(new TagInputBean("Days Bay").addMetaLink("testingc"));
+        inputBean.setLog(log);
+        TrackResultBean result = mediationFacade.createHeader(inputBean, null); // Mock result as we're not tracking
+        waitForHeaderToUpdate(result.getMetaHeader(), su.getApiKey());
+        // ensure that non-analysed tags work
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG +".testinga.key", "happy",1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG +".testingb.key", "happydays",1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG +".testingb.key", "saddays",1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG +".testingc.key", "daysbay",1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG +".testingc.key", "days",0);
+
+    }
     @Test
     public void searchIndexWithNoMetaKeysDoesNotError() throws Exception {
         // DAT-83
@@ -471,7 +496,7 @@ public class TestAuditIntegration {
         MetaInputBean metaInput = new MetaInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
         String relationshipName = "example"; // Relationship names is indexed are @tag.relationshipName.key in ES
         TagInputBean tag = new TagInputBean("Key Test Works", relationshipName);
-        metaInput.setTag(tag);
+        metaInput.addTag(tag);
 
         TrackResultBean indexedResult = mediationFacade.createHeader(metaInput, null);
         MetaHeader indexHeader = trackService.getHeader(indexedResult.getMetaKey());
@@ -855,7 +880,7 @@ public class TestAuditIntegration {
 
         junit.framework.Assert.assertNotNull(jResult);
         Assert.assertEquals(index + "\r\n" + jResult.getJsonString(), expectedHitCount, nbrResult);
-        return null;
+        return jResult.getJsonString();
 
         //return result.getJsonString();
     }

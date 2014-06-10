@@ -98,7 +98,7 @@ public class TrackDaoES implements TrackSearchDao {
         logger.debug("Received request to Save [{}]", searchChange.getMetaKey());
 
         ensureIndex(indexName, documentType);
-        ensureMapping(indexName, documentType);
+//        ensureMapping(indexName, documentType);
 
         String source = makeIndexJson(searchChange);
         IndexRequestBuilder irb = esClient.prepareIndex(indexName, documentType)

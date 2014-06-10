@@ -116,7 +116,7 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
                                 tag.setTargets(target.getRelationship(), targetTag);
                             }
                         }
-                        setTag(tag);
+                        addTag(tag);
                     }
                 }
                 if (columnHelper.isTitle()) {

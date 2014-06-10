@@ -172,10 +172,10 @@ public class TestMetaHeaderTags {
         tagService.processTag(tagInput);
         //assertNotNull(result);
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
-        aib.setTag(new TagInputBean("TagA", "AAAA"));
-        aib.setTag(new TagInputBean("TagB", "BBBB"));
-        aib.setTag(new TagInputBean("TagC", "CCCC"));
-        aib.setTag(new TagInputBean("TagD", "DDDD"));
+        aib.addTag(new TagInputBean("TagA", "AAAA"));
+        aib.addTag(new TagInputBean("TagB", "BBBB"));
+        aib.addTag(new TagInputBean("TagC", "CCCC"));
+        aib.addTag(new TagInputBean("TagD", "DDDD"));
         TrackResultBean resultBean = auditManager.createHeader(aib, null);
         MetaHeader metaHeader = trackService.getHeader(resultBean.getMetaKey());
         Set<TrackTag> tagSet = tagTrackService.findTrackTags(metaHeader);
@@ -205,10 +205,10 @@ public class TestMetaHeaderTags {
         //assertNotNull(result);
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
 
-        aib.setTag(new TagInputBean("TagA", "AAAA"));
-        aib.setTag(new TagInputBean("TagB", "BBBB"));
-        aib.setTag(new TagInputBean("TagC", "CCCC"));
-        aib.setTag(new TagInputBean("TagD", "DDDD"));
+        aib.addTag(new TagInputBean("TagA", "AAAA"));
+        aib.addTag(new TagInputBean("TagB", "BBBB"));
+        aib.addTag(new TagInputBean("TagC", "CCCC"));
+        aib.addTag(new TagInputBean("TagD", "DDDD"));
         TrackResultBean resultBean = auditManager.createHeader(aib, null);
         MetaHeader metaHeader = trackService.getHeader(resultBean.getMetaKey());
         Set<TrackTag> tagSet = tagTrackService.findTrackTags(metaHeader);
@@ -240,10 +240,10 @@ public class TestMetaHeaderTags {
         //assertNotNull(result);
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         // In this scenario, the Tag name is the key if the value is null
-        aib.setTag(new TagInputBean("TagA", null));
-        aib.setTag(new TagInputBean("TagB", null));
-        aib.setTag(new TagInputBean("TagC", null));
-        aib.setTag(new TagInputBean("TagD", "DDDD"));
+        aib.addTag(new TagInputBean("TagA", null));
+        aib.addTag(new TagInputBean("TagB", null));
+        aib.addTag(new TagInputBean("TagC", null));
+        aib.addTag(new TagInputBean("TagD", "DDDD"));
         TrackResultBean resultBean = auditManager.createHeader(aib, null);
         MetaHeader metaHeader = trackService.getHeader(resultBean.getMetaKey());
         Set<TrackTag> tagSet = tagTrackService.findTrackTags(metaHeader);
@@ -281,7 +281,7 @@ public class TestMetaHeaderTags {
         // In this scenario, the Tag name is the key if the value is null
         TagInputBean tag = new TagInputBean("TagD", "DDDD");
         tag.setCode(null ); // This gets set to null if not supplied over an endpoint
-        aib.setTag(tag);
+        aib.addTag(tag);
         TrackResultBean resultBean = auditManager.createHeader(aib, null);
         MetaHeader metaHeader = trackService.getHeader(resultBean.getMetaKey());
         Set<TrackTag> tagSet = tagTrackService.findTrackTags(metaHeader);
@@ -300,9 +300,9 @@ public class TestMetaHeaderTags {
         //assertNotNull(result);
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         // This should create the same Tag object
-        aib.setTag(new TagInputBean("TagA", "camel"));
-        aib.setTag(new TagInputBean("taga", "lower"));
-        aib.setTag(new TagInputBean("tAgA", "mixed"));
+        aib.addTag(new TagInputBean("TagA", "camel"));
+        aib.addTag(new TagInputBean("taga", "lower"));
+        aib.addTag(new TagInputBean("tAgA", "mixed"));
         TrackResultBean resultBean = auditManager.createHeader(aib, null);
         MetaHeader metaHeader = trackService.getHeader(resultBean.getMetaKey());
         Tag tag = tagService.findTag("Taga");
@@ -327,9 +327,9 @@ public class TestMetaHeaderTags {
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         aib.setTrackSuppressed(true);
         // This should create the same Tag object
-        aib.setTag(new TagInputBean("TagA", "camel"));
-        aib.setTag(new TagInputBean("taga", "lower"));
-        aib.setTag(new TagInputBean("tAgA", "mixed"));
+        aib.addTag(new TagInputBean("TagA", "camel"));
+        aib.addTag(new TagInputBean("taga", "lower"));
+        aib.addTag(new TagInputBean("tAgA", "mixed"));
         TrackResultBean resultBean = auditManager.createHeader(aib, null);
         assertEquals(1, resultBean.getTags().size());
         assertNull(resultBean.getMetaKey());
@@ -382,7 +382,7 @@ public class TestMetaHeaderTags {
         tag.addMetaLink("Type1");
         tag.addMetaLink("Type2");
         tag.addMetaLink("Type3");
-        aib.setTag(tag);
+        aib.addTag(tag);
 
         TrackResultBean resultBean = auditManager.createHeader(aib, null);
         MetaHeader metaHeader = trackService.getHeader(resultBean.getMetaKey());
@@ -451,8 +451,8 @@ public class TestMetaHeaderTags {
         TagInputBean tagA = new TagInputBean("mike@auditbucket.com", "email-to");
         tagA.addMetaLink("email-cc");
         TagInputBean tagB = new TagInputBean("np@auditbucket.com", "email-cc");
-        inputBean.setTag(tagA);
-        inputBean.setTag(tagB);
+        inputBean.addTag(tagA);
+        inputBean.addTag(tagB);
 
         TrackResultBean resultBean = auditManager.createHeader(inputBean, null);
         MetaHeader header = trackService.getHeader(resultBean.getMetaKey());
@@ -474,8 +474,8 @@ public class TestMetaHeaderTags {
         TagInputBean tagA = new TagInputBean("mike@auditbucket.com", "email-to");
         tagA.addMetaLink("email-cc");
         TagInputBean tagB = new TagInputBean("np@auditbucket.com", "email-cc");
-        inputBean.setTag(tagA);
-        inputBean.setTag(tagB);
+        inputBean.addTag(tagA);
+        inputBean.addTag(tagB);
 
         TrackResultBean resultBean = auditManager.createHeader(inputBean, null);
         MetaHeader header = trackService.getHeader(resultBean.getMetaKey());
@@ -503,8 +503,8 @@ public class TestMetaHeaderTags {
         tagA.addMetaLink("email-cc", propB);
         TagInputBean tagB = new TagInputBean("np@auditbucket.com", "email-cc");
 
-        inputBean.setTag(tagA);
-        inputBean.setTag(tagB);
+        inputBean.addTag(tagA);
+        inputBean.addTag(tagB);
         TrackResultBean resultBean = auditManager.createHeader(inputBean, null);
         MetaHeader header = trackService.getHeader(resultBean.getMetaKey());
         Set<TrackTag> tagResults = tagTrackService.findTrackTags(header);
@@ -527,7 +527,7 @@ public class TestMetaHeaderTags {
         tagInputBean.addMetaLink("email-to");
         tagInputBean.addMetaLink("email-to");
 
-        inputBean.setTag(tagInputBean);
+        inputBean.addTag(tagInputBean);
 
         TrackResultBean resultBean = auditManager.createHeader(inputBean, null);
         MetaHeader header = trackService.getHeader(resultBean.getMetaKey());
@@ -549,7 +549,7 @@ public class TestMetaHeaderTags {
         tagInputBean.setReverse(true); // relationships will be reversed
         tagInputBean.addMetaLink("email-to");
 
-        inputBean.setTag(tagInputBean);
+        inputBean.addTag(tagInputBean);
 
         TrackResultBean resultBean = auditManager.createHeader(inputBean, null);
         MetaHeader header = trackService.getHeader(resultBean.getMetaKey());
@@ -574,8 +574,8 @@ public class TestMetaHeaderTags {
         tagA.addMetaLink("email cc");
         TagInputBean tagB = new TagInputBean("np@auditbucket.com", "email-cc");
 
-        inputBean.setTag(tagA);
-        inputBean.setTag(tagB);
+        inputBean.addTag(tagA);
+        inputBean.addTag(tagB);
 
         TrackResultBean resultBean = auditManager.createHeader(inputBean, null);
         MetaHeader header = trackService.getHeader(resultBean.getMetaKey());
@@ -606,7 +606,7 @@ public class TestMetaHeaderTags {
         TagInputBean building = new TagInputBean("ABC House");
         section.setTargets("houses", building);
 
-        inputBean.setTag(country);
+        inputBean.addTag(country);
         TrackResultBean resultBean = auditManager.createHeader(inputBean, null);
         assertNotNull(resultBean);
         // Tags are not associated with the header rather the structure is enforced while importing
@@ -646,7 +646,7 @@ public class TestMetaHeaderTags {
         institutionTag.setTargets("located", cityInputTag);
         cityInputTag.setTargets("state", stateInputTag);
         stateInputTag.setTargets("country", countryInputTag);
-        inputBean.setTag(institutionTag);
+        inputBean.addTag(institutionTag);
 
         // Institution<-city<-state<-country
 
@@ -690,7 +690,7 @@ public class TestMetaHeaderTags {
         institutionTag.setTargets("located", cityInputTag);
         cityInputTag.setTargets("state", stateInputTag);
         stateInputTag.setTargets("country", countryInputTag);
-        inputBean.setTag(institutionTag);
+        inputBean.addTag(institutionTag);
 
         // Institution<-city<-state<-country
 
@@ -726,9 +726,9 @@ public class TestMetaHeaderTags {
         institution.addMetaLink("located");
         cityTag.addMetaLink("city");
 
-        inputBean.setTag(cityTag); // Not attached to track
-        inputBean.setTag(countryTag);
-        inputBean.setTag(institution);
+        inputBean.addTag(cityTag); // Not attached to track
+        inputBean.addTag(countryTag);
+        inputBean.addTag(institution);
 
         TrackResultBean result = auditManager.createHeader(inputBean, null);
         assertNotNull(result);
@@ -761,7 +761,7 @@ public class TestMetaHeaderTags {
         institutionTag.setTargets("located", cityInputTag);
         cityInputTag.setTargets("state", stateInputTag);
         stateInputTag.setTargets("country", countryInputTag);
-        auditBean.setTag(institutionTag);
+        auditBean.addTag(institutionTag);
 
         // Institution<-city<-state<-country
 
@@ -804,7 +804,7 @@ public class TestMetaHeaderTags {
         LogInputBean logBean = new LogInputBean("mike", new DateTime(), what + "1\"}");
         inputBean.setLog(logBean);
         // This should create the same Tag object
-        inputBean.setTag(new TagInputBean("TagA", "camel"));
+        inputBean.addTag(new TagInputBean("TagA", "camel"));
         TrackResultBean resultBean = auditManager.createHeader(inputBean, null);
         MetaHeader unchanged = trackService.getHeader(resultBean.getMetaKey());
         assertNotNull ( unchanged);
@@ -813,7 +813,7 @@ public class TestMetaHeaderTags {
         LogInputBean alb = new LogInputBean("mike", new DateTime(), what + "1\"}");
         removeTag.setLog(alb);
         // This should create the same Tag object
-        removeTag.setTag(new TagInputBean("TagA", "camel"));
+        removeTag.addTag(new TagInputBean("TagA", "camel"));
         resultBean = auditManager.createHeader(removeTag, null);
         MetaHeader metaHeader = trackService.getHeader(resultBean.getMetaKey());
         Assert.assertNotNull(metaHeader);
@@ -821,7 +821,7 @@ public class TestMetaHeaderTags {
         validateTag(metaHeader, "TagA", 1);
 
         // Replace the current tag
-        removeTag.setTag(new TagInputBean("TagB", "camel"));
+        removeTag.addTag(new TagInputBean("TagB", "camel"));
         removeTag.setLog(new LogInputBean("mike", new DateTime(), what + "2\"}"));
         auditManager.createHeader(removeTag, null);
         validateTag(metaHeader, "TagB", 1);
@@ -843,7 +843,7 @@ public class TestMetaHeaderTags {
         LogInputBean alb = new LogInputBean("mike", new DateTime(), what + "1\"}");
         removeTag.setLog(alb);
         // This should create the same Tag object
-        removeTag.setTag(new TagInputBean("TagA", "camel"));
+        removeTag.addTag(new TagInputBean("TagA", "camel"));
         TrackResultBean resultBean = auditManager.createHeader(removeTag, null);
         MetaHeader metaHeader = trackService.getHeader(resultBean.getMetaKey());
         Assert.assertNotNull(metaHeader);
@@ -851,7 +851,7 @@ public class TestMetaHeaderTags {
         validateTag(metaHeader, "TagA", 1);
 
         // Replace the current tag
-        removeTag.setTag(new TagInputBean("TagB", "camel"));
+        removeTag.addTag(new TagInputBean("TagB", "camel"));
         removeTag.setLog(new LogInputBean("mike", new DateTime(), what + "2\"}"));
         auditManager.createHeader(removeTag, null);
         validateTag(metaHeader, "TagB", 1);
@@ -871,7 +871,7 @@ public class TestMetaHeaderTags {
         LogInputBean logBean = new LogInputBean("mike", new DateTime(), what + "1\"}");
         inputBean.setLog(logBean);
         // This should create the same Tag object
-        inputBean.setTag(new TagInputBean("TagA", "camel"));
+        inputBean.addTag(new TagInputBean("TagA", "camel"));
         ResponseEntity<TrackResultBean> response = trackEp.trackHeader(inputBean, su.getApiKey(), su.getApiKey());
         // At this point we have a metaHeader, log and a tag.
 
@@ -885,7 +885,7 @@ public class TestMetaHeaderTags {
         validateTag(header, "TagA", 1);
 
         //Adding a second tag (the first is already in the metaHeader
-        inputBean.setTag( new TagInputBean("TagB", "horse"));
+        inputBean.addTag(new TagInputBean("TagB", "horse"));
         trackEp.trackHeader(inputBean, su.getApiKey(), su.getApiKey());
         validateTag(header, "TagB", 2);
 
@@ -898,7 +898,7 @@ public class TestMetaHeaderTags {
         //assertNotNull(result);
         MetaInputBean inputBean = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc1");
         // This should create the same Tag object
-        inputBean.setTag(new TagInputBean("TagA", "camel"));
+        inputBean.addTag(new TagInputBean("TagA", "camel"));
         ResponseEntity<TrackResultBean> response = trackEp.trackHeader(inputBean, su.getApiKey(), su.getApiKey());
         // At this point we have a metaHeader, log and a tag.
 
@@ -912,7 +912,7 @@ public class TestMetaHeaderTags {
         validateTag(header, "TagA", 1);
 
         //Adding a second tag (the first is already in the metaHeader
-        inputBean.setTag( new TagInputBean("TagB", "horse"));
+        inputBean.addTag(new TagInputBean("TagB", "horse"));
         trackEp.trackHeader(inputBean, su.getApiKey(), su.getApiKey());
         validateTag(header, "TagB", 2);
 
