@@ -510,7 +510,7 @@ public class TrackService {
         // Sync the update to ab-search.
         if (metaHeader.getFortress().isSearchActive() && !metaHeader.isSearchSuppressed()) {
             // Update against the MetaHeader only by re-indexing the search document
-            Map<String, Object> priorWhat = whatService.getWhat(metaHeader, priorChange).getWhat();
+            HashMap<String, Object> priorWhat = (HashMap<String, Object>) whatService.getWhat(metaHeader, priorChange).getWhat();
 
             MetaSearchChange searchDocument = new MetaSearchChange(metaHeader, priorWhat, priorChange.getEvent().getCode(), new DateTime(priorChange.getLog().getFortressWhen()));
             searchDocument.setTags(tagTrackService.findTrackTags(metaHeader));

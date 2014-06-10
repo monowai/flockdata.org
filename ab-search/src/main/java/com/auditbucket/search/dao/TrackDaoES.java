@@ -139,6 +139,7 @@ public class TrackDaoES implements TrackSearchDao {
         }
 
     }
+
     private void ensureMapping(String indexName, String documentType) {
         logger.debug("Checking mapping for {}, {}",indexName, documentType);
         XContentBuilder mappingEs = mapping(documentType);
@@ -166,7 +167,6 @@ public class TrackDaoES implements TrackSearchDao {
             }
         }
     }
-
 
     private synchronized void ensureIndex(String indexName, String documentType) {
         logger.debug("Ensuring index {}, {}", indexName, documentType);

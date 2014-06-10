@@ -21,6 +21,7 @@ package com.auditbucket.track.model;
 
 import org.joda.time.DateTime;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -43,7 +44,7 @@ public interface SearchChange {
      */
     String getMetaKey();
 
-    public void setWhat(Map<String, Object> what);
+    public void setWhat(HashMap<String, Object> what);
 
     public Map<String, Object> getWhat();
 
