@@ -31,9 +31,9 @@ public interface TrackSearchDao {
     /**
      * Rewrites an existing document
      *
-     * @param auditChange values to update from
+     * @param searchChange values to update from
      */
-    SearchChange update(SearchChange auditChange);
+    SearchChange update(SearchChange searchChange);
 
     /**
      * locates a document by LogResultBean.searchKey
@@ -61,7 +61,7 @@ public interface TrackSearchDao {
      * @param header           LogResultBean that the change belongs to
      * @param existingIndexKey searchKey for the header to remove. if NULL, defaults to header.getSearchKey()
      */
-    void delete(MetaHeader header, String existingIndexKey);
+    void delete(SearchChange searchChange);
 
     Map<String, Object> ping();
 }

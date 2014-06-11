@@ -67,12 +67,11 @@ public class TrackDaoES implements TrackSearchDao {
     private Logger logger = LoggerFactory.getLogger(TrackDaoES.class);
 
     @Override
-    public void delete(MetaHeader header, String existingIndexKey) {
-        String indexName = header.getIndexName();
-        String recordType = header.getDocumentType();
+    public void delete(SearchChange searchChange) {
+        String indexName = searchChange.getIndexName();
+        String recordType = searchChange.getDocumentType();
 
-        if (existingIndexKey == null)
-            existingIndexKey = header.getSearchKey();
+        String existingIndexKey = searchChange.getSearchKey();
 
         DeleteResponse dr = esClient.prepareDelete(indexName, recordType, existingIndexKey)
                 //.setRouting(header.getMetaKey())
@@ -208,27 +207,27 @@ public class TrackDaoES implements TrackSearchDao {
     }
 
     @Override
-    public SearchChange update(SearchChange incoming) {
+    public SearchChange update(SearchChange searchChange) {
 
-        String source = makeIndexJson(incoming);
-        logger.debug("Determining create or update for searchKey [{}]", incoming);
-        if (incoming.getSearchKey() == null || incoming.getSearchKey().equals("")){
-            logger.debug("No search key, creating as a new document [{}]", incoming.getMetaKey());
-            return save(incoming);
+        String source = makeIndexJson(searchChange);
+        logger.debug("Determining create or update for searchKey [{}]", searchChange);
+        if (searchChange.getSearchKey() == null || searchChange.getSearchKey().equals("")){
+            logger.debug("No search key, creating as a new document [{}]", searchChange.getMetaKey());
+            return save(searchChange);
         }
 
         try {
-            logger.debug("Update request for [{}]", incoming.getMetaKey());
-            ensureIndex(incoming.getIndexName(), incoming.getDocumentType());
-            //ensureMapping(incoming.getIndexName(), incoming.getDocumentType());
+            logger.debug("Update request for [{}]", searchChange.getMetaKey());
+            ensureIndex(searchChange.getIndexName(), searchChange.getDocumentType());
+            //ensureMapping(searchChange.getIndexName(), searchChange.getDocumentType());
             GetResponse response =
-                    esClient.prepareGet(incoming.getIndexName(),
-                            incoming.getDocumentType(),
-                            incoming.getSearchKey())
-                            //.setRouting(incoming.getMetaKey())
+                    esClient.prepareGet(searchChange.getIndexName(),
+                            searchChange.getDocumentType(),
+                            searchChange.getSearchKey())
+                            //.setRouting(searchChange.getMetaKey())
                             .execute()
                             .actionGet();
-            logger.debug("executed get request for {}", incoming.toString());
+            logger.debug("executed get request for {}", searchChange.toString());
             if (response.isExists() && !response.isSourceEmpty()) {
                 logger.debug("Document exists!");
                 // Messages can be received out of sequence
@@ -239,15 +238,15 @@ public class TrackDaoES implements TrackSearchDao {
                 if (o != null) {
 
                     Long existingWhen = Long.decode(o.toString());
-                    logger.debug("Comparing incoming when {} with stored when {}", incoming.getWhen(), existingWhen);
-                    if (!incoming.isForceReindex()) {
-                        if (existingWhen > incoming.getWhen()) {
-                            logger.debug("ignoring a request to update as the existing document dated [{}] is newer than the incoming document dated [{}]", new Date(existingWhen), new Date(incoming.getWhen()));
-                            return incoming; // Don't overwrite the most current doc!
-                        } else if (incoming.getWhen() == 0l && !incoming.isReplyRequired()) {
+                    logger.debug("Comparing searchChange when {} with stored when {}", searchChange.getWhen(), existingWhen);
+                    if (!searchChange.isForceReindex()) {
+                        if (existingWhen > searchChange.getWhen()) {
+                            logger.debug("ignoring a request to update as the existing document dated [{}] is newer than the searchChange document dated [{}]", new Date(existingWhen), new Date(searchChange.getWhen()));
+                            return searchChange; // Don't overwrite the most current doc!
+                        } else if (searchChange.getWhen() == 0l && !searchChange.isReplyRequired()) {
                             // Meta Change - not indexed in AB, so ignore something we already have.
                             // Likely scenario is a batch is being reprocessed
-                            return incoming;
+                            return searchChange;
                         }
                         logger.debug("Document is more recent. Proceeding with update");
                     } else {
@@ -257,27 +256,27 @@ public class TrackDaoES implements TrackSearchDao {
             } else {
                 // No response, to a search key we expect to exist. Create a new one
                 // Likely to be in response to rebuilding an ES index from Graph data.
-                logger.debug("About to create in response to an update request for {}", incoming.toString());
-                return save(incoming);
+                logger.debug("About to create in response to an update request for {}", searchChange.toString());
+                return save(searchChange);
             }
 
-            // Update the existing document with the incoming change
+            // Update the existing document with the searchChange change
             IndexRequestBuilder update = esClient
-                    .prepareIndex(incoming.getIndexName(), incoming.getDocumentType(), incoming.getSearchKey());
-            //.setRouting(incoming.getMetaKey());
+                    .prepareIndex(searchChange.getIndexName(), searchChange.getDocumentType(), searchChange.getSearchKey());
+            //.setRouting(searchChange.getMetaKey());
 
             ListenableActionFuture<IndexResponse> ur = update.setSource(source).
                     execute();
 
             if (logger.isDebugEnabled()) {
                 IndexResponse indexResponse = ur.actionGet();
-                logger.debug("Updated [{}] logId=[{}] for [{}] to version [{}]" , incoming.getSearchKey(), incoming.getLogId(), incoming,  indexResponse.getVersion());
+                logger.debug("Updated [{}] logId=[{}] for [{}] to version [{}]" , searchChange.getSearchKey(), searchChange.getLogId(), searchChange,  indexResponse.getVersion());
             }
         } catch (IndexMissingException e) { // administrator must have deleted it, but we think it still exists
-            logger.info("Attempt to update non-existent index [{}]. Moving to create it", incoming.getIndexName());
-            return save(incoming);
+            logger.info("Attempt to update non-existent index [{}]. Moving to create it", searchChange.getIndexName());
+            return save(searchChange);
         }
-        return incoming;
+        return searchChange;
     }
 
     public byte[] findOne(MetaHeader header) {
@@ -337,7 +336,7 @@ public class TrackDaoES implements TrackSearchDao {
     /**
      * Converts a user requested searchChange in to a standardised document to index
      *
-     * @param searchChange incoming
+     * @param searchChange searchChange
      * @return document to index
      */
     private Map<String, Object> makeIndexDocument(SearchChange searchChange) {

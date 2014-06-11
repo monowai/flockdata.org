@@ -500,11 +500,16 @@ public class TrackService {
             trackDao.delete(currentLog);
         }
         whatService.delete(metaHeader, currentLog); // ToDo: Move to mediation facade
-
-        if (previousLog == null)
-            // Nothing to index, no changes left so we're done
-            return new AsyncResult<>(null);
         MetaSearchChange searchDocument = null;
+        if (previousLog == null) {
+            // Nothing to index, no changes left so we're done
+            searchDocument = new MetaSearchChange(metaHeader);
+
+            searchDocument.setDelete(true);
+            searchDocument.setSearchKey(metaHeader.getSearchKey());
+            return new AsyncResult<>(searchDocument);
+        }
+
         // Sync the update to ab-search.
         if (metaHeader.getFortress().isSearchActive() && !metaHeader.isSearchSuppressed()) {
             // Update against the MetaHeader only by re-indexing the search document

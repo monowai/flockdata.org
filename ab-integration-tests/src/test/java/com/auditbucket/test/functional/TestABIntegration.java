@@ -516,7 +516,7 @@ public class TestABIntegration {
     public void testCancelUpdatesSearchCorrectly() throws Exception {
         assumeTrue(runMe);
         // DAT-53
-        logger.info("## testWhatIndexingDefaultAttributeWithNGram");
+        logger.info("## testCancelUpdatesSearchCorrectly");
         String what = "{\"house\": \"house";
         SystemUser su = registerSystemUser("Rocky");
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("testCancelUpdatesSearchCorrectly", false));
@@ -549,10 +549,11 @@ public class TestABIntegration {
         doEsTermQuery(metaHeader.getIndexName(), MetaSearchSchema.WHAT+".house", "house1", 1); // Cancelled, so Back to house1
 
         // Last change cancelled
-        // ToDo: Assert what in ElasticSearch?
+        // DAT-96
         mediationFacade.cancelLastLogSync(metaHeader.getMetaKey());
         logs = trackService.getLogs(fortress.getCompany(), metaHeader.getMetaKey());
         junit.framework.Assert.assertTrue(logs.isEmpty());
+        doEsQuery(metaHeader.getIndexName(), "*", 0);
 
     }
 
