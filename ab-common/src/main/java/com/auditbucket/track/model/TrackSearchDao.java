@@ -58,10 +58,8 @@ public interface TrackSearchDao {
      * is sufficient. However if you are tracking EVERY change in the search engine, then you
      * can delete a specific instance
      *
-     * @param header           LogResultBean that the change belongs to
-     * @param existingIndexKey searchKey for the header to remove. if NULL, defaults to header.getSearchKey()
      */
-    void delete(SearchChange searchChange);
+    boolean delete(SearchChange searchChange);
 
     Map<String, Object> ping();
 }

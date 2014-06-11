@@ -480,6 +480,7 @@ public class TrackService {
         //trackDao.fetch(existingLog.getLog());
         Log currentLog = existingLog.getLog();
         Log previousLog = currentLog.getPreviousLog();
+        String searchKey = metaHeader.getSearchKey();
 
         if (previousLog != null) {
             trackDao.fetch(previousLog);
@@ -492,10 +493,11 @@ public class TrackService {
 
         } else {
             // No changes left, there is now just a header
-            // What to to? Delete the metaHeader? Store the "canceled By" User? Assign the log to a Cancelled RLX?
-            // ToDo: Delete from ElasticSearch??
+            // ToDo: What to to with the header? Delete it? Store the "canceled By" User? Assign the log to a Cancelled RLX?
+            // Delete from ElasticSearch??
             metaHeader.setLastUser(fortressService.getFortressUser(metaHeader.getFortress(), metaHeader.getCreatedBy().getCode()));
-            metaHeader.setFortressLastWhen(0l); // ToDo: What are we setting this to when there are no logs? SysWhen is updated
+            metaHeader.setFortressLastWhen(0l);
+            metaHeader.setSearchKey(null);
             metaHeader = trackDao.save(metaHeader);
             trackDao.delete(currentLog);
         }
@@ -504,9 +506,8 @@ public class TrackService {
         if (previousLog == null) {
             // Nothing to index, no changes left so we're done
             searchDocument = new MetaSearchChange(metaHeader);
-
             searchDocument.setDelete(true);
-            searchDocument.setSearchKey(metaHeader.getSearchKey());
+            searchDocument.setSearchKey(searchKey);
             return new AsyncResult<>(searchDocument);
         }
 
