@@ -63,6 +63,7 @@ public class MetaSearchChange implements SearchChange {
     private long sysWhen;
     private Long createdDate;
     private boolean replyRequired = true;
+    private boolean forceReindex;
 
     /**
      * extracts relevant header records to be used in indexing
@@ -287,5 +288,13 @@ public class MetaSearchChange implements SearchChange {
 
     public boolean isReplyRequired() {
         return replyRequired;
+    }
+
+    public void setForceReindex(boolean forceReindex) {
+        this.forceReindex = forceReindex;
+    }
+
+    public boolean isForceReindex() {
+        return forceReindex;
     }
 }

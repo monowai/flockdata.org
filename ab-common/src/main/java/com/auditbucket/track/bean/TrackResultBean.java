@@ -166,7 +166,6 @@ public class TrackResultBean {
     }
 
     public boolean processLog() {
-        return getLog()!=null && log.getStatus() != LogInputBean.LogStatus.IGNORE;
-
+        return getLog()!=null && log.getStatus() != LogInputBean.LogStatus.IGNORE ;
     }
 }

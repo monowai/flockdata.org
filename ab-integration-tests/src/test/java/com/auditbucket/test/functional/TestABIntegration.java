@@ -77,8 +77,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Future;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertSame;
+import static junit.framework.Assert.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assume.assumeTrue;
@@ -99,7 +98,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
-public class TestAuditIntegration {
+public class TestABIntegration {
     private static boolean runMe = true; // pass -Dab.debug=true to disable all tests
     private static int fortressMax = 1;
     private static JestClient esClient;
@@ -119,7 +118,7 @@ public class TestAuditIntegration {
     @Autowired
     WhatService whatService;
 
-    private static Logger logger = LoggerFactory.getLogger(TestAuditIntegration.class);
+    private static Logger logger = LoggerFactory.getLogger(TestABIntegration.class);
     private static Authentication authA = new UsernamePasswordAuthenticationToken("mike", "123");
 
     String company = "Monowai";
@@ -196,9 +195,7 @@ public class TestAuditIntegration {
             defaultAuthUser = true;
             regService.registerSystemUser(new RegistrationBean(company, "mike").setIsUnique(false));
             waitAWhile("Registering Auth user System Access {}");
-
         }
-
     }
 
     @Test
@@ -411,7 +408,7 @@ public class TestAuditIntegration {
         TrackResultBean result = mediationFacade.createHeader(inputBean, null); // Mock result as we're not tracking
         waitForHeaderToUpdate(result.getMetaHeader(), su.getApiKey());
         // ensure that non-analysed tags work
-        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG +".testinga.key", "happy",1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testinga.key", "happy", 1);
         doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG +".testingb.key", "happydays",1);
         doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG +".testingb.key", "saddays",1);
         doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG +".testingc.key", "daysbay",1);
@@ -512,6 +509,50 @@ public class TestAuditIntegration {
 
         waitForHeaderToUpdate(indexHeader, su.getApiKey());
         doEsTermQuery(indexName, "@tag." + relationshipName + ".key", "keytestworks", 1);
+
+    }
+
+    @Test
+    public void testCancelUpdatesSearchCorrectly() throws Exception {
+        assumeTrue(runMe);
+        // DAT-53
+        logger.info("## testWhatIndexingDefaultAttributeWithNGram");
+        String what = "{\"house\": \"house";
+        SystemUser su = registerSystemUser("Rocky");
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("testCancelUpdatesSearchCorrectly", false));
+        DateTime dt = new DateTime().toDateTime();
+        DateTime firstDate = dt.minusDays(2);
+        MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "olivia@sunnybell.com", "CompanyNode", firstDate, "clb1");
+        inputBean.setLog(new LogInputBean("olivia@sunnybell.com", firstDate, what + 1 + "\"}"));
+        String ahWP = mediationFacade.createHeader(inputBean, null).getMetaKey();
+
+        MetaHeader metaHeader = trackService.getHeader(ahWP);
+        waitForHeaderToUpdate(metaHeader, su.getApiKey());
+
+        doEsTermQuery(metaHeader.getIndexName(), MetaSearchSchema.WHAT+".house", "house1", 1); // First log
+
+        LogResultBean secondLog = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}"));
+        assertNotSame(0l, secondLog.getWhatLog().getTrackLog().getFortressWhen());
+        Set<TrackLog> logs = trackService.getLogs(fortress.getCompany(), metaHeader.getMetaKey());
+        assertEquals(2, logs.size());
+        metaHeader = trackService.getHeader(ahWP);
+        waitAWhile();
+        assertEquals(secondLog.getWhatLog().getTrackLog().getFortressWhen(), metaHeader.getFortressLastWhen());
+        doEsTermQuery(metaHeader.getIndexName(), MetaSearchSchema.WHAT+".house", "house2", 1); // replaced first with second
+
+        // Test block
+        mediationFacade.cancelLastLogSync(metaHeader.getMetaKey());
+        logs = trackService.getLogs(fortress.getCompany(), metaHeader.getMetaKey());
+        assertEquals(1, logs.size());
+        metaHeader = trackService.getHeader(ahWP); // Refresh the header
+        waitAWhile();
+        doEsTermQuery(metaHeader.getIndexName(), MetaSearchSchema.WHAT+".house", "house1", 1); // Cancelled, so Back to house1
+
+        // Last change cancelled
+        // ToDo: Assert what in ElasticSearch?
+        mediationFacade.cancelLastLogSync(metaHeader.getMetaKey());
+        logs = trackService.getLogs(fortress.getCompany(), metaHeader.getMetaKey());
+        junit.framework.Assert.assertTrue(logs.isEmpty());
 
     }
 

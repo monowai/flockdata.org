@@ -304,12 +304,16 @@ public class TrackService {
 
         resultBean.setWhatLog(thisLog);
 
+
+        if ( authorisedHeader.getId() == null )
+            input.setStatus(LogInputBean.LogStatus.TRACK_ONLY);
+        else
+            input.setStatus(LogInputBean.LogStatus.OK);
+
         TrackLog newLog = trackDao.addLog(authorisedHeader, thisLog, fortressWhen, existingLog);
         resultBean.setSysWhen(newLog.getSysWhen());
 
         boolean moreRecent = (existingLog == null || existingLog.getFortressWhen() <= newLog.getFortressWhen());
-
-        input.setStatus(LogInputBean.LogStatus.OK);
 
         if (moreRecent) {
             if (authorisedHeader.getLastUser() == null || (!authorisedHeader.getLastUser().getId().equals(thisFortressUser.getId()))) {
@@ -508,6 +512,8 @@ public class TrackService {
 
             searchDocument = new MetaSearchChange(metaHeader, priorWhat, previousLog.getEvent().getCode(), new DateTime(previousLog.getTrackLog().getFortressWhen()));
             searchDocument.setTags(tagTrackService.findTrackTags(metaHeader));
+            searchDocument.setReplyRequired(false);
+            searchDocument.setForceReindex(true);
         }
         return new AsyncResult<>(searchDocument);
     }

@@ -110,4 +110,11 @@ public interface SearchChange {
 
     boolean isReplyRequired();
 
+    /**
+     * Forces the search engine to ignore date checks and force an update of the document.
+     * Usually in response to a cancellation in ab-engine
+     *
+     */
+    public boolean isForceReindex();
+
 }

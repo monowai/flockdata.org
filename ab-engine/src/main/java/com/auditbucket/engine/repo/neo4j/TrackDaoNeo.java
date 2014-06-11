@@ -342,6 +342,9 @@ public class TrackDaoNeo implements TrackDao {
     public TrackLog addLog(MetaHeader metaHeader, Log newChange, DateTime fortressWhen, TrackLog existingLog) {
 
         newChange.setTrackLog(new LoggedRelationship(metaHeader, newChange, fortressWhen));
+
+        if ( metaHeader.getId()== null )// This occurs when tracking in ab-engine is suppressed and the caller is only creating search docs
+            return newChange.getTrackLog();
         newChange = template.save(newChange);
         template.fetch(newChange.getTrackLog());
         boolean moreRecent = (existingLog == null || existingLog.getFortressWhen() <= fortressWhen.getMillis());

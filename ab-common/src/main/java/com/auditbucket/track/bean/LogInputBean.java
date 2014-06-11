@@ -266,7 +266,7 @@ public class LogInputBean {
     }
 
     public enum LogStatus {
-        IGNORE, OK, FORBIDDEN, NOT_FOUND, REINDEX, ILLEGAL_ARGUMENT
+        IGNORE, OK, FORBIDDEN, NOT_FOUND, REINDEX, ILLEGAL_ARGUMENT, TRACK_ONLY
     }
 
     @Override
