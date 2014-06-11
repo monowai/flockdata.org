@@ -58,7 +58,7 @@
 
     <aop:aspectj-autoproxy/>
 
-    <!--Pool size is the number of executors that will handle Bulk Uploads and incoming search responses-->
+    <!--Pool size is the number of executors that will handle Bulk Uploads and searchChange search responses-->
     <task:executor id="executor" pool-size="20-20" keep-alive="180" queue-capacity="10"
                    rejection-policy="CALLER_RUNS"/>
     <cache:annotation-driven/>

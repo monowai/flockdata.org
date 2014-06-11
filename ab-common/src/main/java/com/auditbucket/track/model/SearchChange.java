@@ -117,4 +117,10 @@ public interface SearchChange {
      */
     public boolean isForceReindex();
 
+    /**
+     *
+     * @return if the searchKey should be removed
+     */
+    public boolean isDelete();
+
 }

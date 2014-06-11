@@ -64,13 +64,14 @@ public class MetaSearchChange implements SearchChange {
     private Long createdDate;
     private boolean replyRequired = true;
     private boolean forceReindex;
+    private boolean delete;
 
     /**
      * extracts relevant header records to be used in indexing
      *
      * @param header auditHeader details (owner of this change)
      */
-    MetaSearchChange(MetaHeader header) {
+    public MetaSearchChange(MetaHeader header) {
         this();
         this.metaKey = header.getMetaKey();
         this.metaId = header.getId();
@@ -296,5 +297,17 @@ public class MetaSearchChange implements SearchChange {
 
     public boolean isForceReindex() {
         return forceReindex;
+    }
+
+    /**
+     * Flags to ab-search to delete the SearchDocument
+     * @param delete shall I?
+     */
+    public void setDelete(boolean delete) {
+        this.delete = delete;
+    }
+
+    public boolean isDelete() {
+        return delete;
     }
 }
