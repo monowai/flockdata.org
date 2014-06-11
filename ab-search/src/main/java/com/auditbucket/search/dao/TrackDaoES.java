@@ -240,15 +240,19 @@ public class TrackDaoES implements TrackSearchDao {
 
                     Long existingWhen = Long.decode(o.toString());
                     logger.debug("Comparing incoming when {} with stored when {}", incoming.getWhen(), existingWhen);
-                    if (existingWhen > incoming.getWhen()) {
-                        logger.debug("ignoring a request to update as the existing document dated [{}] is newer than the incoming document dated [{}]", new Date(existingWhen), new Date(incoming.getWhen()));
-                        return incoming; // Don't overwrite the most current doc!
-                    } else if (incoming.getWhen() == 0l && !incoming.isReplyRequired()) {
-                        // Meta Change - not indexed in AB, so ignore something we already have.
-                        // Likely scenario is a batch is being reprocessed
-                        return incoming;
+                    if (!incoming.isForceReindex()) {
+                        if (existingWhen > incoming.getWhen()) {
+                            logger.debug("ignoring a request to update as the existing document dated [{}] is newer than the incoming document dated [{}]", new Date(existingWhen), new Date(incoming.getWhen()));
+                            return incoming; // Don't overwrite the most current doc!
+                        } else if (incoming.getWhen() == 0l && !incoming.isReplyRequired()) {
+                            // Meta Change - not indexed in AB, so ignore something we already have.
+                            // Likely scenario is a batch is being reprocessed
+                            return incoming;
+                        }
+                        logger.debug("Document is more recent. Proceeding with update");
+                    } else {
+                        logger.debug("Forcing an update of the document.");
                     }
-                    logger.debug("Document is more recent. Proceeding with update");
                 }
             } else {
                 // No response, to a search key we expect to exist. Create a new one
