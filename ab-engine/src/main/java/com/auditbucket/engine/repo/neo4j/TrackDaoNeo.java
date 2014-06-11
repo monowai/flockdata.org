@@ -57,6 +57,7 @@ import java.util.*;
  * Date: 21/04/13
  * Time: 8:00 PM
  */
+@SuppressWarnings("SpringJavaAutowiringInspection")
 @Repository("auditDAO")
 public class TrackDaoNeo implements TrackDao {
     @Autowired
@@ -336,8 +337,6 @@ public class TrackDaoNeo implements TrackDao {
         LAST_CHANGE
     }
 
-    private static final String LAST_CHANGE = "LAST_CHANGE";
-
     @Override
     public TrackLog addLog(MetaHeader metaHeader, Log newChange, DateTime fortressWhen, TrackLog existingLog) {
 
@@ -357,24 +356,6 @@ public class TrackDaoNeo implements TrackDao {
         newChange.getTrackLog().setMetaHeader(metaHeader);
         return newChange.getTrackLog();
 
-    }
-
-    private void removeLastChange(MetaHeader metaHeader, TrackLog existingLog) {
-        if (existingLog != null) {
-            Node auditNode = template.getPersistentState(metaHeader);
-            if (existingLog.getLog() != null) {
-                Node logNode = template.getPersistentState(existingLog.getLog());
-                Relationship r = template.getRelationshipBetween(auditNode, logNode, LAST_CHANGE);
-                if (r != null) {
-                    logger.debug("removeLastChange MetaHeader[{}], [{}]", metaHeader.getId(), r);
-                    r.delete();
-                    r = auditNode.getSingleRelationship(LastChange.LAST_CHANGE, Direction.OUTGOING);
-                    if (r != null) r.delete();
-                } else {
-                    logger.debug("No change to remove for MetaHeader [{}]", metaHeader.getId());
-                }
-            }
-        }
     }
 
     @Override

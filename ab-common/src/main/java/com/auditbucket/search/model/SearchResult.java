@@ -107,4 +107,8 @@ public class SearchResult {
     public void setMetaId(Long metaId) {
         this.metaId = metaId;
     }
+
+    public void setSearchKey(String searchKey) {
+        this.searchKey = searchKey;
+    }
 }

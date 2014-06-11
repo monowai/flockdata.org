@@ -52,6 +52,11 @@ public class TrackServiceEP {
             if (metaSearchChange.isDelete()) {
                 trackSearch.delete(metaSearchChange);
                 return;
+//                    result = new SearchResult(metaSearchChange);
+//                    result.setSearchKey(null);
+//                } else {
+//                    return; // Nothing found, nothing to do or return
+
             } else
                 result = new SearchResult(trackSearch.update(metaSearchChange));
 

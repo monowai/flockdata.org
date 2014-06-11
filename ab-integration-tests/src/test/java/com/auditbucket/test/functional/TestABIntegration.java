@@ -555,6 +555,8 @@ public class TestABIntegration {
         junit.framework.Assert.assertTrue(logs.isEmpty());
         doEsQuery(metaHeader.getIndexName(), "*", 0);
 
+        metaHeader = trackService.getHeader(ahWP); // Refresh the header
+        assertEquals("Search Key wasn't set to null", null, metaHeader.getSearchKey());
     }
 
     @Test
