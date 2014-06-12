@@ -37,16 +37,13 @@ public class MatrixDaoNeo4j implements MatrixDao {
                 "match t=(tag1" + fromLabels + ")-[" + fromRlx + "]->(meta)<-[" + toRlx + "]-(tag2" + toLabels + ") " +     // Concepts
                 "with tag1.name as tag1, tag2.name as tag2, count(t) as links " +
                 "order by links desc, tag2 " +
-                "where links >{linkCount} " +
+                "where links >={linkCount} " +
                 "return tag1, collect(tag2) as tag2,  " +
                 "collect( links) as occurrenceCount";
 
         Map<String, Object> params = new HashMap<>();
         params.put("linkCount", input.getMinCount());
         Result<Map<String, Object>> result = template.query(query, params);
-
-//        if (!((Result) result).iterator().hasNext())
-//            return new ArrayList<>();
 
         Iterator<Map<String, Object>> rows = result.iterator();
         Collection<MatrixResult> matrixResults = new ArrayList<>();
@@ -61,6 +58,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
             while (concept.hasNext() && occurrence.hasNext()) {
                 MatrixResult mr = new MatrixResult(conceptFrom, concept.next(), occurrence.next());
                 MatrixResult inverse = new MatrixResult(mr.getTo(), mr.getFrom(), mr.getCount());
+                // Suppress inverse occurrences
                 if (!matrixResults.contains(inverse))
                     matrixResults.add(mr);
             }
