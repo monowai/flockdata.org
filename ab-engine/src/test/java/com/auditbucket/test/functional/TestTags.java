@@ -454,7 +454,7 @@ public class TestTags {
 
         // Same code, and default index. Should be found in the _Tag index
         TagInputBean tagInputB = new TagInputBean("Apple");
-        tagInputB.setIndex("_Tag");
+        tagInputB.setIndex(Tag.DEFAULT);
 
         TagInputBean tagInputC = new TagInputBean("Samsung");
         tagInputC.setIndex("Law");
