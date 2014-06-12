@@ -53,6 +53,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * User: mike
@@ -121,7 +122,10 @@ public class QueryResults {
         input.setConcepts(concepts);
         int fruitCount = 5, things = 2;
         MatrixResults results = queryEP.getMatrixResult(input, su.getApiKey(), su.getApiKey());
+        assertFalse(results.getResults().isEmpty());
         int cCount = 5;
+        // ToDo: How to assert it worked!
+
 //        assertEquals(concepts * (concepts-1), results.getResults().size());
 
         input.setDocuments(docs);
@@ -129,6 +133,7 @@ public class QueryResults {
         input.setConcepts(concepts);
         results = queryEP.getMatrixResult(input, su.getApiKey(), su.getApiKey());
         cCount = 7;
+        assertFalse(results.getResults().isEmpty());
   //      assertEquals(concepts * (concepts-1), results.getResults().size());
 
         concepts.clear();
