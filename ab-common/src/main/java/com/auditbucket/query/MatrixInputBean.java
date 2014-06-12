@@ -30,8 +30,8 @@ public class MatrixInputBean {
     private ArrayList<String> documents = null;
     private int minCount = 0;
     private ArrayList<String> concepts = null;
-//    private ArrayList<String> toConcepts = null;
     private ArrayList<String> fromRlxs = null;
+    private ArrayList<String> toRlxs = null;
 
     public ArrayList<String> getToRlxs() {
         return toRlxs;
@@ -48,10 +48,6 @@ public class MatrixInputBean {
     public void setFromRlxs(ArrayList<String> fromRlxs) {
         this.fromRlxs = fromRlxs;
     }
-
-//    public void setToConcepts(ArrayList<String> toConcepts) {
-//        this.concepts = toConcepts;
-//    }
 
     public ArrayList<String> getConcepts() {
         return concepts;
@@ -77,5 +73,4 @@ public class MatrixInputBean {
         this.documents = documents;
     }
 
-    ArrayList<String> toRlxs = null;
 }
