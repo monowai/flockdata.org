@@ -96,7 +96,10 @@ public class TrackDaoES implements TrackSearchDao {
         logger.debug("Received request to Save [{}]", searchChange.getMetaKey());
 
         ensureIndex(indexName, documentType);
-//        ensureMapping(indexName, documentType);
+        // ToDo: we shouldn't have to do this. It should only need to happen when we create an index for the first time.
+        //       But if we don't the @tag.*.key is analyzed affecting pie charts in Kibana.
+
+        ensureMapping(indexName, documentType);
 
         String source = makeIndexJson(searchChange);
         IndexRequestBuilder irb = esClient.prepareIndex(indexName, documentType)
