@@ -408,7 +408,7 @@ public class TestABIntegration {
         TrackResultBean result = mediationFacade.createHeader(inputBean, null); // Mock result as we're not tracking
         waitForHeaderToUpdate(result.getMetaHeader(), su.getApiKey());
         // ensure that non-analysed tags work
-        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testinga.key", "happy", 1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG +".testinga.key", "happy", 1);
         doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG +".testingb.key", "happydays",1);
         doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG +".testingb.key", "saddays",1);
         doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG +".testingc.key", "daysbay",1);
