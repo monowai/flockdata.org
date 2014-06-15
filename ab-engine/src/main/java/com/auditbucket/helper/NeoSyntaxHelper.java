@@ -18,9 +18,10 @@
  */
 
 package com.auditbucket.helper;
+
 import com.auditbucket.registration.model.Tag;
 
-import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * User: mike
@@ -29,26 +30,26 @@ import java.util.ArrayList;
  */
 public class NeoSyntaxHelper {
 
-    public static String getLabels(ArrayList<String> input) {
-        if (input == null || input.isEmpty())
+    public static String getLabels(Collection<String> values) {
+        if (values == null || values.isEmpty())
             return ":_MetaHeader";
         // create a neo4j label index
-        return getNeoString(":", input, " ");
+        return getNeoString(":", values, " ");
     }
 
-    public static String getConcepts(ArrayList<String> inputBean) {
-        if ( inputBean==null || inputBean.isEmpty())
+    public static String getConcepts(Collection<String> values) {
+        if ( values ==null || values.isEmpty())
             return Tag.DEFAULT;
-        return getNeoString(":", inputBean, " ");
+        return getNeoString(":", values, " ");
     }
 
-    public static String getRelationships(ArrayList<String> inputBean) {
-        if ( inputBean==null || inputBean.isEmpty())
+    public static String getRelationships(Collection<String> values) {
+        if ( values ==null || values.isEmpty())
             return "";
-        return getNeoString(":", inputBean, " |");
+        return getNeoString(":", values, " |");
     }
 
-    private static String getNeoString(String delimiter, ArrayList<String> input, String join) {
+    private static String getNeoString(String delimiter, Collection<String> input, String join) {
         String result = (delimiter.equals(":")? ":": "");
         for (String s : input) {
             if ( s != null ) {

@@ -26,15 +26,14 @@ public class MatrixDaoNeo4j implements MatrixDao {
     public MatrixResults getMatrix(Company company, MatrixInputBean input) {
 
         String docIndexes = NeoSyntaxHelper.getLabels(input.getDocuments());
-        String fromLabels = NeoSyntaxHelper.getConcepts(input.getConcepts());
-        String toLabels = NeoSyntaxHelper.getConcepts(input.getConcepts());
+        String concepts = NeoSyntaxHelper.getConcepts(input.getConcepts());
         String fromRlx = NeoSyntaxHelper.getRelationships(input.getFromRlxs());
         String toRlx = NeoSyntaxHelper.getRelationships(input.getToRlxs());
 
         //ToDo: Restrict metaHeaders by Company
         String query = "match (meta" + docIndexes + ") " +
                 "with meta\n" +
-                "match t=(tag1" + fromLabels + ")-[" + fromRlx + "]->(meta)<-[" + toRlx + "]-(tag2" + toLabels + ") " +     // Concepts
+                "match t=(tag1" + concepts + ")-[" + fromRlx + "]->(meta)<-[" + toRlx + "]-(tag2" + concepts + ") " +     // Concepts
                 "with tag1.name as tag1, tag2.name as tag2, count(t) as links " +
                 "order by links desc, tag2 " +
                 "where links >={linkCount} " +

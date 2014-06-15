@@ -100,7 +100,7 @@ public class QueryResults {
         inputBean.addTag(new TagInputBean("Pears", "likes").setIndex(QueryResults.FRUIT));
         inputBean.addTag(new TagInputBean("Oranges", "dislikes").setIndex(QueryResults.FRUIT));
         inputBean.addTag(new TagInputBean("Grapes", "allergic").setIndex(QueryResults.FRUIT));
-        inputBean.addTag(new TagInputBean("Peas", "dislikes").setIndex(VEGETABLE));
+//        inputBean.addTag(new TagInputBean("Peas", "dislikes").setIndex(VEGETABLE));
         inputBean.addTag(new TagInputBean("Potatoes", "likes").setIndex(VEGETABLE)); // No co-occurrence
         trackEP.trackHeader(inputBean, su.getApiKey(), su.getApiKey()) ;
 

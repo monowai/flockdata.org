@@ -221,4 +221,14 @@ public class TagTrackService {
         }
     }
 
+    /**
+     * Locates all tags in use by the associated document types
+     * @param company   who the caller works for
+     * @param documents labels to restrict the search by
+     * @return tags that are actually in use
+     */
+    public Set<TrackTag> findTrackTags(Company company, Collection<String> documents) {
+        //match (company:ABCompany)-[]-(a:Orthopedic) -[r]-(:_Tag) return distinct type(r) as typeName  order by typeName;
+        return null;
+    }
 }
