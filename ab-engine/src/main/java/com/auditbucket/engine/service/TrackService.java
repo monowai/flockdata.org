@@ -73,6 +73,9 @@ public class TrackService {
     TagTrackService tagTrackService;
 
     @Autowired
+    SchemaService schemaService;
+
+    @Autowired
     WhatService whatService;
 
     @Autowired
@@ -115,7 +118,7 @@ public class TrackService {
      * @return unique primary key to be used for subsequent log calls
      */
     public TrackResultBean createHeader(Company company, Fortress fortress, MetaInputBean inputBean) {
-        DocumentType documentType = tagService.resolveDocType(fortress, inputBean.getDocumentType(), true);
+        DocumentType documentType = schemaService.resolveDocType(fortress, inputBean.getDocumentType(), true);
 
         MetaHeader ah = null;
         if (inputBean.getCallerRef() != null && !inputBean.getCallerRef().equals(EMPTY))
@@ -337,7 +340,7 @@ public class TrackService {
     }
 
     public Collection<MetaHeader> getHeaders(Fortress fortress, String docTypeName, Long skipTo) {
-        DocumentType docType = tagService.resolveDocType(fortress, docTypeName);
+        DocumentType docType = schemaService.resolveDocType(fortress, docTypeName);
         return trackDao.findHeaders(fortress.getId(), docType.getName(), skipTo);
     }
 
@@ -602,7 +605,7 @@ public class TrackService {
 
 
     public MetaHeader findByCallerRef(Fortress fortress, String documentType, String callerRef) {
-        DocumentType doc = tagService.resolveDocType(fortress, documentType, false);
+        DocumentType doc = schemaService.resolveDocType(fortress, documentType, false);
         if (doc == null)
             return null;
         return findByCallerRef(fortress, doc, callerRef);

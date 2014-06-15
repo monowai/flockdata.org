@@ -19,31 +19,15 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.engine.endpoint.QueryEP;
-import com.auditbucket.engine.endpoint.TrackEP;
-import com.auditbucket.fortress.endpoint.FortressEP;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.bean.TagInputBean;
-import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.model.DocumentType;
 import org.joda.time.DateTime;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.data.neo4j.support.node.Neo4jHelper;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -56,36 +40,15 @@ import static org.junit.Assert.assertEquals;
  * Date: 14/06/14
  * Time: 10:40 AM
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:root-context.xml")
 @Transactional
-
-public class TestQuery {
-    @Autowired
-    TrackEP trackEP;
-
-    @Autowired
-    QueryEP queryEP;
-
-    @Autowired
-    FortressEP fortressEP;
-
-    @Autowired
-    RegistrationEP registrationEP;
-
-    @Autowired
-    private Neo4jTemplate template;
-
-    // This has to be a user in spring-security.xml that is authorised to create registrations
-    private Authentication authMike = new UsernamePasswordAuthenticationToken("mike", "123");
-    private String what = "{\"house\": \"house";
+public class TestQuery extends TestEngineBase {
 
     @Test
     public void queryInputsReturned () throws Exception{
         //      Each fortress one MetaHeader (diff docs)
         //          One MH with same tags over both companies
         //          One MH with company unique tags
-        SecurityContextHolder.getContext().setAuthentication(authMike);
+        setSecurity();
 
         // Two companies
         //  Each with two fortresses
@@ -99,7 +62,7 @@ public class TestQuery {
         Fortress coBfA = fortressEP.registerFortress(new FortressInputBean("coBfA", true), suB.getApiKey(), suB.getApiKey()).getBody();
         Fortress coBfB = fortressEP.registerFortress(new FortressInputBean("coBfB", true), suB.getApiKey(), suB.getApiKey()).getBody();
 
-        SecurityContextHolder.getContext().setAuthentication(authMike);
+        setSecurity();
         //
         //
         MetaInputBean inputBean = new MetaInputBean(coAfA.getName(), "poppy", "SalesDocket", DateTime.now(), "ABC1"); // Sales fortress
@@ -132,27 +95,11 @@ public class TestQuery {
         // Company B
         fortresses.clear();
         fortresses.add(coBfA.getName());
-        assertEquals(1, queryEP.getDocumentsInUse (fortresses, suB.getApiKey(), suB.getApiKey()).size());
+        assertEquals(1, queryEP.getDocumentsInUse(fortresses, suB.getApiKey(), suB.getApiKey()).size());
         fortresses.add(coBfB.getName());
         assertEquals(2, queryEP.getDocumentsInUse (fortresses, suB.getApiKey(), suB.getApiKey()).size());
 
 
 
     }
-
-    @Before
-    public void setSecurity() {
-        SecurityContextHolder.getContext().setAuthentication(authMike);
-    }
-
-    @Rollback(false)
-    @BeforeTransaction
-    public void cleanUpGraph() {
-        // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
-        // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-        if (!"rest".equals(System.getProperty("neo4j")))
-            Neo4jHelper.cleanDb(template);
-    }
-
-
 }

@@ -1,27 +1,12 @@
 package com.auditbucket.test.functional;
 
-import com.auditbucket.company.endpoint.CompanyEP;
-import com.auditbucket.engine.endpoint.TrackEP;
-import com.auditbucket.fortress.endpoint.FortressEP;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
-import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.model.DocumentType;
 import org.joda.time.DateTime;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.data.neo4j.support.node.Neo4jHelper;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
@@ -36,39 +21,8 @@ import static org.junit.Assert.assertFalse;
  * Time: 9:54 AM
  * To change this template use File | Settings | File Templates.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:root-context.xml")
 @Transactional
-
-public class TestSchemaManagement {
-    @Autowired
-    TrackEP trackEP;
-
-    @Autowired
-    FortressEP fortressEP;
-
-    @Autowired
-    RegistrationEP registrationEP;
-
-    @Autowired
-    CompanyEP companyEP;
-
-    @Autowired
-    private Neo4jTemplate template;
-
-    @Rollback(false)
-    @BeforeTransaction
-    public void cleanUpGraph() {
-        // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
-        // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-        SecurityContextHolder.getContext().setAuthentication(authA);
-        Neo4jHelper.cleanDb(template);
-    }
-
-    private String uid = "mike";
-    private Authentication authA = new UsernamePasswordAuthenticationToken(uid, "123");
-    private String monowai = "Monowai";
-    private String mike = "mike";
+public class TestSchemaManagement extends TestEngineBase {
 
     @Test
     public void documentTypesTrackedPerFortress() throws Exception {

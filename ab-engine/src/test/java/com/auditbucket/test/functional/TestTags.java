@@ -20,29 +20,15 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.engine.PropertyConversion;
-import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
-import com.auditbucket.registration.endpoint.TagEP;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.model.Tag;
-import com.auditbucket.registration.service.FortressService;
-import com.auditbucket.registration.service.RegistrationService;
-import com.auditbucket.registration.service.TagService;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.data.neo4j.support.node.Neo4jHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -57,50 +43,10 @@ import static org.junit.Assume.assumeTrue;
  * Date: 29/06/13
  * Time: 8:11 AM
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:root-context.xml")
-public class TestTags {
-    @Autowired
-    FortressService fortressService;
-
-    @Autowired
-    RegistrationService regService;
-
-    @Autowired
-    TagService tagService;
-
-    @Autowired
-    TagEP tagEP;
-
-    @Autowired
-    EngineConfig engineAdmin;
-
-
-    @Autowired
-    private Neo4jTemplate template;
-
-    //private Logger log = LoggerFactory.getLogger(TestTags.class);
-    private String company = "Monowai";
-    private String mike = "mike";
-    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "123");
-
-    @Before
-    public void setSecurity() {
-        SecurityContextHolder.getContext().setAuthentication(authMike);
-    }
-
-    @Rollback(false)
-    @BeforeTransaction
-    public void cleanUpGraph() {
-        // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
-        // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-        SecurityContextHolder.getContext().setAuthentication(authMike);
-        Neo4jHelper.cleanDb(template);
-    }
+public class TestTags extends TestEngineBase {
 
     public void duplicateTagLists() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(authMike);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike));
         assertNotNull(iSystemUser);
 
         List<TagInputBean> tags = new ArrayList<>();
@@ -141,8 +87,7 @@ public class TestTags {
     @Transactional
     public void secureMultiTenantedTags() throws Exception {
         engineAdmin.setMultiTenanted(true);
-        SecurityContextHolder.getContext().setAuthentication(authMike);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike));
         assertNotNull(iSystemUser);
 
         List<TagInputBean> tags = new ArrayList<>();
@@ -164,10 +109,8 @@ public class TestTags {
 
     @Test
     public void updateExistingTag() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(authMike);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike).setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
         assertNotNull(iSystemUser);
-        SecurityContextHolder.getContext().setAuthentication(authMike);
 
         assertNull(tagService.findTag(iSystemUser.getCompany(), "ABC"));
         Tag tag = tagService.processTag(new TagInputBean("FLOP"));
@@ -189,8 +132,7 @@ public class TestTags {
     @Test
     public void tagWithProperties() throws Exception {
         assumeTrue(false);// Not yet supported
-        SecurityContextHolder.getContext().setAuthentication(authMike);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInput = new TagInputBean("FLOP");
@@ -216,8 +158,7 @@ public class TestTags {
 
     @Test
     public void prohibitedPropertiesIgnored() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(authMike);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, "mike").setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, "mike").setIsUnique(false));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInput = new TagInputBean("FLOP");
@@ -237,7 +178,7 @@ public class TestTags {
 
     @Test
     public void targetRelationships() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, "mike").setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, "mike").setIsUnique(false));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInput = new TagInputBean("Source");
@@ -265,7 +206,7 @@ public class TestTags {
     @Test
     public void customLabelsSingleTenant() throws Exception {
         engineAdmin.setMultiTenanted(false);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, "mike").setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, "mike").setIsUnique(false));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInput = new TagInputBean("Source");
@@ -286,9 +227,8 @@ public class TestTags {
 
     @Test
     public void tagWithSpacesWorks() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(authMike);
         engineAdmin.setMultiTenanted(false);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, "mike").setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, "mike").setIsUnique(false));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInput = new TagInputBean("Source");
@@ -308,9 +248,8 @@ public class TestTags {
     }
     // ToDo: Multi-tenanted custom tags
     public void customLabelsMultiTenant() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(authMike);
         engineAdmin.setMultiTenanted(true);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, "mike"));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, "mike"));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInput = new TagInputBean("Source");
@@ -343,7 +282,7 @@ public class TestTags {
     @Test
     public void sameKeyForDifferentTagTypes() throws Exception {
         engineAdmin.setMultiTenanted(false);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike).setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInputA = new TagInputBean("Source");
@@ -384,9 +323,8 @@ public class TestTags {
 
     @Test
     public void duplicateTagsForSameIndexReturnSingleTag() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(authMike);
         engineAdmin.setMultiTenanted(false);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike).setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInputA = new TagInputBean("Source");
@@ -416,9 +354,8 @@ public class TestTags {
     }
     @Test
     public void tagUniqueForIndex() throws DatagioException {
-        SecurityContextHolder.getContext().setAuthentication(authMike);
         engineAdmin.setMultiTenanted(false);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike).setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInputA = new TagInputBean("Source");
@@ -441,9 +378,8 @@ public class TestTags {
     }
     @Test
     public void tagAppleNameIssue() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(authMike);
         engineAdmin.setMultiTenanted(false);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, mike).setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
         assertNotNull(iSystemUser);
         Thread.sleep (400);
         // Exists in one index
