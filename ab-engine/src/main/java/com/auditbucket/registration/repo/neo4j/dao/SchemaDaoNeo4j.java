@@ -69,14 +69,14 @@ public class SchemaDaoNeo4j implements SchemaDao {
      * Tracks the DocumentTypes used by a Fortress that can be used to find MetaHeader objects
      *
      * @param fortress        fortress generating
-     * @param indexName       name of the Label
+     * @param docName       name of the Label
      * @param createIfMissing if not found will create
      * @return the node
      */
-    public DocumentType findDocumentType(Fortress fortress, String indexName, Boolean createIfMissing) {
-        DocumentType docResult = documentExists(fortress, indexName);
+    public DocumentType findDocumentType(Fortress fortress, String docName, Boolean createIfMissing) {
+        DocumentType docResult = documentExists(fortress, docName);
         if (docResult == null && createIfMissing) {
-            docResult = new DocumentTypeNode(fortress, indexName);
+            docResult = new DocumentTypeNode(fortress, docName);
             String cypher = "merge (docType:_DocType :DocType{code:{code}, name:{name}, companyKey:{key}}) " +
                     "with docType " +
                     "match (f:Fortress) where id(f) = {fId} " +
@@ -90,7 +90,7 @@ public class SchemaDaoNeo4j implements SchemaDao {
             params.put("fId", fortress.getId());
 
             template.query(cypher, params);
-            docResult = documentExists(fortress, indexName);
+            docResult = documentExists(fortress, docName);
 
         }
         return docResult;
@@ -109,16 +109,16 @@ public class SchemaDaoNeo4j implements SchemaDao {
 
 
     @Cacheable(value = "companyDocType", unless = "#result == null")
-    private DocumentType documentExists(Fortress fortress, String indexName) {
-        return schemaTypeRepo.findFortressDocType(fortress.getId(), DocumentTypeNode.parse(indexName));
+    private DocumentType documentExists(Fortress fortress, String docName) {
+        return schemaTypeRepo.findFortressDocType(fortress.getId(), DocumentTypeNode.parse(docName));
     }
 
     @Cacheable(value = "companySchemaTag", unless = "#result == false")
     private boolean tagExists(Company company, String indexName) {
-        //logger.info("Looking for co{}, {}", company.getId(), parseTagIndex(company, indexName));
+        //logger.info("Looking for co{}, {}", company.getId(), parseTagIndex(company, docName));
         Object o = schemaTypeRepo.findCompanyTag(company.getId(), parseTagIndex(company, indexName));
         return (o != null);
-        //return schemaTypeRepo.findBySchemaPropertyValue("companyKey", parseTagIndex(company, indexName)) != null;
+        //return schemaTypeRepo.findBySchemaPropertyValue("companyKey", parseTagIndex(company, docName)) != null;
     }
 
     /**

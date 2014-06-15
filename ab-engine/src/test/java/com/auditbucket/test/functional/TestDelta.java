@@ -19,13 +19,8 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.engine.service.MediationFacade;
-import com.auditbucket.engine.service.TrackService;
-import com.auditbucket.engine.service.WhatService;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.service.FortressService;
-import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.track.bean.AuditDeltaBean;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
@@ -33,21 +28,9 @@ import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.TrackLog;
 import junit.framework.Assert;
 import org.joda.time.DateTime;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.data.neo4j.support.node.Neo4jHelper;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
@@ -60,49 +43,10 @@ import static org.junit.Assert.assertNotNull;
  * Date: 15/04/13
  * Time: 6:43 AM
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:root-context.xml")
 @Transactional
-public class TestDelta {
-    @Autowired
-    TrackService trackService;
-
-    @Autowired
-    RegistrationService regService;
-
-    @Autowired
-    FortressService fortressService;
-
-    @Autowired
-    WhatService whatService;
-
-    @Autowired
-    private Neo4jTemplate template;
-
-    @Autowired
-    private MediationFacade mediationFacade;
+public class TestDelta extends TestEngineBase {
 
     private Logger logger = LoggerFactory.getLogger(TestTrack.class);
-    private String monowai = "Monowai";
-    private String mike = "mike";
-    private String mark = "mark";
-    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "123");
-    private Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "123");
-
-    @Before
-    public void setSecurity() {
-        SecurityContextHolder.getContext().setAuthentication(authMike);
-    }
-
-    @Rollback(false)
-    @BeforeTransaction
-    public void cleanUpGraph() {
-        // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
-        // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-        if (!"rest".equals(System.getProperty("neo4j")))
-            Neo4jHelper.cleanDb(template);
-    }
-
 
     @Test
     public void jsonDeltasAreFound() throws Exception {

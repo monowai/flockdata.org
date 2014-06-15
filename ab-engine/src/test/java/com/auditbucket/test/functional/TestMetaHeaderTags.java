@@ -26,7 +26,10 @@ package com.auditbucket.test.functional;
  */
 
 import com.auditbucket.engine.endpoint.TrackEP;
-import com.auditbucket.engine.service.*;
+import com.auditbucket.engine.service.MediationFacade;
+import com.auditbucket.engine.service.SearchServiceFacade;
+import com.auditbucket.engine.service.TagTrackService;
+import com.auditbucket.engine.service.TrackService;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
@@ -34,29 +37,18 @@ import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.model.Tag;
-import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.TagService;
 import com.auditbucket.track.bean.*;
-import com.auditbucket.track.model.DocumentType;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.SearchChange;
 import com.auditbucket.track.model.TrackTag;
 import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.data.neo4j.support.node.Neo4jHelper;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -74,12 +66,8 @@ import static org.junit.Assert.fail;
  * Date: 29/06/13
  * Time: 8:11 AM
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:root-context.xml")
 @Transactional
-public class TestMetaHeaderTags {
-    @Autowired
-    FortressService fortressService;
+public class TestMetaHeaderTags extends TestEngineBase {
 
     @Autowired
     MediationFacade auditManager;
@@ -102,27 +90,10 @@ public class TestMetaHeaderTags {
     @Autowired
     SearchServiceFacade searchService;
 
-    @Autowired
-    EngineConfig engineConfig;
-
-    @Autowired
-    private Neo4jTemplate template;
-
     //private Logger log = LoggerFactory.getLogger(TestMetaHeaderTags.class);
     private String company = "Monowai";
     private String uid = "mike";
-    private Authentication authA = new UsernamePasswordAuthenticationToken(uid, "123");
 
-    @Rollback(false)
-    @BeforeTransaction
-    public void cleanUpGraph() {
-        // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
-        // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-        SecurityContextHolder.getContext().setAuthentication(authA);
-        engineConfig.setMultiTenanted(false);
-        if (!"http".equals(System.getProperty("neo4j")))
-            Neo4jHelper.cleanDb(template);
-    }
 
     @Test
     public void tagAuditRecords() throws Exception {
@@ -363,8 +334,6 @@ public class TestMetaHeaderTags {
         TrackResultBean rb = trackEp.trackHeader(aib, null, null).getBody();
         LogInputBean alib = new LogInputBean(rb.getMetaKey(), "Harry", new DateTime(),null);
         trackEp.trackLog(alib, null, null).getBody();
-
-
     }
 
     @Test
@@ -396,47 +365,6 @@ public class TestMetaHeaderTags {
         assertEquals(3, summaryBean.getTags().size());
 
     }
-
-    @Test
-    public void documentTypesWork() throws DatagioException {
-        regService.registerSystemUser(new RegistrationBean(company, uid));
-        Fortress fortress = fortressService.registerFortress("ABC");
-
-        String docName = "CamelCaseDoc";
-        DocumentType docType = tagService.resolveDocType(fortress, docName); // Creates if missing
-        assertNotNull(docType);
-        assertEquals(docName.toLowerCase(), docType.getCode());
-        assertEquals(docName, docType.getName());
-        // Should be finding by code which is always Lower
-        Assert.assertNotNull(tagService.resolveDocType(fortress, docType.getCode().toUpperCase(), false));
-
-    }
-
-    @Test
-    public void duplicateDocumentTypes() throws Exception {
-        String mark = "mark";
-        Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "123");
-
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid));
-        Assert.assertNotNull(iSystemUser);
-
-        Fortress fortress = fortressService.registerFortress("duplicateDocumentTypes");
-
-        DocumentType dType = tagService.resolveDocType(fortress, "ABC123", true);
-        Assert.assertNotNull(dType);
-        Long id = dType.getId();
-        dType = tagService.resolveDocType(fortress, "ABC123", false);
-        assertEquals(id, dType.getId());
-
-        // Company 2 gets a different tag with the same name
-        SecurityContextHolder.getContext().setAuthentication(authMark);
-        regService.registerSystemUser(new RegistrationBean("secondcompany", mark));
-        // Same fortress name, but different company
-        dType = tagService.resolveDocType(fortressService.registerFortress("duplicateDocumentTypes"), "ABC123"); // Creates if missing
-        Assert.assertNotNull(dType);
-        Assert.assertNotSame(id, dType.getId());
-    }
-
 
     @Test
     public void tagListAndSingular() throws Exception {
@@ -588,7 +516,7 @@ public class TestMetaHeaderTags {
     @Test
     public void nestedStructureInHeader() throws Exception {
 
-        SecurityContextHolder.getContext().setAuthentication(authA);
+        SecurityContextHolder.getContext().setAuthentication(authDefault);
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid));
         assertNotNull(iSystemUser);
 

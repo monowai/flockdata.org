@@ -19,7 +19,6 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.dao.SchemaDao;
 import com.auditbucket.dao.TrackDao;
 import com.auditbucket.helper.VersionHelper;
 import com.auditbucket.registration.model.Company;
@@ -35,7 +34,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
@@ -61,14 +59,12 @@ public class EngineConfig {
     private Logger logger = LoggerFactory.getLogger(EngineConfig.class);
 
     private Boolean multiTenanted = false;
+
     private WhatService.KV_STORE kvStore = null;
 
     @Qualifier("abMonitoringGateway")
     @Autowired
     AbMonitoringGateway abMonitoringGateway;
-
-    @Autowired
-    SchemaDao schemaDao;
 
     @Autowired
     Neo4jTemplate template;
@@ -112,11 +108,6 @@ public class EngineConfig {
 
     public WhatService.KV_STORE getKvStore() {
         return kvStore;
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void ensureSystemIndexes(Company company) {
-        schemaDao.ensureSystemIndexes(company, getTagSuffix(company));
     }
 
     public String getTagSuffix(Company company) {

@@ -19,34 +19,24 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.engine.endpoint.QueryEP;
-import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.query.MatrixInputBean;
 import com.auditbucket.query.MatrixResults;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
-import com.auditbucket.registration.endpoint.TagEP;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.registration.service.FortressService;
-import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.track.bean.MetaInputBean;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.data.neo4j.support.node.Neo4jHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,29 +50,11 @@ import static org.junit.Assert.assertFalse;
  * Date: 12/06/14
  * Time: 1:16 PM
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:root-context.xml")
 @Transactional
-public class QueryResults {
+public class QueryResults  extends TestEngineBase {
     public static final String VEGETABLE = "Vegetable";
     public static final String FRUIT = "Fruit";
-    @Autowired
-    FortressService fortressService;
 
-    @Autowired
-    TrackEP trackEP;
-
-    @Autowired
-    TagEP tagEP;
-
-    @Autowired
-    QueryEP queryEP;
-
-    @Autowired
-    RegistrationService regService;
-
-    @Autowired
-    private Neo4jTemplate template;
 
     private Logger logger = LoggerFactory.getLogger(TestForceDeadlock.class);
     private String mike = "mike";
