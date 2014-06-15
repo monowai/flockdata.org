@@ -242,6 +242,9 @@ public class FortressService {
 
     public Collection<DocumentType> getFortressDocumentsInUse(Company company, String fortressName) {
         Fortress fortress = findByName(company, fortressName);
+        if (fortress == null ) {
+            return new ArrayList<>();
+        }
         return schemaDao.getFortressDocumentsInUse(fortress);
     }
 

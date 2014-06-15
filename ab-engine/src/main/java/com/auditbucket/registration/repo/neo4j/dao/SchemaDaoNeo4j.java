@@ -110,7 +110,7 @@ public class SchemaDaoNeo4j implements SchemaDao {
 
     @Cacheable(value = "companyDocType", unless = "#result == null")
     private DocumentType documentExists(Fortress fortress, String indexName) {
-        return schemaTypeRepo.findFortressDocType(fortress.getId(), indexName.toLowerCase().replaceAll("\\s", ""));
+        return schemaTypeRepo.findFortressDocType(fortress.getId(), DocumentTypeNode.parse(indexName));
     }
 
     @Cacheable(value = "companySchemaTag", unless = "#result == false")
