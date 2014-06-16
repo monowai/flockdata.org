@@ -365,6 +365,7 @@ public class TestABIntegration {
         inputBean.setTrackSuppressed(true);
         inputBean.setMetaOnly(true);
         mediationFacade.createHeader(inputBean, null);
+        waitAWhile();
         doEsQuery(indexName, "*", 2);
 
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
@@ -373,12 +374,14 @@ public class TestABIntegration {
         MetaHeader header = mediationFacade.createHeader(inputBean, null).getMetaHeader();
         Assert.assertNull(header.getMetaKey());
         // Updating the same caller ref should not create a 3rd record
+        waitAWhile();
         doEsQuery(indexName, "*", 2);
 
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setTrackSuppressed(true);
         inputBean.setMetaOnly(true);
         mediationFacade.createHeader(inputBean, null);
+        waitAWhile();
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(indexName, "*", 2);
 
@@ -386,6 +389,7 @@ public class TestABIntegration {
         inputBean.setTrackSuppressed(true);
         inputBean.setMetaOnly(true);
         mediationFacade.createHeader(inputBean, null);
+        waitAWhile();
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(indexName, "*", 3);
 
