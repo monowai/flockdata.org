@@ -31,6 +31,9 @@ import com.auditbucket.registration.service.*;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
+import org.neo4j.graphdb.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.data.neo4j.support.node.Neo4jHelper;
@@ -51,7 +54,6 @@ import org.springframework.test.context.transaction.BeforeTransaction;
 @ContextConfiguration("classpath:root-context.xml")
 @Ignore
 public class TestEngineBase {
-
     @Autowired
     FortressEP fortressEP;
 
@@ -115,6 +117,8 @@ public class TestEngineBase {
     @Autowired
     EngineConfig engineConfig;
 
+    private static Logger logger = LoggerFactory.getLogger(TestEngineBase.class);
+
     // These have to be in spring-security.xml that is authorised to create registrations
     String sally = "sally";
     String mike = "mike";
@@ -140,15 +144,53 @@ public class TestEngineBase {
         SecurityContextHolder.getContext().setAuthentication(authDefault);
     }
 
-    public static void setSecurity(Authentication auth){
+    public static void setSecurity(Authentication auth) {
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
-    public static Authentication setSecurity (String userName){
+    public static Authentication setSecurity(String userName) {
         Authentication auth = new UsernamePasswordAuthenticationToken(userName, "123");
         setSecurity(auth);
         return auth;
     }
 
+    Transaction beginManualTransaction() {
+        Transaction t = template.getGraphDatabase().beginTx();
+        return t;
+    }
+
+    void commitManualTransaction(Transaction t) {
+        t.success();
+        t.close();
+
+    }
+
+    public static void waitAWhile() throws Exception {
+        waitAWhile(null, 3000);
+    }
+
+    public static void waitAWhile(String message) throws Exception {
+        String ss = System.getProperty("sleepSeconds");
+        if (ss == null || ss.equals(""))
+            ss = "1";
+        if (message == null)
+            message = "Slept for {} seconds";
+        waitAWhile(message, Long.decode(ss) * 1000);
+    }
+
+    /**
+     * Processing delay for threads and integration to complete. If you start getting sporadic
+     * Heuristic exceptions, chances are you need to call this routine to give other threads
+     * time to commit their work.
+     * Likewise, waiting for results from ab-search can take a while. We can't know how long this
+     * is so you can experiment on your own environment by passing in -DsleepSeconds=1
+     *
+     * @param milliseconds to pause for
+     * @throws Exception
+     */
+    public static void waitAWhile(String message, long milliseconds) throws Exception {
+        Thread.sleep(milliseconds);
+        logger.trace(message, milliseconds / 1000d);
+    }
 
 }

@@ -17,7 +17,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
 
 /**
  * Search Service interactions
@@ -122,11 +125,12 @@ public class SearchServiceFacade {
         SearchChange searchDocument = new MetaSearchChange(header, null, event, new DateTime(when));
         if (resultBean.getTags() != null) {
             searchDocument.setTags(resultBean.getTags());
-            searchDocument.setReplyRequired(false);
             searchDocument.setSearchKey(header.getCallerRef());
 
-            if (header.getId() == null)
+            if (header.getId() == null) {
                 searchDocument.setWhen(null);
+                searchDocument.setReplyRequired(false);
+            }
             searchDocument.setSysWhen(header.getWhenCreated());
 
         } else {

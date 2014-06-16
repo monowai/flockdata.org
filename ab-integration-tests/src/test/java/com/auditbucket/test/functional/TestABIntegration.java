@@ -19,12 +19,18 @@
 
 package com.auditbucket.test.functional;
 
+import com.auditbucket.engine.endpoint.TrackEP;
+import com.auditbucket.engine.service.MediationFacade;
+import com.auditbucket.engine.service.TrackService;
+import com.auditbucket.engine.service.WhatService;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.service.FortressService;
+import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.search.model.MetaSearchSchema;
 import com.auditbucket.search.model.QueryParams;
 import com.auditbucket.track.bean.*;
@@ -43,14 +49,21 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
 import org.junit.*;
+import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -83,13 +96,31 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
  * Time: 22:51
  *
  */
-public class TestABIntegration extends TestEngineBase{
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("classpath:root-context.xml")
+public class TestABIntegration {
     private static boolean runMe = true; // pass -Dab.debug=true to disable all tests
     private static int fortressMax = 1;
     private static JestClient esClient;
 
-    private static Logger logger = LoggerFactory.getLogger(TestABIntegration.class);
+    @Autowired
+    TrackService trackService;
+    @Autowired
+    TrackEP trackEP;
+    @Autowired
+    RegistrationService regService;
+    @Autowired
+    FortressService fortressService;
+    @Autowired
+    MediationFacade mediationFacade;
 
+    @Autowired
+    WhatService whatService;
+
+    private static Logger logger = LoggerFactory.getLogger(TestABIntegration.class);
+    private static Authentication authA = new UsernamePasswordAuthenticationToken("mike", "123");
+
+    String company = "Monowai";
     static Properties properties = new Properties();
 
     @AfterClass
@@ -135,6 +166,7 @@ public class TestABIntegration extends TestEngineBase{
         for (int i = 1; i < fortressMax + 1; i++) {
             deleteEsIndex("ab.monowai.bulkloada" + i);
         }
+        SecurityContextHolder.getContext().setAuthentication(authA);
     }
 
     private static void deleteEsIndex(String indexName) throws Exception {
@@ -160,7 +192,7 @@ public class TestABIntegration extends TestEngineBase{
     public void secureSystemUserCanWriteData() throws Exception{
         if (!defaultAuthUser){
             defaultAuthUser = true;
-            regService.registerSystemUser(new RegistrationBean(monowai, "mike").setIsUnique(false));
+            regService.registerSystemUser(new RegistrationBean(company, "mike").setIsUnique(false));
             waitAWhile("Registering Auth user System Access {}");
         }
     }
@@ -191,7 +223,7 @@ public class TestABIntegration extends TestEngineBase{
     public void headerWithTagsProcess() throws Exception {
         assumeTrue(runMe);
         logger.info("## headersWithTagsProcess");
-        setSecurity();
+        SecurityContextHolder.getContext().setAuthentication(authA);
         SystemUser su = registerSystemUser("Mark");
         String apiKey = su.getApiKey();
         Fortress fo = fortressService.registerFortress(new FortressInputBean("headerWithTagsProcess", false));
@@ -560,8 +592,8 @@ public class TestABIntegration extends TestEngineBase{
     }
 
     private SystemUser registerSystemUser(String loginToCreate) throws Exception {
-        setSecurity();
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, loginToCreate));
+        SecurityContextHolder.getContext().setAuthentication(authA);
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(company, loginToCreate));
         // creating company alters the schema that sometimes throws a heuristic exception.
         Thread.sleep(600);
         Thread.yield();
@@ -770,11 +802,13 @@ public class TestABIntegration extends TestEngineBase{
         // Looking for the first searchKey to be logged against the metaHeader
         long thenTime = System.currentTimeMillis();
         int i = 0;
-        int timeout = 300;
+
 
         MetaHeader metaHeader = trackEP.getMetaHeader(header.getMetaKey(), apiKey, apiKey).getBody();
         if (metaHeader.getSearchKey() != null)
             return 0;
+
+        int timeout = 30;
         while (metaHeader.getSearchKey() == null && i <= timeout) {
             metaHeader = trackEP.getMetaHeader(header.getMetaKey(), apiKey, apiKey).getBody();
             Thread.yield();
@@ -782,7 +816,7 @@ public class TestABIntegration extends TestEngineBase{
                 waitAWhile("Sleeping for the header to update {}");
             i++;
         }
-        if (i > 20)
+        if (i > 22)
             logger.info("Wait for search got to [{}] for metaId [{}]", i, metaHeader.getId());
         boolean searchWorking = metaHeader.getSearchKey() != null;
         assertTrue("Search reply not received from ab-search", searchWorking);

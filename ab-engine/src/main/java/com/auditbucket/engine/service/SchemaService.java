@@ -20,13 +20,19 @@
 package com.auditbucket.engine.service;
 
 import com.auditbucket.dao.SchemaDao;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.bean.TrackResultBean;
+import com.auditbucket.track.model.Concept;
 import com.auditbucket.track.model.DocumentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
 
 /**
  * User: mike
@@ -48,7 +54,6 @@ public class SchemaService {
     }
 
     /**
-     *
      * @param fortress     system that has an interest
      * @param documentType name of the doc type
      * @return resolved document. Created if missing
@@ -72,6 +77,44 @@ public class SchemaService {
         }
 
         return schemaDao.findDocumentType(fortress, documentType, createIfMissing);
+
+    }
+
+    @Async
+    public void registerConcepts(Company company, Iterable<TrackResultBean> resultBeans) {
+        Map<DocumentType, Collection<TagInputBean>> concepts = new HashMap<>();
+        for (TrackResultBean resultBean : resultBeans) {
+            DocumentType docType = schemaDao.findDocumentType(resultBean.getMetaHeader().getFortress(), resultBean.getMetaHeader().getDocumentType(), false);
+            Collection<TagInputBean> tags = concepts.get(docType);
+            if (tags == null) {
+                tags = new ArrayList<>();
+                concepts.put(docType, tags);
+            }
+            MetaInputBean inputBean = resultBean.getMetaInputBean();
+            if (inputBean!=null && inputBean.getTags() != null) {
+                for (TagInputBean inputTag : resultBean.getMetaInputBean().getTags()) {
+                    if (inputTag.getMetaLink() != null || !inputTag.getMetaLinks().isEmpty())
+                        tags.add(inputTag);
+
+                }
+            }
+        }
+        schemaDao.registerConcepts(company, concepts);
+    }
+
+    /**
+     * Locates all tags in use by the associated document types
+     *
+     *
+     * @param company   who the caller works for
+     * @param documents labels to restrict the search by
+     * @param withRelationships
+     * @return tags that are actually in use
+     */
+
+    public Set<Concept> findConcepts(Company company, Collection<String> documents, boolean withRelationships) {
+
+        return schemaDao.findConcepts(company, documents, withRelationships);
 
     }
 }

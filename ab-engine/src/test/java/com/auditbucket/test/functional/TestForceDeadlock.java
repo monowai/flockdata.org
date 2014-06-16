@@ -103,6 +103,7 @@ public class TestForceDeadlock extends TestEngineBase {
         setSecurity();
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("auditTest" + System.currentTimeMillis(),true));
         String docType = "TestAuditX";
+        Thread.sleep(500);
 
         //CountDownLatch latch = new CountDownLatch(4);
         ArrayList<TagInputBean> tags = getTags(10);

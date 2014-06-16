@@ -48,17 +48,13 @@ public class TrackServiceEP {
         for (SearchChange metaSearchChange : thisChange) {
             processed++;
             logger.trace("searchRequest received for {}", metaSearchChange);
-            SearchResult result;
+
             if (metaSearchChange.isDelete()) {
+                logger.debug("Delete request");
                 trackSearch.delete(metaSearchChange);
                 return;
-//                    result = new SearchResult(metaSearchChange);
-//                    result.setSearchKey(null);
-//                } else {
-//                    return; // Nothing found, nothing to do or return
-
-            } else
-                result = new SearchResult(trackSearch.update(metaSearchChange));
+            }
+            SearchResult result = new SearchResult(trackSearch.update(metaSearchChange));
 
             // Used to tie the fact that the doc was updated back to the engine
             result.setLogId(metaSearchChange.getLogId());
@@ -66,6 +62,8 @@ public class TrackServiceEP {
             if (metaSearchChange.isReplyRequired()) {
                 results.addSearchResult(result);
                 logger.trace("Dispatching searchResult to ab-engine {}", result);
+            } else {
+                logger.trace("No reply required");
             }
 
         }
