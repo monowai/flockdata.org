@@ -67,7 +67,7 @@ public class TrackDaoNeo implements TrackDao {
     TrackLogRepo trackLogRepo;
 
     @Autowired
-    SchemaTypeRepo schemaTypeRepo;
+    DocumentTypeRepo documentTypeRepo;
 
     @Autowired
     TrackEventService trackEventService;
@@ -425,7 +425,7 @@ public class TrackDaoNeo implements TrackDao {
 
     @Override
     public void purgeFortressDocuments(Fortress fortress) {
-        schemaTypeRepo.purgeFortressDocuments(fortress.getId());
+        documentTypeRepo.purgeFortressDocuments(fortress.getId());
     }
 
 

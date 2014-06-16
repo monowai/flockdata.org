@@ -69,12 +69,12 @@
     </logger>
 
     <logger name="com.auditbucket">
-        <level value="debug"/>
+        <level value="trace"/>
     </logger>
 
     <!-- Root Logger. If you're diagnosing integration test issues, up this value to debug -->
     <root>
-        <priority value="debug"/>
+        <priority value="trace"/>
         <appender-ref ref="console"/>
     </root>
 

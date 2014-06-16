@@ -132,8 +132,7 @@ public class TrackService {
             arb.setWasDuplicate();
             arb.setLogInput(inputBean.getLog());
             // Could be rewriting tags
-            tagTrackService.associateTags(company, ah, inputBean.getTags());
-
+            arb.setTags(tagTrackService.associateTags(company, ah, inputBean.getTags()));
             return arb;
         }
 
@@ -145,12 +144,7 @@ public class TrackService {
         }
         TrackResultBean resultBean = new TrackResultBean(ah);
         resultBean.setMetaInputBean(inputBean);
-        if (inputBean.isTrackSuppressed())
-            // We need to get the "tags" across to ElasticSearch, so we mock them ;)
-            resultBean.setTags(tagTrackService.associateTags(company, resultBean.getMetaHeader(), inputBean.getTags()));
-        else
-            // Write the associations to the graph
-            tagTrackService.associateTags(company, resultBean.getMetaHeader(), inputBean.getTags());
+        resultBean.setTags(tagTrackService.associateTags(company, resultBean.getMetaHeader(), inputBean.getTags()));
 
         resultBean.setLogInput(inputBean.getLog());
         return resultBean;

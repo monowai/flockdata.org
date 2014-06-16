@@ -80,6 +80,9 @@ public class MediationFacade {
     SearchServiceFacade searchService;
 
     @Autowired
+    SchemaService schemaService;
+
+    @Autowired
     TagService tagService;
 
     private Logger logger = LoggerFactory.getLogger(MediationFacade.class);
@@ -136,7 +139,7 @@ public class MediationFacade {
                         resultBeans = trackService.createHeaders(headers, company, fortress);
                         resultBeans = processLogs(company, resultBeans);
 
-                        distributeChanges(resultBeans);
+                        distributeChanges(company, resultBeans);
                         return this;
                     }
                 }
@@ -183,7 +186,7 @@ public class MediationFacade {
             public Command execute() throws DatagioException, IOException {
                 result = trackService.createHeader(company, fortress, inputBean);
                 result = processLogFromResult(company, result);
-                distributeChange(result);
+                distributeChange(company, result);
                 return this;
             }
         }
@@ -212,7 +215,7 @@ public class MediationFacade {
     public LogResultBean processLog(Company company, LogInputBean input) throws DatagioException, IOException {
         MetaHeader header = trackService.getHeader(company, input.getMetaKey());
         LogResultBean logResultBean = writeLog(header, input);
-        distributeChange(new TrackResultBean(logResultBean, input));
+        distributeChange(company , new TrackResultBean(logResultBean, input));
         return logResultBean;
     }
 
@@ -260,14 +263,15 @@ public class MediationFacade {
         if (header == null)
             throw new DatagioException("Unable to find the request auditHeader " + input.getMetaKey());
         LogResultBean logResultBean = writeLog(header, input);
-        distributeChange(new TrackResultBean(logResultBean, input));
+        distributeChange(company, new TrackResultBean(logResultBean, input));
         return logResultBean;
     }
 
     @Async
-    public void distributeChanges(Iterable<TrackResultBean> resultBeans) throws IOException {
-        logger.debug("Distributing changes to KV and Search. Batch Mode");
+    public void distributeChanges(Company company, Iterable<TrackResultBean> resultBeans) throws IOException {
+        logger.debug("Distributing changes to KV and Search");
         whatService.doKvWrite(resultBeans);
+        schemaService.registerConcepts(company, resultBeans);
         Collection<SearchChange> changes = new ArrayList<>();
         for (TrackResultBean resultBean : resultBeans) {
             SearchChange change = getSearchChange(resultBean);
@@ -278,10 +282,10 @@ public class MediationFacade {
     }
 
     @Async
-    public TrackResultBean distributeChange(TrackResultBean trackResultBean) throws IOException {
-        logger.debug("Distributing change to KV and Search.");
-        whatService.doKvWrite(trackResultBean);
-        searchService.makeChangeSearchable(getSearchChange(trackResultBean));
+    public TrackResultBean distributeChange(Company company, TrackResultBean trackResultBean) throws IOException {
+        ArrayList<TrackResultBean>results = new ArrayList<>();
+        results.add(trackResultBean);
+        distributeChanges(company, results);
         return trackResultBean;
     }
 
