@@ -69,6 +69,8 @@ public class EngineConfig {
     @Autowired
     Neo4jTemplate template;
 
+    private boolean conceptsEnabled=true;
+
     @Value("${rabbit.host:@null}")
     protected void setRabbitHost(String rabbitHost) {
         if ("@null".equals(rabbitHost)) this.rabbitHost = null;
@@ -175,5 +177,17 @@ public class EngineConfig {
             "fortressUser", "callerKey", "metaKey", "headerId" }, allEntries = true)
     public void resetCache() {
         logger.info("Reset the cache");
+    }
+
+    public boolean isConceptsEnabled() {
+        return conceptsEnabled;
+    }
+
+    /**
+     * Should be disabled for testing purposes
+     * @param conceptsEnabled
+     */
+    public void setConceptsEnabled(boolean conceptsEnabled) {
+        this.conceptsEnabled = conceptsEnabled;
     }
 }
