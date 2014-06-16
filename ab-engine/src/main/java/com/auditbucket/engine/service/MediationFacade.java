@@ -270,8 +270,9 @@ public class MediationFacade {
     @Async
     public void distributeChanges(Company company, Iterable<TrackResultBean> resultBeans) throws IOException {
         logger.debug("Distributing changes to KV and Search");
+        if (engineConfig.isConceptsEnabled())
+            schemaService.registerConcepts(company, resultBeans);
         whatService.doKvWrite(resultBeans);
-        schemaService.registerConcepts(company, resultBeans);
         Collection<SearchChange> changes = new ArrayList<>();
         for (TrackResultBean resultBean : resultBeans) {
             SearchChange change = getSearchChange(resultBean);

@@ -76,6 +76,9 @@ public class TestEngineBase {
     TrackService trackService;
 
     @Autowired
+    TagTrackService tagTrackService;
+
+    @Autowired
     TrackEP trackEP;
 
     @Autowired
@@ -112,10 +115,10 @@ public class TestEngineBase {
     CompanyEP companyEP;
 
     @Autowired
-    Neo4jTemplate template;
+    SearchServiceFacade searchService;
 
     @Autowired
-    EngineConfig engineConfig;
+    Neo4jTemplate template;
 
     private static Logger logger = LoggerFactory.getLogger(TestEngineBase.class);
 
@@ -133,14 +136,14 @@ public class TestEngineBase {
     public void cleanUpGraph() {
         // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
         // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-        setSecurity();
-        engineConfig.setMultiTenanted(false);
-        if (!"http".equals(System.getProperty("neo4j")))
-            Neo4jHelper.cleanDb(template);
+        //setSecurity();
+        Neo4jHelper.cleanDb(template);
+        engineAdmin.setConceptsEnabled(false);
     }
 
     @Before
     public void setSecurity() {
+        engineAdmin.setMultiTenanted(false);
         SecurityContextHolder.getContext().setAuthentication(authDefault);
     }
 
@@ -162,7 +165,6 @@ public class TestEngineBase {
     void commitManualTransaction(Transaction t) {
         t.success();
         t.close();
-
     }
 
     public static void waitAWhile() throws Exception {

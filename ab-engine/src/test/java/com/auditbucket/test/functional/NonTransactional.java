@@ -46,6 +46,7 @@ public class NonTransactional extends TestEngineBase{
     @Test
     public void conceptsInUse() throws Exception {
         Neo4jHelper.cleanDb(template);
+        engineAdmin.setConceptsEnabled(true);
 
         Transaction t = beginManualTransaction();
 
