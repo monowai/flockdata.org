@@ -354,6 +354,7 @@ public class TestABIntegration {
         inputBean.setMetaOnly(true); // If true, the header will be indexed
         // Track suppressed but search is enabled
         mediationFacade.createHeader(inputBean, su.getApiKey());
+        waitAWhile();
 
         String indexName = MetaSearchSchema.parseIndex(fortress);
         assertEquals("ab.monowai.trackgraph", indexName);
