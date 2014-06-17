@@ -812,7 +812,7 @@ public class TestABIntegration {
         if (metaHeader.getSearchKey() != null)
             return 0;
 
-        int timeout = 100;
+        int timeout = 200;
         while (metaHeader.getSearchKey() == null && i <= timeout) {
             metaHeader = trackEP.getMetaHeader(header.getMetaKey(), apiKey, apiKey).getBody();
             Thread.yield();
