@@ -223,15 +223,14 @@ public class TestABIntegration {
         String apiKey = su.getApiKey();
         Fortress fo = fortressService.registerFortress(new FortressInputBean("headerWithTagsProcess", false));
         DateTime now = new DateTime();
-        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", now, "ZZZ123");
+        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", now, "ABCXYZ123");
         inputBean.setIsMetaOnly(true);
         inputBean.addTag(new TagInputBean("testTagNameZZ", "someAuditRLX"));
         inputBean.setEvent("TagTest");
-        TrackResultBean auditResult;
-        auditResult = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody();
-        logger.debug("Sent ");
-        waitForHeaderToUpdate(auditResult.getMetaHeader(), su.getApiKey());
-        TrackedSummaryBean summary = trackEP.getAuditSummary(auditResult.getMetaKey(), apiKey, apiKey).getBody();
+        TrackResultBean result = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody();
+        logger.debug("Created Request ");
+        waitForHeaderToUpdate(result.getMetaHeader(), su.getApiKey());
+        TrackedSummaryBean summary = trackEP.getAuditSummary(result.getMetaKey(), apiKey, apiKey).getBody();
         assertNotNull(summary);
         // Check we can find the Event in ElasticSearch
         doEsQuery(summary.getHeader().getIndexName(), inputBean.getEvent(), 1);

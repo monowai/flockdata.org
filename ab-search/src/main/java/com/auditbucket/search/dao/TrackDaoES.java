@@ -155,7 +155,6 @@ public class TrackDaoES implements TrackSearchDao {
                 .typesExists(new TypesExistsRequest(indexNames, documentTypes))
                 .actionGet()
                 .isExists();
-        logger.info("Has Type returns {}", hasType);
         if (!hasType) {
             // Type Don't exist ==> Insert Mapping
             if (mappingEs != null) {
@@ -166,7 +165,8 @@ public class TrackDaoES implements TrackSearchDao {
                         .execute().actionGet();
                 logger.debug("Created default mapping for {}, {}", indexName, documentType);
             }
-        }
+        } else
+            logger.info("Mapping Exists= [{}]", hasType);
     }
 
     private synchronized void ensureIndex(String indexName, String documentType) {
