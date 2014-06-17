@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
 @MessageEndpoint
 public class TrackServiceEP {
     @Autowired
-    private TrackSearchDao auditSearch;
+    private TrackSearchDao trackSearch;
 
     private Logger logger = LoggerFactory.getLogger(TrackServiceEP.class);
 
@@ -34,38 +34,46 @@ public class TrackServiceEP {
 
     /**
      * Triggered by the Engine, this is the payload that is required to be indexed
-     *
+     * <p/>
      * It may or may not already exist.
      *
      * @param changes to process
      */
     @ServiceActivator(inputChannel = "makeSearchRequest") // Subscriber
     public void createSearchableChange(MetaSearchChanges changes) {
-        Iterable<MetaSearchChange>thisChange = changes.getChanges();
+        Iterable<MetaSearchChange> thisChange = changes.getChanges();
         logger.info("Received request to index Batch ");
         SearchResults results = new SearchResults();
-        int processed= 0;
+        int processed = 0;
         for (SearchChange metaSearchChange : thisChange) {
-            processed ++;
+            processed++;
             logger.trace("searchRequest received for {}", metaSearchChange);
-            SearchResult result;
-            result = new SearchResult(auditSearch.update(metaSearchChange));
+
+            if (metaSearchChange.isDelete()) {
+                logger.debug("Delete request");
+                trackSearch.delete(metaSearchChange);
+                return;
+            }
+            SearchResult result = new SearchResult(trackSearch.update(metaSearchChange));
 
             // Used to tie the fact that the doc was updated back to the engine
             result.setLogId(metaSearchChange.getLogId());
             result.setMetaId(metaSearchChange.getMetaId());
-            if (metaSearchChange.isReplyRequired()){
+            if (metaSearchChange.isReplyRequired()) {
                 results.addSearchResult(result);
                 logger.trace("Dispatching searchResult to ab-engine {}", result);
+            } else {
+                logger.trace("No reply required");
             }
 
         }
-        if ( !results.isEmpty()) {
+        if (!results.isEmpty()) {
             logger.debug("Processed {} requests. Sending back {} SearchChanges", processed, results.getSearchResults().size());
             engineGateway.handleSearchResult(results);
         }
 
     }
+
     public void delete(MetaHeader metaHeader) {
         //trackDao.delete(metaHeader, null);
     }

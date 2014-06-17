@@ -28,6 +28,7 @@ import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.*;
 import com.auditbucket.search.model.MetaSearchChange;
+import com.auditbucket.search.model.SearchResult;
 import com.auditbucket.track.bean.*;
 import com.auditbucket.track.model.*;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -36,6 +37,7 @@ import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
@@ -44,8 +46,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * Transactional services to support record and working with headers and logs
@@ -53,8 +53,7 @@ import java.util.concurrent.Future;
  * User: Mike Holdsworth
  * Date: 8/04/13
  */
-
-@Service(value = "ab.TrackerService")
+@Service
 @Transactional
 public class TrackService {
     private static final String EMPTY = "";
@@ -74,6 +73,9 @@ public class TrackService {
     TagTrackService tagTrackService;
 
     @Autowired
+    SchemaService schemaService;
+
+    @Autowired
     WhatService whatService;
 
     @Autowired
@@ -84,9 +86,6 @@ public class TrackService {
 
     @Autowired
     private SecurityHelper securityHelper;
-
-    @Autowired
-    private SearchServiceFacade searchFacade;
 
     private Logger logger = LoggerFactory.getLogger(TrackService.class);
 
@@ -119,7 +118,7 @@ public class TrackService {
      * @return unique primary key to be used for subsequent log calls
      */
     public TrackResultBean createHeader(Company company, Fortress fortress, MetaInputBean inputBean) {
-        DocumentType documentType = tagService.resolveDocType(fortress, inputBean.getDocumentType(), true);
+        DocumentType documentType = schemaService.resolveDocType(fortress, inputBean.getDocumentType(), true);
 
         MetaHeader ah = null;
         if (inputBean.getCallerRef() != null && !inputBean.getCallerRef().equals(EMPTY))
@@ -133,8 +132,7 @@ public class TrackService {
             arb.setWasDuplicate();
             arb.setLogInput(inputBean.getLog());
             // Could be rewriting tags
-            tagTrackService.associateTags(company, ah, inputBean.getTags());
-
+            arb.setTags(tagTrackService.associateTags(company, ah, inputBean.getTags()));
             return arb;
         }
 
@@ -146,12 +144,7 @@ public class TrackService {
         }
         TrackResultBean resultBean = new TrackResultBean(ah);
         resultBean.setMetaInputBean(inputBean);
-        if (inputBean.isTrackSuppressed())
-            // We need to get the "tags" across to ElasticSearch, so we mock them ;)
-            resultBean.setTags(tagTrackService.associateTags(company, resultBean.getMetaHeader(), inputBean.getTags()));
-        else
-            // Write the associations to the graph
-            tagTrackService.associateTags(company, resultBean.getMetaHeader(), inputBean.getTags());
+        resultBean.setTags(tagTrackService.associateTags(company, resultBean.getMetaHeader(), inputBean.getTags()));
 
         resultBean.setLogInput(inputBean.getLog());
         return resultBean;
@@ -198,7 +191,7 @@ public class TrackService {
         if (company == null)
             return getHeader(headerKey);
         MetaHeader ah = trackDao.findHeader(headerKey, inflate);
-        if (ah == null)
+        if (ah == null || ah.getFortress() == null)
             return null;
 
         if (!(ah.getFortress().getCompany().getId().equals(company.getId())))
@@ -215,7 +208,6 @@ public class TrackService {
      * @return populated log information with any error messages
      */
     public LogResultBean createLog(MetaHeader header, LogInputBean input) throws DatagioException, IOException {
-        LogResultBean resultBean = new LogResultBean(input);
 
         if (header == null) {
             String metaKey = input.getMetaKey();
@@ -229,6 +221,7 @@ public class TrackService {
             } else
                 header = getHeader(input.getMetaId());  // Only set internally by AuditBucket. Never rely on the caller
         }
+        LogResultBean resultBean = new LogResultBean(input, header);
 
         if (header == null) {
             resultBean.setStatus(LogInputBean.LogStatus.NOT_FOUND);
@@ -249,7 +242,7 @@ public class TrackService {
      */
     private LogResultBean createLog(MetaHeader authorisedHeader, LogInputBean input, FortressUser thisFortressUser) throws DatagioException, IOException {
         // Warning - making this private means it doesn't get a transaction!
-        LogResultBean resultBean = new LogResultBean(input);
+        LogResultBean resultBean = new LogResultBean(input, authorisedHeader);
         //ToDo: May want to track a "View" event which would not change the What data.
         if (input.getMapWhat() == null || input.getMapWhat().isEmpty()) {
             resultBean.setStatus(LogInputBean.LogStatus.IGNORE);
@@ -265,7 +258,7 @@ public class TrackService {
 
         // https://github.com/monowai/auditbucket/issues/7
         TrackLog existingLog = null;
-        if (authorisedHeader.getLastUpdated() != 0l) // Will there even be a change to find
+        if (authorisedHeader.getLastUpdate() != 0l) // Will there even be a change to find
             existingLog = getLastLog(authorisedHeader);
 
         Boolean searchActive = fortress.isSearchActive();
@@ -298,9 +291,6 @@ public class TrackService {
             //if (!metaHeader.getLastUser().getId().equals(thisFortressUser.getId())){
             authorisedHeader.setLastUser(thisFortressUser);
             authorisedHeader.setCreatedBy(thisFortressUser);
-            authorisedHeader = trackDao.save(authorisedHeader);
-
-            //}
         }
 
 
@@ -311,22 +301,30 @@ public class TrackService {
 
         resultBean.setWhatLog(thisLog);
 
+
+        if ( authorisedHeader.getId() == null )
+            input.setStatus(LogInputBean.LogStatus.TRACK_ONLY);
+        else
+            input.setStatus(LogInputBean.LogStatus.OK);
+
         TrackLog newLog = trackDao.addLog(authorisedHeader, thisLog, fortressWhen, existingLog);
         resultBean.setSysWhen(newLog.getSysWhen());
 
         boolean moreRecent = (existingLog == null || existingLog.getFortressWhen() <= newLog.getFortressWhen());
 
-        input.setStatus(LogInputBean.LogStatus.OK);
-
         if (moreRecent) {
             if (authorisedHeader.getLastUser() == null || (!authorisedHeader.getLastUser().getId().equals(thisFortressUser.getId()))) {
                 authorisedHeader.setLastUser(thisFortressUser);
-                trackDao.save(authorisedHeader);
             }
+            authorisedHeader.setFortressLastWhen(fortressWhen.getMillis());
+            trackDao.save(authorisedHeader);
 
             if (searchActive)
                 resultBean.setLogToIndex(newLog);
+        } else {
+            trackDao.save(authorisedHeader);
         }
+
         return resultBean;
 
     }
@@ -336,7 +334,7 @@ public class TrackService {
     }
 
     public Collection<MetaHeader> getHeaders(Fortress fortress, String docTypeName, Long skipTo) {
-        DocumentType docType = tagService.resolveDocType(fortress, docTypeName);
+        DocumentType docType = schemaService.resolveDocType(fortress, docTypeName);
         return trackDao.findHeaders(fortress.getId(), docType.getName(), skipTo);
     }
 
@@ -363,7 +361,7 @@ public class TrackService {
 
     }
 
-    private MetaHeader getHeader(Long id) {
+    MetaHeader getHeader(Long id) {
         return trackDao.getHeader(id);
     }
 
@@ -449,20 +447,16 @@ public class TrackService {
     }
 
     /**
-     * blocks until the header has been cancelled
+     * blocking call. This will not update the search store. For that call the
+     * function in the MediationFacade
      *
      * @param headerKey UID of the Header
-     * @return LogResultBean
+     * @return MetaSearchChange the search change to index, or null if there are no logs
      * @throws IOException
      */
-    public MetaHeader cancelLastLogSync(String headerKey) throws IOException, DatagioException {
-        Future<MetaHeader> futureHeader = cancelLastLog(headerKey);
-        try {
-            return futureHeader.get();
-        } catch (InterruptedException | ExecutionException e) {
-            logger.error(e.getMessage());
-            throw new DatagioException("This is bad - Interrupted Exception ", e);
-        }
+    public MetaSearchChange cancelLastLogSync(String headerKey) throws IOException, DatagioException {
+        AsyncResult<MetaSearchChange> futureHeader = cancelLastLog(headerKey);
+        return futureHeader.get();
     }
 
     /**
@@ -472,49 +466,59 @@ public class TrackService {
      * AB headerKey will be forever invalid.
      *
      * @param headerKey UID of the metaHeader
-     * @return Future<LogResultBean> record or null if no metaHeader exists.
+     * @return Future<MetaSearchChange> search change to index, or null if there are no logs
      */
     @Async
-    Future<MetaHeader> cancelLastLog(String headerKey) throws IOException, DatagioException {
+    public AsyncResult<MetaSearchChange> cancelLastLog(String headerKey) throws IOException, DatagioException {
         MetaHeader metaHeader = getValidHeader(headerKey, true);
-        TrackLog currentLog = getLastLog(metaHeader.getId());
-        if (currentLog == null)
+        TrackLog existingLog = getLastLog(metaHeader.getId());
+        if (existingLog == null)
             return null;
-        trackDao.fetch(currentLog.getLog());
-        Log currentChange = currentLog.getLog();
-        Log priorChange = currentLog.getLog().getPreviousLog();
+        //trackDao.fetch(existingLog.getLog());
+        Log currentLog = existingLog.getLog();
+        Log previousLog = currentLog.getPreviousLog();
+        String searchKey = metaHeader.getSearchKey();
 
-        if (priorChange != null) {
-            trackDao.makeLastChange(metaHeader, priorChange);
-            trackDao.fetch(priorChange);
-            metaHeader.setLastUser(fortressService.getFortressUser(metaHeader.getFortress(), priorChange.getWho().getCode()));
+        if (previousLog != null) {
+            trackDao.fetch(previousLog);
+            TrackLog newTrack = trackDao.getLog(previousLog.getTrackLog().getId());
+            metaHeader.setLastChange(previousLog);
+            metaHeader.setLastUser(fortressService.getFortressUser(metaHeader.getFortress(), previousLog.getWho().getCode()));
+            metaHeader.setFortressLastWhen(newTrack.getFortressWhen());
             metaHeader = trackDao.save(metaHeader);
-            whatService.delete(metaHeader, currentChange);
-            trackDao.delete(currentChange);
-        } else if (currentChange != null) {
+            trackDao.delete(currentLog);
+
+        } else {
             // No changes left, there is now just a header
-            // What to to? Delete the metaHeader? Store the "canceled By" User? Assign the log to a Cancelled RLX?
-            // ToDo: Delete from ElasticSearch??
+            // ToDo: What to to with the header? Delete it? Store the "canceled By" User? Assign the log to a Cancelled RLX?
+            // Delete from ElasticSearch??
             metaHeader.setLastUser(fortressService.getFortressUser(metaHeader.getFortress(), metaHeader.getCreatedBy().getCode()));
+            metaHeader.setFortressLastWhen(0l);
+            metaHeader.setSearchKey(null);
             metaHeader = trackDao.save(metaHeader);
-            whatService.delete(metaHeader, currentChange);
-            trackDao.delete(currentChange);
+            trackDao.delete(currentLog);
         }
-
-        if (priorChange == null)
+        whatService.delete(metaHeader, currentLog); // ToDo: Move to mediation facade
+        MetaSearchChange searchDocument = null;
+        if (previousLog == null) {
             // Nothing to index, no changes left so we're done
-            return new AsyncResult<>(metaHeader);
+            searchDocument = new MetaSearchChange(metaHeader);
+            searchDocument.setDelete(true);
+            searchDocument.setSearchKey(searchKey);
+            return new AsyncResult<>(searchDocument);
+        }
 
         // Sync the update to ab-search.
         if (metaHeader.getFortress().isSearchActive() && !metaHeader.isSearchSuppressed()) {
             // Update against the MetaHeader only by re-indexing the search document
-            Map<String, Object> priorWhat = whatService.getWhat(metaHeader, priorChange).getWhat();
+            HashMap<String, Object> priorWhat = (HashMap<String, Object>) whatService.getWhat(metaHeader, previousLog).getWhat();
 
-            MetaSearchChange searchDocument = new MetaSearchChange(metaHeader, priorWhat, priorChange.getEvent().getCode(), new DateTime(priorChange.getLog().getFortressWhen()));
+            searchDocument = new MetaSearchChange(metaHeader, priorWhat, previousLog.getEvent().getCode(), new DateTime(previousLog.getTrackLog().getFortressWhen()));
             searchDocument.setTags(tagTrackService.findTrackTags(metaHeader));
-            searchFacade.makeChangeSearchable(searchDocument);
+            searchDocument.setReplyRequired(false);
+            searchDocument.setForceReindex(true);
         }
-        return new AsyncResult<>(metaHeader);
+        return new AsyncResult<>(searchDocument);
     }
 
     /**
@@ -595,7 +599,7 @@ public class TrackService {
 
 
     public MetaHeader findByCallerRef(Fortress fortress, String documentType, String callerRef) {
-        DocumentType doc = tagService.resolveDocType(fortress, documentType, false);
+        DocumentType doc = schemaService.resolveDocType(fortress, documentType, false);
         if (doc == null)
             return null;
         return findByCallerRef(fortress, doc, callerRef);
@@ -666,12 +670,12 @@ public class TrackService {
     /**
      * Cross references to meta headers to create a link
      *
-     * @param company   validated company the caller is authorised to work with
-     * @param metaKey   source from which a xref will be created
-     * @param xRef      target for the xref
-     * @param reference name of the relationship
+     * @param company          validated company the caller is authorised to work with
+     * @param metaKey          source from which a xref will be created
+     * @param xRef             target for the xref
+     * @param relationshipName name of the relationship
      */
-    public Collection<String> crossReference(Company company, String metaKey, Collection<String> xRef, String reference) throws DatagioException {
+    public Collection<String> crossReference(Company company, String metaKey, Collection<String> xRef, String relationshipName) throws DatagioException {
         MetaHeader header = getHeader(company, metaKey);
         if (header == null) {
             throw new DatagioException("Unable to find the Meta Header [" + metaKey + "]. Perhaps it has not been processed yet?");
@@ -687,7 +691,7 @@ public class TrackService {
                 //logger.info ("Unable to find MetaKey ["+metaKey+"]. Skipping");
             }
         }
-        trackDao.crossReference(header, targets, reference);
+        trackDao.crossReference(header, targets, relationshipName);
         return ignored;
     }
 
@@ -737,8 +741,8 @@ public class TrackService {
         return ignored;
     }
 
-    public Collection<MetaHeader> getHeaders(Company company, Collection<String> toFind) {
-        return trackDao.findHeaders(company, toFind);
+    public Collection<MetaHeader> getHeaders(Company company, Collection<String> metaKeys) {
+        return trackDao.findHeaders(company, metaKeys);
     }
 
     public void purge(Fortress fortress) {
@@ -747,5 +751,55 @@ public class TrackService {
         trackDao.purgePeopleRelationships(fortress);
         trackDao.purgeFortressDocuments(fortress);
         trackDao.purgeHeaders(fortress);
+    }
+
+    public void saveMetaData(SearchResult searchResult, Long metaId) {
+        // Only exists and is public because we need the transaction
+        MetaHeader header;
+        try {
+            header = getHeader(metaId); // Happens during development when Graph is cleared down and incoming search results are on the q
+        } catch (DataRetrievalFailureException e) {
+            logger.error("Unable to locate header for metaId {} in order to handle the search callerRef. Ignoring.", metaId);
+            return;
+        }
+
+        if (header == null) {
+            logger.error("metaKey could not be found for [{}]", searchResult);
+            return;
+        }
+
+        if (header.getSearchKey() == null) {
+            header.setSearchKey(searchResult.getSearchKey());
+            trackDao.save(header);
+            logger.trace("Updating Header{} search searchResult =[{}]", header.getMetaKey(), searchResult);
+        }
+
+        if (searchResult.getLogId() == null) {
+            // Indexing header meta data only
+            return;
+        }
+        TrackLog when;
+        // The change has been indexed
+        try {
+            when = trackDao.getLog(searchResult.getLogId());
+            if (when == null) {
+                logger.error("Illegal node requested from handleSearchResult [{}]", searchResult.getLogId());
+                return;
+            }
+        } catch (DataRetrievalFailureException e) {
+            logger.error("Unable to locate track log {} for metaId {} in order to handle the search callerRef. Ignoring.", searchResult.getLogId(), header.getId());
+            return;
+        }
+
+        // Another thread may have processed this so save an update
+        if (!when.isIndexed()) {
+            // We need to know that the change we requested to index has been indexed.
+            logger.trace("Updating index status for {}", when);
+            when.setIsIndexed();
+            trackDao.save(when);
+
+        } else {
+            logger.trace("Skipping {} as it is already indexed", when);
+        }
     }
 }

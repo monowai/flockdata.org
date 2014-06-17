@@ -73,6 +73,7 @@ public class TrackResultBean {
     public TrackResultBean(LogResultBean logResultBean, LogInputBean input) {
         this.logResult = logResultBean;
         this.log = input;
+        this.metaHeader = logResultBean.getMetaHeader();
     }
 
     public String getFortressName() {
@@ -165,7 +166,6 @@ public class TrackResultBean {
     }
 
     public boolean processLog() {
-        return getLog()!=null && log.getStatus() != LogInputBean.LogStatus.IGNORE;
-
+        return getLog()!=null && log.getStatus() != LogInputBean.LogStatus.IGNORE ;
     }
 }

@@ -20,7 +20,7 @@
 package com.auditbucket.engine.repo.neo4j;
 
 import com.auditbucket.engine.repo.neo4j.model.LogNode;
-import com.auditbucket.engine.repo.neo4j.model.TrackLogRelationship;
+import com.auditbucket.engine.repo.neo4j.model.LoggedRelationship;
 import com.auditbucket.track.model.TrackLog;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
@@ -34,21 +34,21 @@ import java.util.Set;
  */
 public interface TrackLogRepo extends GraphRepository<LogNode> {
 
-    @Query(value = "start auditHeader=node({0}) match auditHeader-[cw:LOGGED]->auditLog return count(cw)")
-    int getLogCount(Long auditHeaderID);
+    @Query(value = "start metaHeader=node({0}) match metaHeader-[cw:LOGGED]->log return count(cw)")
+    int getLogCount(Long metaHeaderId);
 
-    @Query(elementClass = TrackLogRelationship.class,
+    @Query(elementClass = LoggedRelationship.class,
             value = "match (change:Log)<-[log:LOGGED]-() where id(change)={0} " +
                     "   return log")
-    TrackLogRelationship getLastLog(Long auditHeaderID);
+    LoggedRelationship getLastLog(Long metaHeaderId);
 
-    @Query(elementClass = TrackLogRelationship.class, value = "start header=node({0}) match (header)-[log:LOGGED]->(auditLog) where log.fortressWhen >= {1} and log.fortressWhen <= {2} return log ")
-    Set<TrackLog> getLogs(Long auditHeaderID, Long from, Long to);
+    @Query(elementClass = LoggedRelationship.class, value = "match (header)-[log:LOGGED]->(auditLog) where id(header)={0} and log.fortressWhen >= {1} and log.fortressWhen <= {2} return log ")
+    Set<TrackLog> getLogs(Long metaHeaderId, Long from, Long to);
 
-    @Query(elementClass = TrackLogRelationship.class, value = "start track=node({0}) " +
-            "   MATCH track-[log:LOGGED]->auditChange " +
+    @Query(elementClass = LoggedRelationship.class, value =
+            "   MATCH track-[log:LOGGED]->change where id(track) = {0} " +
             "return log order by log.fortressWhen desc")
-    Set<TrackLog> findLogs(Long auditHeaderID);
+    Set<TrackLog> findLogs(Long metaHeaderId);
 
     @Query (value = "match (f:_Fortress)-[:TRACKS]->(m:MetaHeader)-[l:LOGGED]-(log:Log)-[people]-() where id(f)={0} delete l, people, log")
     void purgeFortressLogs(Long fortressId);

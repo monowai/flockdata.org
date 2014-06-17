@@ -136,7 +136,7 @@ public class AbRestClient implements StaticDataResolver {
         HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
         Map<String, Object> result = new HashMap<>();
         try {
-            ResponseEntity<Map> response = restTemplate.exchange(HEALTH, HttpMethod.GET, requestEntity, Map.class);
+            ResponseEntity<HashMap> response = restTemplate.exchange(HEALTH, HttpMethod.GET, requestEntity, HashMap.class);
             return response.getBody();
         } catch (HttpClientErrorException e) {
             if (e.getMessage().startsWith("401")) {
@@ -208,8 +208,8 @@ public class AbRestClient implements StaticDataResolver {
     }
 
     public Collection<TagInputBean> getCountries() throws DatagioException{
-        if (simulateOnly)
-            return null;
+//        if (simulateOnly)
+//            return null;
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
@@ -245,8 +245,8 @@ public class AbRestClient implements StaticDataResolver {
      */
     @Override
     public String resolveCountryISOFromName(String name) throws DatagioException{
-        if (simulateOnly)
-            return name;
+//        if (simulateOnly)
+//            return name;
 
         // 2 char country? it's already ISO
         if ( name.length()==2)
@@ -391,10 +391,14 @@ public class AbRestClient implements StaticDataResolver {
                             auth.getBytes(Charset.forName("US-ASCII")));
                     String authHeader = "Basic " + new String(encodedAuth);
                     set("Authorization", authHeader);
-                } else if ( apiKey != null )
+                }
+
+                if ( apiKey != null )
                     set("Api-Key", apiKey);
+
                 setContentType(MediaType.APPLICATION_JSON);
                 set("charset", CompressionHelper.charSet.toString());
+
                 if (compress)
                     set("Accept-Encoding", "gzip,deflate");
             }

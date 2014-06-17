@@ -278,7 +278,7 @@ class TagDaoNeo4j implements TagDao {
 
     public void purgeUnusedConcepts(Company company){
 
-        String query = "match (tag:_Tag) delete tag";
+        String query = "match (tag"+Tag.DEFAULT+") delete tag";
         template.query(query, null);
 
         query = "match (tag:_TagLabel)-[r:TAG_INDEX]-(c:ABCompany) where id(c)={company} delete r, tag";

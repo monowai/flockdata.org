@@ -58,9 +58,9 @@ public class DocumentTypeNode implements DocumentType {
     public DocumentTypeNode(Fortress fortress, String documentType) {
         this();
         this.name = documentType;
-        this.code = documentType.toLowerCase().replaceAll("\\s", "");
+        this.code = parse(documentType);
         this.fortress = fortress;
-        this.companyKey = fortress.getCompany().getId() + "." + documentType.toLowerCase().replaceAll("\\s", "");
+        this.companyKey = fortress.getCompany().getId() + "." + code;
 
     }
 
@@ -91,5 +91,18 @@ public class DocumentTypeNode implements DocumentType {
      */
     public String getCompanyKey() {
         return companyKey;
+    }
+
+    @Override
+    public String toString() {
+        return "DocumentTypeNode{" +
+                "id=" + id +
+                ", fortress=" + fortress +
+                ", name='" + name + '\'' +
+                '}';
+    }
+
+    public static String parse(String indexName) {
+        return indexName.toLowerCase().replaceAll("\\s", ".");
     }
 }

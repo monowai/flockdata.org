@@ -26,6 +26,7 @@ import com.auditbucket.engine.repo.riak.RiakRepo;
 import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.helper.CompressionResult;
 import com.auditbucket.track.bean.AuditDeltaBean;
+import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.LogWhat;
@@ -61,16 +62,15 @@ public class WhatService {
         getKvRepo().purge(indexName);
     }
 
-    public void doKvWrite(Iterable<TrackResultBean> resultBeans) throws IOException{
+    public void doKvWrite(Iterable<TrackResultBean> resultBeans) throws IOException {
         for (TrackResultBean resultBean : resultBeans) {
-            if ( resultBean.processLog())
-                doKvWrite(resultBean.getMetaHeader(),resultBean.getLogResult().getWhatLog() );
+            doKvWrite(resultBean);
         }
     }
 
-    public void doKvWrite(TrackResultBean resultBean) throws IOException{
-        if ( resultBean.getLog() !=null )
-            doKvWrite(resultBean.getMetaHeader(),resultBean.getLogResult().getWhatLog() );
+    public void doKvWrite(TrackResultBean resultBean) throws IOException {
+        if (resultBean.getLog() != null && resultBean.getLog().getStatus() != LogInputBean.LogStatus.TRACK_ONLY)
+            doKvWrite(resultBean.getMetaHeader(), resultBean.getLogResult().getWhatLog());
     }
 
     public enum KV_STORE {REDIS, RIAK}
@@ -91,9 +91,10 @@ public class WhatService {
     /**
      * adds what store details to the log that will be index in Neo4j
      * Subsequently, this data will make it to a KV store
-     * @param log Log
-     * @param jsonText  Escaped Json
-     * @return          logChange
+     *
+     * @param log      Log
+     * @param jsonText Escaped Json
+     * @return logChange
      * @throws IOException
      */
     public Log prepareLog(Log log, String jsonText) throws IOException {
@@ -109,7 +110,7 @@ public class WhatService {
 
     private void doKvWrite(MetaHeader metaHeader, Log log) throws IOException {
         // ToDo: deal with this via spring integration??
-        if ( log == null ){
+        if (log == null) {
             return;
         }
         byte[] dataBlock = log.getDataBlock();
@@ -140,7 +141,7 @@ public class WhatService {
             return null;
         try {
             byte[] whatInformation = getKvRepo(log).getValue(metaHeader, log.getId());
-            if ( whatInformation != null )
+            if (whatInformation != null)
                 return new LogWhatData(whatInformation, log.isCompressed());
             else {
                 //logger.error("Unable to obtain What data from {}", log.getWhatStore());
@@ -179,7 +180,8 @@ public class WhatService {
         String jsonThis = what.getWhatString();
         return isSame(jsonThis, compareWith);
     }
-    public boolean isSame (String compareFrom, String compareWith){
+
+    public boolean isSame(String compareFrom, String compareWith) {
 
         if (compareFrom == null || compareWith == null)
             return false;
@@ -196,8 +198,7 @@ public class WhatService {
         } catch (IOException e) {
             logger.error("Comparing JSON docs", e);
         }
-        boolean same = !(jCompareFrom == null || jCompareWith == null) && jCompareFrom.equals(jCompareWith);
-        return same;
+        return !(jCompareFrom == null || jCompareWith == null) && jCompareFrom.equals(jCompareWith);
 
     }
 

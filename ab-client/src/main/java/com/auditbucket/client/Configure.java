@@ -61,14 +61,14 @@ public class Configure {
                 if (reconfigure) {
                     Boolean yes = getBooleanValue("Reconfigure? ", "Do you still wish to reconfigure your settings? (n)", "n");
                     if (yes) {
-                        configure(file, defaults, engineURL);
+                        configure(file, defaults);
                     }
                 } else {
                     writeConfiguration(file, defaults);
                 }
 
             } else {
-                configure(file, defaults, engineURL);
+                configure(file, defaults);
             }
         }
         // Test the configuration with the defaults provided
@@ -148,12 +148,12 @@ public class Configure {
         return ns;
     }
 
-    private static boolean configure(File file, ConfigProperties defaults, String engineURL) {
+    private static boolean configure(File file, ConfigProperties defaults) {
         String version;
 
         internalPass = getPassword();
 
-        engineURL = pingServer(defaults, engineURL, true); // We've already pinged.
+        String engineURL = pingServer(defaults, true); // We've already pinged.
         //Boolean resetUser = getBooleanValue("** Have you configured AuditBucket with an alternative security domain?", "N");
         String apiKey = defaults.getApiKey();
 
@@ -201,13 +201,23 @@ public class Configure {
         return true;
     }
 
+    private static String pingServer(ConfigProperties defaults, boolean b) {
+        return pingServer(defaults, defaults.getEngineURL(), b);
+    }
+
     private static String pingServer(ConfigProperties defaults, String engineURL, boolean suppressSuccessMessage) {
         String pingResult;
+        if ( engineURL!=null && !engineURL.equals("") && !engineURL.startsWith("http"))
+            engineURL=  "http://" +engineURL;
+
         pingResult = pingServer(engineURL, null, null);
 
         while (!pingResult.equalsIgnoreCase("pong!") && !pingResult.equalsIgnoreCase("auth")) {
             logger.error("!! Unable to ping AbEngine on [{}]", engineURL);
             engineURL = getValue("URL: ", "** Enter AbEngine URL ({})", engineURL);
+            if ( engineURL!=null && !engineURL.equals("") && !engineURL.startsWith("http"))
+                engineURL=  "http://" +engineURL;
+
             if (engineURL != null) {
                 pingResult = pingServer(engineURL, null, null);
             }

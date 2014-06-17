@@ -21,7 +21,7 @@ package com.auditbucket.registration.service;
 
 
 import com.auditbucket.dao.SchemaDao;
-import com.auditbucket.engine.service.EngineConfig;
+import com.auditbucket.engine.service.SchemaService;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.CompanyUser;
@@ -55,7 +55,7 @@ public class CompanyService {
     private SecurityHelper securityHelper;
 
     @Autowired
-    private EngineConfig engineAdmin;
+    private SchemaService schemaService;
 
     private static Logger logger = LoggerFactory.getLogger(CompanyService.class);
 
@@ -107,7 +107,7 @@ public class CompanyService {
 
     public Company save(String companyName) {
         Company company = companyDao.create(companyName, keyGenService.getUniqueKey());
-        engineAdmin.ensureSystemIndexes(company);
+        schemaService.ensureSystemIndexes(company);
         return company;
     }
 
