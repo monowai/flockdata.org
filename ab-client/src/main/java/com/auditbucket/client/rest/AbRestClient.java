@@ -208,8 +208,8 @@ public class AbRestClient implements StaticDataResolver {
     }
 
     public Collection<TagInputBean> getCountries() throws DatagioException{
-        if (simulateOnly)
-            return null;
+//        if (simulateOnly)
+//            return null;
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
@@ -245,8 +245,8 @@ public class AbRestClient implements StaticDataResolver {
      */
     @Override
     public String resolveCountryISOFromName(String name) throws DatagioException{
-        if (simulateOnly)
-            return name;
+//        if (simulateOnly)
+//            return name;
 
         // 2 char country? it's already ISO
         if ( name.length()==2)
