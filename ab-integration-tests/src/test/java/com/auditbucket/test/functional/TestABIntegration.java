@@ -1077,7 +1077,7 @@ public class TestABIntegration {
      */
     public static void waitAWhile(String message, long milliseconds) throws Exception {
         Thread.sleep(milliseconds);
-        logger.trace(message, milliseconds / 1000d);
+        logger.debug(message, milliseconds / 1000d);
     }
 
 
