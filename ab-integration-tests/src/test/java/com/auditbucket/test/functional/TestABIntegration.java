@@ -29,6 +29,7 @@ import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.search.model.MetaSearchSchema;
@@ -110,6 +111,8 @@ public class TestABIntegration {
     @Autowired
     RegistrationService regService;
     @Autowired
+    CompanyService companyService;
+    @Autowired
     FortressService fortressService;
     @Autowired
     MediationFacade mediationFacade;
@@ -122,6 +125,7 @@ public class TestABIntegration {
 
     String company = "Monowai";
     static Properties properties = new Properties();
+    int esTimeout = 10; // Max attempts to find the result in ES
 
     @AfterClass
     public static void waitAWhile() throws Exception {
@@ -166,7 +170,16 @@ public class TestABIntegration {
         for (int i = 1; i < fortressMax + 1; i++) {
             deleteEsIndex("ab.monowai.bulkloada" + i);
         }
+
+    }
+
+    @Before
+    public void setupUser() throws Exception{
         SecurityContextHolder.getContext().setAuthentication(authA);
+        if ( companyService.findByName("monowai") == null ){
+            regService.registerSystemUser(new RegistrationBean("monowai", "mike").setIsUnique(false));
+            waitAWhile("Registering Auth user System Access {}");
+        }
     }
 
     private static void deleteEsIndex(String indexName) throws Exception {
@@ -177,24 +190,6 @@ public class TestABIntegration {
     @AfterClass
     public static void shutDownElasticSearch() throws Exception {
         esClient.shutdownClient();
-    }
-
-    private boolean defaultAuthUser;
-
-    /**
-     * A lot of calls in this class assume that the BasicAuth user can create and read data
-     * In order for the authenticated user to create data they have to belong to the company.
-     * By default the secured user does not belong, so we set that up here
-     *
-     * @throws Exception
-     */
-    @Before
-    public void secureSystemUserCanWriteData() throws Exception{
-        if (!defaultAuthUser){
-            defaultAuthUser = true;
-            regService.registerSystemUser(new RegistrationBean(company, "mike").setIsUnique(false));
-            waitAWhile("Registering Auth user System Access {}");
-        }
     }
 
     @Test
@@ -234,6 +229,7 @@ public class TestABIntegration {
         inputBean.setEvent("TagTest");
         TrackResultBean auditResult;
         auditResult = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody();
+        logger.debug("Sent ");
         waitForHeaderToUpdate(auditResult.getMetaHeader(), su.getApiKey());
         TrackedSummaryBean summary = trackEP.getAuditSummary(auditResult.getMetaKey(), apiKey, apiKey).getBody();
         assertNotNull(summary);
@@ -374,14 +370,12 @@ public class TestABIntegration {
         MetaHeader header = mediationFacade.createHeader(inputBean, null).getMetaHeader();
         Assert.assertNull(header.getMetaKey());
         // Updating the same caller ref should not create a 3rd record
-        waitAWhile();
         doEsQuery(indexName, "*", 2);
 
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setTrackSuppressed(true);
         inputBean.setMetaOnly(true);
         mediationFacade.createHeader(inputBean, null);
-        waitAWhile();
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(indexName, "*", 2);
 
@@ -389,7 +383,6 @@ public class TestABIntegration {
         inputBean.setTrackSuppressed(true);
         inputBean.setMetaOnly(true);
         mediationFacade.createHeader(inputBean, null);
-        waitAWhile();
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(indexName, "*", 3);
 
@@ -450,6 +443,7 @@ public class TestABIntegration {
         // Two search docs,but one without a metaKey
 
     }
+
     /**
      * Suppresses the indexing of a log record even if the fortress is set to index everything
      *
@@ -812,7 +806,7 @@ public class TestABIntegration {
         if (metaHeader.getSearchKey() != null)
             return 0;
 
-        int timeout = 200;
+        int timeout = 100;
         while (metaHeader.getSearchKey() == null && i <= timeout) {
             metaHeader = trackEP.getMetaHeader(header.getMetaKey(), apiKey, apiKey).getBody();
             Thread.yield();
@@ -885,7 +879,7 @@ public class TestABIntegration {
     private String doEsQuery(String index, String queryString) throws Exception {
         return doEsQuery(index, queryString, 1);
     }
-    int esTimeout = 10; // Max attempts to find the result in ES
+
     private String doEsQuery(String index, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
