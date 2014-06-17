@@ -808,12 +808,11 @@ public class TestABIntegration {
         long thenTime = System.currentTimeMillis();
         int i = 0;
 
-
         MetaHeader metaHeader = trackEP.getMetaHeader(header.getMetaKey(), apiKey, apiKey).getBody();
         if (metaHeader.getSearchKey() != null)
             return 0;
 
-        int timeout = 30;
+        int timeout = 100;
         while (metaHeader.getSearchKey() == null && i <= timeout) {
             metaHeader = trackEP.getMetaHeader(header.getMetaKey(), apiKey, apiKey).getBody();
             Thread.yield();
