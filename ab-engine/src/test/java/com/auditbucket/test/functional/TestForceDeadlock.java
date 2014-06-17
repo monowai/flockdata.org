@@ -19,36 +19,21 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.engine.service.EngineConfig;
-import com.auditbucket.engine.service.MediationFacade;
 import com.auditbucket.engine.service.TrackService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
-import com.auditbucket.registration.endpoint.TagEP;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.model.Tag;
-import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
-import com.auditbucket.registration.service.TagService;
 import com.auditbucket.track.bean.MetaInputBean;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.data.neo4j.support.node.Neo4jHelper;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.BeforeTransaction;
 
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -61,30 +46,9 @@ import static junit.framework.Assert.assertNotNull;
  * User: Mike Holdsworth
  * Since: 1/12/13
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:root-context.xml")
-public class TestForceDeadlock {
-    @Autowired
-    FortressService fortressService;
-
-    @Autowired
-    TagService tagService;
-
-    @Autowired
-    private MediationFacade mediationFacade;
-
-    @Autowired
-    private TagEP tagEP;
-
-    @Autowired
-    private EngineConfig engineConfig;
-
-    @Autowired
-    private Neo4jTemplate template;
+public class TestForceDeadlock extends TestEngineBase {
 
     private Logger logger = LoggerFactory.getLogger(TestForceDeadlock.class);
-    private String mike = "mike";
-    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "123");
     @Autowired
     TrackService trackService;
 
@@ -92,18 +56,8 @@ public class TestForceDeadlock {
     RegistrationService regService;
 
     @Before
-    public void setSecurity() {
-        SecurityContextHolder.getContext().setAuthentication(authMike);
-    }
-
-    @Rollback(false)
-    @BeforeTransaction
-    public void cleanUpGraph() {
-        // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
-        // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-        engineConfig.setMultiTenanted(false);
-        if (!"rest".equals(System.getProperty("neo4j")))
-            Neo4jHelper.cleanDb(template);
+    public void setSingleTenanted() {
+        engineAdmin.setMultiTenanted(false);
     }
 
     @Test
@@ -112,7 +66,7 @@ public class TestForceDeadlock {
 
         String monowai = "Monowai";
         regService.registerSystemUser(new RegistrationBean(monowai, mike));
-        SecurityContextHolder.getContext().setAuthentication(authMike);
+        setSecurity();
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("auditTest" + System.currentTimeMillis(), true));
 
         CountDownLatch latch = new CountDownLatch(4);
@@ -146,9 +100,10 @@ public class TestForceDeadlock {
 
         String monowai = "Monowai";
         SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike));
-        SecurityContextHolder.getContext().setAuthentication(authMike);
+        setSecurity();
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("auditTest" + System.currentTimeMillis(),true));
         String docType = "TestAuditX";
+        Thread.sleep(500);
 
         //CountDownLatch latch = new CountDownLatch(4);
         ArrayList<TagInputBean> tags = getTags(10);
@@ -243,7 +198,7 @@ public class TestForceDeadlock {
 
         public List<MetaInputBean> getInputBeans() {
             int count = 0;
-            SecurityContextHolder.getContext().setAuthentication(authMike);
+            setSecurity();
             logger.info("Hello from thread {}, Creating {} MetaHeaders", callerRef, maxRun);
             try {
                 while (count < maxRun) {
@@ -286,7 +241,7 @@ public class TestForceDeadlock {
         @Override
         public void run() {
             int count = 0;
-            SecurityContextHolder.getContext().setAuthentication(authMike);
+            setSecurity();
             logger.info("Hello from TagRunner {}, Creating {} Tags", Thread.currentThread().getName(), maxRun);
             try {
                 while (count < maxRun) {

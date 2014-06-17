@@ -19,15 +19,10 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.engine.service.MediationFacade;
-import com.auditbucket.engine.service.TrackEventService;
-import com.auditbucket.engine.service.TrackService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
-import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
@@ -36,21 +31,7 @@ import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
 import org.joda.time.DateTime;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.data.neo4j.support.node.Neo4jHelper;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
@@ -62,47 +43,8 @@ import static org.junit.Assert.assertNotNull;
  * User: Mike Holdsworth
  * Since: 6/09/13
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:root-context.xml")
 @Transactional
-public class TestTrackEvents {
-    @Autowired
-    TrackService trackService;
-
-    @Autowired
-    RegistrationEP regService;
-
-    @Autowired
-    FortressService fortressService;
-
-    @Autowired
-    TrackEventService trackEventService;
-
-    @Autowired
-    private Neo4jTemplate template;
-
-    @Autowired
-    private MediationFacade mediationFacade;
-
-    private Logger logger = LoggerFactory.getLogger(TestTrackEvents.class);
-    private String monowai = "Monowai";
-    private String mike = "mike";
-    // This has to be a user in spring-security.xml that is authorised to create registrations
-    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "123");
-
-    @Before
-    public void setSecurity() {
-        SecurityContextHolder.getContext().setAuthentication(authMike);
-    }
-
-    @Rollback(false)
-    @BeforeTransaction
-    public void cleanUpGraph() {
-        // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
-        // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-        if (!"http".equals(System.getProperty("neo4j")))
-            Neo4jHelper.cleanDb(template);
-    }
+public class TestTrackEvents extends TestEngineBase{
 
     @Test
     public void noDuplicateEventsForACompany() throws Exception {

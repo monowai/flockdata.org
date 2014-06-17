@@ -20,6 +20,7 @@
 package com.auditbucket.track.bean;
 
 import com.auditbucket.track.model.Log;
+import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
 import com.auditbucket.track.model.TxRef;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -38,19 +39,25 @@ public class LogResultBean {
     private String callerRef;
     private LogInputBean.LogStatus status = LogInputBean.LogStatus.OK;
 
+    private MetaHeader metaHeader;
+
     private String fortressUser;
     private String txReference = null;
     private Long sysWhen;
     private TrackLog logToIndex;
     private Log whatLog;
 
-    public LogResultBean(LogInputBean input) {
+    public LogResultBean(LogInputBean input, MetaHeader metaHeader) {
         this();
-        this.metaKey = input.getMetaKey();
-        this.callerRef = input.getCallerRef();
-        this.documentType = input.getDocumentType();
-        this.fortress = input.getFortress();
+        this.metaHeader = metaHeader;
+        if ( metaHeader !=null ) {
+            this.metaKey = metaHeader.getMetaKey();
+            this.documentType = metaHeader.getDocumentType();
+            this.callerRef = metaHeader.getCallerRef();
+            this.fortress = metaHeader.getFortress().getName();
+        }
         this.fortressUser = input.getFortressUser();
+
     }
 
     private LogResultBean() {
@@ -153,5 +160,10 @@ public class LogResultBean {
 
     public Log getWhatLog() {
         return whatLog;
+    }
+
+    @JsonIgnore
+    public MetaHeader getMetaHeader() {
+        return metaHeader;
     }
 }

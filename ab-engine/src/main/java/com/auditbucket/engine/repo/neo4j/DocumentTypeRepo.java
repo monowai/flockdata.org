@@ -31,7 +31,7 @@ import java.util.Collection;
  * Date: 30/06/13
  * Time: 10:20 AM
  */
-public interface SchemaTypeRepo extends GraphRepository<DocumentTypeNode> {
+public interface DocumentTypeRepo extends GraphRepository<DocumentTypeNode> {
     @Query(elementClass = DocumentTypeNode.class,
             value =
                     "MATCH fortress<-[:FORTRESS_DOC]-documentType " +

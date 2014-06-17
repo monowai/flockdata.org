@@ -79,7 +79,7 @@ public class TestElasticSearch {
         // Add Who Parameter because it's used in creating the Document in ES as a Type .
         change.setWho("Who");
 
-        Map<String, Object> name = new HashMap<>();
+        HashMap<String, Object> name = new HashMap<>();
         name.put("first", "Joe");
         name.put("last", "Sixpack");
         change.setWhat(name);

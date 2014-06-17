@@ -29,6 +29,7 @@ import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
+import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
@@ -66,25 +67,23 @@ public class TrackDaoES implements TrackSearchDao {
     private Logger logger = LoggerFactory.getLogger(TrackDaoES.class);
 
     @Override
-    public void delete(MetaHeader header, String existingIndexKey) {
-        String indexName = header.getIndexName();
-        String recordType = header.getDocumentType();
+    public boolean delete(SearchChange searchChange) {
+        String indexName = searchChange.getIndexName();
+        String recordType = searchChange.getDocumentType();
 
-        if (existingIndexKey == null)
-            existingIndexKey = header.getSearchKey();
+        String existingIndexKey = searchChange.getSearchKey();
 
         DeleteResponse dr = esClient.prepareDelete(indexName, recordType, existingIndexKey)
                 //.setRouting(header.getMetaKey())
                 .execute()
                 .actionGet();
 
-        if (logger.isDebugEnabled()) {
-            if (!dr.isFound())
-                logger.debug("Didn't find the document to remove [" + existingIndexKey + "] from " + indexName + "/" + recordType);
-            else
-                logger.debug("Removed document [" + existingIndexKey + "] from " + indexName + "/" + recordType);
+        if (!dr.isFound()) {
+            logger.debug("Didn't find the document to remove [{}] from {}/{}", existingIndexKey, indexName, recordType);
+            return false;// Not found
         }
-
+        logger.debug("Removed document [{}] from {}/{}", existingIndexKey, indexName, recordType);
+        return true;
     }
 
     /**
@@ -97,7 +96,10 @@ public class TrackDaoES implements TrackSearchDao {
         logger.debug("Received request to Save [{}]", searchChange.getMetaKey());
 
         ensureIndex(indexName, documentType);
-        //ensureMapping(indexName, documentType);
+        // ToDo: we shouldn't have to do this. It should only need to happen when we create an index for the first time.
+        //       But if we don't the @tag.*.key is analyzed affecting pie charts in Kibana.
+
+        ensureMapping(indexName, documentType);
 
         String source = makeIndexJson(searchChange);
         IndexRequestBuilder irb = esClient.prepareIndex(indexName, documentType)
@@ -106,10 +108,10 @@ public class TrackDaoES implements TrackSearchDao {
 
         String searchKey = searchChange.getSearchKey();
 
-        if (searchKey == null )
+        if (searchKey == null)
             searchKey = searchChange.getCallerRef();
 
-        if (searchKey == null )
+        if (searchKey == null)
             searchKey = searchChange.getMetaKey();
 
         logger.debug("Resolved SearchKey to [{}]", searchKey);
@@ -126,7 +128,7 @@ public class TrackDaoES implements TrackSearchDao {
             if (logger.isDebugEnabled())
                 logger.debug("Save:Document [{}], logId= [{}] searchKey [{}] index [{}/{}]",
                         searchChange.getMetaKey(),
-                        searchChange.getLogId() ,
+                        searchChange.getLogId(),
                         ir.getId(),
                         indexName,
                         documentType);
@@ -139,6 +141,34 @@ public class TrackDaoES implements TrackSearchDao {
 
     }
 
+    private void ensureMapping(String indexName, String documentType) {
+        logger.debug("Checking mapping for {}, {}", indexName, documentType);
+        XContentBuilder mappingEs = mapping(documentType);
+        // Test if Type exist
+        String[] indexNames = new String[1];
+        indexNames[0] = indexName;
+        String[] documentTypes = new String[1];
+        documentTypes[0] = documentType;
+
+        boolean hasType = esClient.admin()
+                .indices()
+                .typesExists(new TypesExistsRequest(indexNames, documentTypes))
+                .actionGet()
+                .isExists();
+        if (!hasType) {
+            // Type Don't exist ==> Insert Mapping
+            if (mappingEs != null) {
+                esClient.admin().indices()
+                        .preparePutMapping(indexName)
+                        .setType(documentType)
+                        .setSource(mappingEs)
+                        .execute().actionGet();
+                logger.debug("Created default mapping for {}, {}", indexName, documentType);
+            }
+        } else
+            logger.info("Mapping Exists= [{}]", hasType);
+    }
+
     private synchronized void ensureIndex(String indexName, String documentType) {
         logger.debug("Ensuring index {}, {}", indexName, documentType);
 
@@ -147,7 +177,7 @@ public class TrackDaoES implements TrackSearchDao {
                 .indices()
                 .exists(new IndicesExistsRequest(indexName))
                 .actionGet().isExists();
-        if (hasIndex){
+        if (hasIndex) {
             logger.trace("Index {}, {} exists", indexName, documentType);
             return;
         }
@@ -168,38 +198,38 @@ public class TrackDaoES implements TrackSearchDao {
                         .actionGet();
             } else {
                 esClient.admin()
-                    .indices()
-                    .prepareCreate(indexName)
-                    .addMapping(documentType, mappingEs)
-                    .execute()
-                    .actionGet();
+                        .indices()
+                        .prepareCreate(indexName)
+                        .addMapping(documentType, mappingEs)
+                        .execute()
+                        .actionGet();
             }
-//            ensureMapping(indexName, documentType);
+            ensureMapping(indexName, documentType);
         }
     }
 
     @Override
-    public SearchChange update(SearchChange incoming) {
+    public SearchChange update(SearchChange searchChange) {
 
-        String source = makeIndexJson(incoming);
-        logger.debug("Determining create or update for searchKey [{}]", incoming);
-        if (incoming.getSearchKey() == null || incoming.getSearchKey().equals("")){
-            logger.debug("No search key, creating as a new document [{}]", incoming.getMetaKey());
-            return save(incoming);
+        String source = makeIndexJson(searchChange);
+        logger.debug("Determining create or update for searchKey [{}]", searchChange);
+        if (searchChange.getSearchKey() == null || searchChange.getSearchKey().equals("")) {
+            logger.debug("No search key, creating as a new document [{}]", searchChange.getMetaKey());
+            return save(searchChange);
         }
 
         try {
-            logger.debug("Update request for [{}]", incoming.getMetaKey());
-            ensureIndex(incoming.getIndexName(), incoming.getDocumentType());
-            //ensureMapping(incoming.getIndexName(), incoming.getDocumentType());
+            logger.debug("Update request for searchKey [{}], metaKey[{}]", searchChange.getSearchKey(), searchChange.getMetaKey());
+            ensureIndex(searchChange.getIndexName(), searchChange.getDocumentType());
+            //ensureMapping(searchChange.getIndexName(), searchChange.getDocumentType());
             GetResponse response =
-                    esClient.prepareGet(incoming.getIndexName(),
-                            incoming.getDocumentType(),
-                            incoming.getSearchKey())
-                            //.setRouting(incoming.getMetaKey())
+                    esClient.prepareGet(searchChange.getIndexName(),
+                            searchChange.getDocumentType(),
+                            searchChange.getSearchKey())
+                            //.setRouting(searchChange.getMetaKey())
                             .execute()
                             .actionGet();
-            logger.debug("executed get request for {}", incoming.toString());
+            logger.debug("executed get request for {}", searchChange.toString());
             if (response.isExists() && !response.isSourceEmpty()) {
                 logger.debug("Document exists!");
                 // Messages can be received out of sequence
@@ -210,41 +240,45 @@ public class TrackDaoES implements TrackSearchDao {
                 if (o != null) {
 
                     Long existingWhen = Long.decode(o.toString());
-                    logger.debug("Comparing incoming when {} with stored when {}", incoming.getWhen(), existingWhen);
-                    if (existingWhen > incoming.getWhen()) {
-                        logger.debug("ignoring a request to update as the existing document dated [{}] is newer than the incoming document dated [{}]", new Date(existingWhen), new Date(incoming.getWhen()));
-                        return incoming; // Don't overwrite the most current doc!
-                    } else if (incoming.getWhen() == 0l && !incoming.isReplyRequired()) {
-                        // Meta Change - not indexed in AB, so ignore something we already have.
-                        // Likely scenario is a batch is being reprocessed
-                        return incoming;
+                    logger.debug("Comparing searchChange when {} with stored when {}", searchChange.getWhen(), existingWhen);
+                    if (!searchChange.isForceReindex()) {
+                        if (existingWhen > searchChange.getWhen()) {
+                            logger.debug("ignoring a request to update as the existing document dated [{}] is newer than the searchChange document dated [{}]", new Date(existingWhen), new Date(searchChange.getWhen()));
+                            return searchChange; // Don't overwrite the most current doc!
+                        } else if (searchChange.getWhen() == 0l && !searchChange.isReplyRequired()) {
+                            // Meta Change - not indexed in AB, so ignore something we already have.
+                            // Likely scenario is a batch is being reprocessed
+                            return searchChange;
+                        }
+                        logger.debug("Document is more recent. Proceeding with update");
+                    } else {
+                        logger.debug("Forcing an update of the document.");
                     }
-                    logger.debug("Document is more recent. Proceeding with update");
                 }
             } else {
                 // No response, to a search key we expect to exist. Create a new one
                 // Likely to be in response to rebuilding an ES index from Graph data.
-                logger.debug("About to create in response to an update request for {}", incoming.toString());
-                return save(incoming);
+                logger.debug("About to create in response to an update request for {}", searchChange.toString());
+                return save(searchChange);
             }
 
-            // Update the existing document with the incoming change
+            // Update the existing document with the searchChange change
             IndexRequestBuilder update = esClient
-                    .prepareIndex(incoming.getIndexName(), incoming.getDocumentType(), incoming.getSearchKey());
-            //.setRouting(incoming.getMetaKey());
+                    .prepareIndex(searchChange.getIndexName(), searchChange.getDocumentType(), searchChange.getSearchKey());
+            //.setRouting(searchChange.getMetaKey());
 
             ListenableActionFuture<IndexResponse> ur = update.setSource(source).
                     execute();
 
             if (logger.isDebugEnabled()) {
                 IndexResponse indexResponse = ur.actionGet();
-                logger.debug("Updated [{}] logId=[{}] for [{}] to version [{}]" , incoming.getSearchKey(), incoming.getLogId(), incoming,  indexResponse.getVersion());
+                logger.debug("Updated [{}] logId=[{}] for [{}] to version [{}]", searchChange.getSearchKey(), searchChange.getLogId(), searchChange, indexResponse.getVersion());
             }
         } catch (IndexMissingException e) { // administrator must have deleted it, but we think it still exists
-            logger.info("Attempt to update non-existent index [{}]. Moving to create it", incoming.getIndexName());
-            return save(incoming);
+            logger.info("Attempt to update non-existent index [{}]. Moving to create it", searchChange.getIndexName());
+            return save(searchChange);
         }
-        return incoming;
+        return searchChange;
     }
 
     public byte[] findOne(MetaHeader header) {
@@ -304,17 +338,17 @@ public class TrackDaoES implements TrackSearchDao {
     /**
      * Converts a user requested searchChange in to a standardised document to index
      *
-     * @param searchChange incoming
+     * @param searchChange searchChange
      * @return document to index
      */
     private Map<String, Object> makeIndexDocument(SearchChange searchChange) {
         Map<String, Object> indexMe = new HashMap<>();
         if (searchChange.getWhat() != null)
             indexMe.put(MetaSearchSchema.WHAT, searchChange.getWhat());
-        if ( searchChange.getMetaKey()!=null ) //DAT-83 No need to track NULL metaKey
-        // This occurs if the search doc is not being tracked in ab-engine's graph
+        if (searchChange.getMetaKey() != null) //DAT-83 No need to track NULL metaKey
+            // This occurs if the search doc is not being tracked in ab-engine's graph
             indexMe.put(MetaSearchSchema.META_KEY, searchChange.getMetaKey());
-        if ( searchChange.getWho() !=null )
+        if (searchChange.getWho() != null)
             indexMe.put(MetaSearchSchema.WHO, searchChange.getWho());
         if (searchChange.getEvent() != null)
             indexMe.put(MetaSearchSchema.LAST_EVENT, searchChange.getEvent());
@@ -330,7 +364,7 @@ public class TrackDaoES implements TrackSearchDao {
         indexMe.put(MetaSearchSchema.FORTRESS, searchChange.getFortressName());
         indexMe.put(MetaSearchSchema.DOC_TYPE, searchChange.getDocumentType());
         indexMe.put(MetaSearchSchema.CALLER_REF, searchChange.getCallerRef());
-        if ( searchChange.getDescription()!=null )
+        if (searchChange.getDescription() != null)
             indexMe.put(MetaSearchSchema.DESCRIPTION, searchChange.getDescription());
 
         if (!searchChange.getTagValues().isEmpty())
@@ -392,72 +426,72 @@ public class TrackDaoES implements TrackSearchDao {
                     .startObject()
                     .startObject(documentType)
                     .startObject("properties")
-                        .startObject(MetaSearchSchema.META_KEY) // keyword
-                            .field("type", "string")
-                            .field("index", NOT_ANALYZED)
-                        .endObject()
-                        .startObject(MetaSearchSchema.CALLER_REF) // keyword
-                            .field("type", "string")
-                            .field("boost", "2.0")
-                            .field("index", NOT_ANALYZED)
-                        .endObject()
-                        .startObject(MetaSearchSchema.DOC_TYPE)  // keyword
-                            .field("type", "string")
-                            .field("index", NOT_ANALYZED)
-                        .endObject()
-                        .startObject(MetaSearchSchema.FORTRESS)   // keyword
-                            .field("type", "string")
-                            .field("index", NOT_ANALYZED)
-                        .endObject()
-                        .startObject(MetaSearchSchema.LAST_EVENT)  //@lastEvent
-                            .field("type", "string")
-                            .field("index", NOT_ANALYZED)
-                        .endObject()
-                        .startObject(MetaSearchSchema.TIMESTAMP)
-                            .field("type", "date")
-                        .endObject()
-                        .startObject(MetaSearchSchema.CREATED)
-                            .field("type", "date")
-                        .endObject()
-                        .startObject(MetaSearchSchema.WHAT)    //@what is dynamic so we don't init his mapping we choose the convention
-                            .startObject("properties")
-                                .startObject(MetaSearchSchema.WHAT_CODE)
-                                    .field("type", "string")
-                                    .field("boost", 2d)
-                                    .field("analyzer", MetaSearchSchema.NGRM_WHAT_CODE)
-                                .endObject()
-                                .startObject(MetaSearchSchema.WHAT_NAME)
-                                    .field("type", "string")
-                                    .field("boost", 2d)
-                                    .field("analyzer", MetaSearchSchema.NGRM_WHAT_NAME)
-                                .endObject()
-                                    .startObject(MetaSearchSchema.WHAT_DESCRIPTION)
-                                    .field("type", "string")
-                                    .field("analyzer", MetaSearchSchema.NGRM_WHAT_DESCRIPTION)
-                                .endObject()
-                            .endObject()
-                        .endObject()
+                    .startObject(MetaSearchSchema.META_KEY) // keyword
+                    .field("type", "string")
+                    .field("index", NOT_ANALYZED)
+                    .endObject()
+                    .startObject(MetaSearchSchema.CALLER_REF) // keyword
+                    .field("type", "string")
+                    .field("boost", "2.0")
+                    .field("index", NOT_ANALYZED)
+                    .endObject()
+                    .startObject(MetaSearchSchema.DOC_TYPE)  // keyword
+                    .field("type", "string")
+                    .field("index", NOT_ANALYZED)
+                    .endObject()
+                    .startObject(MetaSearchSchema.FORTRESS)   // keyword
+                    .field("type", "string")
+                    .field("index", NOT_ANALYZED)
+                    .endObject()
+                    .startObject(MetaSearchSchema.LAST_EVENT)  //@lastEvent
+                    .field("type", "string")
+                    .field("index", NOT_ANALYZED)
+                    .endObject()
+                    .startObject(MetaSearchSchema.TIMESTAMP)
+                    .field("type", "date")
+                    .endObject()
+                    .startObject(MetaSearchSchema.CREATED)
+                    .field("type", "date")
+                    .endObject()
+                    .startObject(MetaSearchSchema.WHAT)    //@what is dynamic so we don't init his mapping we choose the convention
+                    .startObject("properties")
+                    .startObject(MetaSearchSchema.WHAT_CODE)
+                    .field("type", "string")
+                    .field("boost", 2d)
+                    .field("analyzer", MetaSearchSchema.NGRM_WHAT_CODE)
+                    .endObject()
+                    .startObject(MetaSearchSchema.WHAT_NAME)
+                    .field("type", "string")
+                    .field("boost", 2d)
+                    .field("analyzer", MetaSearchSchema.NGRM_WHAT_NAME)
+                    .endObject()
+                    .startObject(MetaSearchSchema.WHAT_DESCRIPTION)
+                    .field("type", "string")
+                    .field("analyzer", MetaSearchSchema.NGRM_WHAT_DESCRIPTION)
+                    .endObject()
+                    .endObject()
+                    .endObject()
                     .startObject(MetaSearchSchema.WHEN)      //@when
                     .field("type", "date")
                     .endObject()
                     .startObject(MetaSearchSchema.WHO)       //@who
-                        .field("type", "string")
-                        .field("index", NOT_ANALYZED)
+                    .field("type", "string")
+                    .field("index", NOT_ANALYZED)
                     .endObject()
                     .endObject() // End properties
                     .startArray("dynamic_templates")
-                        .startObject()
-                            .startObject("tag-template")
-                                .field("path_match", MetaSearchSchema.TAG+".*.key")
-                                .field("match_mapping_type", "string")
-                                .startObject("mapping")
-                                    .field("type", "string")
-                                    .field("boost", 3d)
-                                    .field("index", "not_analyzed")
-                                    .field("store", "yes")
-                                .endObject()
-                            .endObject() // Tag Template
-                        .endObject()
+                    .startObject()
+                    .startObject("tag-template")
+                    .field("path_match", MetaSearchSchema.TAG + ".*.key")
+                    .field("match_mapping_type", "string")
+                    .startObject("mapping")
+                    .field("type", "string")
+                    .field("boost", 3d)
+                    .field("index", "not_analyzed")
+                    .field("store", "yes")
+                    .endObject()
+                    .endObject() // Tag Template
+                    .endObject()
                     .endArray()
                     .endObject() // End document type
                     .endObject(); // root;

@@ -54,7 +54,7 @@ public class TestWebServiceIntegration {
     @Autowired
     private Neo4jTemplate template;
 
-    private Logger logger = LoggerFactory.getLogger(TestAuditIntegration.class);
+    private Logger logger = LoggerFactory.getLogger(TestABIntegration.class);
     private String email = "test@ab.com";
     private Authentication authA = new UsernamePasswordAuthenticationToken(email, "user1");
 

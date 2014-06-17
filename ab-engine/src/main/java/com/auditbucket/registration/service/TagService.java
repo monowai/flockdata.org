@@ -19,7 +19,6 @@
 
 package com.auditbucket.registration.service;
 
-import com.auditbucket.dao.SchemaDao;
 import com.auditbucket.dao.TagDao;
 import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.helper.Command;
@@ -27,9 +26,7 @@ import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.Tag;
-import com.auditbucket.track.model.DocumentType;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,11 +62,7 @@ public class TagService {
     private TagDao tagDao;
 
     @Autowired
-    private SchemaDao schemaDao;
-
-    @Autowired
     EngineConfig engineConfig;
-
 
     private Logger logger = LoggerFactory.getLogger(TagService.class);
 
@@ -153,33 +146,6 @@ public class TagService {
         if (company == null)
             return null;
         return findTag(company, tagName);
-    }
-
-    /**
-     *
-     * @param fortress     system that has an interest
-     * @param documentType name of the doc type
-     * @return resolved document. Created if missing
-     */
-    public DocumentType resolveDocType(Fortress fortress, String documentType) {
-        return resolveDocType(fortress, documentType, true);
-    }
-
-    /**
-     * finds or creates a Document Type for the caller's company
-     *
-     * @param fortress        system that has an interest
-     * @param documentType    name of the document
-     * @param createIfMissing create document types that are missing
-     * @return created DocumentType
-     */
-    public DocumentType resolveDocType(Fortress fortress, String documentType, Boolean createIfMissing) {
-        if (documentType == null) {
-            throw new IllegalArgumentException("DocumentTypeNode cannot be null");
-        }
-
-        return schemaDao.findDocumentType(fortress, documentType, createIfMissing);
-
     }
 
     public Collection<Tag> findDirectedTags(Tag startTag) {

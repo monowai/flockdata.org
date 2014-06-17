@@ -1,11 +1,8 @@
 package com.auditbucket.test.functional;
 
-import com.auditbucket.engine.endpoint.TrackEP;
-import com.auditbucket.fortress.endpoint.FortressEP;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
-import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
@@ -14,17 +11,8 @@ import com.auditbucket.track.model.MetaHeader;
 import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.data.neo4j.support.node.Neo4jHelper;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
 import static junit.framework.Assert.assertNull;
@@ -36,42 +24,14 @@ import static org.junit.Assert.fail;
  * Date: 15/04/13
  * Time: 6:43 AM
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:root-context.xml")
 @Transactional
-public class TrackAPIKeys {
-    @Autowired
-    TrackEP trackEP;
-
-    @Autowired
-    RegistrationEP regEP;
-
-    @Autowired
-    FortressEP fortressEP;
-
-    @Autowired
-    private Neo4jTemplate template;
-
-    private String companyName = "Monowai";
-    private String mike = "mike";
-    private String mark = "mark";
-    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "123");
-    private Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "123");
-
-    @Rollback(false)
-    @BeforeTransaction
-    public void cleanUpGraph() {
-        // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
-        // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-        if (!"rest".equals(System.getProperty("neo4j")))
-            Neo4jHelper.cleanDb(template);
-    }
+public class TrackAPIKeys extends TestEngineBase{
 
     @Test
     public void testApiKeysWorkInPrecedence() throws Exception {
         // Auth only required to register the sys user
-        SecurityContextHolder.getContext().setAuthentication(authMike);
-        String apiKey = regEP.registerSystemUser(new RegistrationBean(companyName, authMike.getName())).getBody().getApiKey();
+        Authentication authMike = setSecurity(mike);
+        String apiKey = regEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody().getApiKey();
         SecurityContextHolder.getContext().setAuthentication(null);
         Assert.assertNotNull(apiKey);
         Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("testApiKeysWorkInPrecedence"), apiKey, null).getBody();
@@ -95,7 +55,7 @@ public class TrackAPIKeys {
 
         final MetaHeader header = trackEP.getMetaHeader(result.getMetaKey(), apiKey, apiKey).getBody();
         assertNotNull(header);
-        SecurityContextHolder.getContext().setAuthentication(authMark);// Wrong user, but valid API key
+        setSecurity(harry);
         assertNotNull(trackEP.trackHeader(inputBean, apiKey, null));// works
         assertNotNull(trackEP.trackHeader(inputBean, null, apiKey));// works
         assertNotNull(trackEP.trackHeader(inputBean, "invalidApiKey", apiKey));// Header overrides request
@@ -120,8 +80,7 @@ public class TrackAPIKeys {
     @Test
     public void apiCallsSecuredByAccessKey() throws Exception {
 
-        SecurityContextHolder.getContext().setAuthentication(authMike);
-        String apiKey = regEP.registerSystemUser(new RegistrationBean(companyName, "123", mike)).getBody().getApiKey();
+        String apiKey = regEP.registerSystemUser(new RegistrationBean(monowai, "123", mike)).getBody().getApiKey();
         // No authorization - only API keys
         SecurityContextHolder.getContext().setAuthentication(null);
 

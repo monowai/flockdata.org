@@ -21,6 +21,7 @@ package com.auditbucket.track.model;
 
 import org.joda.time.DateTime;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -43,7 +44,7 @@ public interface SearchChange {
      */
     String getMetaKey();
 
-    public void setWhat(Map<String, Object> what);
+    public void setWhat(HashMap<String, Object> what);
 
     public Map<String, Object> getWhat();
 
@@ -108,5 +109,18 @@ public interface SearchChange {
     public void setReplyRequired(boolean required);
 
     boolean isReplyRequired();
+
+    /**
+     * Forces the search engine to ignore date checks and force an update of the document.
+     * Usually in response to a cancellation in ab-engine
+     *
+     */
+    public boolean isForceReindex();
+
+    /**
+     *
+     * @return if the searchKey should be removed
+     */
+    public boolean isDelete();
 
 }

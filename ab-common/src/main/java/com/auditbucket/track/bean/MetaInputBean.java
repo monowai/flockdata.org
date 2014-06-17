@@ -198,10 +198,11 @@ public class MetaInputBean {
     /**
      * Single tag
      *
+     *
      * @param tag tag to add
      * @see MetaInputBean#getTags()
      */
-    public MetaInputBean setTag(TagInputBean tag) {
+    public MetaInputBean addTag(TagInputBean tag) {
         tags.add(tag);
         return this;
     }

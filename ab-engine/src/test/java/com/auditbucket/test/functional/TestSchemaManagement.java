@@ -1,74 +1,28 @@
 package com.auditbucket.test.functional;
 
-import com.auditbucket.company.endpoint.CompanyEP;
-import com.auditbucket.engine.endpoint.TrackEP;
-import com.auditbucket.fortress.endpoint.FortressEP;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
-import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.model.DocumentType;
+import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.data.neo4j.support.node.Neo4jHelper;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 /**
- * Created with IntelliJ IDEA.
+ * Schema related tests
  * User: mike
  * Date: 3/04/14
  * Time: 9:54 AM
- * To change this template use File | Settings | File Templates.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:root-context.xml")
 @Transactional
-
-public class TestSchemaManagement {
-    @Autowired
-    TrackEP trackEP;
-
-    @Autowired
-    FortressEP fortressEP;
-
-    @Autowired
-    RegistrationEP registrationEP;
-
-    @Autowired
-    CompanyEP companyEP;
-
-    @Autowired
-    private Neo4jTemplate template;
-
-    @Rollback(false)
-    @BeforeTransaction
-    public void cleanUpGraph() {
-        // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
-        // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-        SecurityContextHolder.getContext().setAuthentication(authA);
-        Neo4jHelper.cleanDb(template);
-    }
-
-    private String uid = "mike";
-    private Authentication authA = new UsernamePasswordAuthenticationToken(uid, "123");
-    private String monowai = "Monowai";
-    private String mike = "mike";
+public class TestSchemaManagement extends TestEngineBase {
 
     @Test
     public void documentTypesTrackedPerFortress() throws Exception {
@@ -130,4 +84,47 @@ public class TestSchemaManagement {
         assertEquals(1, docTypesA.size());
 
     }
+
+    @Test
+    public void documentTypesWork() throws Exception {
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike));
+        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("ABC", true), su.getApiKey(), su.getApiKey()).getBody();
+
+        String docName = "CamelCaseDoc";
+        DocumentType docType = schemaService.resolveDocType(fortress, docName); // Creates if missing
+        assertNotNull(docType);
+        Assert.assertEquals(docName.toLowerCase(), docType.getCode());
+        Assert.assertEquals(docName, docType.getName());
+        // Should be finding by code which is always Lower
+        Assert.assertNotNull(schemaService.resolveDocType(fortress, docType.getCode().toUpperCase(), false));
+
+    }
+
+    @Test
+    public void duplicateDocumentTypes() throws Exception {
+        setSecurity(sally);
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, sally));
+        Assert.assertNotNull(su);
+
+        Fortress fortA = fortressService.registerFortress("fortA");
+        Fortress fortB = fortressService.registerFortress("fortB");
+
+        DocumentType dType = schemaService.resolveDocType(fortA, "ABC123", true);
+        Assert.assertNotNull(dType);
+        Long id = dType.getId();
+        dType = schemaService.resolveDocType(fortA, "ABC123", false);
+        Assert.assertEquals(id, dType.getId());
+
+        DocumentType nextType = schemaService.resolveDocType(fortB, "ABC123", true);
+        Assert.assertNotSame("Same company + different fortresses = different document types", dType, nextType);
+
+        // Company 2 gets a different tag with the same name
+        setSecurity(harry); // Register an Auth user as an engine system user
+        regService.registerSystemUser(new RegistrationBean("secondcompany", harry));
+        // Same fortress name, but different company results in a new fortress
+        dType = schemaService.resolveDocType(fortressService.registerFortress("fortA"), "ABC123"); // Creates if missing
+        Assert.assertNotNull(dType);
+        Assert.assertNotSame(id, dType.getId());
+    }
+
 }

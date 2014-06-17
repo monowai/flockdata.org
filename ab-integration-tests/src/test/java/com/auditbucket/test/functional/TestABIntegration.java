@@ -29,6 +29,7 @@ import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.search.model.MetaSearchSchema;
@@ -77,8 +78,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Future;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertSame;
+import static junit.framework.Assert.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assume.assumeTrue;
@@ -99,7 +99,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
-public class TestAuditIntegration {
+public class TestABIntegration {
     private static boolean runMe = true; // pass -Dab.debug=true to disable all tests
     private static int fortressMax = 1;
     private static JestClient esClient;
@@ -108,9 +108,10 @@ public class TestAuditIntegration {
     TrackService trackService;
     @Autowired
     TrackEP trackEP;
-
     @Autowired
     RegistrationService regService;
+    @Autowired
+    CompanyService companyService;
     @Autowired
     FortressService fortressService;
     @Autowired
@@ -119,11 +120,12 @@ public class TestAuditIntegration {
     @Autowired
     WhatService whatService;
 
-    private static Logger logger = LoggerFactory.getLogger(TestAuditIntegration.class);
+    private static Logger logger = LoggerFactory.getLogger(TestABIntegration.class);
     private static Authentication authA = new UsernamePasswordAuthenticationToken("mike", "123");
 
     String company = "Monowai";
     static Properties properties = new Properties();
+    int esTimeout = 10; // Max attempts to find the result in ES
 
     @AfterClass
     public static void waitAWhile() throws Exception {
@@ -168,7 +170,16 @@ public class TestAuditIntegration {
         for (int i = 1; i < fortressMax + 1; i++) {
             deleteEsIndex("ab.monowai.bulkloada" + i);
         }
+
+    }
+
+    @Before
+    public void setupUser() throws Exception{
         SecurityContextHolder.getContext().setAuthentication(authA);
+        if ( companyService.findByName("monowai") == null ){
+            regService.registerSystemUser(new RegistrationBean("monowai", "mike").setIsUnique(false));
+            waitAWhile("Registering Auth user System Access {}");
+        }
     }
 
     private static void deleteEsIndex(String indexName) throws Exception {
@@ -179,26 +190,6 @@ public class TestAuditIntegration {
     @AfterClass
     public static void shutDownElasticSearch() throws Exception {
         esClient.shutdownClient();
-    }
-
-    private boolean defaultAuthUser;
-
-    /**
-     * A lot of calls in this class assume that the BasicAuth user can create and read data
-     * In order for the authenticated user to create data they have to belong to the company.
-     * By default the secured user does not belong, so we set that up here
-     *
-     * @throws Exception
-     */
-    @Before
-    public void secureSystemUserCanWriteData() throws Exception{
-        if (!defaultAuthUser){
-            defaultAuthUser = true;
-            regService.registerSystemUser(new RegistrationBean(company, "mike").setIsUnique(false));
-            waitAWhile("Registering Auth user System Access {}");
-
-        }
-
     }
 
     @Test
@@ -232,14 +223,14 @@ public class TestAuditIntegration {
         String apiKey = su.getApiKey();
         Fortress fo = fortressService.registerFortress(new FortressInputBean("headerWithTagsProcess", false));
         DateTime now = new DateTime();
-        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", now, "ZZZ123");
+        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", now, "ABCXYZ123");
         inputBean.setIsMetaOnly(true);
-        inputBean.setTag(new TagInputBean("testTagNameZZ", "someAuditRLX"));
+        inputBean.addTag(new TagInputBean("testTagNameZZ", "someAuditRLX"));
         inputBean.setEvent("TagTest");
-        TrackResultBean auditResult;
-        auditResult = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody();
-        waitForHeaderToUpdate(auditResult.getMetaHeader(), su.getApiKey());
-        TrackedSummaryBean summary = trackEP.getAuditSummary(auditResult.getMetaKey(), apiKey, apiKey).getBody();
+        TrackResultBean result = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody();
+        logger.debug("Created Request ");
+        waitForHeaderToUpdate(result.getMetaHeader(), su.getApiKey());
+        TrackedSummaryBean summary = trackEP.getAuditSummary(result.getMetaKey(), apiKey, apiKey).getBody();
         assertNotNull(summary);
         // Check we can find the Event in ElasticSearch
         doEsQuery(summary.getHeader().getIndexName(), inputBean.getEvent(), 1);
@@ -358,6 +349,7 @@ public class TestAuditIntegration {
         inputBean.setMetaOnly(true); // If true, the header will be indexed
         // Track suppressed but search is enabled
         mediationFacade.createHeader(inputBean, su.getApiKey());
+        waitAWhile();
 
         String indexName = MetaSearchSchema.parseIndex(fortress);
         assertEquals("ab.monowai.trackgraph", indexName);
@@ -368,6 +360,7 @@ public class TestAuditIntegration {
         inputBean.setTrackSuppressed(true);
         inputBean.setMetaOnly(true);
         mediationFacade.createHeader(inputBean, null);
+        waitAWhile();
         doEsQuery(indexName, "*", 2);
 
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
@@ -391,6 +384,31 @@ public class TestAuditIntegration {
         mediationFacade.createHeader(inputBean, null);
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(indexName, "*", 3);
+
+    }
+
+    @Test
+    public void tagKeySearch() throws Exception {
+        // DAT-95
+        assumeTrue(runMe);
+        logger.info("## tagKeySearch");
+        SystemUser su = registerSystemUser("Cameron");
+        Fortress fo = fortressService.registerFortress(new FortressInputBean("tagKeySearch", false));
+        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
+        LogInputBean log = new LogInputBean("wally", new DateTime(), "{\"blah\":124}");
+        inputBean.addTag(new TagInputBean("Happy").addMetaLink("testinga"));
+        inputBean.addTag(new TagInputBean("Happy Days").addMetaLink("testingb"));
+        inputBean.addTag(new TagInputBean("Sad Days").addMetaLink("testingb"));
+        inputBean.addTag(new TagInputBean("Days Bay").addMetaLink("testingc"));
+        inputBean.setLog(log);
+        TrackResultBean result = mediationFacade.createHeader(inputBean, null); // Mock result as we're not tracking
+        waitForHeaderToUpdate(result.getMetaHeader(), su.getApiKey());
+        // ensure that non-analysed tags work
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG +".testinga.key", "happy", 1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG +".testingb.key", "happydays",1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG +".testingb.key", "saddays",1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG +".testingc.key", "daysbay",1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG +".testingc.key", "days",0);
 
     }
     @Test
@@ -424,6 +442,7 @@ public class TestAuditIntegration {
         // Two search docs,but one without a metaKey
 
     }
+
     /**
      * Suppresses the indexing of a log record even if the fortress is set to index everything
      *
@@ -471,7 +490,7 @@ public class TestAuditIntegration {
         MetaInputBean metaInput = new MetaInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
         String relationshipName = "example"; // Relationship names is indexed are @tag.relationshipName.key in ES
         TagInputBean tag = new TagInputBean("Key Test Works", relationshipName);
-        metaInput.setTag(tag);
+        metaInput.addTag(tag);
 
         TrackResultBean indexedResult = mediationFacade.createHeader(metaInput, null);
         MetaHeader indexHeader = trackService.getHeader(indexedResult.getMetaKey());
@@ -488,6 +507,53 @@ public class TestAuditIntegration {
         waitForHeaderToUpdate(indexHeader, su.getApiKey());
         doEsTermQuery(indexName, "@tag." + relationshipName + ".key", "keytestworks", 1);
 
+    }
+
+    @Test
+    public void testCancelUpdatesSearchCorrectly() throws Exception {
+        assumeTrue(runMe);
+        // DAT-53
+        logger.info("## testCancelUpdatesSearchCorrectly");
+        String what = "{\"house\": \"house";
+        SystemUser su = registerSystemUser("Rocky");
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("testCancelUpdatesSearchCorrectly", false));
+        DateTime dt = new DateTime().toDateTime();
+        DateTime firstDate = dt.minusDays(2);
+        MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "olivia@sunnybell.com", "CompanyNode", firstDate, "clb1");
+        inputBean.setLog(new LogInputBean("olivia@sunnybell.com", firstDate, what + 1 + "\"}"));
+        String ahWP = mediationFacade.createHeader(inputBean, null).getMetaKey();
+
+        MetaHeader metaHeader = trackService.getHeader(ahWP);
+        waitForHeaderToUpdate(metaHeader, su.getApiKey());
+
+        doEsTermQuery(metaHeader.getIndexName(), MetaSearchSchema.WHAT+".house", "house1", 1); // First log
+
+        LogResultBean secondLog = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}"));
+        assertNotSame(0l, secondLog.getWhatLog().getTrackLog().getFortressWhen());
+        Set<TrackLog> logs = trackService.getLogs(fortress.getCompany(), metaHeader.getMetaKey());
+        assertEquals(2, logs.size());
+        metaHeader = trackService.getHeader(ahWP);
+        waitAWhile();
+        assertEquals(secondLog.getWhatLog().getTrackLog().getFortressWhen(), metaHeader.getFortressLastWhen());
+        doEsTermQuery(metaHeader.getIndexName(), MetaSearchSchema.WHAT+".house", "house2", 1); // replaced first with second
+
+        // Test block
+        mediationFacade.cancelLastLogSync(metaHeader.getMetaKey());
+        logs = trackService.getLogs(fortress.getCompany(), metaHeader.getMetaKey());
+        assertEquals(1, logs.size());
+        metaHeader = trackService.getHeader(ahWP); // Refresh the header
+        waitAWhile();
+        doEsTermQuery(metaHeader.getIndexName(), MetaSearchSchema.WHAT+".house", "house1", 1); // Cancelled, so Back to house1
+
+        // Last change cancelled
+        // DAT-96
+        mediationFacade.cancelLastLogSync(metaHeader.getMetaKey());
+        logs = trackService.getLogs(fortress.getCompany(), metaHeader.getMetaKey());
+        junit.framework.Assert.assertTrue(logs.isEmpty());
+        doEsQuery(metaHeader.getIndexName(), "*", 0);
+
+        metaHeader = trackService.getHeader(ahWP); // Refresh the header
+        assertEquals("Search Key wasn't set to null", null, metaHeader.getSearchKey());
     }
 
     @Test
@@ -734,11 +800,12 @@ public class TestAuditIntegration {
         // Looking for the first searchKey to be logged against the metaHeader
         long thenTime = System.currentTimeMillis();
         int i = 0;
-        int timeout = 300;
 
         MetaHeader metaHeader = trackEP.getMetaHeader(header.getMetaKey(), apiKey, apiKey).getBody();
         if (metaHeader.getSearchKey() != null)
             return 0;
+
+        int timeout = 100;
         while (metaHeader.getSearchKey() == null && i <= timeout) {
             metaHeader = trackEP.getMetaHeader(header.getMetaKey(), apiKey, apiKey).getBody();
             Thread.yield();
@@ -746,7 +813,7 @@ public class TestAuditIntegration {
                 waitAWhile("Sleeping for the header to update {}");
             i++;
         }
-        if (i > 20)
+        if (i > 22)
             logger.info("Wait for search got to [{}] for metaId [{}]", i, metaHeader.getId());
         boolean searchWorking = metaHeader.getSearchKey() != null;
         assertTrue("Search reply not received from ab-search", searchWorking);
@@ -811,7 +878,7 @@ public class TestAuditIntegration {
     private String doEsQuery(String index, String queryString) throws Exception {
         return doEsQuery(index, queryString, 1);
     }
-    int esTimeout = 10; // Max attempts to find the result in ES
+
     private String doEsQuery(String index, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
@@ -855,7 +922,7 @@ public class TestAuditIntegration {
 
         junit.framework.Assert.assertNotNull(jResult);
         Assert.assertEquals(index + "\r\n" + jResult.getJsonString(), expectedHitCount, nbrResult);
-        return null;
+        return jResult.getJsonString();
 
         //return result.getJsonString();
     }
@@ -1002,7 +1069,7 @@ public class TestAuditIntegration {
      */
     public static void waitAWhile(String message, long milliseconds) throws Exception {
         Thread.sleep(milliseconds);
-        logger.trace(message, milliseconds / 1000d);
+        logger.debug(message, milliseconds / 1000d);
     }
 
 

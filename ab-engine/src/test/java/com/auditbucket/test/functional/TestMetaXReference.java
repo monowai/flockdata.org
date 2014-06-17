@@ -1,29 +1,14 @@
 package com.auditbucket.test.functional;
 
-import com.auditbucket.engine.endpoint.TrackEP;
-import com.auditbucket.fortress.endpoint.FortressEP;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
-import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.track.bean.CrossReferenceInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.model.MetaHeader;
 import org.joda.time.DateTime;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.data.neo4j.support.node.Neo4jHelper;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -37,42 +22,12 @@ import static org.junit.Assert.*;
  * Time: 4:12 PM
  * To change this template use File | Settings | File Templates.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:root-context.xml")
 @Transactional
-
-public class TestMetaXReference {
-    @Autowired
-    TrackEP trackEP;
-
-    @Autowired
-    FortressEP fortressEP;
-
-    @Autowired
-    RegistrationEP registrationEP;
-
-    @Autowired
-    private Neo4jTemplate template;
+public class TestMetaXReference extends TestEngineBase {
 
     private String monowai = "Monowai";
     private String mike = "mike";
-    // This has to be a user in spring-security.xml that is authorised to create registrations
-    private Authentication authMike = new UsernamePasswordAuthenticationToken(mike, "123");
     private String what = "{\"house\": \"house";
-
-    @Before
-    public void setSecurity() {
-        SecurityContextHolder.getContext().setAuthentication(authMike);
-    }
-
-    @Rollback(false)
-    @BeforeTransaction
-    public void cleanUpGraph() {
-        // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
-        // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-        if (!"rest".equals(System.getProperty("neo4j")))
-            Neo4jHelper.cleanDb(template);
-    }
 
     @Test
     public void crossReferenceMetaKeysForSameCompany() throws Exception {

@@ -25,8 +25,6 @@ package com.auditbucket.test.functional;
  * Time: 4:49 PM
  */
 
-import com.auditbucket.engine.endpoint.TrackEP;
-import com.auditbucket.engine.service.*;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
@@ -34,29 +32,15 @@ import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.model.Tag;
-import com.auditbucket.registration.service.FortressService;
-import com.auditbucket.registration.service.RegistrationService;
-import com.auditbucket.registration.service.TagService;
 import com.auditbucket.track.bean.*;
-import com.auditbucket.track.model.DocumentType;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.SearchChange;
 import com.auditbucket.track.model.TrackTag;
 import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.data.neo4j.support.node.Neo4jHelper;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -74,70 +58,21 @@ import static org.junit.Assert.fail;
  * Date: 29/06/13
  * Time: 8:11 AM
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:root-context.xml")
 @Transactional
-public class TestMetaHeaderTags {
-    @Autowired
-    FortressService fortressService;
-
-    @Autowired
-    MediationFacade auditManager;
-
-    @Autowired
-    TrackService trackService;
-
-    @Autowired
-    RegistrationService regService;
-
-    @Autowired
-    TagService tagService;
-
-    @Autowired
-    TagTrackService tagTrackService;
-
-    @Autowired
-    TrackEP trackEp;
-
-    @Autowired
-    SearchServiceFacade searchService;
-
-    @Autowired
-    EngineConfig engineConfig;
-
-    @Autowired
-    private Neo4jTemplate template;
-
-    //private Logger log = LoggerFactory.getLogger(TestMetaHeaderTags.class);
-    private String company = "Monowai";
-    private String uid = "mike";
-    private Authentication authA = new UsernamePasswordAuthenticationToken(uid, "123");
-
-    @Rollback(false)
-    @BeforeTransaction
-    public void cleanUpGraph() {
-        // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
-        // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-        SecurityContextHolder.getContext().setAuthentication(authA);
-        engineConfig.setMultiTenanted(false);
-        if (!"http".equals(System.getProperty("neo4j")))
-            Neo4jHelper.cleanDb(template);
-    }
+public class TestMetaHeaderTags extends TestEngineBase {
 
     @Test
     public void tagAuditRecords() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike));
         assertNotNull(iSystemUser);
-
         Fortress fortress = fortressService.registerFortress("ABC");
         assertNotNull(fortress);
 
         TagInputBean flopTag = new TagInputBean("FLOP");
-
         tagService.processTag(flopTag);
-        //assertNotNull(result);
+
         MetaInputBean inputBean = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
-        TrackResultBean resultBean = auditManager.createHeader(inputBean, null);
+        TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
         MetaHeader header = trackService.getHeader(resultBean.getMetaKey());
 
         TrackTagInputBean auditTag = new TrackTagInputBean(resultBean.getMetaKey(), null, "!!!");
@@ -164,7 +99,7 @@ public class TestMetaHeaderTags {
     @Test
     public void renameRelationship() throws Exception {
 
-        regService.registerSystemUser(new RegistrationBean(company, uid));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike));
         fortressService.registerFortress("ABC");
 
         TagInputBean tagInput = new TagInputBean("FLOP");
@@ -172,11 +107,11 @@ public class TestMetaHeaderTags {
         tagService.processTag(tagInput);
         //assertNotNull(result);
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
-        aib.setTag(new TagInputBean("TagA", "AAAA"));
-        aib.setTag(new TagInputBean("TagB", "BBBB"));
-        aib.setTag(new TagInputBean("TagC", "CCCC"));
-        aib.setTag(new TagInputBean("TagD", "DDDD"));
-        TrackResultBean resultBean = auditManager.createHeader(aib, null);
+        aib.addTag(new TagInputBean("TagA", "AAAA"));
+        aib.addTag(new TagInputBean("TagB", "BBBB"));
+        aib.addTag(new TagInputBean("TagC", "CCCC"));
+        aib.addTag(new TagInputBean("TagD", "DDDD"));
+        TrackResultBean resultBean = mediationFacade.createHeader(aib, null);
         MetaHeader metaHeader = trackService.getHeader(resultBean.getMetaKey());
         Set<TrackTag> tagSet = tagTrackService.findTrackTags(metaHeader);
 
@@ -195,7 +130,7 @@ public class TestMetaHeaderTags {
     @Test
     public void createAndDeleteAuditTags() throws Exception {
 
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike));
         fortressService.registerFortress("ABC");
 
         iSystemUser.getCompany();
@@ -205,11 +140,11 @@ public class TestMetaHeaderTags {
         //assertNotNull(result);
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
 
-        aib.setTag(new TagInputBean("TagA", "AAAA"));
-        aib.setTag(new TagInputBean("TagB", "BBBB"));
-        aib.setTag(new TagInputBean("TagC", "CCCC"));
-        aib.setTag(new TagInputBean("TagD", "DDDD"));
-        TrackResultBean resultBean = auditManager.createHeader(aib, null);
+        aib.addTag(new TagInputBean("TagA", "AAAA"));
+        aib.addTag(new TagInputBean("TagB", "BBBB"));
+        aib.addTag(new TagInputBean("TagC", "CCCC"));
+        aib.addTag(new TagInputBean("TagD", "DDDD"));
+        TrackResultBean resultBean = mediationFacade.createHeader(aib, null);
         MetaHeader metaHeader = trackService.getHeader(resultBean.getMetaKey());
         Set<TrackTag> tagSet = tagTrackService.findTrackTags(metaHeader);
 
@@ -231,7 +166,7 @@ public class TestMetaHeaderTags {
 
     @Test
     public void nullTagValueCRUD() throws Exception {
-        regService.registerSystemUser(new RegistrationBean(company, uid));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike));
         fortressService.registerFortress("ABC");
 
         TagInputBean tagInput = new TagInputBean("FLOP");
@@ -240,11 +175,11 @@ public class TestMetaHeaderTags {
         //assertNotNull(result);
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         // In this scenario, the Tag name is the key if the value is null
-        aib.setTag(new TagInputBean("TagA", null));
-        aib.setTag(new TagInputBean("TagB", null));
-        aib.setTag(new TagInputBean("TagC", null));
-        aib.setTag(new TagInputBean("TagD", "DDDD"));
-        TrackResultBean resultBean = auditManager.createHeader(aib, null);
+        aib.addTag(new TagInputBean("TagA", null));
+        aib.addTag(new TagInputBean("TagB", null));
+        aib.addTag(new TagInputBean("TagC", null));
+        aib.addTag(new TagInputBean("TagD", "DDDD"));
+        TrackResultBean resultBean = mediationFacade.createHeader(aib, null);
         MetaHeader metaHeader = trackService.getHeader(resultBean.getMetaKey());
         Set<TrackTag> tagSet = tagTrackService.findTrackTags(metaHeader);
         assertNotNull(tagSet);
@@ -270,7 +205,7 @@ public class TestMetaHeaderTags {
 
     @Test
     public void nullCodeValue() throws Exception {
-        regService.registerSystemUser(new RegistrationBean(company, uid).setIsUnique(false));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
         fortressService.registerFortress("ABC");
 
         TagInputBean tagInput = new TagInputBean("FLOP");
@@ -281,8 +216,8 @@ public class TestMetaHeaderTags {
         // In this scenario, the Tag name is the key if the value is null
         TagInputBean tag = new TagInputBean("TagD", "DDDD");
         tag.setCode(null ); // This gets set to null if not supplied over an endpoint
-        aib.setTag(tag);
-        TrackResultBean resultBean = auditManager.createHeader(aib, null);
+        aib.addTag(tag);
+        TrackResultBean resultBean = mediationFacade.createHeader(aib, null);
         MetaHeader metaHeader = trackService.getHeader(resultBean.getMetaKey());
         Set<TrackTag> tagSet = tagTrackService.findTrackTags(metaHeader);
         assertNotNull(tagSet);
@@ -291,7 +226,7 @@ public class TestMetaHeaderTags {
     }
     @Test
     public void duplicateTagNotCreated() throws Exception {
-        regService.registerSystemUser(new RegistrationBean(company, uid));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike));
         fortressService.registerFortress("ABC");
 
         TagInputBean tagInput = new TagInputBean("FLOP");
@@ -300,10 +235,10 @@ public class TestMetaHeaderTags {
         //assertNotNull(result);
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         // This should create the same Tag object
-        aib.setTag(new TagInputBean("TagA", "camel"));
-        aib.setTag(new TagInputBean("taga", "lower"));
-        aib.setTag(new TagInputBean("tAgA", "mixed"));
-        TrackResultBean resultBean = auditManager.createHeader(aib, null);
+        aib.addTag(new TagInputBean("TagA", "camel"));
+        aib.addTag(new TagInputBean("taga", "lower"));
+        aib.addTag(new TagInputBean("tAgA", "mixed"));
+        TrackResultBean resultBean = mediationFacade.createHeader(aib, null);
         MetaHeader metaHeader = trackService.getHeader(resultBean.getMetaKey());
         Tag tag = tagService.findTag("Taga");
         assertNotNull(tag);
@@ -317,7 +252,7 @@ public class TestMetaHeaderTags {
 
     @Test
     public void noTrackTagsAreReturned() throws Exception {
-        regService.registerSystemUser(new RegistrationBean(company, uid));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike));
         fortressService.registerFortress(new FortressInputBean("ABC"));
 
         TagInputBean tagInput = new TagInputBean("FLOP");
@@ -327,10 +262,10 @@ public class TestMetaHeaderTags {
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         aib.setTrackSuppressed(true);
         // This should create the same Tag object
-        aib.setTag(new TagInputBean("TagA", "camel"));
-        aib.setTag(new TagInputBean("taga", "lower"));
-        aib.setTag(new TagInputBean("tAgA", "mixed"));
-        TrackResultBean resultBean = auditManager.createHeader(aib, null);
+        aib.addTag(new TagInputBean("TagA", "camel"));
+        aib.addTag(new TagInputBean("taga", "lower"));
+        aib.addTag(new TagInputBean("tAgA", "mixed"));
+        TrackResultBean resultBean = mediationFacade.createHeader(aib, null);
         assertEquals(1, resultBean.getTags().size());
         assertNull(resultBean.getMetaKey());
 
@@ -338,15 +273,15 @@ public class TestMetaHeaderTags {
 
     @Test
     public void createLogForInvalidHeader() throws Exception{
-        regService.registerSystemUser(new RegistrationBean(company, uid));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike));
         fortressService.registerFortress(new FortressInputBean("ABC"));
 
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         // This should create the same Tag object
-        trackEp.trackHeader(aib, null, null).getBody();
+        trackEP.trackHeader(aib, null, null).getBody();
         LogInputBean alib = new LogInputBean("InvalidKey", "Harry", new DateTime(),"{\"xx\":1}");
         try {
-            trackEp.trackLog(alib, null, null);
+            trackEP.trackLog(alib, null, null);
             fail("Invalid track header. This should not have worked");
         } catch (DatagioException e ){
             // Good stuff
@@ -355,21 +290,19 @@ public class TestMetaHeaderTags {
     }
     @Test
     public void createLogForValidHeaderWithNoWhatDetail() throws Exception{
-        regService.registerSystemUser(new RegistrationBean(company, uid));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike));
         fortressService.registerFortress(new FortressInputBean("ABC", true));
 
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         // This should create the same Tag object
-        TrackResultBean rb = trackEp.trackHeader(aib, null, null).getBody();
+        TrackResultBean rb = trackEP.trackHeader(aib, null, null).getBody();
         LogInputBean alib = new LogInputBean(rb.getMetaKey(), "Harry", new DateTime(),null);
-        trackEp.trackLog(alib, null, null).getBody();
-
-
+        trackEP.trackLog(alib, null, null).getBody();
     }
 
     @Test
     public void differentTagTypeSameTagName() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike));
         fortressService.registerFortress( new FortressInputBean("ABC", true));
 
         TagInputBean tagInput = new TagInputBean("FLOP");
@@ -382,65 +315,24 @@ public class TestMetaHeaderTags {
         tag.addMetaLink("Type1");
         tag.addMetaLink("Type2");
         tag.addMetaLink("Type3");
-        aib.setTag(tag);
+        aib.addTag(tag);
 
-        TrackResultBean resultBean = auditManager.createHeader(aib, null);
+        TrackResultBean resultBean = mediationFacade.createHeader(aib, null);
         MetaHeader metaHeader = trackService.getHeader(resultBean.getMetaKey());
         Set<TrackTag> tagSet = tagTrackService.findTrackTags(metaHeader);
         assertNotNull(tagSet);
         assertEquals(3, tagSet.size());
 
         String apiKey = iSystemUser.getApiKey();
-        TrackedSummaryBean summaryBean = trackEp.getAuditSummary(metaHeader.getMetaKey(),apiKey, apiKey ).getBody();
+        TrackedSummaryBean summaryBean = trackEP.getAuditSummary(metaHeader.getMetaKey(),apiKey, apiKey ).getBody();
         assertNotNull(summaryBean);
         assertEquals(3, summaryBean.getTags().size());
 
     }
 
     @Test
-    public void documentTypesWork() throws DatagioException {
-        regService.registerSystemUser(new RegistrationBean(company, uid));
-        Fortress fortress = fortressService.registerFortress("ABC");
-
-        String docName = "CamelCaseDoc";
-        DocumentType docType = tagService.resolveDocType(fortress, docName); // Creates if missing
-        assertNotNull(docType);
-        assertEquals(docName.toLowerCase(), docType.getCode());
-        assertEquals(docName, docType.getName());
-        // Should be finding by code which is always Lower
-        Assert.assertNotNull(tagService.resolveDocType(fortress, docType.getCode().toUpperCase(), false));
-
-    }
-
-    @Test
-    public void duplicateDocumentTypes() throws Exception {
-        String mark = "mark";
-        Authentication authMark = new UsernamePasswordAuthenticationToken(mark, "123");
-
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid));
-        Assert.assertNotNull(iSystemUser);
-
-        Fortress fortress = fortressService.registerFortress("duplicateDocumentTypes");
-
-        DocumentType dType = tagService.resolveDocType(fortress, "ABC123", true);
-        Assert.assertNotNull(dType);
-        Long id = dType.getId();
-        dType = tagService.resolveDocType(fortress, "ABC123", false);
-        assertEquals(id, dType.getId());
-
-        // Company 2 gets a different tag with the same name
-        SecurityContextHolder.getContext().setAuthentication(authMark);
-        regService.registerSystemUser(new RegistrationBean("secondcompany", mark));
-        // Same fortress name, but different company
-        dType = tagService.resolveDocType(fortressService.registerFortress("duplicateDocumentTypes"), "ABC123"); // Creates if missing
-        Assert.assertNotNull(dType);
-        Assert.assertNotSame(id, dType.getId());
-    }
-
-
-    @Test
     public void tagListAndSingular() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike));
         assertNotNull(iSystemUser);
 
         Fortress fortress = fortressService.registerFortress("ABC");
@@ -451,10 +343,10 @@ public class TestMetaHeaderTags {
         TagInputBean tagA = new TagInputBean("mike@auditbucket.com", "email-to");
         tagA.addMetaLink("email-cc");
         TagInputBean tagB = new TagInputBean("np@auditbucket.com", "email-cc");
-        inputBean.setTag(tagA);
-        inputBean.setTag(tagB);
+        inputBean.addTag(tagA);
+        inputBean.addTag(tagB);
 
-        TrackResultBean resultBean = auditManager.createHeader(inputBean, null);
+        TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
         MetaHeader header = trackService.getHeader(resultBean.getMetaKey());
         Set<TrackTag> tagResults = tagTrackService.findTrackTags(header);
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
@@ -464,7 +356,7 @@ public class TestMetaHeaderTags {
 
     @Test
     public void mapRelationshipsWithNullProperties() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid).setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
         assertNotNull(iSystemUser);
 
         Fortress fortress = fortressService.registerFortress("ABC");
@@ -474,10 +366,10 @@ public class TestMetaHeaderTags {
         TagInputBean tagA = new TagInputBean("mike@auditbucket.com", "email-to");
         tagA.addMetaLink("email-cc");
         TagInputBean tagB = new TagInputBean("np@auditbucket.com", "email-cc");
-        inputBean.setTag(tagA);
-        inputBean.setTag(tagB);
+        inputBean.addTag(tagA);
+        inputBean.addTag(tagB);
 
-        TrackResultBean resultBean = auditManager.createHeader(inputBean, null);
+        TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
         MetaHeader header = trackService.getHeader(resultBean.getMetaKey());
         Set<TrackTag> tagResults = tagTrackService.findTrackTags(header);
         TrackedSummaryBean summaryBean = trackService.getMetaSummary(null, header.getMetaKey());
@@ -487,7 +379,7 @@ public class TestMetaHeaderTags {
 
     @Test
     public void mapRelationshipsWithProperties() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike));
         assertNotNull(iSystemUser);
 
         Fortress fortress = fortressService.registerFortress("ABC");
@@ -503,9 +395,9 @@ public class TestMetaHeaderTags {
         tagA.addMetaLink("email-cc", propB);
         TagInputBean tagB = new TagInputBean("np@auditbucket.com", "email-cc");
 
-        inputBean.setTag(tagA);
-        inputBean.setTag(tagB);
-        TrackResultBean resultBean = auditManager.createHeader(inputBean, null);
+        inputBean.addTag(tagA);
+        inputBean.addTag(tagB);
+        TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
         MetaHeader header = trackService.getHeader(resultBean.getMetaKey());
         Set<TrackTag> tagResults = tagTrackService.findTrackTags(header);
         TrackedSummaryBean summaryBean = trackService.getMetaSummary(null, header.getMetaKey());
@@ -515,7 +407,7 @@ public class TestMetaHeaderTags {
 
     @Test
     public void duplicateRLXTypesNotStored() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike));
         assertNotNull(iSystemUser);
 
         Fortress fortress = fortressService.registerFortress("ABC");
@@ -527,9 +419,9 @@ public class TestMetaHeaderTags {
         tagInputBean.addMetaLink("email-to");
         tagInputBean.addMetaLink("email-to");
 
-        inputBean.setTag(tagInputBean);
+        inputBean.addTag(tagInputBean);
 
-        TrackResultBean resultBean = auditManager.createHeader(inputBean, null);
+        TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
         MetaHeader header = trackService.getHeader(resultBean.getMetaKey());
         Set<TrackTag> tagResults = tagTrackService.findTrackTags(header);
         assertEquals("One for the Generic tag and one for exploration", 1, tagResults.size());
@@ -537,7 +429,7 @@ public class TestMetaHeaderTags {
 
     @Test
     public void directedMetaTagsWork ( )throws Exception{
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike));
         assertNotNull(iSystemUser);
 
         Fortress fortress = fortressService.registerFortress("ABC");
@@ -549,9 +441,9 @@ public class TestMetaHeaderTags {
         tagInputBean.setReverse(true); // relationships will be reversed
         tagInputBean.addMetaLink("email-to");
 
-        inputBean.setTag(tagInputBean);
+        inputBean.addTag(tagInputBean);
 
-        TrackResultBean resultBean = auditManager.createHeader(inputBean, null);
+        TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
         MetaHeader header = trackService.getHeader(resultBean.getMetaKey());
         // By default, tags are inbound to the MetaHeader. This asserts the reverse also works
         Set<TrackTag> tagResults = tagTrackService.findOutboundTags(header);
@@ -562,7 +454,7 @@ public class TestMetaHeaderTags {
     @Test
     public void tagsAndValuesWithSpaces() throws Exception {
 
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike));
         assertNotNull(iSystemUser);
 
         Fortress fortress = fortressService.registerFortress("ABC");
@@ -574,10 +466,10 @@ public class TestMetaHeaderTags {
         tagA.addMetaLink("email cc");
         TagInputBean tagB = new TagInputBean("np@auditbucket.com", "email-cc");
 
-        inputBean.setTag(tagA);
-        inputBean.setTag(tagB);
+        inputBean.addTag(tagA);
+        inputBean.addTag(tagB);
 
-        TrackResultBean resultBean = auditManager.createHeader(inputBean, null);
+        TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
         MetaHeader header = trackService.getHeader(resultBean.getMetaKey());
         Set<TrackTag> tagResults = tagTrackService.findTrackTags(header);
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
@@ -588,8 +480,8 @@ public class TestMetaHeaderTags {
     @Test
     public void nestedStructureInHeader() throws Exception {
 
-        SecurityContextHolder.getContext().setAuthentication(authA);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid));
+        SecurityContextHolder.getContext().setAuthentication(authDefault);
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike));
         assertNotNull(iSystemUser);
 
         Fortress fortress = fortressService.registerFortress("ABC");
@@ -606,8 +498,8 @@ public class TestMetaHeaderTags {
         TagInputBean building = new TagInputBean("ABC House");
         section.setTargets("houses", building);
 
-        inputBean.setTag(country);
-        TrackResultBean resultBean = auditManager.createHeader(inputBean, null);
+        inputBean.addTag(country);
+        TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
         assertNotNull(resultBean);
         // Tags are not associated with the header rather the structure is enforced while importing
         Tag countryTag = tagService.findTag("New Zealand");
@@ -627,7 +519,7 @@ public class TestMetaHeaderTags {
 
     @Test
     public void usGeographyStructure() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike));
         assertNotNull(iSystemUser);
 
         Fortress fortress = fortressService.registerFortress("ABC");
@@ -646,11 +538,11 @@ public class TestMetaHeaderTags {
         institutionTag.setTargets("located", cityInputTag);
         cityInputTag.setTargets("state", stateInputTag);
         stateInputTag.setTargets("country", countryInputTag);
-        inputBean.setTag(institutionTag);
+        inputBean.addTag(institutionTag);
 
         // Institution<-city<-state<-country
 
-        TrackResultBean resultBean = auditManager.createHeader(inputBean, null);
+        TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
         assertNotNull(resultBean);
         Set<TrackTag> tags = tagTrackService.findTrackTags(resultBean.getMetaHeader());
         assertFalse(tags.isEmpty());
@@ -671,7 +563,7 @@ public class TestMetaHeaderTags {
 
     @Test
     public void tagsInSearchDoc() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike));
         assertNotNull(iSystemUser);
 
         Fortress fortress = fortressService.registerFortress("ABC");
@@ -690,11 +582,11 @@ public class TestMetaHeaderTags {
         institutionTag.setTargets("located", cityInputTag);
         cityInputTag.setTargets("state", stateInputTag);
         stateInputTag.setTargets("country", countryInputTag);
-        inputBean.setTag(institutionTag);
+        inputBean.addTag(institutionTag);
 
         // Institution<-city<-state<-country
 
-        TrackResultBean resultBean = auditManager.createHeader(inputBean, null);
+        TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
         assertNotNull(resultBean);
         Set<TrackTag> tags = tagTrackService.findTrackTags(resultBean.getMetaHeader());
         assertFalse(tags.isEmpty());
@@ -711,7 +603,7 @@ public class TestMetaHeaderTags {
         authorTag.addMetaLink("writer");
         authorTag.addMetaLink("lead");
 
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike));
         assertNotNull(iSystemUser);
 
         Fortress fortress = fortressService.registerFortress("ABC");
@@ -726,11 +618,11 @@ public class TestMetaHeaderTags {
         institution.addMetaLink("located");
         cityTag.addMetaLink("city");
 
-        inputBean.setTag(cityTag); // Not attached to track
-        inputBean.setTag(countryTag);
-        inputBean.setTag(institution);
+        inputBean.addTag(cityTag); // Not attached to track
+        inputBean.addTag(countryTag);
+        inputBean.addTag(institution);
 
-        TrackResultBean result = auditManager.createHeader(inputBean, null);
+        TrackResultBean result = mediationFacade.createHeader(inputBean, null);
         assertNotNull(result);
         Set<TrackTag> tags = tagTrackService.findTrackTags(result.getMetaHeader());
         assertEquals(2, tags.size());
@@ -742,7 +634,7 @@ public class TestMetaHeaderTags {
 
     @Test
     public void geoTag() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(company, uid).setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
         assertNotNull(iSystemUser);
 
         Fortress fortress = fortressService.registerFortress("ABC");
@@ -761,11 +653,11 @@ public class TestMetaHeaderTags {
         institutionTag.setTargets("located", cityInputTag);
         cityInputTag.setTargets("state", stateInputTag);
         stateInputTag.setTargets("country", countryInputTag);
-        auditBean.setTag(institutionTag);
+        auditBean.addTag(institutionTag);
 
         // Institution<-city<-state<-country
 
-        TrackResultBean resultBean = auditManager.createHeader(auditBean, null);
+        TrackResultBean resultBean = mediationFacade.createHeader(auditBean, null);
         assertNotNull(resultBean);
         assertNotNull(tagService.findTag(fortress.getCompany(), "USA", "Country"));
 
@@ -792,7 +684,7 @@ public class TestMetaHeaderTags {
     @Test
     public void tagsAreUpdatedOnAuditUpdate() throws Exception {
         org.junit.Assume.assumeTrue(false);// Skipping this until FixMe - implement rewrite of header tags
-        regService.registerSystemUser(new RegistrationBean(company, uid));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike));
         fortressService.registerFortress("ABC");
 
         TagInputBean tagInput = new TagInputBean("FLOP");
@@ -804,26 +696,26 @@ public class TestMetaHeaderTags {
         LogInputBean logBean = new LogInputBean("mike", new DateTime(), what + "1\"}");
         inputBean.setLog(logBean);
         // This should create the same Tag object
-        inputBean.setTag(new TagInputBean("TagA", "camel"));
-        TrackResultBean resultBean = auditManager.createHeader(inputBean, null);
+        inputBean.addTag(new TagInputBean("TagA", "camel"));
+        TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
         MetaHeader unchanged = trackService.getHeader(resultBean.getMetaKey());
-        assertNotNull ( unchanged);
+        assertNotNull(unchanged);
 
         MetaInputBean removeTag = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc2");
         LogInputBean alb = new LogInputBean("mike", new DateTime(), what + "1\"}");
         removeTag.setLog(alb);
         // This should create the same Tag object
-        removeTag.setTag(new TagInputBean("TagA", "camel"));
-        resultBean = auditManager.createHeader(removeTag, null);
+        removeTag.addTag(new TagInputBean("TagA", "camel"));
+        resultBean = mediationFacade.createHeader(removeTag, null);
         MetaHeader metaHeader = trackService.getHeader(resultBean.getMetaKey());
         Assert.assertNotNull(metaHeader);
 
         validateTag(metaHeader, "TagA", 1);
 
         // Replace the current tag
-        removeTag.setTag(new TagInputBean("TagB", "camel"));
+        removeTag.addTag(new TagInputBean("TagB", "camel"));
         removeTag.setLog(new LogInputBean("mike", new DateTime(), what + "2\"}"));
-        auditManager.createHeader(removeTag, null);
+        mediationFacade.createHeader(removeTag, null);
         validateTag(metaHeader, "TagB", 1);
 
         // Make sure we didn't remove the node as it was in use by the first header we created
@@ -832,7 +724,7 @@ public class TestMetaHeaderTags {
     @Test
     public void tagsWithNoRelationshipsAreRemovedOnHeaderUpdate() throws Exception {
         org.junit.Assume.assumeTrue(false);// Skipping this until FixMe - implement rewrite of header tags
-        regService.registerSystemUser(new RegistrationBean(company, uid));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike));
         fortressService.registerFortress("ABC");
 
         TagInputBean tagInput = new TagInputBean("FLOP");
@@ -843,17 +735,17 @@ public class TestMetaHeaderTags {
         LogInputBean alb = new LogInputBean("mike", new DateTime(), what + "1\"}");
         removeTag.setLog(alb);
         // This should create the same Tag object
-        removeTag.setTag(new TagInputBean("TagA", "camel"));
-        TrackResultBean resultBean = auditManager.createHeader(removeTag, null);
+        removeTag.addTag(new TagInputBean("TagA", "camel"));
+        TrackResultBean resultBean = mediationFacade.createHeader(removeTag, null);
         MetaHeader metaHeader = trackService.getHeader(resultBean.getMetaKey());
         Assert.assertNotNull(metaHeader);
 
         validateTag(metaHeader, "TagA", 1);
 
         // Replace the current tag
-        removeTag.setTag(new TagInputBean("TagB", "camel"));
+        removeTag.addTag(new TagInputBean("TagB", "camel"));
         removeTag.setLog(new LogInputBean("mike", new DateTime(), what + "2\"}"));
-        auditManager.createHeader(removeTag, null);
+        mediationFacade.createHeader(removeTag, null);
         validateTag(metaHeader, "TagB", 1);
 
         assertTrue ( "TagA has no track headers so should have been removed", tagService.findTag("TagA")==null);
@@ -861,7 +753,7 @@ public class TestMetaHeaderTags {
 
     @Test
     public void addNewTagToExistingMetaHeader() throws Exception {
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(company, uid));
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike));
         fortressService.registerFortress("ABC");
 
         String what = "{\"house\": \"house";
@@ -871,49 +763,49 @@ public class TestMetaHeaderTags {
         LogInputBean logBean = new LogInputBean("mike", new DateTime(), what + "1\"}");
         inputBean.setLog(logBean);
         // This should create the same Tag object
-        inputBean.setTag(new TagInputBean("TagA", "camel"));
-        ResponseEntity<TrackResultBean> response = trackEp.trackHeader(inputBean, su.getApiKey(), su.getApiKey());
+        inputBean.addTag(new TagInputBean("TagA", "camel"));
+        ResponseEntity<TrackResultBean> response = trackEP.trackHeader(inputBean, su.getApiKey(), su.getApiKey());
         // At this point we have a metaHeader, log and a tag.
 
-        assertNotNull (response);
+        assertNotNull(response);
 
         TrackResultBean resultBean = response.getBody();
         assertNotNull(resultBean);
-        MetaHeader header = trackEp.getMetaHeader(resultBean.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody();
+        MetaHeader header = trackEP.getMetaHeader(resultBean.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody();
         assertNotNull(header);
 
         validateTag(header, "TagA", 1);
 
         //Adding a second tag (the first is already in the metaHeader
-        inputBean.setTag( new TagInputBean("TagB", "horse"));
-        trackEp.trackHeader(inputBean, su.getApiKey(), su.getApiKey());
+        inputBean.addTag(new TagInputBean("TagB", "horse"));
+        trackEP.trackHeader(inputBean, su.getApiKey(), su.getApiKey());
         validateTag(header, "TagB", 2);
 
     }
     @Test
     public void addNewTagToExistingMetaHeaderWithNoLog() throws Exception {
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(company, uid));
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike));
         fortressService.registerFortress(new FortressInputBean("ABC", true));
 
         //assertNotNull(result);
         MetaInputBean inputBean = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc1");
         // This should create the same Tag object
-        inputBean.setTag(new TagInputBean("TagA", "camel"));
-        ResponseEntity<TrackResultBean> response = trackEp.trackHeader(inputBean, su.getApiKey(), su.getApiKey());
+        inputBean.addTag(new TagInputBean("TagA", "camel"));
+        ResponseEntity<TrackResultBean> response = trackEP.trackHeader(inputBean, su.getApiKey(), su.getApiKey());
         // At this point we have a metaHeader, log and a tag.
 
-        assertNotNull (response);
+        assertNotNull(response);
 
         TrackResultBean resultBean = response.getBody();
         assertNotNull(resultBean);
-        MetaHeader header = trackEp.getMetaHeader(resultBean.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody();
+        MetaHeader header = trackEP.getMetaHeader(resultBean.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody();
         assertNotNull(header);
 
         validateTag(header, "TagA", 1);
 
         //Adding a second tag (the first is already in the metaHeader
-        inputBean.setTag( new TagInputBean("TagB", "horse"));
-        trackEp.trackHeader(inputBean, su.getApiKey(), su.getApiKey());
+        inputBean.addTag(new TagInputBean("TagB", "horse"));
+        trackEP.trackHeader(inputBean, su.getApiKey(), su.getApiKey());
         validateTag(header, "TagB", 2);
 
     }

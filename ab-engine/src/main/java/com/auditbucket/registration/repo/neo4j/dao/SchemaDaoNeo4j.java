@@ -1,11 +1,14 @@
 package com.auditbucket.registration.repo.neo4j.dao;
 
 import com.auditbucket.dao.SchemaDao;
-import com.auditbucket.engine.repo.neo4j.SchemaTypeRepo;
+import com.auditbucket.engine.repo.neo4j.ConceptTypeRepo;
+import com.auditbucket.engine.repo.neo4j.DocumentTypeRepo;
+import com.auditbucket.engine.repo.neo4j.model.ConceptNode;
 import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.track.model.Concept;
 import com.auditbucket.track.model.DocumentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,9 +19,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Maintains company specific Schema deets
@@ -30,7 +31,10 @@ import java.util.Map;
 @Repository
 public class SchemaDaoNeo4j implements SchemaDao {
     @Autowired
-    SchemaTypeRepo schemaTypeRepo;
+    DocumentTypeRepo documentTypeRepo;
+
+    @Autowired
+    ConceptTypeRepo conceptTypeRepo;
 
     @Autowired
     Neo4jTemplate template;
@@ -69,14 +73,14 @@ public class SchemaDaoNeo4j implements SchemaDao {
      * Tracks the DocumentTypes used by a Fortress that can be used to find MetaHeader objects
      *
      * @param fortress        fortress generating
-     * @param indexName       name of the Label
+     * @param docName       name of the Label
      * @param createIfMissing if not found will create
      * @return the node
      */
-    public DocumentType findDocumentType(Fortress fortress, String indexName, Boolean createIfMissing) {
-        DocumentType docResult = documentExists(fortress, indexName);
+    public DocumentType findDocumentType(Fortress fortress, String docName, Boolean createIfMissing) {
+        DocumentType docResult = documentExists(fortress, docName);
         if (docResult == null && createIfMissing) {
-            docResult = new DocumentTypeNode(fortress, indexName);
+            docResult = new DocumentTypeNode(fortress, docName);
             String cypher = "merge (docType:_DocType :DocType{code:{code}, name:{name}, companyKey:{key}}) " +
                     "with docType " +
                     "match (f:Fortress) where id(f) = {fId} " +
@@ -90,7 +94,7 @@ public class SchemaDaoNeo4j implements SchemaDao {
             params.put("fId", fortress.getId());
 
             template.query(cypher, params);
-            docResult = documentExists(fortress, indexName);
+            docResult = documentExists(fortress, docName);
 
         }
         return docResult;
@@ -99,26 +103,26 @@ public class SchemaDaoNeo4j implements SchemaDao {
 
     @Override
     public Collection<DocumentType> getFortressDocumentsInUse(Fortress fortress) {
-        return schemaTypeRepo.getFortressDocumentsInUse(fortress.getId());
+        return documentTypeRepo.getFortressDocumentsInUse(fortress.getId());
     }
 
     @Override
     public Collection<DocumentType> getCompanyDocumentsInUse(Company company) {
-        return schemaTypeRepo.getCompanyDocumentsInUse(company.getId());
+        return documentTypeRepo.getCompanyDocumentsInUse(company.getId());
     }
 
 
     @Cacheable(value = "companyDocType", unless = "#result == null")
-    private DocumentType documentExists(Fortress fortress, String indexName) {
-        return schemaTypeRepo.findFortressDocType(fortress.getId(), indexName.toLowerCase().replaceAll("\\s", ""));
+    private DocumentType documentExists(Fortress fortress, String docName) {
+        return documentTypeRepo.findFortressDocType(fortress.getId(), DocumentTypeNode.parse(docName));
     }
 
     @Cacheable(value = "companySchemaTag", unless = "#result == false")
     private boolean tagExists(Company company, String indexName) {
-        //logger.info("Looking for co{}, {}", company.getId(), parseTagIndex(company, indexName));
-        Object o = schemaTypeRepo.findCompanyTag(company.getId(), parseTagIndex(company, indexName));
+        //logger.info("Looking for co{}, {}", company.getId(), parseTagIndex(company, docName));
+        Object o = documentTypeRepo.findCompanyTag(company.getId(), parseTagIndex(company, indexName));
         return (o != null);
-        //return schemaTypeRepo.findBySchemaPropertyValue("companyKey", parseTagIndex(company, indexName)) != null;
+        //return documentTypeRepo.findBySchemaPropertyValue("companyKey", parseTagIndex(company, docName)) != null;
     }
 
     /**
@@ -166,6 +170,44 @@ public class SchemaDaoNeo4j implements SchemaDao {
         logger.debug("Creating System Indexes...");
         template.query("create constraint on (t:Country) assert t.key is unique", null);
         template.query("create constraint on (t:City) assert t.key is unique", null);
+    }
+
+    @Override
+    public void registerConcepts(Company company, Map<DocumentType, Collection<TagInputBean>> concepts) {
+        logger.debug("Registering concepts");
+        Set<DocumentType> documentTypes = concepts.keySet();
+        Collection<String> docs = new ArrayList<>(documentTypes.size());
+        for (String doc : docs) {
+            docs.add(doc);
+        }
+        Set<ConceptNode>existing = conceptTypeRepo.findConceptNodes(company, docs );
+
+        for (DocumentType docType : concepts.keySet()) {
+            Collection<TagInputBean>tags = concepts.get(docType);
+
+            for (TagInputBean tag : tags) {
+                if ( tag.getMetaLinks()!= null ){
+                    Map<String, Object> metaLinks = tag.getMetaLinks();
+                    for (String relationship : metaLinks.keySet()) {
+                        existing.add(new ConceptNode(docType, tag.getIndex(), relationship));
+                    }
+                }
+            }
+        }
+        conceptTypeRepo.save(existing);
+        logger.debug("Concepts registered");
+    }
+
+    @Override
+    public Set<Concept> findConcepts(Company company, Collection<String> documents, boolean withRelationships) {
+        logger.debug("Looking for concepts...");
+        Set<Concept> concepts = conceptTypeRepo.findConcepts(company, documents);
+        if (withRelationships){
+            for (Concept concept : concepts) {
+                template.fetch(concept.getRelationships());
+            }
+        }
+        return concepts;
     }
 
     private boolean isSystemIndex(String index) {
