@@ -204,7 +204,7 @@ public class TrackDaoES implements TrackSearchDao {
                         .execute()
                         .actionGet();
             }
-//            ensureMapping(indexName, documentType);
+            ensureMapping(indexName, documentType);
         }
     }
 
@@ -219,7 +219,7 @@ public class TrackDaoES implements TrackSearchDao {
         }
 
         try {
-            logger.debug("Update request for [{}]", searchChange.getMetaKey());
+            logger.debug("Update request for searchKey [{}], metaKey[{}]", searchChange.getSearchKey(), searchChange.getMetaKey());
             ensureIndex(searchChange.getIndexName(), searchChange.getDocumentType());
             //ensureMapping(searchChange.getIndexName(), searchChange.getDocumentType());
             GetResponse response =
