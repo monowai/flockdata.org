@@ -125,9 +125,10 @@ public class SearchServiceFacade {
         SearchChange searchDocument = new MetaSearchChange(header, null, event, new DateTime(when));
         if (resultBean.getTags() != null) {
             searchDocument.setTags(resultBean.getTags());
-            searchDocument.setSearchKey(header.getCallerRef());
+            //searchDocument.setSearchKey(header.getCallerRef());
 
             if (header.getId() == null) {
+                logger.debug("No HeaderID so we are not expecting a reply");
                 searchDocument.setWhen(null);
                 searchDocument.setReplyRequired(false);
             }
