@@ -136,7 +136,7 @@ public class TrackDaoNeo implements TrackDao {
             if (count > 1) break;
         }
         if (count > 1)
-            throw new DatagioException("Unable to find exactly one record for the callerRef [" + callerRef + "]");
+            throw new DatagioException("Unable to find exactly one record for the callerRef [" + callerRef + "]. Found "+count);
 
         return result;
 
