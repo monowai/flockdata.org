@@ -135,18 +135,23 @@ public class SchemaDaoNeo4j implements SchemaDao {
     public synchronized void ensureUniqueIndexes(Company company, Iterable<TagInputBean> tagInputs, Collection<String> added ) {
 
         for (TagInputBean tagInput : tagInputs) {
-            String index = tagInput.getIndex();
-            if (!added.contains(index)) {
-                //if (index != null && !tagExists(company, index)) { // This check causes deadlocks in TagEP ?
-                    ensureIndex(company, tagInput);
-                //}
-                added.add(tagInput.getIndex());
-            }
-            if (!tagInput.getTargets().isEmpty()){
-                for(String key: tagInput.getTargets().keySet()){
-                    ensureUniqueIndexes(company, tagInput.getTargets().get(key), added);
+            if ( tagInput!= null ){
+                String index = tagInput.getIndex();
+                if (!added.contains(index)) {
+                    //if (index != null && !tagExists(company, index)) { // This check causes deadlocks in TagEP ?
+                        ensureIndex(company, tagInput);
+                    //}
+                    added.add(tagInput.getIndex());
+                }
+                if (!tagInput.getTargets().isEmpty()){
+                    for(String key: tagInput.getTargets().keySet()){
+                        if (key != null )
+                            ensureUniqueIndexes(company, tagInput.getTargets().get(key), added);
+                    }
                 }
             }
+                else
+                logger.debug("Why is this null?");
 
         }
 
