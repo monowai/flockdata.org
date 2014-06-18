@@ -29,6 +29,13 @@ import java.util.Collection;
 public class MatrixResults {
     Collection<MatrixResult>results;
 
+    @Override
+    public String toString() {
+        return "MatrixResults{" +
+                "results=" + results.size() +
+                '}';
+    }
+
     public MatrixResults(Collection<MatrixResult> matrixResults) {
         this.results = matrixResults;
     }

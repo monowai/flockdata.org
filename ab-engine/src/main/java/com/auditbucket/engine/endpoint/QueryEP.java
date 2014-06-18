@@ -66,14 +66,14 @@ public class QueryEP {
         input.setDocuments(labels);
 
         ArrayList<String> from = new ArrayList<>();
-        from.add("writer");
-        from.add("lead");
+//        from.add("writer");
+//        from.add("lead");
         input.setFromRlxs(from);
         ArrayList<String> to = new ArrayList<>();
 
-        to.add("writer");
-        to.add("lead");
-        to.add("contributor");
+//        to.add("writer");
+//        to.add("lead");
+//        to.add("contributor");
         input.setToRlxs(to);
         ArrayList<String> tags = new ArrayList<>();
         tags.add("Person");

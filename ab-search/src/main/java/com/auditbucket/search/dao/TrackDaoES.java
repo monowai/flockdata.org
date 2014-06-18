@@ -166,7 +166,7 @@ public class TrackDaoES implements TrackSearchDao {
                 logger.debug("Created default mapping for {}, {}", indexName, documentType);
             }
         } else
-            logger.info("Mapping Exists= [{}]", hasType);
+            logger.trace("Mapping Exists= [{}]", hasType);
     }
 
     private synchronized void ensureIndex(String indexName, String documentType) {
