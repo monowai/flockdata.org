@@ -20,11 +20,13 @@
 package com.auditbucket.engine.repo.neo4j;
 
 import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
+import com.auditbucket.registration.model.Company;
 import com.auditbucket.track.model.DocumentType;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
 import java.util.Collection;
+import java.util.Set;
 
 /**
  * User: Mike Holdsworth
@@ -61,4 +63,11 @@ public interface DocumentTypeRepo extends GraphRepository<DocumentTypeNode> {
     @Query (value = "match (fortress:Fortress)-[fd:FORTRESS_DOC]-(d:_DocType) " +
             "where id(fortress) = {0} delete fd")
     void purgeFortressDocuments(Long fortressId);
+
+    @Query(elementClass = DocumentTypeNode.class,
+            value = "MATCH (company:ABCompany) -[:OWNS]->(fortress:_Fortress)<-[:FORTRESS_DOC]-(doc:_DocType) " +
+                    "        where id(company)={0} and doc.name in{1}" +
+                    "       return doc")
+    Set<DocumentType> findDocuments(Company company, Collection<String> documents);
+
 }

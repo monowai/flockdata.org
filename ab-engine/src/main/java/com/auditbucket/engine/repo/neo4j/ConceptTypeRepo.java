@@ -21,12 +21,9 @@ package com.auditbucket.engine.repo.neo4j;
 
 import com.auditbucket.engine.repo.neo4j.model.ConceptNode;
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.track.model.Concept;
+import com.auditbucket.registration.model.Relationship;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
-
-import java.util.Collection;
-import java.util.Set;
 
 /**
  * User: mike
@@ -42,15 +39,5 @@ public interface ConceptTypeRepo extends GraphRepository<ConceptNode> {
                             "        where id(company)={0} and doc.name in{1}" +
                             "       return concept")
 
-    Set<ConceptNode> findConceptNodes(Company company, Collection<String> documents);
-
-    @Query(elementClass = ConceptNode.class,
-            value =
-                    "MATCH (company:ABCompany) -[:OWNS]->(fortress:_Fortress)<-[:FORTRESS_DOC]-(doc:_DocType) " +
-                            " -[:HAS_CONCEPT]->(concept:_Concept)" +
-                            "        where id(company)={0} and doc.name in{1}" +
-                            "       return concept")
-
-    Set<Concept> findConcepts(Company company, Collection<String> documents);
-
+    Relationship findRelationship(Company company, String conceptName, String relationship);
 }

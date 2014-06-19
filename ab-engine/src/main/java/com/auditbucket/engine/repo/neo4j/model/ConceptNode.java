@@ -21,14 +21,17 @@ package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.registration.model.Relationship;
 import com.auditbucket.track.model.Concept;
-import com.auditbucket.track.model.DocumentType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
-import org.springframework.data.neo4j.annotation.*;
+import org.springframework.data.neo4j.annotation.GraphId;
+import org.springframework.data.neo4j.annotation.Indexed;
+import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.annotation.RelatedTo;
 
+import java.util.Collection;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.TreeSet;
 
 /**
  * User: Mike Holdsworth
@@ -42,42 +45,36 @@ public class ConceptNode implements Concept {
     @GraphId
     Long id;
 
-    @RelatedTo(elementClass = DocumentTypeNode.class, type = "HAS_CONCEPT", direction = Direction.INCOMING)
-    @Fetch
-    private DocumentTypeNode documentType;
+    @Indexed(unique = true)
+    private String name;
 
     @RelatedTo(elementClass = RelationshipNode.class, type="KNOWN_RELATIONSHIP", direction = Direction.OUTGOING)
     Set<Relationship> relationships;
 
-    @Indexed(unique = true)
-    private String name;
-
     protected ConceptNode() {
     }
 
-    public ConceptNode(DocumentType documentType, String tag) {
+    public ConceptNode(String indexName) {
         this();
-        this.name = tag;
-        this.documentType = (DocumentTypeNode)documentType;
+        this.name = indexName;
 
     }
 
-    public ConceptNode(DocumentType docType, String index, String relationship) {
-        this(docType, index);
+    public ConceptNode(String indexName, String relationship) {
+        this(indexName);
         addRelationship(relationship);
 
     }
 
-    void addRelationship(String relationship) {
+    public void addRelationship(String relationship) {
         if ( relationships == null )
-            relationships = new CopyOnWriteArraySet<>();
+            relationships = new TreeSet<>();
 
-        RelationshipNode node = new RelationshipNode();
-        node.setName(relationship);
+        RelationshipNode node = new RelationshipNode(relationship);
         relationships.add(node);
     }
 
-    public Set<Relationship> getRelationships() {
+    public Collection<Relationship> getRelationships() {
         return relationships;
     }
 
@@ -95,12 +92,17 @@ public class ConceptNode implements Concept {
     public String toString() {
         return "DocumentTypeNode{" +
                 "id=" + id +
-                ", docType=" + documentType +
                 ", name='" + name + '\'' +
                 '}';
     }
 
-    public DocumentType getDocumentType() {
-        return documentType;
+    public Relationship hasRelationship(String relationshipName) {
+        if ( relationships == null )
+            return null;
+        for (Relationship relationship : relationships) {
+            if (relationship.getName().equalsIgnoreCase(relationshipName))
+                return relationship;
+        }
+        return null;
     }
 }
