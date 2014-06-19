@@ -53,7 +53,7 @@ public class NeoSyntaxHelper {
         String result = (delimiter.equals(":")? ":": "");
         for (String s : input) {
             if ( s != null ) {
-                if ( s.contains(" "))
+                if ( s.contains(" ") | s.contains("-"))
                     s = "`"+s+"`" ;
 
                 if ( result.equals(delimiter) || result.equals(""))

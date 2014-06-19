@@ -42,8 +42,9 @@ public class TestQueryParameters {
         ArrayList<String>docs = new ArrayList<>();
         docs.add("With Space");
         docs.add("SecondDoc");
+        docs.add("third-doc");
         inputBean.setDocuments(docs);
-        result = ":`With Space` :SecondDoc";
+        result = ":`With Space` :SecondDoc :`third-doc`";
         assertEquals(result, NeoSyntaxHelper.getLabels(inputBean.getDocuments()));
 
         docs.clear();
@@ -80,10 +81,11 @@ public class TestQueryParameters {
         ArrayList<String>relationships = new ArrayList<>();
         relationships.add("With Space");
         relationships.add("SecondConcept");
+        relationships.add("third-concept");
         inputBean.setFromRlxs(relationships);
         inputBean.setToRlxs(relationships);
-        assertEquals(":`With Space` |:SecondConcept", NeoSyntaxHelper.getRelationships(inputBean.getFromRlxs()));
-        assertEquals(":`With Space` |:SecondConcept", NeoSyntaxHelper.getRelationships(inputBean.getToRlxs()));
+        assertEquals(":`With Space` |:SecondConcept |:`third-concept`", NeoSyntaxHelper.getRelationships(inputBean.getFromRlxs()));
+        assertEquals(":`With Space` |:SecondConcept |:`third-concept`", NeoSyntaxHelper.getRelationships(inputBean.getToRlxs()));
     }
 
 
