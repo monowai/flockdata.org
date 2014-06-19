@@ -221,7 +221,7 @@ public class TrackDaoES implements TrackSearchDao {
         try {
             logger.debug("Update request for searchKey [{}], metaKey[{}]", searchChange.getSearchKey(), searchChange.getMetaKey());
             ensureIndex(searchChange.getIndexName(), searchChange.getDocumentType());
-            //ensureMapping(searchChange.getIndexName(), searchChange.getDocumentType());
+            //ensureMapping(searchChange.getIndexName(), searchChange.getDocumentTypes());
             GetResponse response =
                     esClient.prepareGet(searchChange.getIndexName(),
                             searchChange.getDocumentType(),

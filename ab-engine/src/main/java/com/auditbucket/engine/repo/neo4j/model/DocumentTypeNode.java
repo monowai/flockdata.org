@@ -21,6 +21,7 @@ package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.repo.neo4j.model.FortressNode;
+import com.auditbucket.track.model.Concept;
 import com.auditbucket.track.model.DocumentType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.neo4j.graphdb.Direction;
@@ -30,6 +31,8 @@ import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
+import java.util.Set;
+
 /**
  * User: Mike Holdsworth
  * Date: 30/06/13
@@ -37,13 +40,10 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
  */
 @NodeEntity
 @TypeAlias("DocType")
-public class DocumentTypeNode implements DocumentType {
+public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
 
     @GraphId
     Long id;
-
-    @RelatedTo(elementClass = FortressNode.class, type = "FORTRESS_DOC", direction = Direction.INCOMING)
-    private Fortress fortress;
 
     private String name;
 
@@ -51,6 +51,12 @@ public class DocumentTypeNode implements DocumentType {
 
     @Indexed(unique = true)
     private String companyKey;
+
+    @RelatedTo(elementClass = FortressNode.class, type = "FORTRESS_DOC", direction = Direction.INCOMING)
+    private Fortress fortress;
+
+    @RelatedTo(elementClass = ConceptNode.class,  type = "HAS_CONCEPT", direction = Direction.OUTGOING)
+    Set<Concept>concepts;
 
     protected DocumentTypeNode() {
     }
@@ -85,12 +91,22 @@ public class DocumentTypeNode implements DocumentType {
         return code;
     }
 
-    @JsonIgnore
+
     /**
      * used to create a unique key index for a company+docType combo
      */
+    @JsonIgnore
     public String getCompanyKey() {
         return companyKey;
+    }
+
+    public Set<Concept> getConcepts() {
+        return concepts;
+    }
+
+    @Override
+    public void add(Concept concept) {
+        concepts.add(concept);
     }
 
     @Override
@@ -104,5 +120,30 @@ public class DocumentTypeNode implements DocumentType {
 
     public static String parse(String indexName) {
         return indexName.toLowerCase().replaceAll("\\s", ".");
+    }
+
+    @Override
+    public int compareTo(DocumentType o) {
+        return o.getCompanyKey().compareTo(companyKey);  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DocumentTypeNode)) return false;
+
+        DocumentTypeNode that = (DocumentTypeNode) o;
+
+        if (companyKey != null ? !companyKey.equals(that.companyKey) : that.companyKey != null) return false;
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (companyKey != null ? companyKey.hashCode() : 0);
+        return result;
     }
 }

@@ -457,7 +457,7 @@ public class MediationFacade {
         trackService.purge(fortress);
 
         whatService.purge(indexName);
-        fortressService.purge(fortress);
+//        fortressService.purge(fortress);
         engineConfig.resetCache();
         searchService.purge(indexName);
     }

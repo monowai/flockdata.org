@@ -8,6 +8,8 @@ import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.Relationship;
+import com.auditbucket.track.bean.ConceptInputBean;
 import com.auditbucket.track.model.Concept;
 import com.auditbucket.track.model.DocumentType;
 import org.slf4j.Logger;
@@ -65,7 +67,7 @@ public class SchemaDaoNeo4j implements SchemaDao {
         return true;
     }
 
-    public void getDocumentTypes(Company company){
+    public void getDocumentTypes(Company company) {
 
     }
 
@@ -73,7 +75,7 @@ public class SchemaDaoNeo4j implements SchemaDao {
      * Tracks the DocumentTypes used by a Fortress that can be used to find MetaHeader objects
      *
      * @param fortress        fortress generating
-     * @param docName       name of the Label
+     * @param docName         name of the Label
      * @param createIfMissing if not found will create
      * @return the node
      */
@@ -132,25 +134,24 @@ public class SchemaDaoNeo4j implements SchemaDao {
      * @param company   who owns the tags
      * @param tagInputs collection to process
      */
-    public synchronized void ensureUniqueIndexes(Company company, Iterable<TagInputBean> tagInputs, Collection<String> added ) {
+    public synchronized void ensureUniqueIndexes(Company company, Iterable<TagInputBean> tagInputs, Collection<String> added) {
 
         for (TagInputBean tagInput : tagInputs) {
-            if ( tagInput!= null ){
+            if (tagInput != null) {
                 String index = tagInput.getIndex();
                 if (!added.contains(index)) {
                     //if (index != null && !tagExists(company, index)) { // This check causes deadlocks in TagEP ?
-                        ensureIndex(company, tagInput);
+                    ensureIndex(company, tagInput);
                     //}
                     added.add(tagInput.getIndex());
                 }
-                if (!tagInput.getTargets().isEmpty()){
-                    for(String key: tagInput.getTargets().keySet()){
-                        if (key != null )
+                if (!tagInput.getTargets().isEmpty()) {
+                    for (String key : tagInput.getTargets().keySet()) {
+                        if (key != null)
                             ensureUniqueIndexes(company, tagInput.getTargets().get(key), added);
                     }
                 }
-            }
-                else
+            } else
                 logger.debug("Why is this null?");
 
         }
@@ -178,41 +179,65 @@ public class SchemaDaoNeo4j implements SchemaDao {
     }
 
     @Override
-    public void registerConcepts(Company company, Map<DocumentType, Collection<TagInputBean>> concepts) {
+    public void registerConcepts(Company company, Map<DocumentType, Collection<ConceptInputBean>> conceptInput) {
         logger.debug("Registering concepts");
-        Set<DocumentType> documentTypes = concepts.keySet();
+        Set<DocumentType> documentTypes = conceptInput.keySet();
         Collection<String> docs = new ArrayList<>(documentTypes.size());
         for (String doc : docs) {
             docs.add(doc);
         }
-        Set<ConceptNode>existing = conceptTypeRepo.findConceptNodes(company, docs );
 
-        for (DocumentType docType : concepts.keySet()) {
-            Collection<TagInputBean>tags = concepts.get(docType);
+        for (DocumentType docType : conceptInput.keySet()) {
+            logger.debug("Looking for existing concepts {}", docType.getName());
+            DocumentTypeNode documentTypeNode = (DocumentTypeNode) docType;
+            template.fetch(documentTypeNode.getConcepts());
 
-            for (TagInputBean tag : tags) {
-                if ( tag.getMetaLinks()!= null ){
-                    Map<String, Object> metaLinks = tag.getMetaLinks();
-                    for (String relationship : metaLinks.keySet()) {
-                        existing.add(new ConceptNode(docType, tag.getIndex(), relationship));
+            Set<Concept> concepts = documentTypeNode.getConcepts();
+            logger.debug("[{}] - Found {} existing concepts", documentTypeNode.getName(), concepts.size());
+            for (ConceptInputBean concept : conceptInput.get(docType)) {
+                //logger.debug("Looking to create [{}]", concept.getName());
+                ConceptNode existingConcept = conceptTypeRepo.findBySchemaPropertyValue("name", concept.getName());
+
+                boolean save = false;
+                for (String relationship : concept.getRelationships()) {
+                    if (existingConcept == null) {
+                        logger.debug("No existing concept for [{}]", relationship);
+                        existingConcept = new ConceptNode(concept.getName(), relationship);
+                        save = true;
+                    } else {
+                        logger.trace("Found an existing concept {}", existingConcept);
+                        template.fetch(existingConcept.getRelationships());
+                        Relationship existingR = existingConcept.hasRelationship(relationship);
+                        if (existingR == null) {
+                            save = true;
+                            existingConcept.addRelationship(relationship);
+                        }
+                    }
+                    if ( save ){
+                        documentTypeNode.add(existingConcept);
+                        logger.debug("Creating concept {}", existingConcept);
                     }
                 }
             }
+            logger.trace("About to register {} concepts", concepts.size());
+            documentTypeRepo.save(documentTypeNode);
+            logger.trace("{} Concepts registered", concepts.size());
         }
-        conceptTypeRepo.save(existing);
-        logger.debug("Concepts registered");
     }
 
     @Override
-    public Set<Concept> findConcepts(Company company, Collection<String> documents, boolean withRelationships) {
-        logger.debug("Looking for concepts...");
-        Set<Concept> concepts = conceptTypeRepo.findConcepts(company, documents);
-        if (withRelationships){
-            for (Concept concept : concepts) {
-                template.fetch(concept.getRelationships());
+    public Set<DocumentType> findConcepts(Company company, Collection<String> docNames, boolean withRelationships) {
+        Set<DocumentType> documents = documentTypeRepo.findDocuments(company, docNames);
+        for (DocumentType document : documents) {
+            template.fetch(document.getConcepts());
+            if (withRelationships) {
+                for (Concept concept : document.getConcepts()) {
+                    template.fetch(concept);
+                    template.fetch(concept.getRelationships());
+                }
             }
         }
-        return concepts;
+        return documents;
     }
 
     private boolean isSystemIndex(String index) {

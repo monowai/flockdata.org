@@ -21,6 +21,8 @@ package com.auditbucket.track.model;
 
 import com.auditbucket.registration.model.Fortress;
 
+import java.util.Set;
+
 /**
  * User: Mike Holdsworth
  * Date: 30/06/13
@@ -37,4 +39,8 @@ public interface DocumentType {
     String getCode();
 
     String getCompanyKey();
+
+    void add(Concept concept);
+
+    Set<Concept> getConcepts();
 }

@@ -21,7 +21,6 @@ package com.auditbucket.engine.service;
 
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.service.FortressService;
-import com.auditbucket.track.model.Concept;
 import com.auditbucket.track.model.DocumentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -62,12 +61,12 @@ public class QueryService {
 
     }
 
-    public Set<Concept> getConcepts(Company company, Collection<String> documents, boolean withRelationships) {
+    public Set<DocumentType> getConcepts(Company company, Collection<String> documents, boolean withRelationships) {
         return schemaService.findConcepts(company, documents, withRelationships);
 
     }
 
-    public Set<Concept>  getConcepts(Company abCompany, Collection<String> documents) {
+    public Set<DocumentType>  getConcepts(Company abCompany, Collection<String> documents) {
         //match (a:Orthopedic) -[r]-(:_Tag) return distinct type(r) as typeName  order by typeName;
 
         return getConcepts(abCompany, documents, false);

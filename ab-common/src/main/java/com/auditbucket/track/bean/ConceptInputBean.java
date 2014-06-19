@@ -69,4 +69,10 @@ public class ConceptInputBean {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "ConceptInputBean{" +
+                "name='" + name + '\'' +
+                '}';
+    }
 }
