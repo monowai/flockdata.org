@@ -177,4 +177,8 @@ public class TagService {
     public void purgeUnusedConcepts(Company company){
         tagDao.purgeUnusedConcepts(company);
     }
+
+    public void purgeType(Company company, String type) {
+        tagDao.purge(company,type);
+    }
 }

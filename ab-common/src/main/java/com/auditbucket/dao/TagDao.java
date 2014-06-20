@@ -59,4 +59,6 @@ public interface TagDao {
     Collection<String> getExistingIndexes();
 
     public void purgeUnusedConcepts(Company company);
+
+    void purge(Company company, String type);
 }

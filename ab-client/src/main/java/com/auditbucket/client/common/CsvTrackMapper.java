@@ -50,14 +50,14 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
     }
 
     @Override
-    public String setData(String[] headerRow, String[] line, ImportParams importParams) throws JsonProcessingException, DatagioException {
+    public String setData(final String[] headerRow, final String[] line, ImportParams importParams) throws JsonProcessingException, DatagioException {
         int col = 0;
         Map<String, Object> row = toMap(headerRow, line);
 
         for (String column : headerRow) {
             CsvColumnHelper columnHelper = new CsvColumnHelper(column, line[col], importParams.getColumnDef(headerRow[col]));
             if (!columnHelper.ignoreMe()) {
-                headerRow[col] = columnHelper.getKey();
+                //headerRow[col] = columnHelper.getKey();
                 if (columnHelper.isCallerRef()) {
                     String callerRef = getCallerRef();
                     if (callerRef == null)
