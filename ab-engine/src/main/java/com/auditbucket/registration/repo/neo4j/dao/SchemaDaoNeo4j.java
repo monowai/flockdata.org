@@ -50,11 +50,11 @@ public class SchemaDaoNeo4j implements SchemaDao {
 
         if (!tagExists(company, indexName)) {
 
-            String cypher = "merge (tagLabel:_TagLabel { name:{name}, companyKey:{key}}) " +
-                    "with tagLabel " +
+            String cypher = "merge (tag:TagLabel { name:{name}, companyKey:{key}}) " +
+                    "with tag " +
                     "match (c:ABCompany) where id(c) = {cid} " +
-                    "merge (c)<-[:TAG_INDEX]-(tagLabel:_TagLabel) " +
-                    "return tagLabel";
+                    "merge (c)<-[:TAG_INDEX]-(tag) " +
+                    "return tag";
             Map<String, Object> params = new HashMap<>();
             params.put("name", indexName);
             params.put("key", parseTagIndex(company, indexName));

@@ -24,7 +24,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
  * Date: 8/05/14
  * Time: 11:29 AM
  */
-public class CSVRow {
+public class CSVThing {
     @Test
     public void headerRow() throws Exception {
         ImportParams params = Importer.getImportParams("/csvtest.json", null);

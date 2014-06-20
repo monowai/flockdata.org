@@ -80,6 +80,19 @@ public class TagEP {
     }
 
     @ResponseBody
+    @RequestMapping(value = "/{type}", produces = "application/json", consumes = "application/json", method = RequestMethod.DELETE)
+    public ResponseEntity<String> deleteConcepts( @PathVariable("type") String type,
+                                                              String apiKey,
+            @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+        Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+
+        tagService.purgeType(company, type);
+        return new ResponseEntity<>("Purged unused concepts", HttpStatus.ACCEPTED);
+
+    }
+
+
+    @ResponseBody
     @RequestMapping(value = "/{type}", produces = "application/json", consumes = "application/json", method = RequestMethod.GET)
     public Collection<Tag> getTags(@PathVariable("type") String index,
                                    String apiKey,
