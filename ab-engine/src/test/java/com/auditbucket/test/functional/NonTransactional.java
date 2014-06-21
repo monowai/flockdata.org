@@ -11,6 +11,7 @@ import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.model.LogWhat;
 import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.TrackLog;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
@@ -21,12 +22,11 @@ import org.springframework.data.neo4j.support.node.Neo4jHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.*;
 
 /**
  * User: mike
@@ -173,4 +173,6 @@ public class NonTransactional extends TestEngineBase{
         junit.framework.Assert.assertNotNull(value);
         assertEquals("321", value.toString());
     }
+
+
 }
