@@ -88,7 +88,7 @@
         <level value="error"/>
     </logger>
     <logger name="org.springframework.data.neo4j.support.query">
-        <level value="debug"/>
+        <level value="info"/> <!-- turn this on to see cypher statements")-->
     </logger>
     <logger name="com.auditbucket.engine.repo.neo4j.TrackDaoNeo">
         <level value="info"/>
@@ -98,7 +98,7 @@
         <level value="info"/>
     </logger>
     <logger name="org.neo4j.cypher">
-        <level value="debug"/>
+        <level value="info"/>
     </logger>
 
     <logger name="com.auditbucket">
