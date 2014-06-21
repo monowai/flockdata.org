@@ -144,35 +144,7 @@ public class NonTransactional extends TestEngineBase{
         }
     }
 
-    @Test
-    public void metaHeaderDifferentLogsBulkEndpoint() throws Exception {
-        SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, "mike").setIsUnique(false)).getBody();
-        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("metaHeaderDiff",true), su.getApiKey(), null).getBody();
 
-        MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
-        LogInputBean logInputBean = new LogInputBean("mike", new DateTime(), "{\"col\": 123}");
-        inputBean.setLog(logInputBean);
-        List<MetaInputBean> inputBeans = new ArrayList<>();
-        inputBeans.add(inputBean);
-        trackEP.trackHeaders(inputBeans, false, su.getApiKey());
-
-        MetaHeader created = trackEP.getByCallerRef(fortress.getName(), "TestTrack", "ABC123", su.getApiKey(), su.getApiKey() ).getBody();
-        Assert.assertNotNull(created);
-        // Now we record a change
-        logInputBean = new LogInputBean("mike", new DateTime(), "{\"col\": 321}");
-        inputBean.setLog(logInputBean);
-        inputBeans = new ArrayList<>();
-        inputBeans.add(inputBean);
-        trackEP.trackHeaders(inputBeans, false, su.getApiKey());
-        waitAWhile("", 400);
-
-        LogWhat what = trackEP.getLastChangeWhat(created.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody();
-
-        Assert.assertNotNull(what);
-        Object value = what.getWhat().get("col");
-        junit.framework.Assert.assertNotNull(value);
-        assertEquals("321", value.toString());
-    }
 
 
 }

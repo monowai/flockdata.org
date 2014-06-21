@@ -228,7 +228,7 @@ public class TrackService {
             logger.debug(resultBean.getMessage());
             return resultBean;
         }
-        logger.debug("looking for fortress user {}", header.getFortress());
+        logger.trace("looking for fortress user {}", header.getFortress());
         FortressUser thisFortressUser = fortressService.getFortressUser(header.getFortress(), input.getFortressUser(), true);
         return createLog(header, input, thisFortressUser);
     }

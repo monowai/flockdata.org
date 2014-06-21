@@ -59,6 +59,7 @@ import static org.junit.Assert.fail;
  */
 public class TestTrack extends TestEngineBase {
 
+
     private Logger logger = LoggerFactory.getLogger(TestTrack.class);
     private String what = "{\"house\": \"house";
 
@@ -89,26 +90,27 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void duplicateCallerRefMultipleLastChange() throws Exception {
+        String callerRef = "dcABC1";
         SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody();
 
         Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
-        MetaInputBean inputBean = new MetaInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), "ABC1");
+        MetaInputBean inputBean = new MetaInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), callerRef);
         inputBean.setLog(new LogInputBean("poppy", DateTime.now(), "{\"name\": \"a\"}"));
         List<MetaInputBean>metaInputBeans = new ArrayList<>();
         metaInputBeans.add(inputBean);
 
-        inputBean = new MetaInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), "ABC1");
+        inputBean = new MetaInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), callerRef);
         inputBean.setLog(new LogInputBean("poppy", DateTime.now(), "{\"name\": \"a\"}"));
         metaInputBeans.add(inputBean);
 
-        inputBean = new MetaInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), "ABC1");
+        inputBean = new MetaInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), callerRef);
         inputBean.setLog(new LogInputBean("poppy", DateTime.now(), "{\"name\": \"a\"}"));
         metaInputBeans.add(inputBean);
         logger.info("Tracking...");
 
         trackEP.trackHeaders(metaInputBeans, su.getApiKey(), su.getApiKey());
         logger.info("Tracked...");
-        MetaHeader header = trackEP.getByCallerRef(fortWP.getName(), "CompanyNode", "ABC1", su.getApiKey(), su.getApiKey()).getBody();
+        MetaHeader header = trackEP.getByCallerRef(fortWP.getName(), "CompanyNode", callerRef, su.getApiKey(), su.getApiKey()).getBody();
         junit.framework.Assert.assertNotNull(header);
         waitAWhile();
 
@@ -719,6 +721,36 @@ public class TestTrack extends TestEngineBase {
             LogWhat whatResult = trackService.getWhat(metaHeader, change);
             assertTrue(whatResult.getWhat().containsKey("house"));
         }
+    }
+
+    @Test
+    public void metaHeaderDifferentLogsBulkEndpoint() throws Exception {
+        SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, "mike").setIsUnique(false)).getBody();
+        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("metaHeaderDiff",true), su.getApiKey(), null).getBody();
+
+        MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
+        LogInputBean logInputBean = new LogInputBean("mike", new DateTime(), "{\"col\": 123}");
+        inputBean.setLog(logInputBean);
+        List<MetaInputBean> inputBeans = new ArrayList<>();
+        inputBeans.add(inputBean);
+        trackEP.trackHeaders(inputBeans, false, su.getApiKey());
+
+        MetaHeader created = trackEP.getByCallerRef(fortress.getName(), "TestTrack", "ABC123", su.getApiKey(), su.getApiKey() ).getBody();
+        org.junit.Assert.assertNotNull(created);
+        // Now we record a change
+        logInputBean = new LogInputBean("mike", new DateTime(), "{\"col\": 321}");
+        inputBean.setLog(logInputBean);
+        inputBeans = new ArrayList<>();
+        inputBeans.add(inputBean);
+        trackEP.trackHeaders(inputBeans, false, su.getApiKey());
+        waitAWhile("", 400);
+
+        LogWhat what = trackEP.getLastChangeWhat(created.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody();
+
+        org.junit.Assert.assertNotNull(what);
+        Object value = what.getWhat().get("col");
+        junit.framework.Assert.assertNotNull(value);
+        assertEquals("321", value.toString());
     }
 
     @Test
