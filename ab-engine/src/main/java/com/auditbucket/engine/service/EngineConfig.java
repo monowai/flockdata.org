@@ -70,6 +70,7 @@ public class EngineConfig {
     Neo4jTemplate template;
 
     private boolean conceptsEnabled=true;
+    private boolean duplicateRegistration;
 
     @Value("${rabbit.host:@null}")
     protected void setRabbitHost(String rabbitHost) {
@@ -189,5 +190,13 @@ public class EngineConfig {
      */
     public void setConceptsEnabled(boolean conceptsEnabled) {
         this.conceptsEnabled = conceptsEnabled;
+    }
+
+    public void setDuplicateRegistration(boolean duplicateRegistration) {
+        this.duplicateRegistration = duplicateRegistration;
+    }
+
+    public boolean isDuplicateRegistration() {
+        return duplicateRegistration;
     }
 }

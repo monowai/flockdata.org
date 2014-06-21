@@ -207,8 +207,8 @@ public class TrackService {
      * @param input log details
      * @return populated log information with any error messages
      */
-    public LogResultBean createLog(MetaHeader header, LogInputBean input) throws DatagioException, IOException {
-
+    public LogResultBean writeLog(MetaHeader header, LogInputBean input) throws DatagioException, IOException {
+        logger.debug("writeLog - Received request to log for header=[{}]", header);
         if (header == null) {
             String metaKey = input.getMetaKey();
             if (input.getMetaId() == null) {
@@ -222,12 +222,13 @@ public class TrackService {
                 header = getHeader(input.getMetaId());  // Only set internally by AuditBucket. Never rely on the caller
         }
         LogResultBean resultBean = new LogResultBean(input, header);
-
         if (header == null) {
             resultBean.setStatus(LogInputBean.LogStatus.NOT_FOUND);
             resultBean.setMessage("Unable to locate requested header");
+            logger.debug(resultBean.getMessage());
             return resultBean;
         }
+        logger.debug("looking for fortress user {}", header.getFortress());
         FortressUser thisFortressUser = fortressService.getFortressUser(header.getFortress(), input.getFortressUser(), true);
         return createLog(header, input, thisFortressUser);
     }
@@ -240,7 +241,7 @@ public class TrackService {
      * @param thisFortressUser User name in calling system that is making the change
      * @return populated log information with any error messages
      */
-    private LogResultBean createLog(MetaHeader authorisedHeader, LogInputBean input, FortressUser thisFortressUser) throws DatagioException, IOException {
+    public LogResultBean createLog(MetaHeader authorisedHeader, LogInputBean input, FortressUser thisFortressUser) throws DatagioException, IOException {
         // Warning - making this private means it doesn't get a transaction!
         LogResultBean resultBean = new LogResultBean(input, authorisedHeader);
         //ToDo: May want to track a "View" event which would not change the What data.
@@ -295,10 +296,8 @@ public class TrackService {
 
 
         Log thisLog = trackDao.prepareLog(thisFortressUser, input, txRef, (existingLog != null ? existingLog.getLog() : null));
-
         // Prepares the change
         input.setChangeEvent(thisLog.getEvent());
-
         resultBean.setWhatLog(thisLog);
 
 

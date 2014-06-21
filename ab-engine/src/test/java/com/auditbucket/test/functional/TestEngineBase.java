@@ -139,6 +139,7 @@ public class TestEngineBase {
         //setSecurity();
         Neo4jHelper.cleanDb(template);
         engineAdmin.setConceptsEnabled(false);
+        engineAdmin.setDuplicateRegistration(true);
     }
 
     @Before

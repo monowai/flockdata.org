@@ -37,7 +37,6 @@ import com.auditbucket.track.bean.*;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.SearchChange;
 import com.auditbucket.track.model.TrackLog;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -84,6 +83,9 @@ public class MediationFacade {
 
     @Autowired
     TagService tagService;
+
+    @Autowired
+    LogProcessor logProcessor;
 
     private Logger logger = LoggerFactory.getLogger(MediationFacade.class);
 
@@ -136,10 +138,10 @@ public class MediationFacade {
 
                     @Override
                     public Command execute() throws DatagioException, IOException {
-                        resultBeans = trackService.createHeaders(headers, company, fortress);
-                        resultBeans = processLogs(company, resultBeans);
 
-                        distributeChanges(company, resultBeans);
+                        resultBeans = trackService.createHeaders(headers, company, fortress);
+//                        logger.debug("Header finished {}", Thread.currentThread().getName());
+                        logProcessor.processLogs(company, resultBeans);
                         return this;
                     }
                 }
@@ -175,6 +177,18 @@ public class MediationFacade {
         return createHeader(company, fortress, inputBean);
     }
 
+    /**
+     * tracks a header and creates logs. Distributes changes to KV stores and search engine.
+     *
+     * This is synchronous and blocks until completed
+     *
+     * @param company    - who for
+     * @param fortress   - system that owns the data
+     * @param inputBean  - input
+     * @return non-null
+     * @throws DatagioException illegal input
+     * @throws IOException      json processing exception
+     */
     public TrackResultBean createHeader(final Company company, final Fortress fortress, final MetaInputBean inputBean) throws DatagioException, IOException {
         if (inputBean == null)
             throw new DatagioException("No input to process!");
@@ -185,8 +199,8 @@ public class MediationFacade {
             @Override
             public Command execute() throws DatagioException, IOException {
                 result = trackService.createHeader(company, fortress, inputBean);
-                result = processLogFromResult(company, result);
-                distributeChange(company, result);
+                result = logProcessor.processLogFromResult(company, result);
+                logProcessor.distributeChange(company, result);
                 return this;
             }
         }
@@ -196,60 +210,18 @@ public class MediationFacade {
         return c.result;
     }
 
-    public Collection<TrackResultBean> processLogs(Company company, Iterable<TrackResultBean> resultBeans) throws DatagioException, IOException {
-        Collection<TrackResultBean> logResults = new ArrayList<>();
-        for (TrackResultBean resultBean : resultBeans) {
-            logResults.add(processLogFromResult(company, resultBean));
-        }
-        return logResults;
-    }
 
     public LogResultBean processLog( LogInputBean input) throws DatagioException, IOException {
         return processLog(registrationService.resolveCompany(null), input);
     }
 
-//    public LogResultBean processLog( String apiKey, LogInputBean input) throws DatagioException, IOException {
-//        return processLog(registrationService.resolveCompany(apiKey), input);
-//    }
-
     public LogResultBean processLog(Company company, LogInputBean input) throws DatagioException, IOException {
         MetaHeader header = trackService.getHeader(company, input.getMetaKey());
-        LogResultBean logResultBean = writeLog(header, input);
-        distributeChange(company , new TrackResultBean(logResultBean, input));
+        LogResultBean logResultBean = logProcessor.writeLog(header, input);
+        logProcessor.distributeChange(company , new TrackResultBean(logResultBean, input));
         return logResultBean;
     }
 
-    private LogResultBean processCompanyLog(Company company, TrackResultBean resultBean) throws DatagioException, IOException {
-        MetaHeader header = resultBean.getMetaHeader();
-        if (header == null)
-            header = trackService.getHeader(company, resultBean.getMetaKey());
-        return writeLog(header, resultBean.getLog());
-    }
-
-    private TrackResultBean processLogFromResult(Company company, TrackResultBean resultBean) throws DatagioException, IOException {
-        LogInputBean logBean = resultBean.getLog();
-        MetaHeader header = resultBean.getMetaHeader();
-        // Here on could be spun in to a separate thread. The log has to happen eventually
-        //   and shouldn't fail.
-        if (resultBean.getLog() != null) {
-            // Secret back door so that the log result can quickly get the auditid
-            logBean.setMetaId(resultBean.getAuditId());
-            logBean.setMetaKey(resultBean.getMetaKey());
-            logBean.setCallerRef(resultBean.getCallerRef());
-
-            LogResultBean logResult;
-            if (header != null)
-                logResult = writeLog(header, logBean);
-            else
-                logResult = processCompanyLog(company, resultBean);
-
-            logResult.setMetaKey(null);// Don't duplicate the text as it's in the header
-            logResult.setFortressUser(null);
-            resultBean.setLogResult(logResult);
-
-        }
-        return resultBean;
-    }
 
     /**
      * Will locate the track header from the supplied input
@@ -262,88 +234,9 @@ public class MediationFacade {
         MetaHeader header = trackService.getHeader(company, input.getMetaKey());
         if (header == null)
             throw new DatagioException("Unable to find the request auditHeader " + input.getMetaKey());
-        LogResultBean logResultBean = writeLog(header, input);
-        distributeChange(company, new TrackResultBean(logResultBean, input));
+        LogResultBean logResultBean = logProcessor.writeLog(header, input);
+        logProcessor.distributeChange(company, new TrackResultBean(logResultBean, input));
         return logResultBean;
-    }
-
-    @Async
-    public void distributeChanges(Company company, Iterable<TrackResultBean> resultBeans) throws IOException {
-        logger.debug("Distributing changes to KV and Search");
-        if (engineConfig.isConceptsEnabled())
-            schemaService.registerConcepts(company, resultBeans);
-        whatService.doKvWrite(resultBeans);
-        Collection<SearchChange> changes = new ArrayList<>();
-        for (TrackResultBean resultBean : resultBeans) {
-            SearchChange change = getSearchChange(resultBean);
-            if (change!=null )
-                changes.add(change);
-        }
-        searchService.makeChangesSearchable(changes);
-    }
-
-    @Async
-    public TrackResultBean distributeChange(Company company, TrackResultBean trackResultBean) throws IOException {
-        ArrayList<TrackResultBean>results = new ArrayList<>();
-        results.add(trackResultBean);
-        distributeChanges(company, results);
-        return trackResultBean;
-    }
-
-    private SearchChange getMetaSearchChange(TrackResultBean trackResultBean) {
-        return searchService.getSearchChange(trackResultBean.getMetaHeader().getFortress().getCompany(), trackResultBean);
-    }
-
-    private SearchChange getSearchChange(TrackResultBean trackResultBean) {
-        if (trackResultBean.getMetaInputBean()!=null && trackResultBean.getMetaInputBean().isMetaOnly()){
-            return getMetaSearchChange(trackResultBean);
-        }
-        if ( !trackResultBean.getMetaHeader().getFortress().isSearchActive())
-            return null;
-
-        LogResultBean logResultBean = trackResultBean.getLogResult();
-        LogInputBean input = trackResultBean.getLog();
-
-        if ( !trackResultBean.processLog())
-            return null;
-
-        if (logResultBean != null && logResultBean.getLogToIndex() != null && logResultBean.getStatus() == LogInputBean.LogStatus.OK) {
-            try {
-                DateTime fWhen = new DateTime(logResultBean.getLogToIndex().getFortressWhen());
-                return searchService.prepareSearchDocument(logResultBean.getLogToIndex().getMetaHeader(), input, input.getChangeEvent(), fWhen, logResultBean.getLogToIndex());
-            } catch (JsonProcessingException e) {
-                logResultBean.setMessage("Error processing JSON document");
-                logResultBean.setStatus(LogInputBean.LogStatus.ILLEGAL_ARGUMENT);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Deadlock safe processor to creates a log
-     *
-     * @param header       Header that the caller is authorised to work with
-     * @param logInputBean log details to apply to the authorised header
-     * @return result details
-     * @throws com.auditbucket.helper.DatagioException
-     *
-     */
-    public LogResultBean writeLog(final MetaHeader header, final LogInputBean logInputBean) throws DatagioException, IOException {
-        logInputBean.setWhat(logInputBean.getWhat());
-        class DeadLockCommand implements Command {
-            LogResultBean result = null;
-
-            @Override
-            public Command execute() throws DatagioException, IOException {
-                result = trackService.createLog(header, logInputBean);
-                return this;
-            }
-        }
-        DeadLockCommand c = new DeadLockCommand();
-        DeadlockRetry.execute(c, "processing log for header", 20);
-
-        return c.result;
-
     }
 
     /**
