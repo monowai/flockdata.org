@@ -2,10 +2,17 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
+import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.model.CompanyUser;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.track.bean.LogInputBean;
+import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.model.LogWhat;
+import com.auditbucket.track.model.MetaHeader;
+import org.joda.time.DateTime;
+import org.junit.Assert;
 import org.junit.Test;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
@@ -13,9 +20,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.neo4j.support.node.Neo4jHelper;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 
@@ -133,5 +142,35 @@ public class NonTransactional extends TestEngineBase{
             failed = false;
             latch.countDown();
         }
+    }
+
+    @Test
+    public void metaHeaderDifferentLogsBulkEndpoint() throws Exception {
+        SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, "mike").setIsUnique(false)).getBody();
+        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("metaHeaderDiff",true), su.getApiKey(), null).getBody();
+
+        MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
+        LogInputBean logInputBean = new LogInputBean("mike", new DateTime(), "{\"col\": 123}");
+        inputBean.setLog(logInputBean);
+        List<MetaInputBean> inputBeans = new ArrayList<>();
+        inputBeans.add(inputBean);
+        trackEP.trackHeaders(inputBeans, false, su.getApiKey());
+
+        MetaHeader created = trackEP.getByCallerRef(fortress.getName(), "TestTrack", "ABC123", su.getApiKey(), su.getApiKey() ).getBody();
+        Assert.assertNotNull(created);
+        // Now we record a change
+        logInputBean = new LogInputBean("mike", new DateTime(), "{\"col\": 321}");
+        inputBean.setLog(logInputBean);
+        inputBeans = new ArrayList<>();
+        inputBeans.add(inputBean);
+        trackEP.trackHeaders(inputBeans, false, su.getApiKey());
+        waitAWhile("", 400);
+
+        LogWhat what = trackEP.getLastChangeWhat(created.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody();
+
+        Assert.assertNotNull(what);
+        Object value = what.getWhat().get("col");
+        junit.framework.Assert.assertNotNull(value);
+        assertEquals("321", value.toString());
     }
 }

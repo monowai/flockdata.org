@@ -39,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
 
 import java.util.*;
@@ -56,7 +57,7 @@ import static org.junit.Assert.fail;
  * Date: 15/04/13
  * Time: 6:43 AM
  */
-//@Transactional
+@Transactional
 public class TestTrack extends TestEngineBase {
 
     private Logger logger = LoggerFactory.getLogger(TestTrack.class);
@@ -87,37 +88,6 @@ public class TestTrack extends TestEngineBase {
         assertNull (trackService.getHeader(null));
 
     }
-
-    @Test
-    public void metaHeaderDifferentLogsBulkEndpoint() throws Exception {
-        SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, "mike")).getBody();
-        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("metaHeaderDiff",true), su.getApiKey(), null).getBody();
-
-        MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
-        LogInputBean logInputBean = new LogInputBean("mike", new DateTime(), "{\"col\": 123}");
-        inputBean.setLog(logInputBean);
-        List<MetaInputBean>inputBeans = new ArrayList<>();
-        inputBeans.add(inputBean);
-        trackEP.trackHeaders(inputBeans, false, su.getApiKey());
-
-        MetaHeader created = trackEP.getByCallerRef(fortress.getName(), "TestTrack", "ABC123", su.getApiKey(), su.getApiKey() ).getBody();
-        assertNotNull (created);
-        // Now we record a change
-        logInputBean = new LogInputBean("mike", new DateTime(), "{\"col\": 321}");
-        inputBean.setLog(logInputBean);
-        inputBeans = new ArrayList<>();
-        inputBeans.add(inputBean);
-        trackEP.trackHeaders(inputBeans, false, su.getApiKey());
-        waitAWhile("", 400);
-
-        LogWhat what = trackEP.getLastChangeWhat(created.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody();
-
-        assertNotNull(what);
-        Object value = what.getWhat().get("col");
-        Assert.assertNotNull(value);
-        assertEquals("321", value.toString());
-    }
-
 
     @Test
     public void locatingByCallerRefWillThrowAuthorizationException() throws Exception {
