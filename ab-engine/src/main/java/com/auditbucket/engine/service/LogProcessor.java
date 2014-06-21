@@ -94,6 +94,11 @@ public class LogProcessor {
     protected TrackResultBean processLogFromResult(Company company, TrackResultBean resultBean) throws DatagioException, IOException {
         LogInputBean logBean = resultBean.getLog();
         MetaHeader header = resultBean.getMetaHeader();
+
+        //DAT-77 the header may still be committing in another thread
+//        if ( header!=null && header.getId()>0)
+//            header = trackService.getHeader(company, resultBean.getMetaHeader().getMetaKey());
+
         if (resultBean.getLog() != null) {
             // Secret back door so that the log result can quickly get the auditid
             logBean.setMetaId(resultBean.getAuditId());

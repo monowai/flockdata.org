@@ -53,12 +53,12 @@ public class DeadlockRetry {
                     retryCount++;
                     if (retryCount == maxRetry) {
                         // http://www.slideshare.net/neo4j/zephyr-neo4jgraphconnect-2013short
-                        logger.error("Deadlock retries exceeded in [{}]", block);
-                        throw (re);
+                        //logger.error("Deadlock retries exceeded in [{}]", block);
+                        throw new DatagioException("Deadlock retries exceeded in "+ block, re.getCause());
                     }
                 } else {
                     logger.error("DeadlockRetry error could not be handled {}",re.getMessage());
-                    re.printStackTrace();
+//                    re.printStackTrace();
                     throw (re);
                 }
             }

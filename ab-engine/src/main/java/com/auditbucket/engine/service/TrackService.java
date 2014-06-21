@@ -259,13 +259,16 @@ public class TrackService {
 
         // https://github.com/monowai/auditbucket/issues/7
         TrackLog existingLog = null;
-        if (authorisedHeader.getLastUpdate() != 0l) // Will there even be a change to find
+        // DAT-77 this check fails TestTrack.datesInHeadersAndLogs in a multi-threaded log writing scenario.
+        // ToDo:  Makes synchronous access slower
+//        if (authorisedHeader.getLastUpdate() != 0l) // Will there even be a change to find
             existingLog = getLastLog(authorisedHeader);
 
         Boolean searchActive = fortress.isSearchActive();
         DateTime fortressWhen = (input.getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(input.getWhen()));
 
         if (existingLog != null) {
+            logger.debug("createLog, existing log found {}", existingLog);
             boolean unchanged = whatService.isSame(authorisedHeader, existingLog.getLog(), input.getWhat());
             if (unchanged) {
                 logger.trace("Ignoring a change we already have {}", input);
@@ -286,6 +289,7 @@ public class TrackService {
 
 
         } else { // first ever log for the metaHeader
+            logger.debug("createLog - first log created for the header");
             if (input.getEvent() == null) {
                 input.setEvent(Log.CREATE);
             }
