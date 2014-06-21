@@ -172,6 +172,10 @@ public class TestEngineBase {
         waitAWhile(null, 3000);
     }
 
+    public static void waitAWhile(int millis) throws Exception {
+        waitAWhile(null, millis);
+    }
+
     public static void waitAWhile(String message) throws Exception {
         String ss = System.getProperty("sleepSeconds");
         if (ss == null || ss.equals(""))
