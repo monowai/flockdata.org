@@ -31,6 +31,8 @@ import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.repo.neo4j.dao.CompanyDao;
 import com.auditbucket.registration.repo.neo4j.dao.FortressDao;
 import com.auditbucket.track.model.DocumentType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -43,6 +45,7 @@ import java.util.List;
 @Service
 @Transactional
 public class FortressService {
+    private Logger logger = LoggerFactory.getLogger(FortressService.class);
     @Autowired
     private FortressDao fortressDao;
 
@@ -137,7 +140,7 @@ public class FortressService {
         return getFortressUser(fortress, fortressUser, true);
     }
 
-    @Cacheable(value = "fortressUser", unless = "#result==null" )
+//    @Cacheable(value = "fortressUser", unless = "#result==null" )
     public FortressUser getFortressUser(Fortress fortress, String fortressUser, boolean createIfMissing) {
         if (fortressUser == null || fortress == null)
             throw new IllegalArgumentException("Don't go throwing null in here [" + (fortressUser == null ? "FortressUserNode]" : "FortressNode]"));
@@ -149,10 +152,11 @@ public class FortressService {
     }
 
     private FortressUser addFortressUser(Fortress fortress, String fortressUser) {
-
         if (fortress == null)
             throw new IllegalArgumentException("Unable to find requested fortress");
-
+        logger.debug("Request to add fortressUser [{}], [{}]",fortress, fortressUser);
+        Fortress fortressz = findByCode(fortress.getCompany(), fortress.getCode());
+        logger.debug("Fortress result {}", fortressz);
         Company company = fortress.getCompany();
         // this should never happen
         if (company == null)

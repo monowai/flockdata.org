@@ -106,6 +106,7 @@ public class TrackEP {
         } else {
             return mediationFacade.createHeaders(company, fortress, inputBeans, inputBeans.size());
         }
+
     }
 
     /**
@@ -272,7 +273,9 @@ public class TrackEP {
         MetaHeader header = trackService.getHeader(company, metaKey);
         if (header != null) {
             TrackLog lastLog = trackService.getLastLog(header);
-            if (lastLog != null) {
+            if (lastLog == null) {
+                logger.debug("Unable to find last log for {}", header);
+            } else {
                 LogWhat what = whatService.getWhat(header, lastLog.getLog());
                 return new ResponseEntity<>(what, HttpStatus.OK);
             }

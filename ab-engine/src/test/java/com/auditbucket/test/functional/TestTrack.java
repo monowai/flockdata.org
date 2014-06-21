@@ -31,7 +31,6 @@ import com.auditbucket.track.model.LogWhat;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
 import junit.framework.Assert;
-import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -40,7 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StopWatch;
 
 import java.util.*;
 
@@ -57,11 +56,16 @@ import static org.junit.Assert.fail;
  * Date: 15/04/13
  * Time: 6:43 AM
  */
-@Transactional
+//@Transactional
 public class TestTrack extends TestEngineBase {
 
     private Logger logger = LoggerFactory.getLogger(TestTrack.class);
     private String what = "{\"house\": \"house";
+
+    @org.junit.Before
+    public void setup(){
+        engineAdmin.setDuplicateRegistration(true);
+    }
 
     @Test
     public void logChangeWithNullAuditKeyButCallerRefExists() throws Exception {
@@ -87,7 +91,7 @@ public class TestTrack extends TestEngineBase {
     @Test
     public void metaHeaderDifferentLogsBulkEndpoint() throws Exception {
         SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, "mike")).getBody();
-        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("auditTest",true), su.getApiKey(), null).getBody();
+        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("metaHeaderDiff",true), su.getApiKey(), null).getBody();
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         LogInputBean logInputBean = new LogInputBean("mike", new DateTime(), "{\"col\": 123}");
@@ -95,11 +99,8 @@ public class TestTrack extends TestEngineBase {
         List<MetaInputBean>inputBeans = new ArrayList<>();
         inputBeans.add(inputBean);
         trackEP.trackHeaders(inputBeans, false, su.getApiKey());
-        Thread.yield();
-        Thread.sleep(900);
 
         MetaHeader created = trackEP.getByCallerRef(fortress.getName(), "TestTrack", "ABC123", su.getApiKey(), su.getApiKey() ).getBody();
-        Thread.sleep(600);
         assertNotNull (created);
         // Now we record a change
         logInputBean = new LogInputBean("mike", new DateTime(), "{\"col\": 321}");
@@ -107,10 +108,11 @@ public class TestTrack extends TestEngineBase {
         inputBeans = new ArrayList<>();
         inputBeans.add(inputBean);
         trackEP.trackHeaders(inputBeans, false, su.getApiKey());
-        Thread.sleep (600);
+        waitAWhile("", 400);
 
         LogWhat what = trackEP.getLastChangeWhat(created.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody();
-        assertNotNull ( what);
+
+        assertNotNull(what);
         Object value = what.getWhat().get("col");
         Assert.assertNotNull(value);
         assertEquals("321", value.toString());
@@ -150,15 +152,13 @@ public class TestTrack extends TestEngineBase {
         } catch (SecurityException se) {
 
         }
-
-
     }
 
     @Test
     public void createHeaderTimeLogs() throws Exception {
 
         regEP.registerSystemUser(new RegistrationBean(monowai, mike));
-        Fortress fortress = fortressService.registerFortress(new FortressInputBean("auditTest", true));
+        Fortress fortress = fortressService.registerFortress(new FortressInputBean("createHeaderTimeLogs", true));
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         String ahKey = mediationFacade.createHeader(inputBean, null).getMetaKey();
@@ -180,9 +180,10 @@ public class TestTrack extends TestEngineBase {
             i++;
         }
         watch.stop();
-        logger.info("End " + watch.getTime() / 1000d + " avg = " + (watch.getTime() / 1000d) / max);
+        logger.info(watch.prettyPrint() + " avg = " + (watch.getLastTaskTimeMillis() / 1000d) / max);
 
         // Test that we get the expected number of log events
+        waitAWhile("",200);
         assertEquals(max, (double) trackService.getLogCount(ahKey));
     }
 
@@ -344,7 +345,7 @@ public class TestTrack extends TestEngineBase {
         createLogRecords(authMike, ahWP, what, 20);
         createLogRecords(authHarry, ahHS, what, 40);
         watch.stop();
-        logger.info("End " + watch.getTime() / 1000d + " avg = " + (watch.getTime() / 1000d) / max);
+        logger.info(watch.prettyPrint()+ " avg = " + (watch.getLastTaskTimeMillis() / 1000d) / max);
 
 
     }
