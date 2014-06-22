@@ -169,10 +169,10 @@ public class WhatService {
      *
      * @param metaHeader  thing being tracked
      * @param compareFrom existing change to compare from
-     * @param compareWith new Change to compare with - JSON format
+     * @param jsonWith new Change to compare with - JSON format
      * @return false if different, true if same
      */
-    public boolean isSame(MetaHeader metaHeader, Log compareFrom, String compareWith) {
+    public boolean isSame(MetaHeader metaHeader, Log compareFrom, String jsonWith) {
         if (compareFrom == null)
             return false;
         LogWhat what = null;
@@ -189,8 +189,9 @@ public class WhatService {
         if (what == null)
             return false;
 
-        String jsonThis = what.getWhatString();
-        return isSame(jsonThis, compareWith);
+        String jsonFrom = what.getWhatString();
+        logger.debug("What found [{}]", what);
+        return isSame(jsonFrom, jsonWith);
     }
 
     public boolean isSame(String compareFrom, String compareWith) {
