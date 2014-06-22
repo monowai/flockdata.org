@@ -31,13 +31,13 @@ import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
 import junit.framework.Assert;
 import org.joda.time.DateTime;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
 
 import java.util.*;
@@ -66,8 +66,41 @@ public class TestTrack extends TestEngineBase {
     }
 
     @Test
+//    @Transactional
+    public void duplicateCallerRefMultipleLastChange() throws Exception {
+        logger.debug("### duplicateCallerRefMultipleLastChange");
+        String callerRef = "dcABC1";
+        SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody();
+
+        Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
+        MetaInputBean inputBean = new MetaInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), callerRef);
+        inputBean.setLog(new LogInputBean("poppy", DateTime.now(), "{\"name\": \"a\"}"));
+        List<MetaInputBean>metaInputBeans = new ArrayList<>();
+        metaInputBeans.add(inputBean);
+
+        inputBean = new MetaInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), callerRef);
+        inputBean.setLog(new LogInputBean("poppy", DateTime.now(), "{\"name\": \"a\"}"));
+        metaInputBeans.add(inputBean);
+
+        inputBean = new MetaInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), callerRef);
+        inputBean.setLog(new LogInputBean("poppy", DateTime.now(), "{\"name\": \"a\"}"));
+        metaInputBeans.add(inputBean);
+        logger.info("Tracking...");
+
+        trackEP.trackHeaders(metaInputBeans, su.getApiKey(), su.getApiKey());
+        logger.info("Tracked...");
+        MetaHeader header = trackEP.getByCallerRef(fortWP.getName(), "CompanyNode", callerRef, su.getApiKey(), su.getApiKey()).getBody();
+        junit.framework.Assert.assertNotNull(header);
+        waitAWhile();
+        waitForALog(header, su.getApiKey());
+
+        Set<TrackLog> logs = trackEP.getLogs(header.getMetaKey(), su.getApiKey(), su.getApiKey());
+        org.junit.Assert.assertNotNull(logs);
+        assertEquals("3 Identical changes should result in a single log", 1, logs.size());
+    }
+
+    @Test
     public void logChangeWithNullAuditKeyButCallerRefExists() throws Exception {
-        cleanUpGraph();
         regEP.registerSystemUser(new RegistrationBean(monowai, mike));
         Fortress fortress = fortressService.registerFortress("auditTest");
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
@@ -123,7 +156,6 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void createHeaderTimeLogs() throws Exception {
-
         regEP.registerSystemUser(new RegistrationBean(monowai, mike));
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("createHeaderTimeLogs", true));
 
@@ -160,7 +192,6 @@ public class TestTrack extends TestEngineBase {
      */
     @Test
     public void noDuplicateLogsWithCompression() throws Exception {
-
         SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody();
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("auditTest", true));
 
@@ -282,7 +313,6 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void headersForDifferentCompaniesAreNotVisible() throws Exception {
-
         regEP.registerSystemUser(new RegistrationBean(monowai, mike));
         String hummingbird = "Hummingbird";
         regEP.registerSystemUser(new RegistrationBean(hummingbird, harry));
@@ -609,7 +639,6 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void findMetaHeadersForCollectionOfMetaKeys() throws Exception{
-
         String suA = regEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody().getApiKey();
         String suB = regEP.registerSystemUser(new RegistrationBean("othercompany", harry)).getBody().getApiKey();
 
@@ -641,7 +670,6 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void utf8Strings() throws Exception{
-        cleanUpGraph();
         String json = "{\"Athlete\":\"Katerina Neumannová\",\"Age\":\"28\",\"Country\":\"Czech Republic\",\"Year\":\"2002\",\"Closing Ceremony Date\":\"2/24/02\",\"Sport\":\"Cross Country Skiing\",\"Gold Medals\":\"0\",\"Silver Medals\":\"2\",\"Bronze Medals\":\"0\",\"Total Medals\":\"2\"}";
         SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody();
 
@@ -663,7 +691,6 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void metaSummaryReturnsLogs() throws Exception {
-        cleanUpGraph();
         SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody();
         Fortress fortWP = fortressService.registerFortress(new FortressInputBean("metaSummary", true));
         DateTime dt = new DateTime().toDateTime();
@@ -693,7 +720,6 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void lastLogSequencesInSeparateCallsToBulkLoadEP() throws Exception {
-        cleanUpGraph();
         SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, "mike").setIsUnique(false)).getBody();
         Fortress fortress = fortressEP.registerFortress(new FortressInputBean("metaHeaderDiff",true), su.getApiKey(), null).getBody();
         String callerRef = UUID.randomUUID().toString();
@@ -730,7 +756,6 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void datesInHeadersAndLogs() throws Exception{
-        cleanUpGraph();
         String json = "{\"name\": \"value\"}";
         SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody();
         FortressInputBean f = new FortressInputBean("dateFun", true);
@@ -749,40 +774,6 @@ public class TestTrack extends TestEngineBase {
                 past.getMillis(), trackResultBean.getMetaHeader().getFortressLastWhen().longValue());
 
         logger.info(lastLog.toString());
-    }
-
-    @Test
-    public void duplicateCallerRefMultipleLastChange() throws Exception {
-        cleanUpGraph();
-        logger.debug("### duplicateCallerRefMultipleLastChange");
-        String callerRef = "dcABC1";
-        SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody();
-
-        Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
-        MetaInputBean inputBean = new MetaInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), callerRef);
-        inputBean.setLog(new LogInputBean("poppy", DateTime.now(), "{\"name\": \"a\"}"));
-        List<MetaInputBean>metaInputBeans = new ArrayList<>();
-        metaInputBeans.add(inputBean);
-
-        inputBean = new MetaInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), callerRef);
-        inputBean.setLog(new LogInputBean("poppy", DateTime.now(), "{\"name\": \"a\"}"));
-        metaInputBeans.add(inputBean);
-
-        inputBean = new MetaInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), callerRef);
-        inputBean.setLog(new LogInputBean("poppy", DateTime.now(), "{\"name\": \"a\"}"));
-        metaInputBeans.add(inputBean);
-        logger.info("Tracking...");
-
-        trackEP.trackHeaders(metaInputBeans, su.getApiKey(), su.getApiKey());
-        logger.info("Tracked...");
-        MetaHeader header = trackEP.getByCallerRef(fortWP.getName(), "CompanyNode", callerRef, su.getApiKey(), su.getApiKey()).getBody();
-        junit.framework.Assert.assertNotNull(header);
-        waitAWhile();
-        waitForALog(header, su.getApiKey());
-
-        Set<TrackLog> logs = trackEP.getLogs(header.getMetaKey(), su.getApiKey(), su.getApiKey());
-        org.junit.Assert.assertNotNull(logs);
-        assertEquals("3 Identical changes should result in a single log", 1, logs.size());
     }
 
     private void compareUser(MetaHeader header, String userName) {
