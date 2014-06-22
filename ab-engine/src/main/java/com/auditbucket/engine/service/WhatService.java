@@ -172,7 +172,16 @@ public class WhatService {
     public boolean isSame(MetaHeader metaHeader, Log compareFrom, String compareWith) {
         if (compareFrom == null)
             return false;
-        LogWhat what = getWhat(metaHeader, compareFrom);
+        LogWhat what = null;
+        int count = 0;
+        int timeout = 10;
+        while ( what ==null && count < timeout){
+            count++;
+            what = getWhat(metaHeader, compareFrom);
+        }
+
+        if ( count >= timeout)
+            logger.error("Timeout looking for KV What data for [{}]", metaHeader);
 
         if (what == null)
             return false;
