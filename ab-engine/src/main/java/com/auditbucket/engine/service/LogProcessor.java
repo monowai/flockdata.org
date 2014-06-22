@@ -114,6 +114,7 @@ public class LogProcessor {
             logResult.setMetaKey(null);// Don't duplicate the text as it's in the header
             logResult.setFortressUser(null);
             resultBean.setLogResult(logResult);
+//            whatService.doKvWrite(resultBean);
 
         }
         return resultBean;
@@ -144,6 +145,10 @@ public class LogProcessor {
             @Override
             public Command execute() throws DatagioException, IOException {
                 result = trackService.writeLog(header, logInputBean);
+                TrackResultBean trackResultBean = new TrackResultBean(result, logInputBean);
+                whatService.doKvWrite(trackResultBean); //ToDo: Consider KV not available. How to write the logs
+                                                        //      need to think of a way to recognize that the header has unprocessed work
+
                 return this;
             }
         }
@@ -165,7 +170,7 @@ public class LogProcessor {
             logger.debug("Distributing concepts");
             schemaService.registerConcepts(company, resultBeans);
         }
-        whatService.doKvWrite(resultBeans);
+        //whatService.doKvWrite(resultBeans);
         Collection<SearchChange> changes = new ArrayList<>();
         for (TrackResultBean resultBean : resultBeans) {
             SearchChange change = getSearchChange(resultBean);
