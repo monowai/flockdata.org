@@ -201,6 +201,7 @@ public class TestTagConcepts extends TestEngineBase {
         input.addTag(new TagInputBean("harry", "soldto").setIndex("Customer"));
         trackEP.trackHeader(input, su.getApiKey(), su.getApiKey()).getBody().getMetaHeader();
         waitAWhile("Concepts creating...");
+        waitAWhile("Concepts creating...");
         validateConcepts("DocA", su, 1);
 
         Collection<String>docs = new ArrayList<>();
