@@ -322,7 +322,7 @@ public class TrackDaoNeo implements TrackDao {
     }
 
 
-    @Cacheable(value = "headerId", unless = "#result==null")
+//    @Cacheable(value = "headerId", unless = "#result==null")
     @Override
     public MetaHeader getHeader(Long id) {
         return template.findOne(id, MetaHeaderNode.class);
@@ -430,17 +430,22 @@ public class TrackDaoNeo implements TrackDao {
 
 
     public TrackLog getLastLog(Long metaHeaderId) {
-        LoggedRelationship log = null;
-        Iterable<Relationship> rlxs = template.getNode(metaHeaderId).getRelationships(LastChange.LAST_CHANGE, Direction.OUTGOING);
-        int count = 0;
-        for (Relationship rlx : rlxs) {
-            if (count > 0) {
-                logger.error("Multiple relationships found for {} - returning the first found - {}", metaHeaderId, log.getId());
-            } else {
-                log = trackLogRepo.getLastLog(rlx.getEndNode().getId());
-                count++;
-            }
-        }
+        MetaHeader header = getHeader(metaHeaderId);
+        Log lastChange = header.getLastChange();
+        if ( lastChange == null )
+            return null;
+        //LoggedRelationship log = null;
+//        Iterable<Relationship> rlxs = template.getNode(metaHeaderId).getRelationships(LastChange.LAST_CHANGE, Direction.OUTGOING);
+//        int count = 0;
+//        for (Relationship rlx : rlxs) {
+//            if (count > 0) {
+//                logger.error("Multiple relationships found for {} - returning the first found - {}", metaHeaderId, log.getId());
+//            } else {
+//                log = trackLogRepo.getLastLog(rlx.getEndNode().getId());
+//                count++;
+//            }
+//        }
+        TrackLog log = trackLogRepo.getLastLog(lastChange.getId());
         return log;
     }
 

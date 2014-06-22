@@ -321,7 +321,7 @@ public class MetaHeaderNode implements MetaHeader {
         this.createdBy = (FortressUserNode)createdBy;
     }
 
-    public LogNode getLastChange() {
+    public Log getLastChange() {
         return lastChange;
     }
 
