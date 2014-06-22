@@ -414,7 +414,7 @@ public class TestABIntegration {
     @Test
     public void searchIndexWithNoMetaKeysDoesNotError() throws Exception {
         // DAT-83
-        assumeTrue(runMe);
+        //assumeTrue(runMe);
         logger.info("## searchDocWithNoMetaKeyWorks");
         SystemUser su = registerSystemUser("Harry");
         Fortress fo = fortressService.registerFortress(new FortressInputBean("noMetaKey", false));
@@ -422,17 +422,18 @@ public class TestABIntegration {
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         inputBean.setTrackSuppressed(true); // Write a search doc only
         inputBean.setLog(new LogInputBean("wally", new DateTime(), "{\"blah\":124}"));
+        // First header and log, but not stored in graph
         mediationFacade.createHeader(inputBean, null); // Mock result as we're not tracking
 
         inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setLog(new LogInputBean("wally", new DateTime(), "{\"blah\":124}"));
-        TrackResultBean auditResult = mediationFacade.createHeader(inputBean, null);
-        MetaHeader metaHeader = trackService.getHeader(auditResult.getMetaKey());
-        assertEquals("ab.monowai.nometakey", metaHeader.getIndexName());
+        TrackResultBean result = mediationFacade.createHeader(inputBean, null);
+        MetaHeader metaHeader = trackService.getHeader(result.getMetaKey());
+        assertEquals("ab.monowai."+fo.getCode(), metaHeader.getIndexName());
 
         waitForHeaderToUpdate(metaHeader, su.getApiKey()); // 2nd document in the index
         // We have one with a metaKey and one without
-        doEsQuery("ab.monowai.nometakey", "*", 2);
+        doEsQuery("ab.monowai."+fo.getCode(), "*", 2);
 
         QueryParams qp = new QueryParams(fo);
         qp.setSimpleQuery("*");
@@ -1071,6 +1072,31 @@ public class TestABIntegration {
         Thread.sleep(milliseconds);
         logger.debug(message, milliseconds / 1000d);
     }
+    long waitForALog(MetaHeader header, String apiKey) throws Exception {
+        // Looking for the first searchKey to be logged against the metaHeader
+        long thenTime = System.currentTimeMillis();
+        int i = 0;
+        long ts = header.getFortressLastWhen();
+
+        MetaHeader metaHeader = trackEP.getMetaHeader(header.getMetaKey(), apiKey, apiKey).getBody();
+        TrackLog log = trackEP.getLastChange(metaHeader.getMetaKey(), apiKey, apiKey).getBody();
+
+        int timeout = 100;
+        while (log == null && i <= timeout) {
+            log = trackEP.getLastChange(metaHeader.getMetaKey(), apiKey, apiKey).getBody();
+            if ( log!=null && metaHeader.getFortressLastWhen() == ts )
+                return i;
+            Thread.yield();
+            if (i > 20)
+                waitAWhile("Waiting for the log to arrive {}");
+            i++;
+        }
+        if (i > 22)
+            logger.info("Wait for log got to [{}] for metaId [{}]", i, metaHeader.getId());
+        return System.currentTimeMillis() - thenTime;
+    }
+
+
 
 
 }
