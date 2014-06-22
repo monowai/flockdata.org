@@ -194,7 +194,7 @@ public class WhatService {
     }
 
     public boolean isSame(String compareFrom, String compareWith) {
-
+        logger.debug ("Comparing [{}] with [{}]", compareFrom, compareWith);
         if (compareFrom == null || compareWith == null)
             return false;
 
