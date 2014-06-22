@@ -63,9 +63,12 @@ public class WhatService {
     }
 
     public void doKvWrite(Iterable<TrackResultBean> resultBeans) throws IOException {
+        int count = 0;
         for (TrackResultBean resultBean : resultBeans) {
             doKvWrite(resultBean);
+            count ++;
         }
+        logger.debug("KV Service handled [{}] requests", count);
     }
 
     public void doKvWrite(TrackResultBean resultBean) throws IOException {

@@ -161,8 +161,10 @@ public class LogProcessor {
 
     public void distributeChanges(Company company, Iterable<TrackResultBean> resultBeans) throws IOException {
         logger.debug("Distributing changes to sub-services");
-        if (engineConfig.isConceptsEnabled())
+        if (engineConfig.isConceptsEnabled()) {
+            logger.debug("Distributing concepts");
             schemaService.registerConcepts(company, resultBeans);
+        }
         whatService.doKvWrite(resultBeans);
         Collection<SearchChange> changes = new ArrayList<>();
         for (TrackResultBean resultBean : resultBeans) {
@@ -171,7 +173,7 @@ public class LogProcessor {
                 changes.add(change);
         }
         searchService.makeChangesSearchable(changes);
-        logger.debug("Distributed [{}] changes to sub-services",changes.size());
+        logger.debug("Distributed [{}] changes to search service",changes.size());
     }
 
     private SearchChange getSearchChange(TrackResultBean trackResultBean) {
