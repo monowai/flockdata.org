@@ -782,7 +782,7 @@ public class TestTrack extends TestEngineBase {
 
         Set<TrackLog> logs = trackEP.getLogs(header.getMetaKey(), su.getApiKey(), su.getApiKey());
         org.junit.Assert.assertNotNull(logs);
-        assertEquals(1, logs.size());
+        assertEquals("3 Identical changes should result in a single log", 1, logs.size());
     }
 
     private void compareUser(MetaHeader header, String userName) {
