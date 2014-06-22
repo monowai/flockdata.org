@@ -40,7 +40,7 @@
     </logger>
 
     <logger name="org.springframework.data.neo4j.support.query">
-        <level value="info"/>
+        <level value="info"/>  <!-- set to DEBUG to see Cypher statements-->
     </logger>
     <logger name="org.neo4j.cypher">
         <level value="info"/>
@@ -54,7 +54,7 @@
     <!-- Root Logger -->
 
     <root>
-        <priority value="info"/>
+        <priority value="debug"/>
         <appender-ref ref="console"/>
     </root>
 
