@@ -32,6 +32,8 @@ import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.neo4j.graphdb.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.neo4j.support.node.Neo4jHelper;
 
 import java.util.ArrayList;
@@ -48,6 +50,8 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
  * Time: 8:47 AM
  */
 public class TestTagConcepts extends TestEngineBase {
+    private Logger logger = LoggerFactory.getLogger(TestTagConcepts.class);
+
     @Override
     public void cleanUpGraph() {
         // Nothing
@@ -175,6 +179,7 @@ public class TestTagConcepts extends TestEngineBase {
     @Test
     public void multipleRelationships() throws Exception {
         Neo4jHelper.cleanDb(template);
+        logger.debug("### multipleRelationships");
         engineAdmin.setConceptsEnabled(true);
 
         Transaction t = beginManualTransaction();

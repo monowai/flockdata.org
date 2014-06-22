@@ -31,6 +31,7 @@ import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
 import junit.framework.Assert;
 import org.joda.time.DateTime;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +67,7 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void logChangeWithNullAuditKeyButCallerRefExists() throws Exception {
+        cleanUpGraph();
         regEP.registerSystemUser(new RegistrationBean(monowai, mike));
         Fortress fortress = fortressService.registerFortress("auditTest");
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
@@ -639,6 +641,7 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void utf8Strings() throws Exception{
+        cleanUpGraph();
         String json = "{\"Athlete\":\"Katerina Neumannová\",\"Age\":\"28\",\"Country\":\"Czech Republic\",\"Year\":\"2002\",\"Closing Ceremony Date\":\"2/24/02\",\"Sport\":\"Cross Country Skiing\",\"Gold Medals\":\"0\",\"Silver Medals\":\"2\",\"Bronze Medals\":\"0\",\"Total Medals\":\"2\"}";
         SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody();
 
@@ -660,6 +663,7 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void metaSummaryReturnsLogs() throws Exception {
+        cleanUpGraph();
         SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody();
         Fortress fortWP = fortressService.registerFortress(new FortressInputBean("metaSummary", true));
         DateTime dt = new DateTime().toDateTime();
@@ -689,6 +693,7 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void lastLogSequencesInSeparateCallsToBulkLoadEP() throws Exception {
+        cleanUpGraph();
         SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, "mike").setIsUnique(false)).getBody();
         Fortress fortress = fortressEP.registerFortress(new FortressInputBean("metaHeaderDiff",true), su.getApiKey(), null).getBody();
         String callerRef = UUID.randomUUID().toString();
@@ -725,6 +730,7 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void datesInHeadersAndLogs() throws Exception{
+        cleanUpGraph();
         String json = "{\"name\": \"value\"}";
         SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody();
         FortressInputBean f = new FortressInputBean("dateFun", true);
@@ -747,6 +753,7 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void duplicateCallerRefMultipleLastChange() throws Exception {
+        cleanUpGraph();
         logger.debug("### duplicateCallerRefMultipleLastChange");
         String callerRef = "dcABC1";
         SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody();
