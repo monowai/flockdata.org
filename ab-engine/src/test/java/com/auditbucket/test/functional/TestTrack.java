@@ -743,9 +743,8 @@ public class TestTrack extends TestEngineBase {
         inputBean.setLog(logInputBean);
         inputBeans = new ArrayList<>();
         inputBeans.add(inputBean);
-        trackEP.trackHeaders(inputBeans, false, su.getApiKey());
 
-        waitForALog(created, su.getApiKey());
+        trackEP.trackHeaders(inputBeans, false, su.getApiKey());
         waitAWhile();
 
         LogWhat what = trackEP.getLastChangeWhat(created.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody();
