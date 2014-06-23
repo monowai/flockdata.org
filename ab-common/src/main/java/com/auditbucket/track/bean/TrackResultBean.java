@@ -31,7 +31,7 @@ import java.util.Collection;
  * Since: 11/05/13
  */
 public class TrackResultBean {
-    private Long auditId = null;
+    private Long metaId = null;
     private String serviceMessage;
     private String fortressName;
     private String documentType;
@@ -66,7 +66,7 @@ public class TrackResultBean {
 
     public TrackResultBean(MetaHeader input) {
         this(input.getFortress().getName(), input.getDocumentType(), input.getCallerRef(), input.getMetaKey());
-        this.auditId = input.getId();
+        this.metaId = input.getId();
         this.metaHeader = input;
     }
 
@@ -74,6 +74,11 @@ public class TrackResultBean {
         this.logResult = logResultBean;
         this.log = input;
         this.metaHeader = logResultBean.getMetaHeader();
+        // ToDo: Do we need these instance variables or just get straight from the header?
+        this.fortressName = metaHeader.getFortress().getName();
+        this.documentType = metaHeader.getDocumentType();
+        this.callerRef = metaHeader.getCallerRef();
+        this.metaKey = metaHeader.getMetaKey();
     }
 
     public String getFortressName() {
@@ -90,6 +95,8 @@ public class TrackResultBean {
     }
 
     public String getMetaKey() {
+        if  (metaHeader!= null )
+            return metaHeader.getMetaKey();
         return metaKey;
     }
 
@@ -106,8 +113,8 @@ public class TrackResultBean {
     }
 
     @JsonIgnore
-    public Long getAuditId() {
-        return auditId;
+    public Long getMetaId() {
+        return metaId;
     }
 
     @JsonIgnore

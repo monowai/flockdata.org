@@ -96,58 +96,51 @@ public class LogProcessor {
         MetaHeader header = resultBean.getMetaHeader();
 
         //DAT-77 the header may still be committing in another thread
-//        if ( header!=null && header.getId()>0)
-//            header = trackService.getHeader(company, resultBean.getMetaHeader().getMetaKey());
-
+        TrackResultBean trackResult = null;
         if (resultBean.getLog() != null) {
             // Secret back door so that the log result can quickly get the auditid
-            logBean.setMetaId(resultBean.getAuditId());
+            logBean.setMetaId(resultBean.getMetaId());
             logBean.setMetaKey(resultBean.getMetaKey());
             logBean.setCallerRef(resultBean.getCallerRef());
 
-            LogResultBean logResult;
             if (header != null)
-                logResult = writeLog(header, logBean);
+                trackResult = writeLog(company, header, logBean);
             else
-                logResult = processCompanyLog(company, resultBean);
-
-            logResult.setMetaKey(null);// Don't duplicate the text as it's in the header
-            logResult.setFortressUser(null);
-            resultBean.setLogResult(logResult);
-//            whatService.doKvWrite(resultBean);
+                trackResult = processCompanyLog(company, resultBean);
 
         }
-        return resultBean;
+        return trackResult;
     }
 
-    private LogResultBean processCompanyLog(Company company, TrackResultBean resultBean) throws DatagioException, IOException {
+    private TrackResultBean processCompanyLog(Company company, TrackResultBean resultBean) throws DatagioException, IOException {
         MetaHeader header = resultBean.getMetaHeader();
         if (header == null)
             header = trackService.getHeader(company, resultBean.getMetaKey());
-        return writeLog(header, resultBean.getLog());
+        return writeLog(company, header, resultBean.getLog());
     }
 
     /**
      * Deadlock safe processor to creates a log
      *
+     *
+     * @param company
      * @param header       Header that the caller is authorised to work with
      * @param logInputBean log details to apply to the authorised header
      * @return result details
      * @throws com.auditbucket.helper.DatagioException
      *
      */
-    public LogResultBean writeLog(final MetaHeader header, final LogInputBean logInputBean) throws DatagioException, IOException {
+    public TrackResultBean writeLog(final Company company, final MetaHeader header, final LogInputBean logInputBean) throws DatagioException, IOException {
         logger.debug("writeLog {}", logInputBean);
         logInputBean.setWhat(logInputBean.getWhat());
         class DeadLockCommand implements Command {
-            LogResultBean result = null;
-
+            TrackResultBean result = null;
             @Override
             public Command execute() throws DatagioException, IOException {
-                result = trackService.writeLog(header, logInputBean);
-                TrackResultBean trackResultBean = new TrackResultBean(result, logInputBean);
-                whatService.doKvWrite(trackResultBean); //ToDo: Consider KV not available. How to write the logs
-                                                        //      need to think of a way to recognize that the header has unprocessed work
+                LogResultBean logResult = trackService.writeLog(company, header, logInputBean);
+                result = new TrackResultBean(logResult, logInputBean);
+                whatService.doKvWrite(result); //ToDo: Consider KV not available. How to write the logs
+                                               //      need to think of a way to recognize that the header has unprocessed work
 
                 return this;
             }

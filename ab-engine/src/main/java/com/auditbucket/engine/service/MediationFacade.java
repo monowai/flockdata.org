@@ -111,7 +111,7 @@ public class MediationFacade {
     @Async
     public Future<Integer> createHeadersAsync(final Company company, final Fortress fortress, List<MetaInputBean> inputBeans) throws DatagioException, IOException {
         // ToDo: Return strings which contain only the caller ref data that failed.
-        return new AsyncResult<>(createHeaders(company, fortress, inputBeans, 5));
+        return new AsyncResult<>(createHeaders(company, fortress, inputBeans, 10));
     }
 
     public Integer createHeaders(final Company company, final Fortress fortress, final List<MetaInputBean> inputBeans, int listSize) throws DatagioException, IOException {
@@ -145,7 +145,7 @@ public class MediationFacade {
                         return this;
                     }
                 }
-                DeadlockRetry.execute(new DLCommand(metaInputBeans), "creating headers", 20);
+                DeadlockRetry.execute(new DLCommand(metaInputBeans), "creating headers", 50);
 
             }
 
@@ -198,8 +198,12 @@ public class MediationFacade {
 
             @Override
             public Command execute() throws DatagioException, IOException {
-                result = trackService.createHeader(company, fortress, inputBean);
-                result = logProcessor.processLogFromResult(company, result);
+                TrackResultBean trackResult = trackService.createHeader(company, fortress, inputBean);
+                trackResult.setLogInput(inputBean.getLog());
+                result = logProcessor.processLogFromResult(company, trackResult);
+                if (result == null )
+                    result = trackResult;
+
                 logProcessor.distributeChange(company, result);
                 return this;
             }
@@ -211,15 +215,15 @@ public class MediationFacade {
     }
 
 
-    public LogResultBean processLog( LogInputBean input) throws DatagioException, IOException {
+    public TrackResultBean processLog( LogInputBean input) throws DatagioException, IOException {
         return processLog(registrationService.resolveCompany(null), input);
     }
 
-    public LogResultBean processLog(Company company, LogInputBean input) throws DatagioException, IOException {
+    public TrackResultBean processLog(Company company, LogInputBean input) throws DatagioException, IOException {
         MetaHeader header = trackService.getHeader(company, input.getMetaKey());
-        LogResultBean logResultBean = logProcessor.writeLog(header, input);
-        logProcessor.distributeChange(company , new TrackResultBean(logResultBean, input));
-        return logResultBean;
+        TrackResultBean trackResult = logProcessor.writeLog(company, header, input);
+        logProcessor.distributeChange(company ,trackResult);
+        return trackResult;
     }
 
 
@@ -230,13 +234,13 @@ public class MediationFacade {
      * @param input   payload containing at least the metaKey
      * @return result of the log
      */
-    public LogResultBean processLogForCompany(Company company, LogInputBean input) throws DatagioException, IOException {
+    public TrackResultBean processLogForCompany(Company company, LogInputBean input) throws DatagioException, IOException {
         MetaHeader header = trackService.getHeader(company, input.getMetaKey());
         if (header == null)
             throw new DatagioException("Unable to find the request auditHeader " + input.getMetaKey());
-        LogResultBean logResultBean = logProcessor.writeLog(header, input);
-        logProcessor.distributeChange(company, new TrackResultBean(logResultBean, input));
-        return logResultBean;
+        TrackResultBean trackResult = logProcessor.writeLog(company, header, input);
+        logProcessor.distributeChange(company, trackResult);
+        return trackResult;
     }
 
     /**
