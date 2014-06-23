@@ -37,7 +37,7 @@
         <!--Default properties for test. integration over http and Neo4J running embedded-->
         <ab.integration>http</ab.integration>
         <neo4j>java</neo4j>
-        <org.springdata.neo4j>3.1.0.RC1</org.springdata.neo4j>
+        <org.springdata.neo4j>3.1.0.RELEASE</org.springdata.neo4j>
         <neo4j.version>2.0.3</neo4j.version>
     </properties>
 
@@ -197,6 +197,13 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!--sd-Neo4J advanced mapping-->
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-neo4j-aspects</artifactId>
+            <version>${org.springdata.neo4j}</version>
+        </dependency>
+
         <!--<dependency>-->
             <!--<groupId>org.springframework.data</groupId>-->
             <!--<artifactId>spring-data-neo4j-rest</artifactId>-->
@@ -293,12 +300,6 @@
             </exclusions>
         </dependency>
 
-        <!--sd-Neo4J advanced mapping-->
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-neo4j-aspects</artifactId>
-            <version>${org.springdata.neo4j}</version>
-        </dependency>
         <!--<dependency>-->
         <!--<groupId>org.kohsuke</groupId>-->
         <!--<artifactId>github-api</artifactId>-->
@@ -645,10 +646,19 @@
     <repositories>
 
         <repository>
-            <id>neo4j-snapshots</id>
-            <name>Neo4j Snapshots</name>
+            <id>neo4j-releases</id>
+            <name>Neo4j Releases</name>
             <url>http://m2.neo4j.org/content/repositories/releases/</url>
         </repository>
+        <!--<repository>-->
+            <!--<id>neo4j-snapshots</id>-->
+            <!--<name>Neo4j Snapshots</name>-->
+            <!--<url>http://m2.neo4j.org/content/repositories/snapshots/</url>-->
+            <!--<snapshots>-->
+                <!--<enabled>true</enabled>-->
+            <!--</snapshots>-->
+        <!--</repository>-->
+
         <repository>
             <id>spring-milestones</id>
             <name>Spring Milestones</name>
