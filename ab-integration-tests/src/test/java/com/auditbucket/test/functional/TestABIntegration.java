@@ -599,7 +599,7 @@ public class TestABIntegration {
 
     @Test
     public void stressWithHighVolume() throws Exception {
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## stressWithHighVolume");
         int auditMax = 10, logMax = 10, fortress = 1;
 
@@ -642,7 +642,7 @@ public class TestABIntegration {
                 requests++;
                 int log = 1;
                 while (log <= logMax) {
-                    createLog(simpleJson, arb, log);
+                    arb = createLog(simpleJson, arb, log);
                     requests++;
                     if (!searchChecked) {
                         searchChecked = true;
@@ -769,10 +769,11 @@ public class TestABIntegration {
         }
         return null;
     }
-    private void createLog(String simpleJson, TrackResultBean arb, int log) throws Exception {
-        mediationFacade.processLog(new LogInputBean(arb.getMetaKey(), "olivia@sunnybell.com", new DateTime(), simpleJson + log + "}"));
+    private TrackResultBean createLog(String simpleJson, TrackResultBean arb, int log) throws Exception {
+        TrackResultBean result = mediationFacade.processLog(new LogInputBean(arb.getMetaKey(), "olivia@sunnybell.com", new DateTime(), simpleJson + log + "}"));
 //        junit.framework.Assert.assertNotNull(logResult);
-//        waitForALog(arb.getMetaHeader(), null);
+//        waitForALog(result.getMetaHeader(), null);
+        return result;
     }
 
     private void validateLogsIndexed(ArrayList<Long> list, int auditMax, int expectedLogCount) throws Exception {

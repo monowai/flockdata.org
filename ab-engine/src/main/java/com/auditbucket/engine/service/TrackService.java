@@ -215,7 +215,7 @@ public class TrackService {
 
         MetaHeader header = metaHeader;
 
-        if ( metaHeader.getMetaKey() != null )// If null, then the header is not being tracked in the engine
+        if (metaHeader.getMetaKey() != null)// If null, then the header is not being tracked in the engine
             header = getHeader(company, metaHeader.getMetaKey());
         return writeLog(header, input);
     }
@@ -331,23 +331,14 @@ public class TrackService {
         else
             input.setStatus(LogInputBean.LogStatus.OK);
 
+        // This call also saves the header
         TrackLog newLog = trackDao.addLog(authorisedHeader, thisLog, fortressWhen, existingLog);
         resultBean.setSysWhen(newLog.getSysWhen());
 
         boolean moreRecent = (existingLog == null || existingLog.getFortressWhen() <= newLog.getFortressWhen());
 
-        if (moreRecent) {
-            if (authorisedHeader.getLastUser() == null || (!authorisedHeader.getLastUser().getId().equals(thisFortressUser.getId()))) {
-                authorisedHeader.setLastUser(thisFortressUser);
-            }
-            authorisedHeader.setFortressLastWhen(fortressWhen.getMillis());
-            trackDao.save(authorisedHeader);
-
-            if (searchActive)
-                resultBean.setLogToIndex(newLog);
-        } else {
-            trackDao.save(authorisedHeader);
-        }
+        if (moreRecent && searchActive)
+            resultBean.setLogToIndex(newLog);  // Notional log to index.
 
         return resultBean;
 
