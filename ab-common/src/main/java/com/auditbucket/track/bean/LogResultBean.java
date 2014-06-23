@@ -166,4 +166,8 @@ public class LogResultBean {
     public MetaHeader getMetaHeader() {
         return metaHeader;
     }
+
+    public void setMetaHeader(MetaHeader metaHeader) {
+        this.metaHeader = metaHeader;
+    }
 }
