@@ -216,6 +216,9 @@ public class TestTagConcepts extends TestEngineBase {
             Set<Concept>concepts = docType.getConcepts();
             for (Concept concept : concepts) {
                 Collection<Relationship> relationships  =concept.getRelationships();
+                for (Relationship relationship : relationships) {
+                    logger.debug(relationship.getName());
+                }
                 Assert.assertEquals(2, relationships.size());
 
             }
