@@ -136,7 +136,7 @@ public class TrackDaoNeo implements TrackDao {
             if (count > 1) break;
         }
         if (count > 1)
-            throw new DatagioException("Unable to find exactly one record for the callerRef [" + callerRef + "]. Found "+count);
+            throw new DatagioException("Unable to find exactly one record for the callerRef [" + callerRef + "]. Found " + count);
 
         return result;
 
@@ -322,7 +322,7 @@ public class TrackDaoNeo implements TrackDao {
     }
 
 
-//    @Cacheable(value = "headerId", unless = "#result==null")
+    //    @Cacheable(value = "headerId", unless = "#result==null")
     @Override
     public MetaHeader getHeader(Long id) {
         return template.findOne(id, MetaHeaderNode.class);
@@ -342,19 +342,35 @@ public class TrackDaoNeo implements TrackDao {
 
         newChange.setTrackLog(new LoggedRelationship(metaHeader, newChange, fortressWhen));
 
-        if ( metaHeader.getId()== null )// This occurs when tracking in ab-engine is suppressed and the caller is only creating search docs
+        if (metaHeader.getId() == null)// This occurs when tracking in ab-engine is suppressed and the caller is only creating search docs
             return newChange.getTrackLog();
         newChange = template.save(newChange);
         template.fetch(newChange.getTrackLog());
         boolean moreRecent = (existingLog == null || existingLog.getFortressWhen() <= fortressWhen.getMillis());
         if (moreRecent) {
-            //if (metaHeader.getLastUser() == null || (!metaHeader.getLastUser().getId().equals(metaHeader.getId()))) {
+            if ( metaHeader.getLastChange()!=null)
+                metaHeader = template.fetch(metaHeader);
+            if (metaHeader.getLastUser() == null || (!metaHeader.getLastUser().getId().equals(newChange.getWho().getId()))) {
                 metaHeader.setLastUser(newChange.getWho());
-            //}
+            }
             metaHeader.setFortressLastWhen(fortressWhen.getMillis());
+            //if ( metaHeader.getLastChange() !=null ){
+                //template.fetch(metaHeader.getLastChange());
+
+//                logger.debug("Replacing lastChange {}/{}. Old/New Dates {}, {}",
+//                        metaHeader.getLastChange().getId(),
+//                        newChange.getId(),
+//                        new Date(metaHeader.getLastChange().getTrackLog().getSysWhen()),
+//                        new Date(newChange.getTrackLog().getSysWhen()));
+            //}
             metaHeader.setLastChange(newChange);
             logger.debug("Saving more recent change, logid [{}]", newChange.getId());
-            template.save(metaHeader);
+            try {
+                template.save(metaHeader);
+            } catch (IllegalStateException e) {
+                logger.error("ISE saving header {}", new Date(newChange.getTrackLog().getSysWhen()));
+                logger.error("Unexpected", e);
+            }
 
         }
         logger.debug("Added Log - MetaHeader [{}], Log [{}], Change [{}]", metaHeader.getId(), newChange.getTrackLog(), newChange.getId());
@@ -391,17 +407,17 @@ public class TrackDaoNeo implements TrackDao {
     @Override
     public Collection<MetaHeader> findHeaders(Company company, Collection<String> metaKeys) {
         logger.debug("Looking for {} headers for company [{}] ", metaKeys.size(), company);
-        Collection<MetaHeader> foundHeaders =  metaRepo.findHeaders(company.getId(), metaKeys);
-        Map<String,MetaHeader> unsorted = new HashMap<>();
+        Collection<MetaHeader> foundHeaders = metaRepo.findHeaders(company.getId(), metaKeys);
+        Map<String, MetaHeader> unsorted = new HashMap<>();
         for (MetaHeader foundHeader : foundHeaders) {
             unsorted.put(foundHeader.getMetaKey(), foundHeader);
         }
         // DAT-86 The incoming collection is actually the sort order we want
         // ToDo: Find a slicker way of dealing with this
-        Collection<MetaHeader>sortedResult = new ArrayList<>(unsorted.size());
+        Collection<MetaHeader> sortedResult = new ArrayList<>(unsorted.size());
         for (String metaKey : metaKeys) {
             MetaHeader header = unsorted.get(metaKey);
-            if ( header != null )
+            if (header != null)
                 sortedResult.add(header);
         }
         return sortedResult;
@@ -437,7 +453,7 @@ public class TrackDaoNeo implements TrackDao {
     public TrackLog getLastLog(Long metaHeaderId) {
         MetaHeader header = getHeader(metaHeaderId);
         Log lastChange = header.getLastChange();
-        if ( lastChange == null )
+        if (lastChange == null)
             return null;
         //LoggedRelationship log = null;
 //        Iterable<Relationship> rlxs = template.getNode(metaHeaderId).getRelationships(LastChange.LAST_CHANGE, Direction.OUTGOING);

@@ -180,7 +180,7 @@ public class SchemaDaoNeo4j implements SchemaDao {
 
     @Override
     public void registerConcepts(Company company, Map<DocumentType, Collection<ConceptInputBean>> conceptInput) {
-        logger.debug("Registering concepts");
+        logger.trace("Registering concepts");
         Set<DocumentType> documentTypes = conceptInput.keySet();
         Collection<String> docs = new ArrayList<>(documentTypes.size());
         for (String doc : docs) {
@@ -188,12 +188,12 @@ public class SchemaDaoNeo4j implements SchemaDao {
         }
 
         for (DocumentType docType : conceptInput.keySet()) {
-            logger.debug("Looking for existing concepts {}", docType.getName());
+            logger.trace("Looking for existing concepts {}", docType.getName());
             DocumentTypeNode documentTypeNode = (DocumentTypeNode) docType;
             template.fetch(documentTypeNode.getConcepts());
 
             Set<Concept> concepts = documentTypeNode.getConcepts();
-            logger.debug("[{}] - Found {} existing concepts", documentTypeNode.getName(), concepts.size());
+            logger.trace("[{}] - Found {} existing concepts", documentTypeNode.getName(), concepts.size());
             for (ConceptInputBean concept : conceptInput.get(docType)) {
                 //logger.debug("Looking to create [{}]", concept.getName());
                 ConceptNode existingConcept = conceptTypeRepo.findBySchemaPropertyValue("name", concept.getName());
@@ -201,7 +201,7 @@ public class SchemaDaoNeo4j implements SchemaDao {
                 boolean save = false;
                 for (String relationship : concept.getRelationships()) {
                     if (existingConcept == null) {
-                        logger.debug("No existing concept for [{}]", relationship);
+                        logger.debug("No existing concept found for [{}]. Creating it", relationship);
                         existingConcept = new ConceptNode(concept.getName(), relationship);
                         save = true;
                     } else {
@@ -211,6 +211,7 @@ public class SchemaDaoNeo4j implements SchemaDao {
                         if (existingR == null) {
                             save = true;
                             existingConcept.addRelationship(relationship);
+                            logger.debug("Creating {} concept for{}",relationship, existingConcept);
                         }
                     }
                     if ( save ){

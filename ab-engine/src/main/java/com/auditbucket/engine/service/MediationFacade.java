@@ -220,8 +220,7 @@ public class MediationFacade {
     }
 
     public TrackResultBean processLog(Company company, LogInputBean input) throws DatagioException, IOException {
-        MetaHeader header = trackService.getHeader(company, input.getMetaKey());
-        TrackResultBean trackResult = logProcessor.writeLog(company, header, input);
+        TrackResultBean trackResult = logProcessor.writeLog(company, input.getMetaKey(), input);
         logProcessor.distributeChange(company ,trackResult);
         return trackResult;
     }
@@ -235,10 +234,7 @@ public class MediationFacade {
      * @return result of the log
      */
     public TrackResultBean processLogForCompany(Company company, LogInputBean input) throws DatagioException, IOException {
-        MetaHeader header = trackService.getHeader(company, input.getMetaKey());
-        if (header == null)
-            throw new DatagioException("Unable to find the request auditHeader " + input.getMetaKey());
-        TrackResultBean trackResult = logProcessor.writeLog(company, header, input);
+        TrackResultBean trackResult = logProcessor.writeLog(company, input.getMetaKey(), input);
         logProcessor.distributeChange(company, trackResult);
         return trackResult;
     }

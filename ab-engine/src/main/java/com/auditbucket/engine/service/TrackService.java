@@ -177,14 +177,13 @@ public class TrackService {
 
     public MetaHeader getHeader(Company company, String metaKey) {
         if (company == null && metaKey != null)
-            return getHeader(metaKey); // we could find by basicauth
+            return getHeader(metaKey); // we can still find by authenticated user
+
         if (company == null)
             return null;
 
         return getHeader(company, metaKey, false);
-
     }
-
 
     public MetaHeader getHeader(Company company, @NotEmpty String headerKey, boolean inflate) {
 
@@ -202,24 +201,29 @@ public class TrackService {
     /**
      * Forces this service to refresh the header which may be stale
      *
-     * @param company
-     * @param metaHeader
-     * @param input
-     * @return
+     * @param company         who for
+     * @param metaKey         header
+     * @param trackResultBean input data to process
+     * @return result of the operation
      * @throws DatagioException
      * @throws IOException
      */
-    public LogResultBean writeLog(Company company, MetaHeader metaHeader, LogInputBean input) throws DatagioException, IOException {
+    public LogResultBean writeLog(Company company, String metaKey, TrackResultBean trackResultBean) throws DatagioException, IOException {
+        LogInputBean input = trackResultBean.getLog();
+        MetaHeader metaHeader = null;
 
-        if (metaHeader!=null && metaHeader.getMetaKey() != null)// If null, then the header is not being tracked in the engine
-            metaHeader = getHeader(company, metaHeader.getMetaKey());
+        // Incoming MetaHeader may be stale so refresh from this transactions view of it
+        if (metaKey != null) {
+            metaHeader = getHeader(company, metaKey); // Refresh the header with the latest version
+        }
+        if ( metaHeader == null && (trackResultBean.getMetaInputBean()!=null && trackResultBean.getMetaInputBean().isTrackSuppressed()))
+            metaHeader = trackResultBean.getMetaHeader();
 
         logger.debug("writeLog - Received request to log for header=[{}]", metaHeader);
         if (metaHeader == null) {
-            String metaKey = input.getMetaKey();
             if (input.getMetaId() == null) {
                 if (metaKey == null || metaKey.equals(EMPTY)) {
-                    metaHeader = findByCallerRef(input.getFortress(), input.getDocumentType(), input.getCallerRef());
+                    metaHeader = findByCallerRef(trackResultBean.getFortressName(), trackResultBean.getDocumentType(), trackResultBean.getCallerRef());
                     if (metaHeader != null)
                         input.setMetaKey(metaHeader.getMetaKey());
                 } else
@@ -236,25 +240,22 @@ public class TrackService {
         }
         logger.trace("looking for fortress user {}", metaHeader.getFortress());
         FortressUser thisFortressUser = fortressService.getFortressUser(metaHeader.getFortress(), input.getFortressUser(), true);
-        return createLog(company, metaHeader, input, thisFortressUser);
+        return createLog(metaHeader, input, thisFortressUser);
     }
 
     /**
      * Event log record for the supplied metaHeader from the supplied input
      *
      *
-     * @param company
      * @param authorisedHeader metaHeader the caller is authorised to work with
      * @param input            trackLog details containing the data to log
      * @param thisFortressUser User name in calling system that is making the change
      * @return populated log information with any error messages
      */
-    private LogResultBean createLog(Company company, MetaHeader authorisedHeader, LogInputBean input, FortressUser thisFortressUser) throws DatagioException, IOException {
+    private LogResultBean createLog(MetaHeader authorisedHeader, LogInputBean input, FortressUser thisFortressUser) throws DatagioException, IOException {
         // Warning - making this private means it doesn't get a transaction!
 
         Fortress fortress = authorisedHeader.getFortress();
-        // Trying to fix Unable to delete relationship exception which *i think* is down to stale header.
-        authorisedHeader = getHeader(company, authorisedHeader.getMetaKey());
 
         // Transactions checks
         TxRef txRef = handleTxRef(input, fortress.getCompany());
@@ -269,7 +270,7 @@ public class TrackService {
         resultBean.setTxReference(txRef);
 
         // https://github.com/monowai/auditbucket/issues/7
-        TrackLog existingLog = null;
+        TrackLog existingLog;
         // DAT-77 this check fails TestTrack.datesInHeadersAndLogs in a multi-threaded log writing scenario.
         // ToDo:  Makes synchronous access slower
 //        if (authorisedHeader.getLastUpdate() != 0l) // Will there even be a change to find

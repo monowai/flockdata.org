@@ -66,7 +66,6 @@ public class TestTrack extends TestEngineBase {
     }
 
     @Test
-//    @Transactional
     public void duplicateCallerRefMultipleLastChange() throws Exception {
         logger.debug("### duplicateCallerRefMultipleLastChange");
         String callerRef = "dcABC1";
