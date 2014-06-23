@@ -599,7 +599,7 @@ public class TestABIntegration {
 
     @Test
     public void stressWithHighVolume() throws Exception {
-        //assumeTrue(runMe);
+        assumeTrue(false);// Suppressing this for the time being
         logger.info("## stressWithHighVolume");
         int auditMax = 10, logMax = 10, fortress = 1;
 
