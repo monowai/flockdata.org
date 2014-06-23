@@ -643,6 +643,7 @@ public class TestABIntegration {
                 requests++;
                 int log = 1;
                 while (log <= logMax) {
+                    Thread.yield();
                     createLog(simpleJson, metaKey, log);
                     Thread.yield(); // Failure to yield Getting a frustrating thread update problem causing
 //                    IllegalStateException( "Unable to delete relationship since it is already deleted."
