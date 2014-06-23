@@ -80,7 +80,6 @@ public class SchemaService {
 
     }
 
-    @Async
     public void registerConcepts(Company company, Iterable<TrackResultBean> resultBeans) {
         Map<DocumentType, Collection<ConceptInputBean>> payload = new HashMap<>();
         for (TrackResultBean resultBean : resultBeans) {
@@ -101,13 +100,11 @@ public class SchemaService {
                         if (!conceptInputBeans.contains(cib))
                             conceptInputBeans.add(cib);
                     }
-
                 }
-
             }
         }
-
-        schemaDao.registerConcepts(company, payload);
+        if ( !payload.isEmpty())
+            schemaDao.registerConcepts(company, payload);
     }
 
     /**
