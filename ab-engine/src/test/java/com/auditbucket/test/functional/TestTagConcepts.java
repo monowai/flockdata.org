@@ -58,6 +58,7 @@ public class TestTagConcepts extends TestEngineBase {
     }
     @Test
     public void multipleDocsSameFortress() throws Exception {
+        logger.debug("### multipleDocsSameFortress");
         Neo4jHelper.cleanDb(template);
         engineAdmin.setConceptsEnabled(true);
 
@@ -93,23 +94,9 @@ public class TestTagConcepts extends TestEngineBase {
 
     }
 
-    private Collection<String> validateConcepts(String document, SystemUser su, int expected) throws Exception{
-        Collection<String>docs = new ArrayList<>();
-
-        docs.add(document);
-        return validateConcepts(docs, su, expected);
-    }
-    private Collection<String>validateConcepts(Collection<String> docs, SystemUser su, int expected) throws Exception{
-        Set<DocumentType> concepts = queryEP.getRelationships(docs, su.getApiKey(), su.getApiKey());
-        String message = "Collection";
-        if ( docs.size()==1 )
-            message = docs.iterator().next();
-        assertEquals( message+ " concepts", expected, concepts.size()); // Purchased docTypes
-        return docs;
-
-    }
     @Test
     public void fortressConcepts() throws Exception {
+        logger.debug("### fortressConcepts");
         Neo4jHelper.cleanDb(template);
         engineAdmin.setConceptsEnabled(true);
 
@@ -178,8 +165,8 @@ public class TestTagConcepts extends TestEngineBase {
 
     @Test
     public void multipleRelationships() throws Exception {
-        Neo4jHelper.cleanDb(template);
         logger.debug("### multipleRelationships");
+        Neo4jHelper.cleanDb(template);
         engineAdmin.setConceptsEnabled(true);
 
         Transaction t = beginManualTransaction();
@@ -223,6 +210,23 @@ public class TestTagConcepts extends TestEngineBase {
 
             }
         }
+    }
+
+    private Collection<String> validateConcepts(String document, SystemUser su, int expected) throws Exception{
+        Collection<String>docs = new ArrayList<>();
+
+        docs.add(document);
+        return validateConcepts(docs, su, expected);
+    }
+
+    private Collection<String>validateConcepts(Collection<String> docs, SystemUser su, int expected) throws Exception{
+        Set<DocumentType> concepts = queryEP.getRelationships(docs, su.getApiKey(), su.getApiKey());
+        String message = "Collection";
+        if ( docs.size()==1 )
+            message = docs.iterator().next();
+        assertEquals( message+ " concepts", expected, concepts.size()); // Purchased docTypes
+        return docs;
+
     }
 
 }
