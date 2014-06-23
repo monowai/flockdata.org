@@ -47,7 +47,6 @@ public class TrackResultBean {
     }
 
     /**
-     *
      * @param serviceMessage server side error messgae to return to the caller
      */
     public TrackResultBean(String serviceMessage) {
@@ -75,10 +74,12 @@ public class TrackResultBean {
         this.log = input;
         this.metaHeader = logResultBean.getMetaHeader();
         // ToDo: Do we need these instance variables or just get straight from the header?
-        this.fortressName = metaHeader.getFortress().getName();
-        this.documentType = metaHeader.getDocumentType();
-        this.callerRef = metaHeader.getCallerRef();
-        this.metaKey = metaHeader.getMetaKey();
+        if (metaHeader != null) {
+            this.fortressName = metaHeader.getFortress().getName();
+            this.documentType = metaHeader.getDocumentType();
+            this.callerRef = metaHeader.getCallerRef();
+            this.metaKey = metaHeader.getMetaKey();
+        }
     }
 
     public String getFortressName() {
@@ -95,7 +96,7 @@ public class TrackResultBean {
     }
 
     public String getMetaKey() {
-        if  (metaHeader!= null )
+        if (metaHeader != null)
             return metaHeader.getMetaKey();
         return metaKey;
     }
@@ -173,6 +174,6 @@ public class TrackResultBean {
     }
 
     public boolean processLog() {
-        return getLog()!=null && log.getStatus() != LogInputBean.LogStatus.IGNORE ;
+        return getLog() != null && log.getStatus() != LogInputBean.LogStatus.IGNORE;
     }
 }

@@ -83,22 +83,24 @@ public class SchemaService {
     public void registerConcepts(Company company, Iterable<TrackResultBean> resultBeans) {
         Map<DocumentType, Collection<ConceptInputBean>> payload = new HashMap<>();
         for (TrackResultBean resultBean : resultBeans) {
-            DocumentType docType = schemaDao.findDocumentType(resultBean.getMetaHeader().getFortress(), resultBean.getMetaHeader().getDocumentType(), false);
-            Collection<ConceptInputBean> conceptInputBeans = payload.get(docType);
-            if (conceptInputBeans == null) {
-                conceptInputBeans = new ArrayList<>();
-                payload.put(docType, conceptInputBeans);
-            }
+            if ( resultBean.getMetaHeader()!=null && resultBean.getMetaHeader().getId() !=null ){
+                DocumentType docType = schemaDao.findDocumentType(resultBean.getMetaHeader().getFortress(), resultBean.getMetaHeader().getDocumentType(), false);
+                Collection<ConceptInputBean> conceptInputBeans = payload.get(docType);
+                if (conceptInputBeans == null) {
+                    conceptInputBeans = new ArrayList<>();
+                    payload.put(docType, conceptInputBeans);
+                }
 
-            MetaInputBean inputBean = resultBean.getMetaInputBean();
-            if (inputBean != null && inputBean.getTags() != null) {
-                for (TagInputBean inputTag : resultBean.getMetaInputBean().getTags()) {
-                    if (inputTag.getMetaLink() != null || !inputTag.getMetaLinks().isEmpty()) {
-                        ConceptInputBean cib = new ConceptInputBean();
-                        cib.setRelationships(inputTag.getMetaLinks().keySet());
-                        cib.setName(inputTag.getIndex());
-                        if (!conceptInputBeans.contains(cib))
-                            conceptInputBeans.add(cib);
+                MetaInputBean inputBean = resultBean.getMetaInputBean();
+                if (inputBean != null && inputBean.getTags() != null) {
+                    for (TagInputBean inputTag : resultBean.getMetaInputBean().getTags()) {
+                        if (inputTag.getMetaLink() != null || !inputTag.getMetaLinks().isEmpty()) {
+                            ConceptInputBean cib = new ConceptInputBean();
+                            cib.setRelationships(inputTag.getMetaLinks().keySet());
+                            cib.setName(inputTag.getIndex());
+                            if (!conceptInputBeans.contains(cib))
+                                conceptInputBeans.add(cib);
+                        }
                     }
                 }
             }

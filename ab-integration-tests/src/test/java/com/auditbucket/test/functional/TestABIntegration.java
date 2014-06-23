@@ -207,7 +207,7 @@ public class TestABIntegration {
         header = trackService.getHeader(ahKey);
         assertEquals("ab.monowai.audittest", header.getIndexName());
         mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + 1 + "}"));
-        waitForHeaderToUpdate(header, su.getApiKey());
+        waitForHeaderToUpdate(header.getMetaKey(), su.getApiKey());
 
         doEsQuery(header.getIndexName(), header.getMetaKey());
     }
@@ -599,7 +599,7 @@ public class TestABIntegration {
 
     @Test
     public void stressWithHighVolume() throws Exception {
-        assumeTrue(runMe);
+        //assumeTrue(runMe);
         logger.info("## stressWithHighVolume");
         int auditMax = 10, logMax = 10, fortress = 1;
 
@@ -639,18 +639,22 @@ public class TestABIntegration {
                 boolean searchChecked = false;
                 MetaInputBean aib = new MetaInputBean(iFortress.getName(), fortress + "olivia@sunnybell.com", "CompanyNode", new DateTime(), "ABC" + audit);
                 TrackResultBean arb = mediationFacade.createHeader(aib, null);
+                String metaKey = arb.getMetaHeader().getMetaKey();
                 requests++;
                 int log = 1;
                 while (log <= logMax) {
-                    arb = createLog(simpleJson, arb, log);
+                    createLog(simpleJson, metaKey, log);
+                    Thread.yield(); // Failure to yield Getting a frustrating thread update problem causing
+//                    IllegalStateException( "Unable to delete relationship since it is already deleted."
+                    // under specifically stressed situations like this. We need to be able to detect and recover
+                    // from the scenario
                     requests++;
                     if (!searchChecked) {
                         searchChecked = true;
-                        MetaHeader metaHeader = trackService.getHeader(arb.getMetaKey());
                         requests++;
                         watch.suspend();
                         fortressWatch.suspend();
-                        waitForHeaderToUpdate(metaHeader, su.getApiKey());
+                        waitForHeaderToUpdate(metaKey, su.getApiKey());
                         watch.resume();
                         fortressWatch.resume();
                     } // searchCheck done
@@ -704,7 +708,7 @@ public class TestABIntegration {
         input.setLog(log);
 
         TrackResultBean result = trackEP.trackHeader(input, su.getApiKey(), su.getApiKey()).getBody();
-        waitForHeaderToUpdate(result.getMetaHeader(), su.getApiKey());
+        waitForHeaderToUpdate(result.getMetaHeader().getMetaKey(), su.getApiKey());
 
 
         QueryParams q = new QueryParams(fortress).setSimpleQuery(searchFor);
@@ -769,11 +773,8 @@ public class TestABIntegration {
         }
         return null;
     }
-    private TrackResultBean createLog(String simpleJson, TrackResultBean arb, int log) throws Exception {
-        TrackResultBean result = mediationFacade.processLog(new LogInputBean(arb.getMetaKey(), "olivia@sunnybell.com", new DateTime(), simpleJson + log + "}"));
-//        junit.framework.Assert.assertNotNull(logResult);
-//        waitForALog(result.getMetaHeader(), null);
-        return result;
+    private TrackResultBean createLog(String simpleJson, String metaKey, int log) throws Exception {
+        return mediationFacade.processLog(new LogInputBean(metaKey, "olivia@sunnybell.com", new DateTime(), simpleJson + log + "}"));
     }
 
     private void validateLogsIndexed(ArrayList<Long> list, int auditMax, int expectedLogCount) throws Exception {
@@ -798,18 +799,22 @@ public class TestABIntegration {
 
     }
 
-    private long waitForHeaderToUpdate(MetaHeader header, String apiKey) throws Exception {
+    private long waitForHeaderToUpdate(MetaHeader metaHeader, String apiKey) throws Exception {
+        return waitForHeaderToUpdate(metaHeader.getMetaKey(), apiKey);
+    }
+
+    private long waitForHeaderToUpdate(String metaKey, String apiKey) throws Exception {
         // Looking for the first searchKey to be logged against the metaHeader
         long thenTime = System.currentTimeMillis();
         int i = 0;
 
-        MetaHeader metaHeader = trackEP.getMetaHeader(header.getMetaKey(), apiKey, apiKey).getBody();
+        MetaHeader metaHeader = trackEP.getMetaHeader(metaKey, apiKey, apiKey).getBody();
         if (metaHeader.getSearchKey() != null)
             return 0;
 
         int timeout = 100;
         while (metaHeader.getSearchKey() == null && i <= timeout) {
-            metaHeader = trackEP.getMetaHeader(header.getMetaKey(), apiKey, apiKey).getBody();
+            metaHeader = trackEP.getMetaHeader(metaKey, apiKey, apiKey).getBody();
             Thread.yield();
             if (i > 20)
                 waitAWhile("Sleeping for the header to update {}");

@@ -139,7 +139,7 @@ public class TrackEP {
         // If we have a valid company we are good to go.
         Company company = getCompany(apiHeaderKey, apiKey);
 
-        LogResultBean resultBean = mediationFacade.processLogForCompany(company, input).getLogResult();
+        LogResultBean resultBean = mediationFacade.processLog(company, input).getLogResult();
         LogInputBean.LogStatus ls = resultBean.getStatus();
         if (ls.equals(LogInputBean.LogStatus.FORBIDDEN))
             return new ResponseEntity<>(resultBean, HttpStatus.FORBIDDEN);

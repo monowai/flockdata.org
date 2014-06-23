@@ -98,25 +98,20 @@ public class LogProcessor {
         //DAT-77 the header may still be committing in another thread
         TrackResultBean trackResult = null;
         if (resultBean.getLog() != null) {
-            // Secret back door so that the log result can quickly get the auditid
-            logBean.setMetaId(resultBean.getMetaId());
-            logBean.setMetaKey(resultBean.getMetaKey());
-            logBean.setCallerRef(resultBean.getCallerRef());
+            // Secret back door so that the log result can quickly get the pk
 
             if (header != null)
-                trackResult = writeLog(company, header, logBean);
+                trackResult = writeLog(company, header.getMetaKey(), resultBean);
             else
-                trackResult = processCompanyLog(company, resultBean);
-
+                trackResult = writeLog(company, logBean.getMetaKey(), resultBean);
         }
         return trackResult;
     }
 
-    private TrackResultBean processCompanyLog(Company company, TrackResultBean resultBean) throws DatagioException, IOException {
-        MetaHeader header = resultBean.getMetaHeader();
-        if (header == null)
-            header = trackService.getHeader(company, resultBean.getMetaKey());
-        return writeLog(company, header, resultBean.getLog());
+    public TrackResultBean writeLog(Company company, String metaKey, LogInputBean input) throws DatagioException, IOException {
+        TrackResultBean resultBean = new TrackResultBean(input.getFortress(), input.getDocumentType(), input.getCallerRef(), metaKey);
+        resultBean.setLogInput(input);
+        return writeLog(company, metaKey, resultBean);
     }
 
     /**
@@ -124,24 +119,25 @@ public class LogProcessor {
      *
      *
      * @param company
-     * @param header       Header that the caller is authorised to work with
-     * @param logInputBean log details to apply to the authorised header
+     * @param metaKey      Header that the caller is authorised to work with
+     * @param resultBean   log details to apply to the authorised header
      * @return result details
      * @throws com.auditbucket.helper.DatagioException
      *
      */
-    public TrackResultBean writeLog(final Company company, final MetaHeader header, final LogInputBean logInputBean) throws DatagioException, IOException {
+    public TrackResultBean writeLog(final Company company, final String metaKey, final TrackResultBean resultBean) throws DatagioException, IOException {
+        LogInputBean logInputBean = resultBean.getLog();
         logger.debug("writeLog {}", logInputBean);
-        logInputBean.setWhat(logInputBean.getWhat());
         class DeadLockCommand implements Command {
             TrackResultBean result = null;
             @Override
             public Command execute() throws DatagioException, IOException {
-                LogResultBean logResult = trackService.writeLog(company, header, logInputBean);
-                result = new TrackResultBean(logResult, logInputBean);
+                LogResultBean logResult = trackService.writeLog(company, metaKey, resultBean);
+                result = new TrackResultBean(logResult, resultBean.getLog());
+                if ( result.getLogResult().getStatus()== LogInputBean.LogStatus.NOT_FOUND)
+                    throw new DatagioException("Unable to find MetaHeader ");
                 whatService.doKvWrite(result); //ToDo: Consider KV not available. How to write the logs
                                                //      need to think of a way to recognize that the header has unprocessed work
-
                 return this;
             }
         }
@@ -178,7 +174,8 @@ public class LogProcessor {
         if (trackResultBean.getMetaInputBean()!=null && trackResultBean.getMetaInputBean().isMetaOnly()){
             return getMetaSearchChange(trackResultBean);
         }
-        if ( !trackResultBean.getMetaHeader().getFortress().isSearchActive())
+
+        if ( trackResultBean.getMetaHeader()== null || !trackResultBean.getMetaHeader().getFortress().isSearchActive())
             return null;
 
         LogResultBean logResultBean = trackResultBean.getLogResult();
