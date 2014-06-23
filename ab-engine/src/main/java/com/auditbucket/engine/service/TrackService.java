@@ -200,6 +200,27 @@ public class TrackService {
     }
 
     /**
+     * Forces this service to refresh the header which may be stale
+     *
+     * @param company
+     * @param metaHeader
+     * @param input
+     * @return
+     * @throws DatagioException
+     * @throws IOException
+     */
+    public LogResultBean writeLog(Company company, MetaHeader metaHeader, LogInputBean input) throws DatagioException, IOException {
+        if (metaHeader == null)
+            return writeLog(metaHeader, input);
+
+        MetaHeader header = metaHeader;
+
+        if ( metaHeader.getMetaKey() != null )// If null, then the header is not being tracked in the engine
+            header = getHeader(company, metaHeader.getMetaKey());
+        return writeLog(header, input);
+    }
+
+    /**
      * Looks up the metaHeader from input and creates a log record
      * <p/>
      * Only public to support AOP transactions. You should be calling this via #MediationFacade.createLog
@@ -207,7 +228,7 @@ public class TrackService {
      * @param input log details
      * @return populated log information with any error messages
      */
-    public LogResultBean writeLog(MetaHeader header, LogInputBean input) throws DatagioException, IOException {
+    private LogResultBean writeLog(MetaHeader header, LogInputBean input) throws DatagioException, IOException {
         logger.debug("writeLog - Received request to log for header=[{}]", header);
         if (header == null) {
             String metaKey = input.getMetaKey();
@@ -262,7 +283,7 @@ public class TrackService {
         // DAT-77 this check fails TestTrack.datesInHeadersAndLogs in a multi-threaded log writing scenario.
         // ToDo:  Makes synchronous access slower
 //        if (authorisedHeader.getLastUpdate() != 0l) // Will there even be a change to find
-            existingLog = getLastLog(authorisedHeader);
+        existingLog = getLastLog(authorisedHeader);
 
         Boolean searchActive = fortress.isSearchActive();
         DateTime fortressWhen = (input.getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(input.getWhen()));
@@ -305,7 +326,7 @@ public class TrackService {
         resultBean.setWhatLog(thisLog);
 
 
-        if ( authorisedHeader.getId() == null )
+        if (authorisedHeader.getId() == null)
             input.setStatus(LogInputBean.LogStatus.TRACK_ONLY);
         else
             input.setStatus(LogInputBean.LogStatus.OK);
@@ -421,7 +442,7 @@ public class TrackService {
     }
 
     public TrackLog getLastLog(MetaHeader metaHeader) throws DatagioException {
-        if (metaHeader == null || metaHeader.getId()== null )
+        if (metaHeader == null || metaHeader.getId() == null)
             return null;
         //logger.debug("Getting lastLog MetaID [{}]", metaHeader.getId());
         return trackDao.getLastLog(metaHeader.getId());
@@ -691,7 +712,7 @@ public class TrackService {
                 targets.add(m);
             } else {
                 ignored.add(next);
-                //logger.info ("Unable to find MetaKey ["+metaKey+"]. Skipping");
+                //logger.info ("Unable to find MetaKey ["+metaHeader+"]. Skipping");
             }
         }
         trackDao.crossReference(header, targets, relationshipName);

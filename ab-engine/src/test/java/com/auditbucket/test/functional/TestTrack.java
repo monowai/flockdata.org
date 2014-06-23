@@ -108,7 +108,7 @@ public class TestTrack extends TestEngineBase {
 
         LogInputBean aib = new LogInputBean("wally", new DateTime(), "{\"blah\":" + 1 + "}");
         aib.setCallerRef(fortress.getName(), "TestTrack", "ABC123");
-        LogResultBean input = mediationFacade.processLog(aib);
+        LogResultBean input = mediationFacade.processLog(aib).getLogResult();
         assertNotNull(input.getMetaKey());
         Assert.assertNotNull(trackService.findByCallerRef(fortress, aib.getDocumentType(), aib.getCallerRef()));
     }
@@ -283,7 +283,7 @@ public class TestTrack extends TestEngineBase {
         LogInputBean alb = new LogInputBean("logTest", new DateTime(), "{\"blah\":" + 0 + "}");
         alb.setCallerRef(fortressA.getName(), docType, callerRef);
         //assertNotNull (alb);
-        LogResultBean arb = mediationFacade.processLog(alb);
+        LogResultBean arb = mediationFacade.processLog(alb).getLogResult();
         assertNotNull(arb);
         assertEquals(keyA, arb.getMetaKey());
 
@@ -294,7 +294,7 @@ public class TestTrack extends TestEngineBase {
         String keyB = mediationFacade.createHeader(inputBean, null).getMetaKey();
         alb = new LogInputBean("logTest", new DateTime(), "{\"blah\":" + 0 + "}");
         alb.setCallerRef(fortressB.getName(), docType, callerRef);
-        arb = mediationFacade.processLog(alb);
+        arb = mediationFacade.processLog(alb).getLogResult();
         assertNotNull(arb);
         assertEquals("This caller should not see KeyA", keyB, arb.getMetaKey());
 
@@ -427,7 +427,9 @@ public class TestTrack extends TestEngineBase {
         int i = 0;
         while (i < max) {
             workingDate = workingDate.plusDays(1);
-            assertEquals("Loop count " + i, LogInputBean.LogStatus.OK, mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", workingDate, what + i + "\"}")).getStatus());
+            assertEquals("Loop count " + i,
+                    LogInputBean.LogStatus.OK, mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", workingDate, what + i + "\"}")).
+                    getLogResult().getStatus());
             i++;
         }
 
@@ -467,8 +469,8 @@ public class TestTrack extends TestEngineBase {
         String ahWP = mediationFacade.createHeader(inputBean, null).getMetaKey();
 
         MetaHeader metaHeader = trackService.getHeader(ahWP);
-        LogResultBean firstLog  = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", firstDate, what + 1 + "\"}"));
-        LogResultBean secondLog = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}"));
+        LogResultBean firstLog  = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", firstDate, what + 1 + "\"}")).getLogResult();
+        LogResultBean secondLog = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}")).getLogResult();
         assertNotSame(0l, firstLog.getWhatLog().getTrackLog().getFortressWhen());
         assertNotSame(0l, secondLog.getWhatLog().getTrackLog().getFortressWhen());
         Set<TrackLog> logs = trackService.getLogs(fortress.getCompany(), metaHeader.getMetaKey());
@@ -549,10 +551,10 @@ public class TestTrack extends TestEngineBase {
 
         // Check that TimeZone information is used to correctly establish Now when not passed in a log
         // No Date, so default to NOW in the Fortress Timezone
-        LogResultBean log = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", null, what + 1 + "\"}"));
+        LogResultBean log = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", null, what + 1 + "\"}")).getLogResult();
         logger.info("1 " + new Date(log.getSysWhen()).toString());
 
-        log = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", null, what + 2 + "\"}"));
+        log = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", null, what + 2 + "\"}")).getLogResult();
         logger.info("2 " + new Date(log.getSysWhen()).toString());
 
         Set<TrackLog> logs = trackService.getLogs(metaHeader.getId());
@@ -560,7 +562,7 @@ public class TestTrack extends TestEngineBase {
 
         // Same date should still log
         DateTime dateMidnight = new DateTime();
-        log = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", dateMidnight.toDateTime(), what + 3 + "\"}"));
+        log = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", dateMidnight.toDateTime(), what + 3 + "\"}")).getLogResult();
         logger.info("3 " + new Date(log.getSysWhen()).toString());
         TrackLog thirdLog = trackService.getLastLog(ahWP);
         mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", dateMidnight.toDateTime(), what + 4 + "\"}"));

@@ -82,7 +82,7 @@ public class TestTxReference extends TestEngineBase{
         String cbaKey = mediationFacade.createHeader(cbaHeader, null).getMetaKey();
 
         LogInputBean cbaLog = new LogInputBean(cbaKey, "charlie", DateTime.now(), escJsonA, true);
-        assertEquals("CBA Logger Not Created", LogInputBean.LogStatus.OK, mediationFacade.processLog(cbaLog).getStatus());
+        assertEquals("CBA Logger Not Created", LogInputBean.LogStatus.OK, mediationFacade.processLog(cbaLog).getLogResult().getStatus());
         String cbaTxRef = cbaLog.getTxRef();
         assertNotNull(cbaTxRef);
 
@@ -122,7 +122,7 @@ public class TestTxReference extends TestEngineBase{
         //assertEquals(1, header.getTxTags().size());
         LogInputBean alb = new LogInputBean(key, "charlie", DateTime.now(), escJsonA, null, tagRef);
         assertTrue(alb.isTransactional());
-        String albTxRef = mediationFacade.processLog(alb).getTxReference();
+        String albTxRef = mediationFacade.processLog(alb).getLogResult().getTxReference();
 
         alb = new LogInputBean(key, "harry", DateTime.now(), escJsonB);
 
@@ -145,7 +145,7 @@ public class TestTxReference extends TestEngineBase{
         alb.setTxRef("");
         assertNull("Should be Null if it is blank", alb.getTxRef());
         assertTrue(alb.isTransactional());
-        LogResultBean arb = mediationFacade.processLog(alb);
+        LogResultBean arb = mediationFacade.processLog(alb).getLogResult();
         String txEnd = arb.getTxReference();
         assertNotNull(txEnd);
         assertNotSame(txEnd, txStart);
@@ -181,7 +181,7 @@ public class TestTxReference extends TestEngineBase{
         assertNotNull(header);
         LogInputBean alb = new LogInputBean(key, "charlie", DateTime.now(), escJsonA, null, tagRef);
         assertTrue(alb.isTransactional());
-        String albTxRef = mediationFacade.processLog(alb).getTxReference();
+        String albTxRef = mediationFacade.processLog(alb).getLogResult().getTxReference();
 
         alb = new LogInputBean(key, "harry", DateTime.now(), escJsonB);
 

@@ -23,7 +23,6 @@ import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.service.MediationFacade;
 import com.auditbucket.engine.service.TrackService;
 import com.auditbucket.engine.service.WhatService;
-import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
@@ -70,7 +69,6 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -462,7 +460,7 @@ public class TestABIntegration {
         TrackResultBean indexedResult = mediationFacade.createHeader(inputBean, su.getApiKey());
         MetaHeader indexHeader = trackService.getHeader(su.getCompany(), indexedResult.getMetaKey());
 
-        LogResultBean resultBean = mediationFacade.processLog(su.getCompany(), new LogInputBean(indexHeader.getMetaKey(), "olivia@sunnybell.com", new DateTime(), escJson + "\"andy\"}"));
+        LogResultBean resultBean = mediationFacade.processLog(su.getCompany(), new LogInputBean(indexHeader.getMetaKey(), "olivia@sunnybell.com", new DateTime(), escJson + "\"andy\"}")).getLogResult();
         junit.framework.Assert.assertNotNull(resultBean);
 
         waitForHeaderToUpdate(indexHeader, su.getApiKey());
@@ -502,7 +500,7 @@ public class TestABIntegration {
         assertNotNull(tags);
         assertEquals(1, tags.size());
 
-        LogResultBean resultBean = mediationFacade.processLog(new LogInputBean(indexHeader.getMetaKey(), "olivia@sunnybell.com", new DateTime(), escJson + "\"andy\"}"));
+        LogResultBean resultBean = mediationFacade.processLog(new LogInputBean(indexHeader.getMetaKey(), "olivia@sunnybell.com", new DateTime(), escJson + "\"andy\"}")).getLogResult();
         assertNotNull(resultBean);
 
         waitForHeaderToUpdate(indexHeader, su.getApiKey());
@@ -529,7 +527,7 @@ public class TestABIntegration {
 
         doEsTermQuery(metaHeader.getIndexName(), MetaSearchSchema.WHAT+".house", "house1", 1); // First log
 
-        LogResultBean secondLog = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}"));
+        LogResultBean secondLog = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}")).getLogResult();
         assertNotSame(0l, secondLog.getWhatLog().getTrackLog().getFortressWhen());
         Set<TrackLog> logs = trackService.getLogs(fortress.getCompany(), metaHeader.getMetaKey());
         assertEquals(2, logs.size());
@@ -771,8 +769,10 @@ public class TestABIntegration {
         }
         return null;
     }
-    private void createLog(String simpleJson, TrackResultBean arb, int log) throws DatagioException, IOException {
+    private void createLog(String simpleJson, TrackResultBean arb, int log) throws Exception {
         mediationFacade.processLog(new LogInputBean(arb.getMetaKey(), "olivia@sunnybell.com", new DateTime(), simpleJson + log + "}"));
+//        junit.framework.Assert.assertNotNull(logResult);
+//        waitForALog(arb.getMetaHeader(), null);
     }
 
     private void validateLogsIndexed(ArrayList<Long> list, int auditMax, int expectedLogCount) throws Exception {
