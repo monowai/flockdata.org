@@ -331,6 +331,8 @@ public class TrackService {
         else
             input.setStatus(LogInputBean.LogStatus.OK);
 
+        // Trying to fix Unable to delete relationship exception which *i think* is down to stale header.
+        authorisedHeader=getHeader(authorisedHeader.getFortress().getCompany(), authorisedHeader.getMetaKey());
         // This call also saves the header
         TrackLog newLog = trackDao.addLog(authorisedHeader, thisLog, fortressWhen, existingLog);
         resultBean.setSysWhen(newLog.getSysWhen());
