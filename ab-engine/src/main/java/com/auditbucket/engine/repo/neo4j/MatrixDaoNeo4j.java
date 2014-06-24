@@ -29,6 +29,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
     @Override
     public MatrixResults getMatrix(Company company, MatrixInputBean input) {
 
+        // Buggy query - see DAT-109
         String docIndexes = NeoSyntaxHelper.getLabels(input.getDocuments());
         String concepts = NeoSyntaxHelper.getConcepts(input.getConcepts());
         String fromRlx = NeoSyntaxHelper.getRelationships(input.getFromRlxs());

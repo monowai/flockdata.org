@@ -34,6 +34,8 @@ public class NeoSyntaxHelper {
         if (values == null || values.isEmpty())
             return ":_MetaHeader";
         // create a neo4j label index
+        // DAT-109
+        // ToDo: match (a) where a:AB or a:MDL return a;
         return getNeoString(":", values, " ");
     }
 
