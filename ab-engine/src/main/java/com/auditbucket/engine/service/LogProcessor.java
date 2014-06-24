@@ -134,6 +134,7 @@ public class LogProcessor {
             public Command execute() throws DatagioException, IOException {
                 LogResultBean logResult = trackService.writeLog(company, metaKey, resultBean);
                 result = new TrackResultBean(logResult, resultBean.getLog());
+                result.setMetaInputBean(resultBean.getMetaInputBean());
                 if ( result.getLogResult().getStatus()== LogInputBean.LogStatus.NOT_FOUND)
                     throw new DatagioException("Unable to find MetaHeader ");
                 whatService.doKvWrite(result); //ToDo: Consider KV not available. How to write the logs
