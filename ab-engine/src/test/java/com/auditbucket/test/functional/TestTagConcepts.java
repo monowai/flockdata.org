@@ -92,6 +92,8 @@ public class TestTagConcepts extends TestEngineBase {
         validateConcepts("DocB", su, 1);
         validateConcepts("DocA", su, 1);
 
+        Assert.assertEquals("Docs In Use not supporting 'null args' for fortress'", 3, queryEP.getDocumentsInUse(null, su.getApiKey(), su.getApiKey()).size());
+
     }
 
     @Test
@@ -210,6 +212,7 @@ public class TestTagConcepts extends TestEngineBase {
 
             }
         }
+        Assert.assertEquals("Docs In Use not supporting 'null args'", 2,queryEP.getRelationships(null, su.getApiKey(), su.getApiKey()).size());
     }
 
     private Collection<String> validateConcepts(String document, SystemUser su, int expected) throws Exception{

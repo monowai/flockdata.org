@@ -22,6 +22,7 @@ package com.auditbucket.engine.repo.neo4j.model;
 import com.auditbucket.registration.model.Relationship;
 import com.auditbucket.track.model.Concept;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;
@@ -74,6 +75,7 @@ public class ConceptNode implements Concept {
         relationships.add(node);
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Collection<Relationship> getRelationships() {
         return relationships;
     }
