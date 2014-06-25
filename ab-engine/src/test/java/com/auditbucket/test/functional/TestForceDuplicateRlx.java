@@ -26,11 +26,12 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
-import org.apache.commons.lang.time.StopWatch;
+
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StopWatch;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -88,20 +89,20 @@ public class TestForceDuplicateRlx extends TestEngineBase {
                 } // Logs created
                 audit++;
             } // Audit headers finished with
-            watch.split();
-            double fortressRunTime = (watch.getSplitTime() - auditSleepCount) / 1000d;
-            logger.info("*** " + iFortress.getName() + " took " + fortressRunTime + "  avg processing time for [" + requests + "] RPS= " + f.format(fortressRunTime / requests) + ". Requests per second " + f.format(requests / fortressRunTime));
+//            watch.split();
+//            double fortressRunTime = (watch.getSplitTime() - auditSleepCount) / 1000d;
+//            logger.info("*** " + iFortress.getName() + " took " + fortressRunTime + "  avg processing time for [" + requests + "] RPS= " + f.format(fortressRunTime / requests) + ". Requests per second " + f.format(requests / fortressRunTime));
 
-            splitTotals = splitTotals + fortressRunTime;
+//            splitTotals = splitTotals + fortressRunTime;
             totalRows = totalRows + requests;
-            watch.reset();
-            watch.start();
+//            watch.reset();
+//            watch.start();
             list.add(iFortress.getId());
             fortress++;
         }
 
         logger.info("*** Created data set in " + f.format(splitTotals) + " fortress avg = " + f.format(splitTotals / fortressMax) + " avg processing time per request " + f.format(splitTotals / totalRows) + ". Requests per second " + f.format(totalRows / splitTotals));
-        watch.reset();
+//        watch.reset();
     }
     private void createLog(String simpleJson, MetaInputBean aib, TrackResultBean arb, int log) throws DatagioException, IOException {
         trackEP.trackLog(new LogInputBean(arb.getMetaKey(), aib.getFortressUser(), new DateTime(), simpleJson + log + "}"), null, null);

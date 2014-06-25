@@ -37,8 +37,8 @@
         <!--Default properties for test. integration over http and Neo4J running embedded-->
         <ab.integration>http</ab.integration>
         <neo4j>java</neo4j>
-        <org.springdata.neo4j>3.1.0.RELEASE</org.springdata.neo4j>
-        <neo4j.version>2.0.3</neo4j.version>
+        <org.springdata.neo4j>3.2.0.BUILD-SNAPSHOT</org.springdata.neo4j>
+        <neo4j.version>2.1.2</neo4j.version>
     </properties>
 
     <dependencies>
@@ -75,14 +75,6 @@
                     <groupId>ch.qos.logback</groupId>
                     <artifactId>logback-access</artifactId>
                 </exclusion>
-                <!--<exclusion>-->
-                    <!--<groupId>javax.servlet</groupId>-->
-                    <!--<artifactId>javax.servlet-api</artifactId>-->
-                <!--</exclusion>-->
-                <!--<exclusion>-->
-                    <!--<artifactId>javax.servlet</artifactId>-->
-                    <!--<groupId>org.eclipse.jetty.orbit</groupId>-->
-                <!--</exclusion>-->
             </exclusions>
         </dependency>
 
@@ -99,39 +91,6 @@
                     <groupId>ch.qos.logback</groupId>
                     <artifactId>logback-access</artifactId>
                 </exclusion>
-                <!--<exclusion>-->
-                <!--<groupId>javax.servlet</groupId>-->
-                <!--<artifactId>javax.servlet-api</artifactId>-->
-                <!--</exclusion>-->
-                <!--<exclusion>-->
-                <!--<artifactId>javax.servlet</artifactId>-->
-                <!--<groupId>org.eclipse.jetty.orbit</groupId>-->
-                <!--</exclusion>-->
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.neo4j.app</groupId>
-            <artifactId>neo4j-server</artifactId>
-            <version>${neo4j.version}</version>
-            <classifier>static-web</classifier>
-            <exclusions>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-classic</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-access</artifactId>
-                </exclusion>
-                <!--<exclusion>-->
-                <!--<groupId>javax.servlet</groupId>-->
-                <!--<artifactId>javax.servlet-api</artifactId>-->
-                <!--</exclusion>-->
-                <!--<exclusion>-->
-                <!--<artifactId>javax.servlet</artifactId>-->
-                <!--<groupId>org.eclipse.jetty.orbit</groupId>-->
-                <!--</exclusion>-->
             </exclusions>
         </dependency>
 
