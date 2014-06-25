@@ -70,4 +70,10 @@ public interface DocumentTypeRepo extends GraphRepository<DocumentTypeNode> {
                     "       return doc")
     Set<DocumentType> findDocuments(Company company, Collection<String> documents);
 
+    @Query(elementClass = DocumentTypeNode.class,
+            value = "MATCH (company:ABCompany) -[:OWNS]->(fortress:_Fortress)<-[:FORTRESS_DOC]-(doc:_DocType) " +
+                    "        where id(company)={0} " +
+                    "       return doc")
+    Set<DocumentType> findAllDocuments(Company company);
+
 }

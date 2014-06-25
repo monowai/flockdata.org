@@ -105,7 +105,7 @@ public class QueryEP {
 
     @ResponseBody
     @RequestMapping(value = "/documents/", method = RequestMethod.POST)
-    public Collection<DocumentType> getDocumentsInUse(@RequestBody Collection<String> fortresses, String apiKey,
+    public Collection<DocumentType> getDocumentsInUse(@RequestBody (required = false) Collection<String> fortresses, String apiKey,
                                                 @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
 
         Company abCompany = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
@@ -114,7 +114,7 @@ public class QueryEP {
 
     @ResponseBody
     @RequestMapping(value = "/concepts/", method = RequestMethod.POST)
-    public Set<DocumentType> getConcepts(@RequestBody Collection<String> documents, String apiKey,
+    public Set<DocumentType> getConcepts(@RequestBody (required = false) Collection<String> documents, String apiKey,
                                     @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company abCompany = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
         return queryService.getConcepts(abCompany, documents);
@@ -122,7 +122,7 @@ public class QueryEP {
 
     @ResponseBody
     @RequestMapping(value = "/relationships/", method = RequestMethod.POST)
-    public Set<DocumentType> getRelationships(@RequestBody Collection<String> documents, String apiKey,
+    public Set<DocumentType> getRelationships(@RequestBody(required = false) Collection<String> documents, String apiKey,
                                                @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company abCompany = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
 

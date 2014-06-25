@@ -211,10 +211,10 @@ public class SchemaDaoNeo4j implements SchemaDao {
                         if (existingR == null) {
                             save = true;
                             existingConcept.addRelationship(relationship);
-                            logger.debug("Creating {} concept for{}",relationship, existingConcept);
+                            logger.debug("Creating {} concept for{}", relationship, existingConcept);
                         }
                     }
-                    if ( save ){
+                    if (save) {
                         documentTypeNode.add(existingConcept);
                         logger.debug("Creating concept {}", existingConcept);
                     }
@@ -228,7 +228,12 @@ public class SchemaDaoNeo4j implements SchemaDao {
 
     @Override
     public Set<DocumentType> findConcepts(Company company, Collection<String> docNames, boolean withRelationships) {
-        Set<DocumentType> documents = documentTypeRepo.findDocuments(company, docNames);
+        Set<DocumentType> documents;
+        if (docNames == null)
+            documents = documentTypeRepo.findAllDocuments(company);
+        else
+            documents = documentTypeRepo.findDocuments(company, docNames);
+
         for (DocumentType document : documents) {
             template.fetch(document.getConcepts());
             if (withRelationships) {

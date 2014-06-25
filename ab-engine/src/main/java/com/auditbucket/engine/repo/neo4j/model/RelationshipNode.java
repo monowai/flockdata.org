@@ -20,6 +20,7 @@
 package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.registration.model.Relationship;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.NodeEntity;
@@ -49,6 +50,7 @@ public class RelationshipNode implements Relationship, Comparable<RelationshipNo
         return id;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getName() {
         return name;
     }
