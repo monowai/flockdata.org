@@ -29,16 +29,23 @@ public class MatrixDaoNeo4j implements MatrixDao {
     @Override
     public MatrixResults getMatrix(Company company, MatrixInputBean input) {
 
-        // Buggy query - see DAT-109
-        String docIndexes = NeoSyntaxHelper.getLabels(input.getDocuments());
-        String concepts = NeoSyntaxHelper.getConcepts(input.getConcepts());
+        // DAT-109 enhancements
+        String docIndexes = NeoSyntaxHelper.getLabels("meta", input.getDocuments());
+        String conceptsFrom = NeoSyntaxHelper.getConcepts("tag1", input.getConcepts());
+        String conceptsTo = NeoSyntaxHelper.getConcepts("tag2", input.getConcepts());
         String fromRlx = NeoSyntaxHelper.getRelationships(input.getFromRlxs());
         String toRlx = NeoSyntaxHelper.getRelationships(input.getToRlxs());
-
+        String conceptString = "";
+        if (!conceptsFrom.equals(""))
+            conceptString = "where ("+ conceptsFrom +")";
+        if (!conceptsTo.equals("")) {
+            conceptString = conceptString + " and ( "+ conceptsTo +") " ;
+        }
         //ToDo: Restrict metaHeaders by Company
-        String query = "match (meta" + docIndexes + ") " +
-                "with meta\n" +
-                "match t=(tag1" + concepts + ")-[" + fromRlx + "]->(meta)<-[" + toRlx + "]-(tag2" + concepts + ") " +     // Concepts
+        String query = "match (meta:MetaHeader) "+(!docIndexes.equals(":_MetaHeader")? "where  " + docIndexes:"")+
+                " with meta " +
+                "match t=(tag1:_Tag)-[" + fromRlx + "]->(meta)<-[" + toRlx + "]-(tag2:_Tag) " +     // Concepts
+                conceptString+
                 "with tag1.name as tag1, tag2.name as tag2, count(t) as links " +
                 "order by links desc, tag2 " +
                 "where links >={linkCount} " +
