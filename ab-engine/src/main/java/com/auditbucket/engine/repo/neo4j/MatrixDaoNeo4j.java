@@ -41,8 +41,9 @@ public class MatrixDaoNeo4j implements MatrixDao {
         if (!conceptsTo.equals("")) {
             conceptString = conceptString + " and ( "+ conceptsTo +") " ;
         }
+        boolean docFilter = !(docIndexes.equals(":_MetaHeader") || docIndexes.equals(""));
         //ToDo: Restrict metaHeaders by Company
-        String query = "match (meta:MetaHeader) "+(!docIndexes.equals(":_MetaHeader")? "where  " + docIndexes:"")+
+        String query = "match (meta:MetaHeader) "+(docFilter? "where  " + docIndexes:"")+
                 " with meta " +
                 "match t=(tag1:_Tag)-[" + fromRlx + "]->(meta)<-[" + toRlx + "]-(tag2:_Tag) " +     // Concepts
                 conceptString+
