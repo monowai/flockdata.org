@@ -114,6 +114,8 @@ public class QueryResults  extends TestEngineBase {
         results = queryEP.getMatrixResult(input, su.getApiKey(), su.getApiKey());
         // Though peas is recorded against both A matrix ignores occurrence with the same "concept". If both had Peas, then a Peas-Potatoes would be returned
         assertEquals("Vegetable should has no co-occurrence", 0, results.getResults().size());
+
+
     }
 
 
