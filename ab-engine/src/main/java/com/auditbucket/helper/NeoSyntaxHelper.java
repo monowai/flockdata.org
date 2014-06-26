@@ -30,38 +30,40 @@ import java.util.Collection;
  */
 public class NeoSyntaxHelper {
 
-    public static String getLabels(Collection<String> values) {
+    public static String getLabels(String columnName, Collection<String> values) {
         if (values == null || values.isEmpty())
             return ":_MetaHeader";
         // create a neo4j label index
         // DAT-109
-        // ToDo: match (a) where a:AB or a:MDL return a;
-        return getNeoString(":", values, " ");
+        return getNeoString(columnName, ":", values, " or ");
     }
 
-    public static String getConcepts(Collection<String> values) {
-        if ( values ==null || values.isEmpty())
-            return Tag.DEFAULT;
-        return getNeoString(":", values, " ");
+    public static String getConcepts(String columnName, Collection<String> values) {
+        if (values == null || values.isEmpty())
+            return "";
+        // Based on neo4j label index, but no default. Filters on Tags
+        // DAT-109
+        return getNeoString(columnName, ":", values, " or ");
+
     }
 
     public static String getRelationships(Collection<String> values) {
         if ( values ==null || values.isEmpty())
             return "";
-        return getNeoString(":", values, " |");
+        return ":"+getNeoString(null, ":", values, " |");
     }
 
-    private static String getNeoString(String delimiter, Collection<String> input, String join) {
-        String result = (delimiter.equals(":")? ":": "");
-        for (String s : input) {
-            if ( s != null ) {
-                if ( s.contains(" ") | s.contains("-"))
-                    s = "`"+s+"`" ;
+    private static String getNeoString(String columnName, String delimiter, Collection<String> input, String join) {
+        String result = "";//(delimiter.equals(":")? ":": "");
+        for (String field : input) {
+            if ( field != null ) {
+                if ( field.contains(" ") | field.contains("-"))
+                    field = "`"+ field +"`" ;
 
                 if ( result.equals(delimiter) || result.equals(""))
-                    result = result + s+"";
+                    result = result + (columnName!=null?columnName+delimiter:"")+ field +"";
                 else
-                    result = result +join+delimiter +s ;
+                    result = result +join+(columnName!=null?columnName:"")+delimiter + field;
             }
         }
         if ( result.equals(delimiter))
