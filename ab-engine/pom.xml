@@ -83,8 +83,8 @@
                     <artifactId>logback-access</artifactId>
                 </exclusion>
                 <exclusion>
-                	<artifactId>javax.servlet</artifactId>
-                	<groupId>org.eclipse.jetty.orbit</groupId>
+                    <artifactId>javax.servlet</artifactId>
+                    <groupId>org.eclipse.jetty.orbit</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -348,11 +348,11 @@
             <version>${stormpath.sdk.version}</version>
             <scope>runtime</scope>
         </dependency>
-		<dependency>
-			<groupId>com.stormpath.spring.security</groupId>
-			<artifactId>stormpath-spring-security-core</artifactId>
-			<version>${stormpath.spring.security.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>com.stormpath.spring.security</groupId>
+            <artifactId>stormpath-spring-security-core</artifactId>
+            <version>${stormpath.spring.security.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>
