@@ -26,7 +26,9 @@
                     http://www.springframework.org/schema/security
                     http://www.springframework.org/schema/security/spring-security-3.2.xsd">
 
-<!-- 
+
+    <!--Simple default configuration -->
+<!--
     <http auto-config="true" use-expressions="true">
         <intercept-url pattern="/v**" access="permitAll"/>
         <http-basic/>
@@ -43,6 +45,9 @@
         </authentication-provider>
     </authentication-manager>
  -->
+    <!--End Simple default configuration -->
+
+    <!--Example StormPath configuration -->
      <!-- When mapping to domain-specific role names (ie. using GroupRoleGrantedAuthorityResolver) -->
     <beans:bean id="groupRoleGrantedAuthoritiesMap" class="java.util.HashMap" scope="prototype" >
         <beans:constructor-arg>
@@ -96,5 +101,7 @@
     <global-method-security pre-post-annotations="enabled" secured-annotations="enabled">
         <expression-handler ref="methodExpressionHandler"/>
     </global-method-security>
- 
+
+    <!--Example StormPath configuration -->
+
 </beans:beans>
