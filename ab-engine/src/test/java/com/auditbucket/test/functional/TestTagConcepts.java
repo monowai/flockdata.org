@@ -89,10 +89,17 @@ public class TestTagConcepts extends TestEngineBase {
         trackEP.trackHeader(input, su.getApiKey(), su.getApiKey()).getBody().getMetaHeader();
         waitAWhile("Concepts creating...");
 
-        validateConcepts("DocB", su, 1);
-        validateConcepts("DocA", su, 1);
-
+        validateConcepts((Collection<String>) null, su, 3); // 3 Doc types.
         Assert.assertEquals("Docs In Use not supporting 'null args' for fortress'", 3, queryEP.getDocumentsInUse(null, su.getApiKey(), su.getApiKey()).size());
+
+        // DAT-112
+        Set<DocumentType> found = validateConcepts("DocA", su, 1);
+        Assert.assertEquals(1, found.size());
+        Assert.assertEquals(1, found.iterator().next().getConcepts().size());
+        found = validateConcepts("DocB", su, 1);
+        Assert.assertEquals(1, found.size());
+        Assert.assertEquals(1, found.iterator().next().getConcepts().size());
+
 
     }
 
@@ -215,20 +222,20 @@ public class TestTagConcepts extends TestEngineBase {
         Assert.assertEquals("Docs In Use not supporting 'null args'", 2,queryEP.getRelationships(null, su.getApiKey(), su.getApiKey()).size());
     }
 
-    private Collection<String> validateConcepts(String document, SystemUser su, int expected) throws Exception{
+    private Set<DocumentType> validateConcepts(String document, SystemUser su, int expected) throws Exception{
         Collection<String>docs = new ArrayList<>();
 
         docs.add(document);
         return validateConcepts(docs, su, expected);
     }
 
-    private Collection<String>validateConcepts(Collection<String> docs, SystemUser su, int expected) throws Exception{
+    private Set<DocumentType> validateConcepts(Collection<String> docs, SystemUser su, int expected) throws Exception{
         Set<DocumentType> concepts = queryEP.getRelationships(docs, su.getApiKey(), su.getApiKey());
         String message = "Collection";
-        if ( docs.size()==1 )
+        if ( docs!=null && docs.size()==1 )
             message = docs.iterator().next();
         assertEquals( message+ " concepts", expected, concepts.size()); // Purchased docTypes
-        return docs;
+        return concepts;
 
     }
 

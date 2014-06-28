@@ -198,26 +198,23 @@ public class SchemaDaoNeo4j implements SchemaDao {
                 //logger.debug("Looking to create [{}]", concept.getName());
                 ConceptNode existingConcept = conceptTypeRepo.findBySchemaPropertyValue("name", concept.getName());
 
-                boolean save = false;
+                boolean save = false; // DAT-112 ensure the DocType has the concept
                 for (String relationship : concept.getRelationships()) {
                     if (existingConcept == null) {
                         logger.debug("No existing concept found for [{}]. Creating it", relationship);
                         existingConcept = new ConceptNode(concept.getName(), relationship);
-                        save = true;
                     } else {
                         logger.trace("Found an existing concept {}", existingConcept);
                         template.fetch(existingConcept.getRelationships());
                         Relationship existingR = existingConcept.hasRelationship(relationship);
                         if (existingR == null) {
-                            save = true;
                             existingConcept.addRelationship(relationship);
                             logger.debug("Creating {} concept for{}", relationship, existingConcept);
                         }
                     }
-                    if (save) {
-                        documentTypeNode.add(existingConcept);
-                        logger.debug("Creating concept {}", existingConcept);
-                    }
+                    // DAT-112 removed save check. ToDo: Room for optimization?
+                    documentTypeNode.add(existingConcept);
+                    logger.debug("Creating concept {}", existingConcept);
                 }
             }
             logger.trace("About to register {} concepts", concepts.size());
