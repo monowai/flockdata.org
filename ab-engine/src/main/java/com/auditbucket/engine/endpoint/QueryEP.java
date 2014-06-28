@@ -125,7 +125,7 @@ public class QueryEP {
     public Set<DocumentType> getRelationships(@RequestBody(required = false) Collection<String> documents, String apiKey,
                                                @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company abCompany = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
-
+        // Todo: DAT-100 Sherry's comment. Should be Concepts, not Doc Types
         return queryService.getConcepts(abCompany, documents, true);
     }
 
