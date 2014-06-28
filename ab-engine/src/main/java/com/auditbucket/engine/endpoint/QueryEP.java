@@ -85,7 +85,7 @@ public class QueryEP {
 
     @ResponseBody
     @RequestMapping(value = "/matrix/", method = RequestMethod.POST)
-    public MatrixResults getMatrixResult(@PathVariable("metaHeader") MatrixInputBean matrixInput,
+    public MatrixResults getMatrixResult(@RequestBody MatrixInputBean matrixInput,
                                          String apiKey,
                                          @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
