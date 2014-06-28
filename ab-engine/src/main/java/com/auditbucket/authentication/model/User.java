@@ -16,7 +16,6 @@ public class User implements Serializable {
 	private String userEmail;
 	private String status;
 	private List<String> userRoles = new ArrayList<String>();
-	private String apiKeyId;
 	private String apiKey;
 
 	public String getUserId() {
@@ -41,14 +40,6 @@ public class User implements Serializable {
 
 	public void setUserEmail(String userEmail) {
 		this.userEmail = userEmail;
-	}
-
-	public String getApiKeyId() {
-		return apiKeyId;
-	}
-
-	public void setApiKeyId(String apiKeyId) {
-		this.apiKeyId = apiKeyId;
 	}
 
 	public String getApiKey() {
