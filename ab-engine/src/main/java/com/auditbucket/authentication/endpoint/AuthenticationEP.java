@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.auditbucket.authentication.model.User;
+import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.service.SystemUserService;
 import com.stormpath.spring.security.provider.StormpathUserDetails;
 
 @Controller
@@ -33,7 +35,10 @@ public class AuthenticationEP {
 	@Qualifier("authenticationManager")
 	AuthenticationManager authenticationManager;
 
-	@RequestMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
+    @Autowired
+    private SystemUserService systemUserService;
+
+    @RequestMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<User> handleLogin(
 			@RequestParam("j_username") String userName,
@@ -60,6 +65,12 @@ public class AuthenticationEP {
 					loggedInUser.addUserRole(roles.next().getAuthority());
 				}
 			}
+			
+			SystemUser sysUser = systemUserService.findByLogin(userName);
+			if(sysUser != null) {
+				loggedInUser.setApiKey(sysUser.getApiKey());
+			}
+			
 			return new ResponseEntity<User>(loggedInUser, HttpStatus.OK);
 		} catch (BadCredentialsException e) {
 			return new ResponseEntity<User>(HttpStatus.UNAUTHORIZED);
