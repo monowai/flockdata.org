@@ -34,7 +34,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
         String conceptsFrom = NeoSyntaxHelper.getConcepts("tag1", input.getConcepts());
         String conceptsTo = NeoSyntaxHelper.getConcepts("tag2", input.getConcepts());
         String fromRlx = NeoSyntaxHelper.getRelationships(input.getFromRlxs());
-        String toRlx = NeoSyntaxHelper.getRelationships(input.getToRlxs());
+        String toRlx = NeoSyntaxHelper.getRelationships(input.getToRlxs()); // ToDo: Can we have diff from and too?
         String conceptString = "";
         if (!conceptsFrom.equals(""))
             conceptString = "where ("+ conceptsFrom +")";
@@ -43,9 +43,9 @@ public class MatrixDaoNeo4j implements MatrixDao {
         }
         boolean docFilter = !(docIndexes.equals(":_MetaHeader") || docIndexes.equals(""));
         //ToDo: Restrict metaHeaders by Company
-        String query = "match (meta:MetaHeader) "+(docFilter? "where  " + docIndexes:"")+
+        String query = "match (meta:MetaHeader) "+(docFilter? "where  " + docIndexes: "")+
                 " with meta " +
-                "match t=(tag1:_Tag)-[" + fromRlx + "]->(meta)<-[" + toRlx + "]-(tag2:_Tag) " +     // Concepts
+                "match t=(tag1:_Tag)-[" + fromRlx + "]-(meta)-[" + toRlx + "]-(tag2:_Tag) " +     // Concepts
                 conceptString+
                 "with tag1.name as tag1, tag2.name as tag2, count(t) as links " +
                 "order by links desc, tag2 " +

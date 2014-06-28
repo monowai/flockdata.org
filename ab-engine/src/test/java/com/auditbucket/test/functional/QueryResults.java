@@ -95,6 +95,7 @@ public class QueryResults  extends TestEngineBase {
         int fruitCount = 5, things = 2;
         MatrixResults results = queryEP.getMatrixResult(input, su.getApiKey(), su.getApiKey());
         assertFalse(results.getResults().isEmpty());
+        assertEquals(4+(4*4), results.getResults().size());
         int cCount = 5;
         // ToDo: How to assert it worked!
 
@@ -115,6 +116,16 @@ public class QueryResults  extends TestEngineBase {
         // Though peas is recorded against both A matrix ignores occurrence with the same "concept". If both had Peas, then a Peas-Potatoes would be returned
         assertEquals("Vegetable should has no co-occurrence", 0, results.getResults().size());
 
+        concepts.clear();
+        concepts.add(FRUIT);
+        ArrayList<String>filter = new ArrayList<>();
+        filter.add("allergic");
+        filter.add("dislikes");
+
+        input.setFromRlxs(filter);
+        input.setToRlxs(filter);
+        results = queryEP.getMatrixResult(input, su.getApiKey(), su.getApiKey());
+        assertFalse(results.getResults().isEmpty());
 
     }
 
