@@ -1,7 +1,5 @@
 package com.auditbucket.authentication.endpoint;
 
-import java.util.Iterator;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +11,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,9 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.auditbucket.authentication.model.LoginRequest;
 import com.auditbucket.authentication.model.User;
-import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.registration.service.SystemUserService;
-import com.stormpath.spring.security.provider.StormpathUserDetails;
+import com.auditbucket.authentication.service.UserProfileService;
 
 @Controller
 public class AuthenticationEP {
@@ -37,7 +32,7 @@ public class AuthenticationEP {
 	AuthenticationManager authenticationManager;
 
     @Autowired
-    private SystemUserService systemUserService;
+    private UserProfileService userProfileService;
 
     @RequestMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
 	@ResponseBody
@@ -50,28 +45,9 @@ public class AuthenticationEP {
 		try {
 			Authentication auth = authenticationManager.authenticate(token);
 			SecurityContextHolder.getContext().setAuthentication(auth);
-			StormpathUserDetails stormpathUser = (StormpathUserDetails) auth.getPrincipal();
+			User user = userProfileService.getUser(auth);
 			
-			logger.info("User Properties - " + stormpathUser.getProperties());
-			logger.info("Authorities - " + auth.getAuthorities());
-			
-			User user = new User();
-			user.setUserId(username);
-			user.setUserName(stormpathUser.getUsername());
-			user.setUserEmail(stormpathUser.getProperties().get("email"));
-			user.setStatus(stormpathUser.getProperties().get("status"));
-			
-			if(!auth.getAuthorities().isEmpty()) {
-				Iterator<? extends GrantedAuthority> roles = auth.getAuthorities().iterator();
-				while(roles.hasNext()) {
-					user.addUserRole(roles.next().getAuthority());
-				}
-			}
-			
-			SystemUser sysUser = systemUserService.findByLogin(username);
-			if(sysUser != null) {
-				user.setApiKey(sysUser.getApiKey());
-			}
+			logger.info("User profile - " + user);
 			
 			return new ResponseEntity<User>(user, HttpStatus.OK);
 		} catch (BadCredentialsException e) {
