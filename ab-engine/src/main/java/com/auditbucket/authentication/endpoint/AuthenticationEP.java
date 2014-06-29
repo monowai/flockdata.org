@@ -16,11 +16,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.auditbucket.authentication.model.LoginRequest;
 import com.auditbucket.authentication.model.User;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.SystemUserService;
@@ -40,38 +41,39 @@ public class AuthenticationEP {
 
     @RequestMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<User> handleLogin(
-			@RequestParam("j_username") String userName,
-			@RequestParam("j_password") String password) throws Exception {
+	public ResponseEntity<User> handleLogin(@RequestBody LoginRequest loginRequest) throws Exception {
+		String username = loginRequest.getUsername();
+		String password = loginRequest.getPassword();
+		
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				userName, password);
+				username, password);
 		try {
 			Authentication auth = authenticationManager.authenticate(token);
 			SecurityContextHolder.getContext().setAuthentication(auth);
-			StormpathUserDetails user = (StormpathUserDetails) auth.getPrincipal();
+			StormpathUserDetails stormpathUser = (StormpathUserDetails) auth.getPrincipal();
 			
-			logger.info("User Properties - " + user.getProperties());
+			logger.info("User Properties - " + stormpathUser.getProperties());
 			logger.info("Authorities - " + auth.getAuthorities());
 			
-			User loggedInUser = new User();
-			loggedInUser.setUserId(user.getProperties().get("href"));
-			loggedInUser.setUserName(user.getUsername());
-			loggedInUser.setUserEmail(user.getProperties().get("email"));
-			loggedInUser.setStatus(user.getProperties().get("status"));
+			User user = new User();
+			user.setUserId(username);
+			user.setUserName(stormpathUser.getUsername());
+			user.setUserEmail(stormpathUser.getProperties().get("email"));
+			user.setStatus(stormpathUser.getProperties().get("status"));
 			
 			if(!auth.getAuthorities().isEmpty()) {
 				Iterator<? extends GrantedAuthority> roles = auth.getAuthorities().iterator();
 				while(roles.hasNext()) {
-					loggedInUser.addUserRole(roles.next().getAuthority());
+					user.addUserRole(roles.next().getAuthority());
 				}
 			}
 			
-			SystemUser sysUser = systemUserService.findByLogin(userName);
+			SystemUser sysUser = systemUserService.findByLogin(username);
 			if(sysUser != null) {
-				loggedInUser.setApiKey(sysUser.getApiKey());
+				user.setApiKey(sysUser.getApiKey());
 			}
 			
-			return new ResponseEntity<User>(loggedInUser, HttpStatus.OK);
+			return new ResponseEntity<User>(user, HttpStatus.OK);
 		} catch (BadCredentialsException e) {
 			return new ResponseEntity<User>(HttpStatus.UNAUTHORIZED);
 		}
