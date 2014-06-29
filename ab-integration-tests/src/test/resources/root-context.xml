@@ -66,6 +66,20 @@
     <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
           p:configLocation="classpath:/ehcache.xml"/>
 
+    <!-- Generic cache manager based on the JDK ConcurrentMap -->
+    <bean id="stormpathcacheManager" class="org.springframework.cache.support.SimpleCacheManager">
+        <property name="caches">
+            <set>
+                <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="com.stormpath.sdk.application.Application" />
+                <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="com.stormpath.sdk.account.Account" />
+                <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="com.stormpath.sdk.group.Group" />
+                <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="com.stormpath.sdk.directory.CustomData" />
+            </set>
+        </property>
+    </bean>
+
+    <cache:annotation-driven cache-manager="stormpathcacheManager" />
+
 	<bean id="userProfileService" class="com.auditbucket.authentication.service.StormpathUserProfile"/>
 
 </beans>
