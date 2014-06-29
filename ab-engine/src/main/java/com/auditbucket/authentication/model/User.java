@@ -15,6 +15,7 @@ public class User implements Serializable {
 	private String userName;
 	private String userEmail;
 	private String status;
+	private String company;
 	private List<String> userRoles = new ArrayList<String>();
 	private String apiKey;
 
@@ -71,6 +72,14 @@ public class User implements Serializable {
 		return "User [userId=" + userId + ", userName=" + userName
 				+ ", userEmail=" + userEmail + ", status=" + status
 				+ ", userRoles=" + userRoles + ", apiKey=" + apiKey + "]";
+	}
+
+	public String getCompany() {
+		return company;
+	}
+
+	public void setCompany(String company) {
+		this.company = company;
 	}
 
 	
