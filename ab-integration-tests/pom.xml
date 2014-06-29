@@ -32,6 +32,10 @@
 
     <properties>
         <neo4j.version>2.1.2</neo4j.version>
+<<<<<<< HEAD
+=======
+        <!--<org.springdata.neo4j>3.1.1.RELEASE</org.springdata.neo4j>-->
+>>>>>>> Fix failing integration tests
         <stormpath.sdk.version>0.9.2</stormpath.sdk.version>
         <stormpath.spring.security.version>0.2.0</stormpath.spring.security.version>
     </properties>
