@@ -49,6 +49,7 @@
             <beans:map key-type="java.lang.String" value-type="java.util.List">
             	<beans:entry key="https://api.stormpath.com/v1/groups/3qpEnZ8VpyZLCsiy2XQqGk" value="ROLE_AB_USER" />
             	<beans:entry key="https://api.stormpath.com/v1/groups/324drD4041fjlCvLCBVviw" value="ROLE_AB_ADMIN" />
+            	<beans:entry key="https://api.stormpath.com/v1/groups/1hturKrwIRBs8Tz6y1WD0Q" value="ROLE_AB_ADMIN" />
             </beans:map>
         </beans:constructor-arg>
     </beans:bean>
