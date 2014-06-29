@@ -79,4 +79,6 @@
 
     <cache:annotation-driven cache-manager="stormpathcacheManager" />
 
+	<bean id="userProfileService" class="com.auditbucket.authentication.service.StormpathUserProfile"/>
+	
 </beans>

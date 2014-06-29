@@ -66,4 +66,12 @@ public class User implements Serializable {
 		return this.userRoles.toArray();
 	}
 
+	@Override
+	public String toString() {
+		return "User [userId=" + userId + ", userName=" + userName
+				+ ", userEmail=" + userEmail + ", status=" + status
+				+ ", userRoles=" + userRoles + ", apiKey=" + apiKey + "]";
+	}
+
+	
 }
