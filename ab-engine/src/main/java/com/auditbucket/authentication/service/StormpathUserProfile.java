@@ -46,6 +46,7 @@ public class StormpathUserProfile implements UserProfileService {
 		SystemUser sysUser = systemUserService.findByLogin(userEmail);
 		if(sysUser != null) {
 			user.setApiKey(sysUser.getApiKey());
+			user.setCompany(sysUser.getCompany().getName());
 		}
 		
 		return user;
