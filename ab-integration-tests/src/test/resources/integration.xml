@@ -89,9 +89,9 @@
 
 
     <!--<bean fortressId="qThreadPoolExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">-->
-    <!--<property name="allowCoreThreadTimeOut" value="true"/>-->
-    <!--<property name="queueCapacity" value="50"/>-->
-    <!--<property name="rejectedExecutionHandler" value="CALLER_RUNS"/>-->
+    <!--<property conceptName="allowCoreThreadTimeOut" value="true"/>-->
+    <!--<property conceptName="queueCapacity" value="50"/>-->
+    <!--<property conceptName="rejectedExecutionHandler" value="CALLER_RUNS"/>-->
     <!--&lt;!&ndash;Was -1&ndash;&gt;-->
     <!--</bean>-->
 

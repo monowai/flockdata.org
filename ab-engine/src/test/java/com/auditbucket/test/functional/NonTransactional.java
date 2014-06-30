@@ -2,17 +2,18 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
-import com.auditbucket.registration.bean.TagInputBean;
+import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.model.CompanyUser;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
-import com.auditbucket.track.model.Concept;
-import com.auditbucket.track.model.DocumentType;
+import com.auditbucket.track.model.LogWhat;
 import com.auditbucket.track.model.MetaHeader;
-import junit.framework.Assert;
+import com.auditbucket.track.model.TrackLog;
 import org.joda.time.DateTime;
+import org.junit.Assert;
 import org.junit.Test;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
@@ -20,14 +21,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.neo4j.support.node.Neo4jHelper;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.springframework.test.util.AssertionErrors.assertTrue;
+import static junit.framework.Assert.*;
 
 /**
  * User: mike
@@ -43,69 +42,6 @@ public class NonTransactional extends TestEngineBase{
         logger.debug("Not cleaning up");
     }
 
-    @Test
-    public void conceptsInUse() throws Exception {
-        Neo4jHelper.cleanDb(template);
-        engineAdmin.setConceptsEnabled(true);
-
-        Transaction t = beginManualTransaction();
-
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike));
-        Assert.assertNotNull(su);
-
-        Fortress fortA = fortressService.registerFortress("fortA");
-
-        DocumentType dType = schemaService.resolveDocType(fortA, "ABC123", true);
-        commitManualTransaction(t);// Should only be only one concept
-
-        Assert.assertNotNull(dType);
-        Long id = dType.getId();
-        dType = schemaService.resolveDocType(fortA, "ABC123", false);
-        Assert.assertEquals(id, dType.getId());
-
-        MetaInputBean input = new MetaInputBean(fortA.getName(), "jinks", "DocA", new DateTime());
-        input.addTag(new TagInputBean("cust123", "purchased").setIndex("Customer"));
-        MetaHeader meta = trackEP.trackHeader(input, su.getApiKey(), su.getApiKey()).getBody().getMetaHeader();
-
-        assertNotNull(trackEP.getMetaHeader(meta.getMetaKey(), su.getApiKey(), su.getApiKey()));
-
-        input = new MetaInputBean(fortA.getName(), "jinks", "DocA", new DateTime());
-        input.addTag(new TagInputBean("cust124", "purchased").setIndex("Customer"));
-
-        trackEP.trackHeader(input, su.getApiKey(), su.getApiKey()).getBody().getMetaHeader();
-        waitAWhile("Concepts creating...");
-
-        Collection<String> docs = new ArrayList<>();
-        docs.add("DocA");
-        Collection<Concept> concepts = queryEP.getConcepts(docs, su.getApiKey(), su.getApiKey());
-        org.junit.Assert.assertNotNull(concepts);
-        assertEquals(1, concepts.size());
-
-        // add a second concept
-        input = new MetaInputBean(fortA.getName(), "jinks", "DocA", new DateTime());
-        input.addTag(new TagInputBean("cust123", "sold").setIndex("Rep"));
-        trackEP.trackHeader(input, su.getApiKey(), su.getApiKey());
-        waitAWhile("Concepts creating...");
-
-        concepts = queryEP.getRelationships(docs, su.getApiKey(), su.getApiKey());
-        assertEquals("Second concept wasn't added", 2, concepts.size());
-
-        Boolean foundCustomer= false, foundRep= false;
-        for (Concept concept : concepts) {
-            if (concept.getName().equals("Customer")){
-                foundCustomer = true;
-                assertEquals(1, concept.getRelationships().size());
-            }
-            if (concept.getName().equals("Rep")) {
-                foundRep = true;
-                assertEquals(1, concept.getRelationships().size());
-            }
-
-        }
-        assertTrue("Didn't find Customer concept", foundCustomer);
-        assertTrue("Didn't find Rep concept", foundRep);
-
-    }
     @Test
     public void multipleFortressUserRequestsThreaded() throws Exception {
         Neo4jHelper.cleanDb(template);
@@ -207,4 +143,8 @@ public class NonTransactional extends TestEngineBase{
             latch.countDown();
         }
     }
+
+
+
+
 }

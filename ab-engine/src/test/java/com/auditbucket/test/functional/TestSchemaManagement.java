@@ -21,11 +21,11 @@ import static org.junit.Assert.*;
  * Date: 3/04/14
  * Time: 9:54 AM
  */
-@Transactional
 public class TestSchemaManagement extends TestEngineBase {
 
     @Test
     public void documentTypesTrackedPerFortress() throws Exception {
+        cleanUpGraph();
         String apiKey = registrationEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody().getApiKey();
 
         Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("auditTestA", true), apiKey, apiKey).getBody();
@@ -52,7 +52,7 @@ public class TestSchemaManagement extends TestEngineBase {
 
     @Test
     public void documentTypesTrackedPerCompany() throws Exception {
-
+        cleanUpGraph();
         String cOtherAPI = registrationEP.registerSystemUser(new RegistrationBean("OtherCo", "harry")).getBody().getApiKey();
 
 
@@ -87,6 +87,7 @@ public class TestSchemaManagement extends TestEngineBase {
 
     @Test
     public void documentTypesWork() throws Exception {
+        cleanUpGraph();
         SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike));
         Fortress fortress = fortressEP.registerFortress(new FortressInputBean("ABC", true), su.getApiKey(), su.getApiKey()).getBody();
 
@@ -102,6 +103,7 @@ public class TestSchemaManagement extends TestEngineBase {
 
     @Test
     public void duplicateDocumentTypes() throws Exception {
+        cleanUpGraph();
         setSecurity(sally);
         SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, sally));
         Assert.assertNotNull(su);

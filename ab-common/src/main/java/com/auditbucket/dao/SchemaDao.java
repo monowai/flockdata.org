@@ -3,7 +3,7 @@ package com.auditbucket.dao;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.track.model.Concept;
+import com.auditbucket.track.bean.ConceptInputBean;
 import com.auditbucket.track.model.DocumentType;
 
 import java.util.Collection;
@@ -30,7 +30,7 @@ public interface SchemaDao {
 
     void ensureSystemIndexes(Company company, String tagSuffix);
 
-    void registerConcepts(Company company, Map<DocumentType, Collection<TagInputBean>> concepts);
+    void registerConcepts(Company company, Map<DocumentType, Collection<ConceptInputBean>> concepts);
 
-    Set<Concept> findConcepts(Company company, Collection<String> documents, boolean withRelationships);
+    Set<DocumentType> findConcepts(Company company, Collection<String> documents, boolean withRelationships);
 }

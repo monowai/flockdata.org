@@ -21,7 +21,7 @@ package com.auditbucket.track.model;
 
 import com.auditbucket.registration.model.Relationship;
 
-import java.util.Set;
+import java.util.Collection;
 
 /**
  * User: mike
@@ -29,11 +29,12 @@ import java.util.Set;
  * Time: 10:16 AM
  */
 public interface Concept {
-    public DocumentType getDocumentType ();
 
     public Long getId();
 
     String getName();
 
-    Set<Relationship> getRelationships();
+    Collection<Relationship> getRelationships();
+
+    void addRelationship(String relationship);
 }

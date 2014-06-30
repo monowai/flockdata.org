@@ -106,6 +106,7 @@ public class TrackEP {
         } else {
             return mediationFacade.createHeaders(company, fortress, inputBeans, inputBeans.size());
         }
+
     }
 
     /**
@@ -138,7 +139,7 @@ public class TrackEP {
         // If we have a valid company we are good to go.
         Company company = getCompany(apiHeaderKey, apiKey);
 
-        LogResultBean resultBean = mediationFacade.processLogForCompany(company, input);
+        LogResultBean resultBean = mediationFacade.processLog(company, input).getLogResult();
         LogInputBean.LogStatus ls = resultBean.getStatus();
         if (ls.equals(LogInputBean.LogStatus.FORBIDDEN))
             return new ResponseEntity<>(resultBean, HttpStatus.FORBIDDEN);
@@ -272,7 +273,9 @@ public class TrackEP {
         MetaHeader header = trackService.getHeader(company, metaKey);
         if (header != null) {
             TrackLog lastLog = trackService.getLastLog(header);
-            if (lastLog != null) {
+            if (lastLog == null) {
+                logger.debug("Unable to find last log for {}", header);
+            } else {
                 LogWhat what = whatService.getWhat(header, lastLog.getLog());
                 return new ResponseEntity<>(what, HttpStatus.OK);
             }

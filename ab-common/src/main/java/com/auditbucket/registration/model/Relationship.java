@@ -25,4 +25,6 @@ package com.auditbucket.registration.model;
  * Time: 4:00 PM
  */
 public interface Relationship {
+    public String getName();
+
 }

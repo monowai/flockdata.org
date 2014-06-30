@@ -97,6 +97,8 @@ public class TagInputBean {
      */
     public TagInputBean(String tagName) {
         this();
+        if ( tagName == null )
+            throw new IllegalArgumentException("The name of a tag cannot be null");
         this.name = tagName;
 
         this.code = this.name;

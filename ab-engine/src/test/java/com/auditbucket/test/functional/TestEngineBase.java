@@ -28,6 +28,8 @@ import com.auditbucket.fortress.endpoint.FortressEP;
 import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.endpoint.TagEP;
 import com.auditbucket.registration.service.*;
+import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.TrackLog;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
@@ -139,6 +141,7 @@ public class TestEngineBase {
         //setSecurity();
         Neo4jHelper.cleanDb(template);
         engineAdmin.setConceptsEnabled(false);
+        engineAdmin.setDuplicateRegistration(true);
     }
 
     @Before
@@ -171,6 +174,10 @@ public class TestEngineBase {
         waitAWhile(null, 3000);
     }
 
+    public static void waitAWhile(int millis) throws Exception {
+        waitAWhile(null, millis);
+    }
+
     public static void waitAWhile(String message) throws Exception {
         String ss = System.getProperty("sleepSeconds");
         if (ss == null || ss.equals(""))
@@ -193,6 +200,29 @@ public class TestEngineBase {
     public static void waitAWhile(String message, long milliseconds) throws Exception {
         Thread.sleep(milliseconds);
         logger.trace(message, milliseconds / 1000d);
+    }
+    long waitForALog(MetaHeader header, String apiKey) throws Exception {
+        // Looking for the first searchKey to be logged against the metaHeader
+        long thenTime = System.currentTimeMillis();
+        int i = 0;
+        long ts = header.getFortressLastWhen();
+
+        MetaHeader metaHeader = trackEP.getMetaHeader(header.getMetaKey(), apiKey, apiKey).getBody();
+        TrackLog log = trackEP.getLastChange(metaHeader.getMetaKey(), apiKey, apiKey).getBody();
+
+        int timeout = 100;
+        while (log == null && i <= timeout) {
+            log = trackEP.getLastChange(metaHeader.getMetaKey(), apiKey, apiKey).getBody();
+            if ( log!=null && metaHeader.getFortressLastWhen() == ts )
+                return i;
+            Thread.yield();
+            if (i > 20)
+                waitAWhile("Waiting for the log to arrive {}");
+            i++;
+        }
+        if (i > 22)
+            logger.info("Wait for log got to [{}] for metaId [{}]", i, metaHeader.getId());
+        return System.currentTimeMillis() - thenTime;
     }
 
 }

@@ -17,6 +17,16 @@ public class CsvColumnDefinition {
     private boolean mustExist;
     private boolean valueAsProperty;
     private boolean country;
+
+    public String getIndex() {
+        return index;
+    }
+
+    public void setIndex(String index) {
+        this.index = index;
+    }
+
+    private String index;
     private String nameColumn;
     private String appendJoinText = " ";
     private String relationshipName;

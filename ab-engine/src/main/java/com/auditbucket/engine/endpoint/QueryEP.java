@@ -12,7 +12,6 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.QueryParams;
-import com.auditbucket.track.model.Concept;
 import com.auditbucket.track.model.DocumentType;
 import com.auditbucket.track.model.MetaHeader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,25 +65,27 @@ public class QueryEP {
         input.setDocuments(labels);
 
         ArrayList<String> from = new ArrayList<>();
-        from.add("writer");
+//        from.add("`therapeutic-use`");
         from.add("lead");
+        from.add("contributor");
         input.setFromRlxs(from);
         ArrayList<String> to = new ArrayList<>();
 
-        to.add("writer");
+//        to.add("`therapeutic-use`");
         to.add("lead");
         to.add("contributor");
         input.setToRlxs(to);
         ArrayList<String> tags = new ArrayList<>();
+//        tags.add("Topic");
         tags.add("Person");
         input.setConcepts(tags);
-        input.setMinCount(2);
+        input.setMinCount(3);
         return getMatrixResult(input, apiKey, apiHeaderKey).getResults();
     }
 
     @ResponseBody
     @RequestMapping(value = "/matrix/", method = RequestMethod.POST)
-    public MatrixResults getMatrixResult(@PathVariable("metaHeader") MatrixInputBean matrixInput,
+    public MatrixResults getMatrixResult(@RequestBody MatrixInputBean matrixInput,
                                          String apiKey,
                                          @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
@@ -104,7 +105,7 @@ public class QueryEP {
 
     @ResponseBody
     @RequestMapping(value = "/documents/", method = RequestMethod.POST)
-    public Collection<DocumentType> getDocumentsInUse(@RequestBody Collection<String> fortresses, String apiKey,
+    public Collection<DocumentType> getDocumentsInUse(@RequestBody (required = false) Collection<String> fortresses, String apiKey,
                                                 @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
 
         Company abCompany = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
@@ -113,7 +114,7 @@ public class QueryEP {
 
     @ResponseBody
     @RequestMapping(value = "/concepts/", method = RequestMethod.POST)
-    public Set<Concept> getConcepts(@RequestBody Collection<String> documents, String apiKey,
+    public Set<DocumentType> getConcepts(@RequestBody (required = false) Collection<String> documents, String apiKey,
                                     @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company abCompany = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
         return queryService.getConcepts(abCompany, documents);
@@ -121,10 +122,10 @@ public class QueryEP {
 
     @ResponseBody
     @RequestMapping(value = "/relationships/", method = RequestMethod.POST)
-    public Set<Concept> getRelationships(Collection<String> documents, String apiKey,
+    public Set<DocumentType> getRelationships(@RequestBody(required = false) Collection<String> documents, String apiKey,
                                                @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company abCompany = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
-
+        // Todo: DAT-100 Sherry's comment. Should be Concepts, not Doc Types
         return queryService.getConcepts(abCompany, documents, true);
     }
 
