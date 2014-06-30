@@ -7,8 +7,10 @@ package com.auditbucket.client.csv;
  */
 public class CsvTag {
     private String column;
+    private String name;
     private Boolean reverse =false;
     private String relationship;
+    private String index;
 
     public String getColumn() {
         return column;
@@ -34,4 +36,24 @@ public class CsvTag {
         this.relationship = relationship;
     }
 
+    public String getName() {
+        return name;
+    }
+    public void setName(String name){
+        this.name= name;
+    }
+
+    /**
+     *
+     * @return The label node that will be created. Reverts to the column name if not defined
+     */
+    public String getIndex() {
+        if ( index == null)
+            return column;
+        return index;
+    }
+
+    public void setIndex(String index) {
+        this.index = index;
+    }
 }

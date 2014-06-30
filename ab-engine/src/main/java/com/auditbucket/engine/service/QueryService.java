@@ -20,8 +20,8 @@
 package com.auditbucket.engine.service;
 
 import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.FortressService;
-import com.auditbucket.track.model.Concept;
 import com.auditbucket.track.model.DocumentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ import java.util.Set;
 /**
  * Query parameter support functionality
  * Centralises methods that will support options to use on MatrixService etc.
- *
+ * <p/>
  * User: mike
  * Date: 14/06/14
  * Time: 9:43 AM
@@ -54,20 +54,28 @@ public class QueryService {
 
         // ToDo: Optimize via Cypher, not a java loop
         //match (f:Fortress) -[:FORTRESS_DOC]-(d) return f,d
-        for (String fortress : fortresses) {
-            Collection<DocumentType> documentTypes = fortressService.getFortressDocumentsInUse(abCompany, fortress);
-            docs.addAll(documentTypes);
+        if (fortresses == null) {
+            Collection<Fortress> forts = fortressService.findFortresses(abCompany);
+            for (Fortress fort : forts) {
+                docs.addAll(fortressService.getFortressDocumentsInUse(abCompany, fort.getName()));
+            }
+
+        } else {
+            for (String fortress : fortresses) {
+                Collection<DocumentType> documentTypes = fortressService.getFortressDocumentsInUse(abCompany, fortress);
+                docs.addAll(documentTypes);
+            }
         }
         return docs;
 
     }
 
-    public Set<Concept> getConcepts(Company company, Collection<String> documents, boolean withRelationships) {
+    public Set<DocumentType> getConcepts(Company company, Collection<String> documents, boolean withRelationships) {
         return schemaService.findConcepts(company, documents, withRelationships);
 
     }
 
-    public Set<Concept>  getConcepts(Company abCompany, Collection<String> documents) {
+    public Set<DocumentType> getConcepts(Company abCompany, Collection<String> documents) {
         //match (a:Orthopedic) -[r]-(:_Tag) return distinct type(r) as typeName  order by typeName;
 
         return getConcepts(abCompany, documents, false);

@@ -38,39 +38,40 @@ public class TestQueryParameters {
     public void documentTypes() throws Exception {
         MatrixInputBean inputBean = new MatrixInputBean();
         String result =":_MetaHeader";
-        assertEquals(result, NeoSyntaxHelper.getLabels(inputBean.getDocuments()));
+        assertEquals(result, NeoSyntaxHelper.getLabels("meta", inputBean.getDocuments()));
         ArrayList<String>docs = new ArrayList<>();
         docs.add("With Space");
         docs.add("SecondDoc");
+        docs.add("third-doc");
         inputBean.setDocuments(docs);
-        result = ":`With Space` :SecondDoc";
-        assertEquals(result, NeoSyntaxHelper.getLabels(inputBean.getDocuments()));
+        result = "meta:`With Space` or meta:SecondDoc or meta:`third-doc`";
+        assertEquals(result, NeoSyntaxHelper.getLabels("meta", inputBean.getDocuments()));
 
         docs.clear();
         docs.add(null);
         inputBean.setDocuments(docs);
-        assertEquals("", NeoSyntaxHelper.getLabels(inputBean.getDocuments()));
+        assertEquals("", NeoSyntaxHelper.getLabels("meta", inputBean.getDocuments()));
 
     }
 
-    @Test
-    public void concepts() throws Exception {
-        MatrixInputBean inputBean = new MatrixInputBean();
-        assertEquals(Tag.DEFAULT, NeoSyntaxHelper.getConcepts(inputBean.getConcepts()));
-        ArrayList<String>concepts = new ArrayList<>();
-        concepts.add("With Space");
-        concepts.add("SecondConcept");
-        inputBean.setConcepts(concepts);
-        assertEquals(":`With Space` :SecondConcept", NeoSyntaxHelper.getConcepts(inputBean.getConcepts()));
-
-        // check that quotes don't cause a problem
-        concepts.clear();
-        concepts.add("SecondConcept");
-        concepts.add("With Space");
-        inputBean.setConcepts(concepts);
-        assertEquals(":SecondConcept :`With Space`", NeoSyntaxHelper.getConcepts(inputBean.getConcepts()));
-
-    }
+//    @Test
+//    public void concepts() throws Exception {
+//        MatrixInputBean inputBean = new MatrixInputBean();
+//        assertEquals(Tag.DEFAULT, NeoSyntaxHelper.getConcepts(inputBean.getConcepts()));
+//        ArrayList<String>concepts = new ArrayList<>();
+//        concepts.add("With Space");
+//        concepts.add("SecondConcept");
+//        inputBean.setConcepts(concepts);
+//        assertEquals(":`With Space` :SecondConcept", NeoSyntaxHelper.getConcepts(inputBean.getConcepts()));
+//
+//        // check that quotes don't cause a problem
+//        concepts.clear();
+//        concepts.add("SecondConcept");
+//        concepts.add("With Space");
+//        inputBean.setConcepts(concepts);
+//        assertEquals(":SecondConcept :`With Space`", NeoSyntaxHelper.getConcepts(inputBean.getConcepts()));
+//
+//    }
 
     @Test
     public void relationships() throws Exception {
@@ -80,10 +81,11 @@ public class TestQueryParameters {
         ArrayList<String>relationships = new ArrayList<>();
         relationships.add("With Space");
         relationships.add("SecondConcept");
+        relationships.add("third-concept");
         inputBean.setFromRlxs(relationships);
         inputBean.setToRlxs(relationships);
-        assertEquals(":`With Space` |:SecondConcept", NeoSyntaxHelper.getRelationships(inputBean.getFromRlxs()));
-        assertEquals(":`With Space` |:SecondConcept", NeoSyntaxHelper.getRelationships(inputBean.getToRlxs()));
+        assertEquals(":`With Space` |:SecondConcept |:`third-concept`", NeoSyntaxHelper.getRelationships(inputBean.getFromRlxs()));
+        assertEquals(":`With Space` |:SecondConcept |:`third-concept`", NeoSyntaxHelper.getRelationships(inputBean.getToRlxs()));
     }
 
 

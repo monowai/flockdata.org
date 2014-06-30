@@ -166,7 +166,7 @@ public class TrackDaoES implements TrackSearchDao {
                 logger.debug("Created default mapping for {}, {}", indexName, documentType);
             }
         } else
-            logger.info("Mapping Exists= [{}]", hasType);
+            logger.trace("Mapping Exists= [{}]", hasType);
     }
 
     private synchronized void ensureIndex(String indexName, String documentType) {
@@ -221,7 +221,7 @@ public class TrackDaoES implements TrackSearchDao {
         try {
             logger.debug("Update request for searchKey [{}], metaKey[{}]", searchChange.getSearchKey(), searchChange.getMetaKey());
             ensureIndex(searchChange.getIndexName(), searchChange.getDocumentType());
-            //ensureMapping(searchChange.getIndexName(), searchChange.getDocumentType());
+            //ensureMapping(searchChange.getIndexName(), searchChange.getDocumentTypes());
             GetResponse response =
                     esClient.prepareGet(searchChange.getIndexName(),
                             searchChange.getDocumentType(),

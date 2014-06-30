@@ -281,7 +281,7 @@ class TagDaoNeo4j implements TagDao {
         String query = "match (tag"+Tag.DEFAULT+") delete tag";
         template.query(query, null);
 
-        query = "match (tag:_TagLabel)-[r:TAG_INDEX]-(c:ABCompany) where id(c)={company} delete r, tag";
+        query = "match (tag:_Tag)-[r:TAG_INDEX]-(c:ABCompany) where id(c)={company} delete r, tag";
         Map<String, Object> params = new HashMap<>();
         params.put("company", company.getId());
         template.query(query, params);
@@ -290,6 +290,18 @@ class TagDaoNeo4j implements TagDao {
         query = " MATCH (d:DocType) optional match(d)-[]-(:Fortress) delete d";
         template.query(query, null);
 
+    }
+
+    @Override
+    public void purge(Company company, String type) {
+        String query;
+        if ("".equals(engineAdmin.getTagSuffix(company)))
+            query = "match (tag:`" + type + "`) optional match(tag)-[r]-() delete r,tag";
+        else
+            query = "match (tag:`" + type + engineAdmin.getTagSuffix(company) + "`) optional match(tag)-[r]-() delete r,tag";
+
+        // ToDo: Tidy up concepts in use
+        template.query(query, null);
     }
 
 

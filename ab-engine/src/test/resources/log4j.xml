@@ -39,16 +39,21 @@
         <level value="info"/>
     </logger>
 
-    <logger name="org.auditbucket">
-        <level value="debug"/>
-    </logger>
-
     <logger name="org.springframework.data.neo4j.support.query">
+        <level value="info"/>  <!-- set to DEBUG to see Cypher statements-->
+    </logger>
+    <logger name="org.neo4j.cypher">
         <level value="info"/>
     </logger>
-    <logger name="org.neo4j">
-        <level value="debug"/>
+
+    <logger name="org.springframework.test">
+        <level value="error"/>
     </logger>
+
+    <logger name="org.auditbucket">
+        <level value="info"/>
+    </logger>
+
 
     <!-- Root Logger -->
 

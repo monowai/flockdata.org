@@ -33,6 +33,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
@@ -62,7 +63,12 @@ public class TagEP {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
 
         schemaDao.ensureUniqueIndexes(company, tagInputs, tagService.getExistingIndexes());
-        tagService.createTagsNoRelationships(company, tagInputs);
+        try {
+            tagService.createTagsNoRelationships(company, tagInputs);
+        } catch (IOException e) {
+            // Todo - how to handle??
+            throw new DatagioException("Error processing your batch. Please run it again");
+        }
         return tagService.processTags(company, tagInputs);
 
     }
@@ -78,6 +84,19 @@ public class TagEP {
         return new ResponseEntity<>("Purged unused concepts", HttpStatus.ACCEPTED);
 
     }
+
+    @ResponseBody
+    @RequestMapping(value = "/{type}", produces = "application/json", consumes = "application/json", method = RequestMethod.DELETE)
+    public ResponseEntity<String> deleteConcepts( @PathVariable("type") String type,
+                                                              String apiKey,
+            @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+        Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+
+        tagService.purgeType(company, type);
+        return new ResponseEntity<>("Purged unused concepts", HttpStatus.ACCEPTED);
+
+    }
+
 
     @ResponseBody
     @RequestMapping(value = "/{type}", produces = "application/json", consumes = "application/json", method = RequestMethod.GET)

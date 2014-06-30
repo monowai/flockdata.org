@@ -19,7 +19,6 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.engine.service.WhatService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.SystemUserResultBean;
@@ -31,16 +30,15 @@ import com.auditbucket.track.model.LogWhat;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
 import junit.framework.Assert;
-import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StopWatch;
 
 import java.util.*;
 
@@ -57,11 +55,48 @@ import static org.junit.Assert.fail;
  * Date: 15/04/13
  * Time: 6:43 AM
  */
-@Transactional
 public class TestTrack extends TestEngineBase {
 
     private Logger logger = LoggerFactory.getLogger(TestTrack.class);
     private String what = "{\"house\": \"house";
+
+    @org.junit.Before
+    public void setup(){
+        engineAdmin.setDuplicateRegistration(true);
+    }
+
+    @Test
+    public void duplicateCallerRefMultipleLastChange() throws Exception {
+        logger.debug("### duplicateCallerRefMultipleLastChange");
+        String callerRef = "dcABC1";
+        SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody();
+
+        Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
+        MetaInputBean inputBean = new MetaInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), callerRef);
+        inputBean.setLog(new LogInputBean("poppy", DateTime.now(), "{\"name\": \"a\"}"));
+        List<MetaInputBean>metaInputBeans = new ArrayList<>();
+        metaInputBeans.add(inputBean);
+
+        inputBean = new MetaInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), callerRef);
+        inputBean.setLog(new LogInputBean("poppy", DateTime.now(), "{\"name\": \"a\"}"));
+        metaInputBeans.add(inputBean);
+
+        inputBean = new MetaInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), callerRef);
+        inputBean.setLog(new LogInputBean("poppy", DateTime.now(), "{\"name\": \"a\"}"));
+        metaInputBeans.add(inputBean);
+        logger.info("Tracking...");
+
+        trackEP.trackHeaders(metaInputBeans, su.getApiKey(), su.getApiKey());
+        logger.info("Tracked...");
+        MetaHeader header = trackEP.getByCallerRef(fortWP.getName(), "CompanyNode", callerRef, su.getApiKey(), su.getApiKey()).getBody();
+        junit.framework.Assert.assertNotNull(header);
+        waitAWhile();
+        waitForALog(header, su.getApiKey());
+
+        Set<TrackLog> logs = trackEP.getLogs(header.getMetaKey(), su.getApiKey(), su.getApiKey());
+        org.junit.Assert.assertNotNull(logs);
+        assertEquals("3 Identical changes should result in a single log", 1, logs.size());
+    }
 
     @Test
     public void logChangeWithNullAuditKeyButCallerRefExists() throws Exception {
@@ -72,7 +107,7 @@ public class TestTrack extends TestEngineBase {
 
         LogInputBean aib = new LogInputBean("wally", new DateTime(), "{\"blah\":" + 1 + "}");
         aib.setCallerRef(fortress.getName(), "TestTrack", "ABC123");
-        LogResultBean input = mediationFacade.processLog(aib);
+        LogResultBean input = mediationFacade.processLog(aib).getLogResult();
         assertNotNull(input.getMetaKey());
         Assert.assertNotNull(trackService.findByCallerRef(fortress, aib.getDocumentType(), aib.getCallerRef()));
     }
@@ -81,41 +116,7 @@ public class TestTrack extends TestEngineBase {
     public void nullMetaKey() throws Exception {
         regEP.registerSystemUser(new RegistrationBean(monowai, mike));
         assertNull (trackService.getHeader(null));
-
     }
-
-    @Test
-    public void metaHeaderDifferentLogsBulkEndpoint() throws Exception {
-        SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, "mike")).getBody();
-        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("auditTest",true), su.getApiKey(), null).getBody();
-
-        MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
-        LogInputBean logInputBean = new LogInputBean("mike", new DateTime(), "{\"col\": 123}");
-        inputBean.setLog(logInputBean);
-        List<MetaInputBean>inputBeans = new ArrayList<>();
-        inputBeans.add(inputBean);
-        trackEP.trackHeaders(inputBeans, false, su.getApiKey());
-        Thread.yield();
-        Thread.sleep(900);
-
-        MetaHeader created = trackEP.getByCallerRef(fortress.getName(), "TestTrack", "ABC123", su.getApiKey(), su.getApiKey() ).getBody();
-        Thread.sleep(600);
-        assertNotNull (created);
-        // Now we record a change
-        logInputBean = new LogInputBean("mike", new DateTime(), "{\"col\": 321}");
-        inputBean.setLog(logInputBean);
-        inputBeans = new ArrayList<>();
-        inputBeans.add(inputBean);
-        trackEP.trackHeaders(inputBeans, false, su.getApiKey());
-        Thread.sleep (600);
-
-        LogWhat what = trackEP.getLastChangeWhat(created.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody();
-        assertNotNull ( what);
-        Object value = what.getWhat().get("col");
-        Assert.assertNotNull(value);
-        assertEquals("321", value.toString());
-    }
-
 
     @Test
     public void locatingByCallerRefWillThrowAuthorizationException() throws Exception {
@@ -150,15 +151,12 @@ public class TestTrack extends TestEngineBase {
         } catch (SecurityException se) {
 
         }
-
-
     }
 
     @Test
     public void createHeaderTimeLogs() throws Exception {
-
         regEP.registerSystemUser(new RegistrationBean(monowai, mike));
-        Fortress fortress = fortressService.registerFortress(new FortressInputBean("auditTest", true));
+        Fortress fortress = fortressService.registerFortress(new FortressInputBean("createHeaderTimeLogs", true));
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         String ahKey = mediationFacade.createHeader(inputBean, null).getMetaKey();
@@ -180,9 +178,10 @@ public class TestTrack extends TestEngineBase {
             i++;
         }
         watch.stop();
-        logger.info("End " + watch.getTime() / 1000d + " avg = " + (watch.getTime() / 1000d) / max);
+        logger.info(watch.prettyPrint() + " avg = " + (watch.getLastTaskTimeMillis() / 1000d) / max);
 
         // Test that we get the expected number of log events
+        waitAWhile("",200);
         assertEquals(max, (double) trackService.getLogCount(ahKey));
     }
 
@@ -192,7 +191,6 @@ public class TestTrack extends TestEngineBase {
      */
     @Test
     public void noDuplicateLogsWithCompression() throws Exception {
-
         SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody();
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("auditTest", true));
 
@@ -231,7 +229,6 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void correctLogCountsReturnedForAFortress() throws Exception {
-
         regEP.registerSystemUser(new RegistrationBean(monowai, mike));
         Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
@@ -285,7 +282,7 @@ public class TestTrack extends TestEngineBase {
         LogInputBean alb = new LogInputBean("logTest", new DateTime(), "{\"blah\":" + 0 + "}");
         alb.setCallerRef(fortressA.getName(), docType, callerRef);
         //assertNotNull (alb);
-        LogResultBean arb = mediationFacade.processLog(alb);
+        LogResultBean arb = mediationFacade.processLog(alb).getLogResult();
         assertNotNull(arb);
         assertEquals(keyA, arb.getMetaKey());
 
@@ -296,7 +293,7 @@ public class TestTrack extends TestEngineBase {
         String keyB = mediationFacade.createHeader(inputBean, null).getMetaKey();
         alb = new LogInputBean("logTest", new DateTime(), "{\"blah\":" + 0 + "}");
         alb.setCallerRef(fortressB.getName(), docType, callerRef);
-        arb = mediationFacade.processLog(alb);
+        arb = mediationFacade.processLog(alb).getLogResult();
         assertNotNull(arb);
         assertEquals("This caller should not see KeyA", keyB, arb.getMetaKey());
 
@@ -315,7 +312,6 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void headersForDifferentCompaniesAreNotVisible() throws Exception {
-
         regEP.registerSystemUser(new RegistrationBean(monowai, mike));
         String hummingbird = "Hummingbird";
         regEP.registerSystemUser(new RegistrationBean(hummingbird, harry));
@@ -344,7 +340,7 @@ public class TestTrack extends TestEngineBase {
         createLogRecords(authMike, ahWP, what, 20);
         createLogRecords(authHarry, ahHS, what, 40);
         watch.stop();
-        logger.info("End " + watch.getTime() / 1000d + " avg = " + (watch.getTime() / 1000d) / max);
+        logger.info(watch.prettyPrint()+ " avg = " + (watch.getLastTaskTimeMillis() / 1000d) / max);
 
 
     }
@@ -430,7 +426,9 @@ public class TestTrack extends TestEngineBase {
         int i = 0;
         while (i < max) {
             workingDate = workingDate.plusDays(1);
-            assertEquals("Loop count " + i, LogInputBean.LogStatus.OK, mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", workingDate, what + i + "\"}")).getStatus());
+            assertEquals("Loop count " + i,
+                    LogInputBean.LogStatus.OK, mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", workingDate, what + i + "\"}")).
+                    getLogResult().getStatus());
             i++;
         }
 
@@ -470,8 +468,8 @@ public class TestTrack extends TestEngineBase {
         String ahWP = mediationFacade.createHeader(inputBean, null).getMetaKey();
 
         MetaHeader metaHeader = trackService.getHeader(ahWP);
-        LogResultBean firstLog  = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", firstDate, what + 1 + "\"}"));
-        LogResultBean secondLog = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}"));
+        LogResultBean firstLog  = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", firstDate, what + 1 + "\"}")).getLogResult();
+        LogResultBean secondLog = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}")).getLogResult();
         assertNotSame(0l, firstLog.getWhatLog().getTrackLog().getFortressWhen());
         assertNotSame(0l, secondLog.getWhatLog().getTrackLog().getFortressWhen());
         Set<TrackLog> logs = trackService.getLogs(fortress.getCompany(), metaHeader.getMetaKey());
@@ -552,10 +550,10 @@ public class TestTrack extends TestEngineBase {
 
         // Check that TimeZone information is used to correctly establish Now when not passed in a log
         // No Date, so default to NOW in the Fortress Timezone
-        LogResultBean log = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", null, what + 1 + "\"}"));
+        LogResultBean log = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", null, what + 1 + "\"}")).getLogResult();
         logger.info("1 " + new Date(log.getSysWhen()).toString());
 
-        log = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", null, what + 2 + "\"}"));
+        log = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", null, what + 2 + "\"}")).getLogResult();
         logger.info("2 " + new Date(log.getSysWhen()).toString());
 
         Set<TrackLog> logs = trackService.getLogs(metaHeader.getId());
@@ -563,7 +561,7 @@ public class TestTrack extends TestEngineBase {
 
         // Same date should still log
         DateTime dateMidnight = new DateTime();
-        log = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", dateMidnight.toDateTime(), what + 3 + "\"}"));
+        log = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", dateMidnight.toDateTime(), what + 3 + "\"}")).getLogResult();
         logger.info("3 " + new Date(log.getSysWhen()).toString());
         TrackLog thirdLog = trackService.getLastLog(ahWP);
         mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", dateMidnight.toDateTime(), what + 4 + "\"}"));
@@ -576,35 +574,6 @@ public class TestTrack extends TestEngineBase {
         TrackLog lastLog = trackService.getLastLog(ahWP);
         logger.info("L " + new Date(lastLog.getSysWhen()).toString());
         assertNotSame("Last log in should be the last", lastLog.getLog().getId(), thirdLog.getLog().getId());
-    }
-
-    @Test
-    public void auditSummaryWorking() throws Exception {
-        regEP.registerSystemUser(new RegistrationBean(monowai, mike));
-        Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
-        DateTime dt = new DateTime().toDateTime();
-        DateTime firstDate = dt.minusDays(2);
-        MetaInputBean inputBean = new MetaInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", firstDate, "ABC1");
-        String ahWP = mediationFacade.createHeader(inputBean, null).getMetaKey();
-
-        MetaHeader metaHeader = trackService.getHeader(ahWP);
-        mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", firstDate, what + 1 + "\"}"));
-        mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}"));
-
-        TrackedSummaryBean auditSummary = trackService.getMetaSummary(null, ahWP);
-        assertNotNull(auditSummary);
-        assertEquals(ahWP, auditSummary.getHeader().getMetaKey());
-        assertNotNull(auditSummary.getHeader().getLastUser());
-        assertNotNull(auditSummary.getHeader().getCreatedBy());
-        assertNotNull(auditSummary.getHeader().getFortress());
-        assertEquals(2, auditSummary.getChanges().size());
-        for (TrackLog log : auditSummary.getChanges()) {
-            Log change = log.getLog();
-            assertNotNull(change.getEvent());
-            assertNotNull(change.getWho().getCode());
-            LogWhat whatResult = trackService.getWhat(metaHeader, change);
-            assertTrue(whatResult.getWhat().containsKey("house"));
-        }
     }
 
     @Test
@@ -671,7 +640,6 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void findMetaHeadersForCollectionOfMetaKeys() throws Exception{
-
         String suA = regEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody().getApiKey();
         String suB = regEP.registerSystemUser(new RegistrationBean("othercompany", harry)).getBody().getApiKey();
 
@@ -702,27 +670,6 @@ public class TestTrack extends TestEngineBase {
     }
 
     @Test
-    public void duplicateCallerRefMultipleLastChange() throws Exception {
-        SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody();
-
-        Fortress fortWP = fortressService.registerFortress(new FortressInputBean("wportfolio", true));
-        MetaInputBean inputBean = new MetaInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), "ABC1");
-        inputBean.setLog(new LogInputBean("poppy", DateTime.now(), "{\"name\": \"a\"}"));
-        List<MetaInputBean>metaInputBeans = new ArrayList<>();
-        metaInputBeans.add(inputBean);
-
-        inputBean = new MetaInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), "ABC1");
-        inputBean.setLog(new LogInputBean("poppy", DateTime.now(), "{\"name\": \"a\"}"));
-        metaInputBeans.add(inputBean);
-
-        inputBean = new MetaInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), "ABC1");
-        inputBean.setLog(new LogInputBean("poppy", DateTime.now(), "{\"name\": \"a\"}"));
-        metaInputBeans.add(inputBean);
-
-        trackEP.trackHeaders(metaInputBeans, su.getApiKey(), su.getApiKey());
-    }
-
-    @Test
     public void utf8Strings() throws Exception{
         String json = "{\"Athlete\":\"Katerina Neumannová\",\"Age\":\"28\",\"Country\":\"Czech Republic\",\"Year\":\"2002\",\"Closing Ceremony Date\":\"2/24/02\",\"Sport\":\"Cross Country Skiing\",\"Gold Medals\":\"0\",\"Silver Medals\":\"2\",\"Bronze Medals\":\"0\",\"Total Medals\":\"2\"}";
         SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody();
@@ -731,6 +678,7 @@ public class TestTrack extends TestEngineBase {
         MetaInputBean inputBean = new MetaInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), "ABC1");
         inputBean.setLog(new LogInputBean("poppy", DateTime.now(), json));
         TrackResultBean trackResultBean = trackEP.trackHeader(inputBean, su.getApiKey(), su.getApiKey()).getBody();
+        waitAWhile();
         TrackLog lastLog = trackService.getLastLog(trackResultBean.getMetaHeader());
 
         LogWhat what = whatService.getWhat(trackResultBean.getMetaHeader(),  lastLog.getLog());
@@ -740,6 +688,70 @@ public class TestTrack extends TestEngineBase {
         TrackResultBean result = trackEP.trackHeader(inputBean, su.getApiKey(), su.getApiKey()).getBody();
         Assert.assertNotNull(result);
         assertEquals(LogInputBean.LogStatus.IGNORE, result.getLogResult().getStatus());
+    }
+
+    @Test
+    public void metaSummaryReturnsLogs() throws Exception {
+        SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody();
+        Fortress fortWP = fortressService.registerFortress(new FortressInputBean("metaSummary", true));
+        DateTime dt = new DateTime().toDateTime();
+        DateTime firstDate = dt.minusDays(2);
+        MetaInputBean inputBean = new MetaInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", firstDate, "ABC1");
+        String ahWP = mediationFacade.createHeader(inputBean, null).getMetaKey();
+
+        MetaHeader metaHeader = trackService.getHeader(ahWP);
+        mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "olivia@sunnybell.com", firstDate, what + 1 + "\"}"));
+        mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}"));
+        waitForALog(metaHeader, su.getApiKey());
+        TrackedSummaryBean auditSummary = trackService.getMetaSummary(null, ahWP);
+        assertNotNull(auditSummary);
+        assertEquals(ahWP, auditSummary.getHeader().getMetaKey());
+        assertNotNull(auditSummary.getHeader().getLastUser());
+        assertNotNull(auditSummary.getHeader().getCreatedBy());
+        assertNotNull(auditSummary.getHeader().getFortress());
+        assertEquals(2, auditSummary.getChanges().size());
+        for (TrackLog log : auditSummary.getChanges()) {
+            Log change = log.getLog();
+            assertNotNull(change.getEvent());
+            assertNotNull(change.getWho().getCode());
+            LogWhat whatResult = trackService.getWhat(metaHeader, change);
+            assertTrue(whatResult.getWhat().containsKey("house"));
+        }
+    }
+
+    @Test
+    public void lastLogSequencesInSeparateCallsToBulkLoadEP() throws Exception {
+        SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, "mike").setIsUnique(false)).getBody();
+        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("metaHeaderDiff",true), su.getApiKey(), null).getBody();
+        String callerRef = UUID.randomUUID().toString();
+        List<MetaInputBean> inputBeans = new ArrayList<>();
+
+        MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), callerRef);
+        LogInputBean logInputBean = new LogInputBean("mike", new DateTime(), "{\"col\": 123}");
+        inputBean.setLog(logInputBean);
+        inputBeans.add(inputBean);
+
+        trackEP.trackHeaders(inputBeans, false, su.getApiKey());
+        inputBeans.clear();
+
+        MetaHeader created = trackEP.getByCallerRef(fortress.getName(), "TestTrack", callerRef, su.getApiKey(), su.getApiKey() ).getBody();
+        assertNotNull(created);
+
+        // Now we record a change
+        logInputBean = new LogInputBean("mike", new DateTime(), "{\"col\": 321}");
+        inputBean.setLog(logInputBean);
+        inputBeans = new ArrayList<>();
+        inputBeans.add(inputBean);
+
+        trackEP.trackHeaders(inputBeans, false, su.getApiKey());
+        waitAWhile();
+
+        LogWhat what = trackEP.getLastChangeWhat(created.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody();
+
+        assertNotNull(what);
+        Object value = what.getWhat().get("col");
+        junit.framework.Assert.assertNotNull(value);
+        assertEquals("321", value.toString());
     }
 
     @Test
@@ -754,16 +766,16 @@ public class TestTrack extends TestEngineBase {
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "poppy", "CompanyNode", past, "ABC1");
         inputBean.setLog(new LogInputBean("poppy", past, json));
         TrackResultBean trackResultBean = trackEP.trackHeader(inputBean, su.getApiKey(), su.getApiKey()).getBody();
+        waitForALog(trackResultBean.getMetaHeader(), su.getApiKey());
         TrackLog lastLog = trackService.getLastLog(trackResultBean.getMetaHeader());
         assertEquals(past.getMillis(), lastLog.getFortressWhen().longValue());
         assertEquals(past.getMillis(), trackResultBean.getMetaHeader().getFortressDateCreated().getMillis());
-        assertEquals("Modified " + new Date(trackResultBean.getMetaHeader().getLastUpdate()), past.getMillis(), trackResultBean.getMetaHeader().getFortressLastWhen().longValue());
+        assertEquals("Modified " + new Date(trackResultBean.getMetaHeader().getLastUpdate()),
+                past.getMillis(), trackResultBean.getMetaHeader().getFortressLastWhen().longValue());
 
         logger.info(lastLog.toString());
     }
 
-    @Autowired
-    WhatService whatService;
     private void compareUser(MetaHeader header, String userName) {
         FortressUser fu = fortressService.getUser(header.getLastUser().getId());
         assertEquals(userName, fu.getCode());

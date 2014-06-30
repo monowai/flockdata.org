@@ -134,5 +134,7 @@ public interface MetaHeader {
 
     void setLastChange(Log newChange);
 
+    public Log getLastChange();
+
     void setFortressLastWhen(Long fortressWhen);
 }

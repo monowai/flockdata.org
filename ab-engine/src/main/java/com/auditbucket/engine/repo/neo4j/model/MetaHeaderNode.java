@@ -58,10 +58,6 @@ public class MetaHeaderNode implements MetaHeader {
     @Fetch
     private FortressNode fortress;
 
-//    @RelatedToVia??(type="LOGGED", direction = Direction.OUTGOING)
-//    Set<LogNode> logNodeSet;
-
-
     private String documentType;
 
     @Indexed(unique = true)
@@ -325,7 +321,7 @@ public class MetaHeaderNode implements MetaHeader {
         this.createdBy = (FortressUserNode)createdBy;
     }
 
-    public LogNode getLastChange() {
+    public Log getLastChange() {
         return lastChange;
     }
 
