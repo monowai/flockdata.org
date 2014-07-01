@@ -295,13 +295,14 @@ public class TestABIntegration {
     }
 
     @Test
-    public void createHeaderTimeLogsWithSearchActivated() throws Exception {
+    public void
+    createHeaderTimeLogsWithSearchActivated() throws Exception {
         assumeTrue(runMe);
         logger.info("## createHeaderTimeLogsWithSearchActivated");
         deleteEsIndex("ab.monowai.111");
         int max = 3;
         String ahKey;
-        registerSystemUser("Olivia");
+        SystemUser su = registerSystemUser("Olivia");
         Fortress fo = fortressService.registerFortress(new FortressInputBean("111", false));
 
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
@@ -326,6 +327,7 @@ public class TestABIntegration {
             mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + i + "}"));
             i++;
         }
+        waitForALog(metaHeader, su.getApiKey() );
         watch.stop();
         // Test that we get the expected number of log events
         if (!"rest".equals(System.getProperty("neo4j"))) // Don't check if running over rest
