@@ -99,7 +99,5 @@ public class TestQuery extends TestEngineBase {
         fortresses.add(coBfB.getName());
         assertEquals(2, queryEP.getDocumentsInUse (fortresses, suB.getApiKey(), suB.getApiKey()).size());
 
-
-
     }
 }
