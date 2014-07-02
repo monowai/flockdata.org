@@ -1,16 +1,15 @@
 package com.auditbucket.authentication.handler;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.registration.model.Company;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.auditbucket.helper.SecurityHelper;
-import com.auditbucket.registration.model.Company;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class APIKeyInterceptor implements HandlerInterceptor {
 	private static final Logger logger = LoggerFactory
@@ -28,12 +27,18 @@ public class APIKeyInterceptor implements HandlerInterceptor {
 		if (apiKey != null) {
 			Company company = securityHelper.getCompany(apiKey);
 			if (company != null) {
-				request.setAttribute("company", company.getName());
-			} else {
-				return false;
+				request.setAttribute("company", company);
+				return true;
 			}
 		}
-		return true;
+        // Not necessarily forbidden, just no API key to work with data.
+        // Admin users can create data access users but not access data themselves.
+        // The 3 scenarios are:
+        //      Authorised with no api key (no company object returned)
+        //      Authorised with an api key (company object returned)
+        //      Not authorised             (forbidden)
+		response.sendError(HttpServletResponse.SC_FORBIDDEN, "Unauthorized");
+		return false;
 	}
 
 	@Override
