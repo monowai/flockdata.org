@@ -38,7 +38,10 @@
         </mvc:argument-resolvers>
     </mvc:annotation-driven>
 	<mvc:interceptors>
-	  <bean class="com.auditbucket.authentication.handler.APIKeyInterceptor"/>
+	  <mvc:interceptor>
+		  <mvc:mapping path="/company/hello"/>
+	      <bean class="com.auditbucket.authentication.handler.APIKeyInterceptor"/>
+	</mvc:interceptor>
 	</mvc:interceptors>    
 <!--     <mvc:annotation-driven/>
  -->
