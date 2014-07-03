@@ -15,7 +15,7 @@ import com.auditbucket.registration.model.Company;
 public class APIKeyInterceptor implements HandlerInterceptor {
 	private static final Logger logger = LoggerFactory
 			.getLogger(APIKeyInterceptor.class);
-	
+
 	@Autowired
 	private SecurityHelper securityHelper;
 
@@ -24,10 +24,10 @@ public class APIKeyInterceptor implements HandlerInterceptor {
 			HttpServletResponse response, Object handler) throws Exception {
 		String apiKey = request.getParameter("apiKey");
 		logger.info("Api Key - " + apiKey);
-		
-		if(apiKey != null) {
+
+		if (apiKey != null) {
 			Company company = securityHelper.getCompany(apiKey);
-			if(company != null) {
+			if (company != null) {
 				request.setAttribute("company", company.getName());
 			} else {
 				return false;
