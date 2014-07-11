@@ -21,7 +21,7 @@ package com.auditbucket.client.xml;
 
 
 import com.auditbucket.client.common.Mappable;
-import com.auditbucket.client.rest.StaticDataResolver;
+import com.auditbucket.client.rest.IStaticDataResolver;
 import com.auditbucket.helper.DatagioException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -40,7 +40,7 @@ public interface XmlMappable extends Mappable {
 
     XmlMappable newInstance(boolean simulateOnly);
 
-    public String setXMLData(XMLStreamReader xsr, StaticDataResolver staticDataResolver) throws JAXBException, JsonProcessingException, DatagioException;
+    public String setXMLData(XMLStreamReader xsr, IStaticDataResolver IStaticDataResolver) throws JAXBException, JsonProcessingException, DatagioException;
 
     /**
      * Some XML files require skipping.

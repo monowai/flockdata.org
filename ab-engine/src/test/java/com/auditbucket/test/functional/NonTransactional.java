@@ -3,30 +3,30 @@ package com.auditbucket.test.functional;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.SystemUserResultBean;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.CompanyUser;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.track.bean.LogInputBean;
+import com.auditbucket.track.bean.CrossReferenceInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
-import com.auditbucket.track.model.LogWhat;
-import com.auditbucket.track.model.MetaHeader;
-import com.auditbucket.track.model.TrackLog;
+import com.auditbucket.track.bean.TrackResultBean;
+import com.auditbucket.track.model.MetaKey;
+import com.auditbucket.track.model.TrackTag;
 import org.joda.time.DateTime;
-import org.junit.Assert;
 import org.junit.Test;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.neo4j.support.node.Neo4jHelper;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
 
 /**
  * User: mike
@@ -40,6 +40,42 @@ public class NonTransactional extends TestEngineBase{
     public void cleanUpGraph() {
         // Nothing
         logger.debug("Not cleaning up");
+    }
+
+    @Test
+    public void crossReferenceTags() throws Exception {
+        SystemUserResultBean  su = registrationEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody();
+        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("auditTest", true),null,  null).getBody();
+        TagInputBean tag = new TagInputBean("ABC", "Device", "sold");
+        ArrayList<TagInputBean> tags = new ArrayList<>();
+        tags.add(tag);
+        tagEP.createTags(tags, su.getApiKey(), su.getApiKey());
+        Thread.sleep(300); // Let the schema changes occur
+
+        MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
+        inputBean.addTag( new TagInputBean("ABC", "Device", "sold"));
+        TrackResultBean docA = trackEP.trackHeader(inputBean, null, null).getBody();
+
+        // These are the two records that will cite the previously created header
+        MetaInputBean inputBeanB = new MetaInputBean(fortressA.getName(), "wally", "DocTypeB", new DateTime(), "ABC321");
+        inputBeanB.addTag( new TagInputBean("ABC", "Device", "applies"));
+        TrackResultBean docB = trackEP.trackHeader(inputBeanB, null, null).getBody();
+
+        Map<String, List<MetaKey>> refs = new HashMap<>();
+        List<MetaKey> callerRefs = new ArrayList<>();
+
+        callerRefs.add(new MetaKey("ABC321"));
+        callerRefs.add(new MetaKey("ABC333"));
+
+        refs.put("cites",callerRefs);
+        CrossReferenceInputBean bean = new CrossReferenceInputBean(fortressA.getName(), "ABC123",refs);
+        List<CrossReferenceInputBean > inputs = new ArrayList<>();
+        inputs.add(bean);
+        Set<TrackTag> tagsA = trackEP.getAuditTags(docA.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody();
+        assertEquals(1, tagsA.size());
+        Set<TrackTag> tagsB = trackEP.getAuditTags(docB.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody();
+        assertEquals(1, tagsB.size());
+
     }
 
     @Test

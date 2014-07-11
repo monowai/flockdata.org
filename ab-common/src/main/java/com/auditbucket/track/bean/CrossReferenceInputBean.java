@@ -1,5 +1,7 @@
 package com.auditbucket.track.bean;
 
+import com.auditbucket.track.model.MetaKey;
+
 import java.util.List;
 import java.util.Map;
 
@@ -10,18 +12,25 @@ import java.util.Map;
  * Time: 12:24 PM
  */
 public class CrossReferenceInputBean {
-    Map<String,List<String>>references;
+    Map<String,List<MetaKey>>references;
     private String fortress;
+    private String documentType;
     private String callerRef;
     private String serviceMessage;
 
     protected CrossReferenceInputBean(){}
 
-    public CrossReferenceInputBean(String fortress, String callerRef, Map<String,List<String>>references){
+    public CrossReferenceInputBean(String fortress, String callerRef, Map<String,List<MetaKey>>references){
         this();
         this.callerRef = callerRef;
         this.fortress = fortress;
         this.references = references;
+    }
+
+    public CrossReferenceInputBean(String sourceFortress, String sourceDocumentType, String sourceCallerRef, Map<String,List<MetaKey>>references){
+        this(sourceFortress, sourceCallerRef, references);
+        if ( sourceDocumentType!=null && !sourceDocumentType.equals("*"))
+            this.documentType = sourceDocumentType;
     }
 
     public String getCallerRef() {
@@ -32,7 +41,7 @@ public class CrossReferenceInputBean {
         return fortress;
     }
 
-    public Map<String,List<String>>getReferences(){
+    public Map<String,List<MetaKey>>getReferences(){
         return references;
     }
 
@@ -44,6 +53,7 @@ public class CrossReferenceInputBean {
         CrossReferenceInputBean that = (CrossReferenceInputBean) o;
 
         if (callerRef != null ? !callerRef.equals(that.callerRef) : that.callerRef != null) return false;
+        if (documentType != null ? !documentType.equals(that.documentType) : that.documentType != null) return false;
         if (fortress != null ? !fortress.equals(that.fortress) : that.fortress != null) return false;
 
         return true;
@@ -53,6 +63,7 @@ public class CrossReferenceInputBean {
     public int hashCode() {
         int result = fortress != null ? fortress.hashCode() : 0;
         result = 31 * result + (callerRef != null ? callerRef.hashCode() : 0);
+        result = 31 * result + (documentType != null ? documentType.hashCode() : 0);
         return result;
     }
 
@@ -62,6 +73,7 @@ public class CrossReferenceInputBean {
                 "callerRef='" + callerRef + '\'' +
                 ", references=" + references.size() +
                 ", fortress='" + fortress + '\'' +
+                ", docType ='" + documentType + '\'' +
                 '}';
     }
 
@@ -71,5 +83,9 @@ public class CrossReferenceInputBean {
 
     public String getServiceMessage() {
         return serviceMessage;
+    }
+
+    public String getDocumentType() {
+        return documentType;
     }
 }

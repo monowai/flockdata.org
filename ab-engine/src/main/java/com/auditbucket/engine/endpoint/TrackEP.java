@@ -437,6 +437,7 @@ public class TrackEP {
      * Looks across all document types for the caller ref within the fortress. If the callerRef is not unique or does not
      * exist then an exception is thown.
      *
+     *
      * @param fortressName application
      * @param callerRef    source
      * @param callerRefs   targets
@@ -448,10 +449,12 @@ public class TrackEP {
      */
     @ResponseBody
     @RequestMapping(value = "/{fortress}/all/{callerRef}/{xRefName}/xref", produces = "application/json", method = RequestMethod.POST)
-    public Collection<String> postCrossReferenceByCallerRef(@PathVariable("fortress") String fortressName, @PathVariable("callerRef") String callerRef, @RequestBody Collection<String> callerRefs, @PathVariable("xRefName") String xRefName,
-                                                            String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+    public List<MetaKey> postCrossReferenceByCallerRef(@PathVariable("fortress") String fortressName, @PathVariable("callerRef") String callerRef,
+                                                       @RequestBody Collection<MetaKey> callerRefs,
+                                                       @PathVariable("xRefName") String xRefName,
+                                                       String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = getCompany(apiHeaderKey, apiKey);
-        return trackService.crossReferenceByCallerRef(company, fortressName, callerRef, callerRefs, xRefName);
+        return trackService.crossReferenceByCallerRef(company, new MetaKey(fortressName, "*", callerRef), callerRefs, xRefName);
     }
 
     @ResponseBody
@@ -462,10 +465,14 @@ public class TrackEP {
         Company company = getCompany(apiHeaderKey, apiKey);
 
         for (CrossReferenceInputBean crossReferenceInputBean : crossReferenceInputBeans) {
-            Map<String, List<String>> references = crossReferenceInputBean.getReferences();
+            Map<String, List<MetaKey>> references = crossReferenceInputBean.getReferences();
             for (String xRefName : references.keySet()) {
                 try {
-                    List<String> notFound = trackService.crossReferenceByCallerRef(company, crossReferenceInputBean.getFortress(), crossReferenceInputBean.getCallerRef(), references.get(xRefName), xRefName);
+                    List<MetaKey> notFound = trackService.crossReferenceByCallerRef(company,
+                            new MetaKey(crossReferenceInputBean.getFortress(),
+                            crossReferenceInputBean.getDocumentType(),
+                            crossReferenceInputBean.getCallerRef()),
+                            references.get(xRefName), xRefName);
                     references.put(xRefName, notFound);
                 } catch (DatagioException de) {
                     logger.error("Exception while cross-referencing MetaHeaders. This message is being returned to the caller - [{}]", de.getMessage());
