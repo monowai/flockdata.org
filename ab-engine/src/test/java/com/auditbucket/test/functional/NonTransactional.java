@@ -179,8 +179,4 @@ public class NonTransactional extends TestEngineBase{
             latch.countDown();
         }
     }
-
-
-
-
 }
