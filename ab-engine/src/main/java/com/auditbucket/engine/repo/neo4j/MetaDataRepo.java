@@ -57,7 +57,7 @@ public interface MetaDataRepo extends GraphRepository<MetaHeaderNode> {
                     " match (fortress:Fortress)-[:TRACKS]->(header:MetaHeader) where id(fortress)={0} " +
                     " and header.callerRef ={1}" +
                     " return header ")
-    Iterable<MetaHeader> findByCallerRef(Long fortressId, String callerRef);
+    Collection<MetaHeader> findByCallerRef(Long fortressId, String callerRef);
 
     @Query (elementClass = MetaHeaderNode.class, value = "match (company:ABCompany), (metaHeaders:MetaHeader) " +
             " where id(company)={0} " +

@@ -301,7 +301,7 @@ public class Importer {
                 long then = new DateTime().getMillis();
                 while (xsr.getLocalName().equals(docType)) {
                     XmlMappable row = mappable.newInstance(importParams.isSimulateOnly());
-                    String json = row.setXMLData(xsr, importParams.getRestClient());
+                    String json = row.setXMLData(xsr, importParams.getStaticDataResolver());
                     MetaInputBean header = (MetaInputBean) row;
                     if (!header.getCrossReferences().isEmpty()) {
                         referenceInputBeans.add(new CrossReferenceInputBean(header.getFortress(), header.getCallerRef(), header.getCrossReferences()));
@@ -372,13 +372,15 @@ public class Importer {
             if (mappable.hasHeader()) {
                 while ((nextLine = csvReader.readNext()) != null) {
                     if (!((nextLine[0].charAt(0) == '#'))) {
-                        headerRow = nextLine;
+                        headerRow =  nextLine;//addStrategyColumns(nextLine, importParams);
+
                         break;
                     }
                 }
             }
             watch.start();
             AbRestClient.type type = mappable.getABType();
+            List<CrossReferenceInputBean> referenceInputBeans = new ArrayList<>();
 
             while ((nextLine = csvReader.readNext()) != null) {
                 if (!nextLine[0].startsWith("#")) {
@@ -402,6 +404,11 @@ public class Importer {
                                 LogInputBean logInputBean = new LogInputBean(importParams.getFortressUser(), new DateTime(), jsonData);
                                 header.setLog(logInputBean);
                             }
+                            if (!header.getCrossReferences().isEmpty()) {
+                                referenceInputBeans.add(new CrossReferenceInputBean(header.getFortress(), header.getDocumentType(), header.getCallerRef(), header.getCrossReferences()));
+                                rows = rows + header.getCrossReferences().size();
+                            }
+
                             writeAudit(importParams.getRestClient(), header, mappable.getClass().getCanonicalName());
                         } else {// Tag
                             if (!"".equals(jsonData)) {
@@ -422,6 +429,9 @@ public class Importer {
                     if (rows % 500 == 0 && !importParams.isSimulateOnly())
                         logger.info("Skipping {} of {}", rows, skipCount);
                 }
+            }
+            if (!referenceInputBeans.isEmpty()) {
+                logger.debug("Wrote [{}] cross references", writeCrossReferences(importParams.getRestClient(), referenceInputBeans));
             }
         } finally {
             importParams.getRestClient().flush(mappable.getClass().getCanonicalName(), mappable.getABType());
