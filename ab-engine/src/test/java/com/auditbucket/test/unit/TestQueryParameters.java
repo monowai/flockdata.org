@@ -82,11 +82,18 @@ public class TestQueryParameters {
         relationships.add("With Space");
         relationships.add("SecondConcept");
         relationships.add("third-concept");
+<<<<<<< HEAD
         relationships.add("dot.concept");
         inputBean.setFromRlxs(relationships);
         inputBean.setToRlxs(relationships);
         assertEquals(":`With Space` |:SecondConcept |:`third-concept` |:`dot.concept`", NeoSyntaxHelper.getRelationships(inputBean.getFromRlxs()));
         assertEquals(":`With Space` |:SecondConcept |:`third-concept` |:`dot.concept`", NeoSyntaxHelper.getRelationships(inputBean.getToRlxs()));
+=======
+        inputBean.setFromRlxs(relationships);
+        inputBean.setToRlxs(relationships);
+        assertEquals(":`With Space` |:SecondConcept |:`third-concept`", NeoSyntaxHelper.getRelationships(inputBean.getFromRlxs()));
+        assertEquals(":`With Space` |:SecondConcept |:`third-concept`", NeoSyntaxHelper.getRelationships(inputBean.getToRlxs()));
+>>>>>>> remotes/origin/develop
     }
 
 
