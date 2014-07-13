@@ -71,7 +71,7 @@ public interface TrackDao {
 
     Set<TrackLog> getLogs(Long auditHeaderID);
 
-    Iterable<MetaHeader> findByCallerRef(Long fortressId, String callerRef);
+    Collection<MetaHeader> findByCallerRef(Long fortressId, String callerRef);
 
     MetaHeader findByCallerRefUnique(Long id, String sourceKey) throws DatagioException;
 

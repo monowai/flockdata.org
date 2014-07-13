@@ -8,10 +8,12 @@ import com.auditbucket.client.rest.AbRestClient;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.model.MetaKey;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,9 +41,9 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
         return AbRestClient.type.TRACK;
     }
 
-    private Map<String, Object> toMap(String[] headerRow, String[] line) {
+    private Map<String, String> toMap(String[] headerRow, String[] line) {
         int col = 0;
-        Map<String, Object> row = new HashMap<>();
+        Map<String, String> row = new HashMap<>();
         for (String column : headerRow) {
             row.put(column, line[col]);
             col++;
@@ -52,12 +54,11 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
     @Override
     public String setData(final String[] headerRow, final String[] line, ImportParams importParams) throws JsonProcessingException, DatagioException {
         int col = 0;
-        Map<String, Object> row = toMap(headerRow, line);
+        Map<String, String> row = toMap(headerRow, line);
 
         for (String column : headerRow) {
             CsvColumnHelper columnHelper = new CsvColumnHelper(column, line[col], importParams.getColumnDef(headerRow[col]));
             if (!columnHelper.ignoreMe()) {
-                //headerRow[col] = columnHelper.getKey();
                 if (columnHelper.isCallerRef()) {
                     String callerRef = getCallerRef();
                     if (callerRef == null)
@@ -92,22 +93,15 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
                                 break; // Don't set a 0 value tag
                             }
                         } else {
-//                            if ( columnHelper.isCountry()){
-//                                tag = new TagInputBean(val).setMustExist(true).setIndex("Country" );
-//                                tag.addMetaLink("located", properties);
-//                            } else {
-                                // Assume column of "Specialist" and value of "Orthopedic"
-                                // Index == Specialist and Type = Orthopedic
-                                String index = columnHelper.getKey();
+                            String index = columnHelper.getKey();
 
-                                tag = new TagInputBean(val).setMustExist(columnHelper.isMustExist()).setIndex(columnHelper.isCountry() ? "Country" : index);
-                                tag.addMetaLink(columnHelper.getRelationshipName());
-                            //}
+                            tag = new TagInputBean(val).setMustExist(columnHelper.isMustExist()).setIndex(columnHelper.isCountry() ? "Country" : index);
+                            tag.addMetaLink(columnHelper.getRelationshipName());
                         }
                         ArrayList<CsvTag> targets = columnHelper.getColumnDefinition().getTargets();
                         for (CsvTag target : targets) {
-                            Object tagName =row.get(target.getColumn());
-                            if ( tagName == null) {
+                            Object tagName = row.get(target.getColumn());
+                            if (tagName == null) {
                                 logger.error("No 'column' value found for {} in the {} entry ", target.getColumn(), column);
                             } else {
                                 TagInputBean targetTag = new TagInputBean(tagName.toString())
@@ -125,6 +119,19 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
             } // ignoreMe
             col++;
         }
+        Collection<String> strategyCols = importParams.getStrategyCols();
+        for (String strategyCol : strategyCols) {
+            CsvColumnDefinition colDef = importParams.getColumnDef(strategyCol);
+            String tag = importParams.getStaticDataResolver().resolve(strategyCol, getColumnValues(colDef, row));
+
+            if (tag != null ){
+                addCrossReference(colDef.getStrategy(), new MetaKey(colDef.getFortress(), colDef.getDocumentType(), tag));
+//                addCrossReference();
+//                TagInputBean tagInput = new TagInputBean(tag).setIndex(colDef.getIndex());
+//                addTag(tagInput);
+            }
+        }
+
         if (importParams.getMetaHeader() != null) {
             CsvColumnDefinition columnDefinition = importParams.getColumnDef(importParams.getMetaHeader());
             if (columnDefinition != null) {
@@ -138,6 +145,19 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
 
         }
         return AbRestClient.convertToJson(headerRow, line);
+    }
+
+    private Map<String,String> getColumnValues(CsvColumnDefinition colDef, Map<String, String> row) {
+        Map<String,String>results = new HashMap<>();
+        String[] columns = colDef.getColumns();
+
+        int i =0;
+        int max = columns.length;
+        while ( i<max){
+            results.put(columns[i], row.get(columns[i]));
+            i++;
+        }
+        return results;
     }
 
     @Override

@@ -3,12 +3,18 @@ package com.auditbucket.test.functional;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
+import com.auditbucket.registration.bean.SystemUserResultBean;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.track.bean.CrossReferenceInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.MetaKey;
+import com.auditbucket.track.model.TrackTag;
 import org.joda.time.DateTime;
 import org.junit.Test;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -16,14 +22,12 @@ import java.util.*;
 import static org.junit.Assert.*;
 
 /**
- * Created with IntelliJ IDEA.
  * User: mike
  * Date: 1/04/14
  * Time: 4:12 PM
- * To change this template use File | Settings | File Templates.
  */
 @Transactional
-public class TestMetaXReference extends TestEngineBase {
+public class TestMetaCrossReference extends TestEngineBase {
 
     private String monowai = "Monowai";
     private String mike = "mike";
@@ -74,14 +78,14 @@ public class TestMetaXReference extends TestEngineBase {
         assertNotNull(sourceKey);
 
         // Check that exception is thrown if the callerRef is not unique for the fortress
-        Collection<String> xRef = new ArrayList<>();
+        Collection<MetaKey> xRef = new ArrayList<>();
         inputBean = new MetaInputBean(fortress.getName(), "wally", "DocTypeZ", new DateTime(), "ABC321");
         String destKey = trackEP.trackHeader(inputBean, null, null).getBody().getMetaKey();
         assertNotNull(destKey);
         assertFalse(destKey.equals(sourceKey));
 
-        xRef.add("ABC321");
-        xRef.add("Doesn't matter");
+        xRef.add(new MetaKey("ABC321"));
+        xRef.add(new MetaKey("Doesn't matter"));
         try {
             trackEP.postCrossReferenceByCallerRef(fortress.getName(), sourceKey, xRef, "cites", null, null);
             fail("Exactly one check failed");
@@ -98,17 +102,17 @@ public class TestMetaXReference extends TestEngineBase {
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
         trackEP.trackHeader(inputBean, null, null).getBody();
 
-        Collection<String> callerRefs = new ArrayList<>();
+        Collection<MetaKey> callerRefs = new ArrayList<>();
         // These are the two records that will cite the previously created header
         inputBean = new MetaInputBean(fortress.getName(), "wally", "DocTypeZ", new DateTime(), "ABC321");
         trackEP.trackHeader(inputBean, null, null).getBody();
         inputBean = new MetaInputBean(fortress.getName(), "wally", "DocTypeS", new DateTime(), "ABC333");
         trackEP.trackHeader(inputBean, null, null).getBody();
 
-        callerRefs.add("ABC321");
-        callerRefs.add("ABC333");
+        callerRefs.add(new MetaKey("ABC321"));
+        callerRefs.add(new MetaKey("ABC333"));
 
-        Collection<String> notFound = trackEP.postCrossReferenceByCallerRef(fortress.getName(), "ABC123", callerRefs, "cites", null, null);
+        Collection<MetaKey> notFound = trackEP.postCrossReferenceByCallerRef(fortress.getName(), "ABC123", callerRefs, "cites", null, null);
         assertEquals(0, notFound.size());
         Map<String, Collection<MetaHeader>> results = trackEP.getCrossReferenceByCallerRef(fortress.getName(), "ABC123", "cites", null, null);
         assertNotNull ( results);
@@ -135,11 +139,11 @@ public class TestMetaXReference extends TestEngineBase {
         trackEP.trackHeader(inputBeanB, null, null).getBody();
         MetaInputBean inputBeanC = new MetaInputBean(fortressA.getName(), "wally", "DocTypeS", new DateTime(), "ABC333");
         trackEP.trackHeader(inputBeanC, null, null).getBody();
-        Map<String,List<String>>refs = new HashMap<>();
-        List<String> callerRefs = new ArrayList<>();
+        Map<String, List<MetaKey>> refs = new HashMap<>();
+        List<MetaKey> callerRefs = new ArrayList<>();
 
-        callerRefs.add("ABC321");
-        callerRefs.add("ABC333");
+        callerRefs.add(new MetaKey("ABC321"));
+        callerRefs.add(new MetaKey("ABC333"));
 
         refs.put("cites",callerRefs);
         CrossReferenceInputBean bean = new CrossReferenceInputBean(fortressA.getName(), "ABC123",refs);
@@ -163,4 +167,5 @@ public class TestMetaXReference extends TestEngineBase {
         }
         assertEquals(2, count);
     }
+
 }

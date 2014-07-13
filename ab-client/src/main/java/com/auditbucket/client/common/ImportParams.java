@@ -3,10 +3,15 @@ package com.auditbucket.client.common;
 import com.auditbucket.client.Importer;
 import com.auditbucket.client.csv.CsvColumnDefinition;
 import com.auditbucket.client.rest.AbRestClient;
+import com.auditbucket.client.rest.IStaticDataResolver;
 import com.auditbucket.client.rest.StaticDataResolver;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -21,6 +26,7 @@ public class ImportParams {
     private Importer.importer importType;
     private String tagOrTrack;
     private String clazz = null;
+    private String staticDataClazz ;
     private char delimiter = ',';
     private String fortress = null;
     private boolean header = true;
@@ -30,7 +36,7 @@ public class ImportParams {
     private boolean metaOnly;
 
     private Map<String, CsvColumnDefinition> csvHeaders;
-    private StaticDataResolver staticDataResolver;
+    private IStaticDataResolver staticDataResolver;
     private String metaHeader;
 
     public ImportParams() {
@@ -148,13 +154,6 @@ public class ImportParams {
         return restClient;
     }
 
-    public StaticDataResolver getStaticDataResolver() {
-        if ( restClient != null )
-            return restClient;
-        else
-            return staticDataResolver;// Unit testing
-    }
-
     public boolean isSimulateOnly() {
         return restClient.isSimulateOnly();
     }
@@ -177,8 +176,28 @@ public class ImportParams {
         return csvHeaders.get(header);
     }
 
-    public void setStaticDataResolver(StaticDataResolver staticDataResolver) {
+    public void setStaticDataResolver(IStaticDataResolver staticDataResolver) {
         this.staticDataResolver = staticDataResolver;
+    }
+
+    public IStaticDataResolver getStaticDataResolver() {
+        if ( staticDataResolver != null )
+            return staticDataResolver;
+
+        if ( staticDataClazz == null )
+            return new StaticDataResolver(restClient);
+        else {
+            try {
+                Constructor<StaticDataResolver> constructor = (Constructor<StaticDataResolver>) Class.forName (staticDataClazz).getConstructor(AbRestClient.class);
+                StaticDataResolver resolver = constructor.newInstance(restClient);
+                if (resolver != null ) {
+                    staticDataResolver = resolver;
+                }
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+                logger.error("Unexpected", e);
+            }
+            return staticDataResolver;// Unit testing
+        }
     }
 
     public void setMetaHeader(String metaHeader) {
@@ -187,5 +206,25 @@ public class ImportParams {
 
     public String getMetaHeader() {
         return metaHeader;
+    }
+
+    public Map<String, CsvColumnDefinition> getColumns() {
+        return csvHeaders;
+    }
+
+    public Collection<String> getStrategyCols() {
+        Map<String,CsvColumnDefinition> columns = getColumns();
+        ArrayList<String>strategyColumns = new ArrayList<>();
+        for (String column : columns.keySet()) {
+            String strategy = columns.get(column).getStrategy();
+            if ( strategy !=null )
+                strategyColumns.add(column);
+        }
+        return strategyColumns;
+    }
+
+
+    public void setStaticDataClazz(String staticDataClazz) {
+        this.staticDataClazz = staticDataClazz;
     }
 }
