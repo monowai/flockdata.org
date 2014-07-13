@@ -51,7 +51,7 @@ import java.util.*;
  *      User: Mike Holdsworth
  *      Since: 13/10/13
  */
-public class AbRestClient implements StaticDataResolver {
+public class AbRestClient  {
 
     private String NEW_HEADER;
     private String NEW_TAG;
@@ -103,8 +103,8 @@ public class AbRestClient implements StaticDataResolver {
         this.defaultFortress = defaultFortress;
     }
 
-    public AbRestClient(String serverName, String apiKey, int i) {
-        this(serverName, apiKey, null, null, i, null);
+    public AbRestClient(String serverName, String apiKey, int batchSize) {
+        this(serverName, apiKey, null, null, batchSize, null);
 
     }
 
@@ -234,40 +234,6 @@ public class AbRestClient implements StaticDataResolver {
         }
         return null;
     }
-
-    Map<String, TagInputBean> countriesByName = null;
-
-    /**
-     * resolves the country Name to an ISO code
-     *
-     * @param name long name of the country
-     * @return iso code to use
-     */
-    @Override
-    public String resolveCountryISOFromName(String name) throws DatagioException{
-//        if (simulateOnly)
-//            return name;
-
-        // 2 char country? it's already ISO
-        if ( name.length()==2)
-            return name;
-
-        if (countriesByName == null) {
-
-            Collection<TagInputBean> countries = getCountries();
-            countriesByName = new HashMap<>(countries.size());
-            for (TagInputBean next : countries) {
-                countriesByName.put(next.getName().toLowerCase(), next);
-            }
-        }
-        TagInputBean tag = countriesByName.get(name.toLowerCase());
-        if (tag == null) {
-            logger.error("Unable to resolve country name [{}]", name);
-            return null;
-        }
-        return tag.getCode();
-    }
-
 
     private String flushAudit(List<MetaInputBean> auditInput) throws DatagioException{
         if (simulateOnly || auditInput.isEmpty())

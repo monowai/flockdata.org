@@ -120,7 +120,7 @@ public class TrackDaoNeo implements TrackDao {
     }
 
     @Override
-    public Iterable<MetaHeader> findByCallerRef(Long fortressId, String callerRef) {
+    public Collection<MetaHeader> findByCallerRef(Long fortressId, String callerRef) {
         return metaRepo.findByCallerRef(fortressId, callerRef);
 
     }

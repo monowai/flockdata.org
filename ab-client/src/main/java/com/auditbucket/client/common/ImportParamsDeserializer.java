@@ -43,6 +43,11 @@ public class ImportParamsDeserializer extends JsonDeserializer<ImportParams> {
         if (column != null)
             importParams.setFortressUser(column.asText());
 
+        column = node.get("staticDataClazz");
+        if (column != null)
+            importParams.setStaticDataClazz(column.asText());
+
+
         column = node.get("metaOnly");
         if (column != null)
             importParams.setMetaOnly(Boolean.parseBoolean(column.asText()));
