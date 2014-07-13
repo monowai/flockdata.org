@@ -312,7 +312,13 @@ public class TrackDaoNeo implements TrackDao {
     public TrackLog getLog(Long logId) {
         Relationship change = template.getRelationship(logId);
         if (change != null)
-            return (TrackLog) template.getDefaultConverter().convert(change, LoggedRelationship.class);
+            try {
+                return (TrackLog) template.getDefaultConverter().convert(change, LoggedRelationship.class);
+            } catch (NotFoundException nfe) {
+                // Occurs if ab-search has been down and the database is out of sync from multiple restarts
+                logger.error("Error converting relationship to a LoggedRelationship");
+                return null;
+            }
         return null;
     }
 
@@ -348,14 +354,14 @@ public class TrackDaoNeo implements TrackDao {
         template.fetch(newChange.getTrackLog());
         boolean moreRecent = (existingLog == null || existingLog.getFortressWhen() <= fortressWhen.getMillis());
         if (moreRecent) {
-            if ( metaHeader.getLastChange()!=null)
+            if (metaHeader.getLastChange() != null)
                 metaHeader = template.fetch(metaHeader);
             if (metaHeader.getLastUser() == null || (!metaHeader.getLastUser().getId().equals(newChange.getWho().getId()))) {
                 metaHeader.setLastUser(newChange.getWho());
             }
             metaHeader.setFortressLastWhen(fortressWhen.getMillis());
             //if ( metaHeader.getLastChange() !=null ){
-                //template.fetch(metaHeader.getLastChange());
+            //template.fetch(metaHeader.getLastChange());
 
 //                logger.debug("Replacing lastChange {}/{}. Old/New Dates {}, {}",
 //                        metaHeader.getLastChange().getId(),
