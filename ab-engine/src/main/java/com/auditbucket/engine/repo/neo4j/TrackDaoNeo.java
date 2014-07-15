@@ -31,6 +31,7 @@ import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
+import com.auditbucket.registration.service.KeyGenService;
 import com.auditbucket.track.bean.AuditTXResult;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
@@ -41,9 +42,6 @@ import org.neo4j.graphdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
@@ -76,6 +74,9 @@ public class TrackDaoNeo implements TrackDao {
     WhatService whatService;
 
     @Autowired
+    KeyGenService keyGenService;
+
+    @Autowired
     Neo4jTemplate template;
 
     private Logger logger = LoggerFactory.getLogger(TrackDaoNeo.class);
@@ -85,18 +86,34 @@ public class TrackDaoNeo implements TrackDao {
     }
 
     @Override
-    @Caching(evict = {@CacheEvict(value = "headerId", key = "#p0.id"),
-            @CacheEvict(value = "metaKey", key = "#p0.metaKey")}
-    )
+    public MetaHeader create(MetaInputBean inputBean, Fortress fortress, DocumentType documentType) throws DatagioException {
+        MetaHeader metaHeader = findByCallerRef(fortress.getId(), documentType.getId(), inputBean.getCallerRef());
+        if (metaHeader != null) {
+            logger.debug("Found existing MetaHeader during request to create - returning");
+            return metaHeader;
+        }
+        String metaKey = ( inputBean.isTrackSuppressed()?null:keyGenService.getUniqueKey());
+        metaHeader = new MetaHeaderNode(metaKey, fortress, inputBean, documentType);
+
+        if (! inputBean.isTrackSuppressed()) {
+            logger.debug("Creating {}", metaHeader);
+
+            metaHeader = save(metaHeader, documentType);
+            Node node = template.getPersistentState(metaHeader);
+            node.addLabel(DynamicLabel.label(documentType.getName()));
+
+        }
+        return metaHeader;
+    }
+
+    //@Override
+//    @Caching(evict = {@CacheEvict(value = "headerId", key = "#p0.id"),
+//            @CacheEvict(value = "metaKey", key = "#p0.metaKey")}}
+
     public MetaHeader save(MetaHeader metaHeader, DocumentType documentType) {
         metaHeader.bumpUpdate();
-        MetaHeader header = metaRepo.save((MetaHeaderNode) metaHeader);
-        if (header != null && documentType != null) {
-            Node node = template.getPersistentState(header);
-            node.addLabel(DynamicLabel.label(documentType.getName()));
-        }
+        return metaRepo.save((MetaHeaderNode) metaHeader);
 
-        return header;
     }
 
     public TxRef save(TxRef tagRef) {
@@ -151,7 +168,7 @@ public class TrackDaoNeo implements TrackDao {
         return metaRepo.findBySchemaPropertyValue("callerKeyRef", keyToFind);
     }
 
-    @Cacheable(value = "headerId", key = "p0.id", unless = "#result==null")
+    //@Cacheable(value = "headerId", key = "p0.id", unless = "#result==null")
     public MetaHeader fetch(MetaHeader header) {
         template.fetch(header.getCreatedBy());
         template.fetch(header.getLastUser());
@@ -298,16 +315,6 @@ public class TrackDaoNeo implements TrackDao {
     }
 
     @Override
-    public MetaHeader create(MetaInputBean inputBean, Fortress fortress, DocumentType documentType) throws DatagioException {
-        MetaHeader metaHeader = new MetaHeaderNode(inputBean.getMetaKey(), fortress, inputBean, documentType);
-        if (inputBean.isTrackSuppressed()) {
-            metaHeader.setMetaKey(null);
-            return metaHeader;
-        } else
-            return save(metaHeader, documentType);
-    }
-
-    @Override
 //    @Cacheable(value = "trackLog", unless = "#result==null")
     public TrackLog getLog(Long logId) {
         Relationship change = template.getRelationship(logId);
@@ -348,14 +355,14 @@ public class TrackDaoNeo implements TrackDao {
         template.fetch(newChange.getTrackLog());
         boolean moreRecent = (existingLog == null || existingLog.getFortressWhen() <= fortressWhen.getMillis());
         if (moreRecent) {
-            if ( metaHeader.getLastChange()!=null)
+            if (metaHeader.getLastChange() != null)
                 metaHeader = template.fetch(metaHeader);
             if (metaHeader.getLastUser() == null || (!metaHeader.getLastUser().getId().equals(newChange.getWho().getId()))) {
                 metaHeader.setLastUser(newChange.getWho());
             }
             metaHeader.setFortressLastWhen(fortressWhen.getMillis());
             //if ( metaHeader.getLastChange() !=null ){
-                //template.fetch(metaHeader.getLastChange());
+            //template.fetch(metaHeader.getLastChange());
 
 //                logger.debug("Replacing lastChange {}/{}. Old/New Dates {}, {}",
 //                        metaHeader.getLastChange().getId(),

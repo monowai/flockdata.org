@@ -126,8 +126,6 @@ public interface MetaHeader {
     @JsonIgnore
     DateTime getFortressDateCreated();
 
-    void setMetaKey(String o);
-
     void setCreatedBy(FortressUser thisFortressUser);
 
     String getEvent();
@@ -137,4 +135,7 @@ public interface MetaHeader {
     public Log getLastChange();
 
     void setFortressLastWhen(Long fortressWhen);
+
+    String getCallerKeyRef();
+
 }

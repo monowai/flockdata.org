@@ -118,7 +118,7 @@ public class TrackService {
      * @return unique primary key to be used for subsequent log calls
      */
     public TrackResultBean createHeader(Company company, Fortress fortress, MetaInputBean inputBean) {
-        DocumentType documentType = schemaService.resolveDocType(fortress, inputBean.getDocumentType(), true);
+        DocumentType documentType = schemaService.resolveDocType(fortress, inputBean.getDocumentType());
 
         MetaHeader ah = null;
         if (inputBean.getCallerRef() != null && !inputBean.getCallerRef().equals(EMPTY))
@@ -151,12 +151,13 @@ public class TrackService {
 
     }
 
-    private MetaHeader makeHeader(MetaInputBean inputBean, Fortress fortress, DocumentType documentType) throws DatagioException {
-        inputBean.setMetaKey(keyGenService.getUniqueKey());
+    public MetaHeader makeHeader(MetaInputBean inputBean, Fortress fortress, DocumentType documentType) throws DatagioException {
         MetaHeader ah = trackDao.create(inputBean, fortress, documentType);
         if (ah.getId() == null)
             inputBean.setMetaKey("NT " + fortress.getFortressKey()); // We ain't tracking this
-        logger.debug("MetaHeader created:{} key=[{}] for fortress [{}]", ah.getId(), ah.getMetaKey(), fortress.getCode());
+
+        inputBean.setMetaKey(ah.getMetaKey());
+        logger.debug("MetaHeader created: id=[{}] key=[{}] for fortress [{}] callerKeyRef = [{}]", ah.getId(), ah.getMetaKey(), fortress.getCode(), ah.getCallerKeyRef());
         return ah;
     }
 
@@ -605,9 +606,12 @@ public class TrackService {
 
 
     public MetaHeader findByCallerRef(Fortress fortress, String documentType, String callerRef) {
+
         DocumentType doc = schemaService.resolveDocType(fortress, documentType, false);
-        if (doc == null)
+        if (doc == null){
+            logger.debug ("Unable to find document for callerRef {}, {}, {}", fortress, documentType, callerRef);
             return null;
+        }
         return findByCallerRef(fortress, doc, callerRef);
 
     }

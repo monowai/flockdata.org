@@ -21,6 +21,7 @@ package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.registration.model.Relationship;
 import com.auditbucket.track.model.Concept;
+import com.auditbucket.track.model.DocumentType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.neo4j.graphdb.Direction;
@@ -31,7 +32,6 @@ import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
 import java.util.Collection;
-import java.util.Set;
 import java.util.TreeSet;
 
 /**
@@ -50,34 +50,41 @@ public class ConceptNode implements Concept {
     private String name;
 
     @RelatedTo(elementClass = RelationshipNode.class, type="KNOWN_RELATIONSHIP", direction = Direction.OUTGOING)
-    Set<Relationship> relationships;
+    Collection<Relationship> relationships;
 
     protected ConceptNode() {
     }
 
-    public ConceptNode(String indexName) {
+    public ConceptNode(String name) {
         this();
-        this.name = indexName;
+        this.name = name;
 
     }
 
-    public ConceptNode(String indexName, String relationship) {
+    public ConceptNode(String indexName, String relationship, DocumentType docType) {
         this(indexName);
-        addRelationship(relationship);
+        addRelationship(relationship, docType);
 
     }
 
-    public void addRelationship(String relationship) {
+
+    public void addRelationship(String relationship, DocumentType docType) {
         if ( relationships == null )
             relationships = new TreeSet<>();
 
-        RelationshipNode node = new RelationshipNode(relationship);
+        RelationshipNode node = new RelationshipNode(relationship, docType);
         relationships.add(node);
+
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public Collection<Relationship> getRelationships() {
         return relationships;
+    }
+
+    @Override
+    public void addRelationships(Collection<Relationship> tempRlx) {
+        this.relationships = tempRlx;
     }
 
 

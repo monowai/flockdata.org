@@ -6,6 +6,7 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.track.bean.ConceptInputBean;
 import com.auditbucket.track.model.DocumentType;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -33,4 +34,6 @@ public interface SchemaDao {
     void registerConcepts(Company company, Map<DocumentType, Collection<ConceptInputBean>> concepts);
 
     Set<DocumentType> findConcepts(Company company, Collection<String> documents, boolean withRelationships);
+
+    void createDocTypes(ArrayList<String> docTypes, Fortress fortress);
 }
