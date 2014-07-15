@@ -19,6 +19,10 @@
 
 package com.auditbucket.registration.model;
 
+import com.auditbucket.track.model.DocumentType;
+
+import java.util.Collection;
+
 /**
  * User: mike
  * Date: 16/06/14
@@ -26,5 +30,13 @@ package com.auditbucket.registration.model;
  */
 public interface Relationship {
     public String getName();
+
+    public Long getId();
+
+    public void addDocumentType(DocumentType documentType);
+
+    boolean hasDocumentType(DocumentType document);
+
+    Collection<DocumentType>getDocumentTypes();
 
 }

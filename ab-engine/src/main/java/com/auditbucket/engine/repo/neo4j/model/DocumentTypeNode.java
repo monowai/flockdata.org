@@ -32,7 +32,8 @@ import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * User: Mike Holdsworth
@@ -53,31 +54,49 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
     @Indexed(unique = true)
     private String companyKey;
 
-    @RelatedTo(elementClass = FortressNode.class, type = "FORTRESS_DOC", direction = Direction.INCOMING)
+    @RelatedTo(elementClass = FortressNode.class, type = "FORTRESS_DOC", direction = Direction.OUTGOING)
     private Fortress fortress;
 
     @RelatedTo(elementClass = ConceptNode.class,  type = "HAS_CONCEPT", direction = Direction.OUTGOING)
-    Set<Concept>concepts;
+    Collection<Concept> concepts;
 
     protected DocumentTypeNode() {
     }
 
-    public DocumentTypeNode(Fortress fortress, String documentType) {
+    public DocumentTypeNode(String documentType){
         this();
         this.name = documentType;
-        this.code = parse(documentType);
-        this.fortress = fortress;
-        this.companyKey = fortress.getCompany().getId() + "." + code;
 
+    }
+
+    public DocumentTypeNode(Fortress fortress, String documentType) {
+        this(documentType);
+        this.code = parse(fortress, documentType);
+
+        if ( fortress !=null ){
+            this.companyKey = fortress.getCompany().getId() + "." + code;
+            addFortress(fortress);
+        }
+
+    }
+
+//    public DocumentTypeNode(Collection<Fortress> fortress, String name) {
+//        this(name);
+//        this.fortress = fortress;
+//        if ( fortress !=null )
+//            this.companyKey = fortress.iterator().next().getCompany().getId() + "." + code;
+//
+//    }
+
+    private void addFortress(Fortress fortress) {
+//        if ( fortress== null )
+//            fortress = new ArrayList<>();
+//        fortress.add(fortress);
+        this.fortress = fortress;
     }
 
     public String getName() {
         return name;
-    }
-
-    @JsonIgnore
-    public Fortress getFortress() {
-        return fortress;
     }
 
     @Override
@@ -102,12 +121,19 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Set<Concept> getConcepts() {
+    public Collection<Concept> getConcepts() {
         return concepts;
     }
 
     @Override
+    public Fortress getFortress() {
+        return fortress;
+    }
+
+    @Override
     public void add(Concept concept) {
+        if ( concepts == null )
+            concepts = new ArrayList<>();
         concepts.add(concept);
     }
 
@@ -120,13 +146,14 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
                 '}';
     }
 
-    public static String parse(String indexName) {
-        return indexName.toLowerCase().replaceAll("\\s", ".");
+    public static String parse(Fortress fortress, String indexName) {
+        //return indexName.toLowerCase().replaceAll("\\s", ".");
+        return fortress.getId() + "."+indexName.toLowerCase().replaceAll("\\s", ".");
     }
 
     @Override
     public int compareTo(DocumentType o) {
-        return o.getCompanyKey().compareTo(companyKey);  //To change body of implemented methods use File | Settings | File Templates.
+        return o.getCompanyKey().compareTo(companyKey);
     }
 
     @Override

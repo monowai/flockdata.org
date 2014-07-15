@@ -46,7 +46,7 @@ public class TrackEventDaoNeo implements TrackEventDao {
     @Autowired
     ChangeEventRepo eventRepo;
 
-    @Cacheable(value = "companyEvent", unless = "#result == null")
+//    @Cacheable(value = "companyEvent", unless = "#result == null")
     private ChangeEvent findEvent(Company company, String eventCode) {
         return eventRepo.findCompanyEvent(company.getId(), eventCode.toLowerCase());
     }
