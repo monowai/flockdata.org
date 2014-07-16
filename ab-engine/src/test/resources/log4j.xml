@@ -54,6 +54,9 @@
         <level value="info"/>
     </logger>
 
+    <logger name="com.auditbucket.engine.service.LogProcessor">
+        <level value="info"/>
+    </logger>
 
     <!-- Root Logger -->
 

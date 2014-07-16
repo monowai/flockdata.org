@@ -280,7 +280,7 @@ public class MetaInputBean {
     }
 
     public void addCrossReference(String relationshipName, MetaKey metaKey){
-        //new CrossReferenceInputBean(getFortress(), callerRef, c)
+        //new CrossReferenceInputBean(getFortresses(), callerRef, c)
         List<MetaKey>refs = crossReferences.get(relationshipName);
         if ( refs == null ){
             refs = new ArrayList<>();

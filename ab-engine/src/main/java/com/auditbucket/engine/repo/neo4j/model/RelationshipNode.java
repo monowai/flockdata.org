@@ -20,10 +20,17 @@
 package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.registration.model.Relationship;
+import com.auditbucket.track.model.DocumentType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.annotation.RelatedTo;
+
+import java.util.Collection;
+import java.util.TreeSet;
 
 /**
  * User: mike
@@ -36,14 +43,33 @@ public class RelationshipNode implements Relationship, Comparable<RelationshipNo
     @GraphId
     Long id;
 
-//    @RelatedTo(type="KNOWN_RELATIONSHIP", direction = Direction.INCOMING)
-//    ConceptNode concept;
+    @RelatedTo(elementClass = DocumentTypeNode.class, type="DOC_RELATIONSHIP", direction = Direction.OUTGOING)
+    Collection<DocumentType> documentTypes;
 
     RelationshipNode(){}
 
-    public RelationshipNode(String relationship) {
+    public RelationshipNode(String relationship, DocumentType documentType) {
         this();
         setName(relationship);
+        addDocumentType(documentType);
+    }
+
+    public void addDocumentType(DocumentType documentType) {
+        if (documentTypes == null ){
+            documentTypes = new TreeSet<>();
+        }
+        documentTypes.add(documentType);
+    }
+
+    @Override
+    public boolean hasDocumentType(DocumentType document) {
+        if ( documentTypes == null )
+            return false;
+        for (DocumentType documentType : documentTypes) {
+            if ( documentType.getId().equals(document.getId()))
+                return true;
+        }
+        return false;
     }
 
     public Long getId() {
@@ -59,15 +85,10 @@ public class RelationshipNode implements Relationship, Comparable<RelationshipNo
         this.name = name;
     }
 
-//    @JsonIgnore
-//    public ConceptNode getConcept() {
-//        return concept;
-//    }
-//
-//    public void setConcept(ConceptNode concept) {
-//        this.concept = concept;
-//    }
-
+    @JsonIgnore
+    public Collection<DocumentType> getDocumentTypes(){
+        return documentTypes;
+    }
     private String name;
 
     @Override
