@@ -42,6 +42,7 @@ import java.util.Set;
 
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
@@ -220,6 +221,60 @@ public class TestTagConcepts extends TestEngineBase {
             }
         }
         Assert.assertEquals("Docs In Use not supporting 'null args'", 2,queryEP.getRelationships(null, su.getApiKey(), su.getApiKey()).size());
+    }
+    @Test
+    public void relationshipWorkForMultipleDocuments() throws Exception {
+        logger.debug("### relationshipWorkForMultipleDocuments");
+        Neo4jHelper.cleanDb(template);
+        engineAdmin.setConceptsEnabled(true);
+
+        Transaction t = beginManualTransaction();
+
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike));
+        Assert.assertNotNull(su);
+
+        Fortress fortress = fortressService.registerFortress("fortA");
+
+        DocumentType docA = schemaService.resolveDocType(fortress, "DOCA", true);
+        DocumentType docB = schemaService.resolveDocType(fortress, "DOCB", true);
+        commitManualTransaction(t);// Should only be only one docTypes
+
+        Assert.assertNotNull(docA);
+        Long idA = docA.getId();
+        docA = schemaService.resolveDocType(fortress, docA.getName(), false);
+        Assert.assertEquals(idA, docA.getId());
+
+        MetaInputBean input = new MetaInputBean(fortress.getName(), "jinks", "DocA", new DateTime());
+        input.addTag(new TagInputBean("cust123", "purchased").setIndex("Customer"));
+        trackEP.trackHeader(input, su.getApiKey(), su.getApiKey()).getBody().getMetaHeader();
+        input = new MetaInputBean(fortress.getName(), "jinks", docB.getName(), new DateTime());
+        input.addTag(new TagInputBean("cust121", "purchased").setIndex("Customer"));
+        trackEP.trackHeader(input, su.getApiKey(), su.getApiKey()).getBody().getMetaHeader();
+        waitAWhile("Concepts creating...");
+
+        Collection<String>docs = new ArrayList<>();
+        docs.add(docA.getName());
+        docs.add(docB.getName());
+        boolean docAFound = false;
+        boolean docBFound = false;
+        Set<DocumentType> docTypes = queryEP.getRelationships(docs, su.getApiKey(), su.getApiKey());
+        for (DocumentType docType : docTypes) {
+            Collection<Concept>concepts = docType.getConcepts();
+            for (Concept concept : concepts) {
+                Collection<Relationship> relationships  =concept.getRelationships();
+                for (Relationship relationship : relationships) {
+                    Assert.assertEquals(1, relationship.getDocumentTypes().size());
+                    if ( docType.getName().equals(docA.getName()))
+                        docAFound = true;
+                    else if (docType.getName().equals(docB.getName()) )
+                        docBFound = true;
+                }
+            }
+        }
+        // ToDo: it is unclear if we should track in this manner
+        assertTrue("DocA Not Found in the concept", docAFound);
+        assertTrue("DocB Not Found in the concept", docBFound);
+        Assert.assertEquals("Docs In Use not supporting 'null args'", 2, queryEP.getRelationships(null, su.getApiKey(), su.getApiKey()).size());
     }
 
     /**
