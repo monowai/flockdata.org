@@ -209,7 +209,7 @@ public class TestTagConcepts extends TestEngineBase {
         docs.add("DocA");
         Set<DocumentType> docTypes = queryEP.getRelationships(docs, su.getApiKey(), su.getApiKey());
         for (DocumentType docType : docTypes) {
-            Set<Concept>concepts = docType.getConcepts();
+            Collection<Concept>concepts = docType.getConcepts();
             for (Concept concept : concepts) {
                 Collection<Relationship> relationships  =concept.getRelationships();
                 for (Relationship relationship : relationships) {
