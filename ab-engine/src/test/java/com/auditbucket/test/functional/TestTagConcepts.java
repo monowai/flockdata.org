@@ -252,10 +252,12 @@ public class TestTagConcepts extends TestEngineBase {
 
         MetaInputBean promoInput = new MetaInputBean(fortress.getName(), "jinks", promo.getName(), new DateTime());
         promoInput.addTag(new TagInputBean("Linux", "offer").setIndex("Device"));
+        //promoInput.addTag(new TagInputBean("Mike", "sold").setIndex("Person"));
         trackEP.trackHeader(promoInput, su.getApiKey(), su.getApiKey()).getBody().getMetaHeader();
 
         MetaInputBean salesInput = new MetaInputBean(fortress.getName(), "jinks", sale.getName(), new DateTime());
         salesInput.addTag(new TagInputBean("Linux", "purchased").setIndex("Device"));
+        //promoInput.addTag(new TagInputBean("Gary", "authorised").setIndex("Person"));
         trackEP.trackHeader(salesInput, su.getApiKey(), su.getApiKey()).getBody().getMetaHeader();
         waitAWhile();
         Collection<String>docs = new ArrayList<>();
