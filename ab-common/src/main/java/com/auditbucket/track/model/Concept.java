@@ -36,5 +36,6 @@ public interface Concept {
 
     Collection<Relationship> getRelationships();
 
-    void addRelationship(String relationship);
+
+    void addRelationships(Collection<Relationship> tempRlx);
 }

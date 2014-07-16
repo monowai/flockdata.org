@@ -143,8 +143,9 @@ public class TestAdminCalls extends TestEngineBase {
         mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 0}"));
 
         inputBean.setCallerRef("123abc");
+        inputBean.setMetaKey(null);
         inputBean.setLog(new LogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 0}"));
-        mediationFacade.createHeader(inputBean, null);
+        mediationFacade.createHeader(fo.getCompany(), fo, inputBean);
 
         SecurityContextHolder.getContext().setAuthentication(null);
         // Assert that unauthorised user can't purge a fortress

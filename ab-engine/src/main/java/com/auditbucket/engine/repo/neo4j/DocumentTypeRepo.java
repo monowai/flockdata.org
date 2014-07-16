@@ -39,7 +39,7 @@ public interface DocumentTypeRepo extends GraphRepository<DocumentTypeNode> {
                     "MATCH fortress<-[:FORTRESS_DOC]-documentType " +
                             "        where id(fortress)={0} and documentType.code ={1}" +
                             "       return documentType")
-    DocumentTypeNode findFortressDocType(Long fortressId, String docKey);
+    DocumentTypeNode findFortressDocCode(Long fortressId, String docCode);
 
     @Query(elementClass = DocumentTypeNode.class,
             value =
