@@ -105,12 +105,19 @@ public class ConceptNode implements Concept {
                 '}';
     }
 
-    public Relationship hasRelationship(String relationshipName) {
+    public Relationship hasRelationship(String relationshipName, DocumentType docType) {
         if ( relationships == null )
             return null;
         for (Relationship relationship : relationships) {
-            if (relationship.getName().equalsIgnoreCase(relationshipName))
-                return relationship;
+            if (relationship.getName().equalsIgnoreCase(relationshipName)){
+                for ( DocumentType documentType: relationship.getDocumentTypes()) {
+                    if ( documentType.getId().equals(docType.getId()))
+                        return relationship;
+
+                }
+
+            }
+
         }
         return null;
     }

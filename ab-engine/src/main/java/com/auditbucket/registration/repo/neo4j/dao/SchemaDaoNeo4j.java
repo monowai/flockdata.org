@@ -219,7 +219,7 @@ public class SchemaDaoNeo4j implements SchemaDao {
                     } else {
                         logger.trace("Found an existing concept {}", existingConcept);
                         template.fetch(existingConcept.getRelationships());
-                        Relationship existingR = existingConcept.hasRelationship(relationship);
+                        Relationship existingR = existingConcept.hasRelationship(relationship, docType);
                         if (existingR == null) {
                             existingConcept.addRelationship(relationship, docType);
                             logger.debug("Creating {} concept for{}", relationship, existingConcept);
