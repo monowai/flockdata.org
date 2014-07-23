@@ -17,6 +17,20 @@ public class CsvColumnDefinition {
     private boolean mustExist;
     private boolean valueAsProperty;
     private boolean country;
+    private String  strategy=null;
+    private String  fortress=null;
+    private String  documentType=null;
+    private String[] columns;
+
+    public String getIndex() {
+        return index;
+    }
+
+    public void setIndex(String index) {
+        this.index = index;
+    }
+
+    private String index;
     private String nameColumn;
     private String appendJoinText = " ";
     private String relationshipName;
@@ -124,4 +138,27 @@ public class CsvColumnDefinition {
         return targets;
     }
 
+    public String getStrategy() {
+        return strategy;
+    }
+
+    public void setStrategy(String strategy) {
+        this.strategy = strategy;
+    }
+
+    public String[] getColumns() {
+        return columns;
+    }
+
+    public void setColumns(String[] columns) {
+        this.columns = columns;
+    }
+
+    public String getFortress() {
+        return fortress;
+    }
+
+    public String getDocumentType() {
+        return documentType;
+    }
 }

@@ -71,7 +71,7 @@ public interface TrackDao {
 
     Set<TrackLog> getLogs(Long auditHeaderID);
 
-    Iterable<MetaHeader> findByCallerRef(Long fortressId, String callerRef);
+    Collection<MetaHeader> findByCallerRef(Long fortressId, String callerRef);
 
     MetaHeader findByCallerRefUnique(Long id, String sourceKey) throws DatagioException;
 
@@ -109,13 +109,11 @@ public interface TrackDao {
 
     void delete(Log currentChange);
 
-    void makeLastChange(MetaHeader metaHeader, Log priorChange);
-
     void crossReference(MetaHeader header, Collection<MetaHeader> targets, String refName);
 
     Map<String,Collection<MetaHeader>> getCrossReference(Company company, MetaHeader header, String xRefName);
 
-    Collection<MetaHeader> findHeaders(Company company, Collection<String> toFind);
+    Collection<MetaHeader> findHeaders(Company company, Collection<String> metaKeys);
 
     void purgeTagRelationships(Fortress fortress);
 

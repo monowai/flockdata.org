@@ -25,7 +25,6 @@ import com.auditbucket.track.model.TrackLog;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
 
 import java.util.TimeZone;
@@ -36,8 +35,7 @@ import java.util.TimeZone;
  * Time: 4:12 PM
  */
 @RelationshipEntity(type = "LOGGED")
-@TypeAlias("ab.Log")
-public class TrackLogRelationship implements TrackLog {
+public class LoggedRelationship implements TrackLog {
     @GraphId
     private Long id;
 
@@ -58,20 +56,20 @@ public class TrackLogRelationship implements TrackLog {
     // ToDo: Associated with a node if Not Indexed. This is for maintenance and rebuilding missing docs.
     private boolean indexed = false;
 
-    protected TrackLogRelationship() {
-        DateTime now = new DateTime().toDateTime(DateTimeZone.UTC);
-        this.sysWhen = now.getMillis();
+    protected LoggedRelationship() {
+        DateTime utcNow = new DateTime().toDateTime(DateTimeZone.UTC);
+        setSysWhen(utcNow.getMillis());
     }
 
-    public TrackLogRelationship(MetaHeader header, Log log, DateTime fortressWhen) {
+    public LoggedRelationship(MetaHeader header, Log log, DateTime fortressWhen) {
         this();
         this.metaHeader = (MetaHeaderNode) header;
         this.log = (LogNode) log;
         if (fortressWhen != null && fortressWhen.getMillis() != 0) {
-            this.fortressWhen = fortressWhen.getMillis();
+            setFortressWhen(fortressWhen.getMillis());
         } else {
             // "now" in the fortress default timezone
-            this.fortressWhen = new DateTime(sysWhen, DateTimeZone.forTimeZone(TimeZone.getTimeZone(header.getFortress().getTimeZone()))).getMillis();
+            setFortressWhen(new DateTime(sysWhen, DateTimeZone.forTimeZone(TimeZone.getTimeZone(header.getFortress().getTimeZone()))).getMillis());
         }
     }
 
@@ -82,6 +80,10 @@ public class TrackLogRelationship implements TrackLog {
 
     public Long getFortressWhen() {
         return fortressWhen;
+    }
+
+    void setFortressWhen(Long fortressWhen){
+        this.fortressWhen = fortressWhen;
     }
 
     void setSysWhen(Long sysWhen) {
@@ -119,9 +121,9 @@ public class TrackLogRelationship implements TrackLog {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof TrackLogRelationship)) return false;
+        if (!(o instanceof LoggedRelationship)) return false;
 
-        TrackLogRelationship that = (TrackLogRelationship) o;
+        LoggedRelationship that = (LoggedRelationship) o;
 
         if (log != null ? !log.equals(that.log) : that.log != null) return false;
         if (metaHeader != null ? !metaHeader.equals(that.metaHeader) : that.metaHeader != null) return false;
@@ -140,7 +142,7 @@ public class TrackLogRelationship implements TrackLog {
 
     @Override
     public String toString() {
-        return "TrackLogRelationship{" +
+        return "LoggedRelationship{" +
                 "id=" + id +
                 ", sysWhen=" + sysWhen +
                 ", indexed=" + indexed +

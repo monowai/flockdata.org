@@ -29,7 +29,7 @@ public class TagMapper extends TagInputBean implements DelimitedMappable {
 
     @Override
     public String setData(String[] headerRow, String[] line, ImportParams staticDataResolver) throws JsonProcessingException {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
@@ -38,6 +38,9 @@ public class TagMapper extends TagInputBean implements DelimitedMappable {
     }
 
     public static DelimitedMappable newInstance(ImportParams importParams) {
+        if (importParams.getImportType()== Importer.importer.CSV)
+            return new CsvTagMapper(importParams);
+
         return new TagMapper(importParams);
     }
 

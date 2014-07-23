@@ -1,13 +1,12 @@
 package com.auditbucket.engine.service;
 
 import com.auditbucket.dao.MatrixDao;
+import com.auditbucket.query.MatrixInputBean;
+import com.auditbucket.query.MatrixResults;
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.track.query.MatrixResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collection;
 
 /**
  * Query support for visualization frameworks
@@ -21,8 +20,8 @@ import java.util.Collection;
 public class MatrixService {
     @Autowired
     MatrixDao matrixDao;
-    public Collection<MatrixResult> getMatrix(Company company, String metaLabel){
-        return matrixDao.getMatrix(company, metaLabel);
-    }
 
+    public MatrixResults getMatrix(Company company, MatrixInputBean matrixInput) {
+        return matrixDao.getMatrix(company, matrixInput);
+    }
 }

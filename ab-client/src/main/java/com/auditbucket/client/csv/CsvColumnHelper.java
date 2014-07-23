@@ -13,6 +13,8 @@ public class CsvColumnHelper {
     private CsvColumnDefinition columnDefinition = null;
 
     public String getKey() {
+        if (columnDefinition.getIndex() != null)
+            return columnDefinition.getIndex();
         return key;
     }
 
@@ -34,6 +36,10 @@ public class CsvColumnHelper {
 
     public Boolean isMustExist() {
         return columnDefinition.isMustExist();
+    }
+
+    public Boolean isStrategy(){
+        return columnDefinition.getStrategy()!=null;
     }
 
     @Override
@@ -85,5 +91,13 @@ public class CsvColumnHelper {
         return columnDefinition;
     }
 
+    public String getStrategy (){
+        return columnDefinition.getStrategy();
+    }
+
+
+    public String[] getColumns() {
+        return columnDefinition.getColumns();
+    }
 
 }

@@ -70,7 +70,14 @@ public class MetaHeaderNode implements MetaHeader {
 
     private String event = null; // should only be set if this is an immutable header and no log events will be recorded
 
-    private long lastUpdated = 0;
+    // By AB in UTC
+    private long lastUpdate = 0;
+
+    // Fortress in fortress timezone
+    private long fortressLastWhen;
+
+    private long fortressCreate;
+
 
     @GraphId
     private Long id;
@@ -93,8 +100,6 @@ public class MetaHeaderNode implements MetaHeader {
 
     private String description;
 
-    private long fortressDate;
-
     //@Indexed
     private String searchKey = null;
 
@@ -105,7 +110,7 @@ public class MetaHeaderNode implements MetaHeader {
 
         DateTime now = new DateTime().toDateTime(DateTimeZone.UTC);
         this.dateCreated = now.toDate().getTime();
-        this.lastUpdated = dateCreated;
+        this.lastUpdate = dateCreated;
     }
 
     public MetaHeaderNode(String uniqueKey, @NotEmpty Fortress fortress, @NotEmpty MetaInputBean metaInput, @NotEmpty DocumentType documentType) throws DatagioException {
@@ -114,7 +119,6 @@ public class MetaHeaderNode implements MetaHeader {
         this.fortress = (FortressNode)fortress;
         this.documentType = (documentType != null ? documentType.getName().toLowerCase() : "");
         callerRef = metaInput.getCallerRef();
-        //if ( callerRef!=null )
         assert documentType != null;
         callerKeyRef = this.fortress.getId() + "." + documentType.getId() + "." + (callerRef != null ? callerRef : metaKey);
 
@@ -130,17 +134,12 @@ public class MetaHeaderNode implements MetaHeader {
         Date when = metaInput.getWhen();
 
         if (when == null)
-            fortressDate = new DateTime(dateCreated, DateTimeZone.forTimeZone(TimeZone.getTimeZone(this.fortress.getTimeZone()))).getMillis();
+            fortressCreate = new DateTime(dateCreated, DateTimeZone.forTimeZone(TimeZone.getTimeZone(this.fortress.getTimeZone()))).getMillis();
         else
-            fortressDate = when.getTime();
+            fortressCreate = when.getTime();
 
-        lastUpdated = 0l;
-
-
-//        this.createdBy = (FortressUserNode) createdBy;
-//        this.lastWho = (FortressUserNode) createdBy;
+        lastUpdate = 0l;
         this.event = metaInput.getEvent();
-
         this.suppressSearch(metaInput.isSearchSuppressed());
 
     }
@@ -186,8 +185,13 @@ public class MetaHeaderNode implements MetaHeader {
         return lastWho;
     }
 
-    public long getLastUpdated() {
-        return lastUpdated;
+    public Long getLastUpdate() {
+        return lastUpdate;
+    }
+
+    @Override
+    public Long getFortressLastWhen() {
+        return fortressLastWhen;
     }
 
     @Override
@@ -218,6 +222,11 @@ public class MetaHeaderNode implements MetaHeader {
     }
 
     @Override
+    public void setFortressLastWhen(Long fortressWhen) {
+        this.fortressLastWhen = fortressWhen;
+    }
+
+    @Override
     @JsonIgnore
     public String getIndexName() {
         return indexName;
@@ -235,7 +244,7 @@ public class MetaHeaderNode implements MetaHeader {
     @Override
     public void bumpUpdate() {
         if ( id != null )
-            lastUpdated = new DateTime().toDateTime(DateTimeZone.UTC).toDateTime().getMillis();
+            lastUpdate = new DateTime().toDateTime(DateTimeZone.UTC).toDateTime().getMillis();
     }
 
     /**
@@ -278,13 +287,7 @@ public class MetaHeaderNode implements MetaHeader {
     @Override
     @JsonIgnore
     public DateTime getFortressDateCreated() {
-        return new DateTime(fortressDate, DateTimeZone.forTimeZone(TimeZone.getTimeZone(fortress.getTimeZone())));
-    }
-
-    @Override
-    public void setMetaKey(String o) {
-        this.metaKey = o;
-
+        return new DateTime(fortressCreate, DateTimeZone.forTimeZone(TimeZone.getTimeZone(fortress.getTimeZone())));
     }
 
     public String getDescription() {
@@ -298,20 +301,20 @@ public class MetaHeaderNode implements MetaHeader {
 
         MetaHeaderNode that = (MetaHeaderNode) o;
 
-        return !(id != null ? !id.equals(that.id) : that.id != null);
+        return !(metaKey != null ? !metaKey.equals(that.metaKey) : that.metaKey != null);
 
     }
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        return metaKey != null ? metaKey.hashCode() : 0;
     }
 
     public void setCreatedBy(FortressUser createdBy) {
         this.createdBy = (FortressUserNode)createdBy;
     }
 
-    public LogNode getLastChange() {
+    public Log getLastChange() {
         return lastChange;
     }
 

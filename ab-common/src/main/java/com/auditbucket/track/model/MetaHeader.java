@@ -55,9 +55,11 @@ public interface MetaHeader {
     /**
      * Last updated by AuditBucket
      *
-     * @return long representing the date in UTC
+     * @return date in UTC
      */
-    public long getLastUpdated();
+    public Long getLastUpdate();
+
+    public Long getFortressLastWhen();
 
     /**
      * Who, in the foreign fortress, last changed this?
@@ -124,11 +126,16 @@ public interface MetaHeader {
     @JsonIgnore
     DateTime getFortressDateCreated();
 
-    void setMetaKey(String o);
-
     void setCreatedBy(FortressUser thisFortressUser);
 
     String getEvent();
 
     void setLastChange(Log newChange);
+
+    public Log getLastChange();
+
+    void setFortressLastWhen(Long fortressWhen);
+
+    String getCallerKeyRef();
+
 }

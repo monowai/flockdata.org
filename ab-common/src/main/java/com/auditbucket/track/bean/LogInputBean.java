@@ -46,17 +46,17 @@ public class LogInputBean {
     private Date when;
     private String what;
 
-    // Required to support location by Caller Ref
-    private String documentType;
-    private String callerRef;
-    private String fortress;
-
     private Map<String, Object> mapWhat = null;
 
     private static final ObjectMapper om = new ObjectMapper();
     private boolean forceReindex;
     private Long metaId;
     private boolean status;
+
+    // Only required when tracking logs by Caller Ref
+    private String documentType;
+    private String callerRef;
+    private String fortress;
 
     protected LogInputBean() {
     }
@@ -266,7 +266,7 @@ public class LogInputBean {
     }
 
     public enum LogStatus {
-        IGNORE, OK, FORBIDDEN, NOT_FOUND, REINDEX, ILLEGAL_ARGUMENT
+        IGNORE, OK, FORBIDDEN, NOT_FOUND, REINDEX, ILLEGAL_ARGUMENT, TRACK_ONLY
     }
 
     @Override

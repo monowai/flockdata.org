@@ -76,9 +76,11 @@ public interface Log {
 
     void setCompressed(Boolean compressed);
 
-    TrackLog getLog();
+    TrackLog getTrackLog();
 
     void setDataBlock(byte[] dataBlock);
 
     byte[] getDataBlock();
+
+    void setTrackLog(TrackLog newLog);
 }

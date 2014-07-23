@@ -45,7 +45,7 @@ public class MetaSearchChange implements SearchChange {
 
     private String documentType;
     private String description;
-    private Map<String, Object> what;
+    private HashMap<String, Object> what;
     private Long when;
     private String fortressName;
     private String companyName;
@@ -55,7 +55,7 @@ public class MetaSearchChange implements SearchChange {
     private String callerRef;
     private Long logId;
     // String, Object?
-    private Map<String, Object> tagValues = new HashMap<>();
+    private HashMap<String, Object> tagValues = new HashMap<>();
     private Long version;
     private Long metaId;
 
@@ -63,13 +63,15 @@ public class MetaSearchChange implements SearchChange {
     private long sysWhen;
     private Long createdDate;
     private boolean replyRequired = true;
+    private boolean forceReindex;
+    private boolean delete;
 
     /**
      * extracts relevant header records to be used in indexing
      *
      * @param header auditHeader details (owner of this change)
      */
-    MetaSearchChange(MetaHeader header) {
+    public MetaSearchChange(MetaHeader header) {
         this();
         this.metaKey = header.getMetaKey();
         this.metaId = header.getId();
@@ -88,7 +90,7 @@ public class MetaSearchChange implements SearchChange {
     public MetaSearchChange() {
     }
 
-    public MetaSearchChange(MetaHeader header, Map<String, Object> mapWhat, String event, DateTime when) {
+    public MetaSearchChange(MetaHeader header, HashMap<String, Object> mapWhat, String event, DateTime when) {
         this(header);
         this.what = mapWhat;
         this.event = event;
@@ -101,7 +103,7 @@ public class MetaSearchChange implements SearchChange {
     }
 
     @Override
-    public void setWhat(Map<String, Object> what) {
+    public void setWhat(HashMap<String, Object> what) {
         this.what = what;
     }
 
@@ -287,5 +289,25 @@ public class MetaSearchChange implements SearchChange {
 
     public boolean isReplyRequired() {
         return replyRequired;
+    }
+
+    public void setForceReindex(boolean forceReindex) {
+        this.forceReindex = forceReindex;
+    }
+
+    public boolean isForceReindex() {
+        return forceReindex;
+    }
+
+    /**
+     * Flags to ab-search to delete the SearchDocument
+     * @param delete shall I?
+     */
+    public void setDelete(boolean delete) {
+        this.delete = delete;
+    }
+
+    public boolean isDelete() {
+        return delete;
     }
 }

@@ -57,7 +57,7 @@ public interface MetaDataRepo extends GraphRepository<MetaHeaderNode> {
                     " match (fortress:Fortress)-[:TRACKS]->(header:MetaHeader) where id(fortress)={0} " +
                     " and header.callerRef ={1}" +
                     " return header ")
-    Iterable<MetaHeader> findByCallerRef(Long fortressId, String callerRef);
+    Collection<MetaHeader> findByCallerRef(Long fortressId, String callerRef);
 
     @Query (elementClass = MetaHeaderNode.class, value = "match (company:ABCompany), (metaHeaders:MetaHeader) " +
             " where id(company)={0} " +
@@ -69,7 +69,7 @@ public interface MetaDataRepo extends GraphRepository<MetaHeaderNode> {
     @Query (value = "match (f:_Fortress)-[track:TRACKS]->(meta:_MetaHeader)-[other]-(:FortressUser) where id(f)={0} delete other")
     public void purgePeopleRelationships(Long fortressId);
 
-    @Query (value = "match (f:_Fortress)-[track:TRACKS]->(meta:_MetaHeader) where id(f)={0} delete track, meta")
+    @Query (value = "match (f:_Fortress)-[track:TRACKS]->(meta:_MetaHeader)-[otherRlx]-(:_MetaHeader) where id(f)={0} delete otherRlx, track, meta")
     public void purgeHeaders(Long fortressId);
 
 

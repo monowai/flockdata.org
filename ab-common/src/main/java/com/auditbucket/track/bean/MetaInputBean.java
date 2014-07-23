@@ -20,6 +20,7 @@
 package com.auditbucket.track.bean;
 
 import com.auditbucket.registration.bean.TagInputBean;
+import com.auditbucket.track.model.MetaKey;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.joda.time.DateTime;
 
@@ -39,7 +40,7 @@ public class MetaInputBean {
     private Date when = null;
     private LogInputBean log;
     private List<TagInputBean> tags = new ArrayList<>();
-    private Map<String,List<String>> crossReferences = new HashMap<>();
+    private Map<String,List<MetaKey>> crossReferences = new HashMap<>();
 
     private String event = "Create";
     private String description;
@@ -113,9 +114,9 @@ public class MetaInputBean {
      * Fortress is a computer application/service in the callers environment, i.e. Payroll, HR, AR.
      * This could also be thought of as a Database in an DBMS
      *
-     * The Fortress name is unique for the Company.
+     * The Fortress relationshipName is unique for the Company.
      *
-     * @param fortress unique fortress name
+     * @param fortress unique fortress relationshipName
      */
     public void setFortress(String fortress) {
         this.fortress = fortress;
@@ -142,7 +143,7 @@ public class MetaInputBean {
     /**
      * Fortress unique type of document that categorizes this type of change.
      *
-     * @param documentType name of the document
+     * @param documentType relationshipName of the document
      */
     public void setDocumentType(String documentType) {
         this.documentType = documentType;
@@ -198,10 +199,11 @@ public class MetaInputBean {
     /**
      * Single tag
      *
+     *
      * @param tag tag to add
      * @see MetaInputBean#getTags()
      */
-    public MetaInputBean setTag(TagInputBean tag) {
+    public MetaInputBean addTag(TagInputBean tag) {
         tags.add(tag);
         return this;
     }
@@ -277,13 +279,14 @@ public class MetaInputBean {
         this.trackSuppressed = trackSuppressed;
     }
 
-    public void addCrossReference(String name, String callerRef){
-        List<String>refs = crossReferences.get(name);
+    public void addCrossReference(String relationshipName, MetaKey metaKey){
+        //new CrossReferenceInputBean(getFortresses(), callerRef, c)
+        List<MetaKey>refs = crossReferences.get(relationshipName);
         if ( refs == null ){
             refs = new ArrayList<>();
-            crossReferences.put(name, refs);
+            crossReferences.put(relationshipName, refs);
         }
-        refs.add(callerRef);
+        refs.add(metaKey);
     }
 
     /**
@@ -293,7 +296,7 @@ public class MetaInputBean {
      *
      * @return crossReferences
      */
-    public Map<String,List<String>> getCrossReferences(){
+    public Map<String,List<MetaKey>> getCrossReferences(){
         return crossReferences;
     }
 

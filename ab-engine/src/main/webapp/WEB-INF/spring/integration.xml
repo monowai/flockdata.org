@@ -31,7 +31,7 @@
 	   http://www.springframework.org/schema/integration
 	   http://www.springframework.org/schema/integration/spring-integration.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
-    <int:gateway id=" abSearchGateway"
+    <int:gateway id="abSearchGateway"
                  service-interface="com.auditbucket.engine.service.AbSearchGateway"/>
 
     <int:json-to-object-transformer id="jsonToObject"

@@ -5,7 +5,7 @@ import com.auditbucket.client.common.CsvTrackMapper;
 import com.auditbucket.client.common.DelimitedMappable;
 import com.auditbucket.client.common.ImportParams;
 import com.auditbucket.client.csv.CsvColumnHelper;
-import com.auditbucket.client.rest.StaticDataResolver;
+import com.auditbucket.client.rest.IStaticDataResolver;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
@@ -24,14 +24,19 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
  * Date: 8/05/14
  * Time: 11:29 AM
  */
-public class CSVRow {
+public class CSVThing {
     @Test
     public void headerRow() throws Exception {
         ImportParams params = Importer.getImportParams("/csvtest.json", null);
-        params.setStaticDataResolver(new StaticDataResolver() {
+        params.setStaticDataResolver(new IStaticDataResolver() {
             @Override
             public String resolveCountryISOFromName(String name) throws DatagioException {
                 return name;
+            }
+
+            @Override
+            public String resolve(String type, Map<String, String> args) {
+                return null;
             }
         });
         CsvTrackMapper mapper = new CsvTrackMapper(params);
@@ -133,10 +138,15 @@ public class CSVRow {
     @Test
     public void complexCSVStructure() throws Exception {
         ImportParams params = Importer.getImportParams("/complex-concept.json", null);
-        params.setStaticDataResolver(new StaticDataResolver() {
+        params.setStaticDataResolver(new IStaticDataResolver() {
             @Override
             public String resolveCountryISOFromName(String name) throws DatagioException {
                 return name;
+            }
+
+            @Override
+            public String resolve(String type, Map<String, String> args) {
+                return null;
             }
         });
         //CsvTrackMapper mapper = new CsvTrackMapper(params);

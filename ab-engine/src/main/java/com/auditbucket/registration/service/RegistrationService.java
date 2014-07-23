@@ -18,6 +18,7 @@
  */
 package com.auditbucket.registration.service;
 
+import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.RegistrationBean;
@@ -47,6 +48,9 @@ public class RegistrationService {
     @Autowired
     private SecurityHelper securityHelper;
 
+    @Autowired
+    EngineConfig engineConfig;
+
     public static SystemUser GUEST = new SystemUserNode("Guest", null, null, false);
 
 
@@ -56,7 +60,7 @@ public class RegistrationService {
         SystemUser systemUser = systemUserService.findByLogin(regBean.getLogin());
 
         if (systemUser != null) {
-            if (regBean.isUnique())
+            if ( !engineConfig.isDuplicateRegistration() && regBean.isUnique())
                 throw new DatagioException("Username already exists");
             else
                 return systemUser; // ToDo - throw RegistrationException

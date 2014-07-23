@@ -19,7 +19,6 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.dao.SchemaDao;
 import com.auditbucket.dao.TrackDao;
 import com.auditbucket.helper.VersionHelper;
 import com.auditbucket.registration.model.Company;
@@ -30,13 +29,12 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.ResourceAccessException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -61,16 +59,18 @@ public class EngineConfig {
     private Logger logger = LoggerFactory.getLogger(EngineConfig.class);
 
     private Boolean multiTenanted = false;
+
     private WhatService.KV_STORE kvStore = null;
 
+    @Qualifier("abMonitoringGateway")
     @Autowired
     AbMonitoringGateway abMonitoringGateway;
 
     @Autowired
-    SchemaDao schemaDao;
-
-    @Autowired
     Neo4jTemplate template;
+
+    private boolean conceptsEnabled=true;
+    private boolean duplicateRegistration;
 
     @Value("${rabbit.host:@null}")
     protected void setRabbitHost(String rabbitHost) {
@@ -113,11 +113,6 @@ public class EngineConfig {
         return kvStore;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void ensureSystemIndexes(Company company) {
-        schemaDao.ensureSystemIndexes(company, getTagSuffix(company));
-    }
-
     public String getTagSuffix(Company company) {
         if (company == null)
             return "";
@@ -125,6 +120,8 @@ public class EngineConfig {
     }
 
     public Map<String, String> getHealth() {
+        if ( System.getProperty("neo4j")!=null )
+            logger.warn("[-Dneo4j] is now an unsupported property. Ignoring this setting");
         String version = VersionHelper.getABVersion();
         Map<String, String> healthResults = new HashMap<>();
         healthResults.put("ab-engine.version", version);
@@ -140,7 +137,7 @@ public class EngineConfig {
         try {
             PingResult esPing = abMonitoringGateway.ping();
             esPingResult = (esPing == null || !esPing.getMessage().equals("Pong!")?"Problem":"Ok");
-        } catch (ResourceAccessException ce){
+        } catch (Exception ce){
             esPingResult="!Unreachable! "+ce.getCause().getMessage();
         }
         healthResults.put("ab-search", esPingResult);
@@ -181,5 +178,25 @@ public class EngineConfig {
             "fortressUser", "callerKey", "metaKey", "headerId" }, allEntries = true)
     public void resetCache() {
         logger.info("Reset the cache");
+    }
+
+    public boolean isConceptsEnabled() {
+        return conceptsEnabled;
+    }
+
+    /**
+     * Should be disabled for testing purposes
+     * @param conceptsEnabled
+     */
+    public void setConceptsEnabled(boolean conceptsEnabled) {
+        this.conceptsEnabled = conceptsEnabled;
+    }
+
+    public void setDuplicateRegistration(boolean duplicateRegistration) {
+        this.duplicateRegistration = duplicateRegistration;
+    }
+
+    public boolean isDuplicateRegistration() {
+        return duplicateRegistration;
     }
 }
