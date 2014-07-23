@@ -42,6 +42,7 @@ import java.util.Set;
 
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
@@ -209,7 +210,7 @@ public class TestTagConcepts extends TestEngineBase {
         docs.add("DocA");
         Set<DocumentType> docTypes = queryEP.getRelationships(docs, su.getApiKey(), su.getApiKey());
         for (DocumentType docType : docTypes) {
-            Set<Concept>concepts = docType.getConcepts();
+            Collection<Concept>concepts = docType.getConcepts();
             for (Concept concept : concepts) {
                 Collection<Relationship> relationships  =concept.getRelationships();
                 for (Relationship relationship : relationships) {
@@ -220,6 +221,118 @@ public class TestTagConcepts extends TestEngineBase {
             }
         }
         Assert.assertEquals("Docs In Use not supporting 'null args'", 2,queryEP.getRelationships(null, su.getApiKey(), su.getApiKey()).size());
+    }
+    @Test
+    public void relationshipWorkForMultipleDocuments() throws Exception {
+        logger.debug("### relationshipWorkForMultipleDocuments");
+        Neo4jHelper.cleanDb(template);
+        engineAdmin.setConceptsEnabled(true);
+
+        Transaction t = beginManualTransaction();
+
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike));
+        Assert.assertNotNull(su);
+
+        Fortress fortress = fortressService.registerFortress("fortA");
+
+        DocumentType docA = schemaService.resolveDocType(fortress, "DOCA", true);
+        DocumentType docB = schemaService.resolveDocType(fortress, "DOCB", true);
+        commitManualTransaction(t);// Should only be only one docTypes
+
+        Assert.assertNotNull(docA);
+        Long idA = docA.getId();
+        docA = schemaService.resolveDocType(fortress, docA.getName(), false);
+        Assert.assertEquals(idA, docA.getId());
+
+        MetaInputBean input = new MetaInputBean(fortress.getName(), "jinks", "DocA", new DateTime());
+        input.addTag(new TagInputBean("cust123", "purchased").setIndex("Customer"));
+        trackEP.trackHeader(input, su.getApiKey(), su.getApiKey()).getBody().getMetaHeader();
+        input = new MetaInputBean(fortress.getName(), "jinks", docB.getName(), new DateTime());
+        input.addTag(new TagInputBean("cust121", "purchased").setIndex("Customer"));
+        trackEP.trackHeader(input, su.getApiKey(), su.getApiKey()).getBody().getMetaHeader();
+        waitAWhile("Concepts creating...");
+
+        Collection<String>docs = new ArrayList<>();
+        docs.add(docA.getName());
+        docs.add(docB.getName());
+        boolean docAFound = false;
+        boolean docBFound = false;
+        Set<DocumentType> docTypes = queryEP.getRelationships(docs, su.getApiKey(), su.getApiKey());
+        for (DocumentType docType : docTypes) {
+            Collection<Concept>concepts = docType.getConcepts();
+            for (Concept concept : concepts) {
+                Collection<Relationship> relationships  =concept.getRelationships();
+                for (Relationship relationship : relationships) {
+                    Assert.assertEquals(1, relationship.getDocumentTypes().size());
+                    if ( docType.getName().equals(docA.getName()))
+                        docAFound = true;
+                    else if (docType.getName().equals(docB.getName()) )
+                        docBFound = true;
+                }
+            }
+        }
+        // ToDo: it is unclear if we should track in this manner
+        assertTrue("DocA Not Found in the concept", docAFound);
+        assertTrue("DocB Not Found in the concept", docBFound);
+        Assert.assertEquals("Docs In Use not supporting 'null args'", 2, queryEP.getRelationships(null, su.getApiKey(), su.getApiKey()).size());
+    }
+
+    /**
+     * Assert that we only get back relationships for a the selected document type. Checks that
+     * Relationships, created via an association to a tag (Linux:Tag), can be filtered by doc type.
+     * e.g. Sales and Promo both have a differently named relationship to the Device tag. When retrieving
+     * Sales, we should only get the "purchased" relationship. Likewise with Promo, we should only get the "offer"
+     *
+     * @throws Exception
+     */
+    @Test
+    public void uniqueRelationshipByDocType() throws Exception{
+        logger.debug("### uniqueRelationshipByDocType");
+        Neo4jHelper.cleanDb(template);
+        engineAdmin.setConceptsEnabled(true);
+
+        Transaction t = beginManualTransaction();
+
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike));
+        Assert.assertNotNull(su);
+
+        Fortress fortress = fortressService.registerFortress("fortA");
+
+        DocumentType sale = schemaService.resolveDocType(fortress, "Sale", true);
+        commitManualTransaction(t);
+        waitAWhile();
+        t = beginManualTransaction();
+        DocumentType promo = schemaService.resolveDocType(fortress, "Promotion", true);
+        commitManualTransaction(t);
+
+        MetaInputBean promoInput = new MetaInputBean(fortress.getName(), "jinks", promo.getName(), new DateTime());
+        promoInput.addTag(new TagInputBean("Linux", "offer").setIndex("Device"));
+        //promoInput.addTag(new TagInputBean("Mike", "sold").setIndex("Person"));
+        trackEP.trackHeader(promoInput, su.getApiKey(), su.getApiKey()).getBody().getMetaHeader();
+
+        MetaInputBean salesInput = new MetaInputBean(fortress.getName(), "jinks", sale.getName(), new DateTime());
+        salesInput.addTag(new TagInputBean("Linux", "purchased").setIndex("Device"));
+        //promoInput.addTag(new TagInputBean("Gary", "authorised").setIndex("Person"));
+        trackEP.trackHeader(salesInput, su.getApiKey(), su.getApiKey()).getBody().getMetaHeader();
+        waitAWhile();
+        Collection<String>docs = new ArrayList<>();
+        docs.add(promo.getName());
+        docs.add(sale.getName());
+        validateConcepts(docs, su, 2);
+        docs.clear();
+        docs.add(promo.getName());
+        Set<DocumentType>foundDocs = validateConcepts(docs, su, 1);
+        for (DocumentType foundDoc : foundDocs) {
+            Assert.assertEquals("Promotion", foundDoc.getName());
+            Collection<Concept> concepts = foundDoc.getConcepts();
+            Assert.assertEquals(1, concepts.size());
+            Concept concept = concepts.iterator().next();
+            Assert.assertEquals("Device", concept.getName());
+            Assert.assertEquals(1, concept.getRelationships().size());
+            logger.info(foundDoc.toString());
+        }
+        //Set<DocumentType> concepts = queryEP.getRelationships(docs, su.getApiKey(), su.getApiKey());
+
     }
 
     private Set<DocumentType> validateConcepts(String document, SystemUser su, int expected) throws Exception{

@@ -138,7 +138,7 @@ public class MediationFacade {
 
                     @Override
                     public Command execute() throws DatagioException, IOException {
-
+                        schemaService.createDocTypes(headers, company, fortress);
                         resultBeans = trackService.createHeaders(headers, company, fortress);
 //                        logger.debug("Header finished {}", Thread.currentThread().getName());
                         logProcessor.processLogs(company, resultBeans);
@@ -198,6 +198,9 @@ public class MediationFacade {
 
             @Override
             public Command execute() throws DatagioException, IOException {
+                ArrayList<MetaInputBean>inputBeans= new ArrayList<>();
+                inputBeans.add(inputBean);
+                schemaService.createDocTypes(inputBeans, company, fortress);
                 TrackResultBean trackResult = trackService.createHeader(company, fortress, inputBean);
                 trackResult.setLogInput(inputBean.getLog());
                 result = logProcessor.processLogFromResult(company, trackResult);

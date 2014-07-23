@@ -46,8 +46,8 @@ public class TestSchemaManagement extends TestEngineBase {
         Collection<DocumentType> docTypesB = fortressEP.getDocumentTypes (fortressB.getName(), apiKey, apiKey);
         assertEquals(1, docTypesB.size());
 
-        // Should be the same key
-        assertEquals(docTypesA.iterator().next().getId(), docTypesB.iterator().next().getId());
+        // Should be different key
+        assertNotSame(docTypesA.iterator().next().getId(), docTypesB.iterator().next().getId());
     }
 
     @Test
@@ -94,10 +94,11 @@ public class TestSchemaManagement extends TestEngineBase {
         String docName = "CamelCaseDoc";
         DocumentType docType = schemaService.resolveDocType(fortress, docName); // Creates if missing
         assertNotNull(docType);
-        Assert.assertEquals(docName.toLowerCase(), docType.getCode());
+//        Assert.assertEquals(docName.toLowerCase(), docType.getCode());
+        Assert.assertTrue(docType.getCode().contains(docName.toLowerCase()));
         Assert.assertEquals(docName, docType.getName());
         // Should be finding by code which is always Lower
-        Assert.assertNotNull(schemaService.resolveDocType(fortress, docType.getCode().toUpperCase(), false));
+        Assert.assertNotNull(schemaService.resolveDocType(fortress, docType.getName().toUpperCase(), false));
 
     }
 

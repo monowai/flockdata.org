@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 /**
- * Maintains company specific Schema deets
+ * Maintains company specific Schema details
  * User: mike
  * Date: 3/04/14
  * Time: 7:30 AM
@@ -71,6 +71,8 @@ public class SchemaDaoNeo4j implements SchemaDao {
 
     }
 
+    private Object lock = new Object();
+
     /**
      * Tracks the DocumentTypes used by a Fortress that can be used to find MetaHeader objects
      *
@@ -81,22 +83,30 @@ public class SchemaDaoNeo4j implements SchemaDao {
      */
     public DocumentType findDocumentType(Fortress fortress, String docName, Boolean createIfMissing) {
         DocumentType docResult = documentExists(fortress, docName);
+
         if (docResult == null && createIfMissing) {
-            docResult = new DocumentTypeNode(fortress, docName);
-            String cypher = "merge (docType:_DocType :DocType{code:{code}, name:{name}, companyKey:{key}}) " +
-                    "with docType " +
-                    "match (f:Fortress) where id(f) = {fId} " +
-                    "merge (f)<-[:FORTRESS_DOC]-(docType) " +
-                    "return docType";
+            synchronized (lock) {
+                docResult = documentExists(fortress, docName);
+                if (docResult == null) {
 
-            Map<String, Object> params = new HashMap<>();
-            params.put("code", docResult.getCode());
-            params.put("name", docResult.getName());
-            params.put("key", docResult.getCompanyKey());
-            params.put("fId", fortress.getId());
-
-            template.query(cypher, params);
-            docResult = documentExists(fortress, docName);
+                    docResult = new DocumentTypeNode(fortress, docName);
+                    template.save(docResult);
+                }
+            }
+//            String cypher = "merge (docType:_DocType {code:{code}, name:{name}, companyKey:{key}}) " +
+//                    "with docType " +
+//                    "match (f:Fortress) where id(f) = {fId} " +
+//                    "merge (f)<-[:FORTRESS_DOC]-(docType) " +
+//                    "return docType";
+//
+//            Map<String, Object> params = new HashMap<>();
+//            params.put("code", docResult.getCode());
+//            params.put("name", docResult.getName());
+//            params.put("key", docResult.getCompanyKey());
+//            params.put("fId", fortress.getId());
+//
+//            template.query(cypher, params);
+//            docResult = documentExists(fortress, docName);
 
         }
         return docResult;
@@ -116,7 +126,10 @@ public class SchemaDaoNeo4j implements SchemaDao {
 
     @Cacheable(value = "companyDocType", unless = "#result == null")
     private DocumentType documentExists(Fortress fortress, String docName) {
-        return documentTypeRepo.findFortressDocType(fortress.getId(), DocumentTypeNode.parse(docName));
+
+        DocumentType dt = documentTypeRepo.findFortressDocCode(fortress.getId(), DocumentTypeNode.parse(fortress, docName));
+        logger.trace("Document Exists= {} - Looking for {}", dt!=null, DocumentTypeNode.parse(fortress, docName));
+        return dt;
     }
 
     @Cacheable(value = "companySchemaTag", unless = "#result == false")
@@ -192,7 +205,7 @@ public class SchemaDaoNeo4j implements SchemaDao {
             DocumentTypeNode documentTypeNode = (DocumentTypeNode) docType;
             template.fetch(documentTypeNode.getConcepts());
 
-            Set<Concept> concepts = documentTypeNode.getConcepts();
+            Collection<Concept> concepts = documentTypeNode.getConcepts();
             logger.trace("[{}] - Found {} existing concepts", documentTypeNode.getName(), concepts.size());
             for (ConceptInputBean concept : conceptInput.get(docType)) {
                 //logger.debug("Looking to create [{}]", concept.getName());
@@ -202,13 +215,13 @@ public class SchemaDaoNeo4j implements SchemaDao {
                 for (String relationship : concept.getRelationships()) {
                     if (existingConcept == null) {
                         logger.debug("No existing concept found for [{}]. Creating it", relationship);
-                        existingConcept = new ConceptNode(concept.getName(), relationship);
+                        existingConcept = new ConceptNode(concept.getName(), relationship, docType);
                     } else {
                         logger.trace("Found an existing concept {}", existingConcept);
                         template.fetch(existingConcept.getRelationships());
-                        Relationship existingR = existingConcept.hasRelationship(relationship);
+                        Relationship existingR = existingConcept.hasRelationship(relationship, docType);
                         if (existingR == null) {
-                            existingConcept.addRelationship(relationship);
+                            existingConcept.addRelationship(relationship, docType);
                             logger.debug("Creating {} concept for{}", relationship, existingConcept);
                         }
                     }
@@ -225,6 +238,16 @@ public class SchemaDaoNeo4j implements SchemaDao {
 
     @Override
     public Set<DocumentType> findConcepts(Company company, Collection<String> docNames, boolean withRelationships) {
+
+        // This is a hack to support DAT-126. It should be resolved via a query. At the moment, it's working, but that's it/
+        // Query should have the Concepts that the user is interested in as well.
+
+        // Query should look something link this:
+        // match (a:_DocType)-[:HAS_CONCEPT]-(c:_Concept)-[:KNOWN_RELATIONSHIP]-(kr:_Relationship)
+        // where a.name="Sales" and c.name="Device"
+        // with a, c, kr match (a)-[:DOC_RELATIONSHIP]-(t:Relationship) return a,t
+
+        TreeSet<DocumentType> fauxDocuments = new TreeSet<>();
         Set<DocumentType> documents;
         if (docNames == null)
             documents = documentTypeRepo.findAllDocuments(company);
@@ -232,15 +255,43 @@ public class SchemaDaoNeo4j implements SchemaDao {
             documents = documentTypeRepo.findDocuments(company, docNames);
 
         for (DocumentType document : documents) {
+            template.fetch(document.getFortress());
+            DocumentType fauxDocument = new DocumentTypeNode(document.getFortress(), document.getName());
+            fauxDocuments.add(fauxDocument);
             template.fetch(document.getConcepts());
             if (withRelationships) {
                 for (Concept concept : document.getConcepts()) {
+
                     template.fetch(concept);
                     template.fetch(concept.getRelationships());
+                    ConceptNode fauxConcept = new ConceptNode(concept.getName());
+
+                    fauxDocument.add(fauxConcept);
+                    Collection<Relationship> fauxRlxs = new ArrayList<>();
+                    for (Relationship existingRelationship : concept.getRelationships()) {
+                        if (existingRelationship.hasDocumentType(document)) {
+                            fauxRlxs.add(existingRelationship);
+                        }
+                    }
+                    fauxConcept.addRelationships(fauxRlxs);
+                }
+            } else {
+                // Just return the concepts
+                for (Concept concept : document.getConcepts()) {
+                    template.fetch(concept);
+                    fauxDocument.add(concept);
                 }
             }
         }
-        return documents;
+        return fauxDocuments;
+    }
+
+    @Override
+    public void createDocTypes(ArrayList<String> docTypes, Fortress fortress) {
+        for (String docType : docTypes) {
+            findDocumentType(fortress, docType, true);
+        }
+
     }
 
     private boolean isSystemIndex(String index) {

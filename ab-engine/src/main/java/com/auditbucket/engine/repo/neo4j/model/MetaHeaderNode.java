@@ -119,7 +119,6 @@ public class MetaHeaderNode implements MetaHeader {
         this.fortress = (FortressNode)fortress;
         this.documentType = (documentType != null ? documentType.getName().toLowerCase() : "");
         callerRef = metaInput.getCallerRef();
-        //if ( callerRef!=null )
         assert documentType != null;
         callerKeyRef = this.fortress.getId() + "." + documentType.getId() + "." + (callerRef != null ? callerRef : metaKey);
 
@@ -289,12 +288,6 @@ public class MetaHeaderNode implements MetaHeader {
     @JsonIgnore
     public DateTime getFortressDateCreated() {
         return new DateTime(fortressCreate, DateTimeZone.forTimeZone(TimeZone.getTimeZone(fortress.getTimeZone())));
-    }
-
-    @Override
-    public void setMetaKey(String o) {
-        this.metaKey = o;
-
     }
 
     public String getDescription() {

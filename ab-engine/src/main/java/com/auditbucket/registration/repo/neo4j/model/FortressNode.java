@@ -78,7 +78,7 @@ public class FortressNode implements Fortress {
     }
 
     public String getFortressKey() {
-        return fortressKey.toString();
+        return fortressKey;
     }
 
     @JsonIgnore
