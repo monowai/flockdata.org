@@ -319,7 +319,13 @@ public class TrackDaoNeo implements TrackDao {
     public TrackLog getLog(Long logId) {
         Relationship change = template.getRelationship(logId);
         if (change != null)
-            return (TrackLog) template.getDefaultConverter().convert(change, LoggedRelationship.class);
+            try {
+                return (TrackLog) template.getDefaultConverter().convert(change, LoggedRelationship.class);
+            } catch (NotFoundException nfe) {
+                // Occurs if ab-search has been down and the database is out of sync from multiple restarts
+                logger.error("Error converting relationship to a LoggedRelationship");
+                return null;
+            }
         return null;
     }
 
