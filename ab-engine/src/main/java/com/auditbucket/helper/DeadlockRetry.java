@@ -57,6 +57,8 @@ public class DeadlockRetry {
                         throw new DatagioException("Deadlock retries exceeded in "+ block, re.getCause());
                     }
                 } else {
+                    re.printStackTrace(); // For debugging purposes. This makes things a lot simpler to debug when an unhandled
+                    // exception is thrown in a running thread.
                     logger.error("DeadlockRetry error could not be handled {}",re.getMessage());
 //                    re.printStackTrace();
                     throw (re);

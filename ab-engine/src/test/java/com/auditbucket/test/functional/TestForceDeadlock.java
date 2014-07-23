@@ -107,7 +107,6 @@ public class TestForceDeadlock extends TestEngineBase {
 
         //CountDownLatch latch = new CountDownLatch(4);
         ArrayList<TagInputBean> tags = getTags(10);
-        String apiKey = su.getApiKey();
 
         Map<Integer, CallerRefRunner> runners = new HashMap<>();
         int threadMax = 15;

@@ -34,6 +34,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.Assert.assertEquals;
@@ -61,7 +63,7 @@ public class TestCallerRef extends TestEngineBase {
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "harry", "TestTrack", new DateTime(), null);
         Assert.assertNotNull(mediationFacade.createHeader(inputBean, null).getMetaKey());
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), null);
-        String ahKey = mediationFacade.createHeader(inputBean, null).getMetaKey();
+        String ahKey = mediationFacade.createHeader(fortress.getCompany(), fortress, inputBean).getMetaKey();
 
         assertNotNull(ahKey);
         MetaHeader metaHeader = trackService.getHeader(ahKey);
@@ -116,27 +118,28 @@ public class TestCallerRef extends TestEngineBase {
 
         String docType = "TestAuditX";
         String callerRef = "ABC123X";
+        int count =3;
+        Collection<CallerRefRunner> runners = new ArrayList <>(count);
+        CountDownLatch latch = new CountDownLatch(count);
+        for( int i = 0; i< count ; i++){
+            runners.add (addRunner(fortress, docType, callerRef, latch));
+        }
 
-        CountDownLatch latch = new CountDownLatch(3);
-
-        CallerRefRunner ta = addRunner(fortress, docType, callerRef, latch);
-        CallerRefRunner tb = addRunner(fortress, docType, callerRef, latch);
-        CallerRefRunner tc = addRunner(fortress, docType, callerRef, latch);
         latch.await();
         Assert.assertNotNull(trackService.findByCallerRef(fortress, docType, callerRef));
-        assertEquals(true, ta.isWorking());
-        assertEquals(true, tb.isWorking());
-        assertEquals(true, tc.isWorking());
+        for (CallerRefRunner runner : runners) {
+            assertEquals(true, runner.isWorking());
+        }
 
 
     }
 
     private CallerRefRunner addRunner(Fortress fortress, String docType, String callerRef, CountDownLatch latch) {
 
-        CallerRefRunner runA = new CallerRefRunner(callerRef, docType, fortress, latch);
-        Thread tA = new Thread(runA);
-        tA.start();
-        return runA;
+        CallerRefRunner runner = new CallerRefRunner(callerRef, docType, fortress, latch);
+        Thread thread = new Thread(runner);
+        thread.start();
+        return runner;
     }
 
     class CallerRefRunner implements Runnable {
@@ -167,18 +170,20 @@ public class TestCallerRef extends TestEngineBase {
             try {
                 while (count < maxRun) {
                     MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef);
-                    TrackResultBean trackResult;
-                    trackResult = mediationFacade.createHeader(fortress.getCompany(), fortress, inputBean);
+                    TrackResultBean trackResult = mediationFacade.createHeader(fortress.getCompany(), fortress, inputBean);
                     assertNotNull(trackResult);
                     assertEquals(callerRef.toLowerCase(), trackResult.getCallerRef().toLowerCase());
                     MetaHeader byCallerRef = trackService.findByCallerRef(fortress, docType, callerRef);
                     assertNotNull(byCallerRef);
-                    assertEquals(trackResult.getMetaKey(), byCallerRef.getMetaKey());
+                    assertEquals(trackResult.getMetaHeader().getId(), byCallerRef.getId());
+                    // disabled as SDN appears to update the metaKey if multiple threads create the same callerKeyRef
+                    // https://groups.google.com/forum/#!topic/neo4j/l35zBVUA4eA
+//                    assertEquals("Headers Don't match!", trackResult.getMetaKey(), byCallerRef.getMetaKey());
                     count++;
                 }
                 working = true;
+                logger.info ("{} completed", this.toString());
             } catch (RuntimeException e) {
-
                 logger.error("Help!!", e);
             } catch (DatagioException e) {
                 logger.error(e.getMessage());

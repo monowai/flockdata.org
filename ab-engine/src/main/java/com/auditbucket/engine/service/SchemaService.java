@@ -123,4 +123,13 @@ public class SchemaService {
         return schemaDao.findConcepts(company, documents, withRelationships);
 
     }
+
+    public void createDocTypes(Iterable<MetaInputBean> headers, Company company, Fortress fortress) {
+        ArrayList<String>docTypes = new ArrayList<>();
+        for (MetaInputBean header : headers) {
+            if (!docTypes.contains(header.getDocumentType()))
+                docTypes.add(header.getDocumentType());
+        }
+        schemaDao.createDocTypes(docTypes,  fortress);
+    }
 }

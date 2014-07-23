@@ -36,7 +36,6 @@
         <ehcache.version>2.6.7</ehcache.version>
         <!--Default properties for test. integration over http and Neo4J running embedded-->
         <ab.integration>http</ab.integration>
-        <neo4j>java</neo4j>
         <org.springdata.neo4j>3.1.1.RELEASE</org.springdata.neo4j>
         <neo4j.version>2.1.2</neo4j.version>
     </properties>
@@ -51,9 +50,9 @@
         </dependency>
 
         <!--<dependency>-->
-            <!--<groupId>javax.enterprise</groupId>-->
-            <!--<artifactId>cdi-api</artifactId>-->
-            <!--<version>1.2</version>-->
+        <!--<groupId>javax.enterprise</groupId>-->
+        <!--<artifactId>cdi-api</artifactId>-->
+        <!--<version>1.2</version>-->
         <!--</dependency>-->
 
         <dependency>
