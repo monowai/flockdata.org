@@ -195,7 +195,9 @@ public class FortressService {
 
     }
 
-    public Collection<Fortress> findFortresses(Company company) {
+    public Collection<Fortress> findFortresses(Company company) throws DatagioException {
+        if ( company == null )
+            throw new DatagioException("Unable to identify the requested company");
         return fortressDao.findFortresses(company.getId());
 
     }
