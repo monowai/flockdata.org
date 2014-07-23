@@ -2,7 +2,6 @@ package com.auditbucket.client.rest;
 
 import com.auditbucket.helper.DatagioException;
 
-import java.util.Collection;
 import java.util.Map;
 
 /**

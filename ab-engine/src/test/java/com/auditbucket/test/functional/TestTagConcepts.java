@@ -42,7 +42,6 @@ import java.util.Set;
 
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**

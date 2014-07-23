@@ -21,10 +21,8 @@ package com.auditbucket.test.unit;
 
 import com.auditbucket.helper.NeoSyntaxHelper;
 import com.auditbucket.query.MatrixInputBean;
-import com.auditbucket.registration.model.Tag;
 import org.junit.Test;
 
-import javax.ws.rs.HEAD;
 import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;

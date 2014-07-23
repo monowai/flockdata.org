@@ -33,7 +33,7 @@
         <module>ab-integration-tests</module>
     </modules>
     <packaging>pom</packaging>
-    <version>0.95-BUILD-SNAPSHOT</version>
+    <version>0.96-BUILD-SNAPSHOT</version>
     <properties>
         <license-text.header>GPL-3-header.txt</license-text.header>
         <docs.url>http://www.monowai.com/wiki/display/DAT/</docs.url>
