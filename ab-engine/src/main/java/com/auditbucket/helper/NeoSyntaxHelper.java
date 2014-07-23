@@ -19,8 +19,6 @@
 
 package com.auditbucket.helper;
 
-import com.auditbucket.registration.model.Tag;
-
 import java.util.Collection;
 
 /**

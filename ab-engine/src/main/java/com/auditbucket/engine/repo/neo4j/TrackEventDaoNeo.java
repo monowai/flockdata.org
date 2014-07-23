@@ -24,7 +24,6 @@ import com.auditbucket.engine.repo.neo4j.model.ChangeEventNode;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.track.model.ChangeEvent;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;

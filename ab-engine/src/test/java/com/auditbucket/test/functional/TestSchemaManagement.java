@@ -9,7 +9,6 @@ import com.auditbucket.track.model.DocumentType;
 import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
