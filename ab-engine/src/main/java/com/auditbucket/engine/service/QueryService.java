@@ -19,6 +19,7 @@
 
 package com.auditbucket.engine.service;
 
+import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.FortressService;
@@ -49,7 +50,7 @@ public class QueryService {
     @Autowired
     SchemaService schemaService;
 
-    public Collection<DocumentType> getDocumentsInUse(Company abCompany, Collection<String> fortresses) {
+    public Collection<DocumentType> getDocumentsInUse(Company abCompany, Collection<String> fortresses) throws DatagioException {
         ArrayList<DocumentType> docs = new ArrayList<>();
 
         // ToDo: Optimize via Cypher, not a java loop

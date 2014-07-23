@@ -6,7 +6,6 @@ import com.auditbucket.engine.service.QueryService;
 import com.auditbucket.helper.ApiKeyHelper;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.query.MatrixInputBean;
-import com.auditbucket.query.MatrixResult;
 import com.auditbucket.query.MatrixResults;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.service.RegistrationService;
@@ -18,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
@@ -42,46 +40,6 @@ public class QueryEP {
 
     @Autowired
     MediationFacade mediationFacade;
-
-    /**
-     * @param metaHeader
-     * @param apiKey
-     * @param apiHeaderKey
-     * @return
-     * @throws DatagioException
-     * @deprecated use POST version
-     */
-    @ResponseBody
-    @RequestMapping(value = "/matrix/{metaHeader}", method = RequestMethod.GET)
-    public Collection<MatrixResult> getMatrix(@PathVariable("metaHeader") String metaHeader,
-                                              String apiKey,
-                                              @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        if (metaHeader == null || metaHeader.equalsIgnoreCase("_all")) {
-            metaHeader = null;
-        }
-        ArrayList<String> labels = new ArrayList<>();
-        labels.add(metaHeader);
-        MatrixInputBean input = new MatrixInputBean();
-        input.setDocuments(labels);
-
-        ArrayList<String> from = new ArrayList<>();
-//        from.add("`therapeutic-use`");
-        from.add("lead");
-        from.add("contributor");
-        input.setFromRlxs(from);
-        ArrayList<String> to = new ArrayList<>();
-
-//        to.add("`therapeutic-use`");
-        to.add("lead");
-        to.add("contributor");
-        input.setToRlxs(to);
-        ArrayList<String> tags = new ArrayList<>();
-//        tags.add("Topic");
-        tags.add("Person");
-        input.setConcepts(tags);
-        input.setMinCount(3);
-        return getMatrixResult(input, apiKey, apiHeaderKey).getResults();
-    }
 
     @ResponseBody
     @RequestMapping(value = "/matrix/", method = RequestMethod.POST)
