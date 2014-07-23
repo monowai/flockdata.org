@@ -17,7 +17,6 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 package com.auditbucket.registration.service;
 
 import com.auditbucket.dao.TagDao;
@@ -198,6 +197,6 @@ public class TagService {
     }
 
     public void purgeType(Company company, String type) {
-        tagDao.purge(company, type);
+        tagDao.purge(company,type);
     }
 }
