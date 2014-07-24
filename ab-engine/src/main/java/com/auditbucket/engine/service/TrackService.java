@@ -748,7 +748,7 @@ public class TrackService {
             if ( metaKey.getDocumentType().equals("*"))
                 metaHeaders= findByCallerRef(f, metaKey.getCallerRef() );
             else {
-                MetaHeader mh =findByCallerRef(metaKey.getFortressName(), metaKey.getDocumentType(), metaKey.getCallerRef());
+                MetaHeader mh =findByCallerRef(fortressService.findByName(company, metaKey.getFortressName()), metaKey.getDocumentType(), metaKey.getCallerRef());
                 if ( mh == null ) {
                     ignored.add(metaKey);
                     metaHeaders = null;
