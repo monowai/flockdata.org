@@ -459,8 +459,8 @@ public class TrackEP {
 
     @ResponseBody
     @RequestMapping(value = "/xref", produces = "application/json", method = RequestMethod.POST)
-    public List<CrossReferenceInputBean> putCrossReferenceByCallerRef(@RequestBody List<CrossReferenceInputBean> crossReferenceInputBeans,
-                                                                      String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey)
+    public List<CrossReferenceInputBean> postCrossReferenceByCallerRef(@RequestBody List<CrossReferenceInputBean> crossReferenceInputBeans,
+                                                                       String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey)
             throws DatagioException {
         Company company = getCompany(apiHeaderKey, apiKey);
 
@@ -473,7 +473,8 @@ public class TrackEP {
                             crossReferenceInputBean.getDocumentType(),
                             crossReferenceInputBean.getCallerRef()),
                             references.get(xRefName), xRefName);
-                    references.put(xRefName, notFound);
+                    crossReferenceInputBean.setIgnored(xRefName, notFound);
+//                    references.put(xRefName, notFound);
                 } catch (DatagioException de) {
                     logger.error("Exception while cross-referencing MetaHeaders. This message is being returned to the caller - [{}]", de.getMessage());
                     crossReferenceInputBean.setServiceMessage(de.getMessage());
