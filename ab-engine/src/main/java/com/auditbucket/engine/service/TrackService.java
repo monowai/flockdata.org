@@ -748,19 +748,25 @@ public class TrackService {
             if ( metaKey.getDocumentType().equals("*"))
                 metaHeaders= findByCallerRef(f, metaKey.getCallerRef() );
             else {
-                MetaHeader mh =findByCallerRef(f, metaKey.getDocumentType(), metaKey.getCallerRef());
-                if ( mh == null )
-                    break;
-                Collection<MetaHeader> array= new ArrayList<>();
-                array.add(mh);
-                metaHeaders = array;
-            }
-            for (MetaHeader metaHeader : metaHeaders) {
-                if (count > 1 || count == 0)
+                MetaHeader mh =findByCallerRef(fortressService.findByName(company, metaKey.getFortressName()), metaKey.getDocumentType(), metaKey.getCallerRef());
+                if ( mh == null ) {
                     ignored.add(metaKey);
-                else
-                    targets.add(metaHeader);
-                count++;
+                    metaHeaders = null;
+
+                } else {
+                    Collection<MetaHeader> array= new ArrayList<>();
+                    array.add(mh);
+                    metaHeaders = array;
+                }
+            }
+            if ( metaHeaders!=null ){
+                for (MetaHeader metaHeader : metaHeaders) {
+                    if (count > 1 || count == 0)
+                        ignored.add(metaKey);
+                    else
+                        targets.add(metaHeader);
+                    count++;
+                }
             }
 
         }

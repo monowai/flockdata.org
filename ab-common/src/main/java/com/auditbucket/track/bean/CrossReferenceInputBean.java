@@ -2,6 +2,7 @@ package com.auditbucket.track.bean;
 
 import com.auditbucket.track.model.MetaKey;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +18,7 @@ public class CrossReferenceInputBean {
     private String documentType;
     private String callerRef;
     private String serviceMessage;
+    Map<String,List<MetaKey>>ignored;
 
     protected CrossReferenceInputBean(){}
 
@@ -87,5 +89,15 @@ public class CrossReferenceInputBean {
 
     public String getDocumentType() {
         return documentType;
+    }
+
+    public void setIgnored(String xRefName, List<MetaKey> ignored) {
+        if (this.ignored == null )
+           this.ignored = new HashMap<>();
+        this.ignored.put(xRefName, ignored);
+    }
+
+    public Map<String,List<MetaKey>> getIgnored() {
+        return ignored;
     }
 }
