@@ -6,8 +6,8 @@ import java.util.Map;
 
 /**
  * User: mike
- * Date: 23/07/14
- * Time: 12:28 PM
+ * Date: 27/04/14
+ * Time: 1:03 PM
  */
 public interface IStaticDataResolver {
     String resolveCountryISOFromName(String name) throws DatagioException;
