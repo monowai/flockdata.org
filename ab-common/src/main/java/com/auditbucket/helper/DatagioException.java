@@ -25,6 +25,7 @@ package com.auditbucket.helper;
  */
 public class DatagioException extends Exception {
     public DatagioException() {
+        super();
     }
 
     public DatagioException(String message) {
