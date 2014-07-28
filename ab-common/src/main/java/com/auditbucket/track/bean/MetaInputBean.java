@@ -62,12 +62,13 @@ public class MetaInputBean {
      * @param callerRef     case sensitive unique key. If not supplied, then the service will generate one
      */
     public MetaInputBean(String fortress, String fortressUser, String documentType, DateTime fortressWhen, String callerRef) {
+        this();
         if (fortressWhen != null)
             this.when = fortressWhen.toDate();
-        this.fortress = fortress;
-        this.fortressUser = fortressUser;
-        this.documentType = documentType;
-        this.callerRef = callerRef;
+        setFortress(fortress);
+        setFortressUser( fortressUser);
+        setDocumentType(documentType);
+        setCallerRef(callerRef);
     }
 
     public MetaInputBean(String description, String fortressUser, String companyNode, DateTime fortressWhen) {
@@ -333,13 +334,4 @@ public class MetaInputBean {
         return isMetaOnly;
     }
 
-    /**
-     * Being Meta only tells the track process that the header CAN be indexed.
-     * Normally the service would wait for an associated log to be provided
-     *
-     * @param metaOnly if true, expect no log data and index this
-     */
-    public void setMetaOnly(boolean metaOnly) {
-        isMetaOnly = metaOnly;
-    }
 }

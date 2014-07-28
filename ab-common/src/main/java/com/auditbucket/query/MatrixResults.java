@@ -37,7 +37,7 @@ public class MatrixResults {
     }
 
     public MatrixResults(Collection<MatrixResult> matrixResults) {
-        this.results = matrixResults;
+        setResults(matrixResults);
     }
 
     public Collection<MatrixResult> getResults() {
