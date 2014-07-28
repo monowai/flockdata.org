@@ -26,7 +26,6 @@ import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.TagService;
-import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackTagInputBean;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackTag;
@@ -36,7 +35,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * User: Mike Holdsworth
@@ -213,12 +215,6 @@ public class TagTrackService {
             throw new DatagioException("Unable to find the tag [" + tagName + "]");
         return trackTagDao.findTrackTags(tag);
 
-    }
-
-    public void createTags(Company company, List<MetaInputBean> inputBeans) {
-        for(MetaInputBean bean:inputBeans){
-            tagService.processTags(company, bean.getTags());
-        }
     }
 
 }

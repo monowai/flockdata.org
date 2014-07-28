@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
 
 import java.util.*;
@@ -249,11 +248,14 @@ public class TestTrack extends TestEngineBase {
         Fortress fo = fortressService.registerFortress("auditTest");
 
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "uouu87");
+        inputBean.setName("MikesNameTest");
         LogInputBean logBean = new LogInputBean(null, "wally", DateTime.now(), "{\"blah\":0}");
         inputBean.setLog(logBean);
         TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
         assertNotNull(resultBean);
         assertNotNull(resultBean.getMetaKey());
+        assertEquals("MikesNameTest", resultBean.getMetaHeader().getName());
+        assertTrue(resultBean.getMetaHeader().toString().contains(resultBean.getMetaKey()));
         assertEquals(1, trackService.getLogCount(resultBean.getMetaKey()));
     }
 

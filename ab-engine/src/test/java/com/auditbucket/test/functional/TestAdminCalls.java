@@ -38,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.*;
@@ -200,4 +201,19 @@ public class TestAdminCalls extends TestEngineBase {
 
     }
 
+    @Test
+    public void testPing(){
+        assertTrue(adminEP.getPing().equalsIgnoreCase("pong!"));
+    }
+
+    @Test
+    public void testHealth() throws Exception{
+        setSecurity();
+        SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, "healthCheck")).getBody();
+        Map<String, String> results = adminEP.getHealth(su.getApiKey(), su.getApiKey());
+        assertFalse(results.isEmpty());
+        assertEquals("!Unreachable! Connection refused", results.get("ab-search" ));
+        setSecurityEmpty();
+        assertNull (adminEP.getHealth(null, null));
+    }
 }

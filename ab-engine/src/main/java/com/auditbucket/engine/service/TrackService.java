@@ -812,11 +812,11 @@ public class TrackService {
             // Indexing header meta data only
             return;
         }
-        TrackLog when;
+        TrackLog trackLog;
         // The change has been indexed
         try {
-            when = trackDao.getLog(searchResult.getLogId());
-            if (when == null) {
+            trackLog = trackDao.getLog(searchResult.getLogId());
+            if (trackLog == null) {
                 logger.error("Illegal node requested from handleSearchResult [{}]", searchResult.getLogId());
                 return;
             }
@@ -826,14 +826,14 @@ public class TrackService {
         }
 
         // Another thread may have processed this so save an update
-        if (!when.isIndexed()) {
+        if (!trackLog.isIndexed()) {
             // We need to know that the change we requested to index has been indexed.
-            logger.trace("Updating index status for {}", when);
-            when.setIsIndexed();
-            trackDao.save(when);
+            logger.trace("Updating index status for {}", trackLog);
+            trackLog.setIsIndexed();
+            trackDao.save(trackLog);
 
         } else {
-            logger.trace("Skipping {} as it is already indexed", when);
+            logger.trace("Skipping {} as it is already indexed", trackLog);
         }
     }
 }
