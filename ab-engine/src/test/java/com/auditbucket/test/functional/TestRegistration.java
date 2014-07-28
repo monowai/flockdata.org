@@ -28,11 +28,12 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.TimeZone;
 
 import static junit.framework.Assert.assertEquals;
@@ -116,7 +117,7 @@ public class TestRegistration extends TestEngineBase {
         setSecurity();
         SystemUserResultBean systemUser = registrationEP.registerSystemUser(new RegistrationBean(companyName, "password", adminName).setIsUnique(false)).getBody();
         assertNotNull(systemUser);
-        Collection<Company>companies = companyEP.findCompanies(systemUser.getApiKey(), null);
+        Collection<Company> companies = companyEP.findCompanies(systemUser.getApiKey(), null);
         assertEquals(1, companies.size());
         String cKey = companies.iterator().next().getApiKey();
 
@@ -139,16 +140,13 @@ public class TestRegistration extends TestEngineBase {
     @Test
     public void companiesForUser() throws DatagioException {
         setSecurity("mike");
-        registrationEP.registerSystemUser(new RegistrationBean("CompanyAA", "mike").setIsUnique(false));
+        String apiKey = registrationEP.registerSystemUser(new RegistrationBean("CompanyAA", "mike").setIsUnique(false)).getBody().getApiKey();
         Fortress fA = fortressService.registerFortress("FortressA");
         Fortress fB = fortressService.registerFortress("FortressB");
         Fortress fC = fortressService.registerFortress("FortressC");
         fortressService.registerFortress("FortressC");// Forced duplicate should be ignored
 
-        Collection<Company> companies = companyService.findCompanies();
-        assertEquals(1, companies.size());
-
-        Collection<Fortress> fortresses = fortressService.findFortresses();
+        Collection<Fortress> fortresses = fortressEP.findFortresses(apiKey, apiKey);
         assertFalse(fortresses.isEmpty());
         assertEquals(3, fortresses.size());
 
@@ -159,6 +157,63 @@ public class TestRegistration extends TestEngineBase {
         assertNotSame(fA.getId(), fortressService.registerFortress("FortressA").getId());
         assertNotSame(fB.getId(), fortressService.registerFortress("FortressB").getId());
         assertNotSame(fC.getId(), fortressService.registerFortress("FortressC").getId());
+
+    }
+
+    @Test
+    public void companyLocators () throws Exception{
+        setSecurity("mike");
+        String apiKey = registrationEP.registerSystemUser(new RegistrationBean("companyLocators", "mike").setIsUnique(false)).getBody().getApiKey();
+
+        Collection<Company> companies = companyService.findCompanies();
+        assertEquals(1, companies.size());
+        Company listCompany = companies.iterator().next();
+        Company foundCompany = companyEP.getCompany(listCompany.getName(), apiKey, apiKey).getBody();
+        assertEquals(null, listCompany.getId(), foundCompany.getId());
+        try {
+            assertEquals(null, companyEP.getCompany(foundCompany.getName(), "illegal", "illegal"));
+            fail("Illegal API key parsed in. This should not have worked");
+        } catch (DatagioException e ){
+            // Illegal API key so this is good.
+        }
+        ResponseEntity re = companyEP.getCompany("IllegalCompany Name", apiKey, apiKey);
+        assertEquals(HttpStatus.NOT_FOUND, re.getStatusCode());
+        assertEquals(null, re.getBody());
+    }
+
+    @Test
+    public void differentUsersCantAccessKnownCompany () throws Exception{
+        setSecurity("mike");
+        String apiKeyMike = registrationEP.registerSystemUser(new RegistrationBean("coA123", "mike").setIsUnique(false)).getBody().getApiKey();
+
+        Collection<Company> companies = companyService.findCompanies();
+        assertEquals(1, companies.size());
+        Company listCompany = companies.iterator().next();
+        Company foundCompany = companyEP.getCompany(listCompany.getName(), apiKeyMike, apiKeyMike).getBody();
+        assertEquals(null, listCompany.getId(), foundCompany.getId());
+
+        setSecurity(sally);
+        String apiKeySally = registrationEP.registerSystemUser(new RegistrationBean("coB123", "sally").setIsUnique(false)).getBody().getApiKey();
+
+        try {
+            assertEquals("Sally's APIKey cannot see Mikes company record", null, companyEP.getCompany("coA123", apiKeySally, apiKeySally));
+            fail("Security Check failed");
+        } catch (DatagioException e ){
+            // Illegal API key so this is good.
+        }
+        // Happy path
+        assertNotNull ( companyEP.getCompany("coB123", apiKeySally, apiKeySally));
+        assertNotNull ( companyEP.getCompany("coB123", null, null));
+        setSecurity(mike);
+        try {
+            assertEquals("Mike's APIKey cannot see Sally's company record", null, companyEP.getCompany("coB123", apiKeyMike, apiKeyMike));
+            fail("Security Check failed");
+        } catch (DatagioException e ){
+            // Illegal API key so this is good.
+        }
+        // Happy path
+        assertNotNull ( companyEP.getCompany("coA123", apiKeyMike, apiKeyMike));
+        assertNotNull ( companyEP.getCompany("coA123", null, null));
 
     }
 
@@ -174,7 +229,7 @@ public class TestRegistration extends TestEngineBase {
             // Unauthenticated users can't register accounts
             SystemUserResultBean systemUser = registrationEP.registerSystemUser(new RegistrationBean(companyName, "password", adminName)).getBody();
             assertNotNull(systemUser);
-        } catch (Exception e){
+        } catch (Exception e) {
             // this is good
         }
 
@@ -186,13 +241,18 @@ public class TestRegistration extends TestEngineBase {
         CompanyUser nonAdmin = regService.addCompanyUser(userName, companyName);
         assertNotNull(nonAdmin);
 
-        Fortress fortress = fortressService.registerFortress("auditbucket");
+        FortressInputBean fib = new FortressInputBean("auditbucket");
+        fib.setSearchActive(false);
+        Fortress fortress = fortressEP.registerFortress(fib, systemUser.getApiKey(), systemUser.getApiKey()).getBody();
         assertNotNull(fortress);
 
-        List<Fortress> fortressList = fortressService.findFortresses(companyName);
+        Collection<Fortress> fortressList = fortressEP.findFortresses(systemUser.getApiKey(), systemUser.getApiKey());
         assertNotNull(fortressList);
         assertEquals(1, fortressList.size());
 
+        Fortress foundFortress = fortressEP.getFortress("auditbucket", systemUser.getApiKey(), systemUser.getApiKey()).getBody();
+        assertNotNull(foundFortress);
+        assertEquals(HttpStatus.NOT_FOUND, fortressEP.getFortress("auditbucketzz", systemUser.getApiKey(), systemUser.getApiKey()).getStatusCode());
 
         Company company = companyService.findByName(companyName);
         assertNotNull(company);
@@ -203,8 +263,7 @@ public class TestRegistration extends TestEngineBase {
         assertEquals(companyId, company.getId());
         assertNotNull(systemUserService.findByLogin(adminName));
         assertNull(systemUserService.findByLogin(userName));
-        // SystemNode registration are not automatically company registration
-        //assertEquals(1, company.getCompanyUserCount());
+
         assertNotNull(companyService.getAdminUser(company, adminName));
         assertNull(companyService.getAdminUser(company, userName));
 
@@ -225,6 +284,8 @@ public class TestRegistration extends TestEngineBase {
         assertNotNull(fu);
         fu = fortressService.getFortressUser(fortress, "useRax");
         assertNotNull(fu);
+        assertEquals(fu.getId(), fortressEP.getFortressUser(fortress.getName(), "userax", null, null).getBody().getId());
+        assertEquals(HttpStatus.NOT_FOUND, fortressEP.getFortressUser(fortress.getName()+"zz", "userax", null, null).getStatusCode());
     }
 
     @Test
@@ -307,7 +368,7 @@ public class TestRegistration extends TestEngineBase {
     }
 
     @Test
-    public void duplicateRegistrationFails() throws Exception{
+    public void duplicateRegistrationFails() throws Exception {
         String companyA = "companya";
         String companyB = "companyb";
         try {
@@ -315,7 +376,7 @@ public class TestRegistration extends TestEngineBase {
             registrationEP.registerSystemUser(new RegistrationBean(companyA, "mike"));
             registrationEP.registerSystemUser(new RegistrationBean(companyB, "mike"));
             Assert.fail("You can't have a duplicate registration");
-        } catch ( DatagioException e ){
+        } catch (DatagioException e) {
             // Expected
         }
 

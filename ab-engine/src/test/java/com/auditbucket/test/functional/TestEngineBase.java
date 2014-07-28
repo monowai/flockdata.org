@@ -160,6 +160,10 @@ public class TestEngineBase {
         return auth;
     }
 
+    public static void setSecurityEmpty(){
+        SecurityContextHolder.getContext().setAuthentication(null);
+    }
+
     Transaction beginManualTransaction() {
         Transaction t = template.getGraphDatabase().beginTx();
         return t;

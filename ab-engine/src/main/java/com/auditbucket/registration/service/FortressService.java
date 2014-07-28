@@ -40,7 +40,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 @Service
 @Transactional
@@ -187,11 +186,11 @@ public class FortressService {
         return registerFortress(fb);
     }
 
-    public Collection<Fortress> findFortresses() {
+    public Collection<Fortress> findFortresses() throws DatagioException{
         Company company = securityHelper.getCompany();
         if (company == null)
             return new ArrayList<>();
-        return fortressDao.findFortresses(company.getId());
+        return findFortresses(company);
 
     }
 
@@ -200,16 +199,6 @@ public class FortressService {
             throw new DatagioException("Unable to identify the requested company");
         return fortressDao.findFortresses(company.getId());
 
-    }
-
-    public List<Fortress> findFortresses(String companyName) {
-        Company company = companyService.findByName(companyName);
-        if (company == null)
-            return null;      //ToDo: what kind of error page to return?
-        if (companyService.getAdminUser(company, securityHelper.getUserName(true, true)) != null)
-            return fortressDao.findFortresses(company.getId());
-        else
-            return null; //NotAuth
     }
 
     public void fetch(FortressUser lastUser) {
