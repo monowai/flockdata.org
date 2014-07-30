@@ -222,7 +222,7 @@ public class TestABIntegration {
         Fortress fo = fortressService.registerFortress(new FortressInputBean("headerWithTagsProcess", false));
         DateTime now = new DateTime();
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", now, "ABCXYZ123");
-        inputBean.setIsMetaOnly(true);
+        inputBean.setMetaOnly(true);
         inputBean.addTag(new TagInputBean("testTagNameZZ", "someAuditRLX"));
         inputBean.setEvent("TagTest");
         TrackResultBean result = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody();
@@ -246,7 +246,7 @@ public class TestABIntegration {
         DateTime now = new DateTime();
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", now, "ZZZ123");
         inputBean.setEvent("immutableHeadersWithNoLogsAreIndexed");
-        inputBean.setIsMetaOnly(true); // Must be true to make over to search
+        inputBean.setMetaOnly(true); // Must be true to make over to search
         TrackResultBean auditResult;
         auditResult = mediationFacade.createHeader(inputBean, su.getApiKey());
         waitForHeaderToUpdate(auditResult.getMetaHeader(), su.getApiKey());
@@ -346,7 +346,7 @@ public class TestABIntegration {
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         inputBean.setTrackSuppressed(true);
-        inputBean.setIsMetaOnly(true); // If true, the header will be indexed
+        inputBean.setMetaOnly(true); // If true, the header will be indexed
         // Track suppressed but search is enabled
         mediationFacade.createHeader(inputBean, su.getApiKey());
         waitAWhile();
@@ -358,14 +358,14 @@ public class TestABIntegration {
         doEsQuery(indexName, "*", 1);
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setTrackSuppressed(true);
-        inputBean.setIsMetaOnly(true);
+        inputBean.setMetaOnly(true);
         mediationFacade.createHeader(inputBean, null);
         waitAWhile();
         doEsQuery(indexName, "*", 2);
 
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setTrackSuppressed(true);
-        inputBean.setIsMetaOnly(true);
+        inputBean.setMetaOnly(true);
         MetaHeader header = mediationFacade.createHeader(inputBean, null).getMetaHeader();
         Assert.assertNull(header.getMetaKey());
         // Updating the same caller ref should not create a 3rd record
@@ -373,14 +373,14 @@ public class TestABIntegration {
 
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setTrackSuppressed(true);
-        inputBean.setIsMetaOnly(true);
+        inputBean.setMetaOnly(true);
         mediationFacade.createHeader(inputBean, null);
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(indexName, "*", 2);
 
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC125");
         inputBean.setTrackSuppressed(true);
-        inputBean.setIsMetaOnly(true);
+        inputBean.setMetaOnly(true);
         mediationFacade.createHeader(inputBean, null);
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(indexName, "*", 3);
