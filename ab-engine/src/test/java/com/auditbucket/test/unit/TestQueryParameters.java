@@ -82,10 +82,11 @@ public class TestQueryParameters {
         relationships.add("SecondConcept");
         relationships.add("third-concept");
         relationships.add("dot.concept");
+        relationships.add("2010");        // Numbers need to be escaped
         inputBean.setFromRlxs(relationships);
         inputBean.setToRlxs(relationships);
-        assertEquals(":`With Space` |:SecondConcept |:`third-concept` |:`dot.concept`", NeoSyntaxHelper.getRelationships(inputBean.getFromRlxs()));
-        assertEquals(":`With Space` |:SecondConcept |:`third-concept` |:`dot.concept`", NeoSyntaxHelper.getRelationships(inputBean.getToRlxs()));
+        assertEquals(":`With Space` |:SecondConcept |:`third-concept` |:`dot.concept` |:`2010`", NeoSyntaxHelper.getRelationships(inputBean.getFromRlxs()));
+        assertEquals(":`With Space` |:SecondConcept |:`third-concept` |:`dot.concept` |:`2010`", NeoSyntaxHelper.getRelationships(inputBean.getToRlxs()));
     }
 
 
