@@ -222,7 +222,7 @@ public class TestABIntegration {
         Fortress fo = fortressService.registerFortress(new FortressInputBean("headerWithTagsProcess", false));
         DateTime now = new DateTime();
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", now, "ABCXYZ123");
-        inputBean.setIsMetaOnly(true);
+        inputBean.setMetaOnly(true);
         inputBean.addTag(new TagInputBean("testTagNameZZ", "someAuditRLX"));
         inputBean.setEvent("TagTest");
         TrackResultBean result = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody();
@@ -246,7 +246,7 @@ public class TestABIntegration {
         DateTime now = new DateTime();
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", now, "ZZZ123");
         inputBean.setEvent("immutableHeadersWithNoLogsAreIndexed");
-        inputBean.setIsMetaOnly(true); // Must be true to make over to search
+        inputBean.setMetaOnly(true); // Must be true to make over to search
         TrackResultBean auditResult;
         auditResult = mediationFacade.createHeader(inputBean, su.getApiKey());
         waitForHeaderToUpdate(auditResult.getMetaHeader(), su.getApiKey());
