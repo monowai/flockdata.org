@@ -37,7 +37,6 @@ import java.util.Collection;
 import java.util.List;
 
 import static junit.framework.Assert.*;
-import static org.junit.Assume.assumeTrue;
 
 /**
  * User: Mike Holdsworth
@@ -153,11 +152,11 @@ public class TestTags extends TestEngineBase {
 
     @Test
     public void tagWithProperties() throws Exception {
-        assumeTrue(false);// Not yet supported
+        //assumeTrue(false);// Not yet supported
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike));
         assertNotNull(iSystemUser);
 
-        TagInputBean tagInput = new TagInputBean("FLOP");
+        TagInputBean tagInput = new TagInputBean("ZFLOP");
         tagInput.setProperty("num", 123);
         tagInput.setProperty("dec", 123.11);
         tagInput.setProperty("string", "abc");
@@ -165,16 +164,12 @@ public class TestTags extends TestEngineBase {
         Tag tag = tagService.processTag(tagInput);
 
         assertNotNull(tag);
-        Tag result = tagService.findTag("FLOP");
+        Tag result = tagService.findTag("ZFLOP");
 
         assertNotNull(result);
         assertEquals(123l, tag.getProperty("num"));
         assertEquals(123.11, tag.getProperty("dec"));
         assertEquals("abc", tag.getProperty("string"));
-
-        result = tagService.processTag(new TagInputBean("FLOPPY"));
-        assertNotNull(result);
-        assertEquals("FLOPPY", result.getName());
 
     }
 
