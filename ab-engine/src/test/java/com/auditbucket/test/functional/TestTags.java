@@ -153,7 +153,7 @@ public class TestTags extends TestEngineBase {
     @Test
     public void tagWithProperties() throws Exception {
         //assumeTrue(false);// Not yet supported
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInput = new TagInputBean("ZFLOP");
