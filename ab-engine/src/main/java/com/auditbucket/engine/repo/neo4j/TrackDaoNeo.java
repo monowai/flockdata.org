@@ -20,7 +20,6 @@
 package com.auditbucket.engine.repo.neo4j;
 
 import com.auditbucket.dao.TrackDao;
-import com.auditbucket.engine.repo.LogWhatData;
 import com.auditbucket.engine.repo.neo4j.model.LogNode;
 import com.auditbucket.engine.repo.neo4j.model.LoggedRelationship;
 import com.auditbucket.engine.repo.neo4j.model.MetaHeaderNode;
@@ -194,8 +193,6 @@ public class TrackDaoNeo implements TrackDao {
         args.put("fortress", fortressId);
         args.put("skip", skipTo);
         Result<Map<String, Object>> result = template.query(cypher, args);
-        if (!((Result) result).iterator().hasNext())
-            return new ArrayList<>();
 
         Iterator<Map<String, Object>> rows = result.iterator();
 
@@ -329,11 +326,6 @@ public class TrackDaoNeo implements TrackDao {
         return null;
     }
 
-    @Override
-    public LogWhat getWhat(Long whatId) {
-        return template.findOne(whatId, LogWhatData.class);
-    }
-
 
     //    @Cacheable(value = "headerId", unless = "#result==null")
     @Override
@@ -344,10 +336,6 @@ public class TrackDaoNeo implements TrackDao {
     @Override
     public Log fetch(Log lastChange) {
         return template.fetch(lastChange);
-    }
-
-    enum LastChange implements RelationshipType {
-        LAST_CHANGE
     }
 
     @Override
@@ -479,8 +467,7 @@ public class TrackDaoNeo implements TrackDao {
 //                count++;
 //            }
 //        }
-        TrackLog log = trackLogRepo.getLastLog(lastChange.getId());
-        return log;
+        return trackLogRepo.getLastLog(lastChange.getId());
     }
 
 

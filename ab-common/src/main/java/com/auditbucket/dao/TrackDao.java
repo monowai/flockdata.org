@@ -95,8 +95,6 @@ public interface TrackDao {
 
     TrackLog getLog(Long logId);
 
-    LogWhat getWhat(Long whatId);
-
     MetaHeader getHeader(Long id);
 
     Log fetch(Log lastChange);

@@ -28,6 +28,7 @@ package com.auditbucket.helper;
  */
 public class DatagioTagException extends RuntimeException {
     public DatagioTagException() {
+        super();
     }
 
     public DatagioTagException(String message) {
