@@ -498,7 +498,7 @@ public class TestABIntegration {
         String indexName = indexHeader.getIndexName();
 //        doEsFieldQuery(indexName, "@tag." + relationshipName + ".key", "keytestworks", 1);
 
-        Set<TrackTag> tags = trackEP.getAuditTags(indexHeader.getMetaKey(), null, null).getBody();
+        Set<TrackTag> tags = trackEP.getAuditTags(indexHeader.getMetaKey(), null, null);
         assertNotNull(tags);
         assertEquals(1, tags.size());
 

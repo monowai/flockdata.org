@@ -120,8 +120,6 @@ public class TagTrackService {
         Collection<TrackTag> rlxs = new ArrayList<>();
         Iterable<TrackTag> existingTags = findTrackTags(company, ah);
 
-        //tagService.processTags(company, userTags);
-
         for (TagInputBean tagInput : userTags) {
 
             Tag tag = tagService.processTag(company, tagInput);
