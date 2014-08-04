@@ -727,18 +727,23 @@ public class TestMetaHeaderTags extends TestEngineBase {
         validateTag(metaHeader, "TEST-CREATE", 0);
 
         Set<Tag> results = trackEP.getLastChangeTags(metaHeader.getMetaKey(), su.getApiKey(), su.getApiKey());
-        assertEquals(0, results.size()); // No tags against the logs
-        //
+        assertEquals(0, results.size()); // No tags against the last change log - tags are against the header
 
         results = trackEP.getChangeTags(metaHeader.getMetaKey(), firstLog.getTrackLog().getId(), su.getApiKey(), su.getApiKey());
         assertEquals(1, results.size());
         assertEquals("TEST-CREATE", results.iterator().next().getName());
 
         // Make sure when we pass NO tags, i.e. just running an update, we don't change ANY tags
+        alb = new LogInputBean("mike", new DateTime(), what + "3\"}");
+        updatedHeader.setLog(alb);
+        updatedHeader.getTags().clear();
+        resultBean = mediationFacade.createHeader(updatedHeader, null);
+        metaHeader = trackService.getHeader(resultBean.getMetaKey());
 
-        // ToDo: create a test for tags against a log
-        // TEST-CREATE should be now against the log and not the MetaHeader
-
+        // 3 logs
+        assertEquals(3, trackService.getLogCount(metaHeader.getMetaKey()));
+        // Update tag should still be against the header
+        validateTag(metaHeader, "TEST-UPDATE", 1);
 
         // ToDo: Cancel should reinstate
     }

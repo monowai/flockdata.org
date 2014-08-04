@@ -56,7 +56,7 @@ public interface TrackTagDao {
 
     Set<TrackTag> getMetaTrackTagsOutbound(Company company, MetaHeader header);
 
-    void deleteAuditTags(MetaHeader metaHeader, Collection<TrackTag> trackTags) throws DatagioException;
+    void deleteTrackTags(MetaHeader metaHeader, Collection<TrackTag> trackTags) throws DatagioException;
 
     void changeType(MetaHeader metaHeader, TrackTag existingTag, String newType);
 

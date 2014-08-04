@@ -48,7 +48,7 @@ import java.util.*;
  * Date: 28/06/13
  * Time: 11:07 PM
  */
-@Repository("auditTagDAO")
+@Repository("trackTagDAO")
 public class TrackTagDaoNeo implements TrackTagDao {
     @Autowired
     Neo4jTemplate template;
@@ -70,7 +70,7 @@ public class TrackTagDaoNeo implements TrackTagDao {
 
     /**
      * creates the relationship between the metaHeader and the tag of the name type.
-     * If auditId == null, then an TrackTag for the caller to deal with otherwise the relationship
+     * If metaId== null, then an TrackTag for the caller to deal with otherwise the relationship
      * is persisted and null is returned.
      *
      *
@@ -120,7 +120,7 @@ public class TrackTagDaoNeo implements TrackTagDao {
     TagDao tagDao;
 
     @Override
-    public void deleteAuditTags(MetaHeader metaHeader, Collection<TrackTag> trackTags) throws DatagioException {
+    public void deleteTrackTags(MetaHeader metaHeader, Collection<TrackTag> trackTags) throws DatagioException {
         Node auditNode = null;
         for (TrackTag tag : trackTags) {
             if (!tag.getMetaId().equals(metaHeader.getId()))
