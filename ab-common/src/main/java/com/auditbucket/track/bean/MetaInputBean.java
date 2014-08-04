@@ -64,7 +64,7 @@ public class MetaInputBean {
     public MetaInputBean(String fortress, String fortressUser, String documentType, DateTime fortressWhen, String callerRef) {
         this();
         if (fortressWhen != null)
-            this.when = fortressWhen.toDate();
+            setWhen(fortressWhen.toDate());
         setFortress(fortress);
         setFortressUser( fortressUser);
         setDocumentType(documentType);
@@ -208,11 +208,6 @@ public class MetaInputBean {
         tags.add(tag);
         return this;
     }
-
-    public void removeTag ( TagInputBean tag){
-        tags.remove(tag);
-    }
-
 
     /**
      * Tag structure to create. This is a short hand way of ensuring an
