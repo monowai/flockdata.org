@@ -47,7 +47,7 @@ public class MetaInputBean {
     private String name;
     private boolean searchSuppressed;
     private boolean trackSuppressed = false;
-    private boolean isMetaOnly;
+    private boolean metaOnly = false;
 
 
     public MetaInputBean() {
@@ -171,7 +171,7 @@ public class MetaInputBean {
     public void setLog(LogInputBean log) {
         this.log = log;
         if (log != null) {
-            this.isMetaOnly = false;
+            this.metaOnly = false;
             this.when = log.getWhen();
         }
     }
@@ -326,12 +326,12 @@ public class MetaInputBean {
      *
      * @param metaOnly if false then the header will not be indexed in search until a log is added
      */
-    public void setIsMetaOnly(boolean metaOnly) {
-        isMetaOnly = metaOnly;
+    public void setMetaOnly(boolean metaOnly) {
+        this.metaOnly = metaOnly;
     }
 
     public boolean isMetaOnly() {
-        return isMetaOnly;
+        return metaOnly;
     }
 
 }
