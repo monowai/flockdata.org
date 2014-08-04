@@ -71,9 +71,9 @@ public class NonTransactional extends TestEngineBase{
         CrossReferenceInputBean bean = new CrossReferenceInputBean(fortressA.getName(), "ABC123",refs);
         List<CrossReferenceInputBean > inputs = new ArrayList<>();
         inputs.add(bean);
-        Set<TrackTag> tagsA = trackEP.getAuditTags(docA.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody();
+        Set<TrackTag> tagsA = trackEP.getAuditTags(docA.getMetaKey(), su.getApiKey(), su.getApiKey());
         assertEquals(1, tagsA.size());
-        Set<TrackTag> tagsB = trackEP.getAuditTags(docB.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody();
+        Set<TrackTag> tagsB = trackEP.getAuditTags(docB.getMetaKey(), su.getApiKey(), su.getApiKey());
         assertEquals(1, tagsB.size());
 
     }

@@ -22,7 +22,9 @@ package com.auditbucket.dao;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
+import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.TrackLog;
 import com.auditbucket.track.model.TrackTag;
 
 import java.util.Collection;
@@ -60,4 +62,7 @@ public interface TrackTagDao {
 
     Set<MetaHeader> findTrackTags(Tag tag);
 
+    void moveTags(MetaHeader metaHeader, TrackLog currentLog, Collection<TrackTag> trackTag);
+
+    Set<Tag> findLogTags(Company company, Log log) ;
 }

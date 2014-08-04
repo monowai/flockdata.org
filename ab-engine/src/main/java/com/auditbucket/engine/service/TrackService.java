@@ -22,10 +22,7 @@ package com.auditbucket.engine.service;
 import com.auditbucket.dao.TrackDao;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
-import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.model.FortressUser;
-import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.model.*;
 import com.auditbucket.registration.service.*;
 import com.auditbucket.search.model.MetaSearchChange;
 import com.auditbucket.search.model.SearchResult;
@@ -121,7 +118,10 @@ public class TrackService {
         DocumentType documentType = schemaService.resolveDocType(fortress, inputBean.getDocumentType());
 
         MetaHeader ah = null;
-        if (inputBean.getCallerRef() != null && !inputBean.getCallerRef().equals(EMPTY))
+        if ( inputBean.getMetaKey() != null ){
+            ah = getHeader(company, inputBean.getMetaKey());
+        }
+        if ( ah == null && (inputBean.getCallerRef() != null && !inputBean.getCallerRef().equals(EMPTY)))
             ah = findByCallerRef(fortress, documentType, inputBean.getCallerRef());
         if (ah != null) {
             logger.debug("Existing metaHeader record found by Caller Ref [{}] found [{}]", inputBean.getCallerRef(), ah.getMetaKey());
@@ -132,7 +132,9 @@ public class TrackService {
             arb.setWasDuplicate();
             arb.setLogInput(inputBean.getLog());
             // Could be rewriting tags
-            arb.setTags(tagTrackService.associateTags(company, ah, inputBean.getTags()));
+            // DAT-153 - move this to the end of the process?
+            TrackLog trackLog = getLastLog(ah.getId());
+            arb.setTags(tagTrackService.associateTags(company, ah, trackLog , inputBean.getTags()));
             return arb;
         }
 
@@ -144,7 +146,7 @@ public class TrackService {
         }
         TrackResultBean resultBean = new TrackResultBean(ah);
         resultBean.setMetaInputBean(inputBean);
-        resultBean.setTags(tagTrackService.associateTags(company, resultBean.getMetaHeader(), inputBean.getTags()));
+        resultBean.setTags(tagTrackService.associateTags(company, resultBean.getMetaHeader(), null, inputBean.getTags()));
 
         resultBean.setLogInput(inputBean.getLog());
         return resultBean;
@@ -667,7 +669,7 @@ public class TrackService {
         return null;
     }
 
-    public Iterable<TrackResultBean> createHeaders(Iterable<MetaInputBean> inputBeans, Company company, Fortress fortress) {
+    public Iterable<TrackResultBean> createHeaders(Company company, Fortress fortress, Iterable<MetaInputBean> inputBeans) {
         Collection<TrackResultBean> arb = new CopyOnWriteArrayList<>();
         for (MetaInputBean inputBean : inputBeans) {
             logger.trace("Batch Processing metaKey=[{}], documentType=[{}]", inputBean.getCallerRef(), inputBean.getDocumentType());
@@ -835,5 +837,34 @@ public class TrackService {
         } else {
             logger.trace("Skipping {} as it is already indexed", trackLog);
         }
+    }
+
+    public Set<Tag> getLastLogTags(Company company, String metaKey) throws  DatagioException{
+        TrackLog lastLog = getLastLog(company, metaKey);
+        if ( lastLog == null )
+            return new HashSet<>();
+
+        return getLogTags(company, lastLog.getLog());
+    }
+
+    private Set<Tag> getLogTags(Company company, Log log) {
+        return tagTrackService.findLogTags(company, log);
+
+    }
+
+    public TrackLog getLog(Company company, String metaKey, long logId) throws DatagioException {
+        MetaHeader header = getHeader(company, metaKey);
+        TrackLog log = trackDao.getLog(logId);
+
+        if ( log == null )
+            throw new DatagioException(String.format("Invalid logId %d for %s ", logId, metaKey));
+
+        if (!log.getMetaHeader().getId().equals(header.getId()))
+            throw new DatagioException(String.format("Invalid logId %d for %s ", logId, metaKey));
+        return log;
+    }
+
+    public Set<Tag> getLogTags(Company company, TrackLog tl) {
+        return getLogTags(company, tl.getLog());  //To change body of created methods use File | Settings | File Templates.
     }
 }

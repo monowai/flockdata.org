@@ -72,6 +72,10 @@ public class TrackTagRelationship implements TrackTag, Comparable {
         }
     }
 
+    public TrackTagRelationship(MetaHeader metaHeader, Tag tag) {
+        this(metaHeader, tag, null);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -80,7 +84,7 @@ public class TrackTagRelationship implements TrackTag, Comparable {
         TrackTagRelationship that = (TrackTagRelationship) o;
 
         if (metaId != null ? !metaId.equals(that.metaId) : that.metaId != null) return false;
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+//        if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (tag != null ? !tag.equals(that.tag) : that.tag != null) return false;
         if (tagType != null ? !tagType.equals(that.tagType) : that.tagType != null) return false;
 
@@ -98,8 +102,8 @@ public class TrackTagRelationship implements TrackTag, Comparable {
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (tag != null ? tag.hashCode() : 0);
+        //int result = id != null ? id.hashCode() : 0;
+        int result = (tag != null ? tag.hashCode() : 0);
         result = 31 * result + (metaId != null ? metaId.hashCode() : 0);
         result = 31 * result + (tagType != null ? tagType.hashCode() : 0);
         return result;
@@ -110,13 +114,16 @@ public class TrackTagRelationship implements TrackTag, Comparable {
         this.metaId = header.getId();
         this.tag = tag;
         this.tagType = (relationship == null ? tag.getName() : relationship.getType().name());
-        if (relationship.hasProperty("weight"))
-            this.weight = (Integer) relationship.getProperty("weight");
+        if ( relationship!= null ) {
+            if (relationship.hasProperty("weight"))
+                this.weight = (Integer) relationship.getProperty("weight");
 
-        // Flags the relationship as having been created by a user rather than a system process
-        if (relationship.hasProperty("abAdded"))
-            this.abAdded = (String) relationship.getProperty("abAdded");
-        this.id = relationship.getId();
+            // Flags the relationship as having been created by a user rather than a system process
+            if (relationship.hasProperty("abAdded"))
+                this.abAdded = (String) relationship.getProperty("abAdded");
+            this.id = relationship.getId();
+        }
+
     }
 
 
