@@ -135,13 +135,17 @@ public class TagTrackService {
                 rlxs.add(trackTagDao.save(ah, tag, tagInput.getMetaLink(), tagInput.isReverse()));
         }
 
-        Collection<TrackTag> tagsToRelocate = new ArrayList<>();
-        for (TrackTag existingTag : existingTags) {
-            if (!rlxs.contains(existingTag))
-                tagsToRelocate.add(existingTag);
+        if (!userTags.isEmpty()) {
+            // We only consider relocating tags to the log if the caller passes at least one tag set
+            Collection<TrackTag> tagsToRelocate = new ArrayList<>();
+            for (TrackTag existingTag : existingTags) {
+                if (!rlxs.contains(existingTag))
+                    tagsToRelocate.add(existingTag);
+            }
+            relocateTags(ah, lastLog, tagsToRelocate);
         }
 
-        relocateTags(ah, lastLog, tagsToRelocate);
+
         return rlxs;
     }
 
@@ -201,7 +205,7 @@ public class TagTrackService {
     }
 
     public void deleteTrackTags(MetaHeader metaHeader, Collection<TrackTag> trackTags) throws DatagioException {
-        trackTagDao.deleteAuditTags(metaHeader, trackTags);
+        trackTagDao.deleteTrackTags(metaHeader, trackTags);
     }
 
     public void deleteTrackTags(MetaHeader metaHeader, TrackTag value) throws DatagioException {
