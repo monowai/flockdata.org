@@ -37,15 +37,6 @@ public class CompressionResult {
         return bytes;
     }
 
-    public String getAsString() {
-        return new String(bytes);
-    }
-
-    public boolean isCompressed() {
-        return method == Method.GZIP;
-    }
-
-
     public enum Method {
         NONE, GZIP
     }
