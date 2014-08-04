@@ -21,6 +21,7 @@ package com.auditbucket.search.dao;
 
 import com.auditbucket.dao.QueryDao;
 import com.auditbucket.helper.DatagioException;
+import com.auditbucket.search.helper.QueryGenerator;
 import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.MetaSearchSchema;
 import com.auditbucket.search.model.QueryParams;
@@ -32,6 +33,7 @@ import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StopWatch;
 
@@ -50,6 +52,9 @@ public class QueryDaoES implements QueryDao {
     @Autowired
     private Client client;
 
+    @Value("${highlight.enabled:true}")
+    Boolean highlightEnabled;
+
     private Logger logger = LoggerFactory.getLogger(QueryDaoES.class);
 
     @Override
@@ -66,7 +71,7 @@ public class QueryDaoES implements QueryDao {
     @Override
     public String doSearch(QueryParams queryParams) throws DatagioException {
         SearchResponse result = client.prepareSearch(MetaSearchSchema.parseIndex(queryParams))
-                .setExtraSource(getSimpleQuery(queryParams.getSimpleQuery()))
+                .setExtraSource(QueryGenerator.getSimpleQuery(queryParams.getSimpleQuery(),false))
                 .execute()
                 .actionGet();
 
@@ -88,7 +93,7 @@ public class QueryDaoES implements QueryDao {
                 .addField(MetaSearchSchema.META_KEY)
                 .setSize(queryParams.getRowsPerPage())
                 .setFrom(queryParams.getStartFrom())
-                .setExtraSource(getSimpleQuery(queryParams.getSimpleQuery()))
+                .setExtraSource(QueryGenerator.getSimpleQuery(queryParams.getSimpleQuery(), highlightEnabled))
                 .execute();
 
         Collection<String> results = new ArrayList<>();
@@ -116,23 +121,5 @@ public class QueryDaoES implements QueryDao {
         logger.info("ES Query. Results [{}] took [{}]", results.size(), watch.prettyPrint());
         return searchResult;
     }
-
-    private String getSimpleQuery(String queryString) {
-        logger.debug("getSimpleQuery {}", queryString);
-        return "{\n" +
-                "      \"query\": {\n" +
-                "        \"bool\": {\n" +
-                "          \"should\": [\n" +
-                "            {\n" +
-                "              \"query_string\": {\n" +
-                "                \"query\": \""+queryString+"\"\n" +
-                "              }\n" +
-                "            }\n" +
-                "          ]\n" +
-                "        }\n" +
-                "      }\n" +
-                "  }";
-    }
-
 
 }
