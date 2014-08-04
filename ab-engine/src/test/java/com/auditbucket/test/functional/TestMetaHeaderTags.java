@@ -33,6 +33,7 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.track.bean.*;
+import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.SearchChange;
 import com.auditbucket.track.model.TrackTag;
@@ -62,7 +63,7 @@ import static org.junit.Assert.fail;
 public class TestMetaHeaderTags extends TestEngineBase {
 
     @Test
-    public void tagAuditRecords() throws Exception {
+    public void simpleTagAgainstMetaHeader() throws Exception {
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike));
         assertNotNull(iSystemUser);
         Fortress fortress = fortressService.registerFortress("ABC");
@@ -78,7 +79,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
         TrackTagInputBean auditTag = new TrackTagInputBean(resultBean.getMetaKey(), null, "!!!");
         try {
             tagTrackService.processTag(header, auditTag);
-            fail("No null argument exception detected");
+            fail("Null argument exception should have been thrown");
         } catch (IllegalArgumentException ie) {
             // This should have happened
         }
@@ -261,12 +262,19 @@ public class TestMetaHeaderTags extends TestEngineBase {
         //assertNotNull(result);
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         aib.setTrackSuppressed(true);
-        // This should create the same Tag object
+        // This should create the same Tag object, but return one row for each relationships
         aib.addTag(new TagInputBean("TagA", "camel"));
         aib.addTag(new TagInputBean("taga", "lower"));
         aib.addTag(new TagInputBean("tAgA", "mixed"));
         TrackResultBean resultBean = mediationFacade.createHeader(aib, null);
-        assertEquals(1, resultBean.getTags().size());
+
+        assertEquals(3, resultBean.getTags().size());
+        Long id = null;
+        for (TrackTag trackTag : resultBean.getTags()) {
+            if ( id == null )
+                id = trackTag.getTag().getId();
+            assertEquals(id, trackTag.getTag().getId());
+        }
         assertNull(resultBean.getMetaKey());
 
     }
@@ -682,73 +690,104 @@ public class TestMetaHeaderTags extends TestEngineBase {
     }
 
     @Test
-    public void tagsAreUpdatedOnAuditUpdate() throws Exception {
-        org.junit.Assume.assumeTrue(false);// Skipping this until FixMe - implement rewrite of header tags
-        regService.registerSystemUser(new RegistrationBean(monowai, mike));
+    public void tagsAreUpdatedOnHeaderUpdate() throws Exception {
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
         fortressService.registerFortress("ABC");
 
-        TagInputBean tagInput = new TagInputBean("FLOP");
+        TagInputBean tagInput = new TagInputBean("TEST-CREATE", "rlx-test");
         String what = "{\"house\": \"house";
 
-        tagService.processTag(tagInput);
-        //assertNotNull(result);
         MetaInputBean inputBean = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc1");
         LogInputBean logBean = new LogInputBean("mike", new DateTime(), what + "1\"}");
         inputBean.setLog(logBean);
-        // This should create the same Tag object
-        inputBean.addTag(new TagInputBean("TagA", "camel"));
-        TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
-        MetaHeader unchanged = trackService.getHeader(resultBean.getMetaKey());
-        assertNotNull(unchanged);
 
-        MetaInputBean removeTag = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc2");
-        LogInputBean alb = new LogInputBean("mike", new DateTime(), what + "1\"}");
-        removeTag.setLog(alb);
-        // This should create the same Tag object
-        removeTag.addTag(new TagInputBean("TagA", "camel"));
-        resultBean = mediationFacade.createHeader(removeTag, null);
+        inputBean.addTag(tagInput);
+        TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
+        MetaHeader created = trackService.getHeader(resultBean.getMetaKey());
+        Log firstLog = trackEP.getLastChange(created.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody().getLog();
+        assertNotNull(created);
+
+        // Test that a tag is removed
+        MetaInputBean updatedHeader = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc1");
+        // Force a change to be detected
+        LogInputBean alb = new LogInputBean("mike", new DateTime(), what + "2\"}");
+        updatedHeader.setLog(alb);
+        // Updating an existing MetaHeader but the tagCollection is minus TEST-CREATE tag
+        // The create call should create a new Tag - TEST-UPDATE - and then remove the TEST-CREATE
+        updatedHeader.addTag(new TagInputBean("TEST-UPDATE", "camel"));
+        resultBean = mediationFacade.createHeader(updatedHeader, null);
         MetaHeader metaHeader = trackService.getHeader(resultBean.getMetaKey());
         Assert.assertNotNull(metaHeader);
 
-        validateTag(metaHeader, "TagA", 1);
+        // Should only be one tag
+        validateTag(metaHeader, null, 1);
+        // It should be the update tag
+        validateTag(metaHeader, "TEST-UPDATE", 1);
+        // The create tag should not be against the header but against the log
+        validateTag(metaHeader, "TEST-CREATE", 0);
 
-        // Replace the current tag
-        removeTag.addTag(new TagInputBean("TagB", "camel"));
-        removeTag.setLog(new LogInputBean("mike", new DateTime(), what + "2\"}"));
-        mediationFacade.createHeader(removeTag, null);
-        validateTag(metaHeader, "TagB", 1);
+        Set<Tag> results = trackEP.getLastChangeTags(metaHeader.getMetaKey(), su.getApiKey(), su.getApiKey());
+        assertEquals(0, results.size()); // No tags against the logs
+        //
 
-        // Make sure we didn't remove the node as it was in use by the first header we created
-        validateTag(unchanged, "TagA", 1);
+        results = trackEP.getChangeTags(metaHeader.getMetaKey(), firstLog.getTrackLog().getId(), su.getApiKey(), su.getApiKey());
+        assertEquals(1, results.size());
+        assertEquals("TEST-CREATE", results.iterator().next().getName());
+
+        // Make sure when we pass NO tags, i.e. just running an update, we don't change ANY tags
+
+        // ToDo: create a test for tags against a log
+        // TEST-CREATE should be now against the log and not the MetaHeader
+
+
+        // ToDo: Cancel should reinstate
     }
+
     @Test
-    public void tagsWithNoRelationshipsAreRemovedOnHeaderUpdate() throws Exception {
-        org.junit.Assume.assumeTrue(false);// Skipping this until FixMe - implement rewrite of header tags
-        regService.registerSystemUser(new RegistrationBean(monowai, mike));
+    public void oneTagRemovedFromASetOfTwo() throws Exception {
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
         fortressService.registerFortress("ABC");
 
-        TagInputBean tagInput = new TagInputBean("FLOP");
+        TagInputBean tagInput = new TagInputBean("TAG-FIRST", "rlx-test");
         String what = "{\"house\": \"house";
 
-        tagService.processTag(tagInput);
-        MetaInputBean removeTag = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc2");
-        LogInputBean alb = new LogInputBean("mike", new DateTime(), what + "1\"}");
-        removeTag.setLog(alb);
-        // This should create the same Tag object
-        removeTag.addTag(new TagInputBean("TagA", "camel"));
-        TrackResultBean resultBean = mediationFacade.createHeader(removeTag, null);
+        MetaInputBean inputBean = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc1");
+        LogInputBean logBean = new LogInputBean("mike", new DateTime(), what + "1\"}");
+        inputBean.setLog(logBean);
+
+        inputBean.addTag(tagInput);
+        tagInput = new TagInputBean(("TAG-SECOND"), "rlxb-test");
+        inputBean.addTag(tagInput);
+        TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
+        MetaHeader created = trackService.getHeader(resultBean.getMetaKey());
+        Log firstLog = trackEP.getLastChange(created.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody().getLog();
+        assertNotNull(created);
+        validateTag(created, null, 2);
+
+        // Test that a tag is removed
+        MetaInputBean updatedHeader = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc1");
+        // Force a change to be detected
+        LogInputBean alb = new LogInputBean("mike", new DateTime(), what + "2\"}");
+        updatedHeader.setLog(alb);
+        // we are updating an existing header with two tags and tellin it that only one is now valid
+        updatedHeader.addTag(new TagInputBean("TAG-FIRST", "rlx-test"));
+        resultBean = mediationFacade.createHeader(updatedHeader, null);
         MetaHeader metaHeader = trackService.getHeader(resultBean.getMetaKey());
         Assert.assertNotNull(metaHeader);
 
-        validateTag(metaHeader, "TagA", 1);
+        // Should be one tag
+        validateTag(metaHeader, null, 1);
+        // It should be the update tag
+        validateTag(metaHeader, "TAG-FIRST", 1);
+        // The create tag should not be against the header but against the log
+        validateTag(metaHeader, "TEST-SECOND", 0);
 
-        // Replace the current tag
-        removeTag.addTag(new TagInputBean("TagB", "camel"));
-        removeTag.setLog(new LogInputBean("mike", new DateTime(), what + "2\"}"));
-        mediationFacade.createHeader(removeTag, null);
-        validateTag(metaHeader, "TagB", 1);
+        Set<Tag> results = trackEP.getLastChangeTags(metaHeader.getMetaKey(), su.getApiKey(), su.getApiKey());
+        // No tags removed for the last tag
+        assertEquals(0, results.size()); // No tags against the logs
+        assertEquals(1, trackEP.getAuditTags(metaHeader.getMetaKey(), su.getApiKey(), su.getApiKey()).size());
 
-        assertTrue ( "TagA has no track headers so should have been removed", tagService.findTag("TagA")==null);
+        // ToDo: tag accumulation strategy = if we add a tag to an existing header do we track who introduced it?
     }
 
     @Test
@@ -810,21 +849,28 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
     }
 
-    private void validateTag(MetaHeader metaHeader,  String mustExist, int totalExpected) {
+    private void validateTag(MetaHeader metaHeader,  String tagName, int totalExpected) {
         Collection<TrackTag> tags;
         tags = tagTrackService.findTrackTags(metaHeader);
-        assertEquals("Total Expected Tags is incorrect", totalExpected, tags.size() );
-        if ( mustExist == null )
+        if ( tagName == null ) {
+            assertEquals("Total Expected Tags is incorrect", totalExpected, tags.size() );
             return;
-
-        boolean expectedExisted = false;
-        for (TrackTag tag : tags){
-            if (tag.getTag().getName().equals(mustExist))
-                expectedExisted = true;
-
         }
 
-        assertTrue("The expected tag ["+mustExist +"] was not found", expectedExisted);
+        boolean found = false;
+        for (TrackTag tag : tags){
+            if (tag.getTag().getName().equals(tagName)){
+                found = true;
+                break;
+            }
+        }
+        if ( totalExpected == 0 && !found)
+            return ;
+        if ( totalExpected == 0 ){
+            fail("The expected tag [" + tagName + "] was found when it was not expected to exist");
+            return;
+        }
+        assertTrue("The expected tag ["+ tagName +"] was not found", found);
     }
 
 }

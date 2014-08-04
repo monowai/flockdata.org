@@ -87,7 +87,7 @@ public class TestTrack extends TestEngineBase {
 
         trackEP.trackHeaders(metaInputBeans, su.getApiKey(), su.getApiKey());
         logger.info("Tracked...");
-        MetaHeader header = trackEP.getByCallerRef(fortWP.getName(), "CompanyNode", callerRef, su.getApiKey(), su.getApiKey()).getBody();
+        MetaHeader header = trackEP.getByCallerRef(fortWP.getName(), "CompanyNode", callerRef, su.getApiKey(), su.getApiKey());
         junit.framework.Assert.assertNotNull(header);
         waitAWhile();
         waitForALog(header, su.getApiKey());
@@ -736,7 +736,7 @@ public class TestTrack extends TestEngineBase {
         trackEP.trackHeaders(inputBeans, false, su.getApiKey());
         inputBeans.clear();
 
-        MetaHeader created = trackEP.getByCallerRef(fortress.getName(), "TestTrack", callerRef, su.getApiKey(), su.getApiKey() ).getBody();
+        MetaHeader created = trackEP.getByCallerRef(fortress.getName(), "TestTrack", callerRef, su.getApiKey(), su.getApiKey() );
         assertNotNull(created);
 
         // Now we record a change

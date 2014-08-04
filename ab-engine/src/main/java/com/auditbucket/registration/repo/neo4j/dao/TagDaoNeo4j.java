@@ -21,6 +21,7 @@ package com.auditbucket.registration.repo.neo4j.dao;
 
 import com.auditbucket.dao.SchemaDao;
 import com.auditbucket.dao.TagDao;
+import com.auditbucket.engine.PropertyConversion;
 import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.helper.DatagioTagException;
 import com.auditbucket.registration.bean.TagInputBean;
@@ -28,6 +29,7 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.repo.neo4j.model.TagNode;
 import org.neo4j.graphdb.Node;
+import org.neo4j.kernel.api.properties.DefinedProperty;
 import org.neo4j.kernel.impl.core.NodeProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,9 +82,9 @@ class TagDaoNeo4j implements TagDao {
         List<String> createdValues = new ArrayList<>();
         for (TagInputBean tagInputBean : tagInputs) {
             try {
-                save(company, tagInputBean, tagSuffix, createdValues, suppressRelationships) ;
-            } catch (DatagioTagException te){
-                logger.error ("Tag Exception [{}]",te.getMessage());
+                save(company, tagInputBean, tagSuffix, createdValues, suppressRelationships);
+            } catch (DatagioTagException te) {
+                logger.error("Tag Exception [{}]", te.getMessage());
                 tagInputBean.getServiceMessage(te.getMessage());
                 errorResults.add(tagInputBean);
             }
@@ -93,12 +95,12 @@ class TagDaoNeo4j implements TagDao {
 
     Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> createdValues, boolean suppressRelationships) {
         // Check exists
-        TagNode existingTag = (TagNode) findOne(company, (tagInput.getCode()==null?tagInput.getName() : tagInput.getCode()), tagInput.getIndex());
+        TagNode existingTag = (TagNode) findOne(company, (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()), tagInput.getIndex());
         Node start;
         if (existingTag == null) {
             if (tagInput.isMustExist()) {
                 tagInput.getServiceMessage("Tag [" + tagInput + "] should exist for [" + tagInput.getIndex() + "] but doesn't. Ignoring this request.");
-                throw new DatagioTagException("Tag [" + tagInput + "] should exist for ["+tagInput.getIndex()+"] but doesn't. Ignoring this request.");
+                throw new DatagioTagException("Tag [" + tagInput + "] should exist for [" + tagInput.getIndex() + "] but doesn't. Ignoring this request.");
             } else
                 start = createTag(company, tagInput, tagSuffix);
         } else {
@@ -116,22 +118,22 @@ class TagDaoNeo4j implements TagDao {
         return new TagNode(start);
     }
 
-    private Node createTag(Company company, TagInputBean tagInput, String tagSuffix) {
+    private Node createTag(Company company, TagInputBean tagInput, String tagLabel) {
         TagNode tag = new TagNode(tagInput);
 
         // ToDo: Should a type be suffixed with company in multi-tenanted? - more time to think!!
         //       do we care that one company can see another companies tag value? Certainly not the
         //       track data.
         if (tagInput.isDefault())
-            tagSuffix = Tag.DEFAULT + tagSuffix;
+            tagLabel = Tag.DEFAULT + tagLabel;
         else {
             schemaDao.registerTagIndex(company, tagInput.getIndex());
-            tagSuffix = ":`"+tagInput.getIndex() + "` " + Tag.DEFAULT + tagSuffix;
+            tagLabel = ":`" + tagInput.getIndex() + "` " + Tag.DEFAULT + tagLabel;
         }
 
         // ToDo: Multi-tenanted custom tagInputs?
         // _Tag only exists for SDN projection
-        String query = "merge (tag" + tagSuffix + " {code:{code}, name:{name}, key:{key}";
+        String query = "merge (tag" + tagLabel + " {code:{code}, name:{name}, key:{key}";
         Map<String, Object> params = new HashMap<>();
         params.put("code", tag.getCode());
         params.put("key", tag.getKey());
@@ -139,15 +141,16 @@ class TagDaoNeo4j implements TagDao {
         params.put("name", tag.getName());
         // ToDo: - set custom properties
 
-//        Map<String, Object> properties = tagInput.getProperties();
-//        for (Map.Entry<String, Object> prop : properties.entrySet()) {
-//            if (! PropertyConversion.isSystemColumn(prop.getMetaKey())) {
-//                if (prop.getValue() != null) {
-//                    DefinedProperty property = PropertyConversion.convertProperty(1, prop.getValue());
-//                    query = query + ", " + PropertyConversion.toJsonColumn(prop.getMetaKey(), property.value());
-//                }
-//            }
-//        }
+        Map<String, Object> properties = tagInput.getProperties();
+        if (properties != null)
+            for (Map.Entry<String, Object> prop : properties.entrySet()) {
+                if (!PropertyConversion.isSystemColumn(prop.getKey())) {
+                    if (prop.getValue() != null) {
+                        DefinedProperty property = PropertyConversion.convertProperty(1, prop.getValue());
+                        query = query + ", " + PropertyConversion.toJsonColumn(prop.getKey(), property.value());
+                    }
+                }
+            }
 
         query = query + "})  return tag";
         Result<Map<String, Object>> result = template.query(query, params);
@@ -158,12 +161,11 @@ class TagDaoNeo4j implements TagDao {
     /**
      * Create unique relationship between the tag and the node
      *
-     *
-     * @param company       associate the tag with this company
-     * @param startNode     notional start node
-     * @param associatedTag tag to make or get
-     * @param rlxName       relationship name
-     * @param createdValues running list of values already created - performance op.
+     * @param company               associate the tag with this company
+     * @param startNode             notional start node
+     * @param associatedTag         tag to make or get
+     * @param rlxName               relationship name
+     * @param createdValues         running list of values already created - performance op.
      * @param suppressRelationships
      * @return the created tag
      */
@@ -225,15 +227,16 @@ class TagDaoNeo4j implements TagDao {
 
     @Override
     public Collection<Tag> findTags(Company company) {
-        return findTags(company, Tag.DEFAULT+ (engineAdmin.getTagSuffix(company)));
+        return findTags(company, Tag.DEFAULT + (engineAdmin.getTagSuffix(company)));
     }
+
     @Override
     public Collection<Tag> findTags(Company company, String index) {
         Collection<Tag> tagResults = new ArrayList<>();
         // ToDo: Match to company - something like this.....
         //match (t:Law)-[:_TagLabel]-(c:ABCompany) where id(c)=0  return t,c;
         //match (t:Law)-[*..2]-(c:ABCompany) where id(c)=0  return t,c;
-        String query = "match (tag:`" + index+ "`) return tag";
+        String query = "match (tag:`" + index + "`) return tag";
         // Look at PAGE
         Result<Map<String, Object>> results = template.query(query, null);
         for (Map<String, Object> row : results) {
@@ -257,7 +260,7 @@ class TagDaoNeo4j implements TagDao {
         if (tagName == null || company == null)
             throw new IllegalArgumentException("Null can not be used to find a tag ");
 
-        if ( index.startsWith(":"))
+        if (index.startsWith(":"))
             index = index.substring(1);
         String query;
         if ("".equals(engineAdmin.getTagSuffix(company)))
@@ -276,9 +279,9 @@ class TagDaoNeo4j implements TagDao {
 
     }
 
-    public void purgeUnusedConcepts(Company company){
+    public void purgeUnusedConcepts(Company company) {
 
-        String query = "match (tag"+Tag.DEFAULT+") delete tag";
+        String query = "match (tag" + Tag.DEFAULT + ") delete tag";
         template.query(query, null);
 
         query = "match (tag:_Tag)-[r:TAG_INDEX]-(c:ABCompany) where id(c)={company} delete r, tag";
