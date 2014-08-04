@@ -71,7 +71,7 @@ public class QueryDaoES implements QueryDao {
     @Override
     public String doSearch(QueryParams queryParams) throws DatagioException {
         SearchResponse result = client.prepareSearch(MetaSearchSchema.parseIndex(queryParams))
-                .setExtraSource(QueryGenerator.getSimpleQuery(queryParams.getSimpleQuery(),false))
+                .setExtraSource(QueryGenerator.getSimpleQuery(queryParams.getSimpleQuery(), false))
                 .execute()
                 .actionGet();
 
@@ -108,7 +108,7 @@ public class QueryDaoES implements QueryDao {
         }
 
         for (SearchHit searchHitFields : response.getHits().getHits()) {
-            if ( !searchHitFields.getFields().isEmpty()) { // DAT-83
+            if (!searchHitFields.getFields().isEmpty()) { // DAT-83
                 Object hit = searchHitFields.getFields().get(MetaSearchSchema.META_KEY).getValue();
                 if (hit != null)
                     results.add(hit.toString());

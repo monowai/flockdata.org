@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 public class QueryGenerator {
     private static Logger logger = LoggerFactory.getLogger(QueryGenerator.class);
 
-    public static String getSimpleQuery(String queryString, Boolean highlightEnabled){
+    public static String getSimpleQuery(String queryString, Boolean highlightEnabled) {
         logger.debug("getSimpleQuery {}", queryString);
         StringBuilder simpleQuery = new StringBuilder();
         simpleQuery.append("{\n" +
@@ -22,14 +22,14 @@ public class QueryGenerator {
                 "      \"should\": [\n" +
                 "        {\n" +
                 "          \"query_string\": {\n" +
-                "            \"query\": \""+queryString+"\"\n" +
+                "            \"query\": \"" + queryString + "\"\n" +
                 "          }\n" +
                 "        }\n" +
                 "      ]\n" +
                 "    }\n" +
-                "  }") ;
+                "  }");
 
-        if(highlightEnabled){
+        if (highlightEnabled) {
             simpleQuery.append(",\n" +
                     "  \"highlight\": {\n" +
                     "    \"fields\": {\n" +
@@ -37,7 +37,7 @@ public class QueryGenerator {
                     "    }\n" +
                     "  }");
         }
-        simpleQuery.append("\n}") ;
+        simpleQuery.append("\n}");
         return simpleQuery.toString();
     }
 }
