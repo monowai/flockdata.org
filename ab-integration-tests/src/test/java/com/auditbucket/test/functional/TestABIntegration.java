@@ -498,7 +498,7 @@ public class TestABIntegration {
         String indexName = indexHeader.getIndexName();
 //        doEsFieldQuery(indexName, "@tag." + relationshipName + ".key", "keytestworks", 1);
 
-        Set<TrackTag> tags = trackEP.getAuditTags(indexHeader.getMetaKey(), null, null);
+        Set<TrackTag> tags = trackEP.getTrackTags(indexHeader.getMetaKey(), null, null);
         assertNotNull(tags);
         assertEquals(1, tags.size());
 
@@ -539,7 +539,7 @@ public class TestABIntegration {
         doEsTermQuery(metaHeader.getIndexName(), MetaSearchSchema.WHAT+".house", "house2", 1); // replaced first with second
 
         // Test block
-        mediationFacade.cancelLastLogSync(metaHeader.getMetaKey());
+        mediationFacade.cancelLastLogSync(su.getCompany(), metaHeader.getMetaKey());
         logs = trackService.getLogs(fortress.getCompany(), metaHeader.getMetaKey());
         assertEquals(1, logs.size());
         metaHeader = trackService.getHeader(ahWP); // Refresh the header
@@ -548,7 +548,7 @@ public class TestABIntegration {
 
         // Last change cancelled
         // DAT-96
-        mediationFacade.cancelLastLogSync(metaHeader.getMetaKey());
+        mediationFacade.cancelLastLogSync(su.getCompany(), metaHeader.getMetaKey());
         logs = trackService.getLogs(fortress.getCompany(), metaHeader.getMetaKey());
         junit.framework.Assert.assertTrue(logs.isEmpty());
         doEsQuery(metaHeader.getIndexName(), "*", 0);

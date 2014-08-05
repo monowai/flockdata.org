@@ -29,7 +29,6 @@ import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
@@ -270,7 +269,7 @@ public class TrackEP {
 
     @ResponseBody
     @RequestMapping(value = "/{metaKey}/lastlog/tags", produces = "application/json", method = RequestMethod.GET)
-    public Set<Tag> getLastChangeTags(@PathVariable("metaKey") String metaKey, String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+    public Set<TrackTag> getLastChangeTags(@PathVariable("metaKey") String metaKey, String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = getCompany(apiHeaderKey, apiKey);
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/c27ec2e5-2e17-4855-be18-bd8f82249157/lastchange
 //        TrackLog changed = trackService.getLastLog(company, metaKey);
@@ -280,8 +279,8 @@ public class TrackEP {
 
     @ResponseBody
     @RequestMapping(value = "/{metaKey}/{logId}/tags", produces = "application/json", method = RequestMethod.GET)
-    public Set<Tag> getChangeTags(@PathVariable("metaKey") String metaKey, @PathVariable("logId")long logId,
-                                  String apiKey, @RequestHeader(value = "Api-Key", required = false)
+    public Set<TrackTag> getChangeTags(@PathVariable("metaKey") String metaKey, @PathVariable("logId") long logId,
+                                       String apiKey, @RequestHeader(value = "Api-Key", required = false)
     String apiHeaderKey) throws DatagioException {
         Company company = getCompany(apiHeaderKey, apiKey);
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/c27ec2e5-2e17-4855-be18-bd8f82249157/lastchange
@@ -368,7 +367,7 @@ public class TrackEP {
 
     @ResponseBody
     @RequestMapping(value = "/{metaKey}/tags", method = RequestMethod.GET)
-    public Set<TrackTag> getAuditTags(@PathVariable("metaKey") String metaKey
+    public Set<TrackTag> getTrackTags(@PathVariable("metaKey") String metaKey
             , String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = getCompany(apiHeaderKey, apiKey);
 
@@ -385,7 +384,7 @@ public class TrackEP {
         Company company = getCompany(apiHeaderKey, apiKey);
         MetaHeader result = trackService.getHeader(company, metaKey);
         if (result != null) {
-            mediationFacade.cancelLastLogSync(result.getMetaKey());
+            mediationFacade.cancelLastLogSync(company, result.getMetaKey());
             return new ResponseEntity<>("OK", HttpStatus.OK);
         }
 

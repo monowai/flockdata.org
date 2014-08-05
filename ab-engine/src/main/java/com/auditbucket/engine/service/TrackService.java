@@ -22,7 +22,10 @@ package com.auditbucket.engine.service;
 import com.auditbucket.dao.TrackDao;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
-import com.auditbucket.registration.model.*;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.FortressUser;
+import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.*;
 import com.auditbucket.search.model.MetaSearchChange;
 import com.auditbucket.search.model.SearchResult;
@@ -459,12 +462,14 @@ public class TrackService {
      * blocking call. This will not update the search store. For that call the
      * function in the MediationFacade
      *
+     *
+     * @param company
      * @param headerKey UID of the Header
      * @return MetaSearchChange the search change to index, or null if there are no logs
      * @throws IOException
      */
-    public MetaSearchChange cancelLastLogSync(String headerKey) throws IOException, DatagioException {
-        AsyncResult<MetaSearchChange> futureHeader = cancelLastLog(headerKey);
+    public MetaSearchChange cancelLastLogSync(Company company, String headerKey) throws IOException, DatagioException {
+        AsyncResult<MetaSearchChange> futureHeader = cancelLastLog(company, headerKey );
         return futureHeader.get();
     }
 
@@ -474,27 +479,33 @@ public class TrackService {
      * If there are no Log records left, then the metaHeader will also be removed and the
      * AB headerKey will be forever invalid.
      *
+     *
+     *
+     * @param company
      * @param headerKey UID of the metaHeader
      * @return Future<MetaSearchChange> search change to index, or null if there are no logs
      */
     @Async
-    public AsyncResult<MetaSearchChange> cancelLastLog(String headerKey) throws IOException, DatagioException {
+    public AsyncResult<MetaSearchChange> cancelLastLog(Company company, String headerKey) throws IOException, DatagioException {
         MetaHeader metaHeader = getValidHeader(headerKey, true);
         TrackLog existingLog = getLastLog(metaHeader.getId());
         if (existingLog == null)
             return null;
         //trackDao.fetch(existingLog.getLog());
         Log currentLog = existingLog.getLog();
-        Log previousLog = currentLog.getPreviousLog();
+        Log fromLog = currentLog.getPreviousLog();
         String searchKey = metaHeader.getSearchKey();
 
-        if (previousLog != null) {
-            trackDao.fetch(previousLog);
-            TrackLog newTrack = trackDao.getLog(previousLog.getTrackLog().getId());
-            metaHeader.setLastChange(previousLog);
-            metaHeader.setLastUser(fortressService.getFortressUser(metaHeader.getFortress(), previousLog.getWho().getCode()));
+        if (fromLog != null) {
+            trackDao.fetch(fromLog);
+            TrackLog newTrack = trackDao.getLog(fromLog.getTrackLog().getId());
+            // Anything that was removed against the previous log has to be added back to the metaheader
+            //Set<TrackTag> deletedTags = getLogTags(company, fromLog);
+            metaHeader.setLastChange(fromLog);
+            metaHeader.setLastUser(fortressService.getFortressUser(metaHeader.getFortress(), fromLog.getWho().getCode()));
             metaHeader.setFortressLastWhen(newTrack.getFortressWhen());
             metaHeader = trackDao.save(metaHeader);
+            tagTrackService.moveTags(company, fromLog, metaHeader );
             trackDao.delete(currentLog);
 
         } else {
@@ -509,7 +520,7 @@ public class TrackService {
         }
         whatService.delete(metaHeader, currentLog); // ToDo: Move to mediation facade
         MetaSearchChange searchDocument = null;
-        if (previousLog == null) {
+        if (fromLog == null) {
             // Nothing to index, no changes left so we're done
             searchDocument = new MetaSearchChange(metaHeader);
             searchDocument.setDelete(true);
@@ -520,9 +531,9 @@ public class TrackService {
         // Sync the update to ab-search.
         if (metaHeader.getFortress().isSearchActive() && !metaHeader.isSearchSuppressed()) {
             // Update against the MetaHeader only by re-indexing the search document
-            HashMap<String, Object> priorWhat = (HashMap<String, Object>) whatService.getWhat(metaHeader, previousLog).getWhat();
+            HashMap<String, Object> priorWhat = (HashMap<String, Object>) whatService.getWhat(metaHeader, fromLog).getWhat();
 
-            searchDocument = new MetaSearchChange(metaHeader, priorWhat, previousLog.getEvent().getCode(), new DateTime(previousLog.getTrackLog().getFortressWhen()));
+            searchDocument = new MetaSearchChange(metaHeader, priorWhat, fromLog.getEvent().getCode(), new DateTime(fromLog.getTrackLog().getFortressWhen()));
             searchDocument.setTags(tagTrackService.findTrackTags(metaHeader));
             searchDocument.setReplyRequired(false);
             searchDocument.setForceReindex(true);
@@ -839,7 +850,7 @@ public class TrackService {
         }
     }
 
-    public Set<Tag> getLastLogTags(Company company, String metaKey) throws  DatagioException{
+    public Set<TrackTag> getLastLogTags(Company company, String metaKey) throws  DatagioException{
         TrackLog lastLog = getLastLog(company, metaKey);
         if ( lastLog == null )
             return new HashSet<>();
@@ -847,7 +858,7 @@ public class TrackService {
         return getLogTags(company, lastLog.getLog());
     }
 
-    private Set<Tag> getLogTags(Company company, Log log) {
+    private Set<TrackTag> getLogTags(Company company, Log log) {
         return tagTrackService.findLogTags(company, log);
 
     }
@@ -864,7 +875,7 @@ public class TrackService {
         return log;
     }
 
-    public Set<Tag> getLogTags(Company company, TrackLog tl) {
+    public Set<TrackTag> getLogTags(Company company, TrackLog tl) {
         return getLogTags(company, tl.getLog());  //To change body of created methods use File | Settings | File Templates.
     }
 }

@@ -152,7 +152,7 @@ public class TagTrackService {
 
         if (!tagsToRelocate.isEmpty()) {
             if (currentLog != null)
-                trackTagDao.moveTags(ah, currentLog, tagsToRelocate);
+                trackTagDao.moveTags(ah, currentLog.getLog(), tagsToRelocate);
         }
 
 
@@ -228,7 +228,11 @@ public class TagTrackService {
 
     }
 
-    public Set<Tag> findLogTags(Company company, Log log) {
+    public Set<TrackTag> findLogTags(Company company, Log log) {
         return trackTagDao.findLogTags(company, log);
+    }
+
+    public void moveTags(Company company, Log previousLog, MetaHeader metaHeader) {
+        trackTagDao.moveTags(company, previousLog, metaHeader);
     }
 }

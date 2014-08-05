@@ -133,7 +133,7 @@ public class WhatServiceTest extends AbstractRedisSupport {
 
                 Assert.assertTrue(whatService.isSame(header, trackLog.getLog(), whatString));
                 // Testing that cancel works
-                trackService.cancelLastLogSync(ahKey);
+                trackService.cancelLastLogSync(fortressA.getCompany(), ahKey);
                 Assert.assertNull(trackService.getLastLog(header));
                 Assert.assertNull(whatService.getWhat(header, trackLog.getLog()).getWhatString());
                 Assert.assertTrue(whatService.isSame(logWhat.getWhat().get("utf-8").toString(), getWhatMap().get("utf-8").toString()));

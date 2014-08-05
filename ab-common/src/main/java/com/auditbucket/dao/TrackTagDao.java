@@ -24,7 +24,6 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.MetaHeader;
-import com.auditbucket.track.model.TrackLog;
 import com.auditbucket.track.model.TrackTag;
 
 import java.util.Collection;
@@ -56,13 +55,15 @@ public interface TrackTagDao {
 
     Set<TrackTag> getMetaTrackTagsOutbound(Company company, MetaHeader header);
 
-    void deleteTrackTags(MetaHeader metaHeader, Collection<TrackTag> trackTags) throws DatagioException;
+    Set<TrackTag> findLogTags(Company company, Log log) ;
 
     void changeType(MetaHeader metaHeader, TrackTag existingTag, String newType);
 
     Set<MetaHeader> findTrackTags(Tag tag);
 
-    void moveTags(MetaHeader metaHeader, TrackLog currentLog, Collection<TrackTag> trackTag);
+    void moveTags(MetaHeader metaHeader, Log log, Collection<TrackTag> trackTag);
 
-    Set<Tag> findLogTags(Company company, Log log) ;
+    void deleteTrackTags(MetaHeader metaHeader, Collection<TrackTag> trackTags) throws DatagioException;
+
+    void moveTags(Company company, Log logToMoveFrom, MetaHeader metaHeader);
 }
