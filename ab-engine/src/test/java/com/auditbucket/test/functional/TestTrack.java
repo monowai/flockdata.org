@@ -481,7 +481,7 @@ public class TestTrack extends TestEngineBase {
         assertEquals(secondLog.getWhatLog().getTrackLog().getFortressWhen(), metaHeader.getFortressLastWhen());
 
         // Test block
-        trackService.cancelLastLogSync(metaHeader.getMetaKey());
+        trackService.cancelLastLogSync(fortress.getCompany(), metaHeader.getMetaKey());
         logs = trackService.getLogs(fortress.getCompany(), metaHeader.getMetaKey());
         assertEquals(1, logs.size());
         metaHeader = trackService.getHeader(ahWP); // Refresh the header
@@ -489,7 +489,7 @@ public class TestTrack extends TestEngineBase {
         assertEquals(firstLog.getWhatLog().getTrackLog().getFortressWhen(), metaHeader.getFortressLastWhen());
 
         // Last change cancelled
-        trackService.cancelLastLogSync(metaHeader.getMetaKey());
+        trackService.cancelLastLogSync(fortress.getCompany(), metaHeader.getMetaKey());
         logs = trackService.getLogs(fortress.getCompany(), metaHeader.getMetaKey());
         assertTrue(logs.isEmpty());
     }

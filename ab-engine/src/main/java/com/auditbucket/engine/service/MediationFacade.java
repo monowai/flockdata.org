@@ -220,18 +220,18 @@ public class MediationFacade {
     }
 
 
-    /**
-     * Will locate the track header from the supplied input
-     *
-     * @param company valid company the caller can operate on
-     * @param input   payload containing at least the metaKey
-     * @return result of the log
-     */
-    public TrackResultBean processLogForCompany(Company company, LogInputBean input) throws DatagioException, IOException {
-        TrackResultBean trackResult = logProcessor.writeLog(company, input.getMetaKey(), input);
-        logProcessor.distributeChange(company, trackResult);
-        return trackResult;
-    }
+//    /**
+//     * Will locate the track header from the supplied input
+//     *
+//     * @param company valid company the caller can operate on
+//     * @param input   payload containing at least the metaKey
+//     * @return result of the log
+//     */
+//    public TrackResultBean processLogForCompany(Company company, LogInputBean input) throws DatagioException, IOException {
+//        TrackResultBean trackResult = logProcessor.writeLog(company, input.getMetaKey(), input);
+//        logProcessor.distributeChange(company, trackResult);
+//        return trackResult;
+//    }
 
     /**
      * Rebuilds all search documents for the supplied fortress
@@ -349,8 +349,8 @@ public class MediationFacade {
         searchService.purge(indexName);
     }
 
-    public void cancelLastLogSync(String metaKey) throws IOException, DatagioException {
-        MetaSearchChange searchChange = trackService.cancelLastLogSync(metaKey);
+    public void cancelLastLogSync(Company company, String metaKey) throws IOException, DatagioException {
+        MetaSearchChange searchChange = trackService.cancelLastLogSync(company, metaKey);
         if (searchChange != null) {
             searchService.makeChangeSearchable(searchChange);
         } else {

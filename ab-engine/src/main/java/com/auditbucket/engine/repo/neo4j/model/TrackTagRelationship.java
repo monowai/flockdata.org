@@ -39,7 +39,7 @@ public class TrackTagRelationship implements TrackTag, Comparable {
 
     private Tag tag;
 
-    private Long metaId;
+    private Long primaryKey;
 
     private String tagType;
 
@@ -62,7 +62,7 @@ public class TrackTagRelationship implements TrackTag, Comparable {
      * @param propMap      Relationship properties
      */
     public TrackTagRelationship(MetaHeader header, Tag tag, String relationship, Map<String, Object> propMap) {
-        this.metaId = header.getId();
+        this.primaryKey = header.getId();
         this.tag = tag;
         this.tagType = relationship;
         this.id = System.currentTimeMillis() + relationship.hashCode(); // random...
@@ -72,8 +72,8 @@ public class TrackTagRelationship implements TrackTag, Comparable {
         }
     }
 
-    public TrackTagRelationship(MetaHeader metaHeader, Tag tag) {
-        this(metaHeader, tag, null);
+    public TrackTagRelationship(Long pk, Tag tag) {
+        this(pk, tag, null);
     }
 
     @Override
@@ -83,7 +83,7 @@ public class TrackTagRelationship implements TrackTag, Comparable {
 
         TrackTagRelationship that = (TrackTagRelationship) o;
 
-        if (metaId != null ? !metaId.equals(that.metaId) : that.metaId != null) return false;
+        if (primaryKey != null ? !primaryKey.equals(that.primaryKey) : that.primaryKey != null) return false;
 //        if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (tag != null ? !tag.equals(that.tag) : that.tag != null) return false;
         if (tagType != null ? !tagType.equals(that.tagType) : that.tagType != null) return false;
@@ -94,7 +94,7 @@ public class TrackTagRelationship implements TrackTag, Comparable {
     @Override
     public String toString() {
         return "TrackTagRelationship{" +
-                "metaId=" + metaId +
+                "primaryKey=" + primaryKey +
                 ", tag=" + tag +
                 ", tagType='" + tagType + '\'' +
                 '}';
@@ -104,14 +104,14 @@ public class TrackTagRelationship implements TrackTag, Comparable {
     public int hashCode() {
         //int result = id != null ? id.hashCode() : 0;
         int result = (tag != null ? tag.hashCode() : 0);
-        result = 31 * result + (metaId != null ? metaId.hashCode() : 0);
+        result = 31 * result + (primaryKey != null ? primaryKey.hashCode() : 0);
         result = 31 * result + (tagType != null ? tagType.hashCode() : 0);
         return result;
     }
 
-    public TrackTagRelationship(MetaHeader header, Tag tag, Relationship relationship) {
+    public TrackTagRelationship(Long primaryKey, Tag tag, Relationship relationship) {
         this();
-        this.metaId = header.getId();
+        this.primaryKey = primaryKey;
         this.tag = tag;
         this.tagType = (relationship == null ? tag.getName() : relationship.getType().name());
         if ( relationship!= null ) {
@@ -137,8 +137,8 @@ public class TrackTagRelationship implements TrackTag, Comparable {
     }
 
     @JsonIgnore
-    public Long getMetaId() {
-        return metaId;  //To change body of implemented methods use File | Settings | File Templates.
+    public Long getPrimaryKey() {
+        return primaryKey;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override

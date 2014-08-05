@@ -35,7 +35,7 @@ public interface TrackTag {
     public Tag getTag();
 
     //ToDo - should this be a taggable interface?
-    public Long getMetaId();
+    public Long getPrimaryKey();
 
     /**
      * @return relationship name

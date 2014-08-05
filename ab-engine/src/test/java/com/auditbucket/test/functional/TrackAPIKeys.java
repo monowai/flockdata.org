@@ -94,7 +94,7 @@ public class TrackAPIKeys extends TestEngineBase{
 
         assertNotNull(trackEP.getMetaHeader(result.getMetaKey(), apiKey, apiKey).getBody());
         assertNotNull(trackEP.getAuditSummary(result.getMetaKey(), apiKey, apiKey).getBody());
-        assertNotNull(trackEP.getAuditTags(result.getMetaKey(), apiKey, apiKey));
+        assertNotNull(trackEP.getTrackTags(result.getMetaKey(), apiKey, apiKey));
         assertNotNull(trackEP.getByCallerRef(result.getFortressName(), result.getDocumentType(), result.getCallerRef(), apiKey, apiKey));
         assertNotNull(trackEP.getByCallerRef(fortressA.getName(), inputBean.getCallerRef(), apiKey, apiKey).iterator().hasNext());
         assertNotNull(trackEP.getLogs(result.getMetaKey(), apiKey, apiKey).iterator().next());

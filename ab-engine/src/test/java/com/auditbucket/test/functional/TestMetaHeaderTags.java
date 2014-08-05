@@ -726,12 +726,12 @@ public class TestMetaHeaderTags extends TestEngineBase {
         // The create tag should not be against the header but against the log
         validateTag(metaHeader, "TEST-CREATE", 0);
 
-        Set<Tag> results = trackEP.getLastChangeTags(metaHeader.getMetaKey(), su.getApiKey(), su.getApiKey());
+        Set<TrackTag> results = trackEP.getLastChangeTags(metaHeader.getMetaKey(), su.getApiKey(), su.getApiKey());
         assertEquals(0, results.size()); // No tags against the last change log - tags are against the header
 
         results = trackEP.getChangeTags(metaHeader.getMetaKey(), firstLog.getTrackLog().getId(), su.getApiKey(), su.getApiKey());
         assertEquals(1, results.size());
-        assertEquals("TEST-CREATE", results.iterator().next().getName());
+        assertEquals("TEST-CREATE", results.iterator().next().getTag().getName());
 
         // Make sure when we pass NO tags, i.e. just running an update, we don't change ANY tags
         alb = new LogInputBean("mike", new DateTime(), what + "3\"}");
@@ -745,7 +745,15 @@ public class TestMetaHeaderTags extends TestEngineBase {
         // Update tag should still be against the header
         validateTag(metaHeader, "TEST-UPDATE", 1);
 
-        // ToDo: Cancel should reinstate
+        // Here we will cancel the last two logs getting us back to the initial state
+        // should be one tag of TEST-CREATE logged
+
+        trackEP.cancelLastLog(metaHeader.getMetaKey(), su.getApiKey(), su.getApiKey());
+        trackEP.cancelLastLog(metaHeader.getMetaKey(), su.getApiKey(), su.getApiKey());
+        //ToDo: We are only adding back tags that were removed If tag as added by the cancelled log then it should
+        // also be removed The answer here should be 1
+        validateTag(metaHeader, null, 2);
+        validateTag(metaHeader, "TEST-CREATE", 1);
     }
 
     @Test
@@ -787,10 +795,10 @@ public class TestMetaHeaderTags extends TestEngineBase {
         // The create tag should not be against the header but against the log
         validateTag(metaHeader, "TEST-SECOND", 0);
 
-        Set<Tag> results = trackEP.getLastChangeTags(metaHeader.getMetaKey(), su.getApiKey(), su.getApiKey());
+        Set<TrackTag> results = trackEP.getLastChangeTags(metaHeader.getMetaKey(), su.getApiKey(), su.getApiKey());
         // No tags removed for the last tag
         assertEquals(0, results.size()); // No tags against the logs
-        assertEquals(1, trackEP.getAuditTags(metaHeader.getMetaKey(), su.getApiKey(), su.getApiKey()).size());
+        assertEquals(1, trackEP.getTrackTags(metaHeader.getMetaKey(), su.getApiKey(), su.getApiKey()).size());
 
         // ToDo: tag accumulation strategy = if we add a tag to an existing header do we track who introduced it?
     }

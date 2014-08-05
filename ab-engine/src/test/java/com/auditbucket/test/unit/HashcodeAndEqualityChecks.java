@@ -62,8 +62,8 @@ public class HashcodeAndEqualityChecks {
         metaInput.setCallerRef("abc");
 
         MetaHeaderNode mh = new MetaHeaderNode("123abc", fortress, metaInput, documentTypeNode);
-        TrackTagRelationship trackTagA = new TrackTagRelationship(mh, tagNode);
-        TrackTagRelationship trackTagB = new TrackTagRelationship(mh, tagNodeB);
+        TrackTagRelationship trackTagA = new TrackTagRelationship(mh.getId(), tagNode);
+        TrackTagRelationship trackTagB = new TrackTagRelationship(mh.getId(), tagNodeB);
 
         ArrayList<TrackTag>existingTags = new ArrayList<>();
         existingTags.add(trackTagA);

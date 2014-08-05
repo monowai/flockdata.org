@@ -29,7 +29,10 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.repo.neo4j.model.TagNode;
 import com.auditbucket.registration.service.TagService;
-import com.auditbucket.track.model.*;
+import com.auditbucket.track.model.GeoData;
+import com.auditbucket.track.model.Log;
+import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.TrackTag;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
@@ -123,11 +126,11 @@ public class TrackTagDaoNeo implements TrackTagDao {
     public void deleteTrackTags(MetaHeader metaHeader, Collection<TrackTag> trackTags) throws DatagioException {
         Node auditNode = null;
         for (TrackTag tag : trackTags) {
-            if (!tag.getMetaId().equals(metaHeader.getId()))
+            if (!tag.getPrimaryKey().equals(metaHeader.getId()))
                 throw new DatagioException("Tags do not belong to the required MetaHeader");
 
             if (auditNode == null) {
-                auditNode = template.getNode(tag.getMetaId());
+                auditNode = template.getNode(tag.getPrimaryKey());
             }
 
             Relationship r = template.getRelationship(tag.getId());
@@ -180,57 +183,96 @@ public class TrackTagDaoNeo implements TrackTagDao {
      * Moves the trackTag relationships from the MetaHeader to the Log
      * Purpose is to track at which version of a log the metadata covered2
      *
-     * @param metaHeader where the tags are currently associated
-     * @param currentLog pointer to the node we want to move the relationships to
-     * @param trackTags  relationships to move
+     * @param log pointer to the node we want to move the relationships to
+     * @param metaHeader where the tags are currently located
      */
     @Override
-    public void moveTags(MetaHeader metaHeader, TrackLog currentLog, Collection<TrackTag> trackTags) {
-        if ( currentLog == null )
+    public void moveTags(MetaHeader metaHeader, Log log, Collection<TrackTag> trackTags) {
+        if ( log == null )
             return;
 
-        Node headerNode = template.getPersistentState(metaHeader);
-        Node logNode = template.getPersistentState(currentLog.getLog());
+        Node logNode = template.getPersistentState(log);
         for (TrackTag trackTag : trackTags) {
             Node tagNode = template.getNode(trackTag.getTag().getId());
 
-            Relationship relationship = template.getRelationshipBetween(tagNode, headerNode, trackTag.getTagType());
+            Relationship relationship = template.getRelationship(trackTag.getId());
             if ( relationship!=null ){
+
                 boolean isReversed = relationship.getStartNode().getId() == tagNode.getId();
                 Node start = (isReversed? logNode :tagNode);
                 Node end = (isReversed? tagNode: logNode);
 
-                Map<String, Object>rlxProps= new HashMap<>() ;
-                for (String key : rlxProps.keySet()) {
-                    rlxProps.put(key, relationship.getProperty(key));
-                }
+                Map<String, Object> rlxProps = getRelationshipProperties(relationship);
                 // Relationships are immutable, so we have to destroy and recreate
                 template.delete(relationship);
-                Relationship newRlx = template.createRelationshipBetween(start, end, relationship.getType().name(), rlxProps);
-                logger.info("New RLX = [{}]", newRlx.getId());
+                template.createRelationshipBetween(start, end, relationship.getType().name(), rlxProps);
             }
         }
 
     }
 
+    /**
+     * This version is used to relocate the tags associated with Log back to the MetaHeader
+     *
+     * @param company       a validated company that the caller is allowed to work with
+     * @param logToMoveFrom where the logs are currently associated
+     * @param metaHeader    header to relocate them to
+     */
     @Override
-    public Set<Tag> findLogTags(Company company, Log log) {
+    public void moveTags(Company company, Log logToMoveFrom, MetaHeader metaHeader) {
+        if ( logToMoveFrom == null )
+            return;
+        Set<TrackTag> trackTags = findLogTags(company, logToMoveFrom);
+        Node headerNode = template.getPersistentState(metaHeader);
+
+        for (TrackTag trackTag : trackTags) {
+            Node tagNode = template.getNode(trackTag.getTag().getId());
+
+            Relationship relationship = template.getRelationship(trackTag.getId());
+            if ( relationship!=null ){
+
+                boolean isReversed = relationship.getStartNode().getId() == tagNode.getId();
+                Node start = (isReversed? headerNode :tagNode);
+                Node end = (isReversed? tagNode: headerNode);
+
+                Map<String, Object> rlxProps = getRelationshipProperties(relationship);
+                // Relationships are immutable, so we have to destroy and recreate
+                template.delete(relationship);
+                template.createRelationshipBetween(start, end, relationship.getType().name(), rlxProps);
+            }
+        }
+
+    }
+
+    private Map<String, Object> getRelationshipProperties(Relationship relationship) {
+        Map<String, Object>rlxProps= new HashMap<>() ;
+        for (String key : relationship.getPropertyKeys()) {
+            // ToDo: System property checks
+            rlxProps.put(key, relationship.getProperty(key));
+        }
+        return rlxProps;
+    }
+
+    @Override
+    public Set<TrackTag> findLogTags(Company company, Log log) {
         String query;
         if ("".equals(engineAdmin.getTagSuffix(company)))
-            query = "match (log:_Log)-[]-(tag:_Tag) where id(log)={logId} return tag";
+            query = "match (log:_Log)-[tagType]-(tag:_Tag) where id(log)={logId} return tag, tagType";
         else
-            query = "match (log:_Log)-[]-(tag:_Tag" + engineAdmin.getTagSuffix(company) + ") where id(log)={logId} return tag";
+            query = "match (log:_Log)-[tagType]-(tag:_Tag" + engineAdmin.getTagSuffix(company) + ") where id(log)={logId} return tag, tagType";
 
         Map<String,Object>params = new HashMap<>();
         params.put("logId", log.getId());
 
         Result<Map<String, Object>> results = template.query(query, params);
-        Set<Tag> returnResults = new HashSet<>();
-        for (Map<String, Object> result : results) {
-            returnResults.add(template.convert(result.get("tag"), TagNode.class));
-        }
 
-        return returnResults;
+//        Set<Tag> returnResults = new HashSet<>();
+//        for (Map<String, Object> result : results) {
+//            returnResults.add(template.convert(result.get("tag"), TagNode.class));
+//        }
+        return getTrackTags(log.getId(), results);
+
+        //return returnResults;
 
     }
 
@@ -251,12 +293,12 @@ public class TrackTagDaoNeo implements TrackTagDao {
         if ( null == metaHeader.getId())
             return tagResults;
         String query = "match (track:MetaHeader)-[tagType]->(tag"+Tag.DEFAULT + engineAdmin.getTagSuffix(company) + ") " +
-                "where id(track)={metaId} \n" +
+                "where id(track)={id} \n" +
                 "optional match tag-[:located]-(located)-[*0..2]-(country:Country) \n" +
                 "optional match located-[*0..2]->(state:State) " +
                 "return tag,tagType,located,state, country";
 
-        return getTrackTags(metaHeader, tagResults, query);
+        return getTrackTags(metaHeader.getId(), query);
 
     }
 
@@ -266,25 +308,29 @@ public class TrackTagDaoNeo implements TrackTagDao {
         if ( null == metaHeader.getId())
             return tagResults;
         String query = "match (track:MetaHeader)-[tagType]-(tag" +Tag.DEFAULT+ engineAdmin.getTagSuffix(company) + ") " +
-                "where id(track)={metaId} \n" +
+                "where id(track)={id} \n" +
                 "optional match tag-[:located]-(located)-[*0..2]-(country:Country) \n" +
                 "optional match located-[*0..2]->(state:State) " +
                 "return tag,tagType,located,state, country";
 
 
-        return getTrackTags(metaHeader, tagResults, query);
+        return getTrackTags(metaHeader.getId(), query);
     }
 
-    private Set<TrackTag> getTrackTags(MetaHeader metaHeader, Set<TrackTag> tagResults, String query) {
+    private Set<TrackTag> getTrackTags(Long primaryKey, String query) {
         Map<String, Object> params = new HashMap<>();
-        params.put("metaId", metaHeader.getId());
-        //Map<Long, TrackTag> tagResults = new HashMap<>();
+        params.put("id", primaryKey);
+        Result<Map<String, Object>> queryResults = template.query(query, params);
+        return getTrackTags(primaryKey, queryResults);
+    }
 
-        for (Map<String, Object> row : template.query(query, params)) {
+    private Set<TrackTag> getTrackTags(Long primaryKey, Result<Map<String, Object>> queryResults) {
+        Set<TrackTag> tagResults = new HashSet<>();
+        for (Map<String, Object> row : queryResults) {
             Node n = (Node) row.get("tag");
             TagNode tag = new TagNode(n);
             Relationship relationship = template.convert(row.get("tagType"), Relationship.class);
-            TrackTagRelationship auditTag = new TrackTagRelationship(metaHeader, tag, relationship);
+            TrackTagRelationship auditTag = new TrackTagRelationship(primaryKey, tag, relationship);
 
             Node loc = (Node) row.get("located");
 
@@ -309,6 +355,7 @@ public class TrackTagDaoNeo implements TrackTagDao {
             tagResults.add(auditTag) ;
         }
         return tagResults;
+
     }
 
 
