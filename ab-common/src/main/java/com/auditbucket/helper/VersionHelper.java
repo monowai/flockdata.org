@@ -31,6 +31,7 @@ public class VersionHelper {
         String path = "/version.properties";
 
         String version = null;
+        String build = null;
         try {
             Properties p = new Properties();
 
@@ -38,10 +39,11 @@ public class VersionHelper {
             if (is != null) {
                 p.load(is);
                 version = p.getProperty("version", "DEV");
+                build = p.getProperty("build", "DEV");
             }
         } catch (Exception e) {
             // ignore
         }
-        return version;
+        return version +"-" +build;
     }
 }
