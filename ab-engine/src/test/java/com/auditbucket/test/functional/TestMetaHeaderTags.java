@@ -907,7 +907,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
     @Test
     public void addNewTagToExistingMetaHeaderWithNoLog() throws Exception {
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike));
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
         fortressService.registerFortress(new FortressInputBean("ABC", true));
 
         //assertNotNull(result);
@@ -930,6 +930,35 @@ public class TestMetaHeaderTags extends TestEngineBase {
         inputBean.addTag(new TagInputBean("TagB", "horse"));
         trackEP.trackHeader(inputBean, su.getApiKey(), su.getApiKey());
         validateTag(header, "TagB", 2);
+
+    }
+    @Test
+    public void search() throws Exception{
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
+        Fortress fo = fortressService.registerFortress(new FortressInputBean("cancelLogTag", true));
+        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "CancelDoc", new DateTime(), "ABC123");
+        LogInputBean log = new LogInputBean("wally", new DateTime(), "{\"blah\":124}");
+        inputBean.addTag(new TagInputBean("Happy").addMetaLink("testinga"));
+        inputBean.addTag(new TagInputBean("Happy Days").addMetaLink("testingb"));
+        inputBean.setLog(log);
+        TrackResultBean result;
+        mediationFacade.createHeader(inputBean, su.getApiKey());
+
+        // We now have 1 log with tags validated in ES
+
+        // Add another Log - replacing the two existing Tags with two new ones
+        log = new LogInputBean("wally", new DateTime(), "{\"blah\":125}");
+        inputBean.getTags().clear();
+        inputBean.addTag(new TagInputBean("Sad Days").addMetaLink("testingb"));
+        inputBean.addTag(new TagInputBean("Days Bay").addMetaLink("testingc"));
+        inputBean.setLog(log);
+        result = mediationFacade.createHeader(inputBean, su.getApiKey());
+        // We now have 2 logs, sad tags, no happy tags
+
+        // Cancel Log - this will remove the sad tags and leave us with happy tags
+        mediationFacade.cancelLastLogSync(su.getCompany(), result.getMetaKey());
+        Set<TrackTag>tags = tagTrackService.findTrackTags(result.getMetaHeader());
+        assertEquals(2, tags.size());
 
     }
 
