@@ -21,6 +21,7 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.service.MediationFacade;
+import com.auditbucket.engine.service.TagTrackService;
 import com.auditbucket.engine.service.TrackService;
 import com.auditbucket.engine.service.WhatService;
 import com.auditbucket.registration.bean.FortressInputBean;
@@ -83,17 +84,15 @@ import static org.junit.Assume.assumeTrue;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
- *
  * Allows the ab-engine services to be tested against ab-search.
  * ab-search is stated by Cargo as a Tomcat server.
  * ab-engine runs as a usual Spring test runner.
  * This approach means that RabbitMQ has to be installed to allow integration to occur as
  * no web interface is launched for ab-engine
- *
+ * <p/>
  * User: nabil
  * Date: 16/07/13
  * Time: 22:51
- *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
@@ -114,6 +113,8 @@ public class TestABIntegration {
     FortressService fortressService;
     @Autowired
     MediationFacade mediationFacade;
+    @Autowired
+    TagTrackService tagTrackService;
 
     @Autowired
     WhatService whatService;
@@ -129,11 +130,12 @@ public class TestABIntegration {
     public static void waitAWhile() throws Exception {
         waitAWhile(null, 3000);
     }
+
     public static void waitAWhile(String message) throws Exception {
         String ss = System.getProperty("sleepSeconds");
-        if ( ss==null || ss.equals(""))
+        if (ss == null || ss.equals(""))
             ss = "1";
-        if ( message == null )
+        if (message == null)
             message = "Slept for {} seconds";
         waitAWhile(message, Long.decode(ss) * 1000);
     }
@@ -144,8 +146,8 @@ public class TestABIntegration {
         FileInputStream f = new FileInputStream("./src/test/resources/config.properties");
         properties.load(f);
         String abDebug = System.getProperty("ab.debug");
-        if ( abDebug!= null )
-            runMe= !Boolean.parseBoolean(abDebug);
+        if (abDebug != null)
+            runMe = !Boolean.parseBoolean(abDebug);
 
         HttpClientConfig clientConfig = new HttpClientConfig.Builder("http://localhost:" + properties.get("es.http.port")).multiThreaded(false).build();
         // Construct a new Jest client according to configuration via factory
@@ -172,16 +174,16 @@ public class TestABIntegration {
     }
 
     @Before
-    public void setupUser() throws Exception{
+    public void setupUser() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(authA);
-        if ( companyService.findByName("monowai") == null ){
+        if (companyService.findByName("monowai") == null) {
             regService.registerSystemUser(new RegistrationBean("monowai", "mike").setIsUnique(false));
             waitAWhile("Registering Auth user System Access {}");
         }
     }
 
     private static void deleteEsIndex(String indexName) throws Exception {
-        logger.info ("%% Delete Index {}", indexName);
+        logger.info("%% Delete Index {}", indexName);
         esClient.execute(new DeleteIndex.Builder(indexName).build());
     }
 
@@ -213,7 +215,7 @@ public class TestABIntegration {
     }
 
     @Test
-    public void headerWithTagsProcess() throws Exception {
+    public void headerWithOnlyTagsProcess() throws Exception {
         assumeTrue(runMe);
         logger.info("## headersWithTagsProcess");
         SecurityContextHolder.getContext().setAuthentication(authA);
@@ -327,7 +329,7 @@ public class TestABIntegration {
             mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(), "{\"blah\":" + i + "}"));
             i++;
         }
-        waitForALog(metaHeader, su.getApiKey() );
+        waitForALog(metaHeader, su.getApiKey());
         watch.stop();
         // Test that we get the expected number of log events
         if (!"rest".equals(System.getProperty("neo4j"))) // Don't check if running over rest
@@ -388,6 +390,59 @@ public class TestABIntegration {
     }
 
     @Test
+    public void searchDocIsRewrittenAfterCancellingLogs() throws Exception {
+        // DAT-27
+        //assumeTrue(runMe);
+        logger.info("## searchDocRewrite");
+        SystemUser su = registerSystemUser("Felicity");
+        Fortress fo = fortressService.registerFortress(new FortressInputBean("cancelLogTag", false));
+        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "CancelDoc", new DateTime(), "ABC123");
+        LogInputBean log = new LogInputBean("wally", new DateTime(), "{\"blah\":124}");
+        inputBean.addTag(new TagInputBean("Happy").addMetaLink("testinga"));
+        inputBean.addTag(new TagInputBean("Happy Days").addMetaLink("testingb"));
+        inputBean.setLog(log);
+        TrackResultBean result = mediationFacade.createHeader(inputBean, su.getApiKey());
+
+        waitForHeaderToUpdate(result.getMetaHeader(), su.getApiKey());
+        // ensure that non-analysed tags work
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testinga.key", "happy", 1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingb.key", "happydays", 1);
+        // We now have 1 log with tags validated in ES
+
+        // Add another Log - replacing the two existing Tags with two new ones
+        log = new LogInputBean("wally", new DateTime(), "{\"blah\":125}");
+        inputBean.getTags().clear();
+        inputBean.addTag(new TagInputBean("Sad Days").addMetaLink("testingb"));
+        inputBean.addTag(new TagInputBean("Days Bay").addMetaLink("testingc"));
+        inputBean.setLog(log);
+        result = mediationFacade.createHeader(inputBean, su.getApiKey());
+        waitForHeaderToUpdate(result.getMetaHeader(), su.getApiKey());
+        // We now have 2 logs, sad tags, no happy tags
+
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingb.key", "saddays", 1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingc.key", "daysbay", 1);
+        // These were removed in the update
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testinga.key", "happy", 0);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingb.key", "happydays", 0);
+
+        // Cancel Log - this will remove the sad tags and leave us with happy tags
+        mediationFacade.cancelLastLogSync(su.getCompany(), result.getMetaKey());
+        waitForHeaderToUpdate(result.getMetaHeader(), su.getApiKey());
+        Set<TrackTag> tags = tagTrackService.findTrackTags(result.getMetaHeader());
+        assertEquals(2, tags.size());
+
+        // These should have been added back in due to the cancel operation
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testinga.key", "happy", 1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingb.key", "happydays", 1);
+
+        // These were removed in the cancel
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingb.key", "saddays", 0);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingc.key", "daysbay", 0);
+
+
+    }
+
+    @Test
     public void tagKeySearch() throws Exception {
         // DAT-95
         assumeTrue(runMe);
@@ -404,13 +459,14 @@ public class TestABIntegration {
         TrackResultBean result = mediationFacade.createHeader(inputBean, null); // Mock result as we're not tracking
         waitForHeaderToUpdate(result.getMetaHeader(), su.getApiKey());
         // ensure that non-analysed tags work
-        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG +".testinga.key", "happy", 1);
-        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG +".testingb.key", "happydays",1);
-        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG +".testingb.key", "saddays",1);
-        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG +".testingc.key", "daysbay",1);
-        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG +".testingc.key", "days",0);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testinga.key", "happy", 1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingb.key", "happydays", 1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingb.key", "saddays", 1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingc.key", "daysbay", 1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingc.key", "days", 0);
 
     }
+
     @Test
     public void searchIndexWithNoMetaKeysDoesNotError() throws Exception {
         // DAT-83
@@ -429,11 +485,11 @@ public class TestABIntegration {
         inputBean.setLog(new LogInputBean("wally", new DateTime(), "{\"blah\":124}"));
         TrackResultBean result = mediationFacade.createHeader(inputBean, null);
         MetaHeader metaHeader = trackService.getHeader(result.getMetaKey());
-        assertEquals("ab.monowai."+fo.getCode(), metaHeader.getIndexName());
+        assertEquals("ab.monowai." + fo.getCode(), metaHeader.getIndexName());
 
         waitForHeaderToUpdate(metaHeader, su.getApiKey()); // 2nd document in the index
         // We have one with a metaKey and one without
-        doEsQuery("ab.monowai."+fo.getCode(), "*", 2);
+        doEsQuery("ab.monowai." + fo.getCode(), "*", 2);
 
         QueryParams qp = new QueryParams(fo);
         qp.setSimpleQuery("*");
@@ -527,7 +583,7 @@ public class TestABIntegration {
         MetaHeader metaHeader = trackService.getHeader(ahWP);
         waitForHeaderToUpdate(metaHeader, su.getApiKey());
 
-        doEsTermQuery(metaHeader.getIndexName(), MetaSearchSchema.WHAT+".house", "house1", 1); // First log
+        doEsTermQuery(metaHeader.getIndexName(), MetaSearchSchema.WHAT + ".house", "house1", 1); // First log
 
         LogResultBean secondLog = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "isabella@sunnybell.com", firstDate.plusDays(1), what + 2 + "\"}")).getLogResult();
         assertNotSame(0l, secondLog.getWhatLog().getTrackLog().getFortressWhen());
@@ -536,7 +592,7 @@ public class TestABIntegration {
         metaHeader = trackService.getHeader(ahWP);
         waitAWhile();
         assertEquals(secondLog.getWhatLog().getTrackLog().getFortressWhen(), metaHeader.getFortressLastWhen());
-        doEsTermQuery(metaHeader.getIndexName(), MetaSearchSchema.WHAT+".house", "house2", 1); // replaced first with second
+        doEsTermQuery(metaHeader.getIndexName(), MetaSearchSchema.WHAT + ".house", "house2", 1); // replaced first with second
 
         // Test block
         mediationFacade.cancelLastLogSync(su.getCompany(), metaHeader.getMetaKey());
@@ -544,7 +600,7 @@ public class TestABIntegration {
         assertEquals(1, logs.size());
         metaHeader = trackService.getHeader(ahWP); // Refresh the header
         waitAWhile();
-        doEsTermQuery(metaHeader.getIndexName(), MetaSearchSchema.WHAT+".house", "house1", 1); // Cancelled, so Back to house1
+        doEsTermQuery(metaHeader.getIndexName(), MetaSearchSchema.WHAT + ".house", "house1", 1); // Cancelled, so Back to house1
 
         // Last change cancelled
         // DAT-96
@@ -607,7 +663,7 @@ public class TestABIntegration {
 
         for (int i = 1; i < fortressMax + 1; i++) {
             deleteEsIndex("ab.monowai.bulkloada" + i);
-            doEsQuery("ab.monowai.bulkloada"+i, "*", -1);
+            doEsQuery("ab.monowai.bulkloada" + i, "*", -1);
         }
 
         waitAWhile("Wait {} secs for index to delete ");
@@ -680,7 +736,7 @@ public class TestABIntegration {
             fortress++;
         }
         watch.stop();
-        double totalTime = watch.getTime()/1000d;
+        double totalTime = watch.getTime() / 1000d;
         logger.info("*** Processed {} requests. Data sets created in {} secs. Fortress avg = {} avg requests per second {}",
                 totalRows,
                 f.format(totalTime),
@@ -724,7 +780,7 @@ public class TestABIntegration {
     }
 
     @Test
-    public void utfText()throws Exception{
+    public void utfText() throws Exception {
         assumeTrue(runMe);
         String json = "{\"Athlete\":\"Katerina Neumannová\",\"Age\":\"28\",\"Country\":\"Czech Republic\",\"Year\":\"2002\",\"Closing Ceremony Date\":\"2/24/02\",\"Sport\":\"Cross Country Skiing\",\"Gold Medals\":\"0\",\"Silver Medals\":\"2\",\"Bronze Medals\":\"0\",\"Total Medals\":\"2\"}";
         SystemUser su = registerSystemUser("Utf8");
@@ -776,6 +832,7 @@ public class TestABIntegration {
         }
         return null;
     }
+
     private TrackResultBean createLog(String simpleJson, String metaKey, int log) throws Exception {
         return mediationFacade.processLog(new LogInputBean(metaKey, "olivia@sunnybell.com", new DateTime(), simpleJson + log + "}"));
     }
@@ -835,7 +892,7 @@ public class TestABIntegration {
         int searchLoops = 200;
         int search = 0;
         int totalSearchRequests = 0;
-        logger.info ("Performing Search Tests for {} fortresses", fortressMax);
+        logger.info("Performing Search Tests for {} fortresses", fortressMax);
         StopWatch watch = new StopWatch();
         watch.start();
 
@@ -893,10 +950,10 @@ public class TestABIntegration {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
         //waitAWhile();
-        int runCount = 0, nbrResult ;
-        JestResult jResult ;
+        int runCount = 0, nbrResult;
+        JestResult jResult;
         do {
-            if (runCount >0)
+            if (runCount > 0)
                 waitAWhile("Sleep {} for ES Query to work");
             String query = "{\n" +
                     "    query: {\n" +
@@ -913,21 +970,21 @@ public class TestABIntegration {
 
             jResult = esClient.execute(search);
             assertNotNull(jResult);
-            if ( expectedHitCount == -1 ){
+            if (expectedHitCount == -1) {
                 assertEquals("Expected the index [" + index + "] to be deleted but message was [" + jResult.getErrorMessage() + "]", true, jResult.getErrorMessage().contains("IndexMissingException"));
                 logger.debug("Confirmed index {} was deleted and empty", index);
                 return null;
             }
-            if (jResult.getErrorMessage()==null ){
+            if (jResult.getErrorMessage() == null) {
                 assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject());
                 assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits"));
                 assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits").get("total"));
                 nbrResult = jResult.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
             } else {
-                nbrResult =0;// Index has not yet been created in ElasticSearch, we'll try again
+                nbrResult = 0;// Index has not yet been created in ElasticSearch, we'll try again
             }
-            runCount ++;
-        } while ( nbrResult != expectedHitCount && runCount < esTimeout );
+            runCount++;
+        } while (nbrResult != expectedHitCount && runCount < esTimeout);
         logger.debug("ran ES query - result count {}, runCount {}", nbrResult, runCount);
 
         junit.framework.Assert.assertNotNull(jResult);
@@ -937,18 +994,18 @@ public class TestABIntegration {
         //return result.getJsonString();
     }
 
-    private String doEsTermQuery(String indexName, String metaKey, String metaKey1, int i ) throws Exception{
+    private String doEsTermQuery(String indexName, String metaKey, String metaKey1, int i) throws Exception {
         return doEsTermQuery(indexName, metaKey, metaKey1, i, false);
     }
 
     private String doEsTermQuery(String index, String field, String queryString, int expectedHitCount, boolean supressLog) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
-        int runCount = 0, nbrResult ;
+        int runCount = 0, nbrResult;
         JestResult jResult;
 
-        do{
-            if (runCount >0)
+        do {
+            if (runCount > 0)
                 waitAWhile("Sleep {} for ES Query to work");
             runCount++;
             String query = "{\n" +
@@ -965,17 +1022,17 @@ public class TestABIntegration {
             jResult = esClient.execute(search);
             String message = index + " - " + field + " - " + queryString + (jResult == null ? "[noresult]" : "\r\n" + jResult.getJsonString());
             assertNotNull(message, jResult);
-            if (jResult.getErrorMessage()==null ){
+            if (jResult.getErrorMessage() == null) {
                 assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject());
                 assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits"));
                 assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits").get("total"));
                 nbrResult = jResult.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
             } else
-                nbrResult =0;// Index has not yet been created in ElasticSearch, we'll try again
+                nbrResult = 0;// Index has not yet been created in ElasticSearch, we'll try again
 
-        } while ( nbrResult != expectedHitCount && runCount < esTimeout );
+        } while (nbrResult != expectedHitCount && runCount < esTimeout);
 
-        if ( !supressLog ){
+        if (!supressLog) {
             logger.debug("ran ES Term Query - result count {}, runCount {}", nbrResult, runCount);
             logger.trace("searching index [{}] field [{}] for [{}]", index, field, queryString);
         }
@@ -996,9 +1053,10 @@ public class TestABIntegration {
     /**
      * Use this carefully. Due to ranked search results, you can get more results than you expect. If
      * you are looking for an exact match then consider doEsTermQuery
-     * @param index     to search
-     * @param field     field containing queryString
-     * @param queryString text to search for
+     *
+     * @param index            to search
+     * @param field            field containing queryString
+     * @param queryString      text to search for
      * @param expectedHitCount result count
      * @return query _source
      * @throws Exception if expectedHitCount != actual hit count
@@ -1006,11 +1064,11 @@ public class TestABIntegration {
     private String doEsFieldQuery(String index, String field, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
-        int runCount = 0, nbrResult ;
+        int runCount = 0, nbrResult;
 
         JestResult result;
-        do{
-            if (runCount >0)
+        do {
+            if (runCount > 0)
                 waitAWhile("Sleep {} for ES Query to work");
 
             runCount++;
@@ -1033,10 +1091,10 @@ public class TestABIntegration {
             assertNotNull(message, result.getJsonObject().getAsJsonObject("hits"));
             assertNotNull(message, result.getJsonObject().getAsJsonObject("hits").get("total"));
             nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
-        } while ( nbrResult != expectedHitCount && runCount < esTimeout );
+        } while (nbrResult != expectedHitCount && runCount < esTimeout);
 
         logger.debug("ran ES Field Query - result count {}, runCount {}", nbrResult, runCount);
-        Assert.assertEquals("Unexpected hit count searching '" + index + "' for {" + queryString + "} in field {" + field+ "}", expectedHitCount, nbrResult);
+        Assert.assertEquals("Unexpected hit count searching '" + index + "' for {" + queryString + "} in field {" + field + "}", expectedHitCount, nbrResult);
         return result.getJsonObject()
                 .getAsJsonObject("hits")
                 .getAsJsonArray("hits")
@@ -1056,7 +1114,7 @@ public class TestABIntegration {
                             auth.getBytes(Charset.forName("US-ASCII")));
                     String authHeader = "Basic " + new String(encodedAuth);
                     set("Authorization", authHeader);
-                } else if ( apiKey != null )
+                } else if (apiKey != null)
                     set("Api-Key", apiKey);
                 setContentType(MediaType.APPLICATION_JSON);
                 set("charset", "UTF-8");
@@ -1066,7 +1124,6 @@ public class TestABIntegration {
     }
 
     /**
-     *
      * Processing delay for threads and integration to complete. If you start getting sporadic
      * Heuristic exceptions, chances are you need to call this routine to give other threads
      * time to commit their work.
@@ -1074,13 +1131,13 @@ public class TestABIntegration {
      * is so you can experiment on your own environment by passing in -DsleepSeconds=1
      *
      * @param milliseconds to pause for
-     *
      * @throws Exception
      */
     public static void waitAWhile(String message, long milliseconds) throws Exception {
         Thread.sleep(milliseconds);
         logger.debug(message, milliseconds / 1000d);
     }
+
     long waitForALog(MetaHeader header, String apiKey) throws Exception {
         // Looking for the first searchKey to be logged against the metaHeader
         long thenTime = System.currentTimeMillis();
@@ -1093,7 +1150,7 @@ public class TestABIntegration {
         int timeout = 100;
         while (log == null && i <= timeout) {
             log = trackEP.getLastChange(metaHeader.getMetaKey(), apiKey, apiKey).getBody();
-            if ( log!=null && metaHeader.getFortressLastWhen() == ts )
+            if (log != null && metaHeader.getFortressLastWhen() == ts)
                 return i;
             Thread.yield();
             if (i > 20)
@@ -1104,8 +1161,6 @@ public class TestABIntegration {
             logger.info("Wait for log got to [{}] for metaId [{}]", i, metaHeader.getId());
         return System.currentTimeMillis() - thenTime;
     }
-
-
 
 
 }
