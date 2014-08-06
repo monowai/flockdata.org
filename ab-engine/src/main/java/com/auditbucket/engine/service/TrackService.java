@@ -491,7 +491,7 @@ public class TrackService {
         TrackLog existingLog = getLastLog(metaHeader.getId());
         if (existingLog == null)
             return null;
-        //trackDao.fetch(existingLog.getLog());
+
         Log currentLog = existingLog.getLog();
         Log fromLog = currentLog.getPreviousLog();
         String searchKey = metaHeader.getSearchKey();

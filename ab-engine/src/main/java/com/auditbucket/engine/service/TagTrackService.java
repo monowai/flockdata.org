@@ -37,10 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * User: Mike Holdsworth
@@ -80,22 +77,6 @@ public class TagTrackService {
     }
 
     /**
-     * Directed tag structure hierarchy
-     *
-     * @param userTags input beans
-     * @param company  valid company
-     */
-    public void createTagStructure(Collection<TagInputBean> userTags, Company company) {
-        // Create a tag structure if present
-        for (TagInputBean inputBean : userTags) {
-            Tag t = tagService.processTag(company, inputBean);
-            if (t == null) {
-                logger.error("Error creating Tag " + inputBean);
-            }
-        }
-    }
-
-    /**
      * Associates the supplied userTags with the MetaHeaderNode
      * <p/>
      * in JSON terms....
@@ -126,7 +107,7 @@ public class TagTrackService {
 
             // Handle both simple relationships type name or a map/collection of relationships
             if (tagInput.getMetaLinks() != null) {
-                rlxs.addAll(processRelationships(ah, tag, tagInput.getMetaLinks(), tagInput.isReverse()));
+                rlxs.addAll(writeRelationships(ah, tag, tagInput.getMetaLinks(), tagInput.isReverse()));
             }
             if (tagInput.getMetaLink() != null) // Simple relationship to the track header
                 // Makes it easier for the API to call
@@ -142,37 +123,35 @@ public class TagTrackService {
             }
             relocateTags(ah, lastLog, tagsToRelocate);
         }
-
-
         return rlxs;
     }
 
     private void relocateTags(MetaHeader ah, TrackLog currentLog, Collection<TrackTag> tagsToRelocate) {
-
-
         if (!tagsToRelocate.isEmpty()) {
             if (currentLog != null)
                 trackTagDao.moveTags(ah, currentLog.getLog(), tagsToRelocate);
         }
-
-
     }
 
-    private Collection<TrackTag> processRelationships(MetaHeader ah, Tag tag, Map<String, Object> metaRelationships, boolean isReversed) {
+    private Collection<TrackTag> writeRelationships(MetaHeader metaHeader, Tag tag, Map<String, Object> metaRelationships, boolean isReversed) {
         Collection<TrackTag> trackTags = new ArrayList<>();
+        long when = metaHeader.getFortressLastWhen();
+        if ( when == 0 )
+            when = metaHeader.getWhenCreated();
         for (String key : metaRelationships.keySet()) {
             Object properties = metaRelationships.get(key);
             Map<String, Object> propMap;
             if (properties != null && properties instanceof Map) {
                 propMap = (Map<String, Object>) properties;
-                TrackTag trackTagRelationship = trackTagDao.save(ah, tag, key, isReversed, propMap);
-                if (trackTagRelationship != null)
-                    trackTags.add(trackTagRelationship);
             } else {
-                TrackTag trackTagRelationship = trackTagDao.save(ah, tag, key, isReversed);
-                if (trackTagRelationship != null)
-                    trackTags.add(trackTagRelationship);
+                propMap = new HashMap<>();
             }
+
+            propMap.put(TrackTagDao.AB_WHEN, when);
+            TrackTag trackTagRelationship = trackTagDao.save(metaHeader, tag, key, isReversed, propMap);
+            if (trackTagRelationship != null)
+                trackTags.add(trackTagRelationship);
+
         }
         return trackTags;
     }
@@ -194,9 +173,12 @@ public class TagTrackService {
     }
 
     public Set<TrackTag> findOutboundTags(Company company, MetaHeader header) {
-        return trackTagDao.getMetaTrackTagsOutbound(company, header);
+        return trackTagDao.getDirectedMetaTags(company, header, true);
     }
 
+    public Set<TrackTag> findInboundTags(Company company, MetaHeader header) {
+        return trackTagDao.getDirectedMetaTags(company, header, false);
+    }
 
     public Set<TrackTag> findTrackTags(Company company, MetaHeader metaHeader) {
         return trackTagDao.getMetaTrackTags(company, metaHeader);

@@ -202,6 +202,8 @@ public class TrackTagDaoNeo implements TrackTagDao {
     /**
      * This version is used to relocate the tags associated with Log back to the MetaHeader
      *
+     * This will examine the TrackTagDao.AB_WHEN property and >= fortressDate log when, it will be removed
+     *
      * @param company       a validated company that the caller is allowed to work with
      * @param logToMoveFrom where the logs are currently associated
      * @param metaHeader    header to relocate them to
@@ -210,8 +212,27 @@ public class TrackTagDaoNeo implements TrackTagDao {
     public void moveTags(Company company, Log logToMoveFrom, MetaHeader metaHeader) {
         if ( logToMoveFrom == null )
             return;
+
+        Set<TrackTag> metaTags = getMetaTrackTags(company, metaHeader);
         Set<TrackTag> trackTags = findLogTags(company, logToMoveFrom);
         Node headerNode = template.getPersistentState(metaHeader);
+
+        for (TrackTag trackTag : metaTags) {
+            // Remove any MetaTags that are newer than the log being re-instated as the "current" truth
+            // if trackTag.abWhen moreRecentThan logToMoveFrom
+
+            Long metaWhen = (Long) trackTag.getProperties().get(AB_WHEN);
+            template.fetch(logToMoveFrom.getTrackLog());
+            logger.trace("MoveTags - Comparing {} with {}", metaWhen, logToMoveFrom.getTrackLog().getFortressWhen());
+            if ( metaWhen.compareTo(logToMoveFrom.getTrackLog().getFortressWhen()) >= 0 ){
+                // This tag was added to the metaHeader by a more recent log
+                logger.trace("Removing {}", trackTag.getTag().getName());
+                Relationship r = template.getRelationship(trackTag.getId());
+                if ( r!=null )
+                    template.delete(r);
+
+            }
+        }
 
         for (TrackTag trackTag : trackTags) {
             Node tagNode = template.getNode(trackTag.getTag().getId());
@@ -283,11 +304,16 @@ public class TrackTagDaoNeo implements TrackTagDao {
     }
 
     @Override
-    public Set<TrackTag> getMetaTrackTagsOutbound(Company company, MetaHeader metaHeader) {
+    public Set<TrackTag> getDirectedMetaTags(Company company, MetaHeader metaHeader, boolean outbound) {
+
+        String tagDirection = "-[tagType]->";
+        if ( !outbound )
+            tagDirection = "<-[tagType]-";
+
         Set<TrackTag> tagResults = new HashSet<>();
         if ( null == metaHeader.getId())
             return tagResults;
-        String query = "match (track:MetaHeader)-[tagType]->(tag"+Tag.DEFAULT + engineAdmin.getTagSuffix(company) + ") " +
+        String query = "match (track:MetaHeader)"+tagDirection+"(tag"+Tag.DEFAULT + engineAdmin.getTagSuffix(company) + ") " +
                 "where id(track)={id} \n" +
                 "optional match tag-[:located]-(located)-[*0..2]-(country:Country) \n" +
                 "optional match located-[*0..2]->(state:State) " +
@@ -344,7 +370,6 @@ public class TrackTagDaoNeo implements TrackTagDao {
                     geoData.setState((String) state.getProperty("name"));
                 trackTag.setGeoData(geoData);
             }
-//            trackTag.setWeight(null);
             tagResults.add(trackTag) ;
         }
         return tagResults;
