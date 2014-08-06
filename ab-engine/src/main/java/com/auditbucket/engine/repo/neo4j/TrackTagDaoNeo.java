@@ -59,17 +59,23 @@ public class TrackTagDaoNeo implements TrackTagDao {
     @Autowired
     TagService tagService;
 
+    @Autowired
+    EngineConfig engineAdmin;
+
+    @Autowired
+    TagDao tagDao;
+
     private Logger logger = LoggerFactory.getLogger(TrackTagDaoNeo.class);
 
     @Override
     public TrackTag save(MetaHeader metaHeader, Tag tag, String relationshipName) {
         return save(metaHeader, tag, relationshipName, false, null);
     }
+
     @Override
     public TrackTag save(MetaHeader ah, Tag tag, String metaLink, boolean reverse) {
         return save(ah, tag, metaLink, reverse, null );
     }
-
 
     /**
      * creates the relationship between the metaHeader and the tag of the name type.
@@ -77,11 +83,13 @@ public class TrackTagDaoNeo implements TrackTagDao {
      * is persisted and null is returned.
      *
      *
-     * @param metaHeader      constructed metaHeader
-     * @param tag              tag
-     * @param relationshipName name
-     * @param isReversed
-     *@param propMap          properties to associate with an track tag (weight)  @return Null or TrackTag
+     * @param metaHeader        constructed metaHeader
+     * @param tag               tag
+     * @param relationshipName  name
+     * @param isReversed        tag<-header (false) or header->tag (true)
+     * @param propMap           properties to associate with the relationship
+     *
+     * @return Null or TrackTag
      */
     public TrackTag save(MetaHeader metaHeader, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap) {
         // ToDo: this will only set properties for the "current" tag to Header. it will not version it.
@@ -119,24 +127,21 @@ public class TrackTagDaoNeo implements TrackTagDao {
         return rel;
     }
 
-    @Autowired
-    TagDao tagDao;
-
     @Override
     public void deleteTrackTags(MetaHeader metaHeader, Collection<TrackTag> trackTags) throws DatagioException {
-        Node auditNode = null;
+        Node headerNode = null;
         for (TrackTag tag : trackTags) {
             if (!tag.getPrimaryKey().equals(metaHeader.getId()))
                 throw new DatagioException("Tags do not belong to the required MetaHeader");
 
-            if (auditNode == null) {
-                auditNode = template.getNode(tag.getPrimaryKey());
+            if (headerNode == null) {
+                headerNode = template.getNode(tag.getPrimaryKey());
             }
 
             Relationship r = template.getRelationship(tag.getId());
             r.delete();
             // ToDo - remove nodes that are not attached to other nodes.
-            if ( ! r.getOtherNode(auditNode).getRelationships().iterator().hasNext() )
+            if ( ! r.getOtherNode(headerNode).getRelationships().iterator().hasNext() )
                 template.getNode(tag.getTag().getId()).delete();
         }
     }
@@ -160,23 +165,6 @@ public class TrackTagDaoNeo implements TrackTagDao {
             template.createRelationshipBetween(r.getStartNode(), r.getEndNode(), newType, properties);
             r.delete();
         }
-    }
-
-    @Override
-    public Set<MetaHeader> findTrackTags(Tag tag) {
-        String query = "start tag=node({tagId}) " +
-                "       match tag-[]->track" +
-                "      return track";
-        Map<String, Object> params = new HashMap<>();
-        params.put("tagId", tag.getId());
-        Result<Map<String, Object>> result = template.query(query, params);
-        Set<MetaHeader> results = new HashSet<>();
-        for (Map<String, Object> row : result) {
-            MetaHeader header = template.convert(row.get("track"), MetaHeaderNode.class);
-            results.add(header);
-        }
-
-        return results;
     }
 
     /**
@@ -254,6 +242,31 @@ public class TrackTagDaoNeo implements TrackTagDao {
     }
 
     @Override
+    public Set<MetaHeader> findTrackTags(Tag tag) {
+        String query = "start tag=node({tagId}) " +
+                "       match tag-[]->track" +
+                "      return track";
+        Map<String, Object> params = new HashMap<>();
+        params.put("tagId", tag.getId());
+        Result<Map<String, Object>> result = template.query(query, params);
+        Set<MetaHeader> results = new HashSet<>();
+        for (Map<String, Object> row : result) {
+            MetaHeader header = template.convert(row.get("track"), MetaHeaderNode.class);
+            results.add(header);
+        }
+
+        return results;
+    }
+
+    @Override
+    public Boolean relationshipExists(MetaHeader metaHeader, Tag tag, String relationshipName) {
+        Node end = template.getPersistentState(metaHeader);
+        Node start = template.getNode(tag.getId());
+        return (template.getRelationshipBetween(start, end, relationshipName) != null);
+
+    }
+
+    @Override
     public Set<TrackTag> findLogTags(Company company, Log log) {
         String query;
         if ("".equals(engineAdmin.getTagSuffix(company)))
@@ -265,27 +278,9 @@ public class TrackTagDaoNeo implements TrackTagDao {
         params.put("logId", log.getId());
 
         Result<Map<String, Object>> results = template.query(query, params);
-
-//        Set<Tag> returnResults = new HashSet<>();
-//        for (Map<String, Object> result : results) {
-//            returnResults.add(template.convert(result.get("tag"), TagNode.class));
-//        }
         return getTrackTags(log.getId(), results);
 
-        //return returnResults;
-
     }
-
-    @Override
-    public Boolean relationshipExists(MetaHeader metaHeader, Tag tag, String relationshipName) {
-        Node end = template.getPersistentState(metaHeader);
-        Node start = template.getNode(tag.getId());
-        return (template.getRelationshipBetween(start, end, relationshipName) != null);
-
-    }
-
-    @Autowired
-    EngineConfig engineAdmin;
 
     @Override
     public Set<TrackTag> getMetaTrackTagsOutbound(Company company, MetaHeader metaHeader) {
@@ -330,7 +325,7 @@ public class TrackTagDaoNeo implements TrackTagDao {
             Node n = (Node) row.get("tag");
             TagNode tag = new TagNode(n);
             Relationship relationship = template.convert(row.get("tagType"), Relationship.class);
-            TrackTagRelationship auditTag = new TrackTagRelationship(primaryKey, tag, relationship);
+            TrackTagRelationship trackTag = new TrackTagRelationship(primaryKey, tag, relationship);
 
             Node loc = (Node) row.get("located");
 
@@ -347,12 +342,10 @@ public class TrackTagDaoNeo implements TrackTagDao {
                 }
                 if (state != null && state.hasProperty("name"))
                     geoData.setState((String) state.getProperty("name"));
-                auditTag.setGeoData(geoData);
+                trackTag.setGeoData(geoData);
             }
-            // Commenting out for DoubleCheck. Doesn't seem to serve any purpose in
-            // search anyway
-            auditTag.setWeight(null);
-            tagResults.add(auditTag) ;
+//            trackTag.setWeight(null);
+            tagResults.add(trackTag) ;
         }
         return tagResults;
 

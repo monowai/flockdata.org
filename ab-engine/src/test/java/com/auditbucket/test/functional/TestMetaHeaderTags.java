@@ -129,7 +129,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
     }
 
     @Test
-    public void createAndDeleteAuditTags() throws Exception {
+    public void createAndDeleteTrackTags() throws Exception {
 
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike));
         fortressService.registerFortress("ABC");
@@ -834,6 +834,70 @@ public class TestMetaHeaderTags extends TestEngineBase {
         validateTag(header, "TagB", 2);
 
     }
+
+    @Test
+    public void directionalTagsAndRelationshipPropertiesPreserved() throws Exception {
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
+        fortressService.registerFortress("ABC");
+
+        String what = "{\"house\": \"house";
+
+        MetaInputBean inputBean = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc1");
+        LogInputBean logBean = new LogInputBean("mike", new DateTime(), what + "1\"}");
+        inputBean.setLog(logBean);
+
+        TagInputBean inBound = new TagInputBean("TAG-IN", "rlx-test");
+        inputBean.addTag(inBound);
+        Map<String,Object>rlxProperties = new HashMap<>();
+        rlxProperties.put("stringTest", "blah");
+        rlxProperties.put("doubleTest", 100d);
+        rlxProperties.put("weight", 99);
+        rlxProperties.put("abAdded", "z");
+        TagInputBean outBound = new TagInputBean(("TAG-OUT"), "rlxb-test", rlxProperties).setReverse(true);
+
+        inputBean.addTag(outBound);
+        TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
+        MetaHeader created = trackService.getHeader(resultBean.getMetaKey());
+        trackEP.getLastChange(created.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody().getLog();
+        // Total of two tags
+        validateTag(created, null, 2);
+        Set<TrackTag> outboundTags = tagTrackService.findOutboundTags(su.getCompany(), created);
+        assertEquals("One tag should be reversed", 1, outboundTags.size());
+        TrackTag trackOut = outboundTags.iterator().next();
+        assertEquals("TAG-OUT", trackOut.getTag().getName());
+        assertEquals("blah", trackOut.getProperties().get("stringTest"));
+        assertEquals(100d, trackOut.getProperties().get("doubleTest"));
+        assertEquals((Integer)99, trackOut.getWeight());
+
+        logBean = new LogInputBean("mike", new DateTime(), what + "2\"}");
+        inputBean.getTags().clear();
+        inputBean.addTag(outBound);
+        inputBean.setLog(logBean);
+
+        // Removing the inbound tag
+        mediationFacade.createHeader(inputBean, null);
+        validateTag(created, null, 1);
+        outboundTags = tagTrackService.findOutboundTags(su.getCompany(), created);
+
+        // One is reversed
+        assertEquals(1, outboundTags.size());
+
+        // Cancelling last change should restore the inbound tag
+        mediationFacade.cancelLastLogSync(su.getCompany(), created.getMetaKey());
+        // Total of two tags
+        validateTag(created, null, 2);
+        // One of which is outbound and the other inbound
+        assertEquals(1, outboundTags.size());
+
+        // Check that we still have our custom properties
+        outboundTags = tagTrackService.findOutboundTags(su.getCompany(), created);
+        trackOut = outboundTags.iterator().next();
+        assertEquals("TAG-OUT", trackOut.getTag().getName());
+        assertEquals("blah", trackOut.getProperties().get("stringTest"));
+        assertEquals(100d, trackOut.getProperties().get("doubleTest"));
+        assertEquals((Integer)99, trackOut.getWeight());
+    }
+
     @Test
     public void addNewTagToExistingMetaHeaderWithNoLog() throws Exception {
         SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike));
