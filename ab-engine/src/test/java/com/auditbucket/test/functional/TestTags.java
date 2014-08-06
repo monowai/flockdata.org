@@ -149,7 +149,6 @@ public class TestTags extends TestEngineBase {
 
     }
 
-
     @Test
     public void tagWithProperties() throws Exception {
         //assumeTrue(false);// Not yet supported
@@ -401,8 +400,8 @@ public class TestTags extends TestEngineBase {
     @Test
     public void tagAppleNameIssue() throws Exception {
         engineAdmin.setMultiTenanted(false);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
-        assertNotNull(iSystemUser);
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
+        assertNotNull(su);
         Thread.sleep(400);
         // Exists in one index
         TagInputBean tagInputA = new TagInputBean("Apple");
@@ -423,6 +422,17 @@ public class TestTags extends TestEngineBase {
         assertNotNull(tagC);
         //assertTrue(tagA.getId().equals(tagB.getId()));
     }
+    @Test
+    public void goegoraphyEndPoints() throws DatagioException {
+        engineAdmin.setMultiTenanted(false);
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
+        TagInputBean tagInputBean = new TagInputBean("New Zealand").setIndex("Country");
+        ArrayList<TagInputBean> countries = new ArrayList<>();
+        countries.add(tagInputBean);
+        tagEP.createTags(countries, su.getApiKey(), su.getApiKey());
+        Collection<Tag> co = geographyEP.findCountries(su.getApiKey(), su.getApiKey());
+        assertEquals(1, co.size());
 
+    }
 
 }
