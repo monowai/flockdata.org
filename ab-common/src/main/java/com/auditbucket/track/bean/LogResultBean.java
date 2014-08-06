@@ -51,12 +51,12 @@ public class LogResultBean {
         this();
         this.metaHeader = metaHeader;
         if ( metaHeader !=null ) {
-            this.metaKey = metaHeader.getMetaKey();
-            this.documentType = metaHeader.getDocumentType();
-            this.callerRef = metaHeader.getCallerRef();
-            this.fortress = metaHeader.getFortress().getName();
+            setMetaKey(metaHeader.getMetaKey());
+            setDocumentType(metaHeader.getDocumentType());
+            setCallerRef(metaHeader.getCallerRef());
+            setFortress(metaHeader.getFortress().getName());
         }
-        this.fortressUser = input.getFortressUser();
+        setFortressUser(input.getFortressUser());
 
     }
 
