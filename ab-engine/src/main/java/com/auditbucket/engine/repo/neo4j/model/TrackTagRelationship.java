@@ -27,6 +27,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.neo4j.graphdb.Relationship;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -38,16 +39,10 @@ public class TrackTagRelationship implements TrackTag, Comparable {
     Long id;
 
     private Tag tag;
-
     private Long primaryKey;
-
     private String tagType;
-
-    private Integer weight;
-
-    private String abAdded = "y"; // By default, all tag relationships are added via AB InputBeans
+    private Map<String, Object> properties;
     private GeoData geoData;
-    //  relationships added outside of AB will not have this property unless manually set
 
     protected TrackTagRelationship() {
     }
@@ -62,14 +57,12 @@ public class TrackTagRelationship implements TrackTag, Comparable {
      * @param propMap      Relationship properties
      */
     public TrackTagRelationship(MetaHeader header, Tag tag, String relationship, Map<String, Object> propMap) {
+        this();
         this.primaryKey = header.getId();
         this.tag = tag;
         this.tagType = relationship;
         this.id = System.currentTimeMillis() + relationship.hashCode(); // random...
-        if (propMap != null) {
-            if (propMap.get("weight") != null)
-                this.weight = (Integer) propMap.get("weight");
-        }
+        this.properties = propMap;
     }
 
     public TrackTagRelationship(Long pk, Tag tag) {
@@ -84,7 +77,6 @@ public class TrackTagRelationship implements TrackTag, Comparable {
         TrackTagRelationship that = (TrackTagRelationship) o;
 
         if (primaryKey != null ? !primaryKey.equals(that.primaryKey) : that.primaryKey != null) return false;
-//        if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (tag != null ? !tag.equals(that.tag) : that.tag != null) return false;
         if (tagType != null ? !tagType.equals(that.tagType) : that.tagType != null) return false;
 
@@ -102,7 +94,6 @@ public class TrackTagRelationship implements TrackTag, Comparable {
 
     @Override
     public int hashCode() {
-        //int result = id != null ? id.hashCode() : 0;
         int result = (tag != null ? tag.hashCode() : 0);
         result = 31 * result + (primaryKey != null ? primaryKey.hashCode() : 0);
         result = 31 * result + (tagType != null ? tagType.hashCode() : 0);
@@ -115,12 +106,11 @@ public class TrackTagRelationship implements TrackTag, Comparable {
         this.tag = tag;
         this.tagType = (relationship == null ? tag.getName() : relationship.getType().name());
         if ( relationship!= null ) {
-            if (relationship.hasProperty("weight"))
-                this.weight = (Integer) relationship.getProperty("weight");
 
-            // Flags the relationship as having been created by a user rather than a system process
-            if (relationship.hasProperty("abAdded"))
-                this.abAdded = (String) relationship.getProperty("abAdded");
+            for (String rlxKey : relationship.getPropertyKeys()) {
+                addProperty(rlxKey, relationship.getProperty(rlxKey));
+            }
+
             this.id = relationship.getId();
         }
 
@@ -149,14 +139,13 @@ public class TrackTagRelationship implements TrackTag, Comparable {
 
     @Override
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Map<String, Object> getProperties() {
+    public Map<String, Object> getTagProperties() {
         return tag.getProperties();
     }
 
     @Override
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Integer getWeight() {
-        return weight;
+        return (Integer)getProperty("weight");
     }
 
     @Override
@@ -164,9 +153,19 @@ public class TrackTagRelationship implements TrackTag, Comparable {
         //ToDo: What?????
         return 1;
     }
+    private void addProperty(String key, Object value){
+        if ( key == null )
+            return;
 
-    public void setWeight(Integer weight) {
-        this.weight = weight;
+        if (properties == null )
+            properties = new HashMap<>();
+        properties.put(key, value);
+    }
+
+    private Object getProperty(String key){
+        if (properties == null)
+            return null;
+        return properties.get(key);
     }
 
     public void setGeoData(GeoData geoData) {
@@ -176,5 +175,10 @@ public class TrackTagRelationship implements TrackTag, Comparable {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public GeoData getGeoData() {
         return geoData;
+    }
+
+    @Override
+    public Map<String, Object> getProperties() {
+        return properties;
     }
 }
