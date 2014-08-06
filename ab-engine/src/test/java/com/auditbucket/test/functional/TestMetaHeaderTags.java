@@ -25,6 +25,7 @@ package com.auditbucket.test.functional;
  * Time: 4:49 PM
  */
 
+import com.auditbucket.dao.TrackTagDao;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
@@ -259,7 +260,6 @@ public class TestMetaHeaderTags extends TestEngineBase {
         TagInputBean tagInput = new TagInputBean("FLOP");
 
         tagService.processTag(tagInput);
-        //assertNotNull(result);
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         aib.setTrackSuppressed(true);
         // This should create the same Tag object, but return one row for each relationships
@@ -316,7 +316,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
         TagInputBean tagInput = new TagInputBean("FLOP");
 
         tagService.processTag(tagInput);
-        //assertNotNull(result);
+
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         // This should create the same Tag object
         TagInputBean tag = new TagInputBean("TagA");
@@ -734,6 +734,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
         assertEquals("TEST-CREATE", results.iterator().next().getTag().getName());
 
         // Make sure when we pass NO tags, i.e. just running an update, we don't change ANY tags
+
         alb = new LogInputBean("mike", new DateTime(), what + "3\"}");
         updatedHeader.setLog(alb);
         updatedHeader.getTags().clear();
@@ -752,7 +753,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
         trackEP.cancelLastLog(metaHeader.getMetaKey(), su.getApiKey(), su.getApiKey());
         //ToDo: We are only adding back tags that were removed If tag as added by the cancelled log then it should
         // also be removed The answer here should be 1
-        validateTag(metaHeader, null, 2);
+        validateTag(metaHeader, null, 1);
         validateTag(metaHeader, "TEST-CREATE", 1);
     }
 
@@ -773,7 +774,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
         inputBean.addTag(tagInput);
         TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
         MetaHeader created = trackService.getHeader(resultBean.getMetaKey());
-        Log firstLog = trackEP.getLastChange(created.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody().getLog();
+        trackEP.getLastChange(created.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody().getLog();
         assertNotNull(created);
         validateTag(created, null, 2);
 
@@ -800,7 +801,6 @@ public class TestMetaHeaderTags extends TestEngineBase {
         assertEquals(0, results.size()); // No tags against the logs
         assertEquals(1, trackEP.getTrackTags(metaHeader.getMetaKey(), su.getApiKey(), su.getApiKey()).size());
 
-        // ToDo: tag accumulation strategy = if we add a tag to an existing header do we track who introduced it?
     }
 
     @Test
@@ -846,28 +846,34 @@ public class TestMetaHeaderTags extends TestEngineBase {
         LogInputBean logBean = new LogInputBean("mike", new DateTime(), what + "1\"}");
         inputBean.setLog(logBean);
 
-        TagInputBean inBound = new TagInputBean("TAG-IN", "rlx-test");
-        inputBean.addTag(inBound);
         Map<String,Object>rlxProperties = new HashMap<>();
         rlxProperties.put("stringTest", "blah");
         rlxProperties.put("doubleTest", 100d);
         rlxProperties.put("weight", 99);
         rlxProperties.put("abAdded", "z");
-        TagInputBean outBound = new TagInputBean(("TAG-OUT"), "rlxb-test", rlxProperties).setReverse(true);
+
+        TagInputBean inBound = new TagInputBean("TAG-IN", "rlx-test", rlxProperties);
+        inputBean.addTag(inBound);
+
+        TagInputBean outBound = new TagInputBean(("TAG-OUT"), "rlxb-test").setReverse(true);
 
         inputBean.addTag(outBound);
         TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
         MetaHeader created = trackService.getHeader(resultBean.getMetaKey());
         trackEP.getLastChange(created.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody().getLog();
+
         // Total of two tags
         validateTag(created, null, 2);
-        Set<TrackTag> outboundTags = tagTrackService.findOutboundTags(su.getCompany(), created);
+
+        Set<TrackTag> outboundTags = tagTrackService.findInboundTags(su.getCompany(), created);
         assertEquals("One tag should be reversed", 1, outboundTags.size());
         TrackTag trackOut = outboundTags.iterator().next();
-        assertEquals("TAG-OUT", trackOut.getTag().getName());
+        assertEquals("TAG-IN", trackOut.getTag().getName());
         assertEquals("blah", trackOut.getProperties().get("stringTest"));
         assertEquals(100d, trackOut.getProperties().get("doubleTest"));
         assertEquals((Integer)99, trackOut.getWeight());
+        Long currentWhen = (Long)trackOut.getProperties().get(TrackTagDao.AB_WHEN);
+        assertTrue(currentWhen>0);
 
         logBean = new LogInputBean("mike", new DateTime(), what + "2\"}");
         inputBean.getTags().clear();
@@ -885,17 +891,18 @@ public class TestMetaHeaderTags extends TestEngineBase {
         // Cancelling last change should restore the inbound tag
         mediationFacade.cancelLastLogSync(su.getCompany(), created.getMetaKey());
         // Total of two tags
-        validateTag(created, null, 2);
+        validateTag(created, null, 1);
         // One of which is outbound and the other inbound
         assertEquals(1, outboundTags.size());
 
         // Check that we still have our custom properties
-        outboundTags = tagTrackService.findOutboundTags(su.getCompany(), created);
+        outboundTags = tagTrackService.findTrackTags(su.getCompany(), created);
         trackOut = outboundTags.iterator().next();
-        assertEquals("TAG-OUT", trackOut.getTag().getName());
+        assertEquals("TAG-IN", trackOut.getTag().getName());
         assertEquals("blah", trackOut.getProperties().get("stringTest"));
         assertEquals(100d, trackOut.getProperties().get("doubleTest"));
         assertEquals((Integer)99, trackOut.getWeight());
+        assertEquals(currentWhen, trackOut.getProperties().get(TrackTagDao.AB_WHEN));
     }
 
     @Test
@@ -908,8 +915,8 @@ public class TestMetaHeaderTags extends TestEngineBase {
         // This should create the same Tag object
         inputBean.addTag(new TagInputBean("TagA", "camel"));
         ResponseEntity<TrackResultBean> response = trackEP.trackHeader(inputBean, su.getApiKey(), su.getApiKey());
-        // At this point we have a metaHeader, log and a tag.
 
+        // At this point we have a metaHeader, log and a tag.
         assertNotNull(response);
 
         TrackResultBean resultBean = response.getBody();

@@ -36,6 +36,10 @@ import java.util.Set;
  * Time: 9:55 PM
  */
 public interface TrackTagDao {
+
+    // Property that refers to when this relationship was introduced to AB
+    String AB_WHEN = "abWhen";
+
     TrackTag save(MetaHeader metaHeader, Tag tag, String relationshipName);
 
     TrackTag save(MetaHeader ah, Tag tag, String metaLink, boolean reverse);
@@ -53,7 +57,7 @@ public interface TrackTagDao {
      */
     Set<TrackTag> getMetaTrackTags(Company company, MetaHeader metaHeader);
 
-    Set<TrackTag> getMetaTrackTagsOutbound(Company company, MetaHeader header);
+    Set<TrackTag> getDirectedMetaTags(Company company, MetaHeader metaHeader, boolean outbound);
 
     Set<TrackTag> findLogTags(Company company, Log log) ;
 
