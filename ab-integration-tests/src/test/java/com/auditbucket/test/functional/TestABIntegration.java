@@ -392,7 +392,7 @@ public class TestABIntegration {
     @Test
     public void searchDocIsRewrittenAfterCancellingLogs() throws Exception {
         // DAT-27
-        //assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## searchDocRewrite");
         SystemUser su = registerSystemUser("Felicity");
         Fortress fo = fortressService.registerFortress(new FortressInputBean("cancelLogTag", false));
