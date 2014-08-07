@@ -21,6 +21,8 @@ package com.auditbucket.search.model;
 
 import com.auditbucket.track.model.SearchChange;
 
+import java.util.Map;
+
 /**
  * Object to tie the keys between ab-engine and ab-search so that ab-engine can keep the document up-to-date
  * <p/>
@@ -42,6 +44,13 @@ public class SearchResult {
         this.searchKey = thisChange.getSearchKey();
         this.documentType = thisChange.getDocumentType();
         this.metaKey = thisChange.getMetaKey();
+
+    }
+
+    public SearchResult(String searchKey, String metaKey, String type, Map<String, Object> fragments) {
+        this.metaKey = metaKey;
+        this.documentType = type;
+        this.searchKey = searchKey;
 
     }
 

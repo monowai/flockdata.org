@@ -33,6 +33,7 @@ import com.auditbucket.registration.service.TagService;
 import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.MetaSearchChange;
 import com.auditbucket.search.model.QueryParams;
+import com.auditbucket.search.model.SearchResult;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
@@ -311,10 +312,10 @@ public class MediationFacade {
 
         StopWatch watch = new StopWatch(queryParams.toString());
         watch.start("Get ES Query Results");
-        EsSearchResult<Collection<String>> esSearchResult = searchService.search(queryParams);
+        EsSearchResult<Collection<SearchResult>> esSearchResult = searchService.search(queryParams);
         watch.stop();
         watch.start("Get Graph Headers");
-        Collection<MetaHeader> headers = trackService.getHeaders(company, esSearchResult.getResults());
+        Collection<MetaHeader> headers = trackService.getHeaders(company, esSearchResult.getMetaKeys());
         EsSearchResult<Collection<MetaHeader>> results = new EsSearchResult<>(esSearchResult);
         results.setResults(headers);
         watch.stop();
