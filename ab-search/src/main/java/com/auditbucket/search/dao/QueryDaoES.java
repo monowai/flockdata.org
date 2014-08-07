@@ -25,11 +25,13 @@ import com.auditbucket.search.helper.QueryGenerator;
 import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.MetaSearchSchema;
 import com.auditbucket.search.model.QueryParams;
+import com.auditbucket.search.model.SearchResult;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.highlight.HighlightField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +41,8 @@ import org.springframework.util.StopWatch;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -82,7 +86,7 @@ public class QueryDaoES implements QueryDao {
     @Override
     public EsSearchResult doMetaKeySearch(QueryParams queryParams) throws DatagioException {
         StopWatch watch = new StopWatch();
-        EsSearchResult<Collection<String>> searchResult = new EsSearchResult<>();
+        EsSearchResult<Collection<SearchResult>> searchResult = new EsSearchResult<>();
         watch.start(queryParams.toString());
         String[] types = Strings.EMPTY_ARRAY;
         if (queryParams.getTypes() != null) {
@@ -96,7 +100,7 @@ public class QueryDaoES implements QueryDao {
                 .setExtraSource(QueryGenerator.getSimpleQuery(queryParams.getSimpleQuery(), highlightEnabled))
                 .execute();
 
-        Collection<String> results = new ArrayList<>();
+        Collection<SearchResult> results = new ArrayList<>();
 
         SearchResponse response;
         try {
@@ -109,9 +113,15 @@ public class QueryDaoES implements QueryDao {
 
         for (SearchHit searchHitFields : response.getHits().getHits()) {
             if (!searchHitFields.getFields().isEmpty()) { // DAT-83
-                Object hit = searchHitFields.getFields().get(MetaSearchSchema.META_KEY).getValue();
-                if (hit != null)
-                    results.add(hit.toString());
+                Object metaKey = searchHitFields.getFields().get(MetaSearchSchema.META_KEY).getValue();
+                if (metaKey != null) {
+                    Map<String,Object> fragments = convertHighlightToMap(searchHitFields.getHighlightFields());
+                    results.add(new SearchResult(
+                                        searchHitFields.getId(),
+                                        metaKey.toString(),
+                                        searchHitFields.getType(),
+                                        fragments));
+                }
             }
         }
         searchResult.setTotalHits(response.getHits().getTotalHits());
@@ -120,6 +130,14 @@ public class QueryDaoES implements QueryDao {
         watch.stop();
         logger.info("ES Query. Results [{}] took [{}]", results.size(), watch.prettyPrint());
         return searchResult;
+    }
+
+    private Map<String,Object>convertHighlightToMap(Map<String, HighlightField> highlightFields){
+        Map<String,Object>highlights = new HashMap<>();
+        for (String key : highlightFields.keySet()) {
+            highlights.put(key, highlightFields.get(key).getFragments());
+        }
+        return highlights;
     }
 
 }

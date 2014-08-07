@@ -22,6 +22,7 @@ package com.auditbucket.engine.service;
 import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.MetaSearchChanges;
 import com.auditbucket.search.model.QueryParams;
+import com.auditbucket.search.model.SearchResult;
 import com.auditbucket.track.model.MetaHeader;
 import org.springframework.integration.annotation.Gateway;
 
@@ -39,7 +40,7 @@ public interface AbSearchGateway {
     public void makeSearchChanges(MetaSearchChanges searchChanges);
 
     @Gateway(requestChannel = "sendSearchRequest", replyChannel = "sendSearchReply")
-    public EsSearchResult<Collection<String>> search(QueryParams queryParams);
+    public EsSearchResult<Collection<SearchResult>> search(QueryParams queryParams);
 
     public void delete(MetaHeader metaHeader, String searchKey);
 
