@@ -201,7 +201,7 @@ public class SearchServiceFacade {
         return null;
     }
 
-    public EsSearchResult<Collection<SearchResult>> search(QueryParams queryParams) {
+    public EsSearchResult search(QueryParams queryParams) {
         return searchGateway.search(queryParams);
     }
 

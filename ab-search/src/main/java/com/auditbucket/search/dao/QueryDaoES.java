@@ -30,6 +30,7 @@ import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
+import org.elasticsearch.common.text.Text;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.highlight.HighlightField;
 import org.slf4j.Logger;
@@ -86,7 +87,7 @@ public class QueryDaoES implements QueryDao {
     @Override
     public EsSearchResult doMetaKeySearch(QueryParams queryParams) throws DatagioException {
         StopWatch watch = new StopWatch();
-        EsSearchResult<Collection<SearchResult>> searchResult = new EsSearchResult<>();
+
         watch.start(queryParams.toString());
         String[] types = Strings.EMPTY_ARRAY;
         if (queryParams.getTypes() != null) {
@@ -108,34 +109,41 @@ public class QueryDaoES implements QueryDao {
         } catch (InterruptedException | ExecutionException e) {
             logger.error("Search Exception processing query", e);
             // ToDo: No sensible error being returned to the caller
-            return searchResult;
+            return new EsSearchResult();
         }
 
         for (SearchHit searchHitFields : response.getHits().getHits()) {
             if (!searchHitFields.getFields().isEmpty()) { // DAT-83
                 Object metaKey = searchHitFields.getFields().get(MetaSearchSchema.META_KEY).getValue();
                 if (metaKey != null) {
-                    Map<String,Object> fragments = convertHighlightToMap(searchHitFields.getHighlightFields());
+                    Map<String, String[]> fragments = convertHighlightToMap(searchHitFields.getHighlightFields());
                     results.add(new SearchResult(
-                                        searchHitFields.getId(),
-                                        metaKey.toString(),
-                                        searchHitFields.getType(),
-                                        fragments));
+                            searchHitFields.getId(),
+                            metaKey.toString(),
+                            searchHitFields.getType(),
+                            fragments));
                 }
             }
         }
+        EsSearchResult searchResult = new EsSearchResult(results);
         searchResult.setTotalHits(response.getHits().getTotalHits());
         searchResult.setStartedFrom(queryParams.getStartFrom());
-        searchResult.setResults(results);
         watch.stop();
         logger.info("ES Query. Results [{}] took [{}]", results.size(), watch.prettyPrint());
         return searchResult;
     }
 
-    private Map<String,Object>convertHighlightToMap(Map<String, HighlightField> highlightFields){
-        Map<String,Object>highlights = new HashMap<>();
+    private Map<String, String[]> convertHighlightToMap(Map<String, HighlightField> highlightFields) {
+        Map<String, String[]> highlights = new HashMap<>();
         for (String key : highlightFields.keySet()) {
-            highlights.put(key, highlightFields.get(key).getFragments());
+            Text[] esFrag = highlightFields.get(key).getFragments();
+            String[] frags = new String[esFrag.length];
+            int i=0;
+            for (Text text : esFrag) {
+                frags[i]=text.string();
+                i++;
+            }
+            highlights.put(key, frags);
         }
         return highlights;
     }

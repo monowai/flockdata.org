@@ -33,6 +33,7 @@ public class SearchResult {
     private String metaKey, fortress, searchKey, documentType;
     private Long logId;
     private Long metaId;
+    private Map<String, String[]> fragments;
 
     protected SearchResult() {
     }
@@ -47,10 +48,11 @@ public class SearchResult {
 
     }
 
-    public SearchResult(String searchKey, String metaKey, String type, Map<String, Object> fragments) {
+    public SearchResult(String searchKey, String metaKey, String type, Map<String, String[]> fragments) {
         this.metaKey = metaKey;
         this.documentType = type;
         this.searchKey = searchKey;
+        this.fragments = fragments;
 
     }
 

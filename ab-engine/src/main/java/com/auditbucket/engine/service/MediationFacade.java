@@ -308,18 +308,26 @@ public class MediationFacade {
         return trackService.getMetaSummary(company, metaKey);
     }
 
-    public EsSearchResult<Collection<MetaHeader>> search(Company company, QueryParams queryParams) {
+    public EsSearchResult search(Company company, QueryParams queryParams) {
 
         StopWatch watch = new StopWatch(queryParams.toString());
         watch.start("Get ES Query Results");
-        EsSearchResult<Collection<SearchResult>> esSearchResult = searchService.search(queryParams);
+        EsSearchResult esSearchResult = searchService.search(queryParams);
         watch.stop();
         watch.start("Get Graph Headers");
-        Collection<MetaHeader> headers = trackService.getHeaders(company, esSearchResult.getMetaKeys());
-        EsSearchResult<Collection<MetaHeader>> results = new EsSearchResult<>(esSearchResult);
-        results.setResults(headers);
+//        Collection<MetaHeader> headers = trackService.getHeaders(company, getMetaKeys(esSearchResult));
+        //EsSearchResult results = new EsSearchResult<>(esSearchResult);
+        //results.setResults(headers);
         watch.stop();
         logger.info(watch.prettyPrint());
+        return esSearchResult;
+    }
+
+    private Collection<String> getMetaKeys(EsSearchResult esSearchResult){
+        Collection<String> results = new ArrayList<>();
+        for (SearchResult result : esSearchResult.getResults()) {
+            results.add(result.getMetaKey());
+        }
         return results;
     }
 
