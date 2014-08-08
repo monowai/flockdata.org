@@ -19,6 +19,7 @@
 
 package com.auditbucket.search.model;
 
+import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.SearchChange;
 
 import java.util.Map;
@@ -34,6 +35,7 @@ public class SearchResult {
     private Long logId;
     private Long metaId;
     private Map<String, String[]> fragments;
+    private MetaHeader metaHeader;
 
     protected SearchResult() {
     }
@@ -71,6 +73,8 @@ public class SearchResult {
      * @return string
      */
     public String getFortress() {
+        if ( metaHeader!=null )
+            return metaHeader.getFortress().getName();
         return fortress;
     }
 
@@ -89,6 +93,8 @@ public class SearchResult {
      * @return
      */
     public String getDocumentType() {
+        if ( metaHeader!=null )
+            return metaHeader.getDocumentType();
         return documentType;
     }
 
@@ -121,5 +127,17 @@ public class SearchResult {
 
     public void setSearchKey(String searchKey) {
         this.searchKey = searchKey;
+    }
+
+    public Map<String,String[]> getFragments(){
+        return fragments;
+    }
+
+    public void setMetaHeader(MetaHeader metaHeader) {
+        this.metaHeader = metaHeader;
+    }
+
+    public MetaHeader getMetaHeader() {
+        return metaHeader;
     }
 }
