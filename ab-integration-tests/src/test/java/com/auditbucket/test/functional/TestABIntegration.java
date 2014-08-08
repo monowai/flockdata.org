@@ -33,6 +33,7 @@ import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
+import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.MetaSearchSchema;
 import com.auditbucket.search.model.QueryParams;
 import com.auditbucket.track.bean.*;
@@ -519,6 +520,7 @@ public class TestABIntegration {
         inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setLog(new LogInputBean("wally", new DateTime(), "{\"blah\":124}"));
         TrackResultBean result = mediationFacade.createHeader(inputBean, null);
+
         MetaHeader metaHeader = trackService.getHeader(result.getMetaKey());
         assertEquals("ab.monowai." + fo.getCode(), metaHeader.getIndexName());
 
@@ -529,7 +531,9 @@ public class TestABIntegration {
         QueryParams qp = new QueryParams(fo);
         qp.setSimpleQuery("*");
         String queryResult = runMetaQuery(qp);
-        queryEP.searchQueryParam(qp, su.getApiKey(), su.getApiKey());
+        EsSearchResult queryResults = queryEP.searchQueryParam(qp, su.getApiKey(), su.getApiKey());
+        assertNotNull(queryResults);
+        assertEquals(2, queryResults.getResults().size());
         logger.info(queryResult);
 
         // Two search docs,but one without a metaKey

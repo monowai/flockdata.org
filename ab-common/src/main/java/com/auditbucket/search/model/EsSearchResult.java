@@ -1,14 +1,12 @@
 package com.auditbucket.search.model;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
-public class EsSearchResult<E> {
+public class EsSearchResult {
 
-    private E results;
+    private Collection<SearchResult> results;
     private long totalHits;
     private int startedFrom;
-    private Collection<SearchResult> searchResults;
 
     public EsSearchResult() {
     }
@@ -17,13 +15,19 @@ public class EsSearchResult<E> {
         this();
         totalHits= results.getStartedFrom();
         totalHits = results.getTotalHits();
+        this.results = results.getResults();
+
     }
 
-    public E getResults() {
+    public EsSearchResult(Collection<SearchResult> results) {
+        this.results = results;
+    }
+
+    public Collection<SearchResult> getResults() {
         return results;
     }
 
-    public void setResults(E results) {
+    public void setResults(Collection<SearchResult> results) {
         this.results = results;
     }
 
@@ -43,11 +47,4 @@ public class EsSearchResult<E> {
         return startedFrom;
     }
 
-    public Collection<String> getMetaKeys() {
-        Collection<String>metaKeys = new ArrayList<>();
-        for (SearchResult searchResult : searchResults) {
-            metaKeys.add(searchResult.getMetaKey());
-        }
-        return metaKeys;
-    }
 }
