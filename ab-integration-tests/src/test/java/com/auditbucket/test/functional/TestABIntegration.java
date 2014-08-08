@@ -509,7 +509,7 @@ public class TestABIntegration {
         // DAT-83
         //assumeTrue(runMe);
         logger.info("## searchDocWithNoMetaKeyWorks");
-        SystemUser su = registerSystemUser("Harry");
+        SystemUser su = registerSystemUser("Nik");
         Fortress fo = fortressService.registerFortress(new FortressInputBean("QueryTest", false));
 
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
@@ -534,7 +534,6 @@ public class TestABIntegration {
         EsSearchResult queryResults = queryEP.searchQueryParam(qp, su.getApiKey(), su.getApiKey());
         assertNotNull(queryResults);
         assertEquals(2, queryResults.getResults().size());
-        logger.info(queryResult);
 
         // Two search docs,but one without a metaKey
 

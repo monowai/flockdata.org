@@ -56,6 +56,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Future;
 
@@ -315,11 +316,14 @@ public class MediationFacade {
         EsSearchResult esSearchResult = searchService.search(queryParams);
         watch.stop();
         watch.start("Get Graph Headers");
-//        Collection<MetaHeader> headers = trackService.getHeaders(company, getMetaKeys(esSearchResult));
-        //EsSearchResult results = new EsSearchResult<>(esSearchResult);
-        //results.setResults(headers);
+        Map<String,MetaHeader> headers = trackService.getHeaders(company, getMetaKeys(esSearchResult));
         watch.stop();
         logger.info(watch.prettyPrint());
+
+        for (SearchResult searchResult : esSearchResult.getResults()) {
+            MetaHeader mh = headers.get(searchResult.getMetaKey());
+            searchResult.setMetaHeader(mh);
+        }
         return esSearchResult;
     }
 
