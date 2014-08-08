@@ -509,7 +509,7 @@ public class TestABIntegration {
         // DAT-83
         //assumeTrue(runMe);
         logger.info("## searchDocWithNoMetaKeyWorks");
-        SystemUser su = registerSystemUser("Nik");
+        SystemUser su = registerSystemUser("Kiwi");
         Fortress fo = fortressService.registerFortress(new FortressInputBean("QueryTest", false));
 
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
