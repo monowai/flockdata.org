@@ -110,8 +110,9 @@ public class CompanyEP {
     @RequestMapping(value = "/hello", method = RequestMethod.GET)
     @ResponseBody
     public String sayHello(HttpServletRequest request) throws DatagioException {
-    	logger.info("Company - " + request.getAttribute("company"));
-    	return "Hello";
+    	String company = (String) request.getAttribute("company");
+		logger.info("Company - " + company);
+    	return "Hello " + company;
     }
 
     private Company getCompany(String apiHeaderKey, String apiRequestKey) throws DatagioException {

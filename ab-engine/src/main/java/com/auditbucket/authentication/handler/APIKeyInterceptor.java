@@ -30,10 +30,9 @@ public class APIKeyInterceptor implements HandlerInterceptor {
 			if (company != null) {
 				request.setAttribute("company", company.getName());
 				return true;
-			} else {
-				return false;
 			}
 		}
+		response.sendError(HttpServletResponse.SC_FORBIDDEN, "Unauthorized");
 		return false;
 	}
 
