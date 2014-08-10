@@ -4,6 +4,7 @@ import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.test.utils.TestHelper;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
@@ -86,8 +87,8 @@ public class TrackAPIKeys extends TestEngineBase{
 
         Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("apiCallsSecuredByAccessKey", true), apiKey, null).getBody();
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC9990");
-        String what = "{\"house\": \"house\"}";
-        LogInputBean log = new LogInputBean("harry", new DateTime(), what);
+
+        LogInputBean log = new LogInputBean("harry", new DateTime(),  TestHelper.getRandomMap());
         inputBean.setLog(log);
 
         TrackResultBean result = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody(); // Works due to basic authz

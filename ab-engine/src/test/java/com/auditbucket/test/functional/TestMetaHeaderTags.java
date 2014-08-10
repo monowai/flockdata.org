@@ -33,6 +33,7 @@ import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.model.Tag;
+import com.auditbucket.test.utils.TestHelper;
 import com.auditbucket.track.bean.*;
 import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.MetaHeader;
@@ -287,7 +288,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         // This should create the same Tag object
         trackEP.trackHeader(aib, null, null).getBody();
-        LogInputBean alib = new LogInputBean("InvalidKey", "Harry", new DateTime(),"{\"xx\":1}");
+        LogInputBean alib = new LogInputBean("Harry", "InvalidKey", new DateTime(), TestHelper.getRandomMap());
         try {
             trackEP.trackLog(alib, null, null);
             fail("Invalid track header. This should not have worked");
@@ -304,7 +305,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         // This should create the same Tag object
         TrackResultBean rb = trackEP.trackHeader(aib, null, null).getBody();
-        LogInputBean alib = new LogInputBean(rb.getMetaKey(), "Harry", new DateTime(),null);
+        LogInputBean alib = new LogInputBean("Harry", rb.getMetaKey(), new DateTime(),null);
         trackEP.trackLog(alib, null, null).getBody();
     }
 
@@ -698,7 +699,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
         String what = "{\"house\": \"house";
 
         MetaInputBean inputBean = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc1");
-        LogInputBean logBean = new LogInputBean("mike", new DateTime(), what + "1\"}");
+        LogInputBean logBean = new LogInputBean("mike", new DateTime(), TestHelper.getRandomMap());
         inputBean.setLog(logBean);
 
         inputBean.addTag(tagInput);
@@ -710,7 +711,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
         // Test that a tag is removed
         MetaInputBean updatedHeader = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc1");
         // Force a change to be detected
-        LogInputBean alb = new LogInputBean("mike", new DateTime(), what + "2\"}");
+        LogInputBean alb = new LogInputBean("mike", new DateTime(),  TestHelper.getRandomMap());
         updatedHeader.setLog(alb);
         // Updating an existing MetaHeader but the tagCollection is minus TEST-CREATE tag
         // The create call should create a new Tag - TEST-UPDATE - and then remove the TEST-CREATE
@@ -735,7 +736,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
         // Make sure when we pass NO tags, i.e. just running an update, we don't change ANY tags
 
-        alb = new LogInputBean("mike", new DateTime(), what + "3\"}");
+        alb = new LogInputBean("mike", new DateTime(), TestHelper.getRandomMap());
         updatedHeader.setLog(alb);
         updatedHeader.getTags().clear();
         resultBean = mediationFacade.createHeader(updatedHeader, null);
@@ -766,7 +767,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
         String what = "{\"house\": \"house";
 
         MetaInputBean inputBean = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc1");
-        LogInputBean logBean = new LogInputBean("mike", new DateTime(), what + "1\"}");
+        LogInputBean logBean = new LogInputBean("mike", new DateTime(),  TestHelper.getRandomMap());
         inputBean.setLog(logBean);
 
         inputBean.addTag(tagInput);
@@ -781,7 +782,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
         // Test that a tag is removed
         MetaInputBean updatedHeader = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc1");
         // Force a change to be detected
-        LogInputBean alb = new LogInputBean("mike", new DateTime(), what + "2\"}");
+        LogInputBean alb = new LogInputBean("mike", new DateTime(),  TestHelper.getRandomMap());
         updatedHeader.setLog(alb);
         // we are updating an existing header with two tags and tellin it that only one is now valid
         updatedHeader.addTag(new TagInputBean("TAG-FIRST", "rlx-test"));
@@ -812,7 +813,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
         //assertNotNull(result);
         MetaInputBean inputBean = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc1");
-        LogInputBean logBean = new LogInputBean("mike", new DateTime(), what + "1\"}");
+        LogInputBean logBean = new LogInputBean("mike", new DateTime(),  TestHelper.getRandomMap());
         inputBean.setLog(logBean);
         // This should create the same Tag object
         inputBean.addTag(new TagInputBean("TagA", "camel"));
@@ -843,7 +844,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
         String what = "{\"house\": \"house";
 
         MetaInputBean inputBean = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc1");
-        LogInputBean logBean = new LogInputBean("mike", new DateTime(), what + "1\"}");
+        LogInputBean logBean = new LogInputBean("mike", new DateTime(),  TestHelper.getRandomMap());
         inputBean.setLog(logBean);
 
         Map<String,Object>rlxProperties = new HashMap<>();
@@ -875,7 +876,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
         Long currentWhen = (Long)trackOut.getProperties().get(TrackTagDao.AB_WHEN);
         assertTrue(currentWhen>0);
 
-        logBean = new LogInputBean("mike", new DateTime(), what + "2\"}");
+        logBean = new LogInputBean("mike", new DateTime(),  TestHelper.getRandomMap());
         inputBean.getTags().clear();
         inputBean.addTag(outBound);
         inputBean.setLog(logBean);
@@ -937,7 +938,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
         SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
         Fortress fo = fortressService.registerFortress(new FortressInputBean("cancelLogTag", true));
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "CancelDoc", new DateTime(), "ABC123");
-        LogInputBean log = new LogInputBean("wally", new DateTime(), "{\"blah\":124}");
+        LogInputBean log = new LogInputBean("wally", new DateTime(),  TestHelper.getRandomMap());
         inputBean.addTag(new TagInputBean("Happy").addMetaLink("testinga"));
         inputBean.addTag(new TagInputBean("Happy Days").addMetaLink("testingb"));
         inputBean.setLog(log);
@@ -947,7 +948,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
         // We now have 1 log with tags validated in ES
 
         // Add another Log - replacing the two existing Tags with two new ones
-        log = new LogInputBean("wally", new DateTime(), "{\"blah\":125}");
+        log = new LogInputBean("wally", new DateTime(),  TestHelper.getRandomMap());
         inputBean.getTags().clear();
         inputBean.addTag(new TagInputBean("Sad Days").addMetaLink("testingb"));
         inputBean.addTag(new TagInputBean("Days Bay").addMetaLink("testingc"));

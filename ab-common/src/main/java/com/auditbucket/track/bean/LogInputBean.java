@@ -22,10 +22,8 @@ package com.auditbucket.track.bean;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.track.model.ChangeEvent;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTime;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 
@@ -38,40 +36,47 @@ public class LogInputBean {
     private LogStatus abStatus;
     private String abMessage;
     private Boolean isTransactional = false;
+
+    // Use either metaKey or CallerRef strategy
+    // Required if not updating via a MetaHeader
     private String metaKey;
+
+    // For tracking by Caller Ref
+    private String documentType;
+    private String callerRef;
+    private String fortress;
+
     private String txRef;
     private String comment;
     private String fortressUser;
     private String event;
     private Date when;
-    private String what;
 
-    private Map<String, Object> mapWhat = null;
+    private Map<String, Object> what = null;
 
-    private static final ObjectMapper om = new ObjectMapper();
     private boolean forceReindex;
     private Long metaId;
     private boolean status;
 
-    // Only required when tracking logs by Caller Ref
-    private String documentType;
-    private String callerRef;
-    private String fortress;
 
     protected LogInputBean() {
     }
 
-    public LogInputBean(String metaKey, String fortressUser, DateTime when, String what) throws DatagioException {
-        this(metaKey, fortressUser, when, what, false);
+    public LogInputBean(String fortressUser, DateTime when,  Map<String, Object> what) throws DatagioException {
+        this(fortressUser, null, when, what);
+    }
+
+    public LogInputBean(String fortressUser, String metaKey, DateTime when, Map<String, Object> what) throws DatagioException {
+        this(fortressUser, metaKey, when, what, false);
     }
 
     /**
-     * @param metaKey     -guid
      * @param fortressUser -user name recognisable in the fortress
+     * @param metaKey     -guid
      * @param when         -fortress view of DateTime
      * @param what         -escaped JSON
      */
-    public LogInputBean(String metaKey, String fortressUser, DateTime when, String what, Boolean isTransactional) throws DatagioException {
+    public LogInputBean(String fortressUser, String metaKey, DateTime when, Map<String, Object> what, Boolean isTransactional) throws DatagioException {
         this();
         this.metaKey = metaKey;
         this.fortressUser = fortressUser;
@@ -82,26 +87,22 @@ public class LogInputBean {
     }
 
     /**
-     * @param metaKey     -guid
      * @param fortressUser -user name recognisable in the fortress
+     * @param metaKey     -guid
      * @param when         -fortress view of DateTime
      * @param what         -escaped JSON
      * @param event        -how the caller would like to catalog this change (create, update etc)
      */
-    public LogInputBean(String metaKey, String fortressUser, DateTime when, String what, String event) throws DatagioException {
-        this(metaKey, fortressUser, when, what);
+    public LogInputBean(String fortressUser, String metaKey, DateTime when, Map<String, Object> what, String event) throws DatagioException {
+        this(fortressUser, metaKey, when, what);
         this.event = event;
     }
 
-    public LogInputBean(String metaKey, String fortressUser, DateTime when, String what, String event, String txName) throws DatagioException {
-        this(metaKey, fortressUser, when, what, event);
+    public LogInputBean(String fortressUser, String metaKey, DateTime when, Map<String, Object> what, String event, String txName) throws DatagioException {
+        this(fortressUser, metaKey, when, what, event);
         this.setTxRef(txName);
     }
 
-    public LogInputBean(String fortressUser, DateTime when, String what) throws DatagioException {
-        this(null, fortressUser, when, what);
-
-    }
 
     public String getMetaKey() {
         return metaKey;
@@ -135,26 +136,13 @@ public class LogInputBean {
         this.when = when;
     }
 
-    @JsonIgnore
-    public Map<String, Object> getMapWhat() {
-        return mapWhat;
-    }
-
-    public String getWhat() {
+    public Map<String, Object> getWhat() {
         return what;
     }
 
-    // Will never update the map once set
-    public void setWhat(String jsonWhat) throws DatagioException {
-        if (jsonWhat == null || !(mapWhat == null))
-            return;
-        try {
-            what = om.readTree(jsonWhat).toString();
-            mapWhat = om.readValue(what, Map.class);
-        } catch (IOException e) {
 
-            throw new DatagioException("Error processing JSON What text", e);
-        }
+    public void setWhat( Map<String, Object> what) throws DatagioException {
+        this.what = what;
 
     }
 
