@@ -28,37 +28,37 @@
 
 
     <!--Simple default configuration -->
-<!--
-    <http auto-config="true" use-expressions="true">
-        <intercept-url pattern="/v**" access="permitAll"/>
-        <http-basic/>
-    </http>
-
-    <global-method-security secured-annotations="enabled"/>
-
-    <authentication-manager>
-        <authentication-provider>
-            <user-service>
-                <user name="mike" password="123" authorities="ROLE_AB_ADMIN"/>
-                <user name="${reg.user}" password="${reg.pass}" authorities="ROLE_AB_ADMIN"/>
-            </user-service>
-        </authentication-provider>
-    </authentication-manager>
- -->
+    <!--
+        <http auto-config="true" use-expressions="true">
+            <intercept-url pattern="/v**" access="permitAll"/>
+            <http-basic/>
+        </http>
+    
+        <global-method-security secured-annotations="enabled"/>
+    
+        <authentication-manager>
+            <authentication-provider>
+                <user-service>
+                    <user name="mike" password="123" authorities="ROLE_AB_ADMIN"/>
+                    <user name="${reg.user}" password="${reg.pass}" authorities="ROLE_AB_ADMIN"/>
+                </user-service>
+            </authentication-provider>
+        </authentication-manager>
+     -->
     <!--End Simple default configuration -->
 
     <!--Example StormPath configuration -->
-     <!-- When mapping to domain-specific role names (ie. using GroupRoleGrantedAuthorityResolver) -->
+    <!-- When mapping to domain-specific role names (ie. using GroupRoleGrantedAuthorityResolver) -->
     <beans:bean id="groupRoleGrantedAuthoritiesMap" class="java.util.HashMap" scope="prototype" >
         <beans:constructor-arg>
             <beans:map key-type="java.lang.String" value-type="java.util.List">
-            	<beans:entry key="https://api.stormpath.com/v1/groups/3qpEnZ8VpyZLCsiy2XQqGk" value="ROLE_AB_USER" />
-            	<beans:entry key="https://api.stormpath.com/v1/groups/324drD4041fjlCvLCBVviw" value="ROLE_AB_ADMIN" />
-            	<beans:entry key="https://api.stormpath.com/v1/groups/1hturKrwIRBs8Tz6y1WD0Q" value="ROLE_AB_ADMIN" />
+                <beans:entry key="https://api.stormpath.com/v1/groups/3qpEnZ8VpyZLCsiy2XQqGk" value="ROLE_AB_USER" />
+                <beans:entry key="https://api.stormpath.com/v1/groups/324drD4041fjlCvLCBVviw" value="ROLE_AB_ADMIN" />
+                <beans:entry key="https://api.stormpath.com/v1/groups/1hturKrwIRBs8Tz6y1WD0Q" value="ROLE_AB_ADMIN" />
             </beans:map>
         </beans:constructor-arg>
     </beans:bean>
- 
+
     <!-- When mapping to domain-specific role names -->
     <beans:bean id="groupGrantedAuthorityResolver" class="com.stormpath.spring.security.example.mapping.GroupRoleGrantedAuthorityResolver" >
         <beans:constructor-arg ref="groupRoleGrantedAuthoritiesMap" />
