@@ -62,5 +62,5 @@
 
 	<bean id="userProfileService" class="com.auditbucket.authentication.service.StormpathUserProfile"/>
 
-
+	<bean id="apiKeyInterceptor" class="com.auditbucket.authentication.handler.APIKeyInterceptor"/>
 </beans>
