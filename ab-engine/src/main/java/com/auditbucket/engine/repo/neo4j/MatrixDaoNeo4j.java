@@ -49,7 +49,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
                 conceptString+
                 "with tag1.name as tag1, tag2.name as tag2, count(t) as links " +
                 "order by links desc, tag2 " +
-                "where links >={linkCount} " +
+                (input.getMinCount()>1?"where links >={linkCount} " : "") +
                 "return tag1, collect(tag2) as tag2,  " +
                 "collect( links) as occurrenceCount";
 

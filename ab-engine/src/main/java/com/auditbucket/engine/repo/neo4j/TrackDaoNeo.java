@@ -395,22 +395,23 @@ public class TrackDaoNeo implements TrackDao {
     }
 
     @Override
-    public Collection<MetaHeader> findHeaders(Company company, Collection<String> metaKeys) {
+    public Map<String, MetaHeader> findHeaders(Company company, Collection<String> metaKeys) {
         logger.debug("Looking for {} headers for company [{}] ", metaKeys.size(), company);
         Collection<MetaHeader> foundHeaders = metaRepo.findHeaders(company.getId(), metaKeys);
         Map<String, MetaHeader> unsorted = new HashMap<>();
         for (MetaHeader foundHeader : foundHeaders) {
             unsorted.put(foundHeader.getMetaKey(), foundHeader);
         }
-        // DAT-86 The incoming collection is actually the sort order we want
-        // ToDo: Find a slicker way of dealing with this
-        Collection<MetaHeader> sortedResult = new ArrayList<>(unsorted.size());
-        for (String metaKey : metaKeys) {
-            MetaHeader header = unsorted.get(metaKey);
-            if (header != null)
-                sortedResult.add(header);
-        }
-        return sortedResult;
+        return unsorted;
+//        // DAT-86 The incoming collection is actually the sort order we want
+//        // ToDo: Find a slicker way of dealing with this
+//        Collection<MetaHeader> sortedResult = new ArrayList<>(unsorted.size());
+//        for (String metaKey : metaKeys) {
+//            MetaHeader header = unsorted.get(metaKey);
+//            if (header != null)
+//                sortedResult.add(header);
+//        }
+//        return sortedResult;
     }
 
     @Override
