@@ -300,7 +300,9 @@ public class TestTags extends TestEngineBase {
     @Test
     public void sameKeyForDifferentTagTypes() throws Exception {
         engineAdmin.setMultiTenanted(false);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
+
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean("SameKey", "mike"));
+        waitAWhile();
         assertNotNull(iSystemUser);
 
         TagInputBean tagInputA = new TagInputBean("Source");
