@@ -23,7 +23,7 @@ public class MetaResultBeanTest {
 
     @Test
     public void testGetAuditKeyAuditLogInputBean() throws Exception {
-        LogInputBean logInputBean = new LogInputBean("auditKey", "", new DateTime(), null);
+        LogInputBean logInputBean = new LogInputBean("", "auditKey", new DateTime(), null);
         MetaResultBean metaResultBean = new MetaResultBean(logInputBean);
         Assert.assertEquals(metaResultBean.getMetaKey(), "auditKey");
     }
@@ -37,7 +37,7 @@ public class MetaResultBeanTest {
 
     @Test
     public void testGetResultAuditLogInputBean() throws Exception {
-        LogInputBean logInputBean = new LogInputBean("auditKey", "", new DateTime(), null);
+        LogInputBean logInputBean = new LogInputBean("", "auditKey", new DateTime(), null);
         MetaResultBean metaResultBean = new MetaResultBean(logInputBean);
         Assert.assertEquals(metaResultBean.getResult().getClass(), LogInputBean.class);
     }
