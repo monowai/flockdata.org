@@ -114,7 +114,7 @@ public class WhatServiceTest extends AbstractRedisSupport {
         Map<String, Object> what = getWhatMap();
         //String whatString = getJsonFromObject(what);
         try{
-            mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(), what));
+            mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), what));
         } catch (Exception e ){
             logger.error("KV Stores are configured in config.properties. This test is failing to find the {} server. Is it even installed?",engineConfig.getKvStore());
             return;

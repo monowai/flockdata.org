@@ -213,7 +213,7 @@ public class TestABIntegration {
         assertNotNull(ahKey);
         header = trackService.getHeader(ahKey);
         assertEquals("ab.monowai.audittest", header.getIndexName());
-        mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(),TestEngineBase.getRandomMap()));
+        mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(),TestEngineBase.getRandomMap()));
         waitForHeaderToUpdate(header.getMetaKey(), su.getApiKey());
 
         doEsQuery(header.getIndexName(), header.getMetaKey());
@@ -331,7 +331,7 @@ public class TestABIntegration {
         logger.info("Start-");
         watch.start();
         while (i < max) {
-            mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(), TestEngineBase.getSimpleMap("blah",i)));
+            mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), TestEngineBase.getSimpleMap("blah", i)));
             i++;
         }
         waitForALog(metaHeader, su.getApiKey());
@@ -558,7 +558,7 @@ public class TestABIntegration {
         TrackResultBean indexedResult = mediationFacade.createHeader(inputBean, su.getApiKey());
         MetaHeader indexHeader = trackService.getHeader(su.getCompany(), indexedResult.getMetaKey());
 
-        LogResultBean resultBean = mediationFacade.processLog(su.getCompany(), new LogInputBean(indexHeader.getMetaKey(), "olivia@sunnybell.com", new DateTime(), TestEngineBase.getSimpleMap("who", "andy"))).getLogResult();
+        LogResultBean resultBean = mediationFacade.processLog(su.getCompany(), new LogInputBean("olivia@sunnybell.com", indexHeader.getMetaKey(), new DateTime(), TestEngineBase.getSimpleMap("who", "andy"))).getLogResult();
         junit.framework.Assert.assertNotNull(resultBean);
 
         waitForHeaderToUpdate(indexHeader, su.getApiKey());
@@ -571,7 +571,7 @@ public class TestABIntegration {
         TrackResultBean noIndex = mediationFacade.createHeader(inputBean, su.getApiKey());
         MetaHeader noIndexHeader = trackService.getHeader(su.getCompany(), noIndex.getMetaKey());
 
-        mediationFacade.processLog(su.getCompany(), new LogInputBean(noIndexHeader.getMetaKey(), "olivia@sunnybell.com", new DateTime(),  TestEngineBase.getSimpleMap("who", "bob")));
+        mediationFacade.processLog(su.getCompany(), new LogInputBean("olivia@sunnybell.com", noIndexHeader.getMetaKey(), new DateTime(),  TestEngineBase.getSimpleMap("who", "bob")));
         // Bob's not there because we said we didn't want to index that header
         doEsQuery(indexName, "bob", 0);
         doEsQuery(indexName, "andy");
@@ -598,7 +598,7 @@ public class TestABIntegration {
         assertNotNull(tags);
         assertEquals(1, tags.size());
 
-        LogResultBean resultBean = mediationFacade.processLog(new LogInputBean(indexHeader.getMetaKey(), "olivia@sunnybell.com", new DateTime(), TestEngineBase.getRandomMap())).getLogResult();
+        LogResultBean resultBean = mediationFacade.processLog(new LogInputBean("olivia@sunnybell.com", indexHeader.getMetaKey(), new DateTime(), TestEngineBase.getRandomMap())).getLogResult();
         assertNotNull(resultBean);
 
         waitForHeaderToUpdate(indexHeader, su.getApiKey());
@@ -625,7 +625,7 @@ public class TestABIntegration {
 
         doEsTermQuery(metaHeader.getIndexName(), MetaSearchSchema.WHAT + ".house", "house1", 1); // First log
 
-        LogResultBean secondLog = mediationFacade.processLog(new LogInputBean(metaHeader.getMetaKey(), "isabella@sunnybell.com", firstDate.plusDays(1), TestEngineBase.getSimpleMap("house", "house2"))).getLogResult();
+        LogResultBean secondLog = mediationFacade.processLog(new LogInputBean("isabella@sunnybell.com", metaHeader.getMetaKey(), firstDate.plusDays(1), TestEngineBase.getSimpleMap("house", "house2"))).getLogResult();
         assertNotSame(0l, secondLog.getWhatLog().getTrackLog().getFortressWhen());
         Set<TrackLog> logs = trackService.getLogs(fortress.getCompany(), metaHeader.getMetaKey());
         assertEquals(2, logs.size());
@@ -667,7 +667,7 @@ public class TestABIntegration {
         Map<String,Object> what = TestEngineBase.getSimpleMap("code", "AZERTY");
         what.put("name", "NameText");
         what.put("description","This is a description");
-        mediationFacade.processLog(su.getCompany(), new LogInputBean(indexHeader.getMetaKey(), "olivia@sunnybell.com", new DateTime(), what));
+        mediationFacade.processLog(su.getCompany(), new LogInputBean("olivia@sunnybell.com", indexHeader.getMetaKey(), new DateTime(), what));
         waitForHeaderToUpdate(indexHeader, su.getApiKey());
         String indexName = indexHeader.getIndexName();
 
@@ -878,7 +878,7 @@ public class TestABIntegration {
     }
 
     private TrackResultBean createLog(String metaKey, int log) throws Exception {
-        return mediationFacade.processLog(new LogInputBean(metaKey, "olivia@sunnybell.com", new DateTime(), TestEngineBase.getSimpleMap("who", log )));
+        return mediationFacade.processLog(new LogInputBean("olivia@sunnybell.com", metaKey, new DateTime(), TestEngineBase.getSimpleMap("who", log )));
     }
 
     private void validateLogsIndexed(ArrayList<Long> list, int auditMax, int expectedLogCount) throws Exception {

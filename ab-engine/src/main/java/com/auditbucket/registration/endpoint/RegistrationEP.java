@@ -21,7 +21,6 @@ package com.auditbucket.registration.endpoint;
 
 import com.auditbucket.helper.ApiKeyHelper;
 import com.auditbucket.helper.DatagioException;
-import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.model.SystemUser;
@@ -62,10 +61,10 @@ public class RegistrationEP {
 
     @RequestMapping(value = "/me", method = RequestMethod.GET)
     @ResponseBody
-    public SystemUser get(String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+    public SystemUserResultBean get(String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         // curl -u mike:123 -X GET http://localhost:8080/ab/profiles/me
 
-        return regService.getSystemUser(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+        return new SystemUserResultBean(regService.getSystemUser(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey)));
     }
 
 

@@ -107,8 +107,8 @@ public class TestAdminCalls extends TestEngineBase {
         assertNotNull(ahKey);
         assertNotNull(trackService.getHeader(ahKey));
 
-        mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(), getRandomMap()));
-        mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(), getRandomMap()));
+        mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), getRandomMap()));
+        mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), getRandomMap()));
 
         assertEquals(2, trackService.getLogCount(resultBean.getMetaKey()));
 
@@ -141,11 +141,11 @@ public class TestAdminCalls extends TestEngineBase {
         assertNotNull(ahKey);
         assertNotNull(trackService.getHeader(ahKey));
 
-        mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(), getRandomMap()));
+        mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), getRandomMap()));
 
         inputBean.setCallerRef("123abc");
         inputBean.setMetaKey(null);
-        inputBean.setLog(new LogInputBean(ahKey, "wally", new DateTime(), getRandomMap()));
+        inputBean.setLog(new LogInputBean("wally", ahKey, new DateTime(), getRandomMap()));
         mediationFacade.createHeader(fo.getCompany(), fo, inputBean);
 
         SecurityContextHolder.getContext().setAuthentication(null);

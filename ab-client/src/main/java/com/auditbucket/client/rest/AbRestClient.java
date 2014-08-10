@@ -59,6 +59,7 @@ public class AbRestClient  {
     private String FORTRESS;
     private String COUNTRIES;
     private String PING;
+    private String ME;
     private String HEALTH;
     private String REGISTER;
     private final String userName;
@@ -94,6 +95,7 @@ public class AbRestClient  {
         this.NEW_HEADER = serverName + "/v1/track/";
         this.PING = serverName + "/v1/admin/ping/";
         this.REGISTER = serverName + "/v1/profiles/";
+        this.ME = serverName + "/v1/profiles/me";
         this.HEALTH = serverName + "/v1/admin/health/";
         this.CROSS_REFERENCES = serverName + "/v1/track/xref/";
         this.NEW_TAG = serverName + "/v1/tag/";
@@ -126,6 +128,28 @@ public class AbRestClient  {
     public static Map<String,Object> convertToMap(Object o ){
         ObjectMapper om = new ObjectMapper();
         return  om.convertValue(o, Map.class);
+    }
+
+    public SystemUserResultBean me(){
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+        HttpHeaders httpHeaders = getHeaders(apiKey, null, null);// Unauthorized ping is ok
+        HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
+        try {
+            ResponseEntity<SystemUserResultBean> response = restTemplate.exchange(ME, HttpMethod.GET, requestEntity, SystemUserResultBean.class);
+            return response.getBody();
+        } catch (HttpClientErrorException e) {
+            if (e.getMessage().startsWith("401"))
+                return null;
+            else
+                return null;
+        } catch (HttpServerErrorException e) {
+            return null;
+        } catch (ResourceAccessException e) {
+            return null;
+        }
+
+
     }
 
     public String ping() {

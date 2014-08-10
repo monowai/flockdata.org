@@ -104,7 +104,7 @@ public class TestForceDuplicateRlx extends TestEngineBase {
 //        watch.reset();
     }
     private void createLog(MetaInputBean aib, TrackResultBean arb, int log) throws DatagioException, IOException {
-        trackEP.trackLog(new LogInputBean(arb.getMetaKey(), aib.getFortressUser(), new DateTime(), getSimpleMap("who", log)), null, null);
+        trackEP.trackLog(new LogInputBean(aib.getFortressUser(), arb.getMetaKey(), new DateTime(), getSimpleMap("who", log)), null, null);
     }
 
 

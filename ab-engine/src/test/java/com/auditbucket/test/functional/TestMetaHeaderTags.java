@@ -287,7 +287,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         // This should create the same Tag object
         trackEP.trackHeader(aib, null, null).getBody();
-        LogInputBean alib = new LogInputBean("InvalidKey", "Harry", new DateTime(), getRandomMap());
+        LogInputBean alib = new LogInputBean("Harry", "InvalidKey", new DateTime(), getRandomMap());
         try {
             trackEP.trackLog(alib, null, null);
             fail("Invalid track header. This should not have worked");
@@ -304,7 +304,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         // This should create the same Tag object
         TrackResultBean rb = trackEP.trackHeader(aib, null, null).getBody();
-        LogInputBean alib = new LogInputBean(rb.getMetaKey(), "Harry", new DateTime(),null);
+        LogInputBean alib = new LogInputBean("Harry", rb.getMetaKey(), new DateTime(),null);
         trackEP.trackLog(alib, null, null).getBody();
     }
 

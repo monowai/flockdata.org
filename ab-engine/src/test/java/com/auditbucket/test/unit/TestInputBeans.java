@@ -87,7 +87,7 @@ public class TestInputBeans {
         // NonNull tx ref sets the inputBean to be transactional
 //        String what = "{\"abc\":0}";
         DateTime dateB = DateTime.now();
-        LogInputBean alb = new LogInputBean("aaa", "user", dateB, TestEngineBase.getSimpleMap("abc",0), "", "txreftest");
+        LogInputBean alb = new LogInputBean("user", "aaa", dateB, TestEngineBase.getSimpleMap("abc",0), "", "txreftest");
         aib.setLog(alb); // Creation dates defer to the Log
         assertTrue(alb.isTransactional());
         assertEquals(dateB.getMillis(), aib.getWhen().getTime());
@@ -106,7 +106,7 @@ public class TestInputBeans {
         aib.setLog(alb);
         assertEquals(dateC.getTime(), aib.getWhen().getTime());
 
-        alb = new LogInputBean("aaa", "user", null, TestEngineBase.getRandomMap());
+        alb = new LogInputBean("user", "aaa", null, TestEngineBase.getRandomMap());
         assertFalse(alb.isTransactional());
 
 
