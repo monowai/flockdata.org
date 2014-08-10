@@ -1,7 +1,11 @@
 package com.auditbucket.test.functional;
 
+import javax.servlet.http.HttpServletResponse;
+
 import junit.framework.Assert;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -22,18 +26,23 @@ public class TestAPIKeyInterceptor extends TestEngineBase {
 
 	APIKeyInterceptor apiKeyInterceptor;
 
-	@Test
-	public void GivenValidAPIKey_WhenCalledSecureAPI_ThenShouldBeAllowed() throws Exception {
+	@Before
+	public void initialize() {
 		setSecurity(mike);
-		String apiKey = regEP
-				.registerSystemUser(new RegistrationBean(monowai, mike))
-				.getBody().getApiKey();
-
 		apiKeyInterceptor = (APIKeyInterceptor) context
 				.getBean("apiKeyInterceptor");
 
 		request = new MockHttpServletRequest();
 		response = new MockHttpServletResponse();
+
+	}
+
+	@Test
+	public void givenValidAPIKey_WhenCallingSecureAPI_ThenShouldBeAllowed()
+			throws Exception {
+		String apiKey = regEP
+				.registerSystemUser(new RegistrationBean(monowai, mike))
+				.getBody().getApiKey();
 
 		request.setRequestURI("/company/hello");
 		request.addParameter("apiKey", apiKey);
@@ -44,22 +53,31 @@ public class TestAPIKeyInterceptor extends TestEngineBase {
 	}
 
 	@Test
-	public void GivenInValidAPIKey_WhenCalledSecureAPI_ThenShouldNotBeAllowed() throws Exception {
-		setSecurity(mike);
-
-		apiKeyInterceptor = (APIKeyInterceptor) context
-				.getBean("apiKeyInterceptor");
-
-		request = new MockHttpServletRequest();
-		response = new MockHttpServletResponse();
+	public void givenInValidAPIKey_WhenCallingSecureAPI_ThenShouldNotBeAllowed()
+			throws Exception {
 
 		request.setRequestURI("/company/hello");
 		request.addParameter("apiKey", "someKey");
 		boolean status = apiKeyInterceptor.preHandle(request, response, null);
 
+		Assert.assertEquals(HttpServletResponse.SC_FORBIDDEN, response.getStatus());
 		Assert.assertEquals(false, status);
-		Assert.assertEquals(null, request.getAttribute("company"));
 	}
 
+	@Test
+	public void givenNoAPIKey_WhenCallingSecureAPI_ThenShouldNotBeAllowed()
+			throws Exception {
+
+		request.setRequestURI("/company/hello");
+		boolean status = apiKeyInterceptor.preHandle(request, response, null);
+
+		Assert.assertEquals(HttpServletResponse.SC_FORBIDDEN, response.getStatus());
+		Assert.assertEquals(false, status);
+	}
+
+	@After
+	public void cleanUp() {
+		setSecurityEmpty();
+	}
 
 }
