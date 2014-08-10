@@ -21,6 +21,7 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.test.utils.TestHelper;
 import com.auditbucket.track.bean.AuditDeltaBean;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
@@ -56,12 +57,12 @@ public class TestDelta extends TestEngineBase {
         String typeA = "TypeA";
 
         //String jsonA = "{\"house\": \"red\", \"bedrooms\": 2, \"garage\": \"Y\"}";
-        Map<String, Object> jsonA = getSimpleMap("house", "red");
+        Map<String, Object> jsonA = TestHelper.getSimpleMap("house", "red");
         jsonA.put("bedrooms", 2);
         jsonA.put("garage", "Y");
 
         //String jsonB = "{\"house\": \"green\", \"bedrooms\": 2, \"list\": [1,2,3]}";
-        Map<String, Object> jsonB = getSimpleMap("house", "green");
+        Map<String, Object> jsonB = TestHelper.getSimpleMap("house", "green");
         jsonB.put("bedrooms", 2);
         ArrayList<Integer> values = new ArrayList<>();
         values.add(1);

@@ -25,6 +25,7 @@ import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.test.utils.TestHelper;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
@@ -107,8 +108,8 @@ public class TestAdminCalls extends TestEngineBase {
         assertNotNull(ahKey);
         assertNotNull(trackService.getHeader(ahKey));
 
-        mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), getRandomMap()));
-        mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), getRandomMap()));
+        mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), TestHelper.getRandomMap()));
+        mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), TestHelper.getRandomMap()));
 
         assertEquals(2, trackService.getLogCount(resultBean.getMetaKey()));
 
@@ -141,11 +142,11 @@ public class TestAdminCalls extends TestEngineBase {
         assertNotNull(ahKey);
         assertNotNull(trackService.getHeader(ahKey));
 
-        mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), getRandomMap()));
+        mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), TestHelper.getRandomMap()));
 
         inputBean.setCallerRef("123abc");
         inputBean.setMetaKey(null);
-        inputBean.setLog(new LogInputBean("wally", ahKey, new DateTime(), getRandomMap()));
+        inputBean.setLog(new LogInputBean("wally", ahKey, new DateTime(), TestHelper.getRandomMap()));
         mediationFacade.createHeader(fo.getCompany(), fo, inputBean);
 
         SecurityContextHolder.getContext().setAuthentication(null);
@@ -173,7 +174,7 @@ public class TestAdminCalls extends TestEngineBase {
         MetaInputBean trackBean = new MetaInputBean(fortress.getName(), "olivia@ast.com", "CompanyNode", null, "abc2");
         trackBean.addTag(new TagInputBean("anyName", "rlx"));
         trackBean.addTag(new TagInputBean("otherName", "rlxValue").setReverse(true));
-        LogInputBean logBean = new LogInputBean("me", DateTime.now(), getRandomMap() );
+        LogInputBean logBean = new LogInputBean("me", DateTime.now(), TestHelper.getRandomMap() );
         trackBean.setLog(logBean);
         String resultA = mediationFacade.createHeader(trackBean, null).getMetaKey();
 
@@ -182,7 +183,7 @@ public class TestAdminCalls extends TestEngineBase {
         trackBean = new MetaInputBean(fortress.getName(), "olivia@ast.com", "CompanyNode", null, "abc3");
         trackBean.addTag(new TagInputBean("anyName", "rlx"));
         trackBean.addTag(new TagInputBean("otherName", "rlxValue").setReverse(true));
-        logBean = new LogInputBean("me", DateTime.now(), getRandomMap() );
+        logBean = new LogInputBean("me", DateTime.now(), TestHelper.getRandomMap() );
         trackBean.setLog(logBean);
 
         String resultB = mediationFacade.createHeader(trackBean, su.getApiKey()).getMetaKey();

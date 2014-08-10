@@ -32,7 +32,6 @@
 
     <properties>
         <neo4j.version>2.1.2</neo4j.version>
-        <!--<org.springdata.neo4j>3.1.1.RELEASE</org.springdata.neo4j>-->
     </properties>
 
     <dependencies>
