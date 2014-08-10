@@ -23,7 +23,7 @@ public class TestAPIKeyInterceptor extends TestEngineBase {
 	APIKeyInterceptor apiKeyInterceptor;
 
 	@Test
-	public void testPreHandle() throws Exception {
+	public void GivenValidAPIKey_WhenCalledSecureAPI_ThenShouldBeAllowed() throws Exception {
 		setSecurity(mike);
 		String apiKey = regEP
 				.registerSystemUser(new RegistrationBean(monowai, mike))
@@ -42,5 +42,24 @@ public class TestAPIKeyInterceptor extends TestEngineBase {
 		Assert.assertEquals(true, status);
 		Assert.assertEquals("Monowai", request.getAttribute("company"));
 	}
+
+	@Test
+	public void GivenInValidAPIKey_WhenCalledSecureAPI_ThenShouldBeAllowed() throws Exception {
+		setSecurity(mike);
+
+		apiKeyInterceptor = (APIKeyInterceptor) context
+				.getBean("apiKeyInterceptor");
+
+		request = new MockHttpServletRequest();
+		response = new MockHttpServletResponse();
+
+		request.setRequestURI("/company/hello");
+		request.addParameter("apiKey", "someKey");
+		boolean status = apiKeyInterceptor.preHandle(request, response, null);
+
+		Assert.assertEquals(false, status);
+		Assert.assertEquals(null, request.getAttribute("company"));
+	}
+
 
 }
