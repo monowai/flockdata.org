@@ -108,6 +108,26 @@ public class AbRestClient  {
 
     }
 
+    public static Map<String, Object> convertToMap(String[] headerRow, String[] line) {
+        int col = 0;
+        Map<String, Object> row = new HashMap<>();
+        for (String column : headerRow) {
+            row.put(column, line[col]);
+            col++;
+        }
+        return row;
+    }
+
+    /**
+     * Helper that turns the supplied object in to a Jackson mapped Map
+     * @param o - arbitrary object
+     * @return Map<String,Object>
+     */
+    public static Map<String,Object> convertToMap(Object o ){
+        ObjectMapper om = new ObjectMapper();
+        return  om.convertValue(o, Map.class);
+    }
+
     public String ping() {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());

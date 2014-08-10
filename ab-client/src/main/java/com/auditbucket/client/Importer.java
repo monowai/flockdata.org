@@ -301,7 +301,7 @@ public class Importer {
                 long then = new DateTime().getMillis();
                 while (xsr.getLocalName().equals(docType)) {
                     XmlMappable row = mappable.newInstance(importParams.isSimulateOnly());
-                    String json = row.setXMLData(xsr, importParams.getStaticDataResolver());
+                    Map<String,Object> json = row.setXMLData(xsr, importParams.getStaticDataResolver());
                     MetaInputBean header = (MetaInputBean) row;
                     if (!header.getCrossReferences().isEmpty()) {
                         referenceInputBeans.add(new CrossReferenceInputBean(header.getFortress(), header.getCallerRef(), header.getCrossReferences()));
@@ -391,7 +391,7 @@ public class Importer {
 
                         row = (DelimitedMappable) importParams.getMappable();
 
-                        String jsonData = row.setData(headerRow, nextLine, importParams);
+                        Map<String,Object>jsonData = row.setData(headerRow, nextLine, importParams);
                         //logger.info(jsonData);
                         if (type == AbRestClient.type.TRACK) {
                             MetaInputBean header = (MetaInputBean) row;
@@ -400,7 +400,7 @@ public class Importer {
                                 header.setMetaOnly(true);
                                 // It's all Meta baby - no track information
                             } else {
-                                jsonData = jsonData.replaceAll("[\\x00-\\x09\\x11\\x12\\x14-\\x1F\\x7F]", "");
+                                //jsonData = jsonData.replaceAll("[\\x00-\\x09\\x11\\x12\\x14-\\x1F\\x7F]", "");
                                 LogInputBean logInputBean = new LogInputBean(importParams.getFortressUser(), new DateTime(), jsonData);
                                 header.setLog(logInputBean);
                             }

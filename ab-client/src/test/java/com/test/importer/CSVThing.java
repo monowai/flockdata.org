@@ -9,7 +9,6 @@ import com.auditbucket.client.rest.IStaticDataResolver;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -35,7 +34,7 @@ public class CSVThing {
             }
 
             @Override
-            public String resolve(String type, Map<String, String> args) {
+            public String resolve(String type, Map<String, Object> args) {
                 return null;
             }
         });
@@ -43,14 +42,14 @@ public class CSVThing {
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers= new String[]{"Title",     "Tag",     "TagVal", "ValTag", "Origin",      "Year", "Gold Medals" };
         String[] data = new String[]{  "TitleTests","TagName", "Gold",   "8",      "New Zealand", "2008", "12"};
-        String json = mapper.setData(headers, data, params);
+        Map<String,Object> json = mapper.setData(headers, data, params);
         assertNotNull (json);
-        ObjectMapper om = new ObjectMapper();
-        Map values = om.readValue(json, Map.class);
-        assertTrue("Title Missing", values.containsKey("Title"));
-        assertTrue("Tag Missing", values.containsKey("Tag"));
-        assertTrue("Tag Value Missing", values.containsKey("TagVal"));
-        assertTrue("Tag Value Missing", values.containsKey("ValTag"));
+        //ObjectMapper om = new ObjectMapper();
+        //Map values = om.readValue(json, Map.class);
+        assertTrue("Title Missing", json.containsKey("Title"));
+        assertTrue("Tag Missing", json.containsKey("Tag"));
+        assertTrue("Tag Value Missing", json.containsKey("TagVal"));
+        assertTrue("Tag Value Missing", json.containsKey("ValTag"));
 
         assertEquals(data[0], mapper.getCallerRef());
         List<TagInputBean> tags = mapper.getTags();
@@ -145,7 +144,7 @@ public class CSVThing {
             }
 
             @Override
-            public String resolve(String type, Map<String, String> args) {
+            public String resolve(String type, Map<String, Object> args) {
                 return null;
             }
         });

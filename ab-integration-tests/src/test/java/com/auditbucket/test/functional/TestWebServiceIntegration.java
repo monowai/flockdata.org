@@ -29,11 +29,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.joda.time.DateTime;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -49,10 +46,6 @@ import java.io.InputStreamReader;
  */
 
 public class TestWebServiceIntegration {
-    @Autowired
-    private GraphDatabaseService graphDatabaseService;
-    @Autowired
-    private Neo4jTemplate template;
 
     private Logger logger = LoggerFactory.getLogger(TestABIntegration.class);
     private String email = "test@ab.com";
@@ -74,7 +67,7 @@ public class TestWebServiceIntegration {
             auditPost.addHeader("content-type", "application/json");
             auditPost.addHeader("Authorization", "Basic bWlrZToxMjM=");
             MetaInputBean inputBean = new MetaInputBean("capacity", "system", "TrainProfile", DateTime.now(), profile.get("profileID").asText());
-            LogInputBean log = new LogInputBean("moira", null, profile.toString());
+            LogInputBean log = new LogInputBean("moira", null, TestEngineBase.getRandomMap());
             inputBean.setLog(log);
             log.setForceReindex(true);
             StringEntity json = new StringEntity(mapper.writeValueAsString(inputBean));

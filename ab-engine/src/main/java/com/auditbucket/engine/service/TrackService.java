@@ -267,7 +267,7 @@ public class TrackService {
         TxRef txRef = handleTxRef(input, fortress.getCompany());
         LogResultBean resultBean = new LogResultBean(input, authorisedHeader);
         //ToDo: May want to track a "View" event which would not change the What data.
-        if (input.getMapWhat() == null || input.getMapWhat().isEmpty()) {
+        if (input.getWhat() == null || input.getWhat().isEmpty()) {
             resultBean.setStatus(LogInputBean.LogStatus.IGNORE);
             resultBean.setMessage("No 'what' information provided. Ignoring this request");
             return resultBean;

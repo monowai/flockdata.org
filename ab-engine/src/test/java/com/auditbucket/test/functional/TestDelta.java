@@ -29,10 +29,9 @@ import com.auditbucket.track.model.TrackLog;
 import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import static junit.framework.Assert.assertTrue;
@@ -46,8 +45,6 @@ import static org.junit.Assert.assertNotNull;
 @Transactional
 public class TestDelta extends TestEngineBase {
 
-    private Logger logger = LoggerFactory.getLogger(TestTrack.class);
-
     @Test
     public void jsonDeltasAreFound() throws Exception {
         setSecurity();
@@ -58,9 +55,19 @@ public class TestDelta extends TestEngineBase {
 
         String typeA = "TypeA";
 
-        String jsonA = "{\"house\": \"red\", \"bedrooms\": 2, \"garage\": \"Y\"}";
-        String jsonB = "{\"house\": \"green\", \"bedrooms\": 2, \"list\": [1,2,3]}";
+        //String jsonA = "{\"house\": \"red\", \"bedrooms\": 2, \"garage\": \"Y\"}";
+        Map<String, Object> jsonA = getSimpleMap("house", "red");
+        jsonA.put("bedrooms", 2);
+        jsonA.put("garage", "Y");
 
+        //String jsonB = "{\"house\": \"green\", \"bedrooms\": 2, \"list\": [1,2,3]}";
+        Map<String, Object> jsonB = getSimpleMap("house", "green");
+        jsonB.put("bedrooms", 2);
+        ArrayList<Integer> values = new ArrayList<>();
+        values.add(1);
+        values.add(2);
+        values.add(3);
+        jsonB.put("list", values);
 
         MetaInputBean header = new MetaInputBean("DELTAForce", "auditTestz", "Delta", new DateTime(), "abdelta");
         LogInputBean log = new LogInputBean("Mike", new DateTime(), jsonA);
@@ -77,21 +84,20 @@ public class TestDelta extends TestEngineBase {
         AuditDeltaBean deltaBean = whatService.getDelta(result.getMetaHeader(), first.getLog(), second.getLog());
         Map added = deltaBean.getAdded();
         Assert.assertNotNull(added);
-        assertTrue (added.containsKey("list"));
+        assertTrue(added.containsKey("list"));
 
         Map removed = deltaBean.getRemoved();
         Assert.assertNotNull(removed);
-        assertTrue (removed.containsKey("garage"));
+        assertTrue(removed.containsKey("garage"));
 
         Map changed = deltaBean.getChanged();
         Assert.assertNotNull(changed);
         assertTrue(changed.containsKey("house"));
 
-        assertNotNull ( deltaBean);
+        assertNotNull(deltaBean);
 
 
     }
-
 
 
 }

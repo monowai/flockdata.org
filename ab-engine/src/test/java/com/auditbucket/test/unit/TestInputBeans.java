@@ -23,6 +23,7 @@ import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
+import com.auditbucket.test.functional.TestEngineBase;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.model.TxRef;
@@ -84,9 +85,9 @@ public class TestInputBeans {
 
 
         // NonNull tx ref sets the inputBean to be transactional
-        String what = "{\"abc\":0}";
+//        String what = "{\"abc\":0}";
         DateTime dateB = DateTime.now();
-        LogInputBean alb = new LogInputBean("aaa", "user", dateB, what, "", "txreftest");
+        LogInputBean alb = new LogInputBean("aaa", "user", dateB, TestEngineBase.getSimpleMap("abc",0), "", "txreftest");
         aib.setLog(alb); // Creation dates defer to the Log
         assertTrue(alb.isTransactional());
         assertEquals(dateB.getMillis(), aib.getWhen().getTime());
@@ -105,7 +106,7 @@ public class TestInputBeans {
         aib.setLog(alb);
         assertEquals(dateC.getTime(), aib.getWhen().getTime());
 
-        alb = new LogInputBean("aaa", "user", null, what);
+        alb = new LogInputBean("aaa", "user", null, TestEngineBase.getRandomMap());
         assertFalse(alb.isTransactional());
 
 

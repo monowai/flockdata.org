@@ -89,14 +89,14 @@ public class TestTrackEvents extends TestEngineBase{
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));
 
-        mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 0}"));
+        mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(), getRandomMap()));
 
         TrackLog when = trackService.getLastLog(ahKey);
         assertNotNull(when);
         assertEquals(Log.CREATE, when.getLog().getEvent().getName()); // log event default
         assertEquals(Log.CREATE.toLowerCase(), when.getLog().getEvent().getName().toLowerCase()); // log event default
 
-        mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(), "{\"blah\": 1}"));
+        mediationFacade.processLog(new LogInputBean(ahKey, "wally", new DateTime(), getRandomMap()));
         TrackLog whenB = trackService.getLastLog(ahKey);
         assertNotNull(whenB);
 

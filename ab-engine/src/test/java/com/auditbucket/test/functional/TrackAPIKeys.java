@@ -86,8 +86,8 @@ public class TrackAPIKeys extends TestEngineBase{
 
         Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("apiCallsSecuredByAccessKey", true), apiKey, null).getBody();
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC9990");
-        String what = "{\"house\": \"house\"}";
-        LogInputBean log = new LogInputBean("harry", new DateTime(), what);
+
+        LogInputBean log = new LogInputBean("harry", new DateTime(),  getRandomMap());
         inputBean.setLog(log);
 
         TrackResultBean result = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody(); // Works due to basic authz
