@@ -302,7 +302,7 @@ public class TestTags extends TestEngineBase {
         engineAdmin.setMultiTenanted(false);
 
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, "mike"));
-        waitAWhile(300);
+        waitAWhile();
         assertNotNull(iSystemUser);
 
         TagInputBean tagInputA = new TagInputBean("Source");
