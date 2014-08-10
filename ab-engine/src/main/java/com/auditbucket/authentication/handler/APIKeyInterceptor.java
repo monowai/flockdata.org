@@ -29,11 +29,12 @@ public class APIKeyInterceptor implements HandlerInterceptor {
 			Company company = securityHelper.getCompany(apiKey);
 			if (company != null) {
 				request.setAttribute("company", company.getName());
+				return true;
 			} else {
 				return false;
 			}
 		}
-		return true;
+		return false;
 	}
 
 	@Override
