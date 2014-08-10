@@ -223,7 +223,7 @@ public class TrackEP {
     public Collection<MetaHeader> getMetaHeaders(@RequestBody Collection<String> toFind,
                                                  String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = getCompany(apiHeaderKey, apiKey);
-        return trackService.getHeaders(company, toFind);
+        return trackService.getHeaders(company, toFind).values();
     }
 
 

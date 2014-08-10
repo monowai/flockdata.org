@@ -19,6 +19,7 @@
 
 package com.auditbucket.test.functional;
 
+import com.auditbucket.engine.endpoint.QueryEP;
 import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.service.MediationFacade;
 import com.auditbucket.engine.service.TagTrackService;
@@ -32,6 +33,7 @@ import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
+import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.MetaSearchSchema;
 import com.auditbucket.search.model.QueryParams;
 import com.auditbucket.track.bean.*;
@@ -115,6 +117,8 @@ public class TestABIntegration {
     MediationFacade mediationFacade;
     @Autowired
     TagTrackService tagTrackService;
+    @Autowired
+    QueryEP queryEP;
 
     @Autowired
     WhatService whatService;
@@ -495,6 +499,41 @@ public class TestABIntegration {
         qp.setSimpleQuery("*");
         String queryResult = runMetaQuery(qp);
         logger.info(queryResult);
+
+        // Two search docs,but one without a metaKey
+
+    }
+
+    @Test
+    public void engineQueryResultsReturn() throws Exception {
+        // DAT-83
+        //assumeTrue(runMe);
+        logger.info("## searchDocWithNoMetaKeyWorks");
+        SystemUser su = registerSystemUser("Kiwi");
+        Fortress fo = fortressService.registerFortress(new FortressInputBean("QueryTest", false));
+
+        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
+        inputBean.setLog(new LogInputBean("wally", new DateTime(), "{\"blah\":124}"));
+
+        mediationFacade.createHeader(inputBean, null); // Mock result as we're not tracking
+
+        inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
+        inputBean.setLog(new LogInputBean("wally", new DateTime(), "{\"blah\":124}"));
+        TrackResultBean result = mediationFacade.createHeader(inputBean, null);
+
+        MetaHeader metaHeader = trackService.getHeader(result.getMetaKey());
+        assertEquals("ab.monowai." + fo.getCode(), metaHeader.getIndexName());
+
+        waitForHeaderToUpdate(metaHeader, su.getApiKey()); // 2nd document in the index
+        // We have one with a metaKey and one without
+        doEsQuery("ab.monowai." + fo.getCode(), "*", 2);
+
+        QueryParams qp = new QueryParams(fo);
+        qp.setSimpleQuery("*");
+        String queryResult = runMetaQuery(qp);
+        EsSearchResult queryResults = queryEP.searchQueryParam(qp, su.getApiKey(), su.getApiKey());
+        assertNotNull(queryResults);
+        assertEquals(2, queryResults.getResults().size());
 
         // Two search docs,but one without a metaKey
 

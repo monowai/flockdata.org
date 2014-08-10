@@ -788,7 +788,7 @@ public class TrackService {
         return ignored;
     }
 
-    public Collection<MetaHeader> getHeaders(Company company, Collection<String> metaKeys) {
+    public Map<String,MetaHeader> getHeaders(Company company, Collection<String> metaKeys) {
         return trackDao.findHeaders(company, metaKeys);
     }
 

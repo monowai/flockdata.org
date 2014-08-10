@@ -19,7 +19,10 @@
 
 package com.auditbucket.search.model;
 
+import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.SearchChange;
+
+import java.util.Map;
 
 /**
  * Object to tie the keys between ab-engine and ab-search so that ab-engine can keep the document up-to-date
@@ -31,6 +34,8 @@ public class SearchResult {
     private String metaKey, fortress, searchKey, documentType;
     private Long logId;
     private Long metaId;
+    private Map<String, String[]> fragments;
+    private MetaHeader metaHeader;
 
     protected SearchResult() {
     }
@@ -42,6 +47,14 @@ public class SearchResult {
         this.searchKey = thisChange.getSearchKey();
         this.documentType = thisChange.getDocumentType();
         this.metaKey = thisChange.getMetaKey();
+
+    }
+
+    public SearchResult(String searchKey, String metaKey, String type, Map<String, String[]> fragments) {
+        this.metaKey = metaKey;
+        this.documentType = type;
+        this.searchKey = searchKey;
+        this.fragments = fragments;
 
     }
 
@@ -60,6 +73,8 @@ public class SearchResult {
      * @return string
      */
     public String getFortress() {
+        if ( metaHeader!=null )
+            return metaHeader.getFortress().getName();
         return fortress;
     }
 
@@ -78,6 +93,8 @@ public class SearchResult {
      * @return
      */
     public String getDocumentType() {
+        if ( metaHeader!=null )
+            return metaHeader.getDocumentType();
         return documentType;
     }
 
@@ -110,5 +127,17 @@ public class SearchResult {
 
     public void setSearchKey(String searchKey) {
         this.searchKey = searchKey;
+    }
+
+    public Map<String,String[]> getFragments(){
+        return fragments;
+    }
+
+    public void setMetaHeader(MetaHeader metaHeader) {
+        this.metaHeader = metaHeader;
+    }
+
+    public MetaHeader getMetaHeader() {
+        return metaHeader;
     }
 }

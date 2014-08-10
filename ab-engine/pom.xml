@@ -35,8 +35,7 @@
         <docs.url>http://www.monowai.com/wiki/display/DAT/</docs.url>
         <ehcache.version>2.6.7</ehcache.version>
         <!--Default properties for test. integration over http and Neo4J running embedded-->
-        <ab.integration>http</ab.integration>
-        <org.springdata.neo4j>3.1.1.RELEASE</org.springdata.neo4j>
+        <org.springdata.neo4j>3.1.2.RELEASE</org.springdata.neo4j>
         <neo4j.version>2.1.2</neo4j.version>
     </properties>
 
@@ -79,6 +78,10 @@
                 <exclusion>
                     <groupId>ch.qos.logback</groupId>
                     <artifactId>logback-access</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>javax.servlet</artifactId>
+                    <groupId>org.eclipse.jetty.orbit</groupId>
                 </exclusion>
             </exclusions>
         </dependency>

@@ -33,6 +33,7 @@ import com.auditbucket.registration.service.TagService;
 import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.MetaSearchChange;
 import com.auditbucket.search.model.QueryParams;
+import com.auditbucket.search.model.SearchResult;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
@@ -55,6 +56,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Future;
 
@@ -307,18 +309,29 @@ public class MediationFacade {
         return trackService.getMetaSummary(company, metaKey);
     }
 
-    public EsSearchResult<Collection<MetaHeader>> search(Company company, QueryParams queryParams) {
+    public EsSearchResult search(Company company, QueryParams queryParams) {
 
         StopWatch watch = new StopWatch(queryParams.toString());
         watch.start("Get ES Query Results");
-        EsSearchResult<Collection<String>> esSearchResult = searchService.search(queryParams);
+        EsSearchResult esSearchResult = searchService.search(queryParams);
         watch.stop();
         watch.start("Get Graph Headers");
-        Collection<MetaHeader> headers = trackService.getHeaders(company, esSearchResult.getResults());
-        EsSearchResult<Collection<MetaHeader>> results = new EsSearchResult<>(esSearchResult);
-        results.setResults(headers);
+        Map<String,MetaHeader> headers = trackService.getHeaders(company, getMetaKeys(esSearchResult));
         watch.stop();
         logger.info(watch.prettyPrint());
+
+        for (SearchResult searchResult : esSearchResult.getResults()) {
+            MetaHeader mh = headers.get(searchResult.getMetaKey());
+            searchResult.setMetaHeader(mh);
+        }
+        return esSearchResult;
+    }
+
+    private Collection<String> getMetaKeys(EsSearchResult esSearchResult){
+        Collection<String> results = new ArrayList<>();
+        for (SearchResult result : esSearchResult.getResults()) {
+            results.add(result.getMetaKey());
+        }
         return results;
     }
 
