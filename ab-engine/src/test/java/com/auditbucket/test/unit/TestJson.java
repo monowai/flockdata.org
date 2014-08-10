@@ -21,6 +21,7 @@ package com.auditbucket.test.unit;
 
 import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.helper.CompressionResult;
+import com.auditbucket.test.functional.TestEngineBase;
 import com.auditbucket.track.bean.LogInputBean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -50,10 +51,10 @@ public class TestJson {
     }
     @Test
     public void compressLotsOfBytes() throws Exception {
-        String json = getBigJsonText(99);
-        System.out.println("Pretty JSON          - " + json.getBytes("UTF-8").length);
+        Map<String,Object> json = TestEngineBase.getBigJsonText(99);
+        //System.out.println("Pretty JSON          - " + json.getBytes("UTF-8").length);
         LogInputBean log = new LogInputBean("", "", null, json);
-        System.out.println("JSON Node (unpretty) - " + log.getWhat().getBytes("UTF-8").length);
+        //System.out.println("JSON Node (unpretty) - " + log.getWhat().);
 
         CompressionResult result = CompressionHelper.compress(json);
         System.out.println("Compress Pretty      - " + result.length());
@@ -62,11 +63,11 @@ public class TestJson {
 
         Assert.assertEquals(CompressionResult.Method.GZIP, result.getMethod());
 
-        json = getBigJsonText(99);
+        json = TestEngineBase.getBigJsonText(99);
         String uncompressed = CompressionHelper.decompress(result);
 
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode compareTo = mapper.readTree(json);
+        JsonNode compareTo = mapper.valueToTree(json);
         JsonNode other = mapper.readTree(uncompressed);
         Assert.assertTrue(compareTo.equals(other));
     }
@@ -100,218 +101,5 @@ public class TestJson {
         MapDifference diff = Maps.difference(mapA, mapB);
         System.out.print(diff.entriesOnlyOnLeft());
     }
-    public static String getBigJsonText(int i) {
-        return "{\n" +
-                "   \"trainprofiles\": [\n" +
-                "        {\n" +
-                "           \"name\":\"TP-" + i + "\",\n" +
-                "           \"startDate\":\"20120918\",\n" +
-                "           \"endDate\":\"20120924\",\n" +
-                "           \"type\":\"M\",\n" +
-                "           \"class\":\"UF\",\n" +
-                "           \"locations\": [\n" +
-                "                {\n" +
-                "                   \"name\":\"PNTH\",\n" +
-                "                   \"workstationDetails\": {\n" +
-                "                       \"stationType\":\"ORIG\",\n" +
-                "                       \"dayEnroute\": 416\n" +
-                "                    }\n" +
-                "                },\n" +
-                "                {\n" +
-                "                   \"name\":\"WHRRA\",\n" +
-                "                   \"workstationDetails\": {\n" +
-                "                       \"stationType\":\"DEST\",\n" +
-                "                       \"dayEnroute\": 0\n" +
-                "                    }\n" +
-                "                }\n" +
-                "            ],\n" +
-                "           \"schedules\": [\n" +
-                "                {\n" +
-                "                   \"dayOfWeek\": {\n" +
-                "                       \"day\":\"MON\"\n" +
-                "                    },\n" +
-                "                   \"locationTimings\": [\n" +
-                "                        {\n" +
-                "                           \"name\":\"PNTH\",\n" +
-                "                           \"departTime\": 345\n" +
-                "                        },\n" +
-                "                        {\n" +
-                "                           \"name\":\"WHRRA\",\n" +
-                "                           \"arriveTime\": 234\n" +
-                "                        }\n" +
-                "                    ]\n" +
-                "                },\n" +
-                "                {\n" +
-                "                   \"dayOfWeek\": {\n" +
-                "                       \"day\":\"TUE\"\n" +
-                "                    },\n" +
-                "                   \"locationTimings\": [\n" +
-                "                        {\n" +
-                "                           \"name\":\"PNTH\",\n" +
-                "                           \"departTime\": 345\n" +
-                "                        },\n" +
-                "                        {\n" +
-                "                           \"name\":\"WHRRA\",\n" +
-                "                           \"arriveTime\": 234\n" +
-                "                        }\n" +
-                "                    ]\n" +
-                "                },\n" +
-                "                {\n" +
-                "                   \"dayOfWeek\": {\n" +
-                "                       \"day\":\"WED\"\n" +
-                "                    },\n" +
-                "                   \"locationTimings\": [\n" +
-                "                        {\n" +
-                "                           \"name\":\"PNTH\",\n" +
-                "                           \"departTime\": 345\n" +
-                "                        },\n" +
-                "                        {\n" +
-                "                           \"name\":\"WHRRA\",\n" +
-                "                           \"arriveTime\": 234\n" +
-                "                        }\n" +
-                "                    ]\n" +
-                "                },\n" +
-                "                {\n" +
-                "                   \"dayOfWeek\": {\n" +
-                "                       \"day\":\"THU\"\n" +
-                "                    },\n" +
-                "                   \"locationTimings\": [\n" +
-                "                        {\n" +
-                "                           \"name\":\"PNTH\",\n" +
-                "                           \"departTime\": 345\n" +
-                "                        },\n" +
-                "                        {\n" +
-                "                           \"name\":\"WHRRA\",\n" +
-                "                           \"arriveTime\": 234\n" +
-                "                        }\n" +
-                "                    ]\n" +
-                "                },\n" +
-                "                {\n" +
-                "                   \"dayOfWeek\": {\n" +
-                "                       \"day\":\"FRI\"\n" +
-                "                    },\n" +
-                "                   \"locationTimings\": [\n" +
-                "                        {\n" +
-                "                           \"name\":\"PNTH\",\n" +
-                "                           \"departTime\": 345\n" +
-                "                        },\n" +
-                "                        {\n" +
-                "                           \"name\":\"WHRRA\",\n" +
-                "                           \"arriveTime\": 234\n" +
-                "                        }\n" +
-                "                    ]\n" +
-                "                },\n" +
-                "                {\n" +
-                "                   \"dayOfWeek\": {\n" +
-                "                       \"day\":\"SAT\"\n" +
-                "                    },\n" +
-                "                   \"locationTimings\": [\n" +
-                "                        {\n" +
-                "                           \"name\":\"PNTH\",\n" +
-                "                           \"departTime\": 345\n" +
-                "                        },\n" +
-                "                        {\n" +
-                "                           \"name\":\"WHRRA\",\n" +
-                "                           \"arriveTime\": 234\n" +
-                "                        }\n" +
-                "                    ]\n" +
-                "                },\n" +
-                "                {\n" +
-                "                   \"dayOfWeek\": {\n" +
-                "                       \"day\":\"SUN\"\n" +
-                "                    },\n" +
-                "                   \"locationTimings\": [\n" +
-                "                        {\n" +
-                "                           \"name\":\"PNTH\",\n" +
-                "                           \"departTime\": 345\n" +
-                "                        },\n" +
-                "                        {\n" +
-                "                           \"name\":\"WHRRA\",\n" +
-                "                           \"arriveTime\": 234\n" +
-                "                        }\n" +
-                "                    ]\n" +
-                "                }\n" +
-                "            ]\n" +
-                "        },\n" +
-                "        {\n" +
-                "           \"name\":\"B56\",\n" +
-                "           \"startDate\":\"20080708\",\n" +
-                "           \"endDate\":\"99999999\",\n" +
-                "           \"type\":\"M\",\n" +
-                "           \"class\":\"EX\",\n" +
-                "           \"locations\": [\n" +
-                "                {\n" +
-                "                   \"name\":\"PNTH\",\n" +
-                "                   \"workstationDetails\": {\n" +
-                "                       \"stationType\":\"ORIG\",\n" +
-                "                       \"dayEnroute\": 508\n" +
-                "                    }\n" +
-                "                },\n" +
-                "                {\n" +
-                "                   \"name\":\"TAUM\",\n" +
-                "                   \"workstationDetails\": {\n" +
-                "                       \"stationType\":\"DEST\",\n" +
-                "                       \"dayEnroute\": 0\n" +
-                "                    }\n" +
-                "                }\n" +
-                "            ],\n" +
-                "           \"schedules\": [\n" +
-                "                {\n" +
-                "                   \"dayOfWeek\": {\n" +
-                "                       \"day\":\"TUE\"\n" +
-                "                    },\n" +
-                "                   \"locationTimings\": [\n" +
-                "                        {\n" +
-                "                           \"name\":\"PNTH\",\n" +
-                "                           \"departTime\": 345\n" +
-                "                        },\n" +
-                "                        {\n" +
-                "                           \"name\":\"TAUM\",\n" +
-                "                           \"arriveTime\": 234\n" +
-                "                        }\n" +
-                "                    ]\n" +
-                "                },\n" +
-                "                {\n" +
-                "                   \"dayOfWeek\": {\n" +
-                "                       \"day\":\"WED\"\n" +
-                "                    },\n" +
-                "                   \"locationTimings\": [\n" +
-                "                        {\n" +
-                "                           \"name\":\"PNTH\",\n" +
-                "                           \"departTime\": 345\n" +
-                "                        },\n" +
-                "                        {\n" +
-                "                           \"name\":\"TAUM\",\n" +
-                "                           \"arriveTime\": 234\n" +
-                "                        }\n" +
-                "                    ]\n" +
-                "                },\n" +
-                "                {\n" +
-                "                   \"dayOfWeek\": {\n" +
-                "                       \"day\":\"THU\"\n" +
-                "                    },\n" +
-                "                   \"locationTimings\": [\n" +
-                "                        {\n" +
-                "                           \"name\":\"PNTH\",\n" +
-                "                           \"departTime\": 345\n" +
-                "                        },\n" +
-                "                        {\n" +
-                "                           \"name\":\"TAUM\",\n" +
-                "                           \"arriveTime\": 234\n" +
-                "                        }\n" +
-                "                    ]\n" +
-                "                }\n" +
-                "            ]\n" +
-                "        }\n" +
-                "    ],\n" +
-                "   \"pagination\": {\n" +
-                "       \"total\": 9952,\n" +
-                "       \"page\": 1,\n" +
-                "       \"size\": 2,\n" +
-                "       \"order\":\"train\"\n" +
-                "    }\n" +
-                "}\n" +
-                " \n" +
-                " ";
-    }
+
 }

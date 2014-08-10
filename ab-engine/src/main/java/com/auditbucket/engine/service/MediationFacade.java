@@ -158,10 +158,6 @@ public class MediationFacade {
     public TrackResultBean createHeader(MetaInputBean inputBean, String apiKey) throws DatagioException, IOException {
         if (inputBean == null)
             throw new DatagioException("No input to process");
-        LogInputBean logBean = inputBean.getLog();
-        if (logBean != null) // Error as soon as we can
-            logBean.setWhat(logBean.getWhat());
-
         Company company = registrationService.resolveCompany(apiKey);
         Fortress fortress = fortressService.registerFortress(company, new FortressInputBean(inputBean.getFortress(), false));
         fortress.setCompany(company);

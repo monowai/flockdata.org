@@ -37,6 +37,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -51,10 +52,15 @@ import static junit.framework.Assert.*;
 public class TestTxReference extends TestEngineBase{
 
 
-    private String escJsonA = "{\"blah\":1}";
-    private String escJsonB = "{\"blah\":2}";
+    private static  Map<String, Object> escJsonA;
+    private static  Map<String, Object> escJsonB;
 
-   
+    static{
+        escJsonA = new HashMap<>();
+        escJsonB = new HashMap<>();
+        escJsonA.put("blah", 1 );
+        escJsonB.put("blah", 2 );
+    }
 
     @Test
     public void testAuthorisedToViewTransaction() throws Exception {
