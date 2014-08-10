@@ -37,7 +37,12 @@
             <bean class="org.springframework.security.web.bind.support.AuthenticationPrincipalArgumentResolver"/>
         </mvc:argument-resolvers>
     </mvc:annotation-driven>
-
+	<mvc:interceptors>
+	  <mvc:interceptor>
+		  <mvc:mapping path="/company/hello"/>
+	      <bean class="com.auditbucket.authentication.handler.APIKeyInterceptor"/>
+	</mvc:interceptor>
+	</mvc:interceptors>    
 <!--     <mvc:annotation-driven/>
  -->
 </beans>
