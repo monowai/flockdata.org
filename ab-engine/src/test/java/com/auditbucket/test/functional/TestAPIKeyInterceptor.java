@@ -44,7 +44,7 @@ public class TestAPIKeyInterceptor extends TestEngineBase {
 	}
 
 	@Test
-	public void GivenInValidAPIKey_WhenCalledSecureAPI_ThenShouldBeAllowed() throws Exception {
+	public void GivenInValidAPIKey_WhenCalledSecureAPI_ThenShouldNotBeAllowed() throws Exception {
 		setSecurity(mike);
 
 		apiKeyInterceptor = (APIKeyInterceptor) context
