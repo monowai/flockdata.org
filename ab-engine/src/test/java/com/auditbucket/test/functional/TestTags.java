@@ -37,7 +37,6 @@ import java.util.Collection;
 import java.util.List;
 
 import static junit.framework.Assert.*;
-import static org.junit.Assume.assumeTrue;
 
 /**
  * User: Mike Holdsworth
@@ -150,14 +149,13 @@ public class TestTags extends TestEngineBase {
 
     }
 
-
     @Test
     public void tagWithProperties() throws Exception {
-        assumeTrue(false);// Not yet supported
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike));
+        //assumeTrue(false);// Not yet supported
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
         assertNotNull(iSystemUser);
 
-        TagInputBean tagInput = new TagInputBean("FLOP");
+        TagInputBean tagInput = new TagInputBean("ZFLOP");
         tagInput.setProperty("num", 123);
         tagInput.setProperty("dec", 123.11);
         tagInput.setProperty("string", "abc");
@@ -165,16 +163,12 @@ public class TestTags extends TestEngineBase {
         Tag tag = tagService.processTag(tagInput);
 
         assertNotNull(tag);
-        Tag result = tagService.findTag("FLOP");
+        Tag result = tagService.findTag("ZFLOP");
 
         assertNotNull(result);
         assertEquals(123l, tag.getProperty("num"));
         assertEquals(123.11, tag.getProperty("dec"));
         assertEquals("abc", tag.getProperty("string"));
-
-        result = tagService.processTag(new TagInputBean("FLOPPY"));
-        assertNotNull(result);
-        assertEquals("FLOPPY", result.getName());
 
     }
 
@@ -306,7 +300,9 @@ public class TestTags extends TestEngineBase {
     @Test
     public void sameKeyForDifferentTagTypes() throws Exception {
         engineAdmin.setMultiTenanted(false);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
+
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean("SameKey", "mike"));
+        waitAWhile();
         assertNotNull(iSystemUser);
 
         TagInputBean tagInputA = new TagInputBean("Source");
@@ -406,8 +402,8 @@ public class TestTags extends TestEngineBase {
     @Test
     public void tagAppleNameIssue() throws Exception {
         engineAdmin.setMultiTenanted(false);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
-        assertNotNull(iSystemUser);
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
+        assertNotNull(su);
         Thread.sleep(400);
         // Exists in one index
         TagInputBean tagInputA = new TagInputBean("Apple");
@@ -428,6 +424,17 @@ public class TestTags extends TestEngineBase {
         assertNotNull(tagC);
         //assertTrue(tagA.getId().equals(tagB.getId()));
     }
+    @Test
+    public void goegoraphyEndPoints() throws DatagioException {
+        engineAdmin.setMultiTenanted(false);
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
+        TagInputBean tagInputBean = new TagInputBean("New Zealand").setIndex("Country");
+        ArrayList<TagInputBean> countries = new ArrayList<>();
+        countries.add(tagInputBean);
+        tagEP.createTags(countries, su.getApiKey(), su.getApiKey());
+        Collection<Tag> co = geographyEP.findCountries(su.getApiKey(), su.getApiKey());
+        assertEquals(1, co.size());
 
+    }
 
 }
