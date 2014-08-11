@@ -1,9 +1,9 @@
 package com.auditbucket.test.functional;
 
-import javax.servlet.http.HttpServletResponse;
-
+import com.auditbucket.authentication.handler.APIKeyInterceptor;
+import com.auditbucket.registration.bean.RegistrationBean;
+import com.auditbucket.registration.model.Company;
 import junit.framework.Assert;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,8 +12,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import com.auditbucket.authentication.handler.APIKeyInterceptor;
-import com.auditbucket.registration.bean.RegistrationBean;
+import javax.servlet.http.HttpServletResponse;
+
+import static junit.framework.Assert.assertNotNull;
 
 public class TestAPIKeyInterceptor extends TestEngineBase {
 
@@ -49,7 +50,10 @@ public class TestAPIKeyInterceptor extends TestEngineBase {
 		boolean status = apiKeyInterceptor.preHandle(request, response, null);
 
 		Assert.assertEquals(true, status);
-		Assert.assertEquals("Monowai", request.getAttribute("company"));
+        Company company = (Company) request.getAttribute("company");
+        assertNotNull (company);
+
+		Assert.assertEquals("Monowai", company.getName());
 	}
 
 	@Test
@@ -74,6 +78,11 @@ public class TestAPIKeyInterceptor extends TestEngineBase {
 		Assert.assertEquals(HttpServletResponse.SC_FORBIDDEN, response.getStatus());
 		Assert.assertEquals(false, status);
 	}
+
+    // ToDo: add a disabled user check
+
+    // ToDo: user is enabled but has no API key in AuditBucket - still valid, but results in a null company
+
 
 	@After
 	public void cleanUp() {
