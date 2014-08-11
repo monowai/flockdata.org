@@ -81,6 +81,10 @@
                     <groupId>ch.qos.logback</groupId>
                     <artifactId>logback-access</artifactId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>javax.servlet</artifactId>
+                    <groupId>org.eclipse.jetty.orbit</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
 
