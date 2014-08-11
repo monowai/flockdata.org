@@ -1,8 +1,10 @@
 package com.auditbucket.search.model;
 
-public class EsSearchResult<E> {
+import java.util.Collection;
 
-    private E results;
+public class EsSearchResult {
+
+    private Collection<SearchResult> results;
     private long totalHits;
     private int startedFrom;
 
@@ -13,13 +15,19 @@ public class EsSearchResult<E> {
         this();
         totalHits= results.getStartedFrom();
         totalHits = results.getTotalHits();
+        this.results = results.getResults();
+
     }
 
-    public E getResults() {
+    public EsSearchResult(Collection<SearchResult> results) {
+        this.results = results;
+    }
+
+    public Collection<SearchResult> getResults() {
         return results;
     }
 
-    public void setResults(E results) {
+    public void setResults(Collection<SearchResult> results) {
         this.results = results;
     }
 
@@ -38,4 +46,5 @@ public class EsSearchResult<E> {
     public int getStartedFrom() {
         return startedFrom;
     }
+
 }

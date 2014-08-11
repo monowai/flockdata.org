@@ -61,4 +61,5 @@ public interface TagDao {
     public void purgeUnusedConcepts(Company company);
 
     void purge(Company company, String type);
+
 }

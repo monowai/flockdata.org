@@ -12,5 +12,5 @@ import java.util.Map;
 public interface IStaticDataResolver {
     String resolveCountryISOFromName(String name) throws DatagioException;
 
-    String resolve (String type, Map<String, String> args);
+    String resolve (String type, Map<String, Object> args);
 }

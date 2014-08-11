@@ -195,16 +195,14 @@ public class TrackDaoNeo implements TrackDao {
         Result<Map<String, Object>> result = template.query(cypher, args);
 
         Iterator<Map<String, Object>> rows = result.iterator();
-
         Collection<MetaHeader> results = new ArrayList<>();
 
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
             results.add(template.projectTo(row.get("meta"), MetaHeaderNode.class));
         }
-        //
+
         return results;
-        //return metaRepo.findHeadersFrom(fortressId, docTypeId, skipTo);
     }
 
     @Override
@@ -355,15 +353,6 @@ public class TrackDaoNeo implements TrackDao {
                 metaHeader.setLastUser(newChange.getWho());
             }
             metaHeader.setFortressLastWhen(fortressWhen.getMillis());
-            //if ( metaHeader.getLastChange() !=null ){
-            //template.fetch(metaHeader.getLastChange());
-
-//                logger.debug("Replacing lastChange {}/{}. Old/New Dates {}, {}",
-//                        metaHeader.getLastChange().getId(),
-//                        newChange.getId(),
-//                        new Date(metaHeader.getLastChange().getTrackLog().getSysWhen()),
-//                        new Date(newChange.getTrackLog().getSysWhen()));
-            //}
             metaHeader.setLastChange(newChange);
             logger.debug("Saving more recent change, logid [{}]", newChange.getId());
             try {
@@ -406,22 +395,23 @@ public class TrackDaoNeo implements TrackDao {
     }
 
     @Override
-    public Collection<MetaHeader> findHeaders(Company company, Collection<String> metaKeys) {
+    public Map<String, MetaHeader> findHeaders(Company company, Collection<String> metaKeys) {
         logger.debug("Looking for {} headers for company [{}] ", metaKeys.size(), company);
         Collection<MetaHeader> foundHeaders = metaRepo.findHeaders(company.getId(), metaKeys);
         Map<String, MetaHeader> unsorted = new HashMap<>();
         for (MetaHeader foundHeader : foundHeaders) {
             unsorted.put(foundHeader.getMetaKey(), foundHeader);
         }
-        // DAT-86 The incoming collection is actually the sort order we want
-        // ToDo: Find a slicker way of dealing with this
-        Collection<MetaHeader> sortedResult = new ArrayList<>(unsorted.size());
-        for (String metaKey : metaKeys) {
-            MetaHeader header = unsorted.get(metaKey);
-            if (header != null)
-                sortedResult.add(header);
-        }
-        return sortedResult;
+        return unsorted;
+//        // DAT-86 The incoming collection is actually the sort order we want
+//        // ToDo: Find a slicker way of dealing with this
+//        Collection<MetaHeader> sortedResult = new ArrayList<>(unsorted.size());
+//        for (String metaKey : metaKeys) {
+//            MetaHeader header = unsorted.get(metaKey);
+//            if (header != null)
+//                sortedResult.add(header);
+//        }
+//        return sortedResult;
     }
 
     @Override
@@ -450,23 +440,12 @@ public class TrackDaoNeo implements TrackDao {
         documentTypeRepo.purgeFortressDocuments(fortress.getId());
     }
 
-
     public TrackLog getLastLog(Long metaHeaderId) {
         MetaHeader header = getHeader(metaHeaderId);
         Log lastChange = header.getLastChange();
         if (lastChange == null)
             return null;
-        //LoggedRelationship log = null;
-//        Iterable<Relationship> rlxs = template.getNode(metaHeaderId).getRelationships(LastChange.LAST_CHANGE, Direction.OUTGOING);
-//        int count = 0;
-//        for (Relationship rlx : rlxs) {
-//            if (count > 0) {
-//                logger.error("Multiple relationships found for {} - returning the first found - {}", metaHeaderId, log.getId());
-//            } else {
-//                log = trackLogRepo.getLastLog(rlx.getEndNode().getId());
-//                count++;
-//            }
-//        }
+
         return trackLogRepo.getLastLog(lastChange.getId());
     }
 

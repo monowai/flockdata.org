@@ -27,6 +27,7 @@ import com.auditbucket.client.common.Mappable;
 import com.auditbucket.client.rest.AbRestClient;
 import com.auditbucket.client.xml.XmlMappable;
 import com.auditbucket.helper.DatagioException;
+import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.track.bean.CrossReferenceInputBean;
 import com.auditbucket.track.bean.LogInputBean;
@@ -170,6 +171,13 @@ public class Importer {
                     logger.error("No import parameters to work with");
                     return;
                 }
+                SystemUserResultBean su = restClient.me(); // Use the configured API as the default FU unless another is set
+                if ( su!=null){
+                    importParams.setFortressUser(su.getLogin());
+                } else {
+                    logger.error("Unable to validate the system user as a default fortress user. This will cause errors in the TrackEP if you do not set the FortressUser");
+                }
+
                 logger.debug("*** Calculated process args {}, {}, {}, {}", fileName, importParams, batchSize, skipCount);
                 totalRows = totalRows + processFile(importParams, fileName, skipCount);
             }
@@ -301,14 +309,18 @@ public class Importer {
                 long then = new DateTime().getMillis();
                 while (xsr.getLocalName().equals(docType)) {
                     XmlMappable row = mappable.newInstance(importParams.isSimulateOnly());
-                    String json = row.setXMLData(xsr, importParams.getStaticDataResolver());
+                    LogInputBean logInputBean = row.setXMLData(xsr, importParams.getStaticDataResolver());
                     MetaInputBean header = (MetaInputBean) row;
                     if (!header.getCrossReferences().isEmpty()) {
                         referenceInputBeans.add(new CrossReferenceInputBean(header.getFortress(), header.getCallerRef(), header.getCrossReferences()));
                         rows = rows + header.getCrossReferences().size();
                     }
-                    LogInputBean logInputBean = new LogInputBean("system", new DateTime(header.getWhen()), json);
-                    header.setLog(logInputBean);
+                    if ( logInputBean != null ){
+                        if (logInputBean.getFortressUser() == null)
+                            logInputBean.setFortressUser(importParams.getFortressUser());
+                        header.setLog(logInputBean);
+                    }
+
                     //logger.info(json);
                     xsr.nextTag();
                     writeAudit(importParams.getRestClient(), header, mappable.getClass().getCanonicalName());
@@ -391,7 +403,8 @@ public class Importer {
 
                         row = (DelimitedMappable) importParams.getMappable();
 
-                        String jsonData = row.setData(headerRow, nextLine, importParams);
+                        // ToDo: turn this in to a LogInputBean to reduce impact of interface changes
+                        Map<String,Object>jsonData = row.setData(headerRow, nextLine, importParams);
                         //logger.info(jsonData);
                         if (type == AbRestClient.type.TRACK) {
                             MetaInputBean header = (MetaInputBean) row;
@@ -400,7 +413,7 @@ public class Importer {
                                 header.setMetaOnly(true);
                                 // It's all Meta baby - no track information
                             } else {
-                                jsonData = jsonData.replaceAll("[\\x00-\\x09\\x11\\x12\\x14-\\x1F\\x7F]", "");
+                                //jsonData = jsonData.replaceAll("[\\x00-\\x09\\x11\\x12\\x14-\\x1F\\x7F]", "");
                                 LogInputBean logInputBean = new LogInputBean(importParams.getFortressUser(), new DateTime(), jsonData);
                                 header.setLog(logInputBean);
                             }

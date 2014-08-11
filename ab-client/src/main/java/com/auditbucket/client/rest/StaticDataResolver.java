@@ -78,7 +78,7 @@ public class StaticDataResolver implements IStaticDataResolver {
     }
 
     @Override
-    public String resolve(String type, Map<String, String> args) {
+    public String resolve(String type, Map<String, Object> args) {
         return null;
     }
 
