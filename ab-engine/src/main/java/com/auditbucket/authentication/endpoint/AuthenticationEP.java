@@ -1,5 +1,7 @@
 package com.auditbucket.authentication.endpoint;
 
+import java.util.Iterator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,12 +26,13 @@ import com.auditbucket.authentication.service.UserProfileService;
 
 @Controller
 public class AuthenticationEP {
-	private static final Logger logger = LoggerFactory
-			.getLogger(AuthenticationEP.class);
 
-	@Autowired(required = false)
-	@Qualifier("authenticationManager")
-	AuthenticationManager authenticationManager;
+    private static final Logger logger = LoggerFactory
+            .getLogger(AuthenticationEP.class);
+
+    @Autowired(required = false)
+    @Qualifier("authenticationManager")
+    AuthenticationManager authenticationManager;
 
     @Autowired
     private UserProfileService userProfileService;
@@ -55,5 +58,4 @@ public class AuthenticationEP {
 			return new ResponseEntity<User>(HttpStatus.UNAUTHORIZED);
 		}
 	}
-
 }
