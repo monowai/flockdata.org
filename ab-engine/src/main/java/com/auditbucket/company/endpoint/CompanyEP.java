@@ -26,6 +26,7 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.track.model.DocumentType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * User: Mike Holdsworth
@@ -102,10 +105,10 @@ public class CompanyEP {
      */
     @RequestMapping(value = "/hello", method = RequestMethod.GET)
     @ResponseBody
-    public String sayHello(Company company) throws DatagioException {
-    	//String company = (String) request.getAttribute("company");
+    public String sayHello(HttpServletRequest request) throws DatagioException {
+    	Company company = (Company) request.getAttribute("company");
 		logger.info("Company - " + company);
-    	return "Hello " + company;
+    	return "Hello " + company.getName();
     }
 
     private Company getCompany(String apiHeaderKey, String apiRequestKey) throws DatagioException {
