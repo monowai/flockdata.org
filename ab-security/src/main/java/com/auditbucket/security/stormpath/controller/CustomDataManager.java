@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.stormpath.spring.security.example.controller;
+package com.auditbucket.security.stormpath.controller;
 
+import com.auditbucket.security.stormpath.model.CustomDataBean;
+import com.auditbucket.security.stormpath.model.CustomDataFieldBean;
 import com.stormpath.sdk.client.Client;
 import com.stormpath.sdk.directory.CustomData;
 import com.stormpath.spring.security.authz.CustomDataPermissionsEditor;
-import com.stormpath.spring.security.example.model.CustomDataBean;
-import com.stormpath.spring.security.example.model.CustomDataFieldBean;
 import com.stormpath.spring.security.provider.StormpathAuthenticationProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +31,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -40,7 +41,7 @@ import java.util.*;
  * (i.e. retrieve, delete, insert) to be executed in the <a href="http://www.stormpath.com">Stormpath</a> account by
  * means of the <a href="https://github.com/stormpath/stormpath-sdk-java">Stormpath Java SDK</a>
  * <pre/>
- * Since this example app has the a cache configured for Stormpath SDK, we will be evicting the Account information from
+ * Since this stormpath app has the a cache configured for Stormpath SDK, we will be evicting the Account information from
  * the cache so the Authentication token can be re-generated with the updated set of permissions. The eviction will
  * only take place when the `spring security permission string` is somehow modified. Specifically, we are using {@link CacheEvict}
  * in the {@link #addCustomDataField(String, String, String, boolean)} and {@link #deleteCustomDataField(String, String, boolean)}
@@ -48,6 +49,7 @@ import java.util.*;
  *
  * @since 0.2.0
  */
+@Component
 public class CustomDataManager {
     private static final Logger logger = LoggerFactory.getLogger(CustomDataManager.class);
 

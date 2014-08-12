@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stormpath.spring.security.example.model;
+package com.auditbucket.security.stormpath.model;
 
 /**
  * Bean holding the key-value information of a single custom data field.

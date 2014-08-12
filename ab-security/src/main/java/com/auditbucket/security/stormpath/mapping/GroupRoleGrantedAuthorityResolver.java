@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stormpath.spring.security.example.mapping;
+package com.auditbucket.security.stormpath.mapping;
 
 import com.stormpath.sdk.group.Group;
 import com.stormpath.spring.security.provider.GroupGrantedAuthorityResolver;
@@ -37,7 +37,7 @@ import java.util.Set;
  * The configured mapping must have href groups as the key of the map. The value of each key is a list of roles that such
  * key will be translated to.
  * <p/>
- * For example, in code:
+ * For stormpath, in code:
  * <pre>
  * Map&lt;String, List&lt;String&gt;&gt; rolesMap = new HashMap&lt;String, List&lt;String&gt;&gt;();
  * List&lt;String&gt; roles = new ArrayList&lt;String&gt;();
