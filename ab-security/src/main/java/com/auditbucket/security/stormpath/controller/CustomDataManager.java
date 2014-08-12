@@ -53,10 +53,10 @@ import java.util.*;
 public class CustomDataManager {
     private static final Logger logger = LoggerFactory.getLogger(CustomDataManager.class);
 
-    @Autowired
+    @Autowired(required = false)
     private Client stormpathClient;
 
-    @Autowired
+    @Autowired(required = false)
     private StormpathAuthenticationProvider authenticationProvider;
 
     /**
