@@ -1,10 +1,10 @@
-package com.auditbucket.authentication.model;
+package com.auditbucket.authentication;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class User implements Serializable {
+public class UserProfile implements Serializable {
 
 	/**
 	 * 
@@ -16,7 +16,7 @@ public class User implements Serializable {
 	private String userEmail;
 	private String status;
 	private String company;
-	private List<String> userRoles = new ArrayList<String>();
+	private List<String> userRoles = new ArrayList<>();
 	private String apiKey;
 
 	public String getUserId() {
@@ -69,7 +69,7 @@ public class User implements Serializable {
 
 	@Override
 	public String toString() {
-		return "User [userId=" + userId + ", userName=" + userName
+		return "UserProfile [userId=" + userId + ", userName=" + userName
 				+ ", userEmail=" + userEmail + ", status=" + status
 				+ ", userRoles=" + userRoles + ", apiKey=" + apiKey + "]";
 	}

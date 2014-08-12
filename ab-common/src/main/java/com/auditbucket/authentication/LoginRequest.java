@@ -1,4 +1,4 @@
-package com.auditbucket.authentication.model;
+package com.auditbucket.authentication;
 
 import java.io.Serializable;
 

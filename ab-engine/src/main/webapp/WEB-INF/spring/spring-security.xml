@@ -60,7 +60,7 @@
     </beans:bean>
  
     <!-- When mapping to domain-specific role names -->
-    <beans:bean id="groupGrantedAuthorityResolver" class="com.stormpath.spring.security.example.mapping.GroupRoleGrantedAuthorityResolver" >
+    <beans:bean id="groupGrantedAuthorityResolver" class="com.auditbucket.security.stormpath.mapping.GroupRoleGrantedAuthorityResolver" >
         <beans:constructor-arg ref="groupRoleGrantedAuthoritiesMap" />
     </beans:bean>
 

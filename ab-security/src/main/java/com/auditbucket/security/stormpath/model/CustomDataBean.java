@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stormpath.spring.security.example.model;
+package com.auditbucket.security.stormpath.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class CustomDataBean {
 
-    private List<CustomDataFieldBean> customDataFields = new ArrayList<CustomDataFieldBean>();
+    private List<CustomDataFieldBean> customDataFields = new ArrayList<>();
 
     public List<CustomDataFieldBean> getCustomDataFields() {
         return customDataFields;

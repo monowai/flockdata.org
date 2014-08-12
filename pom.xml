@@ -26,6 +26,7 @@
     <name>auditbucket</name>
     <modules>
         <module>ab-common</module>
+        <module>ab-security</module>
         <module>ab-client</module>
         <module>ab-engine</module>
         <module>ab-search</module>
