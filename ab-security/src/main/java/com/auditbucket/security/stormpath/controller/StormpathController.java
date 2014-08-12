@@ -43,10 +43,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class StormpathController {
     private static final Logger logger = LoggerFactory.getLogger(StormpathController.class);
 
-    @Autowired
+    @Autowired  (required = false)
     private CustomDataManager customDataManager;
 
-    @Autowired
+    @Autowired  (required = false)
     private StormpathAuthenticationProvider authenticationProvider;
 
     private final String hrefBase = "https://api.stormpath.com/v1/";
