@@ -1,41 +1,39 @@
 package com.auditbucket.authentication.service;
 
-import java.util.Iterator;
-
+import com.auditbucket.authentication.UserProfile;
+import com.auditbucket.authentication.UserProfileService;
+import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.service.SystemUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 
-import com.auditbucket.authentication.model.User;
-import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.registration.service.SystemUserService;
 
 public class SpringUserProfile implements UserProfileService {
 	@Autowired
 	private SystemUserService systemUserService;
 
 	@Override
-	public User getUser(Authentication authentication) {
-		org.springframework.security.core.userdetails.User auth = (org.springframework.security.core.userdetails.User) authentication.getPrincipal();
-		User user = new User();
-		user.setUserId(auth.getUsername());
-		user.setStatus("ENABLED");
+	public UserProfile getUser(Authentication authentication) {
+		User auth = (User) authentication.getPrincipal();
+		UserProfile userProfile = new UserProfile();
+		userProfile.setUserId(auth.getUsername());
+		userProfile.setStatus("ENABLED");
 
 		if (!auth.getAuthorities().isEmpty()) {
-			Iterator<? extends GrantedAuthority> roles = auth.getAuthorities()
-					.iterator();
-			while (roles.hasNext()) {
-				user.addUserRole(roles.next().getAuthority());
-			}
+            for (GrantedAuthority grantedAuthority : auth.getAuthorities()) {
+                userProfile.addUserRole(grantedAuthority.getAuthority());
+            }
 		}
 
 		SystemUser sysUser = systemUserService.findByLogin(auth.getUsername());
 		if (sysUser != null) {
-			user.setApiKey(sysUser.getApiKey());
-			user.setCompany(sysUser.getCompany().getName());
+			userProfile.setApiKey(sysUser.getApiKey());
+			userProfile.setCompany(sysUser.getCompany().getName());
 		}
 
-		return user;
+		return userProfile;
 	}
 
 }
