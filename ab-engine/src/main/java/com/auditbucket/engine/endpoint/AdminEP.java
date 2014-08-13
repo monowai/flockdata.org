@@ -51,7 +51,7 @@ public class AdminEP {
 
     @ResponseBody
     @RequestMapping(value = "/ping", method = RequestMethod.GET)
-    public String get() {
+    public String getPing() {
         // curl -X GET http://localhost:8081/ab-engine/v1/track/ping
         return "Pong!";
     }

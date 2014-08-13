@@ -95,12 +95,12 @@ curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:808
   "callerRef":"myRef",
 
   "log": {  
-           		 "what": "{\"BusinessData\": \"Escaped JSON goes here\", \"nestedObject\": {\"serviceMessage\": \"kool for kats\"}}"
+           		 "what": "{"BusinessData": "Your Text", "nestedObject": {"serviceMessage": "kool for kats"}}"
   }
 }'
 ```
 ### Find that doc in ElasticSearch
-Note that ab-search is configured by defualt to have ElasticSearch listening on port 9201. This command is an ElasticSearch query, not an ab-search one.
+Note that ab-search is configured by default to have ElasticSearch listening on port 9201. This command is an ElasticSearch query, not an ab-search one.
 
 ```
 curl -H "Content-Type:application/json" -X POST http://localhost:9201/ab.*/_search -d '{

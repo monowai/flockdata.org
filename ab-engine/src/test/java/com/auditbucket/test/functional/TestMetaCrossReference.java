@@ -124,7 +124,6 @@ public class TestMetaCrossReference extends TestEngineBase {
     public void crossReferenceWithInputBean() throws Exception {
         registrationEP.registerSystemUser(new RegistrationBean(monowai, mike));
         Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("auditTest", true),null,  null).getBody();
-        //Fortress fortressB = fortressEP.registerFortress(new FortressInputBean("auditTestB", true), null).getBody();
 
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
         trackEP.trackHeader(inputBean, null, null).getBody();
@@ -145,10 +144,10 @@ public class TestMetaCrossReference extends TestEngineBase {
         List<CrossReferenceInputBean > inputs = new ArrayList<>();
         inputs.add(bean);
 
-        List<CrossReferenceInputBean> notFound = trackEP.putCrossReferenceByCallerRef(inputs, null, null);
+        List<CrossReferenceInputBean> notFound = trackEP.postCrossReferenceByCallerRef(inputs, null, null);
         assertEquals(1, notFound.size());
         for (CrossReferenceInputBean crossReferenceInputBean : notFound) {
-            assertTrue(crossReferenceInputBean.getReferences().get("cites").isEmpty());
+            assertTrue(crossReferenceInputBean.getIgnored().get("cites").isEmpty());
         }
 
         Map<String, Collection<MetaHeader>> results = trackEP.getCrossReferenceByCallerRef(fortressA.getName(), "ABC123", "cites", null, null);
@@ -162,5 +161,46 @@ public class TestMetaCrossReference extends TestEngineBase {
         }
         assertEquals(2, count);
     }
+    @Test
+    public void crossXRefDifferentFortresses() throws Exception {
+        registrationEP.registerSystemUser(new RegistrationBean(monowai, mike));
+        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("auditTestA", true),null,  null).getBody();
+        Fortress fortressB = fortressEP.registerFortress(new FortressInputBean("auditTestB", true),null,  null).getBody();
 
+        MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
+        trackEP.trackHeader(inputBean, null, null).getBody();
+
+        Map<String, List<MetaKey>> refs = new HashMap<>();
+        List<MetaKey> callerRefs = new ArrayList<>();
+
+        callerRefs.add(new MetaKey(fortressA.getName(), "DocTypeZ", "ABC321"));
+        callerRefs.add(new MetaKey(fortressB.getName(), "DocTypeS", "ABC333"));
+
+        refs.put("cites",callerRefs);
+        CrossReferenceInputBean bean = new CrossReferenceInputBean(fortressA.getName(), "ABC123",refs);
+        List<CrossReferenceInputBean > inputs = new ArrayList<>();
+        inputs.add(bean);
+
+        List<CrossReferenceInputBean> notFound = trackEP.postCrossReferenceByCallerRef(inputs, null, null);
+        assertEquals(2, notFound.iterator().next().getIgnored().get("cites").size());
+
+        // These are the two records that will cite the previously created header
+        MetaInputBean inputBeanB = new MetaInputBean(fortressA.getName(), "wally", "DocTypeZ", new DateTime(), "ABC321");
+        trackEP.trackHeader(inputBeanB, null, null).getBody();
+        MetaInputBean inputBeanC = new MetaInputBean(fortressB.getName(), "wally", "DocTypeS", new DateTime(), "ABC333");
+        trackEP.trackHeader(inputBeanC, null, null).getBody();
+        notFound = trackEP.postCrossReferenceByCallerRef(inputs, null, null);
+        assertEquals(0, notFound.iterator().next().getIgnored().get("cites").size());
+
+        Map<String, Collection<MetaHeader>> results = trackEP.getCrossReferenceByCallerRef(fortressA.getName(), "ABC123", "cites", null, null);
+        assertNotNull ( results);
+        assertEquals("Unexpected cites count", 2, results.get("cites").size());
+        Collection<MetaHeader> headers = results.get("cites");
+        assertNotNull ( headers);
+        int count = 0;
+        for (MetaHeader header : headers) {
+            count ++;
+        }
+        assertEquals(2, count);
+    }
 }

@@ -35,7 +35,7 @@ public interface TrackTag {
     public Tag getTag();
 
     //ToDo - should this be a taggable interface?
-    public Long getMetaId();
+    public Long getPrimaryKey();
 
     /**
      * @return relationship name
@@ -45,7 +45,7 @@ public interface TrackTag {
     /**
      * @return property map of custom properties associated with the tag
      */
-    public Map<String, Object> getProperties();
+    public Map<String, Object> getTagProperties();
 
     /**
      * useful to understand a relative weighting between the tag and the track for this
@@ -56,5 +56,7 @@ public interface TrackTag {
     Integer getWeight();
 
     public GeoData getGeoData();
+
+    Map<String,Object> getProperties();
 
 }

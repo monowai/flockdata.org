@@ -27,14 +27,8 @@ package com.auditbucket.helper;
  * To change this template use File | Settings | File Templates.
  */
 public class DatagioTagException extends RuntimeException {
-    public DatagioTagException() {
-    }
-
     public DatagioTagException(String message) {
         super(message);
     }
 
-    public DatagioTagException(String message, Throwable t) {
-        super(message, t);
-    }
 }
