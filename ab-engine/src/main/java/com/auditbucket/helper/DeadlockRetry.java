@@ -21,6 +21,7 @@ package com.auditbucket.helper;
 
 import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.kernel.DeadlockDetectedException;
+import org.neo4j.kernel.impl.nioneo.store.InvalidRecordException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataRetrievalFailureException;
