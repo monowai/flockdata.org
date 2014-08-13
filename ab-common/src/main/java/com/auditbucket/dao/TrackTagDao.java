@@ -22,7 +22,6 @@ package com.auditbucket.dao;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
-import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackTag;
 
@@ -36,10 +35,6 @@ import java.util.Set;
  * Time: 9:55 PM
  */
 public interface TrackTagDao {
-
-    // Property that refers to when this relationship was introduced to AB
-    String AB_WHEN = "abWhen";
-
     TrackTag save(MetaHeader metaHeader, Tag tag, String relationshipName);
 
     TrackTag save(MetaHeader ah, Tag tag, String metaLink, boolean reverse);
@@ -57,17 +52,12 @@ public interface TrackTagDao {
      */
     Set<TrackTag> getMetaTrackTags(Company company, MetaHeader metaHeader);
 
-    Set<TrackTag> getDirectedMetaTags(Company company, MetaHeader metaHeader, boolean outbound);
+    Set<TrackTag> getMetaTrackTagsOutbound(Company company, MetaHeader header);
 
-    Set<TrackTag> findLogTags(Company company, Log log) ;
+    void deleteAuditTags(MetaHeader metaHeader, Collection<TrackTag> trackTags) throws DatagioException;
 
     void changeType(MetaHeader metaHeader, TrackTag existingTag, String newType);
 
     Set<MetaHeader> findTrackTags(Tag tag);
 
-    void moveTags(MetaHeader metaHeader, Log log, Collection<TrackTag> trackTag);
-
-    void deleteTrackTags(MetaHeader metaHeader, Collection<TrackTag> trackTags) throws DatagioException;
-
-    void moveTags(Company company, Log logToMoveFrom, MetaHeader metaHeader);
 }

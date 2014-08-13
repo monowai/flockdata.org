@@ -26,10 +26,9 @@ import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.TagService;
+import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackTagInputBean;
-import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.MetaHeader;
-import com.auditbucket.track.model.TrackLog;
 import com.auditbucket.track.model.TrackTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,6 +76,22 @@ public class TagTrackService {
     }
 
     /**
+     * Directed tag structure hierarchy
+     *
+     * @param userTags input beans
+     * @param company  valid company
+     */
+    public void createTagStructure(Collection<TagInputBean> userTags, Company company) {
+        // Create a tag structure if present
+        for (TagInputBean inputBean : userTags) {
+            Tag t = tagService.processTag(company, inputBean);
+            if (t == null) {
+                logger.error("Error creating Tag " + inputBean);
+            }
+        }
+    }
+
+    /**
      * Associates the supplied userTags with the MetaHeaderNode
      * <p/>
      * in JSON terms....
@@ -94,12 +109,12 @@ public class TagTrackService {
      *
      * @param company
      * @param ah       Header to associate userTags with
-     * @param lastLog
      * @param userTags Key/Value pair of tags. TagNode will be created if missing. Value can be a Collection
      */
-    public Collection<TrackTag> associateTags(Company company, MetaHeader ah, TrackLog lastLog, Collection<TagInputBean> userTags) {
+    public Collection<TrackTag> associateTags(Company company, MetaHeader ah, Collection<TagInputBean> userTags) {
         Collection<TrackTag> rlxs = new ArrayList<>();
-        Iterable<TrackTag> existingTags = findTrackTags(company, ah);
+
+        //tagService.processTags(company, userTags);
 
         for (TagInputBean tagInput : userTags) {
 
@@ -107,51 +122,44 @@ public class TagTrackService {
 
             // Handle both simple relationships type name or a map/collection of relationships
             if (tagInput.getMetaLinks() != null) {
-                rlxs.addAll(writeRelationships(ah, tag, tagInput.getMetaLinks(), tagInput.isReverse()));
+                rlxs = processRelationships(ah, tag, tagInput.getMetaLinks(), tagInput.isReverse());
             }
             if (tagInput.getMetaLink() != null) // Simple relationship to the track header
                 // Makes it easier for the API to call
                 rlxs.add(trackTagDao.save(ah, tag, tagInput.getMetaLink(), tagInput.isReverse()));
-        }
 
-        if (!userTags.isEmpty()) {
-            // We only consider relocating tags to the log if the caller passes at least one tag set
-            Collection<TrackTag> tagsToRelocate = new ArrayList<>();
-            for (TrackTag existingTag : existingTags) {
-                if (!rlxs.contains(existingTag))
-                    tagsToRelocate.add(existingTag);
-            }
-            relocateTags(ah, lastLog, tagsToRelocate);
         }
+        // ToDo: Fix this - when we need to rewrite the header tags
+//        Iterable<TrackTag> existingTags = findAuditTags(company, ah);
+//        removeUnusedTagRelationships(ah, existingTags, rlxs);
         return rlxs;
     }
 
-    private void relocateTags(MetaHeader ah, TrackLog currentLog, Collection<TrackTag> tagsToRelocate) {
-        if (!tagsToRelocate.isEmpty()) {
-            if (currentLog != null)
-                trackTagDao.moveTags(ah, currentLog.getLog(), tagsToRelocate);
+    private void removeUnusedTagRelationships(MetaHeader ah, Iterable<TrackTag> existingTags, Collection<TrackTag> newTags ) throws DatagioException{
+        Collection<TrackTag>deleteMe = new ArrayList<>();
+        for (TrackTag tag : existingTags) {
+            if (!newTags.contains(tag))
+                deleteMe.add(tag);
         }
+        trackTagDao.deleteAuditTags(ah, deleteMe);
+
     }
 
-    private Collection<TrackTag> writeRelationships(MetaHeader metaHeader, Tag tag, Map<String, Object> metaRelationships, boolean isReversed) {
-        Collection<TrackTag> trackTags = new ArrayList<>();
-        long when = metaHeader.getFortressLastWhen();
-        if ( when == 0 )
-            when = metaHeader.getWhenCreated();
+    private Collection<TrackTag> processRelationships(MetaHeader ah, Tag tag, Map<String, Object> metaRelationships, boolean isReversed) {
+        Collection<TrackTag> trackTags = new  ArrayList<>();
         for (String key : metaRelationships.keySet()) {
             Object properties = metaRelationships.get(key);
             Map<String, Object> propMap;
             if (properties != null && properties instanceof Map) {
                 propMap = (Map<String, Object>) properties;
+                TrackTag trackTagRelationship = trackTagDao.save(ah, tag, key, isReversed, propMap);
+                if (trackTagRelationship != null)
+                    trackTags.add(trackTagRelationship);
             } else {
-                propMap = new HashMap<>();
+                TrackTag trackTagRelationship = trackTagDao.save(ah, tag, key, isReversed);
+                if (trackTagRelationship != null)
+                    trackTags.add(trackTagRelationship);
             }
-
-            propMap.put(TrackTagDao.AB_WHEN, when);
-            TrackTag trackTagRelationship = trackTagDao.save(metaHeader, tag, key, isReversed, propMap);
-            if (trackTagRelationship != null)
-                trackTags.add(trackTagRelationship);
-
         }
         return trackTags;
     }
@@ -169,23 +177,20 @@ public class TagTrackService {
 
     public Set<TrackTag> findOutboundTags(MetaHeader header) {
         Company company = securityHelper.getCompany();
-        return findOutboundTags(company, header);
+        return  findOutboundTags(company, header);
     }
 
     public Set<TrackTag> findOutboundTags(Company company, MetaHeader header) {
-        return trackTagDao.getDirectedMetaTags(company, header, true);
+        return trackTagDao.getMetaTrackTagsOutbound(company, header);
     }
 
-    public Set<TrackTag> findInboundTags(Company company, MetaHeader header) {
-        return trackTagDao.getDirectedMetaTags(company, header, false);
-    }
 
     public Set<TrackTag> findTrackTags(Company company, MetaHeader metaHeader) {
         return trackTagDao.getMetaTrackTags(company, metaHeader);
     }
 
     public void deleteTrackTags(MetaHeader metaHeader, Collection<TrackTag> trackTags) throws DatagioException {
-        trackTagDao.deleteTrackTags(metaHeader, trackTags);
+        trackTagDao.deleteAuditTags(metaHeader, trackTags);
     }
 
     public void deleteTrackTags(MetaHeader metaHeader, TrackTag value) throws DatagioException {
@@ -210,11 +215,10 @@ public class TagTrackService {
 
     }
 
-    public Set<TrackTag> findLogTags(Company company, Log log) {
-        return trackTagDao.findLogTags(company, log);
+    public void createTags(Company company, List<MetaInputBean> inputBeans) {
+        for(MetaInputBean bean:inputBeans){
+            tagService.processTags(company, bean.getTags());
+        }
     }
 
-    public void moveTags(Company company, Log previousLog, MetaHeader metaHeader) {
-        trackTagDao.moveTags(company, previousLog, metaHeader);
-    }
 }

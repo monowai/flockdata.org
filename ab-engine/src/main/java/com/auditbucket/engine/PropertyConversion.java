@@ -150,10 +150,7 @@ public class PropertyConversion {
      * @return true if reserved
      */
     public static Boolean isSystemColumn (String column){
-        return (column.equalsIgnoreCase("id") ||
-                column.equalsIgnoreCase("name") ||
-                column.equalsIgnoreCase("code") ||
-                column.equalsIgnoreCase("key"));
+        return (column.equalsIgnoreCase("id") || column.equalsIgnoreCase("name") || column.equalsIgnoreCase("code") || column.equalsIgnoreCase("key"));
     }
 
 }

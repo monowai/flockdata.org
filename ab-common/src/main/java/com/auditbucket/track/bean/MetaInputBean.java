@@ -47,7 +47,7 @@ public class MetaInputBean {
     private String name;
     private boolean searchSuppressed;
     private boolean trackSuppressed = false;
-    private boolean metaOnly = false;
+    private boolean isMetaOnly;
 
 
     public MetaInputBean() {
@@ -62,13 +62,12 @@ public class MetaInputBean {
      * @param callerRef     case sensitive unique key. If not supplied, then the service will generate one
      */
     public MetaInputBean(String fortress, String fortressUser, String documentType, DateTime fortressWhen, String callerRef) {
-        this();
         if (fortressWhen != null)
-            setWhen(fortressWhen.toDate());
-        setFortress(fortress);
-        setFortressUser( fortressUser);
-        setDocumentType(documentType);
-        setCallerRef(callerRef);
+            this.when = fortressWhen.toDate();
+        this.fortress = fortress;
+        this.fortressUser = fortressUser;
+        this.documentType = documentType;
+        this.callerRef = callerRef;
     }
 
     public MetaInputBean(String description, String fortressUser, String companyNode, DateTime fortressWhen) {
@@ -171,7 +170,7 @@ public class MetaInputBean {
     public void setLog(LogInputBean log) {
         this.log = log;
         if (log != null) {
-            this.metaOnly = false;
+            this.isMetaOnly = false;
             this.when = log.getWhen();
         }
     }
@@ -208,6 +207,11 @@ public class MetaInputBean {
         tags.add(tag);
         return this;
     }
+
+    public void removeTag ( TagInputBean tag){
+        tags.remove(tag);
+    }
+
 
     /**
      * Tag structure to create. This is a short hand way of ensuring an
@@ -321,12 +325,21 @@ public class MetaInputBean {
      *
      * @param metaOnly if false then the header will not be indexed in search until a log is added
      */
-    public void setMetaOnly(boolean metaOnly) {
-        this.metaOnly = metaOnly;
+    public void setIsMetaOnly(boolean metaOnly) {
+        isMetaOnly = metaOnly;
     }
 
     public boolean isMetaOnly() {
-        return metaOnly;
+        return isMetaOnly;
     }
 
+    /**
+     * Being Meta only tells the track process that the header CAN be indexed.
+     * Normally the service would wait for an associated log to be provided
+     *
+     * @param metaOnly if true, expect no log data and index this
+     */
+    public void setMetaOnly(boolean metaOnly) {
+        isMetaOnly = metaOnly;
+    }
 }

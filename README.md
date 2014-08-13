@@ -3,9 +3,7 @@
 ## Project Status
 Full support for ElasticSearch 1.1 and Neo4j2 in place. API is settled.
 
-Currently working on support for visualization tools in a sub-project we call ab-view.
-
-[CodeFlower](https://monowai.github.io/CodeFlower/)
+Currently working on support for visualization tools.
 
 ## How to get going
 You need to gain a brief understanding of the two AuditBucket scalable micro services
@@ -17,7 +15,7 @@ Track, Find, Compare and Explore
 
 Which customers influence other customer purchases? Which customers who buy beer, also by games? Where did we ship these batch numbers to? Alert me to all trades > $1,000,000 involving Trader Joe on the Sell side? Complex questions don't become complex projects. They become realtime dashboards, alerts and queries that can be produced in a morning.
 
-AuditBucket is a data mediation service to track lineage of business information into both an ElasticSearch datastore and Neo4J graph database with minimal upfront analysis or effort.
+AuditBucket is a data mediation service to track and store business information into both an ElasticSearch datastore and Neo4J graph database with minimal upfront analysis or effort.
 
 AB assumes you want to aggregate data from your existing system and look at it new ways to uncover insights you didn't know existed. This real-time anaysis saves time and enables you to identify signal from noise with free-form exploration. This is hugely useful when you are not quite sure what you are looking for in your information and are forming hypotheses on the journey to insight.
 

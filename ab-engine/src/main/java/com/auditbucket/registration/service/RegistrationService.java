@@ -61,7 +61,7 @@ public class RegistrationService {
 
         if (systemUser != null) {
             if ( !engineConfig.isDuplicateRegistration() && regBean.isUnique())
-                throw new DatagioException(String.format("Username %s already exists", regBean.getLogin()));
+                throw new DatagioException("Username already exists");
             else
                 return systemUser; // ToDo - throw RegistrationException
         }

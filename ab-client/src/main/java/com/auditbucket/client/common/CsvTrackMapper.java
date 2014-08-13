@@ -41,9 +41,9 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
         return AbRestClient.type.TRACK;
     }
 
-    private Map<String, Object> toMap(String[] headerRow, String[] line) {
+    private Map<String, String> toMap(String[] headerRow, String[] line) {
         int col = 0;
-        Map<String, Object> row = new HashMap<>();
+        Map<String, String> row = new HashMap<>();
         for (String column : headerRow) {
             row.put(column, line[col]);
             col++;
@@ -52,9 +52,9 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
     }
 
     @Override
-    public Map<String, Object> setData(final String[] headerRow, final String[] line, ImportParams importParams) throws JsonProcessingException, DatagioException {
+    public String setData(final String[] headerRow, final String[] line, ImportParams importParams) throws JsonProcessingException, DatagioException {
         int col = 0;
-        Map<String, Object> row = toMap(headerRow, line);
+        Map<String, String> row = toMap(headerRow, line);
 
         for (String column : headerRow) {
             CsvColumnHelper columnHelper = new CsvColumnHelper(column, line[col], importParams.getColumnDef(headerRow[col]));
@@ -144,11 +144,11 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
             }
 
         }
-        return row;
+        return AbRestClient.convertToJson(headerRow, line);
     }
 
-    private Map<String, Object> getColumnValues(CsvColumnDefinition colDef, Map<String, Object> row) {
-        Map<String,Object>results = new HashMap<>();
+    private Map<String,String> getColumnValues(CsvColumnDefinition colDef, Map<String, String> row) {
+        Map<String,String>results = new HashMap<>();
         String[] columns = colDef.getColumns();
 
         int i =0;

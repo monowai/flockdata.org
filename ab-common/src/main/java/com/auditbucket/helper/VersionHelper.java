@@ -31,8 +31,6 @@ public class VersionHelper {
         String path = "/version.properties";
 
         String version = null;
-        String build = null;
-        String plan = null;
         try {
             Properties p = new Properties();
 
@@ -40,17 +38,10 @@ public class VersionHelper {
             if (is != null) {
                 p.load(is);
                 version = p.getProperty("version", "DEV");
-                build = p.getProperty("build", "DEV");
-                if (build.equals("${bambooBuildNumber}"))
-                    build = "DEV";
-
-                plan = p.getProperty("plan", "DEV");
-                if ( plan.equals("${bambooPlan}"))
-                    plan = "DEV";
             }
         } catch (Exception e) {
             // ignore
         }
-        return version + " (" + plan + "/" + build +")";
+        return version;
     }
 }

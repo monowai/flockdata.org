@@ -28,8 +28,6 @@ import com.auditbucket.helper.DatagioException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import java.util.Map;
-
 /**
  * Support class to handle mapping from one format to another format
  * User: Mike Holdsworth
@@ -37,7 +35,7 @@ import java.util.Map;
  */
 public interface DelimitedMappable extends Mappable {
 
-    Map<String, Object> setData(String[] headerRow, String[] line, ImportParams staticDataResolver) throws JsonProcessingException, DatagioException;
+    String setData(String[] headerRow, String[] line, ImportParams staticDataResolver) throws JsonProcessingException, DatagioException;
 
     @JsonIgnore
     boolean hasHeader();

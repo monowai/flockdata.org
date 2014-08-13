@@ -19,6 +19,7 @@
 
 package com.auditbucket.engine.repo.neo4j.model;
 
+import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
 import com.auditbucket.track.model.ChangeEvent;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -50,6 +51,13 @@ public class ChangeEventNode implements ChangeEvent {
     protected ChangeEventNode() {
     }
 
+    public ChangeEventNode(Company company, String event) {
+        this();
+        //this.company = (CompanyNode) company;
+        this.code = event.toLowerCase();
+        this.name = event;
+    }
+
     @JsonIgnore
     public Long getId() {
         return id;
@@ -59,6 +67,12 @@ public class ChangeEventNode implements ChangeEvent {
     public String getCode() {
         return code;
     }
+
+//    @Override
+//    @JsonIgnore
+//    public Company getCompany() {
+//        return company;
+//    }
 
     @Override
     public String getName() {

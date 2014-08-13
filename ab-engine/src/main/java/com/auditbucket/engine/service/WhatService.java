@@ -43,7 +43,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -96,13 +95,12 @@ public class WhatService {
      * adds what store details to the log that will be index in Neo4j
      * Subsequently, this data will make it to a KV store
      *
-     *
      * @param log      Log
      * @param jsonText Escaped Json
      * @return logChange
      * @throws IOException
      */
-    public Log prepareLog(Log log, Map<String, Object> jsonText) throws IOException {
+    public Log prepareLog(Log log, String jsonText) throws IOException {
         // Compress the Value of JSONText
         CompressionResult dataBlock = CompressionHelper.compress(jsonText);
         Boolean compressed = (dataBlock.getMethod() == CompressionResult.Method.GZIP);
@@ -169,13 +167,12 @@ public class WhatService {
     /**
      * Locate and compare the two JSON What documents to determine if they have changed
      *
-     *
      * @param metaHeader  thing being tracked
      * @param compareFrom existing change to compare from
      * @param jsonWith new Change to compare with - JSON format
      * @return false if different, true if same
      */
-    public boolean isSame(MetaHeader metaHeader, Log compareFrom, Map<String, Object> jsonWith) {
+    public boolean isSame(MetaHeader metaHeader, Log compareFrom, String jsonWith) {
         if (compareFrom == null)
             return false;
         LogWhat what = null;
@@ -197,20 +194,20 @@ public class WhatService {
         return isSame(jsonFrom, jsonWith);
     }
 
-    public boolean isSame(String compareFrom, Map<String, Object> compareWith) {
+    public boolean isSame(String compareFrom, String compareWith) {
         logger.debug ("Comparing [{}] with [{}]", compareFrom, compareWith);
         if (compareFrom == null || compareWith == null)
             return false;
 
-//        if (compareFrom.() != compareWith.length())
-//            return false;
+        if (compareFrom.length() != compareWith.length())
+            return false;
 
         // Compare values
         JsonNode jCompareFrom = null;
         JsonNode jCompareWith = null;
         try {
             jCompareFrom = om.readTree(compareFrom);
-            jCompareWith = om.valueToTree(compareWith);
+            jCompareWith = om.readTree(compareWith);
         } catch (IOException e) {
             logger.error("Comparing JSON docs", e);
         }

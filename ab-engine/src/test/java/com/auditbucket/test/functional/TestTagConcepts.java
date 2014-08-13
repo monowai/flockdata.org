@@ -159,13 +159,11 @@ public class TestTagConcepts extends TestEngineBase {
                     foundCustomer = true;
                     assertEquals(1, concept.getRelationships().size());
                     assertEquals("purchased", concept.getRelationships().iterator().next().getName());
-                    assertEquals(true, concept.toString().contains(concept.getName()));
                 }
                 if (concept.getName().equals("Rep")) {
                     foundRep = true;
                     assertEquals(1, concept.getRelationships().size());
                     assertEquals("sold", concept.getRelationships().iterator().next().getName());
-                    assertEquals(true, concept.toString().contains(concept.getName()));
                 }
             }
 
