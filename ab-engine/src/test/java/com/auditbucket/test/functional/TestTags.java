@@ -46,7 +46,7 @@ import static junit.framework.Assert.*;
 public class TestTags extends TestEngineBase {
 
     public void duplicateTagLists() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike));
         assertNotNull(iSystemUser);
 
         List<TagInputBean> tags = new ArrayList<>();
@@ -87,7 +87,7 @@ public class TestTags extends TestEngineBase {
     @Transactional
     public void secureMultiTenantedTags() throws Exception {
         engineAdmin.setMultiTenanted(true);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike));
         assertNotNull(iSystemUser);
 
         List<TagInputBean> tags = new ArrayList<>();
@@ -267,7 +267,7 @@ public class TestTags extends TestEngineBase {
     // ToDo: Multi-tenanted custom tags
     public void customLabelsMultiTenant() throws Exception {
         engineAdmin.setMultiTenanted(true);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, "mike").setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, "mike"));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInput = new TagInputBean("Source");
@@ -301,7 +301,7 @@ public class TestTags extends TestEngineBase {
     public void sameKeyForDifferentTagTypes() throws Exception {
         engineAdmin.setMultiTenanted(false);
 
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean("SameKey", "mike").setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean("SameKey", "mike"));
         waitAWhile();
         assertNotNull(iSystemUser);
 
