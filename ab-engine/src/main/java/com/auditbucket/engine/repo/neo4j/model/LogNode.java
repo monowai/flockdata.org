@@ -68,6 +68,7 @@ public class LogNode implements Log {
     @RelatedTo(type = "PREVIOUS_LOG", direction = Direction.OUTGOING)
     private LogNode previousLog;
 
+    @Transient
     private LogWhatData auditWhat;
 
     @Override
@@ -96,12 +97,6 @@ public class LogNode implements Log {
         return id;
     }
 
-    @Override
-    @JsonIgnore
-    public LogWhat getWhat() {
-        return auditWhat;
-    }
-
     public void setWhat(LogWhat what) {
         this.auditWhat = (LogWhatData) what;
     }
@@ -121,14 +116,6 @@ public class LogNode implements Log {
 
     public void setTrackLog(LoggedRelationship trackLog){
         this.trackLog = trackLog;
-    }
-
-    /**
-     * @return the name of the event that caused this change
-     */
-    @JsonIgnore
-    public String getName() {
-        return name;
     }
 
     @Override

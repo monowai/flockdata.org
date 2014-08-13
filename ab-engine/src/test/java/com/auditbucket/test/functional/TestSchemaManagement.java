@@ -98,6 +98,12 @@ public class TestSchemaManagement extends TestEngineBase {
         Assert.assertEquals(docName, docType.getName());
         // Should be finding by code which is always Lower
         Assert.assertNotNull(schemaService.resolveDocType(fortress, docType.getName().toUpperCase(), false));
+        try {
+            schemaService.resolveDocType(fortress, null, false);
+            fail("Null not handled correctly");
+        } catch ( IllegalArgumentException e){
+            // Good
+        }
 
     }
 

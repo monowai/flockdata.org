@@ -50,6 +50,7 @@ public class LoggedRelationship implements TrackLog {
     private Long sysWhen = 0l;
 
     @Indexed
+    @Fetch
     private Long fortressWhen = 0l;
 
     //@Indexed

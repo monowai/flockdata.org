@@ -25,6 +25,7 @@ import com.auditbucket.engine.endpoint.QueryEP;
 import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.service.*;
 import com.auditbucket.fortress.endpoint.FortressEP;
+import com.auditbucket.geography.endpoint.GeographyEP;
 import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.endpoint.TagEP;
 import com.auditbucket.registration.service.*;
@@ -85,6 +86,9 @@ public class TestEngineBase {
 
     @Autowired
     RegistrationEP regEP;
+
+    @Autowired
+    GeographyEP geographyEP;
 
     @Autowired
     MediationFacade mediationFacade;
@@ -160,6 +164,10 @@ public class TestEngineBase {
         return auth;
     }
 
+    public static void setSecurityEmpty(){
+        SecurityContextHolder.getContext().setAuthentication(null);
+    }
+
     Transaction beginManualTransaction() {
         Transaction t = template.getGraphDatabase().beginTx();
         return t;
@@ -224,5 +232,6 @@ public class TestEngineBase {
             logger.info("Wait for log got to [{}] for metaId [{}]", i, metaHeader.getId());
         return System.currentTimeMillis() - thenTime;
     }
+
 
 }
