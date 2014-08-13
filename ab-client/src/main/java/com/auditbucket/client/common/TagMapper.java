@@ -5,8 +5,6 @@ import com.auditbucket.client.rest.AbRestClient;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import java.util.Map;
-
 /**
  * User: mike
  * Date: 27/04/14
@@ -30,7 +28,7 @@ public class TagMapper extends TagInputBean implements DelimitedMappable {
     }
 
     @Override
-    public Map<String, Object> setData(String[] headerRow, String[] line, ImportParams staticDataResolver) throws JsonProcessingException {
+    public String setData(String[] headerRow, String[] line, ImportParams staticDataResolver) throws JsonProcessingException {
         return null;
     }
 

@@ -87,8 +87,8 @@ public class FortressEP {
 
     @RequestMapping(value = "/{fortressName}/{userName}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<FortressUser> getFortressUser(@PathVariable("fortressName") String fortressName, @PathVariable("userName") String userName,
-                                                        String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+    public ResponseEntity<FortressUser> getFortressUsers(@PathVariable("fortressName") String fortressName, @PathVariable("userName") String userName,
+                                                         String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = securityHelper.getCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
 
         FortressUser result = null;

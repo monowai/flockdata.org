@@ -21,7 +21,6 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.engine.PropertyConversion;
 import com.auditbucket.helper.DatagioException;
-import com.auditbucket.helper.DatagioTagException;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.SystemUser;
@@ -37,6 +36,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static junit.framework.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * User: Mike Holdsworth
@@ -128,34 +128,14 @@ public class TestTags extends TestEngineBase {
 
     }
 
-    @Test
-    public void tagMustExist() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
-        assertNotNull(iSystemUser);
-
-        assertNull(tagService.findTag(iSystemUser.getCompany(), "ABC"));
-        Tag tag = null;
-        try {
-            tag = tagService.processTag(new TagInputBean("FLOPX").setMustExist(true));
-            fail("Incorrect exception");
-        } catch (DatagioTagException dte) {
-
-        }
-        assertNull(tag);
-        tag = tagService.processTag(new TagInputBean("FLOPX").setMustExist(false));
-        assertNotNull(tag);
-        tag = tagService.processTag(new TagInputBean("FLOPX").setMustExist(true));
-        assertNotNull(tag);
-
-    }
 
     @Test
     public void tagWithProperties() throws Exception {
-        //assumeTrue(false);// Not yet supported
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
+        assumeTrue(false);// Not yet supported
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike));
         assertNotNull(iSystemUser);
 
-        TagInputBean tagInput = new TagInputBean("ZFLOP");
+        TagInputBean tagInput = new TagInputBean("FLOP");
         tagInput.setProperty("num", 123);
         tagInput.setProperty("dec", 123.11);
         tagInput.setProperty("string", "abc");
@@ -163,12 +143,16 @@ public class TestTags extends TestEngineBase {
         Tag tag = tagService.processTag(tagInput);
 
         assertNotNull(tag);
-        Tag result = tagService.findTag("ZFLOP");
+        Tag result = tagService.findTag("FLOP");
 
         assertNotNull(result);
         assertEquals(123l, tag.getProperty("num"));
         assertEquals(123.11, tag.getProperty("dec"));
         assertEquals("abc", tag.getProperty("string"));
+
+        result = tagService.processTag(new TagInputBean("FLOPPY"));
+        assertNotNull(result);
+        assertEquals("FLOPPY", result.getName());
 
     }
 
@@ -219,7 +203,6 @@ public class TestTags extends TestEngineBase {
         assertNotNull(result);
 
     }
-
     @Test
     public void customLabelsSingleTenant() throws Exception {
         engineAdmin.setMultiTenanted(false);
@@ -231,12 +214,12 @@ public class TestTags extends TestEngineBase {
         tagInput.setCode("CodeA");
         tagInput.setName("NameA");
         Tag tag = tagService.processTag(tagInput);
-        assertNotNull(tag);
+        assertNotNull (tag);
         assertEquals(tagInput.getCode(), tag.getCode());
         assertEquals(tagInput.getName(), tag.getName());
         assertNotNull(tag.getKey());
         Collection<Tag> results = tagService.findTags("TestTag");
-        assertNotNull(results);
+        assertNotNull ( results);
         assertFalse(results.isEmpty());
         Boolean found = isNameFound(tagInput, results);
         assertTrue(found);
@@ -253,17 +236,16 @@ public class TestTags extends TestEngineBase {
         tagInput.setCode("CodeA");
         tagInput.setName("NameA");
         Tag tag = tagService.processTag(tagInput);
-        assertNotNull(tag);
+        assertNotNull (tag);
         assertEquals(tagInput.getCode(), tag.getCode());
         assertEquals(tagInput.getName(), tag.getName());
         assertNotNull(tag.getKey());
         Collection<Tag> results = tagService.findTags("Test Tag");
-        assertNotNull(results);
+        assertNotNull ( results);
         assertFalse(results.isEmpty());
         Boolean found = isNameFound(tagInput, results);
         assertTrue(found);
     }
-
     // ToDo: Multi-tenanted custom tags
     public void customLabelsMultiTenant() throws Exception {
         engineAdmin.setMultiTenanted(true);
@@ -275,12 +257,12 @@ public class TestTags extends TestEngineBase {
         tagInput.setCode("CodeA");
         tagInput.setName("NameA");
         Tag tag = tagService.processTag(tagInput);
-        assertNotNull(tag);
+        assertNotNull (tag);
         assertEquals(tagInput.getCode(), tag.getCode());
         assertEquals(tagInput.getName(), tag.getName());
         assertNotNull(tag.getKey());
         Collection<Tag> results = tagService.findTags("TestTag");
-        assertNotNull(results);
+        assertNotNull ( results);
         assertFalse(results.isEmpty());
         boolean found = isNameFound(tagInput, results);
         assertTrue("Didn't find the taginput name in the result set", found);
@@ -289,7 +271,7 @@ public class TestTags extends TestEngineBase {
     private boolean isNameFound(TagInputBean tagInput, Collection<Tag> results) {
         boolean found = false;
         for (Tag result : results) {
-            if (result.getName().equals(tagInput.getName())) {
+            if ( result.getName().equals(tagInput.getName())){
                 found = true;
                 break;
             }
@@ -300,9 +282,7 @@ public class TestTags extends TestEngineBase {
     @Test
     public void sameKeyForDifferentTagTypes() throws Exception {
         engineAdmin.setMultiTenanted(false);
-
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean("SameKey", "mike"));
-        waitAWhile();
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInputA = new TagInputBean("Source");
@@ -310,12 +290,12 @@ public class TestTags extends TestEngineBase {
         tagInputA.setCode("CodeA");
         tagInputA.setName("NameA");
         Tag tagA = tagService.processTag(tagInputA);
-        assertNotNull(tagA);
+        assertNotNull (tagA);
         assertEquals(tagInputA.getCode(), tagA.getCode());
         assertEquals(tagInputA.getName(), tagA.getName());
         assertNotNull(tagA.getKey());
         Collection<Tag> results = tagService.findTags("TestTagA");
-        assertNotNull(results);
+        assertNotNull ( results);
         assertFalse(results.isEmpty());
         boolean found = isNameFound(tagInputA, results);
         assertTrue(found);
@@ -326,14 +306,14 @@ public class TestTags extends TestEngineBase {
         tagInputB.setCode("CodeA");
         tagInputB.setName("NameA");
         Tag tagB = tagService.processTag(tagInputB);
-        assertNotNull(tagB);
+        assertNotNull (tagB);
         assertNotSame(tagA.getId(), tagB.getId());
 
         assertEquals(tagInputB.getCode(), tagB.getCode());
         assertEquals(tagInputB.getName(), tagB.getName());
         assertNotNull(tagA.getKey());
         Collection<Tag> resultsB = tagService.findTags("TestTagB");
-        assertNotNull(resultsB);
+        assertNotNull ( resultsB);
         assertFalse(resultsB.isEmpty());
         found = isNameFound(tagInputB, resultsB);
         assertTrue(found);
@@ -352,7 +332,7 @@ public class TestTags extends TestEngineBase {
         tagInputA.setCode("CodeA");
         tagInputA.setName("NameA");
         Tag tagA = tagService.processTag(tagInputA);
-        assertNotNull(tagA);
+        assertNotNull (tagA);
 
         // This should work as the tag is in a different index
         TagInputBean tagInputB = new TagInputBean("Source");
@@ -360,20 +340,18 @@ public class TestTags extends TestEngineBase {
         tagInputB.setCode("CodeA");
         tagInputB.setName("NameA");
         Tag tagB = tagService.processTag(tagInputB);
-        assertNotNull(tagB);
+        assertNotNull (tagB);
         assertEquals(tagA.getId(), tagB.getId());
 
     }
-
     @Test
-    public void systemPropertiesHonoured() throws Exception {
+    public void systemPropertiesHonoured() throws Exception{
         // Case insensitive test
         assertTrue(PropertyConversion.isSystemColumn("Name"));
         assertTrue(PropertyConversion.isSystemColumn("code"));
         assertTrue(PropertyConversion.isSystemColumn("keY"));
 
     }
-
     @Test
     public void tagUniqueForIndex() throws DatagioException {
         engineAdmin.setMultiTenanted(false);
@@ -385,7 +363,7 @@ public class TestTags extends TestEngineBase {
         tagInputA.setCode("CodeA");
         tagInputA.setName("NameA");
         Tag tagA = tagService.processTag(tagInputA);
-        assertNotNull(tagA);
+        assertNotNull (tagA);
 
         // Same code, but different label. Should create a new tag
         TagInputBean tagInputB = new TagInputBean("Source");
@@ -394,22 +372,21 @@ public class TestTags extends TestEngineBase {
         tagInputB.setName("NameA");
         Tag tagB = tagService.processTag(tagInputB);
         Tag tagC = tagService.processTag(tagInputB);
-        assertNotNull(tagB);
+        assertNotNull (tagB);
         assertTrue(!tagA.getId().equals(tagB.getId()));
-        assertTrue(tagC.getId().equals(tagB.getId()));
+        assertTrue (tagC.getId().equals(tagB.getId()));
     }
-
     @Test
     public void tagAppleNameIssue() throws Exception {
         engineAdmin.setMultiTenanted(false);
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
-        assertNotNull(su);
-        Thread.sleep(400);
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
+        assertNotNull(iSystemUser);
+        Thread.sleep (400);
         // Exists in one index
         TagInputBean tagInputA = new TagInputBean("Apple");
         tagInputA.setIndex(":Law");
         Tag tagA = tagService.processTag(tagInputA);
-        assertNotNull(tagA);
+        assertNotNull (tagA);
 
         // Same code, and default index. Should be found in the _Tag index
         TagInputBean tagInputB = new TagInputBean("Apple");
@@ -421,20 +398,9 @@ public class TestTags extends TestEngineBase {
 
 
         Tag tagC = tagService.processTag(tagInputC);
-        assertNotNull(tagC);
+        assertNotNull (tagC);
         //assertTrue(tagA.getId().equals(tagB.getId()));
     }
-    @Test
-    public void goegoraphyEndPoints() throws DatagioException {
-        engineAdmin.setMultiTenanted(false);
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
-        TagInputBean tagInputBean = new TagInputBean("New Zealand").setIndex("Country");
-        ArrayList<TagInputBean> countries = new ArrayList<>();
-        countries.add(tagInputBean);
-        tagEP.createTags(countries, su.getApiKey(), su.getApiKey());
-        Collection<Tag> co = geographyEP.findCountries(su.getApiKey(), su.getApiKey());
-        assertEquals(1, co.size());
 
-    }
 
 }

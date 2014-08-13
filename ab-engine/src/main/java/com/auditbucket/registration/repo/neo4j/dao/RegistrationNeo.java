@@ -20,6 +20,7 @@
 package com.auditbucket.registration.repo.neo4j.dao;
 
 import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.repo.neo4j.SystemUserRepository;
 import com.auditbucket.registration.repo.neo4j.model.SystemUserNode;
@@ -55,7 +56,17 @@ public class RegistrationNeo implements com.auditbucket.dao.RegistrationDao {
     }
 
     public SystemUser findSysUserByName(String name) {
-        return suRepo.getSystemUser(name);
+        SystemUser su = suRepo.getSystemUser(name);
+        if (su !=null ){
+            if (su.getApiKey()== null){
+                // ToDo: Remove this in 0.94 - this is for upgrading only.
+                su.setLogin(su.getName());
+                su.setApiKey(keyGenService.getUniqueKey());
+                su = save(su);
+            }
+            return su;
+        }
+        return null;
     }
 
     @Override
@@ -65,5 +76,10 @@ public class RegistrationNeo implements com.auditbucket.dao.RegistrationDao {
         su = save(su);
         return su;
     }
+
+    public FortressUser getFortressUser(String userName, String fortressName, String fortressUser) {
+        return suRepo.getFortressUser(userName, fortressName, fortressUser);
+    }
+
 
 }

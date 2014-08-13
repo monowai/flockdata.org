@@ -4,7 +4,6 @@ import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.test.utils.TestHelper;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
@@ -87,15 +86,15 @@ public class TrackAPIKeys extends TestEngineBase{
 
         Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("apiCallsSecuredByAccessKey", true), apiKey, null).getBody();
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC9990");
-
-        LogInputBean log = new LogInputBean("harry", new DateTime(),  TestHelper.getRandomMap());
+        String what = "{\"house\": \"house\"}";
+        LogInputBean log = new LogInputBean("harry", new DateTime(), what);
         inputBean.setLog(log);
 
         TrackResultBean result = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody(); // Works due to basic authz
 
         assertNotNull(trackEP.getMetaHeader(result.getMetaKey(), apiKey, apiKey).getBody());
         assertNotNull(trackEP.getAuditSummary(result.getMetaKey(), apiKey, apiKey).getBody());
-        assertNotNull(trackEP.getTrackTags(result.getMetaKey(), apiKey, apiKey));
+        assertNotNull(trackEP.getAuditTags(result.getMetaKey(), apiKey, apiKey).getBody());
         assertNotNull(trackEP.getByCallerRef(result.getFortressName(), result.getDocumentType(), result.getCallerRef(), apiKey, apiKey));
         assertNotNull(trackEP.getByCallerRef(fortressA.getName(), inputBean.getCallerRef(), apiKey, apiKey).iterator().hasNext());
         assertNotNull(trackEP.getLogs(result.getMetaKey(), apiKey, apiKey).iterator().next());

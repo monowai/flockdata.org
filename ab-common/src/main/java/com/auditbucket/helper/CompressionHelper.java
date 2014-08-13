@@ -19,12 +19,8 @@
 
 package com.auditbucket.helper;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.*;
 import java.nio.charset.Charset;
-import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -33,7 +29,7 @@ import java.util.zip.GZIPOutputStream;
  * Since: 20/07/13
  */
 public class CompressionHelper {
-    public static Charset charSet = Charset.forName("UTF-8");
+    public static Charset charSet= Charset.forName("UTF-8");
 
     public static CompressionResult compress(String text) {
 
@@ -52,17 +48,6 @@ public class CompressionHelper {
         } catch (IOException e) {
             throw new AssertionError(e);
         }
-    }
-
-    public static CompressionResult compress(Map<String, Object> mapValue) {
-        ObjectMapper om = new ObjectMapper();
-//            JsonParser what = om.readTree(mapValue).toString();
-        JsonNode node = om.valueToTree(mapValue);
-        String text = node.toString();
-        return compress(text);
-        //Object whatJ = om.readValue(mapValue, Map.class);
-
-//        Object var = om.readTree(mapValue);
     }
 
     public static String decompress(CompressionResult result) {

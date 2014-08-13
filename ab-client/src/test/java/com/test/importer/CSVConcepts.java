@@ -42,7 +42,7 @@ public class CSVConcepts {
         CsvTagMapper mapper = new CsvTagMapper(params);
         String[] headers= new String[]{"company_name",     "device_name",     "type"};
         String[] data = new String[]{  "Samsoon", "Palaxy", "Mobile Phone"};
-        Map<String,Object> json = mapper.setData(headers, data, params);
+        String json = mapper.setData(headers, data, params);
         assertNotNull (json);
         assertNotNull(mapper.getTargets());
         assertEquals(2, mapper.getTargets().size());

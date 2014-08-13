@@ -208,7 +208,7 @@ public class MetaSearchChange implements SearchChange {
                 setTagValue("state", tag.getGeoData().getState(), tagValues);
                 setTagValue("city", tag.getGeoData().getCity(), tagValues);
             }
-            tagValues.put("props", tag.getTagProperties());
+            tagValues.put("props", tag.getProperties());
         }
     }
 

@@ -23,10 +23,10 @@ import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.test.utils.TestHelper;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
+
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -53,7 +53,7 @@ public class TestForceDuplicateRlx extends TestEngineBase {
         int auditMax = 10;
         int logMax = 10;
         int fortress = 1;
-        //String simpleJson = "{\"who\":";
+        String simpleJson = "{\"who\":";
         ArrayList<Long> list = new ArrayList<>();
 
         int fortressMax = 1;
@@ -83,7 +83,7 @@ public class TestForceDuplicateRlx extends TestEngineBase {
                 requests++;
                 int log = 1;
                 while (log <= logMax) {
-                    createLog(aib, arb, log);
+                    createLog(simpleJson, aib, arb, log);
                     requests++;
                     log++;
                 } // Logs created
@@ -104,8 +104,8 @@ public class TestForceDuplicateRlx extends TestEngineBase {
         logger.info("*** Created data set in " + f.format(splitTotals) + " fortress avg = " + f.format(splitTotals / fortressMax) + " avg processing time per request " + f.format(splitTotals / totalRows) + ". Requests per second " + f.format(totalRows / splitTotals));
 //        watch.reset();
     }
-    private void createLog(MetaInputBean aib, TrackResultBean arb, int log) throws DatagioException, IOException {
-        trackEP.trackLog(new LogInputBean(aib.getFortressUser(), arb.getMetaKey(), new DateTime(), TestHelper.getSimpleMap("who", log)), null, null);
+    private void createLog(String simpleJson, MetaInputBean aib, TrackResultBean arb, int log) throws DatagioException, IOException {
+        trackEP.trackLog(new LogInputBean(arb.getMetaKey(), aib.getFortressUser(), new DateTime(), simpleJson + log + "}"), null, null);
     }
 
 

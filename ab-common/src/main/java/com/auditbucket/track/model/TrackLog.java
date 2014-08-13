@@ -26,8 +26,6 @@ package com.auditbucket.track.model;
  */
 public interface TrackLog {
 
-    Long getId();
-
     public Log getLog();
 
     public MetaHeader getMetaHeader();
@@ -45,6 +43,8 @@ public interface TrackLog {
     public Long getSysWhen();
 
     public Long getFortressWhen();
+
+    Long getId();
 
     void setMetaHeader(MetaHeader metaHeader);
 }

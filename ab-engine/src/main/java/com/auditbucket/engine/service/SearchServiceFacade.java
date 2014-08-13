@@ -147,7 +147,7 @@ public class SearchServiceFacade {
         if (metaHeader.isSearchSuppressed())
             return null;
         SearchChange searchDocument;
-        searchDocument = new MetaSearchChange(metaHeader, (HashMap<String, Object>) logInput.getWhat(), event.getCode(), fortressWhen);
+        searchDocument = new MetaSearchChange(metaHeader, (HashMap<String, Object>) logInput.getMapWhat(), event.getCode(), fortressWhen);
         searchDocument.setWho(trackLog.getLog().getWho().getCode());
         searchDocument.setTags(tagTrackService.findTrackTags(metaHeader.getFortress().getCompany(), metaHeader));
         searchDocument.setDescription(metaHeader.getName());
@@ -201,7 +201,7 @@ public class SearchServiceFacade {
         return null;
     }
 
-    public EsSearchResult search(QueryParams queryParams) {
+    public EsSearchResult<Collection<String>> search(QueryParams queryParams) {
         return searchGateway.search(queryParams);
     }
 

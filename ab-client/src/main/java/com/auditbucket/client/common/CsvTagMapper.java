@@ -29,6 +29,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -52,10 +53,20 @@ public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
         return AbRestClient.type.TAG;
     }
 
-    @Override
-    public Map<String, Object> setData(final String[] headerRow, final String[] line, ImportParams importParams) throws JsonProcessingException, DatagioException {
+    private Map<String, Object> toMap(String[] headerRow, String[] line) {
         int col = 0;
-        Map<String, Object> row = AbRestClient.convertToMap(headerRow, line);
+        Map<String, Object> row = new HashMap<>();
+        for (String column : headerRow) {
+            row.put(column, line[col]);
+            col++;
+        }
+        return row;
+    }
+
+    @Override
+    public String setData(final String[] headerRow, final String[] line, ImportParams importParams) throws JsonProcessingException, DatagioException {
+        int col = 0;
+        Map<String, Object> row = toMap(headerRow, line);
 
         for (String column : headerRow) {
             CsvColumnHelper columnHelper = new CsvColumnHelper(column, line[col], importParams.getColumnDef(headerRow[col]));
@@ -95,7 +106,7 @@ public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
             } // ignoreMe
             col++;
         }
-        return row;
+        return AbRestClient.convertToJson(headerRow, line);
     }
 
     @Override

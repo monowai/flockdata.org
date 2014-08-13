@@ -95,6 +95,8 @@ public interface TrackDao {
 
     TrackLog getLog(Long logId);
 
+    LogWhat getWhat(Long whatId);
+
     MetaHeader getHeader(Long id);
 
     Log fetch(Log lastChange);
@@ -111,7 +113,7 @@ public interface TrackDao {
 
     Map<String,Collection<MetaHeader>> getCrossReference(Company company, MetaHeader header, String xRefName);
 
-    Map<String, MetaHeader> findHeaders(Company company, Collection<String> metaKeys);
+    Collection<MetaHeader> findHeaders(Company company, Collection<String> metaKeys);
 
     void purgeTagRelationships(Fortress fortress);
 
@@ -122,5 +124,4 @@ public interface TrackDao {
     void purgeHeaders(Fortress fortress);
 
     void purgeFortressDocuments(Fortress fortress);
-
 }
