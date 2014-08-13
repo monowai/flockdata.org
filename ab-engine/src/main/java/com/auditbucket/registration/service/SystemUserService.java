@@ -20,7 +20,6 @@
 package com.auditbucket.registration.service;
 
 import com.auditbucket.registration.bean.RegistrationBean;
-import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.repo.neo4j.dao.RegistrationNeo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,10 +40,6 @@ public class SystemUserService {
             throw new IllegalArgumentException("Login name cannot be null");
         }
         return regDao.findSysUserByName(name.toLowerCase());
-    }
-
-    public FortressUser findBy(String userName, String fortressName, String fortressUser) {
-        return regDao.getFortressUser(userName, fortressName, fortressUser);
     }
 
     public SystemUser save(RegistrationBean regBean) {
