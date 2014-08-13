@@ -100,4 +100,8 @@ public class CompanyNode implements Company {
     public String getCode() {
         return code;
     }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 }

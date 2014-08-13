@@ -11,6 +11,7 @@ public class SystemUserResultBean {
     private String companyName ;
     private String apiKey;
     private String name;
+    private String login;
 
     public SystemUserResultBean(){}
     public SystemUserResultBean(SystemUser su) {
@@ -18,6 +19,7 @@ public class SystemUserResultBean {
         this.companyName = su.getCompany().getName();
         this.apiKey = su.getApiKey();
         this.name = su.getName();
+        this.login = su.getLogin();
 
     }
 
@@ -31,5 +33,9 @@ public class SystemUserResultBean {
 
     public String getApiKey() {
         return apiKey;
+    }
+
+    public String getLogin() {
+        return login;
     }
 }
