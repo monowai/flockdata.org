@@ -42,8 +42,6 @@ public interface Log {
      */
     public void setComment(String comment);
 
-    String getName();
-
     public void setTxRef(TxRef txRef);
 
     ChangeEvent getEvent();
@@ -55,8 +53,6 @@ public interface Log {
     Log getPreviousLog();
 
     long getId();
-
-    LogWhat getWhat();
 
     void setWhat(LogWhat what);
 

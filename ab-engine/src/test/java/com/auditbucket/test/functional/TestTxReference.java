@@ -37,6 +37,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -51,10 +52,15 @@ import static junit.framework.Assert.*;
 public class TestTxReference extends TestEngineBase{
 
 
-    private String escJsonA = "{\"blah\":1}";
-    private String escJsonB = "{\"blah\":2}";
+    private static  Map<String, Object> escJsonA;
+    private static  Map<String, Object> escJsonB;
 
-   
+    static{
+        escJsonA = new HashMap<>();
+        escJsonB = new HashMap<>();
+        escJsonA.put("blah", 1 );
+        escJsonB.put("blah", 2 );
+    }
 
     @Test
     public void testAuthorisedToViewTransaction() throws Exception {
@@ -67,7 +73,7 @@ public class TestTxReference extends TestEngineBase{
 // ABC Data
         Fortress fortressABC = fortressService.registerFortress("abcTest");
         MetaInputBean abcHeader = new MetaInputBean(fortressABC.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
-        abcHeader.setLog(new LogInputBean(null, "charlie", DateTime.now(), escJsonA, true));
+        abcHeader.setLog(new LogInputBean("charlie", null, DateTime.now(), escJsonA, true));
 
         TrackResultBean resultBean = mediationFacade.createHeader(abcHeader, null);
         LogResultBean logResultBean = resultBean.getLogResult();
@@ -81,7 +87,7 @@ public class TestTxReference extends TestEngineBase{
         MetaInputBean cbaHeader = new MetaInputBean(fortressCBA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         String cbaKey = mediationFacade.createHeader(cbaHeader, null).getMetaKey();
 
-        LogInputBean cbaLog = new LogInputBean(cbaKey, "charlie", DateTime.now(), escJsonA, true);
+        LogInputBean cbaLog = new LogInputBean("charlie", cbaKey, DateTime.now(), escJsonA, true);
         assertEquals("CBA Logger Not Created", LogInputBean.LogStatus.OK, mediationFacade.processLog(cbaLog).getLogResult().getStatus());
         String cbaTxRef = cbaLog.getTxRef();
         assertNotNull(cbaTxRef);
@@ -97,7 +103,7 @@ public class TestTxReference extends TestEngineBase{
 
         // WHat happens if ABC tries to use CBA's TX Ref.
         abcHeader = new MetaInputBean(fortressABC.getName(), "wally", "TestTrack", new DateTime(), "ZZZAAA");
-        abcHeader.setLog(new LogInputBean(null, "wally", DateTime.now(), escJsonA, null, cbaTxRef));
+        abcHeader.setLog(new LogInputBean("wally", null, DateTime.now(), escJsonA, null, cbaTxRef));
         TrackResultBean result = mediationFacade.createHeader(abcHeader, null);
         assertNotNull(result);
         // It works because TX References have only to be unique for a company
@@ -120,11 +126,11 @@ public class TestTxReference extends TestEngineBase{
         MetaHeader header = trackService.getHeader(key);
         assertNotNull(header);
         //assertEquals(1, header.getTxTags().size());
-        LogInputBean alb = new LogInputBean(key, "charlie", DateTime.now(), escJsonA, null, tagRef);
+        LogInputBean alb = new LogInputBean("charlie", key, DateTime.now(), escJsonA, null, tagRef);
         assertTrue(alb.isTransactional());
         String albTxRef = mediationFacade.processLog(alb).getLogResult().getTxReference();
 
-        alb = new LogInputBean(key, "harry", DateTime.now(), escJsonB);
+        alb = new LogInputBean("harry", key, DateTime.now(), escJsonB);
 
 
         alb.setTxRef(albTxRef);
@@ -139,7 +145,7 @@ public class TestTxReference extends TestEngineBase{
         assertEquals(2, logs.size());
 
         // Create a new Logger for a different transaction
-        alb = new LogInputBean(key, "mikey", DateTime.now(), escJsonA);
+        alb = new LogInputBean("mikey", key, DateTime.now(), escJsonA);
         alb.setTransactional(true);
         assertNull(alb.getTxRef());
         alb.setTxRef("");
@@ -179,11 +185,11 @@ public class TestTxReference extends TestEngineBase{
         assertNotNull(key);
         MetaHeader header = trackService.getHeader(key);
         assertNotNull(header);
-        LogInputBean alb = new LogInputBean(key, "charlie", DateTime.now(), escJsonA, null, tagRef);
+        LogInputBean alb = new LogInputBean("charlie", key, DateTime.now(), escJsonA, null, tagRef);
         assertTrue(alb.isTransactional());
         String albTxRef = mediationFacade.processLog(alb).getLogResult().getTxReference();
 
-        alb = new LogInputBean(key, "harry", DateTime.now(), escJsonB);
+        alb = new LogInputBean("harry", key, DateTime.now(), escJsonB);
 
         alb.setTxRef(albTxRef);
         String txStart = albTxRef;

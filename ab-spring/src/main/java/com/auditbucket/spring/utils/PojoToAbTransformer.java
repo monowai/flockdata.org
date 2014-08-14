@@ -4,7 +4,6 @@ import com.auditbucket.helper.DatagioException;
 import com.auditbucket.spring.annotations.*;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
@@ -117,9 +116,9 @@ public class PojoToAbTransformer {
                 }
             }
         }
-        ObjectMapper mapper = new ObjectMapper(); // create once, reuse
-        String what = mapper.writeValueAsString(mapWhat);
-        logInputBean.setWhat(what);
+        //ObjectMapper mapper = new ObjectMapper(); // create once, reuse
+        //String what = mapper.writeValueAsString(mapWhat);
+        logInputBean.setWhat(mapWhat);
         metaInputBean.setLog(logInputBean);
         //ToDo: Figure out tag structure
         //metaInputBean.setTagValues(tagValues);
@@ -183,9 +182,9 @@ public class PojoToAbTransformer {
                 }
             }
         }
-        ObjectMapper mapper = new ObjectMapper(); // create once, reuse
-        String what = mapper.writeValueAsString(mapWhat);
-        logInputBean.setWhat(what);
+        //ObjectMapper mapper = new ObjectMapper(); // create once, reuse
+        //String what = mapper.writeValueAsString(mapWhat);
+        logInputBean.setWhat(mapWhat);
         return logInputBean;
     }
 }
