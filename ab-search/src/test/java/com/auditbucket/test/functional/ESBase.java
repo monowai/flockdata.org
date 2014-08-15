@@ -33,7 +33,7 @@ public class ESBase {
     @BeforeClass
     @Rollback(false)
     public static void cleanupElasticSearch() throws Exception {
-        FileInputStream f = new FileInputStream("./ab-search/src/test/resources/ab-search-config.properties");
+        FileInputStream f = new FileInputStream("./src/test/resources/ab-search-config.properties");
         properties.load(f);
 
         HttpClientConfig clientConfig = new HttpClientConfig.Builder("http://localhost:" + properties.get("es.http.port")).multiThreaded(false).build();
