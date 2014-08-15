@@ -281,11 +281,11 @@ public class TrackDaoES implements TrackSearchDao {
         return searchChange;
     }
 
-    public byte[] findOne(MetaHeader header) {
+    public Map<String, Object> findOne(MetaHeader header) {
         return findOne(header, null);
     }
 
-    public byte[] findOne(MetaHeader header, String id) {
+    public Map<String, Object> findOne(MetaHeader header, String id) {
         String indexName = header.getIndexName();
         String documentType = header.getDocumentType();
         if (id == null)
@@ -298,7 +298,7 @@ public class TrackDaoES implements TrackSearchDao {
                 .actionGet();
 
         if (response != null && response.isExists() && !response.isSourceEmpty())
-            return response.getSourceAsBytes();
+            return response.getSource();
 
         logger.info("Unable to find response data for [" + id + "] in " + indexName + "/" + documentType);
         return null;

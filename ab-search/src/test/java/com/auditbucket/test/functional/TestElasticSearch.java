@@ -48,7 +48,7 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 @ContextConfiguration({"classpath:root-context.xml"})
 public class TestElasticSearch {
 
-    private Logger log = LoggerFactory.getLogger(TestElasticSearch.class);
+    private Logger logger = LoggerFactory.getLogger(TestElasticSearch.class);
     ObjectMapper om = new ObjectMapper();
 
     @Autowired
@@ -66,7 +66,7 @@ public class TestElasticSearch {
         indexMe.put("auditKey", "abc");
         Map what = om.readValue(escWhat, Map.class);
         indexMe.put("what", what);
-        log.info(indexMe.get("what").toString());
+        logger.info(indexMe.get("what").toString());
     }
 
     @Test
@@ -95,7 +95,7 @@ public class TestElasticSearch {
     }
 
 
-    private GetResponse writeSimple(MetaSearchChange change) throws JsonProcessingException {
+    private  GetResponse writeSimple(MetaSearchChange change) throws JsonProcessingException {
 
         // Elasticsearch
         Node node = nodeBuilder().local(true).node();
@@ -111,7 +111,7 @@ public class TestElasticSearch {
                         .actionGet();
 
         assertNotNull(ir);
-        log.info(ir.getId());
+        logger.info(ir.getId());
 
         // Retrieve from Lucene
         GetResponse response = client.prepareGet(indexKey, change.getWho(), ir.getId())

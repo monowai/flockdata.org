@@ -45,7 +45,7 @@ public class MetaSearchChange implements SearchChange {
 
     private String documentType;
     private String description;
-    private HashMap<String, Object> what;
+    private Map<String, Object> what;
     private Long when;
     private String fortressName;
     private String companyName;
@@ -103,7 +103,7 @@ public class MetaSearchChange implements SearchChange {
     }
 
     @Override
-    public void setWhat(HashMap<String, Object> what) {
+    public void setWhat(Map<String, Object> what) {
         this.what = what;
     }
 
