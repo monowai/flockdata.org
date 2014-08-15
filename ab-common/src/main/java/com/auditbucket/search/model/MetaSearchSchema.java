@@ -60,13 +60,12 @@ public class MetaSearchSchema {
     public static final String NGRM_WHAT_NAME_MIN = "3";
     public static final String NGRM_WHAT_NAME_MAX = "10";
 
-    public static String parseIndex(Fortress fortress) throws DatagioException {
-        if (fortress.getCompany().getCode() == null)
-            throw new DatagioException("Company code is null");
+    public static String parseIndex(Fortress fortress) {
+
         return parseIndex(fortress.getCompany().getCode()) + fortress.getCode();
     }
 
-    private static String parseIndex(String company) throws DatagioException {
+    private static String parseIndex(String company){
         // ToDo: Add multi tenant test. Company must always be present if MultiTenanted
         if (company == null || company.equals(""))
             company = "*";

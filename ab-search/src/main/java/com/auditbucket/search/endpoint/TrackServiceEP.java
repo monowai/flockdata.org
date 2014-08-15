@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Services TRACK requests from the Engine
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
  * Time: 6:23 AM
  */
 @Service
+@Transactional
 @MessageEndpoint
 public class TrackServiceEP {
     @Autowired
