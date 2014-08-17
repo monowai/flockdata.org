@@ -1,4 +1,4 @@
-{"ab.default": {
+{"mapping": {
     "properties": {
         "@metaKey": {
             "type": "string",

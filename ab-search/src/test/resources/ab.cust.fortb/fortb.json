@@ -28,28 +28,10 @@
             "@whenCreated": {
                 "type": "date"
             },
-            "@what": {
-                "properties": {
-                    "code": {
-                        "type": "string",
-                        "boost": 2.0,
-                        "analyzer": "ngram_short"
-                    },
-                    "name": {
-                        "type": "string",
-                        "boost": 2.0,
-                        "analyzer": "ngram_medium"
-                    },
-                    "description": {
-                        "type": "string",
-                        "analyzer": "ngram_long"
-                    }
-                }
-            },
             "@description": {
                 "type": "string",
-                "analyzer": "ngram_long"
-            } ,
+                "index": "not_analyzed"
+            },
             "@when": {
                 "type": "date"
             },

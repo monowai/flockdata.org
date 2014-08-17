@@ -197,6 +197,7 @@ public class ESBase {
 
         logger.debug("ran ES Field Query - result count {}, runCount {}", nbrResult, runCount);
         Assert.assertEquals("Unexpected hit count searching '" + index + "' for {" + queryString + "} in field {" + field + "}", expectedHitCount, nbrResult);
+        if ( nbrResult !=0 )
         return result.getJsonObject()
                 .getAsJsonObject("hits")
                 .getAsJsonArray("hits")
@@ -204,6 +205,11 @@ public class ESBase {
                 .iterator()
                 .next()
                 .getAsJsonObject().get("_source").toString();
+         else
+            return result.getJsonObject()
+                    .getAsJsonObject("hits")
+                    .getAsJsonArray("hits")
+                    .getAsJsonArray().toString();
     }
 
     String getMapping(String indexName) throws Exception {
