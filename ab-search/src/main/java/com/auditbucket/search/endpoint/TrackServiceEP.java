@@ -44,7 +44,7 @@ public class TrackServiceEP {
     @ServiceActivator(inputChannel = "makeSearchRequest") // Subscriber
     public void createSearchableChange(MetaSearchChanges changes) {
         Iterable<MetaSearchChange> thisChange = changes.getChanges();
-        logger.info("Received request to index Batch ");
+        logger.debug("Received request to index Batch {}", changes.getChanges().size());
         SearchResults results = new SearchResults();
         int processed = 0;
         for (SearchChange metaSearchChange : thisChange) {
