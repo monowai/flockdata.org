@@ -20,24 +20,24 @@
 package com.auditbucket.search.dao;
 
 import com.auditbucket.search.model.MetaSearchSchema;
+import com.auditbucket.search.service.SearchAdmin;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.SearchChange;
 import com.auditbucket.track.model.TrackSearchDao;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.MapType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
-import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.client.node.NodeClient;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.indices.IndexMissingException;
 import org.slf4j.Logger;
@@ -45,10 +45,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
@@ -60,9 +64,12 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 @Repository("esAuditChange")
 public class TrackDaoES implements TrackSearchDao {
 
-    private static final String NOT_ANALYZED = "not_analyzed";
+
     @Autowired
     private Client esClient;
+
+    @Autowired
+    private SearchAdmin searchAdmin;
 
     private Logger logger = LoggerFactory.getLogger(TrackDaoES.class);
 
@@ -88,38 +95,26 @@ public class TrackDaoES implements TrackSearchDao {
 
     /**
      * @param searchChange object containing changes
+     * @param source Json to save
      * @return key value of the child document
      */
-    private SearchChange save(SearchChange searchChange) {
+    private SearchChange save(SearchChange searchChange, String source) {
         String indexName = searchChange.getIndexName();
         String documentType = searchChange.getDocumentType();
         logger.debug("Received request to Save [{}]", searchChange.getMetaKey());
 
         ensureIndex(indexName, documentType);
-        // ToDo: we shouldn't have to do this. It should only need to happen when we create an index for the first time.
-        //       But if we don't the @tag.*.key is analyzed affecting pie charts in Kibana.
 
-        ensureMapping(indexName, documentType);
-
-        String source = makeIndexJson(searchChange);
-        IndexRequestBuilder irb = esClient.prepareIndex(indexName, documentType)
-                .setSource(source);
-        //.setRouting(searchChange.getMetaKey());
-
-        String searchKey = searchChange.getSearchKey();
-
-        if (searchKey == null)
-            searchKey = searchChange.getCallerRef();
-
-        if (searchKey == null)
-            searchKey = searchChange.getMetaKey();
+        String searchKey = (searchChange.getSearchKey() == null ? searchChange.getCallerRef() : searchChange.getMetaKey());
 
         logger.debug("Resolved SearchKey to [{}]", searchKey);
         // Rebuilding a document after a reindex - preserving the unique key.
+        IndexRequestBuilder irb = esClient.prepareIndex(indexName, documentType)
+                .setSource(source);
+
         if (searchKey != null) {
             irb.setId(searchKey);
         }
-
 
         try {
             IndexResponse ir = irb.execute().actionGet();
@@ -143,35 +138,66 @@ public class TrackDaoES implements TrackSearchDao {
 
     private void ensureMapping(String indexName, String documentType) {
         logger.debug("Checking mapping for {}, {}", indexName, documentType);
-        XContentBuilder mappingEs = mapping(documentType);
+        XContentBuilder mappingEs = mapping(indexName, documentType);
         // Test if Type exist
-        String[] indexNames = new String[1];
-        indexNames[0] = indexName;
-        String[] documentTypes = new String[1];
-        documentTypes[0] = documentType;
+        //String[] indexNames = new String[1];
+        //indexNames[0] = indexName;
+        //String[] documentTypes = new String[1];
+        //documentTypes[0] = documentType;
 
-        boolean hasType = esClient.admin()
-                .indices()
-                .typesExists(new TypesExistsRequest(indexNames, documentTypes))
-                .actionGet()
-                .isExists();
-        if (!hasType) {
-            // Type Don't exist ==> Insert Mapping
-            if (mappingEs != null) {
-                esClient.admin().indices()
-                        .preparePutMapping(indexName)
-                        .setType(documentType)
-                        .setSource(mappingEs)
-                        .execute().actionGet();
-                logger.debug("Created default mapping for {}, {}", indexName, documentType);
-            }
-        } else
-            logger.trace("Mapping Exists= [{}]", hasType);
+        // Type Don't exist ==> Insert Mapping
+        if (mappingEs != null) {
+            esClient.admin().indices()
+                    .preparePutMapping(indexName)
+                    .setType(documentType)
+                    .setSource(mappingEs)
+                    .execute().actionGet();
+            logger.debug("Created default mapping for {}, {}", indexName, documentType);
+        }
     }
 
-    private synchronized void ensureIndex(String indexName, String documentType) {
-        logger.debug("Ensuring index {}, {}", indexName, documentType);
+    private void ensureIndex(String indexName, String documentType) {
 
+        if (hasIndex(indexName, documentType)) return;
+        logger.debug("Ensuring index {}, {}", indexName, documentType);
+        try {
+            lock.lock();
+            if (hasIndex(indexName, documentType)) return;
+            XContentBuilder mappingEs = mapping(indexName, documentType);
+            // create Index  and Set Mapping
+            if (mappingEs != null) {
+                //Settings settings = Builder
+                logger.debug("Creating new index {} for document type {}", indexName, documentType);
+                Map<String, Object> settings = getSettings(indexName, documentType);
+                try {
+                    if (settings != null) {
+                        //Settings settings = ImmutableSettings.settingsBuilder().loadFromSource(settingDefinition).build();
+                        esClient.admin()
+                                .indices()
+                                .prepareCreate(indexName).addMapping(documentType, mappingEs)
+                                .setSettings(settings)
+                                .execute()
+                                .actionGet();
+                    } else {
+                        esClient.admin()
+                                .indices()
+                                .prepareCreate(indexName)
+                                .addMapping(documentType, mappingEs)
+                                .execute()
+                                .actionGet();
+                    }
+                } catch ( ElasticsearchException esx ){
+                    logger.error ("Error while ensuring index.... ", esx);
+                    throw esx;
+                }
+                ensureMapping(indexName, documentType);
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private boolean hasIndex(String indexName, String documentType) {
         boolean hasIndex = esClient
                 .admin()
                 .indices()
@@ -179,49 +205,22 @@ public class TrackDaoES implements TrackSearchDao {
                 .actionGet().isExists();
         if (hasIndex) {
             logger.trace("Index {}, {} exists", indexName, documentType);
-            return;
+            return true;
         }
-
-        XContentBuilder mappingEs = mapping(documentType);
-        // create Index  and Set Mapping
-        if (mappingEs != null) {
-            //Settings settings = Builder
-            logger.debug("Creating new index {} for document type {}", indexName, documentType);
-            String settingDefinition = settingDefinition();
-            if (settingDefinition != null) {
-                Settings settings = ImmutableSettings.settingsBuilder().loadFromSource(settingDefinition).build();
-                esClient.admin()
-                        .indices()
-                        .prepareCreate(indexName).addMapping(documentType, mappingEs)
-                        .setSettings(settings)
-                        .execute()
-                        .actionGet();
-            } else {
-                esClient.admin()
-                        .indices()
-                        .prepareCreate(indexName)
-                        .addMapping(documentType, mappingEs)
-                        .execute()
-                        .actionGet();
-            }
-            ensureMapping(indexName, documentType);
-        }
+        return false;
     }
 
     @Override
     public SearchChange update(SearchChange searchChange) {
-
         String source = makeIndexJson(searchChange);
-        logger.debug("Determining create or update for searchKey [{}]", searchChange);
         if (searchChange.getSearchKey() == null || searchChange.getSearchKey().equals("")) {
             logger.debug("No search key, creating as a new document [{}]", searchChange.getMetaKey());
-            return save(searchChange);
+            return save(searchChange, source);
         }
 
         try {
             logger.debug("Update request for searchKey [{}], metaKey[{}]", searchChange.getSearchKey(), searchChange.getMetaKey());
             ensureIndex(searchChange.getIndexName(), searchChange.getDocumentType());
-            //ensureMapping(searchChange.getIndexName(), searchChange.getDocumentTypes());
             GetResponse response =
                     esClient.prepareGet(searchChange.getIndexName(),
                             searchChange.getDocumentType(),
@@ -259,7 +258,7 @@ public class TrackDaoES implements TrackSearchDao {
                 // No response, to a search key we expect to exist. Create a new one
                 // Likely to be in response to rebuilding an ES index from Graph data.
                 logger.debug("About to create in response to an update request for {}", searchChange.toString());
-                return save(searchChange);
+                return save(searchChange, source);
             }
 
             // Update the existing document with the searchChange change
@@ -276,7 +275,7 @@ public class TrackDaoES implements TrackSearchDao {
             }
         } catch (IndexMissingException e) { // administrator must have deleted it, but we think it still exists
             logger.info("Attempt to update non-existent index [{}]. Moving to create it", searchChange.getIndexName());
-            return save(searchChange);
+            return save(searchChange, source);
         }
         return searchChange;
     }
@@ -318,7 +317,7 @@ public class TrackDaoES implements TrackSearchDao {
         results.put("dataNodes", response.getNumberOfDataNodes());
         results.put("nodes", response.getNumberOfNodes());
         results.put("clusterName", response.getClusterName());
-        results.put("nodeName", ((NodeClient) esClient).settings().get("name"));
+        results.put("nodeName", esClient.settings().get("name"));
 
         return results;
     }
@@ -373,128 +372,60 @@ public class TrackDaoES implements TrackSearchDao {
         return indexMe;
     }
 
-    private String settingDefinition() {
+    private Map<String, Object> defaultSettings = null;
+
+    private Map<String, Object> getSettings(String indexName, String documentType) {
         try {
-            XContentBuilder setting = setting();
-            return setting.string();
+            if (defaultSettings == null) {
+                logger.info("getSettings, looking to lock");
+                String settings = searchAdmin.getEsDefaultSettings();
+                logger.debug("Reading default settings from disk = {}", settings);
+                InputStream file;
+                try {
+                    file = new FileInputStream(settings);
+                } catch (IOException ioe) {
+                    logger.error("Error looking for default settings " + settings, ioe);
+                    return null;
+                }
+                ObjectMapper mapper = new ObjectMapper();
+                TypeFactory typeFactory = mapper.getTypeFactory();
+                MapType mapType = typeFactory.constructMapType(HashMap.class, String.class, HashMap.class);
+
+                defaultSettings = mapper.readValue(file, mapType);
+                logger.debug("Initialised settings {} with {} keys", settings, defaultSettings.keySet().size());
+            }
         } catch (IOException e) {
             logger.error("Error in building settings for the ES index", e);
         }
-        return null;
+        return defaultSettings;
     }
 
-    private XContentBuilder setting() throws IOException {
-        return jsonBuilder()
-                .startObject()
-                .startObject("analysis")
-                .startObject("analyzer")
-                .startObject(MetaSearchSchema.NGRM_WHAT_CODE)
-                .field("tokenizer", MetaSearchSchema.NGRM_WHAT_CODE)
-                .endObject()
-                .startObject(MetaSearchSchema.NGRM_WHAT_NAME)
-                .field("tokenizer", MetaSearchSchema.NGRM_WHAT_NAME)
-                .endObject()
-                .startObject(MetaSearchSchema.NGRM_WHAT_DESCRIPTION)
-                .field("tokenizer", MetaSearchSchema.NGRM_WHAT_DESCRIPTION)
-                .endObject()
-                .endObject()
-                .startObject("tokenizer")
-                .startObject(MetaSearchSchema.NGRM_WHAT_CODE)
-                .field("type", "nGram")
-                .field("min_gram", MetaSearchSchema.NGRM_WHAT_CODE_MIN)
-                .field("max_gram", MetaSearchSchema.NGRM_WHAT_CODE_MAX)
-                .endObject()
-                .startObject(MetaSearchSchema.NGRM_WHAT_NAME)
-                .field("type", "nGram")
-                .field("min_gram", MetaSearchSchema.NGRM_WHAT_NAME_MIN)
-                .field("max_gram", MetaSearchSchema.NGRM_WHAT_NAME_MAX)
-                .endObject()
-                .startObject(MetaSearchSchema.NGRM_WHAT_DESCRIPTION)
-                .field("type", "nGram")
-                .field("min_gram", MetaSearchSchema.NGRM_WHAT_DESCRIPTION_MIN)
-                .field("max_gram", MetaSearchSchema.NGRM_WHAT_DESCRIPTION_MAX)
-                .endObject()
-                .endObject()
-                .endObject()
-                .endObject();
+    private static Map<String, Object> defaultMap = null;
+
+    private Lock lock = new ReentrantLock();
+
+    private Map<String, Object> getDefaultMapping() throws IOException {
+        if (defaultMap == null) {
+            logger.debug("Reading default mapping from disk = {}", searchAdmin.getEsDefaultMapping());
+            InputStream file = new FileInputStream(searchAdmin.getEsDefaultMapping());
+            ObjectMapper mapper = new ObjectMapper();
+            TypeFactory typeFactory = mapper.getTypeFactory();
+            MapType mapType = typeFactory.constructMapType(HashMap.class, String.class, HashMap.class);
+            defaultMap = mapper.readValue(file, mapType);
+            logger.debug("Initialised mapping {} with {} keys", searchAdmin.getEsDefaultMapping(), defaultMap.keySet().size());
+        }
+        return defaultMap;
     }
 
-    private XContentBuilder mapping(String documentType) {
+    private XContentBuilder mapping(String indexName, String documentType) {
+
         XContentBuilder xbMapping;
         try {
-            xbMapping = jsonBuilder()
-                    .startObject()
-                    .startObject(documentType)
-                    .startObject("properties")
-                    .startObject(MetaSearchSchema.META_KEY) // keyword
-                    .field("type", "string")
-                    .field("index", NOT_ANALYZED)
-                    .endObject()
-                    .startObject(MetaSearchSchema.CALLER_REF) // keyword
-                    .field("type", "string")
-                    .field("boost", "2.0")
-                    .field("index", NOT_ANALYZED)
-                    .endObject()
-                    .startObject(MetaSearchSchema.DOC_TYPE)  // keyword
-                    .field("type", "string")
-                    .field("index", NOT_ANALYZED)
-                    .endObject()
-                    .startObject(MetaSearchSchema.FORTRESS)   // keyword
-                    .field("type", "string")
-                    .field("index", NOT_ANALYZED)
-                    .endObject()
-                    .startObject(MetaSearchSchema.LAST_EVENT)  //@lastEvent
-                    .field("type", "string")
-                    .field("index", NOT_ANALYZED)
-                    .endObject()
-                    .startObject(MetaSearchSchema.TIMESTAMP)
-                    .field("type", "date")
-                    .endObject()
-                    .startObject(MetaSearchSchema.CREATED)
-                    .field("type", "date")
-                    .endObject()
-                    .startObject(MetaSearchSchema.WHAT)    //@what is dynamic so we don't init his mapping we choose the convention
-                    .startObject("properties")
-                    .startObject(MetaSearchSchema.WHAT_CODE)
-                    .field("type", "string")
-                    .field("boost", 2d)
-                    .field("analyzer", MetaSearchSchema.NGRM_WHAT_CODE)
-                    .endObject()
-                    .startObject(MetaSearchSchema.WHAT_NAME)
-                    .field("type", "string")
-                    .field("boost", 2d)
-                    .field("analyzer", MetaSearchSchema.NGRM_WHAT_NAME)
-                    .endObject()
-                    .startObject(MetaSearchSchema.WHAT_DESCRIPTION)
-                    .field("type", "string")
-                    .field("analyzer", MetaSearchSchema.NGRM_WHAT_DESCRIPTION)
-                    .endObject()
-                    .endObject()
-                    .endObject()
-                    .startObject(MetaSearchSchema.WHEN)      //@when
-                    .field("type", "date")
-                    .endObject()
-                    .startObject(MetaSearchSchema.WHO)       //@who
-                    .field("type", "string")
-                    .field("index", NOT_ANALYZED)
-                    .endObject()
-                    .endObject() // End properties
-                    .startArray("dynamic_templates")
-                    .startObject()
-                    .startObject("tag-template")
-                    .field("path_match", MetaSearchSchema.TAG + ".*.key")
-                    .field("match_mapping_type", "string")
-                    .startObject("mapping")
-                    .field("type", "string")
-                    .field("boost", 3d)
-                    .field("index", "not_analyzed")
-                    .field("store", "yes")
-                    .endObject()
-                    .endObject() // Tag Template
-                    .endObject()
-                    .endArray()
-                    .endObject() // End document type
-                    .endObject(); // root;
+            Map<String, Object> map = getDefaultMapping();
+            Map<String, Object> docMap = new HashMap<>();
+            docMap.put(documentType, map.get("ab.default"));
+            xbMapping = jsonBuilder().map(docMap);
+
         } catch (IOException e) {
             return null;
         }

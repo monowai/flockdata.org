@@ -122,4 +122,5 @@ public interface SearchChange {
      */
     public boolean isDelete();
 
+    void setName(String name);
 }

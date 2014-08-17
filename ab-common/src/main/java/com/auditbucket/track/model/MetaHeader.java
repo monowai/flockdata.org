@@ -138,4 +138,5 @@ public interface MetaHeader {
 
     String getCallerKeyRef();
 
+    String getDescription();
 }
