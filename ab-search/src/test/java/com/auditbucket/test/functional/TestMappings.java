@@ -3,6 +3,7 @@ package com.auditbucket.test.functional;
 import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
 import com.auditbucket.engine.repo.neo4j.model.MetaHeaderNode;
 import com.auditbucket.engine.repo.neo4j.model.TrackTagRelationship;
+import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
@@ -137,6 +138,49 @@ public class TestMappings extends ESBase {
         doEsTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_CODE, "az", 1);
         doEsTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_CODE, "azer", 1);
         doEsTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_CODE, "azerty", 0);
+
+    }
+    MetaHeader getMetaHeader (String comp, String fort, String userName) throws DatagioException {
+        // These are the minimum objects necessary to create a MetaHeader data
+        Fortress fortress = new FortressNode(new FortressInputBean(fort, false), new CompanyNode(comp)) ;
+        FortressUser user = new FortressUserNode(fortress, userName);
+        DocumentTypeNode doc = new DocumentTypeNode(fortress, fortress.getName());
+
+        DateTime now = new DateTime();
+        MetaInputBean mib = getMetaInputBean(doc, user, now.toString(), now);
+
+        return new MetaHeaderNode(now.toString(), fortress, mib, doc, user);
+    }
+
+    @Test
+    public void testCustomMappingWorks() throws Exception {
+        Map<String, Object> json = Helper.getBigJsonText(20);
+        MetaHeader headerA = getMetaHeader("cust", "fort", "anyuser");
+        MetaHeader headerB = getMetaHeader("cust", "fortb", "anyuser");
+
+        SearchChange changeA = new MetaSearchChange(headerA, json);
+        SearchChange changeB = new MetaSearchChange(headerB, json);
+
+        // FortB will have
+        changeA.setDescription("Test Description");
+        changeB.setDescription("Test Description");
+
+        deleteEsIndex(headerA.getIndexName());
+        deleteEsIndex(headerB.getIndexName());
+
+        changeA = trackRepo.update(changeA);
+        changeB = trackRepo.update(changeB);
+        Thread.sleep(1000);
+        assertNotNull(changeA);
+        assertNotNull(changeB);
+        assertNotNull(changeA.getSearchKey());
+        assertNotNull(changeB.getSearchKey());
+
+        // by default we analyze the @description field
+        doEsFieldQuery(headerA.getIndexName(), "@description", "test description", 1);
+
+        // In fortb.json we don't analyze the description (overriding the default) so it shouldn't be found
+        doEsFieldQuery(headerB.getIndexName(), "@description", "test description", 0);
 
     }
 

@@ -19,6 +19,7 @@
 
 package com.auditbucket.track.model;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -33,7 +34,7 @@ public interface TrackSearchDao {
      *
      * @param searchChange values to update from
      */
-    SearchChange update(SearchChange searchChange);
+    SearchChange update(SearchChange searchChange) throws IOException;
 
     /**
      * locates a document by LogResultBean.searchKey

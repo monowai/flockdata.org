@@ -98,6 +98,11 @@ public class MetaSearchChange implements SearchChange {
         setWhen(when);
     }
 
+    public MetaSearchChange(MetaHeader header, Map<String, Object> json) {
+        this(header);
+        this.what = json;
+    }
+
     @Override
     public Map<String, Object> getWhat() {
         return what;
