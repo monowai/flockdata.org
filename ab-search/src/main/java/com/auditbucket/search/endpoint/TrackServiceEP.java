@@ -14,6 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
 
 /**
  * Services TRACK requests from the Engine
@@ -22,6 +25,7 @@ import org.springframework.stereotype.Service;
  * Time: 6:23 AM
  */
 @Service
+@Transactional
 @MessageEndpoint
 public class TrackServiceEP {
     @Autowired
@@ -38,11 +42,13 @@ public class TrackServiceEP {
      * It may or may not already exist.
      *
      * @param changes to process
+     * @throws java.io.IOException if there is a problem with mapping files. This exception will keep
+     * the message on the queue until the mapping is fixed
      */
     @ServiceActivator(inputChannel = "makeSearchRequest") // Subscriber
-    public void createSearchableChange(MetaSearchChanges changes) {
+    public void createSearchableChange(MetaSearchChanges changes) throws IOException {
         Iterable<MetaSearchChange> thisChange = changes.getChanges();
-        logger.info("Received request to index Batch ");
+        logger.debug("Received request to index Batch {}", changes.getChanges().size());
         SearchResults results = new SearchResults();
         int processed = 0;
         for (SearchChange metaSearchChange : thisChange) {

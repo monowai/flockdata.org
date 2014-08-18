@@ -48,6 +48,7 @@ import io.searchbox.client.JestResult;
 import io.searchbox.client.config.HttpClientConfig;
 import io.searchbox.core.Search;
 import io.searchbox.indices.DeleteIndex;
+import io.searchbox.indices.mapping.GetMapping;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
@@ -505,8 +506,8 @@ public class TestABIntegration {
     @Test
     public void engineQueryResultsReturn() throws Exception {
         // DAT-83
-        //assumeTrue(runMe);
-        logger.info("## searchDocWithNoMetaKeyWorks");
+        assumeTrue(runMe);
+        logger.info("## engineQueryResultsReturn");
         SystemUser su = registerSystemUser("Kiwi");
         Fortress fo = fortressService.registerFortress(new FortressInputBean("QueryTest", false));
 
@@ -657,32 +658,31 @@ public class TestABIntegration {
         SystemUser su = registerSystemUser("Romeo");
         Fortress iFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ngram", false));
         MetaInputBean inputBean = new MetaInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
+        inputBean.setDescription("This is a description");
 
         TrackResultBean indexedResult = mediationFacade.createHeader(inputBean, su.getApiKey());
         MetaHeader indexHeader = trackService.getHeader(su.getCompany(), indexedResult.getMetaKey());
-        //String what = "{\"code\":\"AZERTY\",\"name\":\"NameText\",\"description\":\"this is a description\"}";
-        Map<String,Object> what = getSimpleMap("code", "AZERTY");
-        what.put("name", "NameText");
-        what.put("description","This is a description");
-        mediationFacade.processLog(su.getCompany(), new LogInputBean("olivia@sunnybell.com", indexHeader.getMetaKey(), new DateTime(), what));
+
+        Map<String,Object> what = getSimpleMap(MetaSearchSchema.WHAT_CODE, "AZERTY");
+        what.put(MetaSearchSchema.WHAT_NAME, "NameText");
+        indexHeader = mediationFacade.processLog(su.getCompany(), new LogInputBean("olivia@sunnybell.com", indexHeader.getMetaKey(), new DateTime(), what)).getMetaHeader();
         waitForHeaderToUpdate(indexHeader, su.getApiKey());
+
         String indexName = indexHeader.getIndexName();
+        getMapping(indexName);
 
-        doEsTermQuery(indexName, MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "des", 1);
-        doEsTermQuery(indexName, MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "de", 0);
-        doEsTermQuery(indexName, MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "descripti", 1);
-        doEsTermQuery(indexName, MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "descriptio", 1);
-        doEsTermQuery(indexName, MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "description", 0);
-        doEsTermQuery(indexName, MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "is is a de", 1);
-        doEsTermQuery(indexName, MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "is is a des", 0);
+        // This is a description
+        // 123456789012345678901
 
-        doEsTermQuery(indexName, MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_NAME, "Name", 1);
-        doEsTermQuery(indexName, MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_NAME, "Nam", 1);
-        doEsTermQuery(indexName, MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_NAME, "NameText", 1);
+        // All text is converted to lowercase, so you have to search with lower
+        doEsTermQuery(indexName, MetaSearchSchema.DESCRIPTION, "des", 1);
+        doEsTermQuery(indexName, MetaSearchSchema.DESCRIPTION, "de", 0);
+        doEsTermQuery(indexName, MetaSearchSchema.DESCRIPTION, "descripti", 1);
+        doEsTermQuery(indexName, MetaSearchSchema.DESCRIPTION, "descriptio", 1);
+        doEsTermQuery(indexName, MetaSearchSchema.DESCRIPTION, "this", 1);
+        // ToDo: Figure out ngram details
+        //doEsTermQuery(indexName, MetaSearchSchema.DESCRIPTION, "this is a description", 0);
 
-        doEsTermQuery(indexName, MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_CODE, "AZ", 1);
-        doEsTermQuery(indexName, MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_CODE, "AZER", 1);
-        doEsTermQuery(indexName, MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_CODE, "AZERTY", 0);
 
     }
 
@@ -1025,6 +1025,15 @@ public class TestABIntegration {
         return jResult.getJsonString();
 
         //return result.getJsonString();
+    }
+
+    private String getMapping(String indexName) throws Exception {
+        GetMapping mapping = new GetMapping.Builder()
+                .addIndex(indexName)
+                .build();
+
+        JestResult jResult = esClient.execute(mapping);
+        return jResult.getJsonString();
     }
 
     private String doEsTermQuery(String indexName, String metaKey, String metaKey1, int i) throws Exception {

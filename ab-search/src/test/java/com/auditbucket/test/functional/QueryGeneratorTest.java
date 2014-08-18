@@ -1,5 +1,6 @@
-package com.auditbucket.search.helper;
+package com.auditbucket.test.functional;
 
+import com.auditbucket.search.helper.QueryGenerator;
 import junit.framework.Assert;
 import org.junit.Test;
 
@@ -13,7 +14,7 @@ import org.junit.Test;
 public class QueryGeneratorTest {
     @Test
     public void testGetSimpleQuery_withoutHighlight() throws Exception {
-        String query = QueryGenerator.getSimpleQuery("test",false);
+        String query = QueryGenerator.getSimpleQuery("test", false);
         Assert.assertEquals("{\n" +
                 "  \"query\": {\n" +
                 "    \"bool\": {\n" +

@@ -19,6 +19,7 @@
 
 package com.auditbucket.track.model;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -33,15 +34,16 @@ public interface TrackSearchDao {
      *
      * @param searchChange values to update from
      */
-    SearchChange update(SearchChange searchChange);
+    SearchChange update(SearchChange searchChange) throws IOException;
 
     /**
      * locates a document by LogResultBean.searchKey
      *
+     *
      * @param header auditHeader
      * @return document context as bytes
      */
-    public byte[] findOne(MetaHeader header);
+    public Map<String, Object> findOne(MetaHeader header);
 
     /**
      * Locates a specific key monitored by the header.
@@ -51,7 +53,7 @@ public interface TrackSearchDao {
      *
      * @return found track change or null if none
      */
-    byte[] findOne(MetaHeader header, String id);
+    Map<String, Object> findOne(MetaHeader header, String id);
 
     /**
      * Removes a search document. Most of the time, the searchKey in the header
