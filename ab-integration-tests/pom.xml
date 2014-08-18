@@ -111,7 +111,7 @@
         <dependency>
             <groupId>io.searchbox</groupId>
             <artifactId>jest</artifactId>
-            <version>0.1.0</version>
+            <version>0.1.2</version>
         </dependency>
     </dependencies>
 
@@ -158,7 +158,7 @@
                         <version>2.17</version>
                         <configuration>
                             <junitArtifactName>junit:junit</junitArtifactName>
-                            <argLine>-Xmx512m</argLine>
+                            <argLine>-Xmx768m</argLine>
 
                         </configuration>
                         <executions>
@@ -182,13 +182,13 @@
                     <plugin>
                         <groupId>org.codehaus.cargo</groupId>
                         <artifactId>cargo-maven2-plugin</artifactId>
-                        <version>1.4.2</version>
+                        <version>1.4.9</version>
                         <configuration>
                             <container>
                                 <containerId>tomcat7x</containerId>
                                 <zipUrlInstaller>
                                     <url>
-                                        http://archive.apache.org/dist/tomcat/tomcat-7/v7.0.30/bin/apache-tomcat-7.0.30.zip
+                                        http://archive.apache.org/dist/tomcat/tomcat-7/v7.0.55/bin/apache-tomcat-7.0.55.zip
                                     </url>
                                 </zipUrlInstaller>
                                 <systemProperties>
@@ -205,6 +205,7 @@
                                     <cargo.servlet.port>9081</cargo.servlet.port>
                                     <cargo.rmi.port>9086</cargo.rmi.port>
                                     <cargo.tomcat.ajp.port>9087</cargo.tomcat.ajp.port>
+                                    <!--<cargo.jvmargs>-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n -Xms512m -Xmx1024m -XX:MaxPermSize=256m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC</cargo.jvmargs>-->
                                 </properties>
                             </configuration>
                             <deployables>
@@ -248,5 +249,7 @@
             <name>Sonatype Groups</name>
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
+
+
     </repositories>
 </project>

@@ -1,0 +1,38 @@
+{
+        "analysis": {
+            "analyzer": {
+                "ngram_what_code": {
+                    "tokenizer": "ngram_short",
+                    "filter": "standard,lowercase"
+                },
+                "ngram_what_name": {
+                    "tokenizer": "ngram_medium",
+                    "filter": "standard,lowercase"
+                },
+                "ngram_what_description": {
+                    "tokenizer": "ngram_long",
+                    "filter": "standard,lowercase"
+                }
+
+            },
+
+            "tokenizer": {
+                "ngram_short": {
+                    "type": "nGram",
+                    "min_gram": "2",
+                    "max_gram": "5"
+                },
+                "ngram_medium": {
+                    "type": "nGram",
+                    "min_gram": "3",
+                    "max_gram": "10"
+                },
+                "ngram_long": {
+                    "type": "nGram",
+                    "min_gram": "3",
+                    "token_chars": [ "letter", "digit" ],
+                    "max_gram": "15"
+                }
+            }
+        }
+}
