@@ -144,6 +144,11 @@ public class MetaHeaderNode implements MetaHeader {
 
     }
 
+    public MetaHeaderNode(String guid, Fortress fortress, MetaInputBean mib, DocumentTypeNode doc, FortressUser user) throws DatagioException {
+        this(guid, fortress, mib, doc);
+        setCreatedBy(user);
+    }
+
     public Long getId() {
         return id;
     }
@@ -167,7 +172,7 @@ public class MetaHeaderNode implements MetaHeader {
     @Override
     @JsonIgnore
     public String getName() {
-        return name;  //To change body of implemented methods use File | Settings | File Templates.
+        return name;
     }
 
     /**

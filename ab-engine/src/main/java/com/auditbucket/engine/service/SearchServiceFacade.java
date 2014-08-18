@@ -150,7 +150,8 @@ public class SearchServiceFacade {
         searchDocument = new MetaSearchChange(metaHeader, (HashMap<String, Object>) logInput.getWhat(), event.getCode(), fortressWhen);
         searchDocument.setWho(trackLog.getLog().getWho().getCode());
         searchDocument.setTags(tagTrackService.findTrackTags(metaHeader.getFortress().getCompany(), metaHeader));
-        searchDocument.setDescription(metaHeader.getName());
+        searchDocument.setDescription(metaHeader.getDescription());
+        searchDocument.setName(metaHeader.getName());
         try {
             if (logger.isTraceEnabled())
                 logger.trace("JSON {}", om.writeValueAsString(searchDocument));
