@@ -45,7 +45,8 @@ public class MetaSearchChange implements SearchChange {
 
     private String documentType;
     private String description;
-    private HashMap<String, Object> what;
+    private String name;
+    private Map<String, Object> what;
     private Long when;
     private String fortressName;
     private String companyName;
@@ -82,7 +83,7 @@ public class MetaSearchChange implements SearchChange {
         this.callerRef = header.getCallerRef();
         if ( header.getLastUser()!=null)
             this.who = header.getLastUser().getCode();
-
+        this.description = header.getDescription();
         this.createdDate = header.getWhenCreated(); // When created in AuditBucket
 
     }
@@ -97,13 +98,18 @@ public class MetaSearchChange implements SearchChange {
         setWhen(when);
     }
 
+    public MetaSearchChange(MetaHeader header, Map<String, Object> json) {
+        this(header);
+        this.what = json;
+    }
+
     @Override
     public Map<String, Object> getWhat() {
         return what;
     }
 
     @Override
-    public void setWhat(HashMap<String, Object> what) {
+    public void setWhat(Map<String, Object> what) {
         this.what = what;
     }
 
@@ -259,6 +265,10 @@ public class MetaSearchChange implements SearchChange {
     @Override
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public void setName(String name){
+        this.name = name;
     }
 
     @Override

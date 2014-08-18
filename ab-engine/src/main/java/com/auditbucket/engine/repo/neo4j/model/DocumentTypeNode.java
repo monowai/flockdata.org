@@ -63,14 +63,9 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
     protected DocumentTypeNode() {
     }
 
-    public DocumentTypeNode(String documentType){
+    public DocumentTypeNode(Fortress fortress, String documentType) {
         this();
         this.name = documentType;
-
-    }
-
-    public DocumentTypeNode(Fortress fortress, String documentType) {
-        this(documentType);
         this.code = parse(fortress, documentType);
 
         if ( fortress !=null ){
@@ -80,18 +75,7 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
 
     }
 
-//    public DocumentTypeNode(Collection<Fortress> fortress, String name) {
-//        this(name);
-//        this.fortress = fortress;
-//        if ( fortress !=null )
-//            this.companyKey = fortress.iterator().next().getCompany().getId() + "." + code;
-//
-//    }
-
     private void addFortress(Fortress fortress) {
-//        if ( fortress== null )
-//            fortress = new ArrayList<>();
-//        fortress.add(fortress);
         this.fortress = fortress;
     }
 
@@ -146,9 +130,9 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
                 '}';
     }
 
-    public static String parse(Fortress fortress, String indexName) {
+    public static String parse(Fortress fortress, String documentType) {
         //return indexName.toLowerCase().replaceAll("\\s", ".");
-        return fortress.getId() + "."+indexName.toLowerCase().replaceAll("\\s", ".");
+        return fortress.getId() + "."+ documentType.toLowerCase().replaceAll("\\s", ".");
     }
 
     @Override
