@@ -10,12 +10,10 @@ import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.model.MetaKey;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * User: mike
@@ -41,11 +39,30 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
         return AbRestClient.type.TRACK;
     }
 
-    private Map<String, Object> toMap(String[] headerRow, String[] line) {
+    private Map<String, Object> toMap(String[] headerRow, String[] line, ImportParams importParams) {
         int col = 0;
+
         Map<String, Object> row = new HashMap<>();
         for (String column : headerRow) {
-            row.put(column, line[col]);
+            CsvColumnDefinition colDef = importParams.getColumnDef(column);
+
+            //if (colDef.getDateFormat)
+            if (NumberUtils.isNumber(line[col])) {
+                row.put(column, NumberUtils.createNumber(line[col]));
+            } else {
+                Date date = null;
+//                try {
+//                    if ( colDef!=null && colDef.getDateFormat()!=null ) {
+//                        date = DateUtils.parseDate(line[col], colDef.getDateFormat());
+//                        row.put(column, date.getTime());
+//                    }
+//                } catch (ParseException e) {
+//                    //
+//                }
+                //if ( date == null ) // Stash it as a string
+                row.put(column, line[col]);
+            }
+
             col++;
         }
         return row;
@@ -54,7 +71,7 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
     @Override
     public Map<String, Object> setData(final String[] headerRow, final String[] line, ImportParams importParams) throws JsonProcessingException, DatagioException {
         int col = 0;
-        Map<String, Object> row = toMap(headerRow, line);
+        Map<String, Object> row = toMap(headerRow, line, importParams);
 
         for (String column : headerRow) {
             CsvColumnHelper columnHelper = new CsvColumnHelper(column, line[col], importParams.getColumnDef(headerRow[col]));
@@ -124,7 +141,7 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
             CsvColumnDefinition colDef = importParams.getColumnDef(strategyCol);
             String tag = importParams.getStaticDataResolver().resolve(strategyCol, getColumnValues(colDef, row));
 
-            if (tag != null ){
+            if (tag != null) {
                 addCrossReference(colDef.getStrategy(), new MetaKey(colDef.getFortress(), colDef.getDocumentType(), tag));
 //                addCrossReference();
 //                TagInputBean tagInput = new TagInputBean(tag).setIndex(colDef.getIndex());
@@ -148,12 +165,12 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
     }
 
     private Map<String, Object> getColumnValues(CsvColumnDefinition colDef, Map<String, Object> row) {
-        Map<String,Object>results = new HashMap<>();
+        Map<String, Object> results = new HashMap<>();
         String[] columns = colDef.getColumns();
 
-        int i =0;
+        int i = 0;
         int max = columns.length;
-        while ( i<max){
+        while (i < max) {
             results.put(columns[i], row.get(columns[i]));
             i++;
         }
