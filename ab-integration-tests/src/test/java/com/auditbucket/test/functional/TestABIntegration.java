@@ -408,8 +408,8 @@ public class TestABIntegration {
 
         waitForHeaderToUpdate(result.getMetaHeader(), su.getApiKey());
         // ensure that non-analysed tags work
-        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testinga.key", "happy", 1);
-        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingb.key", "happydays", 1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testinga.code", "happy", 1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingb.code", "happy days", 1);
         // We now have 1 log with tags validated in ES
 
         // Add another Log - replacing the two existing Tags with two new ones
@@ -422,11 +422,11 @@ public class TestABIntegration {
         waitForHeaderToUpdate(result.getMetaHeader(), su.getApiKey());
         // We now have 2 logs, sad tags, no happy tags
 
-        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingb.key", "saddays", 1);
-        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingc.key", "daysbay", 1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingb.code", "sad days", 1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingc.code", "days bay", 1);
         // These were removed in the update
-        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testinga.key", "happy", 0);
-        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingb.key", "happydays", 0);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testinga.code", "happy", 0);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingb.code", "happy days", 0);
 
         // Cancel Log - this will remove the sad tags and leave us with happy tags
         mediationFacade.cancelLastLogSync(su.getCompany(), result.getMetaKey());
@@ -435,12 +435,12 @@ public class TestABIntegration {
         assertEquals(2, tags.size());
 
         // These should have been added back in due to the cancel operation
-        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testinga.key", "happy", 1);
-        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingb.key", "happydays", 1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testinga.code", "happy", 1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingb.code", "happy days", 1);
 
         // These were removed in the cancel
-        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingb.key", "saddays", 0);
-        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingc.key", "daysbay", 0);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingb.code", "sad days", 0);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingc.code", "days bay", 0);
 
 
     }
@@ -462,11 +462,11 @@ public class TestABIntegration {
         TrackResultBean result = mediationFacade.createHeader(inputBean, null); // Mock result as we're not tracking
         waitForHeaderToUpdate(result.getMetaHeader(), su.getApiKey());
         // ensure that non-analysed tags work
-        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testinga.key", "happy", 1);
-        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingb.key", "happydays", 1);
-        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingb.key", "saddays", 1);
-        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingc.key", "daysbay", 1);
-        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingc.key", "days", 0);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testinga.code", "happy", 1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingb.code", "happy days", 1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingb.code", "sad days", 1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingc.code", "days bay", 1);
+        doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingc.code", "days", 0);
 
     }
 
@@ -583,14 +583,13 @@ public class TestABIntegration {
         SystemUser su = registerSystemUser("Peter");
         Fortress iFortress = fortressService.registerFortress(new FortressInputBean("suppress"));
         MetaInputBean metaInput = new MetaInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
-        String relationshipName = "example"; // Relationship names is indexed are @tag.relationshipName.key in ES
-        TagInputBean tag = new TagInputBean("Key Test Works", relationshipName);
+        String relationshipName = "example"; // Relationship names is indexed are @tag.relationshipName.code in ES
+        TagInputBean tag = new TagInputBean("Code Test Works", relationshipName);
         metaInput.addTag(tag);
 
         TrackResultBean indexedResult = mediationFacade.createHeader(metaInput, null);
         MetaHeader indexHeader = trackService.getHeader(indexedResult.getMetaKey());
         String indexName = indexHeader.getIndexName();
-//        doEsFieldQuery(indexName, "@tag." + relationshipName + ".key", "keytestworks", 1);
 
         Set<TrackTag> tags = trackEP.getTrackTags(indexHeader.getMetaKey(), null, null);
         assertNotNull(tags);
@@ -600,7 +599,7 @@ public class TestABIntegration {
         assertNotNull(resultBean);
 
         waitForHeaderToUpdate(indexHeader, su.getApiKey());
-        doEsTermQuery(indexName, "@tag." + relationshipName + ".key", "keytestworks", 1);
+        doEsTermQuery(indexName, "@tag." + relationshipName + ".code", "code test works", 1);
 
     }
 
