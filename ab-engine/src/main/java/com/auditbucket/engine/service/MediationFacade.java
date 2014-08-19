@@ -156,8 +156,6 @@ public class MediationFacade {
     }
 
     public TrackResultBean createHeader(MetaInputBean inputBean, String apiKey) throws DatagioException, IOException {
-        if (inputBean == null)
-            throw new DatagioException("No input to process");
         Company company = registrationService.resolveCompany(apiKey);
         Fortress fortress = fortressService.registerFortress(company, new FortressInputBean(inputBean.getFortress(), false));
         fortress.setCompany(company);
@@ -177,9 +175,6 @@ public class MediationFacade {
      * @throws IOException      json processing exception
      */
     public TrackResultBean createHeader(final Company company, final Fortress fortress, final MetaInputBean inputBean) throws DatagioException, IOException {
-        if (inputBean == null)
-            throw new DatagioException("No input to process!");
-
         class HeaderDeadlockRetry implements Command {
             TrackResultBean result = null;
 
@@ -369,43 +364,3 @@ public class MediationFacade {
 
 
 }
-
-//class MetaFacadeHelper implements Command {
-//    @Autowired
-//    TrackService trackService;
-//
-//    @Autowired
-//    SchemaService schemaService;
-//
-//    @Autowired
-//    LogProcessor logProcessor;
-//
-//    private Company company;
-//    private Fortress fortress;
-//    Iterable<MetaInputBean> headers = null;
-//    Iterable<TrackResultBean> resultBeans;
-//
-//    MetaFacadeHelper(Company company, Fortress fortress, Iterable<MetaInputBean> headers) {
-//        this.headers = headers;
-//        this.company = company;
-//        this.fortress = fortress;
-//    }
-//
-//    public MetaFacadeHelper(Company company, Fortress fortress, MetaInputBean inputBean) {
-//        ArrayList<MetaInputBean> headers = new ArrayList<>();
-//        headers.add(inputBean);
-//        this.headers = headers;
-//        this.company = company;
-//        this.fortress = fortress;
-//
-//    }
-//
-//    @Override
-//    public Command execute() throws DatagioException, IOException {
-//        schemaService.createDocTypes(headers, company, fortress);
-//        resultBeans = trackService.createHeaders(headers, company, fortress);
-////                        logger.debug("Header finished {}", Thread.currentThread().getName());
-//        logProcessor.processLogs(company, resultBeans);
-//        return this;
-//    }
-//}
