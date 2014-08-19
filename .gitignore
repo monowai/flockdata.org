@@ -43,6 +43,7 @@ Thumbs.db
 #IDE Files
 .idea/
 .classpath
+.clover
 .project
 .settings/
 *.iml
