@@ -58,7 +58,7 @@
                         "type": "string",
                         "boost": 3.0,
                         "index": "not_analyzed",
-                        "store": "true"
+                        "store": "yes"
                     }
                 }
             }
