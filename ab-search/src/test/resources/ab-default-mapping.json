@@ -61,14 +61,14 @@
 
             "dynamic_templates": [
                 {
-                    "tag-template": {
+                    "ab.tag-template": {
                         "path_match": "@tag.*.code",
-                        "match_mapping_type": "string",
+                        "match_mapping_type": "{dynamic_type}",
                         "mapping": {
-                            "type": "string",
+                            "type": "{dynamic_type}",
                             "boost": 3.0,
                             "index": "not_analyzed",
-                            "store": "yes"
+                            "store": "true"
                         }
                     }
                 }

@@ -49,6 +49,9 @@
     <logger name="org.codehaus.jackson">
         <level value="info"/>
     </logger>
+    <logger name="io.searchbox">
+        <level value="info"/>
+    </logger>
 
     <logger name="org.apache">
         <level value="error" />
