@@ -28,10 +28,18 @@
             "@whenCreated": {
                 "type": "date"
             },
+            "@what": {
+                "properties": {
+                    "Closing Ceremony Date": {
+                        "type": "date",
+                        "format": "MM/dd/yy"
+                    }
+                }
+            },
             "@description": {
                 "type": "string",
-                "index": "not_analyzed"
-            },
+                "analyzer": "ngram_long"
+            } ,
             "@when": {
                 "type": "date"
             },
@@ -43,7 +51,7 @@
 
         "dynamic_templates": [
             {
-                "ab.tag-template": {
+                "tag-template": {
                     "path_match": "@tag.*.code",
                     "match_mapping_type": "string",
                     "mapping": {

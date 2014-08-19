@@ -1,5 +1,16 @@
 package com.auditbucket.test.functional;
 
+import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
+import com.auditbucket.engine.repo.neo4j.model.MetaHeaderNode;
+import com.auditbucket.helper.DatagioException;
+import com.auditbucket.registration.bean.FortressInputBean;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.FortressUser;
+import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
+import com.auditbucket.registration.repo.neo4j.model.FortressNode;
+import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
+import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.model.MetaHeader;
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.JestResult;
@@ -7,7 +18,7 @@ import io.searchbox.client.config.HttpClientConfig;
 import io.searchbox.core.Search;
 import io.searchbox.indices.DeleteIndex;
 import io.searchbox.indices.mapping.GetMapping;
-import org.codehaus.jackson.map.ObjectMapper;
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
@@ -15,9 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.test.annotation.Rollback;
 
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import static junit.framework.Assert.assertEquals;
@@ -34,9 +42,6 @@ public class ESBase {
     static Properties properties = new Properties();
 
     private static JestClient esClient;
-    
-    private static ObjectMapper objectMapper;
-
 
     static void deleteEsIndex(String indexName) throws Exception {
         logger.info("%% Delete Index {}", indexName);
@@ -59,7 +64,7 @@ public class ESBase {
 
     }
 
-    String doEsTermQuery(String index, String field, String queryString, int expectedHitCount) throws Exception {
+    String doTermQuery(String index, String field, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
         int runCount = 0, nbrResult;
@@ -109,7 +114,7 @@ public class ESBase {
         }
     }
 
-    String doEsQuery(String index, String queryString, int expectedHitCount) throws Exception {
+    String doQuery(String index, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
         //waitAWhile();
@@ -156,20 +161,63 @@ public class ESBase {
 
     }
 
-    Map<String,Object> jsonToMap(String json) throws IOException {
-        // I never remember how to do this
-        //if ( json == null )
-            return new HashMap<>();
-//        return objectMapper.readValue(json,
-//                new TypeReference<Map<String, Object>>() {
-//                });
-    }
-
-     String doEsFieldQuery(String index, String field, String queryString, int expectedHitCount) throws Exception {
+    String doFieldQuery(String index, String type, String field, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
         int runCount = 0, nbrResult;
 
+        JestResult result;
+        do {
+
+            runCount++;
+            String query = "{\n" +
+                    "    \"query\" : {\n" +
+                    "        \"filtered\" : {\n" +
+                    "            \"filter\" : {\n" +
+                    "                \"term\" : {\n" +
+                    "                    \"" + field + "\" : \"" + queryString + "\"\n" +
+                    "                }\n" +
+                    "            }\n" +
+                    "        }\n" +
+                    "    }\n" +
+                    "}";
+            Search search = new Search.Builder(query)
+                    .addIndex(index)
+                    .addType(type)
+                    .build();
+
+            result = esClient.execute(search);
+            String message = index + " - " + field + " - " + queryString + (result == null ? "[noresult]" : "\r\n" + result.getJsonString());
+            assertNotNull(message, result);
+            assertNotNull(message, result.getJsonObject());
+            assertNotNull(message, result.getJsonObject().getAsJsonObject("hits"));
+            assertNotNull(message, result.getJsonObject().getAsJsonObject("hits").get("total"));
+            nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
+        } while (nbrResult != expectedHitCount && runCount < 5);
+
+        logger.debug("ran ES Field Query - result count {}, runCount {}", nbrResult, runCount);
+        Assert.assertEquals("Unexpected hit count searching '" + index + "' for {" + queryString + "} in field {" + field + "}", expectedHitCount, nbrResult);
+        if (nbrResult != 0)
+            return result.getJsonObject()
+                    .getAsJsonObject("hits")
+                    .getAsJsonArray("hits")
+                    .getAsJsonArray()
+                    .iterator()
+                    .next()
+                    .getAsJsonObject().get("_source").toString();
+        else
+            return result.getJsonObject()
+                    .getAsJsonObject("hits")
+                    .getAsJsonArray("hits")
+                    .getAsJsonArray().toString();
+    }
+
+    String doDefaultFieldQuery(String index, String field, String queryString, int expectedHitCount) throws Exception {
+        return doDefaultFieldQuery(index, null, field, queryString, expectedHitCount);
+    }
+
+    String doDefaultFieldQuery(String index, String type, String field, String queryString, int expectedHitCount) throws Exception {
+        int runCount = 0, nbrResult;
         JestResult result;
         do {
 
@@ -184,6 +232,7 @@ public class ESBase {
                     "}";
             Search search = new Search.Builder(query)
                     .addIndex(index)
+                    .addType(type)
                     .build();
 
             result = esClient.execute(search);
@@ -197,15 +246,15 @@ public class ESBase {
 
         logger.debug("ran ES Field Query - result count {}, runCount {}", nbrResult, runCount);
         Assert.assertEquals("Unexpected hit count searching '" + index + "' for {" + queryString + "} in field {" + field + "}", expectedHitCount, nbrResult);
-        if ( nbrResult !=0 )
-        return result.getJsonObject()
-                .getAsJsonObject("hits")
-                .getAsJsonArray("hits")
-                .getAsJsonArray()
-                .iterator()
-                .next()
-                .getAsJsonObject().get("_source").toString();
-         else
+        if (nbrResult != 0)
+            return result.getJsonObject()
+                    .getAsJsonObject("hits")
+                    .getAsJsonArray("hits")
+                    .getAsJsonArray()
+                    .iterator()
+                    .next()
+                    .getAsJsonObject().get("_source").toString();
+        else
             return result.getJsonObject()
                     .getAsJsonObject("hits")
                     .getAsJsonArray("hits")
@@ -213,17 +262,56 @@ public class ESBase {
     }
 
     String getMapping(String indexName) throws Exception {
-        String result = null;
+        return getMapping(indexName, null);
+    }
+
+    String getMapping(String indexName, String type) throws Exception {
 
         GetMapping mapping = new GetMapping.Builder()
                 .addIndex(indexName)
+                .addType(type)
                 .build();
 
 
         JestResult jResult = esClient.execute(mapping);
-        if ( jResult == null )
+        if (jResult == null)
             return null;
         return jResult.getJsonString();
     }
+
+    /**
+     * @param comp     company
+     * @param fort     fortress
+     * @param userName username
+     * @return metaheader with a document type of the same name as fort
+     * @throws com.auditbucket.helper.DatagioException
+     */
+    MetaHeader getMetaHeader(String comp, String fort, String userName) throws DatagioException {
+        return getMetaHeader(comp, fort, userName, fort);
+    }
+
+    MetaHeader getMetaHeader(String comp, String fort, String userName, String doctype) throws DatagioException {
+        // These are the minimum objects necessary to create a MetaHeader data
+        Fortress fortress = new FortressNode(new FortressInputBean(fort, false), new CompanyNode(comp));
+        FortressUser user = new FortressUserNode(fortress, userName);
+        DocumentTypeNode doc = new DocumentTypeNode(fortress, doctype);
+
+        DateTime now = new DateTime();
+        MetaInputBean mib = getMetaInputBean(doc, user, now.toString(), now);
+
+        return new MetaHeaderNode(now.toString(), fortress, mib, doc, user);
+
+    }
+
+    MetaInputBean getMetaInputBean(DocumentTypeNode docType, FortressUser fortressUser, String callerRef, DateTime now) {
+
+        return new MetaInputBean(fortressUser.getFortress().getName(),
+                fortressUser.getCode(),
+                docType.getName(),
+                now,
+                callerRef);
+
+    }
+
 
 }

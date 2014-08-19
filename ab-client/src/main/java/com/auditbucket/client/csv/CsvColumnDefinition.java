@@ -14,6 +14,7 @@ public class CsvColumnDefinition {
     private boolean callerRef;
     private boolean title;
     private boolean tag;
+    private String dateFormat;
     private boolean mustExist;
     private boolean valueAsProperty;
     private boolean country;
@@ -160,5 +161,13 @@ public class CsvColumnDefinition {
 
     public String getDocumentType() {
         return documentType;
+    }
+
+    public String getDateFormat() {
+        return dateFormat;
+    }
+
+    public void setDateFormat(String dateFormat) {
+        this.dateFormat = dateFormat;
     }
 }
