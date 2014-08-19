@@ -33,22 +33,22 @@
                         "code": {
                             "type": "string",
                             "boost": 2.0,
-                            "analyzer": "ngram_what_code"
+                            "analyzer": "ngram_short"
                         },
                         "name": {
                             "type": "string",
                             "boost": 2.0,
-                            "analyzer": "ngram_what_name"
+                            "analyzer": "ngram_medium"
                         },
                         "description": {
                             "type": "string",
-                            "analyzer": "ngram_what_description"
+                            "analyzer": "ngram_long"
                         }
                     }
                 },
                 "@description": {
                     "type": "string",
-                    "analyzer": "ngram_what_description"
+                    "analyzer": "ngram_long"
                 } ,
                 "@when": {
                     "type": "date"
@@ -61,14 +61,14 @@
 
             "dynamic_templates": [
                 {
-                    "tag-template": {
+                    "ab.tag-template": {
                         "path_match": "@tag.*.code",
-                        "match_mapping_type": "string",
+                        "match_mapping_type": "{dynamic_type}",
                         "mapping": {
-                            "type": "string",
+                            "type": "{dynamic_type}",
                             "boost": 3.0,
                             "index": "not_analyzed",
-                            "store": "yes"
+                            "store": "true"
                         }
                     }
                 }

@@ -1,15 +1,15 @@
 {
         "analysis": {
             "analyzer": {
-                "ngram_what_code": {
+                "ngram_short": {
                     "tokenizer": "ngram_short",
                     "filter": "standard,lowercase"
                 },
-                "ngram_what_name": {
+                "ngram_medium": {
                     "tokenizer": "ngram_medium",
                     "filter": "standard,lowercase"
                 },
-                "ngram_what_description": {
+                "ngram_long": {
                     "tokenizer": "ngram_long",
                     "filter": "standard,lowercase"
                 }
