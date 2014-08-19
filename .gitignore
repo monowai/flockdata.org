@@ -49,6 +49,7 @@ Thumbs.db
 *.iml
 target/
 data/
+report/
 
 
 ab-engine/.shell_history
