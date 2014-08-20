@@ -25,22 +25,11 @@ import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.CompanyUser;
 import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
-import com.auditbucket.registration.repo.neo4j.model.CompanyUserNode;
 import com.auditbucket.registration.repo.neo4j.model.SystemUserNode;
 
 
 public interface CompanyRepository extends GraphRepository<CompanyNode> {
-
-    @Query(elementClass = CompanyUserNode.class, value = "start company=node({0}) match company<-[:WORKS]-companyUsers return companyUsers")
-    Collection<CompanyUser> getCompanyUsers(Long companyId);
-
-    @Query(elementClass = CompanyUserNode.class,
-            value = "start company=node({0}) " +
-                    "match company-[r:WORKS]-companyUser " +
-                    "where companyUser.name ={1} return companyUser")
-    CompanyUserNode getCompanyUser(long ID, String userName);
 
     @Query(elementClass = SystemUserNode.class, value = "start company=node({0}) " +
             "match company-[r:ACCESSES]-systemUser " +

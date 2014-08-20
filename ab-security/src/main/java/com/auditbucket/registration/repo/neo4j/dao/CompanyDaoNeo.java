@@ -19,19 +19,16 @@
 
 package com.auditbucket.registration.repo.neo4j.dao;
 
-import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.CompanyUser;
-import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.registration.repo.neo4j.CompanyRepository;
-import com.auditbucket.registration.repo.neo4j.CompanyUserRepository;
-import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
-import com.auditbucket.registration.repo.neo4j.model.CompanyUserNode;
+import java.util.Collection;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.repo.neo4j.CompanyRepository;
+import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
 
 /**
  * User: Mike Holdsworth
@@ -45,9 +42,6 @@ public class CompanyDaoNeo implements CompanyDao {
     private CompanyRepository companyRepo;
 
     @Autowired
-    private CompanyUserRepository companyUserRepo;
-
-    @Autowired
     Neo4jTemplate template;
 
     @Override
@@ -55,19 +49,9 @@ public class CompanyDaoNeo implements CompanyDao {
         return companyRepo.save((CompanyNode) company);
     }
 
-    public CompanyUser save(CompanyUser companyUser) {
-        return companyUserRepo.save((CompanyUserNode) companyUser);
-    }
-
-
     @Override
     public Company findByPropertyValue(String property, Object value) {
         return companyRepo.findBySchemaPropertyValue(property, value);
-    }
-
-    @Override
-    public CompanyUser getCompanyUser(Long companyId, String userName) {
-        return companyRepo.getCompanyUser(companyId, userName);
     }
 
     @Override
@@ -84,11 +68,6 @@ public class CompanyDaoNeo implements CompanyDao {
     @Override
     public SystemUser getAdminUser(Long companyId, String name) {
         return companyRepo.getAdminUser(companyId, name);
-    }
-
-    @Override
-    public Iterable<CompanyUser> getCompanyUsers(Long companyId) {
-        return companyRepo.getCompanyUsers(companyId);
     }
 
     @Override

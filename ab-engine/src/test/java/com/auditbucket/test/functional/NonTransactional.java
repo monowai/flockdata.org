@@ -1,10 +1,28 @@
 package com.auditbucket.test.functional;
 
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import org.joda.time.DateTime;
+import org.junit.Test;
+import org.neo4j.graphdb.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.neo4j.support.node.Neo4jHelper;
+
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.bean.TagInputBean;
-import com.auditbucket.registration.model.CompanyUser;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
@@ -13,20 +31,6 @@ import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.MetaKey;
 import com.auditbucket.track.model.TrackTag;
-import org.joda.time.DateTime;
-import org.junit.Test;
-import org.neo4j.graphdb.Transaction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.neo4j.support.node.Neo4jHelper;
-
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
 
 /**
  * User: mike
@@ -89,8 +93,6 @@ public class NonTransactional extends TestEngineBase{
         String company = "MFURT";
         SystemUser su = regService.registerSystemUser(new RegistrationBean(company, uname).setIsUnique(false));
         setSecurity();
-        CompanyUser nonAdmin = regService.addCompanyUser(uname, company);
-        assertNotNull(nonAdmin);
 
         Fortress fortress = fortressEP.registerFortress(new FortressInputBean("multipleFortressUserRequestsThreaded", true), su.getApiKey(), null).getBody();
         // This is being done to create the schema index which otherwise errors when the threads kick off
