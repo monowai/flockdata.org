@@ -100,9 +100,4 @@ public class CompanyService {
     }
 
 
-    public Collection<DocumentType> getCompanyDocumentsInUse(Company company) {
-        return schemaDao.getCompanyDocumentsInUse(company);
-    }
-
-
 }
