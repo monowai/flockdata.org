@@ -31,6 +31,7 @@ public class RegistrationBean {
     private String login;
     private String companyName;
     private Company company;
+  //TODO: This was changed from default value of true to false
     private boolean unique = false;
 
     public RegistrationBean() {

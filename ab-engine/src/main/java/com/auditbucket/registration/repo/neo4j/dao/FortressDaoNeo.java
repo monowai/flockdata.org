@@ -19,6 +19,14 @@
 
 package com.auditbucket.registration.repo.neo4j.dao;
 
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.support.Neo4jTemplate;
+import org.springframework.stereotype.Repository;
+
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
@@ -28,13 +36,6 @@ import com.auditbucket.registration.repo.neo4j.FortressUserRepository;
 import com.auditbucket.registration.repo.neo4j.model.FortressNode;
 import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
 import com.auditbucket.registration.service.KeyGenService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 /**
  * User: Mike Holdsworth
@@ -104,6 +105,16 @@ public class FortressDaoNeo implements FortressDao {
     @Override
     public void delete(Fortress fortress) {
         template.delete(fortress);
+    }
+
+    @Override
+    public Fortress getFortressByName(Long companyId, String fortressName) {
+        return fortressRepo.getFortressByName(companyId, fortressName);
+    }
+
+    @Override
+    public Fortress getFortressByCode(Long companyId, String fortressCode) {
+        return fortressRepo.getFortressByCode(companyId, fortressCode);
     }
 
 

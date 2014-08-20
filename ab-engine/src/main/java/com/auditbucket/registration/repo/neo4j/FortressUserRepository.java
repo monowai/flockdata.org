@@ -19,14 +19,23 @@
 
 package com.auditbucket.registration.repo.neo4j;
 
-import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
-import com.auditbucket.registration.repo.neo4j.model.SystemUserNode;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
+
+import com.auditbucket.registration.model.FortressUser;
+import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
+import com.auditbucket.registration.repo.neo4j.model.SystemUserNode;
 
 public interface FortressUserRepository extends GraphRepository<FortressUserNode> {
 
     @Query(value = "start fortress=node({0}) match fortress<-[r:BELONGS_TO]-fUser where fUser.name ={1} return fUser")
     SystemUserNode getAdminUser(long fortressId, String userName);
+    
+    @Query(elementClass = FortressUserNode.class,
+            value = "start sysUser=node:sysUserName(name={0}) " +
+                    "        match sysUser-[:ACCESSES]->company-[:OWNS]->fortress<-[:BELONGS_TO]-fortressUser " +
+                    "where fortressUser.name ={2} and fortress.name={1} return fortressUser")
+    FortressUser getFortressUser(String userName, String fortressName, String fortressUser);
+
 
 }

@@ -33,7 +33,6 @@ import com.auditbucket.dao.SchemaDao;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.CompanyUser;
-import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.repo.neo4j.dao.CompanyDao;
 import com.auditbucket.track.model.DocumentType;
@@ -77,21 +76,12 @@ public class CompanyService {
 
     }
 
-    @Cacheable(value = "companyFortress", unless = "#result == null")
-    public Fortress getCompanyFortress(Long company, String fortressName) {
-        return companyDao.getFortressByName(company, fortressName);
-    }
 
     public Iterable<CompanyUser> getUsers() {
         Company company = securityHelper.getCompany();
         return companyDao.getCompanyUsers(company.getId());
     }
 
-
-    public Fortress getFortress(Company company, String name) {
-
-        return companyDao.getFortressByName(company.getId(), name);
-    }
 
     public SystemUser getAdminUser(Company company, String name) {
         return companyDao.getAdminUser(company.getId(), name);

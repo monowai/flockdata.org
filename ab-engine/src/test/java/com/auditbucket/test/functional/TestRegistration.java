@@ -366,7 +366,7 @@ public class TestRegistration extends TestEngineBase {
 
 
     }
-
+  //TODO: Mike needs to refactor this
 /*    @Test
     public void duplicateRegistrationFails() throws Exception {
         String companyA = "companya";
