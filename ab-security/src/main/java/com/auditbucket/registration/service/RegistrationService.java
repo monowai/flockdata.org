@@ -27,9 +27,7 @@ import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.CompanyUser;
 import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.registration.repo.neo4j.model.CompanyUserNode;
 import com.auditbucket.registration.repo.neo4j.model.SystemUserNode;
 
 @Service
@@ -68,24 +66,6 @@ public class RegistrationService {
         systemUser = systemUserService.save(regBean);
 
         return systemUser;
-    }
-
-    public CompanyUser addCompanyUser(String companyUser, String companyName) {
-        String systemUser = securityHelper.isValidUser();
-        Company company = companyService.findByName(companyName);
-
-        if (company == null) {
-            throw new IllegalArgumentException("CompanyNode does not exist");
-        }
-
-        isAdminUser(company, "[" + systemUser + "] is not authorised to add company user records for [" + companyName + "]");
-
-        CompanyUser iCompanyUser = companyService.getCompanyUser(company, companyUser);
-        if (iCompanyUser == null) {
-            iCompanyUser = companyService.save(new CompanyUserNode(companyUser, company));
-        }
-
-        return iCompanyUser;
     }
 
     public SystemUser isAdminUser(Company company, String message) {

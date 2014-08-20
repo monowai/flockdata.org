@@ -32,7 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.auditbucket.dao.SchemaDao;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.CompanyUser;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.repo.neo4j.dao.CompanyDao;
 import com.auditbucket.track.model.DocumentType;
@@ -63,34 +62,10 @@ public class CompanyService {
         return companyDao.findByPropertyValue("code", code);
     }
 
-    public CompanyUser getCompanyUser(Company company, String userName) {
-        return companyDao.getCompanyUser(company.getId(), userName);
-
-    }
-
-    public CompanyUser getCompanyUser(String userName) {
-        Company company = securityHelper.getCompany();
-        if (company == null)
-            return null;
-        return companyDao.getCompanyUser(company.getId(), userName);
-
-    }
-
-
-    public Iterable<CompanyUser> getUsers() {
-        Company company = securityHelper.getCompany();
-        return companyDao.getCompanyUsers(company.getId());
-    }
-
-
     public SystemUser getAdminUser(Company company, String name) {
         return companyDao.getAdminUser(company.getId(), name);
     }
 
-
-    public CompanyUser save(CompanyUser companyUser) {
-        return companyDao.save(companyUser);
-    }
 
     public Company save(String companyName) {
         Company company = companyDao.create(companyName, keyGenService.getUniqueKey());

@@ -19,12 +19,10 @@
 
 package com.auditbucket.registration.repo.neo4j.dao;
 
-import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.CompanyUser;
-import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.model.SystemUser;
-
 import java.util.Collection;
+
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.SystemUser;
 
 /**
  * Company represents a unique organisation who interacts with the system
@@ -37,15 +35,9 @@ import java.util.Collection;
 public interface CompanyDao {
     public Company update(Company systemUser);
 
-    public CompanyUser save(CompanyUser companyUser);
-
     public Company findByPropertyValue(String property, Object value);
 
-    public CompanyUser getCompanyUser(Long companyId, String userName);
-
     public SystemUser getAdminUser(Long companyId, String name);
-
-    public Iterable<CompanyUser> getCompanyUsers(Long companyId);
 
     Company create(String companyName, String uniqueKey);
 
