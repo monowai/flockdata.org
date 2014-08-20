@@ -18,7 +18,11 @@
  */
 package com.auditbucket.registration.service;
 
-import com.auditbucket.engine.service.EngineConfig;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.RegistrationBean;
@@ -27,10 +31,6 @@ import com.auditbucket.registration.model.CompanyUser;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.repo.neo4j.model.CompanyUserNode;
 import com.auditbucket.registration.repo.neo4j.model.SystemUserNode;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -48,9 +48,6 @@ public class RegistrationService {
     @Autowired
     private SecurityHelper securityHelper;
 
-    @Autowired
-    EngineConfig engineConfig;
-
     public static SystemUser GUEST = new SystemUserNode("Guest", null, null, false);
 
 
@@ -60,7 +57,7 @@ public class RegistrationService {
         SystemUser systemUser = systemUserService.findByLogin(regBean.getLogin());
 
         if (systemUser != null) {
-            if ( !engineConfig.isDuplicateRegistration() && regBean.isUnique())
+            if (regBean.isUnique())
                 throw new DatagioException(String.format("Username %s already exists", regBean.getLogin()));
             else
                 return systemUser; // ToDo - throw RegistrationException

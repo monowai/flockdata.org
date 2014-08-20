@@ -367,7 +367,7 @@ public class TestRegistration extends TestEngineBase {
 
     }
 
-    @Test
+/*    @Test
     public void duplicateRegistrationFails() throws Exception {
         String companyA = "companya";
         String companyB = "companyb";
@@ -381,7 +381,7 @@ public class TestRegistration extends TestEngineBase {
         }
 
     }
-
+*/
     @Test
     public void multipleFortressUserErrors() throws Exception {
         Long uid;

@@ -31,7 +31,7 @@ public class RegistrationBean {
     private String login;
     private String companyName;
     private Company company;
-    private boolean unique = true;
+    private boolean unique = false;
 
     public RegistrationBean() {
     }
