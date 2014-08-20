@@ -34,7 +34,6 @@ import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.repo.neo4j.dao.CompanyDao;
-import com.auditbucket.track.model.DocumentType;
 
 @Service
 @Transactional
@@ -51,6 +50,9 @@ public class CompanyService {
 
     @Autowired
     private SecurityHelper securityHelper;
+
+    @Autowired
+    private NewCompanyEventPublisher applicationEventPublisher;
 
     private static Logger logger = LoggerFactory.getLogger(CompanyService.class);
 
@@ -71,6 +73,7 @@ public class CompanyService {
         Company company = companyDao.create(companyName, keyGenService.getUniqueKey());
         // Change to async event via spring events
 //        schemaService.ensureSystemIndexes(company);
+        this.applicationEventPublisher.publish(company);
         return company;
     }
 
@@ -98,6 +101,5 @@ public class CompanyService {
 
         return companyDao.findCompanies(su.getId());
     }
-
 
 }
