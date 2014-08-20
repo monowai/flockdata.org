@@ -33,6 +33,7 @@ import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
+import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
@@ -95,7 +96,7 @@ public class TrackDaoES implements TrackSearchDao {
 
     /**
      * @param searchChange object containing changes
-     * @param source Json to save
+     * @param source       Json to save
      * @return key value of the child document
      */
     private SearchChange save(SearchChange searchChange, String source) throws IOException {
@@ -138,11 +139,16 @@ public class TrackDaoES implements TrackSearchDao {
 
     private void ensureIndex(String indexName, String documentType) throws IOException {
 
-        if (hasIndex(indexName, documentType)) return;
+        if (hasIndex(indexName)) {
+            // Need to be able to allow for a "per document" mapping
+            ensureMapping(indexName, documentType);
+            return;
+        }
+
         logger.debug("Ensuring index {}, {}", indexName, documentType);
         try {
             lock.lock();
-            if (hasIndex(indexName, documentType)) return;
+            if (hasIndex(indexName)) return;
             XContentBuilder mappingEs = getMapping(indexName, documentType);
             // create Index  and Set Mapping
             if (mappingEs != null) {
@@ -151,10 +157,10 @@ public class TrackDaoES implements TrackSearchDao {
                 Map<String, Object> settings = getSettings();
                 try {
                     if (settings != null) {
-                        //Settings settings = ImmutableSettings.settingsBuilder().loadFromSource(settingDefinition).build();
                         esClient.admin()
                                 .indices()
-                                .prepareCreate(indexName).addMapping(documentType, mappingEs)
+                                .prepareCreate(indexName)
+                                .addMapping(documentType, mappingEs)
                                 .setSettings(settings)
                                 .execute()
                                 .actionGet();
@@ -166,25 +172,50 @@ public class TrackDaoES implements TrackSearchDao {
                                 .execute()
                                 .actionGet();
                     }
-                } catch ( ElasticsearchException esx ){
-                    logger.error ("Error while ensuring index.... ", esx);
+                } catch (ElasticsearchException esx) {
+                    logger.error("Error while ensuring index.... ", esx);
                     throw esx;
                 }
-                //ensureMapping(indexName, documentType);
             }
         } finally {
             lock.unlock();
         }
     }
 
-    private boolean hasIndex(String indexName, String documentType) {
+    private void ensureMapping(String indexName, String documentType) throws IOException {
+        // Mappings are on a per Document basis. We need to ensure the mapping exists for the
+        //    same index but every document type
+        logger.debug("Checking mapping for {}, {}", indexName, documentType);
+        XContentBuilder mapping = getMapping(indexName, documentType);
+        // Test if Type exist
+        String[] indexNames = new String[1];
+        indexNames[0] = indexName;
+        String[] documentTypes = new String[1];
+        documentTypes[0] = documentType;
+
+        boolean hasType = esClient.admin()
+                .indices()
+                .typesExists(new TypesExistsRequest(indexNames, documentTypes))
+                .actionGet()
+                .isExists();
+        if (!hasType) {
+            esClient.admin().indices()
+                    .preparePutMapping(indexName)
+                    .setType(documentType)
+                    .setSource(mapping)
+                    .execute().actionGet();
+            logger.debug("Created default mapping and applied settings for {}, {}", indexName, documentType);
+        }
+    }
+
+    private boolean hasIndex(String indexName) {
         boolean hasIndex = esClient
                 .admin()
                 .indices()
                 .exists(new IndicesExistsRequest(indexName))
                 .actionGet().isExists();
         if (hasIndex) {
-            logger.trace("Index {}, {} exists", indexName, documentType);
+            logger.trace("Index {} ", indexName);
             return true;
         }
         return false;
@@ -363,7 +394,7 @@ public class TrackDaoES implements TrackSearchDao {
                 try {
                     file = new FileInputStream(settings);
                 } catch (IOException ioe) {
-                    logger.error("Error looking for default settings " + settings, ioe);
+                    logger.info("No default settings exists. Assuming ES defaults" + settings, ioe);
                     return null;
                 }
                 ObjectMapper mapper = new ObjectMapper();
@@ -379,29 +410,30 @@ public class TrackDaoES implements TrackSearchDao {
         return defaultSettings;
     }
 
-    private static Map<String,Map<String, Object>> mappings = new HashMap<>();
+    private static Map<String, Map<String, Object>> mappings = new HashMap<>();
 
     private Lock lock = new ReentrantLock();
 
     private XContentBuilder getMapping(String indexName, String documentType) throws IOException {
 
         XContentBuilder xbMapping;
-            Map<String, Object> map = getDefaultMapping(indexName, documentType);
-            Map<String, Object> docMap = new HashMap<>();
-            docMap.put(documentType, map.get("mapping"));
-            xbMapping = jsonBuilder().map(docMap);
+        Map<String, Object> map = getDefaultMapping(indexName, documentType);
+        Map<String, Object> docMap = new HashMap<>();
+        docMap.put(documentType, map.get("mapping"));
+        xbMapping = jsonBuilder().map(docMap);
 
         return xbMapping;
     }
 
-    private String getKeyName(String indexName, String documentType){
-        return indexName+"/"+documentType+".json";
+    private String getKeyName(String indexName, String documentType) {
+        return indexName + "/" + documentType + ".json";
     }
+
     private Map<String, Object> getDefaultMapping(String indexName, String documentType) throws IOException {
         String key = getKeyName(indexName, documentType);
 
         // Is it cached?
-        Map<String,Object>found = mappings.get(key);
+        Map<String, Object> found = mappings.get(key);
 
         if (found == null) {
             // Locate file on disk
@@ -412,20 +444,20 @@ public class TrackDaoES implements TrackSearchDao {
                     mappings.put(key, found);
                     return found;
                 }
-            } catch (IOException ioe){
+            } catch (IOException ioe) {
                 logger.debug("Custom mapping does not exists for {} - reverting to default", key);
             }
 
             found = mappings.get("ab.default");
-            if (found == null ) {
+            if (found == null) {
                 String esDefault = searchAdmin.getEsDefaultMapping();
                 try {
                     logger.debug("Reading default mapping from disk = {}", esDefault);
                     found = getMapping(searchAdmin.getEsDefaultMapping());
                     mappings.put("ab.default", found);
                     logger.debug("Initialised mapping {} with {} keys", esDefault, found.keySet().size());
-                } catch (IOException ioe ){
-                    logger.error ("Unable to find a default mapping file. Looked for it as {}. Contact your administrator to resolve this", esDefault);
+                } catch (IOException ioe) {
+                    logger.error("Unable to find a default mapping file. Looked for it as {}. Contact your administrator to resolve this", esDefault);
                     throw (ioe);
                 }
             }
@@ -435,7 +467,8 @@ public class TrackDaoES implements TrackSearchDao {
 
     private Map<String, Object> getMapping(String fileName) throws IOException {
         logger.debug("Looking for {}", fileName);
-        Map<String, Object> found;InputStream file = new FileInputStream(fileName);
+        Map<String, Object> found;
+        InputStream file = new FileInputStream(fileName);
         ObjectMapper mapper = new ObjectMapper();
         TypeFactory typeFactory = mapper.getTypeFactory();
         MapType mapType = typeFactory.constructMapType(HashMap.class, String.class, HashMap.class);
