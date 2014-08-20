@@ -20,15 +20,8 @@
 package com.auditbucket.registration.service;
 
 
-import com.auditbucket.dao.SchemaDao;
-import com.auditbucket.engine.service.SchemaService;
-import com.auditbucket.helper.SecurityHelper;
-import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.CompanyUser;
-import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.registration.repo.neo4j.dao.CompanyDao;
-import com.auditbucket.track.model.DocumentType;
+import java.util.Collection;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +29,14 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
+import com.auditbucket.dao.SchemaDao;
+import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.CompanyUser;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.repo.neo4j.dao.CompanyDao;
+import com.auditbucket.track.model.DocumentType;
 
 @Service
 @Transactional
@@ -53,9 +53,6 @@ public class CompanyService {
 
     @Autowired
     private SecurityHelper securityHelper;
-
-    @Autowired
-    private SchemaService schemaService;
 
     private static Logger logger = LoggerFactory.getLogger(CompanyService.class);
 
@@ -107,7 +104,8 @@ public class CompanyService {
 
     public Company save(String companyName) {
         Company company = companyDao.create(companyName, keyGenService.getUniqueKey());
-        schemaService.ensureSystemIndexes(company);
+        // Change to async event via spring events
+//        schemaService.ensureSystemIndexes(company);
         return company;
     }
 

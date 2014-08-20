@@ -44,7 +44,7 @@
     <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true"
                                   location="classpath:/config.properties,file:${ab.config}"/>
 
-    <import resource="spring-security.xml"/>
+    <import resource="classpath:spring-security.xml"/>
     <import resource="integration.xml"/>
     <import resource="http-proxy-integration.xml"/>
     <import resource="http-monitoring-integration.xml"/>
