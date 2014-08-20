@@ -22,19 +22,29 @@ package com.auditbucket.registration.repo.neo4j;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.repo.neo4j.model.FortressNode;
 import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
+
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
 import java.util.List;
 
-
 public interface FortressRepository extends GraphRepository<FortressNode> {
 
-    @Query(value = " match fortress<-[:BELONGS_TO]-fortressUser where id(fortress)={0}" +
-                   " and fortressUser.name ={1} return fortressUser")
-    FortressUserNode getFortressUser(Long fortressId, String userName);
+	@Query(value = " match fortress<-[:BELONGS_TO]-fortressUser where id(fortress)={0}"
+			+ " and fortressUser.name ={1} return fortressUser")
+	FortressUserNode getFortressUser(Long fortressId, String userName);
 
-    @Query(elementClass = FortressNode.class, value = "start company=node({0}) match company-[:OWNS]->f return f")
-    List<Fortress> findCompanyFortresses(Long companyID);
+	@Query(elementClass = FortressNode.class, value = "start company=node({0}) match company-[:OWNS]->f return f")
+	List<Fortress> findCompanyFortresses(Long companyID);
+
+	@Query(elementClass = FortressNode.class, value = "match (company)-[r:OWNS]->(fortress) "
+			+ "where id(company)={0} and fortress.name ={1} "
+			+ "return fortress")
+	FortressNode getFortressByName(Long companyId, String fortressName);
+
+	@Query(elementClass = FortressNode.class, value = "match (company)-[r:OWNS]->(fortress) "
+			+ "where  id(company)={0}  and fortress.code ={1} "
+			+ "return fortress")
+	FortressNode getFortressByCode(Long companyId, String fortressCode);
 
 }

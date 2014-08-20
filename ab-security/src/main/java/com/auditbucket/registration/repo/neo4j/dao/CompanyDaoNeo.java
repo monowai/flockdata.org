@@ -71,16 +71,6 @@ public class CompanyDaoNeo implements CompanyDao {
     }
 
     @Override
-    public Fortress getFortressByName(Long companyId, String fortressName) {
-        return companyRepo.getFortressByName(companyId, fortressName);
-    }
-
-    @Override
-    public Fortress getFortressByCode(Long companyId, String fortressCode) {
-        return companyRepo.getFortressByCode(companyId, fortressCode);
-    }
-
-    @Override
     public Collection<Company> findCompanies(Long sysUserId) {
         return companyRepo.getCompaniesForUser(sysUserId);
     }

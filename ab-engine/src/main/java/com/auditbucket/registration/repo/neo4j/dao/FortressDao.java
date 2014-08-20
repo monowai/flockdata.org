@@ -82,4 +82,8 @@ public interface FortressDao {
     void fetch(FortressUser fortressUser);
 
     void delete(Fortress fortress);
+    
+    public Fortress getFortressByName(Long companyId, String fortressName);
+    public Fortress getFortressByCode(Long companyId, String fortressCode);
+    
 }

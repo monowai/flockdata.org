@@ -43,15 +43,11 @@ public interface CompanyDao {
 
     public CompanyUser getCompanyUser(Long companyId, String userName);
 
-    public Fortress getFortressByName(Long companyId, String fortressName);
-
     public SystemUser getAdminUser(Long companyId, String name);
 
     public Iterable<CompanyUser> getCompanyUsers(Long companyId);
 
     Company create(String companyName, String uniqueKey);
-
-    Fortress getFortressByCode(Long companyId, String fortressCode);
 
     Collection<Company> findCompanies(Long sysUserId);
 

@@ -19,34 +19,22 @@
 
 package com.auditbucket.registration.repo.neo4j;
 
+import java.util.Collection;
+
+import org.springframework.data.neo4j.annotation.Query;
+import org.springframework.data.neo4j.repository.GraphRepository;
+
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.CompanyUser;
 import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
 import com.auditbucket.registration.repo.neo4j.model.CompanyUserNode;
-import com.auditbucket.registration.repo.neo4j.model.FortressNode;
 import com.auditbucket.registration.repo.neo4j.model.SystemUserNode;
-import org.springframework.data.neo4j.annotation.Query;
-import org.springframework.data.neo4j.repository.GraphRepository;
-
-import java.util.Collection;
 
 
 public interface CompanyRepository extends GraphRepository<CompanyNode> {
 
     @Query(elementClass = CompanyUserNode.class, value = "start company=node({0}) match company<-[:WORKS]-companyUsers return companyUsers")
     Collection<CompanyUser> getCompanyUsers(Long companyId);
-
-    @Query(elementClass = FortressNode.class, value =
-                    "match (company)-[r:OWNS]->(fortress) " +
-                    "where id(company)={0} and fortress.name ={1} " +
-                    "return fortress")
-    FortressNode getFortressByName(Long companyId, String fortressName);
-
-    @Query(elementClass = FortressNode.class, value =
-                    "match (company)-[r:OWNS]->(fortress) " +
-                    "where  id(company)={0}  and fortress.code ={1} " +
-                    "return fortress")
-    FortressNode getFortressByCode(Long companyId, String fortressCode);
 
     @Query(elementClass = CompanyUserNode.class,
             value = "start company=node({0}) " +

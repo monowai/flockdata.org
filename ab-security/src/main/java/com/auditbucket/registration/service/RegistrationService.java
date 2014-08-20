@@ -57,10 +57,7 @@ public class RegistrationService {
         SystemUser systemUser = systemUserService.findByLogin(regBean.getLogin());
 
         if (systemUser != null) {
-            if (regBean.isUnique())
-                throw new DatagioException(String.format("Username %s already exists", regBean.getLogin()));
-            else
-                return systemUser; // ToDo - throw RegistrationException
+        	return systemUser; 
         }
 
         Company company = companyService.findByName(regBean.getCompanyName());

@@ -72,7 +72,7 @@ public class FortressService {
     }
     @Cacheable(value = "fortressName", unless = "#result == null")
     public Fortress findByName(Company company, String fortressName) {
-        return companyDao.getFortressByName(company.getId(), fortressName);
+        return fortressDao.getFortressByName(company.getId(), fortressName);
     }
 
 
@@ -87,7 +87,7 @@ public class FortressService {
     }
 
     public Fortress findByCode(Company company, String fortressCode) {
-        return companyDao.getFortressByCode(company.getId(), fortressCode);
+        return fortressDao.getFortressByCode(company.getId(), fortressCode);
     }
 
 
@@ -222,7 +222,7 @@ public class FortressService {
     }
 
     public Fortress registerFortress(Company company, FortressInputBean fib, boolean createIfMissing) {
-        Fortress fortress = companyService.getFortress(company, fib.getName());
+        Fortress fortress = fortressDao.getFortressByName(company.getId(), fib.getName());
 
         if (fortress != null || !createIfMissing) {
             // Already associated, get out of here
