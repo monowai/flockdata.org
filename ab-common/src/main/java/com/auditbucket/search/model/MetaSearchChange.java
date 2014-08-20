@@ -81,7 +81,7 @@ public class MetaSearchChange implements SearchChange {
         this.indexName = header.getIndexName();
         this.searchKey = header.getSearchKey();
         this.callerRef = header.getCallerRef();
-        if ( header.getLastUser()!=null)
+        if (header.getLastUser() != null)
             this.who = header.getLastUser().getCode();
         this.description = header.getDescription();
         this.createdDate = header.getWhenCreated(); // When created in AuditBucket
@@ -200,21 +200,18 @@ public class MetaSearchChange implements SearchChange {
                 tagValues = new HashMap<>();
                 this.tagValues.put(tag.getTagType().toLowerCase(), tagValues);
             }
-            // Always store the key.
-            setTagValue("key", tag.getTag().getKey(), tagValues);
-            // Case sensitive, only show the name if it is different to the key
-            if ( !tag.getTag().getName().equals(tag.getTag().getKey()))
-                setTagValue("name", tag.getTag().getName(), tagValues);
-            if ( !tag.getTag().getCode().equals(tag.getTag().getKey()))
-                setTagValue("code", tag.getTag().getCode().toLowerCase(), tagValues);
-            setTagValue("weight", tag.getWeight(), tagValues);
+
+            setTagValue("name", tag.getTag().getName(), tagValues);
+            setTagValue("code", tag.getTag().getCode().toLowerCase(), tagValues);
+
             if (tag.getGeoData() != null) {
                 setTagValue("iso", tag.getGeoData().getIsoCode(), tagValues);
                 setTagValue("country", tag.getGeoData().getCountry(), tagValues);
                 setTagValue("state", tag.getGeoData().getState(), tagValues);
                 setTagValue("city", tag.getGeoData().getCity(), tagValues);
             }
-            tagValues.put("props", tag.getTagProperties());
+            if (!tag.getTagProperties().isEmpty())
+                tagValues.put("props", tag.getTagProperties());
         }
     }
 
@@ -267,7 +264,7 @@ public class MetaSearchChange implements SearchChange {
         this.description = description;
     }
 
-    public void setName(String name){
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -311,6 +308,7 @@ public class MetaSearchChange implements SearchChange {
 
     /**
      * Flags to ab-search to delete the SearchDocument
+     *
      * @param delete shall I?
      */
     public void setDelete(boolean delete) {

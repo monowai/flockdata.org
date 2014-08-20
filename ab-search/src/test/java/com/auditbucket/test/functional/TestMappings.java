@@ -3,7 +3,6 @@ package com.auditbucket.test.functional;
 import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
 import com.auditbucket.engine.repo.neo4j.model.MetaHeaderNode;
 import com.auditbucket.engine.repo.neo4j.model.TrackTagRelationship;
-import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
@@ -48,7 +47,7 @@ public class TestMappings extends ESBase {
     ElasticSearchEP searchEP;
 
     @Test
-    public void testMappingJson() throws Exception {
+    public void defaultTagQueryWorks() throws Exception {
         Map<String, Object> json = Helper.getBigJsonText(20);
 
         // These are the minimum objects necessary to create a MetaHeader data
@@ -66,8 +65,11 @@ public class TestMappings extends ESBase {
         change.setWhat(json);
         ArrayList<TrackTag> tags = new ArrayList<>();
 
-        tags.add(new TrackTagRelationship(66l, new TagNode(new TagInputBean("my Tag", "TheLabel", "rlxname"))));
+        TagNode tag = new TagNode(new TagInputBean("myTag", "TheLabel", "rlxname"));
+        tag.setCode("my TAG");// we should be able to find this as lowercase
+        tags.add(new TrackTagRelationship(66l, tag));
         change.setTags(tags);
+
 
         deleteEsIndex(header.getIndexName());
 
@@ -77,20 +79,11 @@ public class TestMappings extends ESBase {
         assertNotNull(change.getSearchKey());
         header.setSearchKey(change.getSearchKey());
         json = trackRepo.findOne(header);
+
         // In this test, @tag.*.code is ignored so it should find the value with a space in it
         // In prod we use the .key field in this manner
-        doEsFieldQuery(header.getIndexName(), "@tag.my tag.key", "mytag", 1);
+        doDefaultFieldQuery(header.getIndexName(), "@tag.mytag.code", "my tag", 1);
         assertNotNull(json);
-
-    }
-
-    private MetaInputBean getMetaInputBean(DocumentTypeNode docType, FortressUser fortressUser, String callerRef, DateTime now) {
-
-        return new MetaInputBean(fortressUser.getFortress().getName(),
-                fortressUser.getCode(),
-                docType.getName(),
-                now,
-                callerRef);
 
     }
 
@@ -120,37 +113,26 @@ public class TestMappings extends ESBase {
         SearchChange searchResult = trackRepo.update(change);
         assertNotNull(searchResult);
         Thread.sleep(1000);
-        String mapping = getMapping(header.getIndexName());
-        doEsQuery(header.getIndexName(), "AZERTY", 1);
+        doQuery(header.getIndexName(), "AZERTY", 1);
 
-        doEsTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "des", 1);
-        doEsTermQuery(header.getIndexName(), MetaSearchSchema.DESCRIPTION, "des", 1);
-        doEsTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "de", 0);
-        doEsTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "descripti", 1);
-        doEsTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "descriptio", 1);
+        doTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "des", 1);
+        doTermQuery(header.getIndexName(), MetaSearchSchema.DESCRIPTION, "des", 1);
+        doTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "de", 0);
+        doTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "descripti", 1);
+        doTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "descriptio", 1);
         // ToDo: Figure out ngram mappings
 //        doEsTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "is is a de", 1);
 
-        doEsTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_NAME, "name", 1);
-        doEsTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_NAME, "nam", 1);
-        doEsTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_NAME, "nametext", 1);
+        doTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_NAME, "name", 1);
+        doTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_NAME, "nam", 1);
+        doTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_NAME, "nametext", 1);
 
-        doEsTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_CODE, "az", 1);
-        doEsTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_CODE, "azer", 1);
-        doEsTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_CODE, "azerty", 0);
+        doTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_CODE, "az", 1);
+        doTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_CODE, "azer", 1);
+        doTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_CODE, "azerty", 0);
 
     }
-    MetaHeader getMetaHeader (String comp, String fort, String userName) throws DatagioException {
-        // These are the minimum objects necessary to create a MetaHeader data
-        Fortress fortress = new FortressNode(new FortressInputBean(fort, false), new CompanyNode(comp)) ;
-        FortressUser user = new FortressUserNode(fortress, userName);
-        DocumentTypeNode doc = new DocumentTypeNode(fortress, fortress.getName());
 
-        DateTime now = new DateTime();
-        MetaInputBean mib = getMetaInputBean(doc, user, now.toString(), now);
-
-        return new MetaHeaderNode(now.toString(), fortress, mib, doc, user);
-    }
 
     @Test
     public void testCustomMappingWorks() throws Exception {
@@ -177,14 +159,46 @@ public class TestMappings extends ESBase {
         assertNotNull(changeB.getSearchKey());
 
         // by default we analyze the @description field
-        doEsFieldQuery(headerA.getIndexName(), "@description", "test description", 1);
+        doDefaultFieldQuery(headerA.getIndexName(), "@description", changeA.getDescription(), 1);
 
         // In fortb.json we don't analyze the description (overriding the default) so it shouldn't be found
-        doEsFieldQuery(headerB.getIndexName(), "@description", "test description", 0);
+        doDefaultFieldQuery(headerB.getIndexName(), "@description", changeB.getDescription(), 0);
 
     }
 
+    @Test
+    public void sameIndexDifferentDocumentsHaveMappingApplied() throws Exception {
+        Map<String, Object> json = Helper.getBigJsonText(20);
+        MetaHeader headerA = getMetaHeader("cust", "fort", "anyuser", "fortdoc");
+        MetaHeader headerB = getMetaHeader("cust", "fort", "anyuser", "doctype");
 
+
+        SearchChange changeA = new MetaSearchChange(headerA, json);
+        SearchChange changeB = new MetaSearchChange(headerB, json);
+
+        TagNode tag = new TagNode(new TagInputBean("myTag", "TheLabel", "rlxname"));
+        tag.setCode("my TAG");// we should be able to find this as lowercase
+        ArrayList<TrackTag> tags = new ArrayList<>();
+        tags.add(new TrackTagRelationship(66l, tag));
+        changeA.setTags(tags);
+        changeB.setTags(tags);
+
+        deleteEsIndex(headerA.getIndexName());
+        deleteEsIndex(headerB.getIndexName());
+
+        changeA = trackRepo.update(changeA);
+        changeB = trackRepo.update(changeB);
+        Thread.sleep(1000);
+        assertNotNull(changeA);
+        assertNotNull(changeB);
+        assertNotNull(changeA.getSearchKey());
+        assertNotNull(changeB.getSearchKey());
+
+        doDefaultFieldQuery(headerA.getIndexName(), headerA.getDocumentType().toLowerCase(), "@tag.mytag.code", "my tag", 1);
+        doDefaultFieldQuery(headerB.getIndexName(), headerB.getDocumentType().toLowerCase(), "@tag.mytag.code", "my tag", 1);
+        doDefaultFieldQuery(headerB.getIndexName(), "@tag.mytag.code", "my tag", 2);
+
+    }
 
 
 }
