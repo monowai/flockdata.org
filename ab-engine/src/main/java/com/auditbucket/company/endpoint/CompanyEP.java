@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.auditbucket.engine.service.SchemaService;
 import com.auditbucket.helper.ApiKeyHelper;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
@@ -57,6 +58,9 @@ public class CompanyEP {
 
     @Autowired
     CompanyService companyService;
+
+    @Autowired
+    SchemaService schemaService;
 
     @Autowired
     SecurityHelper securityHelper;
@@ -100,7 +104,7 @@ public class CompanyEP {
 
         // ToDo: figure out if the API Key can resolve to multiple companies
         Company company = getCompany(apiHeaderKey, apiKey);
-        return companyService.getCompanyDocumentsInUse(company);
+        return schemaService.getCompanyDocumentsInUse(company);
 
     }
 

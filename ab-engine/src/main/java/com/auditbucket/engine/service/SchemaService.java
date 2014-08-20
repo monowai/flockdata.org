@@ -27,6 +27,7 @@ import com.auditbucket.track.bean.ConceptInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.DocumentType;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -132,4 +133,9 @@ public class SchemaService {
         }
         schemaDao.createDocTypes(docTypes,  fortress);
     }
+    
+    public Collection<DocumentType> getCompanyDocumentsInUse(Company company) {
+        return schemaDao.getCompanyDocumentsInUse(company);
+    }
+    
 }
