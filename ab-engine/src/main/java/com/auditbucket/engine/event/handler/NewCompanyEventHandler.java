@@ -1,11 +1,11 @@
-package com.auditbucket.engine.service;
+package com.auditbucket.engine.event.handler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 
+import com.auditbucket.engine.service.SchemaService;
 import com.auditbucket.registration.event.NewCompanyEvent;
 import com.auditbucket.registration.model.Company;
 
