@@ -83,7 +83,7 @@
 
 	<bean id="userProfileService"
 		class="com.auditbucket.authentication.service.StormpathUserProfile" />
-	<bean id="newCompanyEventHandler" class="com.auditbucket.engine.service.NewCompanyEventHandler">
+	<bean id="newCompanyEventHandler" class="com.auditbucket.engine.event.handler.NewCompanyEventHandler">
 		<property name="schemaService" ref="schemaService" />
 	</bean>
 	<bean id="schemaService" class="com.auditbucket.engine.service.SchemaService" />
