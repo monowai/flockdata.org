@@ -15,9 +15,16 @@ public class NewCompanyEventHandler implements
 	private Logger logger = LoggerFactory
 			.getLogger(NewCompanyEventHandler.class);
 
-/*	@Autowired
 	SchemaService schemaService;
-*/
+
+	public SchemaService getSchemaService() {
+		return schemaService;
+	}
+
+	public void setSchemaService(SchemaService schemaService) {
+		this.schemaService = schemaService;
+	}
+
 	@Override
 	public void onApplicationEvent(NewCompanyEvent event) {
 		logger.info("Handling New Company event - " + event);
