@@ -1,32 +1,22 @@
 <?xml version=
         "1.0" encoding="UTF-8"?>
-<!--
-  ~ Copyright (company) 2012-2014 "Monowai Developments Limited"
-  ~
-  ~ This file is part of AuditBucket.
-  ~
-  ~ AuditBucket is free software: you can redistribute it and/or modify
-  ~ it under the terms of the GNU General Public License as published by
-  ~ the Free Software Foundation, either version 3 of the License, or
-  ~ (at your option) any later version.
-  ~
-  ~ AuditBucket is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
-  -->
+<!-- ~ Copyright (company) 2012-2014 "Monowai Developments Limited" ~ ~ This 
+	file is part of AuditBucket. ~ ~ AuditBucket is free software: you can redistribute 
+	it and/or modify ~ it under the terms of the GNU General Public License as 
+	published by ~ the Free Software Foundation, either version 3 of the License, 
+	or ~ (at your option) any later version. ~ ~ AuditBucket is distributed in 
+	the hope that it will be useful, ~ but WITHOUT ANY WARRANTY; without even 
+	the implied warranty of ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+	See the ~ GNU General Public License for more details. ~ ~ You should have 
+	received a copy of the GNU General Public License ~ along with AuditBucket. 
+	If not, see <http://www.gnu.org/licenses/>. -->
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:task="http://www.springframework.org/schema/task"
-       xmlns:p="http://www.springframework.org/schema/p"
-       xmlns:cache="http://www.springframework.org/schema/cache" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:cache="http://www.springframework.org/schema/cache" xmlns:aop="http://www.springframework.org/schema/aop"
 
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 		http://www.springframework.org/schema/context
 		http://www.springframework.org/schema/context/spring-context-3.0.xsd
@@ -35,50 +25,67 @@
 		http://www.springframework.org/schema/cache
 		http://www.springframework.org/schema/cache/spring-cache.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
-    <context:spring-configured/>
-    <context:annotation-config/>
+	<context:spring-configured />
+	<context:annotation-config />
 
-    <!-- Root Context: defines shared resources visible to all other web components -->
-    <context:component-scan base-package="com.auditbucket.engine,com.auditbucket.registration,com.auditbucket.helper,com.auditbucket.geography,com.auditbucket.fortress"/>
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<context:component-scan
+		base-package="com.auditbucket.engine,com.auditbucket.registration,com.auditbucket.helper,com.auditbucket.geography,com.auditbucket.fortress" />
 
-    <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true"
-                                  location="classpath:/config.properties,file:${ab.config}"/>
+	<context:property-placeholder
+		ignore-resource-not-found="true" ignore-unresolvable="true"
+		location="classpath:/config.properties,file:${ab.config}" />
 
-    <import resource="classpath:spring-security.xml"/>
-    <import resource="integration.xml"/>
-    <import resource="http-proxy-integration.xml"/>
-    <import resource="http-monitoring-integration.xml"/>
-    <import resource="${ab.integration}-integration.xml"/>
-    <import resource="neo4j-context.xml"/>
-    <import resource="kv-context.xml"/>
+	<import resource="classpath:spring-security.xml" />
+	<import resource="integration.xml" />
+	<import resource="http-proxy-integration.xml" />
+	<import resource="http-monitoring-integration.xml" />
+	<import resource="${ab.integration}-integration.xml" />
+	<import resource="neo4j-context.xml" />
+	<import resource="kv-context.xml" />
 
-    <task:annotation-driven executor="ab-engineExec"/>
+	<task:annotation-driven executor="ab-engineExec" />
 
-    <!--Pool size is the number of executors that will handle Bulk Uploads and incoming search responses-->
-    <task:executor id="ab-engineExec" pool-size="40-60" keep-alive="120" queue-capacity="40"
-                   rejection-policy="CALLER_RUNS"/>
+	<!--Pool size is the number of executors that will handle Bulk Uploads and 
+		incoming search responses -->
+	<task:executor id="ab-engineExec" pool-size="40-60"
+		keep-alive="120" queue-capacity="40" rejection-policy="CALLER_RUNS" />
 
-    <aop:aspectj-autoproxy/>
-    <cache:annotation-driven/>
-    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager" p:cacheManager-ref="ehcache"/>
-    <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
-          p:configLocation="classpath:/ehcache.xml"
-          p:shared="true"/>
-          
-    <!-- Generic cache manager based on the JDK ConcurrentMap -->
-    <bean id="stormpathcacheManager" class="org.springframework.cache.support.SimpleCacheManager">
-        <property name="caches">
-            <set>
-                <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="com.stormpath.sdk.application.Application" />
-                <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="com.stormpath.sdk.account.Account" />
-                <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="com.stormpath.sdk.group.Group" />
-                <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="com.stormpath.sdk.directory.CustomData" />
-            </set>
-        </property>
-    </bean>
+	<aop:aspectj-autoproxy />
+	<cache:annotation-driven />
+	<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager"
+		p:cacheManager-ref="ehcache" />
+	<bean id="ehcache"
+		class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
+		p:configLocation="classpath:/ehcache.xml" p:shared="true" />
 
-    <cache:annotation-driven cache-manager="stormpathcacheManager" />
+	<!-- Generic cache manager based on the JDK ConcurrentMap -->
+	<bean id="stormpathcacheManager" class="org.springframework.cache.support.SimpleCacheManager">
+		<property name="caches">
+			<set>
+				<bean
+					class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"
+					p:name="com.stormpath.sdk.application.Application" />
+				<bean
+					class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"
+					p:name="com.stormpath.sdk.account.Account" />
+				<bean
+					class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"
+					p:name="com.stormpath.sdk.group.Group" />
+				<bean
+					class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"
+					p:name="com.stormpath.sdk.directory.CustomData" />
+			</set>
+		</property>
+	</bean>
 
-	<bean id="userProfileService" class="com.auditbucket.authentication.service.StormpathUserProfile"/>
-	
+	<cache:annotation-driven cache-manager="stormpathcacheManager" />
+
+	<bean id="userProfileService"
+		class="com.auditbucket.authentication.service.StormpathUserProfile" />
+	<bean id="newCompanyEventHandler" class="com.auditbucket.engine.service.NewCompanyEventHandler">
+		<property name="schemaService" ref="schemaService" />
+	</bean>
+	<bean id="schemaService" class="com.auditbucket.engine.service.SchemaService" />
+
 </beans>
