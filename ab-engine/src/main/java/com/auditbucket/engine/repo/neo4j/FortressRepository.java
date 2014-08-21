@@ -17,11 +17,11 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.registration.repo.neo4j;
+package com.auditbucket.engine.repo.neo4j;
 
+import com.auditbucket.engine.repo.neo4j.model.FortressNode;
+import com.auditbucket.engine.repo.neo4j.model.FortressUserNode;
 import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.repo.neo4j.model.FortressNode;
-import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
 
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;

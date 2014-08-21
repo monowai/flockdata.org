@@ -17,7 +17,7 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.registration.repo.neo4j.model;
+package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.engine.PropertyConversion;
 import com.auditbucket.registration.bean.TagInputBean;

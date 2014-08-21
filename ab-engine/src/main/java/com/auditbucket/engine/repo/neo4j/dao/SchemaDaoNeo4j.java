@@ -1,4 +1,4 @@
-package com.auditbucket.registration.repo.neo4j.dao;
+package com.auditbucket.engine.repo.neo4j.dao;
 
 import com.auditbucket.dao.SchemaDao;
 import com.auditbucket.engine.repo.neo4j.ConceptTypeRepo;
