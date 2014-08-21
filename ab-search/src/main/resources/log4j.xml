@@ -60,10 +60,6 @@
         <level value="debug"/>
     </logger>
 
-    <logger name="com.auditbucket.search.dao.TrackDaoES">
-        <level value="info"/>
-    </logger>
-
     <!-- Root Logger -->
     <root>
         <priority value="debug"/>
