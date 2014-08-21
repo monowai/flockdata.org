@@ -17,10 +17,11 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.registration.service;
+package com.auditbucket.engine.service;
 
 
 import com.auditbucket.dao.SchemaDao;
+import com.auditbucket.engine.repo.neo4j.dao.FortressDao;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
@@ -29,8 +30,10 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.repo.neo4j.dao.CompanyDao;
-import com.auditbucket.registration.repo.neo4j.dao.FortressDao;
+import com.auditbucket.registration.service.CompanyService;
+import com.auditbucket.registration.service.SystemUserService;
 import com.auditbucket.track.model.DocumentType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

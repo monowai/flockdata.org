@@ -21,10 +21,10 @@ package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.engine.repo.LogWhatData;
 import com.auditbucket.registration.model.FortressUser;
-import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.model.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.TypeAlias;

@@ -2,13 +2,13 @@ package com.auditbucket.engine.service;
 
 import com.auditbucket.dao.TrackDao;
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.search.model.*;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,15 +1,16 @@
 package com.auditbucket.test.unit;
 
 import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
+import com.auditbucket.engine.repo.neo4j.model.FortressNode;
 import com.auditbucket.engine.repo.neo4j.model.MetaHeaderNode;
+import com.auditbucket.engine.repo.neo4j.model.TagNode;
 import com.auditbucket.engine.repo.neo4j.model.TrackTagRelationship;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
-import com.auditbucket.registration.repo.neo4j.model.FortressNode;
-import com.auditbucket.registration.repo.neo4j.model.TagNode;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.model.TrackTag;
+
 import org.junit.Test;
 
 import java.util.ArrayList;

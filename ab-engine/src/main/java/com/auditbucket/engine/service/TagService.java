@@ -17,10 +17,9 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.registration.service;
+package com.auditbucket.engine.service;
 
 import com.auditbucket.dao.TagDao;
-import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.helper.Command;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.DeadlockRetry;
@@ -30,6 +29,7 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.google.common.collect.Lists;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

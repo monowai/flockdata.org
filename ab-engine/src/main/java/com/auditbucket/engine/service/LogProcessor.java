@@ -24,13 +24,13 @@ import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.DeadlockRetry;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.service.CompanyService;
-import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.LogResultBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.SearchChange;
 import com.fasterxml.jackson.core.JsonProcessingException;
+
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
