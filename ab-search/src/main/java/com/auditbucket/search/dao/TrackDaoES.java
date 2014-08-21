@@ -385,29 +385,42 @@ public class TrackDaoES implements TrackSearchDao {
 
     private Map<String, Object> defaultSettings = null;
 
-    private Map<String, Object> getSettings() {
+    private Map<String, Object> getSettings() throws IOException {
+        InputStream file = null;
         try {
+
             if (defaultSettings == null) {
                 String settings = searchAdmin.getEsDefaultSettings();
-                logger.debug("Reading default settings from disk = {}", settings);
-                InputStream file;
-                try {
-                    file = new FileInputStream(settings);
-                } catch (IOException ioe) {
-                    logger.info("No default settings exists. Assuming ES defaults" + settings, ioe);
-                    return null;
-                }
-                ObjectMapper mapper = new ObjectMapper();
-                TypeFactory typeFactory = mapper.getTypeFactory();
-                MapType mapType = typeFactory.constructMapType(HashMap.class, String.class, HashMap.class);
+                // Look for a file in a configuration folder
+                file = getClass().getClassLoader().getResourceAsStream(settings);
+                if (file == null) {
+                    // Read it from inside the WAR
+                    file = getClass().getClassLoader().getResourceAsStream("/ab-default-settings.json");
+                    logger.info("No default settings exists. Using AB defaults /ab-default-settings.json");
 
-                defaultSettings = mapper.readValue(file, mapType);
+                    if ( file == null ) // for JUnit tests
+                        file = new FileInputStream(settings);
+                } else
+                    logger.debug("Overriding default settings with file on disk {}", settings);
+                defaultSettings = getMapFromStream(file);
                 logger.debug("Initialised settings {} with {} keys", settings, defaultSettings.keySet().size());
             }
         } catch (IOException e) {
             logger.error("Error in building settings for the ES index", e);
+        } finally {
+            if (file != null) {
+                file.close();
+            }
         }
         return defaultSettings;
+    }
+
+    private Map<String, Object> getMapFromStream(InputStream file) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        TypeFactory typeFactory = mapper.getTypeFactory();
+        MapType mapType = typeFactory.constructMapType(HashMap.class, String.class, HashMap.class);
+        return mapper.readValue(file, mapType);
+
     }
 
     private static Map<String, Map<String, Object>> mappings = new HashMap<>();
@@ -452,13 +465,14 @@ public class TrackDaoES implements TrackSearchDao {
             if (found == null) {
                 String esDefault = searchAdmin.getEsDefaultMapping();
                 try {
-                    logger.debug("Reading default mapping from disk = {}", esDefault);
-                    found = getMapping(searchAdmin.getEsDefaultMapping());
+                    // Chance to find it on disk
+                    found = getMapping(esDefault);
                     mappings.put("ab.default", found);
-                    logger.debug("Initialised mapping {} with {} keys", esDefault, found.keySet().size());
+                    logger.debug("Overriding packaged mapping with local default of [{}]. {} keys", esDefault, found.keySet().size());
                 } catch (IOException ioe) {
-                    logger.error("Unable to find a default mapping file. Looked for it as {}. Contact your administrator to resolve this", esDefault);
-                    throw (ioe);
+                    // Extract it from the WAR
+                    logger.debug("Reading default mapping from the package");
+                    found = getMapping("/ab-default-mapping.json");
                 }
             }
         }
@@ -467,13 +481,18 @@ public class TrackDaoES implements TrackSearchDao {
 
     private Map<String, Object> getMapping(String fileName) throws IOException {
         logger.debug("Looking for {}", fileName);
-        Map<String, Object> found;
-        InputStream file = new FileInputStream(fileName);
-        ObjectMapper mapper = new ObjectMapper();
-        TypeFactory typeFactory = mapper.getTypeFactory();
-        MapType mapType = typeFactory.constructMapType(HashMap.class, String.class, HashMap.class);
-        found = mapper.readValue(file, mapType);
-        return found;
+        InputStream file = null;
+        try {
+            file = getClass().getClassLoader().getResourceAsStream(fileName);
+            if ( file == null )
+                // running from JUnit can only read this as a file input stream
+                file = new FileInputStream(fileName);
+            return getMapFromStream(file);
+        } finally {
+            if (file != null) {
+                file.close();
+            }
+        }
     }
 
 }
