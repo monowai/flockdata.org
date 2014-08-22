@@ -34,7 +34,8 @@ public class SystemUserService implements com.auditbucket.registration.service.S
     @Autowired
     RegistrationDao regDao;
 
-    @Cacheable(value = "systemUsers", unless = "#result == null")
+    // TODO DAT-184 Gives error while enabling caching 
+//    @Cacheable(value = "systemUsers", unless = "#result == null")
     public SystemUser findByLogin(String name) {
         if (name == null) {
             throw new IllegalArgumentException("Login name cannot be null");
