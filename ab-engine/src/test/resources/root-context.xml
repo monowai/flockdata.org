@@ -61,7 +61,7 @@
     <bean id="cacheManager" class="org.springframework.cache.support.NoOpCacheManager">
     </bean>
 
-	<bean id="userProfileService" class="com.auditbucket.authentication.service.StormpathUserProfile"/>
+	<bean id="userProfileService" class="com.auditbucket.authentication.provider.Stormpath"/>
 
 	<bean id="apiKeyInterceptor" class="com.auditbucket.authentication.handler.APIKeyInterceptor"/>
 </beans>
