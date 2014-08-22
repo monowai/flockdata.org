@@ -1,5 +1,6 @@
-package com.auditbucket.authentication;
+package com.auditbucket.authentication.service;
 
+import com.auditbucket.authentication.UserProfile;
 import org.springframework.security.core.Authentication;
 
 public interface UserProfileService {

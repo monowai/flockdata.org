@@ -19,13 +19,12 @@
 
 package com.auditbucket.registration.repo.neo4j.model;
 
+import com.auditbucket.registration.model.Company;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
-
-import com.auditbucket.registration.model.Company;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @NodeEntity
 @TypeAlias(value ="ABCompany")

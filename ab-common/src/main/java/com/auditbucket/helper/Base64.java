@@ -14,7 +14,7 @@
 	limitations under the License.
  */
 
-package com.auditbucket.registration.service;
+package com.auditbucket.helper;
 
 import java.nio.ByteBuffer;
 import java.util.UUID;

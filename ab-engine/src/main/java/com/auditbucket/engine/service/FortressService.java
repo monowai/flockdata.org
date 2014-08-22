@@ -29,11 +29,8 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.registration.repo.neo4j.dao.CompanyDao;
-import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.SystemUserService;
 import com.auditbucket.track.model.DocumentType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,13 +49,7 @@ public class FortressService {
     private FortressDao fortressDao;
 
     @Autowired
-    private CompanyService companyService;
-
-    @Autowired
     private SystemUserService sysUserService;
-
-    @Autowired
-    private CompanyDao companyDao;
 
     @Autowired
     private SchemaDao schemaDao;

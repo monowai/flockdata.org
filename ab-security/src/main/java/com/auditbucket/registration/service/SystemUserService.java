@@ -21,32 +21,16 @@ package com.auditbucket.registration.service;
 
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.registration.repo.neo4j.dao.RegistrationNeo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-@Service
-@Transactional
-public class SystemUserService {
+/**
+ * User: mike
+ * Date: 22/08/14
+ * Time: 9:46 AM
+ */
+public interface SystemUserService {
+    SystemUser findByLogin(String userEmail);
 
-    @Autowired
-    RegistrationNeo regDao;
+    SystemUser findByApiKey(String apiKey);
 
-    @Cacheable(value = "systemUsers", unless = "#result == null")
-    public SystemUser findByLogin(String name) {
-        if (name == null) {
-            throw new IllegalArgumentException("Login name cannot be null");
-        }
-        return regDao.findSysUserByName(name.toLowerCase());
-    }
-
-    public SystemUser save(RegistrationBean regBean) {
-        return regDao.save(regBean.getCompany(), regBean.getName(), regBean.getLogin());
-    }
-
-    public SystemUser findByApiKey(String apiKey) {
-        return regDao.findByApiKey(apiKey);
-    }
+    SystemUser save(RegistrationBean regBean);
 }

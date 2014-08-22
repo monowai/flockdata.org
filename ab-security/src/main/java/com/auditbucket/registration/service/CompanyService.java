@@ -19,87 +19,30 @@
 
 package com.auditbucket.registration.service;
 
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.SystemUser;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.util.Collection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+/**
+ * User: mike
+ * Date: 22/08/14
+ * Time: 10:17 AM
+ */
+public interface CompanyService {
+    Company findByName(String companyName);
 
-import com.auditbucket.dao.SchemaDao;
-import com.auditbucket.helper.SecurityHelper;
-import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.registration.repo.neo4j.dao.CompanyDao;
+    Company findByCode(String code);
 
-@Service
-@Transactional
-public class CompanyService {
+    SystemUser getAdminUser(Company company, String name);
 
-    @Autowired
-    private CompanyDao companyDao;
-
-    @Autowired
-    KeyGenService keyGenService;
-
-    @Autowired
-    SchemaDao schemaDao;
-
-    @Autowired
-    private SecurityHelper securityHelper;
-
-    @Autowired
-    private NewCompanyEventPublisher applicationEventPublisher;
-
-    private static Logger logger = LoggerFactory.getLogger(CompanyService.class);
-
-    public Company findByName(String companyName) {
-        return companyDao.findByPropertyValue("name", companyName);
-    }
-
-    public Company findByCode(String code) {
-        return companyDao.findByPropertyValue("code", code);
-    }
-
-    public SystemUser getAdminUser(Company company, String name) {
-        return companyDao.getAdminUser(company.getId(), name);
-    }
-
-
-    public Company save(String companyName) {
-        Company company = companyDao.create(companyName, keyGenService.getUniqueKey());
-        // Change to async event via spring events
-//        schemaService.ensureSystemIndexes(company);
-        this.applicationEventPublisher.publish(company);
-        return company;
-    }
+    Company save(String companyName);
 
     @Cacheable(value = "companyKeys", unless = "#result == null")
-    public Company findByApiKey(String apiKey) {
-        return companyDao.findByPropertyValue("apiKey", apiKey);
-    }
+    Company findByApiKey(String apiKey);
 
-    public Collection<Company> findCompanies(String userApiKey) {
-        if ( userApiKey == null ) {
-            SystemUser su = securityHelper.getSysUser(true);
-            if (su !=null )
-                userApiKey = su.getApiKey();
-        }
-        if ( userApiKey==null ){
-            throw new SecurityException("Unable to resolve user API key");
-        }
-        return companyDao.findCompanies(userApiKey);
+    Collection<Company> findCompanies(String userApiKey);
 
-    }
-    public Collection<Company> findCompanies() {
-        SystemUser su = securityHelper.getSysUser(true);
-        if (su == null)
-            return null;
-
-        return companyDao.findCompanies(su.getId());
-    }
-
+    Collection<Company> findCompanies();
 }

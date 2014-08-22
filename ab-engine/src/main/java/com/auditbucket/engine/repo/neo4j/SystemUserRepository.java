@@ -17,12 +17,11 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.registration.repo.neo4j;
-
-import org.springframework.data.neo4j.annotation.Query;
-import org.springframework.data.neo4j.repository.GraphRepository;
+package com.auditbucket.engine.repo.neo4j;
 
 import com.auditbucket.registration.repo.neo4j.model.SystemUserNode;
+import org.springframework.data.neo4j.annotation.Query;
+import org.springframework.data.neo4j.repository.GraphRepository;
 
 public interface SystemUserRepository extends GraphRepository<SystemUserNode> {
 
