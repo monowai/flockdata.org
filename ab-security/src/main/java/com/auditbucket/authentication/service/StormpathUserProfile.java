@@ -1,7 +1,6 @@
 package com.auditbucket.authentication.service;
 
 import com.auditbucket.authentication.UserProfile;
-import com.auditbucket.authentication.UserProfileService;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.SystemUserService;
 import com.stormpath.spring.security.provider.StormpathUserDetails;

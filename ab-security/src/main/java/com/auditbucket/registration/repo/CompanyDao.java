@@ -17,12 +17,12 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.registration.repo.neo4j.dao;
-
-import java.util.Collection;
+package com.auditbucket.registration.repo;
 
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.SystemUser;
+
+import java.util.Collection;
 
 /**
  * Company represents a unique organisation who interacts with the system

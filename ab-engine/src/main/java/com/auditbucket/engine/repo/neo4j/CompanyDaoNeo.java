@@ -17,18 +17,17 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.registration.repo.neo4j.dao;
+package com.auditbucket.engine.repo.neo4j;
 
-import java.util.Collection;
-
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.repo.CompanyDao;
+import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.registration.repo.neo4j.CompanyRepository;
-import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
+import java.util.Collection;
 
 /**
  * User: Mike Holdsworth

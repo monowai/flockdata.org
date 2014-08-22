@@ -16,93 +16,25 @@
  * You should have received a copy of the GNU General Public License
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.auditbucket.registration.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.auditbucket.helper.DatagioException;
-import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.registration.repo.neo4j.model.SystemUserNode;
+import org.springframework.security.access.annotation.Secured;
 
-@Service
-@Transactional
-public class RegistrationService {
-
-    @Autowired
-    private CompanyService companyService;
-
-    @Autowired
-    private SystemUserService systemUserService;
-
-    @Autowired
-    KeyGenService keyGenService;
-
-    @Autowired
-    private SecurityHelper securityHelper;
-
-    public static SystemUser GUEST = new SystemUserNode("Guest", null, null, false);
-
-
+/**
+ * User: mike
+ * Date: 22/08/14
+ * Time: 9:43 AM
+ */
+public interface RegistrationService {
     @Secured({"ROLE_AB_ADMIN"})
-    public SystemUser registerSystemUser(RegistrationBean regBean) throws DatagioException {
+    SystemUser registerSystemUser(RegistrationBean regBean) throws DatagioException;
 
-        SystemUser systemUser = systemUserService.findByLogin(regBean.getLogin());
+    Company resolveCompany(String apiKey) throws DatagioException;
 
-        if (systemUser != null) {
-        	return systemUser; 
-        }
-
-        Company company = companyService.findByName(regBean.getCompanyName());
-        if (company == null) {
-            company = companyService.save(regBean.getCompanyName());
-        }
-        regBean.setCompany(company);
-        systemUser = systemUserService.save(regBean);
-
-        return systemUser;
-    }
-
-    public SystemUser isAdminUser(Company company, String message) {
-        String systemUser = securityHelper.isValidUser();
-        SystemUser adminUser = companyService.getAdminUser(company, systemUser);
-        if (adminUser == null)
-            throw new IllegalArgumentException(message);
-        return adminUser;
-    }
-
-    /**
-     * @return currently logged-in SystemUser or Guest if anonymous
-     */
-    public SystemUser getSystemUser() {
-        String systemUser = securityHelper.getUserName(false, false);
-        if (systemUser == null)
-            return GUEST;
-        SystemUser iSystemUser = systemUserService.findByLogin(systemUser);
-        if (iSystemUser == null ) {
-            // Authenticated in the security system, but not in the graph
-            return new SystemUserNode(systemUser, null, null, true);
-        } else {
-            return iSystemUser;
-        }
-    }
-
-    public SystemUser getSystemUser(String apiKey){
-        SystemUser su = systemUserService.findByApiKey(apiKey);
-        if ( su == null )
-            return getSystemUser();
-        return su;
-    }
-
-    public Company resolveCompany(String apiKey) throws DatagioException {
-        Company c = securityHelper.getCompany(apiKey);
-        if (c == null)
-            throw new DatagioException("Invalid API Key");
-        return c;
-    }
+    SystemUser getSystemUser(String s);
 }

@@ -19,6 +19,7 @@
 
 package com.auditbucket.registration.service;
 
+import com.auditbucket.helper.Base64;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
