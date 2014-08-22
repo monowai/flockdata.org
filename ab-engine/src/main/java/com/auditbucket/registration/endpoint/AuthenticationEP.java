@@ -2,7 +2,7 @@ package com.auditbucket.registration.endpoint;
 
 import com.auditbucket.authentication.LoginRequest;
 import com.auditbucket.authentication.UserProfile;
-import com.auditbucket.authentication.service.UserProfileService;
+import com.auditbucket.authentication.UserProfileService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,6 +1,7 @@
-package com.auditbucket.authentication.service;
+package com.auditbucket.authentication.provider;
 
 import com.auditbucket.authentication.UserProfile;
+import com.auditbucket.authentication.UserProfileService;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.SystemUserService;
 import com.stormpath.spring.security.provider.StormpathUserDetails;
@@ -10,22 +11,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
-public class StormpathUserProfile implements UserProfileService {
+public class Stormpath implements UserProfileService {
 
     private static final Logger logger = LoggerFactory
-            .getLogger(StormpathUserProfile.class);
+            .getLogger(Stormpath.class);
 
+    static  {
+        logger.info("Using Stormpath profile service");
+    }
     @Autowired
     private SystemUserService systemUserService;
 
     @Override
     public UserProfile getUser(Authentication auth) {
-        // ToDo: this should not be an implementation specific class
-        //          possibly a Map<String,Object>
         StormpathUserDetails stormpathUser = (StormpathUserDetails) auth.getPrincipal();
 
-        logger.info("UserProfile Properties - " + stormpathUser.getProperties());
-        logger.info("Authorities - " + auth.getAuthorities());
+        //logger.debug("UserProfile Properties - " + stormpathUser.getProperties());
+        //logger.debug("Authorities - " + auth.getAuthorities());
 
         UserProfile userProfile = new UserProfile();
         String userEmail = stormpathUser.getProperties().get("email");
@@ -49,6 +51,11 @@ public class StormpathUserProfile implements UserProfileService {
         }
 
         return userProfile;
+    }
+
+    @Override
+    public String getProvider() {
+        return "Stormpath";
     }
 
 }
