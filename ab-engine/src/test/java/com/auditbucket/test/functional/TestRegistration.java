@@ -19,11 +19,16 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.helper.DatagioException;
-import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.bean.RegistrationBean;
-import com.auditbucket.registration.bean.SystemUserResultBean;
-import com.auditbucket.registration.model.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.fail;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+
+import java.util.Collection;
+import java.util.TimeZone;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -33,16 +38,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
-import java.util.TimeZone;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.fail;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import com.auditbucket.helper.DatagioException;
+import com.auditbucket.registration.bean.FortressInputBean;
+import com.auditbucket.registration.bean.RegistrationBean;
+import com.auditbucket.registration.bean.SystemUserResultBean;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.FortressUser;
+import com.auditbucket.registration.model.SystemUser;
 
 @Transactional
 public class TestRegistration extends TestEngineBase {
@@ -60,27 +63,15 @@ public class TestRegistration extends TestEngineBase {
         setSecurity();
         SystemUserResultBean su = registrationEP.registerSystemUser(new RegistrationBean("CompanyA", "mike").setIsUnique(false)).getBody();
 
-        int i = 1;
+/*        int i = 1;
         while (i <= count) {
             CompanyUser test = regService.addCompanyUser(userNamePrefix + i + "@sunnybell.com", su.getCompanyName());
             test = companyService.save(test);
             assertNotNull(test);
             i++;
         }
-
+*/
     }
-
-    @Test
-    public void findByName() throws DatagioException {
-        createCompanyUsers("MTest", 3);
-        String name = "mtest2@sunnybell.com";
-        setSecurity();
-        CompanyUser p = companyService.getCompanyUser(name);
-        assertNotNull(p);
-        assertEquals(name, p.getName());
-
-    }
-
 
     @Test
     public void companyFortressNameSearch() throws Exception {
@@ -128,13 +119,6 @@ public class TestRegistration extends TestEngineBase {
 
         assertEquals(1, companies.size());
         assertEquals("Company keys should be the same irrespective of name case create with", companies.iterator().next().getApiKey(), cKey);
-    }
-
-    @Test
-    public void testCompanyUsers() throws DatagioException {
-        createCompanyUsers("mike", 10);
-        Iterable<CompanyUser> users = companyService.getUsers();
-        assertTrue(users.iterator().hasNext());
     }
 
     @Test
@@ -237,9 +221,6 @@ public class TestRegistration extends TestEngineBase {
         setSecurity();
         SystemUserResultBean systemUser = registrationEP.registerSystemUser(new RegistrationBean(companyName, adminName)).getBody();
         assertNotNull(systemUser);
-
-        CompanyUser nonAdmin = regService.addCompanyUser(userName, companyName);
-        assertNotNull(nonAdmin);
 
         FortressInputBean fib = new FortressInputBean("auditbucket");
         fib.setSearchActive(false);
@@ -366,8 +347,8 @@ public class TestRegistration extends TestEngineBase {
 
 
     }
-
-    @Test
+  //TODO: Mike needs to refactor this
+/*    @Test
     public void duplicateRegistrationFails() throws Exception {
         String companyA = "companya";
         String companyB = "companyb";
@@ -381,7 +362,7 @@ public class TestRegistration extends TestEngineBase {
         }
 
     }
-
+*/
     @Test
     public void multipleFortressUserErrors() throws Exception {
         Long uid;
@@ -390,8 +371,6 @@ public class TestRegistration extends TestEngineBase {
         String company = "MultiFortTest";
         regService.registerSystemUser(new RegistrationBean(company, uname));
         setSecurity(uname);
-        CompanyUser nonAdmin = regService.addCompanyUser(uname, company);
-        assertNotNull(nonAdmin);
 
         Fortress fortress = fortressService.registerFortress("auditbucket");
         assertNotNull(fortress);

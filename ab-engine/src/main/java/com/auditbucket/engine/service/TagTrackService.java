@@ -25,12 +25,12 @@ import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
-import com.auditbucket.registration.service.TagService;
 import com.auditbucket.track.bean.TrackTagInputBean;
 import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
 import com.auditbucket.track.model.TrackTag;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

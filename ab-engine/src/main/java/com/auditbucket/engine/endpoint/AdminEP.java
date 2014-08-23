@@ -60,7 +60,7 @@ public class AdminEP {
     @RequestMapping(value = "/health", method = RequestMethod.GET)
     public Map<String, String> getHealth(String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         String user = registrationService.getSystemUser(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey)).getLogin();
-        if(user == null ||(user.equalsIgnoreCase(RegistrationService.GUEST.getLogin()) || user.equalsIgnoreCase("anonymousUser")))
+        if(user == null ||(user.equalsIgnoreCase("guest") || user.equalsIgnoreCase("anonymousUser")))
             return null;
         return engineConfig.getHealth();
     }

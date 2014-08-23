@@ -66,4 +66,6 @@
     <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
           p:configLocation="classpath:/ehcache.xml"/>
 
+	<bean id="userProfileService" class="com.auditbucket.authentication.stormpath.StormPathUser"/>
+
 </beans>

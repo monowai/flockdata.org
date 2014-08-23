@@ -22,8 +22,8 @@ package com.auditbucket.engine.service;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.track.model.DocumentType;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
