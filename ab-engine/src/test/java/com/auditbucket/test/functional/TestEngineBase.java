@@ -130,7 +130,7 @@ public class TestEngineBase {
 
     private static Logger logger = LoggerFactory.getLogger(TestEngineBase.class);
 
-    // These have to be in xsimple-security.xml that is authorised to create registrations
+    // These have to be in simple-security.xml that is authorised to create registrations
     String sally = "sally";
     String mike = "mike";
     String harry = "harry";
