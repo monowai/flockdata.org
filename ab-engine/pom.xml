@@ -34,9 +34,9 @@
         <license-text.header>GPL-3-header.txt</license-text.header>
         <docs.url>http://www.monowai.com/wiki/display/DAT/</docs.url>
         <ehcache.version>2.6.7</ehcache.version>
-        <!--Default properties for test. integration over http and Neo4J running embedded-->
         <org.springdata.neo4j>3.1.2.RELEASE</org.springdata.neo4j>
         <neo4j.version>2.1.2</neo4j.version>
+
     </properties>
 
     <dependencies>
@@ -294,6 +294,19 @@
         <dependency>
             <groupId>com.monowai</groupId>
             <artifactId>ab-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.monowai</groupId>
+            <artifactId>ab-security</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.monowai</groupId>
+            <artifactId>ab-security</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

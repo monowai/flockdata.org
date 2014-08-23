@@ -19,6 +19,7 @@
 
 package com.auditbucket.company.endpoint;
 
+import com.auditbucket.engine.service.SchemaService;
 import com.auditbucket.helper.ApiKeyHelper;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
@@ -26,12 +27,15 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.track.model.DocumentType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 
 /**
@@ -43,8 +47,14 @@ import java.util.Collection;
 @RequestMapping("/company")
 public class CompanyEP {
 
+	private static final Logger logger = LoggerFactory
+			.getLogger(CompanyEP.class);
+
     @Autowired
     CompanyService companyService;
+
+    @Autowired
+    SchemaService schemaService;
 
     @Autowired
     SecurityHelper securityHelper;
@@ -88,8 +98,19 @@ public class CompanyEP {
 
         // ToDo: figure out if the API Key can resolve to multiple companies
         Company company = getCompany(apiHeaderKey, apiKey);
-        return companyService.getCompanyDocumentsInUse(company);
+        return schemaService.getCompanyDocumentsInUse(company);
 
+    }
+
+    /**
+     * All documents in use by a company
+     */
+    @RequestMapping(value = "/hello", method = RequestMethod.GET)
+    @ResponseBody
+    public String sayHello(HttpServletRequest request) throws DatagioException {
+    	Company company = (Company) request.getAttribute("company");
+		logger.info("Company - " + company);
+    	return "Hello " + company.getName();
     }
 
     private Company getCompany(String apiHeaderKey, String apiRequestKey) throws DatagioException {

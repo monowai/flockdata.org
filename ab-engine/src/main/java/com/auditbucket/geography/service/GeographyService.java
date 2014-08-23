@@ -1,8 +1,9 @@
 package com.auditbucket.geography.service;
 
+import com.auditbucket.engine.service.TagService;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
-import com.auditbucket.registration.service.TagService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

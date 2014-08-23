@@ -1,16 +1,11 @@
 package com.auditbucket.test.functional;
 
-import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
-import com.auditbucket.engine.repo.neo4j.model.MetaHeaderNode;
-import com.auditbucket.engine.repo.neo4j.model.TrackTagRelationship;
+import com.auditbucket.engine.repo.neo4j.model.*;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.TagInputBean;
+import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
-import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
-import com.auditbucket.registration.repo.neo4j.model.FortressNode;
-import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
-import com.auditbucket.registration.repo.neo4j.model.TagNode;
 import com.auditbucket.search.endpoint.ElasticSearchEP;
 import com.auditbucket.search.model.MetaSearchChange;
 import com.auditbucket.search.model.MetaSearchSchema;

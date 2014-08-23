@@ -28,7 +28,9 @@ import com.auditbucket.fortress.endpoint.FortressEP;
 import com.auditbucket.geography.endpoint.GeographyEP;
 import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.endpoint.TagEP;
-import com.auditbucket.registration.service.*;
+import com.auditbucket.registration.service.CompanyService;
+import com.auditbucket.registration.service.RegistrationService;
+import com.auditbucket.registration.service.SystemUserService;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
 import org.junit.Before;
@@ -128,7 +130,7 @@ public class TestEngineBase {
 
     private static Logger logger = LoggerFactory.getLogger(TestEngineBase.class);
 
-    // These have to be in spring-security.xml that is authorised to create registrations
+    // These have to be in simple-security.xml that is authorised to create registrations
     String sally = "sally";
     String mike = "mike";
     String harry = "harry";

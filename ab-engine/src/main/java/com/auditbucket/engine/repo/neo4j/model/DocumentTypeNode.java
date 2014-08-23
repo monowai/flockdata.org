@@ -20,11 +20,11 @@
 package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.repo.neo4j.model.FortressNode;
 import com.auditbucket.track.model.Concept;
 import com.auditbucket.track.model.DocumentType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;
