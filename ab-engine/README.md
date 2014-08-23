@@ -50,13 +50,13 @@ You can either deploy ab-engine to an existing servlet container or run it stand
 Run ab-engine (with Spring security configuration) straight from the ab-engine/target folder with the following command
 ```
 $ cd ab-engine/target
-$ java -jar ab-engine-war.jar -Dneo4j=java -Dab.integration=http -Dab.auth.provider=simple -httpPort=8080 -Dab.config=./classes/config.properties -Dlog4j.configuration=file:./classes/log4j.xml
+$ java -jar ab-engine-war.jar -Dneo4j=java -Dab.integration=http -Dab.auth.provider=Spring -httpPort=8080 -Dab.config=./classes/config.properties -Dlog4j.configuration=file:./classes/log4j.xml
 ```
 
 Run ab-engine (with Stormpath security configuration) straight from the ab-engine/target folder with the following command
 ```
 $ cd ab-engine/target
-$ java -jar ab-engine-war.jar -Dneo4j=java -Dab.integration=http -Dab.auth.provider=stormpath -httpPort=8080 -Dab.config=./classes/config.properties -Dlog4j.configuration=file:./classes/log4j.xml
+$ java -jar ab-engine-war.jar -Dneo4j=java -Dab.integration=http -Dab.auth.provider=Stormpath -httpPort=8080 -Dab.config=./classes/config.properties -Dlog4j.configuration=file:./classes/log4j.xml
 ```
 
 Deploy in TomCat or whatever be your favourite container. Maven will build an executable Tomcat7 package for you that you can run from the Java command line. We will assume that you are going to deploy the WAR to TC7 via your IDE.
@@ -69,7 +69,14 @@ Once you have the .war file installed in your app server, you can start firing o
 HTTP, REST and JSON is the lingua franca.
 
 ### Authorisation
-Note that the user id is under simple=security is 'mike' and the login is '123'. This is basic configuration stuff hacked in to simple-security.xml. You are free to configure your own security domain. See ab-security for further details.
+AuditBucket supports 2 options in terms of security configuration.
+Default is Spring security. This is chosen by setting -Dab.security.provider to "Spring" (case sensitive) 
+Note that the user id is under simple=security is 'mike' and the login is '123'. This is basic configuration stuff hacked in to simple-security.xml.  
+
+Optionally, we can start AuditBucket with Stormpath as the security provider.
+This is chosen by setting -Dab.security.provider=Stormpath while booting ab-engine.
+
+You are free to configure your own security domain, or help me out with an OAuth configuration ;)
 
 ## Tracking Data
 By default, information is tracked in Neo4J and ElasticSearch. You can, at the point of POST, request that the information be only tracked in Neo4j or only ElasticSearch. This depends on your use case. You might be simply tracking event type information that never changes, so simply storing in ElasticSearch is functional enough as the data is not require the meshing of connections.
