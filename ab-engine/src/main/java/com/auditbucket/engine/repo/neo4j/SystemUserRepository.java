@@ -19,7 +19,7 @@
 
 package com.auditbucket.engine.repo.neo4j;
 
-import com.auditbucket.registration.repo.neo4j.model.SystemUserNode;
+import com.auditbucket.registration.dao.neo4j.model.SystemUserNode;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 

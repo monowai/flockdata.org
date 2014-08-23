@@ -20,10 +20,9 @@
 package com.auditbucket.registration;
 
 import com.auditbucket.registration.bean.RegistrationBean;
+import com.auditbucket.registration.dao.RegistrationDao;
 import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.registration.repo.RegistrationDao;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

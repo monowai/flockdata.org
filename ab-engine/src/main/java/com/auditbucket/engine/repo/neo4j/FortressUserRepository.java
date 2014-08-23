@@ -19,12 +19,11 @@
 
 package com.auditbucket.engine.repo.neo4j;
 
+import com.auditbucket.engine.repo.neo4j.model.FortressUserNode;
+import com.auditbucket.registration.dao.neo4j.model.SystemUserNode;
+import com.auditbucket.registration.model.FortressUser;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
-
-import com.auditbucket.engine.repo.neo4j.model.FortressUserNode;
-import com.auditbucket.registration.model.FortressUser;
-import com.auditbucket.registration.repo.neo4j.model.SystemUserNode;
 
 public interface FortressUserRepository extends GraphRepository<FortressUserNode> {
 

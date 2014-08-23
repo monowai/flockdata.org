@@ -1,4 +1,4 @@
-package com.auditbucket.authentication.provider;
+package com.auditbucket.authentication.simple;
 
 import com.auditbucket.authentication.UserProfile;
 import com.auditbucket.authentication.UserProfileService;
@@ -12,15 +12,15 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
 
-public class Spring implements UserProfileService {
+public class SimpleUser implements UserProfileService {
 	@Autowired
 	private SystemUserService systemUserService;
 
     private static final Logger logger = LoggerFactory
-            .getLogger(Spring.class);
+            .getLogger(SimpleUser.class);
 
     static  {
-        logger.info("Using Spring-Security simple service");
+        logger.info("Using SimpleUser-Security service");
     }
 
     @Override
@@ -47,7 +47,7 @@ public class Spring implements UserProfileService {
 
     @Override
     public String getProvider() {
-        return "Simple Spring-Security";
+        return "Simple SimpleUser-Security";
     }
 
 }

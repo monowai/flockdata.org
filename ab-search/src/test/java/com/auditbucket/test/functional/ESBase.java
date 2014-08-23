@@ -6,12 +6,11 @@ import com.auditbucket.engine.repo.neo4j.model.FortressUserNode;
 import com.auditbucket.engine.repo.neo4j.model.MetaHeaderNode;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
+import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
-import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.model.MetaHeader;
-
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.JestResult;
@@ -19,7 +18,6 @@ import io.searchbox.client.config.HttpClientConfig;
 import io.searchbox.core.Search;
 import io.searchbox.indices.DeleteIndex;
 import io.searchbox.indices.mapping.GetMapping;
-
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.BeforeClass;

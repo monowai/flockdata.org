@@ -27,8 +27,10 @@
                     http://www.springframework.org/schema/security
                     http://www.springframework.org/schema/security/spring-security-3.2.xsd http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd">
 
+    <beans:bean id="userProfileService"
+                class="com.auditbucket.authentication.stormpath.StormPathUser" />
 
-     <!-- When mapping to domain-specific role names (ie. using GroupRoleGrantedAuthorityResolver) -->
+    <!-- When mapping to domain-specific role names (ie. using GroupRoleGrantedAuthorityResolver) -->
     <beans:bean id="groupRoleGrantedAuthoritiesMap" class="java.util.HashMap" scope="prototype" >
         <beans:constructor-arg>
             <beans:map key-type="java.lang.String" value-type="java.util.List">
@@ -40,7 +42,7 @@
     </beans:bean>
  
     <!-- When mapping to domain-specific role names -->
-    <beans:bean id="groupGrantedAuthorityResolver" class="com.auditbucket.security.stormpath.mapping.GroupRoleGrantedAuthorityResolver" >
+    <beans:bean id="groupGrantedAuthorityResolver" class="com.auditbucket.authentication.stormpath.GroupRoleGrantedAuthorityResolver" >
         <beans:constructor-arg ref="groupRoleGrantedAuthoritiesMap" />
     </beans:bean>
 
@@ -52,8 +54,10 @@
     </beans:bean>
 
     <beans:bean id="stormpathClient" class="com.stormpath.spring.security.client.ClientFactory" >
+        <!--ToDo: DAT-185 Should be a default in config.properties, but should not be path'd in this manner in this file
+                  eg. ${ab.auth.stormpath.keyfile}-->
         <beans:property name="apiKeyFileLocation" value="#{systemProperties['user.home']}/.stormpath/apiKey.properties" />
-        <beans:property name="cacheManager" ref="stormpathcacheManager" />
+        <beans:property name="cacheManager" ref="spCache" />
     </beans:bean>
 
     <!-- We are using our own permission evaluation for WildcardPermissions -->
@@ -82,10 +86,10 @@
         <expression-handler ref="methodExpressionHandler"/>
     </global-method-security>
 
-    <cache:annotation-driven cache-manager="stormpathcacheManager" />
+    <cache:annotation-driven cache-manager="spCache" />
     <!-- Generic cache manager based on the JDK ConcurrentMap -->
 
-    <beans:bean id="stormpathcacheManager" class="org.springframework.cache.support.SimpleCacheManager">
+    <beans:bean id="spCache" class="org.springframework.cache.support.SimpleCacheManager">
         <beans:property name="caches">
             <beans:set>
                 <beans:bean
