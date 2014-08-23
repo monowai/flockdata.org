@@ -34,10 +34,10 @@
 
 	<context:property-placeholder
 		ignore-resource-not-found="true" ignore-unresolvable="true"
-		location="classpath:config.properties,file:${ab.config}" />
+		location="classpath:/config.properties,file:${ab.config}" />
 
 	<!--ToDo: We'll have to add in a parameter to make this dynamic-->
-    <import resource="classpath:${ab.security.provider}-security.xml" />
+    <import resource="classpath:${ab.auth.provider}-security.xml" />
 	<import resource="integration.xml" />
 	<import resource="http-proxy-integration.xml" />
 	<import resource="http-monitoring-integration.xml" />
@@ -56,11 +56,10 @@
 	<cache:annotation-driven />
 	<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager"
 		p:cacheManager-ref="ehcache" />
+
 	<bean id="ehcache"
 		class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
-		p:configLocation="classpath:ehcache.xml" p:shared="true" />
+		p:configLocation="classpath:/ehcache.xml" p:shared="true" />
 
-	<bean id="userProfileService"
-		class="com.auditbucket.authentication.provider.${ab.security.provider}" />
 
 </beans>

@@ -1,4 +1,4 @@
-package com.auditbucket.authentication.provider;
+package com.auditbucket.authentication.stormpath;
 
 import com.auditbucket.authentication.UserProfile;
 import com.auditbucket.authentication.UserProfileService;
@@ -11,14 +11,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
-public class Stormpath implements UserProfileService {
+public class StormPathUser implements UserProfileService {
 
     private static final Logger logger = LoggerFactory
-            .getLogger(Stormpath.class);
+            .getLogger(StormPathUser.class);
 
-    static  {
+    static {
         logger.info("Using Stormpath profile service");
     }
+
     @Autowired
     private SystemUserService systemUserService;
 

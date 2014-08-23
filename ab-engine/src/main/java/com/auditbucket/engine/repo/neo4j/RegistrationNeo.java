@@ -19,10 +19,10 @@
 
 package com.auditbucket.engine.repo.neo4j;
 
+import com.auditbucket.registration.dao.RegistrationDao;
+import com.auditbucket.registration.dao.neo4j.model.SystemUserNode;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.registration.repo.RegistrationDao;
-import com.auditbucket.registration.repo.neo4j.model.SystemUserNode;
 import com.auditbucket.registration.service.KeyGenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;

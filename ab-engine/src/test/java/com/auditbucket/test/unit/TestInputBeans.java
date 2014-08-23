@@ -22,7 +22,7 @@ package com.auditbucket.test.unit;
 import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.TagInputBean;
-import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
+import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
 import com.auditbucket.test.utils.TestHelper;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;

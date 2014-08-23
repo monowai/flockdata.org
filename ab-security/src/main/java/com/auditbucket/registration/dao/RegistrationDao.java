@@ -17,31 +17,21 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.registration.repo;
+package com.auditbucket.registration.dao;
 
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.SystemUser;
 
-import java.util.Collection;
-
 /**
- * Company represents a unique organisation who interacts with the system
- * API To abstract interactions with underlying implementations
- *
  * User: Mike Holdsworth
  * Date: 20/04/13
  * Time: 6:31 PM
  */
-public interface CompanyDao {
-    public Company update(Company systemUser);
+public interface RegistrationDao {
+    public SystemUser findSysUserByName(String name);
 
-    public Company findByPropertyValue(String property, Object value);
+    public SystemUser findByApiKey(String apiKey);
 
-    public SystemUser getAdminUser(Long companyId, String name);
+    SystemUser save(Company company, String userName, String password);
 
-    Company create(String companyName, String uniqueKey);
-
-    Collection<Company> findCompanies(Long sysUserId);
-
-    Collection<Company> findCompanies(String userApiKey);
 }

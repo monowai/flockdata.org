@@ -43,5 +43,8 @@
             </authentication-provider>
         </authentication-manager>
 
+    <beans:bean id="userProfileService"
+          class="com.auditbucket.authentication.simple.SimpleUser" />
+
 
 </beans:beans>

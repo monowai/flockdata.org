@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.auditbucket.security.stormpath.mapping;
+package com.auditbucket.authentication.stormpath;
 
 import com.stormpath.sdk.group.Group;
 import com.stormpath.spring.security.provider.GroupGrantedAuthorityResolver;
