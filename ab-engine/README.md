@@ -47,10 +47,16 @@ Note that if ab-engine is integrating via AMQP then ab-search must use this appr
 ## Start Your Engines
 You can either deploy ab-engine to an existing servlet container or run it standalone.
 
-Tun ab-engine straight from the ab-engine/target folder with the following command
+Run ab-engine (with Spring security configuration) straight from the ab-engine/target folder with the following command
 ```
 $ cd ab-engine/target
-$ java -jar ab-engine-war.jar -Dneo4j=java -Dab.integration=http -httpPort=8080 -Dab.config=./classes/config.properties -Dlog4j.configuration=file:./classes/log4j.xml
+$ java -jar ab-engine-war.jar -Dneo4j=java -Dab.integration=http -Dab.security.provider=Spring -httpPort=8080 -Dab.config=./classes/config.properties -Dlog4j.configuration=file:./classes/log4j.xml
+```
+
+Run ab-engine (with Stormpath security configuration) straight from the ab-engine/target folder with the following command
+```
+$ cd ab-engine/target
+$ java -jar ab-engine-war.jar -Dneo4j=java -Dab.integration=http -Dab.security.provider=Stormpath -httpPort=8080 -Dab.config=./classes/config.properties -Dlog4j.configuration=file:./classes/log4j.xml
 ```
 
 Deploy in TomCat or whatever be your favourite container. Maven will build an executable Tomcat7 package for you that you can run from the Java command line. We will assume that you are going to deploy the WAR to TC7 via your IDE.
