@@ -76,6 +76,9 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
         for (String column : headerRow) {
             CsvColumnHelper columnHelper = new CsvColumnHelper(column, line[col], importParams.getColumnDef(headerRow[col]));
             if (!columnHelper.ignoreMe()) {
+                if ( columnHelper.isDescription()){
+                    setDescription(row.get(column).toString());
+                }
                 if (columnHelper.isCallerRef()) {
                     String callerRef = getCallerRef();
                     if (callerRef == null)

@@ -58,6 +58,10 @@
         <level value="debug"/>
     </logger>
 
+    <logger name="org.apache">
+        <level value="info"/>
+    </logger>
+
     <!-- Root Logger -->
     <root>
         <priority value="debug"/>

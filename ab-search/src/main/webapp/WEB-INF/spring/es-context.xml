@@ -40,6 +40,7 @@
         <entry key="path.data" value="${es.path.data}"/>
         <entry key="http.port" value="${es.http.port}"/>
         <entry key="transport.tcp.port" value="${es.transport.tcp.port}"/>
+        <entry key="plugin.mandatory" value="mapper-attachments"/>
     </util:map>
 
     <!--Transport only-->
