@@ -19,6 +19,21 @@
 
 package com.auditbucket.fortress.endpoint;
 
+import java.util.Collection;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.auditbucket.engine.service.FortressService;
 import com.auditbucket.helper.ApiKeyHelper;
 import com.auditbucket.helper.DatagioException;
@@ -29,14 +44,6 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.track.model.DocumentType;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Collection;
 
 /**
  * User: Mike Holdsworth
@@ -58,9 +65,9 @@ public class FortressEP {
 
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
     @ResponseBody
-    public Collection<Fortress> findFortresses(String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+    public Collection<Fortress> findFortresses(HttpServletRequest request) throws DatagioException {
         // curl -u mike:123 -X GET  http://localhost:8080/ab/company/Monowai/fortresses
-        Company company = securityHelper.getCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+        Company company = (Company) request.getAttribute("company");
         return fortressService.findFortresses(company);
     }
 

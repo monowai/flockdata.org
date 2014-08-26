@@ -45,8 +45,8 @@ public class TestAPIKeyInterceptor extends TestEngineBase {
 				.registerSystemUser(new RegistrationBean(monowai, mike))
 				.getBody().getApiKey();
 
-		request.setRequestURI("/company/hello");
-		request.addParameter("apiKey", apiKey);
+		request.setRequestURI("/fortress/");
+		request.addHeader("Api-Key", apiKey);
 		boolean status = apiKeyInterceptor.preHandle(request, response, null);
 
 		Assert.assertEquals(true, status);
@@ -60,8 +60,8 @@ public class TestAPIKeyInterceptor extends TestEngineBase {
 	public void givenInValidAPIKey_WhenCallingSecureAPI_ThenShouldNotBeAllowed()
 			throws Exception {
 
-		request.setRequestURI("/company/hello");
-		request.addParameter("apiKey", "someKey");
+		request.setRequestURI("/fortress/");
+		request.addHeader("Api-Key", "someKey");
 		boolean status = apiKeyInterceptor.preHandle(request, response, null);
 
 		Assert.assertEquals(HttpServletResponse.SC_FORBIDDEN, response.getStatus());
@@ -72,7 +72,7 @@ public class TestAPIKeyInterceptor extends TestEngineBase {
 	public void givenNoAPIKey_WhenCallingSecureAPI_ThenShouldNotBeAllowed()
 			throws Exception {
 
-		request.setRequestURI("/company/hello");
+		request.setRequestURI("/fortress/");
 		boolean status = apiKeyInterceptor.preHandle(request, response, null);
 
 		Assert.assertEquals(HttpServletResponse.SC_FORBIDDEN, response.getStatus());
