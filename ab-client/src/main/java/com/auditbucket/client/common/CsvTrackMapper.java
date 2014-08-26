@@ -76,6 +76,9 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
         for (String column : headerRow) {
             CsvColumnHelper columnHelper = new CsvColumnHelper(column, line[col], importParams.getColumnDef(headerRow[col]));
             if (!columnHelper.ignoreMe()) {
+                if (columnHelper.isDescription()) {
+                    setDescription(row.get(column).toString());
+                }
                 if (columnHelper.isCallerRef()) {
                     String callerRef = getCallerRef();
                     if (callerRef == null)
@@ -95,6 +98,7 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
                             val = importParams.getStaticDataResolver().resolveCountryISOFromName(val);
                         }
                         Map<String, Object> properties = new HashMap<>();
+                        // Sets up the basic (MeatHeader)-[metaLink]-(Tag) relationship
                         if (columnHelper.isValueAsProperty()) {
                             tag = new TagInputBean(thisColumn).setMustExist(columnHelper.isMustExist()).setIndex(thisColumn);
 
@@ -115,20 +119,10 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
                             tag = new TagInputBean(val).setMustExist(columnHelper.isMustExist()).setIndex(columnHelper.isCountry() ? "Country" : index);
                             tag.addMetaLink(columnHelper.getRelationshipName());
                         }
-                        ArrayList<CsvTag> targets = columnHelper.getColumnDefinition().getTargets();
-                        for (CsvTag target : targets) {
-                            Object tagName = row.get(target.getColumn());
-                            if (tagName == null) {
-                                logger.error("No 'column' value found for {} in the {} entry ", target.getColumn(), column);
-                            } else {
-                                TagInputBean targetTag = new TagInputBean(tagName.toString())
-                                        .setIndex(target.getColumn());
-                                targetTag.setReverse(target.getReverse());
-                                tag.setTargets(target.getRelationship(), targetTag);
-                            }
-                        }
+                        setNestedTags(tag, columnHelper.getColumnDefinition().getTargets(), row);
                         addTag(tag);
                     }
+
                 }
                 if (columnHelper.isTitle()) {
                     setName(line[col]);
@@ -143,13 +137,12 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
 
             if (tag != null) {
                 addCrossReference(colDef.getStrategy(), new MetaKey(colDef.getFortress(), colDef.getDocumentType(), tag));
-//                addCrossReference();
-//                TagInputBean tagInput = new TagInputBean(tag).setIndex(colDef.getIndex());
-//                addTag(tagInput);
             }
         }
 
-        if (importParams.getMetaHeader() != null) {
+        if (importParams.getMetaHeader() != null)
+
+        {
             CsvColumnDefinition columnDefinition = importParams.getColumnDef(importParams.getMetaHeader());
             if (columnDefinition != null) {
                 String[] metaCols = columnDefinition.getRefColumns();
@@ -161,7 +154,34 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
             }
 
         }
+
         return row;
+    }
+
+    private TagInputBean setNestedTags(TagInputBean setInTo, ArrayList<CsvTag> tagsToAnalyse, Map<String, Object> csvRow) throws DatagioException {
+        if (tagsToAnalyse == null)
+            return null;
+
+        TagInputBean newTag = null;
+
+        for (CsvTag csvTag : tagsToAnalyse) {
+            Object value = csvRow.get(csvTag.getColumn());
+            if ( value == null ){
+                logger.error("Undefined row value for {}", csvTag.getColumn());
+                throw new DatagioException(String.format("Undefined row value for %s", csvTag.getColumn()));
+            }
+
+            newTag = new TagInputBean(value.toString())
+                    .setIndex(csvTag.getIndex());
+            newTag.setReverse(csvTag.getReverse());
+            newTag.setMustExist(csvTag.getMustExist());
+            setInTo.setTargets(csvTag.getRelationship(), newTag);
+            if (csvTag.getTargets() != null) {
+                setNestedTags(newTag, csvTag.getTargets(), csvRow);
+            }
+
+        }
+        return newTag;
     }
 
     private Map<String, Object> getColumnValues(CsvColumnDefinition colDef, Map<String, Object> row) {

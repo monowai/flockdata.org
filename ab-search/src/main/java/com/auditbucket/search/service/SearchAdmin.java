@@ -59,6 +59,8 @@ public class SearchAdmin {
     @Value("${es.mappings}")
     String esMappingPath;
     public String getEsMappingPath(){
+        if ( esMappingPath.equals("${es.mappings}"))
+            return ""; // Internal
         return esMappingPath;
     }
 
