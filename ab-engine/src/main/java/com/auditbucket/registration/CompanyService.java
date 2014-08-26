@@ -83,7 +83,7 @@ public class CompanyService implements com.auditbucket.registration.service.Comp
     }
 
     @Override
-    @Cacheable(value = "companyKeys", unless = "#result == null")
+//    @Cacheable(value = "companyKeys", unless = "#result == null")
     public Company findByApiKey(String apiKey) {
         return companyDao.findByPropertyValue("apiKey", apiKey);
     }

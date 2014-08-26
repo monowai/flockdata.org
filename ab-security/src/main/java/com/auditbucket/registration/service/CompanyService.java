@@ -39,7 +39,7 @@ public interface CompanyService {
 
     Company save(String companyName);
 
-    @Cacheable(value = "companyKeys", unless = "#result == null")
+//    @Cacheable(value = "companyKeys", unless = "#result == null")
     Company findByApiKey(String apiKey);
 
     Collection<Company> findCompanies(String userApiKey);

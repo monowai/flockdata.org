@@ -256,7 +256,7 @@ class TagDaoNeo4j implements TagDao {
     }
 
     @Override
-    @Cacheable(value = "companyTag", unless = "#result == null")
+//    @Cacheable(value = "companyTag", unless = "#result == null")
     public Tag findOne(Company company, String tagName, String index) {
         if (tagName == null || company == null)
             throw new IllegalArgumentException("Null can not be used to find a tag ");
