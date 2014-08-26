@@ -350,6 +350,7 @@ public class MediationFacade {
         fortressService.purge(fortress);
         engineConfig.resetCache();
         searchService.purge(indexName);
+
     }
 
     public void cancelLastLogSync(Company company, String metaKey) throws IOException, DatagioException {
