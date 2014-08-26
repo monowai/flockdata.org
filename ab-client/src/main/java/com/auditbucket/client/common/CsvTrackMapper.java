@@ -172,7 +172,7 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
             }
 
             newTag = new TagInputBean(value.toString())
-                    .setIndex(csvTag.getColumn());
+                    .setIndex(csvTag.getIndex());
             newTag.setReverse(csvTag.getReverse());
             newTag.setMustExist(csvTag.getMustExist());
             setInTo.setTargets(csvTag.getRelationship(), newTag);
