@@ -26,6 +26,7 @@ import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.service.*;
 import com.auditbucket.fortress.endpoint.FortressEP;
 import com.auditbucket.geography.endpoint.GeographyEP;
+import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.endpoint.TagEP;
 import com.auditbucket.registration.service.CompanyService;
@@ -33,6 +34,7 @@ import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.SystemUserService;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
@@ -128,6 +130,9 @@ public class TestEngineBase {
     @Autowired
     Neo4jTemplate template;
 
+    @Autowired
+    SecurityHelper securityHelper;
+    
     private static Logger logger = LoggerFactory.getLogger(TestEngineBase.class);
 
     // These have to be in simple-security.xml that is authorised to create registrations

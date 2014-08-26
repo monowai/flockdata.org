@@ -29,8 +29,12 @@ import static org.junit.Assert.assertNull;
 import java.util.Collection;
 import java.util.TimeZone;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.BDDMockito;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -39,6 +43,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.SystemUserResultBean;
@@ -52,7 +57,7 @@ public class TestRegistration extends TestEngineBase {
 
 
     private Logger logger = LoggerFactory.getLogger(TestRegistration.class);
-
+    
     @Test
     public void createPersonsTest() throws DatagioException {
         createCompanyUsers("", 3);
@@ -123,14 +128,18 @@ public class TestRegistration extends TestEngineBase {
 
     @Test
     public void companiesForUser() throws DatagioException {
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         setSecurity("mike");
         String apiKey = registrationEP.registerSystemUser(new RegistrationBean("CompanyAA", "mike").setIsUnique(false)).getBody().getApiKey();
+        Company company = securityHelper.getCompany(apiKey);
+        
         Fortress fA = fortressService.registerFortress("FortressA");
         Fortress fB = fortressService.registerFortress("FortressB");
         Fortress fC = fortressService.registerFortress("FortressC");
         fortressService.registerFortress("FortressC");// Forced duplicate should be ignored
 
-        Collection<Fortress> fortresses = fortressEP.findFortresses(apiKey, apiKey);
+        BDDMockito.when(request.getAttribute("company")).thenReturn(company);
+        Collection<Fortress> fortresses = fortressEP.findFortresses(request);
         assertFalse(fortresses.isEmpty());
         assertEquals(3, fortresses.size());
 
@@ -206,6 +215,7 @@ public class TestRegistration extends TestEngineBase {
         String companyName = "testReg";
         String adminName = "mike";
         String userName = "gina@hummingbird.com";
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 
         // Create the company.
         SecurityContextHolder.getContext().setAuthentication(null);
@@ -222,12 +232,15 @@ public class TestRegistration extends TestEngineBase {
         SystemUserResultBean systemUser = registrationEP.registerSystemUser(new RegistrationBean(companyName, adminName)).getBody();
         assertNotNull(systemUser);
 
+        Company company = securityHelper.getCompany(systemUser.getApiKey());
+        BDDMockito.when(request.getAttribute("company")).thenReturn(company);
+        
         FortressInputBean fib = new FortressInputBean("auditbucket");
         fib.setSearchActive(false);
         Fortress fortress = fortressEP.registerFortress(fib, systemUser.getApiKey(), systemUser.getApiKey()).getBody();
         assertNotNull(fortress);
 
-        Collection<Fortress> fortressList = fortressEP.findFortresses(systemUser.getApiKey(), systemUser.getApiKey());
+        Collection<Fortress> fortressList = fortressEP.findFortresses(request);
         assertNotNull(fortressList);
         assertEquals(1, fortressList.size());
 
@@ -235,7 +248,6 @@ public class TestRegistration extends TestEngineBase {
         assertNotNull(foundFortress);
         assertEquals(HttpStatus.NOT_FOUND, fortressEP.getFortress("auditbucketzz", systemUser.getApiKey(), systemUser.getApiKey()).getStatusCode());
 
-        Company company = companyService.findByName(companyName);
         assertNotNull(company);
         assertNotNull(company.getApiKey());
         Long companyId = company.getId();

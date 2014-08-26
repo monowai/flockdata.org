@@ -39,7 +39,7 @@
     </mvc:annotation-driven>
 	<mvc:interceptors>
 	  <mvc:interceptor>
-		  <mvc:mapping path="/company/hello"/>
+		  <mvc:mapping path="/fortress/**"/>
 	      <bean class="com.auditbucket.authentication.handler.APIKeyInterceptor"/>
 	</mvc:interceptor>
 	</mvc:interceptors>    
