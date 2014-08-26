@@ -21,11 +21,7 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.engine.endpoint.QueryEP;
 import com.auditbucket.engine.endpoint.TrackEP;
-import com.auditbucket.engine.service.FortressService;
-import com.auditbucket.engine.service.MediationFacade;
-import com.auditbucket.engine.service.TagTrackService;
-import com.auditbucket.engine.service.TrackService;
-import com.auditbucket.engine.service.WhatService;
+import com.auditbucket.engine.service.*;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
@@ -42,7 +38,6 @@ import com.auditbucket.track.model.TrackLog;
 import com.auditbucket.track.model.TrackTag;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.JestResult;
@@ -50,7 +45,6 @@ import io.searchbox.client.config.HttpClientConfig;
 import io.searchbox.core.Search;
 import io.searchbox.indices.DeleteIndex;
 import io.searchbox.indices.mapping.GetMapping;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
@@ -579,7 +573,7 @@ public class TestABIntegration {
 
     @Test
     public void tagKeyReturnsSingleSearchResult() throws Exception {
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## tagKeyReturnsSingleSearchResult");
 
         SystemUser su = registerSystemUser("Peter");
