@@ -241,6 +241,7 @@ public class CSVThing {
         TagInputBean cityTag = locatedTags.get("located").iterator().next();
         assertNotNull(cityTag);
         assertEquals("San Francisco", cityTag.getName());
+        assertEquals("City", cityTag.getIndex());
 
         Map<String, Collection<TagInputBean>> stateTags = cityTag.getTargets();
         assertEquals(1, stateTags.size());
