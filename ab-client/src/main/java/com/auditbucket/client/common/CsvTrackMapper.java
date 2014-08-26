@@ -3,7 +3,6 @@ package com.auditbucket.client.common;
 import com.auditbucket.client.Importer;
 import com.auditbucket.client.csv.CsvColumnDefinition;
 import com.auditbucket.client.csv.CsvColumnHelper;
-import com.auditbucket.client.csv.CsvTag;
 import com.auditbucket.client.rest.AbRestClient;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.TagInputBean;
@@ -11,9 +10,11 @@ import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.model.MetaKey;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * User: mike
@@ -21,7 +22,7 @@ import java.util.*;
  * Time: 4:34 PM
  */
 public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(CsvTrackMapper.class);
+    //private static org.slf4j.Logger logger = LoggerFactory.getLogger(CsvTrackMapper.class);
 
     public CsvTrackMapper(ImportParams importParams) {
         setDocumentType(importParams.getDocumentType());
@@ -119,7 +120,7 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
                             tag = new TagInputBean(val).setMustExist(columnHelper.isMustExist()).setIndex(columnHelper.isCountry() ? "Country" : index);
                             tag.addMetaLink(columnHelper.getRelationshipName());
                         }
-                        setNestedTags(tag, columnHelper.getColumnDefinition().getTargets(), row);
+                        CsvHelper.setNestedTags(tag, columnHelper.getColumnDefinition().getTargets(), row);
                         addTag(tag);
                     }
 
@@ -156,32 +157,6 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
         }
 
         return row;
-    }
-
-    private TagInputBean setNestedTags(TagInputBean setInTo, ArrayList<CsvTag> tagsToAnalyse, Map<String, Object> csvRow) throws DatagioException {
-        if (tagsToAnalyse == null)
-            return null;
-
-        TagInputBean newTag = null;
-
-        for (CsvTag csvTag : tagsToAnalyse) {
-            Object value = csvRow.get(csvTag.getColumn());
-            if ( value == null ){
-                logger.error("Undefined row value for {}", csvTag.getColumn());
-                throw new DatagioException(String.format("Undefined row value for %s", csvTag.getColumn()));
-            }
-
-            newTag = new TagInputBean(value.toString())
-                    .setIndex(csvTag.getIndex());
-            newTag.setReverse(csvTag.getReverse());
-            newTag.setMustExist(csvTag.getMustExist());
-            setInTo.setTargets(csvTag.getRelationship(), newTag);
-            if (csvTag.getTargets() != null) {
-                setNestedTags(newTag, csvTag.getTargets(), csvRow);
-            }
-
-        }
-        return newTag;
     }
 
     private Map<String, Object> getColumnValues(CsvColumnDefinition colDef, Map<String, Object> row) {
