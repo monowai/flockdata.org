@@ -281,11 +281,13 @@ public class SchemaDaoNeo4j implements SchemaDao {
 
     @Override
     public void purge(Fortress fortress) {
-        Collection<DocumentType> documentTypes = getFortressDocumentsInUse(fortress);
-        for (DocumentType documentType : documentTypes) {
-            template.delete(documentType);
-        }
 
+        String docRlx = "match (fort:Fortress)-[fd:FORTRESS_DOC]-(a:DocType)-[dr]-(o)-[k]-(p)" +
+                "where id(fort)={fortId}  delete dr, k, o,  p,a,fd ;";
+
+        HashMap<String,Object> params = new HashMap<>();
+        params.put("fortId", fortress.getId());
+        template.query(docRlx, params);
     }
 
     private boolean isSystemIndex(String index) {
