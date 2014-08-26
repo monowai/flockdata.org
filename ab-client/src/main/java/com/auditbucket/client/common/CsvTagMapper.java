@@ -74,8 +74,8 @@ public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
                         String index = columnHelper.getKey();
                         setMustExist(columnHelper.isMustExist()).setIndex(columnHelper.isCountry() ? "Country" : index);
 
-                        ArrayList<CsvTag> targets = columnHelper.getColumnDefinition().getTargets();
-                        for (CsvTag target : targets) {
+                        ArrayList<CsvTag> tags = columnHelper.getColumnDefinition().getTargets();
+                        for (CsvTag target : tags) {
                             Object tagName = row.get(target.getColumn());
                             if (tagName == null) {
                                 logger.error("No 'column' value found for {} in the {} entry ", target.getColumn(), column);

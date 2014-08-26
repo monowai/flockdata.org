@@ -27,7 +27,6 @@ import com.auditbucket.track.bean.ConceptInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.DocumentType;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -95,7 +94,7 @@ public class SchemaService {
                 MetaInputBean inputBean = resultBean.getMetaInputBean();
                 if (inputBean != null && inputBean.getTags() != null) {
                     for (TagInputBean inputTag : resultBean.getMetaInputBean().getTags()) {
-                        if (inputTag.getMetaLink() != null || !inputTag.getMetaLinks().isEmpty()) {
+                        if ( !inputTag.getMetaLinks().isEmpty()) {
                             ConceptInputBean cib = new ConceptInputBean();
                             cib.setRelationships(inputTag.getMetaLinks().keySet());
                             cib.setName(inputTag.getIndex());
@@ -137,5 +136,8 @@ public class SchemaService {
     public Collection<DocumentType> getCompanyDocumentsInUse(Company company) {
         return schemaDao.getCompanyDocumentsInUse(company);
     }
-    
+
+    public void purge(Fortress fortress) {
+        schemaDao.purge(fortress);
+    }
 }

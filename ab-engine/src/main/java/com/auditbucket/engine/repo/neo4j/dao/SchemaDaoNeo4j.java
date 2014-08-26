@@ -15,7 +15,6 @@ import com.auditbucket.track.model.DocumentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
@@ -93,21 +92,6 @@ public class SchemaDaoNeo4j implements SchemaDao {
                     template.save(docResult);
                 }
             }
-//            String cypher = "merge (docType:_DocType {code:{code}, name:{name}, companyKey:{key}}) " +
-//                    "with docType " +
-//                    "match (f:Fortress) where id(f) = {fId} " +
-//                    "merge (f)<-[:FORTRESS_DOC]-(docType) " +
-//                    "return docType";
-//
-//            Map<String, Object> params = new HashMap<>();
-//            params.put("code", docResult.getCode());
-//            params.put("name", docResult.getName());
-//            params.put("key", docResult.getCompanyKey());
-//            params.put("fId", fortress.getId());
-//
-//            template.query(cypher, params);
-//            docResult = documentExists(fortress, docName);
-
         }
         return docResult;
 
@@ -124,7 +108,7 @@ public class SchemaDaoNeo4j implements SchemaDao {
     }
 
 
-    @Cacheable(value = "companyDocType", unless = "#result == null")
+    //@Cacheable(value = "companyDocType", unless = "#result == null")
     private DocumentType documentExists(Fortress fortress, String docName) {
 
         DocumentType dt = documentTypeRepo.findFortressDocCode(fortress.getId(), DocumentTypeNode.parse(fortress, docName));
@@ -132,7 +116,7 @@ public class SchemaDaoNeo4j implements SchemaDao {
         return dt;
     }
 
-    @Cacheable(value = "companySchemaTag", unless = "#result == false")
+    //@Cacheable(value = "companySchemaTag", unless = "#result == false")
     private boolean tagExists(Company company, String indexName) {
         //logger.info("Looking for co{}, {}", company.getId(), parseTagIndex(company, docName));
         Object o = documentTypeRepo.findCompanyTag(company.getId(), parseTagIndex(company, indexName));
@@ -256,7 +240,8 @@ public class SchemaDaoNeo4j implements SchemaDao {
 
         for (DocumentType document : documents) {
             template.fetch(document.getFortress());
-            DocumentType fauxDocument = new DocumentTypeNode(document.getFortress(), document.getName());
+            DocumentType fauxDocument = new DocumentTypeNode(document);
+
             fauxDocuments.add(fauxDocument);
             template.fetch(document.getConcepts());
             if (withRelationships) {
@@ -292,6 +277,17 @@ public class SchemaDaoNeo4j implements SchemaDao {
             findDocumentType(fortress, docType, true);
         }
 
+    }
+
+    @Override
+    public void purge(Fortress fortress) {
+
+        String docRlx = "match (fort:Fortress)-[fd:FORTRESS_DOC]-(a:DocType)-[dr]-(o)-[k]-(p)" +
+                "where id(fort)={fortId}  delete dr, k, o,  p,a,fd ;";
+
+        HashMap<String,Object> params = new HashMap<>();
+        params.put("fortId", fortress.getId());
+        template.query(docRlx, params);
     }
 
     private boolean isSystemIndex(String index) {

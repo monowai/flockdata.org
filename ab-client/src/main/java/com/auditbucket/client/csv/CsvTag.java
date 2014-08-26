@@ -1,5 +1,7 @@
 package com.auditbucket.client.csv;
 
+import java.util.ArrayList;
+
 /**
  * User: mike
  * Date: 27/05/14
@@ -11,6 +13,8 @@ public class CsvTag {
     private Boolean reverse =false;
     private String relationship;
     private String index;
+    private ArrayList<CsvTag> targets;
+    private boolean mustExist;
 
     public String getColumn() {
         return column;
@@ -55,5 +59,34 @@ public class CsvTag {
 
     public void setIndex(String index) {
         this.index = index;
+    }
+
+    public ArrayList<CsvTag> getTargets() {
+        return targets;
+    }
+
+    public void setTargets(ArrayList<CsvTag>  targets) {
+        this.targets = targets;
+    }
+
+    @Override
+    public String toString() {
+        return "CsvTag{" +
+                "column='" + column + '\'' +
+                ", relationship='" + relationship + '\'' +
+                ", index='" + index + '\'' +
+                '}';
+    }
+
+    public boolean getMustExist() {
+        return mustExist;
+    }
+
+    public boolean isMustExist() {
+        return mustExist;
+    }
+
+    public void setMustExist(boolean mustExist) {
+        this.mustExist = mustExist;
     }
 }

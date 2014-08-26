@@ -22,6 +22,7 @@ package com.auditbucket.engine.service;
 import com.auditbucket.helper.Command;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.DeadlockRetry;
+import com.auditbucket.helper.NotFoundException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
@@ -335,7 +336,7 @@ public class MediationFacade {
             throw new SecurityException("Unable to verify that the caller can work with the requested fortress");
         Fortress fortress = fortressService.findByName(su.getCompany(), fortressName);
         if (fortress == null)
-            throw new DatagioException("Fortress [" + fortressName + "] does not exist");
+            throw new NotFoundException("Fortress [" + fortressName + "] does not exist");
         purge(fortress, su);
     }
 
@@ -349,6 +350,7 @@ public class MediationFacade {
         fortressService.purge(fortress);
         engineConfig.resetCache();
         searchService.purge(indexName);
+
     }
 
     public void cancelLastLogSync(Company company, String metaKey) throws IOException, DatagioException {

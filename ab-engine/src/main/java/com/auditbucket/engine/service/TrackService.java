@@ -26,12 +26,13 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.registration.service.*;
+import com.auditbucket.registration.service.CompanyService;
+import com.auditbucket.registration.service.KeyGenService;
+import com.auditbucket.registration.service.SystemUserService;
 import com.auditbucket.search.model.MetaSearchChange;
 import com.auditbucket.search.model.SearchResult;
 import com.auditbucket.track.bean.*;
 import com.auditbucket.track.model.*;
-
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -276,11 +277,7 @@ public class TrackService {
 
         resultBean.setTxReference(txRef);
 
-        // https://github.com/monowai/auditbucket/issues/7
         TrackLog existingLog;
-        // DAT-77 this check fails TestTrack.datesInHeadersAndLogs in a multi-threaded log writing scenario.
-        // ToDo:  Makes synchronous access slower
-//        if (authorisedHeader.getLastUpdate() != 0l) // Will there even be a change to find
         existingLog = getLastLog(authorisedHeader);
 
         Boolean searchActive = fortress.isSearchActive();
@@ -794,11 +791,15 @@ public class TrackService {
     }
 
     public void purge(Fortress fortress) {
+
         trackDao.purgeTagRelationships(fortress);
+
         trackDao.purgeFortressLogs(fortress);
         trackDao.purgePeopleRelationships(fortress);
-        trackDao.purgeFortressDocuments(fortress);
+        schemaService.purge(fortress);
+        //trackDao.purgeFortressDocuments(fortress);
         trackDao.purgeHeaders(fortress);
+
     }
 
     public void saveMetaData(SearchResult searchResult, Long metaId) {
