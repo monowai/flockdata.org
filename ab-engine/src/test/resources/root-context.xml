@@ -38,19 +38,17 @@
     <context:component-scan base-package="com.auditbucket, com.auditbucket.authentication, com.auditbucket.security"/>
     <!-- Root Context: defines shared resources visible to all other web components -->
 
-    <context:property-placeholder location="classpath:/config.properties"/>
+    <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true"
+                                  location="classpath:config.properties"/>
 
     <import resource="neo4j-context.xml"/>
     <import resource="integration.xml"/>
-    <import resource="spring-security.xml"/>
+    <import resource="classpath:${ab.auth.provider}-security.xml" />
     <import resource="kv-context.xml"/>
     <import resource="http-monitoring-integration.xml"/>
 
 
     <task:annotation-driven executor="ab-engine"/>
-
-    <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true"
-                                  location="classpath:/config.properties"/>
 
     <task:executor id="ab-engine" pool-size="30-50" keep-alive="120" queue-capacity="30"
                    rejection-policy="CALLER_RUNS"/>
@@ -58,10 +56,7 @@
 
     <aop:aspectj-autoproxy/>
 
-    <bean id="cacheManager" class="org.springframework.cache.support.NoOpCacheManager">
-    </bean>
-
-	<bean id="userProfileService" class="com.auditbucket.authentication.stormpath.StormPathUser"/>
+    <bean id="cacheManager" class="org.springframework.cache.support.NoOpCacheManager"/>
 
 	<bean id="apiKeyInterceptor" class="com.auditbucket.authentication.handler.APIKeyInterceptor"/>
 </beans>

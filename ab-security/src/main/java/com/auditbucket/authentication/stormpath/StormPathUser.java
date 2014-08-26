@@ -27,13 +27,11 @@ public class StormPathUser implements UserProfileService {
     public UserProfile getUser(Authentication auth) {
         StormpathUserDetails stormpathUser = (StormpathUserDetails) auth.getPrincipal();
 
-        //logger.debug("UserProfile Properties - " + stormpathUser.getProperties());
-        //logger.debug("Authorities - " + auth.getAuthorities());
-
         UserProfile userProfile = new UserProfile();
         String userEmail = stormpathUser.getProperties().get("email");
+        String userId = stormpathUser.getProperties().get("username");
 
-        userProfile.setUserId(userEmail);
+        userProfile.setUserId(userId);
         userProfile.setUserName(stormpathUser.getUsername());
         userProfile.setUserEmail(userEmail);
         userProfile.setStatus(stormpathUser.getProperties().get("status"));
@@ -45,7 +43,7 @@ public class StormPathUser implements UserProfileService {
             }
         }
 
-        SystemUser sysUser = systemUserService.findByLogin(userEmail);
+        SystemUser sysUser = systemUserService.findByLogin(userId);
         if (sysUser != null) {
             userProfile.setApiKey(sysUser.getApiKey());
             userProfile.setCompany(sysUser.getCompany().getName());
