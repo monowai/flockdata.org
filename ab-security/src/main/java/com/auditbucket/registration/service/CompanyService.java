@@ -21,7 +21,6 @@ package com.auditbucket.registration.service;
 
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.SystemUser;
-import org.springframework.cache.annotation.Cacheable;
 
 import java.util.Collection;
 
@@ -39,7 +38,7 @@ public interface CompanyService {
 
     Company save(String companyName);
 
-    @Cacheable(value = "companyKeys", unless = "#result == null")
+//    @Cacheable(value = "companyKeys", unless = "#result == null")
     Company findByApiKey(String apiKey);
 
     Collection<Company> findCompanies(String userApiKey);

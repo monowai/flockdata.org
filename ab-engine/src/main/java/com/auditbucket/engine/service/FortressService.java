@@ -34,7 +34,6 @@ import com.auditbucket.track.model.DocumentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,7 +63,7 @@ public class FortressService {
     public FortressUser getUser(Long id) {
         return fortressDao.findOneUser(id);
     }
-    @Cacheable(value = "fortressName", unless = "#result == null")
+//    @Cacheable(value = "fortressName", unless = "#result == null")
     public Fortress findByName(Company company, String fortressName) {
         return fortressDao.getFortressByName(company.getId(), fortressName);
     }
