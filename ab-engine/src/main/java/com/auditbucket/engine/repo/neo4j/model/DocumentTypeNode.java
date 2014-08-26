@@ -24,7 +24,6 @@ import com.auditbucket.track.model.Concept;
 import com.auditbucket.track.model.DocumentType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;
@@ -73,6 +72,11 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
             addFortress(fortress);
         }
 
+    }
+
+    public DocumentTypeNode(DocumentType document) {
+        this(document.getFortress(), document.getName());
+        this.id = document.getId();
     }
 
     private void addFortress(Fortress fortress) {
