@@ -43,10 +43,18 @@ public class GlobalControllerExceptionHandler {
 
     @ExceptionHandler(DatagioException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ModelAndView handleAuditException( DatagioException ex){
-        logger.error("Datagio Exception- {}", ex.getLocalizedMessage());
+    public ModelAndView handleAppException(DatagioException ex){
+        logger.error("Processing Exception- {}", ex.getLocalizedMessage());
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ModelAndView handleNotFound(NotFoundException ex){
+        logger.error("Resource Not Found Exception- {}", ex.getLocalizedMessage());
+        return new JsonMessage(ex.getMessage()).asModelAndViewError();
+    }
+
 
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)

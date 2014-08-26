@@ -259,6 +259,8 @@ public class TagInputBean {
     }
 
     public Map<String, Object> getMetaLinks() {
+        if ( metaLinks.isEmpty() && metaLink!=null )
+            addMetaLink(metaLink);
         return metaLinks;
     }
 

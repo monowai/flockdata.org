@@ -17,31 +17,20 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.registration.service;
-
-import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.SystemUser;
-
-import java.util.Collection;
+package com.auditbucket.helper;
 
 /**
  * User: mike
- * Date: 22/08/14
- * Time: 10:17 AM
+ * Date: 25/08/14
+ * Time: 11:33 AM
  */
-public interface CompanyService {
-    Company findByName(String companyName);
+public class NotFoundException extends DatagioException {
 
-    Company findByCode(String code);
+    public NotFoundException(String message) {
+        super(message);
+    }
 
-    SystemUser getAdminUser(Company company, String name);
-
-    Company save(String companyName);
-
-//    @Cacheable(value = "companyKeys", unless = "#result == null")
-    Company findByApiKey(String apiKey);
-
-    Collection<Company> findCompanies(String userApiKey);
-
-    Collection<Company> findCompanies();
+    public NotFoundException(String message, Throwable t) {
+        super(message, t);
+    }
 }

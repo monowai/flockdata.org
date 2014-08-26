@@ -24,6 +24,7 @@ import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
 import com.auditbucket.test.utils.TestHelper;
+import com.auditbucket.track.bean.ConceptInputBean;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.model.TxRef;
@@ -34,6 +35,7 @@ import java.util.Date;
 
 import static junit.framework.Assert.*;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * User: Mike Holdsworth
@@ -140,6 +142,15 @@ public class TestInputBeans {
         //assertEquals(1, dest.getMetaLinks().size());
         assertEquals("Should be 2 relationships", 2, dest.getTargets().size());
         assertEquals("TagInput did not merge into somerlx", 2, dest.getTargets().get("somerlx").size());
+    }
+
+    @Test
+    public void metaLinksFromInput(){
+        ConceptInputBean cib = new ConceptInputBean();
+        TagInputBean tag = new TagInputBean("SimpleName");
+        tag.addMetaLink("myrlx");
+        assertFalse ( tag.getMetaLinks().isEmpty());
+        assertTrue(tag.getMetaLinks().containsKey("myrlx"));
     }
 
 

@@ -336,6 +336,53 @@ public class TestTagConcepts extends TestEngineBase {
 
     }
 
+    @Test
+    public void purgeFortressRemovesConcepts() throws Exception {
+        logger.debug("### uniqueRelationshipByDocType");
+        Neo4jHelper.cleanDb(template);
+        engineAdmin.setConceptsEnabled(true);
+
+        Transaction t ;
+
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike));
+        Assert.assertNotNull(su);
+
+        Fortress fortress = fortressService.registerFortress("claim");
+
+        waitAWhile();
+        t = beginManualTransaction();
+        DocumentType claim = schemaService.resolveDocType(fortress, "Claim", true);
+        commitManualTransaction(t);
+
+        MetaInputBean promoInput = new MetaInputBean(fortress.getName(),
+                "jinks",
+                claim.getName(),
+                new DateTime());
+        promoInput.addTag(
+                new TagInputBean("a1065", "identifier").setIndex("Claim"));
+
+        trackEP.trackHeader(promoInput, su.getApiKey(), su.getApiKey()).getBody().getMetaHeader();
+
+        waitAWhile();
+        Collection<String>docs = new ArrayList<>();
+        docs.add(claim.getName());
+        validateConcepts(docs, su, 1);
+        docs.clear();
+        docs.add(claim.getName());
+        Set<DocumentType>foundDocs = validateConcepts(docs, su, 1);
+        for (DocumentType foundDoc : foundDocs) {
+            Assert.assertEquals("Claim", foundDoc.getName());
+            Collection<Concept> concepts = foundDoc.getConcepts();
+            Assert.assertEquals(1, concepts.size());
+            Concept concept = concepts.iterator().next();
+            Assert.assertEquals("Claim", concept.getName());
+            Assert.assertEquals(1, concept.getRelationships().size());
+            logger.info(foundDoc.toString());
+        }
+        adminEP.purgeFortress(fortress.getName(), su.getApiKey(), su.getApiKey());
+        Assert.assertEquals(0, schemaService.getCompanyDocumentsInUse(fortress.getCompany()).size());
+    }
+
     private Set<DocumentType> validateConcepts(String document, SystemUser su, int expected) throws Exception{
         Collection<String>docs = new ArrayList<>();
 

@@ -36,4 +36,6 @@ public interface SchemaDao {
     Set<DocumentType> findConcepts(Company company, Collection<String> documents, boolean withRelationships);
 
     void createDocTypes(ArrayList<String> docTypes, Fortress fortress);
+
+    void purge(Fortress fortress);
 }
