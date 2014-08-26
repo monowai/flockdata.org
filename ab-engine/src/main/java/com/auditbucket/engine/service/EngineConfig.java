@@ -174,8 +174,8 @@ public class EngineConfig {
         this.multiTenanted = multiTenanted;
     }
 
-    @CacheEvict(value = {"companyFortress", "fortressName", "trackLog", "companyKeys", "companyTag", "companyTagManager",
-            "fortressUser", "callerKey", "metaKey", "headerId" }, allEntries = true)
+//    @CacheEvict(value = {"companyFortress", "fortressName", "trackLog", "companyKeys", "companyTag", "companyTagManager",
+//            "fortressUser", "callerKey", "metaKey", "headerId" }, allEntries = true)
     public void resetCache() {
         logger.info("Reset the cache");
     }
