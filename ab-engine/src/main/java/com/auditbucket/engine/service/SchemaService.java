@@ -94,7 +94,7 @@ public class SchemaService {
                 MetaInputBean inputBean = resultBean.getMetaInputBean();
                 if (inputBean != null && inputBean.getTags() != null) {
                     for (TagInputBean inputTag : resultBean.getMetaInputBean().getTags()) {
-                        if (inputTag.getMetaLink() != null || !inputTag.getMetaLinks().isEmpty()) {
+                        if ( !inputTag.getMetaLinks().isEmpty()) {
                             ConceptInputBean cib = new ConceptInputBean();
                             cib.setRelationships(inputTag.getMetaLinks().keySet());
                             cib.setName(inputTag.getIndex());
