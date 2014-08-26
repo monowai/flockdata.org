@@ -579,7 +579,7 @@ public class TestABIntegration {
 
     @Test
     public void tagKeyReturnsSingleSearchResult() throws Exception {
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## tagKeyReturnsSingleSearchResult");
 
         SystemUser su = registerSystemUser("Peter");

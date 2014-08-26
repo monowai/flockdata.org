@@ -64,7 +64,7 @@ public class FortressService {
     public FortressUser getUser(Long id) {
         return fortressDao.findOneUser(id);
     }
-    @Cacheable(value = "fortressName", unless = "#result == null")
+//    @Cacheable(value = "fortressName", unless = "#result == null")
     public Fortress findByName(Company company, String fortressName) {
         return fortressDao.getFortressByName(company.getId(), fortressName);
     }
