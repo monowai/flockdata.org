@@ -40,22 +40,27 @@ public class CSVConcepts {
     public void csvTags() throws Exception{
         ImportParams params = Importer.getImportParams("/csv-tag-import.json", null);
         CsvTagMapper mapper = new CsvTagMapper(params);
-        String[] headers= new String[]{"company_name",     "device_name",     "type"};
-        String[] data = new String[]{  "Samsoon", "Palaxy", "Mobile Phone"};
+        String[] headers= new String[]{"company_name",     "device_name",     "type", "city"};
+        String[] data = new String[]{  "Samsoon", "Palaxy", "Mobile Phone", "Auckland"};
         Map<String,Object> json = mapper.setData(headers, data, params);
         assertNotNull (json);
-        assertNotNull(mapper.getTargets());
-        assertEquals(2, mapper.getTargets().size());
-        //Map<String, Collection<TagInputBean>> tags = mapper.getTargets();
-//        TagInputBean tagInputBean = tags.iterator().next();
+        Map<String, Collection<TagInputBean>> allTargets = mapper.getTargets();
+        assertNotNull(allTargets);
+        assertEquals(2, allTargets.size());
         assertEquals("Should have overridden the column name of device_name", "Device", mapper.getIndex());
         assertEquals("Palaxy", mapper.getCode());
-        assertEquals(2, mapper.getTargets().size());
-        Map<String, Collection<TagInputBean>> map = mapper.getTargets();
-        TagInputBean manufacturer = map.get("makes").iterator().next();
-        assertEquals("Manufacturer", manufacturer.getIndex());
-        assertEquals("Samsoon", manufacturer.getCode());
-        assertEquals("Should be using the column name", "type", map.get("of-type").iterator().next().getIndex());
+
+        assertEquals(2, allTargets.size());
+
+        TagInputBean makes = allTargets.get("makes").iterator().next();
+        assertEquals("Manufacturer", makes.getIndex());
+        assertEquals("Nested City tag not found", 1, makes.getTargets().size());
+        TagInputBean city = makes.getTargets().get("located").iterator().next();
+        assertEquals("Auckland", city.getName());
+
+
+        assertEquals("Samsoon", makes.getCode());
+        assertEquals("Should be using the column name", "type", allTargets.get("of-type").iterator().next().getIndex());
 
     }
 }

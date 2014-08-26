@@ -3,8 +3,30 @@
     "tagOrTrack": "tag",
     "header": true,
     "csvHeaders": {
-        "device_name": {"tag": true, "index":"Device", "mustExist":false, "targets": [
-            {"column":"company_name", "index":"Manufacturer", "relationship":"makes", "reverse": true},
-            {"column":"type", "relationship":"of-type", "reverse": true}]}
+        "device_name": {
+            "tag": true,
+            "index": "Device",
+            "mustExist": false,
+            "targets": [
+                {
+                    "column": "company_name",
+                    "index": "Manufacturer",
+                    "relationship": "makes",
+                    "reverse": true,
+                    "targets": [
+                        {
+                            "relationship": "located",
+                            "column": "city",
+                            "index": "City"
+                        }
+                    ]
+                },
+                {
+                    "column": "type",
+                    "relationship": "of-type",
+                    "reverse": true
+                }
+            ]
+        }
     }
 }
