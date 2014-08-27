@@ -45,7 +45,7 @@ public class NonTransactional extends TestEngineBase{
     public void crossReferenceTags() throws Exception {
         SystemUserResultBean  su = registrationEP.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false)).getBody();
         Thread.sleep(500);
-        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("auditTest", true),null,  null).getBody();
+        Fortress fortressA = createFortress(su, "auditTest");
         TagInputBean tag = new TagInputBean("ABC", "Device", "sold");
         ArrayList<TagInputBean> tags = new ArrayList<>();
         tags.add(tag);
@@ -90,10 +90,10 @@ public class NonTransactional extends TestEngineBase{
         SystemUser su = regService.registerSystemUser(new RegistrationBean(company, uname).setIsUnique(false));
         setSecurity();
 
-        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("multipleFortressUserRequestsThreaded", true), su.getApiKey(), null).getBody();
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleFortressUserRequestsThreaded"));
         // This is being done to create the schema index which otherwise errors when the threads kick off
         fortressService.getFortressUser(fortress, "don'tcare");
-        fortress = fortressEP.registerFortress(new FortressInputBean("testThis", true), su.getApiKey(), null).getBody();
+        fortress = fortressService.registerFortress(new FortressInputBean("testThis", true));
         assertNotNull(fortress);
 
         commitManualTransaction(t);

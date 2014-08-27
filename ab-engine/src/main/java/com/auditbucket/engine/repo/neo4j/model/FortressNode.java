@@ -82,7 +82,6 @@ public class FortressNode implements Fortress {
         return fortressKey;
     }
 
-    @JsonIgnore
     public Long getId() {
         return id;
     }

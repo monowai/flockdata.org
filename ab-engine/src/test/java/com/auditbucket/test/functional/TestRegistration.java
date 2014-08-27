@@ -38,17 +38,10 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.auditbucket.engine.repo.neo4j.model.FortressNode;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
@@ -139,31 +132,16 @@ public class TestRegistration extends TestEngineBase {
         setSecurity("mike");
 
         // ToDo: Modify this call to use the new approach
-        String apiKey = registrationEP.registerSystemUser(new RegistrationBean("CompanyAA", "mike").setIsUnique(false)).getBody().getApiKey();
-        Company company = securityHelper.getCompany(apiKey);
-        // ToDo: Modify this call to use the new approach
-        // Should we be seeing ApiKeyInterceptor being invoked?
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+        SystemUserResultBean su = registrationEP.registerSystemUser(new RegistrationBean("CompanyAA", "mike").setIsUnique(false)).getBody();
+        Company company = securityHelper.getCompany(su.getApiKey());
 
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/fortress/")
-        				.header("Api-Key", apiKey)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(getJSON(new FortressInputBean("FortressA", true)))
-                        ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
-        
-        Fortress fA = getBytesAsObject(response.getResponse().getContentAsByteArray(), FortressNode.class);
+        //this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
 
-        FortressInputBean fib = new FortressInputBean("blah");
-        byte[] json = getObjectAsJsonBytes(fib);
-        fib = getBytesAsObject(json, FortressInputBean.class);
+        Fortress fA = createFortress(su, "FortressA");
+        Fortress fB = createFortress(su, "FortressB");
+        Fortress fC = createFortress(su, "FortressC");
 
-        assertNotNull (fib);
-        assertEquals("blah", fib.getName());
-//        Fortress fA = fortressEP.registerFortress(new FortressInputBean("FortressA"), apiKey, apiKey).getBody();
-        Fortress fB = fortressEP.registerFortress(new FortressInputBean("FortressB"), apiKey, apiKey).getBody();
-        Fortress fC = fortressEP.registerFortress(new FortressInputBean("FortressC"), apiKey, apiKey).getBody();
-
-        fortressEP.registerFortress(new FortressInputBean("FortressC"), apiKey, apiKey);// Forced duplicate should be ignored
+        createFortress(su, "FortressC");// Forced duplicate should be ignored
 
         BDDMockito.when(request.getAttribute("company")).thenReturn(company);
         Collection<Fortress> fortresses = fortressEP.findFortresses(request);
@@ -238,7 +216,7 @@ public class TestRegistration extends TestEngineBase {
     }
 
     @Test
-    public void testRegistration() throws DatagioException {
+    public void testRegistration() throws Exception {
         String companyName = "testReg";
         String adminName = "mike";
         String userName = "gina@hummingbird.com";
@@ -264,7 +242,7 @@ public class TestRegistration extends TestEngineBase {
         
         FortressInputBean fib = new FortressInputBean("auditbucket");
         fib.setSearchActive(false);
-        Fortress fortress = fortressEP.registerFortress(fib, systemUser.getApiKey(), systemUser.getApiKey()).getBody();
+        Fortress fortress = createFortress(systemUser, "auditbucket");
         assertNotNull(fortress);
 
         Collection<Fortress> fortressList = fortressEP.findFortresses(request);

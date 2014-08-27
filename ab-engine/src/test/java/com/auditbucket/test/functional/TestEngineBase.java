@@ -23,12 +23,16 @@ import com.auditbucket.company.endpoint.CompanyEP;
 import com.auditbucket.engine.endpoint.AdminEP;
 import com.auditbucket.engine.endpoint.QueryEP;
 import com.auditbucket.engine.endpoint.TrackEP;
+import com.auditbucket.engine.repo.neo4j.model.FortressNode;
 import com.auditbucket.engine.service.*;
 import com.auditbucket.fortress.endpoint.FortressEP;
 import com.auditbucket.geography.endpoint.GeographyEP;
 import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.registration.bean.FortressInputBean;
+import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.endpoint.TagEP;
+import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.SystemUserService;
@@ -47,6 +51,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.data.neo4j.support.node.Neo4jHelper;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -56,6 +61,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.IOException;
@@ -143,7 +152,7 @@ public class TestEngineBase {
     @Autowired
     protected WebApplicationContext wac;
 
-    MockMvc mockMvc;
+    static MockMvc mockMvc;
 
     @Autowired
     SecurityHelper securityHelper;
@@ -161,6 +170,17 @@ public class TestEngineBase {
 
     Authentication authDefault = new UsernamePasswordAuthenticationToken(mike, "123");
 
+    public static Fortress createFortress(SystemUserResultBean su, String fortressName) throws Exception {
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/fortress/")
+        				.header("Api-Key", su.getApiKey())
+                        //.("company", su.getCompany())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(getJSON(new FortressInputBean(fortressName, true)))
+                        ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
+
+        return getBytesAsObject(response.getResponse().getContentAsByteArray(), FortressNode.class);
+    }
+
     @Rollback(false)
     @BeforeTransaction
     public void cleanUpGraph() {
@@ -175,7 +195,7 @@ public class TestEngineBase {
     @Before
     public void setSecurity() {
         engineAdmin.setMultiTenanted(false);
-
+        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
         SecurityContextHolder.getContext().setAuthentication(authDefault);
     }
 
@@ -264,11 +284,11 @@ public class TestEngineBase {
         return mapper.writeValueAsBytes(object);
     }
 
-    public <T> T getBytesAsObject (byte[] bytes, Class<T> clazz) throws IOException {
+    public static <T> T getBytesAsObject (byte[] bytes, Class<T> clazz) throws IOException {
         return mapper.readValue(bytes, clazz);
     }
     
-    public String getJSON(Object obj) {
+    public static String getJSON(Object obj) {
     	ObjectMapper mapper = new ObjectMapper();
     	String json = null;
     	try {

@@ -736,7 +736,7 @@ public class TestTrack extends TestEngineBase {
     @Test
     public void lastLogSequencesInSeparateCallsToBulkLoadEP() throws Exception {
         SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, "mike").setIsUnique(false)).getBody();
-        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("metaHeaderDiff",true), su.getApiKey(), null).getBody();
+        Fortress fortress = createFortress(su, "metaHeaderDiff");
         String callerRef = UUID.randomUUID().toString();
         List<MetaInputBean> inputBeans = new ArrayList<>();
 
