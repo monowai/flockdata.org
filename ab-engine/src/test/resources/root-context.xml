@@ -43,7 +43,7 @@
 
     <import resource="neo4j-context.xml"/>
     <import resource="integration.xml"/>
-    <import resource="classpath:${ab.auth.provider}-security.xml" />
+    <import resource="classpath:simple-security.xml" />
     <import resource="kv-context.xml"/>
     <import resource="http-monitoring-integration.xml"/>
 

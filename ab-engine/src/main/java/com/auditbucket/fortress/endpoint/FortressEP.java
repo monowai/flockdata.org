@@ -67,8 +67,8 @@ public class FortressEP {
 
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Fortress> registerFortress( @RequestBody FortressInputBean fortressInputBean, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company company = securityHelper.getCompany(apiHeaderKey);
+    public ResponseEntity<Fortress> registerFortress( @RequestBody FortressInputBean fortressInputBean, HttpServletRequest request) throws DatagioException {
+        Company company = (Company) request.getAttribute("company");
         Fortress fortress = fortressService.registerFortress(company, fortressInputBean, true);
         fortressInputBean.setFortressKey(fortress.getFortressKey());
         return new ResponseEntity<>(fortress, HttpStatus.CREATED);
