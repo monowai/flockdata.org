@@ -266,6 +266,7 @@ public class TestRegistration extends TestEngineBase {
         assertNull(companyService.getAdminUser(company, userName));
 
         // Add fortress User
+        fortress.setCompany(company);
         FortressUser fu = fortressService.getFortressUser(fortress, "useRa");
         assertNotNull(fu);
         fu = fortressService.getFortressUser(fortress, "uAerb");

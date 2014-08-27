@@ -19,28 +19,7 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.company.endpoint.CompanyEP;
-import com.auditbucket.engine.endpoint.AdminEP;
-import com.auditbucket.engine.endpoint.QueryEP;
-import com.auditbucket.engine.endpoint.TrackEP;
-import com.auditbucket.engine.repo.neo4j.model.FortressNode;
-import com.auditbucket.engine.service.*;
-import com.auditbucket.fortress.endpoint.FortressEP;
-import com.auditbucket.geography.endpoint.GeographyEP;
-import com.auditbucket.helper.SecurityHelper;
-import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.bean.SystemUserResultBean;
-import com.auditbucket.registration.endpoint.RegistrationEP;
-import com.auditbucket.registration.endpoint.TagEP;
-import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.service.CompanyService;
-import com.auditbucket.registration.service.RegistrationService;
-import com.auditbucket.registration.service.SystemUserService;
-import com.auditbucket.track.model.MetaHeader;
-import com.auditbucket.track.model.TrackLog;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -67,7 +46,37 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.io.IOException;
+import com.auditbucket.company.endpoint.CompanyEP;
+import com.auditbucket.engine.endpoint.AdminEP;
+import com.auditbucket.engine.endpoint.QueryEP;
+import com.auditbucket.engine.endpoint.TrackEP;
+import com.auditbucket.engine.repo.neo4j.model.FortressNode;
+import com.auditbucket.engine.service.EngineConfig;
+import com.auditbucket.engine.service.FortressService;
+import com.auditbucket.engine.service.MediationFacade;
+import com.auditbucket.engine.service.SchemaService;
+import com.auditbucket.engine.service.SearchServiceFacade;
+import com.auditbucket.engine.service.TagService;
+import com.auditbucket.engine.service.TagTrackService;
+import com.auditbucket.engine.service.TrackEventService;
+import com.auditbucket.engine.service.TrackService;
+import com.auditbucket.engine.service.WhatService;
+import com.auditbucket.fortress.endpoint.FortressEP;
+import com.auditbucket.geography.endpoint.GeographyEP;
+import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.registration.bean.FortressInputBean;
+import com.auditbucket.registration.bean.SystemUserResultBean;
+import com.auditbucket.registration.endpoint.RegistrationEP;
+import com.auditbucket.registration.endpoint.TagEP;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.service.CompanyService;
+import com.auditbucket.registration.service.RegistrationService;
+import com.auditbucket.registration.service.SystemUserService;
+import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.TrackLog;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * User: mike
