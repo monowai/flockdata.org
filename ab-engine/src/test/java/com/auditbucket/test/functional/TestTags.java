@@ -110,6 +110,7 @@ public class TestTags extends TestEngineBase {
     @Test
     public void updateExistingTag() throws Exception {
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
+        Thread.sleep(400);
         assertNotNull(iSystemUser);
 
         assertNull(tagService.findTag(iSystemUser.getCompany(), "ABC"));
