@@ -249,9 +249,9 @@ public class TestRegistration extends TestEngineBase {
         assertNotNull(fortressList);
         assertEquals(1, fortressList.size());
 
-        Fortress foundFortress = fortressEP.getFortress("auditbucket", systemUser.getApiKey(), systemUser.getApiKey()).getBody();
+        Fortress foundFortress = fortressService.findByName(company, "auditbucket");
         assertNotNull(foundFortress);
-        assertEquals(HttpStatus.NOT_FOUND, fortressEP.getFortress("auditbucketzz", systemUser.getApiKey(), systemUser.getApiKey()).getStatusCode());
+        assertNull(fortressService.findByName(company, "auditbucketzz"));
 
         assertNotNull(company);
         assertNotNull(company.getApiKey());

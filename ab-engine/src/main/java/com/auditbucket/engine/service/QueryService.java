@@ -58,7 +58,7 @@ public class QueryService {
         if (fortresses == null) {
             Collection<Fortress> forts = fortressService.findFortresses(abCompany);
             for (Fortress fort : forts) {
-                docs.addAll(fortressService.getFortressDocumentsInUse(abCompany, fort.getName()));
+                docs.addAll(fortressService.getFortressDocumentsInUse(abCompany, fort.getCode()));
             }
 
         } else {
