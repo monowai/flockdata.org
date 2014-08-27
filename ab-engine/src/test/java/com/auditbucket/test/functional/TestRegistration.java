@@ -266,21 +266,21 @@ public class TestRegistration extends TestEngineBase {
         assertNull(companyService.getAdminUser(company, userName));
 
         // Add fortress User
-        FortressUser fu = fortressService.getFortressUser(fortress, "useRa");
+        FortressUser fu = fortressService.getFortressUser(company, fortress.getName(), "useRa");
         assertNotNull(fu);
-        fu = fortressService.getFortressUser(fortress, "uAerb");
+        fu = fortressService.getFortressUser(company, fortress.getName(), "uAerb");
         assertNotNull(fu);
-        fu = fortressService.getFortressUser(fortress, "Userc");
+        fu = fortressService.getFortressUser(company, fortress.getName(), "Userc");
         assertNotNull(fu);
 
         fortress = fortressService.findByName("auditbucket");
         assertNotNull(fortress);
 
-        fu = fortressService.getFortressUser(fortress, "useRax", false);
+        fu = fortressService.getFortressUser( fortress, "useRax", false);
         assertNull(fu);
-        fu = fortressService.getFortressUser(fortress, "userax");
+        fu = fortressService.getFortressUser(company, fortress.getName(), "userax");
         assertNotNull(fu);
-        fu = fortressService.getFortressUser(fortress, "useRax");
+        fu = fortressService.getFortressUser(company, fortress.getName(), "useRax");
         assertNotNull(fu);
         assertEquals(fu.getId(), fortressEP.getFortressUser(fortress.getName(), "userax", null, null).getBody().getId());
         assertEquals(HttpStatus.NOT_FOUND, fortressEP.getFortressUser(fortress.getName()+"zz", "userax", null, null).getStatusCode());
