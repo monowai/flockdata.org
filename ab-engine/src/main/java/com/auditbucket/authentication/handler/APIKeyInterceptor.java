@@ -11,9 +11,9 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class APIKeyInterceptor implements HandlerInterceptor {
+public class ApiKeyInterceptor implements HandlerInterceptor {
 	private static final Logger logger = LoggerFactory
-			.getLogger(APIKeyInterceptor.class);
+			.getLogger(ApiKeyInterceptor.class);
 
 	@Autowired
 	private SecurityHelper securityHelper;
