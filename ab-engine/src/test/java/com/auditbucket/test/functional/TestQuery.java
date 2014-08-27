@@ -19,7 +19,6 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.bean.TagInputBean;
@@ -56,11 +55,11 @@ public class TestQuery extends TestEngineBase {
         SystemUserResultBean suA = registrationEP.registerSystemUser(new RegistrationBean("CompanyA", "userA")).getBody();
         SystemUserResultBean suB = registrationEP.registerSystemUser(new RegistrationBean("CompanyB", "userB")).getBody();
 
-        Fortress coAfA = fortressEP.registerFortress(new FortressInputBean("coAfA", true), suA.getApiKey(), suA.getApiKey()).getBody();
-        Fortress coAfB = fortressEP.registerFortress(new FortressInputBean("coAfB", true), suA.getApiKey(), suA.getApiKey()).getBody();
+        Fortress coAfA = createFortress(suA, "coAfA");
+        Fortress coAfB = createFortress(suA, "coAfB");
 
-        Fortress coBfA = fortressEP.registerFortress(new FortressInputBean("coBfA", true), suB.getApiKey(), suB.getApiKey()).getBody();
-        Fortress coBfB = fortressEP.registerFortress(new FortressInputBean("coBfB", true), suB.getApiKey(), suB.getApiKey()).getBody();
+        Fortress coBfA = createFortress(suB, "coBfA");
+        Fortress coBfB = createFortress(suB, "coBfB");
 
         setSecurity();
         //

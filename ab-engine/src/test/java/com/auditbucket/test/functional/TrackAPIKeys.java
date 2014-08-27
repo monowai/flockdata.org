@@ -1,8 +1,8 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.helper.DatagioException;
-import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
+import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.test.utils.TestHelper;
 import com.auditbucket.track.bean.LogInputBean;
@@ -32,10 +32,10 @@ public class TrackAPIKeys extends TestEngineBase{
     public void testApiKeysWorkInPrecedence() throws Exception {
         // Auth only required to register the sys user
         Authentication authMike = setSecurity(mike);
-        String apiKey = regEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody().getApiKey();
+        SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody();
         SecurityContextHolder.getContext().setAuthentication(null);
-        Assert.assertNotNull(apiKey);
-        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("testApiKeysWorkInPrecedence"), apiKey, null).getBody();
+        Assert.assertNotNull(su.getApiKey());
+        Fortress fortressA = createFortress(su, "testApiKeysWorkInPrecedence");
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
 
         // Fails due to NoAuth or key
@@ -54,6 +54,7 @@ public class TrackAPIKeys extends TestEngineBase{
         result = trackEP.trackHeader(inputBean, null, null).getBody(); // Works due to basic authz
         assertNotNull(result);  // works coz basic authz
 
+        String apiKey = su.getApiKey();
         final MetaHeader header = trackEP.getMetaHeader(result.getMetaKey(), apiKey, apiKey).getBody();
         assertNotNull(header);
         setSecurity(harry);
@@ -81,16 +82,17 @@ public class TrackAPIKeys extends TestEngineBase{
     @Test
     public void apiCallsSecuredByAccessKey() throws Exception {
 
-        String apiKey = regEP.registerSystemUser(new RegistrationBean(monowai, "123", mike)).getBody().getApiKey();
+        SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, "123", mike)).getBody();
         // No authorization - only API keys
         SecurityContextHolder.getContext().setAuthentication(null);
 
-        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("apiCallsSecuredByAccessKey", true), apiKey, null).getBody();
+        Fortress fortressA = createFortress(su, "apiCallsSecuredByAccessKey");
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC9990");
 
         LogInputBean log = new LogInputBean("harry", new DateTime(),  TestHelper.getRandomMap());
         inputBean.setLog(log);
 
+        String apiKey = su.getApiKey();
         TrackResultBean result = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody(); // Works due to basic authz
 
         assertNotNull(trackEP.getMetaHeader(result.getMetaKey(), apiKey, apiKey).getBody());

@@ -24,6 +24,7 @@ import com.auditbucket.helper.ApiKeyHelper;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
+import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
@@ -64,22 +65,10 @@ public class FortressEP {
         return fortressService.findFortresses(company);
     }
 
-    // ToDo: DAT-97 figuring out how to test this how will the args change??
-    //@RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
-    @ResponseBody
-    public ResponseEntity<Fortress> test(@RequestBody FortressInputBean fortressInputBean) throws DatagioException {
-//        Company company = securityHelper.getCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
-        Company company = null;
-        Fortress fortress = fortressService.registerFortress(company, fortressInputBean, true);
-        fortressInputBean.setFortressKey(fortress.getFortressKey());
-        return new ResponseEntity<>(fortress, HttpStatus.CREATED);
-
-    }
-
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Fortress> registerFortress(@RequestBody FortressInputBean fortressInputBean, String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company company = securityHelper.getCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+    public ResponseEntity<Fortress> registerFortress( @RequestBody FortressInputBean fortressInputBean, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+        Company company = securityHelper.getCompany(apiHeaderKey);
         Fortress fortress = fortressService.registerFortress(company, fortressInputBean, true);
         fortressInputBean.setFortressKey(fortress.getFortressKey());
         return new ResponseEntity<>(fortress, HttpStatus.CREATED);

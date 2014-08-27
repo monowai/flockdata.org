@@ -22,7 +22,7 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
 	public boolean preHandle(HttpServletRequest request,
 			HttpServletResponse response, Object handler) throws Exception {
 		String apiKey = request.getHeader("Api-Key");
-		logger.info("Api Key - " + apiKey);
+//		logger.info("Api Key - " + apiKey);
 
 		if (apiKey != null) {
 			Company company = securityHelper.getCompany(apiKey);
