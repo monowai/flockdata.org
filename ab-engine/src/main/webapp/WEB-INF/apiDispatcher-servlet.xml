@@ -37,10 +37,10 @@
             <bean class="org.springframework.security.web.bind.support.AuthenticationPrincipalArgumentResolver"/>
         </mvc:argument-resolvers>
     </mvc:annotation-driven>
-	<mvc:interceptors>
-	  <mvc:interceptor>
-		  <mvc:mapping path="/fortress/**"/>
-	      <bean class="com.auditbucket.authentication.handler.APIKeyInterceptor"/>
-	</mvc:interceptor>
-	</mvc:interceptors>    
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/fortress/**"/>
+            <bean class="com.auditbucket.authentication.handler.ApiKeyInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
 </beans>

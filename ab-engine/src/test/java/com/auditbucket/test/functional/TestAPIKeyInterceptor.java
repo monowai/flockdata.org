@@ -1,6 +1,6 @@
 package com.auditbucket.test.functional;
 
-import com.auditbucket.authentication.handler.APIKeyInterceptor;
+import com.auditbucket.authentication.handler.ApiKeyInterceptor;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Company;
 import junit.framework.Assert;
@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import static junit.framework.Assert.assertNotNull;
 
-public class TestAPIKeyInterceptor extends TestEngineBase {
+public class TestApiKeyInterceptor extends TestEngineBase {
 
 	@Autowired
 	ApplicationContext context;
@@ -25,12 +25,12 @@ public class TestAPIKeyInterceptor extends TestEngineBase {
 
 	MockHttpServletResponse response;
 
-	APIKeyInterceptor apiKeyInterceptor;
+	ApiKeyInterceptor apiKeyInterceptor;
 
 	@Before
 	public void initialize() {
 		setSecurity(mike);
-		apiKeyInterceptor = (APIKeyInterceptor) context
+		apiKeyInterceptor = (ApiKeyInterceptor) context
 				.getBean("apiKeyInterceptor");
 
 		request = new MockHttpServletRequest();

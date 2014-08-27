@@ -19,21 +19,6 @@
 
 package com.auditbucket.fortress.endpoint;
 
-import java.util.Collection;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.auditbucket.engine.service.FortressService;
 import com.auditbucket.helper.ApiKeyHelper;
 import com.auditbucket.helper.DatagioException;
@@ -44,6 +29,14 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.track.model.DocumentType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
 
 /**
  * User: Mike Holdsworth
@@ -69,6 +62,18 @@ public class FortressEP {
         // curl -u mike:123 -X GET  http://localhost:8080/ab/company/Monowai/fortresses
         Company company = (Company) request.getAttribute("company");
         return fortressService.findFortresses(company);
+    }
+
+    // ToDo: DAT-97 figuring out how to test this how will the args change??
+    //@RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Fortress> test(@RequestBody FortressInputBean fortressInputBean) throws DatagioException {
+//        Company company = securityHelper.getCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+        Company company = null;
+        Fortress fortress = fortressService.registerFortress(company, fortressInputBean, true);
+        fortressInputBean.setFortressKey(fortress.getFortressKey());
+        return new ResponseEntity<>(fortress, HttpStatus.CREATED);
+
     }
 
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)

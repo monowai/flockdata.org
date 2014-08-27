@@ -34,7 +34,8 @@ import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.SystemUserService;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
@@ -51,6 +52,11 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.context.WebApplicationContext;
+
+import java.io.IOException;
 
 /**
  * User: mike
@@ -58,8 +64,10 @@ import org.springframework.test.context.transaction.BeforeTransaction;
  * Time: 7:54 AM
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:root-context.xml")
+
 @Ignore
+@WebAppConfiguration
+@ContextConfiguration("classpath:root-context.xml")
 public class TestEngineBase {
     @Autowired
     FortressEP fortressEP;
@@ -131,6 +139,11 @@ public class TestEngineBase {
     Neo4jTemplate template;
 
     @Autowired
+    protected WebApplicationContext wac;
+
+    MockMvc mockMvc;
+
+    @Autowired
     SecurityHelper securityHelper;
     
     private static Logger logger = LoggerFactory.getLogger(TestEngineBase.class);
@@ -141,6 +154,8 @@ public class TestEngineBase {
     String harry = "harry";
 
     String monowai = "Monowai"; // just a test constant
+
+    static final ObjectMapper mapper = new ObjectMapper();
 
     Authentication authDefault = new UsernamePasswordAuthenticationToken(mike, "123");
 
@@ -158,6 +173,7 @@ public class TestEngineBase {
     @Before
     public void setSecurity() {
         engineAdmin.setMultiTenanted(false);
+
         SecurityContextHolder.getContext().setAuthentication(authDefault);
     }
 
@@ -239,6 +255,17 @@ public class TestEngineBase {
             logger.info("Wait for log got to [{}] for metaId [{}]", i, metaHeader.getId());
         return System.currentTimeMillis() - thenTime;
     }
+
+    public byte[] getObjectAsJsonBytes(Object object) throws IOException {
+
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        return mapper.writeValueAsBytes(object);
+    }
+
+    public <T> T getBytesAsObject (byte[] bytes, Class<T> clazz) throws IOException {
+        return mapper.readValue(bytes, clazz);
+    }
+
 
 
 }

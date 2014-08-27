@@ -58,5 +58,5 @@
 
     <bean id="cacheManager" class="org.springframework.cache.support.NoOpCacheManager"/>
 
-	<bean id="apiKeyInterceptor" class="com.auditbucket.authentication.handler.APIKeyInterceptor"/>
+	<bean id="apiKeyInterceptor" class="com.auditbucket.authentication.handler.ApiKeyInterceptor"/>
 </beans>
