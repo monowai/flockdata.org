@@ -77,10 +77,9 @@ public class FortressEP {
 
     @RequestMapping(value = "/{fortressName}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Fortress> getFortress(@PathVariable("fortressName") String fortressName, String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        // curl -u mike:123 -X GET  http://localhost:8080/ab/fortress/ABC
-        Company company = securityHelper.getCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
-        Fortress fortress = fortressService.findByName(company, fortressName);
+    public ResponseEntity<Fortress> getFortress(@PathVariable("fortressName") String fortressName, HttpServletRequest request) throws DatagioException {
+        Company company = (Company) request.getAttribute("company");
+        Fortress fortress = fortressService.findByCode(company, fortressName);
         if (fortress == null)
             return new ResponseEntity<>(fortress, HttpStatus.NOT_FOUND);
         else
@@ -102,11 +101,11 @@ public class FortressEP {
         return new ResponseEntity<>(fortressService.getFortressUser(fortress, userName), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{fortressName}/docs", method = RequestMethod.GET)
+    @RequestMapping(value = "/{code}/docs", method = RequestMethod.GET)
     @ResponseBody
-    public Collection<DocumentType> getDocumentTypes(String fortressName,
+    public Collection<DocumentType> getDocumentTypes(@PathVariable("code") String code,
                                                      String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = securityHelper.getCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
-        return fortressService.getFortressDocumentsInUse(company, fortressName);
+        return fortressService.getFortressDocumentsInUse(company, code);
     }
 }

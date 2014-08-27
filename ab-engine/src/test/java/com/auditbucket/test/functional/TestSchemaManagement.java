@@ -10,6 +10,10 @@ import com.auditbucket.track.model.DocumentType;
 import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.Collection;
 
@@ -26,8 +30,9 @@ public class TestSchemaManagement extends TestEngineBase {
     @Test
     public void documentTypesTrackedPerFortress() throws Exception {
         cleanUpGraph();
-        String apiKey = registrationEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody().getApiKey();
+        SystemUserResultBean su = registrationEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody();
 
+        String apiKey = su.getApiKey();
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("auditTestA", true));
         Fortress fortressB = fortressService.registerFortress(new FortressInputBean("auditTestB", true));
 
@@ -40,6 +45,13 @@ public class TestSchemaManagement extends TestEngineBase {
         assertFalse(metaKeyA.equals(metaKeyB));
         // There should be a doc type per fortress and it should have the same Id.
         // ToDo: fortress actions based on fortress api-key
+//        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get("/fortress/")
+//                        .header("Api-Key", su.getApiKey())
+//                                //.("company", su.getCompany())
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(getJSON(new FortressInputBean(fortressName, true)))
+//        ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
+
         Collection<DocumentType> docTypesA = fortressEP.getDocumentTypes (fortressA.getName(), apiKey, apiKey);
         assertEquals(1, docTypesA.size());
 

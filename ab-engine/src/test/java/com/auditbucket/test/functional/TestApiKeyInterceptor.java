@@ -15,6 +15,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.fail;
 
 public class TestApiKeyInterceptor extends TestEngineBase {
 
@@ -62,21 +63,27 @@ public class TestApiKeyInterceptor extends TestEngineBase {
 
 		request.setRequestURI("/fortress/");
 		request.addHeader("Api-Key", "someKey");
-		boolean status = apiKeyInterceptor.preHandle(request, response, null);
+        boolean status = false;
+        try {
+            status = apiKeyInterceptor.preHandle(request, response, null);
+            fail();
+        } catch (SecurityException se){
 
-		Assert.assertEquals(HttpServletResponse.SC_FORBIDDEN, response.getStatus());
-		Assert.assertEquals(false, status);
+        }
 	}
 
 	@Test
 	public void givenNoAPIKey_WhenCallingSecureAPI_ThenShouldNotBeAllowed()
 			throws Exception {
-
+        setSecurity(sally); // Sally is Authorised but has not API Key
 		request.setRequestURI("/fortress/");
-		boolean status = apiKeyInterceptor.preHandle(request, response, null);
+        try {
+            apiKeyInterceptor.preHandle(request, response, null);
+            fail();
+        } catch (SecurityException se){
+            // Good stuff
+        }
 
-		Assert.assertEquals(HttpServletResponse.SC_FORBIDDEN, response.getStatus());
-		Assert.assertEquals(false, status);
 	}
 
     // ToDo: add a disabled user check

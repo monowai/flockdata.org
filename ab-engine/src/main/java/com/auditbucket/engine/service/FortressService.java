@@ -228,8 +228,10 @@ public class FortressService {
     }
 
 
-    public Collection<DocumentType> getFortressDocumentsInUse(Company company, String fortressName) {
-        Fortress fortress = findByName(company, fortressName);
+    public Collection<DocumentType> getFortressDocumentsInUse(Company company, String code) {
+        Fortress fortress = findByCode(company, code);
+        if ( fortress == null )
+            fortress = findByName(company, code);
         if (fortress == null ) {
             return new ArrayList<>();
         }
