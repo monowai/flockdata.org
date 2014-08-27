@@ -19,6 +19,36 @@
 
 package com.auditbucket.test.functional;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.fail;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+
+import java.util.Collection;
+import java.util.TimeZone;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.BDDMockito;
+import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.auditbucket.engine.repo.neo4j.model.FortressNode;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
@@ -27,24 +57,6 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
-import org.junit.Assert;
-import org.junit.Test;
-import org.mockito.BDDMockito;
-import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.Collection;
-import java.util.TimeZone;
-
-import static junit.framework.Assert.*;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
 
 @Transactional
 public class TestRegistration extends TestEngineBase {
@@ -131,15 +143,15 @@ public class TestRegistration extends TestEngineBase {
         Company company = securityHelper.getCompany(apiKey);
         // ToDo: Modify this call to use the new approach
         // Should we be seeing ApiKeyInterceptor being invoked?
-        //this.mockMvc = webAppContextSetup(this.wac).addFilter().build();
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
 
-//        ResultActions response = mockMvc.perform(post("/fortress")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(getObjectAsJsonBytes(new FortressInputBean("FortressA", true)))
-//        );
-//        byte[] json =null;
-
-//        Fortress fA = getBytesAsObject(json, FortressNode.class);
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/fortress/")
+        				.header("Api-Key", apiKey)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(getJSON(new FortressInputBean("FortressA", true)))
+                        ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
+        
+        Fortress fA = getBytesAsObject(response.getResponse().getContentAsByteArray(), FortressNode.class);
 
         FortressInputBean fib = new FortressInputBean("blah");
         byte[] json = getObjectAsJsonBytes(fib);
@@ -147,7 +159,7 @@ public class TestRegistration extends TestEngineBase {
 
         assertNotNull (fib);
         assertEquals("blah", fib.getName());
-        Fortress fA = fortressEP.registerFortress(new FortressInputBean("FortressA"), apiKey, apiKey).getBody();
+//        Fortress fA = fortressEP.registerFortress(new FortressInputBean("FortressA"), apiKey, apiKey).getBody();
         Fortress fB = fortressEP.registerFortress(new FortressInputBean("FortressB"), apiKey, apiKey).getBody();
         Fortress fC = fortressEP.registerFortress(new FortressInputBean("FortressC"), apiKey, apiKey).getBody();
 

@@ -35,7 +35,9 @@ import com.auditbucket.registration.service.SystemUserService;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
@@ -67,7 +69,7 @@ import java.io.IOException;
 
 @Ignore
 @WebAppConfiguration
-@ContextConfiguration("classpath:root-context.xml")
+@ContextConfiguration(locations = {"classpath:root-context.xml", "classpath:apiDispatcher-servlet.xml"})
 public class TestEngineBase {
     @Autowired
     FortressEP fortressEP;
@@ -264,6 +266,18 @@ public class TestEngineBase {
 
     public <T> T getBytesAsObject (byte[] bytes, Class<T> clazz) throws IOException {
         return mapper.readValue(bytes, clazz);
+    }
+    
+    public String getJSON(Object obj) {
+    	ObjectMapper mapper = new ObjectMapper();
+    	String json = null;
+    	try {
+			json = mapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	return json;
     }
 
 
