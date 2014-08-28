@@ -15,6 +15,8 @@ import javax.servlet.http.HttpServletResponse;
 public class ApiKeyInterceptor implements HandlerInterceptor {
     private static final Logger logger = LoggerFactory
             .getLogger(ApiKeyInterceptor.class);
+    public static final String COMPANY = "company";
+    public static final String API_KEY = "Api-Key";
 
     @Autowired
     private SecurityHelper securityHelper;
@@ -22,7 +24,7 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response, Object handler) throws Exception {
-        String apiKey = request.getHeader("Api-Key");
+        String apiKey = request.getHeader(API_KEY);
 
         if ( apiKey == null ) {
             SystemUser su = securityHelper.getSysUser(false);

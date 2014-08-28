@@ -1,6 +1,5 @@
 package com.auditbucket.registration.bean;
 
-import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.SystemUser;
 
 /**
@@ -12,24 +11,16 @@ public class SystemUserResultBean {
     private String apiKey;
     private String name;
     private String login;
-    private Company company;
+    private String companyName ;
 
     public SystemUserResultBean(){}
     public SystemUserResultBean(SystemUser su) {
         this();
-        this.company = su.getCompany();
         this.apiKey = su.getApiKey();
         this.name = su.getName();
         this.login = su.getLogin();
+//        this.companyName = su.getCompany().getName();
 
-    }
-
-    public String getCompanyName() {
-        return company.getName();
-    }
-
-    public Company getCompany() {
-        return company;
     }
 
     public String getName() {
@@ -42,5 +33,9 @@ public class SystemUserResultBean {
 
     public String getLogin() {
         return login;
+    }
+
+    public String getCompanyName() {
+        return companyName;
     }
 }

@@ -42,5 +42,9 @@
             <mvc:mapping path="/fortress/**"/>
             <bean class="com.auditbucket.authentication.handler.ApiKeyInterceptor"/>
         </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/query/**"/>
+            <bean class="com.auditbucket.authentication.handler.ApiKeyInterceptor"/>
+        </mvc:interceptor>
     </mvc:interceptors>
 </beans>

@@ -71,6 +71,11 @@ public class QueryService {
 
     }
 
+    public Set<DocumentType> getConceptsWithRelationships(Company company, Collection<String> documents) {
+        return schemaService.findConcepts(company, documents, true);
+
+    }
+
     public Set<DocumentType> getConcepts(Company company, Collection<String> documents, boolean withRelationships) {
         return schemaService.findConcepts(company, documents, withRelationships);
 

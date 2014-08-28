@@ -22,6 +22,7 @@ package com.auditbucket.test.functional;
 import com.auditbucket.engine.endpoint.QueryEP;
 import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.service.*;
+import com.auditbucket.helper.JsonUtils;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
@@ -64,15 +65,21 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.io.FileInputStream;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.concurrent.Future;
 
 import static junit.framework.Assert.*;
 import static org.junit.Assert.assertNotNull;
@@ -92,7 +99,8 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
  * Time: 22:51
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:root-context.xml")
+@WebAppConfiguration
+@ContextConfiguration(locations = {"classpath:root-context.xml", "classpath:apiDispatcher-servlet.xml"})
 public class TestABIntegration {
     private static boolean runMe = true; // pass -Dab.debug=true to disable all tests
     private static int fortressMax = 1;
@@ -104,22 +112,35 @@ public class TestABIntegration {
     TrackEP trackEP;
     @Autowired
     RegistrationService regService;
+
     @Autowired
     CompanyService companyService;
+
     @Autowired
     FortressService fortressService;
+
     @Autowired
     MediationFacade mediationFacade;
+
     @Autowired
     TagTrackService tagTrackService;
+
+    @Autowired
+    QueryService queryService;
+
     @Autowired
     QueryEP queryEP;
 
     @Autowired
     WhatService whatService;
 
+    static MockMvc mockMvc;
+
+    @Autowired
+    WebApplicationContext wac;
+
     private static Logger logger = LoggerFactory.getLogger(TestABIntegration.class);
-    private static Authentication authA = new UsernamePasswordAuthenticationToken("mike", "123");
+    private static Authentication AUTH_MIKE = new UsernamePasswordAuthenticationToken("mike", "123");
 
     String company = "Monowai";
     static Properties properties = new Properties();
@@ -174,11 +195,12 @@ public class TestABIntegration {
 
     @Before
     public void setupUser() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(authA);
+        SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
         if (companyService.findByName("monowai") == null) {
             regService.registerSystemUser(new RegistrationBean("monowai", "mike").setIsUnique(false));
             waitAWhile("Registering Auth user System Access {}");
         }
+        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
 
     private static void deleteEsIndex(String indexName) throws Exception {
@@ -193,7 +215,7 @@ public class TestABIntegration {
 
     @Test
     public void companyAndFortressWithSpaces() throws Exception {
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## companyAndFortressWithSpaces");
 
         SystemUser su = registerSystemUser("co-fortress");
@@ -217,7 +239,7 @@ public class TestABIntegration {
     public void headerWithOnlyTagsProcess() throws Exception {
         assumeTrue(runMe);
         logger.info("## headersWithTagsProcess");
-        SecurityContextHolder.getContext().setAuthentication(authA);
+        SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
         SystemUser su = registerSystemUser("Mark");
         String apiKey = su.getApiKey();
         Fortress fo = fortressService.registerFortress(new FortressInputBean("headerWithTagsProcess", false));
@@ -288,9 +310,11 @@ public class TestABIntegration {
         deleteEsIndex(metaHeader.getIndexName());
 
         // Rebuild....
-        Future<Long> fResult = mediationFacade.reindex(fo.getCompany(), fo.getCode());
+        SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
+        Long fResult = mediationFacade.reindex(fo.getCompany(), fo.getCode());
         waitForHeaderToUpdate(metaHeader, su.getApiKey());
-        Assert.assertEquals(1l, fResult.get().longValue());
+        Assert.assertEquals(1l, fResult.longValue());
+
         doEsQuery(metaHeader.getIndexName(), "*");
 
     }
@@ -526,13 +550,26 @@ public class TestABIntegration {
         QueryParams qp = new QueryParams(fo);
         qp.setSimpleQuery("*");
         runMetaQuery(qp);
-        EsSearchResult queryResults = queryEP.searchQueryParam(qp, su.getApiKey(), su.getApiKey());
+        //EsSearchResult queryResults =runSearchQuery(su, qp);
+        //EsSearchResult queryResults =mediationFacade.search(su.getCompany(), qp);
+        EsSearchResult queryResults = runSearchQuery(su, qp);
         assertNotNull(queryResults);
         assertEquals(2, queryResults.getResults().size());
 
         // Two search docs,but one without a metaKey
 
     }
+    // ToDo: Figure out where the Node pojos should be.
+    private EsSearchResult runSearchQuery(SystemUser su, QueryParams input) throws Exception {
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/query/")
+                        .header("Api-Key", su.getApiKey())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(JsonUtils.getJSON(input))
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+        return JsonUtils.getBytesAsObject(response.getResponse().getContentAsByteArray(), EsSearchResult.class);
+    }
+
 
     /**
      * Suppresses the indexing of a log record even if the fortress is set to index everything
@@ -573,7 +610,7 @@ public class TestABIntegration {
 
     @Test
     public void tagKeyReturnsSingleSearchResult() throws Exception {
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## tagKeyReturnsSingleSearchResult");
 
         SystemUser su = registerSystemUser("Peter");
@@ -682,7 +719,7 @@ public class TestABIntegration {
     }
 
     private SystemUser registerSystemUser(String loginToCreate) throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(authA);
+        SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
         SystemUser su = regService.registerSystemUser(new RegistrationBean(company, loginToCreate));
         // creating company alters the schema that sometimes throws a heuristic exception.
         Thread.sleep(600);

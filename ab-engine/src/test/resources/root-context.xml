@@ -35,7 +35,7 @@
     <context:spring-configured/>
     <context:annotation-config/>
 
-    <context:component-scan base-package="com.auditbucket, com.auditbucket.authentication, com.auditbucket.security"/>
+    <context:component-scan base-package="com.auditbucket, com.auditbucket.authentication"/>
     <!-- Root Context: defines shared resources visible to all other web components -->
 
     <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true"
@@ -43,7 +43,7 @@
 
     <import resource="neo4j-context.xml"/>
     <import resource="integration.xml"/>
-    <import resource="classpath:simple-security.xml" />
+    <import resource="simple-security.xml" />
     <import resource="kv-context.xml"/>
     <import resource="http-monitoring-integration.xml"/>
 

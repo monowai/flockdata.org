@@ -3,7 +3,7 @@ package com.auditbucket.engine.endpoint;
 import com.auditbucket.engine.service.MatrixService;
 import com.auditbucket.engine.service.MediationFacade;
 import com.auditbucket.engine.service.QueryService;
-import com.auditbucket.helper.ApiKeyHelper;
+import com.auditbucket.helper.CompanyResolver;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.query.MatrixInputBean;
 import com.auditbucket.query.MatrixResults;
@@ -14,8 +14,12 @@ import com.auditbucket.search.model.QueryParams;
 import com.auditbucket.track.model.DocumentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.Set;
 
@@ -42,49 +46,39 @@ public class QueryEP {
 
     @ResponseBody
     @RequestMapping(value = "/matrix/", method = RequestMethod.POST)
-    public MatrixResults getMatrixResult(@RequestBody MatrixInputBean matrixInput,
-                                         String apiKey,
-                                         @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+    public MatrixResults getMatrixResult(@RequestBody MatrixInputBean matrixInput, HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
         return matrixService.getMatrix(company, matrixInput);
     }
 
     @ResponseBody
     @RequestMapping(value = "/", method = RequestMethod.POST)
-    public EsSearchResult searchQueryParam(@RequestBody QueryParams queryParams,
-                                                                   String apiKey,
-                                                                   @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-
-        Company abCompany = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
-        queryParams.setCompany(abCompany.getName());
-        return mediationFacade.search(abCompany, queryParams);
+    public EsSearchResult searchQueryParam(@RequestBody QueryParams queryParams, HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
+        queryParams.setCompany(company.getName());
+        return mediationFacade.search(company, queryParams);
     }
 
     @ResponseBody
     @RequestMapping(value = "/documents/", method = RequestMethod.POST)
-    public Collection<DocumentType> getDocumentsInUse(@RequestBody (required = false) Collection<String> fortresses, String apiKey,
-                                                @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-
-        Company abCompany = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
-        return queryService.getDocumentsInUse(abCompany, fortresses);
+    public Collection<DocumentType> getDocumentsInUse(@RequestBody (required = false) Collection<String> fortresses, HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
+        return queryService.getDocumentsInUse(company, fortresses);
     }
 
     @ResponseBody
     @RequestMapping(value = "/concepts/", method = RequestMethod.POST)
-    public Set<DocumentType> getConcepts(@RequestBody (required = false) Collection<String> documents, String apiKey,
-                                    @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company abCompany = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
-        return queryService.getConcepts(abCompany, documents);
+    public Set<DocumentType> getConcepts(@RequestBody (required = false) Collection<String> documents, HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
+        return queryService.getConcepts(company, documents);
     }
 
     @ResponseBody
     @RequestMapping(value = "/relationships/", method = RequestMethod.POST)
-    public Set<DocumentType> getRelationships(@RequestBody(required = false) Collection<String> documents, String apiKey,
-                                               @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company abCompany = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+    public Set<DocumentType> getRelationships(@RequestBody(required = false) Collection<String> documents, HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
         // Todo: DAT-100 Sherry's comment. Should be Concepts, not Doc Types
-        return queryService.getConcepts(abCompany, documents, true);
+        return queryService.getConcepts(company, documents, true);
     }
-
 
 }

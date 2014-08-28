@@ -51,12 +51,11 @@ public class TestCallerRef extends TestEngineBase {
 
     private Logger logger = LoggerFactory.getLogger(TestCallerRef.class);
     private String monowai = "Monowai";
-    private String mike = "mike";
 
     @Test
     public void nullCallerRefBehaviour() throws Exception {
         cleanUpGraph(); // No transaction so need to clear down the graph
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike));
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
 
         FortressInputBean fib = new FortressInputBean("auditTest" + System.currentTimeMillis());
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
@@ -79,7 +78,7 @@ public class TestCallerRef extends TestEngineBase {
     @Test
     @Transactional
     public void findByCallerRefAcrossDocumentTypes() throws Exception {
-        registrationEP.registerSystemUser(new RegistrationBean(monowai, mike));
+        registrationEP.registerSystemUser(new RegistrationBean(monowai, mike_admin));
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("auditTest", true));
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
@@ -113,7 +112,7 @@ public class TestCallerRef extends TestEngineBase {
     @Test
     public void duplicateCallerRefKeysAndDocTypesNotCreated() throws Exception {
         cleanUpGraph(); // No transaction so need to clear down the graph
-        regService.registerSystemUser(new RegistrationBean(monowai, mike));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
 
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("auditTest" + System.currentTimeMillis()));
 

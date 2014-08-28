@@ -48,7 +48,6 @@ public class RegistrationEP {
 
     @RequestMapping(value = "/", consumes = "application/json", method = RequestMethod.POST)
     @ResponseBody
-    @Secured({"ROLE_AB_ADMIN"})
     public ResponseEntity<SystemUserResultBean> registerSystemUser(@RequestBody RegistrationBean regBean) throws DatagioException {
         // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/profiles/register -d '{"name":"mikey", "companyName":"Monowai Dev","password":"whocares"}'
         SystemUser su = regService.registerSystemUser(regBean);

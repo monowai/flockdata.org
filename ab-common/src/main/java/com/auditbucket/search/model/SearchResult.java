@@ -31,11 +31,44 @@ import java.util.Map;
  * Since: 13/07/13
  */
 public class SearchResult {
+    // ToDo: Normalize with MetaHeaderResult
     private String metaKey, fortress, searchKey, documentType;
     private Long logId;
     private Long metaId;
     private Map<String, String[]> fragments;
-    private MetaHeader metaHeader;
+    private String callerRef;
+    private String createdBy;
+
+    public String getLastUser() {
+        return lastUser;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getEvent() {
+        return event;
+    }
+
+    public Long getDateCreated() {
+        return dateCreated;
+    }
+
+    public Long getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public long getWhenCreated() {
+        return whenCreated;
+    }
+
+    private String lastUser;
+    private String description;
+    private String event;
+    private Long dateCreated;
+    private Long lastUpdate;
+    private long whenCreated;
 
     protected SearchResult() {
     }
@@ -73,8 +106,6 @@ public class SearchResult {
      * @return string
      */
     public String getFortress() {
-        if ( metaHeader!=null )
-            return metaHeader.getFortress().getName();
         return fortress;
     }
 
@@ -93,8 +124,6 @@ public class SearchResult {
      * @return
      */
     public String getDocumentType() {
-        if ( metaHeader!=null )
-            return metaHeader.getDocumentType();
         return documentType;
     }
 
@@ -129,15 +158,30 @@ public class SearchResult {
         this.searchKey = searchKey;
     }
 
-    public Map<String,String[]> getFragments(){
+    public Map<String, String[]> getFragments() {
         return fragments;
     }
 
-    public void setMetaHeader(MetaHeader metaHeader) {
-        this.metaHeader = metaHeader;
+    public void setMetaHeader(MetaHeader header) {
+        if (header != null) {
+            this.metaId = header.getId();
+            this.callerRef = header.getCallerRef();
+            this.fortress= header.getFortress().getName();
+            this.createdBy = header.getCreatedBy().getCode();
+            this.lastUser = header.getLastUser().getCode();
+            description = header.getDescription();
+            event = header.getEvent();
+            dateCreated = header.getFortressDateCreated().getMillis();
+            lastUpdate = header.getFortressLastWhen();
+            whenCreated = header.getWhenCreated();
+        }
     }
 
-    public MetaHeader getMetaHeader() {
-        return metaHeader;
+    public String getCallerRef() {
+        return callerRef;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
     }
 }
