@@ -31,20 +31,20 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
             if ( su != null ) {
                 apiKey = su.getApiKey();
                 if (su.getCompany() != null) {
-                    request.setAttribute("company", su.getCompany());
+                    request.setAttribute(COMPANY, su.getCompany());
                     return true;
                 }
 
             }
-        }
-
-        if (apiKey != null) {
+        } else {
+        	logger.debug("Api-Key from request header - " + apiKey);
             Company company = securityHelper.getCompany(apiKey);
             if (company != null) {
-                request.setAttribute("company", company);
+                request.setAttribute(COMPANY, company);
                 return true;
             }
         }
+
         // Not necessarily forbidden, just no API key to work with data.
         // Admin users can create data access users but not access data themselves.
         // The 3 scenarios are:
