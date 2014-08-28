@@ -19,28 +19,13 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.company.endpoint.CompanyEP;
-import com.auditbucket.engine.endpoint.AdminEP;
-import com.auditbucket.engine.endpoint.QueryEP;
-import com.auditbucket.engine.endpoint.TrackEP;
-import com.auditbucket.engine.repo.neo4j.model.FortressNode;
-import com.auditbucket.engine.service.*;
-import com.auditbucket.fortress.endpoint.FortressEP;
-import com.auditbucket.geography.endpoint.GeographyEP;
-import com.auditbucket.helper.JsonUtils;
-import com.auditbucket.helper.SecurityHelper;
-import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
-import com.auditbucket.registration.endpoint.RegistrationEP;
-import com.auditbucket.registration.endpoint.TagEP;
-import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.registration.service.CompanyService;
-import com.auditbucket.registration.service.RegistrationService;
-import com.auditbucket.registration.service.SystemUserService;
-import com.auditbucket.track.model.MetaHeader;
-import com.auditbucket.track.model.TrackLog;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import java.util.Collection;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,233 +51,304 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.junit.Assert.*;
+import com.auditbucket.company.endpoint.CompanyEP;
+import com.auditbucket.engine.endpoint.AdminEP;
+import com.auditbucket.engine.endpoint.QueryEP;
+import com.auditbucket.engine.endpoint.TrackEP;
+import com.auditbucket.engine.repo.neo4j.model.FortressNode;
+import com.auditbucket.engine.service.EngineConfig;
+import com.auditbucket.engine.service.FortressService;
+import com.auditbucket.engine.service.MediationFacade;
+import com.auditbucket.engine.service.QueryService;
+import com.auditbucket.engine.service.SchemaService;
+import com.auditbucket.engine.service.SearchServiceFacade;
+import com.auditbucket.engine.service.TagService;
+import com.auditbucket.engine.service.TagTrackService;
+import com.auditbucket.engine.service.TrackEventService;
+import com.auditbucket.engine.service.TrackService;
+import com.auditbucket.engine.service.WhatService;
+import com.auditbucket.fortress.endpoint.FortressEP;
+import com.auditbucket.geography.endpoint.GeographyEP;
+import com.auditbucket.helper.JsonUtils;
+import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.registration.bean.FortressInputBean;
+import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
+import com.auditbucket.registration.endpoint.RegistrationEP;
+import com.auditbucket.registration.endpoint.TagEP;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.service.CompanyService;
+import com.auditbucket.registration.service.RegistrationService;
+import com.auditbucket.registration.service.SystemUserService;
+import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.TrackLog;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * User: mike
- * Date: 16/06/14
- * Time: 7:54 AM
+ * User: mike Date: 16/06/14 Time: 7:54 AM
  */
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:root-context.xml", "classpath:apiDispatcher-servlet.xml"})
+@ContextConfiguration(locations = { "classpath:root-context.xml",
+		"classpath:apiDispatcher-servlet.xml" })
 public class TestEngineBase {
-    @Autowired
-    FortressEP fortressEP;
+	@Autowired
+	FortressEP fortressEP;
 
-    @Autowired
-    QueryEP queryEP;
+	@Autowired
+	QueryEP queryEP;
 
-    @Autowired
-    RegistrationService regService;
+	@Autowired
+	RegistrationService regService;
 
-    @Autowired
-    RegistrationEP registrationEP;
+	@Autowired
+	RegistrationEP registrationEP;
 
-    @Autowired
-    SchemaService schemaService;
+	@Autowired
+	SchemaService schemaService;
 
-    @Autowired
-    FortressService fortressService;
+	@Autowired
+	FortressService fortressService;
 
-    @Autowired
-    TrackService trackService;
+	@Autowired
+	TrackService trackService;
 
-    @Autowired
-    TagTrackService tagTrackService;
+	@Autowired
+	TagTrackService tagTrackService;
 
-    @Autowired
-    TrackEP trackEP;
+	@Autowired
+	TrackEP trackEP;
 
-    @Autowired
-    RegistrationEP regEP;
+	@Autowired
+	RegistrationEP regEP;
 
-    @Autowired
-    GeographyEP geographyEP;
+	@Autowired
+	GeographyEP geographyEP;
 
-    @Autowired
-    MediationFacade mediationFacade;
+	@Autowired
+	MediationFacade mediationFacade;
 
-    @Autowired
-    TrackEventService trackEventService;
+	@Autowired
+	TrackEventService trackEventService;
 
-    @Autowired
-    SystemUserService systemUserService;
+	@Autowired
+	SystemUserService systemUserService;
 
-    @Autowired
-    TagEP tagEP;
+	@Autowired
+	TagEP tagEP;
 
-    @Autowired
-    TagService tagService;
+	@Autowired
+	TagService tagService;
 
-    @Autowired
-    AdminEP adminEP;
+	@Autowired
+	AdminEP adminEP;
 
-    @Autowired
-    EngineConfig engineAdmin;
+	@Autowired
+	EngineConfig engineAdmin;
 
-    @Autowired
-    QueryService queryService;
+	@Autowired
+	QueryService queryService;
 
-    @Autowired
-    WhatService whatService;
+	@Autowired
+	WhatService whatService;
 
-    @Autowired
-    CompanyService companyService;
+	@Autowired
+	CompanyService companyService;
 
-    @Autowired
-    CompanyEP companyEP;
+	@Autowired
+	CompanyEP companyEP;
 
-    @Autowired
-    SearchServiceFacade searchService;
+	@Autowired
+	SearchServiceFacade searchService;
 
-    @Autowired
-    Neo4jTemplate template;
+	@Autowired
+	Neo4jTemplate template;
 
-    @Autowired
-    protected WebApplicationContext wac;
+	@Autowired
+	protected WebApplicationContext wac;
 
-    static MockMvc mockMvc;
+	static MockMvc mockMvc;
 
-    @Autowired
-    SecurityHelper securityHelper;
-    
-    private static Logger logger = LoggerFactory.getLogger(TestEngineBase.class);
+	@Autowired
+	SecurityHelper securityHelper;
 
-    // These have to be in simple-security.xml that is authorised to create registrations
-    static final String sally_admin = "sally";
-    static final String mike_admin = "mike";  // Admin role
-    static final String batch = "batch";
-    static final String harry = "harry";
+	private static Logger logger = LoggerFactory
+			.getLogger(TestEngineBase.class);
 
-    static final String monowai = "Monowai"; // just a test constant
+	// These have to be in simple-security.xml that is authorised to create
+	// registrations
+	static final String sally_admin = "sally";
+	static final String mike_admin = "mike"; // Admin role
+	static final String batch = "batch";
+	static final String harry = "harry";
 
-    static final ObjectMapper mapper = new ObjectMapper();
+	static final String monowai = "Monowai"; // just a test constant
 
-    Authentication authDefault = new UsernamePasswordAuthenticationToken(mike_admin, "123");
+	static final ObjectMapper mapper = new ObjectMapper();
 
-    public static Fortress createFortress( SystemUser su) throws Exception {
-        return createFortress(su, ""+System.currentTimeMillis());
-    }
-    public static Fortress createFortress(SystemUser su, String fortressName) throws Exception {
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/fortress/")
-        				.header("Api-Key", su.getApiKey())
-                        //.("company", su.getCompany())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(JsonUtils.getJSON(new FortressInputBean(fortressName, true)))
-                        ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
+	Authentication authDefault = new UsernamePasswordAuthenticationToken(
+			mike_admin, "123");
 
-        Fortress fortress =  JsonUtils.getBytesAsObject(response.getResponse().getContentAsByteArray(), FortressNode.class);
-        fortress.setCompany(su.getCompany());
-        return fortress;
-    }
+	public static Fortress createFortress(SystemUser su) throws Exception {
+		return createFortress(su, "" + System.currentTimeMillis());
+	}
 
-    @Rollback(false)
-    @BeforeTransaction
-    public void cleanUpGraph() {
-        // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
-        // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-        //setSecurity();
-        Neo4jHelper.cleanDb(template);
-        engineAdmin.setConceptsEnabled(false);
-        engineAdmin.setDuplicateRegistration(true);
-    }
+	public static Fortress createFortress(SystemUser su, String fortressName)
+			throws Exception {
+		MvcResult response = mockMvc
+				.perform(
+						MockMvcRequestBuilders
+								.post("/fortress/")
+								.header("Api-Key", su.getApiKey())
+								// .("company", su.getCompany())
+								.contentType(MediaType.APPLICATION_JSON)
+								.content(
+										JsonUtils
+												.getJSON(new FortressInputBean(
+														fortressName, true))))
+				.andExpect(MockMvcResultMatchers.status().isCreated())
+				.andReturn();
 
-    @Before
-    public void setSecurity() {
-        engineAdmin.setMultiTenanted(false);
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-        SecurityContextHolder.getContext().setAuthentication(authDefault);
-    }
+		Fortress fortress = JsonUtils.getBytesAsObject(response.getResponse()
+				.getContentAsByteArray(), FortressNode.class);
+		fortress.setCompany(su.getCompany());
+		return fortress;
+	}
 
-    public static void setSecurity(Authentication auth) {
-        SecurityContextHolder.getContext().setAuthentication(auth);
-    }
+	public static Collection<Fortress> findFortresses(SystemUser su)
+			throws Exception {
+		MvcResult response = mockMvc
+				.perform(
+						MockMvcRequestBuilders.get("/fortress/")
+								.header("Api-Key", su.getApiKey())
+								// .("company", su.getCompany())
+								.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andReturn();
 
-    public static Authentication setSecurity(String userName) {
-        Authentication auth = new UsernamePasswordAuthenticationToken(userName, "123");
-        setSecurity(auth);
-        return auth;
-    }
+		List<Fortress> fortresses = JsonUtils.getBytesAsObject(response
+				.getResponse().getContentAsByteArray(), List.class);
+		return fortresses;
+	}
 
-    public static void setSecurityEmpty(){
-        SecurityContextHolder.getContext().setAuthentication(null);
-    }
+	@Rollback(false)
+	@BeforeTransaction
+	public void cleanUpGraph() {
+		// This will fail if running over REST. Haven't figured out how to use a
+		// view to look at the embedded db
+		// See:
+		// https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
+		// setSecurity();
+		Neo4jHelper.cleanDb(template);
+		engineAdmin.setConceptsEnabled(false);
+		engineAdmin.setDuplicateRegistration(true);
+	}
 
-    Transaction beginManualTransaction() {
-        Transaction t = template.getGraphDatabase().beginTx();
-        return t;
-    }
+	@Before
+	public void setSecurity() {
+		engineAdmin.setMultiTenanted(false);
+		mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+		SecurityContextHolder.getContext().setAuthentication(authDefault);
+	}
 
-    void commitManualTransaction(Transaction t) {
-        t.success();
-        t.close();
-    }
+	public static void setSecurity(Authentication auth) {
+		SecurityContextHolder.getContext().setAuthentication(auth);
+	}
 
-    public static void waitAWhile() throws Exception {
-        waitAWhile(null, 3000);
-    }
+	public static Authentication setSecurity(String userName) {
+		Authentication auth = new UsernamePasswordAuthenticationToken(userName,
+				"123");
+		setSecurity(auth);
+		return auth;
+	}
 
-    public static void waitAWhile(int millis) throws Exception {
-        waitAWhile(null, millis);
-    }
+	public static void setSecurityEmpty() {
+		SecurityContextHolder.getContext().setAuthentication(null);
+	}
 
-    public static void waitAWhile(String message) throws Exception {
-        String ss = System.getProperty("sleepSeconds");
-        if (ss == null || ss.equals(""))
-            ss = "1";
-        if (message == null)
-            message = "Slept for {} seconds";
-        waitAWhile(message, Long.decode(ss) * 1000);
-    }
+	Transaction beginManualTransaction() {
+		Transaction t = template.getGraphDatabase().beginTx();
+		return t;
+	}
 
-    /**
-     * Processing delay for threads and integration to complete. If you start getting sporadic
-     * Heuristic exceptions, chances are you need to call this routine to give other threads
-     * time to commit their work.
-     * Likewise, waiting for results from ab-search can take a while. We can't know how long this
-     * is so you can experiment on your own environment by passing in -DsleepSeconds=1
-     *
-     * @param milliseconds to pause for
-     * @throws Exception
-     */
-    public static void waitAWhile(String message, long milliseconds) throws Exception {
-        Thread.sleep(milliseconds);
-        logger.trace(message, milliseconds / 1000d);
-    }
-    long waitForALog(MetaHeader header, String apiKey) throws Exception {
-        // Looking for the first searchKey to be logged against the metaHeader
-        long thenTime = System.currentTimeMillis();
-        int i = 0;
-        long ts = header.getFortressLastWhen();
+	void commitManualTransaction(Transaction t) {
+		t.success();
+		t.close();
+	}
 
-        MetaHeader metaHeader = trackEP.getMetaHeader(header.getMetaKey(), apiKey, apiKey).getBody();
-        TrackLog log = trackEP.getLastChange(metaHeader.getMetaKey(), apiKey, apiKey).getBody();
+	public static void waitAWhile() throws Exception {
+		waitAWhile(null, 3000);
+	}
 
-        int timeout = 100;
-        while (log == null && i <= timeout) {
-            log = trackEP.getLastChange(metaHeader.getMetaKey(), apiKey, apiKey).getBody();
-            if ( log!=null && metaHeader.getFortressLastWhen() == ts )
-                return i;
-            Thread.yield();
-            if (i > 20)
-                waitAWhile("Waiting for the log to arrive {}");
-            i++;
-        }
-        if (i > 22)
-            logger.info("Wait for log got to [{}] for metaId [{}]", i, metaHeader.getId());
-        return System.currentTimeMillis() - thenTime;
-    }
+	public static void waitAWhile(int millis) throws Exception {
+		waitAWhile(null, millis);
+	}
 
-    @Test
-    public void testJson() throws Exception {
-        FortressNode fortressNode = new FortressNode(new FortressInputBean("testing"), new CompanyNode("testCompany"));
-        byte[] bytes = JsonUtils.getObjectAsJsonBytes(fortressNode);
-        Fortress f = JsonUtils.getBytesAsObject(bytes, FortressNode.class);
-        assertNotNull(f);
-        assertNull(f.getCompany());// JsonIgnored - Discuss!
-        assertEquals("testing", f.getName());
-    }
+	public static void waitAWhile(String message) throws Exception {
+		String ss = System.getProperty("sleepSeconds");
+		if (ss == null || ss.equals(""))
+			ss = "1";
+		if (message == null)
+			message = "Slept for {} seconds";
+		waitAWhile(message, Long.decode(ss) * 1000);
+	}
 
+	/**
+	 * Processing delay for threads and integration to complete. If you start
+	 * getting sporadic Heuristic exceptions, chances are you need to call this
+	 * routine to give other threads time to commit their work. Likewise,
+	 * waiting for results from ab-search can take a while. We can't know how
+	 * long this is so you can experiment on your own environment by passing in
+	 * -DsleepSeconds=1
+	 *
+	 * @param milliseconds
+	 *            to pause for
+	 * @throws Exception
+	 */
+	public static void waitAWhile(String message, long milliseconds)
+			throws Exception {
+		Thread.sleep(milliseconds);
+		logger.trace(message, milliseconds / 1000d);
+	}
+
+	long waitForALog(MetaHeader header, String apiKey) throws Exception {
+		// Looking for the first searchKey to be logged against the metaHeader
+		long thenTime = System.currentTimeMillis();
+		int i = 0;
+		long ts = header.getFortressLastWhen();
+
+		MetaHeader metaHeader = trackEP.getMetaHeader(header.getMetaKey(),
+				apiKey, apiKey).getBody();
+		TrackLog log = trackEP.getLastChange(metaHeader.getMetaKey(), apiKey,
+				apiKey).getBody();
+
+		int timeout = 100;
+		while (log == null && i <= timeout) {
+			log = trackEP
+					.getLastChange(metaHeader.getMetaKey(), apiKey, apiKey)
+					.getBody();
+			if (log != null && metaHeader.getFortressLastWhen() == ts)
+				return i;
+			Thread.yield();
+			if (i > 20)
+				waitAWhile("Waiting for the log to arrive {}");
+			i++;
+		}
+		if (i > 22)
+			logger.info("Wait for log got to [{}] for metaId [{}]", i,
+					metaHeader.getId());
+		return System.currentTimeMillis() - thenTime;
+	}
+
+	@Test
+	public void testJson() throws Exception {
+		FortressNode fortressNode = new FortressNode(new FortressInputBean(
+				"testing"), new CompanyNode("testCompany"));
+		byte[] bytes = JsonUtils.getObjectAsJsonBytes(fortressNode);
+		Fortress f = JsonUtils.getBytesAsObject(bytes, FortressNode.class);
+		assertNotNull(f);
+		assertNull(f.getCompany());// JsonIgnored - Discuss!
+		assertEquals("testing", f.getName());
+	}
 
 }
