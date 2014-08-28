@@ -19,6 +19,22 @@
 
 package com.auditbucket.test.functional;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.fail;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+
+import java.util.Collection;
+import java.util.TimeZone;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
@@ -26,21 +42,6 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
-import org.junit.Assert;
-import org.junit.Test;
-import org.mockito.BDDMockito;
-import org.mockito.Mockito;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.Collection;
-import java.util.TimeZone;
-
-import static junit.framework.Assert.*;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
 
 @Transactional
 public class TestRegistration extends TestEngineBase {
@@ -100,7 +101,6 @@ public class TestRegistration extends TestEngineBase {
 
     @Test
     public void uniqueFortressesForDifferentCompanies() throws Exception {
-        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         setSecurity("mike");
 
         // ToDo: Modify this call to use the new approach
@@ -115,8 +115,7 @@ public class TestRegistration extends TestEngineBase {
 
         createFortress(su, "FortressC");// Forced duplicate should be ignored
 
-        BDDMockito.when(request.getAttribute("company")).thenReturn(company);
-        Collection<Fortress> fortresses = fortressEP.findFortresses(request);
+        Collection<Fortress> fortresses = findFortresses(su);
         assertFalse(fortresses.isEmpty());
         assertEquals(3, fortresses.size());
 
@@ -215,13 +214,11 @@ public class TestRegistration extends TestEngineBase {
         assertNotNull(systemUser);
 
         Company company = securityHelper.getCompany(systemUser.getApiKey());
-        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
-        BDDMockito.when(request.getAttribute("company")).thenReturn(company);
         
         Fortress fortress = createFortress(systemUser, "auditbucket");
         assertNotNull(fortress);
 
-        Collection<Fortress> fortressList = fortressEP.findFortresses(request);
+        Collection<Fortress> fortressList = findFortresses(systemUser);
         assertNotNull(fortressList);
         assertEquals(1, fortressList.size());
 
