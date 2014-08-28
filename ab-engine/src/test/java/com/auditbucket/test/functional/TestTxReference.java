@@ -64,8 +64,8 @@ public class TestTxReference extends TestEngineBase{
 
     @Test
     public void testAuthorisedToViewTransaction() throws Exception {
-        SystemUser suABC = regService.registerSystemUser(new RegistrationBean("ABC", "mike", "Mike Holdsworth"));
-        SystemUser suCBA = regService.registerSystemUser(new RegistrationBean("CBA", "sally", null));
+        SystemUser suABC = regService.registerSystemUser(new RegistrationBean("ABC", mike_admin, "Mike Holdsworth"));
+        SystemUser suCBA = regService.registerSystemUser(new RegistrationBean("CBA", sally_admin, null));
 
         Authentication authABC = new UsernamePasswordAuthenticationToken(suABC.getLogin(), "123");
         Authentication authCBA = new UsernamePasswordAuthenticationToken(suCBA.getLogin(), "123");
@@ -116,7 +116,7 @@ public class TestTxReference extends TestEngineBase{
     @Test
     public void testTxCommits() throws Exception {
         String company = "Monowai";
-        regService.registerSystemUser(new RegistrationBean(company, mike));
+        regService.registerSystemUser(new RegistrationBean(company, mike_admin));
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("auditTest", true));
         String tagRef = "MyTXTag";
         MetaInputBean aBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
@@ -176,7 +176,7 @@ public class TestTxReference extends TestEngineBase{
     @Test
     public void txHeadersTracked() throws Exception {
         String company = "Monowai";
-        regService.registerSystemUser(new RegistrationBean(company, mike));
+        regService.registerSystemUser(new RegistrationBean(company, mike_admin));
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("auditTest", true));
         String tagRef = "MyTXTag";
         MetaInputBean aBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");

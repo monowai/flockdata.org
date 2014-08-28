@@ -26,10 +26,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
-import org.springframework.data.neo4j.annotation.GraphId;
-import org.springframework.data.neo4j.annotation.Indexed;
-import org.springframework.data.neo4j.annotation.NodeEntity;
-import org.springframework.data.neo4j.annotation.RelatedTo;
+import org.springframework.data.neo4j.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,7 +51,8 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
     private String companyKey;
 
     @RelatedTo(elementClass = FortressNode.class, type = "FORTRESS_DOC", direction = Direction.OUTGOING)
-    private Fortress fortress;
+    @Fetch
+    private FortressNode fortress;
 
     @RelatedTo(elementClass = ConceptNode.class,  type = "HAS_CONCEPT", direction = Direction.OUTGOING)
     Collection<Concept> concepts;
@@ -80,7 +78,7 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
     }
 
     private void addFortress(Fortress fortress) {
-        this.fortress = fortress;
+        this.fortress = (FortressNode) fortress;
     }
 
     public String getName() {
@@ -108,7 +106,7 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
         return companyKey;
     }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public Collection<Concept> getConcepts() {
         return concepts;
     }
@@ -135,7 +133,7 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
     }
 
     public static String parse(Fortress fortress, String documentType) {
-        //return indexName.toLowerCase().replaceAll("\\s", ".");
+//        return documentType.toLowerCase().replaceAll("\\s", ".");
         return fortress.getId() + "."+ documentType.toLowerCase().replaceAll("\\s", ".");
     }
 

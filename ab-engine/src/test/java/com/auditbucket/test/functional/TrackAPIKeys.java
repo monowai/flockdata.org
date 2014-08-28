@@ -2,8 +2,8 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.RegistrationBean;
-import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.test.utils.TestHelper;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
@@ -31,8 +31,8 @@ public class TrackAPIKeys extends TestEngineBase{
     @Test
     public void testApiKeysWorkInPrecedence() throws Exception {
         // Auth only required to register the sys user
-        Authentication authMike = setSecurity(mike);
-        SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, mike)).getBody();
+        Authentication authMike = setSecurity(mike_admin);
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
         SecurityContextHolder.getContext().setAuthentication(null);
         Assert.assertNotNull(su.getApiKey());
         Fortress fortressA = createFortress(su, "testApiKeysWorkInPrecedence");
@@ -82,7 +82,7 @@ public class TrackAPIKeys extends TestEngineBase{
     @Test
     public void apiCallsSecuredByAccessKey() throws Exception {
 
-        SystemUserResultBean su = regEP.registerSystemUser(new RegistrationBean(monowai, "123", mike)).getBody();
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
         // No authorization - only API keys
         SecurityContextHolder.getContext().setAuthentication(null);
 

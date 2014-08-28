@@ -12,8 +12,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import javax.servlet.http.HttpServletResponse;
-
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.fail;
 
@@ -30,7 +28,7 @@ public class TestApiKeyInterceptor extends TestEngineBase {
 
 	@Before
 	public void initialize() {
-		setSecurity(mike);
+		setSecurity(mike_admin);
 		apiKeyInterceptor = (ApiKeyInterceptor) context
 				.getBean("apiKeyInterceptor");
 
@@ -43,7 +41,7 @@ public class TestApiKeyInterceptor extends TestEngineBase {
 	public void givenValidAPIKey_WhenCallingSecureAPI_ThenShouldBeAllowed()
 			throws Exception {
 		String apiKey = regEP
-				.registerSystemUser(new RegistrationBean(monowai, mike))
+				.registerSystemUser(new RegistrationBean(monowai, mike_admin))
 				.getBody().getApiKey();
 
 		request.setRequestURI("/fortress/");
@@ -75,7 +73,7 @@ public class TestApiKeyInterceptor extends TestEngineBase {
 	@Test
 	public void givenNoAPIKey_WhenCallingSecureAPI_ThenShouldNotBeAllowed()
 			throws Exception {
-        setSecurity(sally); // Sally is Authorised but has not API Key
+        setSecurity(sally_admin); // Sally is Authorised but has not API Key
 		request.setRequestURI("/fortress/");
         try {
             apiKeyInterceptor.preHandle(request, response, null);

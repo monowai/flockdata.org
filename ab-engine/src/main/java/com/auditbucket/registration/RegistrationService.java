@@ -52,7 +52,6 @@ public class RegistrationService implements com.auditbucket.registration.service
 
 
     @Override
-    @Secured({"ROLE_AB_ADMIN"})
     public SystemUser registerSystemUser(RegistrationBean regBean) throws DatagioException {
 
         SystemUser systemUser = systemUserService.findByLogin(regBean.getLogin());

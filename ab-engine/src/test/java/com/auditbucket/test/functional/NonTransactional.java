@@ -2,7 +2,6 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
-import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
@@ -43,7 +42,7 @@ public class NonTransactional extends TestEngineBase{
 
     @Test
     public void crossReferenceTags() throws Exception {
-        SystemUserResultBean  su = registrationEP.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false)).getBody();
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
         Thread.sleep(500);
         Fortress fortressA = createFortress(su, "auditTest");
         TagInputBean tag = new TagInputBean("ABC", "Device", "sold");
@@ -83,11 +82,10 @@ public class NonTransactional extends TestEngineBase{
         Neo4jHelper.cleanDb(template);
         Transaction t = template.getGraphDatabase().beginTx();
         logger.info("Starting multipleFortressUserRequestsThreaded");
-        String uname = "mike";
         // Assume the user has now logged in.
         //org.neo4j.graphdb.Transaction t = graphDatabaseService.beginTx();
         String company = "MFURT";
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(company, uname).setIsUnique(false));
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(company, mike_admin).setIsUnique(false));
         setSecurity();
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleFortressUserRequestsThreaded"));
@@ -107,7 +105,7 @@ public class NonTransactional extends TestEngineBase{
         ArrayList<Thread> threads = new ArrayList<>();
         int i = 0;
         while (i <= count) {
-            FuAction action = new FuAction(fortress, Integer.toString(i), "mike", latch);
+            FuAction action = new FuAction(fortress, Integer.toString(i), TestEngineBase.mike_admin, latch);
             actions.add(action);
             threads.add(new Thread(action));
             threads.get(i).start();
@@ -125,7 +123,7 @@ public class NonTransactional extends TestEngineBase{
         }
         // Check we only get one back
         // Not 100% sure this works
-        FortressUser fu = fortressService.getFortressUser(fortress, uname);
+        FortressUser fu = fortressService.getFortressUser(fortress, mike_admin);
         assertNotNull(fu);
 
     }

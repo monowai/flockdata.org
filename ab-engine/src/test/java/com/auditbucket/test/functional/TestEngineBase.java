@@ -27,23 +27,21 @@ import com.auditbucket.engine.repo.neo4j.model.FortressNode;
 import com.auditbucket.engine.service.*;
 import com.auditbucket.fortress.endpoint.FortressEP;
 import com.auditbucket.geography.endpoint.GeographyEP;
+import com.auditbucket.helper.JsonUtils;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
 import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.endpoint.TagEP;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.SystemUserService;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.neo4j.graphdb.Transaction;
@@ -67,8 +65,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
-import java.io.IOException;
 
 import static org.junit.Assert.*;
 
@@ -136,6 +132,9 @@ public class TestEngineBase {
     EngineConfig engineAdmin;
 
     @Autowired
+    QueryService queryService;
+
+    @Autowired
     WhatService whatService;
 
     @Autowired
@@ -161,25 +160,31 @@ public class TestEngineBase {
     private static Logger logger = LoggerFactory.getLogger(TestEngineBase.class);
 
     // These have to be in simple-security.xml that is authorised to create registrations
-    static final String sally = "sally";
-    static final String mike = "mike";
+    static final String sally_admin = "sally";
+    static final String mike_admin = "mike";  // Admin role
+    static final String batch = "batch";
     static final String harry = "harry";
 
     static final String monowai = "Monowai"; // just a test constant
 
     static final ObjectMapper mapper = new ObjectMapper();
 
-    Authentication authDefault = new UsernamePasswordAuthenticationToken(mike, "123");
+    Authentication authDefault = new UsernamePasswordAuthenticationToken(mike_admin, "123");
 
-    public static Fortress createFortress(SystemUserResultBean su, String fortressName) throws Exception {
+    public static Fortress createFortress( SystemUser su) throws Exception {
+        return createFortress(su, ""+System.currentTimeMillis());
+    }
+    public static Fortress createFortress(SystemUser su, String fortressName) throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/fortress/")
         				.header("Api-Key", su.getApiKey())
                         //.("company", su.getCompany())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(getJSON(new FortressInputBean(fortressName, true)))
+                        .content(JsonUtils.getJSON(new FortressInputBean(fortressName, true)))
                         ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
 
-        return getBytesAsObject(response.getResponse().getContentAsByteArray(), FortressNode.class);
+        Fortress fortress =  JsonUtils.getBytesAsObject(response.getResponse().getContentAsByteArray(), FortressNode.class);
+        fortress.setCompany(su.getCompany());
+        return fortress;
     }
 
     @Rollback(false)
@@ -279,33 +284,11 @@ public class TestEngineBase {
         return System.currentTimeMillis() - thenTime;
     }
 
-    public byte[] getObjectAsJsonBytes(Object object) throws IOException {
-
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        return mapper.writeValueAsBytes(object);
-    }
-
-    public static <T> T getBytesAsObject (byte[] bytes, Class<T> clazz) throws IOException {
-        return mapper.readValue(bytes, clazz);
-    }
-    
-    public static String getJSON(Object obj) {
-    	ObjectMapper mapper = new ObjectMapper();
-    	String json = null;
-    	try {
-			json = mapper.writeValueAsString(obj);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	return json;
-    }
-
     @Test
     public void testJson() throws Exception {
         FortressNode fortressNode = new FortressNode(new FortressInputBean("testing"), new CompanyNode("testCompany"));
-        byte[] bytes = getObjectAsJsonBytes(fortressNode);
-        Fortress f = getBytesAsObject(bytes, FortressNode.class);
+        byte[] bytes = JsonUtils.getObjectAsJsonBytes(fortressNode);
+        Fortress f = JsonUtils.getBytesAsObject(bytes, FortressNode.class);
         assertNotNull(f);
         assertNull(f.getCompany());// JsonIgnored - Discuss!
         assertEquals("testing", f.getName());

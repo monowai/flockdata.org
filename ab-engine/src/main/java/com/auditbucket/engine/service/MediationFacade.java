@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
@@ -57,6 +58,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 /**
@@ -232,16 +234,32 @@ public class MediationFacade {
      * @throws com.auditbucket.helper.DatagioException
      *
      */
-    @Async
-    public Future<Long> reindex(Company company, String fortressName) throws DatagioException {
+    @Secured({"ROLE_AB_ADMIN"})
+    public Long reindex(Company company, String fortressName) throws DatagioException {
         Fortress fortress = fortressService.findByCode(company, fortressName);
+        Future<Long> result = reindexAsnc( fortress);
+
+        try {
+            return result.get();
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Unexpected", e);
+            return -1l;
+        }
+
+
+    }
+    @Async
+    public Future<Long>reindexAsnc (Fortress fortress) throws  DatagioException{
+
         if (fortress == null)
             throw new DatagioException("Fortress [" + fortress + "] could not be found");
         Long skipCount = 0l;
         long result = reindex(fortress, skipCount);
-        logger.info("Reindex Search request completed. Processed [" + result + "] headers for [" + fortressName + "]");
+        logger.info("Reindex Search request completed. Processed [" + result + "] headers for [" + fortress.getName() + "]");
         return new AsyncResult<>(result);
+
     }
+
 
     private long reindex(Fortress fortress, Long skipCount) {
 
@@ -261,6 +279,7 @@ public class MediationFacade {
      *
      */
     @Async
+    @Secured({"ROLE_AB_ADMIN"})
     public void reindexByDocType(Company company, String fortressName, String docType) throws DatagioException {
         Fortress fortress = fortressService.findByName(company, fortressName);
         if (fortress == null)
@@ -328,6 +347,7 @@ public class MediationFacade {
     @Autowired
     WhatService whatService;
 
+    @Secured({"ROLE_AB_ADMIN"})
     public void purge(String fortressName, String apiKey) throws DatagioException {
         if (fortressName == null)
             throw new DatagioException("Illegal value for fortress name");

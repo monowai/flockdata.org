@@ -20,14 +20,12 @@
 package com.auditbucket.fortress.endpoint;
 
 import com.auditbucket.engine.service.FortressService;
-import com.auditbucket.helper.ApiKeyHelper;
+import com.auditbucket.helper.CompanyResolver;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.track.model.DocumentType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +35,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -61,24 +60,24 @@ public class FortressEP {
     @ResponseBody
     public Collection<Fortress> findFortresses(HttpServletRequest request) throws DatagioException {
         // curl -u mike:123 -X GET  http://localhost:8080/ab/company/Monowai/fortresses
-        Company company = (Company) request.getAttribute("company");
+        Company company = CompanyResolver.resolveCompany(request);
         return fortressService.findFortresses(company);
     }
 
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Fortress> registerFortress( @RequestBody FortressInputBean fortressInputBean, HttpServletRequest request) throws DatagioException {
-        Company company = (Company) request.getAttribute("company");
+        Company company = CompanyResolver.resolveCompany(request);
         Fortress fortress = fortressService.registerFortress(company, fortressInputBean, true);
         fortressInputBean.setFortressKey(fortress.getFortressKey());
         return new ResponseEntity<>(fortress, HttpStatus.CREATED);
 
     }
 
-    @RequestMapping(value = "/{fortressName}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{code}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Fortress> getFortress(@PathVariable("fortressName") String fortressName, HttpServletRequest request) throws DatagioException {
-        Company company = (Company) request.getAttribute("company");
+    public ResponseEntity<Fortress> getFortress(@PathVariable("code") String fortressName, HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
         Fortress fortress = fortressService.findByCode(company, fortressName);
         if (fortress == null)
             return new ResponseEntity<>(fortress, HttpStatus.NOT_FOUND);
@@ -86,26 +85,15 @@ public class FortressEP {
             return new ResponseEntity<>(fortress, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{fortressName}/{userName}", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<FortressUser> getFortressUser(@PathVariable("fortressName") String fortressName, @PathVariable("userName") String userName,
-                                                        String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company company = securityHelper.getCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
-
-        FortressUser result = null;
-        Fortress fortress = fortressService.findByName(company, fortressName);
-
-        if (fortress == null) {
-            return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(fortressService.getFortressUser(fortress, userName), HttpStatus.OK);
-    }
-
     @RequestMapping(value = "/{code}/docs", method = RequestMethod.GET)
     @ResponseBody
-    public Collection<DocumentType> getDocumentTypes(@PathVariable("code") String code,
-                                                     String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company company = securityHelper.getCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
-        return fortressService.getFortressDocumentsInUse(company, code);
+    public Collection<String> getDocumentTypes(@PathVariable("code") String code, HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
+        Collection<DocumentType> docs = fortressService.getFortressDocumentsInUse(company, code);
+        Collection<String>result = new ArrayList<>();
+        for (DocumentType doc : docs) {
+            result.add(doc.getName());  // Neo4j lazy fetches these (ID only) resulting in an ugly result set
+        }
+        return result;
     }
 }
