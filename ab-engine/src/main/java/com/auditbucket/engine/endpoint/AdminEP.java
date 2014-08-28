@@ -1,5 +1,6 @@
 package com.auditbucket.engine.endpoint;
 
+import com.auditbucket.authentication.handler.ApiKeyInterceptor;
 import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.engine.service.MediationFacade;
 import com.auditbucket.helper.ApiKeyHelper;
@@ -48,7 +49,7 @@ public class AdminEP {
     private static Logger logger = LoggerFactory.getLogger(AdminEP.class);
 
     @RequestMapping(value = "/cache", method = RequestMethod.DELETE)
-    public void resetCache (){
+    public void resetCache() {
         engineConfig.resetCache();
 
     }
@@ -62,10 +63,7 @@ public class AdminEP {
 
     @ResponseBody
     @RequestMapping(value = "/health", method = RequestMethod.GET)
-    public Map<String, String> getHealth() throws DatagioException {
-        String user = securityHelper.getLoggedInUser();
-        if(user == null ||(user.equalsIgnoreCase("guest") || user.equalsIgnoreCase("anonymousUser")))
-            return null;
+    public Map<String, String> getHealth(HttpServletRequest request) throws DatagioException {
         return engineConfig.getHealth();
     }
 
@@ -90,6 +88,7 @@ public class AdminEP {
         mediationFacade.reindexByDocType(company, fortressName, docType);
         return new ResponseEntity<>("Request to reindex fortress document type has been received", HttpStatus.ACCEPTED);
     }
+
     private Company getCompany(String apiHeaderKey, String apiRequestKey) throws DatagioException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiRequestKey));
         if (company == null)
@@ -100,14 +99,13 @@ public class AdminEP {
     @ResponseBody
     @RequestMapping(value = "/{fortressName}", method = RequestMethod.DELETE)
     public ResponseEntity<String> purgeFortress(@PathVariable("fortressName") String fortressName,
-                                      String apiKey,
-                                      @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+                                                String apiKey,
+                                                @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
 
         mediationFacade.purge(fortressName, ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
-        return new ResponseEntity<>( "Purged " + fortressName, HttpStatus.OK);
+        return new ResponseEntity<>("Purged " + fortressName, HttpStatus.OK);
 
     }
-
 
 
 }
