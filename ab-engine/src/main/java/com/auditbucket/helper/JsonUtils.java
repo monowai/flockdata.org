@@ -17,14 +17,14 @@ import java.util.Map;
  * Time: 3:38 PM
  */
 public class JsonUtils {
+    private static final ObjectMapper mapper = new ObjectMapper();
     public static byte[] getObjectAsJsonBytes(Object object) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
+
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         return mapper.writeValueAsBytes(object);
     }
 
     public static <T> T getBytesAsObject (byte[] bytes, Class<T> clazz) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
         return mapper.readValue(bytes, clazz);
     }
 
@@ -32,7 +32,6 @@ public class JsonUtils {
         if (json == null || json.equals(""))
             return new ArrayList<>();
 
-        ObjectMapper mapper = new ObjectMapper();
         CollectionType javaType =
                 mapper.getTypeFactory().constructCollectionType(List.class, clazz);
         return mapper.readValue(json, javaType );
@@ -40,13 +39,11 @@ public class JsonUtils {
     }
 
     public static Map<String,Object> getAsMap(String json) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
         Map<String,Object> result = mapper.readValue(json, Map.class);
         return result;
     }
 
     public static String getJSON(Object obj) {
-    	ObjectMapper mapper = new ObjectMapper();
     	String json = null;
     	try {
 			json = mapper.writeValueAsString(obj);

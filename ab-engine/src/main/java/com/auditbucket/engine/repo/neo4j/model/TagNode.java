@@ -114,7 +114,7 @@ public class TagNode implements Tag {
         return properties.get(name);
     }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public Map<String, Object> getProperties() {
         return new HashMap<>(properties);
     }
