@@ -63,6 +63,11 @@ public class ProfileRegistration extends TestEngineBase {
 
     }
 
+    @Override
+    public void cleanUpGraph() {
+        super.cleanUpGraph();
+    }
+
     public static SystemUserResultBean registerSystemUser(RegistrationBean register) throws Exception {
 
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/profiles/")

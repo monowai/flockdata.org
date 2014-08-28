@@ -19,6 +19,7 @@
 
 package com.auditbucket.test.functional;
 
+import com.auditbucket.authentication.handler.ApiKeyInterceptor;
 import com.auditbucket.engine.service.MediationFacade;
 import com.auditbucket.helper.JsonUtils;
 import com.auditbucket.registration.bean.FortressInputBean;
@@ -89,13 +90,13 @@ public class TestAdminCalls extends TestEngineBase {
         // Assert that unauthorised user can't purge a fortress
         try {
             adminEP.purgeFortress(fo.getName(), null, null);
-            fail ("An authorisation exception should have been thrown");
-        } catch ( Exception e ){
+            fail("An authorisation exception should have been thrown");
+        } catch (Exception e) {
             // This is good
         }
         setSecurity();
-        adminEP.purgeFortress(fo.getName(),null, null);
-        assertNull( trackService.getHeader(ahKey));
+        adminEP.purgeFortress(fo.getName(), null, null);
+        assertNull(trackService.getHeader(ahKey));
         assertNull(fortressService.findByName(fo.getName()));
     }
 
@@ -121,13 +122,13 @@ public class TestAdminCalls extends TestEngineBase {
         // Assert that unauthorised user can't purge a fortress
         try {
             adminEP.purgeFortress(fo.getName(), null, null);
-            fail ("An authorisation exception should have been thrown");
-        } catch ( Exception e ){
+            fail("An authorisation exception should have been thrown");
+        } catch (Exception e) {
             // This is good
         }
         setSecurity();
         adminEP.purgeFortress(fo.getName(), su.getApiKey(), su.getApiKey());
-        assertNull( trackService.getHeader(ahKey));
+        assertNull(trackService.getHeader(ahKey));
         assertNull(fortressService.findByName(fo.getName()));
     }
 
@@ -157,28 +158,28 @@ public class TestAdminCalls extends TestEngineBase {
         // Assert that unauthorised user can't purge a fortress
         try {
             adminEP.purgeFortress(fo.getName(), null, null);
-            fail ("An authorisation exception should have been thrown");
-        } catch ( Exception e ){
+            fail("An authorisation exception should have been thrown");
+        } catch (Exception e) {
             // This is good
         }
         setSecurity();
         adminEP.purgeFortress(fo.getName(), su.getApiKey(), su.getApiKey());
-        assertNull( trackService.getHeader(ahKey));
+        assertNull(trackService.getHeader(ahKey));
         assertNull(fortressService.findByName(fo.getName()));
 
 
     }
+
     @Test
-    public void purgeFortressClearsDown() throws Exception{
+    public void purgeFortressClearsDown() throws Exception {
         setSecurity();
         SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
-        //String json = "{\"Athlete\":\"Katerina Neumannová\",\"Age\":\"28\",\"Country\":\"Czech Republic\",\"Year\":\"2002\",\"Closing Ceremony Date\":\"2/24/02\",\"Sport\":\"Cross Country Skiing\",\"Gold Medals\":\"0\",\"Silver Medals\":\"2\",\"Bronze Medals\":\"0\",\"Total Medals\":\"2\"}";
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("purgeFortressClearsDown", true));
 
         MetaInputBean trackBean = new MetaInputBean(fortress.getName(), "olivia@ast.com", "CompanyNode", null, "abc2");
         trackBean.addTag(new TagInputBean("anyName", "rlx"));
         trackBean.addTag(new TagInputBean("otherName", "rlxValue").setReverse(true));
-        LogInputBean logBean = new LogInputBean("me", DateTime.now(), TestHelper.getRandomMap() );
+        LogInputBean logBean = new LogInputBean("me", DateTime.now(), TestHelper.getRandomMap());
         trackBean.setLog(logBean);
         String resultA = mediationFacade.createHeader(trackBean, null).getMetaKey();
 
@@ -187,7 +188,7 @@ public class TestAdminCalls extends TestEngineBase {
         trackBean = new MetaInputBean(fortress.getName(), "olivia@ast.com", "CompanyNode", null, "abc3");
         trackBean.addTag(new TagInputBean("anyName", "rlx"));
         trackBean.addTag(new TagInputBean("otherName", "rlxValue").setReverse(true));
-        logBean = new LogInputBean("me", DateTime.now(), TestHelper.getRandomMap() );
+        logBean = new LogInputBean("me", DateTime.now(), TestHelper.getRandomMap());
         trackBean.setLog(logBean);
 
         String resultB = mediationFacade.createHeader(trackBean, su.getApiKey()).getMetaKey();
@@ -201,38 +202,38 @@ public class TestAdminCalls extends TestEngineBase {
         trackEP.putCrossReference(resultB, others, "rlxNameB", su.getApiKey(), su.getApiKey());
 
         mediationFacade.purge(fortress.getName(), su.getApiKey());
-        assertNull ( trackService.getHeader(resultA) );
-        assertNull ( trackService.getHeader(resultB) );
+        assertNull(trackService.getHeader(resultA));
+        assertNull(trackService.getHeader(resultB));
 
     }
 
     @Test
-    public void testPing(){
+    public void testPing() {
         assertTrue(adminEP.getPing().equalsIgnoreCase("pong!"));
     }
 
     @Test
-    public void testHealth() throws Exception{
+    public void testHealth() throws Exception {
         setSecurity();
         SystemUser su = regService.registerSystemUser(new RegistrationBean(mike_admin, "healthCheck"));
         Map<String, Object> results = getHealth(su);
         assertFalse(results.isEmpty());
-        assertEquals("!Unreachable! Connection refused", results.get("ab-search" ));
+        assertEquals("!Unreachable! Connection refused", results.get("ab-search"));
         setSecurityEmpty();
-        try {
-            adminEP.getHealth();// Not authorised so should fail
-            fail("Security Exception not thrown");
-        } catch (SecurityException se){
-           logger.info("Security Exception - nice!");
-        }
+        mockMvc.perform(MockMvcRequestBuilders.get("/admin/health/")
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
     }
-    public static Map<String,Object> getHealth(SystemUser su) throws Exception {
-        MvcResult response =   mockMvc.perform(MockMvcRequestBuilders.get("/admin/health/")
-                        .header("Api-Key", su.getApiKey())
+
+    public static Map<String, Object> getHealth(SystemUser su) throws Exception {
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get("/admin/health/")
+                        .header(ApiKeyInterceptor.API_KEY, (su != null ? su.getApiKey() : ""))
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String json = response.getResponse().getContentAsString();
 
         return JsonUtils.getAsMap(json);
     }
+
+
 }

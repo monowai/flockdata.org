@@ -19,7 +19,7 @@ public class SystemUserResultBean {
         this.apiKey = su.getApiKey();
         this.name = su.getName();
         this.login = su.getLogin();
-//        this.companyName = su.getCompany().getName();
+        this.companyName = su.getCompany().getName();
 
     }
 

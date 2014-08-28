@@ -23,9 +23,6 @@ import com.auditbucket.dao.TrackDao;
 import com.auditbucket.helper.VersionHelper;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.search.model.PingResult;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,7 +114,15 @@ public class EngineConfig {
             return "";
         return (isMultiTenanted() ? company.getCode() : "");
     }
+//    @Secured({"ROLE_AB_ADMIN"})
+//    public Map<String, String> getHealthSecured() {
+//        return getHealth();
+//    }
 
+    /**
+     * Only users with a pre-validated api-key should be calling this
+     * @return system configuration details
+     */
     public Map<String, String> getHealth() {
         if ( System.getProperty("neo4j")!=null )
             logger.warn("[-Dneo4j] is now an unsupported property. Ignoring this setting");
@@ -153,18 +158,6 @@ public class EngineConfig {
     }
 
 
-    private void doHealth() {
-        ObjectMapper om = new ObjectMapper();
-        try {
-            ObjectWriter or = om.writerWithDefaultPrettyPrinter();
-            logger.info("\r\n" + or.writeValueAsString(getHealth()));
-
-        } catch (JsonProcessingException e) {
-
-            logger.error("doHealth", e);
-        }
-    }
-
     public boolean isMultiTenanted() {
         return multiTenanted;
     }
@@ -185,7 +178,7 @@ public class EngineConfig {
 
     /**
      * Should be disabled for testing purposes
-     * @param conceptsEnabled
+     * @param conceptsEnabled if true, concepts will be created in a separate thread when headers are tracked
      */
     public void setConceptsEnabled(boolean conceptsEnabled) {
         this.conceptsEnabled = conceptsEnabled;
@@ -198,4 +191,5 @@ public class EngineConfig {
     public boolean isDuplicateRegistration() {
         return duplicateRegistration;
     }
+
 }
