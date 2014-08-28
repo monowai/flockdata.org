@@ -11,8 +11,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.fail;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -80,7 +78,7 @@ public class ProfileRegistration extends TestEngineBase {
 
     public static SystemUserResultBean getMe() throws Exception {
 
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get("/profiles/me")
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get("/profiles/me/")
                         .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
 

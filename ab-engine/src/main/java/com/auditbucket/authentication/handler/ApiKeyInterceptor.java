@@ -26,12 +26,12 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
                              HttpServletResponse response, Object handler) throws Exception {
         String apiKey = request.getHeader(API_KEY);
 
-        if ( apiKey == null ) {
+        if ( apiKey == null || apiKey.equals("") ||apiKey.equals("{{api-key}}")) {
             SystemUser su = securityHelper.getSysUser(false);
             if ( su != null ) {
-                apiKey = su.getApiKey();
                 if (su.getCompany() != null) {
                     request.setAttribute(COMPANY, su.getCompany());
+                    request.setAttribute(API_KEY, su.getApiKey());
                     return true;
                 }
 

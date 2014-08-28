@@ -340,7 +340,6 @@ public class TestEngineBase {
 		return System.currentTimeMillis() - thenTime;
 	}
 
-	@Test
 	public void testJson() throws Exception {
 		FortressNode fortressNode = new FortressNode(new FortressInputBean(
 				"testing"), new CompanyNode("testCompany"));
