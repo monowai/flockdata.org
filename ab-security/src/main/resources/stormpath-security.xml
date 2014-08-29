@@ -36,8 +36,8 @@
     <beans:bean id="groupRoleGrantedAuthoritiesMap" class="java.util.HashMap" scope="prototype" >
         <beans:constructor-arg>
             <beans:map key-type="java.lang.String" value-type="java.util.List">
-            	<beans:entry key="${ab.auth.stormpath.userrole}" value="ROLE_AB_USER" />
-            	<beans:entry key="${ab.auth.stormpath.adminrole}" value="ROLE_AB_ADMIN" />
+            	<beans:entry key="${ab.auth.stormpath.group.user}" value="ROLE_AB_USER" />
+            	<beans:entry key="${ab.auth.stormpath.group.admin}" value="ROLE_AB_ADMIN" />
             </beans:map>
         </beans:constructor-arg>
     </beans:bean>
