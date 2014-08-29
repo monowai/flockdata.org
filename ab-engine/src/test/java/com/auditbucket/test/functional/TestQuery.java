@@ -21,6 +21,7 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
 import com.auditbucket.helper.JsonUtils;
+import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.bean.TagInputBean;
@@ -28,6 +29,7 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.track.bean.DocumentResultBean;
 import com.auditbucket.track.bean.MetaInputBean;
+
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.http.MediaType;
@@ -62,11 +64,11 @@ public class TestQuery extends TestEngineBase {
         SystemUser suA = regService.registerSystemUser(new RegistrationBean("CompanyA", "userA"));
         SystemUser suB = regService.registerSystemUser(new RegistrationBean("CompanyB", "userB"));
 
-        Fortress coAfA = createFortress(suA, "coAfA");
-        Fortress coAfB = createFortress(suA, "coAfB");
+        Fortress coAfA = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("coAfA"));
+        Fortress coAfB = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("coAfB"));
 
-        Fortress coBfA = createFortress(suB, "coBfA");
-        Fortress coBfB = createFortress(suB, "coBfB");
+        Fortress coBfA = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("coBfA"));
+        Fortress coBfB = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("coBfB"));
 
         setSecurity();
         //

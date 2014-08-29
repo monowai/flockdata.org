@@ -27,6 +27,7 @@ import com.auditbucket.test.utils.TestHelper;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
+
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -49,6 +50,7 @@ public class TestForceDuplicateRlx extends TestEngineBase {
     public void uniqueChangeRLXUnderLoad() throws Exception {
         logger.info("uniqueChangeRLXUnderLoad started");
         regService.registerSystemUser(new RegistrationBean("TestTrack", mike_admin).setIsUnique(false));
+        Thread.sleep(1000);
 
         int auditMax = 10;
         int logMax = 10;

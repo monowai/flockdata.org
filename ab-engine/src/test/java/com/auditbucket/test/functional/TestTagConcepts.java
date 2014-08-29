@@ -115,6 +115,7 @@ public class TestTagConcepts extends TestEngineBase {
         Transaction t = beginManualTransaction();
         setSecurity();
         SystemUser su = regService.registerSystemUser(new RegistrationBean("fortressConcepts", mike_admin));
+        Thread.sleep(1000);
         Assert.assertNotNull(su);
 
         Fortress fortA = fortressService.registerFortress("fortressConcepts");

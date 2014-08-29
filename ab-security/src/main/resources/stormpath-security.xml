@@ -23,21 +23,31 @@
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xmlns:cache="http://www.springframework.org/schema/cache"
              xsi:schemaLocation="http://www.springframework.org/schema/beans
-                    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                    http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
                     http://www.springframework.org/schema/security
                     http://www.springframework.org/schema/security/spring-security-3.2.xsd http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd">
 
     <beans:bean id="userProfileService"
                 class="com.auditbucket.authentication.stormpath.StormPathUser" />
 
+    <beans:bean id="stormpathClient" class="com.stormpath.spring.security.client.ClientFactory" >
+        <beans:property name="apiKeyFileLocation" value="${ab.auth.stormpath.apiKeyFile}" />
+        <beans:property name="cacheManager" ref="spCache" />
+    </beans:bean>
+
+    <beans:bean id="authenticationProvider" class="com.stormpath.spring.security.provider.StormpathAuthenticationProvider">
+        <beans:property name="client" ref="stormpathClient" />
+        <beans:property name="applicationRestUrl" value="${ab.auth.stormpath.application}"/>
+        <!-- When mapping to domain-specific role names (ie. using GroupRoleGrantedAuthorityResolver) -->
+        <beans:property name="groupGrantedAuthorityResolver" ref="groupGrantedAuthorityResolver" />
+    </beans:bean>
+
     <!-- When mapping to domain-specific role names (ie. using GroupRoleGrantedAuthorityResolver) -->
     <beans:bean id="groupRoleGrantedAuthoritiesMap" class="java.util.HashMap" scope="prototype" >
         <beans:constructor-arg>
             <beans:map key-type="java.lang.String" value-type="java.util.List">
-            	<beans:entry key="https://api.stormpath.com/v1/groups/3qpEnZ8VpyZLCsiy2XQqGk" value="ROLE_AB_USER" />
-            	<beans:entry key="https://api.stormpath.com/v1/groups/324drD4041fjlCvLCBVviw" value="ROLE_AB_ADMIN" />
-            	<beans:entry key="https://api.stormpath.com/v1/groups/1hturKrwIRBs8Tz6y1WD0Q" value="ROLE_AB_ADMIN" />
-            	<beans:entry key="https://api.stormpath.com/v1/groups/5GScR1JCr8Yh2ldJ3xKodj" value="ROLE_AB_ADMIN" />
+            	<beans:entry key="${ab.auth.stormpath.group.user}" value="ROLE_AB_USER" />
+            	<beans:entry key="${ab.auth.stormpath.group.admin}" value="ROLE_AB_ADMIN" />
             </beans:map>
         </beans:constructor-arg>
     </beans:bean>
@@ -45,20 +55,6 @@
     <!-- When mapping to domain-specific role names -->
     <beans:bean id="groupGrantedAuthorityResolver" class="com.auditbucket.authentication.stormpath.GroupRoleGrantedAuthorityResolver" >
         <beans:constructor-arg ref="groupRoleGrantedAuthoritiesMap" />
-    </beans:bean>
-
-    <beans:bean id="authenticationProvider" class="com.stormpath.spring.security.provider.StormpathAuthenticationProvider">
-        <beans:property name="client" ref="stormpathClient" />
-        <beans:property name="applicationRestUrl" value="https://api.stormpath.com/v1/applications/1fkd6tZAvh2bsFndpujveo"/>
-        <!-- When mapping to domain-specific role names (ie. using GroupRoleGrantedAuthorityResolver) -->
-        <beans:property name="groupGrantedAuthorityResolver" ref="groupGrantedAuthorityResolver" />
-    </beans:bean>
-
-    <beans:bean id="stormpathClient" class="com.stormpath.spring.security.client.ClientFactory" >
-        <!--ToDo: DAT-185 Should be a default in config.properties, but should not be path'd in this manner in this file
-                  eg. ${ab.auth.stormpath.keyfile}-->
-        <beans:property name="apiKeyFileLocation" value="#{systemProperties['user.home']}/.stormpath/apiKey.properties" />
-        <beans:property name="cacheManager" ref="spCache" />
     </beans:bean>
 
     <!-- We are using our own permission evaluation for WildcardPermissions -->

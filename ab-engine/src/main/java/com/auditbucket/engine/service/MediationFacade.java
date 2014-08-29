@@ -131,6 +131,7 @@ public class MediationFacade {
 
         for (List<MetaInputBean> metaInputBeans : splitList) {
 
+            @Deprecated // We should favour spring-retry for this kind of activity
             class DLCommand implements Command {
                 Iterable<MetaInputBean> headers = null;
                 Iterable<TrackResultBean> resultBeans;
@@ -141,8 +142,17 @@ public class MediationFacade {
 
                 @Override
                 public Command execute() throws DatagioException, IOException {
+                    // ToDo: DAT-169 This needs to be dealt with via SpringIntegration and persistent messaging
+                    //       weirdly, the integration is with ab-engine
+                    // DLCommand and DeadLockRetry need to be removed
+
+                    // This happens before we create headers to minimize IO on the graph
                     schemaService.createDocTypes(headers, company, fortress);
+                    // Ensure the headers and tags are created
+                    // this routine is prone to deadlocks under load
                     resultBeans = trackService.createHeaders(company, fortress, headers);
+                    // This routine will also distribute the changes to ab-search
+                    // but it should only happen after headers are created successfully and via integration
                     logProcessor.processLogs(company, resultBeans);
                     return this;
                 }
@@ -180,11 +190,16 @@ public class MediationFacade {
             TrackResultBean result = null;
 
             @Override
+            @Deprecated
             public Command execute() throws DatagioException, IOException {
                 // ToDo: DAT-153 - This ain't very clever if the server crashes
                 //     all of this should be invoked via spring integration against ab-engine ?
+                // ToDo: DAT-169 This needs to be dealt with via SpringIntegration and persistent messaging
+                // DLCommand and DeadLockRetry need to be removed
+
                 ArrayList<MetaInputBean> inputBeans = new ArrayList<>();
                 inputBeans.add(inputBean);
+
                 schemaService.createDocTypes(inputBeans, company, fortress);
                 TrackResultBean trackResult = trackService.createHeader(company, fortress, inputBean);
                 trackResult.setLogInput(inputBean.getLog());
@@ -212,20 +227,6 @@ public class MediationFacade {
         logProcessor.distributeChange(company, trackResult);
         return trackResult;
     }
-
-
-//    /**
-//     * Will locate the track header from the supplied input
-//     *
-//     * @param company valid company the caller can operate on
-//     * @param input   payload containing at least the metaKey
-//     * @return result of the log
-//     */
-//    public TrackResultBean processLogForCompany(Company company, LogInputBean input) throws DatagioException, IOException {
-//        TrackResultBean trackResult = logProcessor.writeLog(company, input.getMetaKey(), input);
-//        logProcessor.distributeChange(company, trackResult);
-//        return trackResult;
-//    }
 
     /**
      * Rebuilds all search documents for the supplied fortress
@@ -364,8 +365,8 @@ public class MediationFacade {
         logger.info("Purging fortress [{}] on behalf of [{}]", fortress, su.getLogin());
 
         String indexName = "ab." + fortress.getCompany().getCode() + "." + fortress.getCode();
-        trackService.purge(fortress);
 
+        trackService.purge(fortress);
         whatService.purge(indexName);
         fortressService.purge(fortress);
         engineConfig.resetCache();

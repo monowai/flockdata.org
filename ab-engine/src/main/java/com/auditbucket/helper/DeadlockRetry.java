@@ -36,6 +36,7 @@ import java.io.IOException;
  * Time: 9:13 AM
  * To change this template use File | Settings | File Templates.
  */
+@Deprecated
 public class DeadlockRetry {
     private static Logger logger = LoggerFactory.getLogger(DeadlockRetry.class);
 
