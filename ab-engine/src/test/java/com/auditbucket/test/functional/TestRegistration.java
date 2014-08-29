@@ -103,16 +103,11 @@ public class TestRegistration extends TestEngineBase {
     public void uniqueFortressesForDifferentCompanies() throws Exception {
         setSecurity("mike");
 
-<<<<<<< HEAD
-        // ToDo: Modify this call to use the new approach
-=======
->>>>>>> develop
         SystemUser su = regService.registerSystemUser(new RegistrationBean("CompanyAA", mike_admin).setIsUnique(false));
         Company company = securityHelper.getCompany(su.getApiKey());
 
         //this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
 
-<<<<<<< HEAD
         Fortress fA = fortressService.registerFortress(company, new FortressInputBean("FortressA"));
         Fortress fB = fortressService.registerFortress(company, new FortressInputBean("FortressB"));
         Fortress fC = fortressService.registerFortress(company, new FortressInputBean("FortressC"));
@@ -120,15 +115,6 @@ public class TestRegistration extends TestEngineBase {
         fortressService.registerFortress(company, new FortressInputBean("FortressC")); // Forced duplicate should be ignored
 
         Collection<Fortress> fortresses = fortressService.findFortresses(company);
-=======
-        Fortress fA = createFortress(su, "FortressA");
-        Fortress fB = createFortress(su, "FortressB");
-        Fortress fC = createFortress(su, "FortressC");
-
-        createFortress(su, "FortressC");// Forced duplicate should be ignored
-
-        Collection<Fortress> fortresses = findFortresses(su);
->>>>>>> develop
         assertFalse(fortresses.isEmpty());
         assertEquals(3, fortresses.size());
 
@@ -228,17 +214,10 @@ public class TestRegistration extends TestEngineBase {
 
         Company company = securityHelper.getCompany(systemUser.getApiKey());
         
-<<<<<<< HEAD
         Fortress fortress = fortressService.registerFortress(company, new FortressInputBean("auditbucket"));
         assertNotNull(fortress);
 
         Collection<Fortress> fortressList = fortressService.findFortresses(company);
-=======
-        Fortress fortress = createFortress(systemUser, "auditbucket");
-        assertNotNull(fortress);
-
-        Collection<Fortress> fortressList = findFortresses(systemUser);
->>>>>>> develop
         assertNotNull(fortressList);
         assertEquals(1, fortressList.size());
 
