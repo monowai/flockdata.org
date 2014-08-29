@@ -27,6 +27,7 @@ import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;
+import com.auditbucket.track.bean.DocumentResultBean;
 import com.auditbucket.track.model.DocumentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -87,13 +88,8 @@ public class FortressEP {
 
     @RequestMapping(value = "/{code}/docs", method = RequestMethod.GET)
     @ResponseBody
-    public Collection<String> getDocumentTypes(@PathVariable("code") String code, HttpServletRequest request) throws DatagioException {
+    public Collection<DocumentResultBean> getDocumentTypes(@PathVariable("code") String code, HttpServletRequest request) throws DatagioException {
         Company company = CompanyResolver.resolveCompany(request);
-        Collection<DocumentType> docs = fortressService.getFortressDocumentsInUse(company, code);
-        Collection<String>result = new ArrayList<>();
-        for (DocumentType doc : docs) {
-            result.add(doc.getName());  // Neo4j lazy fetches these (ID only) resulting in an ugly result set
-        }
-        return result;
+        return  fortressService.getFortressDocumentsInUse(company, code);
     }
 }

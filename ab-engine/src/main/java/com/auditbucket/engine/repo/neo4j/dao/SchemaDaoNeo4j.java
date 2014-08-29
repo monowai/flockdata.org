@@ -10,6 +10,7 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.Relationship;
 import com.auditbucket.track.bean.ConceptInputBean;
+import com.auditbucket.track.bean.DocumentResultBean;
 import com.auditbucket.track.model.Concept;
 import com.auditbucket.track.model.DocumentType;
 import org.slf4j.Logger;
@@ -221,7 +222,7 @@ public class SchemaDaoNeo4j implements SchemaDao {
     }
 
     @Override
-    public Set<DocumentType> findConcepts(Company company, Collection<String> docNames, boolean withRelationships) {
+    public Set<DocumentResultBean> findConcepts(Company company, Collection<String> docNames, boolean withRelationships) {
 
         // This is a hack to support DAT-126. It should be resolved via a query. At the moment, it's working, but that's it/
         // Query should have the Concepts that the user is interested in as well.
@@ -231,7 +232,7 @@ public class SchemaDaoNeo4j implements SchemaDao {
         // where a.name="Sales" and c.name="Device"
         // with a, c, kr match (a)-[:DOC_RELATIONSHIP]-(t:Relationship) return a,t
 
-        TreeSet<DocumentType> fauxDocuments = new TreeSet<>();
+        TreeSet<DocumentResultBean> fauxDocuments = new TreeSet<>();
         Set<DocumentType> documents;
         if (docNames == null)
             documents = documentTypeRepo.findAllDocuments(company);
@@ -240,7 +241,7 @@ public class SchemaDaoNeo4j implements SchemaDao {
 
         for (DocumentType document : documents) {
             template.fetch(document.getFortress());
-            DocumentType fauxDocument = new DocumentTypeNode(document);
+            DocumentResultBean fauxDocument = new DocumentResultBean(document);
 
             fauxDocuments.add(fauxDocument);
             template.fetch(document.getConcepts());
@@ -249,7 +250,7 @@ public class SchemaDaoNeo4j implements SchemaDao {
 
                     template.fetch(concept);
                     template.fetch(concept.getRelationships());
-                    ConceptNode fauxConcept = new ConceptNode(concept.getName());
+                    Concept fauxConcept = new ConceptNode(concept.getName());
 
                     fauxDocument.add(fauxConcept);
                     Collection<Relationship> fauxRlxs = new ArrayList<>();

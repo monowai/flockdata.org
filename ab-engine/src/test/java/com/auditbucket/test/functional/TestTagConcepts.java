@@ -24,6 +24,7 @@ import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.Relationship;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.track.bean.DocumentResultBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.model.Concept;
 import com.auditbucket.track.model.DocumentType;
@@ -95,7 +96,7 @@ public class TestTagConcepts extends TestEngineBase {
         Assert.assertEquals("Docs In Use not supporting 'null args' for fortress'", 3, queryService.getDocumentsInUse(su.getCompany(), null).size());
 
         // DAT-112
-        Set<DocumentType> found = validateConcepts("DocA", su, 1);
+        Set<DocumentResultBean> found = validateConcepts("DocA", su, 1);
         Assert.assertEquals(1, found.size());
         Assert.assertEquals(1, found.iterator().next().getConcepts().size());
         found = validateConcepts("DocB", su, 1);
@@ -140,7 +141,7 @@ public class TestTagConcepts extends TestEngineBase {
 
         Collection<String> docs = new ArrayList<>();
         docs.add("DocA");
-        Collection<DocumentType> documentTypes = queryService.getConcepts(su.getCompany(), docs);
+        Collection<DocumentResultBean> documentTypes = queryService.getConcepts(su.getCompany(), docs);
         org.junit.Assert.assertNotNull(documentTypes);
         assertEquals(1, documentTypes.size());
 
@@ -155,7 +156,7 @@ public class TestTagConcepts extends TestEngineBase {
 
         Boolean foundCustomer= false, foundRep= false;
 
-        for (DocumentType docTypes : documentTypes) {
+        for (DocumentResultBean docTypes : documentTypes) {
             for ( Concept concept : docTypes.getConcepts()) {
                 if (concept.getName().equals("Customer")){
                     foundCustomer = true;
@@ -211,8 +212,8 @@ public class TestTagConcepts extends TestEngineBase {
 
         Collection<String>docs = new ArrayList<>();
         docs.add("DocA");
-        Set<DocumentType> docTypes = queryService.getConceptsWithRelationships(su.getCompany(), docs);
-        for (DocumentType docType : docTypes) {
+        Set<DocumentResultBean> docTypes = queryService.getConceptsWithRelationships(su.getCompany(), docs);
+        for (DocumentResultBean docType : docTypes) {
             Collection<Concept>concepts = docType.getConcepts();
             for (Concept concept : concepts) {
                 Collection<Relationship> relationships  =concept.getRelationships();
@@ -261,8 +262,8 @@ public class TestTagConcepts extends TestEngineBase {
         docs.add(docB.getName());
         boolean docAFound = false;
         boolean docBFound = false;
-        Set<DocumentType> docTypes = queryService.getConceptsWithRelationships(su.getCompany(), docs);
-        for (DocumentType docType : docTypes) {
+        Set<DocumentResultBean> docTypes = queryService.getConceptsWithRelationships(su.getCompany(), docs);
+        for (DocumentResultBean docType : docTypes) {
             Collection<Concept>concepts = docType.getConcepts();
             for (Concept concept : concepts) {
                 Collection<Relationship> relationships  =concept.getRelationships();
@@ -326,8 +327,8 @@ public class TestTagConcepts extends TestEngineBase {
         validateConcepts(docs, su, 2);
         docs.clear();
         docs.add(promo.getName());
-        Set<DocumentType>foundDocs = validateConcepts(docs, su, 1);
-        for (DocumentType foundDoc : foundDocs) {
+        Set<DocumentResultBean>foundDocs = validateConcepts(docs, su, 1);
+        for (DocumentResultBean foundDoc : foundDocs) {
             Assert.assertEquals("Promotion", foundDoc.getName());
             Collection<Concept> concepts = foundDoc.getConcepts();
             Assert.assertEquals(1, concepts.size());
@@ -375,8 +376,8 @@ public class TestTagConcepts extends TestEngineBase {
         validateConcepts(docs, su, 1);
         docs.clear();
         docs.add(claim.getName());
-        Set<DocumentType>foundDocs = validateConcepts(docs, su, 1);
-        for (DocumentType foundDoc : foundDocs) {
+        Set<DocumentResultBean>foundDocs = validateConcepts(docs, su, 1);
+        for (DocumentResultBean foundDoc : foundDocs) {
             Assert.assertEquals("Claim", foundDoc.getName());
             Collection<Concept> concepts = foundDoc.getConcepts();
             Assert.assertEquals(1, concepts.size());
@@ -389,15 +390,15 @@ public class TestTagConcepts extends TestEngineBase {
         Assert.assertEquals(0, schemaService.getCompanyDocumentsInUse(fortress.getCompany()).size());
     }
 
-    private Set<DocumentType> validateConcepts(String document, SystemUser su, int expected) throws Exception{
+    private Set<DocumentResultBean> validateConcepts(String document, SystemUser su, int expected) throws Exception{
         Collection<String>docs = new ArrayList<>();
 
         docs.add(document);
         return validateConcepts(docs, su, expected);
     }
 
-    private Set<DocumentType> validateConcepts(Collection<String> docs, SystemUser su, int expected) throws Exception{
-        Set<DocumentType> concepts = queryService.getConcepts(su.getCompany(), docs, true);
+    private Set<DocumentResultBean> validateConcepts(Collection<String> docs, SystemUser su, int expected) throws Exception{
+        Set<DocumentResultBean> concepts = queryService.getConcepts(su.getCompany(), docs, true);
         String message = "Collection";
         if ( docs!=null && docs.size()==1 )
             message = docs.iterator().next();

@@ -95,7 +95,7 @@ public class AbRestClient  {
         this.NEW_HEADER = serverName + "/v1/track/";
         this.PING = serverName + "/v1/admin/ping/";
         this.REGISTER = serverName + "/v1/profiles/";
-        this.ME = serverName + "/v1/profiles/me";
+        this.ME = serverName + "/v1/profiles/me/";
         this.HEALTH = serverName + "/v1/admin/health/";
         this.CROSS_REFERENCES = serverName + "/v1/track/xref/";
         this.NEW_TAG = serverName + "/v1/tag/";

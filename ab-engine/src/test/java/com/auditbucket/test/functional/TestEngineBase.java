@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.neo4j.graphdb.Transaction;
@@ -91,6 +92,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:root-context.xml",
 		"classpath:apiDispatcher-servlet.xml" })
+@Ignore
 public class TestEngineBase {
 	@Autowired
 	FortressEP fortressEP;
@@ -197,15 +199,15 @@ public class TestEngineBase {
 			throws Exception {
 		MvcResult response = mockMvc
 				.perform(
-						MockMvcRequestBuilders
-								.post("/fortress/")
-								.header("Api-Key", su.getApiKey())
-								// .("company", su.getCompany())
-								.contentType(MediaType.APPLICATION_JSON)
-								.content(
-										JsonUtils
-												.getJSON(new FortressInputBean(
-														fortressName, true))))
+                        MockMvcRequestBuilders
+                                .post("/fortress/")
+                                .header("Api-Key", su.getApiKey())
+                                        // .("company", su.getCompany())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        JsonUtils
+                                                .getJSON(new FortressInputBean(
+                                                        fortressName, true))))
 				.andExpect(MockMvcResultMatchers.status().isCreated())
 				.andReturn();
 

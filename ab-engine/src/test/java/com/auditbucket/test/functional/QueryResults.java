@@ -27,6 +27,7 @@ import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.track.bean.DocumentResultBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -120,7 +121,7 @@ public class QueryResults  extends TestEngineBase {
         assertFalse(results.getResults().isEmpty());
         ArrayList<String>fortresses = new ArrayList<>();
         fortresses.add(fortress.getName());
-        Collection<DocumentTypeNode>documentTypes = TestQuery.getDocuments(su, fortresses);
+        Collection<DocumentResultBean>documentTypes = TestQuery.getDocuments(su, fortresses);
         assertFalse(documentTypes.isEmpty());
 
     }
