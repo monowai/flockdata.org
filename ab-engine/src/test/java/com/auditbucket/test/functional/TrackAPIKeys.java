@@ -1,6 +1,7 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.helper.DatagioException;
+import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
@@ -9,7 +10,9 @@ import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.MetaHeader;
+
 import junit.framework.Assert;
+
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.security.core.Authentication;
@@ -35,7 +38,7 @@ public class TrackAPIKeys extends TestEngineBase{
         SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
         SecurityContextHolder.getContext().setAuthentication(null);
         Assert.assertNotNull(su.getApiKey());
-        Fortress fortressA = createFortress(su, "testApiKeysWorkInPrecedence");
+        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("testApiKeysWorkInPrecedence"));
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
 
         // Fails due to NoAuth or key
@@ -86,7 +89,7 @@ public class TrackAPIKeys extends TestEngineBase{
         // No authorization - only API keys
         SecurityContextHolder.getContext().setAuthentication(null);
 
-        Fortress fortressA = createFortress(su, "apiCallsSecuredByAccessKey");
+        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("apiCallsSecuredByAccessKey"));
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC9990");
 
         LogInputBean log = new LogInputBean("harry", new DateTime(),  TestHelper.getRandomMap());
