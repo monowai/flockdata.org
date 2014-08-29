@@ -88,7 +88,7 @@ curl -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/
 ```
 ### See who you are
 ```
-curl -u batch:123 -X GET http://localhost:8080/ab-engine/v1/profiles/me
+curl -u batch:123 -X GET http://localhost:8080/ab-engine/v1/profiles/me/
 ```
 ### Create an Application Fortress
 This is one of your computer systems that you want to audit
@@ -106,7 +106,7 @@ curl -u batch:123 -H "Content-Type:application/json" -X POST http://localhost:80
   "callerRef":"myRef",
 
   "log": {  
-           		 "what": "{"BusinessData": "Your Text", "nestedObject": {"serviceMessage": "kool for kats"}}"
+           		 "what": {"BusinessData": "Your Text", "nestedObject": {"serviceMessage": "kool for kats"}}
   }
 }'
 ```
@@ -123,8 +123,8 @@ curl -H "Content-Type:application/json" -X POST http://localhost:9201/ab.*/_sear
 }'
 ````
 
-### Next steps for you!
-Figure out how to audit a record from the [API](https://github.com/monowai/auditbucket/wiki/Audit-Service-Calls) documentation. Understand and add [Tags](https://github.com/monowai/auditbucket/wiki/Tags). Process a batch of Audit records. Log a change.
+### Next steps....
+Figure out how to audit a record from the [API](http://www.monowai.com/wiki/pages/viewpage.action?pageId=13172790) documentation. Understand and add [Tags](http://www.monowai.com/wiki/pages/viewpage.action?pageId=13172831). Process a batch of changes. Log a single change to an existing header.
 
-You will probably want to look at the various Bean packages in [ab-common](../ab-common/src/main/java/com/auditbucket/audit/bean) to find the various properties you can set while we continue to enhance the documents!
+You will want to look at the various Bean packages in [ab-common](https://bitbucket.org/monowai/auditbucket/src/abdb12458b5537567546aa2ba6ffe01bc83cc521/ab-common/?at=develop) to find the various properties you can set while we continue to enhance the documents.
 
