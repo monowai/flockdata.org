@@ -56,12 +56,13 @@ public class FortressNode implements Fortress {
     private String languageTag;
 
     protected FortressNode() {
-        getTimeZone();
-        getLanguageTag();
     }
 
     public FortressNode(FortressInputBean fortressInputBean, Company ownedBy) {
         this();
+        getTimeZone();
+        getLanguageTag();
+
         setName(fortressInputBean.getName());
         setSearchActive(fortressInputBean.getSearchActive());
         setCompany(ownedBy);
@@ -82,7 +83,6 @@ public class FortressNode implements Fortress {
         return fortressKey;
     }
 
-    @JsonIgnore
     public Long getId() {
         return id;
     }
@@ -155,7 +155,6 @@ public class FortressNode implements Fortress {
         this.timeZone = timeZone;
     }
 
-    @JsonIgnore
     public String getCode() {
         return code;
     }

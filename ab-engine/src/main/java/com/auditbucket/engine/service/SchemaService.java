@@ -24,6 +24,7 @@ import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.track.bean.ConceptInputBean;
+import com.auditbucket.track.bean.DocumentResultBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.DocumentType;
@@ -114,11 +115,11 @@ public class SchemaService {
      *
      * @param company           who the caller works for
      * @param documents         labels to restrict the search by
-     * @param withRelationships
+     * @param withRelationships should the relationships also be returned
      * @return tags that are actually in use
      */
 
-    public Set<DocumentType> findConcepts(Company company, Collection<String> documents, boolean withRelationships) {
+    public Set<DocumentResultBean> findConcepts(Company company, Collection<String> documents, boolean withRelationships) {
 
         return schemaDao.findConcepts(company, documents, withRelationships);
 
@@ -133,8 +134,13 @@ public class SchemaService {
         schemaDao.createDocTypes(docTypes,  fortress);
     }
     
-    public Collection<DocumentType> getCompanyDocumentsInUse(Company company) {
-        return schemaDao.getCompanyDocumentsInUse(company);
+    public Collection<DocumentResultBean> getCompanyDocumentsInUse(Company company) {
+        Collection<DocumentResultBean> results = new ArrayList<>();
+        Collection<DocumentType> rawDocs = schemaDao.getCompanyDocumentsInUse(company);
+        for (DocumentType rawDoc : rawDocs) {
+            results.add(new DocumentResultBean(rawDoc));
+        }
+        return results;
     }
 
     public void purge(Fortress fortress) {

@@ -4,13 +4,11 @@ Welcome to AuditBucket's ab-engine meta-data service. This service facade coordi
 
 You only need to interact with ab-engine. By default, ab-engine will also write "the latest" change to your information in to [ab-search](../ab-search). Is is also possible to write via ab-engine directly to ElasticSearch and bypass the exploration if your dataset does not have any degree of connection. Some statistical dumps can be like this.
 
-You can control how you want to connect to neo4j with the '-Dneo4j' command line switch. Either java or rest for embedded or http respectively.
-
 When ab-engine runs embedded Neo4J the REST api is exposed on port 7474 so exploration tools continue to work. You can also interact with the database via neo4j-shell as part of the standard community distribution of Neo4J. 
 
 The concepts and calls are explained in the [Audit Service Call Wiki](https://github.com/monowai/auditbucket/wiki/Audit-Service-Calls)
 
-Please see our [PostMan API gist](https://gist.github.com/monowai/8077021)  for a quick and conenient way of making REST calls to AuditBucket.
+Please see our [PostMan API gist](https://gist.github.com/monowai/8077021)  for a quick and convenient way of making REST calls to AuditBucket.
 
 ## Dependencies
 Only mandatory dependency at this time is REDIS or RIAK as a KV store; This should be installed separately according to your OS instructions. It is recommended that you install RabbitMQ in order to use reliable AMQP cooms between ab-engine an ab-search, however if you are just experimenting, then http integration is fine.
@@ -20,20 +18,20 @@ Start your supported KV Store
 ## Installation
 Get the source
 ```
-$ git clone https://github.com/monowai/auditbucket
+$ git clone https://bitbucket.org/monowai/auditbucket
 ```
 
 Build with dependencies, including running the tests
 ```
-$ mvn install -Dab.integration=http -Dneo4j=java
+$ mvn install
 ```
 
 Run the tests
 ```
-$ mvn -Dtest=Test* test -Dab.integration=http -Dneo4j=java
+$ mvn test
 ```
 
-You may see an error suggesting that RIAK could not be found. This can be ignored or remidied by starting RIAK.
+You may see an error suggesting that RIAK could not be found. This can be ignored or remedied by starting RIAK.
 
 ## Configuration
 ab-engine exchanges information with ab-search over http or amqp integration; you control which with the '-Dab.integration' property at boot time.
@@ -71,12 +69,12 @@ HTTP, REST and JSON is the lingua franca.
 ### Authorisation
 AuditBucket supports 2 options in terms of security configuration.
 Default is Spring security. This is chosen by setting -Dab.security.provider=simple (case sensitive) 
-Note that the user id is under simple=security is 'mike' and the login is '123'. This is basic configuration stuff hacked in to simple-security.xml.  
+Note that the user id is under simple=security is 'batch' and the password is '123'. This simple configuration can be found in simple-security.xml.
 
 Optionally, we can start AuditBucket with Stormpath as the security provider.
 This is chosen by setting -Dab.security.provider=stormpath (case sensitive) while booting ab-engine.
 
-You are free to configure your own security domain, or help me out with an OAuth configuration ;)
+You are free to configure your own security domain, or help us out with an OAuth configuration ;)
 
 ## Tracking Data
 By default, information is tracked in Neo4J and ElasticSearch. You can, at the point of POST, request that the information be only tracked in Neo4j or only ElasticSearch. This depends on your use case. You might be simply tracking event type information that never changes, so simply storing in ElasticSearch is functional enough as the data is not require the meshing of connections.
@@ -86,21 +84,21 @@ In the examples below, /ab-engine/ represents the application context with the e
 
 ###Register yourself with an account
 ```
-curl -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/v1/profiles/ -d '{"name":"mike", "companyName":"Monowai","login":"whocares"}'
+curl -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/v1/profiles/ -d '{"name":"batch", "companyName":"Monowai","login":"whocares"}'
 ```
 ### See who you are
 ```
-curl -u mike:123 -X GET http://localhost:8080/ab-engine/v1/profiles/me
+curl -u batch:123 -X GET http://localhost:8080/ab-engine/v1/profiles/me
 ```
 ### Create an Application Fortress
 This is one of your computer systems that you want to audit
 ```
-curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/v1/fortress/ -d '{"name": "demo-app","searchActive": true}'
+curl -u batch:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/v1/fortress/ -d '{"name": "demo-app","searchActive": true}'
 ```
 ### Track a Data Event
 You should have started [ab-search](../ab-search) before doing this if you're not using RabbitMQ otherwise expect a communications error!
 ```
-curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/v1/track/ -d '{
+curl -u batch:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/v1/track/ -d '{
   "fortress":"demo-app", 
   "fortressUser": "ak0919",
   "event":"Create",

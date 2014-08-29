@@ -49,7 +49,7 @@ public class TestDelta extends TestEngineBase {
     @Test
     public void jsonDeltasAreFound() throws Exception {
         setSecurity();
-        regService.registerSystemUser(new RegistrationBean(monowai, mike));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
 
         Fortress fortress = fortressService.registerFortress("DELTAForce");
         assertNotNull(fortress);

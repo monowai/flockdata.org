@@ -46,7 +46,7 @@ import static junit.framework.Assert.*;
 public class TestTags extends TestEngineBase {
 
     public void duplicateTagLists() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
         assertNotNull(iSystemUser);
 
         List<TagInputBean> tags = new ArrayList<>();
@@ -87,7 +87,7 @@ public class TestTags extends TestEngineBase {
     @Transactional
     public void secureMultiTenantedTags() throws Exception {
         engineAdmin.setMultiTenanted(true);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
         assertNotNull(iSystemUser);
 
         List<TagInputBean> tags = new ArrayList<>();
@@ -109,7 +109,9 @@ public class TestTags extends TestEngineBase {
 
     @Test
     public void updateExistingTag() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
+        Thread.sleep(200);
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
+
         assertNotNull(iSystemUser);
 
         assertNull(tagService.findTag(iSystemUser.getCompany(), "ABC"));
@@ -130,7 +132,7 @@ public class TestTags extends TestEngineBase {
 
     @Test
     public void tagMustExist() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
         assertNotNull(iSystemUser);
 
         assertNull(tagService.findTag(iSystemUser.getCompany(), "ABC"));
@@ -152,7 +154,7 @@ public class TestTags extends TestEngineBase {
     @Test
     public void tagWithProperties() throws Exception {
         //assumeTrue(false);// Not yet supported
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInput = new TagInputBean("ZFLOP");
@@ -344,7 +346,7 @@ public class TestTags extends TestEngineBase {
     @Test
     public void duplicateTagsForSameIndexReturnSingleTag() throws Exception {
         engineAdmin.setMultiTenanted(false);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInputA = new TagInputBean("Source");
@@ -377,7 +379,7 @@ public class TestTags extends TestEngineBase {
     @Test
     public void tagUniqueForIndex() throws DatagioException {
         engineAdmin.setMultiTenanted(false);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
+        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
         assertNotNull(iSystemUser);
 
         TagInputBean tagInputA = new TagInputBean("Source");
@@ -402,7 +404,7 @@ public class TestTags extends TestEngineBase {
     @Test
     public void tagAppleNameIssue() throws Exception {
         engineAdmin.setMultiTenanted(false);
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
         assertNotNull(su);
         Thread.sleep(400);
         // Exists in one index
@@ -427,7 +429,7 @@ public class TestTags extends TestEngineBase {
     @Test
     public void goegoraphyEndPoints() throws DatagioException {
         engineAdmin.setMultiTenanted(false);
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike).setIsUnique(false));
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
         TagInputBean tagInputBean = new TagInputBean("New Zealand").setIndex("Country");
         ArrayList<TagInputBean> countries = new ArrayList<>();
         countries.add(tagInputBean);

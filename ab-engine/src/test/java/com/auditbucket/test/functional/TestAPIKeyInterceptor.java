@@ -1,6 +1,6 @@
 package com.auditbucket.test.functional;
 
-import com.auditbucket.authentication.handler.APIKeyInterceptor;
+import com.auditbucket.authentication.handler.ApiKeyInterceptor;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Company;
 import junit.framework.Assert;
@@ -12,11 +12,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import javax.servlet.http.HttpServletResponse;
-
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.fail;
 
-public class TestAPIKeyInterceptor extends TestEngineBase {
+public class TestApiKeyInterceptor extends TestEngineBase {
 
 	@Autowired
 	ApplicationContext context;
@@ -25,12 +24,12 @@ public class TestAPIKeyInterceptor extends TestEngineBase {
 
 	MockHttpServletResponse response;
 
-	APIKeyInterceptor apiKeyInterceptor;
+	ApiKeyInterceptor apiKeyInterceptor;
 
 	@Before
 	public void initialize() {
-		setSecurity(mike);
-		apiKeyInterceptor = (APIKeyInterceptor) context
+		setSecurity(mike_admin);
+		apiKeyInterceptor = (ApiKeyInterceptor) context
 				.getBean("apiKeyInterceptor");
 
 		request = new MockHttpServletRequest();
@@ -42,11 +41,11 @@ public class TestAPIKeyInterceptor extends TestEngineBase {
 	public void givenValidAPIKey_WhenCallingSecureAPI_ThenShouldBeAllowed()
 			throws Exception {
 		String apiKey = regEP
-				.registerSystemUser(new RegistrationBean(monowai, mike))
+				.registerSystemUser(new RegistrationBean(monowai, mike_admin))
 				.getBody().getApiKey();
 
-		request.setRequestURI("/company/hello");
-		request.addParameter("apiKey", apiKey);
+		request.setRequestURI("/fortress/");
+		request.addHeader("Api-Key", apiKey);
 		boolean status = apiKeyInterceptor.preHandle(request, response, null);
 
 		Assert.assertEquals(true, status);
@@ -60,23 +59,29 @@ public class TestAPIKeyInterceptor extends TestEngineBase {
 	public void givenInValidAPIKey_WhenCallingSecureAPI_ThenShouldNotBeAllowed()
 			throws Exception {
 
-		request.setRequestURI("/company/hello");
-		request.addParameter("apiKey", "someKey");
-		boolean status = apiKeyInterceptor.preHandle(request, response, null);
+		request.setRequestURI("/fortress/");
+		request.addHeader("Api-Key", "someKey");
+        boolean status = false;
+        try {
+            status = apiKeyInterceptor.preHandle(request, response, null);
+            fail();
+        } catch (SecurityException se){
 
-		Assert.assertEquals(HttpServletResponse.SC_FORBIDDEN, response.getStatus());
-		Assert.assertEquals(false, status);
+        }
 	}
 
 	@Test
 	public void givenNoAPIKey_WhenCallingSecureAPI_ThenShouldNotBeAllowed()
 			throws Exception {
+        setSecurity(sally_admin); // Sally is Authorised but has not API Key
+		request.setRequestURI("/fortress/");
+        try {
+            apiKeyInterceptor.preHandle(request, response, null);
+            fail();
+        } catch (SecurityException se){
+            // Good stuff
+        }
 
-		request.setRequestURI("/company/hello");
-		boolean status = apiKeyInterceptor.preHandle(request, response, null);
-
-		Assert.assertEquals(HttpServletResponse.SC_FORBIDDEN, response.getStatus());
-		Assert.assertEquals(false, status);
 	}
 
     // ToDo: add a disabled user check

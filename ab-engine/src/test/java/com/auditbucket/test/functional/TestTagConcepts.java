@@ -24,6 +24,7 @@ import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.Relationship;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.track.bean.DocumentResultBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.model.Concept;
 import com.auditbucket.track.model.DocumentType;
@@ -45,6 +46,7 @@ import static org.junit.Assert.assertEquals;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
+ * Non transactional tests - these are slower due to cleaning the DB down for each test run
  * User: mike
  * Date: 19/06/14
  * Time: 8:47 AM
@@ -54,20 +56,21 @@ public class TestTagConcepts extends TestEngineBase {
 
     @Override
     public void cleanUpGraph() {
-        // Nothing
+        Neo4jHelper.cleanDb(template);
     }
     @Test
     public void multipleDocsSameFortress() throws Exception {
         logger.debug("### multipleDocsSameFortress");
         Neo4jHelper.cleanDb(template);
+        setSecurity();
         engineAdmin.setConceptsEnabled(true);
 
         Transaction t = beginManualTransaction();
-
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike));
+        //registrationEP.registerSystemUser(new RegistrationBean("CompanyA", "userA")).getBody();
+        SystemUser su = regService.registerSystemUser(new RegistrationBean("multipleDocsSameFortress", mike_admin));
         Assert.assertNotNull(su);
 
-        Fortress fortress = fortressService.registerFortress("fortA");
+        Fortress fortress = fortressService.registerFortress("multipleDocsSameFortress");
 
         DocumentType dType = schemaService.resolveDocType(fortress, "ABC123", true);
         commitManualTransaction(t);// Should only be only one docTypes
@@ -90,10 +93,10 @@ public class TestTagConcepts extends TestEngineBase {
         waitAWhile("Concepts creating...");
 
         validateConcepts((Collection<String>) null, su, 3); // 3 Doc types.
-        Assert.assertEquals("Docs In Use not supporting 'null args' for fortress'", 3, queryEP.getDocumentsInUse(null, su.getApiKey(), su.getApiKey()).size());
+        Assert.assertEquals("Docs In Use not supporting 'null args' for fortress'", 3, queryService.getDocumentsInUse(su.getCompany(), null).size());
 
         // DAT-112
-        Set<DocumentType> found = validateConcepts("DocA", su, 1);
+        Set<DocumentResultBean> found = validateConcepts("DocA", su, 1);
         Assert.assertEquals(1, found.size());
         Assert.assertEquals(1, found.iterator().next().getConcepts().size());
         found = validateConcepts("DocB", su, 1);
@@ -110,11 +113,11 @@ public class TestTagConcepts extends TestEngineBase {
         engineAdmin.setConceptsEnabled(true);
 
         Transaction t = beginManualTransaction();
-
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike));
+        setSecurity();
+        SystemUser su = regService.registerSystemUser(new RegistrationBean("fortressConcepts", mike_admin));
         Assert.assertNotNull(su);
 
-        Fortress fortA = fortressService.registerFortress("fortA");
+        Fortress fortA = fortressService.registerFortress("fortressConcepts");
 
         DocumentType dType = schemaService.resolveDocType(fortA, "ABC123", true);
         commitManualTransaction(t);// Should only be only one docTypes
@@ -138,7 +141,7 @@ public class TestTagConcepts extends TestEngineBase {
 
         Collection<String> docs = new ArrayList<>();
         docs.add("DocA");
-        Collection<DocumentType> documentTypes = queryEP.getConcepts(docs, su.getApiKey(), su.getApiKey());
+        Collection<DocumentResultBean> documentTypes = queryService.getConcepts(su.getCompany(), docs);
         org.junit.Assert.assertNotNull(documentTypes);
         assertEquals(1, documentTypes.size());
 
@@ -148,12 +151,12 @@ public class TestTagConcepts extends TestEngineBase {
         trackEP.trackHeader(input, su.getApiKey(), su.getApiKey());
         waitAWhile("Concepts creating...");
 
-        documentTypes = queryEP.getRelationships(docs, su.getApiKey(), su.getApiKey());
+        documentTypes = queryService.getConceptsWithRelationships(su.getCompany(), docs);
         assertEquals("Only one doc type should exist", 1, documentTypes.size());
 
         Boolean foundCustomer= false, foundRep= false;
 
-        for (DocumentType docTypes : documentTypes) {
+        for (DocumentResultBean docTypes : documentTypes) {
             for ( Concept concept : docTypes.getConcepts()) {
                 if (concept.getName().equals("Customer")){
                     foundCustomer = true;
@@ -178,14 +181,14 @@ public class TestTagConcepts extends TestEngineBase {
     public void multipleRelationships() throws Exception {
         logger.debug("### multipleRelationships");
         Neo4jHelper.cleanDb(template);
+        setSecurity();
         engineAdmin.setConceptsEnabled(true);
-
         Transaction t = beginManualTransaction();
 
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike));
+        SystemUser su = regService.registerSystemUser(new RegistrationBean("multipleRelationships", mike_admin));
         Assert.assertNotNull(su);
 
-        Fortress fortress = fortressService.registerFortress("fortA");
+        Fortress fortress = fortressService.registerFortress("multipleRelationships");
 
         DocumentType dType = schemaService.resolveDocType(fortress, "ABC123", true);
         commitManualTransaction(t);// Should only be only one docTypes
@@ -209,8 +212,8 @@ public class TestTagConcepts extends TestEngineBase {
 
         Collection<String>docs = new ArrayList<>();
         docs.add("DocA");
-        Set<DocumentType> docTypes = queryEP.getRelationships(docs, su.getApiKey(), su.getApiKey());
-        for (DocumentType docType : docTypes) {
+        Set<DocumentResultBean> docTypes = queryService.getConceptsWithRelationships(su.getCompany(), docs);
+        for (DocumentResultBean docType : docTypes) {
             Collection<Concept>concepts = docType.getConcepts();
             for (Concept concept : concepts) {
                 Collection<Relationship> relationships  =concept.getRelationships();
@@ -221,20 +224,21 @@ public class TestTagConcepts extends TestEngineBase {
 
             }
         }
-        Assert.assertEquals("Docs In Use not supporting 'null args'", 2,queryEP.getRelationships(null, su.getApiKey(), su.getApiKey()).size());
+        Assert.assertEquals("Docs In Use not supporting 'null args'", 2,queryService.getConceptsWithRelationships(su.getCompany(), null).size());
     }
     @Test
     public void relationshipWorkForMultipleDocuments() throws Exception {
         logger.debug("### relationshipWorkForMultipleDocuments");
         Neo4jHelper.cleanDb(template);
+        setSecurity();
         engineAdmin.setConceptsEnabled(true);
 
         Transaction t = beginManualTransaction();
 
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike));
+        SystemUser su = regService.registerSystemUser(new RegistrationBean("relationshipWorkForMultipleDocuments", mike_admin));
         Assert.assertNotNull(su);
 
-        Fortress fortress = fortressService.registerFortress("fortA");
+        Fortress fortress = fortressService.registerFortress("relationshipWorkForMultipleDocuments");
 
         DocumentType docA = schemaService.resolveDocType(fortress, "DOCA", true);
         DocumentType docB = schemaService.resolveDocType(fortress, "DOCB", true);
@@ -258,8 +262,8 @@ public class TestTagConcepts extends TestEngineBase {
         docs.add(docB.getName());
         boolean docAFound = false;
         boolean docBFound = false;
-        Set<DocumentType> docTypes = queryEP.getRelationships(docs, su.getApiKey(), su.getApiKey());
-        for (DocumentType docType : docTypes) {
+        Set<DocumentResultBean> docTypes = queryService.getConceptsWithRelationships(su.getCompany(), docs);
+        for (DocumentResultBean docType : docTypes) {
             Collection<Concept>concepts = docType.getConcepts();
             for (Concept concept : concepts) {
                 Collection<Relationship> relationships  =concept.getRelationships();
@@ -275,7 +279,7 @@ public class TestTagConcepts extends TestEngineBase {
         // ToDo: it is unclear if we should track in this manner
         assertTrue("DocA Not Found in the concept", docAFound);
         assertTrue("DocB Not Found in the concept", docBFound);
-        Assert.assertEquals("Docs In Use not supporting 'null args'", 2, queryEP.getRelationships(null, su.getApiKey(), su.getApiKey()).size());
+        Assert.assertEquals("Docs In Use not supporting 'null args'", 2, queryService.getConceptsWithRelationships(su.getCompany(), null).size());
     }
 
     /**
@@ -290,11 +294,12 @@ public class TestTagConcepts extends TestEngineBase {
     public void uniqueRelationshipByDocType() throws Exception{
         logger.debug("### uniqueRelationshipByDocType");
         Neo4jHelper.cleanDb(template);
+        setSecurity();
         engineAdmin.setConceptsEnabled(true);
 
         Transaction t = beginManualTransaction();
 
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike));
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
         Assert.assertNotNull(su);
 
         Fortress fortress = fortressService.registerFortress("fortA");
@@ -322,8 +327,8 @@ public class TestTagConcepts extends TestEngineBase {
         validateConcepts(docs, su, 2);
         docs.clear();
         docs.add(promo.getName());
-        Set<DocumentType>foundDocs = validateConcepts(docs, su, 1);
-        for (DocumentType foundDoc : foundDocs) {
+        Set<DocumentResultBean>foundDocs = validateConcepts(docs, su, 1);
+        for (DocumentResultBean foundDoc : foundDocs) {
             Assert.assertEquals("Promotion", foundDoc.getName());
             Collection<Concept> concepts = foundDoc.getConcepts();
             Assert.assertEquals(1, concepts.size());
@@ -340,14 +345,16 @@ public class TestTagConcepts extends TestEngineBase {
     public void purgeFortressRemovesConcepts() throws Exception {
         logger.debug("### uniqueRelationshipByDocType");
         Neo4jHelper.cleanDb(template);
+        setSecurity();
+
         engineAdmin.setConceptsEnabled(true);
 
         Transaction t ;
 
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike));
+        SystemUser su = regService.registerSystemUser(new RegistrationBean("relationshipWorkForMultipleDocuments", mike_admin));
         Assert.assertNotNull(su);
 
-        Fortress fortress = fortressService.registerFortress("claim");
+        Fortress fortress = fortressService.registerFortress("relationshipWorkForMultipleDocuments");
 
         waitAWhile();
         t = beginManualTransaction();
@@ -369,8 +376,8 @@ public class TestTagConcepts extends TestEngineBase {
         validateConcepts(docs, su, 1);
         docs.clear();
         docs.add(claim.getName());
-        Set<DocumentType>foundDocs = validateConcepts(docs, su, 1);
-        for (DocumentType foundDoc : foundDocs) {
+        Set<DocumentResultBean>foundDocs = validateConcepts(docs, su, 1);
+        for (DocumentResultBean foundDoc : foundDocs) {
             Assert.assertEquals("Claim", foundDoc.getName());
             Collection<Concept> concepts = foundDoc.getConcepts();
             Assert.assertEquals(1, concepts.size());
@@ -383,15 +390,15 @@ public class TestTagConcepts extends TestEngineBase {
         Assert.assertEquals(0, schemaService.getCompanyDocumentsInUse(fortress.getCompany()).size());
     }
 
-    private Set<DocumentType> validateConcepts(String document, SystemUser su, int expected) throws Exception{
+    private Set<DocumentResultBean> validateConcepts(String document, SystemUser su, int expected) throws Exception{
         Collection<String>docs = new ArrayList<>();
 
         docs.add(document);
         return validateConcepts(docs, su, expected);
     }
 
-    private Set<DocumentType> validateConcepts(Collection<String> docs, SystemUser su, int expected) throws Exception{
-        Set<DocumentType> concepts = queryEP.getRelationships(docs, su.getApiKey(), su.getApiKey());
+    private Set<DocumentResultBean> validateConcepts(Collection<String> docs, SystemUser su, int expected) throws Exception{
+        Set<DocumentResultBean> concepts = queryService.getConcepts(su.getCompany(), docs, true);
         String message = "Collection";
         if ( docs!=null && docs.size()==1 )
             message = docs.iterator().next();

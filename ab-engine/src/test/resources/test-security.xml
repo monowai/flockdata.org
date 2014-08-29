@@ -37,13 +37,17 @@
     <authentication-manager>
         <authentication-provider>
             <user-service>
-                <user name="mike" password="123" authorities="ROLE_AB_ADMIN"/>
+                <user name="mike" password="123" authorities="ROLE_AB_ADMIN,ROLE_AB_USER"/>
                 <user name="sally" password="123" authorities="ROLE_AB_ADMIN"/>
-                <user name="harry" password="123" authorities="ROLE_AB_ADMIN"/>
-                <user name="mark" password="123" authorities="ROLE_AB_ADMIN"/>
-                <user name="james" password="123" authorities="ROLE_AB_ADMIN"/>
+                <user name="harry" password="123" authorities="ROLE_AB_USER"/>
+                <user name="mark" password="123" authorities="ROLE_AB_USER"/>
+                <user name="batch" password="123" authorities="ROLE_AB_USER"/>
             </user-service>
         </authentication-provider>
     </authentication-manager>
+
+    <beans:bean id="userProfileService"
+                class="com.auditbucket.authentication.simple.SimpleUser" />
+
 
 </beans:beans>
