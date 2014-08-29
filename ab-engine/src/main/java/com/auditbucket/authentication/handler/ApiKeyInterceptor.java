@@ -45,14 +45,7 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
             }
         }
 
-        // Not necessarily forbidden, just no API key to work with data.
-        // Admin users can create data access users but not access data themselves.
-        // The 3 scenarios are:
-        //      Authorised with no api key (no company object returned)
-        //      Authorised with an api key (company object returned)
-        //      Not authorised             (forbidden)
         throw new SecurityException("Unable to resolve or verify your API Key");
-        //response.sendError(HttpServletResponse.SC_FORBIDDEN, "Unauthorized");
     }
 
     @Override
