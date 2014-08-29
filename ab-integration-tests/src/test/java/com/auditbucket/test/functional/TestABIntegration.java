@@ -559,7 +559,7 @@ public class TestABIntegration {
         // Two search docs,but one without a metaKey
 
     }
-    // ToDo: Figure out where the Node pojos should be.
+
     private EsSearchResult runSearchQuery(SystemUser su, QueryParams input) throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/query/")
                         .header("Api-Key", su.getApiKey())
