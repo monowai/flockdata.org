@@ -54,7 +54,7 @@ $ java -jar ab-engine-war.jar -Dneo4j=java -Dab.integration=http -Dab.auth.provi
 Run ab-engine (with Stormpath security configuration) straight from the ab-engine/target folder with the following command
 ```
 $ cd ab-engine/target
-$ java -jar ab-engine-war.jar -Dneo4j=java -Dab.integration=http -Dab.auth.provider=stormpath -httpPort=8080 -Dab.config=./classes/config.properties -Dlog4j.configuration=file:./classes/log4j.xml
+$ java -jar ab-engine-war.jar -Dneo4j=java -Dab.integration=http -Dab.auth.provider=stormpath -Dab.auth.config=./classes/stormpath.properties -httpPort=8080 -Dab.config=./classes/config.properties -Dlog4j.configuration=file:./classes/log4j.xml
 ```
 
 Deploy in TomCat or whatever be your favourite container. Maven will build an executable Tomcat7 package for you that you can run from the Java command line. We will assume that you are going to deploy the WAR to TC7 via your IDE.
@@ -68,11 +68,17 @@ HTTP, REST and JSON is the lingua franca.
 
 ### Authorisation
 AuditBucket supports 2 options in terms of security configuration.
-Default is Spring security. This is chosen by setting -Dab.security.provider=simple (case sensitive) 
+Default is Spring security. This is chosen by setting -Dab.auth.provider=simple (case sensitive) 
 Note that the user id is under simple=security is 'batch' and the password is '123'. This simple configuration can be found in simple-security.xml.
 
 Optionally, we can start AuditBucket with Stormpath as the security provider.
-This is chosen by setting -Dab.security.provider=stormpath (case sensitive) while booting ab-engine.
+This is chosen by setting -Dab.auth.provider=stormpath (case sensitive) while booting ab-engine. stormpath.properties holds customization properties related to Stormpath. The properties that can be customized are as follows
+ab.auth.stormpath.apiKeyFileLocation - Path where Stormpath API Key file is located. This is needed for handshake for handshake between AuditBucket and Stormpath
+ab.auth.stormpath.application - URL of the application that has been setup in Stormpath.
+ab.auth.stormpath.group.user - URL of User group setup in Stormpath
+ab.auth.stormpath.group.admin - URL of Admin group setup in Stormpath
+
+Once customized, the stormpath.properties path needs to be passed via -Dab.auth.config property.
 
 You are free to configure your own security domain, or help us out with an OAuth configuration ;)
 
