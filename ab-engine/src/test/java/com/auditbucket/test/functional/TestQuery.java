@@ -26,6 +26,7 @@ import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.track.bean.DocumentResultBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -90,7 +91,7 @@ public class TestQuery extends TestEngineBase {
 
         Collection<String> fortresses = new ArrayList<>();
         fortresses.add(coAfA.getName());
-        Collection<DocumentTypeNode> foundDocs = getDocuments(suA, fortresses);
+        Collection<DocumentResultBean> foundDocs = getDocuments(suA, fortresses);
         assertEquals(1, foundDocs.size());
 
         fortresses.add(coAfB.getName());
@@ -105,7 +106,7 @@ public class TestQuery extends TestEngineBase {
         assertEquals(2, getDocuments(suB, fortresses).size());
 
     }
-    public static Collection<DocumentTypeNode> getDocuments(SystemUser su, Collection<String> fortresses) throws Exception {
+    public static Collection<DocumentResultBean> getDocuments(SystemUser su, Collection<String> fortresses) throws Exception {
         MvcResult response =   mockMvc.perform(MockMvcRequestBuilders.post("/query/documents/")
                         .header("Api-Key", su.getApiKey())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -113,7 +114,7 @@ public class TestQuery extends TestEngineBase {
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String json = response.getResponse().getContentAsString();
 
-        return JsonUtils.getAsCollection(json, DocumentTypeNode.class);
+        return JsonUtils.getAsCollection(json, DocumentResultBean.class);
     }
 
     public static Collection<DocumentTypeNode> getRelationships(SystemUserResultBean su, Collection<String> fortresses) throws Exception {

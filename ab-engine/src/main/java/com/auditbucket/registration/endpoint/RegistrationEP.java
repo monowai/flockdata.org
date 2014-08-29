@@ -70,7 +70,7 @@ public class RegistrationEP {
     @RequestMapping(value = "/me/", method = RequestMethod.GET)
     @ResponseBody
     public SystemUserResultBean get(@RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        // curl -u mike:123 -X GET http://localhost:8080/ab/profiles/me
+        // curl -u batch:123 -X GET http://localhost:8080/ab/profiles/me
 
         return new SystemUserResultBean(regService.getSystemUser(apiHeaderKey));
     }

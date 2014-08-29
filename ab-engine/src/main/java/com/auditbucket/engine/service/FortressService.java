@@ -30,6 +30,7 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.SystemUserService;
+import com.auditbucket.track.bean.DocumentResultBean;
 import com.auditbucket.track.model.DocumentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -228,14 +229,19 @@ public class FortressService {
     }
 
 
-    public Collection<DocumentType> getFortressDocumentsInUse(Company company, String code) {
+    public Collection<DocumentResultBean> getFortressDocumentsInUse(Company company, String code) {
         Fortress fortress = findByCode(company, code);
         if ( fortress == null )
             fortress = findByName(company, code);
         if (fortress == null ) {
             return new ArrayList<>();
         }
-        return schemaDao.getFortressDocumentsInUse(fortress);
+        Collection<DocumentResultBean>results = new ArrayList<>();
+        Collection<DocumentType> rawDocs = schemaDao.getFortressDocumentsInUse(fortress);
+        for (DocumentType rawDoc : rawDocs) {
+            results.add(new DocumentResultBean(rawDoc));
+        }
+        return results;
     }
 
 

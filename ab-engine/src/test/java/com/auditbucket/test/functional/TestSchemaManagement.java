@@ -4,6 +4,7 @@ import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.track.bean.DocumentResultBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.model.DocumentType;
 import junit.framework.Assert;
@@ -47,10 +48,10 @@ public class TestSchemaManagement extends TestEngineBase {
 //                        .content(getJSON(new FortressInputBean(fortressName, true)))
 //        ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
 
-        Collection<DocumentType> docTypesA = fortressService.getFortressDocumentsInUse(su.getCompany(), fortressA.getCode());
+        Collection<DocumentResultBean> docTypesA = fortressService.getFortressDocumentsInUse(su.getCompany(), fortressA.getCode());
         assertEquals(1, docTypesA.size());
 
-        Collection<DocumentType> docTypesB = fortressService.getFortressDocumentsInUse(su.getCompany(), fortressB.getCode());
+        Collection<DocumentResultBean> docTypesB = fortressService.getFortressDocumentsInUse(su.getCompany(), fortressB.getCode());
         assertEquals(1, docTypesB.size());
 
         // Should be different key
@@ -60,6 +61,7 @@ public class TestSchemaManagement extends TestEngineBase {
     @Test
     public void documentTypesTrackedPerCompany() throws Exception {
         cleanUpGraph();
+        Thread.sleep(100);
         //SystemUserResultBean cOtherAPI = registrationEP.registerSystemUser(new RegistrationBean("OtherCo", "harry")).getBody();
         SystemUser cOtherAPI = regService.registerSystemUser(new RegistrationBean("OtherCo", harry));
 
@@ -84,7 +86,7 @@ public class TestSchemaManagement extends TestEngineBase {
         assertFalse(metaKeyC.equals(metaKeyB));
 
         // There should be a doc type per fortress and it should have the same Id.
-        Collection<DocumentType> docTypesA = companyEP.getDocumentTypes(apiKey, apiKey);
+        Collection<DocumentResultBean> docTypesA = companyEP.getDocumentTypes(apiKey, apiKey);
         assertEquals(2, docTypesA.size());
         // Companies can't see each other stuff
         docTypesA = companyEP.getDocumentTypes(cOtherAPI.getApiKey(), cOtherAPI.getApiKey());
