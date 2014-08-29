@@ -20,10 +20,12 @@
 
 <beans:beans xmlns="http://www.springframework.org/schema/security"
              xmlns:beans="http://www.springframework.org/schema/beans"
-             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
              xmlns:cache="http://www.springframework.org/schema/cache"
              xsi:schemaLocation="http://www.springframework.org/schema/beans
-                    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                    http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+					http://www.springframework.org/schema/context
+					http://www.springframework.org/schema/context/spring-context-3.2.xsd                    
                     http://www.springframework.org/schema/security
                     http://www.springframework.org/schema/security/spring-security-3.2.xsd http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd">
 
@@ -49,7 +51,7 @@
 
     <beans:bean id="authenticationProvider" class="com.stormpath.spring.security.provider.StormpathAuthenticationProvider">
         <beans:property name="client" ref="stormpathClient" />
-        <beans:property name="applicationRestUrl" value="https://api.stormpath.com/v1/applications/1fkd6tZAvh2bsFndpujveo"/>
+        <beans:property name="applicationRestUrl" value="${ab.auth.stormpath.application}"/>
         <!-- When mapping to domain-specific role names (ie. using GroupRoleGrantedAuthorityResolver) -->
         <beans:property name="groupGrantedAuthorityResolver" ref="groupGrantedAuthorityResolver" />
     </beans:bean>
@@ -57,7 +59,7 @@
     <beans:bean id="stormpathClient" class="com.stormpath.spring.security.client.ClientFactory" >
         <!--ToDo: DAT-185 Should be a default in config.properties, but should not be path'd in this manner in this file
                   eg. ${ab.auth.stormpath.keyfile}-->
-        <beans:property name="apiKeyFileLocation" value="#{systemProperties['user.home']}/.stormpath/apiKey.properties" />
+        <beans:property name="apiKeyFileLocation" value="${ab.auth.stormpath.apiKeyFileLocation}" />
         <beans:property name="cacheManager" ref="spCache" />
     </beans:bean>
 

@@ -34,8 +34,8 @@
 
 	<context:property-placeholder
 		ignore-resource-not-found="true" ignore-unresolvable="true"
-		location="classpath:/config.properties,file:${ab.config}" />
-
+		location="classpath:/config.properties,file:${ab.config},file:${ab.auth.config}" />
+		
 	<!--ToDo: We'll have to add in a parameter to make this dynamic-->
     <import resource="classpath:${ab.auth.provider}-security.xml" />
 	<import resource="integration.xml" />
