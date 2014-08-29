@@ -44,7 +44,7 @@ public class NonTransactional extends TestEngineBase{
     public void crossReferenceTags() throws Exception {
         SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
         Thread.sleep(500);
-        Fortress fortressA = createFortress(su, "auditTest");
+        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest"));
         TagInputBean tag = new TagInputBean("ABC", "Device", "sold");
         ArrayList<TagInputBean> tags = new ArrayList<>();
         tags.add(tag);

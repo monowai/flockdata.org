@@ -108,13 +108,13 @@ public class TestRegistration extends TestEngineBase {
 
         //this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
 
-        Fortress fA = createFortress(su, "FortressA");
-        Fortress fB = createFortress(su, "FortressB");
-        Fortress fC = createFortress(su, "FortressC");
+        Fortress fA = fortressService.registerFortress(company, new FortressInputBean("FortressA"));
+        Fortress fB = fortressService.registerFortress(company, new FortressInputBean("FortressB"));
+        Fortress fC = fortressService.registerFortress(company, new FortressInputBean("FortressC"));
 
-        createFortress(su, "FortressC");// Forced duplicate should be ignored
+        fortressService.registerFortress(company, new FortressInputBean("FortressC")); // Forced duplicate should be ignored
 
-        Collection<Fortress> fortresses = findFortresses(su);
+        Collection<Fortress> fortresses = fortressService.findFortresses(company);
         assertFalse(fortresses.isEmpty());
         assertEquals(3, fortresses.size());
 
@@ -214,10 +214,10 @@ public class TestRegistration extends TestEngineBase {
 
         Company company = securityHelper.getCompany(systemUser.getApiKey());
         
-        Fortress fortress = createFortress(systemUser, "auditbucket");
+        Fortress fortress = fortressService.registerFortress(company, new FortressInputBean("auditbucket"));
         assertNotNull(fortress);
 
-        Collection<Fortress> fortressList = findFortresses(systemUser);
+        Collection<Fortress> fortressList = fortressService.findFortresses(company);
         assertNotNull(fortressList);
         assertEquals(1, fortressList.size());
 

@@ -28,10 +28,6 @@ import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.LogResultBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.MetaHeader;
-import com.auditbucket.track.model.SearchChange;
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,6 +128,8 @@ public class LogProcessor {
             TrackResultBean result = null;
             @Override
             public Command execute() throws DatagioException, IOException {
+
+                // ToDo: DAT-169 This needs to be dealt with via SpringIntegration and persistent messaging
                 LogResultBean logResult = trackService.writeLog(company, metaKey, resultBean);
                 result = new TrackResultBean(logResult, resultBean.getLog());
                 result.setMetaInputBean(resultBean.getMetaInputBean());
@@ -161,44 +159,11 @@ public class LogProcessor {
             schemaService.registerConcepts(company, resultBeans);
         }
         //whatService.doKvWrite(resultBeans);
-        Collection<SearchChange> changes = new ArrayList<>();
-        for (TrackResultBean resultBean : resultBeans) {
-            SearchChange change = getSearchChange(resultBean);
-            if (change!=null )
-                changes.add(change);
-        }
-        searchService.makeChangesSearchable(changes);
-        logger.debug("Distributed [{}] changes to search service",changes.size());
+        searchService.makeChangesSearchable(resultBeans);
+        logger.debug("Distributed changes to search service");
     }
 
-    private SearchChange getSearchChange(TrackResultBean trackResultBean) {
-        if (trackResultBean.getMetaInputBean()!=null && trackResultBean.getMetaInputBean().isMetaOnly()){
-            return getMetaSearchChange(trackResultBean);
-        }
 
-        if ( trackResultBean.getMetaHeader()== null || !trackResultBean.getMetaHeader().getFortress().isSearchActive())
-            return null;
 
-        LogResultBean logResultBean = trackResultBean.getLogResult();
-        LogInputBean input = trackResultBean.getLog();
-
-        if ( !trackResultBean.processLog())
-            return null;
-
-        if (logResultBean != null && logResultBean.getLogToIndex() != null && logResultBean.getStatus() == LogInputBean.LogStatus.OK) {
-            try {
-                DateTime fWhen = new DateTime(logResultBean.getLogToIndex().getFortressWhen());
-                return searchService.prepareSearchDocument(logResultBean.getLogToIndex().getMetaHeader(), input, input.getChangeEvent(), fWhen, logResultBean.getLogToIndex());
-            } catch (JsonProcessingException e) {
-                logResultBean.setMessage("Error processing JSON document");
-                logResultBean.setStatus(LogInputBean.LogStatus.ILLEGAL_ARGUMENT);
-            }
-        }
-        return null;
-    }
-
-    private SearchChange getMetaSearchChange(TrackResultBean trackResultBean) {
-        return searchService.getSearchChange(trackResultBean.getMetaHeader().getFortress().getCompany(), trackResultBean);
-    }
 
 }

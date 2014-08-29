@@ -54,7 +54,7 @@ $ java -jar ab-engine-war.jar -Dneo4j=java -Dab.integration=http -Dab.auth.provi
 Run ab-engine (with Stormpath security configuration) straight from the ab-engine/target folder with the following command
 ```
 $ cd ab-engine/target
-$ java -jar ab-engine-war.jar -Dneo4j=java -Dab.integration=http -Dab.auth.provider=stormpath -httpPort=8080 -Dab.config=./classes/config.properties -Dlog4j.configuration=file:./classes/log4j.xml
+$ java -jar ab-engine-war.jar -Dneo4j=java -Dab.integration=http -Dab.auth.provider=stormpath -Dab.auth.config=./classes/stormpath.properties -httpPort=8080 -Dab.config=./classes/config.properties -Dlog4j.configuration=file:./classes/log4j.xml
 ```
 
 Deploy in TomCat or whatever be your favourite container. Maven will build an executable Tomcat7 package for you that you can run from the Java command line. We will assume that you are going to deploy the WAR to TC7 via your IDE.
@@ -68,11 +68,17 @@ HTTP, REST and JSON is the lingua franca.
 
 ### Authorisation
 AuditBucket supports 2 options in terms of security configuration.
-Default is Spring security. This is chosen by setting -Dab.security.provider=simple (case sensitive) 
+Default is Spring security. This is chosen by setting -Dab.auth.provider=simple (case sensitive) 
 Note that the user id is under simple=security is 'batch' and the password is '123'. This simple configuration can be found in simple-security.xml.
 
 Optionally, we can start AuditBucket with Stormpath as the security provider.
-This is chosen by setting -Dab.security.provider=stormpath (case sensitive) while booting ab-engine.
+This is chosen by setting -Dab.auth.provider=stormpath (case sensitive) while booting ab-engine. stormpath.properties holds customization properties related to Stormpath. The properties that can be customized are as follows
+ab.auth.stormpath.apiKeyFileLocation - Path where Stormpath API Key file is located. This is needed for handshake for handshake between AuditBucket and Stormpath
+ab.auth.stormpath.application - URL of the application that has been setup in Stormpath.
+ab.auth.stormpath.group.user - URL of User group setup in Stormpath
+ab.auth.stormpath.group.admin - URL of Admin group setup in Stormpath
+
+Once customized, the stormpath.properties path needs to be passed via -Dab.auth.config property.
 
 You are free to configure your own security domain, or help us out with an OAuth configuration ;)
 
@@ -88,7 +94,7 @@ curl -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/
 ```
 ### See who you are
 ```
-curl -u batch:123 -X GET http://localhost:8080/ab-engine/v1/profiles/me
+curl -u batch:123 -X GET http://localhost:8080/ab-engine/v1/profiles/me/
 ```
 ### Create an Application Fortress
 This is one of your computer systems that you want to audit
@@ -106,7 +112,7 @@ curl -u batch:123 -H "Content-Type:application/json" -X POST http://localhost:80
   "callerRef":"myRef",
 
   "log": {  
-           		 "what": "{"BusinessData": "Your Text", "nestedObject": {"serviceMessage": "kool for kats"}}"
+           		 "what": {"BusinessData": "Your Text", "nestedObject": {"serviceMessage": "kool for kats"}}
   }
 }'
 ```
@@ -123,8 +129,8 @@ curl -H "Content-Type:application/json" -X POST http://localhost:9201/ab.*/_sear
 }'
 ````
 
-### Next steps for you!
-Figure out how to audit a record from the [API](https://github.com/monowai/auditbucket/wiki/Audit-Service-Calls) documentation. Understand and add [Tags](https://github.com/monowai/auditbucket/wiki/Tags). Process a batch of Audit records. Log a change.
+### Next steps....
+Figure out how to audit a record from the [API](http://www.monowai.com/wiki/pages/viewpage.action?pageId=13172790) documentation. Understand and add [Tags](http://www.monowai.com/wiki/pages/viewpage.action?pageId=13172831). Process a batch of changes. Log a single change to an existing header.
 
-You will probably want to look at the various Bean packages in [ab-common](../ab-common/src/main/java/com/auditbucket/audit/bean) to find the various properties you can set while we continue to enhance the documents!
+You will want to look at the various Bean packages in [ab-common](https://bitbucket.org/monowai/auditbucket/src/abdb12458b5537567546aa2ba6ffe01bc83cc521/ab-common/?at=develop) to find the various properties you can set while we continue to enhance the documents.
 

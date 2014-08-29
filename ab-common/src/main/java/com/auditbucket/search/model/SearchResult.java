@@ -31,6 +31,7 @@ import java.util.Map;
  * Since: 13/07/13
  */
 public class SearchResult {
+    // ToDo: Normalize with MetaHeaderResult
     private String metaKey, fortress, searchKey, documentType;
     private Long logId;
     private Long metaId;

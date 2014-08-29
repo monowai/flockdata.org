@@ -70,7 +70,7 @@ public class TestSchemaManagement extends TestEngineBase {
         Fortress fortressB = fortressService.registerFortress(new FortressInputBean("auditTestB", true));
 
         // Same name different company
-        Fortress fortressC = createFortress(cOtherAPI, "auditTestB");
+        Fortress fortressC = fortressService.registerFortress(cOtherAPI.getCompany(), new FortressInputBean("auditTestB"));
 
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
         String metaKeyA = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody().getMetaKey();

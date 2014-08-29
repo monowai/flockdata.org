@@ -191,8 +191,8 @@ public class TestEngineBase {
 	Authentication authDefault = new UsernamePasswordAuthenticationToken(
 			mike_admin, "123");
 
-	public static Fortress createFortress(SystemUser su) throws Exception {
-		return createFortress(su, "" + System.currentTimeMillis());
+	public Fortress createFortress(SystemUser su) throws Exception {
+		return fortressService.registerFortress(su.getCompany(), new FortressInputBean("" + System.currentTimeMillis()));
 	}
 
 	public static Fortress createFortress(SystemUser su, String fortressName)
