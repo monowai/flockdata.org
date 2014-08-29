@@ -60,6 +60,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${org.springframework-version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
             <version>${org.springsecurity-version}</version>
@@ -71,6 +77,7 @@
             <version>${project.version}</version>
             <type>jar</type>
         </dependency>
+
         <dependency>
             <groupId>com.monowai</groupId>
             <artifactId>ab-engine</artifactId>
@@ -96,6 +103,7 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <version>${org.springframework-version}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>

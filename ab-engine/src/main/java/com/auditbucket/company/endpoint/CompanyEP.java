@@ -26,6 +26,7 @@ import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.RegistrationService;
+import com.auditbucket.track.bean.DocumentResultBean;
 import com.auditbucket.track.model.DocumentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,7 +94,7 @@ public class CompanyEP {
      */
     @RequestMapping(value = "/documents", method = RequestMethod.GET)
     @ResponseBody
-    public Collection<DocumentType> getDocumentTypes(
+    public Collection<DocumentResultBean> getDocumentTypes(
             String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
 
         // ToDo: figure out if the API Key can resolve to multiple companies

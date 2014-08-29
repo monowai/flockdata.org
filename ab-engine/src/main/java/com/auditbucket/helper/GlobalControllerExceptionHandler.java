@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -73,6 +74,13 @@ public class GlobalControllerExceptionHandler {
     public ModelAndView handleSecException(final SecurityException ex){
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
+    @ExceptionHandler(AuthenticationException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ModelAndView handleSecAuthException(final AuthenticationException ex){
+        return new JsonMessage(ex.getMessage()).asModelAndViewError();
+    }
+
+
     //.class
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)

@@ -30,6 +30,7 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.SystemUserService;
+import com.auditbucket.track.bean.DocumentResultBean;
 import com.auditbucket.track.model.DocumentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,7 +133,7 @@ public class FortressService {
         return getFortressUser(fortress, fortressUser, true);
     }
 
-//    @Cacheable(value = "fortressUser", unless = "#result==null" )
+    //    @Cacheable(value = "fortressUser", unless = "#result==null" )
     public FortressUser getFortressUser(Fortress fortress, String fortressUser, boolean createIfMissing) {
         if (fortressUser == null || fortress == null)
             throw new IllegalArgumentException("Don't go throwing null in here [" + (fortressUser == null ? "FortressUserNode]" : "FortressNode]"));
@@ -228,12 +229,19 @@ public class FortressService {
     }
 
 
-    public Collection<DocumentType> getFortressDocumentsInUse(Company company, String fortressName) {
-        Fortress fortress = findByName(company, fortressName);
+    public Collection<DocumentResultBean> getFortressDocumentsInUse(Company company, String code) {
+        Fortress fortress = findByCode(company, code);
+        if ( fortress == null )
+            fortress = findByName(company, code);
         if (fortress == null ) {
             return new ArrayList<>();
         }
-        return schemaDao.getFortressDocumentsInUse(fortress);
+        Collection<DocumentResultBean>results = new ArrayList<>();
+        Collection<DocumentType> rawDocs = schemaDao.getFortressDocumentsInUse(fortress);
+        for (DocumentType rawDoc : rawDocs) {
+            results.add(new DocumentResultBean(rawDoc));
+        }
+        return results;
     }
 
 

@@ -35,24 +35,19 @@ public class AuthenticationEP {
     private UserProfileService userProfileService;
 
     @RequestMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
-	@ResponseBody
-	public ResponseEntity<UserProfile> handleLogin(@RequestBody LoginRequest loginRequest) throws Exception {
-		String username = loginRequest.getUsername();
-		String password = loginRequest.getPassword();
-		
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				username, password);
-		try {
-			Authentication auth = authenticationManager.authenticate(token);
-			SecurityContextHolder.getContext().setAuthentication(auth);
-			UserProfile userProfile = userProfileService.getUser(auth);
-			
-			logger.info("UserProfile profile - " + userProfile);
-			
-			return new ResponseEntity<>(userProfile, HttpStatus.OK);
-		} catch (AuthenticationException e) {
-			logger.error("Error authenticating UserProfile", e);
-			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-		}
-	}
+    @ResponseBody
+    public ResponseEntity<UserProfile> handleLogin(@RequestBody LoginRequest loginRequest) throws Exception {
+        String username = loginRequest.getUsername();
+        String password = loginRequest.getPassword();
+
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+                username, password);
+        Authentication auth = authenticationManager.authenticate(token);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        UserProfile userProfile = userProfileService.getUser(auth);
+
+//			logger.info("UserProfile profile - " + userProfile);
+
+        return new ResponseEntity<>(userProfile, HttpStatus.OK);
+    }
 }

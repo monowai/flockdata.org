@@ -51,7 +51,7 @@
             <bean class="com.auditbucket.authentication.handler.ApiKeyInterceptor"/>
         </mvc:interceptor>
         <!--<mvc:interceptor>-->
-            <!--<mvc:mapping path="/profiles/me"/>-->
+            <!--<mvc:mapping path="/profiles/me/"/>-->
             <!--<bean class="com.auditbucket.authentication.handler.ApiKeyInterceptor"/>-->
         <!--</mvc:interceptor>-->
 

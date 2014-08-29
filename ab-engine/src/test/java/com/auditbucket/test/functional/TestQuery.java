@@ -19,15 +19,21 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.registration.bean.FortressInputBean;
+import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
+import com.auditbucket.helper.JsonUtils;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.track.bean.DocumentResultBean;
 import com.auditbucket.track.bean.MetaInputBean;
-import com.auditbucket.track.model.DocumentType;
 import org.joda.time.DateTime;
 import org.junit.Test;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -53,14 +59,14 @@ public class TestQuery extends TestEngineBase {
         // Two companies
         //  Each with two fortresses
 
-        SystemUserResultBean suA = registrationEP.registerSystemUser(new RegistrationBean("CompanyA", "userA")).getBody();
-        SystemUserResultBean suB = registrationEP.registerSystemUser(new RegistrationBean("CompanyB", "userB")).getBody();
+        SystemUser suA = regService.registerSystemUser(new RegistrationBean("CompanyA", "userA"));
+        SystemUser suB = regService.registerSystemUser(new RegistrationBean("CompanyB", "userB"));
 
-        Fortress coAfA = fortressEP.registerFortress(new FortressInputBean("coAfA", true), suA.getApiKey(), suA.getApiKey()).getBody();
-        Fortress coAfB = fortressEP.registerFortress(new FortressInputBean("coAfB", true), suA.getApiKey(), suA.getApiKey()).getBody();
+        Fortress coAfA = createFortress(suA, "coAfA");
+        Fortress coAfB = createFortress(suA, "coAfB");
 
-        Fortress coBfA = fortressEP.registerFortress(new FortressInputBean("coBfA", true), suB.getApiKey(), suB.getApiKey()).getBody();
-        Fortress coBfB = fortressEP.registerFortress(new FortressInputBean("coBfB", true), suB.getApiKey(), suB.getApiKey()).getBody();
+        Fortress coBfA = createFortress(suB, "coBfA");
+        Fortress coBfB = createFortress(suB, "coBfB");
 
         setSecurity();
         //
@@ -85,19 +91,41 @@ public class TestQuery extends TestEngineBase {
 
         Collection<String> fortresses = new ArrayList<>();
         fortresses.add(coAfA.getName());
-        Collection<DocumentType> foundDocs = queryEP.getDocumentsInUse (fortresses, suA.getApiKey(), suA.getApiKey());
+        Collection<DocumentResultBean> foundDocs = getDocuments(suA, fortresses);
         assertEquals(1, foundDocs.size());
 
         fortresses.add(coAfB.getName());
-        foundDocs = queryEP.getDocumentsInUse (fortresses, suA.getApiKey(), suA.getApiKey());
+        foundDocs = getDocuments(suA, fortresses);//queryEP.getDocumentsInUse (fortresses, suA.getApiKey(), suA.getApiKey());
         assertEquals(2, foundDocs.size());
 
         // Company B
         fortresses.clear();
         fortresses.add(coBfA.getName());
-        assertEquals(1, queryEP.getDocumentsInUse(fortresses, suB.getApiKey(), suB.getApiKey()).size());
+        assertEquals(1, getDocuments(suB, fortresses).size());
         fortresses.add(coBfB.getName());
-        assertEquals(2, queryEP.getDocumentsInUse (fortresses, suB.getApiKey(), suB.getApiKey()).size());
+        assertEquals(2, getDocuments(suB, fortresses).size());
 
     }
+    public static Collection<DocumentResultBean> getDocuments(SystemUser su, Collection<String> fortresses) throws Exception {
+        MvcResult response =   mockMvc.perform(MockMvcRequestBuilders.post("/query/documents/")
+                        .header("Api-Key", su.getApiKey())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(JsonUtils.getJSON(fortresses))
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        String json = response.getResponse().getContentAsString();
+
+        return JsonUtils.getAsCollection(json, DocumentResultBean.class);
+    }
+
+    public static Collection<DocumentTypeNode> getRelationships(SystemUserResultBean su, Collection<String> fortresses) throws Exception {
+        MvcResult response =   mockMvc.perform(MockMvcRequestBuilders.post("/query/relationships/")
+                        .header("Api-Key", su.getApiKey())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(JsonUtils.getJSON(fortresses))
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        String json = response.getResponse().getContentAsString();
+
+        return JsonUtils.getAsCollection(json, DocumentTypeNode.class);
+    }
+
 }

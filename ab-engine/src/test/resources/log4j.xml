@@ -42,7 +42,10 @@
     <logger name="org.springframework.data.neo4j.support.query">
         <level value="info"/>  <!-- set to DEBUG to see Cypher statements-->
     </logger>
-    <logger name="org.neo4j.cypher">
+    <logger name="org.neo4j">
+        <level value="info"/>
+    </logger>
+    <logger name="org.springframework.data.neo4j">
         <level value="info"/>
     </logger>
 

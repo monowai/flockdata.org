@@ -45,7 +45,7 @@
     <context:property-placeholder ignore-unresolvable="true"
                                   location="classpath:config.properties"/>
 
-    <import resource="classpath:${ab.auth.provider}-security.xml" />
+    <import resource="simple-security.xml" />
     <import resource="http-proxy-integration.xml"/>
     <import resource="neo4j-context-test.xml"/>
     <import resource="integration.xml"/>
@@ -65,5 +65,8 @@
     <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager" p:cacheManager-ref="ehcache"/>
     <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
           p:configLocation="classpath:/ehcache.xml"/>
+
+    <bean id="apiKeyInterceptor" class="com.auditbucket.authentication.handler.ApiKeyInterceptor"/>
+
 
 </beans>
