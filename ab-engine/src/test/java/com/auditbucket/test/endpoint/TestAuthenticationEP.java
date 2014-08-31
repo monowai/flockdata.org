@@ -43,6 +43,7 @@ public class TestAuthenticationEP {
 
 	@Test
 	public void validUserPassword_ShouldReturnUserProfile() throws Exception {
+        // As per the entry in test-security.xml
 		LoginRequest loginReq = new LoginRequest();
 		loginReq.setUsername("mike");
 		loginReq.setPassword("123");
@@ -60,7 +61,8 @@ public class TestAuthenticationEP {
 	}
 
 	@Test
-	public void invalidUserPassword_ShouldReturnUnAuhtorized() throws Exception {
+	public void invalidUserPassword_ShouldReturnUnAuthorized() throws Exception {
+        // As per the entry in test-security.xml
 		LoginRequest loginReq = new LoginRequest();
 		loginReq.setUsername("mike");
 		loginReq.setPassword("1234");
@@ -76,6 +78,7 @@ public class TestAuthenticationEP {
 
 	@Test
 	public void whenLoggedInAsMike_ShouldReturn2Roles() throws Exception {
+        // As per the entry in test-security.xml
 		LoginRequest loginReq = new LoginRequest();
 		loginReq.setUsername("mike");
 		loginReq.setPassword("123");
@@ -96,6 +99,8 @@ public class TestAuthenticationEP {
 	@Test
 	public void whenLoggedInAsMike_ShouldBelongToAdminAndUserRoles()
 			throws Exception {
+
+        // As per the entry in test-security.xml
 		LoginRequest loginReq = new LoginRequest();
 		loginReq.setUsername("mike");
 		loginReq.setPassword("123");
