@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -28,8 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 @Controller
 public class AuthenticationEP {
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(AuthenticationEP.class);
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticationEP.class);
 
     @Autowired(required = false)
     @Qualifier("authenticationManager")
@@ -58,10 +56,10 @@ public class AuthenticationEP {
      */
     @RequestMapping(value = "/account", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<UserProfile> checkUser() throws Exception {
+    public ResponseEntity<UserProfile> handleLogin() throws Exception {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth instanceof AnonymousAuthenticationToken) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        if (auth == null) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         UserProfile userProfile = userProfileService.getUser(auth);
         return new ResponseEntity<>(userProfile, HttpStatus.OK);

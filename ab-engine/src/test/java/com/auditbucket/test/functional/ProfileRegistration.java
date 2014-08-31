@@ -5,10 +5,15 @@ import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.SystemUserResultBean;
 import junit.framework.Assert;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -18,12 +23,21 @@ import static org.junit.Assert.assertNotNull;
  * Date: 28/08/14
  * Time: 2:23 PM
  */
+@WebAppConfiguration
 public class ProfileRegistration extends TestEngineBase {
+
+    @Autowired
+    protected WebApplicationContext wac;
+
+    MockMvc mockMvc;
+
+
     @Test
     public void testWebRegistrationFlow() throws Exception {
         String companyName = "Public Company";
         setSecurityEmpty();
         // Unauthenticated users can't register accounts
+        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
         mockMvc.perform(MockMvcRequestBuilders.post("/profiles/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(JsonUtils.getJSON(new RegistrationBean(companyName, sally_admin)))
@@ -66,7 +80,7 @@ public class ProfileRegistration extends TestEngineBase {
         super.cleanUpGraph();
     }
 
-    public static SystemUserResultBean registerSystemUser(RegistrationBean register) throws Exception {
+    SystemUserResultBean registerSystemUser(RegistrationBean register) throws Exception {
 
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/profiles/")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -76,7 +90,7 @@ public class ProfileRegistration extends TestEngineBase {
         return JsonUtils.getBytesAsObject(response.getResponse().getContentAsByteArray(), SystemUserResultBean.class);
     }
 
-    public static SystemUserResultBean getMe() throws Exception {
+    SystemUserResultBean getMe() throws Exception {
 
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get("/profiles/me/")
                         .contentType(MediaType.APPLICATION_JSON)

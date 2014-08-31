@@ -34,7 +34,7 @@
 
     <global-method-security secured-annotations="enabled"/>
 
-    <authentication-manager>
+    <authentication-manager alias="authenticationManager">
         <authentication-provider>
             <user-service>
                 <user name="mike" password="123" authorities="ROLE_AB_ADMIN,ROLE_AB_USER"/>

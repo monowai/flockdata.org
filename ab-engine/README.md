@@ -106,12 +106,10 @@ You should have started [ab-search](../ab-search) before doing this if you're no
 ```
 curl -u batch:123 -H "Content-Type:application/json" -X POST http://localhost:8080/ab-engine/v1/track/ -d '{
   "fortress":"demo-app", 
-  "fortressUser": "ak0919",
   "event":"Create",
   "documentType":"Debtor",
   "callerRef":"myRef",
-
-  "log": {  
+  "log": {   "fortressUser": "ak0919",
            		 "what": {"BusinessData": "Your Text", "nestedObject": {"serviceMessage": "kool for kats"}}
   }
 }'
