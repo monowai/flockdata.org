@@ -13,19 +13,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 @Controller
 public class AuthenticationEP {
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(AuthenticationEP.class);
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticationEP.class);
 
     @Autowired(required = false)
     @Qualifier("authenticationManager")
@@ -46,8 +48,16 @@ public class AuthenticationEP {
         SecurityContextHolder.getContext().setAuthentication(auth);
         UserProfile userProfile = userProfileService.getUser(auth);
 
-//			logger.info("UserProfile profile - " + userProfile);
-
         return new ResponseEntity<>(userProfile, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/logout", method = RequestMethod.POST)
+    @ResponseBody
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            new SecurityContextLogoutHandler().logout(request, response, auth);
+        }
+        SecurityContextHolder.getContext().setAuthentication(null);
     }
 }
