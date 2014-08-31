@@ -33,15 +33,17 @@ import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -57,17 +59,24 @@ import static org.junit.Assert.*;
  * Time: 3:46 PM
  */
 @Transactional
+@WebAppConfiguration
 public class TestAdminCalls extends TestEngineBase {
 
     @Autowired
     private MediationFacade mediationFacade;
 
-    private Logger logger = LoggerFactory.getLogger(TestTrack.class);
+//    private Logger logger = LoggerFactory.getLogger(TestTrack.class);
+
+    @Autowired
+    protected WebApplicationContext wac;
+
+    MockMvc mockMvc;
+
 
     @Test
     public void deleteFortressWithHeadersAndTagsOnly() throws Exception {
 
-        regEP.registerSystemUser(new RegistrationBean(monowai, mike_admin)).getBody();
+        regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
         Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
 
@@ -220,12 +229,16 @@ public class TestAdminCalls extends TestEngineBase {
         assertFalse(results.isEmpty());
         assertEquals("!Unreachable! Connection refused", results.get("ab-search"));
         setSecurityEmpty();
+
+		mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+        
         mockMvc.perform(MockMvcRequestBuilders.get("/admin/health/")
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
     }
 
-    public static Map<String, Object> getHealth(SystemUser su) throws Exception {
+    Map<String, Object> getHealth(SystemUser su) throws Exception {
+		mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get("/admin/health/")
                         .header(ApiKeyInterceptor.API_KEY, (su != null ? su.getApiKey() : ""))
                         .contentType(MediaType.APPLICATION_JSON)

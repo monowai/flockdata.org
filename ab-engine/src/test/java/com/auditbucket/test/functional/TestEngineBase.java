@@ -19,55 +19,12 @@
 
 package com.auditbucket.test.functional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
-import java.util.Collection;
-import java.util.List;
-
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.neo4j.graphdb.Transaction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.data.neo4j.support.node.Neo4jHelper;
-import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.BeforeTransaction;
-import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
 import com.auditbucket.company.endpoint.CompanyEP;
 import com.auditbucket.engine.endpoint.AdminEP;
 import com.auditbucket.engine.endpoint.QueryEP;
 import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.repo.neo4j.model.FortressNode;
-import com.auditbucket.engine.service.EngineConfig;
-import com.auditbucket.engine.service.FortressService;
-import com.auditbucket.engine.service.MediationFacade;
-import com.auditbucket.engine.service.QueryService;
-import com.auditbucket.engine.service.SchemaService;
-import com.auditbucket.engine.service.SearchServiceFacade;
-import com.auditbucket.engine.service.TagService;
-import com.auditbucket.engine.service.TagTrackService;
-import com.auditbucket.engine.service.TrackEventService;
-import com.auditbucket.engine.service.TrackService;
-import com.auditbucket.engine.service.WhatService;
+import com.auditbucket.engine.service.*;
 import com.auditbucket.fortress.endpoint.FortressEP;
 import com.auditbucket.geography.endpoint.GeographyEP;
 import com.auditbucket.helper.JsonUtils;
@@ -83,16 +40,32 @@ import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.SystemUserService;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.neo4j.graphdb.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.support.Neo4jTemplate;
+import org.springframework.data.neo4j.support.node.Neo4jHelper;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.BeforeTransaction;
+
+import static org.junit.Assert.*;
 
 /**
  * User: mike Date: 16/06/14 Time: 7:54 AM
  */
-@WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:root-context.xml",
 		"classpath:apiDispatcher-servlet.xml" })
-@Ignore
 public class TestEngineBase {
 	@Autowired
 	FortressEP fortressEP;
@@ -101,7 +74,7 @@ public class TestEngineBase {
 	QueryEP queryEP;
 
 	@Autowired
-	RegistrationService regService;
+	protected RegistrationService regService;
 
 	@Autowired
 	RegistrationEP registrationEP;
@@ -120,9 +93,6 @@ public class TestEngineBase {
 
 	@Autowired
 	TrackEP trackEP;
-
-	@Autowired
-	RegistrationEP regEP;
 
 	@Autowired
 	GeographyEP geographyEP;
@@ -167,11 +137,6 @@ public class TestEngineBase {
 	Neo4jTemplate template;
 
 	@Autowired
-	protected WebApplicationContext wac;
-
-	static MockMvc mockMvc;
-
-	@Autowired
 	SecurityHelper securityHelper;
 
 	private static Logger logger = LoggerFactory
@@ -180,13 +145,11 @@ public class TestEngineBase {
 	// These have to be in simple-security.xml that is authorised to create
 	// registrations
 	static final String sally_admin = "sally";
-	static final String mike_admin = "mike"; // Admin role
+	protected static final String mike_admin = "mike"; // Admin role
 	static final String batch = "batch";
 	static final String harry = "harry";
 
-	static final String monowai = "Monowai"; // just a test constant
-
-	static final ObjectMapper mapper = new ObjectMapper();
+	protected static final String monowai = "Monowai"; // just a test constant
 
 	Authentication authDefault = new UsernamePasswordAuthenticationToken(
 			mike_admin, "123");
@@ -195,45 +158,8 @@ public class TestEngineBase {
 		return fortressService.registerFortress(su.getCompany(), new FortressInputBean("" + System.currentTimeMillis()));
 	}
 
-	public static Fortress createFortress(SystemUser su, String fortressName)
-			throws Exception {
-		MvcResult response = mockMvc
-				.perform(
-                        MockMvcRequestBuilders
-                                .post("/fortress/")
-                                .header("Api-Key", su.getApiKey())
-                                        // .("company", su.getCompany())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(
-                                        JsonUtils
-                                                .getJSON(new FortressInputBean(
-                                                        fortressName, true))))
-				.andExpect(MockMvcResultMatchers.status().isCreated())
-				.andReturn();
 
-		Fortress fortress = JsonUtils.getBytesAsObject(response.getResponse()
-				.getContentAsByteArray(), FortressNode.class);
-		fortress.setCompany(su.getCompany());
-		return fortress;
-	}
-
-	public static Collection<Fortress> findFortresses(SystemUser su)
-			throws Exception {
-		MvcResult response = mockMvc
-				.perform(
-						MockMvcRequestBuilders.get("/fortress/")
-								.header("Api-Key", su.getApiKey())
-								// .("company", su.getCompany())
-								.contentType(MediaType.APPLICATION_JSON))
-				.andExpect(MockMvcResultMatchers.status().isOk())
-				.andReturn();
-
-		List<Fortress> fortresses = JsonUtils.getBytesAsObject(response
-				.getResponse().getContentAsByteArray(), List.class);
-		return fortresses;
-	}
-
-	@Rollback(false)
+    @Rollback(false)
 	@BeforeTransaction
 	public void cleanUpGraph() {
 		// This will fail if running over REST. Haven't figured out how to use a
@@ -249,7 +175,6 @@ public class TestEngineBase {
 	@Before
 	public void setSecurity() {
 		engineAdmin.setMultiTenanted(false);
-		mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
 		SecurityContextHolder.getContext().setAuthentication(authDefault);
 	}
 
@@ -342,6 +267,11 @@ public class TestEngineBase {
 		return System.currentTimeMillis() - thenTime;
 	}
 
+    @Test
+    public void nothing(){
+        // here to suppress missing test;
+    }
+
 	public void testJson() throws Exception {
 		FortressNode fortressNode = new FortressNode(new FortressInputBean(
 				"testing"), new CompanyNode("testCompany"));
@@ -351,5 +281,8 @@ public class TestEngineBase {
 		assertNull(f.getCompany());// JsonIgnored - Discuss!
 		assertEquals("testing", f.getName());
 	}
+	
+
+
 
 }
