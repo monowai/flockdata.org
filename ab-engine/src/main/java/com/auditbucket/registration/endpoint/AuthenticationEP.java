@@ -57,10 +57,10 @@ public class AuthenticationEP {
      */
     @RequestMapping(value = "/account", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<UserProfile> handleLogin() throws Exception {
+    public ResponseEntity<UserProfile> checkUser() throws Exception {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || auth instanceof AnonymousAuthenticationToken) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         UserProfile userProfile = userProfileService.getUser(auth);
         return new ResponseEntity<>(userProfile, HttpStatus.OK);
