@@ -103,17 +103,6 @@ public class CompanyEP {
 
     }
 
-    /**
-     * All documents in use by a company
-     */
-    @RequestMapping(value = "/hello", method = RequestMethod.GET)
-    @ResponseBody
-    public String sayHello(HttpServletRequest request) throws DatagioException {
-    	Company company = (Company) request.getAttribute("company");
-		logger.info("Company - " + company);
-    	return "Hello " + company.getName();
-    }
-
     private Company getCompany(String apiHeaderKey, String apiRequestKey) throws DatagioException {
         return registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiRequestKey));
     }
