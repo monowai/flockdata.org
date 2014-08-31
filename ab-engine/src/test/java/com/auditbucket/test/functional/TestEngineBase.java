@@ -106,7 +106,7 @@ public class TestEngineBase {
 	QueryEP queryEP;
 
 	@Autowired
-	RegistrationService regService;
+	protected RegistrationService regService;
 
 	@Autowired
 	RegistrationEP registrationEP;
@@ -185,11 +185,11 @@ public class TestEngineBase {
 	// These have to be in simple-security.xml that is authorised to create
 	// registrations
 	static final String sally_admin = "sally";
-	static final String mike_admin = "mike"; // Admin role
+	protected static final String mike_admin = "mike"; // Admin role
 	static final String batch = "batch";
 	static final String harry = "harry";
 
-	static final String monowai = "Monowai"; // just a test constant
+	protected static final String monowai = "Monowai"; // just a test constant
 
 	static final ObjectMapper mapper = new ObjectMapper();
 
