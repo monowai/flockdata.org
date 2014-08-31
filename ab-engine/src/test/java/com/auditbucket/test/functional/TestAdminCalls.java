@@ -31,6 +31,7 @@ import com.auditbucket.test.utils.TestHelper;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
+
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -41,6 +42,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -220,12 +222,15 @@ public class TestAdminCalls extends TestEngineBase {
         assertFalse(results.isEmpty());
         assertEquals("!Unreachable! Connection refused", results.get("ab-search"));
         setSecurityEmpty();
+		mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+        
         mockMvc.perform(MockMvcRequestBuilders.get("/admin/health/")
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
     }
 
-    public static Map<String, Object> getHealth(SystemUser su) throws Exception {
+    public Map<String, Object> getHealth(SystemUser su) throws Exception {
+		mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get("/admin/health/")
                         .header(ApiKeyInterceptor.API_KEY, (su != null ? su.getApiKey() : ""))
                         .contentType(MediaType.APPLICATION_JSON)

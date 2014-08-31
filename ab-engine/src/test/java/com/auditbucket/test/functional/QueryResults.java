@@ -121,21 +121,10 @@ public class QueryResults  extends TestEngineBase {
         assertFalse(results.getResults().isEmpty());
         ArrayList<String>fortresses = new ArrayList<>();
         fortresses.add(fortress.getName());
-        Collection<DocumentResultBean>documentTypes = TestQuery.getDocuments(su, fortresses);
+        Collection<DocumentResultBean>documentTypes = getDocuments(su, fortresses);
         assertFalse(documentTypes.isEmpty());
 
     }
-
-    private MatrixResults getMatrixResult(SystemUser su, MatrixInputBean input) throws Exception {
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/query/matrix/")
-                        .header("Api-Key", su.getApiKey())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(JsonUtils.getJSON(input))
-        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-
-        return JsonUtils.getBytesAsObject(response.getResponse().getContentAsByteArray(), MatrixResults.class);
-    }
-
 
 
 
