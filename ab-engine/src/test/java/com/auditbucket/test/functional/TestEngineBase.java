@@ -19,13 +19,27 @@
 
 package com.auditbucket.test.functional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
-import java.util.Collection;
-import java.util.List;
-
+import com.auditbucket.company.endpoint.CompanyEP;
+import com.auditbucket.engine.endpoint.AdminEP;
+import com.auditbucket.engine.endpoint.QueryEP;
+import com.auditbucket.engine.endpoint.TrackEP;
+import com.auditbucket.engine.repo.neo4j.model.FortressNode;
+import com.auditbucket.engine.service.*;
+import com.auditbucket.fortress.endpoint.FortressEP;
+import com.auditbucket.geography.endpoint.GeographyEP;
+import com.auditbucket.helper.JsonUtils;
+import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.registration.bean.FortressInputBean;
+import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
+import com.auditbucket.registration.endpoint.RegistrationEP;
+import com.auditbucket.registration.endpoint.TagEP;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.service.CompanyService;
+import com.auditbucket.registration.service.RegistrationService;
+import com.auditbucket.registration.service.SystemUserService;
+import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.TrackLog;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -36,7 +50,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.data.neo4j.support.node.Neo4jHelper;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -44,56 +57,12 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
-import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
-import com.auditbucket.company.endpoint.CompanyEP;
-import com.auditbucket.engine.endpoint.AdminEP;
-import com.auditbucket.engine.endpoint.QueryEP;
-import com.auditbucket.engine.endpoint.TrackEP;
-import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
-import com.auditbucket.engine.repo.neo4j.model.FortressNode;
-import com.auditbucket.engine.service.EngineConfig;
-import com.auditbucket.engine.service.FortressService;
-import com.auditbucket.engine.service.MediationFacade;
-import com.auditbucket.engine.service.QueryService;
-import com.auditbucket.engine.service.SchemaService;
-import com.auditbucket.engine.service.SearchServiceFacade;
-import com.auditbucket.engine.service.TagService;
-import com.auditbucket.engine.service.TagTrackService;
-import com.auditbucket.engine.service.TrackEventService;
-import com.auditbucket.engine.service.TrackService;
-import com.auditbucket.engine.service.WhatService;
-import com.auditbucket.fortress.endpoint.FortressEP;
-import com.auditbucket.geography.endpoint.GeographyEP;
-import com.auditbucket.helper.JsonUtils;
-import com.auditbucket.helper.SecurityHelper;
-import com.auditbucket.query.MatrixInputBean;
-import com.auditbucket.query.MatrixResults;
-import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.bean.SystemUserResultBean;
-import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
-import com.auditbucket.registration.endpoint.RegistrationEP;
-import com.auditbucket.registration.endpoint.TagEP;
-import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.registration.service.CompanyService;
-import com.auditbucket.registration.service.RegistrationService;
-import com.auditbucket.registration.service.SystemUserService;
-import com.auditbucket.track.bean.DocumentResultBean;
-import com.auditbucket.track.model.MetaHeader;
-import com.auditbucket.track.model.TrackLog;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.junit.Assert.*;
 
 /**
  * User: mike Date: 16/06/14 Time: 7:54 AM
  */
-@WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:root-context.xml",
 		"classpath:apiDispatcher-servlet.xml" })
@@ -125,9 +94,6 @@ public class TestEngineBase {
 
 	@Autowired
 	TrackEP trackEP;
-
-	@Autowired
-	RegistrationEP regEP;
 
 	@Autowired
 	GeographyEP geographyEP;
@@ -172,11 +138,6 @@ public class TestEngineBase {
 	Neo4jTemplate template;
 
 	@Autowired
-	protected WebApplicationContext wac;
-
-	static MockMvc mockMvc;
-
-	@Autowired
 	SecurityHelper securityHelper;
 
 	private static Logger logger = LoggerFactory
@@ -191,8 +152,6 @@ public class TestEngineBase {
 
 	protected static final String monowai = "Monowai"; // just a test constant
 
-	static final ObjectMapper mapper = new ObjectMapper();
-
 	Authentication authDefault = new UsernamePasswordAuthenticationToken(
 			mike_admin, "123");
 
@@ -200,48 +159,8 @@ public class TestEngineBase {
 		return fortressService.registerFortress(su.getCompany(), new FortressInputBean("" + System.currentTimeMillis()));
 	}
 
-	protected Fortress createFortress(SystemUser su, String fortressName)
-			throws Exception {
-		mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-		
-		MvcResult response = mockMvc
-				.perform(
-                        MockMvcRequestBuilders
-                                .post("/fortress/")
-                                .header("Api-Key", su.getApiKey())
-                                        // .("company", su.getCompany())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(
-                                        JsonUtils
-                                                .getJSON(new FortressInputBean(
-                                                        fortressName, true))))
-				.andExpect(MockMvcResultMatchers.status().isCreated())
-				.andReturn();
 
-		Fortress fortress = JsonUtils.getBytesAsObject(response.getResponse()
-				.getContentAsByteArray(), FortressNode.class);
-		fortress.setCompany(su.getCompany());
-		return fortress;
-	}
-
-	protected Collection<Fortress> findFortresses(SystemUser su)
-			throws Exception {
-		mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-		MvcResult response = mockMvc
-				.perform(
-						MockMvcRequestBuilders.get("/fortress/")
-								.header("Api-Key", su.getApiKey())
-								// .("company", su.getCompany())
-								.contentType(MediaType.APPLICATION_JSON))
-				.andExpect(MockMvcResultMatchers.status().isOk())
-				.andReturn();
-
-		List<Fortress> fortresses = JsonUtils.getBytesAsObject(response
-				.getResponse().getContentAsByteArray(), List.class);
-		return fortresses;
-	}
-
-	@Rollback(false)
+    @Rollback(false)
 	@BeforeTransaction
 	public void cleanUpGraph() {
 		// This will fail if running over REST. Haven't figured out how to use a
@@ -349,6 +268,11 @@ public class TestEngineBase {
 		return System.currentTimeMillis() - thenTime;
 	}
 
+    @Test
+    public void nothing(){
+        // here to suppress missing test;
+    }
+
 	public void testJson() throws Exception {
 		FortressNode fortressNode = new FortressNode(new FortressInputBean(
 				"testing"), new CompanyNode("testCompany"));
@@ -359,40 +283,7 @@ public class TestEngineBase {
 		assertEquals("testing", f.getName());
 	}
 	
-	protected Collection<DocumentResultBean> getDocuments(SystemUser su, Collection<String> fortresses) throws Exception {
-		mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-        MvcResult response =   mockMvc.perform(MockMvcRequestBuilders.post("/query/documents/")
-                        .header("Api-Key", su.getApiKey())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(JsonUtils.getJSON(fortresses))
-        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        String json = response.getResponse().getContentAsString();
 
-        return JsonUtils.getAsCollection(json, DocumentResultBean.class);
-    }
-
-    protected Collection<DocumentTypeNode> getRelationships(SystemUserResultBean su, Collection<String> fortresses) throws Exception {
-		mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-        MvcResult response =   mockMvc.perform(MockMvcRequestBuilders.post("/query/relationships/")
-                        .header("Api-Key", su.getApiKey())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(JsonUtils.getJSON(fortresses))
-        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        String json = response.getResponse().getContentAsString();
-
-        return JsonUtils.getAsCollection(json, DocumentTypeNode.class);
-    }
-
-    protected MatrixResults getMatrixResult(SystemUser su, MatrixInputBean input) throws Exception {
-		mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/query/matrix/")
-                        .header("Api-Key", su.getApiKey())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(JsonUtils.getJSON(input))
-        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-
-        return JsonUtils.getBytesAsObject(response.getResponse().getContentAsByteArray(), MatrixResults.class);
-    }
 
 
 }
