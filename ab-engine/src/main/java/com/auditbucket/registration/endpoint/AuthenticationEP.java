@@ -28,7 +28,8 @@ import javax.servlet.http.HttpServletResponse;
 @Controller
 public class AuthenticationEP {
 
-    private static final Logger logger = LoggerFactory.getLogger(AuthenticationEP.class);
+    private static final Logger logger = LoggerFactory
+            .getLogger(AuthenticationEP.class);
 
     @Autowired(required = false)
     @Qualifier("authenticationManager")
