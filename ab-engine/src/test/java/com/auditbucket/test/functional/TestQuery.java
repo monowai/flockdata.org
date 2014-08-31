@@ -19,24 +19,20 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
-import com.auditbucket.helper.JsonUtils;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
-import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.test.endpoint.EngineEndPoints;
 import com.auditbucket.track.bean.DocumentResultBean;
 import com.auditbucket.track.bean.MetaInputBean;
-
 import org.joda.time.DateTime;
 import org.junit.Test;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,7 +45,13 @@ import static org.junit.Assert.assertEquals;
  * Time: 10:40 AM
  */
 @Transactional
+@WebAppConfiguration
+
 public class TestQuery extends TestEngineBase {
+
+    @Autowired
+    WebApplicationContext wac;
+
 
     @Test
     public void queryInputsReturned () throws Exception{
@@ -93,41 +95,21 @@ public class TestQuery extends TestEngineBase {
 
         Collection<String> fortresses = new ArrayList<>();
         fortresses.add(coAfA.getName());
-        Collection<DocumentResultBean> foundDocs = getDocuments(suA, fortresses);
+        EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
+        Collection<DocumentResultBean> foundDocs = engineEndPoints.getDocuments(suA, fortresses);
         assertEquals(1, foundDocs.size());
 
         fortresses.add(coAfB.getName());
-        foundDocs = getDocuments(suA, fortresses);//queryEP.getDocumentsInUse (fortresses, suA.getApiKey(), suA.getApiKey());
+        foundDocs = engineEndPoints.getDocuments(suA, fortresses);//queryEP.getDocumentsInUse (fortresses, suA.getApiKey(), suA.getApiKey());
         assertEquals(2, foundDocs.size());
 
         // Company B
         fortresses.clear();
         fortresses.add(coBfA.getName());
-        assertEquals(1, getDocuments(suB, fortresses).size());
+        assertEquals(1, engineEndPoints.getDocuments(suB, fortresses).size());
         fortresses.add(coBfB.getName());
-        assertEquals(2, getDocuments(suB, fortresses).size());
+        assertEquals(2, engineEndPoints.getDocuments(suB, fortresses).size());
 
-    }
-    public static Collection<DocumentResultBean> getDocuments(SystemUser su, Collection<String> fortresses) throws Exception {
-        MvcResult response =   mockMvc.perform(MockMvcRequestBuilders.post("/query/documents/")
-                        .header("Api-Key", su.getApiKey())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(JsonUtils.getJSON(fortresses))
-        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        String json = response.getResponse().getContentAsString();
-
-        return JsonUtils.getAsCollection(json, DocumentResultBean.class);
-    }
-
-    public static Collection<DocumentTypeNode> getRelationships(SystemUserResultBean su, Collection<String> fortresses) throws Exception {
-        MvcResult response =   mockMvc.perform(MockMvcRequestBuilders.post("/query/relationships/")
-                        .header("Api-Key", su.getApiKey())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(JsonUtils.getJSON(fortresses))
-        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        String json = response.getResponse().getContentAsString();
-
-        return JsonUtils.getAsCollection(json, DocumentTypeNode.class);
     }
 
 }
