@@ -12,6 +12,7 @@ import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.MetaKey;
 import com.auditbucket.track.model.TrackTag;
 import org.joda.time.DateTime;
+import org.junit.After;
 import org.junit.Test;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
@@ -38,6 +39,11 @@ public class NonTransactional extends TestEngineBase{
     public void cleanUpGraph() {
         // Nothing
         logger.debug("Not cleaning up");
+    }
+
+    @After
+    public void clearGraph(){
+        super.cleanUpGraph();
     }
 
     @Test
