@@ -51,9 +51,26 @@ public class AuthenticationEP {
         return new ResponseEntity<>(userProfile, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/logout", method = RequestMethod.POST)
+    /**
+     * GET  /account -> get the current user.
+     */
+    @RequestMapping(value = "/account", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     @ResponseBody
-    public void logout(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<UserProfile> handleLogin() throws Exception {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        UserProfile userProfile = userProfileService.getUser(auth);
+        return new ResponseEntity<>(userProfile, HttpStatus.OK);
+    }
+
+    /**
+     * GET  /logout -> logout the current user.
+     */
+    @RequestMapping(value = "/logout", method = RequestMethod.GET)
+    @ResponseBody
+    public void handleLogout(HttpServletRequest request, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {
             new SecurityContextLogoutHandler().logout(request, response, auth);
