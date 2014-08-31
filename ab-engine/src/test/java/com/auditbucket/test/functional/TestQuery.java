@@ -108,26 +108,5 @@ public class TestQuery extends TestEngineBase {
         assertEquals(2, getDocuments(suB, fortresses).size());
 
     }
-    public static Collection<DocumentResultBean> getDocuments(SystemUser su, Collection<String> fortresses) throws Exception {
-        MvcResult response =   mockMvc.perform(MockMvcRequestBuilders.post("/query/documents/")
-                        .header("Api-Key", su.getApiKey())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(JsonUtils.getJSON(fortresses))
-        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        String json = response.getResponse().getContentAsString();
-
-        return JsonUtils.getAsCollection(json, DocumentResultBean.class);
-    }
-
-    public static Collection<DocumentTypeNode> getRelationships(SystemUserResultBean su, Collection<String> fortresses) throws Exception {
-        MvcResult response =   mockMvc.perform(MockMvcRequestBuilders.post("/query/relationships/")
-                        .header("Api-Key", su.getApiKey())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(JsonUtils.getJSON(fortresses))
-        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        String json = response.getResponse().getContentAsString();
-
-        return JsonUtils.getAsCollection(json, DocumentTypeNode.class);
-    }
 
 }
