@@ -66,7 +66,6 @@ import static org.junit.Assert.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:root-context.xml",
 		"classpath:apiDispatcher-servlet.xml" })
-@Ignore
 public class TestEngineBase {
 	@Autowired
 	FortressEP fortressEP;
