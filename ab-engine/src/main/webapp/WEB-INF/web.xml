@@ -74,7 +74,8 @@
         </init-param>
 
         <!--This needs to be externally configurable or at least support the way AB loads properties, see this issue
-         https://bitbucket.org/thetransactioncompany/cors-filter/issue/24/setter-or-constructor-arg-for-spring-->
+         https://bitbucket.org/thetransactioncompany/cors-filter/issue/24/setter-or-constructor-arg-for-spring
+         not workings for ab-vew-->
         <init-param>
             <param-name>cors.allowOrigin</param-name>
             <param-value>*</param-value>
