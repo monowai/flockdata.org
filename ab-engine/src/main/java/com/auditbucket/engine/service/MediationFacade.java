@@ -325,15 +325,15 @@ public class MediationFacade {
         watch.start("Get ES Query Results");
         EsSearchResult esSearchResult = searchService.search(queryParams);
         watch.stop();
-        watch.start("Get Graph Headers");
-        Map<String,MetaHeader> headers = trackService.getHeaders(company, getMetaKeys(esSearchResult));
-        watch.stop();
+        //watch.start("Get Graph Headers");
+//        Map<String,MetaHeader> headers = trackService.getHeaders(company, getMetaKeys(esSearchResult));
+        //watch.stop();
         logger.info(watch.prettyPrint());
 
-        for (SearchResult searchResult : esSearchResult.getResults()) {
-            MetaHeader mh = headers.get(searchResult.getMetaKey());
-            searchResult.setMetaHeader(mh);
-        }
+//        for (SearchResult searchResult : esSearchResult.getResults()) {
+//            MetaHeader mh = headers.get(searchResult.getMetaKey());
+//            searchResult.setMetaHeader(mh);
+//        }
         return esSearchResult;
     }
 

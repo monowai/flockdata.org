@@ -83,11 +83,26 @@ public class SearchResult {
 
     }
 
-    public SearchResult(String searchKey, String metaKey, String type, Map<String, String[]> fragments) {
+    public SearchResult(String searchKey,
+                        String metaKey,
+                        String fortress,
+                        String event,
+                        String type,
+                        String lastUser,
+                        String lastUpdate,
+                        String whenCreated,
+                        Map<String, String[]> fragments) {
         this.metaKey = metaKey;
         this.documentType = type;
         this.searchKey = searchKey;
         this.fragments = fragments;
+        this.event = event;
+        this.fortress = fortress;
+        this.lastUser = lastUser;
+        if ( lastUpdate != null )
+            this.lastUpdate = Long.decode(lastUpdate);
+        if ( whenCreated !=null )
+            this.whenCreated= Long.decode(whenCreated);
 
     }
 
