@@ -60,14 +60,16 @@ public class TestAPISecurity extends TestEngineBase {
 	}
 
 	@Test
-	public void invokeSecureAPIWithAPIKey_shouldReturnOk() throws Exception {
+	public void invokeSecureAPIWithAPIKeyWithoutLogin_shouldReturnOk() throws Exception {
 		setSecurity();
 		SystemUser su = regService.registerSystemUser(new RegistrationBean(
 				monowai, mike_admin).setIsUnique(false));
+		String apikey = su.getApiKey();
+		setSecurityEmpty();
 
 		mockMVC.perform(
 				MockMvcRequestBuilders.get("/fortress/").header("Api-Key",
-						su.getApiKey()))
+						apikey))
 				.andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 	}
 }
