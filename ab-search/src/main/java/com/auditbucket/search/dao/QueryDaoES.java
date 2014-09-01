@@ -96,6 +96,11 @@ public class QueryDaoES implements QueryDao {
         ListenableActionFuture<SearchResponse> future = client.prepareSearch(MetaSearchSchema.parseIndex(queryParams))
                 .setTypes(types)
                 .addField(MetaSearchSchema.META_KEY)
+                .addField(MetaSearchSchema.FORTRESS)
+                .addField(MetaSearchSchema.LAST_EVENT)
+                .addField(MetaSearchSchema.WHO)
+                .addField(MetaSearchSchema.WHEN)
+                .addField(MetaSearchSchema.CREATED)
                 .setSize(queryParams.getRowsPerPage())
                 .setFrom(queryParams.getStartFrom())
                 .setExtraSource(QueryGenerator.getSimpleQuery(queryParams.getSimpleQuery(), highlightEnabled))
@@ -120,7 +125,12 @@ public class QueryDaoES implements QueryDao {
                     results.add(new SearchResult(
                             searchHitFields.getId(),
                             metaKey.toString(),
+                            searchHitFields.getFields().get(MetaSearchSchema.FORTRESS).getValue().toString(),
+                            searchHitFields.getFields().get(MetaSearchSchema.LAST_EVENT).getValue().toString(),
                             searchHitFields.getType(),
+                            searchHitFields.getFields().get(MetaSearchSchema.WHO).getValue().toString(),
+                            searchHitFields.getFields().get(MetaSearchSchema.WHEN).getValue().toString(),
+                            searchHitFields.getFields().get(MetaSearchSchema.CREATED).getValue().toString(),
                             fragments));
                 }
             }
