@@ -46,7 +46,8 @@ public class TestAPISecurity extends TestEngineBase {
 		setSecurity();
 		regService.registerSystemUser(new RegistrationBean(monowai, mike_admin)
 				.setIsUnique(false));
-
+		setSecurityEmpty();
+		
 		LoginRequest loginReq = new LoginRequest();
 		loginReq.setUsername("mike");
 		loginReq.setPassword("123");
