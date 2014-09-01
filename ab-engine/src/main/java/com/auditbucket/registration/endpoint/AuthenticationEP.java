@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -56,10 +57,10 @@ public class AuthenticationEP {
      */
     @RequestMapping(value = "/account", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<UserProfile> handleLogin() throws Exception {
+    public ResponseEntity<UserProfile> checkUser() throws Exception {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        if (auth == null || auth instanceof AnonymousAuthenticationToken) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         UserProfile userProfile = userProfileService.getUser(auth);
         return new ResponseEntity<>(userProfile, HttpStatus.OK);
