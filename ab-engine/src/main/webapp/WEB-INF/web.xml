@@ -64,20 +64,22 @@
         <!---->
 
         <init-param>
-            <param-name>cors.supportsCredentials</param-name>
-            <param-value>true</param-value>
-        </init-param>
-
-        <init-param>
             <param-name>cors.maxAge</param-name>
             <param-value>3600</param-value>
         </init-param>
+
+        <init-param>
+            <param-name>cors.supportsCredentials</param-name>
+            <param-value>false</param-value>
+        </init-param>
+
         <!--This needs to be externally configurable or at least support the way AB loads properties, see this issue
          https://bitbucket.org/thetransactioncompany/cors-filter/issue/24/setter-or-constructor-arg-for-spring-->
         <init-param>
             <param-name>cors.allowOrigin</param-name>
-            <param-value>http://demo.auditbucket.com https://demo.auditbucket.com http://localhost:9000, http://127.0.0.1:9000</param-value>
+            <param-value>*</param-value>
         </init-param>
+        <!--http://demo.auditbucket.com https://demo.auditbucket.com http://localhost:9000, http://127.0.0.1:9000-->
         <init-param>
             <param-name>cors.allowSubdomains</param-name>
             <param-value>true</param-value>
