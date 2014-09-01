@@ -22,7 +22,7 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
          version="3.0">
 
-    <display-name>Audit Bucket - eventing system</display-name>
+    <display-name>AuditBucket - data mediation service</display-name>
 
     <!-- The definition of the Root Spring Container shared by all Servlets and Filters -->
     <context-param>
@@ -59,9 +59,9 @@
         <filter-class>com.thetransactioncompany.cors.CORSFilter</filter-class>
         <init-param>
             <param-name>cors.supportedHeaders</param-name>
-            <param-value>*</param-value>
+            <param-value>Origin, Content-Type, X-Requested-With, Access-Control-Allow-Origin, Api-Key, Accept</param-value>
         </init-param>
-        <!--Origin, Content-Type, X-Requested-With, Access-Control-Allow-Origin, Api-Key, Accept-->
+        <!---->
 
         <init-param>
             <param-name>cors.supportsCredentials</param-name>
@@ -72,9 +72,11 @@
             <param-name>cors.maxAge</param-name>
             <param-value>3600</param-value>
         </init-param>
+        <!--This needs to be externally configurable or at least support the way AB loads properties, see this issue
+         https://bitbucket.org/thetransactioncompany/cors-filter/issue/24/setter-or-constructor-arg-for-spring-->
         <init-param>
             <param-name>cors.allowOrigin</param-name>
-            <param-value>https://demo.auditbucket.com, http://localhost:9000</param-value>
+            <param-value>http://demo.auditbucket.com https://demo.auditbucket.com http://localhost:9000, http://127.0.0.1:9000</param-value>
         </init-param>
         <init-param>
             <param-name>cors.allowSubdomains</param-name>
