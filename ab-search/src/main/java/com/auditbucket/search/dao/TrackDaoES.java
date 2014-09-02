@@ -252,10 +252,10 @@ public class TrackDaoES implements TrackSearchDao {
                     Long existingWhen = Long.decode(o.toString());
                     logger.debug("Comparing searchChange when {} with stored when {}", searchChange.getWhen(), existingWhen);
                     if (!searchChange.isForceReindex()) {
-                        if (existingWhen > searchChange.getWhen()) {
-                            logger.debug("ignoring a request to update as the existing document dated [{}] is newer than the searchChange document dated [{}]", new Date(existingWhen), new Date(searchChange.getWhen()));
+                        if (existingWhen.compareTo(searchChange.getWhen().getTime())>0) {
+                            logger.debug("ignoring a request to update as the existing document dated [{}] is newer than the searchChange document dated [{}]", new Date(existingWhen), searchChange.getWhen());
                             return searchChange; // Don't overwrite the most current doc!
-                        } else if (searchChange.getWhen() == 0l && !searchChange.isReplyRequired()) {
+                        } else if (searchChange.getWhen().getTime() == 0l && !searchChange.isReplyRequired()) {
                             // Meta Change - not indexed in AB, so ignore something we already have.
                             // Likely scenario is a batch is being reprocessed
                             return searchChange;
@@ -365,10 +365,10 @@ public class TrackDaoES implements TrackSearchDao {
 
         indexMe.put(MetaSearchSchema.WHEN, searchChange.getWhen());
 
-        // When the MetaHeader was created
+        // When the MetaHeader was created in the fortress
         indexMe.put(MetaSearchSchema.CREATED, searchChange.getCreatedDate());
 
-        // When the log was created
+        // Time that this change was indexed by ab-engine
         indexMe.put(MetaSearchSchema.TIMESTAMP, new Date(searchChange.getSysWhen()));
 
         indexMe.put(MetaSearchSchema.FORTRESS, searchChange.getFortressName());

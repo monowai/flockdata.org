@@ -32,6 +32,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHitField;
 import org.elasticsearch.search.highlight.HighlightField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,6 +102,7 @@ public class QueryDaoES implements QueryDao {
                 .addField(MetaSearchSchema.WHO)
                 .addField(MetaSearchSchema.WHEN)
                 .addField(MetaSearchSchema.CREATED)
+                .addField(MetaSearchSchema.TIMESTAMP)
                 .setSize(queryParams.getRowsPerPage())
                 .setFrom(queryParams.getStartFrom())
                 .setExtraSource(QueryGenerator.getSimpleQuery(queryParams.getSimpleQuery(), highlightEnabled))
@@ -119,19 +121,24 @@ public class QueryDaoES implements QueryDao {
 
         for (SearchHit searchHitFields : response.getHits().getHits()) {
             if (!searchHitFields.getFields().isEmpty()) { // DAT-83
-                Object metaKey = searchHitFields.getFields().get(MetaSearchSchema.META_KEY).getValue();
-                if (metaKey != null) {
-                    Map<String, String[]> fragments = convertHighlightToMap(searchHitFields.getHighlightFields());
-                    results.add(new SearchResult(
-                            searchHitFields.getId(),
-                            metaKey.toString(),
-                            searchHitFields.getFields().get(MetaSearchSchema.FORTRESS).getValue().toString(),
-                            searchHitFields.getFields().get(MetaSearchSchema.LAST_EVENT).getValue().toString(),
-                            searchHitFields.getType(),
-                            searchHitFields.getFields().get(MetaSearchSchema.WHO).getValue().toString(),
-                            searchHitFields.getFields().get(MetaSearchSchema.WHEN).getValue().toString(),
-                            searchHitFields.getFields().get(MetaSearchSchema.CREATED).getValue().toString(),
-                            fragments));
+                // This function returns only information tracked by AB which will always have  a metaKey
+                SearchHitField metaKeyCol = searchHitFields.getFields().get(MetaSearchSchema.META_KEY);
+                if (metaKeyCol != null) {
+                    Object metaKey = metaKeyCol.getValue();
+                    if (metaKey != null) {
+                        Map<String, String[]> fragments = convertHighlightToMap(searchHitFields.getHighlightFields());
+                        results.add(new SearchResult(
+                                searchHitFields.getId(),
+                                metaKey.toString(),
+                                searchHitFields.getFields().get(MetaSearchSchema.FORTRESS).getValue().toString(),
+                                searchHitFields.getFields().get(MetaSearchSchema.LAST_EVENT).getValue().toString(),
+                                searchHitFields.getType(),
+                                searchHitFields.getFields().get(MetaSearchSchema.WHO).getValue().toString(),
+                                searchHitFields.getFields().get(MetaSearchSchema.WHEN).getValue().toString(),
+                                searchHitFields.getFields().get(MetaSearchSchema.CREATED).getValue().toString(),
+                                searchHitFields.getFields().get(MetaSearchSchema.TIMESTAMP).getValue().toString(),
+                                fragments));
+                    }
                 }
             }
         }

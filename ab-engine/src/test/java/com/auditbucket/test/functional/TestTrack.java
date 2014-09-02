@@ -33,6 +33,7 @@ import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
 import junit.framework.Assert;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -484,7 +485,7 @@ public class TestTrack extends TestEngineBase {
         TrackLog lastLog = trackService.getLastLog(metaHeader.getMetaKey());
         Log lastChange = lastLog.getLog();
         assertNotNull(lastChange);
-        assertEquals(workingDate.toDate(), new Date(lastLog.getFortressWhen()));
+        assertEquals(workingDate, new DateTime(lastLog.getFortressWhen()));
         metaHeader = trackService.getHeader(ahWP);
         assertEquals(max, trackService.getLogCount(metaHeader.getMetaKey()));
 
@@ -522,7 +523,7 @@ public class TestTrack extends TestEngineBase {
         assertEquals(2, logs.size());
         metaHeader = trackService.getHeader(ahWP);
         compareUser(metaHeader, secondLog.getFortressUser());
-        assertEquals(secondLog.getWhatLog().getTrackLog().getFortressWhen(), metaHeader.getFortressLastWhen());
+        assertEquals(new Long(secondLog.getWhatLog().getTrackLog().getFortressWhen().getMillis()), metaHeader.getFortressLastWhen());
 
         // Test block
         trackService.cancelLastLogSync(fortress.getCompany(), metaHeader.getMetaKey());
@@ -530,7 +531,7 @@ public class TestTrack extends TestEngineBase {
         assertEquals(1, logs.size());
         metaHeader = trackService.getHeader(ahWP); // Refresh the header
         compareUser(metaHeader, firstLog.getFortressUser());
-        assertEquals(firstLog.getWhatLog().getTrackLog().getFortressWhen(), metaHeader.getFortressLastWhen());
+        assertEquals(firstLog.getWhatLog().getTrackLog().getFortressWhen(), new DateTime(metaHeader.getFortressLastWhen()));
 
         // Last change cancelled
         trackService.cancelLastLogSync(fortress.getCompany(), metaHeader.getMetaKey());
@@ -578,10 +579,10 @@ public class TestTrack extends TestEngineBase {
         mediationFacade.processLog(logInputBean);
 
         TrackLog log = trackService.getLastLog(ahWP);
-        assertEquals("Fortress modification date&time do not match", log.getFortressWhen().longValue(), logTime.getMillis());
+        assertEquals("Fortress modification date&time do not match", log.getFortressWhen().getMillis(), logTime.getMillis());
         MetaHeader header = trackService.getHeader(ahWP);
         assertEquals(fortressDateCreated.getMillis(), header.getFortressDateCreated().getMillis());
-        assertEquals("Fortress log time doesn't match", logTime.getMillis(), log.getFortressWhen().longValue());
+        assertEquals("Fortress log time doesn't match", logTime.getMillis(), log.getFortressWhen().getMillis());
 
     }
 
@@ -815,14 +816,75 @@ public class TestTrack extends TestEngineBase {
         TrackResultBean trackResultBean = trackEP.trackHeader(inputBean, su.getApiKey(), su.getApiKey()).getBody();
         waitForALog(trackResultBean.getMetaHeader(), su.getApiKey());
         TrackLog lastLog = trackService.getLastLog(trackResultBean.getMetaHeader());
-        assertEquals(past.getMillis(), lastLog.getFortressWhen().longValue());
+        assertEquals(past.getMillis(), lastLog.getFortressWhen().getMillis());
         assertEquals(past.getMillis(), trackResultBean.getMetaHeader().getFortressDateCreated().getMillis());
         assertEquals("Modified " + new Date(trackResultBean.getMetaHeader().getLastUpdate()),
                 past.getMillis(), trackResultBean.getMetaHeader().getFortressLastWhen().longValue());
 
         logger.info(lastLog.toString());
     }
+    @Test
+    public void abFortressDateFields() throws Exception {
+        // DAT-196
+        logger.info("## utcDateFields");
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        FortressInputBean fib = new FortressInputBean("utcDateFields", true);
+        String timeZone = "Europe/Copenhagen"; // Arbitrary TZ
+        fib.setTimeZone(timeZone);
+        Fortress fo = fortressService.registerFortress(fib);
+        DateTimeZone tz = DateTimeZone.forTimeZone(TimeZone.getTimeZone(timeZone));
 
+        DateTime fortressDateCreated = new DateTime(2013, 12, 6, 4,30,tz);
+        DateTime lastUpdated = new DateTime(DateTimeZone.forTimeZone(TimeZone.getTimeZone(timeZone)));
+
+        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", fortressDateCreated, "ABC123");
+        assertEquals("MetaInputBean mutated the date", 0, fortressDateCreated.toDate().compareTo(inputBean.getWhen()));
+        inputBean.setLog(new LogInputBean("wally", lastUpdated, TestHelper.getRandomMap()));
+
+        TrackResultBean result = mediationFacade.createHeader(inputBean, su.getApiKey()); // Mock result as we're not tracking
+
+        MetaHeader metaHeader = trackService.getHeader(result.getMetaKey());
+        assertEquals("ab.monowai." + fo.getCode(), metaHeader.getIndexName());
+        assertEquals("DateCreated not in Fortress TZ", 0, fortressDateCreated.compareTo(metaHeader.getFortressDateCreated()));
+
+        TrackLog log = trackService.getLastLog(su.getCompany(), result.getMetaKey());
+        assertEquals("LogDate not in Fortress TZ", 0, lastUpdated.compareTo(log.getFortressWhen(tz)));
+    }
+    @Test
+    public void clientInDifferentTZ() throws Exception {
+        // DAT-196
+        logger.info("## clientInDifferentTZ");
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        FortressInputBean fib = new FortressInputBean("clientInDifferentTZ", true);
+        String clientTz = TimeZone.getDefault().getID(); // Arbitrary TZ
+
+        String fortressTz = "Europe/Copenhagen"; // Arbitrary TZ
+        fib.setTimeZone(fortressTz);
+        Fortress fo = fortressService.registerFortress(fib);
+
+        DateTimeZone tz = DateTimeZone.forTimeZone(TimeZone.getTimeZone(fortressTz));
+
+        // No timezone is specifically created and the client is in a different country
+        //  and sending data to the server.
+        DateTime fortressDateCreated = new DateTime(2013, 12, 6, 4,30);// This should get converted to the fortress TZ, not left in the clients
+        DateTime expectedCreateDate = new DateTime(fortressDateCreated, tz); // The date we are expecting
+        DateTime lastUpdated = new DateTime();// In the clients TZ. Needs to be treated as if in the fortress TZ
+
+        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", fortressDateCreated, "ABC123");
+        assertEquals("MetaInputBean mutated the date", 0, fortressDateCreated.toDate().compareTo(inputBean.getWhen()));
+        inputBean.setLog(new LogInputBean("wally", lastUpdated, TestHelper.getRandomMap()));
+
+        TrackResultBean result = mediationFacade.createHeader(inputBean, su.getApiKey()); // Mock result as we're not tracking
+
+        MetaHeader metaHeader = trackService.getHeader(result.getMetaKey());
+        assertEquals("ab.monowai." + fo.getCode(), metaHeader.getIndexName());
+        assertEquals("DateCreated not in Fortress TZ", 0, expectedCreateDate.compareTo(metaHeader.getFortressDateCreated()));
+
+        TrackLog log = trackService.getLastLog(su.getCompany(), result.getMetaKey());
+        assertEquals("LogDate not in Fortress TZ", 0, lastUpdated.compareTo(log.getFortressWhen(tz)));
+
+
+    }
     private void compareUser(MetaHeader header, String userName) {
         FortressUser fu = fortressService.getUser(header.getLastUser().getId());
         assertEquals(userName, fu.getCode());

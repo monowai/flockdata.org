@@ -49,6 +49,7 @@ import io.searchbox.indices.mapping.GetMapping;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -559,6 +560,42 @@ public class TestABIntegration {
         // Two search docs,but one without a metaKey
 
     }
+
+    @Test
+    public void utcDatFields() throws Exception {
+        // DAT-196
+        //assumeTrue(runMe);
+        logger.info("## utcDatFields");
+        SystemUser su = registerSystemUser("Kiwi-UTC");
+        FortressInputBean fib = new FortressInputBean("utcDatFields", false);
+        fib.setTimeZone("Europe/Copenhagen"); // Arbitrary TZ
+        Fortress fo = fortressService.registerFortress(fib);
+
+        DateTime fortressDateCreated = new DateTime(2013, 12, 6, 4,30).toDateTime(DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/Copenhagen")));
+        DateTime lastUpdated = new DateTime().toDateTime(DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/Copenhagen")));
+
+        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", fortressDateCreated, "ABC123");
+        inputBean.setLog(new LogInputBean("wally", lastUpdated, getRandomMap()));
+
+        TrackResultBean result = mediationFacade.createHeader(inputBean, su.getApiKey()); // Mock result as we're not tracking
+
+        MetaHeader metaHeader = trackService.getHeader(result.getMetaKey());
+
+        assertEquals("ab.monowai." + fo.getCode(), metaHeader.getIndexName());
+
+        waitForHeaderToUpdate(metaHeader, su.getApiKey()); // 2nd document in the index
+        // We have one with a metaKey and one without
+        doEsQuery("ab.monowai." + fo.getCode(), "*", 2);
+
+        QueryParams qp = new QueryParams(fo);
+        qp.setSimpleQuery("*");
+        runMetaQuery(qp);
+        EsSearchResult queryResults = runSearchQuery(su, qp);
+        assertNotNull(queryResults);
+        assertEquals(2, queryResults.getResults().size());
+
+    }
+
 
     private EsSearchResult runSearchQuery(SystemUser su, QueryParams input) throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/query/")
