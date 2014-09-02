@@ -24,6 +24,7 @@ import com.auditbucket.engine.repo.redis.RedisRepo;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.test.utils.AbstractRedisSupport;
 import com.auditbucket.track.bean.LogInputBean;
@@ -103,13 +104,13 @@ public class WhatServiceTest extends AbstractRedisSupport {
     private void testKVStore() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(authA);
         logger.debug("Registering system user!");
-        regService.registerSystemUser(new RegistrationBean("Company", email).setIsUnique(false));
+        SystemUser su = regService.registerSystemUser(new RegistrationBean("Company", email).setIsUnique(false));
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("Audit Test", true));
         String docType = "TestAuditX";
         String callerRef = "ABC123R";
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
 
-        String ahKey = mediationFacade.createHeader(inputBean, null).getMetaKey();
+        String ahKey = mediationFacade.createHeader(su.getCompany(), inputBean).getMetaKey();
         assertNotNull(ahKey);
         MetaHeader header = trackService.getHeader(ahKey);
         Map<String, Object> what = getWhatMap();
