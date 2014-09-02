@@ -135,7 +135,7 @@ public class MetaHeaderNode implements MetaHeader {
         if (when == null)
             fortressCreate = new DateTime(dateCreated, DateTimeZone.forTimeZone(TimeZone.getTimeZone(this.fortress.getTimeZone()))).getMillis();
         else
-            fortressCreate = when.getTime();
+            fortressCreate = new DateTime (when.getTime()).getMillis();//new DateTime( when.getTime(), DateTimeZone.forTimeZone(TimeZone.getTimeZone(metaInput.getMetaTZ()))).toDate().getTime();
 
         lastUpdate = 0l;
         this.event = metaInput.getEvent();
