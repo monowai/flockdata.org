@@ -25,22 +25,32 @@ public class SimpleUser implements UserProfileService {
 
     @Override
 	public UserProfile getUser(Authentication authentication) {
-		User auth = (User) authentication.getPrincipal();
-		UserProfile userProfile = new UserProfile();
-		userProfile.setUserId(auth.getUsername());
+        Object userName = authentication.getPrincipal();
+        String login;
+        User auth = null;
+        if ( userName instanceof String )
+            login = (String)userName;
+        else {
+            login = ((User)authentication.getPrincipal()).getUsername();
+            auth = (User) authentication.getPrincipal();
+        }
+
+        UserProfile userProfile = new UserProfile();
+		userProfile.setUserId(login);
 		userProfile.setStatus("ENABLED");
 
-		if (!auth.getAuthorities().isEmpty()) {
+		if (auth!=null && !auth.getAuthorities().isEmpty()) {
             for (GrantedAuthority grantedAuthority : auth.getAuthorities()) {
                 userProfile.addUserRole(grantedAuthority.getAuthority());
             }
 		}
-
-		SystemUser sysUser = systemUserService.findByLogin(auth.getUsername());
-		if (sysUser != null) {
-			userProfile.setApiKey(sysUser.getApiKey());
-			userProfile.setCompany(sysUser.getCompany().getName());
-		}
+        if ( auth!=null ) {
+            SystemUser sysUser = systemUserService.findByLogin(login);
+            if (sysUser != null) {
+                userProfile.setApiKey(sysUser.getApiKey());
+                userProfile.setCompany(sysUser.getCompany().getName());
+            }
+        }
 
 		return userProfile;
 	}

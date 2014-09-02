@@ -88,7 +88,10 @@ public class TrackEP {
 
     public int trackHeaders(List<MetaInputBean> inputBeans, boolean async, String apiKey) throws DatagioException, IOException {
         Company company = registrationService.resolveCompany(apiKey);
-        Fortress fortress = fortressService.registerFortress(company, new FortressInputBean(inputBeans.iterator().next().getFortress()), true);
+        MetaInputBean mib = inputBeans.iterator().next();
+        FortressInputBean fib = new FortressInputBean(mib.getFortress());
+        fib.setTimeZone(mib.getTimezone());
+        Fortress fortress = fortressService.registerFortress(company, fib, true);
         if (async) {
             Future<Integer> batch = mediationFacade.createHeadersAsync(company, fortress, inputBeans);
             Thread.yield();
@@ -121,7 +124,8 @@ public class TrackEP {
         // curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8081/ab-engine/track/track/ -d '"fortress":"MyFortressName", "fortressUser": "yoursystemuser", "documentType":"CompanyNode","when":"2012-11-10"}'
 
         TrackResultBean trackResultBean;
-        trackResultBean = mediationFacade.createHeader(input, ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+        Company company = getCompany(apiHeaderKey, apiKey);
+        trackResultBean = mediationFacade.createHeader(company, input);
         trackResultBean.setServiceMessage("OK");
         return new ResponseEntity<>(trackResultBean, HttpStatus.OK);
 
@@ -166,7 +170,8 @@ public class TrackEP {
         input.setDocumentType(recordType);
         input.setCallerRef(callerRef);
         input.setMetaKey(null);
-        trackResultBean = mediationFacade.createHeader(input, ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+        Company company = getCompany(apiHeaderKey, ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+        trackResultBean = mediationFacade.createHeader(company, input );
         trackResultBean.setServiceMessage("OK");
         return new ResponseEntity<>(trackResultBean, HttpStatus.OK);
 
