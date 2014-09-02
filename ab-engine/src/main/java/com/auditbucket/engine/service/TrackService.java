@@ -331,7 +331,7 @@ public class TrackService {
 
         resultBean.setSysWhen(newLog.getSysWhen());
 
-        boolean moreRecent = (existingLog == null || existingLog.getFortressWhen() <= newLog.getFortressWhen());
+        boolean moreRecent = (existingLog == null || existingLog.getFortressWhen().compareTo(newLog.getFortressWhen())<=0 );
 
         if (moreRecent && searchActive)
             resultBean.setLogToIndex(newLog);  // Notional log to index.
@@ -502,7 +502,7 @@ public class TrackService {
             //Set<TrackTag> deletedTags = getLogTags(company, fromLog);
             metaHeader.setLastChange(fromLog);
             metaHeader.setLastUser(fortressService.getFortressUser(metaHeader.getFortress(), fromLog.getWho().getCode()));
-            metaHeader.setFortressLastWhen(newTrack.getFortressWhen());
+            metaHeader.setFortressLastWhen(newTrack.getFortressWhen().getMillis());
             metaHeader = trackDao.save(metaHeader);
             tagTrackService.moveTags(company, fromLog, metaHeader );
             trackDao.delete(currentLog);

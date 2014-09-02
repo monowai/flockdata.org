@@ -31,6 +31,8 @@ import java.util.Map;
  * Since: 13/07/13
  */
 public class SearchResult {
+
+
     // ToDo: Normalize with MetaHeaderResult
     private String metaKey, fortress, searchKey, documentType;
     private Long logId;
@@ -38,6 +40,7 @@ public class SearchResult {
     private Map<String, String[]> fragments;
     private String callerRef;
     private String createdBy;
+    private Long abTimestamp;
 
     public String getLastUser() {
         return lastUser;
@@ -49,10 +52,6 @@ public class SearchResult {
 
     public String getEvent() {
         return event;
-    }
-
-    public Long getDateCreated() {
-        return dateCreated;
     }
 
     public Long getLastUpdate() {
@@ -83,7 +82,8 @@ public class SearchResult {
 
     }
 
-    public SearchResult(String searchKey,
+    public SearchResult(
+                        String searchKey,
                         String metaKey,
                         String fortress,
                         String event,
@@ -91,6 +91,7 @@ public class SearchResult {
                         String lastUser,
                         String lastUpdate,
                         String whenCreated,
+                        String abTimestamp,
                         Map<String, String[]> fragments) {
         this.metaKey = metaKey;
         this.documentType = type;
@@ -103,6 +104,8 @@ public class SearchResult {
             this.lastUpdate = Long.decode(lastUpdate);
         if ( whenCreated !=null )
             this.whenCreated= Long.decode(whenCreated);
+        if ( abTimestamp !=null )
+            this.abTimestamp = Long.decode(abTimestamp);
 
     }
 
@@ -177,26 +180,15 @@ public class SearchResult {
         return fragments;
     }
 
-    public void setMetaHeader(MetaHeader header) {
-        if (header != null) {
-            this.metaId = header.getId();
-            this.callerRef = header.getCallerRef();
-            this.fortress= header.getFortress().getName();
-            this.createdBy = header.getCreatedBy().getCode();
-            this.lastUser = header.getLastUser().getCode();
-            description = header.getDescription();
-            event = header.getEvent();
-            dateCreated = header.getFortressDateCreated().getMillis();
-            lastUpdate = header.getFortressLastWhen();
-            whenCreated = header.getWhenCreated();
-        }
-    }
-
     public String getCallerRef() {
         return callerRef;
     }
 
     public String getCreatedBy() {
         return createdBy;
+    }
+
+    public Long getAbTimestamp() {
+        return abTimestamp;
     }
 }

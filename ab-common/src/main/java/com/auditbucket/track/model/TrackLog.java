@@ -19,6 +19,10 @@
 
 package com.auditbucket.track.model;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.ReadableInstant;
+
 /**
  * User: Mike Holdsworth
  * Date: 21/06/13
@@ -44,7 +48,9 @@ public interface TrackLog {
      */
     public Long getSysWhen();
 
-    public Long getFortressWhen();
+    public DateTime getFortressWhen();
 
     void setMetaHeader(MetaHeader metaHeader);
+
+    DateTime getFortressWhen(DateTimeZone tz);
 }

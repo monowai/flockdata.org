@@ -345,7 +345,7 @@ public class TrackDaoNeo implements TrackDao {
             return newChange.getTrackLog();
         newChange = template.save(newChange);
         template.fetch(newChange.getTrackLog());
-        boolean moreRecent = (existingLog == null || existingLog.getFortressWhen() <= fortressWhen.getMillis());
+        boolean moreRecent = (existingLog == null || existingLog.getFortressWhen().getMillis() <= fortressWhen.getMillis());
         if (moreRecent) {
             if (metaHeader.getLastChange() != null)
                 metaHeader = template.fetch(metaHeader);
