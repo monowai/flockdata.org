@@ -75,7 +75,7 @@ public class TestTxReference extends TestEngineBase{
         MetaInputBean abcHeader = new MetaInputBean(fortressABC.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         abcHeader.setLog(new LogInputBean("charlie", null, DateTime.now(), escJsonA, true));
 
-        TrackResultBean resultBean = mediationFacade.createHeader(abcHeader, null);
+        TrackResultBean resultBean = mediationFacade.createHeader(suABC.getCompany(), abcHeader);
         LogResultBean logResultBean = resultBean.getLogResult();
         assertNotNull(logResultBean);
         String abcTxRef = logResultBean.getTxReference();
@@ -85,7 +85,7 @@ public class TestTxReference extends TestEngineBase{
         SecurityContextHolder.getContext().setAuthentication(authCBA);
         Fortress fortressCBA = fortressService.registerFortress("cbaTest");
         MetaInputBean cbaHeader = new MetaInputBean(fortressCBA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
-        String cbaKey = mediationFacade.createHeader(cbaHeader, null).getMetaKey();
+        String cbaKey = mediationFacade.createHeader(suCBA.getCompany(), cbaHeader).getMetaKey();
 
         LogInputBean cbaLog = new LogInputBean("charlie", cbaKey, DateTime.now(), escJsonA, true);
         assertEquals("CBA Logger Not Created", LogInputBean.LogStatus.OK, mediationFacade.processLog(cbaLog).getLogResult().getStatus());
@@ -104,7 +104,7 @@ public class TestTxReference extends TestEngineBase{
         // WHat happens if ABC tries to use CBA's TX Ref.
         abcHeader = new MetaInputBean(fortressABC.getName(), "wally", "TestTrack", new DateTime(), "ZZZAAA");
         abcHeader.setLog(new LogInputBean("wally", null, DateTime.now(), escJsonA, null, cbaTxRef));
-        TrackResultBean result = mediationFacade.createHeader(abcHeader, null);
+        TrackResultBean result = mediationFacade.createHeader(suABC.getCompany(), abcHeader);
         assertNotNull(result);
         // It works because TX References have only to be unique for a company
         //      ab generated references are GUIDs, but the caller is allowed to define their own transaction
@@ -116,12 +116,12 @@ public class TestTxReference extends TestEngineBase{
     @Test
     public void testTxCommits() throws Exception {
         String company = "Monowai";
-        regService.registerSystemUser(new RegistrationBean(company, mike_admin));
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(company, mike_admin));
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("auditTest", true));
         String tagRef = "MyTXTag";
         MetaInputBean aBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
 
-        String key = mediationFacade.createHeader(aBean, null).getMetaKey();
+        String key = mediationFacade.createHeader(su.getCompany(), aBean).getMetaKey();
         assertNotNull(key);
         MetaHeader header = trackService.getHeader(key);
         assertNotNull(header);
@@ -176,12 +176,12 @@ public class TestTxReference extends TestEngineBase{
     @Test
     public void txHeadersTracked() throws Exception {
         String company = "Monowai";
-        regService.registerSystemUser(new RegistrationBean(company, mike_admin));
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(company, mike_admin));
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("auditTest", true));
         String tagRef = "MyTXTag";
         MetaInputBean aBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
 
-        String key = mediationFacade.createHeader(aBean, null).getMetaKey();
+        String key = mediationFacade.createHeader(su.getCompany(), aBean).getMetaKey();
         assertNotNull(key);
         MetaHeader header = trackService.getHeader(key);
         assertNotNull(header);

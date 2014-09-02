@@ -28,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,7 +48,7 @@ public class MetaSearchChange implements SearchChange {
     private String description;
     private String name;
     private Map<String, Object> what;
-    private Long when;
+    private Date when;
     private String fortressName;
     private String companyName;
     private String who;
@@ -62,15 +63,15 @@ public class MetaSearchChange implements SearchChange {
 
     private String indexName;
     private long sysWhen;
-    private Long createdDate;
     private boolean replyRequired = true;
     private boolean forceReindex;
     private boolean delete;
+    private Date createdDate; // Created in the fortress
 
     /**
      * extracts relevant header records to be used in indexing
      *
-     * @param header auditHeader details (owner of this change)
+     * @param header details
      */
     public MetaSearchChange(MetaHeader header) {
         this();
@@ -84,7 +85,7 @@ public class MetaSearchChange implements SearchChange {
         if (header.getLastUser() != null)
             this.who = header.getLastUser().getCode();
         this.description = header.getDescription();
-        this.createdDate = header.getWhenCreated(); // When created in AuditBucket
+        this.createdDate = header.getFortressDateCreated().toDate(); // UTC When created in AuditBucket
 
     }
 
@@ -134,7 +135,7 @@ public class MetaSearchChange implements SearchChange {
         return this.who;
     }
 
-    public Long getWhen() {
+    public Date getWhen() {
         return when;
     }
 
@@ -144,9 +145,7 @@ public class MetaSearchChange implements SearchChange {
 
     public void setWhen(DateTime when) {
         if ((when != null) && (when.getMillis() != 0))
-            this.when = when.getMillis();
-        else
-            this.when = 0l;
+            this.when = when.toDate();
     }
 
     @Override
@@ -255,10 +254,6 @@ public class MetaSearchChange implements SearchChange {
         return metaId;
     }
 
-    public Long getCreatedDate() {
-        return createdDate;
-    }
-
     @Override
     public void setDescription(String description) {
         this.description = description;
@@ -275,6 +270,11 @@ public class MetaSearchChange implements SearchChange {
 
     public Long getSysWhen() {
         return sysWhen;
+    }
+
+    @Override
+    public Date getCreatedDate() {
+        return createdDate;
     }
 
     @Override
@@ -318,4 +318,5 @@ public class MetaSearchChange implements SearchChange {
     public boolean isDelete() {
         return delete;
     }
+
 }
