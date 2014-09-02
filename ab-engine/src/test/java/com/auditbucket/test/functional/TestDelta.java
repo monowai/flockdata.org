@@ -21,6 +21,7 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.test.utils.TestHelper;
 import com.auditbucket.track.bean.AuditDeltaBean;
 import com.auditbucket.track.bean.LogInputBean;
@@ -49,14 +50,11 @@ public class TestDelta extends TestEngineBase {
     @Test
     public void jsonDeltasAreFound() throws Exception {
         setSecurity();
-        regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
 
         Fortress fortress = fortressService.registerFortress("DELTAForce");
         assertNotNull(fortress);
 
-        String typeA = "TypeA";
-
-        //String jsonA = "{\"house\": \"red\", \"bedrooms\": 2, \"garage\": \"Y\"}";
         Map<String, Object> jsonA = TestHelper.getSimpleMap("house", "red");
         jsonA.put("bedrooms", 2);
         jsonA.put("garage", "Y");
@@ -73,7 +71,7 @@ public class TestDelta extends TestEngineBase {
         MetaInputBean header = new MetaInputBean("DELTAForce", "auditTestz", "Delta", new DateTime(), "abdelta");
         LogInputBean log = new LogInputBean("Mike", new DateTime(), jsonA);
         header.setLog(log);
-        TrackResultBean result = mediationFacade.createHeader(header, null);
+        TrackResultBean result = mediationFacade.createHeader(su.getCompany(), header);
         TrackLog first = trackService.getLastLog(result.getMetaHeader());
         Assert.assertNotNull(first);
         log = new LogInputBean("Mike", result.getMetaKey(), new DateTime(), jsonB);

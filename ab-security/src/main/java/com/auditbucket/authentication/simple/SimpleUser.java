@@ -31,7 +31,7 @@ public class SimpleUser implements UserProfileService {
         if ( userName instanceof String )
             login = (String)userName;
         else {
-            login = (authentication.getPrincipal()).toString();
+            login = ((User)authentication.getPrincipal()).getUsername();
             auth = (User) authentication.getPrincipal();
         }
 
