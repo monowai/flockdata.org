@@ -502,7 +502,7 @@ public class TrackService {
             //Set<TrackTag> deletedTags = getLogTags(company, fromLog);
             metaHeader.setLastChange(fromLog);
             metaHeader.setLastUser(fortressService.getFortressUser(metaHeader.getFortress(), fromLog.getWho().getCode()));
-            metaHeader.setFortressLastWhen(newTrack.getFortressWhen().getMillis());
+            metaHeader.setFortressLastWhen(newTrack.getFortressWhen());
             metaHeader = trackDao.save(metaHeader);
             tagTrackService.moveTags(company, fromLog, metaHeader );
             trackDao.delete(currentLog);

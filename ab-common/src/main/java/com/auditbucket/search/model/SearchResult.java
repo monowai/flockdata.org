@@ -100,10 +100,12 @@ public class SearchResult {
         this.event = event;
         this.fortress = fortress;
         this.lastUser = lastUser;
-        if ( lastUpdate != null )
-            this.lastUpdate = Long.decode(lastUpdate);
         if ( whenCreated !=null )
             this.whenCreated= Long.decode(whenCreated);
+
+        if ( lastUpdate != null && !lastUpdate.equals(whenCreated) )
+            this.lastUpdate = Long.decode(lastUpdate);
+
         if ( abTimestamp !=null )
             this.abTimestamp = Long.decode(abTimestamp);
 
@@ -190,5 +192,13 @@ public class SearchResult {
 
     public Long getAbTimestamp() {
         return abTimestamp;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setCallerRef(String callerRef) {
+        this.callerRef = callerRef;
     }
 }

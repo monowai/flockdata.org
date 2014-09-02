@@ -53,7 +53,7 @@ public class LoggedRelationship implements TrackLog {
     @Fetch
     private Long fortressWhen = 0l;
 
-    private String tz = null;
+    private String timezone = null;
 
     //@Indexed
     // ToDo: Associated with a node if Not Indexed. This is for maintenance and rebuilding missing docs.
@@ -68,7 +68,7 @@ public class LoggedRelationship implements TrackLog {
         this();
         this.metaHeader = (MetaHeaderNode) header;
         this.log = (LogNode) log;
-        this.tz = header.getFortress().getTimeZone();
+        this.timezone = header.getFortress().getTimeZone();
         if (fortressWhen != null && fortressWhen.getMillis() != 0) {
             setFortressWhen(fortressWhen);
         } else {
@@ -86,8 +86,8 @@ public class LoggedRelationship implements TrackLog {
         return new DateTime(fortressWhen, tz);
     }
 
-    public DateTime getFortressWhen() {
-        return new DateTime(fortressWhen);
+    public Long getFortressWhen() {
+        return fortressWhen;
     }
 
     void setFortressWhen(DateTime fortressWhen){

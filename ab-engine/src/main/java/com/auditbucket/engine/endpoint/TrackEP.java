@@ -88,7 +88,10 @@ public class TrackEP {
 
     public int trackHeaders(List<MetaInputBean> inputBeans, boolean async, String apiKey) throws DatagioException, IOException {
         Company company = registrationService.resolveCompany(apiKey);
-        Fortress fortress = fortressService.registerFortress(company, new FortressInputBean(inputBeans.iterator().next().getFortress()), true);
+        MetaInputBean mib = inputBeans.iterator().next();
+        FortressInputBean fib = new FortressInputBean(mib.getFortress());
+        fib.setTimeZone(mib.getTimezone());
+        Fortress fortress = fortressService.registerFortress(company, fib, true);
         if (async) {
             Future<Integer> batch = mediationFacade.createHeadersAsync(company, fortress, inputBeans);
             Thread.yield();

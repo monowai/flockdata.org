@@ -99,6 +99,8 @@ public class QueryDaoES implements QueryDao {
                 .addField(MetaSearchSchema.META_KEY)
                 .addField(MetaSearchSchema.FORTRESS)
                 .addField(MetaSearchSchema.LAST_EVENT)
+                .addField(MetaSearchSchema.DESCRIPTION)
+                .addField(MetaSearchSchema.CALLER_REF)
                 .addField(MetaSearchSchema.WHO)
                 .addField(MetaSearchSchema.WHEN)
                 .addField(MetaSearchSchema.CREATED)
@@ -127,7 +129,7 @@ public class QueryDaoES implements QueryDao {
                     Object metaKey = metaKeyCol.getValue();
                     if (metaKey != null) {
                         Map<String, String[]> fragments = convertHighlightToMap(searchHitFields.getHighlightFields());
-                        results.add(new SearchResult(
+                        SearchResult sr = new SearchResult(
                                 searchHitFields.getId(),
                                 metaKey.toString(),
                                 searchHitFields.getFields().get(MetaSearchSchema.FORTRESS).getValue().toString(),
@@ -137,7 +139,16 @@ public class QueryDaoES implements QueryDao {
                                 searchHitFields.getFields().get(MetaSearchSchema.WHEN).getValue().toString(),
                                 searchHitFields.getFields().get(MetaSearchSchema.CREATED).getValue().toString(),
                                 searchHitFields.getFields().get(MetaSearchSchema.TIMESTAMP).getValue().toString(),
-                                fragments));
+                                fragments);
+                        SearchHitField field = searchHitFields.getFields().get(MetaSearchSchema.DESCRIPTION);
+                        if ( field !=null )
+                            sr.setDescription(field.getValue().toString());
+
+                        field = searchHitFields.getFields().get(MetaSearchSchema.CALLER_REF);
+                        if ( field!=null )
+                            sr.setCallerRef(field.getValue().toString());
+                        results.add(sr);
+
                     }
                 }
             }

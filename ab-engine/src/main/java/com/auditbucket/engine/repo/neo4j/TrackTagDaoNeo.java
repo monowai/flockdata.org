@@ -225,7 +225,7 @@ public class TrackTagDaoNeo implements TrackTagDao {
             Long metaWhen = (Long) trackTag.getProperties().get(AB_WHEN);
             template.fetch(logToMoveFrom.getTrackLog());
             logger.trace("MoveTags - Comparing {} with {}", metaWhen, logToMoveFrom.getTrackLog().getFortressWhen());
-            if ( metaWhen.compareTo(logToMoveFrom.getTrackLog().getFortressWhen().getMillis()) >= 0 ){
+            if ( metaWhen.compareTo(logToMoveFrom.getTrackLog().getFortressWhen()) >= 0 ){
                 // This tag was added to the metaHeader by a more recent log
                 logger.trace("Removing {}", trackTag.getTag().getName());
                 Relationship r = template.getRelationship(trackTag.getId());

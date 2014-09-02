@@ -48,7 +48,7 @@ public class MetaInputBean {
     private boolean searchSuppressed;
     private boolean trackSuppressed = false;
     private boolean metaOnly = false;
-    private String whenTz;
+    private String timezone;
 
 
     public MetaInputBean() {
@@ -108,7 +108,7 @@ public class MetaInputBean {
     public void setWhen(DateTime when) {
         //if (!(log != null && log.getWhen() != null && log.getWhen().getTime() > 0))
         this.when = when.toDate();
-        this.whenTz = when.getZone().getID();
+        //this.metaTZ = when.getZone().getID();
 
     }
 
@@ -334,9 +334,19 @@ public class MetaInputBean {
         return metaOnly;
     }
 
-    public String getTZ() {
-        if (whenTz != null )
-            return whenTz;
+    public void setTimezone(String timezone) {
+        this.timezone = timezone;
+    }
+
+    /**
+     * Only used if the fortress is being created for the first time.
+     * This configures the default TZ used by the fortress for dates
+     *
+     * @return TimeZone.getTimeZone(fortressTz).getID();
+     */
+    public String getTimezone() {
+        if (timezone !=null )
+            return timezone;
         return TimeZone.getDefault().getID();
     }
 }

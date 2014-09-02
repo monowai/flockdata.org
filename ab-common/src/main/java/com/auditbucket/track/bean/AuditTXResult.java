@@ -47,7 +47,7 @@ public class AuditTXResult {
 
     public AuditTXResult(MetaHeader header, Log change, TrackLog log) {
         this();
-        this.fortressWhen = log.getFortressWhen().getMillis();
+        this.fortressWhen = log.getFortressWhen();
         this.auditKey = header.getMetaKey();
         this.documentType = header.getDocumentType();
         this.callerRef = header.getCallerRef();
