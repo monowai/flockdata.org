@@ -33,6 +33,7 @@ import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.MetaSearchSchema;
 import com.auditbucket.search.model.QueryParams;
+import com.auditbucket.search.model.SearchResult;
 import com.auditbucket.track.bean.*;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
@@ -562,17 +563,21 @@ public class TestABIntegration {
     }
 
     @Test
-    public void utcDatFields() throws Exception {
+    public void utcDateFieldsThruToSearch() throws Exception {
         // DAT-196
-        //assumeTrue(runMe);
-        logger.info("## utcDatFields");
+//        assumeTrue(runMe);
+        logger.info("## utcDateFieldsThruToSearch");
         SystemUser su = registerSystemUser("Kiwi-UTC");
-        FortressInputBean fib = new FortressInputBean("utcDatFields", false);
+        FortressInputBean fib = new FortressInputBean("utcDateFieldsThruToSearch", false);
         fib.setTimeZone("Europe/Copenhagen"); // Arbitrary TZ
         Fortress fo = fortressService.registerFortress(fib);
 
-        DateTime fortressDateCreated = new DateTime(2013, 12, 6, 4,30).toDateTime(DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/Copenhagen")));
-        DateTime lastUpdated = new DateTime().toDateTime(DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/Copenhagen")));
+        DateTimeZone ftz = DateTimeZone.forTimeZone(TimeZone.getTimeZone(fib.getTimeZone()));
+        DateTimeZone utz = DateTimeZone.UTC;
+        DateTimeZone ltz = DateTimeZone.getDefault();
+
+        DateTime fortressDateCreated = new DateTime(2013, 12, 6, 4,30,DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/Copenhagen")));
+        DateTime lastUpdated = new DateTime(DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/Copenhagen")));
 
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", fortressDateCreated, "ABC123");
         inputBean.setLog(new LogInputBean("wally", lastUpdated, getRandomMap()));
@@ -582,17 +587,35 @@ public class TestABIntegration {
         MetaHeader metaHeader = trackService.getHeader(result.getMetaKey());
 
         assertEquals("ab.monowai." + fo.getCode(), metaHeader.getIndexName());
+        assertEquals("DateCreated not in Fortress TZ", 0, fortressDateCreated.compareTo(metaHeader.getFortressDateCreated()));
+
+        TrackLog log = trackService.getLastLog(su.getCompany(), result.getMetaKey());
+        assertEquals("LogDate not in Fortress TZ", 0, lastUpdated.compareTo(log.getFortressWhen(ftz)));
+
 
         waitForHeaderToUpdate(metaHeader, su.getApiKey()); // 2nd document in the index
         // We have one with a metaKey and one without
-        doEsQuery("ab.monowai." + fo.getCode(), "*", 2);
+        doEsQuery("ab.monowai." + fo.getCode(), "*", 1);
 
         QueryParams qp = new QueryParams(fo);
         qp.setSimpleQuery("*");
         runMetaQuery(qp);
         EsSearchResult queryResults = runSearchQuery(su, qp);
         assertNotNull(queryResults);
-        assertEquals(2, queryResults.getResults().size());
+        assertEquals(1, queryResults.getResults().size());
+        for (SearchResult searchResult : queryResults.getResults()) {
+            logger.info("whenCreated utc-{}", new DateTime(searchResult.getWhenCreated(), utz));
+            assertEquals(fortressDateCreated, new DateTime( searchResult.getWhenCreated(), ftz));
+            logger.info("whenCreated ftz-{}", new DateTime(searchResult.getWhenCreated(), ftz));
+            assertEquals(new DateTime(fortressDateCreated, utz), new DateTime(searchResult.getWhenCreated(),utz));
+            logger.info("lastUpdate  utc-{}", new DateTime (searchResult.getLastUpdate(), utz));
+            assertEquals(lastUpdated, new DateTime( searchResult.getLastUpdate(), ftz));
+            logger.info("lastUpdate  ftz-{}", new DateTime (searchResult.getLastUpdate(), ftz));
+            assertEquals(new DateTime(lastUpdated, utz), new DateTime(searchResult.getLastUpdate(),utz));
+            assertNotNull ( searchResult.getAbTimestamp());
+            logger.info("timestamp   ltz-{}", new DateTime (searchResult.getAbTimestamp(), ltz));
+
+        }
 
     }
 
