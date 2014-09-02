@@ -165,28 +165,30 @@ public class MediationFacade {
         return inputBeans.size();
     }
 
-    public TrackResultBean createHeader(MetaInputBean inputBean, String apiKey) throws DatagioException, IOException {
-        Company company = registrationService.resolveCompany(apiKey);
-        Fortress fortress = fortressService.registerFortress(company,
-                new FortressInputBean(inputBean.getFortress(), false)
-                        .setTimeZone(inputBean.getTimezone()));
+    public TrackResultBean createHeader(Company company, MetaInputBean inputBean) throws DatagioException, IOException {
+        //Company company = registrationService.resolveCompany(apiKey);
+        Fortress fortress = fortressService.findByName(company, inputBean.getFortress());
+        if ( fortress == null )
+            fortress = fortressService.registerFortress(company,
+                    new FortressInputBean(inputBean.getFortress(), false)
+                            .setTimeZone(inputBean.getTimezone()));
         fortress.setCompany(company);
-        return createHeader(company, fortress, inputBean);
+        return createHeader(fortress, inputBean);
     }
+
 
     /**
      * tracks a header and creates logs. Distributes changes to KV stores and search engine.
      * <p/>
      * This is synchronous and blocks until completed
      *
-     * @param company   - who for
      * @param fortress  - system that owns the data
      * @param inputBean - input
      * @return non-null
      * @throws DatagioException illegal input
      * @throws IOException      json processing exception
      */
-    public TrackResultBean createHeader(final Company company, final Fortress fortress, final MetaInputBean inputBean) throws DatagioException, IOException {
+    public TrackResultBean createHeader(final Fortress fortress, final MetaInputBean inputBean) throws DatagioException, IOException {
         class HeaderDeadlockRetry implements Command {
             TrackResultBean result = null;
 
@@ -200,7 +202,7 @@ public class MediationFacade {
 
                 ArrayList<MetaInputBean> inputBeans = new ArrayList<>();
                 inputBeans.add(inputBean);
-
+                final Company company = fortress.getCompany();
                 schemaService.createDocTypes(inputBeans, company, fortress);
                 TrackResultBean trackResult = trackService.createHeader(company, fortress, inputBean);
                 trackResult.setLogInput(inputBean.getLog());
