@@ -56,7 +56,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -168,7 +167,9 @@ public class MediationFacade {
 
     public TrackResultBean createHeader(MetaInputBean inputBean, String apiKey) throws DatagioException, IOException {
         Company company = registrationService.resolveCompany(apiKey);
-        Fortress fortress = fortressService.registerFortress(company, new FortressInputBean(inputBean.getFortress(), false));
+        Fortress fortress = fortressService.registerFortress(company,
+                new FortressInputBean(inputBean.getFortress(), false)
+                        .setTimeZone(inputBean.getTimezone()));
         fortress.setCompany(company);
         return createHeader(company, fortress, inputBean);
     }
