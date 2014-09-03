@@ -241,10 +241,10 @@ public class TestEngineBase {
 		int i = 0;
 		int timeout = 100;
         int count = 0 ;
+        Thread.sleep(60); // Avoiding RELATIONSHIP[{id}] has no property with propertyKey="__type__" NotFoundException
 		while ( i <= timeout) {
-            Thread.yield();
             MetaHeader updatedHeader = trackService.getHeader(company, header.getMetaKey());
-            count = trackService.getLogCount(updatedHeader.getMetaKey());
+            count = trackService.getLogCount(company, updatedHeader.getMetaKey());
 
             TrackLog log = trackService.getLastLog(company, updatedHeader.getMetaKey());
             // We have at least one log?

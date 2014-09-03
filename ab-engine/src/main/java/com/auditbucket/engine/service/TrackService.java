@@ -227,7 +227,7 @@ public class TrackService {
         if ( metaHeader == null && (trackResultBean.getMetaInputBean()!=null && trackResultBean.getMetaInputBean().isTrackSuppressed()))
             metaHeader = trackResultBean.getMetaHeader();
 
-        logger.debug("writeLog - Received request to log for header=[{}]", metaHeader);
+        logger.debug("writeLog - Received log request for header=[{}]", metaHeader);
         if (metaHeader == null) {
             if (input.getMetaId() == null) {
                 if (metaKey == null || metaKey.equals(EMPTY)) {
@@ -543,13 +543,17 @@ public class TrackService {
     /**
      * counts the number of logs that exist for the given metaHeader
      *
+     *
+     * @param company
      * @param headerKey GUID
      * @return count
      */
-    public int getLogCount(String headerKey) throws DatagioException {
-        MetaHeader metaHeader = getValidHeader(headerKey);
-        return trackDao.getLogs(metaHeader.getId()).size();
-
+    public int getLogCount(Company company, String headerKey) throws DatagioException {
+        MetaHeader metaHeader = getHeader(company, headerKey);
+        logger.debug("looking for logs for MetaHeader id [{}] - metaKey [{}]", metaHeader.getId(), headerKey);
+        int logs = trackDao.getLogs(metaHeader.getId()).size();
+        logger.info("Log count {}",logs);
+        return logs;
     }
 
     private MetaHeader getValidHeader(String headerKey) throws DatagioException {

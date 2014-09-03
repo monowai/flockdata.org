@@ -34,13 +34,13 @@ import java.util.Set;
  */
 public interface TrackLogRepo extends GraphRepository<LogNode> {
 
-    @Query(value = "start metaHeader=node({0}) match metaHeader-[cw:LOGGED]->log return count(log)")
+    @Query(value = "match metaHeader-[cw:LOGGED]->log where id(metaHeader)={0} return count(cw)")
     int getLogCount(Long metaHeaderId);
 
     @Query(elementClass = LoggedRelationship.class,
             value = "match (change:Log)<-[log:LOGGED]-() where id(change)={0} " +
                     "   return log")
-    LoggedRelationship getLastLog(Long metaHeaderId);
+    LoggedRelationship getLog(Long logId);
 
     @Query(elementClass = LoggedRelationship.class, value = "match (header)-[log:LOGGED]->(auditLog) where id(header)={0} and log.fortressWhen >= {1} and log.fortressWhen <= {2} return log ")
     Set<TrackLog> getLogs(Long metaHeaderId, Long from, Long to);
