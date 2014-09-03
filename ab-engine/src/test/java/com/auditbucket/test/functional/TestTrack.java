@@ -805,8 +805,10 @@ public class TestTrack extends TestEngineBase {
         inputBean.setLog(logInputBean);
         inputBeans = new ArrayList<>();
         inputBeans.add(inputBean);
-        logger.info ("creating {} headers", inputBeans.size());
+        logger.info ("creating {} headers. Current count = {}", inputBeans.size(), trackService.getLogCount(header.getMetaKey()));
+
         mediationFacade.createHeaders(su.getCompany(), fortress, inputBeans, 1);
+        logger.info ("Current count now at {}", trackService.getLogCount(header.getMetaKey()));
 
         waitForLogCount(su.getCompany(), header, 2);
         header = trackService.findByCallerRef(fortress, "TestTrack", callerRef );

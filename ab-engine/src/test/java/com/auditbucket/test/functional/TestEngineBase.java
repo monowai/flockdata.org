@@ -240,14 +240,14 @@ public class TestEngineBase {
 		// Looking for the first searchKey to be logged against the metaHeader
 		int i = 0;
 		int timeout = 100;
-
+        int count = 0 ;
 		while ( i <= timeout) {
             MetaHeader updatedHeader = trackService.getHeader(company, header.getMetaKey());
-            int count = trackService.getLogCount(updatedHeader.getMetaKey());
+            count = trackService.getLogCount(updatedHeader.getMetaKey());
 
             TrackLog log = trackService.getLastLog(company, updatedHeader.getMetaKey());
             // We have at least one log?
-			if ( log !=null && count == expectedCount )
+			if ( count == expectedCount )
 				return log;
 			Thread.yield();
 			if (i > 20)
@@ -257,7 +257,7 @@ public class TestEngineBase {
 		if (i > 22)
 			logger.info("Wait for log got to [{}] for metaId [{}]", i,
 					header.getId());
-        throw new Exception(String.format("Timedout waiting for the defined log count of %s", expectedCount));
+        throw new Exception(String.format("Timeout waiting for the defined log count of %s. We found %s", expectedCount, count));
 	}
     long waitForFirstLog(Company company, MetaHeader header) throws Exception {
         // Looking for the first searchKey to be logged against the metaHeader

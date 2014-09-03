@@ -34,7 +34,7 @@ import java.util.Set;
  */
 public interface TrackLogRepo extends GraphRepository<LogNode> {
 
-    @Query(value = "start metaHeader=node({0}) match metaHeader-[cw:LOGGED]->log return count(cw)")
+    @Query(value = "start metaHeader=node({0}) match metaHeader-[cw:LOGGED]->log return count(log)")
     int getLogCount(Long metaHeaderId);
 
     @Query(elementClass = LoggedRelationship.class,
