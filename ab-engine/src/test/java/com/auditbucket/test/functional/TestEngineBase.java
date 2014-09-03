@@ -196,7 +196,7 @@ public class TestEngineBase {
 	}
 
     SystemUser registerSystemUser(String companyName, String accessUser) throws Exception{
-        waitAWhile(20); // Trying to avoid Heuristic exception down to the creation of a company altering indexes
+        waitAWhile(80); // Trying to avoid Heuristic exception down to the creation of a company altering indexes
         return regService.registerSystemUser(new RegistrationBean(companyName, accessUser).setIsUnique(false));
     }
 
