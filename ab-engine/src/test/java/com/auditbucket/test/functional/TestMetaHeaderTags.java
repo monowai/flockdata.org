@@ -333,7 +333,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
         assertEquals(3, tagSet.size());
 
         String apiKey = iSystemUser.getApiKey();
-        TrackedSummaryBean summaryBean = trackEP.getAuditSummary(metaHeader.getMetaKey(),apiKey, apiKey ).getBody();
+        TrackedSummaryBean summaryBean = trackEP.getTrackedSummary(metaHeader.getMetaKey(), apiKey, apiKey).getBody();
         assertNotNull(summaryBean);
         assertEquals(3, summaryBean.getTags().size());
 
