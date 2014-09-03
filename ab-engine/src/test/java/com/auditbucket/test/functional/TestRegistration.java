@@ -119,7 +119,7 @@ public class TestRegistration extends TestEngineBase {
         assertEquals(3, fortresses.size());
 
         setSecurity(sally_admin);
-        registrationEP.registerSystemUser(new RegistrationBean("CompanyBB", harry)).getBody();
+        regService.registerSystemUser(new RegistrationBean("CompanyBB", harry));
         // Switch to the newly created user
         setSecurity(harry);
 
@@ -135,12 +135,12 @@ public class TestRegistration extends TestEngineBase {
     @Test
     public void companyLocators () throws Exception{
         setSecurity(mike_admin);
-        String apiKey = registrationEP.registerSystemUser(new RegistrationBean("companyLocators", "mike").setIsUnique(false)).getBody().getApiKey();
+        SystemUser su = regService.registerSystemUser(new RegistrationBean("companyLocators", "mike").setIsUnique(false));
 
         Collection<Company> companies = companyService.findCompanies();
         assertEquals(1, companies.size());
         Company listCompany = companies.iterator().next();
-        Company foundCompany = companyEP.getCompany(listCompany.getName(), apiKey, apiKey).getBody();
+        Company foundCompany = companyService.findByName(listCompany.getName());
         assertEquals(null, listCompany.getId(), foundCompany.getId());
         try {
             assertEquals(null, companyEP.getCompany(foundCompany.getName(), "illegal", "illegal"));
@@ -148,7 +148,7 @@ public class TestRegistration extends TestEngineBase {
         } catch (DatagioException e ){
             // Illegal API key so this is good.
         }
-        ResponseEntity re = companyEP.getCompany("IllegalCompany Name", apiKey, apiKey);
+        ResponseEntity re = companyEP.getCompany("IllegalCompany Name", su.getApiKey(), su.getApiKey());
         assertEquals(HttpStatus.NOT_FOUND, re.getStatusCode());
         assertEquals(null, re.getBody());
     }
@@ -156,7 +156,7 @@ public class TestRegistration extends TestEngineBase {
     @Test
     public void differentUsersCantAccessKnownCompany () throws Exception{
         setSecurity(mike_admin);
-        String apiKeyMike = registrationEP.registerSystemUser(new RegistrationBean("coA123", mike_admin).setIsUnique(false)).getBody().getApiKey();
+        String apiKeyMike = regService.registerSystemUser(new RegistrationBean("coA123", mike_admin).setIsUnique(false)).getApiKey();
 
         Collection<Company> companies = companyService.findCompanies();
         assertEquals(1, companies.size());
@@ -165,7 +165,7 @@ public class TestRegistration extends TestEngineBase {
         assertEquals(null, listCompany.getId(), foundCompany.getId());
 
         setSecurity(sally_admin);
-        String apiKeySally = registrationEP.registerSystemUser(new RegistrationBean("coB123", sally_admin).setIsUnique(false)).getBody().getApiKey();
+        String apiKeySally = regService.registerSystemUser(new RegistrationBean("coB123", sally_admin).setIsUnique(false)).getApiKey();
 
         try {
             assertEquals("Sally's APIKey cannot see Mikes company record", null, companyEP.getCompany("coA123", apiKeySally, apiKeySally));
