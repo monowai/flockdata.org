@@ -358,7 +358,7 @@ public class TestABIntegration {
         watch.stop();
         // Test that we get the expected number of log events
         if (!"rest".equals(System.getProperty("neo4j"))) // Don't check if running over rest
-            assertEquals("This will fail if the DB is not cleared down, i.e. testing over REST", max, trackService.getLogCount(ahKey));
+            assertEquals("This will fail if the DB is not cleared down, i.e. testing over REST", max, trackService.getLogCount(su.getCompany(), ahKey));
 
         doEsFieldQuery(metaHeader.getIndexName(), MetaSearchSchema.WHAT + ".blah", "*", 1);
     }

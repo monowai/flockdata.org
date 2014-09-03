@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.annotation.Repeat;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.StopWatch;
 import org.springframework.web.context.WebApplicationContext;
@@ -219,7 +220,7 @@ public class TestTrack extends TestEngineBase {
 
         // Test that we get the expected number of log events
 //        waitAWhile();
-        assertEquals(max, (double) trackService.getLogCount(ahKey));
+        assertEquals(max, (double) trackService.getLogCount(su.getCompany(), ahKey));
     }
 
     /**
@@ -260,7 +261,7 @@ public class TestTrack extends TestEngineBase {
             mediationFacade.processLog(new LogInputBean("wally", metaKey, new DateTime(), json));
             i++;
         }
-        assertEquals(1d, (double) trackService.getLogCount(metaKey));
+        assertEquals(1d, (double) trackService.getLogCount(su.getCompany(), metaKey));
         Set<TrackLog> logs = trackService.getLogs(fortress.getCompany(), metaKey);
         assertNotNull(logs);
         assertFalse(logs.isEmpty());
@@ -285,7 +286,7 @@ public class TestTrack extends TestEngineBase {
 
         mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), TestHelper.getSimpleMap("blah", 0)));
         mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), TestHelper.getSimpleMap("blah", 1)));
-        assertEquals(2, trackService.getLogCount(resultBean.getMetaKey()));
+        assertEquals(2, trackService.getLogCount(su.getCompany(), resultBean.getMetaKey()));
     }
 
     @Test
@@ -302,7 +303,7 @@ public class TestTrack extends TestEngineBase {
         assertNotNull(resultBean.getMetaKey());
         assertEquals("MikesNameTest", resultBean.getMetaHeader().getName());
         assertTrue(resultBean.getMetaHeader().toString().contains(resultBean.getMetaKey()));
-        assertEquals(1, trackService.getLogCount(resultBean.getMetaKey()));
+        assertEquals(1, trackService.getLogCount(su.getCompany(), resultBean.getMetaKey()));
     }
 
     @Test
@@ -316,7 +317,7 @@ public class TestTrack extends TestEngineBase {
         TrackResultBean resultBean = mediationFacade.createHeader(su.getCompany(), inputBean);
         assertNotNull(resultBean);
         assertNotNull(resultBean.getMetaKey());
-        assertEquals(1, trackService.getLogCount(resultBean.getMetaKey()));
+        assertEquals(1, trackService.getLogCount(su.getCompany(), resultBean.getMetaKey()));
     }
 
     @Test
@@ -392,8 +393,8 @@ public class TestTrack extends TestEngineBase {
         StopWatch watch = new StopWatch();
         watch.start();
 
-        createLogRecords(authMike, ahWP, "house", 20);
-        createLogRecords(authHarry, ahHS, "house", 40);
+        createLogRecords(authMike, su, ahWP, "house", 20);
+        createLogRecords(authHarry, suB, ahHS, "house", 40);
         watch.stop();
         logger.info(watch.prettyPrint()+ " avg = " + (watch.getLastTaskTimeMillis() / 1000d) / max);
 
@@ -495,7 +496,7 @@ public class TestTrack extends TestEngineBase {
         assertNotNull(lastChange);
         assertEquals(workingDate, new DateTime(lastLog.getFortressWhen()));
         metaHeader = trackService.getHeader(ahWP);
-        assertEquals(max, trackService.getLogCount(metaHeader.getMetaKey()));
+        assertEquals(max, trackService.getLogCount(su.getCompany(), metaHeader.getMetaKey()));
 
         DateTime then = workingDate.minusDays(4);
         logger.info("Searching between " + then.toDate() + " and " + workingDate.toDate());
@@ -780,6 +781,7 @@ public class TestTrack extends TestEngineBase {
     }
 
     @Test
+    @Repeat(5)
     public void lastLogSequencesInSeparateCallsToBulkLoadEP() throws Exception {
         SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
         EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
@@ -791,6 +793,7 @@ public class TestTrack extends TestEngineBase {
         LogInputBean logInputBean = new LogInputBean("mike", new DateTime(), TestHelper.getSimpleMap("col", 123));
         inputBean.setLog(logInputBean);
         inputBeans.add(inputBean);
+        logger.debug("** First Track Event");
         Collection<TrackResultBean> results = mediationFacade.createHeaders(su.getCompany(), fortress, inputBeans, 10);
         MetaHeader header = results.iterator().next().getMetaHeader();
         waitForFirstLog(su.getCompany(), header);
@@ -805,10 +808,11 @@ public class TestTrack extends TestEngineBase {
         inputBean.setLog(logInputBean);
         inputBeans = new ArrayList<>();
         inputBeans.add(inputBean);
-        logger.info ("creating {} headers. Current count = {}", inputBeans.size(), trackService.getLogCount(header.getMetaKey()));
+        logger.info ("creating {} headers. Current count = {}", inputBeans.size(), trackService.getLogCount(su.getCompany(), header.getMetaKey()));
 
+        logger.debug("** Second Track Event");
         mediationFacade.createHeaders(su.getCompany(), fortress, inputBeans, 1);
-        logger.info ("Current count now at {}", trackService.getLogCount(header.getMetaKey()));
+        logger.info ("Current count now at {}", trackService.getLogCount(su.getCompany(), header.getMetaKey()));
 
         waitForLogCount(su.getCompany(), header, 2);
         header = trackService.findByCallerRef(fortress, "TestTrack", callerRef );
@@ -947,14 +951,14 @@ public class TestTrack extends TestEngineBase {
 
     }
 
-    private void createLogRecords(Authentication auth, String auditHeader, String key, double recordsToCreate) throws Exception {
+    private void createLogRecords(Authentication auth, SystemUser su, String auditHeader, String key, double recordsToCreate) throws Exception {
         int i = 0;
         SecurityContextHolder.getContext().setAuthentication(auth);
         while (i < recordsToCreate) {
             mediationFacade.processLog(new LogInputBean("wally", auditHeader, new DateTime(), TestHelper.getSimpleMap(key, "house" + i), (String) null));
             i++;
         }
-        assertEquals(recordsToCreate, (double) trackService.getLogCount(auditHeader));
+        assertEquals(recordsToCreate, (double) trackService.getLogCount(su.getCompany(), auditHeader));
     }
 
 

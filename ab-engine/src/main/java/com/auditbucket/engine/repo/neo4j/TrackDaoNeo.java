@@ -344,29 +344,31 @@ public class TrackDaoNeo implements TrackDao {
         if (metaHeader.getId() == null)// This occurs when tracking in ab-engine is suppressed and the caller is only creating search docs
             return newChange.getTrackLog();
 
+        if ( metaHeader.getLastChange()!=null )
+            metaHeader = template.fetch(metaHeader);
+
         //template.fetch(newChange.getTrackLog());
         boolean moreRecent = (existingLog == null || existingLog.getFortressWhen() <= fortressWhen.getMillis());
         if (moreRecent) {
-            if (metaHeader.getLastChange() != null)
-                metaHeader = template.fetch(metaHeader);
             if (metaHeader.getLastUser() == null || (!metaHeader.getLastUser().getId().equals(newChange.getWho().getId()))) {
                 metaHeader.setLastUser(newChange.getWho());
             }
             metaHeader.setFortressLastWhen(fortressWhen.getMillis());
             metaHeader.setLastChange(newChange);
-            logger.debug("Saving more recent change, logid [{}]", newChange.getEvent());
+            logger.debug("Detected a more recent change for header {}. Setting it to be the most recent.", metaHeader.getId());
             try {
                 template.save(metaHeader);
             } catch (IllegalStateException e) {
                 logger.error("ISE saving header {}", new Date(newChange.getTrackLog().getSysWhen()));
                 logger.error("Unexpected", e);
             }
+            logger.debug("Saved change for header [{}], logid [{}]", metaHeader.getId(), newChange.getId());
 
         } else {
             newChange = template.save(newChange);
         }
         logger.debug("Added Log - MetaHeader [{}], Log [{}], Change [{}]", metaHeader.getId(), newChange.getTrackLog(), newChange.getId());
-        newChange.getTrackLog().setMetaHeader(metaHeader);
+        //newChange.getTrackLog().setMetaHeader(metaHeader);
         return newChange.getTrackLog();
     }
 
@@ -447,7 +449,7 @@ public class TrackDaoNeo implements TrackDao {
         if (lastChange == null)
             return null;
 
-        return trackLogRepo.getLastLog(lastChange.getId());
+        return trackLogRepo.getLog(lastChange.getId());
     }
 
 
