@@ -60,7 +60,7 @@
 
     <!-- Root Logger -->
     <logger name="com.auditbucket">
-        <level value="info"/>
+        <level value="debug"/>
     </logger>
 
 
