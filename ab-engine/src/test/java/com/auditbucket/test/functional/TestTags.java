@@ -132,6 +132,7 @@ public class TestTags extends TestEngineBase {
 
     @Test
     public void tagMustExist() throws Exception {
+        Thread.sleep(200);
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
         assertNotNull(iSystemUser);
 
@@ -153,7 +154,7 @@ public class TestTags extends TestEngineBase {
 
     @Test
     public void tagWithProperties() throws Exception {
-        //assumeTrue(false);// Not yet supported
+        Thread.sleep(200);
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
         assertNotNull(iSystemUser);
 
@@ -176,6 +177,7 @@ public class TestTags extends TestEngineBase {
 
     @Test
     public void prohibitedPropertiesIgnored() throws Exception {
+        Thread.sleep(200);
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, "mike").setIsUnique(false));
         assertNotNull(iSystemUser);
 
@@ -196,6 +198,7 @@ public class TestTags extends TestEngineBase {
 
     @Test
     public void targetRelationships() throws Exception {
+        Thread.sleep(200);
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, "mike").setIsUnique(false));
         assertNotNull(iSystemUser);
 
@@ -224,6 +227,7 @@ public class TestTags extends TestEngineBase {
 
     @Test
     public void customLabelsSingleTenant() throws Exception {
+        Thread.sleep(200);
         engineAdmin.setMultiTenanted(false);
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, "mike").setIsUnique(false));
         assertNotNull(iSystemUser);
@@ -345,6 +349,7 @@ public class TestTags extends TestEngineBase {
 
     @Test
     public void duplicateTagsForSameIndexReturnSingleTag() throws Exception {
+        Thread.sleep(200);
         engineAdmin.setMultiTenanted(false);
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
         assertNotNull(iSystemUser);
