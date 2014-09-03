@@ -242,6 +242,7 @@ public class TestEngineBase {
 		int timeout = 100;
         int count = 0 ;
 		while ( i <= timeout) {
+            Thread.yield();
             MetaHeader updatedHeader = trackService.getHeader(company, header.getMetaKey());
             count = trackService.getLogCount(updatedHeader.getMetaKey());
 
