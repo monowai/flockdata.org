@@ -26,7 +26,6 @@ import com.auditbucket.helper.JsonUtils;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
-import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.CompanyService;
@@ -233,7 +232,7 @@ public class TestABIntegration {
         header = trackService.getHeader(ahKey);
         assertEquals("ab.monowai.audittest", header.getIndexName());
         mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), getRandomMap()));
-        waitForHeaderToUpdate(su.getCompany(), header.getMetaKey());
+        waitForHeaderToUpdate(header.getMetaKey(), su.getApiKey());
 
         doEsQuery(header.getIndexName(), header.getMetaKey());
     }
@@ -244,16 +243,17 @@ public class TestABIntegration {
         logger.info("## headersWithTagsProcess");
         SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
         SystemUser su = registerSystemUser("Mark");
+        String apiKey = su.getApiKey();
         Fortress fo = fortressService.registerFortress(new FortressInputBean("headerWithTagsProcess", false));
         DateTime now = new DateTime();
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "TestTrack", now, "ABCXYZ123");
         inputBean.setMetaOnly(true);
         inputBean.addTag(new TagInputBean("testTagNameZZ", "someAuditRLX"));
         inputBean.setEvent("TagTest");
-        TrackResultBean result = mediationFacade.createHeader(su.getCompany(), inputBean);
+        TrackResultBean result = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody();
         logger.debug("Created Request ");
-        waitForHeaderToUpdate(su.getCompany(), result.getMetaHeader());
-        TrackedSummaryBean summary = mediationFacade.getTrackedSummary(su.getCompany(), result.getMetaKey());
+        waitForHeaderToUpdate(result.getMetaHeader(), su.getApiKey());
+        TrackedSummaryBean summary = trackEP.getAuditSummary(result.getMetaKey(), apiKey, apiKey).getBody();
         assertNotNull(summary);
         // Check we can find the Event in ElasticSearch
         doEsQuery(summary.getHeader().getIndexName(), inputBean.getEvent(), 1);
@@ -274,7 +274,7 @@ public class TestABIntegration {
         inputBean.setMetaOnly(true); // Must be true to make over to search
         TrackResultBean auditResult;
         auditResult = mediationFacade.createHeader(su.getCompany(), inputBean);
-        waitForHeaderToUpdate(su.getCompany(), auditResult.getMetaHeader());
+        waitForHeaderToUpdate(auditResult.getMetaHeader(), su.getApiKey());
         TrackedSummaryBean summary = mediationFacade.getTrackedSummary(auditResult.getMetaKey());
         assertNotNull(summary);
         assertSame("change logs were not expected", 0, summary.getChanges().size());
@@ -305,7 +305,7 @@ public class TestABIntegration {
         TrackResultBean auditResult = mediationFacade.createHeader(su.getCompany(), inputBean);
 
         MetaHeader metaHeader = trackService.getHeader(auditResult.getMetaKey());
-        waitForHeaderToUpdate(su.getCompany(), metaHeader);
+        waitForHeaderToUpdate(metaHeader, su.getApiKey());
         assertEquals("ab.monowai.rebuildtest", metaHeader.getIndexName());
 
         doEsQuery(metaHeader.getIndexName(), "*");
@@ -314,7 +314,7 @@ public class TestABIntegration {
         // Rebuild....
         SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
         Long fResult = mediationFacade.reindex(fo.getCompany(), fo.getCode());
-        waitForHeaderToUpdate(su.getCompany(), metaHeader);
+        waitForHeaderToUpdate(metaHeader, su.getApiKey());
         Assert.assertEquals(1l, fResult.longValue());
 
         doEsQuery(metaHeader.getIndexName(), "*");
@@ -354,7 +354,7 @@ public class TestABIntegration {
             mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), getSimpleMap("blah", i)));
             i++;
         }
-        waitForALog(su.getCompany(), metaHeader);
+        waitForALog(metaHeader, su.getApiKey());
         watch.stop();
         // Test that we get the expected number of log events
         if (!"rest".equals(System.getProperty("neo4j"))) // Don't check if running over rest
@@ -428,7 +428,7 @@ public class TestABIntegration {
         inputBean.setLog(log);
         TrackResultBean result = mediationFacade.createHeader(su.getCompany(), inputBean);
 
-        waitForHeaderToUpdate(su.getCompany(), result.getMetaHeader());
+        waitForHeaderToUpdate(result.getMetaHeader(), su.getApiKey());
         // ensure that non-analysed tags work
         doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testinga.code", "happy", 1);
         doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingb.code", "happy days", 1);
@@ -441,7 +441,7 @@ public class TestABIntegration {
         inputBean.addTag(new TagInputBean("Days Bay").addMetaLink("testingc"));
         inputBean.setLog(log);
         result = mediationFacade.createHeader(su.getCompany(), inputBean);
-        waitForHeaderToUpdate(su.getCompany(), result.getMetaHeader());
+        waitForHeaderToUpdate(result.getMetaHeader(), su.getApiKey());
         // We now have 2 logs, sad tags, no happy tags
 
         doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingb.code", "sad days", 1);
@@ -452,7 +452,7 @@ public class TestABIntegration {
 
         // Cancel Log - this will remove the sad tags and leave us with happy tags
         mediationFacade.cancelLastLogSync(su.getCompany(), result.getMetaKey());
-        waitForHeaderToUpdate(su.getCompany(), result.getMetaHeader());
+        waitForHeaderToUpdate(result.getMetaHeader(), su.getApiKey());
         Set<TrackTag> tags = tagTrackService.findTrackTags(result.getMetaHeader());
         assertEquals(2, tags.size());
 
@@ -482,7 +482,7 @@ public class TestABIntegration {
         inputBean.addTag(new TagInputBean("Days Bay").addMetaLink("testingc"));
         inputBean.setLog(log);
         TrackResultBean result = mediationFacade.createHeader(su.getCompany(), inputBean); // Mock result as we're not tracking
-        waitForHeaderToUpdate(su.getCompany(), result.getMetaHeader());
+        waitForHeaderToUpdate(result.getMetaHeader(), su.getApiKey());
         // ensure that non-analysed tags work
         doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testinga.code", "happy", 1);
         doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingb.code", "happy days", 1);
@@ -512,7 +512,7 @@ public class TestABIntegration {
         MetaHeader metaHeader = trackService.getHeader(result.getMetaKey());
         assertEquals("ab.monowai." + fo.getCode(), metaHeader.getIndexName());
 
-        waitForHeaderToUpdate(su.getCompany(), metaHeader); // 2nd document in the index
+        waitForHeaderToUpdate(metaHeader, su.getApiKey()); // 2nd document in the index
         // We have one with a metaKey and one without
         doEsQuery("ab.monowai." + fo.getCode(), "*", 2);
 
@@ -545,7 +545,7 @@ public class TestABIntegration {
         MetaHeader metaHeader = trackService.getHeader(result.getMetaKey());
         assertEquals("ab.monowai." + fo.getCode(), metaHeader.getIndexName());
 
-        waitForHeaderToUpdate(su.getCompany(), metaHeader); // 2nd document in the index
+        waitForHeaderToUpdate(metaHeader, su.getApiKey()); // 2nd document in the index
         // We have one with a metaKey and one without
         doEsQuery("ab.monowai." + fo.getCode(), "*", 2);
 
@@ -593,7 +593,7 @@ public class TestABIntegration {
         assertEquals("LogDate not in Fortress TZ", 0, lastUpdated.compareTo(log.getFortressWhen(ftz)));
 
 
-        waitForHeaderToUpdate(su.getCompany(), metaHeader); // 2nd document in the index
+        waitForHeaderToUpdate(metaHeader, su.getApiKey()); // 2nd document in the index
         // We have one with a metaKey and one without
         doEsQuery("ab.monowai." + fo.getCode(), "*", 1);
 
@@ -652,7 +652,7 @@ public class TestABIntegration {
         LogResultBean resultBean = mediationFacade.processLog(su.getCompany(), new LogInputBean("olivia@sunnybell.com", indexHeader.getMetaKey(), new DateTime(), getSimpleMap("who", "andy"))).getLogResult();
         junit.framework.Assert.assertNotNull(resultBean);
 
-        waitForHeaderToUpdate(su.getCompany(), indexHeader);
+        waitForHeaderToUpdate(indexHeader, su.getApiKey());
         String indexName = indexHeader.getIndexName();
 
         doEsQuery(indexName, "andy");
@@ -684,14 +684,14 @@ public class TestABIntegration {
         MetaHeader indexHeader = trackService.getHeader(indexedResult.getMetaKey());
         String indexName = indexHeader.getIndexName();
 
-        Set<TrackTag> tags = tagTrackService.findTrackTags(su.getCompany(), indexHeader);
+        Set<TrackTag> tags = trackEP.getTrackTags(indexHeader.getMetaKey(), null, null);
         assertNotNull(tags);
         assertEquals(1, tags.size());
 
         LogResultBean resultBean = mediationFacade.processLog(new LogInputBean("olivia@sunnybell.com", indexHeader.getMetaKey(), new DateTime(), getRandomMap())).getLogResult();
         assertNotNull(resultBean);
 
-        waitForHeaderToUpdate(su.getCompany(), indexHeader);
+        waitForHeaderToUpdate(indexHeader, su.getApiKey());
         doEsTermQuery(indexName, "@tag." + relationshipName + ".code", "code test works", 1);
 
     }
@@ -711,7 +711,7 @@ public class TestABIntegration {
         String ahWP = mediationFacade.createHeader(su.getCompany(), inputBean).getMetaKey();
 
         MetaHeader metaHeader = trackService.getHeader(ahWP);
-        waitForHeaderToUpdate(su.getCompany(), metaHeader);
+        waitForHeaderToUpdate(metaHeader, su.getApiKey());
 
         doEsTermQuery(metaHeader.getIndexName(), MetaSearchSchema.WHAT + ".house", "house1", 1); // First log
 
@@ -758,7 +758,7 @@ public class TestABIntegration {
         Map<String,Object> what = getSimpleMap(MetaSearchSchema.WHAT_CODE, "AZERTY");
         what.put(MetaSearchSchema.WHAT_NAME, "NameText");
         indexHeader = mediationFacade.processLog(su.getCompany(), new LogInputBean("olivia@sunnybell.com", indexHeader.getMetaKey(), new DateTime(), what)).getMetaHeader();
-        waitForHeaderToUpdate(su.getCompany(), indexHeader);
+        waitForHeaderToUpdate(indexHeader, su.getApiKey());
 
         String indexName = indexHeader.getIndexName();
         getMapping(indexName);
@@ -844,7 +844,7 @@ public class TestABIntegration {
                         requests++;
                         watch.suspend();
                         fortressWatch.suspend();
-                        waitForHeaderToUpdate(su.getCompany(), metaKey);
+                        waitForHeaderToUpdate(metaKey, su.getApiKey());
                         watch.resume();
                         fortressWatch.resume();
                     } // searchCheck done
@@ -891,8 +891,8 @@ public class TestABIntegration {
         MetaInputBean input = new MetaInputBean("TestFortress", "mikeTest", "Query", new DateTime(), "abzz");
         input.setLog(log);
 
-        TrackResultBean result = mediationFacade.createHeader(su.getCompany(), input);
-        waitForHeaderToUpdate(su.getCompany(), result.getMetaHeader().getMetaKey());
+        TrackResultBean result = trackEP.trackHeader(input, su.getApiKey(), su.getApiKey()).getBody();
+        waitForHeaderToUpdate(result.getMetaHeader().getMetaKey(), su.getApiKey());
 
 
         QueryParams q = new QueryParams(fortress).setSimpleQuery(searchFor);
@@ -916,8 +916,8 @@ public class TestABIntegration {
         MetaInputBean input = new MetaInputBean(fortress.getName(), "mikeTest", "Query", new DateTime(), "abzz");
         input.setLog(log);
 
-        TrackResultBean result = mediationFacade.createHeader(su.getCompany(), input);
-        waitForHeaderToUpdate(su.getCompany(), result.getMetaHeader());
+        TrackResultBean result = trackEP.trackHeader(input, su.getApiKey(), su.getApiKey()).getBody();
+        waitForHeaderToUpdate(result.getMetaHeader(), su.getApiKey());
         doEsQuery(result.getMetaHeader().getIndexName(), json.get("Athlete").toString(), 1);
 
     }
@@ -984,22 +984,22 @@ public class TestABIntegration {
 
     }
 
-    private long waitForHeaderToUpdate(Company company, MetaHeader metaHeader) throws Exception {
-        return waitForHeaderToUpdate(company, metaHeader.getMetaKey());
+    private long waitForHeaderToUpdate(MetaHeader metaHeader, String apiKey) throws Exception {
+        return waitForHeaderToUpdate(metaHeader.getMetaKey(), apiKey);
     }
 
-    private long waitForHeaderToUpdate(Company company, String metaKey) throws Exception {
+    private long waitForHeaderToUpdate(String metaKey, String apiKey) throws Exception {
         // Looking for the first searchKey to be logged against the metaHeader
         long thenTime = System.currentTimeMillis();
         int i = 0;
 
-        MetaHeader metaHeader = trackService.getHeader(company, metaKey);
+        MetaHeader metaHeader = trackEP.getMetaHeader(metaKey, apiKey, apiKey).getBody();
         if (metaHeader.getSearchKey() != null)
             return 0;
 
         int timeout = 100;
         while (metaHeader.getSearchKey() == null && i <= timeout) {
-            metaHeader =  trackService.getHeader(company, metaKey);
+            metaHeader = trackEP.getMetaHeader(metaKey, apiKey, apiKey).getBody();
             Thread.yield();
             if (i > 20)
                 waitAWhile("Sleeping for the header to update {}");
@@ -1272,18 +1272,18 @@ public class TestABIntegration {
         logger.debug(message, milliseconds / 1000d);
     }
 
-    long waitForALog(Company company, MetaHeader header) throws Exception {
+    long waitForALog(MetaHeader header, String apiKey) throws Exception {
         // Looking for the first searchKey to be logged against the metaHeader
         long thenTime = System.currentTimeMillis();
         int i = 0;
         long ts = header.getFortressLastWhen();
 
-        MetaHeader metaHeader = trackService.getHeader(company, header.getMetaKey());
-        TrackLog log = trackService.getLastLog(company, metaHeader.getMetaKey());
+        MetaHeader metaHeader = trackEP.getMetaHeader(header.getMetaKey(), apiKey, apiKey).getBody();
+        TrackLog log = trackEP.getLastChange(metaHeader.getMetaKey(), apiKey, apiKey).getBody();
 
         int timeout = 100;
         while (log == null && i <= timeout) {
-            log = trackService.getLastLog(company, metaHeader.getMetaKey());
+            log = trackEP.getLastChange(metaHeader.getMetaKey(), apiKey, apiKey).getBody();
             if (log != null && metaHeader.getFortressLastWhen() == ts)
                 return i;
             Thread.yield();
