@@ -42,7 +42,6 @@ import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
 import org.junit.Before;
 import org.junit.Ignore;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
@@ -66,6 +65,7 @@ import static org.junit.Assert.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:root-context.xml",
 		"classpath:apiDispatcher-servlet.xml" })
+@Ignore
 public class TestEngineBase {
 	@Autowired
 	FortressEP fortressEP;
@@ -161,6 +161,7 @@ public class TestEngineBase {
 
     @Rollback(false)
 	@BeforeTransaction
+    @Ignore
 	public void cleanUpGraph() {
 		// This will fail if running over REST. Haven't figured out how to use a
 		// view to look at the embedded db
@@ -267,10 +268,6 @@ public class TestEngineBase {
 		return System.currentTimeMillis() - thenTime;
 	}
 
-    @Test
-    public void nothing(){
-        // here to suppress missing test;
-    }
 
 	public void testJson() throws Exception {
 		FortressNode fortressNode = new FortressNode(new FortressInputBean(

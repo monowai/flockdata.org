@@ -94,7 +94,7 @@ public class TestInputBeans {
         assertTrue(alb.isTransactional());
         assertEquals(dateB.getMillis(), aib.getWhen().getTime());
         // Try to override the
-        aib.setWhen(DateTime.now().toDate());
+        aib.setWhen(DateTime.now());
         assertEquals(dateB.getMillis(), aib.getWhen().getTime());
         assertEquals(aib.getWhen().getTime(), alb.getWhen().getTime());
 

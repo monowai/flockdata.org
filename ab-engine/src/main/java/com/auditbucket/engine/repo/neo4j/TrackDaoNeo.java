@@ -86,13 +86,13 @@ public class TrackDaoNeo implements TrackDao {
 
     @Override
     public MetaHeader create(MetaInputBean inputBean, Fortress fortress, DocumentType documentType) throws DatagioException {
-        MetaHeader metaHeader = findByCallerRef(fortress.getId(), documentType.getId(), inputBean.getCallerRef());
-        if (metaHeader != null) {
-            logger.debug("Found existing MetaHeader during request to create - returning");
-            return metaHeader;
-        }
+//        MetaHeader metaHeader = findByCallerRef(fortress.getId(), documentType.getId(), inputBean.getCallerRef());
+//        if (metaHeader != null) {
+//            logger.debug("Found existing MetaHeader during request to create - returning");
+//            return metaHeader;
+//        }
         String metaKey = ( inputBean.isTrackSuppressed()?null:keyGenService.getUniqueKey());
-        metaHeader = new MetaHeaderNode(metaKey, fortress, inputBean, documentType);
+        MetaHeader metaHeader = new MetaHeaderNode(metaKey, fortress, inputBean, documentType);
 
         if (! inputBean.isTrackSuppressed()) {
             logger.debug("Creating {}", metaHeader);

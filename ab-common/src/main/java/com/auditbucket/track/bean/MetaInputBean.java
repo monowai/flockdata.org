@@ -48,6 +48,7 @@ public class MetaInputBean {
     private boolean searchSuppressed;
     private boolean trackSuppressed = false;
     private boolean metaOnly = false;
+    private String timezone;
 
 
     public MetaInputBean() {
@@ -64,7 +65,7 @@ public class MetaInputBean {
     public MetaInputBean(String fortress, String fortressUser, String documentType, DateTime fortressWhen, String callerRef) {
         this();
         if (fortressWhen != null)
-            setWhen(fortressWhen.toDate());
+            setWhen(fortressWhen);
         setFortress(fortress);
         setFortressUser( fortressUser);
         setDocumentType(documentType);
@@ -91,9 +92,12 @@ public class MetaInputBean {
      * @return when in the fortress this was created
      */
     public Date getWhen() {
+        if (when !=null )
+            return when;
+        // Default to the log date
         if (log != null && log.getWhen() != null && log.getWhen().getTime() > 0)
             return log.getWhen();
-        return when;
+        return null;
     }
 
     /**
@@ -101,10 +105,11 @@ public class MetaInputBean {
      *
      * @param when when the caller says this occurred
      */
-    public void setWhen(Date when) {
-        if (!(log != null && log.getWhen() != null && log.getWhen().getTime() > 0))
-            this.when = when;
-        //
+    public void setWhen(DateTime when) {
+        //if (!(log != null && log.getWhen() != null && log.getWhen().getTime() > 0))
+        this.when = when.toDate();
+        //this.metaTZ = when.getZone().getID();
+
     }
 
     public String getFortress() {
@@ -172,7 +177,7 @@ public class MetaInputBean {
         this.log = log;
         if (log != null) {
             this.metaOnly = false;
-            this.when = log.getWhen();
+            //this.when = log.getWhen();
         }
     }
 
@@ -329,4 +334,19 @@ public class MetaInputBean {
         return metaOnly;
     }
 
+    public void setTimezone(String timezone) {
+        this.timezone = timezone;
+    }
+
+    /**
+     * Only used if the fortress is being created for the first time.
+     * This configures the default TZ used by the fortress for dates
+     *
+     * @return TimeZone.getTimeZone(fortressTz).getID();
+     */
+    public String getTimezone() {
+        if (timezone !=null )
+            return timezone;
+        return TimeZone.getDefault().getID();
+    }
 }

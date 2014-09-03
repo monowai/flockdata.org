@@ -331,7 +331,7 @@ public class TrackService {
 
         resultBean.setSysWhen(newLog.getSysWhen());
 
-        boolean moreRecent = (existingLog == null || existingLog.getFortressWhen() <= newLog.getFortressWhen());
+        boolean moreRecent = (existingLog == null || existingLog.getFortressWhen().compareTo(newLog.getFortressWhen())<=0 );
 
         if (moreRecent && searchActive)
             resultBean.setLogToIndex(newLog);  // Notional log to index.

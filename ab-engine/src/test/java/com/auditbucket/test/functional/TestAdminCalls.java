@@ -76,7 +76,7 @@ public class TestAdminCalls extends TestEngineBase {
     @Test
     public void deleteFortressWithHeadersAndTagsOnly() throws Exception {
 
-        regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
         Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
 
@@ -84,7 +84,7 @@ public class TestAdminCalls extends TestEngineBase {
         inputBean.addTag(tagInputBean);
 
 
-        TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
+        TrackResultBean resultBean = mediationFacade.createHeader(su.getCompany(), inputBean);
         String ahKey = resultBean.getMetaKey();
 
         assertNotNull(ahKey);
@@ -93,7 +93,7 @@ public class TestAdminCalls extends TestEngineBase {
         inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
         inputBean.addTag(tagInputBean);
 
-        mediationFacade.createHeader(inputBean, null);
+        mediationFacade.createHeader(su.getCompany(), inputBean);
 
         SecurityContextHolder.getContext().setAuthentication(null);
         // Assert that unauthorised user can't purge a fortress
@@ -116,7 +116,7 @@ public class TestAdminCalls extends TestEngineBase {
         Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
 
-        TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
+        TrackResultBean resultBean = mediationFacade.createHeader(su.getCompany(), inputBean);
         String ahKey = resultBean.getMetaKey();
 
         assertNotNull(ahKey);
@@ -150,7 +150,7 @@ public class TestAdminCalls extends TestEngineBase {
         TagInputBean tagInputBean = new TagInputBean("DeleteTest", "NamedTag", "deltest");
         inputBean.addTag(tagInputBean);
 
-        TrackResultBean resultBean = mediationFacade.createHeader(inputBean, null);
+        TrackResultBean resultBean = mediationFacade.createHeader(su.getCompany(), inputBean);
         String ahKey = resultBean.getMetaKey();
 
         assertNotNull(ahKey);
@@ -161,7 +161,7 @@ public class TestAdminCalls extends TestEngineBase {
         inputBean.setCallerRef("123abc");
         inputBean.setMetaKey(null);
         inputBean.setLog(new LogInputBean("wally", ahKey, new DateTime(), TestHelper.getRandomMap()));
-        mediationFacade.createHeader(fo.getCompany(), fo, inputBean);
+        mediationFacade.createHeader(fo, inputBean);
 
         SecurityContextHolder.getContext().setAuthentication(null);
         // Assert that unauthorised user can't purge a fortress
@@ -190,7 +190,7 @@ public class TestAdminCalls extends TestEngineBase {
         trackBean.addTag(new TagInputBean("otherName", "rlxValue").setReverse(true));
         LogInputBean logBean = new LogInputBean("me", DateTime.now(), TestHelper.getRandomMap());
         trackBean.setLog(logBean);
-        String resultA = mediationFacade.createHeader(trackBean, null).getMetaKey();
+        String resultA = mediationFacade.createHeader(su.getCompany(), trackBean).getMetaKey();
 
         assertNotNull(resultA);
 
@@ -200,7 +200,7 @@ public class TestAdminCalls extends TestEngineBase {
         logBean = new LogInputBean("me", DateTime.now(), TestHelper.getRandomMap());
         trackBean.setLog(logBean);
 
-        String resultB = mediationFacade.createHeader(trackBean, su.getApiKey()).getMetaKey();
+        String resultB = mediationFacade.createHeader(su.getCompany(), trackBean).getMetaKey();
 
         Collection<String> others = new ArrayList<>();
         others.add(resultB);
@@ -226,7 +226,7 @@ public class TestAdminCalls extends TestEngineBase {
         setSecurity();
         SystemUser su = regService.registerSystemUser(new RegistrationBean(mike_admin, "healthCheck"));
         Map<String, Object> results = getHealth(su);
-        assertFalse(results.isEmpty());
+        assertFalse("We didn't get back the health results for an admin user", results.isEmpty());
         assertEquals("!Unreachable! Connection refused", results.get("ab-search"));
         setSecurityEmpty();
 
@@ -235,6 +235,20 @@ public class TestAdminCalls extends TestEngineBase {
         mockMvc.perform(MockMvcRequestBuilders.get("/admin/health/")
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
+        setSecurity();
+        // Create a data access user
+        su = regService.registerSystemUser(new RegistrationBean("anyone", "healthCheck"));
+        setSecurityEmpty();
+        results = getHealth(su);
+        assertFalse("The user has no AUTH credentials but a valid APIKey - this should pass", results.isEmpty());
+
+        // Hacking with an invalid API Key. Should fail
+        mockMvc.perform(MockMvcRequestBuilders.get("/admin/health/")
+                        .header(ApiKeyInterceptor.API_KEY, "_invalidAPIKey_")
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
+
+
     }
 
     Map<String, Object> getHealth(SystemUser su) throws Exception {

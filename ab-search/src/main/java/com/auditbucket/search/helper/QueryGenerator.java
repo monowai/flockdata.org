@@ -16,6 +16,11 @@ public class QueryGenerator {
     public static String getSimpleQuery(String queryString, Boolean highlightEnabled) {
         logger.debug("getSimpleQuery {}", queryString);
         StringBuilder simpleQuery = new StringBuilder();
+        boolean andQuery = false;
+        if ( queryString.contains("\"")){
+            queryString = queryString.replace("\"", "");
+            andQuery = true;
+        }
         simpleQuery.append("{\n" +
                 "  \"query\": {\n" +
                 "    \"bool\": {\n" +
@@ -31,10 +36,13 @@ public class QueryGenerator {
 
         if (highlightEnabled) {
             simpleQuery.append(",\n" +
-                    "  \"highlight\": {\n" +
-                    "    \"fields\": {\n" +
-                    "      \"*\": {}\n" +
-                    "    }\n" +
+                    "  \"highlight\": { " +
+                    "\"pre_tags\" : [\"<strong>\"]," +
+                    "\"post_tags\" : [\"</strong>\"]," +
+                    "\"encoder\" : \"html\"," +
+                    "    \"fields\": { " +
+                    "      \"*\": {} " +
+                    "    } " +
                     "  }");
         }
         simpleQuery.append("\n}");
