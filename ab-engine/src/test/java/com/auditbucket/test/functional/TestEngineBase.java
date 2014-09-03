@@ -239,7 +239,6 @@ public class TestEngineBase {
 	TrackLog waitForLogCount(Company company, MetaHeader header, int expectedCount) throws Exception {
 		// Looking for the first searchKey to be logged against the metaHeader
 		int i = 0;
-		long initalTimestamp = header.getFortressLastWhen();
 		int timeout = 100;
 
 		while ( i <= timeout) {
@@ -248,7 +247,7 @@ public class TestEngineBase {
 
             TrackLog log = trackService.getLastLog(company, updatedHeader.getMetaKey());
             // We have at least one log?
-			if (count == expectedCount )
+			if ( log !=null && count == expectedCount )
 				return log;
 			Thread.yield();
 			if (i > 20)
@@ -258,7 +257,7 @@ public class TestEngineBase {
 		if (i > 22)
 			logger.info("Wait for log got to [{}] for metaId [{}]", i,
 					header.getId());
-		return null;
+        throw new Exception(String.format("Timedout waiting for the defined log count of %s", expectedCount));
 	}
     long waitForFirstLog(Company company, MetaHeader header) throws Exception {
         // Looking for the first searchKey to be logged against the metaHeader
