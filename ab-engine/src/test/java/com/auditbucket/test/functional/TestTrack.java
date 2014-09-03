@@ -190,7 +190,8 @@ public class TestTrack extends TestEngineBase {
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("createHeaderTimeLogs", true));
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
-        String ahKey = mediationFacade.createHeader(su.getCompany(), inputBean).getMetaKey();
+        MetaHeader header = mediationFacade.createHeader(su.getCompany(), inputBean).getMetaHeader();
+        String ahKey = header.getMetaKey();
 
         assertNotNull(ahKey);
 
@@ -205,14 +206,19 @@ public class TestTrack extends TestEngineBase {
         logger.info("Start-");
         watch.start();
         while (i < max) {
-            mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), TestHelper.getSimpleMap("blah", i)));
+            TrackResultBean subsequent = mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), TestHelper.getSimpleMap("blah", i)));
+
+            if ( i == 0){
+                waitForFirstLog(su.getCompany(), header);
+            } else
+                waitForLogCount(su.getCompany(), subsequent.getMetaHeader(),i+1);
             i++;
         }
         watch.stop();
         logger.info(watch.prettyPrint() + " avg = " + (watch.getLastTaskTimeMillis() / 1000d) / max);
 
         // Test that we get the expected number of log events
-        waitAWhile();
+//        waitAWhile();
         assertEquals(max, (double) trackService.getLogCount(ahKey));
     }
 
@@ -756,7 +762,7 @@ public class TestTrack extends TestEngineBase {
         MetaHeader metaHeader = trackService.getHeader(ahWP);
         mediationFacade.processLog(new LogInputBean("olivia@sunnybell.com", metaHeader.getMetaKey(), firstDate, TestHelper.getSimpleMap("house", "house1")));
         mediationFacade.processLog(new LogInputBean("isabella@sunnybell.com", metaHeader.getMetaKey(), firstDate.plusDays(1), TestHelper.getSimpleMap("house", "house2")));
-        waitForSubsequentLog(su.getCompany(), metaHeader);
+        waitForLogCount(su.getCompany(), metaHeader,2);
         TrackedSummaryBean auditSummary = trackService.getMetaSummary(null, ahWP);
         assertNotNull(auditSummary);
         assertEquals(ahWP, auditSummary.getHeader().getMetaKey());
@@ -790,7 +796,7 @@ public class TestTrack extends TestEngineBase {
 
         MetaHeader created = trackService.findByCallerRef(fortress, "TestTrack", callerRef );
         assertNotNull(created);
-        waitForSubsequentLog(su.getCompany(), created);
+        waitForLogCount(su.getCompany(), created,1);
         // Get the last Change timestamp.
         created = trackService.findByCallerRef(fortress, "TestTrack", callerRef );
         assertNotSame(0l, created.getLastChange());
@@ -805,10 +811,12 @@ public class TestTrack extends TestEngineBase {
         mediationFacade.createHeaders(su.getCompany(), fortress, inputBeans, 10);
         logger.info("Now = {}", new Date(created.getLastUpdate()));
         //waitForHeaderToChange(su.getCompany(), created);// Waiting for the created record to change
-        waitForSubsequentLog(su.getCompany(), created);
+        waitForLogCount(su.getCompany(), created,2 );
         created = trackService.findByCallerRef(fortress, "TestTrack", callerRef );
         logger.info("Now = {}", new Date(created.getLastUpdate()));
-        LogWhat what = trackEP.getLastChangeWhat(created.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody();
+        TrackLog lastLog = trackService.getLastLog(su.getCompany(), created.getMetaKey());
+        assertNotNull(lastLog);
+        LogWhat what = whatService.getWhat(created, lastLog.getLog());
 
         assertNotNull(what);
         Object value = what.getWhat().get("col");

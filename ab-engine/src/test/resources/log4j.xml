@@ -29,12 +29,6 @@
         </layout>
     </appender>
 
-    <!-- 3rdparty Loggers -->
-    <logger name="org.springframework">
-        <level value="info"/>
-    </logger>
-
-
     <logger name="org.elasticsearch">
         <level value="info"/>
     </logger>
@@ -49,7 +43,7 @@
         <level value="info"/>
     </logger>
 
-    <logger name="org.springframework.test">
+    <logger name="org.springframework">
         <level value="error"/>
     </logger>
 

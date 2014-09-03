@@ -25,7 +25,6 @@ import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.repo.neo4j.model.FortressNode;
 import com.auditbucket.engine.service.*;
 import com.auditbucket.geography.endpoint.GeographyEP;
-import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.JsonUtils;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
@@ -237,29 +236,29 @@ public class TestEngineBase {
 		logger.trace(message, milliseconds / 1000d);
 	}
 
-	long waitForSubsequentLog(Company company, MetaHeader header) throws Exception {
+	TrackLog waitForLogCount(Company company, MetaHeader header, int expectedCount) throws Exception {
 		// Looking for the first searchKey to be logged against the metaHeader
-		long thenTime = System.currentTimeMillis();
 		int i = 0;
-		long ts = header.getFortressLastWhen();
-
-		MetaHeader metaHeader = trackService.getHeader(company, header.getMetaKey());
-
+		long initalTimestamp = header.getFortressLastWhen();
 		int timeout = 100;
+
 		while ( i <= timeout) {
-            metaHeader = trackService.getHeader(company, header.getMetaKey());
-            TrackLog log = trackService.getLastLog(company, metaHeader.getMetaKey());
-			if (log != null && metaHeader.getFortressLastWhen() != ts)
-				return i;
+            MetaHeader updatedHeader = trackService.getHeader(company, header.getMetaKey());
+            int count = trackService.getLogCount(updatedHeader.getMetaKey());
+
+            TrackLog log = trackService.getLastLog(company, updatedHeader.getMetaKey());
+            // We have at least one log?
+			if (count == expectedCount )
+				return log;
 			Thread.yield();
 			if (i > 20)
-				waitAWhile("Waiting for the log to arrive {}");
+				waitAWhile("Waiting for the log to update {}");
 			i++;
 		}
 		if (i > 22)
 			logger.info("Wait for log got to [{}] for metaId [{}]", i,
-					metaHeader.getId());
-		return System.currentTimeMillis() - thenTime;
+					header.getId());
+		return null;
 	}
     long waitForFirstLog(Company company, MetaHeader header) throws Exception {
         // Looking for the first searchKey to be logged against the metaHeader
