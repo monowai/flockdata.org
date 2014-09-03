@@ -816,7 +816,6 @@ public class TestTrack extends TestEngineBase {
 
         waitForLogCount(su.getCompany(), header, 2);
         header = trackService.findByCallerRef(fortress, "TestTrack", callerRef );
-        logger.info("Now = {}", new Date(header.getLastUpdate()));
         TrackLog lastLog = trackService.getLastLog(su.getCompany(), header.getMetaKey());
         assertNotNull(lastLog);
         LogWhat what = whatService.getWhat(header, lastLog.getLog());
