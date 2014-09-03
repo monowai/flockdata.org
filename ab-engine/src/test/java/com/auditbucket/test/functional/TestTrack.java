@@ -786,11 +786,10 @@ public class TestTrack extends TestEngineBase {
         LogInputBean logInputBean = new LogInputBean("mike", new DateTime(), TestHelper.getSimpleMap("col", 123));
         inputBean.setLog(logInputBean);
         inputBeans.add(inputBean);
-
-        trackEP.trackHeaders(inputBeans, false, su.getApiKey());
+        mediationFacade.createHeaders(su.getCompany(), fortress, inputBeans, 10);
         inputBeans.clear();
 
-        MetaHeader created = trackEP.getByCallerRef(fortress.getName(), "TestTrack", callerRef, su.getApiKey(), su.getApiKey() );
+        MetaHeader created = trackService.findByCallerRef(fortress, "TestTrack", callerRef );
         assertNotNull(created);
 
         // Now we record a change
@@ -799,7 +798,7 @@ public class TestTrack extends TestEngineBase {
         inputBeans = new ArrayList<>();
         inputBeans.add(inputBean);
 
-        trackEP.trackHeaders(inputBeans, false, su.getApiKey());
+        mediationFacade.createHeaders(su.getCompany(), fortress, inputBeans, 10);
         waitAWhile();
 
         LogWhat what = trackEP.getLastChangeWhat(created.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody();
