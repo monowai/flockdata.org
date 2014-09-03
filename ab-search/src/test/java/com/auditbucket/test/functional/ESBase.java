@@ -155,7 +155,7 @@ public class ESBase {
         logger.debug("ran ES query - result count {}, runCount {}", nbrResult, runCount);
 
         junit.framework.Assert.assertNotNull(jResult);
-        Assert.assertEquals(index + "\r\n" + jResult.getJsonString(), expectedHitCount, nbrResult);
+        Assert.assertEquals(index + "\r\n" + queryString + "\r\n" + jResult.getJsonString(), expectedHitCount, nbrResult);
 
         return jResult.getJsonString();
 

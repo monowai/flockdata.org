@@ -22,7 +22,7 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
          version="3.0">
 
-    <display-name>Audit Bucket - eventing system</display-name>
+    <display-name>AuditBucket - Data Mediation Service</display-name>
 
     <!-- The definition of the Root Spring Container shared by all Servlets and Filters -->
     <context-param>
@@ -58,9 +58,19 @@
         <filter-name>CORS</filter-name>
         <filter-class>com.thetransactioncompany.cors.CORSFilter</filter-class>
         <init-param>
-            <param-name>cors.supportedHeaders</param-name>
-            <param-value>Content-Type,Accept,Origin,Authorization,x-requested-with,Api-Key</param-value>
+            <param-name>cors.supportsCredentials</param-name>
+            <param-value>true</param-value>
         </init-param>
+
+        <init-param>
+            <param-name>cors.supportedHeaders</param-name>
+            <param-value>*</param-value>
+        </init-param>
+        <init-param>
+            <param-name>cors.allowOrigin</param-name>
+            <param-value>https://demo.auditbucket.com http://localhost:9000 http://127.0.0.1:9000 chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop</param-value>
+        </init-param>
+
         <init-param>
             <param-name>cors.supportedMethods</param-name>
             <param-value>GET, POST, HEAD, OPTIONS, PUT, DELETE</param-value>
@@ -75,7 +85,7 @@
 
     <filter-mapping>
         <filter-name>springSecurityFilterChain</filter-name>
-        <url-pattern>/*</url-pattern>
+        <url-pattern>/v1/*</url-pattern>
     </filter-mapping>
 
     <!-- Disables Servlet Container welcome file handling. Needed for compatibility with Servlet 3.0 and Tomcat 7.0 -->
