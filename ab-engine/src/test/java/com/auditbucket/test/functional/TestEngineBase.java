@@ -241,7 +241,7 @@ public class TestEngineBase {
 		int i = 0;
 		int timeout = 100;
         int count = 0 ;
-        Thread.sleep(60); // Avoiding RELATIONSHIP[{id}] has no property with propertyKey="__type__" NotFoundException
+        Thread.sleep(90); // Avoiding RELATIONSHIP[{id}] has no property with propertyKey="__type__" NotFoundException
 		while ( i <= timeout) {
             MetaHeader updatedHeader = trackService.getHeader(company, header.getMetaKey());
             count = trackService.getLogCount(company, updatedHeader.getMetaKey());
