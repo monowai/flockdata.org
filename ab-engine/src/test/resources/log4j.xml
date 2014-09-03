@@ -60,12 +60,12 @@
 
     <!-- Root Logger -->
     <logger name="com.auditbucket">
-        <level value="debug"/>
+        <level value="${ab.logLevel}"/>
     </logger>
 
 
     <root>
-        <priority value="debug"/>
+        <priority value="${ab.logLevel}"/>
         <appender-ref ref="console"/>
     </root>
 
