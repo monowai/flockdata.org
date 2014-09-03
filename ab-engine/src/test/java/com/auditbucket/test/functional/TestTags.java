@@ -88,6 +88,7 @@ public class TestTags extends TestEngineBase {
     public void secureMultiTenantedTags() throws Exception {
         engineAdmin.setMultiTenanted(true);
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
+        Thread.sleep(200);
         assertNotNull(iSystemUser);
 
         List<TagInputBean> tags = new ArrayList<>();
@@ -109,11 +110,11 @@ public class TestTags extends TestEngineBase {
 
     @Test
     public void updateExistingTag() throws Exception {
-        Thread.sleep(200);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
+
+        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
 
         assertNotNull(iSystemUser);
-
+        Thread.sleep(200);
         assertNull(tagService.findTag(iSystemUser.getCompany(), "ABC"));
         Tag tag = tagService.processTag(new TagInputBean("FLOP"));
         assertNotNull(tag);
@@ -124,6 +125,7 @@ public class TestTags extends TestEngineBase {
         result = tagService.processTag(new TagInputBean("FLOPPY"));
         assertNotNull(result);
         assertEquals("FLOPPY", result.getName());
+        Thread.sleep(200); // Looking to avoid Heuristic errors
         // Tag update not yet supported
         //assertNull(tagService.findTag("FLOP"));
         //assertNotNull(tagService.findTag("FLOPPY"));
@@ -132,8 +134,8 @@ public class TestTags extends TestEngineBase {
 
     @Test
     public void tagMustExist() throws Exception {
-        Thread.sleep(200);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
+        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
+
         assertNotNull(iSystemUser);
 
         assertNull(tagService.findTag(iSystemUser.getCompany(), "ABC"));
@@ -152,10 +154,10 @@ public class TestTags extends TestEngineBase {
 
     }
 
+
     @Test
     public void tagWithProperties() throws Exception {
-        Thread.sleep(200);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
+        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         assertNotNull(iSystemUser);
 
         TagInputBean tagInput = new TagInputBean("ZFLOP");
@@ -177,8 +179,7 @@ public class TestTags extends TestEngineBase {
 
     @Test
     public void prohibitedPropertiesIgnored() throws Exception {
-        Thread.sleep(200);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, "mike").setIsUnique(false));
+        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         assertNotNull(iSystemUser);
 
         TagInputBean tagInput = new TagInputBean("FLOP");
@@ -198,8 +199,7 @@ public class TestTags extends TestEngineBase {
 
     @Test
     public void targetRelationships() throws Exception {
-        Thread.sleep(200);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, "mike").setIsUnique(false));
+        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         assertNotNull(iSystemUser);
 
         TagInputBean tagInput = new TagInputBean("Source");
@@ -227,9 +227,8 @@ public class TestTags extends TestEngineBase {
 
     @Test
     public void customLabelsSingleTenant() throws Exception {
-        Thread.sleep(200);
         engineAdmin.setMultiTenanted(false);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, "mike").setIsUnique(false));
+        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         assertNotNull(iSystemUser);
 
         TagInputBean tagInput = new TagInputBean("Source");
@@ -251,7 +250,7 @@ public class TestTags extends TestEngineBase {
     @Test
     public void tagWithSpacesWorks() throws Exception {
         engineAdmin.setMultiTenanted(false);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, "mike").setIsUnique(false));
+        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         assertNotNull(iSystemUser);
 
         TagInputBean tagInput = new TagInputBean("Source");
@@ -273,7 +272,7 @@ public class TestTags extends TestEngineBase {
     // ToDo: Multi-tenanted custom tags
     public void customLabelsMultiTenant() throws Exception {
         engineAdmin.setMultiTenanted(true);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, "mike").setIsUnique(false));
+        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         assertNotNull(iSystemUser);
 
         TagInputBean tagInput = new TagInputBean("Source");
@@ -307,8 +306,7 @@ public class TestTags extends TestEngineBase {
     public void sameKeyForDifferentTagTypes() throws Exception {
         engineAdmin.setMultiTenanted(false);
 
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean("SameKey", "mike").setIsUnique(false));
-        waitAWhile();
+        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         assertNotNull(iSystemUser);
 
         TagInputBean tagInputA = new TagInputBean("Source");
@@ -349,9 +347,8 @@ public class TestTags extends TestEngineBase {
 
     @Test
     public void duplicateTagsForSameIndexReturnSingleTag() throws Exception {
-        Thread.sleep(200);
         engineAdmin.setMultiTenanted(false);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
+        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         assertNotNull(iSystemUser);
 
         TagInputBean tagInputA = new TagInputBean("Source");
@@ -382,9 +379,9 @@ public class TestTags extends TestEngineBase {
     }
 
     @Test
-    public void tagUniqueForIndex() throws DatagioException {
+    public void tagUniqueForIndex() throws Exception {
         engineAdmin.setMultiTenanted(false);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
+        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         assertNotNull(iSystemUser);
 
         TagInputBean tagInputA = new TagInputBean("Source");
