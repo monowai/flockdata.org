@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -168,6 +169,7 @@ public class EngineConfig {
 
 //    @CacheEvict(value = {"companyFortress", "fortressName", "trackLog", "companyKeys", "companyTag", "companyTagManager",
 //            "fortressUser", "callerKey", "metaKey", "headerId" }, allEntries = true)
+    @Secured({"ROLE_AB_ADMIN"})
     public void resetCache() {
         logger.info("Reset the cache");
     }
