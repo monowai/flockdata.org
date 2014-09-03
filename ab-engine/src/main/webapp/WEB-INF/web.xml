@@ -68,7 +68,7 @@
         </init-param>
         <init-param>
             <param-name>cors.allowOrigin</param-name>
-            <param-value>http://localhost:9000 http://127.0.0.1:9000 chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop</param-value>
+            <param-value>https://demo.auditbucket.com http://localhost:9000 http://127.0.0.1:9000 chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop</param-value>
         </init-param>
 
         <init-param>
@@ -85,7 +85,7 @@
 
     <filter-mapping>
         <filter-name>springSecurityFilterChain</filter-name>
-        <url-pattern>/*</url-pattern>
+        <url-pattern>/v1/*</url-pattern>
     </filter-mapping>
 
     <!-- Disables Servlet Container welcome file handling. Needed for compatibility with Servlet 3.0 and Tomcat 7.0 -->
