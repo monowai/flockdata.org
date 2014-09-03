@@ -21,11 +21,9 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.company.endpoint.CompanyEP;
 import com.auditbucket.engine.endpoint.AdminEP;
-import com.auditbucket.engine.endpoint.QueryEP;
 import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.repo.neo4j.model.FortressNode;
 import com.auditbucket.engine.service.*;
-import com.auditbucket.fortress.endpoint.FortressEP;
 import com.auditbucket.geography.endpoint.GeographyEP;
 import com.auditbucket.helper.JsonUtils;
 import com.auditbucket.helper.SecurityHelper;
@@ -67,17 +65,9 @@ import static org.junit.Assert.*;
 		"classpath:apiDispatcher-servlet.xml" })
 @Ignore
 public class TestEngineBase {
-	@Autowired
-	FortressEP fortressEP;
-
-	@Autowired
-	QueryEP queryEP;
 
 	@Autowired
 	protected RegistrationService regService;
-
-	@Autowired
-	RegistrationEP registrationEP;
 
 	@Autowired
 	SchemaService schemaService;

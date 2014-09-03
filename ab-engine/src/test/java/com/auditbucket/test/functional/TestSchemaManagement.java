@@ -65,7 +65,7 @@ public class TestSchemaManagement extends TestEngineBase {
         //SystemUserResultBean cOtherAPI = registrationEP.registerSystemUser(new RegistrationBean("OtherCo", "harry")).getBody();
         SystemUser cOtherAPI = regService.registerSystemUser(new RegistrationBean("OtherCo", harry));
 
-        String apiKey = registrationEP.registerSystemUser(new RegistrationBean(monowai, mike_admin)).getBody().getApiKey();
+        String apiKey = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin)).getApiKey();
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("auditTestA", true));
         Fortress fortressB = fortressService.registerFortress(new FortressInputBean("auditTestB", true));
 
