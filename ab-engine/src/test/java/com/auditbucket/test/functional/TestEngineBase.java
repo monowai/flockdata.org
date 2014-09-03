@@ -205,7 +205,7 @@ public class TestEngineBase {
 	}
 
 	public static void waitAWhile() throws Exception {
-		waitAWhile(null, 3000);
+		waitAWhile(null, 3500);
 	}
 
 	public static void waitAWhile(int millis) throws Exception {
