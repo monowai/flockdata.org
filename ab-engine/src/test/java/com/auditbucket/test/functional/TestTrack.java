@@ -791,32 +791,29 @@ public class TestTrack extends TestEngineBase {
         LogInputBean logInputBean = new LogInputBean("mike", new DateTime(), TestHelper.getSimpleMap("col", 123));
         inputBean.setLog(logInputBean);
         inputBeans.add(inputBean);
-        mediationFacade.createHeaders(su.getCompany(), fortress, inputBeans, 10);
+        Collection<TrackResultBean> results = mediationFacade.createHeaders(su.getCompany(), fortress, inputBeans, 10);
+        MetaHeader header = results.iterator().next().getMetaHeader();
+        waitForFirstLog(su.getCompany(), header);
+
         inputBeans.clear();
 
-        MetaHeader created = trackService.findByCallerRef(fortress, "TestTrack", callerRef );
-        assertNotNull(created);
-        waitForLogCount(su.getCompany(), created,1);
-        // Get the last Change timestamp.
-        created = trackService.findByCallerRef(fortress, "TestTrack", callerRef );
-        assertNotSame(0l, created.getLastChange());
-
+        header = trackService.findByCallerRef(fortress, "TestTrack", callerRef );
+        assertNotNull(header);
 
         // Now we record a change
         logInputBean = new LogInputBean("mike", new DateTime(), TestHelper.getSimpleMap("col", 321));
         inputBean.setLog(logInputBean);
         inputBeans = new ArrayList<>();
         inputBeans.add(inputBean);
+        logger.info ("creating {} headers", inputBeans.size());
+        mediationFacade.createHeaders(su.getCompany(), fortress, inputBeans, 1);
 
-        mediationFacade.createHeaders(su.getCompany(), fortress, inputBeans, 10);
-        logger.info("Now = {}", new Date(created.getLastUpdate()));
-        //waitForHeaderToChange(su.getCompany(), created);// Waiting for the created record to change
-        waitForLogCount(su.getCompany(), created,2 );
-        created = trackService.findByCallerRef(fortress, "TestTrack", callerRef );
-        logger.info("Now = {}", new Date(created.getLastUpdate()));
-        TrackLog lastLog = trackService.getLastLog(su.getCompany(), created.getMetaKey());
+        waitForLogCount(su.getCompany(), header, 2);
+        header = trackService.findByCallerRef(fortress, "TestTrack", callerRef );
+        logger.info("Now = {}", new Date(header.getLastUpdate()));
+        TrackLog lastLog = trackService.getLastLog(su.getCompany(), header.getMetaKey());
         assertNotNull(lastLog);
-        LogWhat what = whatService.getWhat(created, lastLog.getLog());
+        LogWhat what = whatService.getWhat(header, lastLog.getLog());
 
         assertNotNull(what);
         Object value = what.getWhat().get("col");
