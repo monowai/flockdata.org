@@ -226,7 +226,7 @@ public class TestAdminCalls extends TestEngineBase {
         setSecurity();
         SystemUser su = regService.registerSystemUser(new RegistrationBean(mike_admin, "healthCheck"));
         Map<String, Object> results = getHealth(su);
-        assertFalse(results.isEmpty());
+        assertFalse("We didn't get back the health results for an admin user", results.isEmpty());
         assertEquals("!Unreachable! Connection refused", results.get("ab-search"));
         setSecurityEmpty();
 
@@ -235,6 +235,20 @@ public class TestAdminCalls extends TestEngineBase {
         mockMvc.perform(MockMvcRequestBuilders.get("/admin/health/")
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
+        setSecurity();
+        // Create a data access user
+        su = regService.registerSystemUser(new RegistrationBean("anyone", "healthCheck"));
+        setSecurityEmpty();
+        results = getHealth(su);
+        assertFalse("The user has no AUTH credentials but a valid APIKey - this should pass", results.isEmpty());
+
+        // Hacking with an invalid API Key. Should fail
+        mockMvc.perform(MockMvcRequestBuilders.get("/admin/health/")
+                        .header(ApiKeyInterceptor.API_KEY, "_invalidAPIKey_")
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
+
+
     }
 
     Map<String, Object> getHealth(SystemUser su) throws Exception {
