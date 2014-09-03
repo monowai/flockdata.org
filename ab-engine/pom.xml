@@ -403,7 +403,7 @@
                 <configuration>
                     <junitArtifactName>junit:junit</junitArtifactName>
                     <forkMode>once</forkMode>
-                    <argLine>-Xmx128m</argLine>
+                    <argLine>-Xmx512m</argLine>
                 </configuration>
             </plugin>
             <plugin>
