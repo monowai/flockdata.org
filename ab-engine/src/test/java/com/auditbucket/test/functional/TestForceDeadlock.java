@@ -35,7 +35,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.AsyncResult;
 
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -76,7 +75,6 @@ public class TestForceDeadlock extends TestEngineBase {
 
         Map<Integer, TagRunner> runners = new HashMap<>();
         int threadMax = 3;
-        boolean worked = true;
         for (int i = 0; i < threadMax; i++) {
             runners.put(i, addTagRunner(fortress, 5, tags, latch));
         }
@@ -88,7 +86,9 @@ public class TestForceDeadlock extends TestEngineBase {
             }
             assertEquals("Error occurred creating tags under load", true, runners.get(i).isWorked());
         }
-        assertEquals(true, worked);
+        for (Integer integer : runners.keySet()) {
+            assertEquals(true, runners.get(integer).isWorked());
+        }
     }
 
     /**
@@ -190,10 +190,6 @@ public class TestForceDeadlock extends TestEngineBase {
             inputBeans = new ArrayList<>(maxRun);
         }
 
-        public boolean isWorked() {
-            return worked;
-        }
-
         public int getMaxRun() {
             return maxRun;
         }
@@ -201,7 +197,6 @@ public class TestForceDeadlock extends TestEngineBase {
         public List<MetaInputBean> getInputBeans() {
             int count = 0;
             setSecurity();
-            logger.info("Hello from thread {}, Creating {} MetaHeaders", callerRef, maxRun);
             try {
                 while (count < maxRun) {
                     MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef + count);
@@ -244,7 +239,7 @@ public class TestForceDeadlock extends TestEngineBase {
         public void run() {
             int count = 0;
             setSecurity();
-            logger.info("Hello from TagRunner {}, Creating {} Tags", Thread.currentThread().getName(), maxRun);
+
             try {
                 while (count < maxRun) {
                     tagEP.createTags(tags, null, null);
@@ -263,16 +258,9 @@ public class TestForceDeadlock extends TestEngineBase {
 
         }
 
-        public List<TagInputBean> getTags() {
-            return tags;
-        }
-
         public boolean isDone() {
             return done;
         }
 
-        public void setDone(boolean done) {
-            this.done = done;
-        }
     }
 }
