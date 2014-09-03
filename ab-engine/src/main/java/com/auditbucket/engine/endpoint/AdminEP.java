@@ -64,6 +64,9 @@ public class AdminEP {
     @ResponseBody
     @RequestMapping(value = "/health", method = RequestMethod.GET)
     public Map<String, String> getHealth(HttpServletRequest request) throws DatagioException {
+        if ( request.getHeader(ApiKeyInterceptor.COMPANY) == null &&
+                request.getHeader(ApiKeyInterceptor.API_KEY) == null )
+            throw new SecurityException("You are not authorized to perform this request");
         return engineConfig.getHealth();
     }
 
