@@ -343,8 +343,8 @@ public class TrackDaoNeo implements TrackDao {
 
         if (metaHeader.getId() == null)// This occurs when tracking in ab-engine is suppressed and the caller is only creating search docs
             return newChange.getTrackLog();
-        newChange = template.save(newChange);
-        template.fetch(newChange.getTrackLog());
+
+        //template.fetch(newChange.getTrackLog());
         boolean moreRecent = (existingLog == null || existingLog.getFortressWhen() <= fortressWhen.getMillis());
         if (moreRecent) {
             if (metaHeader.getLastChange() != null)
@@ -354,7 +354,7 @@ public class TrackDaoNeo implements TrackDao {
             }
             metaHeader.setFortressLastWhen(fortressWhen.getMillis());
             metaHeader.setLastChange(newChange);
-            logger.debug("Saving more recent change, logid [{}]", newChange.getId());
+            logger.debug("Saving more recent change, logid [{}]", newChange.getEvent());
             try {
                 template.save(metaHeader);
             } catch (IllegalStateException e) {
@@ -362,11 +362,12 @@ public class TrackDaoNeo implements TrackDao {
                 logger.error("Unexpected", e);
             }
 
+        } else {
+            newChange = template.save(newChange);
         }
         logger.debug("Added Log - MetaHeader [{}], Log [{}], Change [{}]", metaHeader.getId(), newChange.getTrackLog(), newChange.getId());
         newChange.getTrackLog().setMetaHeader(metaHeader);
         return newChange.getTrackLog();
-
     }
 
     @Override
