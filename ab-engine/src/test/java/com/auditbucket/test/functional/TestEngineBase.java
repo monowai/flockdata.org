@@ -25,11 +25,12 @@ import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.repo.neo4j.model.FortressNode;
 import com.auditbucket.engine.service.*;
 import com.auditbucket.geography.endpoint.GeographyEP;
+import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.JsonUtils;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
+import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
-import com.auditbucket.registration.endpoint.RegistrationEP;
 import com.auditbucket.registration.endpoint.TagEP;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
@@ -194,7 +195,13 @@ public class TestEngineBase {
 		t.close();
 	}
 
-	public static void waitAWhile() throws Exception {
+    SystemUser registerSystemUser(String companyName, String accessUser) throws Exception{
+        waitAWhile(20); // Trying to avoid Heuristic exception down to the creation of a company altering indexes
+        return regService.registerSystemUser(new RegistrationBean(companyName, accessUser).setIsUnique(false));
+    }
+
+
+    public static void waitAWhile() throws Exception {
 		waitAWhile(null, 3500);
 	}
 
