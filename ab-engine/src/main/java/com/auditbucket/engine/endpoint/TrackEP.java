@@ -81,26 +81,21 @@ public class TrackEP {
     @ResponseBody
     @RequestMapping(value = "/", consumes = "application/json", method = RequestMethod.PUT)
     public void trackHeaders(@RequestBody List<MetaInputBean> inputBeans,
-                             String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, IOException {
+                             String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, IOException, ExecutionException, InterruptedException {
         trackHeaders(inputBeans, false, ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
     }
 
 
-    public int trackHeaders(List<MetaInputBean> inputBeans, boolean async, String apiKey) throws DatagioException, IOException {
+    public Collection<TrackResultBean> trackHeaders(List<MetaInputBean> inputBeans, boolean async, String apiKey) throws DatagioException, IOException, ExecutionException, InterruptedException {
         Company company = registrationService.resolveCompany(apiKey);
         MetaInputBean mib = inputBeans.iterator().next();
         FortressInputBean fib = new FortressInputBean(mib.getFortress());
         fib.setTimeZone(mib.getTimezone());
         Fortress fortress = fortressService.registerFortress(company, fib, true);
         if (async) {
-            Future<Integer> batch = mediationFacade.createHeadersAsync(company, fortress, inputBeans);
+            Future<Collection<TrackResultBean>> batch = mediationFacade.createHeadersAsync(company, fortress, inputBeans);
             Thread.yield();
-            try {
-                return batch.get();
-            } catch (InterruptedException | ExecutionException e) {
-                logger.error("Unexpected", e);
-            }
-            return 0;
+            return batch.get();
 
         } else {
             return mediationFacade.createHeaders(company, fortress, inputBeans, inputBeans.size());
