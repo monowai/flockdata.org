@@ -28,12 +28,14 @@ import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.AsyncResult;
 
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -110,16 +112,17 @@ public class TestForceDeadlock extends TestEngineBase {
 
         Map<Integer, CallerRefRunner> runners = new HashMap<>();
         int threadMax = 15;
-        Map<Integer, Future<Integer>> futures = new HashMap<>();
+        Map<Integer, Future<Collection<TrackResultBean>>> futures = new HashMap<>();
         for (int i = 0; i < threadMax; i++) {
             CallerRefRunner runner = addRunner(fortress, docType, "ABC" + i, 20, tags);
             runners.put(i, runner);
             List<MetaInputBean> inputBeans = runners.get(i).getInputBeans();
-            futures.put(i, mediationFacade.createHeadersAsync(su.getCompany(), fortress, inputBeans));
+            Future<Collection<TrackResultBean>> runResult = mediationFacade.createHeadersAsync(su.getCompany(), fortress, inputBeans);
+            futures.put(i,runResult );
         }
 
         for (int i = 0; i < threadMax; i++) {
-            Future<Integer> future = futures.get(i);
+            Future<Collection<TrackResultBean>> future = futures.get(i);
             if (future != null) {
                 while (!future.isDone()) {
                     Thread.yield();
@@ -147,11 +150,11 @@ public class TestForceDeadlock extends TestEngineBase {
         return tags;
     }
 
-    private void doFutureWorked(Future<Integer> future, int count) throws Exception {
+    private void doFutureWorked(Future<Collection<TrackResultBean>> future, int count) throws Exception {
         while (!future.isDone()) {
             Thread.yield();
         }
-        assertEquals(count, future.get().intValue());
+        assertEquals(count, future.get().size());
 
     }
 

@@ -114,12 +114,12 @@ public class MediationFacade {
      */
 
     @Async
-    public Future<Integer> createHeadersAsync(final Company company, final Fortress fortress, List<MetaInputBean> inputBeans) throws DatagioException, IOException {
+    public Future<Collection<TrackResultBean>> createHeadersAsync(final Company company, final Fortress fortress, List<MetaInputBean> inputBeans) throws DatagioException, IOException {
         // ToDo: Return strings which contain only the caller ref data that failed.
         return new AsyncResult<>(createHeaders(company, fortress, inputBeans, 10));
     }
 
-    public Integer createHeaders(final Company company, final Fortress fortress, final List<MetaInputBean> inputBeans, int listSize) throws DatagioException, IOException {
+    public Collection<TrackResultBean> createHeaders(final Company company, final Fortress fortress, final List<MetaInputBean> inputBeans, int listSize) throws DatagioException, IOException {
         fortress.setCompany(company);
         Long id = DateTime.now().getMillis();
         StopWatch watch = new StopWatch();
@@ -127,7 +127,7 @@ public class MediationFacade {
         logger.info("Starting Batch [{}] - size [{}]", id, inputBeans.size());
         // Tune to balance against concurrency and batch transaction insert efficiency.
         List<List<MetaInputBean>> splitList = Lists.partition(inputBeans, listSize);
-
+        Collection<TrackResultBean>results = new ArrayList<>();
         for (List<MetaInputBean> metaInputBeans : splitList) {
 
             @Deprecated // We should favour spring-retry for this kind of activity
@@ -156,13 +156,17 @@ public class MediationFacade {
                     return this;
                 }
             }
-            DeadlockRetry.execute(new DLCommand(metaInputBeans), "creating headers", 50);
+            DLCommand dlc = new DLCommand(metaInputBeans);
+            DeadlockRetry.execute(dlc, "creating headers", 50);
+            for (TrackResultBean resultBean : dlc.resultBeans) {
+                results.add(resultBean);
+            }
 
         }
 
         watch.stop();
         logger.info("Completed Batch [{}] - secs= {}, RPS={}", id, f.format(watch.getTotalTimeSeconds()), f.format(inputBeans.size() / watch.getTotalTimeSeconds()));
-        return inputBeans.size();
+        return results;
     }
 
     public TrackResultBean createHeader(Company company, MetaInputBean inputBean) throws DatagioException, IOException {

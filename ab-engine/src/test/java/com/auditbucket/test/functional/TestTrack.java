@@ -100,8 +100,7 @@ public class TestTrack extends TestEngineBase {
         logger.info("Tracked...");
         MetaHeader header = trackEP.getByCallerRef(fortWP.getName(), "CompanyNode", callerRef, su.getApiKey(), su.getApiKey());
         junit.framework.Assert.assertNotNull(header);
-        waitAWhile();
-        waitForALog(header, su.getApiKey());
+        waitForFirstLog(su.getCompany(), header);
 
         Set<TrackLog> logs = trackEP.getLogs(header.getMetaKey(), su.getApiKey(), su.getApiKey());
         org.junit.Assert.assertNotNull(logs);
@@ -213,7 +212,7 @@ public class TestTrack extends TestEngineBase {
         logger.info(watch.prettyPrint() + " avg = " + (watch.getLastTaskTimeMillis() / 1000d) / max);
 
         // Test that we get the expected number of log events
-        waitAWhile("",200);
+        waitAWhile();
         assertEquals(max, (double) trackService.getLogCount(ahKey));
     }
 
@@ -733,7 +732,7 @@ public class TestTrack extends TestEngineBase {
         MetaInputBean inputBean = new MetaInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), "ABC1");
         inputBean.setLog(new LogInputBean("poppy", DateTime.now(), json));
         TrackResultBean trackResultBean = trackEP.trackHeader(inputBean, su.getApiKey(), su.getApiKey()).getBody();
-        waitAWhile();
+        waitForFirstLog(su.getCompany(), trackResultBean.getMetaHeader());
         TrackLog lastLog = trackService.getLastLog(trackResultBean.getMetaHeader());
 
         LogWhat what = whatService.getWhat(trackResultBean.getMetaHeader(),  lastLog.getLog());
@@ -757,7 +756,7 @@ public class TestTrack extends TestEngineBase {
         MetaHeader metaHeader = trackService.getHeader(ahWP);
         mediationFacade.processLog(new LogInputBean("olivia@sunnybell.com", metaHeader.getMetaKey(), firstDate, TestHelper.getSimpleMap("house", "house1")));
         mediationFacade.processLog(new LogInputBean("isabella@sunnybell.com", metaHeader.getMetaKey(), firstDate.plusDays(1), TestHelper.getSimpleMap("house", "house2")));
-        waitForALog(metaHeader, su.getApiKey());
+        waitForSubsequentLog(su.getCompany(), metaHeader);
         TrackedSummaryBean auditSummary = trackService.getMetaSummary(null, ahWP);
         assertNotNull(auditSummary);
         assertEquals(ahWP, auditSummary.getHeader().getMetaKey());
@@ -791,6 +790,11 @@ public class TestTrack extends TestEngineBase {
 
         MetaHeader created = trackService.findByCallerRef(fortress, "TestTrack", callerRef );
         assertNotNull(created);
+        waitForSubsequentLog(su.getCompany(), created);
+        // Get the last Change timestamp.
+        created = trackService.findByCallerRef(fortress, "TestTrack", callerRef );
+        assertNotSame(0l, created.getLastChange());
+
 
         // Now we record a change
         logInputBean = new LogInputBean("mike", new DateTime(), TestHelper.getSimpleMap("col", 321));
@@ -799,8 +803,11 @@ public class TestTrack extends TestEngineBase {
         inputBeans.add(inputBean);
 
         mediationFacade.createHeaders(su.getCompany(), fortress, inputBeans, 10);
-        waitAWhile();
-
+        logger.info("Now = {}", new Date(created.getLastUpdate()));
+        //waitForHeaderToChange(su.getCompany(), created);// Waiting for the created record to change
+        waitForSubsequentLog(su.getCompany(), created);
+        created = trackService.findByCallerRef(fortress, "TestTrack", callerRef );
+        logger.info("Now = {}", new Date(created.getLastUpdate()));
         LogWhat what = trackEP.getLastChangeWhat(created.getMetaKey(), su.getApiKey(), su.getApiKey()).getBody();
 
         assertNotNull(what);
@@ -820,7 +827,7 @@ public class TestTrack extends TestEngineBase {
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "poppy", "CompanyNode", past, "ABC1");
         inputBean.setLog(new LogInputBean("poppy", past, TestHelper.getSimpleMap("name", "value")));
         TrackResultBean trackResultBean = trackEP.trackHeader(inputBean, su.getApiKey(), su.getApiKey()).getBody();
-        waitForALog(trackResultBean.getMetaHeader(), su.getApiKey());
+        waitForFirstLog(su.getCompany(), trackResultBean.getMetaHeader());
         TrackLog lastLog = trackService.getLastLog(trackResultBean.getMetaHeader());
         assertEquals(past.getMillis(), lastLog.getFortressWhen().longValue());
         assertEquals(past.getMillis(), trackResultBean.getMetaHeader().getFortressDateCreated().getMillis());

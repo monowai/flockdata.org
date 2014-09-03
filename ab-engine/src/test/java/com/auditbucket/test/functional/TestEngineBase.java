@@ -32,6 +32,7 @@ import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
 import com.auditbucket.registration.endpoint.TagEP;
+import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.CompanyService;
@@ -196,7 +197,7 @@ public class TestEngineBase {
 	}
 
     SystemUser registerSystemUser(String companyName, String accessUser) throws Exception{
-        waitAWhile(80); // Trying to avoid Heuristic exception down to the creation of a company altering indexes
+        waitAWhile(100); // Trying to avoid Heuristic exception down to the creation of a company altering indexes
         return regService.registerSystemUser(new RegistrationBean(companyName, accessUser).setIsUnique(false));
     }
 
@@ -236,23 +237,19 @@ public class TestEngineBase {
 		logger.trace(message, milliseconds / 1000d);
 	}
 
-	long waitForALog(MetaHeader header, String apiKey) throws Exception {
+	long waitForSubsequentLog(Company company, MetaHeader header) throws Exception {
 		// Looking for the first searchKey to be logged against the metaHeader
 		long thenTime = System.currentTimeMillis();
 		int i = 0;
 		long ts = header.getFortressLastWhen();
 
-		MetaHeader metaHeader = trackEP.getMetaHeader(header.getMetaKey(),
-				apiKey, apiKey).getBody();
-		TrackLog log = trackEP.getLastChange(metaHeader.getMetaKey(), apiKey,
-				apiKey).getBody();
+		MetaHeader metaHeader = trackService.getHeader(company, header.getMetaKey());
 
 		int timeout = 100;
-		while (log == null && i <= timeout) {
-			log = trackEP
-					.getLastChange(metaHeader.getMetaKey(), apiKey, apiKey)
-					.getBody();
-			if (log != null && metaHeader.getFortressLastWhen() == ts)
+		while ( i <= timeout) {
+            metaHeader = trackService.getHeader(company, header.getMetaKey());
+            TrackLog log = trackService.getLastLog(company, metaHeader.getMetaKey());
+			if (log != null && metaHeader.getFortressLastWhen() != ts)
 				return i;
 			Thread.yield();
 			if (i > 20)
@@ -264,6 +261,54 @@ public class TestEngineBase {
 					metaHeader.getId());
 		return System.currentTimeMillis() - thenTime;
 	}
+    long waitForFirstLog(Company company, MetaHeader header) throws Exception {
+        // Looking for the first searchKey to be logged against the metaHeader
+        long thenTime = System.currentTimeMillis();
+        int i = 0;
+
+        MetaHeader metaHeader = trackService.getHeader(company, header.getMetaKey());
+
+        int timeout = 100;
+        while ( i <= timeout) {
+            TrackLog log = trackService.getLastLog(company, metaHeader.getMetaKey());
+            if (log != null )
+                return i;
+            Thread.yield();
+            if (i > 20)
+                waitAWhile("Waiting for the log to arrive {}");
+            i++;
+        }
+        if (i > 22)
+            logger.info("Wait for log got to [{}] for metaId [{}]", i,
+                    metaHeader.getId());
+        return System.currentTimeMillis() - thenTime;
+    }
+
+    long waitForHeaderToChange(Company company, MetaHeader header) throws Exception {
+        // Looking for the first searchKey to be logged against the metaHeader
+        long thenTime = System.currentTimeMillis();
+        int i = 0;
+        long ts = header.getFortressLastWhen();
+
+        MetaHeader metaHeader = trackService.getHeader(company, header.getMetaKey());
+
+
+        int timeout = 100;
+        while (metaHeader == null && i <= timeout) {
+            metaHeader = trackService.getHeader(company, header.getMetaKey());
+            if (metaHeader != null && metaHeader.getFortressLastWhen() > ts)
+                return i;
+            Thread.yield();
+            if (i > 20)
+                waitAWhile("Waiting for the log to arrive {}");
+            i++;
+        }
+        if (i > 22)
+            logger.info("Wait for log got to [{}] for metaId [{}]", i,
+                    header.getId());
+        return System.currentTimeMillis() - thenTime;
+    }
+
 
 
 	public void testJson() throws Exception {
