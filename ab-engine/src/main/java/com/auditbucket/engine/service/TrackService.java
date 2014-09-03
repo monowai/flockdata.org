@@ -548,7 +548,7 @@ public class TrackService {
      */
     public int getLogCount(String headerKey) throws DatagioException {
         MetaHeader metaHeader = getValidHeader(headerKey);
-        return trackDao.getLogCount(metaHeader.getId());
+        return trackDao.getLogs(metaHeader.getId()).size();
 
     }
 
