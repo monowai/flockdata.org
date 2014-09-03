@@ -88,7 +88,7 @@ public class TestMetaCrossReference extends TestEngineBase {
 
     @Test
     public void crossReferenceByCallerRefsForFortress() throws Exception {
-        registrationEP.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("auditTest", true));
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
@@ -119,7 +119,7 @@ public class TestMetaCrossReference extends TestEngineBase {
     }
     @Test
     public void crossReferenceWithInputBean() throws Exception {
-        registrationEP.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("auditTest", true));
 
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
