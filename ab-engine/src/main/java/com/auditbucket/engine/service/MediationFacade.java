@@ -171,7 +171,6 @@ public class MediationFacade {
     }
 
     public TrackResultBean createHeader(Company company, MetaInputBean inputBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
-        //Company company = registrationService.resolveCompany(apiKey);
         Fortress fortress = fortressService.findByName(company, inputBean.getFortress());
         if ( fortress == null )
             fortress = fortressService.registerFortress(company,
@@ -211,7 +210,7 @@ public class MediationFacade {
                 schemaService.createDocTypes(inputBeans, company, fortress);
                 TrackResultBean trackResult = trackService.createHeader(company, fortress, inputBean);
                 trackResult.setLogInput(inputBean.getLog());
-                result = logProcessor.processLogFromResult(company, trackResult);
+                result = logProcessor.processLogFromResult(trackResult);
                 if (result == null)
                     result = trackResult;
 
@@ -231,7 +230,14 @@ public class MediationFacade {
     }
 
     public TrackResultBean processLog(Company company, LogInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException {
-        TrackResultBean trackResult = logProcessor.writeLog(company, input.getMetaKey(), input);
+        MetaHeader metaHeader  ;
+        if ( input.getMetaKey()!=null )
+            metaHeader = trackService.getHeader(company, input.getMetaKey());
+        else
+            metaHeader = trackService.findByCallerRef(input.getFortress(), input.getDocumentType(), input.getCallerRef());
+        if (metaHeader == null )
+            throw new DatagioException("Unable to resolve the MetaHeader");
+        TrackResultBean trackResult = logProcessor.writeLog(metaHeader, input);
         logProcessor.distributeChange(company, trackResult);
         return trackResult;
     }

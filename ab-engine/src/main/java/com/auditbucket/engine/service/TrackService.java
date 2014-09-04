@@ -208,38 +208,22 @@ public class TrackService {
     }
 
     /**
-     * Forces this service to refresh the header which may be stale
      *
-     * @param company         who for
-     * @param metaKey         header
      * @param trackResultBean input data to process
      * @return result of the operation
      * @throws DatagioException
      * @throws IOException
      */
-    public LogResultBean writeLog(Company company, String metaKey, TrackResultBean trackResultBean) throws DatagioException, IOException {
+    public LogResultBean writeLog(TrackResultBean trackResultBean) throws DatagioException, IOException {
         LogInputBean input = trackResultBean.getLog();
-        MetaHeader metaHeader = null;
 
+        MetaHeader metaHeader = trackResultBean.getMetaHeader();
         // Incoming MetaHeader may be stale so refresh from this transactions view of it
-        if (metaKey != null) {
-            metaHeader = getHeader(company, metaKey); // Refresh the header with the latest version
-        }
-        if ( metaHeader == null && (trackResultBean.getMetaInputBean()!=null && trackResultBean.getMetaInputBean().isTrackSuppressed()))
-            metaHeader = trackResultBean.getMetaHeader();
+//        if ( metaHeader == null && (trackResultBean.getMetaInputBean()!=null && trackResultBean.getMetaInputBean().isTrackSuppressed()))
+//            metaHeader = trackResultBean.getMetaHeader();
 
         logger.debug("writeLog - Received log request for header=[{}]", metaHeader);
-        if (metaHeader == null) {
-            if (input.getMetaId() == null) {
-                if (metaKey == null || metaKey.equals(EMPTY)) {
-                    metaHeader = findByCallerRef(trackResultBean.getFortressName(), trackResultBean.getDocumentType(), trackResultBean.getCallerRef());
-                    if (metaHeader != null)
-                        input.setMetaKey(metaHeader.getMetaKey());
-                } else
-                    metaHeader = getHeader(metaKey); // true??
-            } else
-                metaHeader = getHeader(input.getMetaId());  // Only set internally by AuditBucket. Never rely on the caller
-        }
+
         LogResultBean resultBean = new LogResultBean(input, metaHeader);
         if (metaHeader == null) {
             resultBean.setStatus(LogInputBean.LogStatus.NOT_FOUND);
