@@ -25,13 +25,13 @@ import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.repo.neo4j.model.FortressNode;
 import com.auditbucket.engine.service.*;
 import com.auditbucket.geography.endpoint.GeographyEP;
-import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.JsonUtils;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
 import com.auditbucket.registration.endpoint.TagEP;
+import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.CompanyService;
@@ -90,6 +90,12 @@ public class TestEngineBase {
 
 	@Autowired
 	MediationFacade mediationFacade;
+
+    @Autowired
+    TxService txService;
+
+    @Autowired
+    LogService logService;
 
 	@Autowired
 	TrackEventService trackEventService;
@@ -196,7 +202,7 @@ public class TestEngineBase {
 	}
 
     SystemUser registerSystemUser(String companyName, String accessUser) throws Exception{
-        waitAWhile(20); // Trying to avoid Heuristic exception down to the creation of a company altering indexes
+        waitAWhile(70); // Trying to avoid Heuristic exception down to the creation of a company altering indexes
         return regService.registerSystemUser(new RegistrationBean(companyName, accessUser).setIsUnique(false));
     }
 
@@ -236,34 +242,54 @@ public class TestEngineBase {
 		logger.trace(message, milliseconds / 1000d);
 	}
 
-	long waitForALog(MetaHeader header, String apiKey) throws Exception {
+	TrackLog waitForLogCount(Company company, MetaHeader header, int expectedCount) throws Exception {
 		// Looking for the first searchKey to be logged against the metaHeader
-		long thenTime = System.currentTimeMillis();
 		int i = 0;
-		long ts = header.getFortressLastWhen();
-
-		MetaHeader metaHeader = trackEP.getMetaHeader(header.getMetaKey(),
-				apiKey, apiKey).getBody();
-		TrackLog log = trackEP.getLastChange(metaHeader.getMetaKey(), apiKey,
-				apiKey).getBody();
-
 		int timeout = 100;
-		while (log == null && i <= timeout) {
-			log = trackEP
-					.getLastChange(metaHeader.getMetaKey(), apiKey, apiKey)
-					.getBody();
-			if (log != null && metaHeader.getFortressLastWhen() == ts)
-				return i;
+        int count = 0 ;
+        //int sleepCount = 90;
+        //logger.debug("Sleep Count {}", sleepCount);
+        //Thread.sleep(sleepCount); // Avoiding RELATIONSHIP[{id}] has no property with propertyKey="__type__" NotFoundException
+		while ( i <= timeout) {
+            MetaHeader updatedHeader = trackService.getHeader(company, header.getMetaKey());
+            count = trackService.getLogCount(company, updatedHeader.getMetaKey());
+
+            TrackLog log = trackService.getLastLog(company, updatedHeader.getMetaKey());
+            // We have at least one log?
+			if ( count == expectedCount )
+				return log;
 			Thread.yield();
 			if (i > 20)
-				waitAWhile("Waiting for the log to arrive {}");
+				waitAWhile("Waiting for the log to update {}");
 			i++;
 		}
 		if (i > 22)
 			logger.info("Wait for log got to [{}] for metaId [{}]", i,
-					metaHeader.getId());
-		return System.currentTimeMillis() - thenTime;
+					header.getId());
+        throw new Exception(String.format("Timeout waiting for the defined log count of %s. We found %s", expectedCount, count));
 	}
+    long waitForFirstLog(Company company, MetaHeader header) throws Exception {
+        // Looking for the first searchKey to be logged against the metaHeader
+        long thenTime = System.currentTimeMillis();
+        int i = 0;
+
+        MetaHeader metaHeader = trackService.getHeader(company, header.getMetaKey());
+
+        int timeout = 100;
+        while ( i <= timeout) {
+            TrackLog log = trackService.getLastLog(company, metaHeader.getMetaKey());
+            if (log != null )
+                return i;
+            Thread.yield();
+            if (i > 20)
+                waitAWhile("Waiting for the log to arrive {}");
+            i++;
+        }
+        if (i > 22)
+            logger.info("Wait for log got to [{}] for metaId [{}]", i,
+                    metaHeader.getId());
+        return System.currentTimeMillis() - thenTime;
+    }
 
 
 	public void testJson() throws Exception {

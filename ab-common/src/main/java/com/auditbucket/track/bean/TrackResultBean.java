@@ -54,7 +54,7 @@ public class TrackResultBean {
         this.serviceMessage = serviceMessage;
     }
 
-    public TrackResultBean(String fortressName, String documentType, String callerRef, String metaKey) {
+    private TrackResultBean(String fortressName, String documentType, String callerRef, String metaKey) {
         this();
         this.fortressName = fortressName;
         this.documentType = documentType;

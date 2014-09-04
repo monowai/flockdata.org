@@ -742,7 +742,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
         metaHeader = trackService.getHeader(resultBean.getMetaKey());
 
         // 3 logs
-        assertEquals(3, trackService.getLogCount(metaHeader.getMetaKey()));
+        assertEquals(3, trackService.getLogCount(su.getCompany(), metaHeader.getMetaKey()));
         // Update tag should still be against the header
         validateTag(metaHeader, "TEST-UPDATE", 1);
 
