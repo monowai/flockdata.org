@@ -222,7 +222,7 @@ public class TestABIntegration {
         logger.info("## companyAndFortressWithSpaces");
 
         SystemUser su = registerSystemUser("co-fortress");
-        Fortress fortressA = fortressService.registerFortress(new FortressInputBean("Audit Test", false));
+        Fortress fortressA = fortressService.registerFortress(new FortressInputBean("Track Test", false));
         String docType = "TestAuditX";
         String callerRef = "ABC123X";
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
@@ -231,7 +231,7 @@ public class TestABIntegration {
         String ahKey = header.getMetaKey();
         assertNotNull(ahKey);
         header = trackService.getHeader(ahKey);
-        assertEquals("ab.monowai.audittest", header.getIndexName());
+        assertEquals("ab.monowai.tracktest", header.getIndexName());
         mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), getRandomMap()));
         waitForHeaderToUpdate(su.getCompany(), header.getMetaKey());
 
@@ -565,7 +565,7 @@ public class TestABIntegration {
     @Test
     public void utcDateFieldsThruToSearch() throws Exception {
         // DAT-196
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## utcDateFieldsThruToSearch");
         SystemUser su = registerSystemUser("Kiwi-UTC");
         FortressInputBean fib = new FortressInputBean("utcDateFieldsThruToSearch", false);
