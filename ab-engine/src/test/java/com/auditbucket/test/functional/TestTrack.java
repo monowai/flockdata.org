@@ -781,7 +781,6 @@ public class TestTrack extends TestEngineBase {
     }
 
     @Test
-    @Repeat(10)
     public void lastLog_CorrectlySequencesInSeparateCallsViaBatchLoad() throws Exception {
         SystemUser su = registerSystemUser(monowai, mike_admin);
         EngineEndPoints engineEndPoints = new EngineEndPoints(wac);

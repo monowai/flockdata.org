@@ -216,6 +216,8 @@ public class SearchServiceFacade {
     }
 
     private SearchChange getSearchChange(TrackResultBean trackResultBean) {
+        if ( trackResultBean == null )
+            return null;
         if (trackResultBean.getMetaInputBean()!=null && trackResultBean.getMetaInputBean().isMetaOnly()){
             return getMetaSearchChange(trackResultBean);
         }

@@ -37,6 +37,7 @@ import org.springframework.util.StopWatch;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 /**
  * User: Mike Holdsworth
@@ -106,7 +107,7 @@ public class TestForceDuplicateRlx extends TestEngineBase {
         logger.info("*** Created data set in " + f.format(splitTotals) + " fortress avg = " + f.format(splitTotals / fortressMax) + " avg processing time per request " + f.format(splitTotals / totalRows) + ". Requests per second " + f.format(totalRows / splitTotals));
 //        watch.reset();
     }
-    private void createLog(MetaInputBean aib, TrackResultBean arb, int log) throws DatagioException, IOException {
+    private void createLog(MetaInputBean aib, TrackResultBean arb, int log) throws DatagioException, IOException, ExecutionException, InterruptedException {
         trackEP.trackLog(new LogInputBean(aib.getFortressUser(), arb.getMetaKey(), new DateTime(), TestHelper.getSimpleMap("who", log)), null, null);
     }
 

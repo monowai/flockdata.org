@@ -196,7 +196,7 @@ public class TestEngineBase {
 	}
 
     SystemUser registerSystemUser(String companyName, String accessUser) throws Exception{
-        waitAWhile(90); // Trying to avoid Heuristic exception down to the creation of a company altering indexes
+        waitAWhile(70); // Trying to avoid Heuristic exception down to the creation of a company altering indexes
         return regService.registerSystemUser(new RegistrationBean(companyName, accessUser).setIsUnique(false));
     }
 
@@ -241,9 +241,9 @@ public class TestEngineBase {
 		int i = 0;
 		int timeout = 100;
         int count = 0 ;
-        int sleepCount = 90;
-        logger.debug("Sleep Count {}", sleepCount);
-        Thread.sleep(sleepCount); // Avoiding RELATIONSHIP[{id}] has no property with propertyKey="__type__" NotFoundException
+        //int sleepCount = 90;
+        //logger.debug("Sleep Count {}", sleepCount);
+        //Thread.sleep(sleepCount); // Avoiding RELATIONSHIP[{id}] has no property with propertyKey="__type__" NotFoundException
 		while ( i <= timeout) {
             MetaHeader updatedHeader = trackService.getHeader(company, header.getMetaKey());
             count = trackService.getLogCount(company, updatedHeader.getMetaKey());
@@ -284,32 +284,6 @@ public class TestEngineBase {
                     metaHeader.getId());
         return System.currentTimeMillis() - thenTime;
     }
-
-    long waitForHeaderToChange(Company company, MetaHeader header) throws Exception {
-        // Looking for the first searchKey to be logged against the metaHeader
-        long thenTime = System.currentTimeMillis();
-        int i = 0;
-        long ts = header.getFortressLastWhen();
-
-        MetaHeader metaHeader = trackService.getHeader(company, header.getMetaKey());
-
-
-        int timeout = 100;
-        while (metaHeader == null && i <= timeout) {
-            metaHeader = trackService.getHeader(company, header.getMetaKey());
-            if (metaHeader != null && metaHeader.getFortressLastWhen() > ts)
-                return i;
-            Thread.yield();
-            if (i > 20)
-                waitAWhile("Waiting for the log to arrive {}");
-            i++;
-        }
-        if (i > 22)
-            logger.info("Wait for log got to [{}] for metaId [{}]", i,
-                    header.getId());
-        return System.currentTimeMillis() - thenTime;
-    }
-
 
 
 	public void testJson() throws Exception {

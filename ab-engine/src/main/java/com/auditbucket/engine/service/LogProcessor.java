@@ -40,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 /**
@@ -74,9 +75,12 @@ public class LogProcessor {
     CompanyService companyService;
 
     @Async
-    public Future<Collection<TrackResultBean>> processLogs(Company company, Iterable<TrackResultBean> resultBeans) throws DatagioException, IOException {
-//      public Collection<TrackResultBean> processLogs(Company company, Iterable<TrackResultBean> resultBeans) throws DatagioException, IOException {
-        Thread.yield();
+    public Future<Collection<TrackResultBean>> processLogs(Company company, Iterable<TrackResultBean> resultBeans) throws DatagioException, IOException, ExecutionException, InterruptedException {
+        return new AsyncResult<>(processLogsSync(company, resultBeans));
+
+    }
+
+    public Collection<TrackResultBean> processLogsSync(Company company, Iterable<TrackResultBean> resultBeans) throws DatagioException, IOException, ExecutionException, InterruptedException {
         logger.debug("Process Logs {}", Thread.currentThread().getName());
         Collection<TrackResultBean> logResults = new ArrayList<>();
         for (TrackResultBean resultBean : resultBeans) {
@@ -84,10 +88,11 @@ public class LogProcessor {
         }
         logger.debug("Logs processed. Proceeding to distribute.");
         distributeChanges(company, logResults);
-        return new AsyncResult<>(logResults);
-//          return logResults;
+        return logResults;
+
     }
-    protected TrackResultBean processLogFromResult(Company company, TrackResultBean resultBean) throws DatagioException, IOException {
+
+    protected TrackResultBean processLogFromResult(Company company, TrackResultBean resultBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
         LogInputBean logBean = resultBean.getLog();
         MetaHeader header = resultBean.getMetaHeader();
 
@@ -104,7 +109,7 @@ public class LogProcessor {
         return trackResult;
     }
 
-    public TrackResultBean writeLog(Company company, String metaKey, LogInputBean input) throws DatagioException, IOException {
+    public TrackResultBean writeLog(Company company, String metaKey, LogInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException {
         TrackResultBean resultBean = new TrackResultBean(input.getFortress(), input.getDocumentType(), input.getCallerRef(), metaKey);
         resultBean.setLogInput(input);
         return writeLog(company, metaKey, resultBean);
@@ -114,20 +119,20 @@ public class LogProcessor {
      * Deadlock safe processor to creates a log
      *
      *
-     * @param company
+     * @param company      who this is being loaded on behalf of
      * @param metaKey      Header that the caller is authorised to work with
      * @param resultBean   log details to apply to the authorised header
      * @return result details
      * @throws com.auditbucket.helper.DatagioException
      *
      */
-    public TrackResultBean writeLog(final Company company, final String metaKey, final TrackResultBean resultBean) throws DatagioException, IOException {
+    public TrackResultBean writeLog(final Company company, final String metaKey, final TrackResultBean resultBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
         LogInputBean logInputBean = resultBean.getLog();
         logger.debug("writeLog {}", logInputBean);
         class DeadLockCommand implements Command {
             TrackResultBean result = null;
             @Override
-            public Command execute() throws DatagioException, IOException {
+            public Command execute() throws DatagioException, IOException, ExecutionException, InterruptedException {
 
                 // ToDo: DAT-169 This needs to be dealt with via SpringIntegration and persistent messaging
                 LogResultBean logResult = trackService.writeLog(company, metaKey, resultBean);
