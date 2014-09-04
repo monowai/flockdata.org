@@ -20,6 +20,7 @@
 package com.auditbucket.helper;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created with IntelliJ IDEA.
@@ -29,5 +30,5 @@ import java.io.IOException;
  * To change this template use File | Settings | File Templates.
  */
 public interface Command<T> {
-    public Command execute() throws DatagioException, IOException;
+    public Command execute() throws DatagioException, IOException, ExecutionException, InterruptedException;
 }

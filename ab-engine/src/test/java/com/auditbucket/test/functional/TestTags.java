@@ -429,7 +429,7 @@ public class TestTags extends TestEngineBase {
         //assertTrue(tagA.getId().equals(tagB.getId()));
     }
     @Test
-    public void goegoraphyEndPoints() throws DatagioException {
+    public void goegoraphyEndPoints() throws Exception {
         engineAdmin.setMultiTenanted(false);
         SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
         TagInputBean tagInputBean = new TagInputBean("New Zealand").setIndex("Country");

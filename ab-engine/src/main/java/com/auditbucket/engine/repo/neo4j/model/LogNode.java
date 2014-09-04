@@ -52,7 +52,7 @@ public class LogNode implements Log {
     private TxRef txRef;
 
     @RelatedToVia(elementClass = LoggedRelationship.class, type ="LOGGED", direction = Direction.INCOMING)
-    private TrackLog trackLog;
+    private LoggedRelationship trackLog;
 
     @RelatedTo(elementClass = ChangeEventNode.class, type = "TRACK_EVENT", direction = Direction.OUTGOING)
     @Fetch
@@ -199,7 +199,7 @@ public class LogNode implements Log {
 
     @Override
     public void setTrackLog(TrackLog trackLog) {
-        this.trackLog = trackLog;
+        this.trackLog = (LoggedRelationship) trackLog;
     }
 
 

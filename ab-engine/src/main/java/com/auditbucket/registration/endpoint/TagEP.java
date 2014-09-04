@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * User: Mike Holdsworth
@@ -60,7 +61,7 @@ public class TagEP {
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
     public Collection<TagInputBean> createTags(@RequestBody List<TagInputBean> tagInputs,
                                                String apiKey,
-                                               @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+                                               @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, ExecutionException, InterruptedException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
 
         schemaDao.ensureUniqueIndexes(company, tagInputs, tagService.getExistingIndexes());

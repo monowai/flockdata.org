@@ -107,7 +107,7 @@ public class TestMappings extends ESBase {
 
         SearchChange searchResult = trackRepo.update(change);
         assertNotNull(searchResult);
-        Thread.sleep(1000);
+        Thread.sleep(2000);
         doQuery(header.getIndexName(), "AZERTY", 1);
 
         doTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "des", 1);
