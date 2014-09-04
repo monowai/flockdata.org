@@ -19,7 +19,6 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.Relationship;
@@ -66,8 +65,7 @@ public class TestTagConcepts extends TestEngineBase {
         engineAdmin.setConceptsEnabled(true);
 
         Transaction t = beginManualTransaction();
-        //registrationEP.registerSystemUser(new RegistrationBean("CompanyA", "userA")).getBody();
-        SystemUser su = regService.registerSystemUser(new RegistrationBean("multipleDocsSameFortress", mike_admin));
+        SystemUser su = registerSystemUser("multipleDocsSameFortress", mike_admin);
         Assert.assertNotNull(su);
 
         Fortress fortress = fortressService.registerFortress("multipleDocsSameFortress");
@@ -114,7 +112,7 @@ public class TestTagConcepts extends TestEngineBase {
 
         Transaction t = beginManualTransaction();
         setSecurity();
-        SystemUser su = regService.registerSystemUser(new RegistrationBean("fortressConcepts", mike_admin));
+        SystemUser su = registerSystemUser("fortressConcepts", mike_admin);
         Thread.sleep(1000);
         Assert.assertNotNull(su);
 
@@ -186,7 +184,7 @@ public class TestTagConcepts extends TestEngineBase {
         engineAdmin.setConceptsEnabled(true);
         Transaction t = beginManualTransaction();
 
-        SystemUser su = regService.registerSystemUser(new RegistrationBean("multipleRelationships", mike_admin));
+        SystemUser su = registerSystemUser("multipleRelationships", mike_admin);
         Assert.assertNotNull(su);
 
         Fortress fortress = fortressService.registerFortress("multipleRelationships");
@@ -236,7 +234,7 @@ public class TestTagConcepts extends TestEngineBase {
 
         Transaction t = beginManualTransaction();
 
-        SystemUser su = regService.registerSystemUser(new RegistrationBean("relationshipWorkForMultipleDocuments", mike_admin));
+        SystemUser su = registerSystemUser("relationshipWorkForMultipleDocuments", mike_admin);
         Assert.assertNotNull(su);
 
         Fortress fortress = fortressService.registerFortress("relationshipWorkForMultipleDocuments");
@@ -300,7 +298,7 @@ public class TestTagConcepts extends TestEngineBase {
 
         Transaction t = beginManualTransaction();
 
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser su = registerSystemUser(monowai, mike_admin);
         Assert.assertNotNull(su);
 
         Fortress fortress = fortressService.registerFortress("fortA");
@@ -352,7 +350,7 @@ public class TestTagConcepts extends TestEngineBase {
 
         Transaction t ;
 
-        SystemUser su = regService.registerSystemUser(new RegistrationBean("relationshipWorkForMultipleDocuments", mike_admin));
+        SystemUser su = registerSystemUser("relationshipWorkForMultipleDocuments", mike_admin);
         Assert.assertNotNull(su);
 
         Fortress fortress = fortressService.registerFortress("relationshipWorkForMultipleDocuments");
