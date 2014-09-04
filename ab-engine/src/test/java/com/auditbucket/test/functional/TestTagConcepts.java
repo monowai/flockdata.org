@@ -57,6 +57,7 @@ public class TestTagConcepts extends TestEngineBase {
     public void cleanUpGraph() {
         Neo4jHelper.cleanDb(template);
     }
+
     @Test
     public void multipleDocsSameFortress() throws Exception {
         logger.debug("### multipleDocsSameFortress");
@@ -69,7 +70,6 @@ public class TestTagConcepts extends TestEngineBase {
         Assert.assertNotNull(su);
 
         Fortress fortress = fortressService.registerFortress("multipleDocsSameFortress");
-
         DocumentType dType = schemaService.resolveDocType(fortress, "ABC123", true);
         commitManualTransaction(t);// Should only be only one docTypes
 
