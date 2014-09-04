@@ -49,6 +49,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
 
 import java.io.IOException;
@@ -229,6 +230,7 @@ public class MediationFacade {
         return processLog(registrationService.resolveCompany(null), input);
     }
 
+    @Transactional
     public TrackResultBean processLog(Company company, LogInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException {
         MetaHeader metaHeader  ;
         if ( input.getMetaKey()!=null )

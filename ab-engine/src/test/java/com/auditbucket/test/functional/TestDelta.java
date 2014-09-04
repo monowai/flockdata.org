@@ -72,11 +72,11 @@ public class TestDelta extends TestEngineBase {
         LogInputBean log = new LogInputBean("Mike", new DateTime(), jsonA);
         header.setLog(log);
         TrackResultBean result = mediationFacade.createHeader(su.getCompany(), header);
-        TrackLog first = trackService.getLastLog(result.getMetaHeader());
+        TrackLog first = logService.getLastLog(result.getMetaHeader());
         Assert.assertNotNull(first);
         log = new LogInputBean("Mike", result.getMetaKey(), new DateTime(), jsonB);
         mediationFacade.processLog(log);
-        TrackLog second = trackService.getLastLog(result.getMetaHeader());
+        TrackLog second = logService.getLastLog(result.getMetaHeader());
         Assert.assertNotNull(second);
 
 
