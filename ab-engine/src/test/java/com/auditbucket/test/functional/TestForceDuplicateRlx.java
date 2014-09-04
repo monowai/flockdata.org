@@ -32,6 +32,7 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
 
 import java.io.IOException;
@@ -48,6 +49,7 @@ public class TestForceDuplicateRlx extends TestEngineBase {
     private Logger logger = LoggerFactory.getLogger(TestForceDuplicateRlx.class);
 
     @Test
+    @Transactional
     public void uniqueChangeRLXUnderLoad() throws Exception {
         logger.info("uniqueChangeRLXUnderLoad started");
         registerSystemUser("TestTrack", mike_admin);

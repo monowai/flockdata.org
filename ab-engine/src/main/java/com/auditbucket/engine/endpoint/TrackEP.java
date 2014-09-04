@@ -77,6 +77,9 @@ public class TrackEP {
     TxService txService;
 
     @Autowired
+    LogService logService;
+
+    @Autowired
     private RegistrationService registrationService;
 
     private static Logger logger = LoggerFactory.getLogger(TrackEP.class);
@@ -297,7 +300,7 @@ public class TrackEP {
         Company company = getCompany(apiHeaderKey, apiKey);
         MetaHeader header = trackService.getHeader(company, metaKey);
         if (header != null) {
-            TrackLog lastLog = trackService.getLastLog(header);
+            TrackLog lastLog = logService.getLastLog(header);
             if (lastLog == null) {
                 logger.debug("Unable to find last log for {}", header);
             } else {

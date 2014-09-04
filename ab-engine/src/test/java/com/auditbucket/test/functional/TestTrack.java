@@ -24,7 +24,6 @@ import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.test.endpoint.EngineEndPoints;
 import com.auditbucket.test.utils.TestHelper;
 import com.auditbucket.track.bean.*;
 import com.auditbucket.track.model.Log;
@@ -37,13 +36,10 @@ import org.joda.time.DateTimeZone;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.annotation.Repeat;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.*;
 
@@ -60,7 +56,6 @@ import static org.junit.Assert.fail;
  * Date: 15/04/13
  * Time: 6:43 AM
  */
-@WebAppConfiguration
 public class TestTrack extends TestEngineBase {
 
     private Logger logger = LoggerFactory.getLogger(TestTrack.class);
@@ -69,10 +64,6 @@ public class TestTrack extends TestEngineBase {
     public void setup(){
         engineAdmin.setDuplicateRegistration(true);
     }
-
-    @Autowired
-    WebApplicationContext wac;
-
 
     @Test
     public void duplicateCallerRefMultipleLastChange() throws Exception {
@@ -446,13 +437,13 @@ public class TestTrack extends TestEngineBase {
         metaHeader = trackService.getHeader(ahWP);
         FortressUser fu = fortressService.getUser(metaHeader.getLastUser().getId());
         assertEquals("olivia@sunnybell.com", fu.getCode());
-        TrackLog compareLog = trackService.getLastLog(metaHeader);
+        TrackLog compareLog = logService.getLastLog(metaHeader);
 
         // Load a historic record. This should not become "last"
         mediationFacade.processLog(new LogInputBean("harry@sunnybell.com", metaHeader.getMetaKey(), earlyDate, TestHelper.getSimpleMap("house", "house2"), "Update"));
         metaHeader = trackService.getHeader(ahWP);
 
-        TrackLog lastLog = trackService.getLastLog(metaHeader);
+        TrackLog lastLog = logService.getLastLog(metaHeader);
         assertNotNull(lastLog);
         assertEquals(compareLog.getId(), lastLog.getId());
 
@@ -740,7 +731,7 @@ public class TestTrack extends TestEngineBase {
         inputBean.setLog(new LogInputBean("poppy", DateTime.now(), json));
         TrackResultBean trackResultBean = trackEP.trackHeader(inputBean, su.getApiKey(), su.getApiKey()).getBody();
         waitForFirstLog(su.getCompany(), trackResultBean.getMetaHeader());
-        TrackLog lastLog = trackService.getLastLog(trackResultBean.getMetaHeader());
+        TrackLog lastLog = logService.getLastLog(trackResultBean.getMetaHeader());
 
         LogWhat what = whatService.getWhat(trackResultBean.getMetaHeader(),  lastLog.getLog());
         assertEquals(json.get("Athlete"), what.getWhat().get("Athlete"));
@@ -783,8 +774,7 @@ public class TestTrack extends TestEngineBase {
     @Test
     public void lastLog_CorrectlySequencesInSeparateCallsViaBatchLoad() throws Exception {
         SystemUser su = registerSystemUser(monowai, mike_admin);
-        EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
-        Fortress fortress = engineEndPoints.createFortress(su, "metaHeaderDiff");
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("metaHeaderDiff"));
         String callerRef = UUID.randomUUID().toString();
         List<MetaInputBean> inputBeans = new ArrayList<>();
 
@@ -837,7 +827,7 @@ public class TestTrack extends TestEngineBase {
         inputBean.setLog(new LogInputBean("poppy", past, TestHelper.getSimpleMap("name", "value")));
         TrackResultBean trackResultBean = trackEP.trackHeader(inputBean, su.getApiKey(), su.getApiKey()).getBody();
         waitForFirstLog(su.getCompany(), trackResultBean.getMetaHeader());
-        TrackLog lastLog = trackService.getLastLog(trackResultBean.getMetaHeader());
+        TrackLog lastLog = logService.getLastLog(trackResultBean.getMetaHeader());
         assertEquals(past.getMillis(), lastLog.getFortressWhen().longValue());
         assertEquals(past.getMillis(), trackResultBean.getMetaHeader().getFortressDateCreated().getMillis());
         assertEquals("Modified " + new Date(trackResultBean.getMetaHeader().getLastUpdate()),

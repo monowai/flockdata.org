@@ -120,6 +120,9 @@ public class TestABIntegration {
     CompanyService companyService;
 
     @Autowired
+    LogService logService;
+
+    @Autowired
     FortressService fortressService;
 
     @Autowired
@@ -203,7 +206,9 @@ public class TestABIntegration {
             regService.registerSystemUser(new RegistrationBean("monowai", "mike").setIsUnique(false));
             waitAWhile("Registering Auth user System Access {}");
         }
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+        if ( mockMvc == null )
+            mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+
     }
 
     private static void deleteEsIndex(String indexName) throws Exception {
@@ -1038,7 +1043,7 @@ public class TestABIntegration {
                     MetaHeader header = trackService.findByCallerRefFull(list.get(fortress), "CompanyNode", "ABC" + random);
                     assertNotNull("ABC" + random, header);
                     assertNotNull("Looks like ab-search is not sending back results", header.getSearchKey());
-                    TrackLog trackLog = trackService.getLastLog(header);
+                    TrackLog trackLog = logService.getLastLog(header);
                     assertNotNull(trackLog);
 
                     assertTrue("fortress " + fortress + " run " + x + " header " + header.getMetaKey() + " - " + trackLog.getId(), trackLog.isIndexed());

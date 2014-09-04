@@ -24,17 +24,18 @@ import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.SystemUserService;
 import com.auditbucket.search.model.MetaSearchChange;
 import com.auditbucket.search.model.SearchResult;
-import com.auditbucket.track.bean.*;
+import com.auditbucket.track.bean.LogDetailBean;
+import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.bean.TrackResultBean;
+import com.auditbucket.track.bean.TrackedSummaryBean;
 import com.auditbucket.track.model.*;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -192,147 +193,6 @@ public class TrackService {
         return ah;
     }
 
-    /**
-     *
-     * @param trackResultBean input data to process
-     * @return result of the operation
-     * @throws DatagioException
-     * @throws IOException
-     */
-    public TrackResultBean writeLog(TrackResultBean trackResultBean) throws DatagioException, IOException {
-        LogInputBean input = trackResultBean.getLog();
-
-        MetaHeader metaHeader = trackResultBean.getMetaHeader();
-
-        logger.debug("writeLog - Received log request for header=[{}]", metaHeader);
-
-        LogResultBean resultBean = new LogResultBean(input, metaHeader);
-        if (metaHeader == null) {
-            resultBean.setStatus(LogInputBean.LogStatus.NOT_FOUND);
-            resultBean.setMessage("Unable to locate requested header");
-            logger.debug(resultBean.getMessage());
-            trackResultBean.setLogResult(resultBean);
-            return trackResultBean;
-        }
-        logger.trace("looking for fortress user {}", metaHeader.getFortress());
-        String fortressUser = (input.getFortressUser()!=null?input.getFortressUser():trackResultBean.getMetaInputBean().getFortressUser());
-        FortressUser thisFortressUser = fortressService.getFortressUser(metaHeader.getFortress(), fortressUser, true);
-        trackResultBean.setLogResult(createLog(metaHeader, input, thisFortressUser));
-        return trackResultBean;
-    }
-
-    /**
-     * Event log record for the supplied metaHeader from the supplied input
-     *
-     *
-     * @param authorisedHeader metaHeader the caller is authorised to work with
-     * @param input            trackLog details containing the data to log
-     * @param thisFortressUser User name in calling system that is making the change
-     * @return populated log information with any error messages
-     */
-    private LogResultBean createLog(MetaHeader authorisedHeader, LogInputBean input, FortressUser thisFortressUser) throws DatagioException, IOException {
-        // Warning - making this private means it doesn't get a transaction!
-
-        Fortress fortress = authorisedHeader.getFortress();
-
-        // Transactions checks
-        TxRef txRef = txService.handleTxRef(input, fortress.getCompany());
-        LogResultBean resultBean = new LogResultBean(input, authorisedHeader);
-        //ToDo: May want to track a "View" event which would not change the What data.
-        if (input.getWhat() == null || input.getWhat().isEmpty()) {
-            resultBean.setStatus(LogInputBean.LogStatus.IGNORE);
-            resultBean.setMessage("No 'what' information provided. Ignoring this request");
-            return resultBean;
-        }
-
-        resultBean.setTxReference(txRef);
-
-        TrackLog existingLog;
-        existingLog = getLastLog(authorisedHeader);
-
-        Boolean searchActive = fortress.isSearchActive();
-        DateTime fortressWhen = (input.getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(input.getWhen()));
-
-        if (existingLog != null) {
-            logger.debug("createLog, existing log found {}", existingLog);
-            boolean unchanged = whatService.isSame(authorisedHeader, existingLog.getLog(), input.getWhat());
-            if (unchanged) {
-                logger.trace("Ignoring a change we already have {}", input);
-                resultBean.setStatus(LogInputBean.LogStatus.IGNORE);
-                if (input.isForceReindex()) { // Caller is recreating the search index
-                    resultBean.setStatus((LogInputBean.LogStatus.REINDEX));
-                    resultBean.setLogToIndex(existingLog);
-                    resultBean.setMessage("Ignoring a change we already have. Honouring request to re-index");
-                } else
-                    resultBean.setMessage("Ignoring a change we already have");
-                return resultBean;
-            }
-            if (input.getEvent() == null) {
-                input.setEvent(Log.UPDATE);
-            }
-            if (searchActive)
-                authorisedHeader = waitOnInitialSearchResult(authorisedHeader);
-
-
-        } else { // first ever log for the metaHeader
-            logger.debug("createLog - first log created for the header");
-            if (input.getEvent() == null) {
-                input.setEvent(Log.CREATE);
-            }
-            //if (!metaHeader.getLastUser().getId().equals(thisFortressUser.getId())){
-            authorisedHeader.setLastUser(thisFortressUser);
-            authorisedHeader.setCreatedBy(thisFortressUser);
-        }
-
-        Log thisLog = trackDao.prepareLog(thisFortressUser, input, txRef, (existingLog != null ? existingLog.getLog() : null));
-        // Prepares the change
-        input.setChangeEvent(thisLog.getEvent());
-        resultBean.setWhatLog(thisLog);
-        resultBean.setMetaHeader(authorisedHeader);
-
-        if (authorisedHeader.getId() == null)
-            input.setStatus(LogInputBean.LogStatus.TRACK_ONLY);
-        else
-            input.setStatus(LogInputBean.LogStatus.OK);
-
-        // This call also saves the header
-        TrackLog newLog = trackDao.addLog(authorisedHeader, thisLog, fortressWhen, existingLog);
-
-        resultBean.setSysWhen(newLog.getSysWhen());
-
-        boolean moreRecent = (existingLog == null || existingLog.getFortressWhen().compareTo(newLog.getFortressWhen())<=0 );
-
-        if (moreRecent && searchActive)
-            resultBean.setLogToIndex(newLog);  // Notional log to index.
-
-        return resultBean;
-
-    }
-
-    private MetaHeader waitOnInitialSearchResult(MetaHeader metaHeader) {
-
-        if (metaHeader.isSearchSuppressed() || metaHeader.getSearchKey() != null)
-            return metaHeader; // Nothing to wait for as we're suppressing searches for this metaHeader
-
-        int timeOut = 100;
-        int i = 0;
-
-        while (metaHeader.getSearchKey() == null && i < timeOut) {
-            i++;
-            try {
-                Thread.sleep(300);
-            } catch (InterruptedException e) {
-                logger.error(e.getMessage());
-            }
-            metaHeader = getHeader(metaHeader.getId());
-        }
-        if (metaHeader.getSearchKey() == null)
-            logger.error("Timeout waiting for the initial search document to be created [{}]", metaHeader.getMetaKey());
-        return metaHeader;
-
-    }
-
-
     public Collection<MetaHeader> getHeaders(Fortress fortress, Long skipTo) {
         return trackDao.findHeaders(fortress.getId(), skipTo);
     }
@@ -356,18 +216,6 @@ public class TrackService {
         MetaHeader header = getValidHeader(metaKey);
         return getLastLog(header.getId());
 
-    }
-
-    public TrackLog getLastLog(Company company, String metaKey) throws DatagioException {
-        MetaHeader header = getHeader(company, metaKey);
-        return getLastLog(header);
-    }
-
-    public TrackLog getLastLog(MetaHeader metaHeader) throws DatagioException {
-        if (metaHeader == null || metaHeader.getId() == null)
-            return null;
-        //logger.debug("Getting lastLog MetaID [{}]", metaHeader.getId());
-        return trackDao.getLastLog(metaHeader.getId());
     }
 
     public TrackLog getLastLog(Long headerId) {
@@ -396,7 +244,7 @@ public class TrackService {
      * blocking call. This will not update the search store. For that call the
      * function in the MediationFacade
      *
-     * @param company
+     * @param company   validated company the caller is authorised to work with
      * @param headerKey UID of the Header
      * @return MetaSearchChange the search change to index, or null if there are no logs
      * @throws IOException
@@ -412,7 +260,7 @@ public class TrackService {
      * If there are no Log records left, then the metaHeader will also be removed and the
      * AB headerKey will be forever invalid.
      *
-     * @param company
+     * @param company   validated company the caller is authorised to work with
      * @param headerKey UID of the metaHeader
      * @return Future<MetaSearchChange> search change to index, or null if there are no logs
      */
@@ -475,7 +323,7 @@ public class TrackService {
     /**
      * counts the number of logs that exist for the given metaHeader
      *
-     * @param company
+     * @param company   validated company the caller is authorised to work with
      * @param headerKey GUID
      * @return count
      */
@@ -796,6 +644,11 @@ public class TrackService {
 
         return getLogTags(company, lastLog.getLog());
     }
+    public TrackLog getLastLog(Company company, String metaKey) throws DatagioException {
+        MetaHeader header = getHeader(company, metaKey);
+        return trackDao.getLastLog(header.getId());
+    }
+
 
     private Set<TrackTag> getLogTags(Company company, Log log) {
         return tagTrackService.findLogTags(company, log);

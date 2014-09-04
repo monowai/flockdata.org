@@ -94,6 +94,9 @@ public class TestEngineBase {
     @Autowired
     TxService txService;
 
+    @Autowired
+    LogService logService;
+
 	@Autowired
 	TrackEventService trackEventService;
 

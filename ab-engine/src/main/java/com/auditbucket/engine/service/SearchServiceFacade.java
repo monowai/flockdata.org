@@ -67,7 +67,7 @@ public class SearchServiceFacade {
         Collection<SearchResult> theResults = searchResults.getSearchResults();
         int count = 0;
         int size = theResults.size();
-        logger.debug("handleSearchResult processing {} incoming search results", size);
+        logger.trace("handleSearchResult processing {} incoming search results", size);
         for (SearchResult searchResult : theResults) {
             count ++;
             logger.trace("Updating {}/{} from search metaKey =[{}]", count, size, searchResult);
