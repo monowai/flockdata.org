@@ -49,7 +49,7 @@ import java.util.concurrent.Future;
  * Time: 12:56 PM
  */
 @Service
-@Transactional (propagation = Propagation.SUPPORTS)
+@Transactional(propagation = Propagation.SUPPORTS)
 public class LogProcessor {
     private Logger logger = LoggerFactory.getLogger(LogProcessor.class);
 
@@ -84,7 +84,7 @@ public class LogProcessor {
         logger.debug("Process Logs {}", Thread.currentThread().getName());
         Collection<TrackResultBean> logResults = new ArrayList<>();
         for (TrackResultBean resultBean : resultBeans) {
-            logResults.add(processLogFromResult(company, resultBean));
+            logResults.add(processLogFromResult(resultBean));
         }
         logger.debug("Logs processed. Proceeding to distribute.");
         distributeChanges(company, logResults);
@@ -92,56 +92,47 @@ public class LogProcessor {
 
     }
 
-    protected TrackResultBean processLogFromResult(Company company, TrackResultBean resultBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
-        LogInputBean logBean = resultBean.getLog();
+    protected TrackResultBean processLogFromResult(TrackResultBean resultBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
         MetaHeader header = resultBean.getMetaHeader();
 
         //DAT-77 the header may still be committing in another thread
         TrackResultBean trackResult = null;
         if (resultBean.getLog() != null) {
-            // Secret back door so that the log result can quickly get the pk
-
-            if (header != null)
-                trackResult = writeLog(company, header.getMetaKey(), resultBean);
-            else
-                trackResult = writeLog(company, logBean.getMetaKey(), resultBean);
+            trackResult = writeLog(resultBean);
         }
         return trackResult;
     }
 
-    public TrackResultBean writeLog(Company company, String metaKey, LogInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException {
-        TrackResultBean resultBean = new TrackResultBean(input.getFortress(), input.getDocumentType(), input.getCallerRef(), metaKey);
+    public TrackResultBean writeLog(MetaHeader metaHeader, LogInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException {
+        TrackResultBean resultBean = new TrackResultBean(metaHeader);
         resultBean.setLogInput(input);
-        return writeLog(company, metaKey, resultBean);
+        return writeLog(resultBean);
     }
 
     /**
      * Deadlock safe processor to creates a log
      *
-     *
-     * @param company      who this is being loaded on behalf of
-     * @param metaKey      Header that the caller is authorised to work with
-     * @param resultBean   log details to apply to the authorised header
+     * @param resultBean details to write the log from. Will always contain a metaHeader
      * @return result details
      * @throws com.auditbucket.helper.DatagioException
-     *
      */
-    public TrackResultBean writeLog(final Company company, final String metaKey, final TrackResultBean resultBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
+    public TrackResultBean writeLog(final TrackResultBean resultBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
         LogInputBean logInputBean = resultBean.getLog();
         logger.debug("writeLog {}", logInputBean);
         class DeadLockCommand implements Command {
             TrackResultBean result = null;
+
             @Override
             public Command execute() throws DatagioException, IOException, ExecutionException, InterruptedException {
 
                 // ToDo: DAT-169 This needs to be dealt with via SpringIntegration and persistent messaging
-                LogResultBean logResult = trackService.writeLog(company, metaKey, resultBean);
+                LogResultBean logResult = trackService.writeLog(resultBean);
                 result = new TrackResultBean(logResult, resultBean.getLog());
                 result.setMetaInputBean(resultBean.getMetaInputBean());
-                if ( result.getLogResult().getStatus()== LogInputBean.LogStatus.NOT_FOUND)
+                if (result.getLogResult().getStatus() == LogInputBean.LogStatus.NOT_FOUND)
                     throw new DatagioException("Unable to find MetaHeader ");
                 whatService.doKvWrite(result); //ToDo: Consider KV not available. How to write the logs
-                                               //      need to think of a way to recognize that the header has unprocessed work
+                //      need to think of a way to recognize that the header has unprocessed work
                 return this;
             }
         }
@@ -150,8 +141,9 @@ public class LogProcessor {
         return c.result;
 
     }
+
     public TrackResultBean distributeChange(Company company, TrackResultBean trackResultBean) throws IOException {
-        ArrayList<TrackResultBean>results = new ArrayList<>();
+        ArrayList<TrackResultBean> results = new ArrayList<>();
         results.add(trackResultBean);
         distributeChanges(company, results);
         return trackResultBean;
@@ -167,8 +159,6 @@ public class LogProcessor {
         searchService.makeChangesSearchable(resultBeans);
         logger.debug("Distributed changes to search service");
     }
-
-
 
 
 }

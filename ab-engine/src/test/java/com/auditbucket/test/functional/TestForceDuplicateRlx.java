@@ -50,8 +50,7 @@ public class TestForceDuplicateRlx extends TestEngineBase {
     @Test
     public void uniqueChangeRLXUnderLoad() throws Exception {
         logger.info("uniqueChangeRLXUnderLoad started");
-        regService.registerSystemUser(new RegistrationBean("TestTrack", mike_admin).setIsUnique(false));
-        Thread.sleep(1000);
+        registerSystemUser("TestTrack", mike_admin);
 
         int auditMax = 10;
         int logMax = 10;
