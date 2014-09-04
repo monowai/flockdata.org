@@ -314,7 +314,6 @@ public class TestABIntegration {
         assertEquals("ab.monowai.rebuildtest", metaHeader.getIndexName());
 
         doEsQuery(metaHeader.getIndexName(), "*");
-//        deleteEsIndex(metaHeader.getIndexName());
 
         // Rebuild....
         SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
@@ -331,7 +330,6 @@ public class TestABIntegration {
     createHeaderTimeLogsWithSearchActivated() throws Exception {
         assumeTrue(runMe);
         logger.info("## createHeaderTimeLogsWithSearchActivated");
-//        deleteEsIndex("ab.monowai.111");
         int max = 3;
         String ahKey;
         SystemUser su = registerSystemUser("Olivia");
@@ -356,10 +354,12 @@ public class TestABIntegration {
         logger.info("Start-");
         watch.start();
         while (i < max) {
-            mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), getSimpleMap("blah", i)));
+            mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), getSimpleMap("blah", i))).getMetaHeader();
             i++;
         }
-        waitForALog(su.getCompany(), metaHeader);
+        waitForLogCount(su.getCompany(), metaHeader, 3);
+        waitAWhile("Give ES a chance to catch up");
+
         watch.stop();
         // Test that we get the expected number of log events
         if (!"rest".equals(System.getProperty("neo4j"))) // Don't check if running over rest
@@ -994,18 +994,17 @@ public class TestABIntegration {
 
     }
 
-    private long waitForHeaderToUpdate(Company company, MetaHeader metaHeader) throws Exception {
+    private MetaHeader waitForHeaderToUpdate(Company company, MetaHeader metaHeader) throws Exception {
         return waitForHeaderToUpdate(company, metaHeader.getMetaKey());
     }
 
-    private long waitForHeaderToUpdate(Company company, String metaKey) throws Exception {
+    private MetaHeader waitForHeaderToUpdate(Company company, String metaKey) throws Exception {
         // Looking for the first searchKey to be logged against the metaHeader
-        long thenTime = System.currentTimeMillis();
         int i = 0;
 
         MetaHeader metaHeader = trackService.getHeader(company, metaKey);
         if (metaHeader.getSearchKey() != null)
-            return 0;
+            return metaHeader;
 
         int timeout = 100;
         while (metaHeader.getSearchKey() == null && i <= timeout) {
@@ -1019,7 +1018,7 @@ public class TestABIntegration {
             logger.info("Wait for search got to [{}] for metaId [{}]", i, metaHeader.getId());
         boolean searchWorking = metaHeader.getSearchKey() != null;
         assertTrue("Search reply not received from ab-search", searchWorking);
-        return System.currentTimeMillis() - thenTime;
+        return metaHeader;
     }
 
     private void doSearchTests(int auditCount, ArrayList<Long> list) throws Exception {
@@ -1324,5 +1323,33 @@ public class TestABIntegration {
         } while ( count < i);
         return map;
     }
+
+    TrackLog waitForLogCount(Company company, MetaHeader header, int expectedCount) throws Exception {
+        // Looking for the first searchKey to be logged against the metaHeader
+        int i = 0;
+        int timeout = 100;
+        int count = 0 ;
+        //int sleepCount = 90;
+        //logger.debug("Sleep Count {}", sleepCount);
+        //Thread.sleep(sleepCount); // Avoiding RELATIONSHIP[{id}] has no property with propertyKey="__type__" NotFoundException
+        while ( i <= timeout) {
+            MetaHeader updatedHeader = trackService.getHeader(company, header.getMetaKey());
+            count = trackService.getLogCount(company, updatedHeader.getMetaKey());
+
+            TrackLog log = trackService.getLastLog(company, updatedHeader.getMetaKey());
+            // We have at least one log?
+            if ( count == expectedCount )
+                return log;
+            Thread.yield();
+            if (i > 20)
+                waitAWhile("Waiting for the log to update {}");
+            i++;
+        }
+        if (i > 22)
+            logger.info("Wait for log got to [{}] for metaId [{}]", i,
+                    header.getId());
+        throw new Exception(String.format("Timeout waiting for the defined log count of %s. We found %s", expectedCount, count));
+    }
+
 
 }

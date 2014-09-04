@@ -136,17 +136,13 @@ public class TestEngineBase {
 	@Autowired
 	SecurityHelper securityHelper;
 
-	private static Logger logger = LoggerFactory
-			.getLogger(TestEngineBase.class);
+	private static Logger logger = LoggerFactory.getLogger(TestEngineBase.class);
 
-	// These have to be in simple-security.xml that is authorised to create
-	// registrations
-	static final String sally_admin = "sally";
+	// These have to be in test-security.xml in order to create SysUserRegistrations
+    protected static final String sally_admin = "sally";
 	protected static final String mike_admin = "mike"; // Admin role
-	static final String batch = "batch";
-	static final String harry = "harry";
-
-	protected static final String monowai = "Monowai"; // just a test constant
+    protected static final String harry = "harry";
+	protected static final String monowai = "Monowai"; // constant
 
 	Authentication authDefault = new UsernamePasswordAuthenticationToken(
 			mike_admin, "123");
@@ -160,11 +156,6 @@ public class TestEngineBase {
 	@BeforeTransaction
     @Ignore
 	public void cleanUpGraph() {
-		// This will fail if running over REST. Haven't figured out how to use a
-		// view to look at the embedded db
-		// See:
-		// https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-		// setSecurity();
 		Neo4jHelper.cleanDb(template);
 		engineAdmin.setConceptsEnabled(false);
 		engineAdmin.setDuplicateRegistration(true);
@@ -181,8 +172,7 @@ public class TestEngineBase {
 	}
 
 	public static Authentication setSecurity(String userName) {
-		Authentication auth = new UsernamePasswordAuthenticationToken(userName,
-				"123");
+		Authentication auth = new UsernamePasswordAuthenticationToken(userName, "123");
 		setSecurity(auth);
 		return auth;
 	}
