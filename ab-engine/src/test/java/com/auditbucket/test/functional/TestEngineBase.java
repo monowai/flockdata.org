@@ -91,6 +91,9 @@ public class TestEngineBase {
 	@Autowired
 	MediationFacade mediationFacade;
 
+    @Autowired
+    TxService txService;
+
 	@Autowired
 	TrackEventService trackEventService;
 

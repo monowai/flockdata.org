@@ -54,7 +54,7 @@
         <level value="error"/>
     </logger>
 
-    <logger name="com.auditbucket.engine.service.LogProcessor">
+    <logger name="com.auditbucket.engine.service.LogService">
         <level value="info"/>
     </logger>
 

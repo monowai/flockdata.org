@@ -27,7 +27,6 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.CompanyService;
-import com.auditbucket.registration.service.KeyGenService;
 import com.auditbucket.registration.service.SystemUserService;
 import com.auditbucket.search.model.MetaSearchChange;
 import com.auditbucket.search.model.SearchResult;
@@ -73,10 +72,17 @@ public class TrackService {
     SystemUserService sysUserService;
 
     @Autowired
+    private SecurityHelper securityHelper;
+
+
+    @Autowired
     TagTrackService tagTrackService;
 
     @Autowired
     SchemaService schemaService;
+
+    @Autowired
+    TxService txService;
 
     @Autowired
     WhatService whatService;
@@ -87,31 +93,10 @@ public class TrackService {
     @Autowired
     TagService tagService;
 
-    @Autowired
-    private SecurityHelper securityHelper;
-
     private Logger logger = LoggerFactory.getLogger(TrackService.class);
-
-    @Autowired
-    private KeyGenService keyGenService;
 
     public LogWhat getWhat(MetaHeader metaHeader, Log change) {
         return whatService.getWhat(metaHeader, change);
-    }
-
-
-    TxRef beginTransaction(Company company) {
-        return beginTransaction(keyGenService.getUniqueKey(), company);
-    }
-
-    TxRef beginTransaction(String id, Company company) {
-        return trackDao.beginTransaction(id, company);
-
-    }
-
-    public Map<String, Object> findByTXRef(String txRef) {
-        TxRef tx = findTx(txRef);
-        return (tx == null ? null : trackDao.findByTransaction(tx));
     }
 
     /**
@@ -214,13 +199,10 @@ public class TrackService {
      * @throws DatagioException
      * @throws IOException
      */
-    public LogResultBean writeLog(TrackResultBean trackResultBean) throws DatagioException, IOException {
+    public TrackResultBean writeLog(TrackResultBean trackResultBean) throws DatagioException, IOException {
         LogInputBean input = trackResultBean.getLog();
 
         MetaHeader metaHeader = trackResultBean.getMetaHeader();
-        // Incoming MetaHeader may be stale so refresh from this transactions view of it
-//        if ( metaHeader == null && (trackResultBean.getMetaInputBean()!=null && trackResultBean.getMetaInputBean().isTrackSuppressed()))
-//            metaHeader = trackResultBean.getMetaHeader();
 
         logger.debug("writeLog - Received log request for header=[{}]", metaHeader);
 
@@ -229,12 +211,14 @@ public class TrackService {
             resultBean.setStatus(LogInputBean.LogStatus.NOT_FOUND);
             resultBean.setMessage("Unable to locate requested header");
             logger.debug(resultBean.getMessage());
-            return resultBean;
+            trackResultBean.setLogResult(resultBean);
+            return trackResultBean;
         }
         logger.trace("looking for fortress user {}", metaHeader.getFortress());
         String fortressUser = (input.getFortressUser()!=null?input.getFortressUser():trackResultBean.getMetaInputBean().getFortressUser());
         FortressUser thisFortressUser = fortressService.getFortressUser(metaHeader.getFortress(), fortressUser, true);
-        return createLog(metaHeader, input, thisFortressUser);
+        trackResultBean.setLogResult(createLog(metaHeader, input, thisFortressUser));
+        return trackResultBean;
     }
 
     /**
@@ -252,7 +236,7 @@ public class TrackService {
         Fortress fortress = authorisedHeader.getFortress();
 
         // Transactions checks
-        TxRef txRef = handleTxRef(input, fortress.getCompany());
+        TxRef txRef = txService.handleTxRef(input, fortress.getCompany());
         LogResultBean resultBean = new LogResultBean(input, authorisedHeader);
         //ToDo: May want to track a "View" event which would not change the What data.
         if (input.getWhat() == null || input.getWhat().isEmpty()) {
@@ -325,15 +309,6 @@ public class TrackService {
 
     }
 
-    public Collection<MetaHeader> getHeaders(Fortress fortress, Long skipTo) {
-        return trackDao.findHeaders(fortress.getId(), skipTo);
-    }
-
-    public Collection<MetaHeader> getHeaders(Fortress fortress, String docTypeName, Long skipTo) {
-        DocumentType docType = schemaService.resolveDocType(fortress, docTypeName);
-        return trackDao.findHeaders(fortress.getId(), docType.getName(), skipTo);
-    }
-
     private MetaHeader waitOnInitialSearchResult(MetaHeader metaHeader) {
 
         if (metaHeader.isSearchSuppressed() || metaHeader.getSearchKey() != null)
@@ -357,46 +332,21 @@ public class TrackService {
 
     }
 
+
+    public Collection<MetaHeader> getHeaders(Fortress fortress, Long skipTo) {
+        return trackDao.findHeaders(fortress.getId(), skipTo);
+    }
+
+    public Collection<MetaHeader> getHeaders(Fortress fortress, String docTypeName, Long skipTo) {
+        DocumentType docType = schemaService.resolveDocType(fortress, docTypeName);
+        return trackDao.findHeaders(fortress.getId(), docType.getName(), skipTo);
+    }
+
+
     MetaHeader getHeader(Long id) {
         return trackDao.getHeader(id);
     }
 
-    private TxRef handleTxRef(LogInputBean input, Company company) {
-        TxRef txRef = null;
-        if (input.isTransactional()) {
-            if (input.getTxRef() == null) {
-                txRef = beginTransaction(company);
-                input.setTxRef(txRef.getName());
-            } else {
-                txRef = beginTransaction(input.getTxRef(), company);
-            }
-        }
-
-        return txRef;
-    }
-
-    public TxRef findTx(String txRef) {
-        return findTx(txRef, false);
-    }
-
-    TxRef findTx(String txRef, boolean fetchHeaders) {
-        String userName = securityHelper.getLoggedInUser();
-        SystemUser su = sysUserService.findByLogin(userName);
-
-        if (su == null)
-            throw new SecurityException("Not authorised");
-        TxRef tx = trackDao.findTxTag(txRef, su.getCompany(), fetchHeaders);
-        if (tx == null)
-            return null;
-        return tx;
-    }
-
-    public Set<MetaHeader> findTxHeaders(String txName) {
-        TxRef txRef = findTx(txName);
-        if (txRef == null)
-            return null;
-        return trackDao.findHeadersByTxRef(txRef.getId());
-    }
 
     public void updateHeader(MetaHeader metaHeader) {
         trackDao.save(metaHeader);

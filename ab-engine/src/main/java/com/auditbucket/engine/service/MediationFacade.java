@@ -90,7 +90,7 @@ public class MediationFacade {
     TagService tagService;
 
     @Autowired
-    LogProcessor logProcessor;
+    LogService logService;
 
     private Logger logger = LoggerFactory.getLogger(MediationFacade.class);
 
@@ -150,7 +150,7 @@ public class MediationFacade {
                     // Ensure the headers and tags are created
                     // this routine is prone to deadlocks under load
                     resultBeans = trackService.createHeaders(company, fortress, headers);
-                    logProcessor.processLogsSync(company, resultBeans);
+                    logService.processLogsSync(company, resultBeans);
                     // This routine will also distribute the changes to ab-search
                     // but it should only happen after headers are created successfully and via integration
 
@@ -210,11 +210,11 @@ public class MediationFacade {
                 schemaService.createDocTypes(inputBeans, company, fortress);
                 TrackResultBean trackResult = trackService.createHeader(company, fortress, inputBean);
                 trackResult.setLogInput(inputBean.getLog());
-                result = logProcessor.processLogFromResult(trackResult);
+                result = logService.processLogFromResult(trackResult);
                 if (result == null)
                     result = trackResult;
 
-                logProcessor.distributeChange(company, result);
+                logService.distributeChange(company, result);
                 return this;
             }
         }
@@ -237,8 +237,8 @@ public class MediationFacade {
             metaHeader = trackService.findByCallerRef(input.getFortress(), input.getDocumentType(), input.getCallerRef());
         if (metaHeader == null )
             throw new DatagioException("Unable to resolve the MetaHeader");
-        TrackResultBean trackResult = logProcessor.writeLog(metaHeader, input);
-        logProcessor.distributeChange(company, trackResult);
+        TrackResultBean trackResult = logService.writeLog(metaHeader, input);
+        logService.distributeChange(company, trackResult);
         return trackResult;
     }
 
