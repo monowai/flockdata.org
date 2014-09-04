@@ -218,10 +218,10 @@ public class TestABIntegration {
 
     @Test
     public void companyAndFortressWithSpaces() throws Exception {
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## companyAndFortressWithSpaces");
 
-        SystemUser su = registerSystemUser("co-fortress");
+        SystemUser su = registerSystemUser("test company","co-fortress");
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("Track Test", false));
         String docType = "TestAuditX";
         String callerRef = "ABC123X";
@@ -230,9 +230,9 @@ public class TestABIntegration {
         MetaHeader header = mediationFacade.createHeader(su.getCompany(), inputBean).getMetaHeader();
         String ahKey = header.getMetaKey();
         assertNotNull(ahKey);
-        header = trackService.getHeader(ahKey);
-        assertEquals("ab.monowai.tracktest", header.getIndexName());
-        mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), getRandomMap()));
+        header = trackService.getHeader(su.getCompany(), ahKey);
+        assertEquals("ab.testcompany.tracktest", header.getIndexName());
+        mediationFacade.processLog(su.getCompany(), new LogInputBean("wally", ahKey, new DateTime(), getRandomMap()));
         waitForHeaderToUpdate(su.getCompany(), header.getMetaKey());
 
         doEsQuery(header.getIndexName(), header.getMetaKey());
@@ -777,14 +777,19 @@ public class TestABIntegration {
 
 
     }
-
-    private SystemUser registerSystemUser(String loginToCreate) throws Exception {
+    private SystemUser registerSystemUser(String companyName, String userName) throws Exception{
         SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
         Thread.sleep(80);
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(company, loginToCreate));
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(companyName, userName));
         // creating company alters the schema that sometimes throws a heuristic exception.
         Thread.yield();
         return su;
+
+    }
+
+
+    private SystemUser registerSystemUser(String loginToCreate) throws Exception {
+        return registerSystemUser(company, loginToCreate);
     }
 
     @Test
