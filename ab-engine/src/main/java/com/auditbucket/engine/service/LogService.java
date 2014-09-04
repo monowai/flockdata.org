@@ -25,7 +25,6 @@ import com.auditbucket.helper.DeadlockRetry;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.track.bean.LogInputBean;
-import com.auditbucket.track.bean.LogResultBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.MetaHeader;
 import org.slf4j.Logger;
@@ -34,7 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
@@ -49,9 +47,9 @@ import java.util.concurrent.Future;
  * Time: 12:56 PM
  */
 @Service
-@Transactional(propagation = Propagation.SUPPORTS)
-public class LogProcessor {
-    private Logger logger = LoggerFactory.getLogger(LogProcessor.class);
+@Transactional
+public class LogService {
+    private Logger logger = LoggerFactory.getLogger(LogService.class);
 
     @Autowired
     private TrackService trackService;
@@ -93,12 +91,10 @@ public class LogProcessor {
     }
 
     protected TrackResultBean processLogFromResult(TrackResultBean resultBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
-        MetaHeader header = resultBean.getMetaHeader();
-
         //DAT-77 the header may still be committing in another thread
         TrackResultBean trackResult = null;
         if (resultBean.getLog() != null) {
-            trackResult = writeLog(resultBean);
+            trackResult = writeTheLogAndDistributeChanges(resultBean);
         }
         return trackResult;
     }
@@ -106,7 +102,7 @@ public class LogProcessor {
     public TrackResultBean writeLog(MetaHeader metaHeader, LogInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException {
         TrackResultBean resultBean = new TrackResultBean(metaHeader);
         resultBean.setLogInput(input);
-        return writeLog(resultBean);
+        return writeTheLogAndDistributeChanges(resultBean);
     }
 
     /**
@@ -116,7 +112,7 @@ public class LogProcessor {
      * @return result details
      * @throws com.auditbucket.helper.DatagioException
      */
-    public TrackResultBean writeLog(final TrackResultBean resultBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
+    public TrackResultBean writeTheLogAndDistributeChanges(final TrackResultBean resultBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
         LogInputBean logInputBean = resultBean.getLog();
         logger.debug("writeLog {}", logInputBean);
         class DeadLockCommand implements Command {
@@ -126,9 +122,7 @@ public class LogProcessor {
             public Command execute() throws DatagioException, IOException, ExecutionException, InterruptedException {
 
                 // ToDo: DAT-169 This needs to be dealt with via SpringIntegration and persistent messaging
-                LogResultBean logResult = trackService.writeLog(resultBean);
-                result = new TrackResultBean(logResult, resultBean.getLog());
-                result.setMetaInputBean(resultBean.getMetaInputBean());
+                result = trackService.writeLog(resultBean);
                 if (result.getLogResult().getStatus() == LogInputBean.LogStatus.NOT_FOUND)
                     throw new DatagioException("Unable to find MetaHeader ");
                 whatService.doKvWrite(result); //ToDo: Consider KV not available. How to write the logs

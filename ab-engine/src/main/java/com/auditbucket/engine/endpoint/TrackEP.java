@@ -74,6 +74,9 @@ public class TrackEP {
     WhatService whatService;
 
     @Autowired
+    TxService txService;
+
+    @Autowired
     private RegistrationService registrationService;
 
     private static Logger logger = LoggerFactory.getLogger(TrackEP.class);
@@ -390,23 +393,21 @@ public class TrackEP {
 
     @ResponseBody
     @RequestMapping(value = "/tx/{txRef}", produces = "application/json", method = RequestMethod.GET)
-    @Secured({"ROLE_AB_ADMIN"})
     public ResponseEntity<TxRef> getAuditTx(@PathVariable("txRef") String txRef) {
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/{metaKey}
         TxRef result;
-        result = trackService.findTx(txRef);
+        result = txService.findTx(txRef);
         return new ResponseEntity<>(result, HttpStatus.OK);
 
     }
 
     @ResponseBody
     @RequestMapping(value = "/tx/{txRef}/headers", produces = "application/json", method = RequestMethod.GET)
-    @Secured({"ROLE_AB_ADMIN"})
     public ResponseEntity<Map<String, Object>> getAuditTxHeaders(@PathVariable("txRef") String txRef) {
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/{metaKey}
         Set<MetaHeader> headers;
         Map<String, Object> result = new HashMap<>(2);
-        headers = trackService.findTxHeaders(txRef);
+        headers = txService.findTxHeaders(txRef);
         result.put("txRef", txRef);
         result.put("headers", headers);
         return new ResponseEntity<>(result, HttpStatus.OK);
@@ -414,11 +415,10 @@ public class TrackEP {
 
     @ResponseBody
     @RequestMapping(value = "/tx/{txRef}/logs", produces = "application/json", method = RequestMethod.GET)
-    @Secured({"ROLE_AB_ADMIN"})
     public ResponseEntity<Map> getAuditTxLogs(@PathVariable("txRef") String txRef) {
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/tx/{txRef}/logs
         Map<String, Object> result;
-        result = trackService.findByTXRef(txRef);
+        result = txService.findByTXRef(txRef);
         if (result == null) {
             result = new HashMap<>(1);
             result.put("txRef", "Not a valid transaction identifier");
