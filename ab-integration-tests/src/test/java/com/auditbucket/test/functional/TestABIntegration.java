@@ -120,6 +120,9 @@ public class TestABIntegration {
     CompanyService companyService;
 
     @Autowired
+    LogService logService;
+
+    @Autowired
     FortressService fortressService;
 
     @Autowired
@@ -203,7 +206,9 @@ public class TestABIntegration {
             regService.registerSystemUser(new RegistrationBean("monowai", "mike").setIsUnique(false));
             waitAWhile("Registering Auth user System Access {}");
         }
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+        if ( mockMvc == null )
+            mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+
     }
 
     private static void deleteEsIndex(String indexName) throws Exception {
@@ -221,8 +226,8 @@ public class TestABIntegration {
 //        assumeTrue(runMe);
         logger.info("## companyAndFortressWithSpaces");
 
-        SystemUser su = registerSystemUser("co-fortress");
-        Fortress fortressA = fortressService.registerFortress(new FortressInputBean("Audit Test", false));
+        SystemUser su = registerSystemUser("test company","co-fortress");
+        Fortress fortressA = fortressService.registerFortress(new FortressInputBean("Track Test", false));
         String docType = "TestAuditX";
         String callerRef = "ABC123X";
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
@@ -230,9 +235,9 @@ public class TestABIntegration {
         MetaHeader header = mediationFacade.createHeader(su.getCompany(), inputBean).getMetaHeader();
         String ahKey = header.getMetaKey();
         assertNotNull(ahKey);
-        header = trackService.getHeader(ahKey);
-        assertEquals("ab.monowai.audittest", header.getIndexName());
-        mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), getRandomMap()));
+        header = trackService.getHeader(su.getCompany(), ahKey);
+        assertEquals("ab.testcompany.tracktest", header.getIndexName());
+        mediationFacade.processLog(su.getCompany(), new LogInputBean("wally", ahKey, new DateTime(), getRandomMap()));
         waitForHeaderToUpdate(su.getCompany(), header.getMetaKey());
 
         doEsQuery(header.getIndexName(), header.getMetaKey());
@@ -358,7 +363,7 @@ public class TestABIntegration {
         watch.stop();
         // Test that we get the expected number of log events
         if (!"rest".equals(System.getProperty("neo4j"))) // Don't check if running over rest
-            assertEquals("This will fail if the DB is not cleared down, i.e. testing over REST", max, trackService.getLogCount(ahKey));
+            assertEquals("This will fail if the DB is not cleared down, i.e. testing over REST", max, trackService.getLogCount(su.getCompany(), ahKey));
 
         doEsFieldQuery(metaHeader.getIndexName(), MetaSearchSchema.WHAT + ".blah", "*", 1);
     }
@@ -565,7 +570,7 @@ public class TestABIntegration {
     @Test
     public void utcDateFieldsThruToSearch() throws Exception {
         // DAT-196
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## utcDateFieldsThruToSearch");
         SystemUser su = registerSystemUser("Kiwi-UTC");
         FortressInputBean fib = new FortressInputBean("utcDateFieldsThruToSearch", false);
@@ -777,14 +782,19 @@ public class TestABIntegration {
 
 
     }
-
-    private SystemUser registerSystemUser(String loginToCreate) throws Exception {
+    private SystemUser registerSystemUser(String companyName, String userName) throws Exception{
         SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(company, loginToCreate));
+        Thread.sleep(80);
+        SystemUser su = regService.registerSystemUser(new RegistrationBean(companyName, userName));
         // creating company alters the schema that sometimes throws a heuristic exception.
-        Thread.sleep(600);
         Thread.yield();
         return su;
+
+    }
+
+
+    private SystemUser registerSystemUser(String loginToCreate) throws Exception {
+        return registerSystemUser(company, loginToCreate);
     }
 
     @Test
@@ -1000,7 +1010,7 @@ public class TestABIntegration {
         int timeout = 100;
         while (metaHeader.getSearchKey() == null && i <= timeout) {
             metaHeader =  trackService.getHeader(company, metaKey);
-            Thread.yield();
+            Thread.sleep(20);
             if (i > 20)
                 waitAWhile("Sleeping for the header to update {}");
             i++;
@@ -1033,7 +1043,7 @@ public class TestABIntegration {
                     MetaHeader header = trackService.findByCallerRefFull(list.get(fortress), "CompanyNode", "ABC" + random);
                     assertNotNull("ABC" + random, header);
                     assertNotNull("Looks like ab-search is not sending back results", header.getSearchKey());
-                    TrackLog trackLog = trackService.getLastLog(header);
+                    TrackLog trackLog = logService.getLastLog(header);
                     assertNotNull(trackLog);
 
                     assertTrue("fortress " + fortress + " run " + x + " header " + header.getMetaKey() + " - " + trackLog.getId(), trackLog.isIndexed());

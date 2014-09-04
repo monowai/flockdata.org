@@ -34,7 +34,7 @@
         <license-text.header>GPL-3-header.txt</license-text.header>
         <docs.url>http://www.monowai.com/wiki/display/DAT/</docs.url>
         <ehcache.version>2.6.7</ehcache.version>
-        <org.springdata.neo4j>3.1.2.RELEASE</org.springdata.neo4j>
+        <org.springdata.neo4j>3.1.4.RELEASE</org.springdata.neo4j>
         <neo4j.version>2.1.2</neo4j.version>
 
     </properties>
@@ -403,7 +403,7 @@
                 <configuration>
                     <junitArtifactName>junit:junit</junitArtifactName>
                     <forkMode>once</forkMode>
-                    <argLine>-Xmx128m</argLine>
+                    <argLine>-Xmx512m</argLine>
                 </configuration>
             </plugin>
             <plugin>

@@ -14,25 +14,12 @@ import org.junit.Test;
  * To change this template use File | Settings | File Templates.
  */
 public class MetaResultBeanTest {
-    @Test
-    public void testGetAuditKeyAuditResultBean() throws Exception {
-        TrackResultBean trackResultBean = new TrackResultBean("", "", "", "auditKey");
-        MetaResultBean metaResultBean = new MetaResultBean(trackResultBean);
-        Assert.assertEquals(metaResultBean.getMetaKey(), "auditKey");
-    }
 
     @Test
     public void testGetAuditKeyAuditLogInputBean() throws Exception {
         LogInputBean logInputBean = new LogInputBean("", "auditKey", new DateTime(), null);
         MetaResultBean metaResultBean = new MetaResultBean(logInputBean);
         Assert.assertEquals(metaResultBean.getMetaKey(), "auditKey");
-    }
-
-    @Test
-    public void testGetResultAuditResultBean() throws Exception {
-        TrackResultBean trackResultBean = new TrackResultBean("", "", "", "auditKey");
-        MetaResultBean metaResultBean = new MetaResultBean(trackResultBean);
-        Assert.assertEquals(metaResultBean.getResult().getClass(), TrackResultBean.class);
     }
 
     @Test

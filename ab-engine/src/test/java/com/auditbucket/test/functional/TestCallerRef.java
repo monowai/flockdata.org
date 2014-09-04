@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
@@ -183,12 +184,8 @@ public class TestCallerRef extends TestEngineBase {
                 }
                 working = true;
                 logger.info ("{} completed", this.toString());
-            } catch (RuntimeException e) {
+            } catch (RuntimeException | ExecutionException | InterruptedException | IOException | DatagioException e) {
                 logger.error("Help!!", e);
-            } catch (DatagioException e) {
-                logger.error(e.getMessage());
-            } catch (IOException e) {
-                logger.error("Unexpected", e);
             } finally {
                 latch.countDown();
             }

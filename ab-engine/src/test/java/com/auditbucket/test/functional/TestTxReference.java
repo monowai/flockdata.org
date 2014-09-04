@@ -93,13 +93,13 @@ public class TestTxReference extends TestEngineBase{
         assertNotNull(cbaTxRef);
 
         // CBA Caller can not see the ABC transaction
-        assertNotNull(trackService.findTx(cbaTxRef));
-        assertNull(trackService.findTx(abcTxRef));
+        assertNotNull(txService.findTx(cbaTxRef));
+        assertNull(txService.findTx(abcTxRef));
 
         // ABC Caller cannot see the CBA transaction
         SecurityContextHolder.getContext().setAuthentication(authABC);
-        assertNotNull(trackService.findTx(abcTxRef));
-        assertNull(trackService.findTx(cbaTxRef));
+        assertNotNull(txService.findTx(abcTxRef));
+        assertNull(txService.findTx(cbaTxRef));
 
         // WHat happens if ABC tries to use CBA's TX Ref.
         abcHeader = new MetaInputBean(fortressABC.getName(), "wally", "TestTrack", new DateTime(), "ZZZAAA");
@@ -108,7 +108,7 @@ public class TestTxReference extends TestEngineBase{
         assertNotNull(result);
         // It works because TX References have only to be unique for a company
         //      ab generated references are GUIDs, but the caller is allowed to define their own transaction
-        assertNotNull(trackService.findTx(cbaTxRef));
+        assertNotNull(txService.findTx(cbaTxRef));
 
 
     }
@@ -137,7 +137,7 @@ public class TestTxReference extends TestEngineBase{
         String txStart = albTxRef;
 
         mediationFacade.processLog(alb);
-        Map<String, Object> result = trackService.findByTXRef(txStart);
+        Map<String, Object> result = txService.findByTXRef(txStart);
         assertNotNull(result);
         assertEquals(tagRef, result.get("txRef"));
         Collection<Log> logs = (Collection<Log>) result.get("logs");
@@ -156,14 +156,14 @@ public class TestTxReference extends TestEngineBase{
         assertNotNull(txEnd);
         assertNotSame(txEnd, txStart);
 
-        result = trackService.findByTXRef(txStart);
+        result = txService.findByTXRef(txStart);
         assertNotNull(result);
         assertEquals(tagRef, result.get("txRef"));
         logs = (Collection<Log>) result.get("logs");
         assertNotNull(logs);
         assertEquals(2, logs.size());
 
-        result = trackService.findByTXRef(txEnd);
+        result = txService.findByTXRef(txEnd);
         assertNotNull(result);
         assertEquals(txEnd, result.get("txRef"));
         logs = (Collection<Log>) result.get("logs");
@@ -196,7 +196,7 @@ public class TestTxReference extends TestEngineBase{
 
         mediationFacade.processLog(alb);
         // All headers touched by this transaction. ToDo: All changes affected
-        Set<MetaHeader> result = trackService.findTxHeaders(txStart);
+        Set<MetaHeader> result = txService.findTxHeaders(txStart);
         assertNotNull(result);
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());

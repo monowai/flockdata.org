@@ -28,6 +28,7 @@ import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,7 +75,6 @@ public class TestForceDeadlock extends TestEngineBase {
 
         Map<Integer, TagRunner> runners = new HashMap<>();
         int threadMax = 3;
-        boolean worked = true;
         for (int i = 0; i < threadMax; i++) {
             runners.put(i, addTagRunner(fortress, 5, tags, latch));
         }
@@ -86,7 +86,9 @@ public class TestForceDeadlock extends TestEngineBase {
             }
             assertEquals("Error occurred creating tags under load", true, runners.get(i).isWorked());
         }
-        assertEquals(true, worked);
+        for (Integer integer : runners.keySet()) {
+            assertEquals(true, runners.get(integer).isWorked());
+        }
     }
 
     /**
@@ -110,16 +112,17 @@ public class TestForceDeadlock extends TestEngineBase {
 
         Map<Integer, CallerRefRunner> runners = new HashMap<>();
         int threadMax = 15;
-        Map<Integer, Future<Integer>> futures = new HashMap<>();
+        Map<Integer, Future<Collection<TrackResultBean>>> futures = new HashMap<>();
         for (int i = 0; i < threadMax; i++) {
             CallerRefRunner runner = addRunner(fortress, docType, "ABC" + i, 20, tags);
             runners.put(i, runner);
             List<MetaInputBean> inputBeans = runners.get(i).getInputBeans();
-            futures.put(i, mediationFacade.createHeadersAsync(su.getCompany(), fortress, inputBeans));
+            Future<Collection<TrackResultBean>> runResult = mediationFacade.createHeadersAsync(su.getCompany(), fortress, inputBeans);
+            futures.put(i,runResult );
         }
 
         for (int i = 0; i < threadMax; i++) {
-            Future<Integer> future = futures.get(i);
+            Future<Collection<TrackResultBean>> future = futures.get(i);
             if (future != null) {
                 while (!future.isDone()) {
                     Thread.yield();
@@ -147,11 +150,11 @@ public class TestForceDeadlock extends TestEngineBase {
         return tags;
     }
 
-    private void doFutureWorked(Future<Integer> future, int count) throws Exception {
+    private void doFutureWorked(Future<Collection<TrackResultBean>> future, int count) throws Exception {
         while (!future.isDone()) {
             Thread.yield();
         }
-        assertEquals(count, future.get().intValue());
+        assertEquals(count, future.get().size());
 
     }
 
@@ -187,10 +190,6 @@ public class TestForceDeadlock extends TestEngineBase {
             inputBeans = new ArrayList<>(maxRun);
         }
 
-        public boolean isWorked() {
-            return worked;
-        }
-
         public int getMaxRun() {
             return maxRun;
         }
@@ -198,7 +197,6 @@ public class TestForceDeadlock extends TestEngineBase {
         public List<MetaInputBean> getInputBeans() {
             int count = 0;
             setSecurity();
-            logger.info("Hello from thread {}, Creating {} MetaHeaders", callerRef, maxRun);
             try {
                 while (count < maxRun) {
                     MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef + count);
@@ -241,7 +239,7 @@ public class TestForceDeadlock extends TestEngineBase {
         public void run() {
             int count = 0;
             setSecurity();
-            logger.info("Hello from TagRunner {}, Creating {} Tags", Thread.currentThread().getName(), maxRun);
+
             try {
                 while (count < maxRun) {
                     tagEP.createTags(tags, null, null);
@@ -260,16 +258,9 @@ public class TestForceDeadlock extends TestEngineBase {
 
         }
 
-        public List<TagInputBean> getTags() {
-            return tags;
-        }
-
         public boolean isDone() {
             return done;
         }
 
-        public void setDone(boolean done) {
-            this.done = done;
-        }
     }
 }

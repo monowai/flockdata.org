@@ -29,12 +29,6 @@
         </layout>
     </appender>
 
-    <!-- 3rdparty Loggers -->
-    <logger name="org.springframework">
-        <level value="info"/>
-    </logger>
-
-
     <logger name="org.elasticsearch">
         <level value="info"/>
     </logger>
@@ -49,22 +43,29 @@
         <level value="info"/>
     </logger>
 
-    <logger name="org.springframework.test">
+    <logger name="org.springframework">
+        <level value="error"/>
+    </logger>
+    <logger name="org.apache">
         <level value="error"/>
     </logger>
 
-    <logger name="com.auditbucket.engine.service.LogProcessor">
+    <logger name="org.hibernate">
+        <level value="error"/>
+    </logger>
+
+    <logger name="com.auditbucket.engine.service.LogService">
         <level value="info"/>
     </logger>
 
     <!-- Root Logger -->
     <logger name="com.auditbucket">
-        <level value="info"/>
+        <level value="${ab.logLevel}"/>
     </logger>
 
 
     <root>
-        <priority value="info"/>
+        <priority value="${ab.logLevel}"/>
         <appender-ref ref="console"/>
     </root>
 
