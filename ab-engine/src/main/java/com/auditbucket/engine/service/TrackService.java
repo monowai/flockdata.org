@@ -48,6 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Transactional services to support record and working with headers and logs
@@ -123,10 +124,10 @@ public class TrackService {
         DocumentType documentType = schemaService.resolveDocType(fortress, inputBean.getDocumentType());
 
         MetaHeader ah = null;
-        if ( inputBean.getMetaKey() != null ){
+        if (inputBean.getMetaKey() != null) {
             ah = getHeader(company, inputBean.getMetaKey());
         }
-        if ( ah == null && (inputBean.getCallerRef() != null && !inputBean.getCallerRef().equals(EMPTY)))
+        if (ah == null && (inputBean.getCallerRef() != null && !inputBean.getCallerRef().equals(EMPTY)))
             ah = findByCallerRef(fortress, documentType, inputBean.getCallerRef());
         if (ah != null) {
             logger.debug("Existing metaHeader record found by Caller Ref [{}] found [{}]", inputBean.getCallerRef(), ah.getMetaKey());
@@ -139,7 +140,7 @@ public class TrackService {
             // Could be rewriting tags
             // DAT-153 - move this to the end of the process?
             TrackLog trackLog = getLastLog(ah.getId());
-            arb.setTags(tagTrackService.associateTags(company, ah, trackLog , inputBean.getTags()));
+            arb.setTags(tagTrackService.associateTags(company, ah, trackLog, inputBean.getTags()));
             return arb;
         }
 
@@ -461,14 +462,13 @@ public class TrackService {
      * blocking call. This will not update the search store. For that call the
      * function in the MediationFacade
      *
-     *
      * @param company
      * @param headerKey UID of the Header
      * @return MetaSearchChange the search change to index, or null if there are no logs
      * @throws IOException
      */
     public MetaSearchChange cancelLastLogSync(Company company, String headerKey) throws IOException, DatagioException {
-        AsyncResult<MetaSearchChange> futureHeader = cancelLastLog(company, headerKey );
+        AsyncResult<MetaSearchChange> futureHeader = cancelLastLog(company, headerKey);
         return futureHeader.get();
     }
 
@@ -477,8 +477,6 @@ public class TrackService {
      * if the caller decides a rollback is required after the log has been written.
      * If there are no Log records left, then the metaHeader will also be removed and the
      * AB headerKey will be forever invalid.
-     *
-     *
      *
      * @param company
      * @param headerKey UID of the metaHeader
@@ -504,7 +502,7 @@ public class TrackService {
             metaHeader.setLastUser(fortressService.getFortressUser(metaHeader.getFortress(), fromLog.getWho().getCode()));
             metaHeader.setFortressLastWhen(newTrack.getFortressWhen());
             metaHeader = trackDao.save(metaHeader);
-            tagTrackService.moveTags(company, fromLog, metaHeader );
+            tagTrackService.moveTags(company, fromLog, metaHeader);
             trackDao.delete(currentLog);
 
         } else {
@@ -543,7 +541,6 @@ public class TrackService {
     /**
      * counts the number of logs that exist for the given metaHeader
      *
-     *
      * @param company
      * @param headerKey GUID
      * @return count
@@ -552,7 +549,7 @@ public class TrackService {
         MetaHeader metaHeader = getHeader(company, headerKey);
         logger.debug("looking for logs for MetaHeader id [{}] - metaKey [{}]", metaHeader.getId(), headerKey);
         int logs = trackDao.getLogs(metaHeader.getId()).size();
-        logger.info("Log count {}",logs);
+        logger.info("Log count {}", logs);
         return logs;
     }
 
@@ -624,8 +621,8 @@ public class TrackService {
     public MetaHeader findByCallerRef(Fortress fortress, String documentType, String callerRef) {
 
         DocumentType doc = schemaService.resolveDocType(fortress, documentType, false);
-        if (doc == null){
-            logger.debug ("Unable to find document for callerRef {}, {}, {}", fortress, documentType, callerRef);
+        if (doc == null) {
+            logger.debug("Unable to find document for callerRef {}, {}, {}", fortress, documentType, callerRef);
             return null;
         }
         return findByCallerRef(fortress, doc, callerRef);
@@ -683,12 +680,13 @@ public class TrackService {
         return null;
     }
 
-    public Iterable<TrackResultBean> createHeaders(Company company, Fortress fortress, Iterable<MetaInputBean> inputBeans) {
+    public Iterable<TrackResultBean> createHeaders(Company company, Fortress fortress, Iterable<MetaInputBean> inputBeans) throws InterruptedException, ExecutionException, DatagioException, IOException {
         Collection<TrackResultBean> arb = new CopyOnWriteArrayList<>();
         for (MetaInputBean inputBean : inputBeans) {
             logger.trace("Batch Processing metaKey=[{}], documentType=[{}]", inputBean.getCallerRef(), inputBean.getDocumentType());
             arb.add(createHeader(company, fortress, inputBean));
         }
+
         return arb;
 
     }
@@ -743,8 +741,8 @@ public class TrackService {
 
     public List<MetaKey> crossReferenceByCallerRef(Company company, MetaKey sourceKey, Collection<MetaKey> targetKeys, String xRefName) throws DatagioException {
         Fortress f = fortressService.findByName(company, sourceKey.getFortressName());
-        MetaHeader header ;
-        if ( sourceKey.getDocumentType()==null || sourceKey.getDocumentType().equals("*"))
+        MetaHeader header;
+        if (sourceKey.getDocumentType() == null || sourceKey.getDocumentType().equals("*"))
             header = trackDao.findByCallerRefUnique(f.getId(), sourceKey.getCallerRef());
         else {
             DocumentType document = schemaService.resolveDocType(f, sourceKey.getDocumentType(), false);
@@ -760,22 +758,22 @@ public class TrackService {
         for (MetaKey metaKey : targetKeys) {
             int count = 1;
 
-            Collection<MetaHeader> metaHeaders ;
-            if ( metaKey.getDocumentType().equals("*"))
-                metaHeaders= findByCallerRef(f, metaKey.getCallerRef() );
+            Collection<MetaHeader> metaHeaders;
+            if (metaKey.getDocumentType().equals("*"))
+                metaHeaders = findByCallerRef(f, metaKey.getCallerRef());
             else {
-                MetaHeader mh =findByCallerRef(fortressService.findByName(company, metaKey.getFortressName()), metaKey.getDocumentType(), metaKey.getCallerRef());
-                if ( mh == null ) {
+                MetaHeader mh = findByCallerRef(fortressService.findByName(company, metaKey.getFortressName()), metaKey.getDocumentType(), metaKey.getCallerRef());
+                if (mh == null) {
                     ignored.add(metaKey);
                     metaHeaders = null;
 
                 } else {
-                    Collection<MetaHeader> array= new ArrayList<>();
+                    Collection<MetaHeader> array = new ArrayList<>();
                     array.add(mh);
                     metaHeaders = array;
                 }
             }
-            if ( metaHeaders!=null ){
+            if (metaHeaders != null) {
                 for (MetaHeader metaHeader : metaHeaders) {
                     if (count > 1 || count == 0)
                         ignored.add(metaKey);
@@ -786,12 +784,12 @@ public class TrackService {
             }
 
         }
-        if ( !targets.isEmpty() )
+        if (!targets.isEmpty())
             trackDao.crossReference(header, targets, xRefName);
         return ignored;
     }
 
-    public Map<String,MetaHeader> getHeaders(Company company, Collection<String> metaKeys) {
+    public Map<String, MetaHeader> getHeaders(Company company, Collection<String> metaKeys) {
         return trackDao.findHeaders(company, metaKeys);
     }
 
@@ -857,9 +855,9 @@ public class TrackService {
         }
     }
 
-    public Set<TrackTag> getLastLogTags(Company company, String metaKey) throws  DatagioException{
+    public Set<TrackTag> getLastLogTags(Company company, String metaKey) throws DatagioException {
         TrackLog lastLog = getLastLog(company, metaKey);
-        if ( lastLog == null )
+        if (lastLog == null)
             return new HashSet<>();
 
         return getLogTags(company, lastLog.getLog());
@@ -874,7 +872,7 @@ public class TrackService {
         MetaHeader header = getHeader(company, metaKey);
         TrackLog log = trackDao.getLog(logId);
 
-        if ( log == null )
+        if (log == null)
             throw new DatagioException(String.format("Invalid logId %d for %s ", logId, metaKey));
 
         if (!log.getMetaHeader().getId().equals(header.getId()))

@@ -114,12 +114,12 @@ public class MediationFacade {
      */
 
     @Async
-    public Future<Collection<TrackResultBean>> createHeadersAsync(final Company company, final Fortress fortress, List<MetaInputBean> inputBeans) throws DatagioException, IOException {
+    public Future<Collection<TrackResultBean>> createHeadersAsync(final Company company, final Fortress fortress, List<MetaInputBean> inputBeans) throws DatagioException, IOException, ExecutionException, InterruptedException {
         // ToDo: Return strings which contain only the caller ref data that failed.
         return new AsyncResult<>(createHeaders(company, fortress, inputBeans, 10));
     }
 
-    public Collection<TrackResultBean> createHeaders(final Company company, final Fortress fortress, final List<MetaInputBean> inputBeans, int listSize) throws DatagioException, IOException {
+    public Collection<TrackResultBean> createHeaders(final Company company, final Fortress fortress, final List<MetaInputBean> inputBeans, int listSize) throws DatagioException, IOException, ExecutionException, InterruptedException {
         fortress.setCompany(company);
         Long id = DateTime.now().getMillis();
         StopWatch watch = new StopWatch();
@@ -140,7 +140,7 @@ public class MediationFacade {
                 }
 
                 @Override
-                public Command execute() throws DatagioException, IOException {
+                public Command execute() throws DatagioException, IOException, ExecutionException, InterruptedException {
                     // ToDo: DAT-169 This needs to be dealt with via SpringIntegration and persistent messaging
                     //       weirdly, the integration is with ab-engine
                     // DLCommand and DeadLockRetry need to be removed
@@ -150,9 +150,10 @@ public class MediationFacade {
                     // Ensure the headers and tags are created
                     // this routine is prone to deadlocks under load
                     resultBeans = trackService.createHeaders(company, fortress, headers);
+                    logProcessor.processLogsSync(company, resultBeans);
                     // This routine will also distribute the changes to ab-search
                     // but it should only happen after headers are created successfully and via integration
-                    logProcessor.processLogs(company, resultBeans);
+
                     return this;
                 }
             }
@@ -169,7 +170,7 @@ public class MediationFacade {
         return results;
     }
 
-    public TrackResultBean createHeader(Company company, MetaInputBean inputBean) throws DatagioException, IOException {
+    public TrackResultBean createHeader(Company company, MetaInputBean inputBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
         //Company company = registrationService.resolveCompany(apiKey);
         Fortress fortress = fortressService.findByName(company, inputBean.getFortress());
         if ( fortress == null )
@@ -192,13 +193,13 @@ public class MediationFacade {
      * @throws DatagioException illegal input
      * @throws IOException      json processing exception
      */
-    public TrackResultBean createHeader(final Fortress fortress, final MetaInputBean inputBean) throws DatagioException, IOException {
+    public TrackResultBean createHeader(final Fortress fortress, final MetaInputBean inputBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
         class HeaderDeadlockRetry implements Command {
             TrackResultBean result = null;
 
             @Override
             @Deprecated
-            public Command execute() throws DatagioException, IOException {
+            public Command execute() throws DatagioException, IOException, ExecutionException, InterruptedException {
                 // ToDo: DAT-153 - This ain't very clever if the server crashes
                 //     all of this should be invoked via spring integration against ab-engine ?
                 // ToDo: DAT-169 This needs to be dealt with via SpringIntegration and persistent messaging
@@ -225,11 +226,11 @@ public class MediationFacade {
     }
 
 
-    public TrackResultBean processLog(LogInputBean input) throws DatagioException, IOException {
+    public TrackResultBean processLog(LogInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException {
         return processLog(registrationService.resolveCompany(null), input);
     }
 
-    public TrackResultBean processLog(Company company, LogInputBean input) throws DatagioException, IOException {
+    public TrackResultBean processLog(Company company, LogInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException {
         TrackResultBean trackResult = logProcessor.writeLog(company, input.getMetaKey(), input);
         logProcessor.distributeChange(company, trackResult);
         return trackResult;
