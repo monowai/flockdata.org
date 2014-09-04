@@ -314,7 +314,7 @@ public class TestABIntegration {
         assertEquals("ab.monowai.rebuildtest", metaHeader.getIndexName());
 
         doEsQuery(metaHeader.getIndexName(), "*");
-        deleteEsIndex(metaHeader.getIndexName());
+//        deleteEsIndex(metaHeader.getIndexName());
 
         // Rebuild....
         SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
@@ -331,7 +331,7 @@ public class TestABIntegration {
     createHeaderTimeLogsWithSearchActivated() throws Exception {
         assumeTrue(runMe);
         logger.info("## createHeaderTimeLogsWithSearchActivated");
-        deleteEsIndex("ab.monowai.111");
+//        deleteEsIndex("ab.monowai.111");
         int max = 3;
         String ahKey;
         SystemUser su = registerSystemUser("Olivia");
@@ -372,7 +372,7 @@ public class TestABIntegration {
     public void auditsByPassGraphByCallerRef() throws Exception {
         assumeTrue(runMe);
         logger.info("## auditsByPassGraphByCallerRef started");
-        deleteEsIndex("ab.monowai.trackgraph");
+//        deleteEsIndex("ab.monowai.trackgraph");
         SystemUser su = registerSystemUser("Isabella");
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("TrackGraph", false));
 
