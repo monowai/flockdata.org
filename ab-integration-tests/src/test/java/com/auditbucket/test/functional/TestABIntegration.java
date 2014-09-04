@@ -218,7 +218,7 @@ public class TestABIntegration {
 
     @Test
     public void companyAndFortressWithSpaces() throws Exception {
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## companyAndFortressWithSpaces");
 
         SystemUser su = registerSystemUser("co-fortress");
@@ -780,9 +780,9 @@ public class TestABIntegration {
 
     private SystemUser registerSystemUser(String loginToCreate) throws Exception {
         SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
+        Thread.sleep(80);
         SystemUser su = regService.registerSystemUser(new RegistrationBean(company, loginToCreate));
         // creating company alters the schema that sometimes throws a heuristic exception.
-        Thread.sleep(600);
         Thread.yield();
         return su;
     }
@@ -1000,7 +1000,7 @@ public class TestABIntegration {
         int timeout = 100;
         while (metaHeader.getSearchKey() == null && i <= timeout) {
             metaHeader =  trackService.getHeader(company, metaKey);
-            Thread.yield();
+            Thread.sleep(20);
             if (i > 20)
                 waitAWhile("Sleeping for the header to update {}");
             i++;
