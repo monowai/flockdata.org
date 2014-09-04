@@ -134,7 +134,7 @@ public class LoggedRelationship implements TrackLog {
         LoggedRelationship that = (LoggedRelationship) o;
 
         if (log != null ? !log.equals(that.log) : that.log != null) return false;
-        if (metaHeader != null ? !metaHeader.equals(that.metaHeader) : that.metaHeader != null) return false;
+        if (metaHeader != null ? !metaHeader.getId().equals(that.metaHeader.getId()) : that.metaHeader != null) return false;
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
 
         return true;

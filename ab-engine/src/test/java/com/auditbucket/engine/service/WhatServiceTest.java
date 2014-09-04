@@ -74,6 +74,10 @@ public class WhatServiceTest extends AbstractRedisSupport {
     FortressService fortressService;
     @Autowired
     MediationFacade mediationFacade;
+
+    @Autowired
+    LogService logService;
+
     @Autowired
     TrackDao trackDAO;
     @Autowired
@@ -136,7 +140,7 @@ public class WhatServiceTest extends AbstractRedisSupport {
                 Assert.assertTrue(whatService.isSame(header, trackLog.getLog(), what));
                 // Testing that cancel works
                 trackService.cancelLastLogSync(fortressA.getCompany(), ahKey);
-                Assert.assertNull(trackService.getLastLog(header));
+                Assert.assertNull(logService.getLastLog(header));
                 Assert.assertNull(whatService.getWhat(header, trackLog.getLog()).getWhatString());
                 Assert.assertTrue(whatService.isSame(logWhat.getWhatString(), what));
             } else {

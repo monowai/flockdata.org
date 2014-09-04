@@ -79,12 +79,12 @@ public class TagService {
         return tagDao.save(company, tagInput);
     }
 
-    public Collection<TagInputBean> processTags(List<TagInputBean> tagInputs) {
+    public Collection<TagInputBean> processTags(List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException {
         Company company = securityHelper.getCompany();
         return processTags(company, tagInputs);
     }
 
-    public Collection<TagInputBean> processTags(final Company company, final List<TagInputBean> tagInputs) {
+    public Collection<TagInputBean> processTags(final Company company, final List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException {
         //schemaDao.ensureUniqueIndexes(company, tagInputs);
         Future<Collection<TagInputBean>> future = makeTags(company, tagInputs);
         while (!future.isDone())
@@ -104,7 +104,7 @@ public class TagService {
      * @return tagInputs that failed processing
      */
     @Async
-    public Future<Collection<TagInputBean>> makeTags(final Company company, final List<TagInputBean> tagInputs) {
+    public Future<Collection<TagInputBean>> makeTags(final Company company, final List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException {
         Collection<TagInputBean>failedInput= new ArrayList<>();
         class DLCommand implements Command {
             Collection<TagInputBean> failedInput;
@@ -129,6 +129,7 @@ public class TagService {
                     com.auditbucket.helper.DeadlockRetry.execute(c, "creating tags", 15);
                 } catch (IOException e) {
                     logger.error("KV Error?", e);
+                    throw new DatagioException("KV Erro", e);
                 }
             } catch (DatagioException e) {
                 logger.error(" Tag errors detected");
@@ -171,7 +172,7 @@ public class TagService {
         return tagDao.getExistingIndexes();
     }
 
-    public void createTagsNoRelationships(Company company, List<TagInputBean> tagInputs) throws DatagioException, IOException {
+    public void createTagsNoRelationships(Company company, List<TagInputBean> tagInputs) throws DatagioException, IOException, ExecutionException, InterruptedException {
         class HeaderDeadlockRetry implements Command {
             Company company;
             List<TagInputBean>tagInputBeans;
