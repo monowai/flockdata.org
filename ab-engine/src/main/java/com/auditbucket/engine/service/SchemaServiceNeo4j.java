@@ -42,13 +42,14 @@ import java.util.*;
  */
 @Service
 @Transactional
-public class SchemaService {
+public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaService {
     @Autowired
     SchemaDao schemaDao;
 
     @Autowired
     EngineConfig engine;
 
+    @Override
     @Async
     public void ensureSystemIndexes(Company company) {
         schemaDao.ensureSystemIndexes(company, engine.getTagSuffix(company));
@@ -59,6 +60,7 @@ public class SchemaService {
      * @param documentType name of the doc type
      * @return resolved document. Created if missing
      */
+    @Override
     public DocumentType resolveDocType(Fortress fortress, String documentType) {
         return resolveDocType(fortress, documentType, true);
     }
@@ -72,6 +74,7 @@ public class SchemaService {
      * @param createIfMissing create document types that are missing
      * @return created DocumentType
      */
+    @Override
     public DocumentType resolveDocType(Fortress fortress, String documentType, Boolean createIfMissing) {
         if (documentType == null) {
             throw new IllegalArgumentException("DocumentType cannot be null");
@@ -81,6 +84,7 @@ public class SchemaService {
 
     }
 
+    @Override
     public void registerConcepts(Company company, Iterable<TrackResultBean> resultBeans) {
         Map<DocumentType, Collection<ConceptInputBean>> payload = new HashMap<>();
         for (TrackResultBean resultBean : resultBeans) {
@@ -119,13 +123,15 @@ public class SchemaService {
      * @return tags that are actually in use
      */
 
+    @Override
     public Set<DocumentResultBean> findConcepts(Company company, Collection<String> documents, boolean withRelationships) {
 
         return schemaDao.findConcepts(company, documents, withRelationships);
 
     }
 
-    public void createDocTypes(Iterable<MetaInputBean> headers, Company company, Fortress fortress) {
+    @Override
+    public void createDocTypes(Iterable<MetaInputBean> headers, Fortress fortress) {
         ArrayList<String>docTypes = new ArrayList<>();
         for (MetaInputBean header : headers) {
             if (!docTypes.contains(header.getDocumentType()))
@@ -134,6 +140,7 @@ public class SchemaService {
         schemaDao.createDocTypes(docTypes,  fortress);
     }
     
+    @Override
     public Collection<DocumentResultBean> getCompanyDocumentsInUse(Company company) {
         Collection<DocumentResultBean> results = new ArrayList<>();
         Collection<DocumentType> rawDocs = schemaDao.getCompanyDocumentsInUse(company);
@@ -143,6 +150,7 @@ public class SchemaService {
         return results;
     }
 
+    @Override
     public void purge(Fortress fortress) {
         schemaDao.purge(fortress);
     }

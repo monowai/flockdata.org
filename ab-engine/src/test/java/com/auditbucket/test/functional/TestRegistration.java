@@ -345,7 +345,7 @@ public class TestRegistration extends TestEngineBase {
         String companyA = "companya";
         String companyB = "companyb";
         try {
-            engineAdmin.setDuplicateRegistration(false);
+            engineConfig.setDuplicateRegistration(false);
             registrationEP.registerSystemUser(new RegistrationBean(companyA, "mike"));
             registrationEP.registerSystemUser(new RegistrationBean(companyB, "mike"));
             Assert.fail("You can't have a duplicate registration");

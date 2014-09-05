@@ -39,6 +39,7 @@ import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.SystemUserService;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
+import com.auditbucket.track.service.*;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
@@ -71,13 +72,13 @@ public class TestEngineBase {
 	protected RegistrationService regService;
 
 	@Autowired
-	SchemaService schemaService;
+    SchemaService schemaService;
 
 	@Autowired
 	FortressService fortressService;
 
 	@Autowired
-	TrackService trackService;
+    TrackService trackService;
 
 	@Autowired
 	TagTrackService tagTrackService;
@@ -107,13 +108,13 @@ public class TestEngineBase {
 	TagEP tagEP;
 
 	@Autowired
-	TagService tagService;
+    TagService tagService;
 
 	@Autowired
 	AdminEP adminEP;
 
 	@Autowired
-	EngineConfig engineAdmin;
+	EngineConfig engineConfig;
 
 	@Autowired
 	QueryService queryService;
@@ -136,17 +137,13 @@ public class TestEngineBase {
 	@Autowired
 	SecurityHelper securityHelper;
 
-	private static Logger logger = LoggerFactory
-			.getLogger(TestEngineBase.class);
+	private static Logger logger = LoggerFactory.getLogger(TestEngineBase.class);
 
-	// These have to be in simple-security.xml that is authorised to create
-	// registrations
-	static final String sally_admin = "sally";
+	// These have to be in test-security.xml in order to create SysUserRegistrations
+    protected static final String sally_admin = "sally";
 	protected static final String mike_admin = "mike"; // Admin role
-	static final String batch = "batch";
-	static final String harry = "harry";
-
-	protected static final String monowai = "Monowai"; // just a test constant
+    protected static final String harry = "harry";
+	protected static final String monowai = "Monowai"; // constant
 
 	Authentication authDefault = new UsernamePasswordAuthenticationToken(
 			mike_admin, "123");
@@ -160,19 +157,14 @@ public class TestEngineBase {
 	@BeforeTransaction
     @Ignore
 	public void cleanUpGraph() {
-		// This will fail if running over REST. Haven't figured out how to use a
-		// view to look at the embedded db
-		// See:
-		// https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-		// setSecurity();
 		Neo4jHelper.cleanDb(template);
-		engineAdmin.setConceptsEnabled(false);
-		engineAdmin.setDuplicateRegistration(true);
+		engineConfig.setConceptsEnabled(false);
+		engineConfig.setDuplicateRegistration(true);
 	}
 
 	@Before
 	public void setSecurity() {
-		engineAdmin.setMultiTenanted(false);
+		engineConfig.setMultiTenanted(false);
 		SecurityContextHolder.getContext().setAuthentication(authDefault);
 	}
 
@@ -181,8 +173,7 @@ public class TestEngineBase {
 	}
 
 	public static Authentication setSecurity(String userName) {
-		Authentication auth = new UsernamePasswordAuthenticationToken(userName,
-				"123");
+		Authentication auth = new UsernamePasswordAuthenticationToken(userName, "123");
 		setSecurity(auth);
 		return auth;
 	}
@@ -192,8 +183,7 @@ public class TestEngineBase {
 	}
 
 	Transaction beginManualTransaction() {
-		Transaction t = template.getGraphDatabase().beginTx();
-		return t;
+		return template.getGraphDatabase().beginTx();
 	}
 
 	void commitManualTransaction(Transaction t) {
@@ -202,7 +192,7 @@ public class TestEngineBase {
 	}
 
     SystemUser registerSystemUser(String companyName, String accessUser) throws Exception{
-        waitAWhile(70); // Trying to avoid Heuristic exception down to the creation of a company altering indexes
+        waitAWhile(100); // Trying to avoid Heuristic exception down to the creation of a company altering indexes
         return regService.registerSystemUser(new RegistrationBean(companyName, accessUser).setIsUnique(false));
     }
 

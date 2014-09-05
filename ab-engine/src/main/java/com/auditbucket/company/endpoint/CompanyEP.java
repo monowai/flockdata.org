@@ -19,7 +19,6 @@
 
 package com.auditbucket.company.endpoint;
 
-import com.auditbucket.engine.service.SchemaService;
 import com.auditbucket.helper.ApiKeyHelper;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
@@ -27,7 +26,6 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.track.bean.DocumentResultBean;
-import com.auditbucket.track.model.DocumentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +34,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 
 /**
@@ -55,7 +52,7 @@ public class CompanyEP {
     CompanyService companyService;
 
     @Autowired
-    SchemaService schemaService;
+    com.auditbucket.track.service.SchemaService schemaService;
 
     @Autowired
     SecurityHelper securityHelper;

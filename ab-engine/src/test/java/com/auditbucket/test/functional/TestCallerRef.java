@@ -62,9 +62,9 @@ public class TestCallerRef extends TestEngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
         // Duplicate null caller ref keys
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "harry", "TestTrack", new DateTime(), null);
-        Assert.assertNotNull(mediationFacade.createHeader(su.getCompany(), inputBean).getMetaKey());
+        Assert.assertNotNull(mediationFacade.trackHeader(su.getCompany(), inputBean).getMetaKey());
         inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), null);
-        String ahKey = mediationFacade.createHeader(fortress, inputBean).getMetaKey();
+        String ahKey = mediationFacade.trackHeader(fortress, inputBean).getMetaKey();
 
         assertNotNull(ahKey);
         MetaHeader metaHeader = trackService.getHeader(ahKey);
@@ -171,7 +171,7 @@ public class TestCallerRef extends TestEngineBase {
             try {
                 while (count < maxRun) {
                     MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef);
-                    TrackResultBean trackResult = mediationFacade.createHeader(fortress, inputBean);
+                    TrackResultBean trackResult = mediationFacade.trackHeader(fortress, inputBean);
                     assertNotNull(trackResult);
                     assertEquals(callerRef.toLowerCase(), trackResult.getCallerRef().toLowerCase());
                     MetaHeader byCallerRef = trackService.findByCallerRef(fortress, docType, callerRef);
