@@ -32,6 +32,8 @@ import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.model.LogWhat;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
+import com.auditbucket.track.service.LogService;
+import com.auditbucket.track.service.TrackService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -74,7 +76,6 @@ public class WhatServiceTest extends AbstractRedisSupport {
     FortressService fortressService;
     @Autowired
     MediationFacade mediationFacade;
-
     @Autowired
     LogService logService;
 

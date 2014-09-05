@@ -49,7 +49,7 @@ import java.util.*;
 public class TagTrackService {
 
     @Autowired
-    TagService tagService;
+    com.auditbucket.track.service.TagService tagService;
 
     @Autowired
     SecurityHelper securityHelper;

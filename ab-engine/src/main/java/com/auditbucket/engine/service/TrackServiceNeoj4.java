@@ -34,6 +34,7 @@ import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.bean.TrackedSummaryBean;
 import com.auditbucket.track.model.*;
+import com.auditbucket.track.service.*;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -58,7 +59,7 @@ import java.util.concurrent.ExecutionException;
  */
 @Service
 @Transactional
-public class TrackService {
+public class TrackServiceNeoj4 implements TrackService {
     private static final String EMPTY = "";
     @Autowired
     FortressService fortressService;
@@ -80,7 +81,7 @@ public class TrackService {
     TagTrackService tagTrackService;
 
     @Autowired
-    SchemaService schemaService;
+    com.auditbucket.track.service.SchemaService schemaService;
 
     @Autowired
     TxService txService;
@@ -92,10 +93,11 @@ public class TrackService {
     TrackDao trackDao;
 
     @Autowired
-    TagService tagService;
+    com.auditbucket.track.service.TagService tagService;
 
-    private Logger logger = LoggerFactory.getLogger(TrackService.class);
+    private Logger logger = LoggerFactory.getLogger(TrackServiceNeoj4.class);
 
+    @Override
     public LogWhat getWhat(MetaHeader metaHeader, Log change) {
         return whatService.getWhat(metaHeader, change);
     }
@@ -106,6 +108,7 @@ public class TrackService {
      *
      * @return unique primary key to be used for subsequent log calls
      */
+    @Override
     public TrackResultBean createHeader(Fortress fortress, MetaInputBean inputBean) {
         DocumentType documentType = schemaService.resolveDocType(fortress, inputBean.getDocumentType());
 
@@ -145,6 +148,7 @@ public class TrackService {
 
     }
 
+    @Override
     public MetaHeader makeHeader(MetaInputBean inputBean, Fortress fortress, DocumentType documentType) throws DatagioException {
         MetaHeader ah = trackDao.create(inputBean, fortress, documentType);
         if (ah.getId() == null)
@@ -161,6 +165,7 @@ public class TrackService {
      * @param metaKey known GUID
      * @return header the caller is authorised to view
      */
+    @Override
     public MetaHeader getHeader(@NotEmpty String metaKey) {
         String userName = securityHelper.getLoggedInUser();
         SystemUser su = sysUserService.findByLogin(userName);
@@ -170,6 +175,7 @@ public class TrackService {
         return getHeader(su.getCompany(), metaKey, false);
     }
 
+    @Override
     public MetaHeader getHeader(Company company, String metaKey) {
         if (company == null && metaKey != null)
             return getHeader(metaKey); // we can still find by authenticated user
@@ -180,6 +186,7 @@ public class TrackService {
         return getHeader(company, metaKey, false);
     }
 
+    @Override
     public MetaHeader getHeader(Company company, @NotEmpty String headerKey, boolean inflate) {
 
         if (company == null)
@@ -193,10 +200,12 @@ public class TrackService {
         return ah;
     }
 
+    @Override
     public Collection<MetaHeader> getHeaders(Fortress fortress, Long skipTo) {
         return trackDao.findHeaders(fortress.getId(), skipTo);
     }
 
+    @Override
     public Collection<MetaHeader> getHeaders(Fortress fortress, String docTypeName, Long skipTo) {
         DocumentType docType = schemaService.resolveDocType(fortress, docTypeName);
         return trackDao.findHeaders(fortress.getId(), docType.getName(), skipTo);
@@ -208,29 +217,35 @@ public class TrackService {
     }
 
 
+    @Override
     public void updateHeader(MetaHeader metaHeader) {
         trackDao.save(metaHeader);
     }
 
+    @Override
     public TrackLog getLastLog(String metaKey) throws DatagioException {
         MetaHeader header = getValidHeader(metaKey);
         return getLastLog(header.getId());
 
     }
 
+    @Override
     public TrackLog getLastLog(Long headerId) {
         return trackDao.getLastLog(headerId);
     }
 
+    @Override
     public Set<TrackLog> getLogs(Long headerId) {
         return trackDao.getLogs(headerId);
     }
 
+    @Override
     public Set<TrackLog> getLogs(Company company, String headerKey) throws DatagioException {
         MetaHeader metaHeader = getHeader(company, headerKey);
         return trackDao.getLogs(metaHeader.getId());
     }
 
+    @Override
     public Set<TrackLog> getLogs(String headerKey, Date from, Date to) throws DatagioException {
         MetaHeader metaHeader = getValidHeader(headerKey);
         return getLogs(metaHeader, from, to);
@@ -249,6 +264,7 @@ public class TrackService {
      * @return MetaSearchChange the search change to index, or null if there are no logs
      * @throws IOException
      */
+    @Override
     public MetaSearchChange cancelLastLogSync(Company company, String headerKey) throws IOException, DatagioException {
         AsyncResult<MetaSearchChange> futureHeader = cancelLastLog(company, headerKey);
         return futureHeader.get();
@@ -264,6 +280,7 @@ public class TrackService {
      * @param headerKey UID of the metaHeader
      * @return Future<MetaSearchChange> search change to index, or null if there are no logs
      */
+    @Override
     @Async
     public AsyncResult<MetaSearchChange> cancelLastLog(Company company, String headerKey) throws IOException, DatagioException {
         MetaHeader metaHeader = getValidHeader(headerKey, true);
@@ -327,6 +344,7 @@ public class TrackService {
      * @param headerKey GUID
      * @return count
      */
+    @Override
     public int getLogCount(Company company, String headerKey) throws DatagioException {
         MetaHeader metaHeader = getHeader(company, headerKey);
         logger.debug("looking for logs for MetaHeader id [{}] - metaKey [{}]", metaHeader.getId(), headerKey);
@@ -354,6 +372,7 @@ public class TrackService {
 
     }
 
+    @Override
     public MetaHeader findByCallerRef(String fortress, String documentType, String callerRef) {
         Fortress iFortress = fortressService.findByName(fortress);
         if (iFortress == null)
@@ -362,6 +381,7 @@ public class TrackService {
         return findByCallerRef(iFortress, documentType, callerRef);
     }
 
+    @Override
     public MetaHeader findByCallerRefFull(Long fortressId, String documentType, String callerRef) {
         Fortress fortress = fortressService.getFortress(fortressId);
         return findByCallerRefFull(fortress, documentType, callerRef);
@@ -377,6 +397,7 @@ public class TrackService {
      * @param callerRef    fortressName PK
      * @return inflated header
      */
+    @Override
     public MetaHeader findByCallerRefFull(Fortress fortress, String documentType, String callerRef) {
         return findByCallerRef(fortress, documentType, callerRef);
     }
@@ -390,16 +411,19 @@ public class TrackService {
      * @param callerRef    key to locate
      * @return metaHeaders
      */
+    @Override
     public Iterable<MetaHeader> findByCallerRef(Company company, String fortressName, String callerRef) {
         Fortress fortress = fortressService.findByName(company, fortressName);
         return findByCallerRef(fortress, callerRef);
     }
 
+    @Override
     public Collection<MetaHeader> findByCallerRef(Fortress fortress, String callerRef) {
         return trackDao.findByCallerRef(fortress.getId(), callerRef.trim());
     }
 
 
+    @Override
     public MetaHeader findByCallerRef(Fortress fortress, String documentType, String callerRef) {
 
         DocumentType doc = schemaService.resolveDocType(fortress, documentType, false);
@@ -417,11 +441,13 @@ public class TrackService {
      * @param callerRef    fortressName primary key
      * @return LogResultBean or NULL.
      */
+    @Override
     public MetaHeader findByCallerRef(Fortress fortress, DocumentType documentType, String callerRef) {
         return trackDao.findByCallerRef(fortress.getId(), documentType.getId(), callerRef.trim());
     }
 
 
+    @Override
     public TrackedSummaryBean getMetaSummary(Company company, String metaKey) throws DatagioException {
         MetaHeader header = getHeader(company, metaKey, true);
         if (header == null)
@@ -432,11 +458,13 @@ public class TrackService {
     }
 
 
+    @Override
     public LogDetailBean getFullDetail(String metaKey, Long logId) {
         Company company = securityHelper.getCompany();
         return getFullDetail(company, metaKey, logId);
     }
 
+    @Override
     public LogDetailBean getFullDetail(Company company, String metaKey, Long logId) {
         MetaHeader metaHeader = getHeader(company, metaKey, true);
         if (metaHeader == null)
@@ -449,6 +477,7 @@ public class TrackService {
         return new LogDetailBean(log, what);
     }
 
+    @Override
     public TrackLog getLogForHeader(MetaHeader header, Long logId) {
         if (header != null) {
 
@@ -462,6 +491,7 @@ public class TrackService {
         return null;
     }
 
+    @Override
     public Iterable<TrackResultBean> createHeaders(Fortress fortress, Iterable<MetaInputBean> inputBeans) throws InterruptedException, ExecutionException, DatagioException, IOException {
         Collection<TrackResultBean> arb = new CopyOnWriteArrayList<>();
         for (MetaInputBean inputBean : inputBeans) {
@@ -481,6 +511,7 @@ public class TrackService {
      * @param xRef             target for the xref
      * @param relationshipName name of the relationship
      */
+    @Override
     public Collection<String> crossReference(Company company, String metaKey, Collection<String> xRef, String relationshipName) throws DatagioException {
         MetaHeader header = getHeader(company, metaKey);
         if (header == null) {
@@ -501,6 +532,7 @@ public class TrackService {
         return ignored;
     }
 
+    @Override
     public Map<String, Collection<MetaHeader>> getCrossReference(Company company, String metaKey, String xRefName) throws DatagioException {
         MetaHeader header = getHeader(company, metaKey);
         if (header == null) {
@@ -510,6 +542,7 @@ public class TrackService {
         return trackDao.getCrossReference(company, header, xRefName);
     }
 
+    @Override
     public Map<String, Collection<MetaHeader>> getCrossReference(Company company, String fortressName, String callerRef, String xRefName) throws DatagioException {
         Fortress fortress = fortressService.findByName(company, fortressName);
 
@@ -521,6 +554,7 @@ public class TrackService {
         return trackDao.getCrossReference(company, source, xRefName);
     }
 
+    @Override
     public List<MetaKey> crossReferenceByCallerRef(Company company, MetaKey sourceKey, Collection<MetaKey> targetKeys, String xRefName) throws DatagioException {
         Fortress f = fortressService.findByName(company, sourceKey.getFortressName());
         MetaHeader header;
@@ -571,10 +605,12 @@ public class TrackService {
         return ignored;
     }
 
+    @Override
     public Map<String, MetaHeader> getHeaders(Company company, Collection<String> metaKeys) {
         return trackDao.findHeaders(company, metaKeys);
     }
 
+    @Override
     public void purge(Fortress fortress) {
 
         trackDao.purgeTagRelationships(fortress);
@@ -587,6 +623,7 @@ public class TrackService {
 
     }
 
+    @Override
     public void saveMetaData(SearchResult searchResult, Long metaId) {
         // Only exists and is public because we need the transaction
         MetaHeader header;
@@ -637,6 +674,7 @@ public class TrackService {
         }
     }
 
+    @Override
     public Set<TrackTag> getLastLogTags(Company company, String metaKey) throws DatagioException {
         TrackLog lastLog = getLastLog(company, metaKey);
         if (lastLog == null)
@@ -644,6 +682,7 @@ public class TrackService {
 
         return getLogTags(company, lastLog.getLog());
     }
+    @Override
     public TrackLog getLastLog(Company company, String metaKey) throws DatagioException {
         MetaHeader header = getHeader(company, metaKey);
         return trackDao.getLastLog(header.getId());
@@ -655,6 +694,7 @@ public class TrackService {
 
     }
 
+    @Override
     public TrackLog getLog(Company company, String metaKey, long logId) throws DatagioException {
         MetaHeader header = getHeader(company, metaKey);
         TrackLog log = trackDao.getLog(logId);
@@ -667,6 +707,7 @@ public class TrackService {
         return log;
     }
 
+    @Override
     public Set<TrackTag> getLogTags(Company company, TrackLog tl) {
         return getLogTags(company, tl.getLog());  //To change body of created methods use File | Settings | File Templates.
     }

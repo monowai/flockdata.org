@@ -34,6 +34,8 @@ import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
 import com.auditbucket.track.model.TxRef;
+import com.auditbucket.track.service.LogService;
+import com.auditbucket.track.service.SchemaService;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
@@ -57,8 +59,8 @@ import java.util.concurrent.Future;
  */
 @Service
 @Transactional
-public class LogService {
-    private Logger logger = LoggerFactory.getLogger(LogService.class);
+public class LogServiceNeo4j implements LogService {
+    private Logger logger = LoggerFactory.getLogger(LogServiceNeo4j.class);
 
     @Autowired
     private TxService txService;
@@ -84,12 +86,14 @@ public class LogService {
     @Autowired
     TrackDao trackDao;
 
+    @Override
     @Async
     public Future<Collection<TrackResultBean>> processLogs(Company company, Iterable<TrackResultBean> resultBeans) throws DatagioException, IOException, ExecutionException, InterruptedException {
         return new AsyncResult<>(processLogsSync(company, resultBeans));
 
     }
 
+    @Override
     public Collection<TrackResultBean> processLogsSync(Company company, Iterable<TrackResultBean> resultBeans) throws DatagioException, IOException, ExecutionException, InterruptedException {
         logger.debug("Process Logs {}", Thread.currentThread().getName());
         Collection<TrackResultBean> logResults = new ArrayList<>();
@@ -102,6 +106,7 @@ public class LogService {
 
     }
 
+    @Override
     public TrackResultBean processLogFromResult(TrackResultBean resultBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
         //DAT-77 the header may still be committing in another thread
         if (resultBean.getLog() == null)
@@ -110,6 +115,7 @@ public class LogService {
         return writeTheLogAndDistributeChanges(resultBean);
     }
 
+    @Override
     public TrackResultBean writeLog(MetaHeader metaHeader, LogInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException {
 
         TrackResultBean resultBean = new TrackResultBean(metaHeader);
@@ -126,6 +132,7 @@ public class LogService {
      * @return result details
      * @throws com.auditbucket.helper.DatagioException
      */
+    @Override
     public TrackResultBean writeTheLogAndDistributeChanges(final TrackResultBean resultBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
         LogInputBean logInputBean = resultBean.getLog();
         logger.debug("writeLog {}", logInputBean);
@@ -158,6 +165,7 @@ public class LogService {
      * @throws DatagioException
      * @throws IOException
      */
+    @Override
     public TrackResultBean writeLog(TrackResultBean trackResultBean) throws DatagioException, IOException {
         LogInputBean input = trackResultBean.getLog();
 
@@ -188,6 +196,7 @@ public class LogService {
      * @param thisFortressUser User name in calling system that is making the change
      * @return populated log information with any error messages
      */
+    @Override
     public LogResultBean createLog(MetaHeader authorisedHeader, LogInputBean input, FortressUser thisFortressUser) throws DatagioException, IOException {
         // Warning - making this private means it doesn't get a transaction!
 
@@ -267,6 +276,7 @@ public class LogService {
 
     }
 
+    @Override
     public TrackLog getLastLog(MetaHeader metaHeader) throws DatagioException {
         if (metaHeader == null || metaHeader.getId() == null)
             return null;
@@ -274,6 +284,7 @@ public class LogService {
         return trackDao.getLastLog(metaHeader.getId());
     }
 
+    @Override
     public void distributeChanges(Company company, Iterable<TrackResultBean> resultBeans) throws IOException {
         logger.debug("Distributing changes to sub-services");
         if (engineConfig.isConceptsEnabled()) {

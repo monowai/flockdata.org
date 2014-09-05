@@ -21,11 +21,11 @@ package com.auditbucket.registration;
 
 
 import com.auditbucket.dao.SchemaDao;
-import com.auditbucket.engine.service.SchemaService;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.dao.CompanyDao;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.KeyGenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,7 @@ import java.util.Collection;
 
 @Service
 @Transactional
-public class CompanyService implements com.auditbucket.registration.service.CompanyService {
+public class CompanyServiceNeo4j implements CompanyService {
 
     @Autowired
     private CompanyDao companyDao;
@@ -49,12 +49,12 @@ public class CompanyService implements com.auditbucket.registration.service.Comp
     SchemaDao schemaDao;
 
     @Autowired
-    SchemaService schemaService;
+    com.auditbucket.track.service.SchemaService schemaService;
 
     @Autowired
     private SecurityHelper securityHelper;
 
-    private static Logger logger = LoggerFactory.getLogger(CompanyService.class);
+    private static Logger logger = LoggerFactory.getLogger(CompanyServiceNeo4j.class);
 
     @Override
     public Company findByName(String companyName) {

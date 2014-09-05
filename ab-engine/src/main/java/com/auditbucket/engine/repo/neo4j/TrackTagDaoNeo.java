@@ -25,7 +25,6 @@ import com.auditbucket.engine.repo.neo4j.model.MetaHeaderNode;
 import com.auditbucket.engine.repo.neo4j.model.TagNode;
 import com.auditbucket.engine.repo.neo4j.model.TrackTagRelationship;
 import com.auditbucket.engine.service.EngineConfig;
-import com.auditbucket.engine.service.TagService;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
@@ -58,7 +57,7 @@ public class TrackTagDaoNeo implements TrackTagDao {
     Neo4jTemplate template;
 
     @Autowired
-    TagService tagService;
+    com.auditbucket.track.service.TagService tagService;
 
     @Autowired
     EngineConfig engineAdmin;

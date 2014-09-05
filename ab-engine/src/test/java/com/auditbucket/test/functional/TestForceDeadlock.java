@@ -19,7 +19,6 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.engine.service.TrackService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
@@ -51,7 +50,7 @@ public class TestForceDeadlock extends TestEngineBase {
 
     private Logger logger = LoggerFactory.getLogger(TestForceDeadlock.class);
     @Autowired
-    TrackService trackService;
+    com.auditbucket.track.service.TrackService trackService;
 
     @Autowired
     RegistrationService regService;
