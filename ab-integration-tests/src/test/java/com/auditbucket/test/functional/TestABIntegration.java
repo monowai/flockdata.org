@@ -225,7 +225,7 @@ public class TestABIntegration {
 
     @Test
     public void companyAndFortressWithSpaces() throws Exception {
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## companyAndFortressWithSpaces");
 
         SystemUser su = registerSystemUser("test company","co-fortress");
@@ -330,7 +330,7 @@ public class TestABIntegration {
     @Test
     public void
     createHeaderTimeLogsWithSearchActivated() throws Exception {
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## createHeaderTimeLogsWithSearchActivated");
         int max = 3;
         String ahKey;
@@ -1283,29 +1283,6 @@ public class TestABIntegration {
         logger.debug(message, milliseconds / 1000d);
     }
 
-    long waitForALog(Company company, MetaHeader header) throws Exception {
-        // Looking for the first searchKey to be logged against the metaHeader
-        long thenTime = System.currentTimeMillis();
-        int i = 0;
-        long ts = header.getFortressLastWhen();
-
-        MetaHeader metaHeader = trackService.getHeader(company, header.getMetaKey());
-        TrackLog log = trackService.getLastLog(company, metaHeader.getMetaKey());
-
-        int timeout = 100;
-        while (log == null && i <= timeout) {
-            log = trackService.getLastLog(company, metaHeader.getMetaKey());
-            if (log != null && metaHeader.getFortressLastWhen() == ts)
-                return i;
-            Thread.yield();
-            if (i > 20)
-                waitAWhile("Waiting for the log to arrive {}");
-            i++;
-        }
-        if (i > 22)
-            logger.info("Wait for log got to [{}] for metaId [{}]", i, metaHeader.getId());
-        return System.currentTimeMillis() - thenTime;
-    }
     public static Map<String, Object> getSimpleMap(String key, Object value){
         Map<String, Object> result = new HashMap<>();
         result.put(key, value);
@@ -1350,7 +1327,7 @@ public class TestABIntegration {
         if (i > 22)
             logger.info("Wait for log got to [{}] for metaId [{}]", i,
                     header.getId());
-        throw new Exception(String.format("Timeout waiting for the defined log count of %s. We found %s", expectedCount, count));
+        throw new Exception(String.format("Timeout waiting for the requested log count of %s. Got to %s", expectedCount, count));
     }
 
 
