@@ -19,12 +19,12 @@ import java.util.concurrent.Future;
  */
 public interface TagService {
 
-    @Deprecated
+    @Deprecated // Pass the company
     Tag processTag(TagInputBean inputBean);
 
     Tag processTag(Company company, TagInputBean tagInput);
 
-    @Deprecated
+    @Deprecated // Pass the company
     Collection<TagInputBean> processTags(List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException;
 
     Collection<TagInputBean> processTags(Company company, List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException;
@@ -34,13 +34,13 @@ public interface TagService {
 
     Tag findTag(Company company, String tagName);
 
-    @Deprecated
+    @Deprecated // Pass the company
     Tag findTag(String tagName);
 
     @Deprecated
     Collection<Tag> findDirectedTags(Tag startTag);
 
-    @Deprecated
+    @Deprecated // Pass the company
     Collection<Tag> findTags(String index);
 
     Collection<Tag> findTags(Company company, String index);
