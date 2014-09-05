@@ -72,13 +72,13 @@ public class TestEngineBase {
 	protected RegistrationService regService;
 
 	@Autowired
-    com.auditbucket.track.service.SchemaService schemaService;
+    SchemaService schemaService;
 
 	@Autowired
 	FortressService fortressService;
 
 	@Autowired
-    com.auditbucket.track.service.TrackService trackService;
+    TrackService trackService;
 
 	@Autowired
 	TagTrackService tagTrackService;
@@ -108,13 +108,13 @@ public class TestEngineBase {
 	TagEP tagEP;
 
 	@Autowired
-    com.auditbucket.track.service.TagService tagService;
+    TagService tagService;
 
 	@Autowired
 	AdminEP adminEP;
 
 	@Autowired
-	EngineConfig engineAdmin;
+	EngineConfig engineConfig;
 
 	@Autowired
 	QueryService queryService;
@@ -158,13 +158,13 @@ public class TestEngineBase {
     @Ignore
 	public void cleanUpGraph() {
 		Neo4jHelper.cleanDb(template);
-		engineAdmin.setConceptsEnabled(false);
-		engineAdmin.setDuplicateRegistration(true);
+		engineConfig.setConceptsEnabled(false);
+		engineConfig.setDuplicateRegistration(true);
 	}
 
 	@Before
 	public void setSecurity() {
-		engineAdmin.setMultiTenanted(false);
+		engineConfig.setMultiTenanted(false);
 		SecurityContextHolder.getContext().setAuthentication(authDefault);
 	}
 
@@ -183,8 +183,7 @@ public class TestEngineBase {
 	}
 
 	Transaction beginManualTransaction() {
-		Transaction t = template.getGraphDatabase().beginTx();
-		return t;
+		return template.getGraphDatabase().beginTx();
 	}
 
 	void commitManualTransaction(Transaction t) {
@@ -193,7 +192,7 @@ public class TestEngineBase {
 	}
 
     SystemUser registerSystemUser(String companyName, String accessUser) throws Exception{
-        waitAWhile(70); // Trying to avoid Heuristic exception down to the creation of a company altering indexes
+        waitAWhile(100); // Trying to avoid Heuristic exception down to the creation of a company altering indexes
         return regService.registerSystemUser(new RegistrationBean(companyName, accessUser).setIsUnique(false));
     }
 
