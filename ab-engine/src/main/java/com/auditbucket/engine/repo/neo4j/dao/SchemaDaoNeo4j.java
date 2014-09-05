@@ -18,10 +18,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.Future;
 
 /**
  * Maintains company specific Schema details
@@ -31,6 +34,7 @@ import java.util.*;
  * To change this template use File | Settings | File Templates.
  */
 @Repository
+@Transactional
 public class SchemaDaoNeo4j implements SchemaDao {
     @Autowired
     DocumentTypeRepo documentTypeRepo;
@@ -169,9 +173,9 @@ public class SchemaDaoNeo4j implements SchemaDao {
     }
 
     @Async
-    public boolean ensureSystemIndexes(Company company, String suffix) {
+    public Boolean ensureSystemIndexes(Company company, String suffix) {
         // Performance issue with constraints?
-        logger.debug("Creating System Indexes...");
+        logger.debug("Creating System Indexes for {} ", company.getName());
         template.query("create constraint on (t:Country) assert t.key is unique", null);
         template.query("create constraint on (t:City) assert t.key is unique", null);
         return true;

@@ -87,7 +87,6 @@ public class TestTags extends TestEngineBase {
     public void secureMultiTenantedTags() throws Exception {
         engineConfig.setMultiTenanted(true);
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
-        Thread.sleep(200);
         assertNotNull(iSystemUser);
 
         List<TagInputBean> tags = new ArrayList<>();
@@ -96,15 +95,15 @@ public class TestTags extends TestEngineBase {
         Iterable<TagInputBean> tagResult = tagService.processTags(iSystemUser.getCompany(),tags);
         assertNotNull(tagResult);
         assertFalse(tagResult.iterator().hasNext()); // No errors were detected
-        regService.registerSystemUser(new RegistrationBean("ABC", "gina"));
+        SystemUser sub = regService.registerSystemUser(new RegistrationBean("ABC", "gina"));
         Authentication authGina = new UsernamePasswordAuthenticationToken("gina", "user1");
         SecurityContextHolder.getContext().setAuthentication(authGina);
-        assertNull(tagService.findTag(iSystemUser.getCompany(),"FLOP")); // Can't see the Monowai company tag
+        assertNull(tagService.findTag(sub.getCompany(),"FLOP")); // Can't see the Monowai company tag
 
         tagInput = new TagInputBean("FLOP");
-        assertNotNull(tagService.processTag(iSystemUser.getCompany(),tagInput) );
-        assertNull(tagService.findTag(iSystemUser.getCompany(), "ABC"));
-        assertNotNull(tagService.findTag(iSystemUser.getCompany(), "FLOP"));
+        assertNotNull(tagService.processTag(sub.getCompany(),tagInput) );
+        assertNull(tagService.findTag(sub.getCompany(), "ABC"));
+        assertNotNull(tagService.findTag(sub.getCompany(), "FLOP"));
     }
 
     @Test
