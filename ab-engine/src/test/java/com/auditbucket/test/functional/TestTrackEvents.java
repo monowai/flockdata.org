@@ -81,7 +81,7 @@ public class TestTrackEvents extends TestEngineBase{
 
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
 
-        TrackResultBean resultBean = mediationFacade.createHeader(su.getCompany(), inputBean);
+        TrackResultBean resultBean = mediationFacade.trackHeader(su.getCompany(), inputBean);
         String ahKey = resultBean.getMetaKey();
         assertNotNull(ahKey);
 

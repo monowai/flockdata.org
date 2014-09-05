@@ -56,7 +56,6 @@ public class QueryEP {
     @RequestMapping(value = "/", method = RequestMethod.POST)
     public EsSearchResult searchQueryParam(@RequestBody QueryParams queryParams, HttpServletRequest request) throws DatagioException {
         Company company = CompanyResolver.resolveCompany(request);
-        queryParams.setCompany(company.getName());
         return mediationFacade.search(company, queryParams);
     }
 

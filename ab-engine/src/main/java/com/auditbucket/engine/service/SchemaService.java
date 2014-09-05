@@ -125,7 +125,7 @@ public class SchemaService {
 
     }
 
-    public void createDocTypes(Iterable<MetaInputBean> headers, Company company, Fortress fortress) {
+    public void createDocTypes(Iterable<MetaInputBean> headers, Fortress fortress) {
         ArrayList<String>docTypes = new ArrayList<>();
         for (MetaInputBean header : headers) {
             if (!docTypes.contains(header.getDocumentType()))

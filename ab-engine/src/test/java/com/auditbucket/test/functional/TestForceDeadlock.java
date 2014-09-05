@@ -117,7 +117,7 @@ public class TestForceDeadlock extends TestEngineBase {
             CallerRefRunner runner = addRunner(fortress, docType, "ABC" + i, 20, tags);
             runners.put(i, runner);
             List<MetaInputBean> inputBeans = runners.get(i).getInputBeans();
-            Future<Collection<TrackResultBean>> runResult = mediationFacade.createHeadersAsync(su.getCompany(), fortress, inputBeans);
+            Future<Collection<TrackResultBean>> runResult = mediationFacade.trackHeadersAsync(fortress, inputBeans);
             futures.put(i,runResult );
         }
 

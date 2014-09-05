@@ -84,7 +84,7 @@ public class TestAdminCalls extends TestEngineBase {
         inputBean.addTag(tagInputBean);
 
 
-        TrackResultBean resultBean = mediationFacade.createHeader(su.getCompany(), inputBean);
+        TrackResultBean resultBean = mediationFacade.trackHeader(su.getCompany(), inputBean);
         String ahKey = resultBean.getMetaKey();
 
         assertNotNull(ahKey);
@@ -93,7 +93,7 @@ public class TestAdminCalls extends TestEngineBase {
         inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
         inputBean.addTag(tagInputBean);
 
-        mediationFacade.createHeader(su.getCompany(), inputBean);
+        mediationFacade.trackHeader(su.getCompany(), inputBean);
 
         SecurityContextHolder.getContext().setAuthentication(null);
         // Assert that unauthorised user can't purge a fortress
@@ -116,7 +116,7 @@ public class TestAdminCalls extends TestEngineBase {
         Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
 
-        TrackResultBean resultBean = mediationFacade.createHeader(su.getCompany(), inputBean);
+        TrackResultBean resultBean = mediationFacade.trackHeader(su.getCompany(), inputBean);
         String ahKey = resultBean.getMetaKey();
 
         assertNotNull(ahKey);
@@ -150,7 +150,7 @@ public class TestAdminCalls extends TestEngineBase {
         TagInputBean tagInputBean = new TagInputBean("DeleteTest", "NamedTag", "deltest");
         inputBean.addTag(tagInputBean);
 
-        TrackResultBean resultBean = mediationFacade.createHeader(su.getCompany(), inputBean);
+        TrackResultBean resultBean = mediationFacade.trackHeader(su.getCompany(), inputBean);
         String ahKey = resultBean.getMetaKey();
 
         assertNotNull(ahKey);
@@ -161,7 +161,7 @@ public class TestAdminCalls extends TestEngineBase {
         inputBean.setCallerRef("123abc");
         inputBean.setMetaKey(null);
         inputBean.setLog(new LogInputBean("wally", ahKey, new DateTime(), TestHelper.getRandomMap()));
-        mediationFacade.createHeader(fo, inputBean);
+        mediationFacade.trackHeader(fo, inputBean);
 
         SecurityContextHolder.getContext().setAuthentication(null);
         // Assert that unauthorised user can't purge a fortress
@@ -190,7 +190,7 @@ public class TestAdminCalls extends TestEngineBase {
         trackBean.addTag(new TagInputBean("otherName", "rlxValue").setReverse(true));
         LogInputBean logBean = new LogInputBean("me", DateTime.now(), TestHelper.getRandomMap());
         trackBean.setLog(logBean);
-        String resultA = mediationFacade.createHeader(su.getCompany(), trackBean).getMetaKey();
+        String resultA = mediationFacade.trackHeader(su.getCompany(), trackBean).getMetaKey();
 
         assertNotNull(resultA);
 
@@ -200,7 +200,7 @@ public class TestAdminCalls extends TestEngineBase {
         logBean = new LogInputBean("me", DateTime.now(), TestHelper.getRandomMap());
         trackBean.setLog(logBean);
 
-        String resultB = mediationFacade.createHeader(su.getCompany(), trackBean).getMetaKey();
+        String resultB = mediationFacade.trackHeader(su.getCompany(), trackBean).getMetaKey();
 
         Collection<String> others = new ArrayList<>();
         others.add(resultB);
