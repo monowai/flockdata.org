@@ -104,17 +104,19 @@ public class LogService {
 
     public TrackResultBean processLogFromResult(TrackResultBean resultBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
         //DAT-77 the header may still be committing in another thread
-        TrackResultBean trackResult = null;
-        if (resultBean.getLog() != null) {
-            trackResult = writeTheLogAndDistributeChanges(resultBean);
-        }
-        return trackResult;
+        if (resultBean.getLog() == null)
+            return resultBean;
+
+        return writeTheLogAndDistributeChanges(resultBean);
     }
 
     public TrackResultBean writeLog(MetaHeader metaHeader, LogInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException {
+
         TrackResultBean resultBean = new TrackResultBean(metaHeader);
         resultBean.setLogInput(input);
-        return writeTheLogAndDistributeChanges(resultBean);
+        ArrayList<TrackResultBean> logs = new ArrayList<>();
+        logs.add(resultBean);
+        return processLogsSync(metaHeader.getFortress().getCompany(), logs).iterator().next();
     }
 
     /**
@@ -137,7 +139,7 @@ public class LogService {
                 result = writeLog(resultBean);
                 if (result.getLogResult().getStatus() == LogInputBean.LogStatus.NOT_FOUND)
                     throw new DatagioException("Unable to find MetaHeader ");
-                distributeChange(resultBean.getMetaHeader().getFortress().getCompany(), result);
+                //distributeChange(resultBean.getMetaHeader().getFortress().getCompany(), result);
                 whatService.doKvWrite(result); //ToDo: Consider KV not available. How to write the logs
                 //      need to think of a way to recognize that the header has unprocessed work
                 return this;
@@ -151,7 +153,6 @@ public class LogService {
 
 
     /**
-     *
      * @param trackResultBean input data to process
      * @return result of the operation
      * @throws DatagioException
@@ -173,7 +174,7 @@ public class LogService {
             return trackResultBean;
         }
         logger.trace("looking for fortress user {}", metaHeader.getFortress());
-        String fortressUser = (input.getFortressUser()!=null?input.getFortressUser():trackResultBean.getMetaInputBean().getFortressUser());
+        String fortressUser = (input.getFortressUser() != null ? input.getFortressUser() : trackResultBean.getMetaInputBean().getFortressUser());
         FortressUser thisFortressUser = fortressService.getFortressUser(metaHeader.getFortress(), fortressUser, true);
         trackResultBean.setLogResult(createLog(metaHeader, input, thisFortressUser));
         return trackResultBean;
@@ -181,7 +182,6 @@ public class LogService {
 
     /**
      * Event log record for the supplied metaHeader from the supplied input
-     *
      *
      * @param authorisedHeader metaHeader the caller is authorised to work with
      * @param input            trackLog details containing the data to log
@@ -258,7 +258,7 @@ public class LogService {
 
         resultBean.setSysWhen(newLog.getSysWhen());
 
-        boolean moreRecent = (existingLog == null || existingLog.getFortressWhen().compareTo(newLog.getFortressWhen())<=0 );
+        boolean moreRecent = (existingLog == null || existingLog.getFortressWhen().compareTo(newLog.getFortressWhen()) <= 0);
 
         if (moreRecent && searchActive)
             resultBean.setLogToIndex(newLog);  // Notional log to index.
@@ -267,12 +267,21 @@ public class LogService {
 
     }
 
-
     public TrackLog getLastLog(MetaHeader metaHeader) throws DatagioException {
         if (metaHeader == null || metaHeader.getId() == null)
             return null;
         logger.trace("Getting lastLog MetaID [{}]", metaHeader.getId());
         return trackDao.getLastLog(metaHeader.getId());
+    }
+
+    public void distributeChanges(Company company, Iterable<TrackResultBean> resultBeans) throws IOException {
+        logger.debug("Distributing changes to sub-services");
+        if (engineConfig.isConceptsEnabled()) {
+            logger.debug("Distributing concepts");
+            schemaService.registerConcepts(company, resultBeans);
+        }
+        searchService.makeChangesSearchable(resultBeans);
+        logger.debug("Distributed changes to search service");
     }
 
 //    private MetaHeader waitOnInitialSearchResult(MetaHeader metaHeader) {
@@ -297,25 +306,6 @@ public class LogService {
 //        return metaHeader;
 //
 //    }
-
-
-    public TrackResultBean distributeChange(Company company, TrackResultBean trackResultBean) throws IOException {
-        ArrayList<TrackResultBean> results = new ArrayList<>();
-        results.add(trackResultBean);
-        distributeChanges(company, results);
-        return trackResultBean;
-    }
-
-    public void distributeChanges(Company company, Iterable<TrackResultBean> resultBeans) throws IOException {
-        logger.debug("Distributing changes to sub-services");
-        if (engineConfig.isConceptsEnabled()) {
-            logger.debug("Distributing concepts");
-            schemaService.registerConcepts(company, resultBeans);
-        }
-        //whatService.doKvWrite(resultBeans);
-        searchService.makeChangesSearchable(resultBeans);
-        logger.debug("Distributed changes to search service");
-    }
 
 
 }
