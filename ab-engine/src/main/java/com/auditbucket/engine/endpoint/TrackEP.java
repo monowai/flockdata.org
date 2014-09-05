@@ -99,12 +99,12 @@ public class TrackEP {
         fib.setTimeZone(mib.getTimezone());
         Fortress fortress = fortressService.registerFortress(company, fib, true);
         if (async) {
-            Future<Collection<TrackResultBean>> batch = mediationFacade.createHeadersAsync(company, fortress, inputBeans);
+            Future<Collection<TrackResultBean>> batch = mediationFacade.trackHeadersAsync(fortress, inputBeans);
             Thread.yield();
             return batch.get();
 
         } else {
-            return mediationFacade.createHeaders(company, fortress, inputBeans, inputBeans.size());
+            return mediationFacade.trackHeaders(fortress, inputBeans, inputBeans.size());
         }
 
     }
@@ -126,7 +126,7 @@ public class TrackEP {
 
         TrackResultBean trackResultBean;
         Company company = getCompany(apiHeaderKey, apiKey);
-        trackResultBean = mediationFacade.createHeader(company, input);
+        trackResultBean = mediationFacade.trackHeader(company, input);
         trackResultBean.setServiceMessage("OK");
         return new ResponseEntity<>(trackResultBean, HttpStatus.OK);
 
@@ -172,7 +172,7 @@ public class TrackEP {
         input.setCallerRef(callerRef);
         input.setMetaKey(null);
         Company company = getCompany(apiHeaderKey, ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
-        trackResultBean = mediationFacade.createHeader(company, input );
+        trackResultBean = mediationFacade.trackHeader(company, input);
         trackResultBean.setServiceMessage("OK");
         return new ResponseEntity<>(trackResultBean, HttpStatus.OK);
 

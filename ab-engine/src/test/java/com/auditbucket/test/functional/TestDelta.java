@@ -71,7 +71,7 @@ public class TestDelta extends TestEngineBase {
         MetaInputBean header = new MetaInputBean("DELTAForce", "auditTestz", "Delta", new DateTime(), "abdelta");
         LogInputBean log = new LogInputBean("Mike", new DateTime(), jsonA);
         header.setLog(log);
-        TrackResultBean result = mediationFacade.createHeader(su.getCompany(), header);
+        TrackResultBean result = mediationFacade.trackHeader(su.getCompany(), header);
         TrackLog first = logService.getLastLog(result.getMetaHeader());
         Assert.assertNotNull(first);
         log = new LogInputBean("Mike", result.getMetaKey(), new DateTime(), jsonB);

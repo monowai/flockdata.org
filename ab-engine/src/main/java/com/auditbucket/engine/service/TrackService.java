@@ -106,12 +106,12 @@ public class TrackService {
      *
      * @return unique primary key to be used for subsequent log calls
      */
-    public TrackResultBean createHeader(Company company, Fortress fortress, MetaInputBean inputBean) {
+    public TrackResultBean createHeader(Fortress fortress, MetaInputBean inputBean) {
         DocumentType documentType = schemaService.resolveDocType(fortress, inputBean.getDocumentType());
 
         MetaHeader ah = null;
         if (inputBean.getMetaKey() != null) {
-            ah = getHeader(company, inputBean.getMetaKey());
+            ah = getHeader(fortress.getCompany(), inputBean.getMetaKey());
         }
         if (ah == null && (inputBean.getCallerRef() != null && !inputBean.getCallerRef().equals(EMPTY)))
             ah = findByCallerRef(fortress, documentType, inputBean.getCallerRef());
@@ -126,7 +126,7 @@ public class TrackService {
             // Could be rewriting tags
             // DAT-153 - move this to the end of the process?
             TrackLog trackLog = getLastLog(ah.getId());
-            arb.setTags(tagTrackService.associateTags(company, ah, trackLog, inputBean.getTags()));
+            arb.setTags(tagTrackService.associateTags(fortress.getCompany(), ah, trackLog, inputBean.getTags()));
             return arb;
         }
 
@@ -138,7 +138,7 @@ public class TrackService {
         }
         TrackResultBean resultBean = new TrackResultBean(ah);
         resultBean.setMetaInputBean(inputBean);
-        resultBean.setTags(tagTrackService.associateTags(company, resultBean.getMetaHeader(), null, inputBean.getTags()));
+        resultBean.setTags(tagTrackService.associateTags(fortress.getCompany(), resultBean.getMetaHeader(), null, inputBean.getTags()));
 
         resultBean.setLogInput(inputBean.getLog());
         return resultBean;
@@ -462,11 +462,11 @@ public class TrackService {
         return null;
     }
 
-    public Iterable<TrackResultBean> createHeaders(Company company, Fortress fortress, Iterable<MetaInputBean> inputBeans) throws InterruptedException, ExecutionException, DatagioException, IOException {
+    public Iterable<TrackResultBean> createHeaders(Fortress fortress, Iterable<MetaInputBean> inputBeans) throws InterruptedException, ExecutionException, DatagioException, IOException {
         Collection<TrackResultBean> arb = new CopyOnWriteArrayList<>();
         for (MetaInputBean inputBean : inputBeans) {
             logger.trace("Batch Processing metaKey=[{}], documentType=[{}]", inputBean.getCallerRef(), inputBean.getDocumentType());
-            arb.add(createHeader(company, fortress, inputBean));
+            arb.add(createHeader(fortress, inputBean));
         }
 
         return arb;

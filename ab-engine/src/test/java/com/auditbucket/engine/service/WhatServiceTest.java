@@ -114,7 +114,7 @@ public class WhatServiceTest extends AbstractRedisSupport {
         String callerRef = "ABC123R";
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
 
-        String ahKey = mediationFacade.createHeader(su.getCompany(), inputBean).getMetaKey();
+        String ahKey = mediationFacade.trackHeader(su.getCompany(), inputBean).getMetaKey();
         assertNotNull(ahKey);
         MetaHeader header = trackService.getHeader(ahKey);
         Map<String, Object> what = getWhatMap();

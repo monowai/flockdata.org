@@ -32,7 +32,6 @@ import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.MetaSearchChange;
 import com.auditbucket.search.model.QueryParams;
-import com.auditbucket.search.model.SearchResult;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
@@ -106,32 +105,30 @@ public class MediationFacade {
     /**
      * Process the MetaHeader input for a company asynchronously
      *
-     * @param company    for
      * @param fortress   system
      * @param inputBeans data
      * @return process count - don't rely on it, why would you want it?
      * @throws com.auditbucket.helper.DatagioException
-     *
      */
 
     @Async
-    public Future<Collection<TrackResultBean>> createHeadersAsync(final Company company, final Fortress fortress, List<MetaInputBean> inputBeans) throws DatagioException, IOException, ExecutionException, InterruptedException {
+    public Future<Collection<TrackResultBean>> trackHeadersAsync(final Fortress fortress, List<MetaInputBean> inputBeans) throws DatagioException, IOException, ExecutionException, InterruptedException {
         // ToDo: Return strings which contain only the caller ref data that failed.
-        return new AsyncResult<>(createHeaders(company, fortress, inputBeans, 10));
+        return new AsyncResult<>(trackHeaders(fortress, inputBeans, 10));
     }
 
-    public Collection<TrackResultBean> createHeaders(final Company company, final Fortress fortress, final List<MetaInputBean> inputBeans, int listSize) throws DatagioException, IOException, ExecutionException, InterruptedException {
-        fortress.setCompany(company);
+    public Collection<TrackResultBean> trackHeaders(final Fortress fortress, final List<MetaInputBean> inputBeans, int listSize) throws DatagioException, IOException, ExecutionException, InterruptedException {
         Long id = DateTime.now().getMillis();
         StopWatch watch = new StopWatch();
         watch.start();
         logger.info("Starting Batch [{}] - size [{}]", id, inputBeans.size());
         // Tune to balance against concurrency and batch transaction insert efficiency.
         List<List<MetaInputBean>> splitList = Lists.partition(inputBeans, listSize);
-        Collection<TrackResultBean>results = new ArrayList<>();
+        Collection<TrackResultBean> results = new ArrayList<>();
         for (List<MetaInputBean> metaInputBeans : splitList) {
 
-            @Deprecated // We should favour spring-retry for this kind of activity
+            @Deprecated
+                    // We should favour spring-retry for this kind of activity
             class DLCommand implements Command {
                 Iterable<MetaInputBean> headers = null;
                 Iterable<TrackResultBean> resultBeans;
@@ -147,11 +144,11 @@ public class MediationFacade {
                     // DLCommand and DeadLockRetry need to be removed
 
                     // This happens before we create headers to minimize IO on the graph
-                    schemaService.createDocTypes(headers, company, fortress);
+                    schemaService.createDocTypes(headers, fortress);
                     // Ensure the headers and tags are created
                     // this routine is prone to deadlocks under load
-                    resultBeans = trackService.createHeaders(company, fortress, headers);
-                    logService.processLogsSync(company, resultBeans);
+                    resultBeans = trackService.createHeaders(fortress, headers);
+                    logService.processLogsSync(fortress.getCompany(), resultBeans);
                     // This routine will also distribute the changes to ab-search
                     // but it should only happen after headers are created successfully and via integration
 
@@ -171,14 +168,14 @@ public class MediationFacade {
         return results;
     }
 
-    public TrackResultBean createHeader(Company company, MetaInputBean inputBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
+    public TrackResultBean trackHeader(Company company, MetaInputBean inputBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
         Fortress fortress = fortressService.findByName(company, inputBean.getFortress());
-        if ( fortress == null )
+        if (fortress == null)
             fortress = fortressService.registerFortress(company,
                     new FortressInputBean(inputBean.getFortress(), false)
                             .setTimeZone(inputBean.getTimezone()));
         fortress.setCompany(company);
-        return createHeader(fortress, inputBean);
+        return trackHeader(fortress, inputBean);
     }
 
 
@@ -193,7 +190,7 @@ public class MediationFacade {
      * @throws DatagioException illegal input
      * @throws IOException      json processing exception
      */
-    public TrackResultBean createHeader(final Fortress fortress, final MetaInputBean inputBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
+    public TrackResultBean trackHeader(final Fortress fortress, final MetaInputBean inputBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
         class HeaderDeadlockRetry implements Command {
             TrackResultBean result = null;
 
@@ -208,14 +205,17 @@ public class MediationFacade {
                 ArrayList<MetaInputBean> inputBeans = new ArrayList<>();
                 inputBeans.add(inputBean);
                 final Company company = fortress.getCompany();
-                schemaService.createDocTypes(inputBeans, company, fortress);
-                TrackResultBean trackResult = trackService.createHeader(company, fortress, inputBean);
+                schemaService.createDocTypes(inputBeans, fortress);
+                TrackResultBean trackResult = trackService.createHeader(fortress, inputBean);
                 trackResult.setLogInput(inputBean.getLog());
-                result = logService.processLogFromResult(trackResult);
+                if (trackResult.getLog() == null)
+                    result = logService.distributeChange(company, trackResult);
+                else
+                    result = logService.processLogFromResult(trackResult);
+
                 if (result == null)
                     result = trackResult;
 
-                logService.distributeChange(company, result);
                 return this;
             }
         }
@@ -228,12 +228,12 @@ public class MediationFacade {
 
     @Transactional
     public TrackResultBean processLog(Company company, LogInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException {
-        MetaHeader metaHeader  ;
-        if ( input.getMetaKey()!=null )
+        MetaHeader metaHeader;
+        if (input.getMetaKey() != null)
             metaHeader = trackService.getHeader(company, input.getMetaKey());
         else
             metaHeader = trackService.findByCallerRef(input.getFortress(), input.getDocumentType(), input.getCallerRef());
-        if (metaHeader == null )
+        if (metaHeader == null)
             throw new DatagioException("Unable to resolve the MetaHeader");
         return logService.writeLog(metaHeader, input);
     }
@@ -243,12 +243,11 @@ public class MediationFacade {
      *
      * @param fortressName name of the fortress to rebuild
      * @throws com.auditbucket.helper.DatagioException
-     *
      */
     @Secured({"ROLE_AB_ADMIN"})
     public Long reindex(Company company, String fortressName) throws DatagioException {
         Fortress fortress = fortressService.findByCode(company, fortressName);
-        Future<Long> result = reindexAsnc( fortress);
+        Future<Long> result = reindexAsnc(fortress);
 
         try {
             return result.get();
@@ -259,27 +258,23 @@ public class MediationFacade {
 
 
     }
-    @Async
-    public Future<Long>reindexAsnc (Fortress fortress) throws  DatagioException{
 
+    @Async
+    public Future<Long> reindexAsnc(Fortress fortress) throws DatagioException {
         if (fortress == null)
             throw new DatagioException("Fortress [" + fortress + "] could not be found");
         Long skipCount = 0l;
         long result = reindex(fortress, skipCount);
         logger.info("Reindex Search request completed. Processed [" + result + "] headers for [" + fortress.getName() + "]");
         return new AsyncResult<>(result);
-
     }
 
-
     private long reindex(Fortress fortress, Long skipCount) {
-
         Collection<MetaHeader> headers = trackService.getHeaders(fortress, skipCount);
         if (headers.isEmpty())
             return skipCount;
         skipCount = reindexHeaders(fortress.getCompany(), headers, skipCount);
         return reindex(fortress, skipCount);
-
     }
 
     /**
@@ -287,7 +282,6 @@ public class MediationFacade {
      *
      * @param fortressName name of the fortress to rebuild
      * @throws com.auditbucket.helper.DatagioException
-     *
      */
     @Async
     @Secured({"ROLE_AB_ADMIN"})
@@ -330,29 +324,14 @@ public class MediationFacade {
     }
 
     public EsSearchResult search(Company company, QueryParams queryParams) {
-
         StopWatch watch = new StopWatch(queryParams.toString());
         watch.start("Get ES Query Results");
+        queryParams.setCompany(company.getName());
         EsSearchResult esSearchResult = searchService.search(queryParams);
         watch.stop();
-        //watch.start("Get Graph Headers");
-//        Map<String,MetaHeader> headers = trackService.getHeaders(company, getMetaKeys(esSearchResult));
-        //watch.stop();
         logger.info(watch.prettyPrint());
 
-//        for (SearchResult searchResult : esSearchResult.getResults()) {
-//            MetaHeader mh = headers.get(searchResult.getMetaKey());
-//            searchResult.setMetaHeader(mh);
-//        }
         return esSearchResult;
-    }
-
-    private Collection<String> getMetaKeys(EsSearchResult esSearchResult){
-        Collection<String> results = new ArrayList<>();
-        for (SearchResult result : esSearchResult.getResults()) {
-            results.add(result.getMetaKey());
-        }
-        return results;
     }
 
     @Autowired
