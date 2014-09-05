@@ -81,12 +81,6 @@ public class TagServiceNeo4j implements TagService {
     }
 
     @Override
-    public Collection<TagInputBean> processTags(List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException {
-        Company company = securityHelper.getCompany();
-        return processTags(company, tagInputs);
-    }
-
-    @Override
     public Collection<TagInputBean> processTags(final Company company, final List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException {
         //schemaDao.ensureUniqueIndexes(company, tagInputs);
         Future<Collection<TagInputBean>> future = makeTags(company, tagInputs);
@@ -163,12 +157,6 @@ public class TagServiceNeo4j implements TagService {
     }
 
     @Override
-    public Collection<Tag> findTags(String index) {
-        Company company = securityHelper.getCompany();
-        return findTags(company, index);
-    }
-
-    @Override
     public Collection<Tag> findTags(Company company, String index) {
         return tagDao.findTags(company, index);
     }
@@ -185,6 +173,7 @@ public class TagServiceNeo4j implements TagService {
 
     @Override
     public void createTagsNoRelationships(Company company, List<TagInputBean> tagInputs) throws DatagioException, IOException, ExecutionException, InterruptedException {
+
         class HeaderDeadlockRetry implements Command {
             Company company;
             List<TagInputBean>tagInputBeans;

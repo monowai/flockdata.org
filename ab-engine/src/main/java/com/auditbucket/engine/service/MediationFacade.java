@@ -24,6 +24,7 @@ import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.DeadlockRetry;
 import com.auditbucket.helper.NotFoundException;
 import com.auditbucket.registration.bean.FortressInputBean;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
@@ -102,7 +103,17 @@ public class MediationFacade {
     EngineConfig engineConfig;
 
     static DecimalFormat f = new DecimalFormat();
+    public Collection<TagInputBean> ensureTagIndexes(Company company, List<TagInputBean> tagInputs) throws DatagioException, ExecutionException, InterruptedException {
+        schemaService.ensureUniqueIndexes(company, tagInputs, tagService.getExistingIndexes());
+        try {
+            tagService.createTagsNoRelationships(company, tagInputs);
+        } catch (IOException e) {
+            // Todo - how to handle??
+            throw new DatagioException("Error processing your batch. Please run it again");
+        }
+        return tagService.processTags(company, tagInputs);
 
+    }
     /**
      * Process the MetaHeader input for a company asynchronously
      *
@@ -111,7 +122,6 @@ public class MediationFacade {
      * @return process count - don't rely on it, why would you want it?
      * @throws com.auditbucket.helper.DatagioException
      */
-
     @Async
     public Future<Collection<TrackResultBean>> trackHeadersAsync(final Fortress fortress, List<MetaInputBean> inputBeans) throws DatagioException, IOException, ExecutionException, InterruptedException {
         // ToDo: Return strings which contain only the caller ref data that failed.

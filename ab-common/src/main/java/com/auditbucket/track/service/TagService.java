@@ -24,9 +24,6 @@ public interface TagService {
 
     Tag processTag(Company company, TagInputBean tagInput);
 
-    @Deprecated // Pass the company
-    Collection<TagInputBean> processTags(List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException;
-
     Collection<TagInputBean> processTags(Company company, List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException;
 
     @Async
@@ -39,9 +36,6 @@ public interface TagService {
 
     @Deprecated
     Collection<Tag> findDirectedTags(Tag startTag);
-
-    @Deprecated // Pass the company
-    Collection<Tag> findTags(String index);
 
     Collection<Tag> findTags(Company company, String index);
 

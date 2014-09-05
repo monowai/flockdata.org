@@ -19,7 +19,6 @@
 
 package com.auditbucket.engine.repo.neo4j.dao;
 
-import com.auditbucket.dao.SchemaDao;
 import com.auditbucket.dao.TagDao;
 import com.auditbucket.engine.PropertyConversion;
 import com.auditbucket.engine.repo.neo4j.model.TagNode;
@@ -49,7 +48,7 @@ import java.util.*;
 class TagDaoNeo4j implements TagDao {
 
     @Autowired
-    SchemaDao schemaDao;
+    SchemaDaoNeo4j schemaDao;
 
     @Autowired
     Neo4jTemplate template;
@@ -126,7 +125,7 @@ class TagDaoNeo4j implements TagDao {
         if (tagInput.isDefault())
             tagLabel = Tag.DEFAULT + tagLabel;
         else {
-            schemaDao.registerTagIndex(company, tagInput.getIndex());
+            schemaDao.registerTag(company, tagInput.getIndex());
             tagLabel = ":`" + tagInput.getIndex() + "` " + Tag.DEFAULT + tagLabel;
         }
 
@@ -255,17 +254,17 @@ class TagDaoNeo4j implements TagDao {
 
     @Override
 //    @Cacheable(value = "companyTag", unless = "#result == null")
-    public Tag findOne(Company company, String tagName, String index) {
+    public Tag findOne(Company company, String tagName, String label) {
         if (tagName == null || company == null)
             throw new IllegalArgumentException("Null can not be used to find a tag ");
 
-        if (index.startsWith(":"))
-            index = index.substring(1);
+        if (label.startsWith(":"))
+            label = label.substring(1);
         String query;
         if ("".equals(engineAdmin.getTagSuffix(company)))
-            query = "match (tag:`" + index + "`) where tag.key ={tagKey} return tag";
+            query = "match (tag:`" + label + "`) where tag.key ={tagKey} return tag";
         else
-            query = "match (tag:`" + index + engineAdmin.getTagSuffix(company) + "`) where tag.key ={tagKey} return tag";
+            query = "match (tag:`" + label + engineAdmin.getTagSuffix(company) + "`) where tag.key ={tagKey} return tag";
 
         Map<String, Object> params = new HashMap<>();
         params.put("tagKey", tagName.toLowerCase().replaceAll("\\s", "")); // ToDo- formula to static method
