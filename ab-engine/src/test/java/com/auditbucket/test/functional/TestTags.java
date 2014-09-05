@@ -302,49 +302,6 @@ public class TestTags extends TestEngineBase {
     }
 
     @Test
-    public void sameKeyForDifferentTagTypes() throws Exception {
-        engineConfig.setMultiTenanted(false);
-
-        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
-        assertNotNull(iSystemUser);
-
-        TagInputBean tagInputA = new TagInputBean("Source");
-        tagInputA.setIndex(":TestTagA");
-        tagInputA.setCode("CodeA");
-        tagInputA.setName("NameA");
-        Tag tagA = tagService.processTag(tagInputA);
-        assertNotNull(tagA);
-        assertEquals(tagInputA.getCode(), tagA.getCode());
-        assertEquals(tagInputA.getName(), tagA.getName());
-        assertNotNull(tagA.getKey());
-        Collection<Tag> results = tagService.findTags("TestTagA");
-        assertNotNull(results);
-        assertFalse(results.isEmpty());
-        boolean found = isNameFound(tagInputA, results);
-        assertTrue(found);
-
-        // This should work as the tag is in a different index
-        TagInputBean tagInputB = new TagInputBean("Source");
-        tagInputB.setIndex(":TestTagB");
-        tagInputB.setCode("CodeA");
-        tagInputB.setName("NameA");
-        Tag tagB = tagService.processTag(tagInputB);
-        assertNotNull(tagB);
-        assertNotSame(tagA.getId(), tagB.getId());
-
-        assertEquals(tagInputB.getCode(), tagB.getCode());
-        assertEquals(tagInputB.getName(), tagB.getName());
-        assertNotNull(tagA.getKey());
-        Collection<Tag> resultsB = tagService.findTags("TestTagB");
-        assertNotNull(resultsB);
-        assertFalse(resultsB.isEmpty());
-        found = isNameFound(tagInputB, resultsB);
-        assertTrue(found);
-
-
-    }
-
-    @Test
     public void duplicateTagsForSameIndexReturnSingleTag() throws Exception {
         engineConfig.setMultiTenanted(false);
         SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
@@ -439,5 +396,47 @@ public class TestTags extends TestEngineBase {
         assertEquals(1, co.size());
 
     }
+
+    @Test
+    public void sameKeyForDifferentTagTypes() throws Exception {
+        engineConfig.setMultiTenanted(false);
+
+        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
+        assertNotNull(iSystemUser);
+
+        TagInputBean tagInputA = new TagInputBean("Source");
+        tagInputA.setIndex(":TestTagA");
+        tagInputA.setCode("CodeA");
+        tagInputA.setName("NameA");
+        Tag tagA = tagService.processTag(iSystemUser.getCompany(), tagInputA);
+        assertNotNull(tagA);
+        assertEquals(tagInputA.getCode(), tagA.getCode());
+        assertEquals(tagInputA.getName(), tagA.getName());
+        assertNotNull(tagA.getKey());
+        Collection<Tag> results = tagService.findTags("TestTagA");
+        assertNotNull(results);
+        assertFalse(results.isEmpty());
+        boolean found = isNameFound(tagInputA, results);
+        assertTrue(found);
+
+        // This should work as the tag is in a different index
+        TagInputBean tagInputB = new TagInputBean("Source");
+        tagInputB.setIndex(":TestTagB");
+        tagInputB.setCode("CodeA");
+        tagInputB.setName("NameA");
+        Tag tagB = tagService.processTag(tagInputB);
+        assertNotNull(tagB);
+        assertNotSame(tagA.getId(), tagB.getId());
+
+        assertEquals(tagInputB.getCode(), tagB.getCode());
+        assertEquals(tagInputB.getName(), tagB.getName());
+        assertNotNull(tagA.getKey());
+        Collection<Tag> resultsB = tagService.findTags("TestTagB");
+        assertNotNull(resultsB);
+        assertFalse(resultsB.isEmpty());
+        found = isNameFound(tagInputB, resultsB);
+        assertTrue(found);
+    }
+
 
 }
