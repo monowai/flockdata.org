@@ -89,7 +89,7 @@ public class TrackAPIKeys extends TestEngineBase{
         // No authorization - only API keys
         SecurityContextHolder.getContext().setAuthentication(null);
 
-        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("apiCallsSecuredByAccessKey"));
+        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("apiCallsSecuredByAccessKey", true));
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC9990");
 
         LogInputBean log = new LogInputBean("harry", new DateTime(),  TestHelper.getRandomMap());
