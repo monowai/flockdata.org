@@ -110,7 +110,7 @@ public class TestABIntegration {
     private static JestClient esClient;
 
     @Autowired
-    TrackService trackService;
+    com.auditbucket.track.service.TrackService trackService;
     @Autowired
     TrackEP trackEP;
     @Autowired
@@ -120,7 +120,7 @@ public class TestABIntegration {
     CompanyService companyService;
 
     @Autowired
-    LogService logService;
+    LogServiceNeo4j logService;
 
     @Autowired
     FortressService fortressService;

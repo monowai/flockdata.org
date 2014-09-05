@@ -39,6 +39,7 @@ import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.SystemUserService;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
+import com.auditbucket.track.service.*;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
@@ -71,13 +72,13 @@ public class TestEngineBase {
 	protected RegistrationService regService;
 
 	@Autowired
-	SchemaService schemaService;
+    com.auditbucket.track.service.SchemaService schemaService;
 
 	@Autowired
 	FortressService fortressService;
 
 	@Autowired
-	TrackService trackService;
+    com.auditbucket.track.service.TrackService trackService;
 
 	@Autowired
 	TagTrackService tagTrackService;
@@ -107,7 +108,7 @@ public class TestEngineBase {
 	TagEP tagEP;
 
 	@Autowired
-	TagService tagService;
+    com.auditbucket.track.service.TagService tagService;
 
 	@Autowired
 	AdminEP adminEP;

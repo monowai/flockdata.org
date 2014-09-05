@@ -23,7 +23,6 @@ import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.track.bean.DocumentResultBean;
-import com.auditbucket.track.model.DocumentType;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,7 +48,7 @@ public class QueryService {
     TagTrackService tagService;
 
     @Autowired
-    SchemaService schemaService;
+    com.auditbucket.track.service.SchemaService schemaService;
 
     public Collection<DocumentResultBean> getDocumentsInUse(Company abCompany, Collection<String> fortresses) throws DatagioException {
         ArrayList<DocumentResultBean> docs = new ArrayList<>();

@@ -20,7 +20,6 @@
 package com.auditbucket.registration.endpoint;
 
 import com.auditbucket.dao.SchemaDao;
-import com.auditbucket.engine.service.TagService;
 import com.auditbucket.helper.ApiKeyHelper;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.TagInputBean;
@@ -48,7 +47,7 @@ import java.util.concurrent.ExecutionException;
 public class TagEP {
 
     @Autowired
-    TagService tagService;
+    com.auditbucket.track.service.TagService tagService;
 
     @Autowired
     SchemaDao schemaDao;
