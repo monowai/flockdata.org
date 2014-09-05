@@ -122,7 +122,7 @@ public class TestABIntegration {
     CompanyService companyService;
 
     @Autowired
-    LogServiceNeo4j logService;
+    LogService logService;
 
     @Autowired
     FortressService fortressService;
