@@ -36,6 +36,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 @Transactional
@@ -73,20 +75,27 @@ public class CompanyServiceNeo4j implements CompanyService {
         return companyDao.getAdminUser(company.getId(), name);
     }
 
-
+    Lock lock = new ReentrantLock();
     @Override
     public Company save(String companyName) {
-        Company company = companyDao.create(companyName, keyGenService.getUniqueKey());
-        // Change to async event via spring events
-        Future<Boolean> worked = schemaService.ensureSystemIndexes(company);
         try {
-            while (!worked.isDone())
-                logger.debug("Waiting for schema Service to finish");
-            worked.get();
-        } catch (InterruptedException | ExecutionException e) {
-            logger.error("Unexpected", e);
+            // schema indexes failing
+            lock.lock();
+
+            Company company = companyDao.create(companyName, keyGenService.getUniqueKey());
+            // Change to async event via spring events
+            Future<Boolean> worked = schemaService.ensureSystemIndexes(company);
+            try {
+                while (!worked.isDone())
+                    logger.debug("Waiting for schema Service to finish");
+                worked.get();
+            } catch (InterruptedException | ExecutionException e) {
+                logger.error("Unexpected", e);
+            }
+            return company;
+        } finally{
+            lock.unlock();
         }
-        return company;
     }
 
     @Override
