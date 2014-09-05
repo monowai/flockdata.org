@@ -42,7 +42,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
@@ -138,6 +137,7 @@ public class LogService {
                 result = writeLog(resultBean);
                 if (result.getLogResult().getStatus() == LogInputBean.LogStatus.NOT_FOUND)
                     throw new DatagioException("Unable to find MetaHeader ");
+                distributeChange(resultBean.getMetaHeader().getFortress().getCompany(), result);
                 whatService.doKvWrite(result); //ToDo: Consider KV not available. How to write the logs
                 //      need to think of a way to recognize that the header has unprocessed work
                 return this;

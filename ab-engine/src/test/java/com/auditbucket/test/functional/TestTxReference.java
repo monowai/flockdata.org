@@ -88,7 +88,7 @@ public class TestTxReference extends TestEngineBase{
         String cbaKey = mediationFacade.createHeader(suCBA.getCompany(), cbaHeader).getMetaKey();
 
         LogInputBean cbaLog = new LogInputBean("charlie", cbaKey, DateTime.now(), escJsonA, true);
-        assertEquals("CBA Logger Not Created", LogInputBean.LogStatus.OK, mediationFacade.processLog(cbaLog).getLogResult().getStatus());
+        assertEquals("CBA Log Not Created", LogInputBean.LogStatus.OK, mediationFacade.processLog(suCBA.getCompany(), cbaLog).getLogResult().getStatus());
         String cbaTxRef = cbaLog.getTxRef();
         assertNotNull(cbaTxRef);
 
@@ -128,7 +128,7 @@ public class TestTxReference extends TestEngineBase{
         //assertEquals(1, header.getTxTags().size());
         LogInputBean alb = new LogInputBean("charlie", key, DateTime.now(), escJsonA, null, tagRef);
         assertTrue(alb.isTransactional());
-        String albTxRef = mediationFacade.processLog(alb).getLogResult().getTxReference();
+        String albTxRef = mediationFacade.processLog(su.getCompany(), alb).getLogResult().getTxReference();
 
         alb = new LogInputBean("harry", key, DateTime.now(), escJsonB);
 
@@ -136,7 +136,7 @@ public class TestTxReference extends TestEngineBase{
         alb.setTxRef(albTxRef);
         String txStart = albTxRef;
 
-        mediationFacade.processLog(alb);
+        mediationFacade.processLog(su.getCompany(), alb);
         Map<String, Object> result = txService.findByTXRef(txStart);
         assertNotNull(result);
         assertEquals(tagRef, result.get("txRef"));
@@ -151,7 +151,7 @@ public class TestTxReference extends TestEngineBase{
         alb.setTxRef("");
         assertNull("Should be Null if it is blank", alb.getTxRef());
         assertTrue(alb.isTransactional());
-        LogResultBean arb = mediationFacade.processLog(alb).getLogResult();
+        LogResultBean arb = mediationFacade.processLog(su.getCompany(), alb).getLogResult();
         String txEnd = arb.getTxReference();
         assertNotNull(txEnd);
         assertNotSame(txEnd, txStart);
@@ -187,14 +187,14 @@ public class TestTxReference extends TestEngineBase{
         assertNotNull(header);
         LogInputBean alb = new LogInputBean("charlie", key, DateTime.now(), escJsonA, null, tagRef);
         assertTrue(alb.isTransactional());
-        String albTxRef = mediationFacade.processLog(alb).getLogResult().getTxReference();
+        String albTxRef = mediationFacade.processLog(su.getCompany(), alb).getLogResult().getTxReference();
 
         alb = new LogInputBean("harry", key, DateTime.now(), escJsonB);
 
         alb.setTxRef(albTxRef);
         String txStart = albTxRef;
 
-        mediationFacade.processLog(alb);
+        mediationFacade.processLog(su.getCompany(), alb);
         // All headers touched by this transaction. ToDo: All changes affected
         Set<MetaHeader> result = txService.findTxHeaders(txStart);
         assertNotNull(result);
