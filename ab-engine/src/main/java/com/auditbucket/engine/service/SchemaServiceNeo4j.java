@@ -19,7 +19,7 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.dao.SchemaDao;
+import com.auditbucket.engine.repo.neo4j.dao.SchemaDaoNeo4j;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
@@ -48,7 +48,7 @@ import java.util.concurrent.Future;
 @Transactional
 public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaService {
     @Autowired
-    SchemaDao schemaDao;
+    SchemaDaoNeo4j schemaDao;
 
     @Autowired
     EngineConfig engine;
@@ -157,5 +157,10 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
     @Override
     public void purge(Fortress fortress) {
         schemaDao.purge(fortress);
+    }
+
+    @Override
+    public void ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs, Collection<String> existingIndexes) {
+        schemaDao.ensureUniqueIndexes(company, tagInputs,existingIndexes);
     }
 }

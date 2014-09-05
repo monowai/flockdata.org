@@ -20,7 +20,7 @@
 package com.auditbucket.registration;
 
 
-import com.auditbucket.dao.SchemaDao;
+import com.auditbucket.engine.repo.neo4j.dao.SchemaDaoNeo4j;
 import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.dao.CompanyDao;
@@ -53,7 +53,7 @@ public class CompanyServiceNeo4j implements CompanyService {
     EngineConfig engineConfig;
 
     @Autowired
-    SchemaDao schemaDao;
+    SchemaDaoNeo4j schemaDao;
 
     @Autowired
     com.auditbucket.track.service.SchemaService schemaService;

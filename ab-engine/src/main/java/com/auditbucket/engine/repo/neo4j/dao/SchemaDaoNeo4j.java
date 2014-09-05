@@ -1,6 +1,5 @@
 package com.auditbucket.engine.repo.neo4j.dao;
 
-import com.auditbucket.dao.SchemaDao;
 import com.auditbucket.engine.repo.neo4j.ConceptTypeRepo;
 import com.auditbucket.engine.repo.neo4j.DocumentTypeRepo;
 import com.auditbucket.engine.repo.neo4j.model.ConceptNode;
@@ -18,14 +17,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Maintains company specific Schema details
@@ -36,7 +36,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 @Repository
 @Transactional
-public class SchemaDaoNeo4j implements SchemaDao {
+public class SchemaDaoNeo4j {
     @Autowired
     DocumentTypeRepo documentTypeRepo;
 
@@ -48,12 +48,11 @@ public class SchemaDaoNeo4j implements SchemaDao {
 
     private Logger logger = LoggerFactory.getLogger(SchemaDaoNeo4j.class);
 
-    @Override
-    public boolean registerTagIndex(Company company, String indexName) {
-        if (isSystemIndex(indexName))
+    public boolean registerTag(Company company, String labelName) {
+        if (isSystemLabel(labelName))
             return true;
 
-        if (!tagExists(company, indexName)) {
+        if (!tagExists(company, labelName)) {
 
             String cypher = "merge (tag:TagLabel { name:{name}, companyKey:{key}}) " +
                     "with tag " +
@@ -61,8 +60,8 @@ public class SchemaDaoNeo4j implements SchemaDao {
                     "merge (c)<-[:TAG_INDEX]-(tag) " +
                     "return tag";
             Map<String, Object> params = new HashMap<>();
-            params.put("name", indexName);
-            params.put("key", parseTagIndex(company, indexName));
+            params.put("name", labelName);
+            params.put("key", parseTagIndex(company, labelName));
             params.put("cid", company.getId());
 
             template.query(cypher, params);
@@ -102,12 +101,10 @@ public class SchemaDaoNeo4j implements SchemaDao {
 
     }
 
-    @Override
     public Collection<DocumentType> getFortressDocumentsInUse(Fortress fortress) {
         return documentTypeRepo.getFortressDocumentsInUse(fortress.getId());
     }
 
-    @Override
     public Collection<DocumentType> getCompanyDocumentsInUse(Company company) {
         return documentTypeRepo.getCompanyDocumentsInUse(company.getId());
     }
@@ -123,10 +120,8 @@ public class SchemaDaoNeo4j implements SchemaDao {
 
     //@Cacheable(value = "companySchemaTag", unless = "#result == false")
     private boolean tagExists(Company company, String indexName) {
-        //logger.info("Looking for co{}, {}", company.getId(), parseTagIndex(company, docName));
         Object o = documentTypeRepo.findCompanyTag(company.getId(), parseTagIndex(company, indexName));
         return (o != null);
-        //return documentTypeRepo.findBySchemaPropertyValue("companyKey", parseTagIndex(company, docName)) != null;
     }
 
     /**
@@ -143,7 +138,12 @@ public class SchemaDaoNeo4j implements SchemaDao {
                 String index = tagInput.getIndex();
                 if (!added.contains(index)) {
                     //if (index != null && !tagExists(company, index)) { // This check causes deadlocks in TagEP ?
-                    ensureIndex(tagInput);
+                    Future<Boolean> indexResult = ensureIndex(tagInput);
+                    try {
+                        indexResult.get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        logger.error("Unexpected", e);
+                    }
                     //}
                     added.add(tagInput.getIndex());
                 }
@@ -160,14 +160,16 @@ public class SchemaDaoNeo4j implements SchemaDao {
 
     }
 
-    private void ensureIndex(TagInputBean tagInput) {
+    @Async
+    public Future<Boolean> ensureIndex(TagInputBean tagInput) {
         // _Tag is a special label that can be used to find all tags so we have to allow it to handle duplicates
-        if (tagInput.isDefault() || isSystemIndex(tagInput.getIndex()))
-            return;
+        if (tagInput.isDefault() || isSystemLabel(tagInput.getIndex()))
+            return new AsyncResult<>(true);
         String index = tagInput.getIndex();
 
         template.query("create constraint on (t:`" + index + "`) assert t.key is unique", null);
-        logger.info("Creating constraint on [{}]", tagInput.getIndex());
+        logger.debug("Creating constraint on [{}]", tagInput.getIndex());
+        return new AsyncResult<>(true);
 
     }
 
@@ -179,7 +181,6 @@ public class SchemaDaoNeo4j implements SchemaDao {
         return true;
     }
 
-    @Override
     public void registerConcepts(Company company, Map<DocumentType, Collection<ConceptInputBean>> conceptInput) {
         logger.trace("Registering concepts");
         Set<DocumentType> documentTypes = conceptInput.keySet();
@@ -224,7 +225,6 @@ public class SchemaDaoNeo4j implements SchemaDao {
         }
     }
 
-    @Override
     public Set<DocumentResultBean> findConcepts(Company company, Collection<String> docNames, boolean withRelationships) {
 
         // This is a hack to support DAT-126. It should be resolved via a query. At the moment, it's working, but that's it/
@@ -275,7 +275,6 @@ public class SchemaDaoNeo4j implements SchemaDao {
         return fauxDocuments;
     }
 
-    @Override
     public void createDocTypes(ArrayList<String> docTypes, Fortress fortress) {
         for (String docType : docTypes) {
             findDocumentType(fortress, docType, true);
@@ -283,7 +282,6 @@ public class SchemaDaoNeo4j implements SchemaDao {
 
     }
 
-    @Override
     public void purge(Fortress fortress) {
 
         String docRlx = "match (fort:Fortress)-[fd:FORTRESS_DOC]-(a:DocType)-[dr]-(o)-[k]-(p)" +
@@ -294,7 +292,7 @@ public class SchemaDaoNeo4j implements SchemaDao {
         template.query(docRlx, params);
     }
 
-    private boolean isSystemIndex(String index) {
+    private boolean isSystemLabel(String index) {
         return (index.equals("Country") || index.equals("City"));
     }
 

@@ -1,5 +1,6 @@
 package com.auditbucket.track.service;
 
+import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.track.bean.DocumentResultBean;
@@ -9,6 +10,7 @@ import com.auditbucket.track.model.DocumentType;
 import org.springframework.scheduling.annotation.Async;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
 
@@ -34,4 +36,6 @@ public interface SchemaService {
     Collection<DocumentResultBean> getCompanyDocumentsInUse(Company company);
 
     void purge(Fortress fortress);
+
+    void ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs, Collection<String> existingIndexes);
 }
