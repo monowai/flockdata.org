@@ -169,11 +169,12 @@ public class SchemaDaoNeo4j implements SchemaDao {
     }
 
     @Async
-    public void ensureSystemIndexes(Company company, String suffix) {
+    public boolean ensureSystemIndexes(Company company, String suffix) {
         // Performance issue with constraints?
         logger.debug("Creating System Indexes...");
         template.query("create constraint on (t:Country) assert t.key is unique", null);
         template.query("create constraint on (t:City) assert t.key is unique", null);
+        return true;
     }
 
     @Override

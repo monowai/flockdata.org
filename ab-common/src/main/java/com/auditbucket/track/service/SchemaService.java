@@ -18,7 +18,7 @@ import java.util.Set;
  */
 public interface SchemaService {
     @Async
-    void ensureSystemIndexes(Company company);
+    java.util.concurrent.Future<Boolean> ensureSystemIndexes(Company company);
 
     DocumentType resolveDocType(Fortress fortress, String documentType);
 
