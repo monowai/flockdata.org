@@ -226,10 +226,6 @@ public class MediationFacade {
     }
 
 
-    public TrackResultBean processLog(LogInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException {
-        return processLog(registrationService.resolveCompany(null), input);
-    }
-
     @Transactional
     public TrackResultBean processLog(Company company, LogInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException {
         MetaHeader metaHeader  ;
@@ -239,9 +235,7 @@ public class MediationFacade {
             metaHeader = trackService.findByCallerRef(input.getFortress(), input.getDocumentType(), input.getCallerRef());
         if (metaHeader == null )
             throw new DatagioException("Unable to resolve the MetaHeader");
-        TrackResultBean trackResult = logService.writeLog(metaHeader, input);
-        logService.distributeChange(company, trackResult);
-        return trackResult;
+        return logService.writeLog(metaHeader, input);
     }
 
     /**

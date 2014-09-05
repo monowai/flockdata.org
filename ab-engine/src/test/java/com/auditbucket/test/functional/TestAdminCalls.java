@@ -122,8 +122,8 @@ public class TestAdminCalls extends TestEngineBase {
         assertNotNull(ahKey);
         assertNotNull(trackService.getHeader(ahKey));
 
-        mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), TestHelper.getRandomMap()));
-        mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), TestHelper.getRandomMap()));
+        mediationFacade.processLog(su.getCompany(), new LogInputBean("wally", ahKey, new DateTime(), TestHelper.getRandomMap()));
+        mediationFacade.processLog(su.getCompany(), new LogInputBean("wally", ahKey, new DateTime(), TestHelper.getRandomMap()));
 
         assertEquals(2, trackService.getLogCount(su.getCompany(), resultBean.getMetaKey()));
 
@@ -156,7 +156,7 @@ public class TestAdminCalls extends TestEngineBase {
         assertNotNull(ahKey);
         assertNotNull(trackService.getHeader(ahKey));
 
-        mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), TestHelper.getRandomMap()));
+        mediationFacade.processLog(su.getCompany(), new LogInputBean("wally", ahKey, new DateTime(), TestHelper.getRandomMap()));
 
         inputBean.setCallerRef("123abc");
         inputBean.setMetaKey(null);

@@ -354,7 +354,7 @@ public class TestABIntegration {
         logger.info("Start-");
         watch.start();
         while (i < max) {
-            mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), getSimpleMap("blah", i))).getMetaHeader();
+            mediationFacade.processLog(su.getCompany(),new LogInputBean("wally", ahKey, new DateTime(), getSimpleMap("blah", i))).getMetaHeader();
             i++;
         }
         waitForLogCount(su.getCompany(), metaHeader, 3);
@@ -693,7 +693,7 @@ public class TestABIntegration {
         assertNotNull(tags);
         assertEquals(1, tags.size());
 
-        LogResultBean resultBean = mediationFacade.processLog(new LogInputBean("olivia@sunnybell.com", indexHeader.getMetaKey(), new DateTime(), getRandomMap())).getLogResult();
+        LogResultBean resultBean = mediationFacade.processLog(su.getCompany(),new LogInputBean("olivia@sunnybell.com", indexHeader.getMetaKey(), new DateTime(), getRandomMap())).getLogResult();
         assertNotNull(resultBean);
 
         waitForHeaderToUpdate(su.getCompany(), indexHeader);
@@ -720,7 +720,7 @@ public class TestABIntegration {
 
         doEsTermQuery(metaHeader.getIndexName(), MetaSearchSchema.WHAT + ".house", "house1", 1); // First log
 
-        LogResultBean secondLog = mediationFacade.processLog(new LogInputBean("isabella@sunnybell.com", metaHeader.getMetaKey(), firstDate.plusDays(1), getSimpleMap("house", "house2"))).getLogResult();
+        LogResultBean secondLog = mediationFacade.processLog(su.getCompany(), new LogInputBean("isabella@sunnybell.com", metaHeader.getMetaKey(), firstDate.plusDays(1), getSimpleMap("house", "house2"))).getLogResult();
         assertNotSame(0l, secondLog.getWhatLog().getTrackLog().getFortressWhen());
         Set<TrackLog> logs = trackService.getLogs(fortress.getCompany(), metaHeader.getMetaKey());
         assertEquals(2, logs.size());
@@ -843,7 +843,7 @@ public class TestABIntegration {
                 int log = 1;
                 while (log <= logMax) {
                     Thread.yield();
-                    createLog(metaKey, log);
+                    createLog(su.getCompany(), metaKey, log);
                     Thread.yield(); // Failure to yield Getting a frustrating thread update problem causing
 //                    IllegalStateException( "Unable to delete relationship since it is already deleted."
                     // under specifically stressed situations like this. We need to be able to detect and recover
@@ -968,8 +968,8 @@ public class TestABIntegration {
         return null;
     }
 
-    private TrackResultBean createLog(String metaKey, int log) throws Exception {
-        return mediationFacade.processLog(new LogInputBean("olivia@sunnybell.com", metaKey, new DateTime(), getSimpleMap("who", log)));
+    private TrackResultBean createLog(Company company, String metaKey, int log) throws Exception {
+        return mediationFacade.processLog(company, new LogInputBean("olivia@sunnybell.com", metaKey, new DateTime(), getSimpleMap("who", log)));
     }
 
     private void validateLogsIndexed(ArrayList<Long> list, int auditMax, int expectedLogCount) throws Exception {
