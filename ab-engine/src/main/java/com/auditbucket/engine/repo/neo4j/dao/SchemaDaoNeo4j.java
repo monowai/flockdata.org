@@ -174,7 +174,6 @@ public class SchemaDaoNeo4j implements SchemaDao {
 
     @Async
     public Boolean ensureSystemIndexes(Company company, String suffix) {
-        // Performance issue with constraints?
         logger.debug("Creating System Indexes for {} ", company.getName());
         template.query("create constraint on (t:Country) assert t.key is unique", null);
         template.query("create constraint on (t:City) assert t.key is unique", null);

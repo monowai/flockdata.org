@@ -78,7 +78,14 @@ public class CompanyServiceNeo4j implements CompanyService {
     public Company save(String companyName) {
         Company company = companyDao.create(companyName, keyGenService.getUniqueKey());
         // Change to async event via spring events
-        Boolean worked = schemaService.ensureSystemIndexes(company);
+        Future<Boolean> worked = schemaService.ensureSystemIndexes(company);
+        try {
+            worked.get();
+        } catch (InterruptedException e) {
+            logger.error("Unexpected", e);
+        } catch (ExecutionException e) {
+            logger.error("Unexpected", e);
+        }
         return company;
     }
 
