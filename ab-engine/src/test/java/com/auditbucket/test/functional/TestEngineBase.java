@@ -137,7 +137,7 @@ public class TestEngineBase {
 	@Autowired
 	SecurityHelper securityHelper;
 
-	private static Logger logger = LoggerFactory.getLogger(TestEngineBase.class);
+	static Logger logger = LoggerFactory.getLogger(TestEngineBase.class);
 
 	// These have to be in test-security.xml in order to create SysUserRegistrations
     protected static final String sally_admin = "sally";
