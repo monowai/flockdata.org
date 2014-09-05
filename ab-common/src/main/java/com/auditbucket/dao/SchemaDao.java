@@ -6,14 +6,11 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.track.bean.ConceptInputBean;
 import com.auditbucket.track.bean.DocumentResultBean;
 import com.auditbucket.track.model.DocumentType;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Future;
 
 /**
  * Neo and Engine Schema related IO
