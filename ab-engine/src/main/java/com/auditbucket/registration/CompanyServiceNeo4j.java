@@ -34,6 +34,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 @Service
 @Transactional
@@ -76,8 +78,14 @@ public class CompanyServiceNeo4j implements CompanyService {
     public Company save(String companyName) {
         Company company = companyDao.create(companyName, keyGenService.getUniqueKey());
         // Change to async event via spring events
-        schemaService.ensureSystemIndexes(company);
-        //this.applicationEventPublisher.publish(company);
+        Future<Boolean> worked = schemaService.ensureSystemIndexes(company);
+        try {
+            while (!worked.isDone())
+                logger.debug("Waiting for schema Service to finish");
+            worked.get();
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Unexpected", e);
+        }
         return company;
     }
 

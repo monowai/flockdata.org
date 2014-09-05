@@ -112,7 +112,7 @@ public class TestABIntegration {
     private static JestClient esClient;
 
     @Autowired
-    com.auditbucket.track.service.TrackService trackService;
+    TrackService trackService;
     @Autowired
     TrackEP trackEP;
     @Autowired
