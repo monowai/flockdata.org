@@ -28,12 +28,16 @@ import com.auditbucket.track.bean.DocumentResultBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.DocumentType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.Future;
 
 /**
  * User: mike
@@ -48,11 +52,11 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
 
     @Autowired
     EngineConfig engine;
+    static Logger logger = LoggerFactory.getLogger(SchemaServiceNeo4j.class);
 
-    @Override
     @Async
-    public void ensureSystemIndexes(Company company) {
-        schemaDao.ensureSystemIndexes(company, engine.getTagSuffix(company));
+    public Future<Boolean> ensureSystemIndexes(Company company) {
+        return new AsyncResult<>(schemaDao.ensureSystemIndexes(company, engine.getTagSuffix(company)));
     }
 
     /**
@@ -88,7 +92,7 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
     public void registerConcepts(Company company, Iterable<TrackResultBean> resultBeans) {
         Map<DocumentType, Collection<ConceptInputBean>> payload = new HashMap<>();
         for (TrackResultBean resultBean : resultBeans) {
-            if ( resultBean.getMetaHeader()!=null && resultBean.getMetaHeader().getId() !=null ){
+            if (resultBean.getMetaHeader() != null && resultBean.getMetaHeader().getId() != null) {
                 DocumentType docType = schemaDao.findDocumentType(resultBean.getMetaHeader().getFortress(), resultBean.getMetaHeader().getDocumentType(), false);
                 Collection<ConceptInputBean> conceptInputBeans = payload.get(docType);
                 if (conceptInputBeans == null) {
@@ -99,7 +103,7 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
                 MetaInputBean inputBean = resultBean.getMetaInputBean();
                 if (inputBean != null && inputBean.getTags() != null) {
                     for (TagInputBean inputTag : resultBean.getMetaInputBean().getTags()) {
-                        if ( !inputTag.getMetaLinks().isEmpty()) {
+                        if (!inputTag.getMetaLinks().isEmpty()) {
                             ConceptInputBean cib = new ConceptInputBean();
                             cib.setRelationships(inputTag.getMetaLinks().keySet());
                             cib.setName(inputTag.getIndex());
@@ -110,7 +114,7 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
                 }
             }
         }
-        if ( !payload.isEmpty())
+        if (!payload.isEmpty())
             schemaDao.registerConcepts(company, payload);
     }
 
@@ -132,14 +136,14 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
 
     @Override
     public void createDocTypes(Iterable<MetaInputBean> headers, Fortress fortress) {
-        ArrayList<String>docTypes = new ArrayList<>();
+        ArrayList<String> docTypes = new ArrayList<>();
         for (MetaInputBean header : headers) {
             if (!docTypes.contains(header.getDocumentType()))
                 docTypes.add(header.getDocumentType());
         }
-        schemaDao.createDocTypes(docTypes,  fortress);
+        schemaDao.createDocTypes(docTypes, fortress);
     }
-    
+
     @Override
     public Collection<DocumentResultBean> getCompanyDocumentsInUse(Company company) {
         Collection<DocumentResultBean> results = new ArrayList<>();
