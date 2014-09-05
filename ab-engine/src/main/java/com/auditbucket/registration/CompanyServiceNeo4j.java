@@ -21,8 +21,10 @@ package com.auditbucket.registration;
 
 
 import com.auditbucket.dao.SchemaDao;
+import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.dao.CompanyDao;
+import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.CompanyService;
@@ -36,8 +38,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 @Transactional
@@ -48,6 +48,9 @@ public class CompanyServiceNeo4j implements CompanyService {
 
     @Autowired
     KeyGenService keyGenService;
+
+    @Autowired
+    EngineConfig engineConfig;
 
     @Autowired
     SchemaDao schemaDao;
@@ -75,27 +78,23 @@ public class CompanyServiceNeo4j implements CompanyService {
         return companyDao.getAdminUser(company.getId(), name);
     }
 
-    Lock lock = new ReentrantLock();
     @Override
     public Company save(String companyName) {
+        // Change to async event via spring events
+        logger.debug("Saving company {}",companyName);
+        Company company = new CompanyNode(companyName, keyGenService.getUniqueKey());
+        Future<Boolean> worked = schemaService.ensureSystemIndexes(company);
         try {
-            // schema indexes failing
-            lock.lock();
-
-            Company company = companyDao.create(companyName, keyGenService.getUniqueKey());
-            // Change to async event via spring events
-            Future<Boolean> worked = schemaService.ensureSystemIndexes(company);
-            try {
-                while (!worked.isDone())
-                    logger.debug("Waiting for schema Service to finish");
-                worked.get();
-            } catch (InterruptedException | ExecutionException e) {
-                logger.error("Unexpected", e);
-            }
-            return company;
-        } finally{
-            lock.unlock();
+            logger.debug("Waiting for system indexes to finish");
+            worked.get();
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Unexpected", e);
         }
+
+        company = companyDao.create(company);
+        logger.debug("Created company {}",company);
+        return company;
+
     }
 
     @Override
@@ -106,17 +105,18 @@ public class CompanyServiceNeo4j implements CompanyService {
 
     @Override
     public Collection<Company> findCompanies(String userApiKey) {
-        if ( userApiKey == null ) {
+        if (userApiKey == null) {
             SystemUser su = securityHelper.getSysUser(true);
-            if (su !=null )
+            if (su != null)
                 userApiKey = su.getApiKey();
         }
-        if ( userApiKey==null ){
+        if (userApiKey == null) {
             throw new SecurityException("Unable to resolve user API key");
         }
         return companyDao.findCompanies(userApiKey);
 
     }
+
     @Override
     public Collection<Company> findCompanies() {
         SystemUser su = securityHelper.getSysUser(true);
