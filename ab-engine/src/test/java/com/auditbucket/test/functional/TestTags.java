@@ -20,6 +20,7 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.engine.PropertyConversion;
+import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.DatagioTagException;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
@@ -413,7 +414,7 @@ public class TestTags extends TestEngineBase {
         assertEquals(tagInputA.getCode(), tagA.getCode());
         assertEquals(tagInputA.getName(), tagA.getName());
         assertNotNull(tagA.getKey());
-        Collection<Tag> results = tagService.findTags("TestTagA");
+        Collection<Tag> results = tagService.findTags(iSystemUser.getCompany(), "TestTagA");
         assertNotNull(results);
         assertFalse(results.isEmpty());
         boolean found = isNameFound(tagInputA, results);
@@ -424,14 +425,14 @@ public class TestTags extends TestEngineBase {
         tagInputB.setIndex(":TestTagB");
         tagInputB.setCode("CodeA");
         tagInputB.setName("NameA");
-        Tag tagB = tagService.processTag(tagInputB);
+        Tag tagB = tagService.processTag(iSystemUser.getCompany(), tagInputB);
         assertNotNull(tagB);
         assertNotSame(tagA.getId(), tagB.getId());
 
         assertEquals(tagInputB.getCode(), tagB.getCode());
         assertEquals(tagInputB.getName(), tagB.getName());
         assertNotNull(tagA.getKey());
-        Collection<Tag> resultsB = tagService.findTags("TestTagB");
+        Collection<Tag> resultsB = tagService.findTags(iSystemUser.getCompany(), "TestTagB");
         assertNotNull(resultsB);
         assertFalse(resultsB.isEmpty());
         found = isNameFound(tagInputB, resultsB);
