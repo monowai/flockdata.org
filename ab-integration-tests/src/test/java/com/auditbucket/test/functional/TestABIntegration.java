@@ -39,6 +39,8 @@ import com.auditbucket.track.bean.*;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
 import com.auditbucket.track.model.TrackTag;
+import com.auditbucket.track.service.LogService;
+import com.auditbucket.track.service.TrackService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.searchbox.client.JestClient;
@@ -110,7 +112,7 @@ public class TestABIntegration {
     private static JestClient esClient;
 
     @Autowired
-    com.auditbucket.track.service.TrackService trackService;
+    TrackService trackService;
     @Autowired
     TrackEP trackEP;
     @Autowired
@@ -120,7 +122,7 @@ public class TestABIntegration {
     CompanyService companyService;
 
     @Autowired
-    LogServiceNeo4j logService;
+    LogService logService;
 
     @Autowired
     FortressService fortressService;
