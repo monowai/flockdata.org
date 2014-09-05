@@ -20,7 +20,6 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.engine.PropertyConversion;
-import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.DatagioTagException;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
@@ -103,9 +102,9 @@ public class TestTags extends TestEngineBase {
         assertNull(tagService.findTag("FLOP")); // Can't see the Monowai company tag
 
         tagInput = new TagInputBean("FLOP");
-        assertNotNull(tagService.processTag(tagInput));
-        assertNull(tagService.findTag("ABC"));
-        assertNotNull(tagService.findTag("FLOP"));
+        assertNotNull(tagService.processTag(iSystemUser.getCompany(),tagInput) );
+        assertNull(tagService.findTag(iSystemUser.getCompany(), "ABC"));
+        assertNotNull(tagService.findTag(iSystemUser.getCompany(), "FLOP"));
     }
 
     @Test
@@ -116,13 +115,13 @@ public class TestTags extends TestEngineBase {
         assertNotNull(iSystemUser);
         Thread.sleep(200);
         assertNull(tagService.findTag(iSystemUser.getCompany(), "ABC"));
-        Tag tag = tagService.processTag(new TagInputBean("FLOP"));
+        Tag tag = tagService.processTag(iSystemUser.getCompany(), new TagInputBean("FLOP"));
         assertNotNull(tag);
 
         Tag result = tagService.findTag("FLOP");
         assertNotNull(result);
         tagService.findTag("FLOP");
-        result = tagService.processTag(new TagInputBean("FLOPPY"));
+        result = tagService.processTag(iSystemUser.getCompany(), new TagInputBean("FLOPPY"));
         assertNotNull(result);
         assertEquals("FLOPPY", result.getName());
         Thread.sleep(200); // Looking to avoid Heuristic errors
@@ -141,15 +140,15 @@ public class TestTags extends TestEngineBase {
         assertNull(tagService.findTag(iSystemUser.getCompany(), "ABC"));
         Tag tag = null;
         try {
-            tag = tagService.processTag(new TagInputBean("FLOPX").setMustExist(true));
+            tag = tagService.processTag(iSystemUser.getCompany(), new TagInputBean("FLOPX").setMustExist(true));
             fail("Incorrect exception");
         } catch (DatagioTagException dte) {
 
         }
         assertNull(tag);
-        tag = tagService.processTag(new TagInputBean("FLOPX").setMustExist(false));
+        tag = tagService.processTag(iSystemUser.getCompany(), new TagInputBean("FLOPX").setMustExist(false));
         assertNotNull(tag);
-        tag = tagService.processTag(new TagInputBean("FLOPX").setMustExist(true));
+        tag = tagService.processTag(iSystemUser.getCompany(), new TagInputBean("FLOPX").setMustExist(true));
         assertNotNull(tag);
 
     }
@@ -165,7 +164,7 @@ public class TestTags extends TestEngineBase {
         tagInput.setProperty("dec", 123.11);
         tagInput.setProperty("string", "abc");
 
-        Tag tag = tagService.processTag(tagInput);
+        Tag tag = tagService.processTag(iSystemUser.getCompany(), tagInput);
 
         assertNotNull(tag);
         Tag result = tagService.findTag("ZFLOP");
@@ -187,7 +186,7 @@ public class TestTags extends TestEngineBase {
         tagInput.setProperty("id", 123);
         tagInput.setProperty("name", "abc");
 
-        Tag tag = tagService.processTag(tagInput);
+        Tag tag = tagService.processTag(iSystemUser.getCompany(),tagInput) ;
 
         assertNotNull(tag);
         Tag result = tagService.findTag("FLOP");
@@ -210,7 +209,7 @@ public class TestTags extends TestEngineBase {
 
         tagInput.setTargets("testAssoc2", tag2);
 
-        Tag tag = tagService.processTag(tagInput);
+        Tag tag = tagService.processTag(iSystemUser.getCompany(),tagInput) ;
 
         assertNotNull(tag);
         Tag result = tagService.findTag("Source");
@@ -235,7 +234,7 @@ public class TestTags extends TestEngineBase {
         tagInput.setIndex(":TestTag");
         tagInput.setCode("CodeA");
         tagInput.setName("NameA");
-        Tag tag = tagService.processTag(tagInput);
+        Tag tag = tagService.processTag(iSystemUser.getCompany(),tagInput) ;
         assertNotNull(tag);
         assertEquals(tagInput.getCode(), tag.getCode());
         assertEquals(tagInput.getName(), tag.getName());
@@ -257,7 +256,7 @@ public class TestTags extends TestEngineBase {
         tagInput.setIndex(":Test Tag");
         tagInput.setCode("CodeA");
         tagInput.setName("NameA");
-        Tag tag = tagService.processTag(tagInput);
+        Tag tag = tagService.processTag(iSystemUser.getCompany(),tagInput) ;
         assertNotNull(tag);
         assertEquals(tagInput.getCode(), tag.getCode());
         assertEquals(tagInput.getName(), tag.getName());
@@ -279,7 +278,7 @@ public class TestTags extends TestEngineBase {
         tagInput.setIndex(":TestTag");
         tagInput.setCode("CodeA");
         tagInput.setName("NameA");
-        Tag tag = tagService.processTag(tagInput);
+        Tag tag = tagService.processTag(iSystemUser.getCompany(),tagInput) ;
         assertNotNull(tag);
         assertEquals(tagInput.getCode(), tag.getCode());
         assertEquals(tagInput.getName(), tag.getName());
@@ -312,7 +311,7 @@ public class TestTags extends TestEngineBase {
         tagInputA.setIndex(":TestTagA");
         tagInputA.setCode("CodeA");
         tagInputA.setName("NameA");
-        Tag tagA = tagService.processTag(tagInputA);
+        Tag tagA = tagService.processTag(iSystemUser.getCompany(), tagInputA);
         assertNotNull(tagA);
 
         // This should work as the tag is in a different index
@@ -320,7 +319,7 @@ public class TestTags extends TestEngineBase {
         tagInputB.setIndex(":TestTagA");
         tagInputB.setCode("CodeA");
         tagInputB.setName("NameA");
-        Tag tagB = tagService.processTag(tagInputB);
+        Tag tagB = tagService.processTag(iSystemUser.getCompany(), tagInputB);
         assertNotNull(tagB);
         assertEquals(tagA.getId(), tagB.getId());
 
@@ -345,7 +344,7 @@ public class TestTags extends TestEngineBase {
         tagInputA.setIndex(":TestTagA");
         tagInputA.setCode("CodeA");
         tagInputA.setName("NameA");
-        Tag tagA = tagService.processTag(tagInputA);
+        Tag tagA = tagService.processTag(iSystemUser.getCompany(), tagInputA);
         assertNotNull(tagA);
 
         // Same code, but different label. Should create a new tag
@@ -353,8 +352,8 @@ public class TestTags extends TestEngineBase {
         tagInputB.setIndex(":TestTagB");
         tagInputB.setCode("CodeA");
         tagInputB.setName("NameA");
-        Tag tagB = tagService.processTag(tagInputB);
-        Tag tagC = tagService.processTag(tagInputB);
+        Tag tagB = tagService.processTag(iSystemUser.getCompany(), tagInputB);
+        Tag tagC = tagService.processTag(iSystemUser.getCompany(), tagInputB);
         assertNotNull(tagB);
         assertTrue(!tagA.getId().equals(tagB.getId()));
         assertTrue(tagC.getId().equals(tagB.getId()));
@@ -363,13 +362,12 @@ public class TestTags extends TestEngineBase {
     @Test
     public void tagAppleNameIssue() throws Exception {
         engineConfig.setMultiTenanted(false);
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
+        SystemUser su = registerSystemUser(monowai, mike_admin);
         assertNotNull(su);
-        Thread.sleep(400);
         // Exists in one index
         TagInputBean tagInputA = new TagInputBean("Apple");
         tagInputA.setIndex(":Law");
-        Tag tagA = tagService.processTag(tagInputA);
+        Tag tagA = tagService.processTag(su.getCompany(),tagInputA);
         assertNotNull(tagA);
 
         // Same code, and default index. Should be found in the _Tag index
@@ -381,7 +379,7 @@ public class TestTags extends TestEngineBase {
         tagInputC.setTargets("sues", tagInputB);
 
 
-        Tag tagC = tagService.processTag(tagInputC);
+        Tag tagC = tagService.processTag(su.getCompany(),tagInputC);
         assertNotNull(tagC);
         //assertTrue(tagA.getId().equals(tagB.getId()));
     }
