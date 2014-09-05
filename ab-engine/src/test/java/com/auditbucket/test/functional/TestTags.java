@@ -20,7 +20,6 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.engine.PropertyConversion;
-import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.DatagioTagException;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
@@ -86,7 +85,7 @@ public class TestTags extends TestEngineBase {
     @org.junit.Test
     @Transactional
     public void secureMultiTenantedTags() throws Exception {
-        engineAdmin.setMultiTenanted(true);
+        engineConfig.setMultiTenanted(true);
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
         Thread.sleep(200);
         assertNotNull(iSystemUser);
@@ -227,7 +226,7 @@ public class TestTags extends TestEngineBase {
 
     @Test
     public void customLabelsSingleTenant() throws Exception {
-        engineAdmin.setMultiTenanted(false);
+        engineConfig.setMultiTenanted(false);
         SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         assertNotNull(iSystemUser);
 
@@ -249,7 +248,7 @@ public class TestTags extends TestEngineBase {
 
     @Test
     public void tagWithSpacesWorks() throws Exception {
-        engineAdmin.setMultiTenanted(false);
+        engineConfig.setMultiTenanted(false);
         SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         assertNotNull(iSystemUser);
 
@@ -271,7 +270,7 @@ public class TestTags extends TestEngineBase {
 
     // ToDo: Multi-tenanted custom tags
     public void customLabelsMultiTenant() throws Exception {
-        engineAdmin.setMultiTenanted(true);
+        engineConfig.setMultiTenanted(true);
         SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         assertNotNull(iSystemUser);
 
@@ -304,7 +303,7 @@ public class TestTags extends TestEngineBase {
 
     @Test
     public void sameKeyForDifferentTagTypes() throws Exception {
-        engineAdmin.setMultiTenanted(false);
+        engineConfig.setMultiTenanted(false);
 
         SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         assertNotNull(iSystemUser);
@@ -347,7 +346,7 @@ public class TestTags extends TestEngineBase {
 
     @Test
     public void duplicateTagsForSameIndexReturnSingleTag() throws Exception {
-        engineAdmin.setMultiTenanted(false);
+        engineConfig.setMultiTenanted(false);
         SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         assertNotNull(iSystemUser);
 
@@ -380,7 +379,7 @@ public class TestTags extends TestEngineBase {
 
     @Test
     public void tagUniqueForIndex() throws Exception {
-        engineAdmin.setMultiTenanted(false);
+        engineConfig.setMultiTenanted(false);
         SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         assertNotNull(iSystemUser);
 
@@ -405,7 +404,7 @@ public class TestTags extends TestEngineBase {
 
     @Test
     public void tagAppleNameIssue() throws Exception {
-        engineAdmin.setMultiTenanted(false);
+        engineConfig.setMultiTenanted(false);
         SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
         assertNotNull(su);
         Thread.sleep(400);
@@ -430,7 +429,7 @@ public class TestTags extends TestEngineBase {
     }
     @Test
     public void goegoraphyEndPoints() throws Exception {
-        engineAdmin.setMultiTenanted(false);
+        engineConfig.setMultiTenanted(false);
         SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
         TagInputBean tagInputBean = new TagInputBean("New Zealand").setIndex("Country");
         ArrayList<TagInputBean> countries = new ArrayList<>();

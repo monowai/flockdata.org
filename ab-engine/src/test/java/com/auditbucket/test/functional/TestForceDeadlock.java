@@ -57,7 +57,7 @@ public class TestForceDeadlock extends TestEngineBase {
 
     @Before
     public void setSingleTenanted() {
-        engineAdmin.setMultiTenanted(false);
+        engineConfig.setMultiTenanted(false);
     }
 
     @Test

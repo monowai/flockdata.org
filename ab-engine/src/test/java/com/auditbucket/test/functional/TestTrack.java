@@ -61,7 +61,7 @@ public class TestTrack extends TestEngineBase {
 
     @org.junit.Before
     public void setup(){
-        engineAdmin.setDuplicateRegistration(true);
+        engineConfig.setDuplicateRegistration(true);
     }
 
     @Test
