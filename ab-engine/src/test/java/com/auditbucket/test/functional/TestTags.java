@@ -56,7 +56,7 @@ public class TestTags extends TestEngineBase {
         tags.add(new TagInputBean("FLOP"));
         tags.add(new TagInputBean("FLOP"));
 
-        Iterable<TagInputBean> tagResults = tagService.processTags(tags);
+        Iterable<TagInputBean> tagResults = tagService.processTags(iSystemUser.getCompany(),tags);
         assertNotNull(tagResults);
         int count = 0;
         for (TagInputBean next : tagResults) {
@@ -72,7 +72,7 @@ public class TestTags extends TestEngineBase {
         tags.add(new TagInputBean("FLOPSY"));
         tags.add(new TagInputBean("FLOPPO"));
         tags.add(new TagInputBean("FLOPER"));
-        tagResults = tagService.processTags(tags);
+        tagResults = tagService.processTags(iSystemUser.getCompany(),tags);
         count = 0;
         for (TagInputBean next : tagResults) {
             assertNotNull(next);
@@ -93,13 +93,13 @@ public class TestTags extends TestEngineBase {
         List<TagInputBean> tags = new ArrayList<>();
         TagInputBean tagInput = new TagInputBean("FLOP");
         tags.add(tagInput);
-        Iterable<TagInputBean> tagResult = tagService.processTags(tags);
+        Iterable<TagInputBean> tagResult = tagService.processTags(iSystemUser.getCompany(),tags);
         assertNotNull(tagResult);
         assertFalse(tagResult.iterator().hasNext()); // No errors were detected
         regService.registerSystemUser(new RegistrationBean("ABC", "gina"));
         Authentication authGina = new UsernamePasswordAuthenticationToken("gina", "user1");
         SecurityContextHolder.getContext().setAuthentication(authGina);
-        assertNull(tagService.findTag("FLOP")); // Can't see the Monowai company tag
+        assertNull(tagService.findTag(iSystemUser.getCompany(),"FLOP")); // Can't see the Monowai company tag
 
         tagInput = new TagInputBean("FLOP");
         assertNotNull(tagService.processTag(iSystemUser.getCompany(),tagInput) );
@@ -118,9 +118,9 @@ public class TestTags extends TestEngineBase {
         Tag tag = tagService.processTag(iSystemUser.getCompany(), new TagInputBean("FLOP"));
         assertNotNull(tag);
 
-        Tag result = tagService.findTag("FLOP");
+        Tag result = tagService.findTag(iSystemUser.getCompany(),"FLOP");
         assertNotNull(result);
-        tagService.findTag("FLOP");
+        tagService.findTag(iSystemUser.getCompany(),"FLOP");
         result = tagService.processTag(iSystemUser.getCompany(), new TagInputBean("FLOPPY"));
         assertNotNull(result);
         assertEquals("FLOPPY", result.getName());
@@ -138,14 +138,14 @@ public class TestTags extends TestEngineBase {
         assertNotNull(iSystemUser);
 
         assertNull(tagService.findTag(iSystemUser.getCompany(), "ABC"));
-        Tag tag = null;
+        Tag tag ;
         try {
-            tag = tagService.processTag(iSystemUser.getCompany(), new TagInputBean("FLOPX").setMustExist(true));
+            tagService.processTag(iSystemUser.getCompany(), new TagInputBean("FLOPX").setMustExist(true));
             fail("Incorrect exception");
         } catch (DatagioTagException dte) {
-
+            logger.debug("Correct");
         }
-        assertNull(tag);
+
         tag = tagService.processTag(iSystemUser.getCompany(), new TagInputBean("FLOPX").setMustExist(false));
         assertNotNull(tag);
         tag = tagService.processTag(iSystemUser.getCompany(), new TagInputBean("FLOPX").setMustExist(true));
@@ -167,7 +167,7 @@ public class TestTags extends TestEngineBase {
         Tag tag = tagService.processTag(iSystemUser.getCompany(), tagInput);
 
         assertNotNull(tag);
-        Tag result = tagService.findTag("ZFLOP");
+        Tag result = tagService.findTag(iSystemUser.getCompany(),"ZFLOP");
 
         assertNotNull(result);
         assertEquals(123l, tag.getProperty("num"));
@@ -189,7 +189,7 @@ public class TestTags extends TestEngineBase {
         Tag tag = tagService.processTag(iSystemUser.getCompany(),tagInput) ;
 
         assertNotNull(tag);
-        Tag result = tagService.findTag("FLOP");
+        Tag result = tagService.findTag(iSystemUser.getCompany(),"FLOP");
         assertNotNull(result);
         assertEquals("FLOP", result.getName());
         assertNotSame(123, result.getId());
@@ -212,14 +212,14 @@ public class TestTags extends TestEngineBase {
         Tag tag = tagService.processTag(iSystemUser.getCompany(),tagInput) ;
 
         assertNotNull(tag);
-        Tag result = tagService.findTag("Source");
+        Tag result = tagService.findTag(iSystemUser.getCompany(),"Source");
         assertNotNull(result);
 
-        result = tagService.findTag("Dest");
+        result = tagService.findTag(iSystemUser.getCompany(),"Dest");
         assertNotNull(result);
-        result = tagService.findTag("Dest2");
+        result = tagService.findTag(iSystemUser.getCompany(),"Dest2");
         assertNotNull(result);
-        result = tagService.findTag("Dest3");
+        result = tagService.findTag(iSystemUser.getCompany(),"Dest3");
         assertNotNull(result);
 
     }
@@ -239,7 +239,7 @@ public class TestTags extends TestEngineBase {
         assertEquals(tagInput.getCode(), tag.getCode());
         assertEquals(tagInput.getName(), tag.getName());
         assertNotNull(tag.getKey());
-        Collection<Tag> results = tagService.findTags("TestTag");
+        Collection<Tag> results = tagService.findTags(iSystemUser.getCompany(),"TestTag");
         assertNotNull(results);
         assertFalse(results.isEmpty());
         Boolean found = isNameFound(tagInput, results);
@@ -261,7 +261,7 @@ public class TestTags extends TestEngineBase {
         assertEquals(tagInput.getCode(), tag.getCode());
         assertEquals(tagInput.getName(), tag.getName());
         assertNotNull(tag.getKey());
-        Collection<Tag> results = tagService.findTags("Test Tag");
+        Collection<Tag> results = tagService.findTags(iSystemUser.getCompany(),"Test Tag");
         assertNotNull(results);
         assertFalse(results.isEmpty());
         Boolean found = isNameFound(tagInput, results);
@@ -283,7 +283,7 @@ public class TestTags extends TestEngineBase {
         assertEquals(tagInput.getCode(), tag.getCode());
         assertEquals(tagInput.getName(), tag.getName());
         assertNotNull(tag.getKey());
-        Collection<Tag> results = tagService.findTags("TestTag");
+        Collection<Tag> results = tagService.findTags(iSystemUser.getCompany(),"TestTag");
         assertNotNull(results);
         assertFalse(results.isEmpty());
         boolean found = isNameFound(tagInput, results);
