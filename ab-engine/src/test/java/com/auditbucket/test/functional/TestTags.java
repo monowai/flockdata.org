@@ -87,6 +87,7 @@ public class TestTags extends TestEngineBase {
     public void secureMultiTenantedTags() throws Exception {
         engineConfig.setMultiTenanted(true);
         SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
+        Thread.sleep(200);
         assertNotNull(iSystemUser);
 
         List<TagInputBean> tags = new ArrayList<>();
@@ -114,7 +115,7 @@ public class TestTags extends TestEngineBase {
         Tag tag = tagService.processTag(iSystemUser.getCompany(), new TagInputBean("FLOP"));
         assertNotNull(tag);
 
-        Tag result = tagService.findTag(iSystemUser.getCompany(),"FLOP");
+        Tag result = tagService.findTag(iSystemUser.getCompany(), "FLOP");
         assertNotNull(result);
         tagService.findTag(iSystemUser.getCompany(),"FLOP");
         result = tagService.processTag(iSystemUser.getCompany(), new TagInputBean("FLOPPY"));

@@ -167,7 +167,6 @@ public class TestCallerRef extends TestEngineBase {
         public void run() {
             int count = 0;
             setSecurity();
-            logger.info("Hello from thread {}", this.toString());
             try {
                 while (count < maxRun) {
                     MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef);
