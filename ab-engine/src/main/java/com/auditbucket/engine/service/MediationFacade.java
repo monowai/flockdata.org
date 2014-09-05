@@ -121,7 +121,7 @@ public class MediationFacade {
         Long id = DateTime.now().getMillis();
         StopWatch watch = new StopWatch();
         watch.start();
-        logger.info("Starting Batch [{}] - size [{}]", id, inputBeans.size());
+        logger.debug("Starting Batch [{}] - size [{}]", id, inputBeans.size());
         // Tune to balance against concurrency and batch transaction insert efficiency.
         List<List<MetaInputBean>> splitList = Lists.partition(inputBeans, listSize);
         Collection<TrackResultBean> results = new ArrayList<>();
@@ -148,9 +148,7 @@ public class MediationFacade {
                     // Ensure the headers and tags are created
                     // this routine is prone to deadlocks under load
                     resultBeans = trackService.createHeaders(fortress, headers);
-                    logService.processLogsSync(fortress.getCompany(), resultBeans);
-                    // This routine will also distribute the changes to ab-search
-                    // but it should only happen after headers are created successfully and via integration
+                    resultBeans = logService.processLogsSync(fortress.getCompany(), resultBeans);
 
                     return this;
                 }
@@ -164,7 +162,7 @@ public class MediationFacade {
         }
 
         watch.stop();
-        logger.info("Completed Batch [{}] - secs= {}, RPS={}", id, f.format(watch.getTotalTimeSeconds()), f.format(inputBeans.size() / watch.getTotalTimeSeconds()));
+        logger.debug("Completed Batch [{}] - secs= {}, RPS={}", id, f.format(watch.getTotalTimeSeconds()), f.format(inputBeans.size() / watch.getTotalTimeSeconds()));
         return results;
     }
 
@@ -191,38 +189,10 @@ public class MediationFacade {
      * @throws IOException      json processing exception
      */
     public TrackResultBean trackHeader(final Fortress fortress, final MetaInputBean inputBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
-        class HeaderDeadlockRetry implements Command {
-            TrackResultBean result = null;
-
-            @Override
-            @Deprecated
-            public Command execute() throws DatagioException, IOException, ExecutionException, InterruptedException {
-                // ToDo: DAT-153 - This ain't very clever if the server crashes
-                //     all of this should be invoked via spring integration against ab-engine ?
-                // ToDo: DAT-169 This needs to be dealt with via SpringIntegration and persistent messaging
-                // DLCommand and DeadLockRetry need to be removed
-
-                ArrayList<MetaInputBean> inputBeans = new ArrayList<>();
-                inputBeans.add(inputBean);
-                final Company company = fortress.getCompany();
-                schemaService.createDocTypes(inputBeans, fortress);
-                TrackResultBean trackResult = trackService.createHeader(fortress, inputBean);
-                trackResult.setLogInput(inputBean.getLog());
-                if (trackResult.getLog() == null)
-                    result = logService.distributeChange(company, trackResult);
-                else
-                    result = logService.processLogFromResult(trackResult);
-
-                if (result == null)
-                    result = trackResult;
-
-                return this;
-            }
-        }
-
-        HeaderDeadlockRetry c = new HeaderDeadlockRetry();
-        com.auditbucket.helper.DeadlockRetry.execute(c, "create header", 10);
-        return c.result;
+        List<MetaInputBean>inputs = new ArrayList<>(1);
+        inputs.add(inputBean);
+        Collection<TrackResultBean>results =trackHeaders(fortress, inputs, 1);
+        return results.iterator().next();
     }
 
 
@@ -262,7 +232,7 @@ public class MediationFacade {
     @Async
     public Future<Long> reindexAsnc(Fortress fortress) throws DatagioException {
         if (fortress == null)
-            throw new DatagioException("Fortress [" + fortress + "] could not be found");
+            throw new DatagioException("No fortress to reindex was supplied");
         Long skipCount = 0l;
         long result = reindex(fortress, skipCount);
         logger.info("Reindex Search request completed. Processed [" + result + "] headers for [" + fortress.getName() + "]");
@@ -288,7 +258,7 @@ public class MediationFacade {
     public void reindexByDocType(Company company, String fortressName, String docType) throws DatagioException {
         Fortress fortress = fortressService.findByName(company, fortressName);
         if (fortress == null)
-            throw new DatagioException("Fortress [" + fortress + "] could not be found");
+            throw new DatagioException("Fortress [" + fortressName + "] could not be found");
         Long skipCount = 0l;
         long result = reindexByDocType(skipCount, fortress, docType);
         logger.info("Reindex Search request completed. Processed [" + result + "] headers for [" + fortressName + "] and document type [" + docType + "]");
