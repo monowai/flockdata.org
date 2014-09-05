@@ -30,7 +30,7 @@ public interface SchemaDao {
 
     public void ensureUniqueIndexes(Company c, Iterable<TagInputBean> tagInputs, Collection<String> existingIndexes );
 
-    void ensureSystemIndexes(Company company, String tagSuffix);
+    boolean ensureSystemIndexes(Company company, String suffix);
 
     void registerConcepts(Company company, Map<DocumentType, Collection<ConceptInputBean>> concepts);
 

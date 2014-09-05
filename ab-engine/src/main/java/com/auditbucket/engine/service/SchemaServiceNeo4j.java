@@ -30,10 +30,12 @@ import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.DocumentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.Future;
 
 /**
  * User: mike
@@ -51,8 +53,8 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
 
     @Override
     @Async
-    public void ensureSystemIndexes(Company company) {
-        schemaDao.ensureSystemIndexes(company, engine.getTagSuffix(company));
+    public Future<Boolean> ensureSystemIndexes(Company company) {
+        return new AsyncResult<Boolean>(schemaDao.ensureSystemIndexes(company, engine.getTagSuffix(company)));
     }
 
     /**
