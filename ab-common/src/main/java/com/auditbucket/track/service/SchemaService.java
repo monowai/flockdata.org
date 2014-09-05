@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.Async;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 /**
  * User: mike
@@ -17,8 +18,8 @@ import java.util.Set;
  * Time: 4:17 PM
  */
 public interface SchemaService {
-    @Async
-    java.util.concurrent.Future<Boolean> ensureSystemIndexes(Company company);
+
+    Boolean ensureSystemIndexes(Company company);
 
     DocumentType resolveDocType(Fortress fortress, String documentType);
 
