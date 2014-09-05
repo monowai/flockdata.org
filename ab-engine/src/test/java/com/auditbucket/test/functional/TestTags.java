@@ -121,7 +121,7 @@ public class TestTags extends TestEngineBase {
         result = tagService.processTag(iSystemUser.getCompany(), new TagInputBean("FLOPPY"));
         assertNotNull(result);
         assertEquals("FLOPPY", result.getName());
-      
+
     }
 
     @Test
