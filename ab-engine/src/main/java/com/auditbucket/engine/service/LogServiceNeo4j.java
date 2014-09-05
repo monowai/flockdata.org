@@ -34,6 +34,8 @@ import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
 import com.auditbucket.track.model.TxRef;
+import com.auditbucket.track.service.LogService;
+import com.auditbucket.track.service.SchemaService;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
@@ -42,7 +44,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
@@ -58,8 +59,8 @@ import java.util.concurrent.Future;
  */
 @Service
 @Transactional
-public class LogService {
-    private Logger logger = LoggerFactory.getLogger(LogService.class);
+public class LogServiceNeo4j implements LogService {
+    private Logger logger = LoggerFactory.getLogger(LogServiceNeo4j.class);
 
     @Autowired
     private TxService txService;
@@ -85,12 +86,14 @@ public class LogService {
     @Autowired
     TrackDao trackDao;
 
+    @Override
     @Async
     public Future<Collection<TrackResultBean>> processLogs(Company company, Iterable<TrackResultBean> resultBeans) throws DatagioException, IOException, ExecutionException, InterruptedException {
         return new AsyncResult<>(processLogsSync(company, resultBeans));
 
     }
 
+    @Override
     public Collection<TrackResultBean> processLogsSync(Company company, Iterable<TrackResultBean> resultBeans) throws DatagioException, IOException, ExecutionException, InterruptedException {
         logger.debug("Process Logs {}", Thread.currentThread().getName());
         Collection<TrackResultBean> logResults = new ArrayList<>();
@@ -103,19 +106,23 @@ public class LogService {
 
     }
 
+    @Override
     public TrackResultBean processLogFromResult(TrackResultBean resultBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
         //DAT-77 the header may still be committing in another thread
-        TrackResultBean trackResult = null;
-        if (resultBean.getLog() != null) {
-            trackResult = writeTheLogAndDistributeChanges(resultBean);
-        }
-        return trackResult;
+        if (resultBean.getLog() == null)
+            return resultBean;
+
+        return writeTheLogAndDistributeChanges(resultBean);
     }
 
+    @Override
     public TrackResultBean writeLog(MetaHeader metaHeader, LogInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException {
+
         TrackResultBean resultBean = new TrackResultBean(metaHeader);
         resultBean.setLogInput(input);
-        return writeTheLogAndDistributeChanges(resultBean);
+        ArrayList<TrackResultBean> logs = new ArrayList<>();
+        logs.add(resultBean);
+        return processLogsSync(metaHeader.getFortress().getCompany(), logs).iterator().next();
     }
 
     /**
@@ -125,6 +132,7 @@ public class LogService {
      * @return result details
      * @throws com.auditbucket.helper.DatagioException
      */
+    @Override
     public TrackResultBean writeTheLogAndDistributeChanges(final TrackResultBean resultBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
         LogInputBean logInputBean = resultBean.getLog();
         logger.debug("writeLog {}", logInputBean);
@@ -138,6 +146,7 @@ public class LogService {
                 result = writeLog(resultBean);
                 if (result.getLogResult().getStatus() == LogInputBean.LogStatus.NOT_FOUND)
                     throw new DatagioException("Unable to find MetaHeader ");
+                //distributeChange(resultBean.getMetaHeader().getFortress().getCompany(), result);
                 whatService.doKvWrite(result); //ToDo: Consider KV not available. How to write the logs
                 //      need to think of a way to recognize that the header has unprocessed work
                 return this;
@@ -151,12 +160,12 @@ public class LogService {
 
 
     /**
-     *
      * @param trackResultBean input data to process
      * @return result of the operation
      * @throws DatagioException
      * @throws IOException
      */
+    @Override
     public TrackResultBean writeLog(TrackResultBean trackResultBean) throws DatagioException, IOException {
         LogInputBean input = trackResultBean.getLog();
 
@@ -173,7 +182,7 @@ public class LogService {
             return trackResultBean;
         }
         logger.trace("looking for fortress user {}", metaHeader.getFortress());
-        String fortressUser = (input.getFortressUser()!=null?input.getFortressUser():trackResultBean.getMetaInputBean().getFortressUser());
+        String fortressUser = (input.getFortressUser() != null ? input.getFortressUser() : trackResultBean.getMetaInputBean().getFortressUser());
         FortressUser thisFortressUser = fortressService.getFortressUser(metaHeader.getFortress(), fortressUser, true);
         trackResultBean.setLogResult(createLog(metaHeader, input, thisFortressUser));
         return trackResultBean;
@@ -182,12 +191,12 @@ public class LogService {
     /**
      * Event log record for the supplied metaHeader from the supplied input
      *
-     *
      * @param authorisedHeader metaHeader the caller is authorised to work with
      * @param input            trackLog details containing the data to log
      * @param thisFortressUser User name in calling system that is making the change
      * @return populated log information with any error messages
      */
+    @Override
     public LogResultBean createLog(MetaHeader authorisedHeader, LogInputBean input, FortressUser thisFortressUser) throws DatagioException, IOException {
         // Warning - making this private means it doesn't get a transaction!
 
@@ -258,7 +267,7 @@ public class LogService {
 
         resultBean.setSysWhen(newLog.getSysWhen());
 
-        boolean moreRecent = (existingLog == null || existingLog.getFortressWhen().compareTo(newLog.getFortressWhen())<=0 );
+        boolean moreRecent = (existingLog == null || existingLog.getFortressWhen().compareTo(newLog.getFortressWhen()) <= 0);
 
         if (moreRecent && searchActive)
             resultBean.setLogToIndex(newLog);  // Notional log to index.
@@ -267,12 +276,23 @@ public class LogService {
 
     }
 
-
+    @Override
     public TrackLog getLastLog(MetaHeader metaHeader) throws DatagioException {
         if (metaHeader == null || metaHeader.getId() == null)
             return null;
         logger.trace("Getting lastLog MetaID [{}]", metaHeader.getId());
         return trackDao.getLastLog(metaHeader.getId());
+    }
+
+    @Override
+    public void distributeChanges(Company company, Iterable<TrackResultBean> resultBeans) throws IOException {
+        logger.debug("Distributing changes to sub-services");
+        if (engineConfig.isConceptsEnabled()) {
+            logger.debug("Distributing concepts");
+            schemaService.registerConcepts(company, resultBeans);
+        }
+        searchService.makeChangesSearchable(resultBeans);
+        logger.debug("Distributed changes to search service");
     }
 
 //    private MetaHeader waitOnInitialSearchResult(MetaHeader metaHeader) {
@@ -297,25 +317,6 @@ public class LogService {
 //        return metaHeader;
 //
 //    }
-
-
-    public TrackResultBean distributeChange(Company company, TrackResultBean trackResultBean) throws IOException {
-        ArrayList<TrackResultBean> results = new ArrayList<>();
-        results.add(trackResultBean);
-        distributeChanges(company, results);
-        return trackResultBean;
-    }
-
-    public void distributeChanges(Company company, Iterable<TrackResultBean> resultBeans) throws IOException {
-        logger.debug("Distributing changes to sub-services");
-        if (engineConfig.isConceptsEnabled()) {
-            logger.debug("Distributing concepts");
-            schemaService.registerConcepts(company, resultBeans);
-        }
-        //whatService.doKvWrite(resultBeans);
-        searchService.makeChangesSearchable(resultBeans);
-        logger.debug("Distributed changes to search service");
-    }
 
 
 }

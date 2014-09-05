@@ -75,7 +75,7 @@ public class TestTxReference extends TestEngineBase{
         MetaInputBean abcHeader = new MetaInputBean(fortressABC.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         abcHeader.setLog(new LogInputBean("charlie", null, DateTime.now(), escJsonA, true));
 
-        TrackResultBean resultBean = mediationFacade.createHeader(suABC.getCompany(), abcHeader);
+        TrackResultBean resultBean = mediationFacade.trackHeader(suABC.getCompany(), abcHeader);
         LogResultBean logResultBean = resultBean.getLogResult();
         assertNotNull(logResultBean);
         String abcTxRef = logResultBean.getTxReference();
@@ -85,10 +85,10 @@ public class TestTxReference extends TestEngineBase{
         SecurityContextHolder.getContext().setAuthentication(authCBA);
         Fortress fortressCBA = fortressService.registerFortress("cbaTest");
         MetaInputBean cbaHeader = new MetaInputBean(fortressCBA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
-        String cbaKey = mediationFacade.createHeader(suCBA.getCompany(), cbaHeader).getMetaKey();
+        String cbaKey = mediationFacade.trackHeader(suCBA.getCompany(), cbaHeader).getMetaKey();
 
         LogInputBean cbaLog = new LogInputBean("charlie", cbaKey, DateTime.now(), escJsonA, true);
-        assertEquals("CBA Logger Not Created", LogInputBean.LogStatus.OK, mediationFacade.processLog(cbaLog).getLogResult().getStatus());
+        assertEquals("CBA Log Not Created", LogInputBean.LogStatus.OK, mediationFacade.processLog(suCBA.getCompany(), cbaLog).getLogResult().getStatus());
         String cbaTxRef = cbaLog.getTxRef();
         assertNotNull(cbaTxRef);
 
@@ -104,7 +104,7 @@ public class TestTxReference extends TestEngineBase{
         // WHat happens if ABC tries to use CBA's TX Ref.
         abcHeader = new MetaInputBean(fortressABC.getName(), "wally", "TestTrack", new DateTime(), "ZZZAAA");
         abcHeader.setLog(new LogInputBean("wally", null, DateTime.now(), escJsonA, null, cbaTxRef));
-        TrackResultBean result = mediationFacade.createHeader(suABC.getCompany(), abcHeader);
+        TrackResultBean result = mediationFacade.trackHeader(suABC.getCompany(), abcHeader);
         assertNotNull(result);
         // It works because TX References have only to be unique for a company
         //      ab generated references are GUIDs, but the caller is allowed to define their own transaction
@@ -121,14 +121,14 @@ public class TestTxReference extends TestEngineBase{
         String tagRef = "MyTXTag";
         MetaInputBean aBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
 
-        String key = mediationFacade.createHeader(su.getCompany(), aBean).getMetaKey();
+        String key = mediationFacade.trackHeader(su.getCompany(), aBean).getMetaKey();
         assertNotNull(key);
         MetaHeader header = trackService.getHeader(key);
         assertNotNull(header);
         //assertEquals(1, header.getTxTags().size());
         LogInputBean alb = new LogInputBean("charlie", key, DateTime.now(), escJsonA, null, tagRef);
         assertTrue(alb.isTransactional());
-        String albTxRef = mediationFacade.processLog(alb).getLogResult().getTxReference();
+        String albTxRef = mediationFacade.processLog(su.getCompany(), alb).getLogResult().getTxReference();
 
         alb = new LogInputBean("harry", key, DateTime.now(), escJsonB);
 
@@ -136,7 +136,7 @@ public class TestTxReference extends TestEngineBase{
         alb.setTxRef(albTxRef);
         String txStart = albTxRef;
 
-        mediationFacade.processLog(alb);
+        mediationFacade.processLog(su.getCompany(), alb);
         Map<String, Object> result = txService.findByTXRef(txStart);
         assertNotNull(result);
         assertEquals(tagRef, result.get("txRef"));
@@ -151,7 +151,7 @@ public class TestTxReference extends TestEngineBase{
         alb.setTxRef("");
         assertNull("Should be Null if it is blank", alb.getTxRef());
         assertTrue(alb.isTransactional());
-        LogResultBean arb = mediationFacade.processLog(alb).getLogResult();
+        LogResultBean arb = mediationFacade.processLog(su.getCompany(), alb).getLogResult();
         String txEnd = arb.getTxReference();
         assertNotNull(txEnd);
         assertNotSame(txEnd, txStart);
@@ -181,20 +181,20 @@ public class TestTxReference extends TestEngineBase{
         String tagRef = "MyTXTag";
         MetaInputBean aBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
 
-        String key = mediationFacade.createHeader(su.getCompany(), aBean).getMetaKey();
+        String key = mediationFacade.trackHeader(su.getCompany(), aBean).getMetaKey();
         assertNotNull(key);
         MetaHeader header = trackService.getHeader(key);
         assertNotNull(header);
         LogInputBean alb = new LogInputBean("charlie", key, DateTime.now(), escJsonA, null, tagRef);
         assertTrue(alb.isTransactional());
-        String albTxRef = mediationFacade.processLog(alb).getLogResult().getTxReference();
+        String albTxRef = mediationFacade.processLog(su.getCompany(), alb).getLogResult().getTxReference();
 
         alb = new LogInputBean("harry", key, DateTime.now(), escJsonB);
 
         alb.setTxRef(albTxRef);
         String txStart = albTxRef;
 
-        mediationFacade.processLog(alb);
+        mediationFacade.processLog(su.getCompany(), alb);
         // All headers touched by this transaction. ToDo: All changes affected
         Set<MetaHeader> result = txService.findTxHeaders(txStart);
         assertNotNull(result);
