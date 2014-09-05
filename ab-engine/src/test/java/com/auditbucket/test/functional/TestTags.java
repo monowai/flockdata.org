@@ -114,7 +114,7 @@ public class TestTags extends TestEngineBase {
         Tag tag = tagService.processTag(iSystemUser.getCompany(), new TagInputBean("FLOP"));
         assertNotNull(tag);
 
-        Tag result = tagService.findTag(iSystemUser.getCompany(),"FLOP");
+        Tag result = tagService.findTag(iSystemUser.getCompany(), "FLOP");
         assertNotNull(result);
         tagService.findTag(iSystemUser.getCompany(),"FLOP");
         result = tagService.processTag(iSystemUser.getCompany(), new TagInputBean("FLOPPY"));

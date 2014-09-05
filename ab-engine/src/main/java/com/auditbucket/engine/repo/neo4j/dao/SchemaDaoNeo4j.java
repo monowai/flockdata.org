@@ -18,13 +18,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.concurrent.Future;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Maintains company specific Schema details
@@ -71,11 +72,7 @@ public class SchemaDaoNeo4j implements SchemaDao {
         return true;
     }
 
-    public void getDocumentTypes(Company company) {
-
-    }
-
-    private Object lock = new Object();
+    private Lock lock = new ReentrantLock();
 
     /**
      * Tracks the DocumentTypes used by a Fortress that can be used to find MetaHeader objects
@@ -89,13 +86,16 @@ public class SchemaDaoNeo4j implements SchemaDao {
         DocumentType docResult = documentExists(fortress, docName);
 
         if (docResult == null && createIfMissing) {
-            synchronized (lock) {
+            try {
+                lock.lock();
                 docResult = documentExists(fortress, docName);
                 if (docResult == null) {
 
                     docResult = new DocumentTypeNode(fortress, docName);
                     template.save(docResult);
                 }
+            } finally{
+                lock.unlock();
             }
         }
         return docResult;
@@ -143,7 +143,7 @@ public class SchemaDaoNeo4j implements SchemaDao {
                 String index = tagInput.getIndex();
                 if (!added.contains(index)) {
                     //if (index != null && !tagExists(company, index)) { // This check causes deadlocks in TagEP ?
-                    ensureIndex(company, tagInput);
+                    ensureIndex(tagInput);
                     //}
                     added.add(tagInput.getIndex());
                 }
@@ -160,8 +160,7 @@ public class SchemaDaoNeo4j implements SchemaDao {
 
     }
 
-    @Transactional
-    private void ensureIndex(Company company, TagInputBean tagInput) {
+    private void ensureIndex(TagInputBean tagInput) {
         // _Tag is a special label that can be used to find all tags so we have to allow it to handle duplicates
         if (tagInput.isDefault() || isSystemIndex(tagInput.getIndex()))
             return;
