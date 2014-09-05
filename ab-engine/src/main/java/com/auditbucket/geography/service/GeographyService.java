@@ -1,6 +1,5 @@
 package com.auditbucket.geography.service;
 
-import com.auditbucket.engine.service.TagService;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 
@@ -19,7 +18,7 @@ import java.util.Collection;
 @Transactional
 public class GeographyService {
     @Autowired
-    TagService tagService;
+    com.auditbucket.track.service.TagService tagService;
     public Collection<Tag> findCountries(Company company) {
         return tagService.findTags(company, "Country");
 

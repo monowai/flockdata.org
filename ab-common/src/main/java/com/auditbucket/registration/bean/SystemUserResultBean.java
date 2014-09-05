@@ -19,6 +19,8 @@ public class SystemUserResultBean {
         this.apiKey = su.getApiKey();
         this.name = su.getName();
         this.login = su.getLogin();
+        if (this.name == null )
+            this.name = login;
         if ( su.getCompany() !=null ) // an unauthenticated user does not have a company
             this.companyName = su.getCompany().getName();
 

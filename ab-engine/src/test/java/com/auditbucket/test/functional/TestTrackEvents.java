@@ -81,7 +81,7 @@ public class TestTrackEvents extends TestEngineBase{
 
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
 
-        TrackResultBean resultBean = mediationFacade.createHeader(su.getCompany(), inputBean);
+        TrackResultBean resultBean = mediationFacade.trackHeader(su.getCompany(), inputBean);
         String ahKey = resultBean.getMetaKey();
         assertNotNull(ahKey);
 
@@ -91,14 +91,14 @@ public class TestTrackEvents extends TestEngineBase{
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));
 
-        mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), TestHelper.getRandomMap()));
+        mediationFacade.processLog(su.getCompany(), new LogInputBean("wally", ahKey, new DateTime(), TestHelper.getRandomMap()));
 
         TrackLog when = trackService.getLastLog(ahKey);
         assertNotNull(when);
         assertEquals(Log.CREATE, when.getLog().getEvent().getName()); // log event default
         assertEquals(Log.CREATE.toLowerCase(), when.getLog().getEvent().getName().toLowerCase()); // log event default
 
-        mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), TestHelper.getRandomMap()));
+        mediationFacade.processLog(su.getCompany(), new LogInputBean("wally", ahKey, new DateTime(), TestHelper.getRandomMap()));
         TrackLog whenB = trackService.getLastLog(ahKey);
         assertNotNull(whenB);
 

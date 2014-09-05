@@ -32,6 +32,8 @@ import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.model.LogWhat;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
+import com.auditbucket.track.service.LogService;
+import com.auditbucket.track.service.TrackService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -79,6 +81,9 @@ public class WhatServiceTest extends AbstractRedisSupport {
     LogService logService;
 
     @Autowired
+    LogService logService;
+
+    @Autowired
     TrackDao trackDAO;
     @Autowired
     private WhatService whatService;
@@ -114,13 +119,13 @@ public class WhatServiceTest extends AbstractRedisSupport {
         String callerRef = "ABC123R";
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
 
-        String ahKey = mediationFacade.createHeader(su.getCompany(), inputBean).getMetaKey();
+        String ahKey = mediationFacade.trackHeader(su.getCompany(), inputBean).getMetaKey();
         assertNotNull(ahKey);
         MetaHeader header = trackService.getHeader(ahKey);
         Map<String, Object> what = getWhatMap();
         //String whatString = getJsonFromObject(what);
         try{
-            mediationFacade.processLog(new LogInputBean("wally", ahKey, new DateTime(), what));
+            mediationFacade.processLog(su.getCompany(), new LogInputBean("wally", ahKey, new DateTime(), what));
         } catch (Exception e ){
             logger.error("KV Stores are configured in config.properties. This test is failing to find the {} server. Is it even installed?",engineConfig.getKvStore());
             return;

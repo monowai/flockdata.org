@@ -22,12 +22,11 @@ package com.auditbucket.engine.service;
 import com.auditbucket.dao.TagDao;
 import com.auditbucket.helper.Command;
 import com.auditbucket.helper.DatagioException;
-import com.auditbucket.helper.DeadlockRetry;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
-import com.auditbucket.track.bean.TrackResultBean;
+import com.auditbucket.track.service.TagService;
 import com.google.common.collect.Lists;
 
 import org.slf4j.Logger;
@@ -56,7 +55,7 @@ import java.util.concurrent.Future;
 
 @Service
 @Transactional
-public class TagService {
+public class TagServiceNeo4j implements TagService {
     @Autowired
     private SecurityHelper securityHelper;
 
@@ -66,24 +65,28 @@ public class TagService {
     @Autowired
     EngineConfig engineConfig;
 
-    private Logger logger = LoggerFactory.getLogger(TagService.class);
+    private Logger logger = LoggerFactory.getLogger(TagServiceNeo4j.class);
 
+    @Override
     public Tag processTag(TagInputBean inputBean) {
         Company company = securityHelper.getCompany();
         return processTag(company, inputBean);
 
     }
 
+    @Override
     public Tag processTag(Company company, TagInputBean tagInput) {
         //schemaDao.ensureIndex(company, tagInput);
         return tagDao.save(company, tagInput);
     }
 
+    @Override
     public Collection<TagInputBean> processTags(List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException {
         Company company = securityHelper.getCompany();
         return processTags(company, tagInputs);
     }
 
+    @Override
     public Collection<TagInputBean> processTags(final Company company, final List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException {
         //schemaDao.ensureUniqueIndexes(company, tagInputs);
         Future<Collection<TagInputBean>> future = makeTags(company, tagInputs);
@@ -103,6 +106,7 @@ public class TagService {
      * @param tagInputs tags to establish
      * @return tagInputs that failed processing
      */
+    @Override
     @Async
     public Future<Collection<TagInputBean>> makeTags(final Company company, final List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException {
         Collection<TagInputBean>failedInput= new ArrayList<>();
@@ -139,11 +143,13 @@ public class TagService {
         return new AsyncResult<>(failedInput);
     }
 
+    @Override
     public Tag findTag(Company company, String tagName) {
         return tagDao.findOne(company, tagName, Tag.DEFAULT);
     }
 
 
+    @Override
     public Tag findTag(String tagName) {
         Company company = securityHelper.getCompany();
         if (company == null)
@@ -151,27 +157,33 @@ public class TagService {
         return findTag(company, tagName);
     }
 
+    @Override
     public Collection<Tag> findDirectedTags(Tag startTag) {
         return tagDao.findDirectedTags(startTag, securityHelper.getCompany(), true); // outbound
     }
 
+    @Override
     public Collection<Tag> findTags(String index) {
         Company company = securityHelper.getCompany();
         return findTags(company, index);
     }
 
+    @Override
     public Collection<Tag> findTags(Company company, String index) {
         return tagDao.findTags(company, index);
     }
 
+    @Override
     public Tag findTag(Company company, String tagName, String index) {
         return tagDao.findOne(company, tagName, index);  //To change body of created methods use File | Settings | File Templates.
     }
 
+    @Override
     public Collection<String> getExistingIndexes() {
         return tagDao.getExistingIndexes();
     }
 
+    @Override
     public void createTagsNoRelationships(Company company, List<TagInputBean> tagInputs) throws DatagioException, IOException, ExecutionException, InterruptedException {
         class HeaderDeadlockRetry implements Command {
             Company company;
@@ -195,10 +207,12 @@ public class TagService {
         com.auditbucket.helper.DeadlockRetry.execute(c, "create tags with no relationships", 10);
     }
 
+    @Override
     public void purgeUnusedConcepts(Company company){
         tagDao.purgeUnusedConcepts(company);
     }
 
+    @Override
     public void purgeType(Company company, String type) {
         tagDao.purge(company,type);
     }
