@@ -312,7 +312,7 @@ public class TestTags extends TestEngineBase {
         tagInputA.setIndex(":TestTagA");
         tagInputA.setCode("CodeA");
         tagInputA.setName("NameA");
-        Tag tagA = tagService.processTag(tagInputA);
+        Tag tagA = tagService.processTag(iSystemUser.getCompany(), tagInputA);
         assertNotNull(tagA);
 
         // This should work as the tag is in a different index
@@ -320,7 +320,7 @@ public class TestTags extends TestEngineBase {
         tagInputB.setIndex(":TestTagA");
         tagInputB.setCode("CodeA");
         tagInputB.setName("NameA");
-        Tag tagB = tagService.processTag(tagInputB);
+        Tag tagB = tagService.processTag(iSystemUser.getCompany(), tagInputB);
         assertNotNull(tagB);
         assertEquals(tagA.getId(), tagB.getId());
 
