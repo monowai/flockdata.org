@@ -44,4 +44,6 @@ public interface CompanyDao {
     Collection<Company> findCompanies(Long sysUserId);
 
     Collection<Company> findCompanies(String userApiKey);
+
+    Company create(Company company);
 }
