@@ -331,7 +331,7 @@ public class TrackService {
         MetaHeader metaHeader = getHeader(company, headerKey);
         logger.debug("looking for logs for MetaHeader id [{}] - metaKey [{}]", metaHeader.getId(), headerKey);
         int logs = trackDao.getLogs(metaHeader.getId()).size();
-        logger.info("Log count {}", logs);
+        logger.debug("Log count {}", logs);
         return logs;
     }
 
