@@ -80,10 +80,10 @@ public class CompanyServiceNeo4j implements CompanyService {
         // Change to async event via spring events
         Future<Boolean> worked = schemaService.ensureSystemIndexes(company);
         try {
+            while (!worked.isDone())
+                logger.debug("Waiting for schema Service to finish");
             worked.get();
-        } catch (InterruptedException e) {
-            logger.error("Unexpected", e);
-        } catch (ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             logger.error("Unexpected", e);
         }
         return company;

@@ -110,9 +110,6 @@ public class TestTags extends TestEngineBase {
     public void updateExistingTag() throws Exception {
 
         SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
-
-        assertNotNull(iSystemUser);
-        Thread.sleep(200);
         assertNull(tagService.findTag(iSystemUser.getCompany(), "ABC"));
         Tag tag = tagService.processTag(iSystemUser.getCompany(), new TagInputBean("FLOP"));
         assertNotNull(tag);
@@ -123,10 +120,6 @@ public class TestTags extends TestEngineBase {
         result = tagService.processTag(iSystemUser.getCompany(), new TagInputBean("FLOPPY"));
         assertNotNull(result);
         assertEquals("FLOPPY", result.getName());
-        Thread.sleep(200); // Looking to avoid Heuristic errors
-        // Tag update not yet supported
-        //assertNull(tagService.findTag("FLOP"));
-        //assertNotNull(tagService.findTag("FLOPPY"));
 
     }
 
