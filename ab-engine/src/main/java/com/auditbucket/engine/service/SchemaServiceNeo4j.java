@@ -31,11 +31,12 @@ import com.auditbucket.track.model.DocumentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 /**
@@ -53,8 +54,9 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
     EngineConfig engine;
     static Logger logger = LoggerFactory.getLogger(SchemaServiceNeo4j.class);
 
-    public Boolean ensureSystemIndexes(Company company) {
-        return schemaDao.ensureSystemIndexes(company, engine.getTagSuffix(company));
+    @Async
+    public Future<Boolean> ensureSystemIndexes(Company company) {
+        return new AsyncResult<>(schemaDao.ensureSystemIndexes(company, engine.getTagSuffix(company)));
     }
 
     /**

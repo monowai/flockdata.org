@@ -19,7 +19,7 @@ import java.util.concurrent.Future;
  */
 public interface SchemaService {
 
-    Boolean ensureSystemIndexes(Company company);
+    Future<Boolean> ensureSystemIndexes(Company company);
 
     DocumentType resolveDocType(Fortress fortress, String documentType);
 
