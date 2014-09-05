@@ -20,6 +20,7 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.engine.PropertyConversion;
+import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.DatagioTagException;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
