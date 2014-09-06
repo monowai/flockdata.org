@@ -27,6 +27,7 @@ import java.util.concurrent.Future;
 public interface TrackService {
     LogWhat getWhat(MetaHeader metaHeader, Log change);
 
+    @Deprecated
     MetaHeader getHeader(@NotEmpty String metaKey);
 
     MetaHeader getHeader(Company company, String metaKey);

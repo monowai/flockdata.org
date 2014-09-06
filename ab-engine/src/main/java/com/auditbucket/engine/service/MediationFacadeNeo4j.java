@@ -327,11 +327,6 @@ public class MediationFacadeNeo4j implements MediationFacade {
     }
 
     @Override
-    public TrackedSummaryBean getTrackedSummary(String metaKey) throws DatagioException {
-        return getTrackedSummary(null, metaKey);
-    }
-
-    @Override
     public TrackedSummaryBean getTrackedSummary(Company company, String metaKey) throws DatagioException {
         return trackService.getMetaSummary(company, metaKey);
     }

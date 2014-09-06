@@ -42,8 +42,6 @@ public interface MediationFacade {
 
     void reindexByDocType(Company company, String fortressName, String docType) throws DatagioException;
 
-    TrackedSummaryBean getTrackedSummary(String metaKey) throws DatagioException;
-
     TrackedSummaryBean getTrackedSummary(Company company, String metaKey) throws DatagioException;
 
     EsSearchResult search(Company company, QueryParams queryParams);
