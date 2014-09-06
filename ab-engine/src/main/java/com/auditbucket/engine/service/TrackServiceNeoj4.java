@@ -200,6 +200,11 @@ public class TrackServiceNeoj4 implements TrackService {
     }
 
     @Override
+    public MetaHeader getMetaHeader(MetaHeader metaHeader) {
+        return trackDao.fetch(metaHeader);
+    }
+
+    @Override
     public Collection<MetaHeader> getHeaders(Fortress fortress, Long skipTo) {
         return trackDao.findHeaders(fortress.getId(), skipTo);
     }
