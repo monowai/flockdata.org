@@ -20,8 +20,8 @@
 package com.auditbucket.engine.service;
 
 
-import com.auditbucket.dao.SchemaDao;
 import com.auditbucket.engine.repo.neo4j.dao.FortressDao;
+import com.auditbucket.engine.repo.neo4j.dao.SchemaDaoNeo4j;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
@@ -52,7 +52,7 @@ public class FortressService {
     private SystemUserService sysUserService;
 
     @Autowired
-    private SchemaDao schemaDao;
+    private SchemaDaoNeo4j schemaDao;
 
     @Autowired
     private SecurityHelper securityHelper;

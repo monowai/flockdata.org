@@ -32,7 +32,11 @@ import org.springframework.security.access.annotation.Secured;
  */
 public interface RegistrationService {
     @Secured({"ROLE_AB_ADMIN"})
+    SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws DatagioException;
+
+    @Secured({"ROLE_AB_ADMIN"})
     SystemUser registerSystemUser(RegistrationBean regBean) throws DatagioException;
+
 
     Company resolveCompany(String apiKey) throws DatagioException;
 

@@ -35,7 +35,7 @@ public class TrackAPIKeys extends TestEngineBase{
     public void testApiKeysWorkInPrecedence() throws Exception {
         // Auth only required to register the sys user
         Authentication authMike = setSecurity(mike_admin);
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser su = registerSystemUser(monowai, mike_admin);
         SecurityContextHolder.getContext().setAuthentication(null);
         Assert.assertNotNull(su.getApiKey());
         Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("testApiKeysWorkInPrecedence"));
@@ -85,7 +85,7 @@ public class TrackAPIKeys extends TestEngineBase{
     @Test
     public void apiCallsSecuredByAccessKey() throws Exception {
 
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser su = registerSystemUser(monowai, mike_admin);
         // No authorization - only API keys
         SecurityContextHolder.getContext().setAuthentication(null);
 

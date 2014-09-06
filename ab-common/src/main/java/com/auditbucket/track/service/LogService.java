@@ -21,22 +21,11 @@ import java.util.concurrent.Future;
  * Time: 4:23 PM
  */
 public interface LogService {
-    @Async
-    Future<Collection<TrackResultBean>> processLogs(Company company, Iterable<TrackResultBean> resultBeans) throws DatagioException, IOException, ExecutionException, InterruptedException;
 
     Collection<TrackResultBean> processLogsSync(Company company, Iterable<TrackResultBean> resultBeans) throws DatagioException, IOException, ExecutionException, InterruptedException;
 
-    TrackResultBean processLogFromResult(TrackResultBean resultBean) throws DatagioException, IOException, ExecutionException, InterruptedException;
-
     TrackResultBean writeLog(MetaHeader metaHeader, LogInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException;
-
-    TrackResultBean writeTheLogAndDistributeChanges(TrackResultBean resultBean) throws DatagioException, IOException, ExecutionException, InterruptedException;
-
-    TrackResultBean writeLog(TrackResultBean trackResultBean) throws DatagioException, IOException;
-
-    LogResultBean createLog(MetaHeader authorisedHeader, LogInputBean input, FortressUser thisFortressUser) throws DatagioException, IOException;
 
     TrackLog getLastLog(MetaHeader metaHeader) throws DatagioException;
 
-    void distributeChanges(Company company, Iterable<TrackResultBean> resultBeans) throws IOException;
 }

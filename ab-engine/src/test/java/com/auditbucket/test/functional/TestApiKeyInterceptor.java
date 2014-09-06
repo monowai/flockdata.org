@@ -40,8 +40,7 @@ public class TestApiKeyInterceptor extends TestEngineBase {
 	@Test
 	public void givenValidAPIKey_WhenCallingSecureAPI_ThenShouldBeAllowed()
 			throws Exception {
-		String apiKey = regService
-				.registerSystemUser(new RegistrationBean(monowai, mike_admin))
+		String apiKey = registerSystemUser(monowai, mike_admin)
 				.getApiKey();
 
 		request.setRequestURI("/fortress/");

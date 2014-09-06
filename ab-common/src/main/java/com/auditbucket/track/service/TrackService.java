@@ -17,6 +17,7 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * User: mike
@@ -26,15 +27,14 @@ import java.util.concurrent.ExecutionException;
 public interface TrackService {
     LogWhat getWhat(MetaHeader metaHeader, Log change);
 
-    TrackResultBean createHeader(Fortress fortress, MetaInputBean inputBean);
-
-    MetaHeader makeHeader(MetaInputBean inputBean, Fortress fortress, DocumentType documentType) throws DatagioException;
-
+    @Deprecated
     MetaHeader getHeader(@NotEmpty String metaKey);
 
     MetaHeader getHeader(Company company, String metaKey);
 
     MetaHeader getHeader(Company company, @NotEmpty String headerKey, boolean inflate);
+
+    MetaHeader getMetaHeader(MetaHeader metaHeader);
 
     Collection<MetaHeader> getHeaders(Fortress fortress, Long skipTo);
 
@@ -52,10 +52,8 @@ public interface TrackService {
 
     Set<TrackLog> getLogs(String headerKey, Date from, Date to) throws DatagioException;
 
-    MetaSearchChange cancelLastLogSync(Company company, String headerKey) throws IOException, DatagioException;
 
-    @Async
-    AsyncResult<MetaSearchChange> cancelLastLog(Company company, String headerKey) throws IOException, DatagioException;
+    MetaSearchChange cancelLastLog(Company company, MetaHeader metaHeader) throws IOException, DatagioException;
 
     int getLogCount(Company company, String headerKey) throws DatagioException;
 
@@ -81,7 +79,7 @@ public interface TrackService {
 
     TrackLog getLogForHeader(MetaHeader header, Long logId);
 
-    Iterable<TrackResultBean> createHeaders(Fortress fortress, Iterable<MetaInputBean> inputBeans) throws InterruptedException, ExecutionException, DatagioException, IOException;
+    Iterable<TrackResultBean> trackHeaders(Fortress fortress, Iterable<MetaInputBean> inputBeans) throws InterruptedException, ExecutionException, DatagioException, IOException;
 
     Collection<String> crossReference(Company company, String metaKey, Collection<String> xRef, String relationshipName) throws DatagioException;
 
@@ -104,4 +102,6 @@ public interface TrackService {
     TrackLog getLog(Company company, String metaKey, long logId) throws DatagioException;
 
     Set<TrackTag> getLogTags(Company company, TrackLog tl);
+
+
 }

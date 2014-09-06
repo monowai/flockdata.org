@@ -63,8 +63,8 @@ public class TestQuery extends TestEngineBase {
         // Two companies
         //  Each with two fortresses
 
-        SystemUser suA = regService.registerSystemUser(new RegistrationBean("CompanyA", "userA"));
-        SystemUser suB = regService.registerSystemUser(new RegistrationBean("CompanyB", "userB"));
+        SystemUser suA = registerSystemUser("CompanyA", "userA");
+        SystemUser suB = registerSystemUser("CompanyB", "userB");
 
         Fortress coAfA = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("coAfA"));
         Fortress coAfB = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("coAfB"));

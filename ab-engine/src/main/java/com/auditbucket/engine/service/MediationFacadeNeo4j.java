@@ -23,10 +23,13 @@ import com.auditbucket.helper.Command;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.DeadlockRetry;
 import com.auditbucket.helper.NotFoundException;
+import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.bean.FortressInputBean;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.search.model.EsSearchResult;
@@ -68,7 +71,7 @@ import java.util.concurrent.Future;
  * Since: 28/08/13
  */
 @Service
-public class MediationFacade {
+public class MediationFacadeNeo4j implements MediationFacade {
     @Autowired
     TrackService trackService;
 
@@ -93,7 +96,7 @@ public class MediationFacade {
     @Autowired
     LogService logService;
 
-    private Logger logger = LoggerFactory.getLogger(MediationFacade.class);
+    private Logger logger = LoggerFactory.getLogger(MediationFacadeNeo4j.class);
 
     @Autowired
     private RegistrationService registrationService;
@@ -101,65 +104,67 @@ public class MediationFacade {
     @Autowired
     EngineConfig engineConfig;
 
+
     static DecimalFormat f = new DecimalFormat();
+
+    @Override
+    public Tag createTag(Company company, TagInputBean tagInput) throws DatagioException, ExecutionException, InterruptedException {
+        List<TagInputBean> tags = new ArrayList<>();
+        tags.add(tagInput);
+        return createTags(company, tags).iterator().next();
+
+    }
+
+    @Override
+    public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws DatagioException, ExecutionException, InterruptedException {
+        Collection<String> existing = tagService.getExistingIndexes();
+        schemaService.ensureUniqueIndexes(company, tagInputs,existing );
+        try {
+            tagService.createTags(company, tagInputs);
+        } catch (IOException e) {
+            // Todo - how to handle??
+            throw new DatagioException("Error processing your batch. Please run it again");
+        }
+        return tagService.makeTags(company, tagInputs).get();
+
+    }
 
     /**
      * Process the MetaHeader input for a company asynchronously
      *
      * @param fortress   system
      * @param inputBeans data
-     * @return process count - don't rely on it, why would you want it?
+     * @return ResultBeans populated with great data
      * @throws com.auditbucket.helper.DatagioException
      */
-
+    @Override
     @Async
     public Future<Collection<TrackResultBean>> trackHeadersAsync(final Fortress fortress, List<MetaInputBean> inputBeans) throws DatagioException, IOException, ExecutionException, InterruptedException {
-        // ToDo: Return strings which contain only the caller ref data that failed.
         return new AsyncResult<>(trackHeaders(fortress, inputBeans, 10));
     }
 
+    @Override
     public Collection<TrackResultBean> trackHeaders(final Fortress fortress, final List<MetaInputBean> inputBeans, int listSize) throws DatagioException, IOException, ExecutionException, InterruptedException {
         Long id = DateTime.now().getMillis();
         StopWatch watch = new StopWatch();
         watch.start();
         logger.debug("Starting Batch [{}] - size [{}]", id, inputBeans.size());
+
+        // This happens before we create headers to minimize IO on the graph
+        schemaService.createDocTypes(inputBeans, fortress);
+
         // Tune to balance against concurrency and batch transaction insert efficiency.
         List<List<MetaInputBean>> splitList = Lists.partition(inputBeans, listSize);
         Collection<TrackResultBean> results = new ArrayList<>();
         for (List<MetaInputBean> metaInputBeans : splitList) {
+            Iterable<TrackResultBean> trackResultBeans = (
+                    // ToDo: this should dispatch the batch to a message queue
+                    trackBatch(fortress, metaInputBeans)
+            );
 
-            @Deprecated
-                    // We should favour spring-retry for this kind of activity
-            class DLCommand implements Command {
-                Iterable<MetaInputBean> headers = null;
-                Iterable<TrackResultBean> resultBeans;
-
-                DLCommand(List<MetaInputBean> processList) {
-                    this.headers = new CopyOnWriteArrayList<>(processList);
-                }
-
-                @Override
-                public Command execute() throws DatagioException, IOException, ExecutionException, InterruptedException {
-                    // ToDo: DAT-169 This needs to be dealt with via SpringIntegration and persistent messaging
-                    //       weirdly, the integration is with ab-engine
-                    // DLCommand and DeadLockRetry need to be removed
-
-                    // This happens before we create headers to minimize IO on the graph
-                    schemaService.createDocTypes(headers, fortress);
-                    // Ensure the headers and tags are created
-                    // this routine is prone to deadlocks under load
-                    resultBeans = trackService.createHeaders(fortress, headers);
-                    resultBeans = logService.processLogsSync(fortress.getCompany(), resultBeans);
-
-                    return this;
-                }
-            }
-            DLCommand dlc = new DLCommand(metaInputBeans);
-            DeadlockRetry.execute(dlc, "creating headers", 50);
-            for (TrackResultBean resultBean : dlc.resultBeans) {
+            for (TrackResultBean resultBean : trackResultBeans) {
                 results.add(resultBean);
             }
-
         }
 
         watch.stop();
@@ -167,6 +172,36 @@ public class MediationFacade {
         return results;
     }
 
+    private Iterable<TrackResultBean> trackBatch(final Fortress fortress, List<MetaInputBean> metaInputBeans) throws InterruptedException, ExecutionException, DatagioException, IOException {
+        @Deprecated
+        class DLCommand implements Command {
+            Iterable<MetaInputBean> headers = null;
+            Iterable<TrackResultBean> resultBeans;
+
+            DLCommand(List<MetaInputBean> processList) {
+                this.headers = new CopyOnWriteArrayList<>(processList);
+            }
+
+            @Override
+            public Command execute() throws DatagioException, IOException, ExecutionException, InterruptedException {
+                // ToDo: DAT-169 This needs to be dealt with via SpringIntegration and persistent messaging
+                //       weirdly, the integration is with ab-engine
+                // DLCommand and DeadLockRetry need to be removed
+                // this routine is prone to deadlocks under load
+
+                resultBeans = trackService.trackHeaders(fortress, headers);
+                resultBeans = logService.processLogsSync(fortress.getCompany(), resultBeans);
+
+                return this;
+            }
+        }
+        DLCommand dlc = new DLCommand(metaInputBeans);
+        DeadlockRetry.execute(dlc, "creating headers", 50);
+        return dlc.resultBeans;
+
+    }
+
+    @Override
     public TrackResultBean trackHeader(Company company, MetaInputBean inputBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
         Fortress fortress = fortressService.findByName(company, inputBean.getFortress());
         if (fortress == null)
@@ -189,14 +224,16 @@ public class MediationFacade {
      * @throws DatagioException illegal input
      * @throws IOException      json processing exception
      */
+    @Override
     public TrackResultBean trackHeader(final Fortress fortress, final MetaInputBean inputBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
-        List<MetaInputBean>inputs = new ArrayList<>(1);
+        List<MetaInputBean> inputs = new ArrayList<>(1);
         inputs.add(inputBean);
-        Collection<TrackResultBean>results =trackHeaders(fortress, inputs, 1);
+        Collection<TrackResultBean> results = trackHeaders(fortress, inputs, 1);
         return results.iterator().next();
     }
 
 
+    @Override
     @Transactional
     public TrackResultBean processLog(Company company, LogInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException {
         MetaHeader metaHeader;
@@ -215,6 +252,7 @@ public class MediationFacade {
      * @param fortressName name of the fortress to rebuild
      * @throws com.auditbucket.helper.DatagioException
      */
+    @Override
     @Secured({"ROLE_AB_ADMIN"})
     public Long reindex(Company company, String fortressName) throws DatagioException {
         Fortress fortress = fortressService.findByCode(company, fortressName);
@@ -254,6 +292,7 @@ public class MediationFacade {
      * @param fortressName name of the fortress to rebuild
      * @throws com.auditbucket.helper.DatagioException
      */
+    @Override
     @Async
     @Secured({"ROLE_AB_ADMIN"})
     public void reindexByDocType(Company company, String fortressName, String docType) throws DatagioException {
@@ -286,14 +325,12 @@ public class MediationFacade {
         return skipCount;
     }
 
-    public TrackedSummaryBean getTrackedSummary(String metaKey) throws DatagioException {
-        return getTrackedSummary(null, metaKey);
-    }
-
+    @Override
     public TrackedSummaryBean getTrackedSummary(Company company, String metaKey) throws DatagioException {
         return trackService.getMetaSummary(company, metaKey);
     }
 
+    @Override
     public EsSearchResult search(Company company, QueryParams queryParams) {
         StopWatch watch = new StopWatch(queryParams.toString());
         watch.start("Get ES Query Results");
@@ -306,8 +343,9 @@ public class MediationFacade {
     }
 
     @Autowired
-    WhatService whatService;
+    KvService kvService;
 
+    @Override
     @Secured({"ROLE_AB_ADMIN"})
     public void purge(String fortressName, String apiKey) throws DatagioException {
         if (fortressName == null)
@@ -327,19 +365,24 @@ public class MediationFacade {
         String indexName = "ab." + fortress.getCompany().getCode() + "." + fortress.getCode();
 
         trackService.purge(fortress);
-        whatService.purge(indexName);
+        kvService.purge(indexName);
         fortressService.purge(fortress);
         engineConfig.resetCache();
         searchService.purge(indexName);
 
     }
 
-    public void cancelLastLogSync(Company company, String metaKey) throws IOException, DatagioException {
-        MetaSearchChange searchChange = trackService.cancelLastLogSync(company, metaKey);
+    @Override
+    @Transactional
+    public void cancelLastLog(Company company, MetaHeader metaHeader) throws IOException, DatagioException {
+        MetaSearchChange searchChange;
+        // Refresh the header
+        metaHeader = trackService.getMetaHeader(metaHeader);
+        searchChange = trackService.cancelLastLog(company, metaHeader);
         if (searchChange != null) {
             searchService.makeChangeSearchable(searchChange);
         } else {
-            logger.info("ToDo: Delete the search document {}", metaKey);
+            logger.info("ToDo: Delete the search document {}", metaHeader);
         }
     }
 
