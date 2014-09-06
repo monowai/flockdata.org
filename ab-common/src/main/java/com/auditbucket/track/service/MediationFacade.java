@@ -50,5 +50,5 @@ public interface MediationFacade {
 
     void purge(String fortressName, String apiKey) throws DatagioException;
 
-    void cancelLastLogSync(Company company, String metaKey) throws IOException, DatagioException;
+    void cancelLastLog(Company company, String metaKey) throws IOException, DatagioException;
 }
