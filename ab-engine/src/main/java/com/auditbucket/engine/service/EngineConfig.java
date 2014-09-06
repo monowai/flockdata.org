@@ -57,7 +57,7 @@ public class EngineConfig {
 
     private Boolean multiTenanted = false;
 
-    private WhatService.KV_STORE kvStore = null;
+    private com.auditbucket.kv.service.KvService.KV_STORE kvStore = null;
 
     @Qualifier("abMonitoringGateway")
     @Autowired
@@ -97,16 +97,16 @@ public class EngineConfig {
     @Value("${abengine.kvStore}")
     public void setKvStore(String kvStore) {
         if ("@null".equals(kvStore) || kvStore.equalsIgnoreCase("redis"))
-            this.kvStore = WhatService.KV_STORE.REDIS;
+            this.kvStore = com.auditbucket.kv.service.KvService.KV_STORE.REDIS;
         else if (kvStore.equalsIgnoreCase("riak"))
-            this.kvStore = WhatService.KV_STORE.RIAK;
+            this.kvStore = com.auditbucket.kv.service.KvService.KV_STORE.RIAK;
         else {
             logger.error("Unable to resolve the abengine.kvstore property [" + kvStore + "]. Defaulting to REDIS");
         }
 
     }
 
-    public WhatService.KV_STORE getKvStore() {
+    public com.auditbucket.kv.service.KvService.KV_STORE getKvStore() {
         return kvStore;
     }
 

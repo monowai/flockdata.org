@@ -81,7 +81,7 @@ public interface TrackService {
 
     TrackLog getLogForHeader(MetaHeader header, Long logId);
 
-    Iterable<TrackResultBean> createHeaders(Fortress fortress, Iterable<MetaInputBean> inputBeans) throws InterruptedException, ExecutionException, DatagioException, IOException;
+    Iterable<TrackResultBean> trackHeaders(Fortress fortress, Iterable<MetaInputBean> inputBeans) throws InterruptedException, ExecutionException, DatagioException, IOException;
 
     Collection<String> crossReference(Company company, String metaKey, Collection<String> xRef, String relationshipName) throws DatagioException;
 

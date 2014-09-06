@@ -22,6 +22,7 @@ package com.auditbucket.engine.service;
 import com.auditbucket.dao.TrackDao;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
@@ -87,7 +88,7 @@ public class TrackServiceNeoj4 implements TrackService {
     TxService txService;
 
     @Autowired
-    WhatService whatService;
+    KvService kvService;
 
     @Autowired
     TrackDao trackDao;
@@ -99,7 +100,7 @@ public class TrackServiceNeoj4 implements TrackService {
 
     @Override
     public LogWhat getWhat(MetaHeader metaHeader, Log change) {
-        return whatService.getWhat(metaHeader, change);
+        return kvService.getWhat(metaHeader, change);
     }
 
     /**
@@ -314,7 +315,7 @@ public class TrackServiceNeoj4 implements TrackService {
             metaHeader = trackDao.save(metaHeader);
             trackDao.delete(currentLog);
         }
-        whatService.delete(metaHeader, currentLog); // ToDo: Move to mediation facade
+        kvService.delete(metaHeader, currentLog); // ToDo: Move to mediation facade
         MetaSearchChange searchDocument = null;
         if (fromLog == null) {
             // Nothing to index, no changes left so we're done
@@ -327,7 +328,7 @@ public class TrackServiceNeoj4 implements TrackService {
         // Sync the update to ab-search.
         if (metaHeader.getFortress().isSearchActive() && !metaHeader.isSearchSuppressed()) {
             // Update against the MetaHeader only by re-indexing the search document
-            HashMap<String, Object> priorWhat = (HashMap<String, Object>) whatService.getWhat(metaHeader, fromLog).getWhat();
+            HashMap<String, Object> priorWhat = (HashMap<String, Object>) kvService.getWhat(metaHeader, fromLog).getWhat();
 
             searchDocument = new MetaSearchChange(metaHeader, priorWhat, fromLog.getEvent().getCode(), new DateTime(fromLog.getTrackLog().getFortressWhen()));
             searchDocument.setTags(tagTrackService.findTrackTags(metaHeader));
@@ -472,7 +473,7 @@ public class TrackServiceNeoj4 implements TrackService {
 
         TrackLog log = trackDao.getLog(logId);
         trackDao.fetch(log.getLog());
-        LogWhat what = whatService.getWhat(metaHeader, log.getLog());
+        LogWhat what = kvService.getWhat(metaHeader, log.getLog());
         log.getLog().setWhat(what);
         return new LogDetailBean(log, what);
     }
@@ -492,7 +493,7 @@ public class TrackServiceNeoj4 implements TrackService {
     }
 
     @Override
-    public Iterable<TrackResultBean> createHeaders(Fortress fortress, Iterable<MetaInputBean> inputBeans) throws InterruptedException, ExecutionException, DatagioException, IOException {
+    public Iterable<TrackResultBean> trackHeaders(Fortress fortress, Iterable<MetaInputBean> inputBeans) throws InterruptedException, ExecutionException, DatagioException, IOException {
         Collection<TrackResultBean> arb = new CopyOnWriteArrayList<>();
         for (MetaInputBean inputBean : inputBeans) {
             logger.trace("Batch Processing metaKey=[{}], documentType=[{}]", inputBean.getCallerRef(), inputBean.getDocumentType());

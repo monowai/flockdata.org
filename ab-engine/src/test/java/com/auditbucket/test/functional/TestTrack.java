@@ -732,7 +732,7 @@ public class TestTrack extends TestEngineBase {
         waitForFirstLog(su.getCompany(), trackResultBean.getMetaHeader());
         TrackLog lastLog = logService.getLastLog(trackResultBean.getMetaHeader());
 
-        LogWhat what = whatService.getWhat(trackResultBean.getMetaHeader(),  lastLog.getLog());
+        LogWhat what = kvService.getWhat(trackResultBean.getMetaHeader(),  lastLog.getLog());
         assertEquals(json.get("Athlete"), what.getWhat().get("Athlete"));
 
         // Second call should say that nothing has changed
@@ -806,7 +806,7 @@ public class TestTrack extends TestEngineBase {
         header = trackService.findByCallerRef(fortress, "TestTrack", callerRef );
         TrackLog lastLog = trackService.getLastLog(su.getCompany(), header.getMetaKey());
         assertNotNull(lastLog);
-        LogWhat what = whatService.getWhat(header, lastLog.getLog());
+        LogWhat what = kvService.getWhat(header, lastLog.getLog());
 
         assertNotNull(what);
         Object value = what.getWhat().get("col");

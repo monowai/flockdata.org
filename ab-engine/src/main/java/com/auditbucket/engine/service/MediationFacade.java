@@ -23,6 +23,7 @@ import com.auditbucket.helper.Command;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.DeadlockRetry;
 import com.auditbucket.helper.NotFoundException;
+import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
@@ -133,48 +134,56 @@ public class MediationFacade {
         StopWatch watch = new StopWatch();
         watch.start();
         logger.debug("Starting Batch [{}] - size [{}]", id, inputBeans.size());
+
+        // This happens before we create headers to minimize IO on the graph
+        schemaService.createDocTypes(inputBeans, fortress);
+
         // Tune to balance against concurrency and batch transaction insert efficiency.
         List<List<MetaInputBean>> splitList = Lists.partition(inputBeans, listSize);
         Collection<TrackResultBean> results = new ArrayList<>();
         for (List<MetaInputBean> metaInputBeans : splitList) {
+            Iterable<TrackResultBean> trackResultBeans = (
+                    // ToDo: this should dispatch the batch to a message queue
+                    trackBatch(fortress, metaInputBeans)
+            );
 
-            @Deprecated
-                    // We should favour spring-retry for this kind of activity
-            class DLCommand implements Command {
-                Iterable<MetaInputBean> headers = null;
-                Iterable<TrackResultBean> resultBeans;
-
-                DLCommand(List<MetaInputBean> processList) {
-                    this.headers = new CopyOnWriteArrayList<>(processList);
-                }
-
-                @Override
-                public Command execute() throws DatagioException, IOException, ExecutionException, InterruptedException {
-                    // ToDo: DAT-169 This needs to be dealt with via SpringIntegration and persistent messaging
-                    //       weirdly, the integration is with ab-engine
-                    // DLCommand and DeadLockRetry need to be removed
-
-                    // This happens before we create headers to minimize IO on the graph
-                    schemaService.createDocTypes(headers, fortress);
-                    // Ensure the headers and tags are created
-                    // this routine is prone to deadlocks under load
-                    resultBeans = trackService.createHeaders(fortress, headers);
-                    resultBeans = logService.processLogsSync(fortress.getCompany(), resultBeans);
-
-                    return this;
-                }
-            }
-            DLCommand dlc = new DLCommand(metaInputBeans);
-            DeadlockRetry.execute(dlc, "creating headers", 50);
-            for (TrackResultBean resultBean : dlc.resultBeans) {
+            for (TrackResultBean resultBean : trackResultBeans) {
                 results.add(resultBean);
             }
-
         }
 
         watch.stop();
         logger.debug("Completed Batch [{}] - secs= {}, RPS={}", id, f.format(watch.getTotalTimeSeconds()), f.format(inputBeans.size() / watch.getTotalTimeSeconds()));
         return results;
+    }
+
+    private Iterable<TrackResultBean> trackBatch(final Fortress fortress, List<MetaInputBean> metaInputBeans) throws InterruptedException, ExecutionException, DatagioException, IOException {
+        @Deprecated
+        class DLCommand implements Command {
+            Iterable<MetaInputBean> headers = null;
+            Iterable<TrackResultBean> resultBeans;
+
+            DLCommand(List<MetaInputBean> processList) {
+                this.headers = new CopyOnWriteArrayList<>(processList);
+            }
+
+            @Override
+            public Command execute() throws DatagioException, IOException, ExecutionException, InterruptedException {
+                // ToDo: DAT-169 This needs to be dealt with via SpringIntegration and persistent messaging
+                //       weirdly, the integration is with ab-engine
+                // DLCommand and DeadLockRetry need to be removed
+                // this routine is prone to deadlocks under load
+
+                resultBeans = trackService.trackHeaders(fortress, headers);
+                resultBeans = logService.processLogsSync(fortress.getCompany(), resultBeans);
+
+                return this;
+            }
+        }
+        DLCommand dlc = new DLCommand(metaInputBeans);
+        DeadlockRetry.execute(dlc, "creating headers", 50);
+        return dlc.resultBeans;
+
     }
 
     public TrackResultBean trackHeader(Company company, MetaInputBean inputBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
@@ -316,7 +325,7 @@ public class MediationFacade {
     }
 
     @Autowired
-    WhatService whatService;
+    KvService kvService;
 
     @Secured({"ROLE_AB_ADMIN"})
     public void purge(String fortressName, String apiKey) throws DatagioException {
@@ -337,7 +346,7 @@ public class MediationFacade {
         String indexName = "ab." + fortress.getCompany().getCode() + "." + fortress.getCode();
 
         trackService.purge(fortress);
-        whatService.purge(indexName);
+        kvService.purge(indexName);
         fortressService.purge(fortress);
         engineConfig.resetCache();
         searchService.purge(indexName);

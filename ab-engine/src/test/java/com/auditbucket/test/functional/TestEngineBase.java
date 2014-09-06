@@ -27,6 +27,7 @@ import com.auditbucket.engine.service.*;
 import com.auditbucket.geography.endpoint.GeographyEP;
 import com.auditbucket.helper.JsonUtils;
 import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
@@ -120,7 +121,7 @@ public class TestEngineBase {
 	QueryService queryService;
 
 	@Autowired
-	WhatService whatService;
+    KvService kvService;
 
 	@Autowired
 	CompanyService companyService;
