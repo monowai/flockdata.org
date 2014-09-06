@@ -34,6 +34,8 @@ public interface TrackService {
 
     MetaHeader getHeader(Company company, @NotEmpty String headerKey, boolean inflate);
 
+    MetaHeader getMetaHeader(MetaHeader metaHeader);
+
     Collection<MetaHeader> getHeaders(Fortress fortress, Long skipTo);
 
     Collection<MetaHeader> getHeaders(Fortress fortress, String docTypeName, Long skipTo);
@@ -100,4 +102,6 @@ public interface TrackService {
     TrackLog getLog(Company company, String metaKey, long logId) throws DatagioException;
 
     Set<TrackTag> getLogTags(Company company, TrackLog tl);
+
+
 }
