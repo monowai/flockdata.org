@@ -52,7 +52,7 @@ public class RegistrationEP {
     @ResponseBody
     public ResponseEntity<SystemUserResultBean> registerSystemUser(@RequestBody RegistrationBean regBean) throws DatagioException {
         // curl -u admin:hackme -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/profiles/register -d '{"name":"mikey", "companyName":"Monowai Dev","password":"whocares"}'
-        SystemUser su = regService.registerSystemUser(regBean);
+        SystemUser su = regService.registerSystemUser( regBean);
 
         if (su == null)
             return new ResponseEntity<>(new SystemUserResultBean(su), HttpStatus.CONFLICT);

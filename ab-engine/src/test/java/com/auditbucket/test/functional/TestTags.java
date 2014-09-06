@@ -45,7 +45,7 @@ import static junit.framework.Assert.*;
 public class TestTags extends TestEngineBase {
 
     public void duplicateTagLists() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
+        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         assertNotNull(iSystemUser);
 
         List<TagInputBean> tags = new ArrayList<>();

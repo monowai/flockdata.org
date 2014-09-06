@@ -76,9 +76,11 @@ public class TestEngineBase {
     SchemaService schemaService;
 
 	@Autowired
-	FortressService fortressService;
+    protected
+    FortressService fortressService;
 
 	@Autowired
+    protected
     TrackService trackService;
 
 	@Autowired
@@ -91,12 +93,14 @@ public class TestEngineBase {
 	GeographyEP geographyEP;
 
 	@Autowired
-	MediationFacade mediationFacade;
+    protected
+    MediationFacade mediationFacade;
 
     @Autowired
     TxService txService;
 
     @Autowired
+    protected
     LogService logService;
 
 	@Autowired
@@ -115,7 +119,8 @@ public class TestEngineBase {
 	AdminEP adminEP;
 
 	@Autowired
-	EngineConfig engineConfig;
+    public
+    EngineConfig engineConfig;
 
 	@Autowired
 	QueryService queryService;
@@ -191,11 +196,14 @@ public class TestEngineBase {
 		t.success();
 		t.close();
 	}
-
-    SystemUser registerSystemUser(String companyName, String accessUser) throws Exception{
+    public SystemUser registerSystemUser(String companyName, String accessUser) throws Exception{
 //        waitAWhile(60); // Trying to avoid Heuristic exception down to the creation of a company altering indexes
-        companyService.save(companyName);
-        return regService.registerSystemUser(new RegistrationBean(companyName, accessUser).setIsUnique(false));
+        Company company = companyService.findByName(companyName);
+        if ( company == null ) {
+            logger.debug("Creating company {}", companyName);
+            company = companyService.create(companyName);
+        }
+        return regService.registerSystemUser(company, new RegistrationBean(companyName, accessUser).setIsUnique(false));
     }
 
 

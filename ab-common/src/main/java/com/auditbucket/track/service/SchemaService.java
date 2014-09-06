@@ -7,12 +7,10 @@ import com.auditbucket.track.bean.DocumentResultBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.DocumentType;
-import org.springframework.scheduling.annotation.Async;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Future;
 
 /**
  * User: mike
@@ -21,7 +19,7 @@ import java.util.concurrent.Future;
  */
 public interface SchemaService {
 
-    Future<Boolean> ensureSystemIndexes(Company company);
+    Boolean ensureSystemIndexes(Company company);
 
     DocumentType resolveDocType(Fortress fortress, String documentType);
 

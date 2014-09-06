@@ -82,18 +82,10 @@ public class CompanyServiceNeo4j implements CompanyService {
     }
 
     @Override
-    public Company save(String companyName) {
+    public Company create(String companyName) {
         // Change to async event via spring events
         logger.debug("Saving company {}",companyName);
         Company company = new CompanyNode(companyName, keyGenService.getUniqueKey());
-        Future<Boolean> worked = schemaService.ensureSystemIndexes(company);
-        try {
-            logger.debug("Waiting for system indexes to finish");
-            worked.get();
-            Thread.sleep(100);
-        } catch (InterruptedException | ExecutionException e) {
-            logger.error("Unexpected", e);
-        }
         return create(company);
 
     }

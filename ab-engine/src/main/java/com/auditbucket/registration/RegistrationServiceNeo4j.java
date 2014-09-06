@@ -27,8 +27,8 @@ import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.KeyGenService;
 import com.auditbucket.registration.service.SystemUserService;
+import com.auditbucket.track.service.SchemaService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,26 +45,38 @@ public class RegistrationServiceNeo4j implements com.auditbucket.registration.se
     KeyGenService keyGenService;
 
     @Autowired
+    SchemaService schemaService;
+
+    @Autowired
     private SecurityHelper securityHelper;
 
     public static SystemUser GUEST = new SystemUserNode("Guest", null, null, false);
 
 
     @Override
-    public SystemUser registerSystemUser(RegistrationBean regBean) throws DatagioException {
+    @Transactional
+    public SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws DatagioException {
 
         SystemUser systemUser = systemUserService.findByLogin(regBean.getLogin());
 
         if (systemUser != null) {
-        	return systemUser; 
+            return systemUser;
         }
 
-        Company company = companyService.findByName(regBean.getCompanyName()) ;
-        if (company == null) {
-            company = companyService.save(regBean.getCompanyName());
-        }
         regBean.setCompany(company);
         return makeSystemUser(regBean);
+    }
+
+    @Override
+    public SystemUser registerSystemUser(RegistrationBean regBean) throws DatagioException {
+        Company company = companyService.findByName(regBean.getCompanyName());
+        if (company == null) {
+            company = companyService.create(regBean.getCompanyName());
+            schemaService.ensureSystemIndexes(company);
+
+        }
+
+        return registerSystemUser(company, regBean);
     }
 
     @Transactional
@@ -84,7 +96,7 @@ public class RegistrationServiceNeo4j implements com.auditbucket.registration.se
         if (systemUser == null)
             return GUEST;
         SystemUser iSystemUser = systemUserService.findByLogin(systemUser);
-        if (iSystemUser == null ) {
+        if (iSystemUser == null) {
             // Authenticated in the security system, but not in the graph
             return new SystemUserNode(systemUser, null, null, true);
         } else {
@@ -93,9 +105,9 @@ public class RegistrationServiceNeo4j implements com.auditbucket.registration.se
     }
 
     @Transactional
-    public SystemUser getSystemUser(String apiKey){
+    public SystemUser getSystemUser(String apiKey) {
         SystemUser su = systemUserService.findByApiKey(apiKey);
-        if ( su == null )
+        if (su == null)
             return getSystemUser();
         return su;
     }

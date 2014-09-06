@@ -58,7 +58,7 @@ public class QueryResults  extends TestEngineBase {
 
     @Test
     public void matrixQuery() throws Exception {
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser su = registerSystemUser(monowai, mike_admin);
         Fortress fortress = createFortress(su);
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "mike", "Study", new DateTime(), "StudyA");

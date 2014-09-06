@@ -20,7 +20,6 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
@@ -133,7 +132,7 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void nullMetaKey() throws Exception {
-        regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        registerSystemUser(monowai, mike_admin);
         assertNull (trackService.getHeader(null));
     }
 
@@ -151,7 +150,7 @@ public class TestTrack extends TestEngineBase {
         assertEquals(key, keyB);
 
         setSecurity(sally_admin); // Sally can register users
-        SystemUser suB= regService.registerSystemUser(new RegistrationBean("TestTow", harry));
+        SystemUser suB= registerSystemUser("TestTow", harry);
         setSecurity(harry); // Harry can access them
         Fortress fortressB = fortressService.registerFortress("auditTestB");
         mediationFacade.trackHeader(suB.getCompany(), new MetaInputBean(fortressB.getName(), "wally", "TestTrack", new DateTime(), "123ABC"));
@@ -329,7 +328,7 @@ public class TestTrack extends TestEngineBase {
 
         // Scenario - create a new data access user
         setSecurity(sally_admin);
-        SystemUser suB = regService.registerSystemUser(new RegistrationBean("TWEE", harry));
+        SystemUser suB = registerSystemUser("TWEE", harry);
         // Switch to the data access user
         setSecurity(harry);
         Fortress fortressB = fortressService.registerFortress("auditTestB" + System.currentTimeMillis());
@@ -365,13 +364,13 @@ public class TestTrack extends TestEngineBase {
         MetaInputBean inputBean = new MetaInputBean(fortWP.getName(), "wally", "CompanyNode", new DateTime(), "AHWP");
         String ahWP = mediationFacade.trackHeader(su.getCompany(), inputBean).getMetaKey();
         assertNotNull(ahWP);
-        assertNotNull(trackService.getHeader(ahWP));
+        assertNotNull(trackService.getHeader(su.getCompany(), ahWP));
 
         //Hummingbird/Gina
         setSecurity(sally_admin);
-        SystemUser suB = regService.registerSystemUser(new RegistrationBean(hummingbird, harry));
+        SystemUser suB = registerSystemUser(hummingbird, harry);
         Authentication authHarry = setSecurity(harry); // Harry can create data
-        Fortress fortHS = fortressService.registerFortress(new FortressInputBean("honeysuckle", true));
+        Fortress fortHS = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("honeysuckle", true));
         inputBean = new MetaInputBean(fortHS.getName(), "harry", "CompanyNode", new DateTime(), "AHHS");
         String ahHS = mediationFacade.trackHeader(suB.getCompany(), inputBean).getMetaKey();
 
