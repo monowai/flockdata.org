@@ -365,7 +365,7 @@ public class MediationFacade {
     }
 
     public void cancelLastLogSync(Company company, String metaKey) throws IOException, DatagioException {
-        MetaSearchChange searchChange = trackService.cancelLastLogSync(company, metaKey);
+        MetaSearchChange searchChange = trackService.cancelLastLog(company, metaKey).get();
         if (searchChange != null) {
             searchService.makeChangeSearchable(searchChange);
         } else {

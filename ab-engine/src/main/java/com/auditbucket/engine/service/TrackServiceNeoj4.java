@@ -109,7 +109,6 @@ public class TrackServiceNeoj4 implements TrackService {
      *
      * @return unique primary key to be used for subsequent log calls
      */
-    @Override
     public TrackResultBean createHeader(Fortress fortress, MetaInputBean inputBean) {
         DocumentType documentType = schemaService.resolveDocType(fortress, inputBean.getDocumentType());
 
@@ -149,7 +148,6 @@ public class TrackServiceNeoj4 implements TrackService {
 
     }
 
-    @Override
     public MetaHeader makeHeader(MetaInputBean inputBean, Fortress fortress, DocumentType documentType) throws DatagioException {
         MetaHeader ah = trackDao.create(inputBean, fortress, documentType);
         if (ah.getId() == null)
@@ -257,22 +255,7 @@ public class TrackServiceNeoj4 implements TrackService {
     }
 
     /**
-     * blocking call. This will not update the search store. For that call the
-     * function in the MediationFacade
-     *
-     * @param company   validated company the caller is authorised to work with
-     * @param headerKey UID of the Header
-     * @return MetaSearchChange the search change to index, or null if there are no logs
-     * @throws IOException
-     */
-    @Override
-    public MetaSearchChange cancelLastLogSync(Company company, String headerKey) throws IOException, DatagioException {
-        AsyncResult<MetaSearchChange> futureHeader = cancelLastLog(company, headerKey);
-        return futureHeader.get();
-    }
-
-    /**
-     * This could be used toa assist in compensating transactions to roll back the last change
+     * This can be used toa assist in compensating transactions to roll back the last change
      * if the caller decides a rollback is required after the log has been written.
      * If there are no Log records left, then the metaHeader will also be removed and the
      * AB headerKey will be forever invalid.

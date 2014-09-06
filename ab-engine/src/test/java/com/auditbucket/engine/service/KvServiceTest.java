@@ -141,7 +141,7 @@ public class KvServiceTest extends AbstractRedisSupport {
 
                 Assert.assertTrue(kvService.isSame(header, trackLog.getLog(), what));
                 // Testing that cancel works
-                trackService.cancelLastLogSync(fortressA.getCompany(), ahKey);
+                trackService.cancelLastLog(fortressA.getCompany(), ahKey).get();
                 Assert.assertNull(logService.getLastLog(header));
                 Assert.assertNull(kvService.getWhat(header, trackLog.getLog()).getWhatString());
                 Assert.assertTrue(kvService.isSame(logWhat.getWhatString(), what));
