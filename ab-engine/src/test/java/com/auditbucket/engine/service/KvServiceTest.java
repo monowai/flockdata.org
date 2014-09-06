@@ -94,7 +94,7 @@ public class KvServiceTest extends AbstractRedisSupport {
 
     @Test
     public void getWhatFromRiak() throws Exception {
-        engineConfig.setKvStore("RIAK");
+        //engineConfig.setKvStore("RIAK");
         testKVStore();
         engineConfig.setKvStore("REDIS");
     }
