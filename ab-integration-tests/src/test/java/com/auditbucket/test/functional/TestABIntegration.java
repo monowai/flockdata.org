@@ -205,8 +205,9 @@ public class TestABIntegration {
     public void setupUser() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
         if (companyService.findByName("monowai") == null) {
+            companyService.save("monowai");
             regService.registerSystemUser(new RegistrationBean("monowai", "mike").setIsUnique(false));
-            waitAWhile("Registering Auth user System Access {}");
+            //waitAWhile("Registering Auth user System Access {}");
         }
         if ( mockMvc == null )
             mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
