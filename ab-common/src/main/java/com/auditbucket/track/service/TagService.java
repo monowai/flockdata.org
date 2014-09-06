@@ -19,33 +19,30 @@ import java.util.concurrent.Future;
  */
 public interface TagService {
 
-    @Deprecated // Pass the company
-    Tag processTag(TagInputBean inputBean);
+    public Tag processTag(Company company, TagInputBean tagInput);
 
-    Tag processTag(Company company, TagInputBean tagInput);
-
-    Collection<TagInputBean> processTags(Company company, List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException;
+    public Collection<TagInputBean> processTags(Company company, List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException;
 
     @Async
-    Future<Collection<TagInputBean>> makeTags(Company company, List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException;
+    public Future<Collection<TagInputBean>> makeTags(Company company, List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException;
 
-    Tag findTag(Company company, String tagName);
+    public Tag findTag(Company company, String tagName);
 
     @Deprecated // Pass the company
-    Tag findTag(String tagName);
+    public Tag findTag(String tagName);
 
     @Deprecated
-    Collection<Tag> findDirectedTags(Tag startTag);
+    public Collection<Tag> findDirectedTags(Tag startTag);
 
-    Collection<Tag> findTags(Company company, String index);
+    public Collection<Tag> findTags(Company company, String index);
 
-    Tag findTag(Company company, String tagName, String index);
+    public Tag findTag(Company company, String tagName, String index);
 
-    Collection<String> getExistingIndexes();
+    public Collection<String> getExistingIndexes();
 
-    void createTagsNoRelationships(Company company, List<TagInputBean> tagInputs) throws DatagioException, IOException, ExecutionException, InterruptedException;
+    public void createTagsNoRelationships(Company company, List<TagInputBean> tagInputs) throws DatagioException, IOException, ExecutionException, InterruptedException;
 
-    void purgeUnusedConcepts(Company company);
+    public void purgeUnusedConcepts(Company company);
 
-    void purgeType(Company company, String type);
+    public void purgeType(Company company, String type);
 }
