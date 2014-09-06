@@ -36,7 +36,7 @@ import java.util.Collection;
  */
 @Repository
 public class CompanyDaoNeo implements CompanyDao {
-    private static final String FORTRESS_NAME = "fortressName";
+
     @Autowired
     private CompanyRepository companyRepo;
 
@@ -63,6 +63,12 @@ public class CompanyDaoNeo implements CompanyDao {
         return companyRepo.findCompanies(userApiKey);
     }
 
+    @Override
+    public Company create(Company company) {
+
+        return companyRepo.save((CompanyNode) company);
+    }
+
 
     @Override
     public SystemUser getAdminUser(Long companyId, String name) {
@@ -71,7 +77,7 @@ public class CompanyDaoNeo implements CompanyDao {
 
     @Override
     public Company create(String companyName, String uniqueKey) {
-        return companyRepo.save(new CompanyNode(companyName, uniqueKey));
+        return create(new CompanyNode(companyName, uniqueKey));
     }
 
 }

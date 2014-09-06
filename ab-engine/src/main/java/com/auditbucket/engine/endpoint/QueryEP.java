@@ -1,7 +1,6 @@
 package com.auditbucket.engine.endpoint;
 
 import com.auditbucket.engine.service.MatrixService;
-import com.auditbucket.engine.service.MediationFacade;
 import com.auditbucket.engine.service.QueryService;
 import com.auditbucket.helper.CompanyResolver;
 import com.auditbucket.helper.DatagioException;
@@ -12,7 +11,6 @@ import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.QueryParams;
 import com.auditbucket.track.bean.DocumentResultBean;
-import com.auditbucket.track.model.DocumentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,7 +41,7 @@ public class QueryEP {
     RegistrationService registrationService;
 
     @Autowired
-    MediationFacade mediationFacade;
+    com.auditbucket.track.service.MediationFacade mediationFacade;
 
     @ResponseBody
     @RequestMapping(value = "/matrix", method = RequestMethod.POST)

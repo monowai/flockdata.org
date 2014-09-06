@@ -19,8 +19,6 @@
 
 package com.auditbucket.engine.repo.neo4j;
 
-import com.auditbucket.dao.TagDao;
-import com.auditbucket.dao.TrackTagDao;
 import com.auditbucket.engine.repo.neo4j.model.MetaHeaderNode;
 import com.auditbucket.engine.repo.neo4j.model.TagNode;
 import com.auditbucket.engine.repo.neo4j.model.TrackTagRelationship;
@@ -32,7 +30,7 @@ import com.auditbucket.track.model.GeoData;
 import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackTag;
-
+import com.auditbucket.track.service.TagService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
@@ -52,7 +50,7 @@ import java.util.*;
  * Time: 11:07 PM
  */
 @Repository("trackTagDAO")
-public class TrackTagDaoNeo implements TrackTagDao {
+public class TrackTagDaoNeo {
     @Autowired
     Neo4jTemplate template;
 
@@ -62,17 +60,14 @@ public class TrackTagDaoNeo implements TrackTagDao {
     @Autowired
     EngineConfig engineAdmin;
 
-    @Autowired
-    TagDao tagDao;
-
     private Logger logger = LoggerFactory.getLogger(TrackTagDaoNeo.class);
 
-    @Override
+    static final String AB_WHEN = "abWhen";
+
     public TrackTag save(MetaHeader metaHeader, Tag tag, String relationshipName) {
         return save(metaHeader, tag, relationshipName, false, null);
     }
 
-    @Override
     public TrackTag save(MetaHeader ah, Tag tag, String metaLink, boolean reverse) {
         return save(ah, tag, metaLink, reverse, null );
     }
@@ -127,7 +122,6 @@ public class TrackTagDaoNeo implements TrackTagDao {
         return rel;
     }
 
-    @Override
     public void deleteTrackTags(MetaHeader metaHeader, Collection<TrackTag> trackTags) throws DatagioException {
         Node headerNode = null;
         for (TrackTag tag : trackTags) {
@@ -153,7 +147,6 @@ public class TrackTagDaoNeo implements TrackTagDao {
      * @param existingTag current
      * @param newType     new type name
      */
-    @Override
     public void changeType(MetaHeader metaHeader, TrackTag existingTag, String newType) {
         if (!relationshipExists(metaHeader, existingTag.getTag(), newType)) {
             Relationship r = template.getRelationship(existingTag.getId());
@@ -174,7 +167,6 @@ public class TrackTagDaoNeo implements TrackTagDao {
      * @param log pointer to the node we want to move the relationships to
      * @param metaHeader where the tags are currently located
      */
-    @Override
     public void moveTags(MetaHeader metaHeader, Log log, Collection<TrackTag> trackTags) {
         if ( log == null )
             return;
@@ -208,7 +200,6 @@ public class TrackTagDaoNeo implements TrackTagDao {
      * @param logToMoveFrom where the logs are currently associated
      * @param metaHeader    header to relocate them to
      */
-    @Override
     public void moveTags(Company company, Log logToMoveFrom, MetaHeader metaHeader) {
         if ( logToMoveFrom == null )
             return;
@@ -262,7 +253,6 @@ public class TrackTagDaoNeo implements TrackTagDao {
         return rlxProps;
     }
 
-    @Override
     public Set<MetaHeader> findTrackTags(Tag tag) {
         String query = "start tag=node({tagId}) " +
                 "       match tag-[]->track" +
@@ -279,7 +269,6 @@ public class TrackTagDaoNeo implements TrackTagDao {
         return results;
     }
 
-    @Override
     public Boolean relationshipExists(MetaHeader metaHeader, Tag tag, String relationshipName) {
         Node end = template.getPersistentState(metaHeader);
         Node start = template.getNode(tag.getId());
@@ -287,7 +276,6 @@ public class TrackTagDaoNeo implements TrackTagDao {
 
     }
 
-    @Override
     public Set<TrackTag> findLogTags(Company company, Log log) {
         String query;
         if ("".equals(engineAdmin.getTagSuffix(company)))
@@ -303,7 +291,6 @@ public class TrackTagDaoNeo implements TrackTagDao {
 
     }
 
-    @Override
     public Set<TrackTag> getDirectedMetaTags(Company company, MetaHeader metaHeader, boolean outbound) {
 
         String tagDirection = "-[tagType]->";
@@ -323,7 +310,6 @@ public class TrackTagDaoNeo implements TrackTagDao {
 
     }
 
-    @Override
     public Set<TrackTag> getMetaTrackTags(Company company, MetaHeader metaHeader) {
         Set<TrackTag> tagResults = new HashSet<>();
         if ( null == metaHeader.getId())

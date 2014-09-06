@@ -19,7 +19,7 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.dao.SchemaDao;
+import com.auditbucket.engine.repo.neo4j.dao.SchemaDaoNeo4j;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
@@ -28,8 +28,11 @@ import com.auditbucket.track.bean.DocumentResultBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.DocumentType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,18 +44,16 @@ import java.util.*;
  * Time: 7:43 AM
  */
 @Service
-@Transactional
 public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaService {
     @Autowired
-    SchemaDao schemaDao;
+    SchemaDaoNeo4j schemaDao;
 
     @Autowired
-    EngineConfig engine;
+    EngineConfig engineConfig;
+    static Logger logger = LoggerFactory.getLogger(SchemaServiceNeo4j.class);
 
-    @Override
-    @Async
-    public void ensureSystemIndexes(Company company) {
-        schemaDao.ensureSystemIndexes(company, engine.getTagSuffix(company));
+    public Boolean ensureSystemIndexes(Company company) {
+        return schemaDao.ensureSystemIndexes(company, engineConfig.getTagSuffix(company));
     }
 
     /**
@@ -61,6 +62,7 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
      * @return resolved document. Created if missing
      */
     @Override
+    @Transactional
     public DocumentType resolveDocType(Fortress fortress, String documentType) {
         return resolveDocType(fortress, documentType, true);
     }
@@ -75,6 +77,7 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
      * @return created DocumentType
      */
     @Override
+    @Transactional
     public DocumentType resolveDocType(Fortress fortress, String documentType, Boolean createIfMissing) {
         if (documentType == null) {
             throw new IllegalArgumentException("DocumentType cannot be null");
@@ -85,10 +88,14 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
     }
 
     @Override
+    @Transactional
     public void registerConcepts(Company company, Iterable<TrackResultBean> resultBeans) {
+        if (!engineConfig.isConceptsEnabled())
+            return;
+        logger.debug("Processing concepts for {}", company);
         Map<DocumentType, Collection<ConceptInputBean>> payload = new HashMap<>();
         for (TrackResultBean resultBean : resultBeans) {
-            if ( resultBean.getMetaHeader()!=null && resultBean.getMetaHeader().getId() !=null ){
+            if (resultBean.getMetaHeader() != null && resultBean.getMetaHeader().getId() != null) {
                 DocumentType docType = schemaDao.findDocumentType(resultBean.getMetaHeader().getFortress(), resultBean.getMetaHeader().getDocumentType(), false);
                 Collection<ConceptInputBean> conceptInputBeans = payload.get(docType);
                 if (conceptInputBeans == null) {
@@ -99,7 +106,7 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
                 MetaInputBean inputBean = resultBean.getMetaInputBean();
                 if (inputBean != null && inputBean.getTags() != null) {
                     for (TagInputBean inputTag : resultBean.getMetaInputBean().getTags()) {
-                        if ( !inputTag.getMetaLinks().isEmpty()) {
+                        if (!inputTag.getMetaLinks().isEmpty()) {
                             ConceptInputBean cib = new ConceptInputBean();
                             cib.setRelationships(inputTag.getMetaLinks().keySet());
                             cib.setName(inputTag.getIndex());
@@ -110,7 +117,7 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
                 }
             }
         }
-        if ( !payload.isEmpty())
+        if (!payload.isEmpty())
             schemaDao.registerConcepts(company, payload);
     }
 
@@ -124,6 +131,7 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
      */
 
     @Override
+    @Transactional
     public Set<DocumentResultBean> findConcepts(Company company, Collection<String> documents, boolean withRelationships) {
 
         return schemaDao.findConcepts(company, documents, withRelationships);
@@ -131,16 +139,18 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
     }
 
     @Override
+    @Transactional
     public void createDocTypes(Iterable<MetaInputBean> headers, Fortress fortress) {
-        ArrayList<String>docTypes = new ArrayList<>();
+        ArrayList<String> docTypes = new ArrayList<>();
         for (MetaInputBean header : headers) {
             if (!docTypes.contains(header.getDocumentType()))
                 docTypes.add(header.getDocumentType());
         }
-        schemaDao.createDocTypes(docTypes,  fortress);
+        schemaDao.createDocTypes(docTypes, fortress);
     }
-    
+
     @Override
+    @Transactional
     public Collection<DocumentResultBean> getCompanyDocumentsInUse(Company company) {
         Collection<DocumentResultBean> results = new ArrayList<>();
         Collection<DocumentType> rawDocs = schemaDao.getCompanyDocumentsInUse(company);
@@ -153,5 +163,10 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
     @Override
     public void purge(Fortress fortress) {
         schemaDao.purge(fortress);
+    }
+
+    @Override
+    public boolean ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs, Collection<String> existingIndexes) {
+        return schemaDao.ensureUniqueIndexes(company, tagInputs, existingIndexes);
     }
 }
