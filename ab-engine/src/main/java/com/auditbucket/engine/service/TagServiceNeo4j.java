@@ -68,15 +68,7 @@ public class TagServiceNeo4j implements TagService {
     private Logger logger = LoggerFactory.getLogger(TagServiceNeo4j.class);
 
     @Override
-    public Tag processTag(TagInputBean inputBean) {
-        Company company = securityHelper.getCompany();
-        return processTag(company, inputBean);
-
-    }
-
-    @Override
     public Tag processTag(Company company, TagInputBean tagInput) {
-        //schemaDao.ensureIndex(company, tagInput);
         return tagDao.save(company, tagInput);
     }
 

@@ -32,11 +32,11 @@ import java.util.Collection;
  */
 public interface TagDao {
 
-    Collection<TagInputBean> save(Company company, Iterable<TagInputBean> tags);
+    public Collection<TagInputBean> save(Company company, Iterable<TagInputBean> tags);
 
-    Collection<TagInputBean> save(Company company, Iterable<TagInputBean> tagInputs, boolean suppressRelationships);
+    public Collection<TagInputBean> save(Company company, Iterable<TagInputBean> tagInputs, boolean suppressRelationships);
 
-    Tag save(Company company, TagInputBean tagInput);
+    public Tag save(Company company, TagInputBean tagInput);
 
     /**
      * Locates a tag
@@ -48,18 +48,18 @@ public interface TagDao {
      * @param index
      * @return the tag if it exists or null
      */
-    Tag findOne(Company company, String tagName, String index);
+    public Tag findOne(Company company, String tagName, String index);
 
-    Collection<Tag> findDirectedTags(Tag startTag, Company company, boolean b);
+    public Collection<Tag> findDirectedTags(Tag startTag, Company company, boolean b);
 
-    Collection<Tag> findTags(Company company);
+    public Collection<Tag> findTags(Company company);
 
     public Collection<Tag> findTags(Company company, String index);
 
-    Collection<String> getExistingIndexes();
+    public Collection<String> getExistingIndexes();
 
     public void purgeUnusedConcepts(Company company);
 
-    void purge(Company company, String type);
+    public void purge(Company company, String type);
 
 }

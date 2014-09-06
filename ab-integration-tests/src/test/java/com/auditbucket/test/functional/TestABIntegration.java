@@ -932,7 +932,7 @@ public class TestABIntegration {
         TrackResultBean result = mediationFacade.trackHeader(su.getCompany(), input);
         waitForHeaderToUpdate(su.getCompany(), result.getMetaHeader());
         doEsQuery(result.getMetaHeader().getIndexName(), json.get("Athlete").toString(), 1);
-
+        waitAWhile();
     }
 
     private String runQuery(QueryParams queryParams) throws Exception {
