@@ -26,10 +26,6 @@ import java.util.concurrent.ExecutionException;
 public interface TrackService {
     LogWhat getWhat(MetaHeader metaHeader, Log change);
 
-    TrackResultBean createHeader(Fortress fortress, MetaInputBean inputBean);
-
-    MetaHeader makeHeader(MetaInputBean inputBean, Fortress fortress, DocumentType documentType) throws DatagioException;
-
     MetaHeader getHeader(@NotEmpty String metaKey);
 
     MetaHeader getHeader(Company company, String metaKey);
@@ -51,8 +47,6 @@ public interface TrackService {
     Set<TrackLog> getLogs(Company company, String headerKey) throws DatagioException;
 
     Set<TrackLog> getLogs(String headerKey, Date from, Date to) throws DatagioException;
-
-    MetaSearchChange cancelLastLogSync(Company company, String headerKey) throws IOException, DatagioException;
 
     @Async
     AsyncResult<MetaSearchChange> cancelLastLog(Company company, String headerKey) throws IOException, DatagioException;
