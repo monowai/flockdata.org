@@ -23,6 +23,7 @@ import com.auditbucket.dao.TrackDao;
 import com.auditbucket.helper.Command;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.DeadlockRetry;
+import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
@@ -41,8 +42,6 @@ import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,7 +49,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * User: mike
@@ -66,10 +64,7 @@ public class LogServiceNeo4j implements LogService {
     private TxService txService;
 
     @Autowired
-    private EngineConfig engineConfig;
-
-    @Autowired
-    private WhatService whatService;
+    private KvService kvService;
 
     @Autowired
     private SchemaService schemaService;
@@ -87,27 +82,20 @@ public class LogServiceNeo4j implements LogService {
     TrackDao trackDao;
 
     @Override
-    @Async
-    public Future<Collection<TrackResultBean>> processLogs(Company company, Iterable<TrackResultBean> resultBeans) throws DatagioException, IOException, ExecutionException, InterruptedException {
-        return new AsyncResult<>(processLogsSync(company, resultBeans));
-
-    }
-
-    @Override
     public Collection<TrackResultBean> processLogsSync(Company company, Iterable<TrackResultBean> resultBeans) throws DatagioException, IOException, ExecutionException, InterruptedException {
         logger.debug("Process Logs {}", Thread.currentThread().getName());
         Collection<TrackResultBean> logResults = new ArrayList<>();
         for (TrackResultBean resultBean : resultBeans) {
             logResults.add(processLogFromResult(resultBean));
         }
-        logger.debug("Logs processed. Proceeding to distribute.");
-        distributeChanges(company, logResults);
+        logger.debug("Logs processed. Proceeding to distribute changes");
+        distributeChanges(company, resultBeans);
+
         return logResults;
 
     }
 
-    @Override
-    public TrackResultBean processLogFromResult(TrackResultBean resultBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
+    TrackResultBean processLogFromResult(TrackResultBean resultBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
         //DAT-77 the header may still be committing in another thread
         if (resultBean.getLog() == null)
             return resultBean;
@@ -132,8 +120,7 @@ public class LogServiceNeo4j implements LogService {
      * @return result details
      * @throws com.auditbucket.helper.DatagioException
      */
-    @Override
-    public TrackResultBean writeTheLogAndDistributeChanges(final TrackResultBean resultBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
+    TrackResultBean writeTheLogAndDistributeChanges(final TrackResultBean resultBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
         LogInputBean logInputBean = resultBean.getLog();
         logger.debug("writeLog {}", logInputBean);
         class DeadLockCommand implements Command {
@@ -146,8 +133,7 @@ public class LogServiceNeo4j implements LogService {
                 result = writeLog(resultBean);
                 if (result.getLogResult().getStatus() == LogInputBean.LogStatus.NOT_FOUND)
                     throw new DatagioException("Unable to find MetaHeader ");
-                //distributeChange(resultBean.getMetaHeader().getFortress().getCompany(), result);
-                whatService.doKvWrite(result); //ToDo: Consider KV not available. How to write the logs
+                kvService.doKvWrite(result); //ToDo: Consider KV not available. How to write the logs
                 //      need to think of a way to recognize that the header has unprocessed work
                 return this;
             }
@@ -165,8 +151,7 @@ public class LogServiceNeo4j implements LogService {
      * @throws DatagioException
      * @throws IOException
      */
-    @Override
-    public TrackResultBean writeLog(TrackResultBean trackResultBean) throws DatagioException, IOException {
+    TrackResultBean writeLog(TrackResultBean trackResultBean) throws DatagioException, IOException {
         LogInputBean input = trackResultBean.getLog();
 
         MetaHeader metaHeader = trackResultBean.getMetaHeader();
@@ -196,8 +181,7 @@ public class LogServiceNeo4j implements LogService {
      * @param thisFortressUser User name in calling system that is making the change
      * @return populated log information with any error messages
      */
-    @Override
-    public LogResultBean createLog(MetaHeader authorisedHeader, LogInputBean input, FortressUser thisFortressUser) throws DatagioException, IOException {
+    LogResultBean createLog(MetaHeader authorisedHeader, LogInputBean input, FortressUser thisFortressUser) throws DatagioException, IOException {
         // Warning - making this private means it doesn't get a transaction!
 
         Fortress fortress = authorisedHeader.getFortress();
@@ -222,7 +206,7 @@ public class LogServiceNeo4j implements LogService {
 
         if (existingLog != null) {
             logger.debug("createLog, existing log found {}", existingLog);
-            boolean unchanged = whatService.isSame(authorisedHeader, existingLog.getLog(), input.getWhat());
+            boolean unchanged = kvService.isSame(authorisedHeader, existingLog.getLog(), input.getWhat());
             if (unchanged) {
                 logger.trace("Ignoring a change we already have {}", input);
                 resultBean.setStatus(LogInputBean.LogStatus.IGNORE);
@@ -284,13 +268,9 @@ public class LogServiceNeo4j implements LogService {
         return trackDao.getLastLog(metaHeader.getId());
     }
 
-    @Override
-    public void distributeChanges(Company company, Iterable<TrackResultBean> resultBeans) throws IOException {
+    void distributeChanges(Company company, Iterable<TrackResultBean> resultBeans) throws IOException {
         logger.debug("Distributing changes to sub-services");
-        if (engineConfig.isConceptsEnabled()) {
-            logger.debug("Distributing concepts");
-            schemaService.registerConcepts(company, resultBeans);
-        }
+        schemaService.registerConcepts(company, resultBeans);
         searchService.makeChangesSearchable(resultBeans);
         logger.debug("Distributed changes to search service");
     }

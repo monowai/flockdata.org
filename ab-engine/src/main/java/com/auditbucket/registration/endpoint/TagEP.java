@@ -19,7 +19,6 @@
 
 package com.auditbucket.registration.endpoint;
 
-import com.auditbucket.dao.SchemaDao;
 import com.auditbucket.helper.ApiKeyHelper;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.TagInputBean;
@@ -27,13 +26,14 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.RegistrationService;
 
+import com.auditbucket.track.service.MediationFacade;
+import com.auditbucket.track.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -47,30 +47,23 @@ import java.util.concurrent.ExecutionException;
 public class TagEP {
 
     @Autowired
-    com.auditbucket.track.service.TagService tagService;
-
-    @Autowired
-    SchemaDao schemaDao;
+    TagService tagService;
 
     @Autowired
     private RegistrationService registrationService;
 
+    @Autowired
+    MediationFacade mediationFacade;
+
 
     @ResponseBody
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
-    public Collection<TagInputBean> createTags(@RequestBody List<TagInputBean> tagInputs,
+    public Collection<Tag> createTags(@RequestBody List<TagInputBean> tagInputs,
                                                String apiKey,
                                                @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, ExecutionException, InterruptedException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
 
-        schemaDao.ensureUniqueIndexes(company, tagInputs, tagService.getExistingIndexes());
-        try {
-            tagService.createTagsNoRelationships(company, tagInputs);
-        } catch (IOException e) {
-            // Todo - how to handle??
-            throw new DatagioException("Error processing your batch. Please run it again");
-        }
-        return tagService.processTags(company, tagInputs);
+        return mediationFacade.createTags(company, tagInputs);
 
     }
 

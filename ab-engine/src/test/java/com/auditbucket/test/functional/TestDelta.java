@@ -50,7 +50,7 @@ public class TestDelta extends TestEngineBase {
     @Test
     public void jsonDeltasAreFound() throws Exception {
         setSecurity();
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser su = registerSystemUser(monowai, mike_admin);
 
         Fortress fortress = fortressService.registerFortress("DELTAForce");
         assertNotNull(fortress);
@@ -80,7 +80,7 @@ public class TestDelta extends TestEngineBase {
         Assert.assertNotNull(second);
 
 
-        AuditDeltaBean deltaBean = whatService.getDelta(result.getMetaHeader(), first.getLog(), second.getLog());
+        AuditDeltaBean deltaBean = kvService.getDelta(result.getMetaHeader(), first.getLog(), second.getLog());
         Map added = deltaBean.getAdded();
         Assert.assertNotNull(added);
         assertTrue(added.containsKey("list"));

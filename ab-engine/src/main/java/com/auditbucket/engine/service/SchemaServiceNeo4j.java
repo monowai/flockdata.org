@@ -19,7 +19,7 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.dao.SchemaDao;
+import com.auditbucket.engine.repo.neo4j.dao.SchemaDaoNeo4j;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
@@ -37,7 +37,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.concurrent.Future;
 
 /**
  * User: mike
@@ -45,18 +44,16 @@ import java.util.concurrent.Future;
  * Time: 7:43 AM
  */
 @Service
-@Transactional
 public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaService {
     @Autowired
-    SchemaDao schemaDao;
+    SchemaDaoNeo4j schemaDao;
 
     @Autowired
-    EngineConfig engine;
+    EngineConfig engineConfig;
     static Logger logger = LoggerFactory.getLogger(SchemaServiceNeo4j.class);
 
-    @Async
-    public Future<Boolean> ensureSystemIndexes(Company company) {
-        return new AsyncResult<>(schemaDao.ensureSystemIndexes(company, engine.getTagSuffix(company)));
+    public Boolean ensureSystemIndexes(Company company) {
+        return schemaDao.ensureSystemIndexes(company, engineConfig.getTagSuffix(company));
     }
 
     /**
@@ -65,6 +62,7 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
      * @return resolved document. Created if missing
      */
     @Override
+    @Transactional
     public DocumentType resolveDocType(Fortress fortress, String documentType) {
         return resolveDocType(fortress, documentType, true);
     }
@@ -79,6 +77,7 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
      * @return created DocumentType
      */
     @Override
+    @Transactional
     public DocumentType resolveDocType(Fortress fortress, String documentType, Boolean createIfMissing) {
         if (documentType == null) {
             throw new IllegalArgumentException("DocumentType cannot be null");
@@ -89,7 +88,11 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
     }
 
     @Override
+    @Transactional
     public void registerConcepts(Company company, Iterable<TrackResultBean> resultBeans) {
+        if (!engineConfig.isConceptsEnabled())
+            return;
+        logger.debug("Processing concepts for {}", company);
         Map<DocumentType, Collection<ConceptInputBean>> payload = new HashMap<>();
         for (TrackResultBean resultBean : resultBeans) {
             if (resultBean.getMetaHeader() != null && resultBean.getMetaHeader().getId() != null) {
@@ -128,6 +131,7 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
      */
 
     @Override
+    @Transactional
     public Set<DocumentResultBean> findConcepts(Company company, Collection<String> documents, boolean withRelationships) {
 
         return schemaDao.findConcepts(company, documents, withRelationships);
@@ -135,6 +139,7 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
     }
 
     @Override
+    @Transactional
     public void createDocTypes(Iterable<MetaInputBean> headers, Fortress fortress) {
         ArrayList<String> docTypes = new ArrayList<>();
         for (MetaInputBean header : headers) {
@@ -145,6 +150,7 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
     }
 
     @Override
+    @Transactional
     public Collection<DocumentResultBean> getCompanyDocumentsInUse(Company company) {
         Collection<DocumentResultBean> results = new ArrayList<>();
         Collection<DocumentType> rawDocs = schemaDao.getCompanyDocumentsInUse(company);
@@ -157,5 +163,10 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
     @Override
     public void purge(Fortress fortress) {
         schemaDao.purge(fortress);
+    }
+
+    @Override
+    public boolean ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs, Collection<String> existingIndexes) {
+        return schemaDao.ensureUniqueIndexes(company, tagInputs, existingIndexes);
     }
 }

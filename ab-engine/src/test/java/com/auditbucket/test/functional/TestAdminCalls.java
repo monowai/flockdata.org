@@ -20,7 +20,6 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.authentication.handler.ApiKeyInterceptor;
-import com.auditbucket.engine.service.MediationFacade;
 import com.auditbucket.helper.JsonUtils;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
@@ -63,20 +62,14 @@ import static org.junit.Assert.*;
 public class TestAdminCalls extends TestEngineBase {
 
     @Autowired
-    private MediationFacade mediationFacade;
-
-//    private Logger logger = LoggerFactory.getLogger(TestTrack.class);
-
-    @Autowired
     protected WebApplicationContext wac;
 
     MockMvc mockMvc;
 
-
     @Test
     public void deleteFortressWithHeadersAndTagsOnly() throws Exception {
 
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser su = registerSystemUser(monowai, mike_admin);
         Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
 
@@ -112,7 +105,7 @@ public class TestAdminCalls extends TestEngineBase {
     @Test
     public void deleteFortressPurgesHeaderAndLogs() throws Exception {
 
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser su = registerSystemUser(monowai, mike_admin);
         Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
 
@@ -144,7 +137,7 @@ public class TestAdminCalls extends TestEngineBase {
     @Test
     public void deleteFortressPurgesDataWithTags() throws Exception {
 
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser su = registerSystemUser(monowai, mike_admin);
         Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
         TagInputBean tagInputBean = new TagInputBean("DeleteTest", "NamedTag", "deltest");
@@ -182,7 +175,7 @@ public class TestAdminCalls extends TestEngineBase {
     @Test
     public void purgeFortressClearsDown() throws Exception {
         setSecurity();
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser su = registerSystemUser(monowai, mike_admin);
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("purgeFortressClearsDown", true));
 
         MetaInputBean trackBean = new MetaInputBean(fortress.getName(), "olivia@ast.com", "CompanyNode", null, "abc2");
@@ -224,7 +217,7 @@ public class TestAdminCalls extends TestEngineBase {
     @Test
     public void testHealth() throws Exception {
         setSecurity();
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(mike_admin, "healthCheck"));
+        SystemUser su = registerSystemUser(mike_admin, "healthCheck");
         Map<String, Object> results = getHealth(su);
         assertFalse("We didn't get back the health results for an admin user", results.isEmpty());
         assertEquals("!Unreachable! Connection refused", results.get("ab-search"));
@@ -237,7 +230,7 @@ public class TestAdminCalls extends TestEngineBase {
         ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
         setSecurity();
         // Create a data access user
-        su = regService.registerSystemUser(new RegistrationBean("anyone", "healthCheck"));
+        su = registerSystemUser("anyone", "healthCheck");
         setSecurityEmpty();
         results = getHealth(su);
         assertFalse("The user has no AUTH credentials but a valid APIKey - this should pass", results.isEmpty());

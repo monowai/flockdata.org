@@ -27,6 +27,7 @@ import com.auditbucket.engine.service.*;
 import com.auditbucket.geography.endpoint.GeographyEP;
 import com.auditbucket.helper.JsonUtils;
 import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
@@ -75,9 +76,11 @@ public class TestEngineBase {
     SchemaService schemaService;
 
 	@Autowired
-	FortressService fortressService;
+    protected
+    FortressService fortressService;
 
 	@Autowired
+    protected
     TrackService trackService;
 
 	@Autowired
@@ -90,12 +93,14 @@ public class TestEngineBase {
 	GeographyEP geographyEP;
 
 	@Autowired
-	MediationFacade mediationFacade;
+    protected
+    MediationFacade mediationFacade;
 
     @Autowired
     TxService txService;
 
     @Autowired
+    protected
     LogService logService;
 
 	@Autowired
@@ -114,13 +119,14 @@ public class TestEngineBase {
 	AdminEP adminEP;
 
 	@Autowired
-	EngineConfig engineConfig;
+    public
+    EngineConfig engineConfig;
 
 	@Autowired
 	QueryService queryService;
 
 	@Autowired
-	WhatService whatService;
+    KvService kvService;
 
 	@Autowired
 	CompanyService companyService;
@@ -190,15 +196,19 @@ public class TestEngineBase {
 		t.success();
 		t.close();
 	}
-
-    SystemUser registerSystemUser(String companyName, String accessUser) throws Exception{
-        //waitAWhile(100); // Trying to avoid Heuristic exception down to the creation of a company altering indexes
-        return regService.registerSystemUser(new RegistrationBean(companyName, accessUser).setIsUnique(false));
+    public SystemUser registerSystemUser(String companyName, String accessUser) throws Exception{
+//        waitAWhile(60); // Trying to avoid Heuristic exception down to the creation of a company altering indexes
+        Company company = companyService.findByName(companyName);
+        if ( company == null ) {
+            logger.debug("Creating company {}", companyName);
+            company = companyService.create(companyName);
+        }
+        return regService.registerSystemUser(company, new RegistrationBean(companyName, accessUser).setIsUnique(false));
     }
 
 
     public static void waitAWhile() throws Exception {
-		waitAWhile(null, 3500);
+		waitAWhile(null, 1500);
 	}
 
 	public static void waitAWhile(int millis) throws Exception {

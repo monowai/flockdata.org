@@ -19,39 +19,28 @@ import java.util.concurrent.Future;
  */
 public interface TagService {
 
-    @Deprecated // Pass the company
-    Tag processTag(TagInputBean inputBean);
+    Tag createTag(Company company, TagInputBean tagInput);
 
-    Tag processTag(Company company, TagInputBean tagInput);
-
-    @Deprecated // Pass the company
-    Collection<TagInputBean> processTags(List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException;
-
-    Collection<TagInputBean> processTags(Company company, List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException;
+    public void createTags(Company company, List<TagInputBean> tagInputs) throws DatagioException, IOException, ExecutionException, InterruptedException;
 
     @Async
-    Future<Collection<TagInputBean>> makeTags(Company company, List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException;
+    public Future<Collection<Tag>> makeTags(Company company, List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException;
 
-    Tag findTag(Company company, String tagName);
+    public Tag findTag(Company company, String tagName);
 
     @Deprecated // Pass the company
-    Tag findTag(String tagName);
+    public Tag findTag(String tagName);
 
     @Deprecated
-    Collection<Tag> findDirectedTags(Tag startTag);
+    public Collection<Tag> findDirectedTags(Tag startTag);
 
-    @Deprecated // Pass the company
-    Collection<Tag> findTags(String index);
+    public Collection<Tag> findTags(Company company, String index);
 
-    Collection<Tag> findTags(Company company, String index);
+    public Tag findTag(Company company, String tagName, String index);
 
-    Tag findTag(Company company, String tagName, String index);
+    public Collection<String> getExistingIndexes();
 
-    Collection<String> getExistingIndexes();
+    public void purgeUnusedConcepts(Company company);
 
-    void createTagsNoRelationships(Company company, List<TagInputBean> tagInputs) throws DatagioException, IOException, ExecutionException, InterruptedException;
-
-    void purgeUnusedConcepts(Company company);
-
-    void purgeType(Company company, String type);
+    public void purgeType(Company company, String type);
 }

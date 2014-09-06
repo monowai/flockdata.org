@@ -1,5 +1,9 @@
 package com.auditbucket.test.endpoint;
 
+import com.auditbucket.authentication.LoginRequest;
+import com.auditbucket.helper.JsonUtils;
+import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.test.functional.TestEngineBase;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,12 +14,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
-import com.auditbucket.authentication.LoginRequest;
-import com.auditbucket.helper.JsonUtils;
-import com.auditbucket.registration.bean.RegistrationBean;
-import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.test.functional.TestEngineBase;
 
 @WebAppConfiguration
 public class TestAPISecurity extends TestEngineBase {
@@ -44,12 +42,11 @@ public class TestAPISecurity extends TestEngineBase {
 	public void invokeSecureAPIWithoutAPIKeyButAfterValidLogin_shouldReturnOk()
 			throws Exception {
 		setSecurity();
-		regService.registerSystemUser(new RegistrationBean(monowai, mike_admin)
-				.setIsUnique(false));
+		registerSystemUser(monowai, sally_admin);
 		setSecurityEmpty();
 		
 		LoginRequest loginReq = new LoginRequest();
-		loginReq.setUsername("mike");
+		loginReq.setUsername(sally_admin);
 		loginReq.setPassword("123");
 
 		mockMVC.perform(
@@ -63,8 +60,7 @@ public class TestAPISecurity extends TestEngineBase {
 	@Test
 	public void invokeSecureAPIWithAPIKeyWithoutLogin_shouldReturnOk() throws Exception {
 		setSecurity();
-		SystemUser su = regService.registerSystemUser(new RegistrationBean(
-				monowai, mike_admin).setIsUnique(false));
+		SystemUser su = registerSystemUser(monowai, mike_admin);
 		String apikey = su.getApiKey();
 		setSecurityEmpty();
 

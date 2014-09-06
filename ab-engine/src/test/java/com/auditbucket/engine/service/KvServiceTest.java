@@ -19,82 +19,82 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.dao.TrackDao;
 import com.auditbucket.engine.repo.redis.RedisRepo;
+import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.registration.service.RegistrationService;
-import com.auditbucket.test.utils.AbstractRedisSupport;
+import com.auditbucket.test.functional.TestEngineBase;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.model.LogWhat;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
-import com.auditbucket.track.service.LogService;
-import com.auditbucket.track.service.TrackService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import junit.framework.Assert;
-
 import org.joda.time.DateTime;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
+import redis.embedded.RedisServer;
 
+import java.io.File;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:root-context.xml")
 @Transactional
-public class WhatServiceTest extends AbstractRedisSupport {
+public class KvServiceTest extends TestEngineBase {
 
     @Autowired
     RedisRepo redisRepo;
     @Autowired
-    Neo4jTemplate template;
-    @Autowired
-    TrackService trackService;
-    @Autowired
-    RegistrationService regService;
-    @Autowired
-    FortressService fortressService;
-    @Autowired
-    MediationFacade mediationFacade;
-    @Autowired
-    LogService logService;
+    private KvService kvService;
 
-    @Autowired
-    TrackDao trackDAO;
-    @Autowired
-    private WhatService whatService;
+    private Logger logger = LoggerFactory.getLogger(KvServiceTest.class);
 
-    private Logger logger = LoggerFactory.getLogger(WhatServiceTest.class);
-
-    @Autowired
-    private EngineConfig engineConfig;
+    private static RedisServer redisServer;
 
     private String email = "mike";
     private Authentication authA = new UsernamePasswordAuthenticationToken("mike", "123");
 
+    @BeforeClass
+    public static void setup() throws Exception {
+        if(redisServer == null){
+            // If you are on Winodws
+            if (System.getProperty("os.arch").equals("amd64") && System.getProperty("os.name").startsWith("Windows")) {
+                URL url = KvServiceTest.class.getResource("/redis/redis-server.exe");
+                File redisServerExe = new File(url.getFile());
+                redisServer = new RedisServer(redisServerExe, 6379); // or new RedisServer("/path/to/your/redis", 6379);
+            } else {
+                redisServer = new RedisServer(6379);
+            }
+            redisServer.start();
+        }
+    }
+
+
+
+    @AfterClass
+    public static void tearDown() throws Exception {
+        //redisServer.stop();
+    }
+
+
     @Test
     public void getWhatFromRiak() throws Exception {
-        engineConfig.setKvStore("RIAK");
+        //engineConfig.setKvStore("RIAK");
         testKVStore();
         engineConfig.setKvStore("REDIS");
     }
@@ -109,7 +109,7 @@ public class WhatServiceTest extends AbstractRedisSupport {
     private void testKVStore() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(authA);
         logger.debug("Registering system user!");
-        SystemUser su = regService.registerSystemUser(new RegistrationBean("Company", email).setIsUnique(false));
+        SystemUser su = registerSystemUser("Company", email);
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("Audit Test", true));
         String docType = "TestAuditX";
         String callerRef = "ABC123R";
@@ -126,24 +126,24 @@ public class WhatServiceTest extends AbstractRedisSupport {
             logger.error("KV Stores are configured in config.properties. This test is failing to find the {} server. Is it even installed?",engineConfig.getKvStore());
             return;
         }
-        TrackLog trackLog = trackDAO.getLastLog(header.getId());
+        TrackLog trackLog = trackService.getLastLog(header.getId());
         assertNotNull(trackLog);
 
         //When
         try {
-            LogWhat logWhat = whatService.getWhat(header, trackLog.getLog());
+            LogWhat logWhat = kvService.getWhat(header, trackLog.getLog());
 
             Assert.assertNotNull(logWhat);
             // Redis should always be available. RIAK is trickier to install
-            if ( engineConfig.getKvStore().equals(WhatService.KV_STORE.REDIS)||logWhat.getWhat().keySet().size()>1 ){
+            if ( engineConfig.getKvStore().equals(com.auditbucket.kv.service.KvService.KV_STORE.REDIS)||logWhat.getWhat().keySet().size()>1 ){
                 validateWhat(what, logWhat);
 
-                Assert.assertTrue(whatService.isSame(header, trackLog.getLog(), what));
+                Assert.assertTrue(kvService.isSame(header, trackLog.getLog(), what));
                 // Testing that cancel works
-                trackService.cancelLastLogSync(fortressA.getCompany(), ahKey);
+                trackService.cancelLastLog(fortressA.getCompany(), header);
                 Assert.assertNull(logService.getLastLog(header));
-                Assert.assertNull(whatService.getWhat(header, trackLog.getLog()).getWhatString());
-                Assert.assertTrue(whatService.isSame(logWhat.getWhatString(), what));
+                Assert.assertNull(kvService.getWhat(header, trackLog.getLog()).getWhatString());
+                Assert.assertTrue(kvService.isSame(logWhat.getWhatString(), what));
             } else {
                 // ToDo: Mock RIAK
                 logger.error("Silently passing. No what data to process for {}. Possibly KV store is not running",engineConfig.getKvStore());
