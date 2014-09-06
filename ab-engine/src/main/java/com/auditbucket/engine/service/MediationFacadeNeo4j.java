@@ -134,13 +134,12 @@ public class MediationFacadeNeo4j implements MediationFacade {
      *
      * @param fortress   system
      * @param inputBeans data
-     * @return process count - don't rely on it, why would you want it?
+     * @return ResultBeans populated with great data
      * @throws com.auditbucket.helper.DatagioException
      */
     @Override
     @Async
     public Future<Collection<TrackResultBean>> trackHeadersAsync(final Fortress fortress, List<MetaInputBean> inputBeans) throws DatagioException, IOException, ExecutionException, InterruptedException {
-        // ToDo: Return strings which contain only the caller ref data that failed.
         return new AsyncResult<>(trackHeaders(fortress, inputBeans, 10));
     }
 
