@@ -27,6 +27,7 @@ import com.auditbucket.engine.service.*;
 import com.auditbucket.geography.endpoint.GeographyEP;
 import com.auditbucket.helper.JsonUtils;
 import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
@@ -72,13 +73,15 @@ public class TestEngineBase {
 	protected RegistrationService regService;
 
 	@Autowired
-    com.auditbucket.track.service.SchemaService schemaService;
+    SchemaService schemaService;
 
 	@Autowired
-	FortressService fortressService;
+    protected
+    FortressService fortressService;
 
 	@Autowired
-    com.auditbucket.track.service.TrackService trackService;
+    protected
+    TrackService trackService;
 
 	@Autowired
 	TagTrackService tagTrackService;
@@ -90,12 +93,14 @@ public class TestEngineBase {
 	GeographyEP geographyEP;
 
 	@Autowired
-	MediationFacade mediationFacade;
+    protected
+    MediationFacade mediationFacade;
 
     @Autowired
     TxService txService;
 
     @Autowired
+    protected
     LogService logService;
 
 	@Autowired
@@ -108,19 +113,20 @@ public class TestEngineBase {
 	TagEP tagEP;
 
 	@Autowired
-    com.auditbucket.track.service.TagService tagService;
+    TagService tagService;
 
 	@Autowired
 	AdminEP adminEP;
 
 	@Autowired
-	EngineConfig engineAdmin;
+    public
+    EngineConfig engineConfig;
 
 	@Autowired
 	QueryService queryService;
 
 	@Autowired
-	WhatService whatService;
+    KvService kvService;
 
 	@Autowired
 	CompanyService companyService;
@@ -137,7 +143,7 @@ public class TestEngineBase {
 	@Autowired
 	SecurityHelper securityHelper;
 
-	private static Logger logger = LoggerFactory.getLogger(TestEngineBase.class);
+	static Logger logger = LoggerFactory.getLogger(TestEngineBase.class);
 
 	// These have to be in test-security.xml in order to create SysUserRegistrations
     protected static final String sally_admin = "sally";
@@ -158,13 +164,13 @@ public class TestEngineBase {
     @Ignore
 	public void cleanUpGraph() {
 		Neo4jHelper.cleanDb(template);
-		engineAdmin.setConceptsEnabled(false);
-		engineAdmin.setDuplicateRegistration(true);
+		engineConfig.setConceptsEnabled(false);
+		engineConfig.setDuplicateRegistration(true);
 	}
 
 	@Before
 	public void setSecurity() {
-		engineAdmin.setMultiTenanted(false);
+		engineConfig.setMultiTenanted(false);
 		SecurityContextHolder.getContext().setAuthentication(authDefault);
 	}
 
@@ -183,23 +189,26 @@ public class TestEngineBase {
 	}
 
 	Transaction beginManualTransaction() {
-		Transaction t = template.getGraphDatabase().beginTx();
-		return t;
+		return template.getGraphDatabase().beginTx();
 	}
 
 	void commitManualTransaction(Transaction t) {
 		t.success();
 		t.close();
 	}
-
-    SystemUser registerSystemUser(String companyName, String accessUser) throws Exception{
-        waitAWhile(70); // Trying to avoid Heuristic exception down to the creation of a company altering indexes
-        return regService.registerSystemUser(new RegistrationBean(companyName, accessUser).setIsUnique(false));
+    public SystemUser registerSystemUser(String companyName, String accessUser) throws Exception{
+//        waitAWhile(60); // Trying to avoid Heuristic exception down to the creation of a company altering indexes
+        Company company = companyService.findByName(companyName);
+        if ( company == null ) {
+            logger.debug("Creating company {}", companyName);
+            company = companyService.create(companyName);
+        }
+        return regService.registerSystemUser(company, new RegistrationBean(companyName, accessUser).setIsUnique(false));
     }
 
 
     public static void waitAWhile() throws Exception {
-		waitAWhile(null, 3500);
+		waitAWhile(null, 1500);
 	}
 
 	public static void waitAWhile(int millis) throws Exception {

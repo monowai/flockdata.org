@@ -20,7 +20,6 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
@@ -61,7 +60,7 @@ public class TestTrack extends TestEngineBase {
 
     @org.junit.Before
     public void setup(){
-        engineAdmin.setDuplicateRegistration(true);
+        engineConfig.setDuplicateRegistration(true);
     }
 
     @Test
@@ -133,7 +132,7 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void nullMetaKey() throws Exception {
-        regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        registerSystemUser(monowai, mike_admin);
         assertNull (trackService.getHeader(null));
     }
 
@@ -151,7 +150,7 @@ public class TestTrack extends TestEngineBase {
         assertEquals(key, keyB);
 
         setSecurity(sally_admin); // Sally can register users
-        SystemUser suB= regService.registerSystemUser(new RegistrationBean("TestTow", harry));
+        SystemUser suB= registerSystemUser("TestTow", harry);
         setSecurity(harry); // Harry can access them
         Fortress fortressB = fortressService.registerFortress("auditTestB");
         mediationFacade.trackHeader(suB.getCompany(), new MetaInputBean(fortressB.getName(), "wally", "TestTrack", new DateTime(), "123ABC"));
@@ -329,7 +328,7 @@ public class TestTrack extends TestEngineBase {
 
         // Scenario - create a new data access user
         setSecurity(sally_admin);
-        SystemUser suB = regService.registerSystemUser(new RegistrationBean("TWEE", harry));
+        SystemUser suB = registerSystemUser("TWEE", harry);
         // Switch to the data access user
         setSecurity(harry);
         Fortress fortressB = fortressService.registerFortress("auditTestB" + System.currentTimeMillis());
@@ -365,13 +364,13 @@ public class TestTrack extends TestEngineBase {
         MetaInputBean inputBean = new MetaInputBean(fortWP.getName(), "wally", "CompanyNode", new DateTime(), "AHWP");
         String ahWP = mediationFacade.trackHeader(su.getCompany(), inputBean).getMetaKey();
         assertNotNull(ahWP);
-        assertNotNull(trackService.getHeader(ahWP));
+        assertNotNull(trackService.getHeader(su.getCompany(), ahWP));
 
         //Hummingbird/Gina
         setSecurity(sally_admin);
-        SystemUser suB = regService.registerSystemUser(new RegistrationBean(hummingbird, harry));
+        SystemUser suB = registerSystemUser(hummingbird, harry);
         Authentication authHarry = setSecurity(harry); // Harry can create data
-        Fortress fortHS = fortressService.registerFortress(new FortressInputBean("honeysuckle", true));
+        Fortress fortHS = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("honeysuckle", true));
         inputBean = new MetaInputBean(fortHS.getName(), "harry", "CompanyNode", new DateTime(), "AHHS");
         String ahHS = mediationFacade.trackHeader(suB.getCompany(), inputBean).getMetaKey();
 
@@ -525,7 +524,7 @@ public class TestTrack extends TestEngineBase {
         assertEquals(secondLog.getWhatLog().getTrackLog().getFortressWhen(), metaHeader.getFortressLastWhen());
 
         // Test block
-        trackService.cancelLastLogSync(fortress.getCompany(), metaHeader.getMetaKey());
+        trackService.cancelLastLog(fortress.getCompany(), metaHeader);
         logs = trackService.getLogs(fortress.getCompany(), metaHeader.getMetaKey());
         assertEquals(1, logs.size());
         metaHeader = trackService.getHeader(ahWP); // Refresh the header
@@ -533,7 +532,7 @@ public class TestTrack extends TestEngineBase {
         assertEquals(firstLog.getWhatLog().getTrackLog().getFortressWhen(), metaHeader.getFortressLastWhen());
 
         // Last change cancelled
-        trackService.cancelLastLogSync(fortress.getCompany(), metaHeader.getMetaKey());
+        trackService.cancelLastLog(fortress.getCompany(), metaHeader);
         logs = trackService.getLogs(fortress.getCompany(), metaHeader.getMetaKey());
         assertTrue(logs.isEmpty());
     }
@@ -732,7 +731,7 @@ public class TestTrack extends TestEngineBase {
         waitForFirstLog(su.getCompany(), trackResultBean.getMetaHeader());
         TrackLog lastLog = logService.getLastLog(trackResultBean.getMetaHeader());
 
-        LogWhat what = whatService.getWhat(trackResultBean.getMetaHeader(),  lastLog.getLog());
+        LogWhat what = kvService.getWhat(trackResultBean.getMetaHeader(),  lastLog.getLog());
         assertEquals(json.get("Athlete"), what.getWhat().get("Athlete"));
 
         // Second call should say that nothing has changed
@@ -806,7 +805,7 @@ public class TestTrack extends TestEngineBase {
         header = trackService.findByCallerRef(fortress, "TestTrack", callerRef );
         TrackLog lastLog = trackService.getLastLog(su.getCompany(), header.getMetaKey());
         assertNotNull(lastLog);
-        LogWhat what = whatService.getWhat(header, lastLog.getLog());
+        LogWhat what = kvService.getWhat(header, lastLog.getLog());
 
         assertNotNull(what);
         Object value = what.getWhat().get("col");

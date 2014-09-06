@@ -66,16 +66,16 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
     @Test
     public void simpleTagAgainstMetaHeader() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
-        assertNotNull(iSystemUser);
+        SystemUser su = registerSystemUser(monowai, mike_admin);
+        assertNotNull(su);
         Fortress fortress = fortressService.registerFortress("ABC");
         assertNotNull(fortress);
 
         TagInputBean flopTag = new TagInputBean("FLOP");
-        tagService.processTag(flopTag);
+        tagService.createTag(su.getCompany(), flopTag);
 
         MetaInputBean inputBean = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
-        TrackResultBean resultBean = mediationFacade.trackHeader(iSystemUser.getCompany(), inputBean);
+        TrackResultBean resultBean = mediationFacade.trackHeader(su.getCompany(), inputBean);
         MetaHeader header = trackService.getHeader(resultBean.getMetaKey());
 
         TrackTagInputBean auditTag = new TrackTagInputBean(resultBean.getMetaKey(), null, "!!!");
@@ -102,12 +102,12 @@ public class TestMetaHeaderTags extends TestEngineBase {
     @Test
     public void renameRelationship() throws Exception {
 
-        SystemUser su= regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser su= registerSystemUser(monowai, mike_admin);
         fortressService.registerFortress("ABC");
 
         TagInputBean tagInput = new TagInputBean("FLOP");
 
-        tagService.processTag(tagInput);
+        tagService.createTag(su.getCompany(), tagInput);
         //assertNotNull(result);
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         aib.addTag(new TagInputBean("TagA", "AAAA"));
@@ -133,13 +133,13 @@ public class TestMetaHeaderTags extends TestEngineBase {
     @Test
     public void createAndDeleteTrackTags() throws Exception {
 
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         fortressService.registerFortress("ABC");
 
         iSystemUser.getCompany();
         TagInputBean tagInput = new TagInputBean("FLOP");
 
-        tagService.processTag(tagInput);
+        tagService.createTag(iSystemUser.getCompany(), tagInput);
         //assertNotNull(result);
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
 
@@ -169,12 +169,12 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
     @Test
     public void nullTagValueCRUD() throws Exception {
-        SystemUser su= regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser su= registerSystemUser(monowai, mike_admin);
         fortressService.registerFortress("ABC");
 
         TagInputBean tagInput = new TagInputBean("FLOP");
 
-        tagService.processTag(tagInput);
+        tagService.createTag(su.getCompany(), tagInput);
         //assertNotNull(result);
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         // In this scenario, the Tag name is the key if the value is null
@@ -208,12 +208,12 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
     @Test
     public void nullCodeValue() throws Exception {
-        SystemUser su= regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
+        SystemUser su= registerSystemUser(monowai, mike_admin);
         fortressService.registerFortress("ABC");
 
         TagInputBean tagInput = new TagInputBean("FLOP");
 
-        tagService.processTag(tagInput);
+        tagService.createTag(su.getCompany(), tagInput);
         //assertNotNull(result);
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         // In this scenario, the Tag name is the key if the value is null
@@ -229,12 +229,12 @@ public class TestMetaHeaderTags extends TestEngineBase {
     }
     @Test
     public void duplicateTagNotCreated() throws Exception {
-        SystemUser su= regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser su= registerSystemUser(monowai, mike_admin);
         fortressService.registerFortress("ABC");
 
         TagInputBean tagInput = new TagInputBean("FLOP");
 
-        tagService.processTag(tagInput);
+        tagService.createTag(su.getCompany(), tagInput);
         //assertNotNull(result);
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         // This should create the same Tag object
@@ -255,12 +255,12 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
     @Test
     public void noTrackTagsAreReturned() throws Exception {
-        SystemUser su= regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser su= registerSystemUser(monowai, mike_admin);
         fortressService.registerFortress(new FortressInputBean("ABC"));
 
         TagInputBean tagInput = new TagInputBean("FLOP");
 
-        tagService.processTag(tagInput);
+        tagService.createTag(su.getCompany(), tagInput);
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         aib.setTrackSuppressed(true);
         // This should create the same Tag object, but return one row for each relationships
@@ -282,7 +282,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
     @Test
     public void createLogForInvalidHeader() throws Exception{
-        regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        registerSystemUser(monowai, mike_admin);
         fortressService.registerFortress(new FortressInputBean("ABC"));
 
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
@@ -299,7 +299,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
     }
     @Test
     public void createLogForValidHeaderWithNoWhatDetail() throws Exception{
-        regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        registerSystemUser(monowai, mike_admin);
         fortressService.registerFortress(new FortressInputBean("ABC", true));
 
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
@@ -311,12 +311,12 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
     @Test
     public void differentTagTypeSameTagName() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         fortressService.registerFortress( new FortressInputBean("ABC", true));
 
         TagInputBean tagInput = new TagInputBean("FLOP");
 
-        tagService.processTag(tagInput);
+        tagService.createTag(iSystemUser.getCompany(), tagInput);
 
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         // This should create the same Tag object
@@ -341,7 +341,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
     @Test
     public void tagListAndSingular() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         assertNotNull(iSystemUser);
 
         Fortress fortress = fortressService.registerFortress("ABC");
@@ -365,7 +365,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
     @Test
     public void mapRelationshipsWithNullProperties() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
+        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         assertNotNull(iSystemUser);
 
         Fortress fortress = fortressService.registerFortress("ABC");
@@ -388,7 +388,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
     @Test
     public void mapRelationshipsWithProperties() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         assertNotNull(iSystemUser);
 
         Fortress fortress = fortressService.registerFortress("ABC");
@@ -416,7 +416,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
     @Test
     public void duplicateRLXTypesNotStored() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         assertNotNull(iSystemUser);
 
         Fortress fortress = fortressService.registerFortress("ABC");
@@ -438,7 +438,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
     @Test
     public void directedMetaTagsWork ( )throws Exception{
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         assertNotNull(iSystemUser);
 
         Fortress fortress = fortressService.registerFortress("ABC");
@@ -463,7 +463,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
     @Test
     public void tagsAndValuesWithSpaces() throws Exception {
 
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         assertNotNull(iSystemUser);
 
         Fortress fortress = fortressService.registerFortress("ABC");
@@ -490,7 +490,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
     public void nestedStructureInHeader() throws Exception {
 
         SecurityContextHolder.getContext().setAuthentication(authDefault);
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         assertNotNull(iSystemUser);
 
         Fortress fortress = fortressService.registerFortress("ABC");
@@ -528,7 +528,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
     @Test
     public void usGeographyStructure() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         assertNotNull(iSystemUser);
 
         Fortress fortress = fortressService.registerFortress("ABC");
@@ -572,7 +572,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
     @Test
     public void tagsInSearchDoc() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         assertNotNull(iSystemUser);
 
         Fortress fortress = fortressService.registerFortress("ABC");
@@ -612,7 +612,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
         authorTag.addMetaLink("writer");
         authorTag.addMetaLink("lead");
 
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
         assertNotNull(iSystemUser);
 
         Fortress fortress = fortressService.registerFortress("ABC");
@@ -643,7 +643,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
     @Test
     public void geoTag() throws Exception {
-        SystemUser iSystemUser = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
+        SystemUser iSystemUser = registerSystemUser( monowai, mike_admin);
         assertNotNull(iSystemUser);
 
         Fortress fortress = fortressService.registerFortress("ABC");
@@ -692,7 +692,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
     @Test
     public void tagsAreUpdatedOnHeaderUpdate() throws Exception {
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
+        SystemUser su = registerSystemUser(monowai, mike_admin);
         fortressService.registerFortress("ABC");
 
         TagInputBean tagInput = new TagInputBean("TEST-CREATE", "rlx-test");
@@ -759,7 +759,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
     @Test
     public void oneTagRemovedFromASetOfTwo() throws Exception {
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
+        SystemUser su = registerSystemUser(monowai, mike_admin);
         fortressService.registerFortress("ABC");
 
         TagInputBean tagInput = new TagInputBean("TAG-FIRST", "rlx-test");
@@ -804,7 +804,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
     @Test
     public void addNewTagToExistingMetaHeader() throws Exception {
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser su = registerSystemUser(monowai, mike_admin);
         fortressService.registerFortress("ABC");
 
         //assertNotNull(result);
@@ -834,7 +834,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
     @Test
     public void directionalTagsAndRelationshipPropertiesPreserved() throws Exception {
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
+        SystemUser su = registerSystemUser(monowai, mike_admin);
         fortressService.registerFortress("ABC");
 
         MetaInputBean inputBean = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc1");
@@ -884,7 +884,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
         assertEquals(1, outboundTags.size());
 
         // Cancelling last change should restore the inbound tag
-        mediationFacade.cancelLastLogSync(su.getCompany(), created.getMetaKey());
+        mediationFacade.cancelLastLog(su.getCompany(), created);
         // Total of two tags
         validateTag(created, null, 1);
         // One of which is outbound and the other inbound
@@ -902,7 +902,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
     @Test
     public void addNewTagToExistingMetaHeaderWithNoLog() throws Exception {
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
+        SystemUser su = registerSystemUser(monowai, mike_admin);
         fortressService.registerFortress(new FortressInputBean("ABC", true));
 
         //assertNotNull(result);
@@ -929,7 +929,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
     }
     @Test
     public void search() throws Exception{
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin).setIsUnique(false));
+        SystemUser su = registerSystemUser(monowai, mike_admin);
         Fortress fo = fortressService.registerFortress(new FortressInputBean("cancelLogTag", true));
         MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "CancelDoc", new DateTime(), "ABC123");
         LogInputBean log = new LogInputBean("wally", new DateTime(),  TestHelper.getRandomMap());
@@ -951,7 +951,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
         // We now have 2 logs, sad tags, no happy tags
 
         // Cancel Log - this will remove the sad tags and leave us with happy tags
-        mediationFacade.cancelLastLogSync(su.getCompany(), result.getMetaKey());
+        mediationFacade.cancelLastLog(su.getCompany(), result.getMetaHeader());
         Set<TrackTag>tags = tagTrackService.findTrackTags(result.getMetaHeader());
         assertEquals(2, tags.size());
 

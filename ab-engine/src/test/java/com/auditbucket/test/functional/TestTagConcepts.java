@@ -63,7 +63,7 @@ public class TestTagConcepts extends TestEngineBase {
         logger.debug("### multipleDocsSameFortress");
         Neo4jHelper.cleanDb(template);
         setSecurity();
-        engineAdmin.setConceptsEnabled(true);
+        engineConfig.setConceptsEnabled(true);
 
         Transaction t = beginManualTransaction();
         SystemUser su = registerSystemUser("multipleDocsSameFortress", mike_admin);
@@ -108,7 +108,7 @@ public class TestTagConcepts extends TestEngineBase {
     public void fortressConcepts() throws Exception {
         logger.debug("### fortressConcepts");
         Neo4jHelper.cleanDb(template);
-        engineAdmin.setConceptsEnabled(true);
+        engineConfig.setConceptsEnabled(true);
 
         Transaction t = beginManualTransaction();
         setSecurity();
@@ -181,7 +181,7 @@ public class TestTagConcepts extends TestEngineBase {
         logger.debug("### multipleRelationships");
         Neo4jHelper.cleanDb(template);
         setSecurity();
-        engineAdmin.setConceptsEnabled(true);
+        engineConfig.setConceptsEnabled(true);
         Transaction t = beginManualTransaction();
 
         SystemUser su = registerSystemUser("multipleRelationships", mike_admin);
@@ -230,7 +230,7 @@ public class TestTagConcepts extends TestEngineBase {
         logger.debug("### relationshipWorkForMultipleDocuments");
         Neo4jHelper.cleanDb(template);
         setSecurity();
-        engineAdmin.setConceptsEnabled(true);
+        engineConfig.setConceptsEnabled(true);
 
         Transaction t = beginManualTransaction();
 
@@ -294,7 +294,7 @@ public class TestTagConcepts extends TestEngineBase {
         logger.debug("### uniqueRelationshipByDocType");
         Neo4jHelper.cleanDb(template);
         setSecurity();
-        engineAdmin.setConceptsEnabled(true);
+        engineConfig.setConceptsEnabled(true);
 
         Transaction t = beginManualTransaction();
 
@@ -346,7 +346,7 @@ public class TestTagConcepts extends TestEngineBase {
         Neo4jHelper.cleanDb(template);
         setSecurity();
 
-        engineAdmin.setConceptsEnabled(true);
+        engineConfig.setConceptsEnabled(true);
 
         Transaction t ;
 

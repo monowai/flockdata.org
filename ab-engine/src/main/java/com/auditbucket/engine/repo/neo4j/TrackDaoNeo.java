@@ -25,8 +25,8 @@ import com.auditbucket.engine.repo.neo4j.model.LoggedRelationship;
 import com.auditbucket.engine.repo.neo4j.model.MetaHeaderNode;
 import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
 import com.auditbucket.engine.service.TrackEventService;
-import com.auditbucket.engine.service.WhatService;
 import com.auditbucket.helper.DatagioException;
+import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
@@ -70,7 +70,7 @@ public class TrackDaoNeo implements TrackDao {
     TrackEventService trackEventService;
 
     @Autowired
-    WhatService whatService;
+    KvService kvService;
 
     @Autowired
     KeyGenService keyGenService;
@@ -302,7 +302,7 @@ public class TrackDaoNeo implements TrackDao {
         changeLog.setEvent(event);
         changeLog.setPreviousLog(previousChange);
         try {
-            changeLog = whatService.prepareLog(changeLog, input.getWhat());
+            changeLog = kvService.prepareLog(changeLog, input.getWhat());
         } catch (IOException e) {
             throw new DatagioException("Unexpected error talking to What Service", e);
         }

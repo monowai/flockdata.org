@@ -25,6 +25,7 @@ import com.auditbucket.engine.repo.redis.RedisRepo;
 import com.auditbucket.engine.repo.riak.RiakRepo;
 import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.helper.CompressionResult;
+import com.auditbucket.kv.service.KvService;
 import com.auditbucket.track.bean.AuditDeltaBean;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
@@ -52,32 +53,34 @@ import java.util.Set;
  */
 @Service
 @Transactional
-public class WhatService {
+public class AbKvService implements KvService {
 
+    @Override
     public String ping() {
         KvRepo repo = getKvRepo();
         return repo.ping();
     }
 
+    @Override
     public void purge(String indexName) {
         getKvRepo().purge(indexName);
     }
 
-    public void doKvWrite(Iterable<TrackResultBean> resultBeans) throws IOException {
-        int count = 0;
-        for (TrackResultBean resultBean : resultBeans) {
-            doKvWrite(resultBean);
-            count ++;
-        }
-        logger.debug("KV Service handled [{}] requests", count);
-    }
+//    @Override
+//    public void doKvWrite(Iterable<TrackResultBean> resultBeans) throws IOException {
+//        int count = 0;
+//        for (TrackResultBean resultBean : resultBeans) {
+//            doKvWrite(resultBean);
+//            count ++;
+//        }
+//        logger.debug("KV Service handled [{}] requests", count);
+//    }
 
+    @Override
     public void doKvWrite(TrackResultBean resultBean) throws IOException {
         if (resultBean.getLog() != null && resultBean.getLog().getStatus() != LogInputBean.LogStatus.TRACK_ONLY)
             doKvWrite(resultBean.getMetaHeader(), resultBean.getLogResult().getWhatLog());
     }
-
-    public enum KV_STORE {REDIS, RIAK}
 
     private static final ObjectMapper om = new ObjectMapper();
 
@@ -90,7 +93,7 @@ public class WhatService {
     @Autowired
     EngineConfig engineAdmin;
 
-    private Logger logger = LoggerFactory.getLogger(WhatService.class);
+    private Logger logger = LoggerFactory.getLogger(AbKvService.class);
 
     /**
      * adds what store details to the log that will be index in Neo4j
@@ -102,6 +105,7 @@ public class WhatService {
      * @return logChange
      * @throws IOException
      */
+    @Override
     public Log prepareLog(Log log, Map<String, Object> jsonText) throws IOException {
         // Compress the Value of JSONText
         CompressionResult dataBlock = CompressionHelper.compress(jsonText);
@@ -141,6 +145,7 @@ public class WhatService {
 
     }
 
+    @Override
     public LogWhat getWhat(MetaHeader metaHeader, Log log) {
         if (log == null)
             return null;
@@ -160,6 +165,7 @@ public class WhatService {
         return null;
     }
 
+    @Override
     public void delete(MetaHeader metaHeader, Log change) {
 
         getKvRepo(change).delete(metaHeader, change.getId());
@@ -175,6 +181,7 @@ public class WhatService {
      * @param jsonWith new Change to compare with - JSON format
      * @return false if different, true if same
      */
+    @Override
     public boolean isSame(MetaHeader metaHeader, Log compareFrom, Map<String, Object> jsonWith) {
         if (compareFrom == null)
             return false;
@@ -197,6 +204,7 @@ public class WhatService {
         return isSame(jsonFrom, jsonWith);
     }
 
+    @Override
     public boolean isSame(String compareFrom, Map<String, Object> compareWith) {
         logger.debug ("Comparing [{}] with [{}]", compareFrom, compareWith);
         if (compareFrom == null || compareWith == null)
@@ -218,6 +226,7 @@ public class WhatService {
 
     }
 
+    @Override
     public AuditDeltaBean getDelta(MetaHeader header, Log from, Log to) {
         if (header == null || from == null || to == null)
             throw new IllegalArgumentException("Unable to compute delta due to missing arguments");

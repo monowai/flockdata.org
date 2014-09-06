@@ -36,7 +36,7 @@ public interface CompanyService {
 
     SystemUser getAdminUser(Company company, String name);
 
-    Company save(String companyName);
+    Company create(String companyName);
 
 //    @Cacheable(value = "companyKeys", unless = "#result == null")
     Company findByApiKey(String apiKey);

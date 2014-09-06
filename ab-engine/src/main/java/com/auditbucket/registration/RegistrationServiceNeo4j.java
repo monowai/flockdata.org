@@ -27,14 +27,13 @@ import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.KeyGenService;
 import com.auditbucket.registration.service.SystemUserService;
+import com.auditbucket.track.service.SchemaService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
-public class RegistrationService implements com.auditbucket.registration.service.RegistrationService {
+public class RegistrationServiceNeo4j implements com.auditbucket.registration.service.RegistrationService {
 
     @Autowired
     private CompanyService companyService;
@@ -46,47 +45,61 @@ public class RegistrationService implements com.auditbucket.registration.service
     KeyGenService keyGenService;
 
     @Autowired
+    SchemaService schemaService;
+
+    @Autowired
     private SecurityHelper securityHelper;
 
     public static SystemUser GUEST = new SystemUserNode("Guest", null, null, false);
 
 
     @Override
-    public SystemUser registerSystemUser(RegistrationBean regBean) throws DatagioException {
+    @Transactional
+    public SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws DatagioException {
 
         SystemUser systemUser = systemUserService.findByLogin(regBean.getLogin());
 
         if (systemUser != null) {
-        	return systemUser; 
+            return systemUser;
         }
 
-        Company company = companyService.findByName(regBean.getCompanyName());
-        if (company == null) {
-            company = companyService.save(regBean.getCompanyName());
-        }
         regBean.setCompany(company);
-        systemUser = systemUserService.save(regBean);
-
-        return systemUser;
+        return makeSystemUser(regBean);
     }
 
-    public SystemUser isAdminUser(Company company, String message) {
-        String systemUser = securityHelper.isValidUser();
-        SystemUser adminUser = companyService.getAdminUser(company, systemUser);
-        if (adminUser == null)
-            throw new IllegalArgumentException(message);
-        return adminUser;
+    @Override
+    public SystemUser registerSystemUser(RegistrationBean regBean) throws DatagioException {
+        // Non-transactional method
+        Company company = companyService.findByName(regBean.getCompanyName());
+        if (company == null) {
+            company = companyService.create(regBean.getCompanyName());
+            // indexes have to happen outside of data update transactions
+            // else you'll get a Heuristic exception failure
+            schemaService.ensureSystemIndexes(company);
+
+        }
+
+        return registerSystemUser(company, regBean);
+    }
+
+    @Transactional
+    public SystemUser makeSystemUser(RegistrationBean regBean) {
+
+        return systemUserService.save(regBean);
+
+
     }
 
     /**
      * @return currently logged-in SystemUser or Guest if anonymous
      */
+    @Transactional
     public SystemUser getSystemUser() {
         String systemUser = securityHelper.getUserName(false, false);
         if (systemUser == null)
             return GUEST;
         SystemUser iSystemUser = systemUserService.findByLogin(systemUser);
-        if (iSystemUser == null ) {
+        if (iSystemUser == null) {
             // Authenticated in the security system, but not in the graph
             return new SystemUserNode(systemUser, null, null, true);
         } else {
@@ -94,9 +107,10 @@ public class RegistrationService implements com.auditbucket.registration.service
         }
     }
 
-    public SystemUser getSystemUser(String apiKey){
+    @Transactional
+    public SystemUser getSystemUser(String apiKey) {
         SystemUser su = systemUserService.findByApiKey(apiKey);
-        if ( su == null )
+        if (su == null)
             return getSystemUser();
         return su;
     }

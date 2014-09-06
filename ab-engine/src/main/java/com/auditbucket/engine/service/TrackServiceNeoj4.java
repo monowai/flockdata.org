@@ -22,6 +22,7 @@ package com.auditbucket.engine.service;
 import com.auditbucket.dao.TrackDao;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
@@ -34,15 +35,15 @@ import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.bean.TrackedSummaryBean;
 import com.auditbucket.track.model.*;
-import com.auditbucket.track.service.*;
+import com.auditbucket.track.service.SchemaService;
+import com.auditbucket.track.service.TagTrackService;
+import com.auditbucket.track.service.TrackService;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -81,13 +82,13 @@ public class TrackServiceNeoj4 implements TrackService {
     TagTrackService tagTrackService;
 
     @Autowired
-    com.auditbucket.track.service.SchemaService schemaService;
+    SchemaService schemaService;
 
     @Autowired
     TxService txService;
 
     @Autowired
-    WhatService whatService;
+    KvService kvService;
 
     @Autowired
     TrackDao trackDao;
@@ -99,7 +100,7 @@ public class TrackServiceNeoj4 implements TrackService {
 
     @Override
     public LogWhat getWhat(MetaHeader metaHeader, Log change) {
-        return whatService.getWhat(metaHeader, change);
+        return kvService.getWhat(metaHeader, change);
     }
 
     /**
@@ -108,7 +109,6 @@ public class TrackServiceNeoj4 implements TrackService {
      *
      * @return unique primary key to be used for subsequent log calls
      */
-    @Override
     public TrackResultBean createHeader(Fortress fortress, MetaInputBean inputBean) {
         DocumentType documentType = schemaService.resolveDocType(fortress, inputBean.getDocumentType());
 
@@ -148,7 +148,6 @@ public class TrackServiceNeoj4 implements TrackService {
 
     }
 
-    @Override
     public MetaHeader makeHeader(MetaInputBean inputBean, Fortress fortress, DocumentType documentType) throws DatagioException {
         MetaHeader ah = trackDao.create(inputBean, fortress, documentType);
         if (ah.getId() == null)
@@ -198,6 +197,11 @@ public class TrackServiceNeoj4 implements TrackService {
         if (!(ah.getFortress().getCompany().getId().equals(company.getId())))
             throw new SecurityException("CompanyNode mismatch. [" + headerKey + "] working for [" + company.getName() + "] cannot write meta records for [" + ah.getFortress().getCompany().getName() + "]");
         return ah;
+    }
+
+    @Override
+    public MetaHeader getMetaHeader(MetaHeader metaHeader) {
+        return trackDao.fetch(metaHeader);
     }
 
     @Override
@@ -256,34 +260,18 @@ public class TrackServiceNeoj4 implements TrackService {
     }
 
     /**
-     * blocking call. This will not update the search store. For that call the
-     * function in the MediationFacade
-     *
-     * @param company   validated company the caller is authorised to work with
-     * @param headerKey UID of the Header
-     * @return MetaSearchChange the search change to index, or null if there are no logs
-     * @throws IOException
-     */
-    @Override
-    public MetaSearchChange cancelLastLogSync(Company company, String headerKey) throws IOException, DatagioException {
-        AsyncResult<MetaSearchChange> futureHeader = cancelLastLog(company, headerKey);
-        return futureHeader.get();
-    }
-
-    /**
-     * This could be used toa assist in compensating transactions to roll back the last change
+     * This can be used toa assist in compensating transactions to roll back the last change
      * if the caller decides a rollback is required after the log has been written.
      * If there are no Log records left, then the metaHeader will also be removed and the
      * AB headerKey will be forever invalid.
      *
      * @param company   validated company the caller is authorised to work with
-     * @param headerKey UID of the metaHeader
+     * @param metaHeader UID of the metaHeader
      * @return Future<MetaSearchChange> search change to index, or null if there are no logs
      */
     @Override
-    @Async
-    public AsyncResult<MetaSearchChange> cancelLastLog(Company company, String headerKey) throws IOException, DatagioException {
-        MetaHeader metaHeader = getValidHeader(headerKey, true);
+    public MetaSearchChange cancelLastLog(Company company, MetaHeader metaHeader) throws IOException, DatagioException {
+        //MetaHeader metaHeader = getValidHeader(metaHeader, true);
         TrackLog existingLog = getLastLog(metaHeader.getId());
         if (existingLog == null)
             return null;
@@ -314,27 +302,27 @@ public class TrackServiceNeoj4 implements TrackService {
             metaHeader = trackDao.save(metaHeader);
             trackDao.delete(currentLog);
         }
-        whatService.delete(metaHeader, currentLog); // ToDo: Move to mediation facade
+        kvService.delete(metaHeader, currentLog); // ToDo: Move to mediation facade
         MetaSearchChange searchDocument = null;
         if (fromLog == null) {
             // Nothing to index, no changes left so we're done
             searchDocument = new MetaSearchChange(metaHeader);
             searchDocument.setDelete(true);
             searchDocument.setSearchKey(searchKey);
-            return new AsyncResult<>(searchDocument);
+            return searchDocument;
         }
 
         // Sync the update to ab-search.
         if (metaHeader.getFortress().isSearchActive() && !metaHeader.isSearchSuppressed()) {
             // Update against the MetaHeader only by re-indexing the search document
-            HashMap<String, Object> priorWhat = (HashMap<String, Object>) whatService.getWhat(metaHeader, fromLog).getWhat();
+            HashMap<String, Object> priorWhat = (HashMap<String, Object>) kvService.getWhat(metaHeader, fromLog).getWhat();
 
             searchDocument = new MetaSearchChange(metaHeader, priorWhat, fromLog.getEvent().getCode(), new DateTime(fromLog.getTrackLog().getFortressWhen()));
-            searchDocument.setTags(tagTrackService.findTrackTags(metaHeader));
+            searchDocument.setTags(tagTrackService.findTrackTags(company, metaHeader));
             searchDocument.setReplyRequired(false);
             searchDocument.setForceReindex(true);
         }
-        return new AsyncResult<>(searchDocument);
+        return searchDocument;
     }
 
     /**
@@ -472,7 +460,7 @@ public class TrackServiceNeoj4 implements TrackService {
 
         TrackLog log = trackDao.getLog(logId);
         trackDao.fetch(log.getLog());
-        LogWhat what = whatService.getWhat(metaHeader, log.getLog());
+        LogWhat what = kvService.getWhat(metaHeader, log.getLog());
         log.getLog().setWhat(what);
         return new LogDetailBean(log, what);
     }
@@ -492,7 +480,7 @@ public class TrackServiceNeoj4 implements TrackService {
     }
 
     @Override
-    public Iterable<TrackResultBean> createHeaders(Fortress fortress, Iterable<MetaInputBean> inputBeans) throws InterruptedException, ExecutionException, DatagioException, IOException {
+    public Iterable<TrackResultBean> trackHeaders(Fortress fortress, Iterable<MetaInputBean> inputBeans) throws InterruptedException, ExecutionException, DatagioException, IOException {
         Collection<TrackResultBean> arb = new CopyOnWriteArrayList<>();
         for (MetaInputBean inputBean : inputBeans) {
             logger.trace("Batch Processing metaKey=[{}], documentType=[{}]", inputBean.getCallerRef(), inputBean.getDocumentType());

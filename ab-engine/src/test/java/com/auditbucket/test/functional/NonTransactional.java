@@ -1,7 +1,6 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
@@ -48,7 +47,7 @@ public class NonTransactional extends TestEngineBase{
 
     @Test
     public void crossReferenceTags() throws Exception {
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser su = registerSystemUser(monowai, mike_admin);
         Thread.sleep(500);
         Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest"));
         TagInputBean tag = new TagInputBean("ABC", "Device", "sold");
@@ -91,7 +90,7 @@ public class NonTransactional extends TestEngineBase{
         // Assume the user has now logged in.
         //org.neo4j.graphdb.Transaction t = graphDatabaseService.beginTx();
         String company = "MFURT";
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(company, mike_admin).setIsUnique(false));
+        SystemUser su = registerSystemUser(company, mike_admin);
         setSecurity();
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleFortressUserRequestsThreaded"));
