@@ -23,6 +23,7 @@ import com.auditbucket.engine.endpoint.QueryEP;
 import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.service.*;
 import com.auditbucket.helper.JsonUtils;
+import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
@@ -140,7 +141,7 @@ public class TestABIntegration {
     QueryEP queryEP;
 
     @Autowired
-    WhatService whatService;
+    KvService kvService;
 
     static MockMvc mockMvc;
 

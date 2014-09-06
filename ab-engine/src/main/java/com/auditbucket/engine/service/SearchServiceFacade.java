@@ -1,6 +1,7 @@
 package com.auditbucket.engine.service;
 
 import com.auditbucket.dao.TrackDao;
+import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.search.model.*;
 import com.auditbucket.track.bean.LogInputBean;
@@ -48,7 +49,7 @@ public class SearchServiceFacade {
     TagTrackService tagTrackService;
 
     @Autowired
-    WhatService whatService;
+    KvService kvService;
 
     @Autowired
     FortressService fortressService;
@@ -175,7 +176,7 @@ public class SearchServiceFacade {
                 HashMap<String, Object> lastWhat;
                 MetaSearchChange searchDocument;
                 if (lastChange != null) {
-                    lastWhat = (HashMap<String, Object>) whatService.getWhat(metaHeader, lastChange).getWhat();
+                    lastWhat = (HashMap<String, Object>) kvService.getWhat(metaHeader, lastChange).getWhat();
                     searchDocument = new MetaSearchChange(metaHeader, lastWhat, lastChange.getEvent().getCode(), new DateTime(lastLog.getFortressWhen()));
                     searchDocument.setWho(lastChange.getWho().getCode());
                 } else {

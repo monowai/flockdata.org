@@ -21,6 +21,7 @@ package com.auditbucket.engine.service;
 
 import com.auditbucket.dao.TrackDao;
 import com.auditbucket.engine.repo.redis.RedisRepo;
+import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
@@ -62,7 +63,7 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:root-context.xml")
 @Transactional
-public class WhatServiceTest extends AbstractRedisSupport {
+public class KvServiceTest extends AbstractRedisSupport {
 
     @Autowired
     RedisRepo redisRepo;
@@ -82,9 +83,9 @@ public class WhatServiceTest extends AbstractRedisSupport {
     @Autowired
     TrackDao trackDAO;
     @Autowired
-    private WhatService whatService;
+    private KvService kvService;
 
-    private Logger logger = LoggerFactory.getLogger(WhatServiceTest.class);
+    private Logger logger = LoggerFactory.getLogger(KvServiceTest.class);
 
     @Autowired
     private EngineConfig engineConfig;
@@ -131,19 +132,19 @@ public class WhatServiceTest extends AbstractRedisSupport {
 
         //When
         try {
-            LogWhat logWhat = whatService.getWhat(header, trackLog.getLog());
+            LogWhat logWhat = kvService.getWhat(header, trackLog.getLog());
 
             Assert.assertNotNull(logWhat);
             // Redis should always be available. RIAK is trickier to install
-            if ( engineConfig.getKvStore().equals(WhatService.KV_STORE.REDIS)||logWhat.getWhat().keySet().size()>1 ){
+            if ( engineConfig.getKvStore().equals(com.auditbucket.kv.service.KvService.KV_STORE.REDIS)||logWhat.getWhat().keySet().size()>1 ){
                 validateWhat(what, logWhat);
 
-                Assert.assertTrue(whatService.isSame(header, trackLog.getLog(), what));
+                Assert.assertTrue(kvService.isSame(header, trackLog.getLog(), what));
                 // Testing that cancel works
                 trackService.cancelLastLogSync(fortressA.getCompany(), ahKey);
                 Assert.assertNull(logService.getLastLog(header));
-                Assert.assertNull(whatService.getWhat(header, trackLog.getLog()).getWhatString());
-                Assert.assertTrue(whatService.isSame(logWhat.getWhatString(), what));
+                Assert.assertNull(kvService.getWhat(header, trackLog.getLog()).getWhatString());
+                Assert.assertTrue(kvService.isSame(logWhat.getWhatString(), what));
             } else {
                 // ToDo: Mock RIAK
                 logger.error("Silently passing. No what data to process for {}. Possibly KV store is not running",engineConfig.getKvStore());

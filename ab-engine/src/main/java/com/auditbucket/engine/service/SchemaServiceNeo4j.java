@@ -51,12 +51,12 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
     SchemaDaoNeo4j schemaDao;
 
     @Autowired
-    EngineConfig engine;
+    EngineConfig engineConfig;
     static Logger logger = LoggerFactory.getLogger(SchemaServiceNeo4j.class);
 
     @Async
     public Future<Boolean> ensureSystemIndexes(Company company) {
-        return new AsyncResult<>(schemaDao.ensureSystemIndexes(company, engine.getTagSuffix(company)));
+        return new AsyncResult<>(schemaDao.ensureSystemIndexes(company, engineConfig.getTagSuffix(company)));
     }
 
     /**
@@ -90,6 +90,9 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
 
     @Override
     public void registerConcepts(Company company, Iterable<TrackResultBean> resultBeans) {
+        if ( !engineConfig.isConceptsEnabled())
+            return;
+        logger.debug("Processing concepts for {}", company);
         Map<DocumentType, Collection<ConceptInputBean>> payload = new HashMap<>();
         for (TrackResultBean resultBean : resultBeans) {
             if (resultBean.getMetaHeader() != null && resultBean.getMetaHeader().getId() != null) {

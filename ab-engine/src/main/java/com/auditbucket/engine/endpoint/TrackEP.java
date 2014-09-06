@@ -23,6 +23,7 @@ import com.auditbucket.engine.service.*;
 import com.auditbucket.helper.ApiKeyHelper;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
@@ -73,7 +74,7 @@ public class TrackEP {
     CompanyService companyService;
 
     @Autowired
-    WhatService whatService;
+    KvService kvService;
 
     @Autowired
     TxService txService;
@@ -306,7 +307,7 @@ public class TrackEP {
             if (lastLog == null) {
                 logger.debug("Unable to find last log for {}", header);
             } else {
-                LogWhat what = whatService.getWhat(header, lastLog.getLog());
+                LogWhat what = kvService.getWhat(header, lastLog.getLog());
                 return new ResponseEntity<>(what, HttpStatus.OK);
             }
         }
@@ -327,7 +328,7 @@ public class TrackEP {
             TrackLog left = trackService.getLogForHeader(header, logId);
             TrackLog right = trackService.getLogForHeader(header, withId);
             if (left != null && right != null) {
-                AuditDeltaBean deltaBean = whatService.getDelta(header, left.getLog(), right.getLog());
+                AuditDeltaBean deltaBean = kvService.getDelta(header, left.getLog(), right.getLog());
 
                 if (deltaBean != null)
                     return new ResponseEntity<>(deltaBean, HttpStatus.OK);
@@ -362,7 +363,7 @@ public class TrackEP {
         if (header != null) {
             TrackLog log = trackService.getLogForHeader(header, logId);
             if (log != null)
-                return new ResponseEntity<>(whatService.getWhat(header, log.getLog()), HttpStatus.OK);
+                return new ResponseEntity<>(kvService.getWhat(header, log.getLog()), HttpStatus.OK);
         }
 
         return new ResponseEntity<>((LogWhat) null, HttpStatus.NOT_FOUND);
