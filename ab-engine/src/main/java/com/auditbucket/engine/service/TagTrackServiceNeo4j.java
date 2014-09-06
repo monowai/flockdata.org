@@ -33,6 +33,7 @@ import com.auditbucket.track.model.TrackLog;
 import com.auditbucket.track.model.TrackTag;
 
 import com.auditbucket.track.service.TagService;
+import com.auditbucket.track.service.TagTrackService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,7 @@ import java.util.*;
  */
 @Service
 @Transactional
-public class TagTrackService {
+public class TagTrackServiceNeo4j implements TagTrackService {
 
     @Autowired
     TagService tagService;
@@ -59,8 +60,9 @@ public class TagTrackService {
     @Autowired
     TrackTagDaoNeo trackTagDao;
 
-    private Logger logger = LoggerFactory.getLogger(TagTrackService.class);
+    private Logger logger = LoggerFactory.getLogger(TagTrackServiceNeo4j.class);
 
+    @Override
     public void processTag(MetaHeader header, TrackTagInputBean tagInput) {
         String relationshipName = tagInput.getType();
         boolean existing = relationshipExists(header, tagInput.getTagName(), relationshipName);
@@ -71,6 +73,7 @@ public class TagTrackService {
         trackTagDao.save(header, tag, relationshipName);
     }
 
+    @Override
     public Boolean relationshipExists(MetaHeader metaHeader, String name, String relationshipType) {
         Tag tag = tagService.findTag(name);
         if (tag == null)
@@ -99,6 +102,7 @@ public class TagTrackService {
      * @param lastLog
      * @param userTags Key/Value pair of tags. TagNode will be created if missing. Value can be a Collection
      */
+    @Override
     public Collection<TrackTag> associateTags(Company company, MetaHeader ah, TrackLog lastLog, Collection<TagInputBean> userTags) {
         Collection<TrackTag> rlxs = new ArrayList<>();
         Iterable<TrackTag> existingTags = findTrackTags(company, ah);
@@ -164,32 +168,39 @@ public class TagTrackService {
      * @param metaHeader Header the caller is authorised to work with
      * @return TrackTags found
      */
+    @Override
     public Set<TrackTag> findTrackTags(MetaHeader metaHeader) {
         Company company = securityHelper.getCompany();
         return findTrackTags(company, metaHeader);
     }
 
+    @Override
     public Set<TrackTag> findOutboundTags(MetaHeader header) {
         Company company = securityHelper.getCompany();
         return findOutboundTags(company, header);
     }
 
+    @Override
     public Set<TrackTag> findOutboundTags(Company company, MetaHeader header) {
         return trackTagDao.getDirectedMetaTags(company, header, true);
     }
 
+    @Override
     public Set<TrackTag> findInboundTags(Company company, MetaHeader header) {
         return trackTagDao.getDirectedMetaTags(company, header, false);
     }
 
+    @Override
     public Set<TrackTag> findTrackTags(Company company, MetaHeader metaHeader) {
         return trackTagDao.getMetaTrackTags(company, metaHeader);
     }
 
+    @Override
     public void deleteTrackTags(MetaHeader metaHeader, Collection<TrackTag> trackTags) throws DatagioException {
         trackTagDao.deleteTrackTags(metaHeader, trackTags);
     }
 
+    @Override
     public void deleteTrackTags(MetaHeader metaHeader, TrackTag value) throws DatagioException {
         Collection<TrackTag> remove = new ArrayList<>(1);
         remove.add(value);
@@ -197,6 +208,7 @@ public class TagTrackService {
 
     }
 
+    @Override
     public void changeType(MetaHeader metaHeader, TrackTag existingTag, String newType) throws DatagioException {
         if (metaHeader == null || existingTag == null || newType == null)
             throw new DatagioException(("Illegal parameter"));
@@ -204,6 +216,7 @@ public class TagTrackService {
     }
 
 
+    @Override
     public Set<MetaHeader> findTrackTags(String tagName) throws DatagioException {
         Tag tag = tagService.findTag(tagName);
         if (tag == null)
@@ -212,10 +225,12 @@ public class TagTrackService {
 
     }
 
+    @Override
     public Set<TrackTag> findLogTags(Company company, Log log) {
         return trackTagDao.findLogTags(company, log);
     }
 
+    @Override
     public void moveTags(Company company, Log previousLog, MetaHeader metaHeader) {
         trackTagDao.moveTags(company, previousLog, metaHeader);
     }

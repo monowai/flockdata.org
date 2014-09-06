@@ -35,6 +35,8 @@ import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.bean.TrackedSummaryBean;
 import com.auditbucket.track.model.*;
+import com.auditbucket.track.service.SchemaService;
+import com.auditbucket.track.service.TagTrackService;
 import com.auditbucket.track.service.TrackService;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
@@ -80,7 +82,7 @@ public class TrackServiceNeoj4 implements TrackService {
     TagTrackService tagTrackService;
 
     @Autowired
-    com.auditbucket.track.service.SchemaService schemaService;
+    SchemaService schemaService;
 
     @Autowired
     TxService txService;
@@ -311,7 +313,7 @@ public class TrackServiceNeoj4 implements TrackService {
             HashMap<String, Object> priorWhat = (HashMap<String, Object>) kvService.getWhat(metaHeader, fromLog).getWhat();
 
             searchDocument = new MetaSearchChange(metaHeader, priorWhat, fromLog.getEvent().getCode(), new DateTime(fromLog.getTrackLog().getFortressWhen()));
-            searchDocument.setTags(tagTrackService.findTrackTags(metaHeader));
+            searchDocument.setTags(tagTrackService.findTrackTags(company, metaHeader));
             searchDocument.setReplyRequired(false);
             searchDocument.setForceReindex(true);
         }

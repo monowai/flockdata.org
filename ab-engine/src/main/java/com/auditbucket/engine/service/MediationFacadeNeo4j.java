@@ -380,7 +380,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
     @Override
     @Transactional
-    public void cancelLastLogSync(Company company, String metaKey) throws IOException, DatagioException {
+    public void cancelLastLog(Company company, String metaKey) throws IOException, DatagioException {
         MetaSearchChange searchChange;
         MetaHeader metaHeader = trackService.getHeader(company, metaKey);
         searchChange = trackService.cancelLastLog(company, metaHeader);

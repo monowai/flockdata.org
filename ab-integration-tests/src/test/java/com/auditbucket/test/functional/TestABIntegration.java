@@ -458,7 +458,7 @@ public class TestABIntegration {
         doEsTermQuery(result.getMetaHeader().getIndexName(), MetaSearchSchema.TAG + ".testingb.code", "happy days", 0);
 
         // Cancel Log - this will remove the sad tags and leave us with happy tags
-        mediationFacade.cancelLastLogSync(su.getCompany(), result.getMetaKey());
+        mediationFacade.cancelLastLog(su.getCompany(), result.getMetaKey());
         waitForHeaderToUpdate(su.getCompany(), result.getMetaHeader());
         Set<TrackTag> tags = tagTrackService.findTrackTags(result.getMetaHeader());
         assertEquals(2, tags.size());
@@ -732,7 +732,7 @@ public class TestABIntegration {
         doEsTermQuery(metaHeader.getIndexName(), MetaSearchSchema.WHAT + ".house", "house2", 1); // replaced first with second
 
         // Test block
-        mediationFacade.cancelLastLogSync(su.getCompany(), metaHeader.getMetaKey());
+        mediationFacade.cancelLastLog(su.getCompany(), metaHeader.getMetaKey());
         logs = trackService.getLogs(fortress.getCompany(), metaHeader.getMetaKey());
         assertEquals(1, logs.size());
         metaHeader = trackService.getHeader(ahWP); // Refresh the header
@@ -741,7 +741,7 @@ public class TestABIntegration {
 
         // Last change cancelled
         // DAT-96
-        mediationFacade.cancelLastLogSync(su.getCompany(), metaHeader.getMetaKey());
+        mediationFacade.cancelLastLog(su.getCompany(), metaHeader.getMetaKey());
         logs = trackService.getLogs(fortress.getCompany(), metaHeader.getMetaKey());
         junit.framework.Assert.assertTrue(logs.isEmpty());
         doEsQuery(metaHeader.getIndexName(), "*", 0);
