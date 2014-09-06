@@ -52,7 +52,7 @@ import java.util.*;
 public class TagTrackServiceNeo4j implements TagTrackService {
 
     @Autowired
-    com.auditbucket.track.service.TagService tagService;
+    TagService tagService;
 
     @Autowired
     SecurityHelper securityHelper;

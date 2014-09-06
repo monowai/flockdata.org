@@ -55,7 +55,7 @@ public class TrackTagDaoNeo {
     Neo4jTemplate template;
 
     @Autowired
-    com.auditbucket.track.service.TagService tagService;
+    TagService tagService;
 
     @Autowired
     EngineConfig engineAdmin;
