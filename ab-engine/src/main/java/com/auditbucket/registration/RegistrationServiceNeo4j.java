@@ -33,7 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class RegistrationService implements com.auditbucket.registration.service.RegistrationService {
+public class RegistrationServiceNeo4j implements com.auditbucket.registration.service.RegistrationService {
 
     @Autowired
     private CompanyService companyService;
