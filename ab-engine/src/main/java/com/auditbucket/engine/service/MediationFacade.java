@@ -29,6 +29,7 @@ import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.search.model.EsSearchResult;
@@ -41,7 +42,10 @@ import com.auditbucket.track.bean.TrackedSummaryBean;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.SearchChange;
 import com.auditbucket.track.model.TrackLog;
-import com.auditbucket.track.service.*;
+import com.auditbucket.track.service.LogService;
+import com.auditbucket.track.service.SchemaService;
+import com.auditbucket.track.service.TagService;
+import com.auditbucket.track.service.TrackService;
 import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -103,16 +107,23 @@ public class MediationFacade {
     @Autowired
     EngineConfig engineConfig;
 
+
     static DecimalFormat f = new DecimalFormat();
-    public Collection<TagInputBean> ensureTagIndexes(Company company, List<TagInputBean> tagInputs) throws DatagioException, ExecutionException, InterruptedException {
+    public Tag createTag(Company company, TagInputBean tagInput) throws DatagioException, ExecutionException, InterruptedException {
+        List<TagInputBean>tags = new ArrayList<>();
+        tags.add(tagInput);
+        return createTags(company, tags).iterator().next();
+
+    }
+    public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws DatagioException, ExecutionException, InterruptedException {
         schemaService.ensureUniqueIndexes(company, tagInputs, tagService.getExistingIndexes());
         try {
-            tagService.createTagsNoRelationships(company, tagInputs);
+            tagService.createTags(company, tagInputs);
         } catch (IOException e) {
             // Todo - how to handle??
             throw new DatagioException("Error processing your batch. Please run it again");
         }
-        return tagService.processTags(company, tagInputs);
+        return tagService.makeTags(company, tagInputs).get();
 
     }
     /**

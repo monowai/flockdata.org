@@ -135,6 +135,7 @@ public class SchemaDaoNeo4j {
 
         for (TagInputBean tagInput : tagInputs) {
             if (tagInput != null) {
+                logger.debug("Ensuring index for {}", tagInput);
                 String index = tagInput.getIndex();
                 if (!added.contains(index)) {
                     //if (index != null && !tagExists(company, index)) { // This check causes deadlocks in TagEP ?

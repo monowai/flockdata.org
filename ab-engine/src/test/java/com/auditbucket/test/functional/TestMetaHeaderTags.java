@@ -72,7 +72,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
         assertNotNull(fortress);
 
         TagInputBean flopTag = new TagInputBean("FLOP");
-        tagService.processTag(su.getCompany(), flopTag);
+        tagService.createTag(su.getCompany(), flopTag);
 
         MetaInputBean inputBean = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         TrackResultBean resultBean = mediationFacade.trackHeader(su.getCompany(), inputBean);
@@ -107,7 +107,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
         TagInputBean tagInput = new TagInputBean("FLOP");
 
-        tagService.processTag(su.getCompany(), tagInput);
+        tagService.createTag(su.getCompany(), tagInput);
         //assertNotNull(result);
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         aib.addTag(new TagInputBean("TagA", "AAAA"));
@@ -139,7 +139,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
         iSystemUser.getCompany();
         TagInputBean tagInput = new TagInputBean("FLOP");
 
-        tagService.processTag(iSystemUser.getCompany(), tagInput);
+        tagService.createTag(iSystemUser.getCompany(), tagInput);
         //assertNotNull(result);
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
 
@@ -174,7 +174,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
         TagInputBean tagInput = new TagInputBean("FLOP");
 
-        tagService.processTag(su.getCompany(), tagInput);
+        tagService.createTag(su.getCompany(), tagInput);
         //assertNotNull(result);
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         // In this scenario, the Tag name is the key if the value is null
@@ -213,7 +213,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
         TagInputBean tagInput = new TagInputBean("FLOP");
 
-        tagService.processTag(su.getCompany(), tagInput);
+        tagService.createTag(su.getCompany(), tagInput);
         //assertNotNull(result);
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         // In this scenario, the Tag name is the key if the value is null
@@ -234,7 +234,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
         TagInputBean tagInput = new TagInputBean("FLOP");
 
-        tagService.processTag(su.getCompany(), tagInput);
+        tagService.createTag(su.getCompany(), tagInput);
         //assertNotNull(result);
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         // This should create the same Tag object
@@ -260,7 +260,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
         TagInputBean tagInput = new TagInputBean("FLOP");
 
-        tagService.processTag(su.getCompany(), tagInput);
+        tagService.createTag(su.getCompany(), tagInput);
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         aib.setTrackSuppressed(true);
         // This should create the same Tag object, but return one row for each relationships
@@ -316,7 +316,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
 
         TagInputBean tagInput = new TagInputBean("FLOP");
 
-        tagService.processTag(iSystemUser.getCompany(), tagInput);
+        tagService.createTag(iSystemUser.getCompany(), tagInput);
 
         MetaInputBean aib = new MetaInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         // This should create the same Tag object

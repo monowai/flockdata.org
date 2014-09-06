@@ -19,7 +19,6 @@
 
 package com.auditbucket.registration.endpoint;
 
-import com.auditbucket.engine.repo.neo4j.dao.SchemaDaoNeo4j;
 import com.auditbucket.engine.service.MediationFacade;
 import com.auditbucket.helper.ApiKeyHelper;
 import com.auditbucket.helper.DatagioException;
@@ -35,7 +34,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -60,12 +58,12 @@ public class TagEP {
 
     @ResponseBody
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
-    public Collection<TagInputBean> createTags(@RequestBody List<TagInputBean> tagInputs,
+    public Collection<Tag> createTags(@RequestBody List<TagInputBean> tagInputs,
                                                String apiKey,
                                                @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, ExecutionException, InterruptedException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
 
-        return mediationFacade.ensureTagIndexes(company, tagInputs);
+        return mediationFacade.createTags(company, tagInputs);
 
     }
 

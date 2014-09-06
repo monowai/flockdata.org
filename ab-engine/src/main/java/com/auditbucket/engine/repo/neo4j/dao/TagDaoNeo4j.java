@@ -19,7 +19,6 @@
 
 package com.auditbucket.engine.repo.neo4j.dao;
 
-import com.auditbucket.dao.TagDao;
 import com.auditbucket.engine.PropertyConversion;
 import com.auditbucket.engine.repo.neo4j.model.TagNode;
 import com.auditbucket.engine.service.EngineConfig;
@@ -45,7 +44,7 @@ import java.util.*;
  * Time: 8:33 PM
  */
 @Repository
-class TagDaoNeo4j implements TagDao {
+public class TagDaoNeo4j {
 
     @Autowired
     SchemaDaoNeo4j schemaDao;
@@ -69,18 +68,18 @@ class TagDaoNeo4j implements TagDao {
         return save(company, tagInput, tagSuffix, createdValues, suppressRelationships);
     }
 
-    public Collection<TagInputBean> save(Company company, Iterable<TagInputBean> tagInputs) {
+    public Collection<Tag> save(Company company, Iterable<TagInputBean> tagInputs) {
         return save(company, tagInputs, false);
     }
 
-    @Override
-    public Collection<TagInputBean> save(Company company, Iterable<TagInputBean> tagInputs, boolean suppressRelationships) {
+    public Collection<Tag> save(Company company, Iterable<TagInputBean> tagInputs, boolean suppressRelationships) {
         String tagSuffix = engineAdmin.getTagSuffix(company);
         List<TagInputBean> errorResults = new ArrayList<>();
         List<String> createdValues = new ArrayList<>();
+        Collection<Tag>results = new ArrayList<>();
         for (TagInputBean tagInputBean : tagInputs) {
             try {
-                save(company, tagInputBean, tagSuffix, createdValues, suppressRelationships);
+                results.add(save(company, tagInputBean, tagSuffix, createdValues, suppressRelationships));
             } catch (DatagioTagException te) {
                 logger.error("Tag Exception [{}]", te.getMessage());
                 tagInputBean.getServiceMessage(te.getMessage());
@@ -88,10 +87,10 @@ class TagDaoNeo4j implements TagDao {
             }
 
         }
-        return errorResults;
+        return results;
     }
 
-    Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> createdValues, boolean suppressRelationships) {
+    public Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> createdValues, boolean suppressRelationships) {
         // Check exists
         TagNode existingTag = (TagNode) findOne(company, (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()), tagInput.getIndex());
         Node start;
@@ -195,7 +194,6 @@ class TagDaoNeo4j implements TagDao {
         return tag;
     }
 
-    @Override
     public Collection<Tag> findDirectedTags(Tag startTag, Company company, boolean b) {
         //Long coTags = getCompanyTagManager(companyId);
         //"MATCH track<-[tagType]-(tag:Tag"+engineAdmin.getTagSuffix(company)+") " +
@@ -223,18 +221,16 @@ class TagDaoNeo4j implements TagDao {
         return results;
     }
 
-    @Override
     public Collection<Tag> findTags(Company company) {
         return findTags(company, Tag.DEFAULT + (engineAdmin.getTagSuffix(company)));
     }
 
-    @Override
-    public Collection<Tag> findTags(Company company, String index) {
+    public Collection<Tag> findTags(Company company, String label) {
         Collection<Tag> tagResults = new ArrayList<>();
         // ToDo: Match to company - something like this.....
         //match (t:Law)-[:_TagLabel]-(c:ABCompany) where id(c)=0  return t,c;
         //match (t:Law)-[*..2]-(c:ABCompany) where id(c)=0  return t,c;
-        String query = "match (tag:`" + index + "`) return tag";
+        String query = "match (tag:`" + label + "`) return tag";
         // Look at PAGE
         Result<Map<String, Object>> results = template.query(query, null);
         for (Map<String, Object> row : results) {
@@ -246,13 +242,11 @@ class TagDaoNeo4j implements TagDao {
         return tagResults;
     }
 
-    @Override
-    public Collection<String> getExistingIndexes() {
+    public Collection<String> getExistingLabels() {
         return template.getGraphDatabase().getAllLabelNames();
 
     }
 
-    @Override
 //    @Cacheable(value = "companyTag", unless = "#result == null")
     public Tag findOne(Company company, String tagName, String label) {
         if (tagName == null || company == null)
@@ -293,7 +287,6 @@ class TagDaoNeo4j implements TagDao {
 
     }
 
-    @Override
     public void purge(Company company, String type) {
         String query;
         if ("".equals(engineAdmin.getTagSuffix(company)))
