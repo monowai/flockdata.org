@@ -42,10 +42,7 @@ import com.auditbucket.track.bean.TrackedSummaryBean;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.SearchChange;
 import com.auditbucket.track.model.TrackLog;
-import com.auditbucket.track.service.LogService;
-import com.auditbucket.track.service.SchemaService;
-import com.auditbucket.track.service.TagService;
-import com.auditbucket.track.service.TrackService;
+import com.auditbucket.track.service.*;
 import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -74,7 +71,7 @@ import java.util.concurrent.Future;
  * Since: 28/08/13
  */
 @Service
-public class MediationFacade {
+public class MediationFacadeNeo4j implements MediationFacade {
     @Autowired
     TrackService trackService;
 
@@ -99,7 +96,7 @@ public class MediationFacade {
     @Autowired
     LogService logService;
 
-    private Logger logger = LoggerFactory.getLogger(MediationFacade.class);
+    private Logger logger = LoggerFactory.getLogger(MediationFacadeNeo4j.class);
 
     @Autowired
     private RegistrationService registrationService;
@@ -109,12 +106,16 @@ public class MediationFacade {
 
 
     static DecimalFormat f = new DecimalFormat();
+
+    @Override
     public Tag createTag(Company company, TagInputBean tagInput) throws DatagioException, ExecutionException, InterruptedException {
-        List<TagInputBean>tags = new ArrayList<>();
+        List<TagInputBean> tags = new ArrayList<>();
         tags.add(tagInput);
         return createTags(company, tags).iterator().next();
 
     }
+
+    @Override
     public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws DatagioException, ExecutionException, InterruptedException {
         schemaService.ensureUniqueIndexes(company, tagInputs, tagService.getExistingIndexes());
         try {
@@ -126,6 +127,7 @@ public class MediationFacade {
         return tagService.makeTags(company, tagInputs).get();
 
     }
+
     /**
      * Process the MetaHeader input for a company asynchronously
      *
@@ -134,12 +136,14 @@ public class MediationFacade {
      * @return process count - don't rely on it, why would you want it?
      * @throws com.auditbucket.helper.DatagioException
      */
+    @Override
     @Async
     public Future<Collection<TrackResultBean>> trackHeadersAsync(final Fortress fortress, List<MetaInputBean> inputBeans) throws DatagioException, IOException, ExecutionException, InterruptedException {
         // ToDo: Return strings which contain only the caller ref data that failed.
         return new AsyncResult<>(trackHeaders(fortress, inputBeans, 10));
     }
 
+    @Override
     public Collection<TrackResultBean> trackHeaders(final Fortress fortress, final List<MetaInputBean> inputBeans, int listSize) throws DatagioException, IOException, ExecutionException, InterruptedException {
         Long id = DateTime.now().getMillis();
         StopWatch watch = new StopWatch();
@@ -197,6 +201,7 @@ public class MediationFacade {
 
     }
 
+    @Override
     public TrackResultBean trackHeader(Company company, MetaInputBean inputBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
         Fortress fortress = fortressService.findByName(company, inputBean.getFortress());
         if (fortress == null)
@@ -219,14 +224,16 @@ public class MediationFacade {
      * @throws DatagioException illegal input
      * @throws IOException      json processing exception
      */
+    @Override
     public TrackResultBean trackHeader(final Fortress fortress, final MetaInputBean inputBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
-        List<MetaInputBean>inputs = new ArrayList<>(1);
+        List<MetaInputBean> inputs = new ArrayList<>(1);
         inputs.add(inputBean);
-        Collection<TrackResultBean>results =trackHeaders(fortress, inputs, 1);
+        Collection<TrackResultBean> results = trackHeaders(fortress, inputs, 1);
         return results.iterator().next();
     }
 
 
+    @Override
     @Transactional
     public TrackResultBean processLog(Company company, LogInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException {
         MetaHeader metaHeader;
@@ -245,6 +252,7 @@ public class MediationFacade {
      * @param fortressName name of the fortress to rebuild
      * @throws com.auditbucket.helper.DatagioException
      */
+    @Override
     @Secured({"ROLE_AB_ADMIN"})
     public Long reindex(Company company, String fortressName) throws DatagioException {
         Fortress fortress = fortressService.findByCode(company, fortressName);
@@ -284,6 +292,7 @@ public class MediationFacade {
      * @param fortressName name of the fortress to rebuild
      * @throws com.auditbucket.helper.DatagioException
      */
+    @Override
     @Async
     @Secured({"ROLE_AB_ADMIN"})
     public void reindexByDocType(Company company, String fortressName, String docType) throws DatagioException {
@@ -316,14 +325,17 @@ public class MediationFacade {
         return skipCount;
     }
 
+    @Override
     public TrackedSummaryBean getTrackedSummary(String metaKey) throws DatagioException {
         return getTrackedSummary(null, metaKey);
     }
 
+    @Override
     public TrackedSummaryBean getTrackedSummary(Company company, String metaKey) throws DatagioException {
         return trackService.getMetaSummary(company, metaKey);
     }
 
+    @Override
     public EsSearchResult search(Company company, QueryParams queryParams) {
         StopWatch watch = new StopWatch(queryParams.toString());
         watch.start("Get ES Query Results");
@@ -338,6 +350,7 @@ public class MediationFacade {
     @Autowired
     KvService kvService;
 
+    @Override
     @Secured({"ROLE_AB_ADMIN"})
     public void purge(String fortressName, String apiKey) throws DatagioException {
         if (fortressName == null)
@@ -364,8 +377,12 @@ public class MediationFacade {
 
     }
 
+    @Override
+    @Transactional
     public void cancelLastLogSync(Company company, String metaKey) throws IOException, DatagioException {
-        MetaSearchChange searchChange = trackService.cancelLastLog(company, metaKey).get();
+        MetaSearchChange searchChange;
+        MetaHeader metaHeader = trackService.getHeader(company, metaKey);
+        searchChange = trackService.cancelLastLog(company, metaHeader);
         if (searchChange != null) {
             searchService.makeChangeSearchable(searchChange);
         } else {

@@ -31,8 +31,7 @@ import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.track.bean.*;
 import com.auditbucket.track.model.*;
-import com.auditbucket.track.service.LogService;
-import com.auditbucket.track.service.TrackService;
+import com.auditbucket.track.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +58,7 @@ public class TrackEP {
     TrackService trackService;
 
     @Autowired
-    MediationFacade mediationFacade;
+    com.auditbucket.track.service.MediationFacade mediationFacade;
 
     @Autowired
     FortressService fortressService;
