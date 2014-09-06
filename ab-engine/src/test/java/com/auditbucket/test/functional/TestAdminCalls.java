@@ -20,7 +20,6 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.authentication.handler.ApiKeyInterceptor;
-import com.auditbucket.engine.service.MediationFacade;
 import com.auditbucket.helper.JsonUtils;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
@@ -63,15 +62,9 @@ import static org.junit.Assert.*;
 public class TestAdminCalls extends TestEngineBase {
 
     @Autowired
-    private MediationFacade mediationFacade;
-
-//    private Logger logger = LoggerFactory.getLogger(TestTrack.class);
-
-    @Autowired
     protected WebApplicationContext wac;
 
     MockMvc mockMvc;
-
 
     @Test
     public void deleteFortressWithHeadersAndTagsOnly() throws Exception {

@@ -199,7 +199,7 @@ public class TestEngineBase {
 
 
     public static void waitAWhile() throws Exception {
-		waitAWhile(null, 3500);
+		waitAWhile(null, 1500);
 	}
 
 	public static void waitAWhile(int millis) throws Exception {

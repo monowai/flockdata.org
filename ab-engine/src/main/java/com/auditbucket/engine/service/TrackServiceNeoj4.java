@@ -35,15 +35,13 @@ import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.bean.TrackedSummaryBean;
 import com.auditbucket.track.model.*;
-import com.auditbucket.track.service.*;
+import com.auditbucket.track.service.TrackService;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -261,13 +259,12 @@ public class TrackServiceNeoj4 implements TrackService {
      * AB headerKey will be forever invalid.
      *
      * @param company   validated company the caller is authorised to work with
-     * @param headerKey UID of the metaHeader
+     * @param metaHeader UID of the metaHeader
      * @return Future<MetaSearchChange> search change to index, or null if there are no logs
      */
     @Override
-    @Async
-    public AsyncResult<MetaSearchChange> cancelLastLog(Company company, String headerKey) throws IOException, DatagioException {
-        MetaHeader metaHeader = getValidHeader(headerKey, true);
+    public MetaSearchChange cancelLastLog(Company company, MetaHeader metaHeader) throws IOException, DatagioException {
+        //MetaHeader metaHeader = getValidHeader(metaHeader, true);
         TrackLog existingLog = getLastLog(metaHeader.getId());
         if (existingLog == null)
             return null;
@@ -305,7 +302,7 @@ public class TrackServiceNeoj4 implements TrackService {
             searchDocument = new MetaSearchChange(metaHeader);
             searchDocument.setDelete(true);
             searchDocument.setSearchKey(searchKey);
-            return new AsyncResult<>(searchDocument);
+            return searchDocument;
         }
 
         // Sync the update to ab-search.
@@ -318,7 +315,7 @@ public class TrackServiceNeoj4 implements TrackService {
             searchDocument.setReplyRequired(false);
             searchDocument.setForceReindex(true);
         }
-        return new AsyncResult<>(searchDocument);
+        return searchDocument;
     }
 
     /**

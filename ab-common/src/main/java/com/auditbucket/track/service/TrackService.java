@@ -17,6 +17,7 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * User: mike
@@ -48,8 +49,8 @@ public interface TrackService {
 
     Set<TrackLog> getLogs(String headerKey, Date from, Date to) throws DatagioException;
 
-    @Async
-    AsyncResult<MetaSearchChange> cancelLastLog(Company company, String headerKey) throws IOException, DatagioException;
+
+    MetaSearchChange cancelLastLog(Company company, MetaHeader metaHeader) throws IOException, DatagioException;
 
     int getLogCount(Company company, String headerKey) throws DatagioException;
 

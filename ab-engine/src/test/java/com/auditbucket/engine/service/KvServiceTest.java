@@ -33,8 +33,7 @@ import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.model.LogWhat;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
-import com.auditbucket.track.service.LogService;
-import com.auditbucket.track.service.TrackService;
+import com.auditbucket.track.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -141,7 +140,7 @@ public class KvServiceTest extends AbstractRedisSupport {
 
                 Assert.assertTrue(kvService.isSame(header, trackLog.getLog(), what));
                 // Testing that cancel works
-                trackService.cancelLastLog(fortressA.getCompany(), ahKey).get();
+                trackService.cancelLastLog(fortressA.getCompany(), header);
                 Assert.assertNull(logService.getLastLog(header));
                 Assert.assertNull(kvService.getWhat(header, trackLog.getLog()).getWhatString());
                 Assert.assertTrue(kvService.isSame(logWhat.getWhatString(), what));
