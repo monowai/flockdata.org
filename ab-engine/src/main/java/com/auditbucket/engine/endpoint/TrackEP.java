@@ -388,7 +388,7 @@ public class TrackEP {
         Company company = getCompany(apiHeaderKey, apiKey);
         MetaHeader result = trackService.getHeader(company, metaKey);
         if (result != null) {
-            mediationFacade.cancelLastLog(company, result.getMetaKey());
+            mediationFacade.cancelLastLog(company, result);
             return new ResponseEntity<>("OK", HttpStatus.OK);
         }
 

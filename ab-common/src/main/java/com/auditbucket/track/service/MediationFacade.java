@@ -11,6 +11,7 @@ import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.bean.TrackedSummaryBean;
+import com.auditbucket.track.model.MetaHeader;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -48,5 +49,5 @@ public interface MediationFacade {
 
     void purge(String fortressName, String apiKey) throws DatagioException;
 
-    void cancelLastLog(Company company, String metaKey) throws IOException, DatagioException;
+    void cancelLastLog(Company company, MetaHeader metaHeader) throws IOException, DatagioException;
 }
