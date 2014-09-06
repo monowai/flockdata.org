@@ -117,7 +117,8 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
     @Override
     public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws DatagioException, ExecutionException, InterruptedException {
-        schemaService.ensureUniqueIndexes(company, tagInputs, tagService.getExistingIndexes());
+        Collection<String> existing = tagService.getExistingIndexes();
+        schemaService.ensureUniqueIndexes(company, tagInputs,existing );
         try {
             tagService.createTags(company, tagInputs);
         } catch (IOException e) {
