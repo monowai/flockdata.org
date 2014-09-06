@@ -19,7 +19,7 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.dao.TagDao;
+import com.auditbucket.engine.repo.neo4j.dao.TagDaoNeo4j;
 import com.auditbucket.helper.Command;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
@@ -28,7 +28,6 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.track.service.TagService;
 import com.google.common.collect.Lists;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +59,7 @@ public class TagServiceNeo4j implements TagService {
     private SecurityHelper securityHelper;
 
     @Autowired
-    private TagDao tagDao;
+    private TagDaoNeo4j tagDao;
 
     @Autowired
     EngineConfig engineConfig;
@@ -68,22 +67,8 @@ public class TagServiceNeo4j implements TagService {
     private Logger logger = LoggerFactory.getLogger(TagServiceNeo4j.class);
 
     @Override
-    public Tag processTag(Company company, TagInputBean tagInput) {
+    public Tag createTag(Company company, TagInputBean tagInput) {
         return tagDao.save(company, tagInput);
-    }
-
-    @Override
-    public Collection<TagInputBean> processTags(final Company company, final List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException {
-        //schemaDao.ensureUniqueIndexes(company, tagInputs);
-        Future<Collection<TagInputBean>> future = makeTags(company, tagInputs);
-        while (!future.isDone())
-            Thread.yield();
-        try {
-            return future.get();
-        } catch (InterruptedException | ExecutionException e) {
-            logger.error("Processing tags", e);
-        }
-        return null;
     }
 
     /**
@@ -94,10 +79,10 @@ public class TagServiceNeo4j implements TagService {
      */
     @Override
     @Async
-    public Future<Collection<TagInputBean>> makeTags(final Company company, final List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException {
-        Collection<TagInputBean>failedInput= new ArrayList<>();
+    public Future<Collection<Tag>> makeTags(final Company company, final List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException {
+        Collection<Tag>failedInput= new ArrayList<>();
         class DLCommand implements Command {
-            Collection<TagInputBean> failedInput;
+            Collection<Tag> createdTags;
             private final List<TagInputBean> inputs;
             public DLCommand(List<TagInputBean> tagInputBeans) {
                 this.inputs = tagInputBeans;
@@ -106,7 +91,7 @@ public class TagServiceNeo4j implements TagService {
             @Override
             public Command execute() {
                 // Creates the relationships
-                failedInput = tagDao.save(company, inputs);
+                createdTags = tagDao.save(company, inputs);
                 return this;
             }
         }
@@ -124,7 +109,7 @@ public class TagServiceNeo4j implements TagService {
             } catch (DatagioException e) {
                 logger.error(" Tag errors detected");
             }
-            failedInput.addAll(c.failedInput);
+            failedInput.addAll(c.createdTags);
         }
         return new AsyncResult<>(failedInput);
     }
@@ -160,11 +145,11 @@ public class TagServiceNeo4j implements TagService {
 
     @Override
     public Collection<String> getExistingIndexes() {
-        return tagDao.getExistingIndexes();
+        return tagDao.getExistingLabels();
     }
 
     @Override
-    public void createTagsNoRelationships(Company company, List<TagInputBean> tagInputs) throws DatagioException, IOException, ExecutionException, InterruptedException {
+    public void createTags(Company company, List<TagInputBean> tagInputs) throws DatagioException, IOException, ExecutionException, InterruptedException {
 
         class HeaderDeadlockRetry implements Command {
             Company company;

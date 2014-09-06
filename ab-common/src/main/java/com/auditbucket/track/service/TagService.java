@@ -19,12 +19,12 @@ import java.util.concurrent.Future;
  */
 public interface TagService {
 
-    public Tag processTag(Company company, TagInputBean tagInput);
+    Tag createTag(Company company, TagInputBean tagInput);
 
-    public Collection<TagInputBean> processTags(Company company, List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException;
+    public void createTags(Company company, List<TagInputBean> tagInputs) throws DatagioException, IOException, ExecutionException, InterruptedException;
 
     @Async
-    public Future<Collection<TagInputBean>> makeTags(Company company, List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException;
+    public Future<Collection<Tag>> makeTags(Company company, List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException;
 
     public Tag findTag(Company company, String tagName);
 
@@ -39,8 +39,6 @@ public interface TagService {
     public Tag findTag(Company company, String tagName, String index);
 
     public Collection<String> getExistingIndexes();
-
-    public void createTagsNoRelationships(Company company, List<TagInputBean> tagInputs) throws DatagioException, IOException, ExecutionException, InterruptedException;
 
     public void purgeUnusedConcepts(Company company);
 

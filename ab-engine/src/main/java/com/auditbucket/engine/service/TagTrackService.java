@@ -20,6 +20,7 @@
 package com.auditbucket.engine.service;
 
 import com.auditbucket.dao.TrackTagDao;
+import com.auditbucket.engine.repo.neo4j.TrackTagDaoNeo;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.TagInputBean;
@@ -31,6 +32,7 @@ import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
 import com.auditbucket.track.model.TrackTag;
 
+import com.auditbucket.track.service.TagService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,13 +51,13 @@ import java.util.*;
 public class TagTrackService {
 
     @Autowired
-    com.auditbucket.track.service.TagService tagService;
+    TagService tagService;
 
     @Autowired
     SecurityHelper securityHelper;
 
     @Autowired
-    TrackTagDao trackTagDao;
+    TrackTagDaoNeo trackTagDao;
 
     private Logger logger = LoggerFactory.getLogger(TagTrackService.class);
 
@@ -103,7 +105,7 @@ public class TagTrackService {
 
         for (TagInputBean tagInput : userTags) {
 
-            Tag tag = tagService.processTag(company, tagInput);
+            Tag tag = tagService.createTag(company, tagInput);
 
             // Handle both simple relationships type name or a map/collection of relationships
             if (tagInput.getMetaLinks() != null) {
