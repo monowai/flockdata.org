@@ -884,7 +884,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
         assertEquals(1, outboundTags.size());
 
         // Cancelling last change should restore the inbound tag
-        mediationFacade.cancelLastLog(su.getCompany(), created.getMetaKey());
+        mediationFacade.cancelLastLog(su.getCompany(), created);
         // Total of two tags
         validateTag(created, null, 1);
         // One of which is outbound and the other inbound
@@ -951,7 +951,7 @@ public class TestMetaHeaderTags extends TestEngineBase {
         // We now have 2 logs, sad tags, no happy tags
 
         // Cancel Log - this will remove the sad tags and leave us with happy tags
-        mediationFacade.cancelLastLog(su.getCompany(), result.getMetaKey());
+        mediationFacade.cancelLastLog(su.getCompany(), result.getMetaHeader());
         Set<TrackTag>tags = tagTrackService.findTrackTags(result.getMetaHeader());
         assertEquals(2, tags.size());
 

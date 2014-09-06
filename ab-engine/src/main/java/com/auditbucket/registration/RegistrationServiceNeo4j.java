@@ -69,9 +69,12 @@ public class RegistrationServiceNeo4j implements com.auditbucket.registration.se
 
     @Override
     public SystemUser registerSystemUser(RegistrationBean regBean) throws DatagioException {
+        // Non-transactional method
         Company company = companyService.findByName(regBean.getCompanyName());
         if (company == null) {
             company = companyService.create(regBean.getCompanyName());
+            // indexes have to happen outside of data update transactions
+            // else you'll get a Heuristic exception failure
             schemaService.ensureSystemIndexes(company);
 
         }
