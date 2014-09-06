@@ -35,7 +35,6 @@ import java.util.concurrent.locks.ReentrantLock;
  * To change this template use File | Settings | File Templates.
  */
 @Repository
-@Transactional
 public class SchemaDaoNeo4j {
     @Autowired
     DocumentTypeRepo documentTypeRepo;
@@ -101,6 +100,7 @@ public class SchemaDaoNeo4j {
 
     }
 
+    @Transactional
     public Collection<DocumentType> getFortressDocumentsInUse(Fortress fortress) {
         return documentTypeRepo.getFortressDocumentsInUse(fortress.getId());
     }
@@ -131,22 +131,19 @@ public class SchemaDaoNeo4j {
      * @param company   who owns the tags
      * @param tagInputs collection to process
      */
-    public synchronized void ensureUniqueIndexes(Company company, Iterable<TagInputBean> tagInputs, Collection<String> added) {
+    public synchronized boolean ensureUniqueIndexes(Company company, Iterable<TagInputBean> tagInputs, Collection<String> added) {
 
         for (TagInputBean tagInput : tagInputs) {
             if (tagInput != null) {
-                logger.debug("Ensuring index for {}", tagInput);
+                logger.debug("Checking index for {}", tagInput);
                 String index = tagInput.getIndex();
                 if (!added.contains(index)) {
+                    logger.debug("Creating index for {}", tagInput);
                     //if (index != null && !tagExists(company, index)) { // This check causes deadlocks in TagEP ?
-                    Future<Boolean> indexResult = ensureIndex(tagInput);
-                    try {
-                        indexResult.get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        logger.error("Unexpected", e);
+                    if (!(tagInput.isDefault() || isSystemLabel(tagInput.getIndex()))) {
+                        ensureIndex(tagInput);
+                        added.add(tagInput.getIndex());
                     }
-                    //}
-                    added.add(tagInput.getIndex());
                 }
                 if (!tagInput.getTargets().isEmpty()) {
                     for (String key : tagInput.getTargets().keySet()) {
@@ -158,19 +155,17 @@ public class SchemaDaoNeo4j {
                 logger.debug("Why is this null?");
 
         }
+        return true;
 
     }
 
-    @Async
-    public Future<Boolean> ensureIndex(TagInputBean tagInput) {
+    boolean ensureIndex(TagInputBean tagInput) {
         // _Tag is a special label that can be used to find all tags so we have to allow it to handle duplicates
-        if (tagInput.isDefault() || isSystemLabel(tagInput.getIndex()))
-            return new AsyncResult<>(true);
         String index = tagInput.getIndex();
 
         template.query("create constraint on (t:`" + index + "`) assert t.key is unique", null);
         logger.debug("Creating constraint on [{}]", tagInput.getIndex());
-        return new AsyncResult<>(true);
+        return true;
 
     }
 
