@@ -227,7 +227,7 @@ public class TestABIntegration {
         assumeTrue(runMe);
         logger.info("## companyAndFortressWithSpaces");
 
-        SystemUser su = registerSystemUser("co-fortress");
+        SystemUser su = registerSystemUser("testcompany", "co-fortress");
         Fortress fortressA = fortressService.registerFortress(su.getCompany(),new FortressInputBean("Track Test", false));
         String docType = "TestAuditX";
         String callerRef = "ABC123X";
@@ -785,9 +785,9 @@ public class TestABIntegration {
     }
     private SystemUser registerSystemUser(String companyName, String userName) throws Exception{
         SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
-        Thread.sleep(80);
-        companyService.save(companyName);
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(companyName, userName));
+        Company c = companyService.create(companyName);
+        //Thread.sleep(80);
+        SystemUser su = regService.registerSystemUser(c, new RegistrationBean(companyName, userName));
         // creating company alters the schema that sometimes throws a heuristic exception.
         Thread.yield();
         return su;

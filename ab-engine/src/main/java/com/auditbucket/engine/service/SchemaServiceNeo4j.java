@@ -37,7 +37,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.concurrent.Future;
 
 /**
  * User: mike
@@ -53,9 +52,8 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
     EngineConfig engineConfig;
     static Logger logger = LoggerFactory.getLogger(SchemaServiceNeo4j.class);
 
-    @Async
-    public Future<Boolean> ensureSystemIndexes(Company company) {
-        return new AsyncResult<>(schemaDao.ensureSystemIndexes(company, engineConfig.getTagSuffix(company)));
+    public Boolean ensureSystemIndexes(Company company) {
+        return schemaDao.ensureSystemIndexes(company, engineConfig.getTagSuffix(company));
     }
 
     /**
@@ -92,7 +90,7 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
     @Override
     @Transactional
     public void registerConcepts(Company company, Iterable<TrackResultBean> resultBeans) {
-        if ( !engineConfig.isConceptsEnabled())
+        if (!engineConfig.isConceptsEnabled())
             return;
         logger.debug("Processing concepts for {}", company);
         Map<DocumentType, Collection<ConceptInputBean>> payload = new HashMap<>();
@@ -169,6 +167,6 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
 
     @Override
     public boolean ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs, Collection<String> existingIndexes) {
-        return schemaDao.ensureUniqueIndexes(company, tagInputs,existingIndexes);
+        return schemaDao.ensureUniqueIndexes(company, tagInputs, existingIndexes);
     }
 }

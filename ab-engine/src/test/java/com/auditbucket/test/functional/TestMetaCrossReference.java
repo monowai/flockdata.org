@@ -27,7 +27,7 @@ public class TestMetaCrossReference extends TestEngineBase {
 
     @Test
     public void crossReferenceMetaKeysForSameCompany() throws Exception {
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser su = registerSystemUser(monowai, mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
@@ -61,7 +61,7 @@ public class TestMetaCrossReference extends TestEngineBase {
 
     @Test
     public void duplicateCallerRefForFortressFails() throws Exception {
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser su = registerSystemUser(monowai, mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
@@ -88,7 +88,7 @@ public class TestMetaCrossReference extends TestEngineBase {
 
     @Test
     public void crossReferenceByCallerRefsForFortress() throws Exception {
-        regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        registerSystemUser(monowai, mike_admin);
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("auditTest", true));
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
@@ -119,7 +119,7 @@ public class TestMetaCrossReference extends TestEngineBase {
     }
     @Test
     public void crossReferenceWithInputBean() throws Exception {
-        regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        registerSystemUser(monowai, mike_admin);
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("auditTest", true));
 
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
@@ -160,7 +160,7 @@ public class TestMetaCrossReference extends TestEngineBase {
     }
     @Test
     public void crossXRefDifferentFortresses() throws Exception {
-        SystemUser su = regService.registerSystemUser(new RegistrationBean(monowai, mike_admin));
+        SystemUser su = registerSystemUser(monowai, mike_admin);
         Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTestA", true));
         Fortress fortressB = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTestB", true));
 
