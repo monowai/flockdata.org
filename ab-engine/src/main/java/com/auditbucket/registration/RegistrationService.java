@@ -33,7 +33,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
 public class RegistrationService implements com.auditbucket.registration.service.RegistrationService {
 
     @Autowired
@@ -60,27 +59,26 @@ public class RegistrationService implements com.auditbucket.registration.service
         	return systemUser; 
         }
 
-        Company company = companyService.findByName(regBean.getCompanyName());
+        Company company = companyService.findByName(regBean.getCompanyName()) ;
         if (company == null) {
             company = companyService.save(regBean.getCompanyName());
         }
         regBean.setCompany(company);
-        systemUser = systemUserService.save(regBean);
-
-        return systemUser;
+        return makeSystemUser(regBean);
     }
 
-    public SystemUser isAdminUser(Company company, String message) {
-        String systemUser = securityHelper.isValidUser();
-        SystemUser adminUser = companyService.getAdminUser(company, systemUser);
-        if (adminUser == null)
-            throw new IllegalArgumentException(message);
-        return adminUser;
+    @Transactional
+    public SystemUser makeSystemUser(RegistrationBean regBean) {
+
+        return systemUserService.save(regBean);
+
+
     }
 
     /**
      * @return currently logged-in SystemUser or Guest if anonymous
      */
+    @Transactional
     public SystemUser getSystemUser() {
         String systemUser = securityHelper.getUserName(false, false);
         if (systemUser == null)
@@ -94,6 +92,7 @@ public class RegistrationService implements com.auditbucket.registration.service
         }
     }
 
+    @Transactional
     public SystemUser getSystemUser(String apiKey){
         SystemUser su = systemUserService.findByApiKey(apiKey);
         if ( su == null )

@@ -64,16 +64,19 @@ public class CompanyServiceNeo4j implements CompanyService {
     private static Logger logger = LoggerFactory.getLogger(CompanyServiceNeo4j.class);
 
     @Override
+    @Transactional
     public Company findByName(String companyName) {
         return companyDao.findByPropertyValue("name", companyName);
     }
 
     @Override
+    @Transactional
     public Company findByCode(String code) {
         return companyDao.findByPropertyValue("code", code);
     }
 
     @Override
+    @Transactional
     public SystemUser getAdminUser(Company company, String name) {
         return companyDao.getAdminUser(company.getId(), name);
     }
@@ -87,10 +90,15 @@ public class CompanyServiceNeo4j implements CompanyService {
         try {
             logger.debug("Waiting for system indexes to finish");
             worked.get();
+            Thread.sleep(100);
         } catch (InterruptedException | ExecutionException e) {
             logger.error("Unexpected", e);
         }
+        return create(company);
 
+    }
+    @Transactional
+    public Company create(Company company){
         company = companyDao.create(company);
         logger.debug("Created company {}",company);
         return company;
@@ -98,12 +106,14 @@ public class CompanyServiceNeo4j implements CompanyService {
     }
 
     @Override
+    @Transactional
 //    @Cacheable(value = "companyKeys", unless = "#result == null")
     public Company findByApiKey(String apiKey) {
         return companyDao.findByPropertyValue("apiKey", apiKey);
     }
 
     @Override
+    @Transactional
     public Collection<Company> findCompanies(String userApiKey) {
         if (userApiKey == null) {
             SystemUser su = securityHelper.getSysUser(true);
@@ -118,6 +128,7 @@ public class CompanyServiceNeo4j implements CompanyService {
     }
 
     @Override
+    @Transactional
     public Collection<Company> findCompanies() {
         SystemUser su = securityHelper.getSysUser(true);
         if (su == null)
