@@ -26,6 +26,7 @@ import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.test.endpoint.EngineEndPoints;
 import com.auditbucket.test.utils.TestHelper;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
@@ -216,15 +217,23 @@ public class TestAdminCalls extends TestEngineBase {
 
     @Test
     public void testHealth() throws Exception {
+        EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
+
         setSecurity();
         SystemUser su = registerSystemUser(mike_admin, "healthCheck");
-        Map<String, Object> results = getHealth(su);
-        assertFalse("We didn't get back the health results for an admin user", results.isEmpty());
+        Map<String, Object> results = engineEndPoints.getHealth(su);
+        assertFalse("We didn't get back the health results for a valid api account", results.isEmpty());
         assertEquals("!Unreachable! Connection refused", results.get("ab-search"));
+
+        setSecurity(mike_admin);
+        // No api key, auth only
+        // DAT-203 - fails with security error
+        results = engineEndPoints.getHealth(null);
+        assertFalse("We didn't get back the health results for an admin user", results.isEmpty());
+
         setSecurityEmpty();
 
-		mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-        
+        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
         mockMvc.perform(MockMvcRequestBuilders.get("/admin/health/")
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
@@ -232,7 +241,7 @@ public class TestAdminCalls extends TestEngineBase {
         // Create a data access user
         su = registerSystemUser("anyone", "healthCheck");
         setSecurityEmpty();
-        results = getHealth(su);
+        results = engineEndPoints.getHealth(su);
         assertFalse("The user has no AUTH credentials but a valid APIKey - this should pass", results.isEmpty());
 
         // Hacking with an invalid API Key. Should fail
@@ -244,16 +253,7 @@ public class TestAdminCalls extends TestEngineBase {
 
     }
 
-    Map<String, Object> getHealth(SystemUser su) throws Exception {
-		mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get("/admin/health/")
-                        .header(ApiKeyInterceptor.API_KEY, (su != null ? su.getApiKey() : ""))
-                        .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        String json = response.getResponse().getContentAsString();
 
-        return JsonUtils.getAsMap(json);
-    }
 
 
 }
