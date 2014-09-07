@@ -1,8 +1,5 @@
 package com.auditbucket.test.endpoint;
 
-import com.auditbucket.authentication.LoginRequest;
-import com.auditbucket.authentication.UserProfile;
-import com.auditbucket.authentication.handler.ApiKeyInterceptor;
 import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
 import com.auditbucket.engine.repo.neo4j.model.FortressNode;
 import com.auditbucket.helper.JsonUtils;
@@ -13,8 +10,6 @@ import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.track.bean.DocumentResultBean;
-import junit.framework.Assert;
-import org.junit.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -24,7 +19,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Collection;
-import java.util.Map;
 
 /**
  * Any test using this class will have to be annotated with @WebAppConfiguration
@@ -41,7 +35,7 @@ public class EngineEndPoints {
     }
 
     private MockMvc getMockMvc(){
-        return  mockMvc;
+            return  mockMvc;
     }
 
     public Fortress createFortress(SystemUser su, String fortressName)
@@ -99,30 +93,4 @@ public class EngineEndPoints {
         return JsonUtils.getBytesAsObject(response.getResponse().getContentAsByteArray(), MatrixResults.class);
     }
 
-    public Map<String, Object> getHealth(SystemUser su) throws Exception {
-
-        //mockMvc = MockMvcBuilders.webAppContextSetup(getMockMvc()).build();
-        MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.get("/admin/health/")
-                        .header(ApiKeyInterceptor.API_KEY, (su != null ? su.getApiKey() : ""))
-                        .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        String json = response.getResponse().getContentAsString();
-
-        return JsonUtils.getAsMap(json);
-    }
-    @Test
-    public MvcResult login(String user, String pass) throws Exception {
-        // As per the entry in test-security.xml
-        LoginRequest loginReq = new LoginRequest();
-        loginReq.setUsername(user);
-        loginReq.setPassword(pass);
-
-        MvcResult response = getMockMvc()
-                .perform(
-                        MockMvcRequestBuilders.post("/login")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(JsonUtils.getJSON(loginReq)))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        return response;
-    }
 }
