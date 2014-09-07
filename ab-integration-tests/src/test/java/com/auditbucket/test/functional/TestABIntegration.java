@@ -228,18 +228,20 @@ public class TestABIntegration {
         logger.info("## companyAndFortressWithSpaces");
 
         SystemUser su = registerSystemUser("testcompany", "co-fortress");
-        Fortress fortressA = fortressService.registerFortress(su.getCompany(),new FortressInputBean("Track Test", false));
+        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("Track Test", false));
         String docType = "TestAuditX";
         String callerRef = "ABC123X";
-        MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
+        MetaInputBean metaInputBean =
+                new MetaInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
 
-        MetaHeader header = mediationFacade.trackHeader(su.getCompany(), inputBean).getMetaHeader();
-        String ahKey = header.getMetaKey();
-        assertNotNull(ahKey);
-        header = trackService.getHeader(su.getCompany(), ahKey);
+        LogInputBean logInputBean = new LogInputBean("wally", new DateTime(), getRandomMap());
+        metaInputBean.setLog(logInputBean);
+
+        MetaHeader header = mediationFacade
+                .trackHeader(su.getCompany(), metaInputBean)
+                .getMetaHeader();
         assertEquals("ab.testcompany.tracktest", header.getIndexName());
-        mediationFacade.processLog(su.getCompany(), new LogInputBean("wally", ahKey, new DateTime(), getRandomMap()));
-        waitForHeaderToUpdate(su.getCompany(), header.getMetaKey());
+        waitForHeaderSearchUpdate(su.getCompany(), header.getMetaKey());
 
         doEsQuery(header.getIndexName(), header.getMetaKey());
     }
@@ -576,7 +578,7 @@ public class TestABIntegration {
         SystemUser su = registerSystemUser("Kiwi-UTC");
         FortressInputBean fib = new FortressInputBean("utcDateFieldsThruToSearch", false);
         fib.setTimeZone("Europe/Copenhagen"); // Arbitrary TZ
-        Fortress fo = fortressService.registerFortress(su.getCompany(),fib);
+        Fortress fo = fortressService.registerFortress(su.getCompany(), fib);
 
         DateTimeZone ftz = DateTimeZone.forTimeZone(TimeZone.getTimeZone(fib.getTimeZone()));
         DateTimeZone utz = DateTimeZone.UTC;
@@ -590,7 +592,7 @@ public class TestABIntegration {
 
         TrackResultBean result = mediationFacade.trackHeader(su.getCompany(), inputBean); // Mock result as we're not tracking
 
-        MetaHeader metaHeader = trackService.getHeader(su.getCompany(),result.getMetaKey());
+        MetaHeader metaHeader = trackService.getHeader(su.getCompany(), result.getMetaKey());
 
         assertEquals("ab.monowai." + fo.getCode(), metaHeader.getIndexName());
         assertEquals("DateCreated not in Fortress TZ", 0, fortressDateCreated.compareTo(metaHeader.getFortressDateCreated()));
@@ -857,7 +859,7 @@ public class TestABIntegration {
                         requests++;
                         watch.suspend();
                         fortressWatch.suspend();
-                        waitForHeaderToUpdate(su.getCompany(), metaKey);
+                        waitForHeaderSearchUpdate(su.getCompany(), metaKey);
                         watch.resume();
                         fortressWatch.resume();
                     } // searchCheck done
@@ -905,7 +907,7 @@ public class TestABIntegration {
         input.setLog(log);
 
         TrackResultBean result = mediationFacade.trackHeader(su.getCompany(), input);
-        waitForHeaderToUpdate(su.getCompany(), result.getMetaHeader().getMetaKey());
+        waitForHeaderSearchUpdate(su.getCompany(), result.getMetaHeader().getMetaKey());
 
 
         QueryParams q = new QueryParams(fortress).setSimpleQuery(searchFor);
@@ -998,10 +1000,10 @@ public class TestABIntegration {
     }
 
     private MetaHeader waitForHeaderToUpdate(Company company, MetaHeader metaHeader) throws Exception {
-        return waitForHeaderToUpdate(company, metaHeader.getMetaKey());
+        return waitForHeaderSearchUpdate(company, metaHeader.getMetaKey());
     }
 
-    private MetaHeader waitForHeaderToUpdate(Company company, String metaKey) throws Exception {
+    private MetaHeader waitForHeaderSearchUpdate(Company company, String metaKey) throws Exception {
         // Looking for the first searchKey to be logged against the metaHeader
         int i = 0;
 
