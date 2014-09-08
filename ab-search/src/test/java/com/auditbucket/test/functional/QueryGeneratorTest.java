@@ -4,6 +4,9 @@ import com.auditbucket.search.helper.QueryGenerator;
 import junit.framework.Assert;
 import org.junit.Test;
 
+import static junit.framework.Assert.assertFalse;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
+
 /**
  * Created with IntelliJ IDEA.
  * User: macpro
@@ -12,22 +15,18 @@ import org.junit.Test;
  * To change this template use File | Settings | File Templates.
  */
 public class QueryGeneratorTest {
+
+    @Test
+    public void testGetSimpleQuery_Quoted() throws Exception {
+        String query = QueryGenerator.getSimpleQuery("\"test quotes\"", false);
+        assertTrue("Quoted string not parsed correctly", query.contains("\\\"test quotes\\\""));
+        query = QueryGenerator.getSimpleQuery("test quotes", false);
+        assertFalse("Text should not have been quoted", query.contains("\\\"test quotes\\\""));
+    }
     @Test
     public void testGetSimpleQuery_withoutHighlight() throws Exception {
         String query = QueryGenerator.getSimpleQuery("test", false);
-        Assert.assertEquals("{\n" +
-                "  \"query\": {\n" +
-                "    \"bool\": {\n" +
-                "      \"should\": [\n" +
-                "        {\n" +
-                "          \"query_string\": {\n" +
-                "            \"query\": \"test\"\n" +
-                "          }\n" +
-                "        }\n" +
-                "      ]\n" +
-                "    }\n" +
-                "  }\n" +
-                "}", query);
+        assertFalse(query.contains("highlight"));
     }
 
     @Test
