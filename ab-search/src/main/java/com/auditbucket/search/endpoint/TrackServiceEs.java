@@ -5,6 +5,7 @@ import com.auditbucket.search.model.MetaSearchChanges;
 import com.auditbucket.search.model.SearchResult;
 import com.auditbucket.search.model.SearchResults;
 import com.auditbucket.search.service.EngineGateway;
+import com.auditbucket.search.service.TrackService;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.SearchChange;
 import com.auditbucket.track.model.TrackSearchDao;
@@ -27,11 +28,11 @@ import java.io.IOException;
 @Service
 @Transactional
 @MessageEndpoint
-public class TrackServiceEP {
+public class TrackServiceEs implements TrackService {
     @Autowired
     private TrackSearchDao trackSearch;
 
-    private Logger logger = LoggerFactory.getLogger(TrackServiceEP.class);
+    private Logger logger = LoggerFactory.getLogger(TrackServiceEs.class);
 
     @Autowired(required = false)
     private EngineGateway engineGateway;
@@ -45,6 +46,7 @@ public class TrackServiceEP {
      * @throws java.io.IOException if there is a problem with mapping files. This exception will keep
      * the message on the queue until the mapping is fixed
      */
+    @Override
     @ServiceActivator(inputChannel = "makeSearchRequest") // Subscriber
     public void createSearchableChange(MetaSearchChanges changes) throws IOException {
         Iterable<MetaSearchChange> thisChange = changes.getChanges();
@@ -80,15 +82,18 @@ public class TrackServiceEP {
 
     }
 
+    @Override
     public void delete(MetaHeader metaHeader) {
         //trackDao.delete(metaHeader, null);
     }
 
+    @Override
     public byte[] findOne(MetaHeader header) {
         return null;
         //return trackDao.findOne(header);
     }
 
+    @Override
     public byte[] findOne(MetaHeader header, String id) {
         return null;
         //return trackDao.findOne(header, id);

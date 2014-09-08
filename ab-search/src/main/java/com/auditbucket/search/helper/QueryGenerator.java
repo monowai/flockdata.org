@@ -1,5 +1,6 @@
 package com.auditbucket.search.helper;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,23 +17,20 @@ public class QueryGenerator {
     public static String getSimpleQuery(String queryString, Boolean highlightEnabled) {
         logger.debug("getSimpleQuery {}", queryString);
         StringBuilder simpleQuery = new StringBuilder();
-        boolean andQuery = false;
-        if ( queryString.contains("\"")){
-            queryString = queryString.replace("\"", "");
-            andQuery = true;
+        if ( queryString.contains("\"")) {
+            queryString = StringEscapeUtils.escapeJson(queryString);
         }
-        simpleQuery.append("{\n" +
-                "  \"query\": {\n" +
-                "    \"bool\": {\n" +
-                "      \"should\": [\n" +
-                "        {\n" +
-                "          \"query_string\": {\n" +
-                "            \"query\": \"" + queryString + "\"\n" +
-                "          }\n" +
-                "        }\n" +
-                "      ]\n" +
-                "    }\n" +
-                "  }");
+
+        simpleQuery.append("{" + "  query: {"
+                + "    bool: { "
+                + "      should: ["
+                + "        {query_string: { "
+                + "            query: " + '"').append(queryString).append('"')
+                .append("          }")
+                .append("        }")
+                .append("      ]")
+                .append("    }")
+                .append("  }");
 
         if (highlightEnabled) {
             simpleQuery.append(",\n" +
@@ -45,7 +43,7 @@ public class QueryGenerator {
                     "    } " +
                     "  }");
         }
-        simpleQuery.append("\n}");
+        simpleQuery.append(" }");
         return simpleQuery.toString();
     }
 }

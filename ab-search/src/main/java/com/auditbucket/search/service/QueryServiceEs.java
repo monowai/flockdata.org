@@ -35,21 +35,24 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @MessageEndpoint
-public class QueryService  {
+public class QueryServiceEs implements QueryService {
 
     @Autowired
     private QueryDao queryDao;
 
+    @Override
     public Long getHitCount(String index) {
         return queryDao.getHitCount(index);
     }
 
-    @ServiceActivator(inputChannel = "doMetaKeyQuery",outputChannel = "doMetaKeyReply") // Subscriber
+    @Override
+    @ServiceActivator(inputChannel = "doMetaKeyQuery", outputChannel = "doMetaKeyReply") // Subscriber
     public EsSearchResult metaKeySearch(QueryParams queryParams) throws DatagioException {
         return queryDao.doMetaKeySearch(queryParams);
     }
 
 
+    @Override
     public String doSearch(QueryParams queryParams) throws DatagioException {
         return queryDao.doSearch(queryParams);
     }
