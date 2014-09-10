@@ -65,9 +65,33 @@
     <logger name="org.springframework.amqp">
         <level value="info"/>
     </logger>
+    <logger name="org.springframework.integration">
+        <level value="error"/>
+    </logger>
+    <logger name="org.springframework.scheduling">
+        <level value="error"/>
+    </logger>
+
+    <logger name="org.springframework.context">
+        <level value="error"/>
+    </logger>
+
+    <logger name="org.springframework.web">
+        <level value="error"/>
+    </logger>
+    <logger name="org.springframework.beans">
+        <level value="error"/>
+    </logger>
+    <logger name="org.springframework.transaction">
+        <level value="error"/>
+    </logger>
+
+    <logger name="org.springframework.security">
+        <level value="error"/>
+    </logger>
 
     <logger name="com.sun.jersey.server">
-        <level value="info"/>
+        <level value="error"/>
     </logger>
 
     <logger name="org.springframework">
