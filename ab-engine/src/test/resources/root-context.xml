@@ -59,4 +59,25 @@
     <bean id="cacheManager" class="org.springframework.cache.support.NoOpCacheManager"/>
 
 	<bean id="apiKeyInterceptor" class="com.auditbucket.authentication.handler.ApiKeyInterceptor"/>
+
+    <bean id="corsFilter" class="com.auditbucket.helper.CorsSpringFilter" >
+        <constructor-arg>
+            <bean class="com.thetransactioncompany.cors.CORSConfiguration">
+                <constructor-arg>
+                    <!-- Init the CORS filter via Spring so that properties can be extracted from anywhere-->
+                    <props>
+                        <prop key="cors.allowOrigin">${cors.allowOrigin}</prop>
+                        <prop key="cors.allowSubdomains">${cors.allowSubdomains}</prop>
+                        <prop key="cors.supportedHeaders">${cors.supportedHeaders}</prop>
+                        <prop key="cors.exposedHeaders">${cors.exposedHeaders}</prop>
+                        <prop key="cors.supportedMethods">${cors.supportedMethods}</prop>
+                        <prop key="cors.supportsCredentials">${cors.supportsCredentials}</prop>
+                        <prop key="cors.maxAge">${cors.maxAge}</prop>
+                        <prop key="cors.tagRequests">${cors.tagRequests}</prop>
+
+                    </props>
+                </constructor-arg>
+            </bean>
+        </constructor-arg>
+    </bean>
 </beans>
