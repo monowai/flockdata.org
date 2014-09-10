@@ -29,6 +29,7 @@ import java.util.Collection;
 public class MatrixResults {
     Collection<MatrixResult>results;
 
+    public MatrixResults (){}
     @Override
     public String toString() {
         return "MatrixResults{" +
@@ -37,6 +38,7 @@ public class MatrixResults {
     }
 
     public MatrixResults(Collection<MatrixResult> matrixResults) {
+        this();
         setResults(matrixResults);
     }
 

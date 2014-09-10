@@ -116,7 +116,7 @@ public interface MetaHeader {
     String getCallerRef();
 
     /**
-     * @return date created in AuditBucket
+     * @return date created in AuditBucket UTC
      */
     long getWhenCreated();
 
@@ -138,4 +138,5 @@ public interface MetaHeader {
 
     String getCallerKeyRef();
 
+    String getDescription();
 }

@@ -29,12 +29,6 @@
         </layout>
     </appender>
 
-    <!-- 3rdparty Loggers -->
-    <logger name="org.springframework">
-        <level value="info"/>
-    </logger>
-
-
     <logger name="org.elasticsearch">
         <level value="info"/>
     </logger>
@@ -42,26 +36,36 @@
     <logger name="org.springframework.data.neo4j.support.query">
         <level value="info"/>  <!-- set to DEBUG to see Cypher statements-->
     </logger>
-    <logger name="org.neo4j.cypher">
+    <logger name="org.neo4j">
+        <level value="info"/>
+    </logger>
+    <logger name="org.springframework.data.neo4j">
         <level value="info"/>
     </logger>
 
-    <logger name="org.springframework.test">
+    <logger name="org.springframework">
+        <level value="error"/>
+    </logger>
+    <logger name="org.apache">
         <level value="error"/>
     </logger>
 
-    <logger name="org.auditbucket">
-        <level value="info"/>
+    <logger name="org.hibernate">
+        <level value="error"/>
     </logger>
 
-    <logger name="com.auditbucket.engine.service.LogProcessor">
+    <logger name="com.auditbucket.engine.service.LogServiceNeo4j">
         <level value="info"/>
     </logger>
 
     <!-- Root Logger -->
+    <logger name="com.auditbucket">
+        <level value="${ab.logLevel}"/>
+    </logger>
+
 
     <root>
-        <priority value="info"/>
+        <priority value="${ab.logLevel}"/>
         <appender-ref ref="console"/>
     </root>
 

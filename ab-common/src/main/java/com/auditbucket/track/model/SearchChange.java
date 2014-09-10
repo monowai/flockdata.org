@@ -21,7 +21,7 @@ package com.auditbucket.track.model;
 
 import org.joda.time.DateTime;
 
-import java.util.HashMap;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -44,7 +44,7 @@ public interface SearchChange {
      */
     String getMetaKey();
 
-    public void setWhat(HashMap<String, Object> what);
+    public void setWhat(Map<String, Object> what);
 
     public Map<String, Object> getWhat();
 
@@ -59,6 +59,8 @@ public interface SearchChange {
 
     public Long getSysWhen();
 
+    public Date getCreatedDate();
+
     public String getFortressName();
 
     public String getCompanyName();
@@ -68,7 +70,7 @@ public interface SearchChange {
     /**
      * @return date this was created in the owning fortress
      */
-    public Long getWhen();
+    public java.util.Date getWhen();
 
     /**
      * when this log was created in the Fortress
@@ -91,10 +93,7 @@ public interface SearchChange {
 
     Long getLogId();
 
-
     Long getMetaId();
-
-    Long getCreatedDate();
 
     void setDescription(String description);
 
@@ -123,4 +122,5 @@ public interface SearchChange {
      */
     public boolean isDelete();
 
+    void setName(String name);
 }

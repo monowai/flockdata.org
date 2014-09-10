@@ -26,6 +26,7 @@
     <name>auditbucket</name>
     <modules>
         <module>ab-common</module>
+        <module>ab-security</module>
         <module>ab-client</module>
         <module>ab-engine</module>
         <module>ab-search</module>
@@ -33,14 +34,14 @@
         <module>ab-integration-tests</module>
     </modules>
     <packaging>pom</packaging>
-    <version>0.97-BUILD-SNAPSHOT</version>
+    <version>0.97</version>
     <properties>
         <license-text.header>GPL-3-header.txt</license-text.header>
         <docs.url>http://www.monowai.com/wiki/display/DAT/</docs.url>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java-version>1.7</java-version>
         <org.springframework-version>3.2.10.RELEASE</org.springframework-version>
-        <org.springsecurity-version>3.2.3.RELEASE</org.springsecurity-version>
+        <org.springsecurity-version>3.2.5.RELEASE</org.springsecurity-version>
         <!--Weird AMQP integration error when using 3.0.1 of SI -->
         <org.springintegration.version>2.2.6.RELEASE</org.springintegration.version>
         <org.aspectj-version>1.7.2</org.aspectj-version>

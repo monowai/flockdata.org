@@ -22,8 +22,9 @@ package com.auditbucket.engine.service;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.service.FortressService;
-import com.auditbucket.track.model.DocumentType;
+import com.auditbucket.track.bean.DocumentResultBean;
+
+import com.auditbucket.track.service.TagTrackService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,22 +49,22 @@ public class QueryService {
     TagTrackService tagService;
 
     @Autowired
-    SchemaService schemaService;
+    com.auditbucket.track.service.SchemaService schemaService;
 
-    public Collection<DocumentType> getDocumentsInUse(Company abCompany, Collection<String> fortresses) throws DatagioException {
-        ArrayList<DocumentType> docs = new ArrayList<>();
+    public Collection<DocumentResultBean> getDocumentsInUse(Company abCompany, Collection<String> fortresses) throws DatagioException {
+        ArrayList<DocumentResultBean> docs = new ArrayList<>();
 
         // ToDo: Optimize via Cypher, not a java loop
         //match (f:Fortress) -[:FORTRESS_DOC]-(d) return f,d
         if (fortresses == null) {
             Collection<Fortress> forts = fortressService.findFortresses(abCompany);
             for (Fortress fort : forts) {
-                docs.addAll(fortressService.getFortressDocumentsInUse(abCompany, fort.getName()));
+                docs.addAll(fortressService.getFortressDocumentsInUse(abCompany, fort.getCode()));
             }
 
         } else {
             for (String fortress : fortresses) {
-                Collection<DocumentType> documentTypes = fortressService.getFortressDocumentsInUse(abCompany, fortress);
+                Collection<DocumentResultBean> documentTypes = fortressService.getFortressDocumentsInUse(abCompany, fortress);
                 docs.addAll(documentTypes);
             }
         }
@@ -71,12 +72,17 @@ public class QueryService {
 
     }
 
-    public Set<DocumentType> getConcepts(Company company, Collection<String> documents, boolean withRelationships) {
+    public Set<DocumentResultBean> getConceptsWithRelationships(Company company, Collection<String> documents) {
+        return schemaService.findConcepts(company, documents, true);
+
+    }
+
+    public Set<DocumentResultBean> getConcepts(Company company, Collection<String> documents, boolean withRelationships) {
         return schemaService.findConcepts(company, documents, withRelationships);
 
     }
 
-    public Set<DocumentType> getConcepts(Company abCompany, Collection<String> documents) {
+    public Set<DocumentResultBean> getConcepts(Company abCompany, Collection<String> documents) {
         //match (a:Orthopedic) -[r]-(:_Tag) return distinct type(r) as typeName  order by typeName;
 
         return getConcepts(abCompany, documents, false);

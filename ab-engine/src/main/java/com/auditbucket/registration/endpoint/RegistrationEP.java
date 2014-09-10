@@ -19,8 +19,8 @@
 
 package com.auditbucket.registration.endpoint;
 
-import com.auditbucket.helper.ApiKeyHelper;
 import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.model.SystemUser;
@@ -28,7 +28,6 @@ import com.auditbucket.registration.service.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,13 +44,15 @@ public class RegistrationEP {
     @Autowired
     RegistrationService regService;
 
+    @Autowired
+    SecurityHelper secHelper;
+
 
     @RequestMapping(value = "/", consumes = "application/json", method = RequestMethod.POST)
     @ResponseBody
-    @Secured({"ROLE_AB_ADMIN"})
     public ResponseEntity<SystemUserResultBean> registerSystemUser(@RequestBody RegistrationBean regBean) throws DatagioException {
-        // curl -u mike:123 -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/profiles/register -d '{"name":"mikey", "companyName":"Monowai Dev","password":"whocares"}'
-        SystemUser su = regService.registerSystemUser(regBean);
+        // curl -u admin:hackme -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/profiles/register -d '{"name":"mikey", "companyName":"Monowai Dev","password":"whocares"}'
+        SystemUser su = regService.registerSystemUser( regBean);
 
         if (su == null)
             return new ResponseEntity<>(new SystemUserResultBean(su), HttpStatus.CONFLICT);
@@ -61,10 +62,10 @@ public class RegistrationEP {
 
     @RequestMapping(value = "/me", method = RequestMethod.GET)
     @ResponseBody
-    public SystemUserResultBean get(String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        // curl -u mike:123 -X GET http://localhost:8080/ab/profiles/me
+    public SystemUserResultBean get(@RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+        // curl -u batch:123 -X GET http://localhost:8080/ab/profiles/me/
 
-        return new SystemUserResultBean(regService.getSystemUser(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey)));
+        return new SystemUserResultBean(regService.getSystemUser(apiHeaderKey));
     }
 
 

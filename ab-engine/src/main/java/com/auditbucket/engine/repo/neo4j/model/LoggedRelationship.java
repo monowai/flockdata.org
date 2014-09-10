@@ -53,6 +53,8 @@ public class LoggedRelationship implements TrackLog {
     @Fetch
     private Long fortressWhen = 0l;
 
+    private String timezone = null;
+
     //@Indexed
     // ToDo: Associated with a node if Not Indexed. This is for maintenance and rebuilding missing docs.
     private boolean indexed = false;
@@ -66,11 +68,12 @@ public class LoggedRelationship implements TrackLog {
         this();
         this.metaHeader = (MetaHeaderNode) header;
         this.log = (LogNode) log;
+        this.timezone = header.getFortress().getTimeZone();
         if (fortressWhen != null && fortressWhen.getMillis() != 0) {
-            setFortressWhen(fortressWhen.getMillis());
+            setFortressWhen(fortressWhen);
         } else {
             // "now" in the fortress default timezone
-            setFortressWhen(new DateTime(sysWhen, DateTimeZone.forTimeZone(TimeZone.getTimeZone(header.getFortress().getTimeZone()))).getMillis());
+            setFortressWhen(new DateTime(sysWhen, DateTimeZone.forTimeZone(TimeZone.getTimeZone(header.getFortress().getTimeZone()))));
         }
     }
 
@@ -78,13 +81,17 @@ public class LoggedRelationship implements TrackLog {
     public Long getSysWhen() {
         return sysWhen;
     }
+    @Override
+    public DateTime getFortressWhen(DateTimeZone tz) {
+        return new DateTime(fortressWhen, tz);
+    }
 
     public Long getFortressWhen() {
         return fortressWhen;
     }
 
-    void setFortressWhen(Long fortressWhen){
-        this.fortressWhen = fortressWhen;
+    void setFortressWhen(DateTime fortressWhen){
+        this.fortressWhen = fortressWhen.getMillis();
     }
 
     void setSysWhen(Long sysWhen) {
@@ -127,7 +134,7 @@ public class LoggedRelationship implements TrackLog {
         LoggedRelationship that = (LoggedRelationship) o;
 
         if (log != null ? !log.equals(that.log) : that.log != null) return false;
-        if (metaHeader != null ? !metaHeader.equals(that.metaHeader) : that.metaHeader != null) return false;
+        if (metaHeader != null ? !metaHeader.getId().equals(that.metaHeader.getId()) : that.metaHeader != null) return false;
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
 
         return true;

@@ -23,16 +23,13 @@ import com.auditbucket.dao.TrackDao;
 import com.auditbucket.helper.VersionHelper;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.search.model.PingResult;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,7 +57,7 @@ public class EngineConfig {
 
     private Boolean multiTenanted = false;
 
-    private WhatService.KV_STORE kvStore = null;
+    private com.auditbucket.kv.service.KvService.KV_STORE kvStore = null;
 
     @Qualifier("abMonitoringGateway")
     @Autowired
@@ -100,16 +97,16 @@ public class EngineConfig {
     @Value("${abengine.kvStore}")
     public void setKvStore(String kvStore) {
         if ("@null".equals(kvStore) || kvStore.equalsIgnoreCase("redis"))
-            this.kvStore = WhatService.KV_STORE.REDIS;
+            this.kvStore = com.auditbucket.kv.service.KvService.KV_STORE.REDIS;
         else if (kvStore.equalsIgnoreCase("riak"))
-            this.kvStore = WhatService.KV_STORE.RIAK;
+            this.kvStore = com.auditbucket.kv.service.KvService.KV_STORE.RIAK;
         else {
             logger.error("Unable to resolve the abengine.kvstore property [" + kvStore + "]. Defaulting to REDIS");
         }
 
     }
 
-    public WhatService.KV_STORE getKvStore() {
+    public com.auditbucket.kv.service.KvService.KV_STORE getKvStore() {
         return kvStore;
     }
 
@@ -118,7 +115,15 @@ public class EngineConfig {
             return "";
         return (isMultiTenanted() ? company.getCode() : "");
     }
+//    @Secured({"ROLE_AB_ADMIN"})
+//    public Map<String, String> getHealthSecured() {
+//        return getHealth();
+//    }
 
+    /**
+     * Only users with a pre-validated api-key should be calling this
+     * @return system configuration details
+     */
     public Map<String, String> getHealth() {
         if ( System.getProperty("neo4j")!=null )
             logger.warn("[-Dneo4j] is now an unsupported property. Ignoring this setting");
@@ -154,18 +159,6 @@ public class EngineConfig {
     }
 
 
-    private void doHealth() {
-        ObjectMapper om = new ObjectMapper();
-        try {
-            ObjectWriter or = om.writerWithDefaultPrettyPrinter();
-            logger.info("\r\n" + or.writeValueAsString(getHealth()));
-
-        } catch (JsonProcessingException e) {
-
-            logger.error("doHealth", e);
-        }
-    }
-
     public boolean isMultiTenanted() {
         return multiTenanted;
     }
@@ -174,8 +167,9 @@ public class EngineConfig {
         this.multiTenanted = multiTenanted;
     }
 
-    @CacheEvict(value = {"companyFortress", "fortressName", "trackLog", "companyKeys", "companyTag", "companyTagManager",
-            "fortressUser", "callerKey", "metaKey", "headerId" }, allEntries = true)
+//    @CacheEvict(value = {"companyFortress", "fortressName", "trackLog", "companyKeys", "companyTag", "companyTagManager",
+//            "fortressUser", "callerKey", "metaKey", "headerId" }, allEntries = true)
+    @Secured({"ROLE_AB_ADMIN"})
     public void resetCache() {
         logger.info("Reset the cache");
     }
@@ -186,7 +180,7 @@ public class EngineConfig {
 
     /**
      * Should be disabled for testing purposes
-     * @param conceptsEnabled
+     * @param conceptsEnabled if true, concepts will be created in a separate thread when headers are tracked
      */
     public void setConceptsEnabled(boolean conceptsEnabled) {
         this.conceptsEnabled = conceptsEnabled;
@@ -199,4 +193,5 @@ public class EngineConfig {
     public boolean isDuplicateRegistration() {
         return duplicateRegistration;
     }
+
 }

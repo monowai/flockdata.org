@@ -27,15 +27,18 @@ import com.auditbucket.test.utils.TestHelper;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
+
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 /**
  * User: Mike Holdsworth
@@ -46,9 +49,10 @@ public class TestForceDuplicateRlx extends TestEngineBase {
     private Logger logger = LoggerFactory.getLogger(TestForceDuplicateRlx.class);
 
     @Test
+    @Transactional
     public void uniqueChangeRLXUnderLoad() throws Exception {
         logger.info("uniqueChangeRLXUnderLoad started");
-        regService.registerSystemUser(new RegistrationBean("TestTrack", mike).setIsUnique(false));
+        registerSystemUser("TestTrack", mike_admin);
 
         int auditMax = 10;
         int logMax = 10;
@@ -104,7 +108,7 @@ public class TestForceDuplicateRlx extends TestEngineBase {
         logger.info("*** Created data set in " + f.format(splitTotals) + " fortress avg = " + f.format(splitTotals / fortressMax) + " avg processing time per request " + f.format(splitTotals / totalRows) + ". Requests per second " + f.format(totalRows / splitTotals));
 //        watch.reset();
     }
-    private void createLog(MetaInputBean aib, TrackResultBean arb, int log) throws DatagioException, IOException {
+    private void createLog(MetaInputBean aib, TrackResultBean arb, int log) throws DatagioException, IOException, ExecutionException, InterruptedException {
         trackEP.trackLog(new LogInputBean(aib.getFortressUser(), arb.getMetaKey(), new DateTime(), TestHelper.getSimpleMap("who", log)), null, null);
     }
 

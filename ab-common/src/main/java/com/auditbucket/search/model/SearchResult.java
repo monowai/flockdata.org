@@ -31,11 +31,43 @@ import java.util.Map;
  * Since: 13/07/13
  */
 public class SearchResult {
+
+
+    // ToDo: Normalize with MetaHeaderResult
     private String metaKey, fortress, searchKey, documentType;
     private Long logId;
     private Long metaId;
     private Map<String, String[]> fragments;
-    private MetaHeader metaHeader;
+    private String callerRef;
+    private String createdBy;
+    private Long abTimestamp;
+
+    public String getLastUser() {
+        return lastUser;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getEvent() {
+        return event;
+    }
+
+    public Long getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public long getWhenCreated() {
+        return whenCreated;
+    }
+
+    private String lastUser;
+    private String description;
+    private String event;
+    private Long dateCreated;
+    private Long lastUpdate;
+    private long whenCreated;
 
     protected SearchResult() {
     }
@@ -50,11 +82,32 @@ public class SearchResult {
 
     }
 
-    public SearchResult(String searchKey, String metaKey, String type, Map<String, String[]> fragments) {
+    public SearchResult(
+                        String searchKey,
+                        String metaKey,
+                        String fortress,
+                        String event,
+                        String type,
+                        String lastUser,
+                        String lastUpdate,
+                        String whenCreated,
+                        String abTimestamp,
+                        Map<String, String[]> fragments) {
         this.metaKey = metaKey;
         this.documentType = type;
         this.searchKey = searchKey;
         this.fragments = fragments;
+        this.event = event;
+        this.fortress = fortress;
+        this.lastUser = lastUser;
+        if ( whenCreated !=null )
+            this.whenCreated= Long.decode(whenCreated);
+
+        if ( lastUpdate != null && !lastUpdate.equals(whenCreated) )
+            this.lastUpdate = Long.decode(lastUpdate);
+
+        if ( abTimestamp !=null )
+            this.abTimestamp = Long.decode(abTimestamp);
 
     }
 
@@ -73,8 +126,6 @@ public class SearchResult {
      * @return string
      */
     public String getFortress() {
-        if ( metaHeader!=null )
-            return metaHeader.getFortress().getName();
         return fortress;
     }
 
@@ -93,8 +144,6 @@ public class SearchResult {
      * @return
      */
     public String getDocumentType() {
-        if ( metaHeader!=null )
-            return metaHeader.getDocumentType();
         return documentType;
     }
 
@@ -129,15 +178,27 @@ public class SearchResult {
         this.searchKey = searchKey;
     }
 
-    public Map<String,String[]> getFragments(){
+    public Map<String, String[]> getFragments() {
         return fragments;
     }
 
-    public void setMetaHeader(MetaHeader metaHeader) {
-        this.metaHeader = metaHeader;
+    public String getCallerRef() {
+        return callerRef;
     }
 
-    public MetaHeader getMetaHeader() {
-        return metaHeader;
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public Long getAbTimestamp() {
+        return abTimestamp;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setCallerRef(String callerRef) {
+        this.callerRef = callerRef;
     }
 }

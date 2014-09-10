@@ -21,10 +21,10 @@ package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.engine.repo.LogWhatData;
 import com.auditbucket.registration.model.FortressUser;
-import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.model.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.TypeAlias;
@@ -52,7 +52,7 @@ public class LogNode implements Log {
     private TxRef txRef;
 
     @RelatedToVia(elementClass = LoggedRelationship.class, type ="LOGGED", direction = Direction.INCOMING)
-    private TrackLog trackLog;
+    private LoggedRelationship trackLog;
 
     @RelatedTo(elementClass = ChangeEventNode.class, type = "TRACK_EVENT", direction = Direction.OUTGOING)
     @Fetch
@@ -199,7 +199,7 @@ public class LogNode implements Log {
 
     @Override
     public void setTrackLog(TrackLog trackLog) {
-        this.trackLog = trackLog;
+        this.trackLog = (LoggedRelationship) trackLog;
     }
 
 

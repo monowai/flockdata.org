@@ -98,12 +98,13 @@ public class FortressInputBean {
      *
      * @param timeZone timeZone you require
      */
-    public void setTimeZone(String timeZone) {
+    public FortressInputBean setTimeZone(String timeZone) {
         if (timeZone != null) {
             if (!TimeZone.getTimeZone(timeZone).getID().equals(timeZone))
                 throw new IllegalArgumentException(timeZone + " was not recognized");
             this.timeZone = timeZone;
         }
+        return this;
     }
 
     /**

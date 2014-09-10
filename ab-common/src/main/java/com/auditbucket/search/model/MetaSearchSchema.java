@@ -40,33 +40,18 @@ public class MetaSearchSchema {
     public static final String LAST_EVENT = "@lastEvent";
     public static final String WHO = "@who";
     public static final String META_KEY = "@metaKey";
-    public static String CREATED = "@whenCreated"; // Date the document was first created
+    public static String CREATED = "@whenCreated"; // Date the document was first created in the Fortress
 
     public static final String WHAT_CODE = "code";
     public static final String WHAT_NAME = "name";
     public static final String WHAT_DESCRIPTION = "description";
 
-    // Analyzer NGram Config Settings
-    public static final String NGRM_WHAT_DESCRIPTION = "ngram_what_description";
-    public static final String NGRM_WHAT_CODE = "ngram_what_code";
-    public static final String NGRM_WHAT_NAME = "ngram_what_name";
+    public static String parseIndex(Fortress fortress) {
 
-    public static final String NGRM_WHAT_DESCRIPTION_MIN = "3";
-    public static final String NGRM_WHAT_DESCRIPTION_MAX = "10";
-
-    public static final String NGRM_WHAT_CODE_MIN = "2";
-    public static final String NGRM_WHAT_CODE_MAX = "5";
-
-    public static final String NGRM_WHAT_NAME_MIN = "3";
-    public static final String NGRM_WHAT_NAME_MAX = "10";
-
-    public static String parseIndex(Fortress fortress) throws DatagioException {
-        if (fortress.getCompany().getCode() == null)
-            throw new DatagioException("Company code is null");
         return parseIndex(fortress.getCompany().getCode()) + fortress.getCode();
     }
 
-    private static String parseIndex(String company) throws DatagioException {
+    private static String parseIndex(String company){
         // ToDo: Add multi tenant test. Company must always be present if MultiTenanted
         if (company == null || company.equals(""))
             company = "*";
