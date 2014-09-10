@@ -22,8 +22,9 @@ package com.auditbucket.test.unit;
 import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.TagInputBean;
-import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
+import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
 import com.auditbucket.test.utils.TestHelper;
+import com.auditbucket.track.bean.ConceptInputBean;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.model.TxRef;
@@ -34,6 +35,7 @@ import java.util.Date;
 
 import static junit.framework.Assert.*;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * User: Mike Holdsworth
@@ -76,38 +78,34 @@ public class TestInputBeans {
     }
 
     @Test
-    public void testAuditInputBean() throws Exception {
-        DateTime dateA = DateTime.now();
-        MetaInputBean aib = new MetaInputBean("fortress", "user", "booking", dateA, "myRef");
-        assertNull(aib.getMetaKey());
-        aib.setMetaKey("AbC");
-        assertNotNull(aib.getMetaKey());
-
+    public void testTrackInputBean() throws Exception {
+        DateTime headerNow = DateTime.now();
+        MetaInputBean metaBean = new MetaInputBean("fortress", "user", "booking", headerNow, "myRef");
+        assertNull(metaBean.getMetaKey());
+        metaBean.setMetaKey("AbC");
+        assertNotNull(metaBean.getMetaKey());
 
         // NonNull tx ref sets the inputBean to be transactional
-//        String what = "{\"abc\":0}";
-        DateTime dateB = DateTime.now();
-        LogInputBean alb = new LogInputBean("user", "aaa", dateB, TestHelper.getSimpleMap("abc", 0), "", "txreftest");
-        aib.setLog(alb); // Creation dates defer to the Log
-        assertTrue(alb.isTransactional());
-        assertEquals(dateB.getMillis(), aib.getWhen().getTime());
-        // Try to override the
-        aib.setWhen(DateTime.now().toDate());
-        assertEquals(dateB.getMillis(), aib.getWhen().getTime());
-        assertEquals(aib.getWhen().getTime(), alb.getWhen().getTime());
+        DateTime logNow = DateTime.now();
+        LogInputBean logBean = new LogInputBean("user", "aaa", logNow, TestHelper.getSimpleMap("abc", 0), "", "txreftest");
+        metaBean.setLog(logBean); // Creation dates defer to the Log
+        assertTrue(logBean.isTransactional());
+        assertEquals(headerNow.getMillis(), metaBean.getWhen().getTime());
 
         // Change the date on the log, should be the same in the header
-        alb.setWhen(dateA.toDate());
-        assertEquals(dateA.getMillis(), aib.getWhen().getTime());
+        logBean.setWhen(headerNow.toDate());
+        assertEquals(headerNow.getMillis(), metaBean.getWhen().getTime());
         // Null the log
-        aib.setLog(null);
+        metaBean.setLog(null);
         Date dateC = new Date();
-        alb.setWhen(dateC);
-        aib.setLog(alb);
-        assertEquals(dateC.getTime(), aib.getWhen().getTime());
+        logBean.setWhen(dateC);
+        metaBean.setLog(logBean);
+        assertEquals(dateC.getTime(), logBean.getWhen().getTime());
+        assertNotSame(dateC.getTime(), metaBean.getWhen().getTime());
+        assertEquals(headerNow.getMillis(), metaBean.getWhen().getTime());
 
-        alb = new LogInputBean("user", "aaa", null, TestHelper.getRandomMap());
-        assertFalse(alb.isTransactional());
+        logBean = new LogInputBean("user", "aaa", null, TestHelper.getRandomMap());
+        assertFalse(logBean.isTransactional());
 
 
     }
@@ -140,6 +138,15 @@ public class TestInputBeans {
         //assertEquals(1, dest.getMetaLinks().size());
         assertEquals("Should be 2 relationships", 2, dest.getTargets().size());
         assertEquals("TagInput did not merge into somerlx", 2, dest.getTargets().get("somerlx").size());
+    }
+
+    @Test
+    public void metaLinksFromInput(){
+        ConceptInputBean cib = new ConceptInputBean();
+        TagInputBean tag = new TagInputBean("SimpleName");
+        tag.addMetaLink("myrlx");
+        assertFalse ( tag.getMetaLinks().isEmpty());
+        assertTrue(tag.getMetaLinks().containsKey("myrlx"));
     }
 
 

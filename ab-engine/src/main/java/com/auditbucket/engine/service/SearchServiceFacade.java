@@ -1,12 +1,15 @@
 package com.auditbucket.engine.service;
 
 import com.auditbucket.dao.TrackDao;
+import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.search.model.*;
 import com.auditbucket.track.bean.LogInputBean;
+import com.auditbucket.track.bean.LogResultBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.*;
+import com.auditbucket.track.service.TagTrackService;
+import com.auditbucket.track.service.TrackService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTime;
@@ -47,7 +50,7 @@ public class SearchServiceFacade {
     TagTrackService tagTrackService;
 
     @Autowired
-    WhatService whatService;
+    KvService kvService;
 
     @Autowired
     FortressService fortressService;
@@ -66,7 +69,7 @@ public class SearchServiceFacade {
         Collection<SearchResult> theResults = searchResults.getSearchResults();
         int count = 0;
         int size = theResults.size();
-        logger.debug("handleSearchResult processing {} incoming search results", size);
+        logger.trace("handleSearchResult processing {} incoming search results", size);
         for (SearchResult searchResult : theResults) {
             count ++;
             logger.trace("Updating {}/{} from search metaKey =[{}]", count, size, searchResult);
@@ -91,14 +94,6 @@ public class SearchServiceFacade {
 
 
     }
-
-//    public Collection<SearchChange> getSearchDocuments(Company company, Collection<TrackResultBean> resultBeans) {
-//        Collection<SearchChange>searchChanges = new ArrayList<>();
-//        for (TrackResultBean resultBean : resultBeans) {
-//            searchChanges.add(getSearchDocument(company, resultBean));
-//        }
-//        return searchChanges;
-//    }
 
     public void makeChangeSearchable(SearchChange searchChange) {
         if (searchChange == null)
@@ -150,7 +145,8 @@ public class SearchServiceFacade {
         searchDocument = new MetaSearchChange(metaHeader, (HashMap<String, Object>) logInput.getWhat(), event.getCode(), fortressWhen);
         searchDocument.setWho(trackLog.getLog().getWho().getCode());
         searchDocument.setTags(tagTrackService.findTrackTags(metaHeader.getFortress().getCompany(), metaHeader));
-        searchDocument.setDescription(metaHeader.getName());
+        searchDocument.setDescription(metaHeader.getDescription());
+        searchDocument.setName(metaHeader.getName());
         try {
             if (logger.isTraceEnabled())
                 logger.trace("JSON {}", om.writeValueAsString(searchDocument));
@@ -181,7 +177,7 @@ public class SearchServiceFacade {
                 HashMap<String, Object> lastWhat;
                 MetaSearchChange searchDocument;
                 if (lastChange != null) {
-                    lastWhat = (HashMap<String, Object>) whatService.getWhat(metaHeader, lastChange).getWhat();
+                    lastWhat = (HashMap<String, Object>) kvService.getWhat(metaHeader, lastChange).getWhat();
                     searchDocument = new MetaSearchChange(metaHeader, lastWhat, lastChange.getEvent().getCode(), new DateTime(lastLog.getFortressWhen()));
                     searchDocument.setWho(lastChange.getWho().getCode());
                 } else {
@@ -209,4 +205,48 @@ public class SearchServiceFacade {
         // ToDO: Implement this
         logger.info("Purge the search Fortress {}", indexName);
     }
+
+    public void makeChangesSearchable(Iterable<TrackResultBean> resultBeans) {
+        Collection<SearchChange> changes = new ArrayList<>();
+        for (TrackResultBean resultBean : resultBeans) {
+            SearchChange change = getSearchChange(resultBean);
+            if (change!=null )
+                changes.add(change);
+        }
+        makeChangesSearchable(changes);
+
+    }
+
+    private SearchChange getSearchChange(TrackResultBean trackResultBean) {
+        if ( trackResultBean == null )
+            return null;
+        if (trackResultBean.getMetaInputBean()!=null && trackResultBean.getMetaInputBean().isMetaOnly()){
+            return getMetaSearchChange(trackResultBean);
+        }
+
+        if ( trackResultBean.getMetaHeader()== null || !trackResultBean.getMetaHeader().getFortress().isSearchActive())
+            return null;
+
+        LogResultBean logResultBean = trackResultBean.getLogResult();
+        LogInputBean input = trackResultBean.getLog();
+
+        if ( !trackResultBean.processLog())
+            return null;
+
+        if (logResultBean != null && logResultBean.getLogToIndex() != null && logResultBean.getStatus() == LogInputBean.LogStatus.OK) {
+            try {
+                DateTime fWhen = new DateTime(logResultBean.getLogToIndex().getFortressWhen());
+                return prepareSearchDocument(logResultBean.getLogToIndex().getMetaHeader(), input, input.getChangeEvent(), fWhen, logResultBean.getLogToIndex());
+            } catch (JsonProcessingException e) {
+                logResultBean.setMessage("Error processing JSON document");
+                logResultBean.setStatus(LogInputBean.LogStatus.ILLEGAL_ARGUMENT);
+            }
+        }
+        return null;
+    }
+
+    private SearchChange getMetaSearchChange(TrackResultBean trackResultBean) {
+        return getSearchChange(trackResultBean.getMetaHeader().getFortress().getCompany(), trackResultBean);
+    }
+
 }

@@ -21,14 +21,18 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
-import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.test.endpoint.EngineEndPoints;
+import com.auditbucket.track.bean.DocumentResultBean;
 import com.auditbucket.track.bean.MetaInputBean;
-import com.auditbucket.track.model.DocumentType;
 import org.joda.time.DateTime;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,7 +45,13 @@ import static org.junit.Assert.assertEquals;
  * Time: 10:40 AM
  */
 @Transactional
+@WebAppConfiguration
+
 public class TestQuery extends TestEngineBase {
+
+    @Autowired
+    WebApplicationContext wac;
+
 
     @Test
     public void queryInputsReturned () throws Exception{
@@ -53,14 +63,14 @@ public class TestQuery extends TestEngineBase {
         // Two companies
         //  Each with two fortresses
 
-        SystemUserResultBean suA = registrationEP.registerSystemUser(new RegistrationBean("CompanyA", "userA")).getBody();
-        SystemUserResultBean suB = registrationEP.registerSystemUser(new RegistrationBean("CompanyB", "userB")).getBody();
+        SystemUser suA = registerSystemUser("CompanyA", "userA");
+        SystemUser suB = registerSystemUser("CompanyB", "userB");
 
-        Fortress coAfA = fortressEP.registerFortress(new FortressInputBean("coAfA", true), suA.getApiKey(), suA.getApiKey()).getBody();
-        Fortress coAfB = fortressEP.registerFortress(new FortressInputBean("coAfB", true), suA.getApiKey(), suA.getApiKey()).getBody();
+        Fortress coAfA = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("coAfA"));
+        Fortress coAfB = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("coAfB"));
 
-        Fortress coBfA = fortressEP.registerFortress(new FortressInputBean("coBfA", true), suB.getApiKey(), suB.getApiKey()).getBody();
-        Fortress coBfB = fortressEP.registerFortress(new FortressInputBean("coBfB", true), suB.getApiKey(), suB.getApiKey()).getBody();
+        Fortress coBfA = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("coBfA"));
+        Fortress coBfB = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("coBfB"));
 
         setSecurity();
         //
@@ -85,19 +95,21 @@ public class TestQuery extends TestEngineBase {
 
         Collection<String> fortresses = new ArrayList<>();
         fortresses.add(coAfA.getName());
-        Collection<DocumentType> foundDocs = queryEP.getDocumentsInUse (fortresses, suA.getApiKey(), suA.getApiKey());
+        EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
+        Collection<DocumentResultBean> foundDocs = engineEndPoints.getDocuments(suA, fortresses);
         assertEquals(1, foundDocs.size());
 
         fortresses.add(coAfB.getName());
-        foundDocs = queryEP.getDocumentsInUse (fortresses, suA.getApiKey(), suA.getApiKey());
+        foundDocs = engineEndPoints.getDocuments(suA, fortresses);//queryEP.getDocumentsInUse (fortresses, suA.getApiKey(), suA.getApiKey());
         assertEquals(2, foundDocs.size());
 
         // Company B
         fortresses.clear();
         fortresses.add(coBfA.getName());
-        assertEquals(1, queryEP.getDocumentsInUse(fortresses, suB.getApiKey(), suB.getApiKey()).size());
+        assertEquals(1, engineEndPoints.getDocuments(suB, fortresses).size());
         fortresses.add(coBfB.getName());
-        assertEquals(2, queryEP.getDocumentsInUse (fortresses, suB.getApiKey(), suB.getApiKey()).size());
+        assertEquals(2, engineEndPoints.getDocuments(suB, fortresses).size());
 
     }
+
 }

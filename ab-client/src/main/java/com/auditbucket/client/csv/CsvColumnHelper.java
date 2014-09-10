@@ -42,6 +42,10 @@ public class CsvColumnHelper {
         return columnDefinition.getStrategy()!=null;
     }
 
+    public Boolean isDescription() {
+        return columnDefinition.isDescription();
+    }
+
     @Override
     public String toString() {
         return "CsvColumnHelper{" +

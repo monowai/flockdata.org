@@ -20,17 +20,13 @@
 package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.repo.neo4j.model.FortressNode;
 import com.auditbucket.track.model.Concept;
 import com.auditbucket.track.model.DocumentType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
-import org.springframework.data.neo4j.annotation.GraphId;
-import org.springframework.data.neo4j.annotation.Indexed;
-import org.springframework.data.neo4j.annotation.NodeEntity;
-import org.springframework.data.neo4j.annotation.RelatedTo;
+import org.springframework.data.neo4j.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -55,7 +51,8 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
     private String companyKey;
 
     @RelatedTo(elementClass = FortressNode.class, type = "FORTRESS_DOC", direction = Direction.OUTGOING)
-    private Fortress fortress;
+    @Fetch
+    private FortressNode fortress;
 
     @RelatedTo(elementClass = ConceptNode.class,  type = "HAS_CONCEPT", direction = Direction.OUTGOING)
     Collection<Concept> concepts;
@@ -63,14 +60,9 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
     protected DocumentTypeNode() {
     }
 
-    public DocumentTypeNode(String documentType){
+    public DocumentTypeNode(Fortress fortress, String documentType) {
         this();
         this.name = documentType;
-
-    }
-
-    public DocumentTypeNode(Fortress fortress, String documentType) {
-        this(documentType);
         this.code = parse(fortress, documentType);
 
         if ( fortress !=null ){
@@ -80,19 +72,13 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
 
     }
 
-//    public DocumentTypeNode(Collection<Fortress> fortress, String name) {
-//        this(name);
-//        this.fortress = fortress;
-//        if ( fortress !=null )
-//            this.companyKey = fortress.iterator().next().getCompany().getId() + "." + code;
-//
-//    }
+    public DocumentTypeNode(DocumentType document) {
+        this(document.getFortress(), document.getName());
+        this.id = document.getId();
+    }
 
     private void addFortress(Fortress fortress) {
-//        if ( fortress== null )
-//            fortress = new ArrayList<>();
-//        fortress.add(fortress);
-        this.fortress = fortress;
+        this.fortress = (FortressNode) fortress;
     }
 
     public String getName() {
@@ -120,7 +106,7 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
         return companyKey;
     }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public Collection<Concept> getConcepts() {
         return concepts;
     }
@@ -146,9 +132,9 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
                 '}';
     }
 
-    public static String parse(Fortress fortress, String indexName) {
-        //return indexName.toLowerCase().replaceAll("\\s", ".");
-        return fortress.getId() + "."+indexName.toLowerCase().replaceAll("\\s", ".");
+    public static String parse(Fortress fortress, String documentType) {
+//        return documentType.toLowerCase().replaceAll("\\s", ".");
+        return fortress.getId() + "."+ documentType.toLowerCase().replaceAll("\\s", ".");
     }
 
     @Override

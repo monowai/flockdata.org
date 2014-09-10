@@ -22,8 +22,6 @@ package com.auditbucket.engine.repo.neo4j.model;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
-import com.auditbucket.registration.repo.neo4j.model.FortressNode;
-import com.auditbucket.registration.repo.neo4j.model.FortressUserNode;
 import com.auditbucket.search.model.MetaSearchSchema;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.model.DocumentType;
@@ -31,6 +29,7 @@ import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.MetaHeader;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -136,12 +135,17 @@ public class MetaHeaderNode implements MetaHeader {
         if (when == null)
             fortressCreate = new DateTime(dateCreated, DateTimeZone.forTimeZone(TimeZone.getTimeZone(this.fortress.getTimeZone()))).getMillis();
         else
-            fortressCreate = when.getTime();
+            fortressCreate = new DateTime (when.getTime()).getMillis();//new DateTime( when.getTime(), DateTimeZone.forTimeZone(TimeZone.getTimeZone(metaInput.getMetaTZ()))).toDate().getTime();
 
         lastUpdate = 0l;
         this.event = metaInput.getEvent();
         this.suppressSearch(metaInput.isSearchSuppressed());
 
+    }
+
+    public MetaHeaderNode(String guid, Fortress fortress, MetaInputBean mib, DocumentTypeNode doc, FortressUser user) throws DatagioException {
+        this(guid, fortress, mib, doc);
+        setCreatedBy(user);
     }
 
     public Long getId() {
@@ -167,7 +171,7 @@ public class MetaHeaderNode implements MetaHeader {
     @Override
     @JsonIgnore
     public String getName() {
-        return name;  //To change body of implemented methods use File | Settings | File Templates.
+        return name;
     }
 
     /**

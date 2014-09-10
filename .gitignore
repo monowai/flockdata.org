@@ -43,11 +43,13 @@ Thumbs.db
 #IDE Files
 .idea/
 .classpath
+.clover
 .project
 .settings/
 *.iml
 target/
 data/
+report/
 
 
 ab-engine/.shell_history

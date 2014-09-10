@@ -32,6 +32,9 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,6 +56,24 @@ public class SearchAdmin {
     @Value("${rabbit.port}")
     String rabbitPort;
 
+    @Value("${es.mappings}")
+    String esMappingPath;
+    public String getEsMappingPath(){
+        if ( esMappingPath.equals("${es.mappings}"))
+            return ""; // Internal
+        return esMappingPath;
+    }
+
+    public String getEsDefaultSettings() {
+        return getEsMappingPath()+"/ab-default-settings.json";
+    }
+
+
+    String esDefaultMapping="ab-default-mapping.json";
+    public String getEsDefaultMapping(){
+        return getEsMappingPath()+"/"+esDefaultMapping;
+    }
+
     private Logger logger = LoggerFactory.getLogger(SearchAdmin.class);
 
     @Secured({"ROLE_AB_ADMIN"})
@@ -65,7 +86,22 @@ public class SearchAdmin {
         String config = System.getProperty("ab.config");
         if (config == null || config.equals(""))
             config = "system-default";
-        healthResults.put("config-file", config);
+        else {
+            try {
+                // Test for that the supplied path exists
+                new FileInputStream(config);
+                File file = new File(config);
+                // Default to the config path for mappings
+                this.esMappingPath = file.getParent();
+                logger.info(file.toString());
+            } catch (FileNotFoundException e) {
+                logger.error("Unexpected error looking for the config file [" + config +"]", e);
+            }
+        }
+        healthResults.put("ab.config", config);
+        healthResults.put("es.default settings", getEsDefaultSettings());
+        healthResults.put("es.default mapping", getEsDefaultMapping());
+
         String integration = System.getProperty("ab.integration");
         healthResults.put("ab.integration", integration);
         if ("http".equalsIgnoreCase(integration)) {

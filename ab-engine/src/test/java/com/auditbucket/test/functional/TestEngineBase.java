@@ -21,16 +21,26 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.company.endpoint.CompanyEP;
 import com.auditbucket.engine.endpoint.AdminEP;
-import com.auditbucket.engine.endpoint.QueryEP;
 import com.auditbucket.engine.endpoint.TrackEP;
+import com.auditbucket.engine.repo.neo4j.model.FortressNode;
 import com.auditbucket.engine.service.*;
-import com.auditbucket.fortress.endpoint.FortressEP;
 import com.auditbucket.geography.endpoint.GeographyEP;
-import com.auditbucket.registration.endpoint.RegistrationEP;
+import com.auditbucket.helper.JsonUtils;
+import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.kv.service.KvService;
+import com.auditbucket.registration.bean.FortressInputBean;
+import com.auditbucket.registration.bean.RegistrationBean;
+import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
 import com.auditbucket.registration.endpoint.TagEP;
-import com.auditbucket.registration.service.*;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.service.CompanyService;
+import com.auditbucket.registration.service.RegistrationService;
+import com.auditbucket.registration.service.SystemUserService;
 import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
+import com.auditbucket.track.service.*;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
@@ -48,180 +58,227 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 
+import static org.junit.Assert.*;
+
 /**
- * User: mike
- * Date: 16/06/14
- * Time: 7:54 AM
+ * User: mike Date: 16/06/14 Time: 7:54 AM
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:root-context.xml")
+@ContextConfiguration(locations = { "classpath:root-context.xml",
+		"classpath:apiDispatcher-servlet.xml" })
 @Ignore
 public class TestEngineBase {
-    @Autowired
-    FortressEP fortressEP;
 
-    @Autowired
-    QueryEP queryEP;
+	@Autowired
+	protected RegistrationService regService;
 
-    @Autowired
-    RegistrationService regService;
-
-    @Autowired
-    RegistrationEP registrationEP;
-
-    @Autowired
+	@Autowired
     SchemaService schemaService;
 
-    @Autowired
+	@Autowired
+    protected
     FortressService fortressService;
 
-    @Autowired
+	@Autowired
+    protected
     TrackService trackService;
 
-    @Autowired
-    TagTrackService tagTrackService;
+	@Autowired
+	TagTrackService tagTrackService;
 
-    @Autowired
-    TrackEP trackEP;
+	@Autowired
+	TrackEP trackEP;
 
-    @Autowired
-    RegistrationEP regEP;
+	@Autowired
+	GeographyEP geographyEP;
 
-    @Autowired
-    GeographyEP geographyEP;
-
-    @Autowired
+	@Autowired
+    protected
     MediationFacade mediationFacade;
 
     @Autowired
-    TrackEventService trackEventService;
+    TxService txService;
 
     @Autowired
-    SystemUserService systemUserService;
+    protected
+    LogService logService;
 
-    @Autowired
-    TagEP tagEP;
+	@Autowired
+	TrackEventService trackEventService;
 
-    @Autowired
+	@Autowired
+	SystemUserService systemUserService;
+
+	@Autowired
+	TagEP tagEP;
+
+	@Autowired
     TagService tagService;
 
-    @Autowired
-    AdminEP adminEP;
+	@Autowired
+	AdminEP adminEP;
 
-    @Autowired
-    EngineConfig engineAdmin;
+	@Autowired
+    public
+    EngineConfig engineConfig;
 
-    @Autowired
-    WhatService whatService;
+	@Autowired
+	QueryService queryService;
 
-    @Autowired
-    CompanyService companyService;
+	@Autowired
+    KvService kvService;
 
-    @Autowired
-    CompanyEP companyEP;
+	@Autowired
+	CompanyService companyService;
 
-    @Autowired
-    SearchServiceFacade searchService;
+	@Autowired
+	CompanyEP companyEP;
 
-    @Autowired
-    Neo4jTemplate template;
+	@Autowired
+	SearchServiceFacade searchService;
 
-    private static Logger logger = LoggerFactory.getLogger(TestEngineBase.class);
+	@Autowired
+	Neo4jTemplate template;
 
-    // These have to be in spring-security.xml that is authorised to create registrations
-    String sally = "sally";
-    String mike = "mike";
-    String harry = "harry";
+	@Autowired
+	SecurityHelper securityHelper;
 
-    String monowai = "Monowai"; // just a test constant
+	static Logger logger = LoggerFactory.getLogger(TestEngineBase.class);
 
-    Authentication authDefault = new UsernamePasswordAuthenticationToken(mike, "123");
+	// These have to be in test-security.xml in order to create SysUserRegistrations
+    protected static final String sally_admin = "sally";
+	protected static final String mike_admin = "mike"; // Admin role
+    protected static final String harry = "harry";
+	protected static final String monowai = "Monowai"; // constant
+
+	Authentication authDefault = new UsernamePasswordAuthenticationToken(
+			mike_admin, "123");
+
+	public Fortress createFortress(SystemUser su) throws Exception {
+		return fortressService.registerFortress(su.getCompany(), new FortressInputBean("" + System.currentTimeMillis()));
+	}
+
 
     @Rollback(false)
-    @BeforeTransaction
-    public void cleanUpGraph() {
-        // This will fail if running over REST. Haven't figured out how to use a view to look at the embedded db
-        // See: https://github.com/SpringSource/spring-data-neo4j/blob/master/spring-data-neo4j-examples/todos/src/main/resources/META-INF/spring/applicationContext-graph.xml
-        //setSecurity();
-        Neo4jHelper.cleanDb(template);
-        engineAdmin.setConceptsEnabled(false);
-        engineAdmin.setDuplicateRegistration(true);
+	@BeforeTransaction
+    @Ignore
+	public void cleanUpGraph() {
+		Neo4jHelper.cleanDb(template);
+		engineConfig.setConceptsEnabled(false);
+		engineConfig.setDuplicateRegistration(true);
+	}
+
+	@Before
+	public void setSecurity() {
+		engineConfig.setMultiTenanted(false);
+		SecurityContextHolder.getContext().setAuthentication(authDefault);
+	}
+
+	public static void setSecurity(Authentication auth) {
+		SecurityContextHolder.getContext().setAuthentication(auth);
+	}
+
+	public static Authentication setSecurity(String userName) {
+		Authentication auth = new UsernamePasswordAuthenticationToken(userName, "123");
+		setSecurity(auth);
+		return auth;
+	}
+
+	public static void setSecurityEmpty() {
+		SecurityContextHolder.getContext().setAuthentication(null);
+	}
+
+	Transaction beginManualTransaction() {
+		return template.getGraphDatabase().beginTx();
+	}
+
+	void commitManualTransaction(Transaction t) {
+		t.success();
+		t.close();
+	}
+    public SystemUser registerSystemUser(String companyName, String accessUser) throws Exception{
+//        waitAWhile(60); // Trying to avoid Heuristic exception down to the creation of a company altering indexes
+        Company company = companyService.findByName(companyName);
+        if ( company == null ) {
+            logger.debug("Creating company {}", companyName);
+            company = companyService.create(companyName);
+        }
+        return regService.registerSystemUser(company, new RegistrationBean(companyName, accessUser).setIsUnique(false));
     }
 
-    @Before
-    public void setSecurity() {
-        engineAdmin.setMultiTenanted(false);
-        SecurityContextHolder.getContext().setAuthentication(authDefault);
-    }
-
-    public static void setSecurity(Authentication auth) {
-        SecurityContextHolder.getContext().setAuthentication(auth);
-    }
-
-    public static Authentication setSecurity(String userName) {
-        Authentication auth = new UsernamePasswordAuthenticationToken(userName, "123");
-        setSecurity(auth);
-        return auth;
-    }
-
-    public static void setSecurityEmpty(){
-        SecurityContextHolder.getContext().setAuthentication(null);
-    }
-
-    Transaction beginManualTransaction() {
-        Transaction t = template.getGraphDatabase().beginTx();
-        return t;
-    }
-
-    void commitManualTransaction(Transaction t) {
-        t.success();
-        t.close();
-    }
 
     public static void waitAWhile() throws Exception {
-        waitAWhile(null, 3000);
-    }
+		waitAWhile(null, 1500);
+	}
 
-    public static void waitAWhile(int millis) throws Exception {
-        waitAWhile(null, millis);
-    }
+	public static void waitAWhile(int millis) throws Exception {
+		waitAWhile(null, millis);
+	}
 
-    public static void waitAWhile(String message) throws Exception {
-        String ss = System.getProperty("sleepSeconds");
-        if (ss == null || ss.equals(""))
-            ss = "1";
-        if (message == null)
-            message = "Slept for {} seconds";
-        waitAWhile(message, Long.decode(ss) * 1000);
-    }
+	public static void waitAWhile(String message) throws Exception {
+		String ss = System.getProperty("sleepSeconds");
+		if (ss == null || ss.equals(""))
+			ss = "1";
+		if (message == null)
+			message = "Slept for {} seconds";
+		waitAWhile(message, Long.decode(ss) * 1000);
+	}
 
-    /**
-     * Processing delay for threads and integration to complete. If you start getting sporadic
-     * Heuristic exceptions, chances are you need to call this routine to give other threads
-     * time to commit their work.
-     * Likewise, waiting for results from ab-search can take a while. We can't know how long this
-     * is so you can experiment on your own environment by passing in -DsleepSeconds=1
-     *
-     * @param milliseconds to pause for
-     * @throws Exception
-     */
-    public static void waitAWhile(String message, long milliseconds) throws Exception {
-        Thread.sleep(milliseconds);
-        logger.trace(message, milliseconds / 1000d);
-    }
-    long waitForALog(MetaHeader header, String apiKey) throws Exception {
+	/**
+	 * Processing delay for threads and integration to complete. If you start
+	 * getting sporadic Heuristic exceptions, chances are you need to call this
+	 * routine to give other threads time to commit their work. Likewise,
+	 * waiting for results from ab-search can take a while. We can't know how
+	 * long this is so you can experiment on your own environment by passing in
+	 * -DsleepSeconds=1
+	 *
+	 * @param milliseconds
+	 *            to pause for
+	 * @throws Exception
+	 */
+	public static void waitAWhile(String message, long milliseconds)
+			throws Exception {
+		Thread.sleep(milliseconds);
+		logger.trace(message, milliseconds / 1000d);
+	}
+
+	TrackLog waitForLogCount(Company company, MetaHeader header, int expectedCount) throws Exception {
+		// Looking for the first searchKey to be logged against the metaHeader
+		int i = 0;
+		int timeout = 100;
+        int count = 0 ;
+        //int sleepCount = 90;
+        //logger.debug("Sleep Count {}", sleepCount);
+        //Thread.sleep(sleepCount); // Avoiding RELATIONSHIP[{id}] has no property with propertyKey="__type__" NotFoundException
+		while ( i <= timeout) {
+            MetaHeader updatedHeader = trackService.getHeader(company, header.getMetaKey());
+            count = trackService.getLogCount(company, updatedHeader.getMetaKey());
+
+            TrackLog log = trackService.getLastLog(company, updatedHeader.getMetaKey());
+            // We have at least one log?
+			if ( count == expectedCount )
+				return log;
+			Thread.yield();
+			if (i > 20)
+				waitAWhile("Waiting for the log to update {}");
+			i++;
+		}
+		if (i > 22)
+			logger.info("Wait for log got to [{}] for metaId [{}]", i,
+					header.getId());
+        throw new Exception(String.format("Timeout waiting for the defined log count of %s. We found %s", expectedCount, count));
+	}
+    long waitForFirstLog(Company company, MetaHeader header) throws Exception {
         // Looking for the first searchKey to be logged against the metaHeader
         long thenTime = System.currentTimeMillis();
         int i = 0;
-        long ts = header.getFortressLastWhen();
 
-        MetaHeader metaHeader = trackEP.getMetaHeader(header.getMetaKey(), apiKey, apiKey).getBody();
-        TrackLog log = trackEP.getLastChange(metaHeader.getMetaKey(), apiKey, apiKey).getBody();
+        MetaHeader metaHeader = trackService.getHeader(company, header.getMetaKey());
 
         int timeout = 100;
-        while (log == null && i <= timeout) {
-            log = trackEP.getLastChange(metaHeader.getMetaKey(), apiKey, apiKey).getBody();
-            if ( log!=null && metaHeader.getFortressLastWhen() == ts )
+        while ( i <= timeout) {
+            TrackLog log = trackService.getLastLog(company, metaHeader.getMetaKey());
+            if (log != null )
                 return i;
             Thread.yield();
             if (i > 20)
@@ -229,9 +286,23 @@ public class TestEngineBase {
             i++;
         }
         if (i > 22)
-            logger.info("Wait for log got to [{}] for metaId [{}]", i, metaHeader.getId());
+            logger.info("Wait for log got to [{}] for metaId [{}]", i,
+                    metaHeader.getId());
         return System.currentTimeMillis() - thenTime;
     }
+
+
+	public void testJson() throws Exception {
+		FortressNode fortressNode = new FortressNode(new FortressInputBean(
+				"testing"), new CompanyNode("testCompany"));
+		byte[] bytes = JsonUtils.getObjectAsJsonBytes(fortressNode);
+		Fortress f = JsonUtils.getBytesAsObject(bytes, FortressNode.class);
+		assertNotNull(f);
+		assertNull(f.getCompany());// JsonIgnored - Discuss!
+		assertEquals("testing", f.getName());
+	}
+	
+
 
 
 }

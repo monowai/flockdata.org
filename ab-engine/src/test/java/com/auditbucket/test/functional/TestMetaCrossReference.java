@@ -4,6 +4,7 @@ import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.track.bean.CrossReferenceInputBean;
 import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.model.MetaHeader;
@@ -24,14 +25,10 @@ import static org.junit.Assert.*;
 @Transactional
 public class TestMetaCrossReference extends TestEngineBase {
 
-    private String monowai = "Monowai";
-    private String mike = "mike";
-    private String what = "{\"house\": \"house";
-
     @Test
     public void crossReferenceMetaKeysForSameCompany() throws Exception {
-        registrationEP.registerSystemUser(new RegistrationBean(monowai, mike));
-        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("auditTest", true), null, null).getBody();
+        SystemUser su = registerSystemUser(monowai, mike_admin);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
         String sourceKey = trackEP.trackHeader(inputBean, null, null).getBody().getMetaKey();
@@ -64,8 +61,8 @@ public class TestMetaCrossReference extends TestEngineBase {
 
     @Test
     public void duplicateCallerRefForFortressFails() throws Exception {
-        registrationEP.registerSystemUser(new RegistrationBean(monowai, mike));
-        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("auditTest", true), null, null).getBody();
+        SystemUser su = registerSystemUser(monowai, mike_admin);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
         String sourceKey = trackEP.trackHeader(inputBean, null, null).getBody().getMetaKey();
@@ -91,8 +88,8 @@ public class TestMetaCrossReference extends TestEngineBase {
 
     @Test
     public void crossReferenceByCallerRefsForFortress() throws Exception {
-        registrationEP.registerSystemUser(new RegistrationBean(monowai, mike));
-        Fortress fortress = fortressEP.registerFortress(new FortressInputBean("auditTest", true), null, null).getBody();
+        registerSystemUser(monowai, mike_admin);
+        Fortress fortress = fortressService.registerFortress(new FortressInputBean("auditTest", true));
 
         MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
         trackEP.trackHeader(inputBean, null, null).getBody();
@@ -122,8 +119,8 @@ public class TestMetaCrossReference extends TestEngineBase {
     }
     @Test
     public void crossReferenceWithInputBean() throws Exception {
-        registrationEP.registerSystemUser(new RegistrationBean(monowai, mike));
-        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("auditTest", true),null,  null).getBody();
+        registerSystemUser(monowai, mike_admin);
+        Fortress fortressA = fortressService.registerFortress(new FortressInputBean("auditTest", true));
 
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
         trackEP.trackHeader(inputBean, null, null).getBody();
@@ -163,9 +160,9 @@ public class TestMetaCrossReference extends TestEngineBase {
     }
     @Test
     public void crossXRefDifferentFortresses() throws Exception {
-        registrationEP.registerSystemUser(new RegistrationBean(monowai, mike));
-        Fortress fortressA = fortressEP.registerFortress(new FortressInputBean("auditTestA", true),null,  null).getBody();
-        Fortress fortressB = fortressEP.registerFortress(new FortressInputBean("auditTestB", true),null,  null).getBody();
+        SystemUser su = registerSystemUser(monowai, mike_admin);
+        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTestA", true));
+        Fortress fortressB = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTestB", true));
 
         MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
         trackEP.trackHeader(inputBean, null, null).getBody();

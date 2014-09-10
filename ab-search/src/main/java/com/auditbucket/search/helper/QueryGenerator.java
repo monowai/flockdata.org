@@ -1,5 +1,6 @@
 package com.auditbucket.search.helper;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,28 +17,33 @@ public class QueryGenerator {
     public static String getSimpleQuery(String queryString, Boolean highlightEnabled) {
         logger.debug("getSimpleQuery {}", queryString);
         StringBuilder simpleQuery = new StringBuilder();
-        simpleQuery.append("{\n" +
-                "  \"query\": {\n" +
-                "    \"bool\": {\n" +
-                "      \"should\": [\n" +
-                "        {\n" +
-                "          \"query_string\": {\n" +
-                "            \"query\": \"" + queryString + "\"\n" +
-                "          }\n" +
-                "        }\n" +
-                "      ]\n" +
-                "    }\n" +
-                "  }");
+        if ( queryString.contains("\"")) {
+            queryString = StringEscapeUtils.escapeJson(queryString);
+        }
+
+        simpleQuery.append("{" + "  query: {"
+                + "    bool: { "
+                + "      should: ["
+                + "        {query_string: { "
+                + "            query: " + '"').append(queryString).append('"')
+                .append("          }")
+                .append("        }")
+                .append("      ]")
+                .append("    }")
+                .append("  }");
 
         if (highlightEnabled) {
             simpleQuery.append(",\n" +
-                    "  \"highlight\": {\n" +
-                    "    \"fields\": {\n" +
-                    "      \"*\": {}\n" +
-                    "    }\n" +
+                    "  \"highlight\": { " +
+                    "\"pre_tags\" : [\"<strong>\"]," +
+                    "\"post_tags\" : [\"</strong>\"]," +
+                    "\"encoder\" : \"html\"," +
+                    "    \"fields\": { " +
+                    "      \"*\": {} " +
+                    "    } " +
                     "  }");
         }
-        simpleQuery.append("\n}");
+        simpleQuery.append(" }");
         return simpleQuery.toString();
     }
 }

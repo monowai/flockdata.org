@@ -25,8 +25,8 @@ import com.auditbucket.engine.repo.neo4j.model.LoggedRelationship;
 import com.auditbucket.engine.repo.neo4j.model.MetaHeaderNode;
 import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
 import com.auditbucket.engine.service.TrackEventService;
-import com.auditbucket.engine.service.WhatService;
 import com.auditbucket.helper.DatagioException;
+import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
@@ -70,7 +70,7 @@ public class TrackDaoNeo implements TrackDao {
     TrackEventService trackEventService;
 
     @Autowired
-    WhatService whatService;
+    KvService kvService;
 
     @Autowired
     KeyGenService keyGenService;
@@ -86,13 +86,13 @@ public class TrackDaoNeo implements TrackDao {
 
     @Override
     public MetaHeader create(MetaInputBean inputBean, Fortress fortress, DocumentType documentType) throws DatagioException {
-        MetaHeader metaHeader = findByCallerRef(fortress.getId(), documentType.getId(), inputBean.getCallerRef());
-        if (metaHeader != null) {
-            logger.debug("Found existing MetaHeader during request to create - returning");
-            return metaHeader;
-        }
+//        MetaHeader metaHeader = findByCallerRef(fortress.getId(), documentType.getId(), inputBean.getCallerRef());
+//        if (metaHeader != null) {
+//            logger.debug("Found existing MetaHeader during request to create - returning");
+//            return metaHeader;
+//        }
         String metaKey = ( inputBean.isTrackSuppressed()?null:keyGenService.getUniqueKey());
-        metaHeader = new MetaHeaderNode(metaKey, fortress, inputBean, documentType);
+        MetaHeader metaHeader = new MetaHeaderNode(metaKey, fortress, inputBean, documentType);
 
         if (! inputBean.isTrackSuppressed()) {
             logger.debug("Creating {}", metaHeader);
@@ -302,7 +302,7 @@ public class TrackDaoNeo implements TrackDao {
         changeLog.setEvent(event);
         changeLog.setPreviousLog(previousChange);
         try {
-            changeLog = whatService.prepareLog(changeLog, input.getWhat());
+            changeLog = kvService.prepareLog(changeLog, input.getWhat());
         } catch (IOException e) {
             throw new DatagioException("Unexpected error talking to What Service", e);
         }
@@ -343,30 +343,33 @@ public class TrackDaoNeo implements TrackDao {
 
         if (metaHeader.getId() == null)// This occurs when tracking in ab-engine is suppressed and the caller is only creating search docs
             return newChange.getTrackLog();
-        newChange = template.save(newChange);
-        template.fetch(newChange.getTrackLog());
+
+        if ( metaHeader.getLastChange()!=null )
+            metaHeader = template.fetch(metaHeader);
+
+        //template.fetch(newChange.getTrackLog());
         boolean moreRecent = (existingLog == null || existingLog.getFortressWhen() <= fortressWhen.getMillis());
         if (moreRecent) {
-            if (metaHeader.getLastChange() != null)
-                metaHeader = template.fetch(metaHeader);
             if (metaHeader.getLastUser() == null || (!metaHeader.getLastUser().getId().equals(newChange.getWho().getId()))) {
                 metaHeader.setLastUser(newChange.getWho());
             }
             metaHeader.setFortressLastWhen(fortressWhen.getMillis());
             metaHeader.setLastChange(newChange);
-            logger.debug("Saving more recent change, logid [{}]", newChange.getId());
+            logger.debug("Detected a more recent change for header {}. Setting it to be the most recent.", metaHeader.getId());
             try {
                 template.save(metaHeader);
             } catch (IllegalStateException e) {
                 logger.error("ISE saving header {}", new Date(newChange.getTrackLog().getSysWhen()));
                 logger.error("Unexpected", e);
             }
+            logger.debug("Saved change for header [{}], logid [{}]", metaHeader.getId(), newChange.getId());
 
+        } else {
+            newChange = template.save(newChange);
         }
         logger.debug("Added Log - MetaHeader [{}], Log [{}], Change [{}]", metaHeader.getId(), newChange.getTrackLog(), newChange.getId());
-        newChange.getTrackLog().setMetaHeader(metaHeader);
+        //newChange.getTrackLog().setMetaHeader(metaHeader);
         return newChange.getTrackLog();
-
     }
 
     @Override
@@ -446,7 +449,7 @@ public class TrackDaoNeo implements TrackDao {
         if (lastChange == null)
             return null;
 
-        return trackLogRepo.getLastLog(lastChange.getId());
+        return trackLogRepo.getLog(lastChange.getId());
     }
 
 

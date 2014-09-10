@@ -28,6 +28,7 @@ import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created with IntelliJ IDEA.
@@ -36,10 +37,11 @@ import java.io.IOException;
  * Time: 9:13 AM
  * To change this template use File | Settings | File Templates.
  */
+@Deprecated
 public class DeadlockRetry {
     private static Logger logger = LoggerFactory.getLogger(DeadlockRetry.class);
 
-    public static Command execute(Command command, String block, int maxRetry) throws DatagioException, IOException {
+    public static Command execute(Command command, String block, int maxRetry) throws DatagioException, IOException, ExecutionException, InterruptedException {
         // Deadlock re-try fun
         int retryCount = 0;
         while (retryCount < maxRetry) {

@@ -8,23 +8,22 @@ import com.auditbucket.registration.model.SystemUser;
  * Time: 2:53 PM
  */
 public class SystemUserResultBean {
-    private String companyName ;
     private String apiKey;
     private String name;
     private String login;
+    private String companyName ;
 
     public SystemUserResultBean(){}
     public SystemUserResultBean(SystemUser su) {
         this();
-        this.companyName = su.getCompany().getName();
         this.apiKey = su.getApiKey();
         this.name = su.getName();
         this.login = su.getLogin();
+        if (this.name == null )
+            this.name = login;
+        if ( su.getCompany() !=null ) // an unauthenticated user does not have a company
+            this.companyName = su.getCompany().getName();
 
-    }
-
-    public String getCompanyName() {
-        return companyName;
     }
 
     public String getName() {
@@ -37,5 +36,9 @@ public class SystemUserResultBean {
 
     public String getLogin() {
         return login;
+    }
+
+    public String getCompanyName() {
+        return companyName;
     }
 }

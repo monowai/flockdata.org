@@ -21,6 +21,7 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.test.utils.TestHelper;
 import com.auditbucket.track.bean.AuditDeltaBean;
 import com.auditbucket.track.bean.LogInputBean;
@@ -49,14 +50,11 @@ public class TestDelta extends TestEngineBase {
     @Test
     public void jsonDeltasAreFound() throws Exception {
         setSecurity();
-        regService.registerSystemUser(new RegistrationBean(monowai, mike));
+        SystemUser su = registerSystemUser(monowai, mike_admin);
 
         Fortress fortress = fortressService.registerFortress("DELTAForce");
         assertNotNull(fortress);
 
-        String typeA = "TypeA";
-
-        //String jsonA = "{\"house\": \"red\", \"bedrooms\": 2, \"garage\": \"Y\"}";
         Map<String, Object> jsonA = TestHelper.getSimpleMap("house", "red");
         jsonA.put("bedrooms", 2);
         jsonA.put("garage", "Y");
@@ -73,16 +71,16 @@ public class TestDelta extends TestEngineBase {
         MetaInputBean header = new MetaInputBean("DELTAForce", "auditTestz", "Delta", new DateTime(), "abdelta");
         LogInputBean log = new LogInputBean("Mike", new DateTime(), jsonA);
         header.setLog(log);
-        TrackResultBean result = mediationFacade.createHeader(header, null);
-        TrackLog first = trackService.getLastLog(result.getMetaHeader());
+        TrackResultBean result = mediationFacade.trackHeader(su.getCompany(), header);
+        TrackLog first = logService.getLastLog(result.getMetaHeader());
         Assert.assertNotNull(first);
         log = new LogInputBean("Mike", result.getMetaKey(), new DateTime(), jsonB);
-        mediationFacade.processLog(log);
-        TrackLog second = trackService.getLastLog(result.getMetaHeader());
+        mediationFacade.processLog(su.getCompany(), log);
+        TrackLog second = logService.getLastLog(result.getMetaHeader());
         Assert.assertNotNull(second);
 
 
-        AuditDeltaBean deltaBean = whatService.getDelta(result.getMetaHeader(), first.getLog(), second.getLog());
+        AuditDeltaBean deltaBean = kvService.getDelta(result.getMetaHeader(), first.getLog(), second.getLog());
         Map added = deltaBean.getAdded();
         Assert.assertNotNull(added);
         assertTrue(added.containsKey("list"));

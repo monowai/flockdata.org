@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (company) 2012-2014 "Monowai Developments Limited"
+  ~
+  ~ This file is part of AuditBucket.
+  ~
+  ~ AuditBucket is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ AuditBucket is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:cache="http://www.springframework.org/schema/cache"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans
+                    http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+                    http://www.springframework.org/schema/security
+                    http://www.springframework.org/schema/security/spring-security-3.2.xsd http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd">
+
+    <beans:bean id="userProfileService"
+                class="com.auditbucket.authentication.stormpath.StormPathUser" />
+
+    <beans:bean id="stormpathClient" class="com.stormpath.spring.security.client.ClientFactory" >
+        <beans:property name="apiKeyFileLocation" value="${ab.auth.stormpath.apiKeyFile}" />
+        <beans:property name="cacheManager" ref="spCache" />
+    </beans:bean>
+
+    <beans:bean id="authenticationProvider" class="com.stormpath.spring.security.provider.StormpathAuthenticationProvider">
+        <beans:property name="client" ref="stormpathClient" />
+        <beans:property name="applicationRestUrl" value="${ab.auth.stormpath.application}"/>
+        <!-- When mapping to domain-specific role names (ie. using GroupRoleGrantedAuthorityResolver) -->
+        <beans:property name="groupGrantedAuthorityResolver" ref="groupGrantedAuthorityResolver" />
+    </beans:bean>
+
+    <!-- When mapping to domain-specific role names (ie. using GroupRoleGrantedAuthorityResolver) -->
+    <beans:bean id="groupRoleGrantedAuthoritiesMap" class="java.util.HashMap" scope="prototype" >
+        <beans:constructor-arg>
+            <beans:map key-type="java.lang.String" value-type="java.util.List">
+            	<beans:entry key="${ab.auth.stormpath.group.user}" value="ROLE_AB_USER" />
+            	<beans:entry key="${ab.auth.stormpath.group.admin}" value="ROLE_AB_ADMIN" />
+            </beans:map>
+        </beans:constructor-arg>
+    </beans:bean>
+ 
+    <!-- When mapping to domain-specific role names -->
+    <beans:bean id="groupGrantedAuthorityResolver" class="com.auditbucket.authentication.stormpath.GroupRoleGrantedAuthorityResolver" >
+        <beans:constructor-arg ref="groupRoleGrantedAuthoritiesMap" />
+    </beans:bean>
+
+    <!-- We are using our own permission evaluation for WildcardPermissions -->
+    <beans:bean id="permissionEvaluator" class="com.stormpath.spring.security.authz.permission.evaluator.WildcardPermissionEvaluator"/>
+
+    <beans:bean id="methodExpressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
+        <!-- Let's use our own permission evaluation for WildcardPermissions -->
+        <beans:property name="permissionEvaluator" ref="permissionEvaluator"/>
+    </beans:bean>
+
+    <beans:bean id="webExpressionHandler" class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler">
+        <!-- Let's use our own permission evaluation for WildcardPermissions -->
+        <beans:property name="permissionEvaluator" ref="permissionEvaluator"/>
+    </beans:bean>
+
+    <http auto-config='true' use-expressions="true" >
+        <intercept-url pattern="pattern=/v**" access="hasRole('ROLE_AB_USER')" />
+        <logout logout-url="/logout" logout-success-url="/index.jsp"/>
+    </http>
+
+    <authentication-manager  alias="authenticationManager">
+        <authentication-provider ref='authenticationProvider'/>
+    </authentication-manager>
+
+    <global-method-security pre-post-annotations="enabled" secured-annotations="enabled">
+        <expression-handler ref="methodExpressionHandler"/>
+    </global-method-security>
+
+    <cache:annotation-driven cache-manager="spCache" />
+    <!-- Generic cache manager based on the JDK ConcurrentMap -->
+
+    <beans:bean id="spCache" class="org.springframework.cache.support.SimpleCacheManager">
+        <beans:property name="caches">
+            <beans:set>
+                <beans:bean
+                        class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"
+                        name="com.stormpath.sdk.application.Application" />
+                <beans:bean
+                        class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"
+                        name="com.stormpath.sdk.account.Account" />
+                <beans:bean
+                        class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"
+                        name="com.stormpath.sdk.group.Group" />
+                <beans:bean
+                        class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"
+                        name="com.stormpath.sdk.directory.CustomData" />
+            </beans:set>
+        </beans:property>
+    </beans:bean>
+</beans:beans>

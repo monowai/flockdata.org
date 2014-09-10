@@ -19,21 +19,19 @@
 
 package com.auditbucket.engine.endpoint;
 
-import com.auditbucket.engine.service.MediationFacade;
-import com.auditbucket.engine.service.TagTrackService;
-import com.auditbucket.engine.service.TrackService;
-import com.auditbucket.engine.service.WhatService;
+import com.auditbucket.engine.service.*;
 import com.auditbucket.helper.ApiKeyHelper;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;
-import com.auditbucket.registration.service.FortressService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.track.bean.*;
 import com.auditbucket.track.model.*;
+import com.auditbucket.track.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +58,7 @@ public class TrackEP {
     TrackService trackService;
 
     @Autowired
-    MediationFacade mediationFacade;
+    com.auditbucket.track.service.MediationFacade mediationFacade;
 
     @Autowired
     FortressService fortressService;
@@ -75,7 +73,13 @@ public class TrackEP {
     CompanyService companyService;
 
     @Autowired
-    WhatService whatService;
+    KvService kvService;
+
+    @Autowired
+    TxService txService;
+
+    @Autowired
+    LogService logService;
 
     @Autowired
     private RegistrationService registrationService;
@@ -85,26 +89,24 @@ public class TrackEP {
     @ResponseBody
     @RequestMapping(value = "/", consumes = "application/json", method = RequestMethod.PUT)
     public void trackHeaders(@RequestBody List<MetaInputBean> inputBeans,
-                             String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, IOException {
+                             String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, IOException, ExecutionException, InterruptedException {
         trackHeaders(inputBeans, false, ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
     }
 
 
-    public int trackHeaders(List<MetaInputBean> inputBeans, boolean async, String apiKey) throws DatagioException, IOException {
+    public Collection<TrackResultBean> trackHeaders(List<MetaInputBean> inputBeans, boolean async, String apiKey) throws DatagioException, IOException, ExecutionException, InterruptedException {
         Company company = registrationService.resolveCompany(apiKey);
-        Fortress fortress = fortressService.registerFortress(company, new FortressInputBean(inputBeans.iterator().next().getFortress()), true);
+        MetaInputBean mib = inputBeans.iterator().next();
+        FortressInputBean fib = new FortressInputBean(mib.getFortress());
+        fib.setTimeZone(mib.getTimezone());
+        Fortress fortress = fortressService.registerFortress(company, fib, true);
         if (async) {
-            Future<Integer> batch = mediationFacade.createHeadersAsync(company, fortress, inputBeans);
+            Future<Collection<TrackResultBean>> batch = mediationFacade.trackHeadersAsync(fortress, inputBeans);
             Thread.yield();
-            try {
-                return batch.get();
-            } catch (InterruptedException | ExecutionException e) {
-                logger.error("Unexpected", e);
-            }
-            return 0;
+            return batch.get();
 
         } else {
-            return mediationFacade.createHeaders(company, fortress, inputBeans, inputBeans.size());
+            return mediationFacade.trackHeaders(fortress, inputBeans, inputBeans.size());
         }
 
     }
@@ -121,11 +123,12 @@ public class TrackEP {
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
     public ResponseEntity<TrackResultBean> trackHeader(@RequestBody MetaInputBean input,
                                                        String apiKey,
-                                                       @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, IOException {
+                                                       @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, IOException, ExecutionException, InterruptedException {
         // curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8081/ab-engine/track/track/ -d '"fortress":"MyFortressName", "fortressUser": "yoursystemuser", "documentType":"CompanyNode","when":"2012-11-10"}'
 
         TrackResultBean trackResultBean;
-        trackResultBean = mediationFacade.createHeader(input, ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+        Company company = getCompany(apiHeaderKey, apiKey);
+        trackResultBean = mediationFacade.trackHeader(company, input);
         trackResultBean.setServiceMessage("OK");
         return new ResponseEntity<>(trackResultBean, HttpStatus.OK);
 
@@ -134,7 +137,7 @@ public class TrackEP {
     @ResponseBody
     @RequestMapping(value = "/log/", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
     public ResponseEntity<LogResultBean> trackLog(@RequestBody LogInputBean input, String apiKey,
-                                                  @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, IOException {
+                                                  @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, IOException, ExecutionException, InterruptedException {
 
         // If we have a valid company we are good to go.
         Company company = getCompany(apiHeaderKey, apiKey);
@@ -163,14 +166,15 @@ public class TrackEP {
                                                             @PathVariable("recordType") String recordType,
                                                             @PathVariable("callerRef") String callerRef,
                                                             String apiKey,
-                                                            @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, IOException {
+                                                            @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, IOException, ExecutionException, InterruptedException {
 
         TrackResultBean trackResultBean;
         input.setFortress(fortress);
         input.setDocumentType(recordType);
         input.setCallerRef(callerRef);
         input.setMetaKey(null);
-        trackResultBean = mediationFacade.createHeader(input, ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+        Company company = getCompany(apiHeaderKey, ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+        trackResultBean = mediationFacade.trackHeader(company, input);
         trackResultBean.setServiceMessage("OK");
         return new ResponseEntity<>(trackResultBean, HttpStatus.OK);
 
@@ -246,8 +250,8 @@ public class TrackEP {
 
     @ResponseBody
     @RequestMapping(value = "/{metaKey}/summary", produces = "application/json", method = RequestMethod.GET)
-    public ResponseEntity<TrackedSummaryBean> getAuditSummary(@PathVariable("metaKey") String metaKey,
-                                                              String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+    public ResponseEntity<TrackedSummaryBean> getTrackedSummary(@PathVariable("metaKey") String metaKey,
+                                                                String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = getCompany(apiHeaderKey, apiKey);
         return new ResponseEntity<>(mediationFacade.getTrackedSummary(company, metaKey), HttpStatus.OK);
 
@@ -298,11 +302,11 @@ public class TrackEP {
         Company company = getCompany(apiHeaderKey, apiKey);
         MetaHeader header = trackService.getHeader(company, metaKey);
         if (header != null) {
-            TrackLog lastLog = trackService.getLastLog(header);
+            TrackLog lastLog = logService.getLastLog(header);
             if (lastLog == null) {
                 logger.debug("Unable to find last log for {}", header);
             } else {
-                LogWhat what = whatService.getWhat(header, lastLog.getLog());
+                LogWhat what = kvService.getWhat(header, lastLog.getLog());
                 return new ResponseEntity<>(what, HttpStatus.OK);
             }
         }
@@ -323,7 +327,7 @@ public class TrackEP {
             TrackLog left = trackService.getLogForHeader(header, logId);
             TrackLog right = trackService.getLogForHeader(header, withId);
             if (left != null && right != null) {
-                AuditDeltaBean deltaBean = whatService.getDelta(header, left.getLog(), right.getLog());
+                AuditDeltaBean deltaBean = kvService.getDelta(header, left.getLog(), right.getLog());
 
                 if (deltaBean != null)
                     return new ResponseEntity<>(deltaBean, HttpStatus.OK);
@@ -358,7 +362,7 @@ public class TrackEP {
         if (header != null) {
             TrackLog log = trackService.getLogForHeader(header, logId);
             if (log != null)
-                return new ResponseEntity<>(whatService.getWhat(header, log.getLog()), HttpStatus.OK);
+                return new ResponseEntity<>(kvService.getWhat(header, log.getLog()), HttpStatus.OK);
         }
 
         return new ResponseEntity<>((LogWhat) null, HttpStatus.NOT_FOUND);
@@ -384,7 +388,7 @@ public class TrackEP {
         Company company = getCompany(apiHeaderKey, apiKey);
         MetaHeader result = trackService.getHeader(company, metaKey);
         if (result != null) {
-            mediationFacade.cancelLastLogSync(company, result.getMetaKey());
+            mediationFacade.cancelLastLog(company, result);
             return new ResponseEntity<>("OK", HttpStatus.OK);
         }
 
@@ -394,23 +398,21 @@ public class TrackEP {
 
     @ResponseBody
     @RequestMapping(value = "/tx/{txRef}", produces = "application/json", method = RequestMethod.GET)
-    @Secured({"ROLE_AB_ADMIN"})
     public ResponseEntity<TxRef> getAuditTx(@PathVariable("txRef") String txRef) {
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/{metaKey}
         TxRef result;
-        result = trackService.findTx(txRef);
+        result = txService.findTx(txRef);
         return new ResponseEntity<>(result, HttpStatus.OK);
 
     }
 
     @ResponseBody
     @RequestMapping(value = "/tx/{txRef}/headers", produces = "application/json", method = RequestMethod.GET)
-    @Secured({"ROLE_AB_ADMIN"})
     public ResponseEntity<Map<String, Object>> getAuditTxHeaders(@PathVariable("txRef") String txRef) {
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/{metaKey}
         Set<MetaHeader> headers;
         Map<String, Object> result = new HashMap<>(2);
-        headers = trackService.findTxHeaders(txRef);
+        headers = txService.findTxHeaders(txRef);
         result.put("txRef", txRef);
         result.put("headers", headers);
         return new ResponseEntity<>(result, HttpStatus.OK);
@@ -418,11 +420,10 @@ public class TrackEP {
 
     @ResponseBody
     @RequestMapping(value = "/tx/{txRef}/logs", produces = "application/json", method = RequestMethod.GET)
-    @Secured({"ROLE_AB_ADMIN"})
     public ResponseEntity<Map> getAuditTxLogs(@PathVariable("txRef") String txRef) {
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/tx/{txRef}/logs
         Map<String, Object> result;
-        result = trackService.findByTXRef(txRef);
+        result = txService.findByTXRef(txRef);
         if (result == null) {
             result = new HashMap<>(1);
             result.put("txRef", "Not a valid transaction identifier");

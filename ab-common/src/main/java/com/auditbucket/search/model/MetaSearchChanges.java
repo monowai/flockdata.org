@@ -37,7 +37,7 @@ public class MetaSearchChanges {
         this();
         this.searchChanges = (Collection <MetaSearchChange>)(Collection)searchDocuments;
     }
-    public Iterable<MetaSearchChange> getChanges() {
+    public Collection<MetaSearchChange> getChanges() {
         return searchChanges;
     }
 

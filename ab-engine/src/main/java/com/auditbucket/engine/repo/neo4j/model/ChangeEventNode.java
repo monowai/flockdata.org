@@ -19,7 +19,7 @@
 
 package com.auditbucket.engine.repo.neo4j.model;
 
-import com.auditbucket.registration.repo.neo4j.model.CompanyNode;
+import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
 import com.auditbucket.track.model.ChangeEvent;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.neo4j.graphdb.Direction;

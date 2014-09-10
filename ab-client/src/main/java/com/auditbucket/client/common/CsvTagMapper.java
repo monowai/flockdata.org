@@ -21,14 +21,12 @@ package com.auditbucket.client.common;
 
 import com.auditbucket.client.Importer;
 import com.auditbucket.client.csv.CsvColumnHelper;
-import com.auditbucket.client.csv.CsvTag;
 import com.auditbucket.client.rest.AbRestClient;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -38,8 +36,10 @@ import java.util.Map;
  */
 public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(CsvTagMapper.class);
+    private ImportParams importParams;
 
     public CsvTagMapper(ImportParams importParams) {
+        this.importParams = importParams;
     }
 
     @Override
@@ -60,7 +60,7 @@ public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
         for (String column : headerRow) {
             CsvColumnHelper columnHelper = new CsvColumnHelper(column, line[col], importParams.getColumnDef(headerRow[col]));
             if (!columnHelper.ignoreMe()) {
-                //headerRow[col] = columnHelper.getKey();
+
                 if (columnHelper.isTag()) {
 
                     String val = columnHelper.getValue();
@@ -72,21 +72,10 @@ public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
                         setName(val);
                         setCode(val);
                         String index = columnHelper.getKey();
-                        setMustExist(columnHelper.isMustExist()).setIndex(columnHelper.isCountry() ? "Country" : index);
+                        setMustExist(columnHelper.isMustExist())
+                                .setIndex(columnHelper.isCountry() ? "Country" : index);
 
-                        ArrayList<CsvTag> targets = columnHelper.getColumnDefinition().getTargets();
-                        for (CsvTag target : targets) {
-                            Object tagName = row.get(target.getColumn());
-                            if (tagName == null) {
-                                logger.error("No 'column' value found for {} in the {} entry ", target.getColumn(), column);
-                            } else {
-                                TagInputBean targetTag = new TagInputBean(tagName.toString())
-                                        .setIndex(target.getIndex());
-                                targetTag.setReverse(target.getReverse());
-                                setTargets(target.getRelationship(), targetTag);
-                            }
-                        }
-
+                        CsvHelper.setNestedTags(this, columnHelper.getColumnDefinition().getTargets(), row);
                     }
                 }
                 if (columnHelper.isTitle()) {
@@ -101,10 +90,6 @@ public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
     @Override
     public boolean hasHeader() {
         return true;
-    }
-
-    public static DelimitedMappable newInstance(ImportParams importParams) {
-        return new CsvTagMapper(importParams);
     }
 
     @Override
