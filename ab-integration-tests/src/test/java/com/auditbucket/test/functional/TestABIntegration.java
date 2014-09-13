@@ -240,6 +240,7 @@ public class TestABIntegration {
         Entity header = mediationFacade
                 .trackEntity(su.getCompany(), entityInputBean)
                 .getEntity();
+        waitForEntitiesSearchUpdate(su.getCompany(), header.getMetaKey());
         assertEquals("ab.testcompany.tracktest", header.getIndexName());
         waitForEntitiesSearchUpdate(su.getCompany(), header.getMetaKey());
 
