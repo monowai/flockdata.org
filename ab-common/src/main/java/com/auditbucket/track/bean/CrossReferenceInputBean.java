@@ -1,35 +1,35 @@
 package com.auditbucket.track.bean;
 
-import com.auditbucket.track.model.MetaKey;
+import com.auditbucket.track.model.EntityKey;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Used to handle cross references from a source MetaHeader through to a collection of named references
+ * Used to handle cross references from a source Entity through to a collection of named references
  * User: mike
  * Date: 2/04/14
  * Time: 12:24 PM
  */
 public class CrossReferenceInputBean {
-    Map<String,List<MetaKey>>references;
+    Map<String,List<EntityKey>>references;
     private String fortress;
     private String documentType;
     private String callerRef;
     private String serviceMessage;
-    Map<String,List<MetaKey>>ignored;
+    Map<String,List<EntityKey>>ignored;
 
     protected CrossReferenceInputBean(){}
 
-    public CrossReferenceInputBean(String fortress, String callerRef, Map<String,List<MetaKey>>references){
+    public CrossReferenceInputBean(String fortress, String callerRef, Map<String,List<EntityKey>>references){
         this();
         this.callerRef = callerRef;
         this.fortress = fortress;
         this.references = references;
     }
 
-    public CrossReferenceInputBean(String sourceFortress, String sourceDocumentType, String sourceCallerRef, Map<String,List<MetaKey>>references){
+    public CrossReferenceInputBean(String sourceFortress, String sourceDocumentType, String sourceCallerRef, Map<String,List<EntityKey>>references){
         this(sourceFortress, sourceCallerRef, references);
         if ( sourceDocumentType!=null && !sourceDocumentType.equals("*"))
             this.documentType = sourceDocumentType;
@@ -43,7 +43,7 @@ public class CrossReferenceInputBean {
         return fortress;
     }
 
-    public Map<String,List<MetaKey>>getReferences(){
+    public Map<String,List<EntityKey>>getReferences(){
         return references;
     }
 
@@ -91,13 +91,13 @@ public class CrossReferenceInputBean {
         return documentType;
     }
 
-    public void setIgnored(String xRefName, List<MetaKey> ignored) {
+    public void setIgnored(String xRefName, List<EntityKey> ignored) {
         if (this.ignored == null )
            this.ignored = new HashMap<>();
         this.ignored.put(xRefName, ignored);
     }
 
-    public Map<String,List<MetaKey>> getIgnored() {
+    public Map<String,List<EntityKey>> getIgnored() {
         return ignored;
     }
 }

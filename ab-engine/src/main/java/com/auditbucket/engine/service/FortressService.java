@@ -6,7 +6,7 @@
  * AuditBucket is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * (at your option) any later version.                                                  f
  *
  * AuditBucket is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -163,6 +163,7 @@ public class FortressService {
 
     }
 
+    @Deprecated
     public Fortress registerFortress(FortressInputBean fib) {
        return registerFortress(getCompany(), fib, true);
 
@@ -175,6 +176,7 @@ public class FortressService {
      * @param fortressName company unique name
      * @return created fortress
      */
+    @Deprecated
     public Fortress registerFortress(String fortressName) {
         FortressInputBean fb = new FortressInputBean(fortressName, true);
         return registerFortress(fb);
@@ -216,15 +218,19 @@ public class FortressService {
     }
 
     public Fortress registerFortress(Company company, FortressInputBean fib, boolean createIfMissing) {
+        logger.debug("Fortress registration request {}, {}", company, fib);
         Fortress fortress = fortressDao.getFortressByName(company.getId(), fib.getName());
 
         if (fortress != null || !createIfMissing) {
             // Already associated, get out of here
+            logger.debug("Company {} has existing fortress {}", company, fortress);
             return fortress;
         }
 
         fortress = save(company, fib);
+        logger.debug ("Created fortress {}", fortress);
         fortress.setCompany(company);
+        logger.debug("Returning fortress {}", fortress);
         return fortress;
     }
 

@@ -29,9 +29,9 @@ import com.auditbucket.kv.service.KvService;
 import com.auditbucket.track.bean.AuditDeltaBean;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
+import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.LogWhat;
-import com.auditbucket.track.model.MetaHeader;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.MapDifference;
@@ -79,7 +79,7 @@ public class AbKvService implements KvService {
     @Override
     public void doKvWrite(TrackResultBean resultBean) throws IOException {
         if (resultBean.getLog() != null && resultBean.getLog().getStatus() != LogInputBean.LogStatus.TRACK_ONLY)
-            doKvWrite(resultBean.getMetaHeader(), resultBean.getLogResult().getWhatLog());
+            doKvWrite(resultBean.getEntity(), resultBean.getLogResult().getWhatLog());
     }
 
     private static final ObjectMapper om = new ObjectMapper();
@@ -117,13 +117,13 @@ public class AbKvService implements KvService {
         return log;
     }
 
-    private void doKvWrite(MetaHeader metaHeader, Log log) throws IOException {
+    private void doKvWrite(Entity entity, Log log) throws IOException {
         // ToDo: deal with this via spring integration??
         if (log == null) {
             return;
         }
         byte[] dataBlock = log.getDataBlock();
-        getKvRepo(log).add(metaHeader, log.getId(), dataBlock);
+        getKvRepo(log).add(entity, log.getId(), dataBlock);
     }
 
     private KvRepo getKvRepo() {
@@ -146,11 +146,11 @@ public class AbKvService implements KvService {
     }
 
     @Override
-    public LogWhat getWhat(MetaHeader metaHeader, Log log) {
+    public LogWhat getWhat(Entity entity, Log log) {
         if (log == null)
             return null;
         try {
-            byte[] whatInformation = getKvRepo(log).getValue(metaHeader, log.getId());
+            byte[] whatInformation = getKvRepo(log).getValue(entity, log.getId());
             if (whatInformation != null)
                 return new LogWhatData(whatInformation, log.isCompressed());
             else {
@@ -158,7 +158,7 @@ public class AbKvService implements KvService {
                 return new LogWhatData(null, false);
             }
         } catch (RuntimeException re) {
-            logger.error("KV Error Audit[" + metaHeader.getMetaKey() + "] change [" + log.getId() + "]", re);
+            logger.error("KV Error Audit[" + entity.getMetaKey() + "] change [" + log.getId() + "]", re);
 
             //throw (re);
         }
@@ -166,9 +166,9 @@ public class AbKvService implements KvService {
     }
 
     @Override
-    public void delete(MetaHeader metaHeader, Log change) {
+    public void delete(Entity entity, Log change) {
 
-        getKvRepo(change).delete(metaHeader, change.getId());
+        getKvRepo(change).delete(entity, change.getId());
     }
 
 
@@ -176,13 +176,13 @@ public class AbKvService implements KvService {
      * Locate and compare the two JSON What documents to determine if they have changed
      *
      *
-     * @param metaHeader  thing being tracked
+     * @param entity  thing being tracked
      * @param compareFrom existing change to compare from
      * @param jsonWith new Change to compare with - JSON format
      * @return false if different, true if same
      */
     @Override
-    public boolean isSame(MetaHeader metaHeader, Log compareFrom, Map<String, Object> jsonWith) {
+    public boolean isSame(Entity entity, Log compareFrom, Map<String, Object> jsonWith) {
         if (compareFrom == null)
             return false;
         LogWhat what = null;
@@ -190,11 +190,11 @@ public class AbKvService implements KvService {
         int timeout = 10;
         while ( what ==null && count < timeout){
             count++;
-            what = getWhat(metaHeader, compareFrom);
+            what = getWhat(entity, compareFrom);
         }
 
         if ( count >= timeout)
-            logger.error("Timeout looking for KV What data for [{}]", metaHeader);
+            logger.error("Timeout looking for KV What data for [{}]", entity);
 
         if (what == null)
             return false;
@@ -227,11 +227,11 @@ public class AbKvService implements KvService {
     }
 
     @Override
-    public AuditDeltaBean getDelta(MetaHeader header, Log from, Log to) {
-        if (header == null || from == null || to == null)
+    public AuditDeltaBean getDelta(Entity entity, Log from, Log to) {
+        if (entity == null || from == null || to == null)
             throw new IllegalArgumentException("Unable to compute delta due to missing arguments");
-        LogWhat source = getWhat(header, from);
-        LogWhat dest = getWhat(header, to);
+        LogWhat source = getWhat(entity, from);
+        LogWhat dest = getWhat(entity, to);
         MapDifference<String, Object> diffMap = Maps.difference(source.getWhat(), dest.getWhat());
         AuditDeltaBean result = new AuditDeltaBean();
         result.setAdded(new HashMap<>(diffMap.entriesOnlyOnRight()));

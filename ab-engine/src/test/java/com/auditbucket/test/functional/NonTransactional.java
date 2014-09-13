@@ -6,9 +6,9 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.track.bean.CrossReferenceInputBean;
-import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
-import com.auditbucket.track.model.MetaKey;
+import com.auditbucket.track.model.EntityKey;
 import com.auditbucket.track.model.TrackTag;
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -56,20 +56,20 @@ public class NonTransactional extends TestEngineBase{
         tagEP.createTags(tags, su.getApiKey(), su.getApiKey());
         Thread.sleep(300); // Let the schema changes occur
 
-        MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
+        EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
         inputBean.addTag( new TagInputBean("ABC", "Device", "sold"));
-        TrackResultBean docA = trackEP.trackHeader(inputBean, null, null).getBody();
+        TrackResultBean docA = trackEP.trackEntity(inputBean, null, null).getBody();
 
         // These are the two records that will cite the previously created header
-        MetaInputBean inputBeanB = new MetaInputBean(fortressA.getName(), "wally", "DocTypeB", new DateTime(), "ABC321");
+        EntityInputBean inputBeanB = new EntityInputBean(fortressA.getName(), "wally", "DocTypeB", new DateTime(), "ABC321");
         inputBeanB.addTag( new TagInputBean("ABC", "Device", "applies"));
-        TrackResultBean docB = trackEP.trackHeader(inputBeanB, null, null).getBody();
+        TrackResultBean docB = trackEP.trackEntity(inputBeanB, null, null).getBody();
 
-        Map<String, List<MetaKey>> refs = new HashMap<>();
-        List<MetaKey> callerRefs = new ArrayList<>();
+        Map<String, List<EntityKey>> refs = new HashMap<>();
+        List<EntityKey> callerRefs = new ArrayList<>();
 
-        callerRefs.add(new MetaKey("ABC321"));
-        callerRefs.add(new MetaKey("ABC333"));
+        callerRefs.add(new EntityKey("ABC321"));
+        callerRefs.add(new EntityKey("ABC333"));
 
         refs.put("cites",callerRefs);
         CrossReferenceInputBean bean = new CrossReferenceInputBean(fortressA.getName(), "ABC123",refs);

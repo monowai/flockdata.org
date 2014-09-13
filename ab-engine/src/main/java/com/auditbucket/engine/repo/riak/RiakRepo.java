@@ -20,7 +20,7 @@
 package com.auditbucket.engine.repo.riak;
 
 import com.auditbucket.engine.repo.KvRepo;
-import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.Entity;
 import com.basho.riak.client.IRiakClient;
 import com.basho.riak.client.IRiakObject;
 import com.basho.riak.client.RiakException;
@@ -54,10 +54,9 @@ public class RiakRepo implements KvRepo {
         return client;
     }
 
-    public void add(MetaHeader metaHeader, Long key, byte[] what) throws IOException {
-        //riak.put(metaHeader.getIndexName(), key);
+    public void add(Entity entity, Long key, byte[] what) throws IOException {
         try {
-            Bucket bucket = getClient().createBucket(metaHeader.getIndexName()).execute();
+            Bucket bucket = getClient().createBucket(entity.getIndexName()).execute();
             bucket.store(String.valueOf(key), what).execute();
         } catch (RiakException e) {
             logger.error("RIAK Repo Error", e);
@@ -67,9 +66,9 @@ public class RiakRepo implements KvRepo {
         }
     }
 
-    public byte[] getValue(MetaHeader metaHeader, Long key) {
+    public byte[] getValue(Entity entity, Long key) {
         try {
-            Bucket bucket = getClient().createBucket(metaHeader.getIndexName()).execute();
+            Bucket bucket = getClient().createBucket(entity.getIndexName()).execute();
             IRiakObject result = bucket.fetch(String.valueOf(key)).execute();
             if (result != null)
                 return result.getValue();
@@ -84,9 +83,9 @@ public class RiakRepo implements KvRepo {
         return null;
     }
 
-    public void delete(MetaHeader metaHeader, Long key) {
+    public void delete(Entity entity, Long key) {
         try {
-            Bucket bucket = getClient().fetchBucket(metaHeader.getIndexName()).execute();
+            Bucket bucket = getClient().fetchBucket(entity.getIndexName()).execute();
             bucket.delete(String.valueOf(key)).execute();
         } catch (RiakException e) {
             logger.error("RIAK Repo Error", e);

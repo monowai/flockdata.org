@@ -4,7 +4,7 @@ import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.track.bean.DocumentResultBean;
-import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.model.DocumentType;
 import junit.framework.Assert;
 import org.joda.time.DateTime;
@@ -31,11 +31,11 @@ public class TestSchemaManagement extends TestEngineBase {
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("auditTestA", true));
         Fortress fortressB = fortressService.registerFortress(new FortressInputBean("auditTestB", true));
 
-        MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
-        String metaKeyA = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody().getMetaKey();
+        EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
+        String metaKeyA = trackEP.trackEntity(inputBean, apiKey, apiKey).getBody().getMetaKey();
 
-        inputBean = new MetaInputBean(fortressB.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
-        String metaKeyB = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody().getMetaKey();
+        inputBean = new EntityInputBean(fortressB.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
+        String metaKeyB = trackEP.trackEntity(inputBean, apiKey, apiKey).getBody().getMetaKey();
 
         assertFalse(metaKeyA.equals(metaKeyB));
         // There should be a doc type per fortress and it should have the same Id.
@@ -71,16 +71,16 @@ public class TestSchemaManagement extends TestEngineBase {
         // Same name different company
         Fortress fortressC = fortressService.registerFortress(cOtherAPI.getCompany(), new FortressInputBean("auditTestB"));
 
-        MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
-        String metaKeyA = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody().getMetaKey();
+        EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
+        String metaKeyA = trackEP.trackEntity(inputBean, apiKey, apiKey).getBody().getMetaKey();
 
-        inputBean = new MetaInputBean(fortressB.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
-        String metaKeyB = trackEP.trackHeader(inputBean, apiKey, apiKey).getBody().getMetaKey();
+        inputBean = new EntityInputBean(fortressB.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
+        String metaKeyB = trackEP.trackEntity(inputBean, apiKey, apiKey).getBody().getMetaKey();
 
         assertFalse(metaKeyA.equals(metaKeyB));
 
-        inputBean = new MetaInputBean(fortressC.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
-        String metaKeyC = trackEP.trackHeader(inputBean,  cOtherAPI.getApiKey(), cOtherAPI.getApiKey()).getBody().getMetaKey();
+        inputBean = new EntityInputBean(fortressC.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
+        String metaKeyC = trackEP.trackEntity(inputBean, cOtherAPI.getApiKey(), cOtherAPI.getApiKey()).getBody().getMetaKey();
         assertFalse(metaKeyC.equals(metaKeyA));
         assertFalse(metaKeyC.equals(metaKeyB));
 

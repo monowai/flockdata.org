@@ -34,10 +34,10 @@ import java.util.Iterator;
  * Date: 23/05/14
  * Time: 12:29 PM
  */
-public class JsonSearchChange extends JsonDeserializer<MetaSearchChanges> {
+public class JsonSearchChange extends JsonDeserializer<EntitySearchChanges> {
     @Override
-    public MetaSearchChanges deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        MetaSearchChanges changes = new MetaSearchChanges();
+    public EntitySearchChanges deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+        EntitySearchChanges changes = new EntitySearchChanges();
         JsonNode n = jp.getCodec().readTree(jp);
         Collection<JsonNode> columns = n.findValues("changes");
         if ( columns !=null ){
@@ -47,7 +47,7 @@ public class JsonSearchChange extends JsonDeserializer<MetaSearchChanges> {
                 Iterator<JsonNode>nodes = node.elements();
 
                 while (nodes.hasNext()){
-                    MetaSearchChange change=mapper.readValue(nodes.next().toString(), MetaSearchChange.class);
+                    EntitySearchChange change=mapper.readValue(nodes.next().toString(), EntitySearchChange.class);
                     changes.addChange(change);
 
                 }

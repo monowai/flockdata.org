@@ -19,7 +19,7 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.dao.TrackDao;
+import com.auditbucket.engine.repo.neo4j.EntityDaoNeo;
 import com.auditbucket.helper.VersionHelper;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.search.model.PingResult;
@@ -45,7 +45,7 @@ import java.util.Map;
 public class EngineConfig {
 
     @Autowired
-    TrackDao trackDAO;
+    EntityDaoNeo trackDAO;
 
     private String abSearch;
 

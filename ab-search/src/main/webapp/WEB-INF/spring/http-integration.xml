@@ -38,7 +38,7 @@
                               reply-timeout="${reply.timeout}"
                               request-timeout="${request.timeout}"
                               message-converters=""
-                              request-payload-type="com.auditbucket.search.model.MetaSearchChanges"
+                              request-payload-type="com.auditbucket.search.model.EntitySearchChanges"
                               supported-methods="POST"/>
 
     <int-http:outbound-gateway reply-timeout="1000"

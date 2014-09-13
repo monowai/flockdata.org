@@ -34,26 +34,26 @@ import java.util.Set;
  */
 public interface TrackLogRepo extends GraphRepository<LogNode> {
 
-    @Query(value = "match metaHeader-[cw:LOGGED]->log where id(metaHeader)={0} return count(cw)")
-    int getLogCount(Long metaHeaderId);
+    @Query(value = "match entity-[cw:LOGGED]->log where id(entity)={0} return count(cw)")
+    int getLogCount(Long entityId);
 
     @Query(elementClass = LoggedRelationship.class,
             value = "match (change:Log)<-[log:LOGGED]-() where id(change)={0} " +
                     "   return log")
     LoggedRelationship getLog(Long logId);
 
-    @Query(elementClass = LoggedRelationship.class, value = "match (header)-[log:LOGGED]->(auditLog) where id(header)={0} and log.fortressWhen >= {1} and log.fortressWhen <= {2} return log ")
-    Set<TrackLog> getLogs(Long metaHeaderId, Long from, Long to);
+    @Query(elementClass = LoggedRelationship.class, value = "match (entity)-[log:LOGGED]->(auditLog) where id(entity)={0} and log.fortressWhen >= {1} and log.fortressWhen <= {2} return log ")
+    Set<TrackLog> getLogs(Long entityId, Long from, Long to);
 
     @Query(elementClass = LoggedRelationship.class, value =
             "   MATCH track-[log:LOGGED]->change where id(track) = {0} " +
             "return log order by log.fortressWhen desc")
-    Set<TrackLog> findLogs(Long metaHeaderId);
+    Set<TrackLog> findLogs(Long entityId);
 
-    @Query (value = "match (f:_Fortress)-[:TRACKS]->(m:MetaHeader)-[l:LOGGED]-(log:Log)-[people]-() where id(f)={0} delete l, people, log")
+    @Query (value = "match (f:_Fortress)-[:TRACKS]->(m:Entity)-[l:LOGGED]-(log:Log)-[people]-() where id(f)={0} delete l, people, log")
     void purgeFortressLogs(Long fortressId);
 
-    @Query (value = "match (f:_Fortress)-[track:TRACKS]->(m:MetaHeader)-[tagRlx]-(:_Tag) where id(f)={0} delete tagRlx")
+    @Query (value = "match (f:_Fortress)-[track:TRACKS]->(m:Entity)-[tagRlx]-(:_Tag) where id(f)={0} delete tagRlx")
     void purgeTagRelationships(Long fortressId);
 
 

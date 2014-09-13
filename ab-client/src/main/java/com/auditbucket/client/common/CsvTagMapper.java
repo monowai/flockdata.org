@@ -73,7 +73,7 @@ public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
                         setCode(val);
                         String index = columnHelper.getKey();
                         setMustExist(columnHelper.isMustExist())
-                                .setIndex(columnHelper.isCountry() ? "Country" : index);
+                                .setLabel(columnHelper.isCountry() ? "Country" : index);
 
                         CsvHelper.setNestedTags(this, columnHelper.getColumnDefinition().getTargets(), row);
                     }

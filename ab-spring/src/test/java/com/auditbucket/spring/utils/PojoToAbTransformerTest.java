@@ -4,7 +4,7 @@ import com.auditbucket.helper.DatagioException;
 import com.auditbucket.spring.annotations.DatagioCallerRef;
 import com.auditbucket.spring.annotations.DatagioUid;
 import com.auditbucket.spring.annotations.Trackable;
-import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.bean.EntityInputBean;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -18,10 +18,10 @@ public class PojoToAbTransformerTest {
         pojo1.email = "email@email.com";
         pojo1.id = 1L;
         pojo1.name = "name";
-        MetaInputBean metaInputBean = PojoToAbTransformer.transformToAbFormat(pojo1);
+        EntityInputBean entityInputBean = PojoToAbTransformer.transformToAbFormat(pojo1);
         //Assert.assertEquals(metaInputBean.getMetaKey(), "1");
-        Assert.assertEquals(metaInputBean.getDocumentType(), "pojo1");
-        Assert.assertEquals(metaInputBean.getCallerRef(), "email@email.com");
+        Assert.assertEquals(entityInputBean.getDocumentType(), "pojo1");
+        Assert.assertEquals(entityInputBean.getCallerRef(), "email@email.com");
     }
 
     @Test
@@ -30,10 +30,10 @@ public class PojoToAbTransformerTest {
         pojo2.email = "email@email.com";
         pojo2.id = 1L;
         pojo2.name = "name";
-        MetaInputBean metaInputBean = PojoToAbTransformer.transformToAbFormat(pojo2);
+        EntityInputBean entityInputBean = PojoToAbTransformer.transformToAbFormat(pojo2);
         //Assert.assertEquals(metaInputBean.getMetaKey(), "1");
-        Assert.assertEquals(metaInputBean.getDocumentType(), "testDocType");
-        Assert.assertEquals(metaInputBean.getCallerRef(), "email@email.com");
+        Assert.assertEquals(entityInputBean.getDocumentType(), "testDocType");
+        Assert.assertEquals(entityInputBean.getCallerRef(), "email@email.com");
     }
 
     @Test
@@ -42,10 +42,10 @@ public class PojoToAbTransformerTest {
         pojo3.email = "email@email.com";
         pojo3.id = 1L;
         pojo3.name = "name";
-        MetaInputBean metaInputBean = PojoToAbTransformer.transformToAbFormat(pojo3);
+        EntityInputBean entityInputBean = PojoToAbTransformer.transformToAbFormat(pojo3);
         //Assert.assertEquals(metaInputBean.getMetaKey(), "1");
-        Assert.assertEquals(metaInputBean.getDocumentType(), "pojo3");
-        Assert.assertEquals(metaInputBean.getCallerRef(), "email@email.com");
+        Assert.assertEquals(entityInputBean.getDocumentType(), "pojo3");
+        Assert.assertEquals(entityInputBean.getCallerRef(), "email@email.com");
     }
 
     @Trackable

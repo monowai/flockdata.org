@@ -20,7 +20,7 @@
 package com.auditbucket.search.model;
 
 import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.SearchChange;
 import com.auditbucket.track.model.TrackTag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -42,7 +42,7 @@ import java.util.Map;
  * Date: 25/04/13
  * Time: 9:33 PM
  */
-public class MetaSearchChange implements SearchChange {
+public class EntitySearchChange implements SearchChange {
 
     private String documentType;
     private String description;
@@ -59,7 +59,7 @@ public class MetaSearchChange implements SearchChange {
     // String, Object?
     private HashMap<String, Object> tagValues = new HashMap<>();
     private Long version;
-    private Long metaId;
+    private Long entityId;
 
     private String indexName;
     private long sysWhen;
@@ -73,10 +73,10 @@ public class MetaSearchChange implements SearchChange {
      *
      * @param header details
      */
-    public MetaSearchChange(MetaHeader header) {
+    public EntitySearchChange(Entity header) {
         this();
         this.metaKey = header.getMetaKey();
-        this.metaId = header.getId();
+        this.entityId = header.getId();
         setDocumentType(header.getDocumentType());
         setFortress(header.getFortress());
         this.indexName = header.getIndexName();
@@ -89,17 +89,17 @@ public class MetaSearchChange implements SearchChange {
 
     }
 
-    public MetaSearchChange() {
+    public EntitySearchChange() {
     }
 
-    public MetaSearchChange(MetaHeader header, HashMap<String, Object> mapWhat, String event, DateTime when) {
+    public EntitySearchChange(Entity header, HashMap<String, Object> mapWhat, String event, DateTime when) {
         this(header);
         this.what = mapWhat;
         this.event = event;
         setWhen(when);
     }
 
-    public MetaSearchChange(MetaHeader header, Map<String, Object> json) {
+    public EntitySearchChange(Entity header, Map<String, Object> json) {
         this(header);
         this.what = json;
     }
@@ -250,8 +250,8 @@ public class MetaSearchChange implements SearchChange {
         return logId;
     }
 
-    public Long getMetaId() {
-        return metaId;
+    public Long getEntityId() {
+        return entityId;
     }
 
     @Override

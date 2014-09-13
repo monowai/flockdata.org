@@ -35,9 +35,12 @@ public class ImportParamsDeserializer extends JsonDeserializer<ImportParams> {
         if (column != null)
             importParams.setFortress(column.get("name").asText());
 
-        column = node.get("tagOrTrack");
+        column = node.get("tagOrEntity");
+        if ( column == null )
+            column = node.get("tagOrTrack");
+
         if (column != null)
-            importParams.setTagOrTrack(column.asText());
+            importParams.setTagOrEntity(column.asText());
 
         column = node.get("fortressUser");
         if (column != null)
@@ -48,9 +51,11 @@ public class ImportParamsDeserializer extends JsonDeserializer<ImportParams> {
             importParams.setStaticDataClazz(column.asText());
 
 
-        column = node.get("metaOnly");
+        column = node.get("entityOnly");
+        if ( column == null )
+            column = node.get("metaOnly"); // legacy value
         if (column != null)
-            importParams.setMetaOnly(Boolean.parseBoolean(column.asText()));
+            importParams.setEntityOnly(Boolean.parseBoolean(column.asText()));
 
         column = node.get("header");
         if (column != null)
@@ -60,9 +65,12 @@ public class ImportParamsDeserializer extends JsonDeserializer<ImportParams> {
         if (column != null)
             importParams.setDelimiter(toString().charAt(0));
 
-        column = node.get("metaHeader");
+        column = node.get("entityKey");
+        if ( column == null )
+            column = node.get("metaHeader");// legacy value
+
         if ( column!=null) {
-            importParams.setMetaHeader(column.asText());
+            importParams.setEntityKey(column.asText());
         }
 
 

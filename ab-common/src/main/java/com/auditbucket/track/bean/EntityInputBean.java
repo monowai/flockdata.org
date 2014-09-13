@@ -20,7 +20,7 @@
 package com.auditbucket.track.bean;
 
 import com.auditbucket.registration.bean.TagInputBean;
-import com.auditbucket.track.model.MetaKey;
+import com.auditbucket.track.model.EntityKey;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.joda.time.DateTime;
 
@@ -31,7 +31,7 @@ import java.util.*;
  * Date: 11/05/13
  * Time: 9:19 AM
  */
-public class MetaInputBean {
+public class EntityInputBean {
     private String metaKey;
     private String callerRef;
     private String fortress;
@@ -40,7 +40,7 @@ public class MetaInputBean {
     private Date when = null;
     private LogInputBean log;
     private List<TagInputBean> tags = new ArrayList<>();
-    private Map<String,List<MetaKey>> crossReferences = new HashMap<>();
+    private Map<String,List<EntityKey>> crossReferences = new HashMap<>();
 
     private String event = "Create";
     private String description;
@@ -51,7 +51,7 @@ public class MetaInputBean {
     private String timezone;
 
 
-    public MetaInputBean() {
+    public EntityInputBean() {
     }
 
     /**
@@ -62,7 +62,7 @@ public class MetaInputBean {
      * @param fortressWhen  when did this occur in the fortress
      * @param callerRef     case sensitive unique key. If not supplied, then the service will generate one
      */
-    public MetaInputBean(String fortress, String fortressUser, String documentType, DateTime fortressWhen, String callerRef) {
+    public EntityInputBean(String fortress, String fortressUser, String documentType, DateTime fortressWhen, String callerRef) {
         this();
         if (fortressWhen != null)
             setWhen(fortressWhen);
@@ -72,7 +72,7 @@ public class MetaInputBean {
         setCallerRef(callerRef);
     }
 
-    public MetaInputBean(String description, String fortressUser, String companyNode, DateTime fortressWhen) {
+    public EntityInputBean(String description, String fortressUser, String companyNode, DateTime fortressWhen) {
         this(description, fortressUser, companyNode, fortressWhen, null);
 
     }
@@ -129,7 +129,7 @@ public class MetaInputBean {
     }
 
     /**
-     * This is unused in the MetaHeader
+     * This is unused in the Entity
      * Obtain this from the InputBean that you are logging, not the
      * @return
      */
@@ -162,7 +162,7 @@ public class MetaInputBean {
 
     /**
      * Optional case sensitive & unique for the Fortress & Document Type combination. If you do not have
-     * a primary key, then to update "this" instance of the MetaHeader you will need to use
+     * a primary key, then to update "this" instance of the Entity you will need to use
      * the generated AuditKey returned by AuditBucket in the TrackResultBean
      *
      * @see TrackResultBean
@@ -207,9 +207,9 @@ public class MetaInputBean {
      *
      *
      * @param tag tag to add
-     * @see MetaInputBean#getTags()
+     * @see EntityInputBean#getTags()
      */
-    public MetaInputBean addTag(TagInputBean tag) {
+    public EntityInputBean addTag(TagInputBean tag) {
         tags.add(tag);
         return this;
     }
@@ -280,14 +280,14 @@ public class MetaInputBean {
         this.trackSuppressed = trackSuppressed;
     }
 
-    public void addCrossReference(String relationshipName, MetaKey metaKey){
+    public void addCrossReference(String relationshipName, EntityKey entityKey){
         //new CrossReferenceInputBean(getFortresses(), callerRef, c)
-        List<MetaKey>refs = crossReferences.get(relationshipName);
+        List<EntityKey>refs = crossReferences.get(relationshipName);
         if ( refs == null ){
             refs = new ArrayList<>();
             crossReferences.put(relationshipName, refs);
         }
-        refs.add(metaKey);
+        refs.add(entityKey);
     }
 
     /**
@@ -297,7 +297,7 @@ public class MetaInputBean {
      *
      * @return crossReferences
      */
-    public Map<String,List<MetaKey>> getCrossReferences(){
+    public Map<String,List<EntityKey>> getCrossReferences(){
         return crossReferences;
     }
 
@@ -321,7 +321,7 @@ public class MetaInputBean {
     }
 
     /**
-     * Flags that this Header will never have a log. Rather it is a MetaHeader thing
+     * Flags that this Header will never have a log. Rather it is a Entity thing
      * that we want to see in the Search Service.
      *
      * @param metaOnly if false then the header will not be indexed in search until a log is added

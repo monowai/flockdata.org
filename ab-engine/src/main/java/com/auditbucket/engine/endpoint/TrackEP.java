@@ -64,7 +64,7 @@ public class TrackEP {
     FortressService fortressService;
 
     @Autowired
-    TagTrackService tagTrackService;
+    EntityTagService entityTagService;
 
     @Autowired
     SecurityHelper securityHelper;
@@ -88,15 +88,15 @@ public class TrackEP {
 
     @ResponseBody
     @RequestMapping(value = "/", consumes = "application/json", method = RequestMethod.PUT)
-    public void trackHeaders(@RequestBody List<MetaInputBean> inputBeans,
+    public void trackHeaders(@RequestBody List<EntityInputBean> inputBeans,
                              String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, IOException, ExecutionException, InterruptedException {
         trackHeaders(inputBeans, false, ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
     }
 
 
-    public Collection<TrackResultBean> trackHeaders(List<MetaInputBean> inputBeans, boolean async, String apiKey) throws DatagioException, IOException, ExecutionException, InterruptedException {
+    public Collection<TrackResultBean> trackHeaders(List<EntityInputBean> inputBeans, boolean async, String apiKey) throws DatagioException, IOException, ExecutionException, InterruptedException {
         Company company = registrationService.resolveCompany(apiKey);
-        MetaInputBean mib = inputBeans.iterator().next();
+        EntityInputBean mib = inputBeans.iterator().next();
         FortressInputBean fib = new FortressInputBean(mib.getFortress());
         fib.setTimeZone(mib.getTimezone());
         Fortress fortress = fortressService.registerFortress(company, fib, true);
@@ -112,7 +112,7 @@ public class TrackEP {
     }
 
     /**
-     * Creates a header
+     * Tracks an entity
      *
      * @param input meta header input
      * @return TrackResultBean
@@ -121,14 +121,14 @@ public class TrackEP {
      */
     @ResponseBody
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
-    public ResponseEntity<TrackResultBean> trackHeader(@RequestBody MetaInputBean input,
+    public ResponseEntity<TrackResultBean> trackEntity(@RequestBody EntityInputBean input,
                                                        String apiKey,
                                                        @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, IOException, ExecutionException, InterruptedException {
         // curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8081/ab-engine/track/track/ -d '"fortress":"MyFortressName", "fortressUser": "yoursystemuser", "documentType":"CompanyNode","when":"2012-11-10"}'
 
         TrackResultBean trackResultBean;
         Company company = getCompany(apiHeaderKey, apiKey);
-        trackResultBean = mediationFacade.trackHeader(company, input);
+        trackResultBean = mediationFacade.trackEntity(company, input);
         trackResultBean.setServiceMessage("OK");
         return new ResponseEntity<>(trackResultBean, HttpStatus.OK);
 
@@ -161,7 +161,7 @@ public class TrackEP {
 
     @ResponseBody
     @RequestMapping(value = "/{fortress}/{recordType}/{callerRef}", method = RequestMethod.PUT)
-    public ResponseEntity<TrackResultBean> trackByClientRef(@RequestBody MetaInputBean input,
+    public ResponseEntity<TrackResultBean> trackByClientRef(@RequestBody EntityInputBean input,
                                                             @PathVariable("fortress") String fortress,
                                                             @PathVariable("recordType") String recordType,
                                                             @PathVariable("callerRef") String callerRef,
@@ -174,7 +174,7 @@ public class TrackEP {
         input.setCallerRef(callerRef);
         input.setMetaKey(null);
         Company company = getCompany(apiHeaderKey, ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
-        trackResultBean = mediationFacade.trackHeader(company, input);
+        trackResultBean = mediationFacade.trackEntity(company, input);
         trackResultBean.setServiceMessage("OK");
         return new ResponseEntity<>(trackResultBean, HttpStatus.OK);
 
@@ -182,7 +182,7 @@ public class TrackEP {
 
     @ResponseBody
     @RequestMapping(value = "/{fortress}/all/{callerRef}", method = RequestMethod.GET)
-    public Iterable<MetaHeader> getByCallerRef(@PathVariable("fortress") String fortress, @PathVariable("callerRef") String callerRef, String apiKey,
+    public Iterable<Entity> getByCallerRef(@PathVariable("fortress") String fortress, @PathVariable("callerRef") String callerRef, String apiKey,
                                                @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = getCompany(apiHeaderKey, apiKey);
         return trackService.findByCallerRef(company, fortress, callerRef);  //To change body of created methods use File | Settings | File Templates.
@@ -190,23 +190,23 @@ public class TrackEP {
 
     @ResponseBody
     @RequestMapping(value = "/{fortress}/{documentType}/{callerRef}", method = RequestMethod.GET)
-    public MetaHeader getByCallerRef(@PathVariable("fortress") String fortressName,
+    public Entity getByCallerRef(@PathVariable("fortress") String fortressName,
                                      @PathVariable("documentType") String recordType,
                                      @PathVariable("callerRef") String callerRef, String apiKey,
                                      @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = getCompany(apiHeaderKey, apiKey);
         Fortress fortress = fortressService.findByName(company, fortressName);
-        MetaHeader result = trackService.findByCallerRef(fortress, recordType, callerRef);
+        Entity result = trackService.findByCallerRef(fortress, recordType, callerRef);
         return result;
     }
 
     @ResponseBody
     @RequestMapping(value = "/{metaKey}", method = RequestMethod.GET)
-    public ResponseEntity<MetaHeader> getMetaHeader(@PathVariable("metaKey") String metaKey,
-                                                    String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+    public ResponseEntity<Entity> getEntity(@PathVariable("metaKey") String metaKey,
+                                            String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = getCompany(apiHeaderKey, apiKey);
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/{metaKey}
-        MetaHeader result = trackService.getHeader(company, metaKey, true);
+        Entity result = trackService.getEntity(company, metaKey, true);
         if (result == null)
             throw new DatagioException("Unable to resolve requested meta key [" + metaKey + "]. Company is " + (company == null ? "Invalid" : "Valid"));
 
@@ -214,20 +214,20 @@ public class TrackEP {
     }
 
     /**
-     * locates a collection of MetaHeaders based on incoming collection of MetaKeys
+     * locates a collection of Entity based on incoming collection of MetaKeys
      *
      * @param toFind       keys to look for
      * @param apiKey       who you purport to be
      * @param apiHeaderKey as per apiKey but in the header
-     * @return Matching metaHeaders you are authorised to receive
+     * @return Matching entities you are authorised to receive
      * @throws DatagioException
      */
     @ResponseBody
     @RequestMapping(value = "/", method = RequestMethod.POST)
-    public Collection<MetaHeader> getMetaHeaders(@RequestBody Collection<String> toFind,
-                                                 String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+    public Collection<Entity> getEntities(@RequestBody Collection<String> toFind,
+                                          String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = getCompany(apiHeaderKey, apiKey);
-        return trackService.getHeaders(company, toFind).values();
+        return trackService.getEntities(company, toFind).values();
     }
 
 
@@ -250,10 +250,10 @@ public class TrackEP {
 
     @ResponseBody
     @RequestMapping(value = "/{metaKey}/summary", produces = "application/json", method = RequestMethod.GET)
-    public ResponseEntity<TrackedSummaryBean> getTrackedSummary(@PathVariable("metaKey") String metaKey,
+    public ResponseEntity<EntitySummaryBean> getTrackedSummary(@PathVariable("metaKey") String metaKey,
                                                                 String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = getCompany(apiHeaderKey, apiKey);
-        return new ResponseEntity<>(mediationFacade.getTrackedSummary(company, metaKey), HttpStatus.OK);
+        return new ResponseEntity<>(mediationFacade.getEntitySummary(company, metaKey), HttpStatus.OK);
 
     }
 
@@ -300,13 +300,13 @@ public class TrackEP {
     @RequestMapping(value = "/{metaKey}/lastlog/what", produces = "application/json", method = RequestMethod.GET)
     public ResponseEntity<LogWhat> getLastChangeWhat(@PathVariable("metaKey") String metaKey, String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = getCompany(apiHeaderKey, apiKey);
-        MetaHeader header = trackService.getHeader(company, metaKey);
-        if (header != null) {
-            TrackLog lastLog = logService.getLastLog(header);
+        Entity entity = trackService.getEntity(company, metaKey);
+        if (entity != null) {
+            TrackLog lastLog = logService.getLastLog(entity);
             if (lastLog == null) {
-                logger.debug("Unable to find last log for {}", header);
+                logger.debug("Unable to find last log for {}", entity);
             } else {
-                LogWhat what = kvService.getWhat(header, lastLog.getLog());
+                LogWhat what = kvService.getWhat(entity, lastLog.getLog());
                 return new ResponseEntity<>(what, HttpStatus.OK);
             }
         }
@@ -321,13 +321,13 @@ public class TrackEP {
     public ResponseEntity<AuditDeltaBean> getDelta(@PathVariable("metaKey") String metaKey, @PathVariable("logId") Long logId, @PathVariable("withId") Long withId
             , String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = getCompany(apiHeaderKey, apiKey);
-        MetaHeader header = trackService.getHeader(company, metaKey);
+        Entity entity = trackService.getEntity(company, metaKey);
 
-        if (header != null) {
-            TrackLog left = trackService.getLogForHeader(header, logId);
-            TrackLog right = trackService.getLogForHeader(header, withId);
+        if (entity != null) {
+            TrackLog left = trackService.getLogForEntity(entity, logId);
+            TrackLog right = trackService.getLogForEntity(entity, withId);
             if (left != null && right != null) {
-                AuditDeltaBean deltaBean = kvService.getDelta(header, left.getLog(), right.getLog());
+                AuditDeltaBean deltaBean = kvService.getDelta(entity, left.getLog(), right.getLog());
 
                 if (deltaBean != null)
                     return new ResponseEntity<>(deltaBean, HttpStatus.OK);
@@ -358,9 +358,9 @@ public class TrackEP {
             , String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = getCompany(apiHeaderKey, apiKey);
 
-        MetaHeader header = trackService.getHeader(company, metaKey);
+        Entity header = trackService.getEntity(company, metaKey);
         if (header != null) {
-            TrackLog log = trackService.getLogForHeader(header, logId);
+            TrackLog log = trackService.getLogForEntity(header, logId);
             if (log != null)
                 return new ResponseEntity<>(kvService.getWhat(header, log.getLog()), HttpStatus.OK);
         }
@@ -376,8 +376,8 @@ public class TrackEP {
         Company company = getCompany(apiHeaderKey, apiKey);
 
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/{metaKey}
-        MetaHeader result = trackService.getHeader(company, metaKey);
-        return tagTrackService.findTrackTags(company, result);
+        Entity result = trackService.getEntity(company, metaKey);
+        return entityTagService.findTrackTags(company, result);
     }
 
     @ResponseBody
@@ -386,7 +386,7 @@ public class TrackEP {
                                                 String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, IOException {
 
         Company company = getCompany(apiHeaderKey, apiKey);
-        MetaHeader result = trackService.getHeader(company, metaKey);
+        Entity result = trackService.getEntity(company, metaKey);
         if (result != null) {
             mediationFacade.cancelLastLog(company, result);
             return new ResponseEntity<>("OK", HttpStatus.OK);
@@ -410,7 +410,7 @@ public class TrackEP {
     @RequestMapping(value = "/tx/{txRef}/headers", produces = "application/json", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getAuditTxHeaders(@PathVariable("txRef") String txRef) {
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/{metaKey}
-        Set<MetaHeader> headers;
+        Set<Entity> headers;
         Map<String, Object> result = new HashMap<>(2);
         headers = txService.findTxHeaders(txRef);
         result.put("txRef", txRef);
@@ -454,7 +454,7 @@ public class TrackEP {
      */
     @ResponseBody
     @RequestMapping(value = "/{metaKey}/{xRefName}/xref", produces = "application/json", method = RequestMethod.GET)
-    public Map<String, Collection<MetaHeader>> getCrossRefenceByMetaKey(@PathVariable("metaKey") String metaKey, @PathVariable("xRefName") String xRefName, String apiKey,
+    public Map<String, Collection<Entity>> getCrossRefenceByMetaKey(@PathVariable("metaKey") String metaKey, @PathVariable("xRefName") String xRefName, String apiKey,
                                                                         @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = getCompany(apiHeaderKey, apiKey);
         return trackService.getCrossReference(company, metaKey, xRefName);
@@ -471,16 +471,16 @@ public class TrackEP {
      * @param apiKey       {optional} authorised key
      * @param apiHeaderKey {optional} authorised key
      * @return unresolvable caller references
-     * @throws DatagioException if not exactly one MetaHeader for the callerRef in the fortress
+     * @throws DatagioException if not exactly one Entity for the callerRef in the fortress
      */
     @ResponseBody
     @RequestMapping(value = "/{fortress}/all/{callerRef}/{xRefName}/xref", produces = "application/json", method = RequestMethod.POST)
-    public List<MetaKey> postCrossReferenceByCallerRef(@PathVariable("fortress") String fortressName, @PathVariable("callerRef") String callerRef,
-                                                       @RequestBody Collection<MetaKey> callerRefs,
+    public List<EntityKey> postCrossReferenceByCallerRef(@PathVariable("fortress") String fortressName, @PathVariable("callerRef") String callerRef,
+                                                       @RequestBody Collection<EntityKey> callerRefs,
                                                        @PathVariable("xRefName") String xRefName,
                                                        String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = getCompany(apiHeaderKey, apiKey);
-        return trackService.crossReferenceByCallerRef(company, new MetaKey(fortressName, "*", callerRef), callerRefs, xRefName);
+        return trackService.crossReferenceByCallerRef(company, new EntityKey(fortressName, "*", callerRef), callerRefs, xRefName);
     }
 
     @ResponseBody
@@ -491,18 +491,18 @@ public class TrackEP {
         Company company = getCompany(apiHeaderKey, apiKey);
 
         for (CrossReferenceInputBean crossReferenceInputBean : crossReferenceInputBeans) {
-            Map<String, List<MetaKey>> references = crossReferenceInputBean.getReferences();
+            Map<String, List<EntityKey>> references = crossReferenceInputBean.getReferences();
             for (String xRefName : references.keySet()) {
                 try {
-                    List<MetaKey> notFound = trackService.crossReferenceByCallerRef(company,
-                            new MetaKey(crossReferenceInputBean.getFortress(),
+                    List<EntityKey> notFound = trackService.crossReferenceByCallerRef(company,
+                            new EntityKey(crossReferenceInputBean.getFortress(),
                                     crossReferenceInputBean.getDocumentType(),
                                     crossReferenceInputBean.getCallerRef()),
                             references.get(xRefName), xRefName);
                     crossReferenceInputBean.setIgnored(xRefName, notFound);
 //                    references.put(xRefName, notFound);
                 } catch (DatagioException de) {
-                    logger.error("Exception while cross-referencing MetaHeaders. This message is being returned to the caller - [{}]", de.getMessage());
+                    logger.error("Exception while cross-referencing Entities. This message is being returned to the caller - [{}]", de.getMessage());
                     crossReferenceInputBean.setServiceMessage(de.getMessage());
                 }
             }
@@ -519,12 +519,12 @@ public class TrackEP {
      * @param xRefName     name of the xReference to lookup
      * @param apiKey       apikey
      * @param apiHeaderKey apiKey by header
-     * @return xRefName and collection of MetaHeaders
+     * @return xRefName and collection of Entities
      * @throws DatagioException if not exactly one CallerRef exists within the fortress
      */
     @ResponseBody
     @RequestMapping(value = "/{fortress}/all/{callerRef}/{xRefName}/xref", produces = "application/json", method = RequestMethod.GET)
-    public Map<String, Collection<MetaHeader>> getCrossReferenceByCallerRef(@PathVariable("fortress") String fortress, @PathVariable("callerRef") String callerRef, @PathVariable("xRefName") String xRefName
+    public Map<String, Collection<Entity>> getCrossReferenceByCallerRef(@PathVariable("fortress") String fortress, @PathVariable("callerRef") String callerRef, @PathVariable("xRefName") String xRefName
             , String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         Company company = getCompany(apiHeaderKey, apiKey);
         return trackService.getCrossReference(company, fortress, callerRef, xRefName);

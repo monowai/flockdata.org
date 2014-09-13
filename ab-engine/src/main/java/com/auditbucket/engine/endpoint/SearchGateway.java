@@ -19,8 +19,8 @@
 
 package com.auditbucket.engine.endpoint;
 
-import com.auditbucket.search.model.MetaSearchChanges;
-import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.search.model.EntitySearchChanges;
+import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.SearchChange;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.Payload;
@@ -33,10 +33,10 @@ import org.springframework.integration.annotation.Payload;
 public interface SearchGateway {
 
     @Gateway(requestChannel = "makeSearchRequest")
-    public SearchChange createSearchableChange(@Payload MetaSearchChanges changes);
+    public SearchChange createSearchableChange(@Payload EntitySearchChanges changes);
 
     @Gateway(requestChannel = "searchDelete")
-    public void delete(@Payload MetaHeader metaHeader);
+    public void delete(@Payload Entity entity);
 
     //ToDo:
     // Add an HTTP gateway call to ElasticSearchEP.getMetaKeys(QueryParams);

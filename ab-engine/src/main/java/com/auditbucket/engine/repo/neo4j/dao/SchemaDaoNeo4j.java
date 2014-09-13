@@ -16,14 +16,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -73,7 +69,7 @@ public class SchemaDaoNeo4j {
     private Lock lock = new ReentrantLock();
 
     /**
-     * Tracks the DocumentTypes used by a Fortress that can be used to find MetaHeader objects
+     * Tracks the DocumentTypes used by a Fortress that can be used to find Entities
      *
      * @param fortress        fortress generating
      * @param docName         name of the Label
@@ -135,14 +131,14 @@ public class SchemaDaoNeo4j {
 
         for (TagInputBean tagInput : tagInputs) {
             if (tagInput != null) {
-                logger.debug("Checking index for {}", tagInput);
-                String index = tagInput.getIndex();
-                if (!added.contains(index)) {
-                    logger.debug("Creating index for {}", tagInput);
+                logger.trace("Checking label for {}", tagInput);
+                String label = tagInput.getLabel();
+                if (!added.contains(label)) {
+                    logger.debug("Creating label for {}", tagInput);
                     //if (index != null && !tagExists(company, index)) { // This check causes deadlocks in TagEP ?
-                    if (!(tagInput.isDefault() || isSystemLabel(tagInput.getIndex()))) {
+                    if (!(tagInput.isDefault() || isSystemLabel(tagInput.getLabel()))) {
                         ensureIndex(tagInput);
-                        added.add(tagInput.getIndex());
+                        added.add(tagInput.getLabel());
                     }
                 }
                 if (!tagInput.getTargets().isEmpty()) {
@@ -161,10 +157,10 @@ public class SchemaDaoNeo4j {
 
     boolean ensureIndex(TagInputBean tagInput) {
         // _Tag is a special label that can be used to find all tags so we have to allow it to handle duplicates
-        String index = tagInput.getIndex();
+        String index = tagInput.getLabel();
 
         template.query("create constraint on (t:`" + index + "`) assert t.key is unique", null);
-        logger.debug("Creating constraint on [{}]", tagInput.getIndex());
+        logger.debug("Creating constraint on [{}]", tagInput.getLabel());
         return true;
 
     }

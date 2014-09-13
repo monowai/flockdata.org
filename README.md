@@ -1,7 +1,7 @@
 [auditbucket](http://auditbucket.com) - Data Mediation Service
 ===========
 ## Project Status
-Full support for ElasticSearch 1.3 and Neo4j 2.1.x in place. API is mostly settled. ab-security has been introduced as a plugable authentication service. We support Stormpath and Simple user names/passwords in XML
+Full support for ElasticSearch 1.3 and Neo4j 2.1.x in place. API is settled. ab-security has been introduced as a plugable authentication service. We support Stormpath and Simple user names/passwords in XML
 
 Currently working on tracking attachments.
 

@@ -36,7 +36,7 @@ public class TestQueryParameters {
     @Test
     public void documentTypes() throws Exception {
         MatrixInputBean inputBean = new MatrixInputBean();
-        String result =":_MetaHeader";
+        String result =":_Entity";
         assertEquals(result, NeoSyntaxHelper.getLabels("meta", inputBean.getDocuments()));
         ArrayList<String>docs = new ArrayList<>();
         docs.add("With Space");

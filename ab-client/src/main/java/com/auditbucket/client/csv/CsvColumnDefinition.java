@@ -24,15 +24,15 @@ public class CsvColumnDefinition {
     private String  documentType=null;
     private String[] columns;
 
-    public String getIndex() {
-        return index;
+    public String getLabel() {
+        return label;
     }
 
-    public void setIndex(String index) {
-        this.index = index;
+    public void setLabel(String label) {
+        this.label = label;
     }
 
-    private String index;
+    private String label;
     private String nameColumn;
     private String appendJoinText = " ";
     private String relationshipName;
