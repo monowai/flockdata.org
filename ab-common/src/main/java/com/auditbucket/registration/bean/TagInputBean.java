@@ -50,6 +50,9 @@ public class TagInputBean {
     Map<String, Object> properties = null;
     private String label = "";
 
+    @Deprecated
+    private String index = "";
+
     Map<String, Object> entityLinks = new HashMap<>();
 
     private String entityLink = null;
@@ -207,6 +210,11 @@ public class TagInputBean {
         return this;
     }
 
+    @Deprecated
+    // Use setLabel
+    public TagInputBean setIndex(String index){
+        return setLabel(index);
+    }
     /**
      * Index name cannot contain spaces and will begin with a single :
      * Will add the leading : if it is missing
@@ -220,19 +228,6 @@ public class TagInputBean {
         else
             this.label = label.trim();
 
-//        if (label.contains(":")) {
-//            String[] data = label.split(":");
-//            for (String aData : data) {
-//                isValid(aData);
-//                if (!"".equals(aData))
-//                    this.label = this.label + ":" + aData +" ";
-//
-//            }
-//            this.label = this.label.trim();
-//        } else {
-//            isValid(parseIndex);
-//            this.label = parseIndex;
-//        }
         return this;
 
     }
@@ -269,6 +264,12 @@ public class TagInputBean {
      */
     public String getEntityLink() {
         return entityLink;
+    }
+
+    @Deprecated
+    // Since 0.97 use setEntityLink
+    public void setMetaLink(String link){
+        this.entityLink = link;
     }
 
     @Override
@@ -333,9 +334,9 @@ public class TagInputBean {
     }
 
     public String getLabel() {
-        String thisIndex = getLabelValue();
-        if ( thisIndex.startsWith(":"))
-            thisIndex= thisIndex.substring(1, thisIndex.length());
-        return thisIndex;
+        String thisLabel = getLabelValue();
+        if ( thisLabel.startsWith(":"))
+            thisLabel= thisLabel.substring(1, thisLabel.length());
+        return thisLabel;
     }
 }
