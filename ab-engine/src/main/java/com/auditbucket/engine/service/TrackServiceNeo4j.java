@@ -60,7 +60,7 @@ import java.util.concurrent.ExecutionException;
  */
 @Service
 @Transactional
-public class TrackServiceNeoj4 implements TrackService {
+public class TrackServiceNeo4j implements TrackService {
     private static final String EMPTY = "";
     @Autowired
     FortressService fortressService;
@@ -96,7 +96,7 @@ public class TrackServiceNeoj4 implements TrackService {
     @Autowired
     com.auditbucket.track.service.TagService tagService;
 
-    private Logger logger = LoggerFactory.getLogger(TrackServiceNeoj4.class);
+    private Logger logger = LoggerFactory.getLogger(TrackServiceNeo4j.class);
 
     @Override
     public LogWhat getWhat(Entity entity, Log change) {

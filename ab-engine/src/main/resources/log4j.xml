@@ -118,7 +118,7 @@
         <level value="info"/>
     </logger>
 
-    <logger name="com.auditbucket.engine.service.TrackServiceNeoj4">
+    <logger name="com.auditbucket.engine.service.TrackServiceNeo4j">
         <level value="info"/>
     </logger>
     <logger name="org.neo4j.cypher">
