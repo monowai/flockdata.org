@@ -21,12 +21,11 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
-import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.Entity;
 import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -61,15 +60,15 @@ public class TestCallerRef extends TestEngineBase {
         FortressInputBean fib = new FortressInputBean("auditTest" + System.currentTimeMillis());
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
         // Duplicate null caller ref keys
-        MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "harry", "TestTrack", new DateTime(), null);
-        Assert.assertNotNull(mediationFacade.trackHeader(su.getCompany(), inputBean).getMetaKey());
-        inputBean = new MetaInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), null);
+        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "harry", "TestTrack", new DateTime(), null);
+        Assert.assertNotNull(mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey());
+        inputBean = new EntityInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), null);
         String ahKey = mediationFacade.trackHeader(fortress, inputBean).getMetaKey();
 
         assertNotNull(ahKey);
-        MetaHeader metaHeader = trackService.getHeader(ahKey);
-        assertNotNull(metaHeader);
-        assertNull(metaHeader.getCallerRef());
+        Entity entity = trackService.getEntity(ahKey);
+        assertNotNull(entity);
+        assertNull(entity.getCallerRef());
 
         // By default this will be found via the header key as it was null when header created.
         assertNotNull(trackService.findByCallerRef(fortress, "TestTrack", ahKey));
@@ -82,22 +81,22 @@ public class TestCallerRef extends TestEngineBase {
         registerSystemUser(monowai, mike_admin);
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("auditTest", true));
 
-        MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
+        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
 
         // Ok we now have a metakey, let's find it by callerRef ignoring the document and make sure we find the same thing
-        String metaKey = trackEP.trackHeader(inputBean, null, null).getBody().getMetaKey();
-        Iterable<MetaHeader> results = trackEP.getByCallerRef(fortress.getName(), "ABC123", null, null);
+        String metaKey = trackEP.trackEntity(inputBean, null, null).getBody().getMetaKey();
+        Iterable<Entity> results = trackEP.getByCallerRef(fortress.getName(), "ABC123", null, null);
         assertEquals(true, results.iterator().hasNext());
         assertEquals(metaKey, results.iterator().next().getMetaKey());
 
         // Same caller ref but different document - this scenario is the callers to resolve
-        inputBean = new MetaInputBean(fortress.getName(), "wally", "DocTypeZ", new DateTime(), "ABC123");
-        trackEP.trackHeader(inputBean, null, null).getBody();
+        inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeZ", new DateTime(), "ABC123");
+        trackEP.trackEntity(inputBean, null, null).getBody();
 
         results = trackEP.getByCallerRef(fortress.getName(), "ABC123", null, null);
         int count = 0;
         // Should be a total of 2, both for the same fortress but different document types
-        for (MetaHeader result : results) {
+        for (Entity result : results) {
             assertEquals("ABC123", result.getCallerRef());
             count ++;
         }
@@ -169,13 +168,13 @@ public class TestCallerRef extends TestEngineBase {
             setSecurity();
             try {
                 while (count < maxRun) {
-                    MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef);
+                    EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef);
                     TrackResultBean trackResult = mediationFacade.trackHeader(fortress, inputBean);
                     assertNotNull(trackResult);
                     assertEquals(callerRef.toLowerCase(), trackResult.getCallerRef().toLowerCase());
-                    MetaHeader byCallerRef = trackService.findByCallerRef(fortress, docType, callerRef);
+                    Entity byCallerRef = trackService.findByCallerRef(fortress, docType, callerRef);
                     assertNotNull(byCallerRef);
-                    assertEquals(trackResult.getMetaHeader().getId(), byCallerRef.getId());
+                    assertEquals(trackResult.getEntity().getId(), byCallerRef.getId());
                     // disabled as SDN appears to update the metaKey if multiple threads create the same callerKeyRef
                     // https://groups.google.com/forum/#!topic/neo4j/l35zBVUA4eA
 //                    assertEquals("Headers Don't match!", trackResult.getMetaKey(), byCallerRef.getMetaKey());

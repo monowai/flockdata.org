@@ -4,7 +4,7 @@ import com.auditbucket.engine.repo.neo4j.model.*;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
-import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.model.TrackTag;
 import org.junit.Test;
 
@@ -54,10 +54,10 @@ public class HashcodeAndEqualityChecks {
         company.setId(12313);
         FortressNode fortress = new FortressNode(new FortressInputBean("Testing",true ), company);
         DocumentTypeNode documentTypeNode = new DocumentTypeNode(fortress, "DocTest");
-        MetaInputBean metaInput = new MetaInputBean();
-        metaInput.setCallerRef("abc");
+        EntityInputBean entityInput = new EntityInputBean();
+        entityInput.setCallerRef("abc");
 
-        MetaHeaderNode mh = new MetaHeaderNode("123abc", fortress, metaInput, documentTypeNode);
+        EntityNode mh = new EntityNode("123abc", fortress, entityInput, documentTypeNode);
         TrackTagRelationship trackTagA = new TrackTagRelationship(mh.getId(), tagNode);
         TrackTagRelationship trackTagB = new TrackTagRelationship(mh.getId(), tagNodeB);
 

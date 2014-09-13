@@ -24,21 +24,21 @@ package com.auditbucket.track.model;
  * Date: 9/07/14
  * Time: 5:01 PM
  */
-public class MetaKey {
+public class EntityKey {
     private String fortressName;
     private String documentType;
     private String callerRef;
 
 
-    public MetaKey(){}
+    public EntityKey(){}
 
-    public MetaKey (String fortressName, String documentType, String callerRef){
+    public EntityKey(String fortressName, String documentType, String callerRef){
         this.fortressName = fortressName;
         this.documentType = documentType;
         this.callerRef = callerRef;
     }
 
-    public MetaKey(String callerRef) {
+    public EntityKey(String callerRef) {
         this.callerRef = callerRef;
     }
 
@@ -59,14 +59,14 @@ public class MetaKey {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof MetaKey)) return false;
+        if (!(o instanceof EntityKey)) return false;
 
-        MetaKey metaKey = (MetaKey) o;
+        EntityKey entityKey = (EntityKey) o;
 
-        if (!callerRef.equals(metaKey.callerRef)) return false;
-        if (documentType != null ? !documentType.equals(metaKey.documentType) : metaKey.documentType != null)
+        if (!callerRef.equals(entityKey.callerRef)) return false;
+        if (documentType != null ? !documentType.equals(entityKey.documentType) : entityKey.documentType != null)
             return false;
-        if (fortressName != null ? !fortressName.equals(metaKey.fortressName) : metaKey.fortressName != null)
+        if (fortressName != null ? !fortressName.equals(entityKey.fortressName) : entityKey.fortressName != null)
             return false;
 
         return true;
@@ -82,7 +82,7 @@ public class MetaKey {
 
     @Override
     public String toString() {
-        return "MetaKey{" +
+        return "EntityKey {" +
                 "fortressName='" + fortressName + '\'' +
                 ", documentType='" + documentType + '\'' +
                 ", callerRef='" + callerRef + '\'' +

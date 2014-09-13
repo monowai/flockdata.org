@@ -1,7 +1,7 @@
 package com.auditbucket.search.service;
 
-import com.auditbucket.search.model.MetaSearchChanges;
-import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.search.model.EntitySearchChanges;
+import com.auditbucket.track.model.Entity;
 
 import java.io.IOException;
 
@@ -12,11 +12,11 @@ import java.io.IOException;
  */
 public interface TrackService {
 
-    void createSearchableChange(MetaSearchChanges changes) throws IOException;
+    void createSearchableChange(EntitySearchChanges changes) throws IOException;
 
-    void delete(MetaHeader metaHeader);
+    void delete(Entity entity);
 
-    byte[] findOne(MetaHeader header);
+    byte[] findOne(Entity header);
 
-    byte[] findOne(MetaHeader header, String id);
+    byte[] findOne(Entity header, String id);
 }

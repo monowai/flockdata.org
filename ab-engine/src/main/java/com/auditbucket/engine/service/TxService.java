@@ -1,13 +1,13 @@
 package com.auditbucket.engine.service;
 
-import com.auditbucket.dao.TrackDao;
+import com.auditbucket.engine.repo.neo4j.EntityDaoNeo;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.KeyGenService;
 import com.auditbucket.registration.service.SystemUserService;
 import com.auditbucket.track.bean.LogInputBean;
-import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.TxRef;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,7 +36,7 @@ public class TxService {
     private SecurityHelper securityHelper;
 
     @Autowired
-    TrackDao trackDao;
+    EntityDaoNeo trackDao;
 
     TxRef beginTransaction(Company company) {
         return beginTransaction(keyGenService.getUniqueKey(), company);
@@ -81,7 +81,7 @@ public class TxService {
         return tx;
     }
 
-    public Set<MetaHeader> findTxHeaders(String txName) {
+    public Set<Entity> findTxHeaders(String txName) {
         TxRef txRef = findTx(txName);
         if (txRef == null)
             return null;

@@ -20,17 +20,16 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.test.utils.TestHelper;
+import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.LogInputBean;
-import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.ChangeEvent;
+import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.Log;
-import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -79,14 +78,14 @@ public class TestTrackEvents extends TestEngineBase{
         SystemUser su = registerSystemUser(monowai, mike_admin);
         Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
 
-        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
+        EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
 
-        TrackResultBean resultBean = mediationFacade.trackHeader(su.getCompany(), inputBean);
+        TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         String ahKey = resultBean.getMetaKey();
         assertNotNull(ahKey);
 
-        MetaHeader header = trackService.getHeader(ahKey);
-        assertNotNull(header.getDocumentType());
+        Entity entity = trackService.getEntity(ahKey);
+        assertNotNull(entity.getDocumentType());
 
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));

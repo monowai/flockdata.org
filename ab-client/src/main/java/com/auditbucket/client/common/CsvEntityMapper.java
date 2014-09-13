@@ -6,8 +6,8 @@ import com.auditbucket.client.csv.CsvColumnHelper;
 import com.auditbucket.client.rest.AbRestClient;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.TagInputBean;
-import com.auditbucket.track.bean.MetaInputBean;
-import com.auditbucket.track.model.MetaKey;
+import com.auditbucket.track.bean.EntityInputBean;
+import com.auditbucket.track.model.EntityKey;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -21,10 +21,10 @@ import java.util.Map;
  * Date: 27/04/14
  * Time: 4:34 PM
  */
-public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
+public class CsvEntityMapper extends EntityInputBean implements DelimitedMappable {
     //private static org.slf4j.Logger logger = LoggerFactory.getLogger(CsvTrackMapper.class);
 
-    public CsvTrackMapper(ImportParams importParams) {
+    public CsvEntityMapper(ImportParams importParams) {
         setDocumentType(importParams.getDocumentType());
         setFortress(importParams.getFortress());
         setFortressUser(importParams.getFortressUser());
@@ -88,7 +88,8 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
                         callerRef = callerRef + "." + columnHelper.getValue();
 
                     setCallerRef(callerRef);
-                } else if (columnHelper.isTag()) {
+                }
+                if (columnHelper.isTag()) {
                     String thisColumn = columnHelper.getKey();
 
                     String val = columnHelper.getValue();
@@ -99,26 +100,25 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
                             val = importParams.getStaticDataResolver().resolveCountryISOFromName(val);
                         }
                         Map<String, Object> properties = new HashMap<>();
-                        // Sets up the basic (MeatHeader)-[metaLink]-(Tag) relationship
                         if (columnHelper.isValueAsProperty()) {
-                            tag = new TagInputBean(thisColumn).setMustExist(columnHelper.isMustExist()).setIndex(thisColumn);
+                            tag = new TagInputBean(thisColumn).setMustExist(columnHelper.isMustExist()).setLabel(thisColumn);
 
                             if (Integer.decode(columnHelper.getValue()) != 0) {
                                 properties.put("value", Integer.decode(columnHelper.getValue()));
                                 if (columnHelper.getNameColumn() != null) {
-                                    tag.addMetaLink(row.get(columnHelper.getNameColumn()).toString(), properties);
+                                    tag.addEntityLink(row.get(columnHelper.getNameColumn()).toString(), properties);
                                 } else if (columnHelper.getRelationshipName() != null) {
-                                    tag.addMetaLink(columnHelper.getRelationshipName(), properties);
+                                    tag.addEntityLink(columnHelper.getRelationshipName(), properties);
                                 } else
-                                    tag.addMetaLink("undefined", properties);
+                                    tag.addEntityLink("undefined", properties);
                             } else {
                                 break; // Don't set a 0 value tag
                             }
                         } else {
                             String index = columnHelper.getKey();
 
-                            tag = new TagInputBean(val).setMustExist(columnHelper.isMustExist()).setIndex(columnHelper.isCountry() ? "Country" : index);
-                            tag.addMetaLink(columnHelper.getRelationshipName());
+                            tag = new TagInputBean(val).setMustExist(columnHelper.isMustExist()).setLabel(columnHelper.isCountry() ? "Country" : index);
+                            tag.addEntityLink(columnHelper.getRelationshipName());
                         }
                         CsvHelper.setNestedTags(tag, columnHelper.getColumnDefinition().getTargets(), row);
                         addTag(tag);
@@ -137,14 +137,12 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
             String tag = importParams.getStaticDataResolver().resolve(strategyCol, getColumnValues(colDef, row));
 
             if (tag != null) {
-                addCrossReference(colDef.getStrategy(), new MetaKey(colDef.getFortress(), colDef.getDocumentType(), tag));
+                addCrossReference(colDef.getStrategy(), new EntityKey(colDef.getFortress(), colDef.getDocumentType(), tag));
             }
         }
 
-        if (importParams.getMetaHeader() != null)
-
-        {
-            CsvColumnDefinition columnDefinition = importParams.getColumnDef(importParams.getMetaHeader());
+        if (importParams.getEntityKey() != null){
+            CsvColumnDefinition columnDefinition = importParams.getColumnDef(importParams.getEntityKey());
             if (columnDefinition != null) {
                 String[] metaCols = columnDefinition.getRefColumns();
                 String callerRef = "";
@@ -178,7 +176,7 @@ public class CsvTrackMapper extends MetaInputBean implements DelimitedMappable {
     }
 
     public static DelimitedMappable newInstance(ImportParams importParams) {
-        return new CsvTrackMapper(importParams);
+        return new CsvEntityMapper(importParams);
     }
 
     @Override

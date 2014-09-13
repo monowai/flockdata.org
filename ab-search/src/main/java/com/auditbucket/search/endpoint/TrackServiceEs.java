@@ -1,12 +1,12 @@
 package com.auditbucket.search.endpoint;
 
-import com.auditbucket.search.model.MetaSearchChange;
-import com.auditbucket.search.model.MetaSearchChanges;
+import com.auditbucket.search.model.EntitySearchChange;
+import com.auditbucket.search.model.EntitySearchChanges;
 import com.auditbucket.search.model.SearchResult;
 import com.auditbucket.search.model.SearchResults;
 import com.auditbucket.search.service.EngineGateway;
 import com.auditbucket.search.service.TrackService;
-import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.SearchChange;
 import com.auditbucket.track.model.TrackSearchDao;
 import org.slf4j.Logger;
@@ -48,8 +48,8 @@ public class TrackServiceEs implements TrackService {
      */
     @Override
     @ServiceActivator(inputChannel = "makeSearchRequest") // Subscriber
-    public void createSearchableChange(MetaSearchChanges changes) throws IOException {
-        Iterable<MetaSearchChange> thisChange = changes.getChanges();
+    public void createSearchableChange(EntitySearchChanges changes) throws IOException {
+        Iterable<EntitySearchChange> thisChange = changes.getChanges();
         logger.debug("Received request to index Batch {}", changes.getChanges().size());
         SearchResults results = new SearchResults();
         int processed = 0;
@@ -66,7 +66,7 @@ public class TrackServiceEs implements TrackService {
 
             // Used to tie the fact that the doc was updated back to the engine
             result.setLogId(metaSearchChange.getLogId());
-            result.setMetaId(metaSearchChange.getMetaId());
+            result.setMetaId(metaSearchChange.getEntityId());
             if (metaSearchChange.isReplyRequired()) {
                 results.addSearchResult(result);
                 logger.trace("Dispatching searchResult to ab-engine {}", result);
@@ -83,20 +83,20 @@ public class TrackServiceEs implements TrackService {
     }
 
     @Override
-    public void delete(MetaHeader metaHeader) {
-        //trackDao.delete(metaHeader, null);
+    public void delete(Entity entity) {
+        //trackDao.delete(entity, null);
     }
 
     @Override
-    public byte[] findOne(MetaHeader header) {
+    public byte[] findOne(Entity entity) {
         return null;
-        //return trackDao.findOne(header);
+        //return trackDao.findOne(entity);
     }
 
     @Override
-    public byte[] findOne(MetaHeader header, String id) {
+    public byte[] findOne(Entity entity, String id) {
         return null;
-        //return trackDao.findOne(header, id);
+        //return trackDao.findOne(entity, id);
     }
 
 }

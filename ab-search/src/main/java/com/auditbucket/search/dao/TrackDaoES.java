@@ -19,9 +19,9 @@
 
 package com.auditbucket.search.dao;
 
-import com.auditbucket.search.model.MetaSearchSchema;
+import com.auditbucket.search.model.EntitySearchSchema;
 import com.auditbucket.search.service.SearchAdmin;
-import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.SearchChange;
 import com.auditbucket.track.model.TrackSearchDao;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -246,7 +246,7 @@ public class TrackDaoES implements TrackSearchDao {
                 // Check to ensure we don't accidentally overwrite a more current
                 // document with an older one. We assume the calling fortress understands
                 // what the most recent doc is.
-                Object o = response.getSource().get(MetaSearchSchema.WHEN); // fortress view of WHEN, not AuditBuckets!
+                Object o = response.getSource().get(EntitySearchSchema.WHEN); // fortress view of WHEN, not AuditBuckets!
                 if (o != null) {
 
                     Long existingWhen = Long.decode(o.toString());
@@ -291,11 +291,11 @@ public class TrackDaoES implements TrackSearchDao {
         return searchChange;
     }
 
-    public Map<String, Object> findOne(MetaHeader header) {
+    public Map<String, Object> findOne(Entity header) {
         return findOne(header, null);
     }
 
-    public Map<String, Object> findOne(MetaHeader header, String id) {
+    public Map<String, Object> findOne(Entity header, String id) {
         String indexName = header.getIndexName();
         String documentType = header.getDocumentType();
         if (id == null)
@@ -354,31 +354,31 @@ public class TrackDaoES implements TrackSearchDao {
     private Map<String, Object> makeIndexDocument(SearchChange searchChange) {
         Map<String, Object> indexMe = new HashMap<>();
         if (searchChange.getWhat() != null)
-            indexMe.put(MetaSearchSchema.WHAT, searchChange.getWhat());
+            indexMe.put(EntitySearchSchema.WHAT, searchChange.getWhat());
         if (searchChange.getMetaKey() != null) //DAT-83 No need to track NULL metaKey
             // This occurs if the search doc is not being tracked in ab-engine's graph
-            indexMe.put(MetaSearchSchema.META_KEY, searchChange.getMetaKey());
+            indexMe.put(EntitySearchSchema.META_KEY, searchChange.getMetaKey());
         if (searchChange.getWho() != null)
-            indexMe.put(MetaSearchSchema.WHO, searchChange.getWho());
+            indexMe.put(EntitySearchSchema.WHO, searchChange.getWho());
         if (searchChange.getEvent() != null)
-            indexMe.put(MetaSearchSchema.LAST_EVENT, searchChange.getEvent());
+            indexMe.put(EntitySearchSchema.LAST_EVENT, searchChange.getEvent());
 
-        indexMe.put(MetaSearchSchema.WHEN, searchChange.getWhen());
+        indexMe.put(EntitySearchSchema.WHEN, searchChange.getWhen());
 
-        // When the MetaHeader was created in the fortress
-        indexMe.put(MetaSearchSchema.CREATED, searchChange.getCreatedDate());
+        // When the Entity was created in the fortress
+        indexMe.put(EntitySearchSchema.CREATED, searchChange.getCreatedDate());
 
         // Time that this change was indexed by ab-engine
-        indexMe.put(MetaSearchSchema.TIMESTAMP, new Date(searchChange.getSysWhen()));
+        indexMe.put(EntitySearchSchema.TIMESTAMP, new Date(searchChange.getSysWhen()));
 
-        indexMe.put(MetaSearchSchema.FORTRESS, searchChange.getFortressName());
-        indexMe.put(MetaSearchSchema.DOC_TYPE, searchChange.getDocumentType());
-        indexMe.put(MetaSearchSchema.CALLER_REF, searchChange.getCallerRef());
+        indexMe.put(EntitySearchSchema.FORTRESS, searchChange.getFortressName());
+        indexMe.put(EntitySearchSchema.DOC_TYPE, searchChange.getDocumentType());
+        indexMe.put(EntitySearchSchema.CALLER_REF, searchChange.getCallerRef());
         if (searchChange.getDescription() != null)
-            indexMe.put(MetaSearchSchema.DESCRIPTION, searchChange.getDescription());
+            indexMe.put(EntitySearchSchema.DESCRIPTION, searchChange.getDescription());
 
         if (!searchChange.getTagValues().isEmpty())
-            indexMe.put(MetaSearchSchema.TAG, searchChange.getTagValues());
+            indexMe.put(EntitySearchSchema.TAG, searchChange.getTagValues());
 
         return indexMe;
     }

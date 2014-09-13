@@ -24,10 +24,10 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.Relationship;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.track.bean.DocumentResultBean;
-import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.model.Concept;
 import com.auditbucket.track.model.DocumentType;
-import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.Entity;
 import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -78,16 +78,16 @@ public class TestTagConcepts extends TestEngineBase {
         dType = schemaService.resolveDocType(fortress, "ABC123", false);
         Assert.assertEquals(id, dType.getId());
 
-        MetaInputBean input = new MetaInputBean(fortress.getName(), "jinks", "DocA", new DateTime());
-        input.addTag(new TagInputBean("cust123", "purchased").setIndex("Customer"));
-        trackEP.trackHeader(input, su.getApiKey(), su.getApiKey()).getBody().getMetaHeader();
+        EntityInputBean input = new EntityInputBean(fortress.getName(), "jinks", "DocA", new DateTime());
+        input.addTag(new TagInputBean("cust123", "purchased").setLabel("Customer"));
+        trackEP.trackEntity(input, su.getApiKey(), su.getApiKey()).getBody().getEntity();
         waitAWhile("Concepts creating...");
         validateConcepts("DocA", su, 1);
 
         // Different docs, same concepts
-        input = new MetaInputBean(fortress.getName(), "jinks", "DocB", new DateTime());
-        input.addTag(new TagInputBean("cust123", "purchased").setIndex("Customer"));
-        trackEP.trackHeader(input, su.getApiKey(), su.getApiKey()).getBody().getMetaHeader();
+        input = new EntityInputBean(fortress.getName(), "jinks", "DocB", new DateTime());
+        input.addTag(new TagInputBean("cust123", "purchased").setLabel("Customer"));
+        trackEP.trackEntity(input, su.getApiKey(), su.getApiKey()).getBody().getEntity();
         waitAWhile("Concepts creating...");
 
         validateConcepts((Collection<String>) null, su, 3); // 3 Doc types.
@@ -126,16 +126,16 @@ public class TestTagConcepts extends TestEngineBase {
         dType = schemaService.resolveDocType(fortA, "ABC123", false);
         Assert.assertEquals(id, dType.getId());
 
-        MetaInputBean input = new MetaInputBean(fortA.getName(), "jinks", "DocA", new DateTime());
-        input.addTag(new TagInputBean("cust123", "purchased").setIndex("Customer"));
-        MetaHeader meta = trackEP.trackHeader(input, su.getApiKey(), su.getApiKey()).getBody().getMetaHeader();
+        EntityInputBean input = new EntityInputBean(fortA.getName(), "jinks", "DocA", new DateTime());
+        input.addTag(new TagInputBean("cust123", "purchased").setLabel("Customer"));
+        Entity meta = trackEP.trackEntity(input, su.getApiKey(), su.getApiKey()).getBody().getEntity();
 
-        assertNotNull(trackEP.getMetaHeader(meta.getMetaKey(), su.getApiKey(), su.getApiKey()));
+        assertNotNull(trackEP.getEntity(meta.getMetaKey(), su.getApiKey(), su.getApiKey()));
 
-        input = new MetaInputBean(fortA.getName(), "jinks", "DocA", new DateTime());
-        input.addTag(new TagInputBean("cust124", "purchased").setIndex("Customer"));
+        input = new EntityInputBean(fortA.getName(), "jinks", "DocA", new DateTime());
+        input.addTag(new TagInputBean("cust124", "purchased").setLabel("Customer"));
 
-        trackEP.trackHeader(input, su.getApiKey(), su.getApiKey()).getBody().getMetaHeader();
+        trackEP.trackEntity(input, su.getApiKey(), su.getApiKey()).getBody().getEntity();
         waitAWhile("Concepts creating...");
 
         Collection<String> docs = new ArrayList<>();
@@ -145,9 +145,9 @@ public class TestTagConcepts extends TestEngineBase {
         assertEquals(1, documentTypes.size());
 
         // add a second docTypes
-        input = new MetaInputBean(fortA.getName(), "jinks", "DocA", new DateTime());
-        input.addTag(new TagInputBean("cust123", "sold").setIndex("Rep"));
-        trackEP.trackHeader(input, su.getApiKey(), su.getApiKey());
+        input = new EntityInputBean(fortA.getName(), "jinks", "DocA", new DateTime());
+        input.addTag(new TagInputBean("cust123", "sold").setLabel("Rep"));
+        trackEP.trackEntity(input, su.getApiKey(), su.getApiKey());
         waitAWhile("Concepts creating...");
 
         documentTypes = queryService.getConceptsWithRelationships(su.getCompany(), docs);
@@ -197,14 +197,14 @@ public class TestTagConcepts extends TestEngineBase {
         dType = schemaService.resolveDocType(fortress, "ABC123", false);
         Assert.assertEquals(id, dType.getId());
 
-        MetaInputBean input = new MetaInputBean(fortress.getName(), "jinks", "DocA", new DateTime());
-        input.addTag(new TagInputBean("cust123", "purchased").setIndex("Customer"));
-        input.addTag(new TagInputBean("harry", "soldto").setIndex("Customer"));
-        trackEP.trackHeader(input, su.getApiKey(), su.getApiKey()).getBody().getMetaHeader();
-        input = new MetaInputBean(fortress.getName(), "jinks", "DocA", new DateTime());
-        input.addTag(new TagInputBean("cust121", "purchased").setIndex("Customer"));
-        input.addTag(new TagInputBean("harry", "soldto").setIndex("Customer"));
-        trackEP.trackHeader(input, su.getApiKey(), su.getApiKey()).getBody().getMetaHeader();
+        EntityInputBean input = new EntityInputBean(fortress.getName(), "jinks", "DocA", new DateTime());
+        input.addTag(new TagInputBean("cust123", "purchased").setLabel("Customer"));
+        input.addTag(new TagInputBean("harry", "soldto").setLabel("Customer"));
+        trackEP.trackEntity(input, su.getApiKey(), su.getApiKey()).getBody().getEntity();
+        input = new EntityInputBean(fortress.getName(), "jinks", "DocA", new DateTime());
+        input.addTag(new TagInputBean("cust121", "purchased").setLabel("Customer"));
+        input.addTag(new TagInputBean("harry", "soldto").setLabel("Customer"));
+        trackEP.trackEntity(input, su.getApiKey(), su.getApiKey()).getBody().getEntity();
         waitAWhile("Concepts creating...");
         waitAWhile("Concepts creating...");
         validateConcepts("DocA", su, 1);
@@ -248,12 +248,12 @@ public class TestTagConcepts extends TestEngineBase {
         docA = schemaService.resolveDocType(fortress, docA.getName(), false);
         Assert.assertEquals(idA, docA.getId());
 
-        MetaInputBean input = new MetaInputBean(fortress.getName(), "jinks", "DocA", new DateTime());
-        input.addTag(new TagInputBean("cust123", "purchased").setIndex("Customer"));
-        trackEP.trackHeader(input, su.getApiKey(), su.getApiKey()).getBody().getMetaHeader();
-        input = new MetaInputBean(fortress.getName(), "jinks", docB.getName(), new DateTime());
-        input.addTag(new TagInputBean("cust121", "purchased").setIndex("Customer"));
-        trackEP.trackHeader(input, su.getApiKey(), su.getApiKey()).getBody().getMetaHeader();
+        EntityInputBean input = new EntityInputBean(fortress.getName(), "jinks", "DocA", new DateTime());
+        input.addTag(new TagInputBean("cust123", "purchased").setLabel("Customer"));
+        trackEP.trackEntity(input, su.getApiKey(), su.getApiKey()).getBody().getEntity();
+        input = new EntityInputBean(fortress.getName(), "jinks", docB.getName(), new DateTime());
+        input.addTag(new TagInputBean("cust121", "purchased").setLabel("Customer"));
+        trackEP.trackEntity(input, su.getApiKey(), su.getApiKey()).getBody().getEntity();
         waitAWhile("Concepts creating...");
 
         Collection<String>docs = new ArrayList<>();
@@ -310,15 +310,15 @@ public class TestTagConcepts extends TestEngineBase {
         DocumentType promo = schemaService.resolveDocType(fortress, "Promotion", true);
         commitManualTransaction(t);
 
-        MetaInputBean promoInput = new MetaInputBean(fortress.getName(), "jinks", promo.getName(), new DateTime());
-        promoInput.addTag(new TagInputBean("Linux", "offer").setIndex("Device"));
-        //promoInput.addTag(new TagInputBean("Mike", "sold").setIndex("Person"));
-        trackEP.trackHeader(promoInput, su.getApiKey(), su.getApiKey()).getBody().getMetaHeader();
+        EntityInputBean promoInput = new EntityInputBean(fortress.getName(), "jinks", promo.getName(), new DateTime());
+        promoInput.addTag(new TagInputBean("Linux", "offer").setLabel("Device"));
+        //promoInput.addTag(new TagInputBean("Mike", "sold").setLabel("Person"));
+        trackEP.trackEntity(promoInput, su.getApiKey(), su.getApiKey()).getBody().getEntity();
 
-        MetaInputBean salesInput = new MetaInputBean(fortress.getName(), "jinks", sale.getName(), new DateTime());
-        salesInput.addTag(new TagInputBean("Linux", "purchased").setIndex("Device"));
-        //promoInput.addTag(new TagInputBean("Gary", "authorised").setIndex("Person"));
-        trackEP.trackHeader(salesInput, su.getApiKey(), su.getApiKey()).getBody().getMetaHeader();
+        EntityInputBean salesInput = new EntityInputBean(fortress.getName(), "jinks", sale.getName(), new DateTime());
+        salesInput.addTag(new TagInputBean("Linux", "purchased").setLabel("Device"));
+        //promoInput.addTag(new TagInputBean("Gary", "authorised").setLabel("Person"));
+        trackEP.trackEntity(salesInput, su.getApiKey(), su.getApiKey()).getBody().getEntity();
         waitAWhile();
         Collection<String>docs = new ArrayList<>();
         docs.add(promo.getName());
@@ -360,14 +360,14 @@ public class TestTagConcepts extends TestEngineBase {
         DocumentType claim = schemaService.resolveDocType(fortress, "Claim", true);
         commitManualTransaction(t);
 
-        MetaInputBean promoInput = new MetaInputBean(fortress.getName(),
+        EntityInputBean promoInput = new EntityInputBean(fortress.getName(),
                 "jinks",
                 claim.getName(),
                 new DateTime());
         promoInput.addTag(
-                new TagInputBean("a1065", "identifier").setIndex("Claim"));
+                new TagInputBean("a1065", "identifier").setLabel("Claim"));
 
-        trackEP.trackHeader(promoInput, su.getApiKey(), su.getApiKey()).getBody().getMetaHeader();
+        trackEP.trackEntity(promoInput, su.getApiKey(), su.getApiKey()).getBody().getEntity();
 
         waitAWhile();
         Collection<String>docs = new ArrayList<>();

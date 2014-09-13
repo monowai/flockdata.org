@@ -19,8 +19,8 @@
 
 package com.auditbucket.track.bean;
 
+import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.Log;
-import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
 import com.auditbucket.track.model.TxRef;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -39,7 +39,7 @@ public class LogResultBean {
     private String callerRef;
     private LogInputBean.LogStatus status = LogInputBean.LogStatus.OK;
 
-    private MetaHeader metaHeader;
+    private Entity entity;
 
     private String fortressUser;
     private String txReference = null;
@@ -47,14 +47,14 @@ public class LogResultBean {
     private TrackLog logToIndex;
     private Log whatLog;
 
-    public LogResultBean(LogInputBean input, MetaHeader metaHeader) {
+    public LogResultBean(LogInputBean input, Entity entity) {
         this();
-        this.metaHeader = metaHeader;
-        if ( metaHeader !=null ) {
-            setMetaKey(metaHeader.getMetaKey());
-            setDocumentType(metaHeader.getDocumentType());
-            setCallerRef(metaHeader.getCallerRef());
-            setFortress(metaHeader.getFortress().getName());
+        this.entity = entity;
+        if ( entity !=null ) {
+            setMetaKey(entity.getMetaKey());
+            setDocumentType(entity.getDocumentType());
+            setCallerRef(entity.getCallerRef());
+            setFortress(entity.getFortress().getName());
         }
         setFortressUser(input.getFortressUser());
 
@@ -163,11 +163,11 @@ public class LogResultBean {
     }
 
     @JsonIgnore
-    public MetaHeader getMetaHeader() {
-        return metaHeader;
+    public Entity getEntity() {
+        return entity;
     }
 
-    public void setMetaHeader(MetaHeader metaHeader) {
-        this.metaHeader = metaHeader;
+    public void setEntity(Entity entity) {
+        this.entity = entity;
     }
 }

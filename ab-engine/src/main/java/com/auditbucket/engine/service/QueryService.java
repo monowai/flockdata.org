@@ -24,7 +24,7 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.track.bean.DocumentResultBean;
 
-import com.auditbucket.track.service.TagTrackService;
+import com.auditbucket.track.service.EntityTagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +46,7 @@ public class QueryService {
     FortressService fortressService;
 
     @Autowired
-    TagTrackService tagService;
+    EntityTagService tagService;
 
     @Autowired
     com.auditbucket.track.service.SchemaService schemaService;

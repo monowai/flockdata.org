@@ -19,7 +19,7 @@
 
 package com.auditbucket.engine.repo;
 
-import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.Entity;
 
 import java.io.IOException;
 
@@ -28,11 +28,11 @@ import java.io.IOException;
  * Since: 31/01/14
  */
 public interface KvRepo {
-    public void add(MetaHeader metaHeader, Long key, byte[] what) throws IOException;
+    public void add(Entity entity, Long key, byte[] what) throws IOException;
 
-    public byte[] getValue(MetaHeader metaHeader, Long key);
+    public byte[] getValue(Entity entity, Long key);
 
-    public void delete(MetaHeader metaHeader, Long key);
+    public void delete(Entity entity, Long key);
 
     public void purge(String index);
 

@@ -2,8 +2,8 @@ package com.auditbucket.spring.utils;
 
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.spring.annotations.*;
+import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.LogInputBean;
-import com.auditbucket.track.bean.MetaInputBean;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
@@ -37,12 +37,12 @@ public class PojoToAbTransformer {
      * }
      */
 
-    public static MetaInputBean transformToAbFormat(Object pojo) throws IllegalAccessException, IOException, DatagioException {
+    public static EntityInputBean transformToAbFormat(Object pojo) throws IllegalAccessException, IOException, DatagioException {
 
         //ToDo: LogResultBean is only called when the @DatagioUid is null, otherwise it's a log
         //ToDo:  caller does not determine this by ab-spring does.
 
-        MetaInputBean metaInputBean = new MetaInputBean();
+        EntityInputBean entityInputBean = new EntityInputBean();
         LogInputBean logInputBean = new LogInputBean("null", new DateTime(), null);
         Map<String, Object> tagValues = new HashMap<String, Object>();
         Map<String, Object> mapWhat = new HashMap<String, Object>();
@@ -54,9 +54,9 @@ public class PojoToAbTransformer {
                 // Class Is annotated for being send to AB
                 Trackable auditableAnnotation = (Trackable) annotation;
                 if (auditableAnnotation.documentType().equals("")) {
-                    metaInputBean.setDocumentType(aClass.getSimpleName().toLowerCase());
+                    entityInputBean.setDocumentType(aClass.getSimpleName().toLowerCase());
                 } else {
-                    metaInputBean.setDocumentType(auditableAnnotation.documentType());
+                    entityInputBean.setDocumentType(auditableAnnotation.documentType());
                 }
                 Field[] fields = aClass.getDeclaredFields();
                 for (Field field : fields) {
@@ -72,12 +72,12 @@ public class PojoToAbTransformer {
                         if (field.get(pojo) != null) {
                             if (fieldAnnotation instanceof DatagioUid) {
                                 auditWhat = false;
-                                metaInputBean.setMetaKey(field.get(pojo).toString());
+                                entityInputBean.setMetaKey(field.get(pojo).toString());
                             }
 
                             if (fieldAnnotation instanceof DatagioCallerRef) {
                                 auditWhat = false;
-                                metaInputBean.setCallerRef(field.get(pojo).toString());
+                                entityInputBean.setCallerRef(field.get(pojo).toString());
                             }
 
                             // ToDo: AuditUser
@@ -119,10 +119,10 @@ public class PojoToAbTransformer {
         //ObjectMapper mapper = new ObjectMapper(); // create once, reuse
         //String what = mapper.writeValueAsString(mapWhat);
         logInputBean.setWhat(mapWhat);
-        metaInputBean.setLog(logInputBean);
+        entityInputBean.setLog(logInputBean);
         //ToDo: Figure out tag structure
         //metaInputBean.setTagValues(tagValues);
-        return metaInputBean;
+        return entityInputBean;
     }
 
     /**

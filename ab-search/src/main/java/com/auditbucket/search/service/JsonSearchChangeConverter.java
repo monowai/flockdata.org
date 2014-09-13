@@ -1,8 +1,8 @@
 package com.auditbucket.search.service;
 
 import com.auditbucket.helper.CompressionHelper;
+import com.auditbucket.search.model.EntitySearchChanges;
 import com.auditbucket.search.model.JsonSearchChange;
-import com.auditbucket.search.model.MetaSearchChanges;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -28,10 +28,10 @@ public class JsonSearchChangeConverter extends SimpleMessageConverter {
             if (content instanceof String) {
                 ObjectMapper mapper = new ObjectMapper();
                 SimpleModule iModule = new SimpleModule("ImportParameters", new Version(1,0,0,null))
-                        .addDeserializer(MetaSearchChanges.class, new JsonSearchChange());
+                        .addDeserializer(EntitySearchChanges.class, new JsonSearchChange());
                 mapper.registerModule(iModule);
 
-                return mapper.readValue(((String) content).getBytes(CompressionHelper.charSet), MetaSearchChanges.class);
+                return mapper.readValue(((String) content).getBytes(CompressionHelper.charSet), EntitySearchChanges.class);
             }
         } catch (IOException e1) {
             e1.printStackTrace();

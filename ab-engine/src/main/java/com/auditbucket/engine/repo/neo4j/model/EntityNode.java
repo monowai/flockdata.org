@@ -22,11 +22,11 @@ package com.auditbucket.engine.repo.neo4j.model;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
-import com.auditbucket.search.model.MetaSearchSchema;
-import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.search.model.EntitySearchSchema;
+import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.model.DocumentType;
+import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.Log;
-import com.auditbucket.track.model.MetaHeader;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -47,8 +47,8 @@ import java.util.TimeZone;
  * Time: 10:56 AM
  */
 @NodeEntity(useShortNames = true)
-@TypeAlias("MetaHeader")
-public class MetaHeaderNode implements MetaHeader {
+@TypeAlias("Entity")
+public class EntityNode implements Entity {
 
     @Indexed
     private String metaKey;
@@ -67,7 +67,7 @@ public class MetaHeaderNode implements MetaHeader {
 
     private long dateCreated = 0;
 
-    private String event = null; // should only be set if this is an immutable header and no log events will be recorded
+    private String event = null; // should only be set if this is an immutable entity and no log events will be recorded
 
     // By AB in UTC
     private long lastUpdate = 0;
@@ -105,45 +105,45 @@ public class MetaHeaderNode implements MetaHeader {
     private boolean searchSuppressed;
     private String indexName;
 
-    MetaHeaderNode() {
+    EntityNode() {
 
         DateTime now = new DateTime().toDateTime(DateTimeZone.UTC);
         this.dateCreated = now.toDate().getTime();
         this.lastUpdate = dateCreated;
     }
 
-    public MetaHeaderNode(String uniqueKey, @NotEmpty Fortress fortress, @NotEmpty MetaInputBean metaInput, @NotEmpty DocumentType documentType) throws DatagioException {
+    public EntityNode(String uniqueKey, @NotEmpty Fortress fortress, @NotEmpty EntityInputBean entityInput, @NotEmpty DocumentType documentType) throws DatagioException {
         this();
         metaKey = uniqueKey;
         this.fortress = (FortressNode)fortress;
         this.documentType = (documentType != null ? documentType.getName().toLowerCase() : "");
-        callerRef = metaInput.getCallerRef();
+        callerRef = entityInput.getCallerRef();
         assert documentType != null;
         callerKeyRef = this.fortress.getId() + "." + documentType.getId() + "." + (callerRef != null ? callerRef : metaKey);
 
-        if (metaInput.getName() == null || metaInput.getName().equals(""))
+        if (entityInput.getName() == null || entityInput.getName().equals(""))
             this.name = (callerRef == null ? this.documentType : (this.documentType + "." + callerRef));
         else
-            this.name = metaInput.getName();
+            this.name = entityInput.getName();
 
-        this.description = metaInput.getDescription();
+        this.description = entityInput.getDescription();
 
-        indexName = MetaSearchSchema.parseIndex(this.fortress);
+        indexName = EntitySearchSchema.parseIndex(this.fortress);
 
-        Date when = metaInput.getWhen();
+        Date when = entityInput.getWhen();
 
         if (when == null)
             fortressCreate = new DateTime(dateCreated, DateTimeZone.forTimeZone(TimeZone.getTimeZone(this.fortress.getTimeZone()))).getMillis();
         else
-            fortressCreate = new DateTime (when.getTime()).getMillis();//new DateTime( when.getTime(), DateTimeZone.forTimeZone(TimeZone.getTimeZone(metaInput.getMetaTZ()))).toDate().getTime();
+            fortressCreate = new DateTime (when.getTime()).getMillis();//new DateTime( when.getTime(), DateTimeZone.forTimeZone(TimeZone.getTimeZone(entityInput.getMetaTZ()))).toDate().getTime();
 
         lastUpdate = 0l;
-        this.event = metaInput.getEvent();
-        this.suppressSearch(metaInput.isSearchSuppressed());
+        this.event = entityInput.getEvent();
+        this.suppressSearch(entityInput.isSearchSuppressed());
 
     }
 
-    public MetaHeaderNode(String guid, Fortress fortress, MetaInputBean mib, DocumentTypeNode doc, FortressUser user) throws DatagioException {
+    public EntityNode(String guid, Fortress fortress, EntityInputBean mib, DocumentTypeNode doc, FortressUser user) throws DatagioException {
         this(guid, fortress, mib, doc);
         setCreatedBy(user);
     }
@@ -238,10 +238,11 @@ public class MetaHeaderNode implements MetaHeader {
 
     @Override
     public String toString() {
-        return "MetaHeaderNode{" +
+        return "EntityNode{" +
                 "id=" + id +
                 ", metaKey='" + metaKey + '\'' +
                 ", name='" + name + '\'' +
+                ", index='" +indexName+ '\'' +
                 '}';
     }
 
@@ -301,9 +302,9 @@ public class MetaHeaderNode implements MetaHeader {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof MetaHeaderNode)) return false;
+        if (!(o instanceof EntityNode)) return false;
 
-        MetaHeaderNode that = (MetaHeaderNode) o;
+        EntityNode that = (EntityNode) o;
 
         return !(metaKey != null ? !metaKey.equals(that.metaKey) : that.metaKey != null);
 

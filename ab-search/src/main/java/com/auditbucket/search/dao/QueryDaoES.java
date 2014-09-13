@@ -22,8 +22,8 @@ package com.auditbucket.search.dao;
 import com.auditbucket.dao.QueryDao;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.search.helper.QueryGenerator;
+import com.auditbucket.search.model.EntitySearchSchema;
 import com.auditbucket.search.model.EsSearchResult;
-import com.auditbucket.search.model.MetaSearchSchema;
 import com.auditbucket.search.model.QueryParams;
 import com.auditbucket.search.model.SearchResult;
 import org.elasticsearch.action.ListenableActionFuture;
@@ -76,7 +76,7 @@ public class QueryDaoES implements QueryDao {
 
     @Override
     public String doSearch(QueryParams queryParams) throws DatagioException {
-        SearchResponse result = client.prepareSearch(MetaSearchSchema.parseIndex(queryParams))
+        SearchResponse result = client.prepareSearch(EntitySearchSchema.parseIndex(queryParams))
                 .setExtraSource(QueryGenerator.getSimpleQuery(queryParams.getSimpleQuery(), false))
                 .execute()
                 .actionGet();
@@ -94,17 +94,17 @@ public class QueryDaoES implements QueryDao {
         if (queryParams.getTypes() != null) {
             types = queryParams.getTypes();
         }
-        ListenableActionFuture<SearchResponse> future = client.prepareSearch(MetaSearchSchema.parseIndex(queryParams))
+        ListenableActionFuture<SearchResponse> future = client.prepareSearch(EntitySearchSchema.parseIndex(queryParams))
                 .setTypes(types)
-                .addField(MetaSearchSchema.META_KEY)
-                .addField(MetaSearchSchema.FORTRESS)
-                .addField(MetaSearchSchema.LAST_EVENT)
-                .addField(MetaSearchSchema.DESCRIPTION)
-                .addField(MetaSearchSchema.CALLER_REF)
-                .addField(MetaSearchSchema.WHO)
-                .addField(MetaSearchSchema.WHEN)
-                .addField(MetaSearchSchema.CREATED)
-                .addField(MetaSearchSchema.TIMESTAMP)
+                .addField(EntitySearchSchema.META_KEY)
+                .addField(EntitySearchSchema.FORTRESS)
+                .addField(EntitySearchSchema.LAST_EVENT)
+                .addField(EntitySearchSchema.DESCRIPTION)
+                .addField(EntitySearchSchema.CALLER_REF)
+                .addField(EntitySearchSchema.WHO)
+                .addField(EntitySearchSchema.WHEN)
+                .addField(EntitySearchSchema.CREATED)
+                .addField(EntitySearchSchema.TIMESTAMP)
                 .setSize(queryParams.getRowsPerPage())
                 .setFrom(queryParams.getStartFrom())
                 .setExtraSource(QueryGenerator.getSimpleQuery(queryParams.getSimpleQuery(), highlightEnabled))
@@ -124,7 +124,7 @@ public class QueryDaoES implements QueryDao {
         for (SearchHit searchHitFields : response.getHits().getHits()) {
             if (!searchHitFields.getFields().isEmpty()) { // DAT-83
                 // This function returns only information tracked by AB which will always have  a metaKey
-                SearchHitField metaKeyCol = searchHitFields.getFields().get(MetaSearchSchema.META_KEY);
+                SearchHitField metaKeyCol = searchHitFields.getFields().get(EntitySearchSchema.META_KEY);
                 if (metaKeyCol != null) {
                     Object metaKey = metaKeyCol.getValue();
                     if (metaKey != null) {
@@ -132,19 +132,19 @@ public class QueryDaoES implements QueryDao {
                         SearchResult sr = new SearchResult(
                                 searchHitFields.getId(),
                                 metaKey.toString(),
-                                searchHitFields.getFields().get(MetaSearchSchema.FORTRESS).getValue().toString(),
-                                searchHitFields.getFields().get(MetaSearchSchema.LAST_EVENT).getValue().toString(),
+                                searchHitFields.getFields().get(EntitySearchSchema.FORTRESS).getValue().toString(),
+                                searchHitFields.getFields().get(EntitySearchSchema.LAST_EVENT).getValue().toString(),
                                 searchHitFields.getType(),
-                                searchHitFields.getFields().get(MetaSearchSchema.WHO).getValue().toString(),
-                                searchHitFields.getFields().get(MetaSearchSchema.WHEN).getValue().toString(),
-                                searchHitFields.getFields().get(MetaSearchSchema.CREATED).getValue().toString(),
-                                searchHitFields.getFields().get(MetaSearchSchema.TIMESTAMP).getValue().toString(),
+                                searchHitFields.getFields().get(EntitySearchSchema.WHO).getValue().toString(),
+                                searchHitFields.getFields().get(EntitySearchSchema.WHEN).getValue().toString(),
+                                searchHitFields.getFields().get(EntitySearchSchema.CREATED).getValue().toString(),
+                                searchHitFields.getFields().get(EntitySearchSchema.TIMESTAMP).getValue().toString(),
                                 fragments);
-                        SearchHitField field = searchHitFields.getFields().get(MetaSearchSchema.DESCRIPTION);
+                        SearchHitField field = searchHitFields.getFields().get(EntitySearchSchema.DESCRIPTION);
                         if ( field !=null )
                             sr.setDescription(field.getValue().toString());
 
-                        field = searchHitFields.getFields().get(MetaSearchSchema.CALLER_REF);
+                        field = searchHitFields.getFields().get(EntitySearchSchema.CALLER_REF);
                         if ( field!=null )
                             sr.setCallerRef(field.getValue().toString());
                         results.add(sr);

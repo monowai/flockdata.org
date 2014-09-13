@@ -20,13 +20,12 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.RegistrationService;
-import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -96,7 +95,7 @@ public class TestForceDeadlock extends TestEngineBase {
      * @throws Exception
      */
     @Test
-    public void metaHeaderUnderLoad() throws Exception {
+    public void entitiesUnderLoad() throws Exception {
         cleanUpGraph(); // No transaction so need to clear down the graph
 
         String monowai = "Monowai";
@@ -115,7 +114,7 @@ public class TestForceDeadlock extends TestEngineBase {
         for (int i = 0; i < threadMax; i++) {
             CallerRefRunner runner = addRunner(fortress, docType, "ABC" + i, 20, tags);
             runners.put(i, runner);
-            List<MetaInputBean> inputBeans = runners.get(i).getInputBeans();
+            List<EntityInputBean> inputBeans = runners.get(i).getInputBeans();
             Future<Collection<TrackResultBean>> runResult = mediationFacade.trackHeadersAsync(fortress, inputBeans);
             futures.put(i,runResult );
         }
@@ -129,9 +128,9 @@ public class TestForceDeadlock extends TestEngineBase {
                 doFutureWorked(future, runners.get(i).getMaxRun());
             }
         }
-        assertNotNull(tagService.findTag(fortress.getCompany(), tags.get(0).getName(), tags.get(0).getIndex()));
+        assertNotNull(tagService.findTag(fortress.getCompany(), tags.get(0).getName(), tags.get(0).getLabel()));
 
-        Collection<Tag> createdTags = tagService.findTags(fortress.getCompany(), tags.get(0).getIndex());
+        Collection<Tag> createdTags = tagService.findTags(fortress.getCompany(), tags.get(0).getLabel());
         assertEquals(false, createdTags.isEmpty());
         assertEquals(10, createdTags.size());
     }
@@ -140,9 +139,9 @@ public class TestForceDeadlock extends TestEngineBase {
         ArrayList<TagInputBean> tags = new ArrayList<>();
         for (int i = 0; i < tagCount; i++) {
             TagInputBean tag = new TagInputBean("tag" + i, "tagRlx" + i);
-            tag.setIndex("Deadlock");
+            tag.setLabel("Deadlock");
             TagInputBean subTag = new TagInputBean("subtag" +i);
-            subTag.setIndex("DeadlockSub");
+            subTag.setLabel("DeadlockSub");
             tag.setTargets("subtag",subTag);
             tags.add(tag);
         }
@@ -175,7 +174,7 @@ public class TestForceDeadlock extends TestEngineBase {
         String callerRef;
         Fortress fortress;
         int maxRun = 30;
-        List<MetaInputBean> inputBeans;
+        List<EntityInputBean> inputBeans;
         Collection<TagInputBean> tags;
 
         boolean worked = false;
@@ -193,12 +192,12 @@ public class TestForceDeadlock extends TestEngineBase {
             return maxRun;
         }
 
-        public List<MetaInputBean> getInputBeans() {
+        public List<EntityInputBean> getInputBeans() {
             int count = 0;
             setSecurity();
             try {
                 while (count < maxRun) {
-                    MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef + count);
+                    EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef + count);
                     inputBean.setTags(tags);
                     inputBeans.add(inputBean);
                     count++;

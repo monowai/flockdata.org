@@ -93,7 +93,7 @@ public interface SearchChange {
 
     Long getLogId();
 
-    Long getMetaId();
+    Long getEntityId();
 
     void setDescription(String description);
 

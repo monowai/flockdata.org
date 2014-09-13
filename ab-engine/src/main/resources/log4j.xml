@@ -114,7 +114,7 @@
     <logger name="org.springframework.data.neo4j.support.query">
         <level value="info"/> <!-- turn this on to see cypher statements")-->
     </logger>
-    <logger name="com.auditbucket.engine.repo.neo4j.TrackDaoNeo">
+    <logger name="com.auditbucket.engine.repo.neo4j.EntityDaoNeo">
         <level value="info"/>
     </logger>
 
