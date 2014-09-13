@@ -21,7 +21,6 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.engine.PropertyConversion;
 import com.auditbucket.helper.DatagioTagException;
-import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.model.Tag;
@@ -219,7 +218,7 @@ public class TestTags extends TestEngineBase {
         SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
 
         TagInputBean tagInput = new TagInputBean("Source");
-        tagInput.setIndex(":TestTag");
+        tagInput.setLabel(":TestTag");
         tagInput.setCode("CodeA");
         tagInput.setName("NameA");
         Tag tag = tagService.createTag(iSystemUser.getCompany(), tagInput) ;
@@ -240,7 +239,7 @@ public class TestTags extends TestEngineBase {
         SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
 
         TagInputBean tagInput = new TagInputBean("Source");
-        tagInput.setIndex(":Test Tag");
+        tagInput.setLabel(":Test Tag");
         tagInput.setCode("CodeA");
         tagInput.setName("NameA");
         Tag tag = tagService.createTag(iSystemUser.getCompany(), tagInput) ;
@@ -261,7 +260,7 @@ public class TestTags extends TestEngineBase {
         SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
 
         TagInputBean tagInput = new TagInputBean("Source");
-        tagInput.setIndex(":TestTag");
+        tagInput.setLabel(":TestTag");
         tagInput.setCode("CodeA");
         tagInput.setName("NameA");
         Tag tag = tagService.createTag(iSystemUser.getCompany(), tagInput) ;
@@ -293,7 +292,7 @@ public class TestTags extends TestEngineBase {
         SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
 
         TagInputBean tagInputA = new TagInputBean("Source");
-        tagInputA.setIndex(":TestTagA");
+        tagInputA.setLabel(":TestTagA");
         tagInputA.setCode("CodeA");
         tagInputA.setName("NameA");
         Tag tagA = mediationFacade.createTag(iSystemUser.getCompany(), tagInputA);
@@ -301,7 +300,7 @@ public class TestTags extends TestEngineBase {
 
         // This should work as the tag is in a different index
         TagInputBean tagInputB = new TagInputBean("Source");
-        tagInputB.setIndex(":TestTagA");
+        tagInputB.setLabel(":TestTagA");
         tagInputB.setCode("CodeA");
         tagInputB.setName("NameA");
         Tag tagB = tagService.createTag(iSystemUser.getCompany(), tagInputB);
@@ -325,7 +324,7 @@ public class TestTags extends TestEngineBase {
         SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
 
         TagInputBean tagInputA = new TagInputBean("Source");
-        tagInputA.setIndex(":TestTagA");
+        tagInputA.setLabel(":TestTagA");
         tagInputA.setCode("CodeA");
         tagInputA.setName("NameA");
         Tag tagA = tagService.createTag(iSystemUser.getCompany(), tagInputA);
@@ -333,7 +332,7 @@ public class TestTags extends TestEngineBase {
 
         // Same code, but different label. Should create a new tag
         TagInputBean tagInputB = new TagInputBean("Source");
-        tagInputB.setIndex(":TestTagB");
+        tagInputB.setLabel(":TestTagB");
         tagInputB.setCode("CodeA");
         tagInputB.setName("NameA");
         Tag tagB = tagService.createTag(iSystemUser.getCompany(), tagInputB);
@@ -350,16 +349,16 @@ public class TestTags extends TestEngineBase {
 
         // Exists in one index
         TagInputBean tagInputA = new TagInputBean("Apple");
-        tagInputA.setIndex(":Law");
+        tagInputA.setLabel(":Law");
         Tag tagA = tagService.createTag(su.getCompany(), tagInputA);
         assertNotNull(tagA);
 
         // Same code, and default index. Should be found in the _Tag index
         TagInputBean tagInputB = new TagInputBean("Apple");
-        tagInputB.setIndex(Tag.DEFAULT);
+        tagInputB.setLabel(Tag.DEFAULT);
 
         TagInputBean tagInputC = new TagInputBean("Samsung");
-        tagInputC.setIndex("Law");
+        tagInputC.setLabel("Law");
         tagInputC.setTargets("sues", tagInputB);
 
 
@@ -372,7 +371,7 @@ public class TestTags extends TestEngineBase {
         engineConfig.setMultiTenanted(false);
         SystemUser su = registerSystemUser(monowai, mike_admin);
 
-        TagInputBean tagInputBean = new TagInputBean("New Zealand").setIndex("Country");
+        TagInputBean tagInputBean = new TagInputBean("New Zealand").setLabel("Country");
         ArrayList<TagInputBean> countries = new ArrayList<>();
         countries.add(tagInputBean);
         tagEP.createTags(countries, su.getApiKey(), su.getApiKey());
@@ -388,7 +387,7 @@ public class TestTags extends TestEngineBase {
         SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
 
         TagInputBean tagInputA = new TagInputBean("Source");
-        tagInputA.setIndex(":TestTagA");
+        tagInputA.setLabel(":TestTagA");
         tagInputA.setCode("CodeA");
         tagInputA.setName("NameA");
         Tag tagA = tagService.createTag(iSystemUser.getCompany(), tagInputA);
@@ -404,7 +403,7 @@ public class TestTags extends TestEngineBase {
 
         // This should work as the tag is in a different index
         TagInputBean tagInputB = new TagInputBean("Source");
-        tagInputB.setIndex(":TestTagB");
+        tagInputB.setLabel(":TestTagB");
         tagInputB.setCode("CodeA");
         tagInputB.setName("NameA");
         Tag tagB = tagService.createTag(iSystemUser.getCompany(), tagInputB);

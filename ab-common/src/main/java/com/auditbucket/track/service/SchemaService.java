@@ -4,7 +4,7 @@ import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.track.bean.DocumentResultBean;
-import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.DocumentType;
 
@@ -29,7 +29,7 @@ public interface SchemaService {
 
     Set<DocumentResultBean> findConcepts(Company company, Collection<String> documents, boolean withRelationships);
 
-    void createDocTypes(Iterable<MetaInputBean> headers, Fortress fortress);
+    void createDocTypes(Iterable<EntityInputBean> headers, Fortress fortress);
 
     Collection<DocumentResultBean> getCompanyDocumentsInUse(Company company);
 

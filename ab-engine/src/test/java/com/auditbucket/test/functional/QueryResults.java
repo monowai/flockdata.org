@@ -21,13 +21,12 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.query.MatrixInputBean;
 import com.auditbucket.query.MatrixResults;
-import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.test.endpoint.EngineEndPoints;
 import com.auditbucket.track.bean.DocumentResultBean;
-import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.bean.EntityInputBean;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,23 +60,23 @@ public class QueryResults  extends TestEngineBase {
         SystemUser su = registerSystemUser(monowai, mike_admin);
         Fortress fortress = createFortress(su);
 
-        MetaInputBean inputBean = new MetaInputBean(fortress.getName(), "mike", "Study", new DateTime(), "StudyA");
-        inputBean.addTag(new TagInputBean("Apples", "likes").setIndex(QueryResults.FRUIT));
-        inputBean.addTag(new TagInputBean("Pears", "likes").setIndex(QueryResults.FRUIT));
-        inputBean.addTag(new TagInputBean("Oranges", "dislikes").setIndex(QueryResults.FRUIT));
-        inputBean.addTag(new TagInputBean("Grapes", "allergic").setIndex(QueryResults.FRUIT));
-//        inputBean.addTag(new TagInputBean("Peas", "dislikes").setIndex(VEGETABLE));
-        inputBean.addTag(new TagInputBean("Potatoes", "likes").setIndex(VEGETABLE)); // No co-occurrence
-        trackEP.trackHeader(inputBean, su.getApiKey(), su.getApiKey()) ;
+        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "mike", "Study", new DateTime(), "StudyA");
+        inputBean.addTag(new TagInputBean("Apples", "likes").setLabel(QueryResults.FRUIT));
+        inputBean.addTag(new TagInputBean("Pears", "likes").setLabel(QueryResults.FRUIT));
+        inputBean.addTag(new TagInputBean("Oranges", "dislikes").setLabel(QueryResults.FRUIT));
+        inputBean.addTag(new TagInputBean("Grapes", "allergic").setLabel(QueryResults.FRUIT));
+//        inputBean.addTag(new TagInputBean("Peas", "dislikes").setLabel(VEGETABLE));
+        inputBean.addTag(new TagInputBean("Potatoes", "likes").setLabel(VEGETABLE)); // No co-occurrence
+        trackEP.trackEntity(inputBean, su.getApiKey(), su.getApiKey()) ;
 
-        inputBean = new MetaInputBean(fortress.getName(), "mike", "Study", new DateTime(), "StudyB");
-        inputBean.addTag(new TagInputBean("Apples", "dislikes").setIndex(FRUIT));
-        inputBean.addTag(new TagInputBean("Pears", "likes").setIndex(FRUIT));
-        inputBean.addTag(new TagInputBean("Oranges", "allergic").setIndex(FRUIT));
-        inputBean.addTag(new TagInputBean("Grapes", "dislikes").setIndex(FRUIT));
-        inputBean.addTag(new TagInputBean("Kiwi", "likes").setIndex(FRUIT));
-        inputBean.addTag(new TagInputBean("Peas", "dislikes").setIndex(VEGETABLE));
-        trackEP.trackHeader(inputBean, su.getApiKey(), su.getApiKey()) ;
+        inputBean = new EntityInputBean(fortress.getName(), "mike", "Study", new DateTime(), "StudyB");
+        inputBean.addTag(new TagInputBean("Apples", "dislikes").setLabel(FRUIT));
+        inputBean.addTag(new TagInputBean("Pears", "likes").setLabel(FRUIT));
+        inputBean.addTag(new TagInputBean("Oranges", "allergic").setLabel(FRUIT));
+        inputBean.addTag(new TagInputBean("Grapes", "dislikes").setLabel(FRUIT));
+        inputBean.addTag(new TagInputBean("Kiwi", "likes").setLabel(FRUIT));
+        inputBean.addTag(new TagInputBean("Peas", "dislikes").setLabel(VEGETABLE));
+        trackEP.trackEntity(inputBean, su.getApiKey(), su.getApiKey()) ;
 
         MatrixInputBean input = new MatrixInputBean();
         ArrayList<String>docs = new ArrayList<>();

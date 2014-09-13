@@ -40,7 +40,7 @@
                                     input-channel="searchRequest"
                                     output-channel="searchResult"
 
-                                    type="com.auditbucket.search.model.MetaSearchChanges"/>
+                                    type="com.auditbucket.search.model.EntitySearchChanges"/>
 
     <int:object-to-json-transformer id="objectToJson"
                                     input-channel="searchReply"

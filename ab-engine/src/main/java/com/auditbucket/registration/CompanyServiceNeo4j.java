@@ -66,7 +66,10 @@ public class CompanyServiceNeo4j implements CompanyService {
     @Override
     @Transactional
     public Company findByName(String companyName) {
-        return companyDao.findByPropertyValue("name", companyName);
+        //return companyDao.findByPropertyValue("name", companyName);
+        Company company=  companyDao.findByPropertyValue("name", companyName);
+        logger.debug("Looking for company {}. Found {} ", companyName, company);
+        return company;
     }
 
     @Override

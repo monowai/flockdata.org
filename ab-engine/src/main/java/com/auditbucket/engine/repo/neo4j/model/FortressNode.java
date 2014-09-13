@@ -132,9 +132,13 @@ public class FortressNode implements Fortress {
 
     @Override
     public String toString() {
+        String companyName = null;
+        if ( company!=null )
+            companyName = company.getName();
         return "FortressNode{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                (company !=null ? ", company='" + companyName + '\'' : ", companyId='" + company.getId() + '\'') +
                 '}';
     }
 

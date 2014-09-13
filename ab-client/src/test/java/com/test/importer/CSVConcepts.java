@@ -47,20 +47,20 @@ public class CSVConcepts {
         Map<String, Collection<TagInputBean>> allTargets = mapper.getTargets();
         assertNotNull(allTargets);
         assertEquals(2, allTargets.size());
-        assertEquals("Should have overridden the column name of device_name", "Device", mapper.getIndex());
+        assertEquals("Should have overridden the column name of device_name", "Device", mapper.getLabel());
         assertEquals("Palaxy", mapper.getCode());
 
         assertEquals(2, allTargets.size());
 
         TagInputBean makes = allTargets.get("makes").iterator().next();
-        assertEquals("Manufacturer", makes.getIndex());
+        assertEquals("Manufacturer", makes.getLabel());
         assertEquals("Nested City tag not found", 1, makes.getTargets().size());
         TagInputBean city = makes.getTargets().get("located").iterator().next();
         assertEquals("Auckland", city.getName());
 
 
         assertEquals("Samsoon", makes.getCode());
-        assertEquals("Should be using the column name", "type", allTargets.get("of-type").iterator().next().getIndex());
+        assertEquals("Should be using the column name", "type", allTargets.get("of-type").iterator().next().getLabel());
 
     }
 }

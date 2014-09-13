@@ -21,7 +21,7 @@ package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.TxRef;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.validator.constraints.NotBlank;
@@ -50,8 +50,8 @@ public class TxRefNode implements TxRef {
     @RelatedTo(elementClass = CompanyNode.class, type = "TX", direction = Direction.INCOMING)
     private CompanyNode company;
 
-    @RelatedTo(elementClass = MetaHeaderNode.class, type = "AFFECTED")
-    private Set<MetaHeader> metaHeaders;
+    @RelatedTo(elementClass = EntityNode.class, type = "AFFECTED")
+    private Set<Entity> entities;
 
     @Indexed
     private String name;
@@ -91,8 +91,8 @@ public class TxRefNode implements TxRef {
 
     @Override
     @JsonIgnore
-    public Set<MetaHeader> getHeaders() {
-        return metaHeaders;
+    public Set<Entity> getHeaders() {
+        return entities;
     }
 
     @Override

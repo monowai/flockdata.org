@@ -25,8 +25,8 @@ import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
 import com.auditbucket.test.utils.TestHelper;
 import com.auditbucket.track.bean.ConceptInputBean;
+import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.LogInputBean;
-import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.model.TxRef;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -80,7 +80,7 @@ public class TestInputBeans {
     @Test
     public void testTrackInputBean() throws Exception {
         DateTime headerNow = DateTime.now();
-        MetaInputBean metaBean = new MetaInputBean("fortress", "user", "booking", headerNow, "myRef");
+        EntityInputBean metaBean = new EntityInputBean("fortress", "user", "booking", headerNow, "myRef");
         assertNull(metaBean.getMetaKey());
         metaBean.setMetaKey("AbC");
         assertNotNull(metaBean.getMetaKey());
@@ -92,7 +92,7 @@ public class TestInputBeans {
         assertTrue(logBean.isTransactional());
         assertEquals(headerNow.getMillis(), metaBean.getWhen().getTime());
 
-        // Change the date on the log, should be the same in the header
+        // Change the date on the log, should be the same in the entity
         logBean.setWhen(headerNow.toDate());
         assertEquals(headerNow.getMillis(), metaBean.getWhen().getTime());
         // Null the log
@@ -116,8 +116,8 @@ public class TestInputBeans {
         assertEquals("Hello", tib.getCode());
         tib.setCode("hello");
         assertEquals("hello", tib.getCode());
-        tib.setIndex("Testing");
-        assertEquals("Testing", tib.getIndex());
+        tib.setLabel("Testing");
+        assertEquals("Testing", tib.getLabel());
     }
 
     @Test
@@ -135,7 +135,7 @@ public class TestInputBeans {
         dest.setTargets("somerlx", other );// This one appends to somerlx collection
 
         dest.mergeTags(source);
-        //assertEquals(1, dest.getMetaLinks().size());
+        //assertEquals(1, dest.getEntityLinks().size());
         assertEquals("Should be 2 relationships", 2, dest.getTargets().size());
         assertEquals("TagInput did not merge into somerlx", 2, dest.getTargets().get("somerlx").size());
     }
@@ -144,9 +144,9 @@ public class TestInputBeans {
     public void metaLinksFromInput(){
         ConceptInputBean cib = new ConceptInputBean();
         TagInputBean tag = new TagInputBean("SimpleName");
-        tag.addMetaLink("myrlx");
-        assertFalse ( tag.getMetaLinks().isEmpty());
-        assertTrue(tag.getMetaLinks().containsKey("myrlx"));
+        tag.addEntityLink("myrlx");
+        assertFalse ( tag.getEntityLinks().isEmpty());
+        assertTrue(tag.getEntityLinks().containsKey("myrlx"));
     }
 
 

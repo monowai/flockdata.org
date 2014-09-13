@@ -5,19 +5,19 @@
     "csvHeaders": {
         "device_name": {
             "tag": true,
-            "index": "Device",
+            "label": "Device",
             "mustExist": false,
             "targets": [
                 {
                     "column": "company_name",
-                    "index": "Manufacturer",
+                    "label": "Manufacturer",
                     "relationship": "makes",
                     "reverse": true,
                     "targets": [
                         {
                             "relationship": "located",
                             "column": "city",
-                            "index": "City"
+                            "label": "City"
                         }
                     ]
                 },

@@ -30,7 +30,7 @@ public class NeoSyntaxHelper {
 
     public static String getLabels(String columnName, Collection<String> values) {
         if (values == null || values.isEmpty())
-            return ":_MetaHeader";
+            return ":_Entity";
         // create a neo4j label index
         // DAT-109
         return getNeoString(columnName, ":", values, " or ");

@@ -3,7 +3,7 @@
     "importType": "csv",
     "tagOrTrack": "track",
     "staticDataClazz": "com.absales.DataResolver",
-    "metaOnly": false,
+    "entityOnly": false,
     "fortress": {
         "name": "Sales",
         "search": true
@@ -17,22 +17,22 @@
         "zip": {
             "tag": true,
             "relationshipName": "lives",
-            "index": "ZipCode",
+            "label": "ZipCode",
             "targets": [
                 {
                     "relationship": "located",
                     "column": "city",
-                    "index": "City",
+                    "label": "City",
                     "targets": [
                         {
                             "relationship": "city",
                             "column": "state",
-                            "index": "State",
+                            "label": "State",
                             "targets": [
                                 {
                                     "relationship": "state",
                                     "column": "country",
-                                    "index": "Country",
+                                    "label": "Country",
                                     "mustExist": true
                                 }
                             ]
@@ -46,7 +46,7 @@
         "name": {
             "tag" :true,
             "relationshipName":"blah",
-            "index": "Wow"
+            "label": "Wow"
         }
     }
 

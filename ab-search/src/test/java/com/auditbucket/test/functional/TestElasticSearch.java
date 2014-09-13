@@ -20,7 +20,7 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.search.endpoint.ElasticSearchEP;
-import com.auditbucket.search.model.MetaSearchChange;
+import com.auditbucket.search.model.EntitySearchChange;
 import com.auditbucket.track.model.TrackSearchDao;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -73,7 +73,7 @@ public class TestElasticSearch {
     public void testJson() throws Exception {
         // Basic JSON/ES tests to figure our what is going on
 
-        MetaSearchChange change = new MetaSearchChange();
+        EntitySearchChange change = new EntitySearchChange();
         change.setWhen(new DateTime());
 
         // Add Who Parameter because it's used in creating the Document in ES as a Type .
@@ -87,7 +87,7 @@ public class TestElasticSearch {
         GetResponse response = writeSimple(change);
         assertNotNull(response);
 
-        MetaSearchChange found = om.readValue(response.getSourceAsBytes(), MetaSearchChange.class);
+        EntitySearchChange found = om.readValue(response.getSourceAsBytes(), EntitySearchChange.class);
         assertNotNull(found);
         assertEquals(0, change.getWhen().compareTo(found.getWhen()));
 
@@ -95,7 +95,7 @@ public class TestElasticSearch {
     }
 
 
-    private  GetResponse writeSimple(MetaSearchChange change) throws JsonProcessingException {
+    private  GetResponse writeSimple(EntitySearchChange change) throws JsonProcessingException {
 
         // Elasticsearch
         Node node = nodeBuilder().local(true).node();

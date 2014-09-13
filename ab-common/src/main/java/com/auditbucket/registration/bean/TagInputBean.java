@@ -30,8 +30,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * All data necessary to create a simple Tag. If no index is provided then the tag is
- * created under the default index of _Tag
+ * All data necessary to create a simple Tag. If no label is provided then the tag is
+ * created under the default label of _Tag
  * User: Mike Holdsworth
  * Date: 29/06/13
  * Time: 1:20 PM
@@ -48,11 +48,11 @@ public class TagInputBean {
     private Map<String, Collection<TagInputBean>> targets = new HashMap<>();
 
     Map<String, Object> properties = null;
-    private String index = "";
+    private String label = "";
 
-    Map<String, Object> metaLinks = new HashMap<>();
+    Map<String, Object> entityLinks = new HashMap<>();
 
-    private String metaLink = null;
+    private String entityLink = null;
     private boolean mustExist = false;
     private String serviceMessage;
 
@@ -64,22 +64,22 @@ public class TagInputBean {
      * associates a tag to the Meta Header
      *
      * @param tagName              Unique name for a tag (if exists will be reused)
-     * @param metaRelationshipName name of relationship to the MetaHeader
+     * @param entityRelationshipName name of relationship to the Entity
      */
-    public TagInputBean(String tagName, String metaRelationshipName) {
-        this(tagName, null, metaRelationshipName);
+    public TagInputBean(String tagName, String entityRelationshipName) {
+        this(tagName, null, entityRelationshipName);
     }
 
     /**
-     * associates a tag to the meta header giving it an optional index label to categorize it by
+     * associates a tag to the entity giving it an optional label label to categorize it by
      *
      * @param tagName              Unique name for a tag (if exists will be reused)
-     * @param index                optional index label to give the Tag. Must start with ":"
-     * @param metaRelationshipName name of relationship to the MetaHeader
+     * @param label                optional label label to give the Tag. Must start with ":"
+     * @param entityRelationshipName name of relationship to the Entity
      */
-    public TagInputBean(String tagName, String index, String metaRelationshipName) {
-        this(tagName, metaRelationshipName, (Map<String, Object>) null);
-        setIndex(index);
+    public TagInputBean(String tagName, String label, String entityRelationshipName) {
+        this(tagName, entityRelationshipName, (Map<String, Object>) null);
+        setLabel(label);
 
     }
 
@@ -89,7 +89,7 @@ public class TagInputBean {
      * You can pass this in as Name:Type and AB will additionally
      * recognize the tag as being of the supplied Type
      * <p/>
-     * This tag will not be associated with an MetaHeader (it has no metaRelationshipName)
+     * This tag will not be associated with an Entity (it has no entityRelationshipName)
      * <p/>
      * Code value defaults to the tag name
      *
@@ -104,20 +104,20 @@ public class TagInputBean {
         this.code = this.name;
     }
 
-    public TagInputBean(String tagName, String metaRelationshipName, Map<String, Object> relationshipProperties) {
+    public TagInputBean(String tagName, String entityRelationshipName, Map<String, Object> relationshipProperties) {
         this(tagName);
-        if (metaRelationshipName == null)
-            metaRelationshipName = "general";
+        if (entityRelationshipName == null)
+            entityRelationshipName = "general";
         else {
-            metaRelationshipName = metaRelationshipName.trim();
-            if (metaRelationshipName.contains(" ")) {
-                if (!metaRelationshipName.startsWith("'"))
-                    metaRelationshipName = "'" + metaRelationshipName + "'";
-                //   throw new RuntimeException("Tag Type cannot contain whitespace [" + metaRelationshipName + "]");
+            entityRelationshipName = entityRelationshipName.trim();
+            if (entityRelationshipName.contains(" ")) {
+                if (!entityRelationshipName.startsWith("'"))
+                    entityRelationshipName = "'" + entityRelationshipName + "'";
+                //   throw new RuntimeException("Tag Type cannot contain whitespace [" + entityRelationshipName + "]");
             }
         }
 
-        addMetaLink(metaRelationshipName, relationshipProperties);
+        addEntityLink(entityRelationshipName, relationshipProperties);
 
     }
 
@@ -211,27 +211,27 @@ public class TagInputBean {
      * Index name cannot contain spaces and will begin with a single :
      * Will add the leading : if it is missing
      */
-    public TagInputBean setIndex(String index) {
-        if (index == null)
+    public TagInputBean setLabel(String label) {
+        if (label == null)
             return this;
 
-        if (!index.startsWith(":"))
-            this.index = ":" + index.trim();
+        if (!label.startsWith(":"))
+            this.label = ":" + label.trim();
         else
-            this.index = index.trim();
+            this.label = label.trim();
 
-//        if (index.contains(":")) {
-//            String[] data = index.split(":");
+//        if (label.contains(":")) {
+//            String[] data = label.split(":");
 //            for (String aData : data) {
 //                isValid(aData);
 //                if (!"".equals(aData))
-//                    this.index = this.index + ":" + aData +" ";
+//                    this.label = this.label + ":" + aData +" ";
 //
 //            }
-//            this.index = this.index.trim();
+//            this.label = this.label.trim();
 //        } else {
 //            isValid(parseIndex);
-//            this.index = parseIndex;
+//            this.label = parseIndex;
 //        }
         return this;
 
@@ -243,32 +243,32 @@ public class TagInputBean {
     }
 
     /**
-     * Associates this tag with the MetaHeader
+     * Associates this tag with the Entity
      *
      * @param relationshipName name of the relationship to the Audit Header
      * @param properties        properties to store against the relationship
      */
-    public TagInputBean addMetaLink(String relationshipName, Map<String, Object> properties) {
-        if ( metaLinks.get(relationshipName) == null )
-            this.metaLinks.put(relationshipName, properties);
+    public TagInputBean addEntityLink(String relationshipName, Map<String, Object> properties) {
+        if ( entityLinks.get(relationshipName) == null )
+            this.entityLinks.put(relationshipName, properties);
         return this;
     }
 
-    public TagInputBean addMetaLink(String relationshipName) {
-        return addMetaLink(relationshipName, null);
+    public TagInputBean addEntityLink(String relationshipName) {
+        return addEntityLink(relationshipName, null);
     }
 
-    public Map<String, Object> getMetaLinks() {
-        if ( metaLinks.isEmpty() && metaLink!=null )
-            addMetaLink(metaLink);
-        return metaLinks;
+    public Map<String, Object> getEntityLinks() {
+        if ( entityLinks.isEmpty() && entityLink !=null )
+            addEntityLink(entityLink);
+        return entityLinks;
     }
 
     /**
      * @return name to relate this to an track record
      */
-    public String getMetaLink() {
-        return metaLink;
+    public String getEntityLink() {
+        return entityLink;
     }
 
     @Override
@@ -276,9 +276,9 @@ public class TagInputBean {
         return "TagInputBean{" +
                 "code='" + code + '\'' +
                 ", name='" + name + '\'' +
-                ", index='" + index + '\'' +
+                ", label='" + label + '\'' +
                 ", targets=" + targets.keySet().size() +
-                ", metaLinks=" + metaLinks +
+                ", entityLinks=" + entityLinks +
                 '}';
     }
 
@@ -291,7 +291,7 @@ public class TagInputBean {
 
         if (reverse != that.reverse) return false;
         if (code != null ? !code.equals(that.code) : that.code != null) return false;
-        if (index != null ? !index.equals(that.index) : that.index != null) return false;
+        if (label != null ? !label.equals(that.label) : that.label != null) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
 
         return true;
@@ -302,7 +302,7 @@ public class TagInputBean {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (code != null ? code.hashCode() : 0);
         result = 31 * result + (reverse ? 1 : 0);
-        result = 31 * result + (index != null ? index.hashCode() : 0);
+        result = 31 * result + (label != null ? label.hashCode() : 0);
         return result;
     }
 
@@ -317,23 +317,23 @@ public class TagInputBean {
 
     @JsonIgnore
     public boolean isDefault() {
-        return index == null || "".equals(index);
+        return label == null || "".equals(label);
     }
 
     /**
      *
      *
-     * @return Default tag index or the name to assign
+     * @return Default tag label or the name to assign
      */
-    private String getIndexValue() {
-        if ( "".equals(index) )
+    private String getLabelValue() {
+        if ( "".equals(label) )
             return "_Tag";
         else
-            return index;
+            return label;
     }
 
-    public String getIndex() {
-        String thisIndex = getIndexValue();
+    public String getLabel() {
+        String thisIndex = getLabelValue();
         if ( thisIndex.startsWith(":"))
             thisIndex= thisIndex.substring(1, thisIndex.length());
         return thisIndex;

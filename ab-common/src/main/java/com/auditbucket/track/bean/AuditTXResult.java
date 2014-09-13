@@ -19,8 +19,8 @@
 
 package com.auditbucket.track.bean;
 
+import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.Log;
-import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
 
 
@@ -45,7 +45,7 @@ public class AuditTXResult {
     }
 
 
-    public AuditTXResult(MetaHeader header, Log change, TrackLog log) {
+    public AuditTXResult(Entity header, Log change, TrackLog log) {
         this();
         this.fortressWhen = log.getFortressWhen();
         this.auditKey = header.getMetaKey();

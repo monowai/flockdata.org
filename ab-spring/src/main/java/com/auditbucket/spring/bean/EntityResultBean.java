@@ -10,16 +10,16 @@ import com.auditbucket.track.bean.TrackResultBean;
  * Time: 23:18
  * To change this template use File | Settings | File Templates.
  */
-class MetaResultBean {
+class EntityResultBean {
 
     private TrackResultBean trackResultBean;
     private LogInputBean logInputBean;
 
-    public MetaResultBean(TrackResultBean trackResultBean) {
+    public EntityResultBean(TrackResultBean trackResultBean) {
         this.trackResultBean = trackResultBean;
     }
 
-    public MetaResultBean(LogInputBean logInputBean) {
+    public EntityResultBean(LogInputBean logInputBean) {
         this.logInputBean = logInputBean;
     }
 

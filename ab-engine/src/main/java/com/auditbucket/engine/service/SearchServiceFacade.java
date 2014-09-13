@@ -1,6 +1,6 @@
 package com.auditbucket.engine.service;
 
-import com.auditbucket.dao.TrackDao;
+import com.auditbucket.engine.repo.neo4j.EntityDaoNeo;
 import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.search.model.*;
@@ -8,7 +8,7 @@ import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.LogResultBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.*;
-import com.auditbucket.track.service.TagTrackService;
+import com.auditbucket.track.service.EntityTagService;
 import com.auditbucket.track.service.TrackService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,7 +37,7 @@ public class SearchServiceFacade {
     private Logger logger = LoggerFactory.getLogger(SearchServiceFacade.class);
 
     @Autowired
-    TrackDao trackDao;
+    EntityDaoNeo trackDao;
 
     @Autowired
     TrackService trackService;
@@ -47,7 +47,7 @@ public class SearchServiceFacade {
     AbSearchGateway searchGateway;
 
     @Autowired
-    TagTrackService tagTrackService;
+    EntityTagService entityTagService;
 
     @Autowired
     KvService kvService;
@@ -58,7 +58,7 @@ public class SearchServiceFacade {
 
     /**
      * Callback handler that is invoked from ab-search. This routine ties the generated search document ID
-     * to the MetaHeader
+     * to the Entity
      * <p/>
      * ToDo: On completion of this, an outbound message should be posted so that the caller can be made aware(?)
      *
@@ -85,10 +85,10 @@ public class SearchServiceFacade {
 
     public SearchChange getSearchChange(Company company, TrackResultBean resultBean) {
         SearchChange searchChange = null;
-        MetaHeader header = resultBean.getMetaHeader();
+        Entity header = resultBean.getEntity();
         if (!(header.isSearchSuppressed() || !header.getFortress().isSearchActive())) {
             //result, result.getMetaInputBean().getEvent(), result.getMetaInputBean().getWhen()
-            searchChange = getSearchChange(company, resultBean, resultBean.getMetaInputBean().getEvent(), resultBean.getMetaInputBean().getWhen());
+            searchChange = getSearchChange(company, resultBean, resultBean.getEntityInputBean().getEvent(), resultBean.getEntityInputBean().getWhen());
         }
         return searchChange;
 
@@ -108,16 +108,16 @@ public class SearchServiceFacade {
             return ;
         logger.debug("Sending request to index [{}]] logs", searchDocument.size());
 
-        searchGateway.makeSearchChanges(new MetaSearchChanges(searchDocument));
+        searchGateway.makeSearchChanges(new EntitySearchChanges(searchDocument));
         logger.debug("Requests sent [{}]] logs", searchDocument.size());
     }
 
     public SearchChange getSearchChange(Company company, TrackResultBean resultBean, String event, Date when) {
-        MetaHeader header = resultBean.getMetaHeader();
+        Entity header = resultBean.getEntity();
 
         if (header.getLastUser() != null)
             fortressService.fetch(header.getLastUser());
-        SearchChange searchDocument = new MetaSearchChange(header, null, event, new DateTime(when));
+        SearchChange searchDocument = new EntitySearchChange(header, null, event, new DateTime(when));
         if (resultBean.getTags() != null) {
             searchDocument.setTags(resultBean.getTags());
             //searchDocument.setSearchKey(header.getCallerRef());
@@ -130,23 +130,23 @@ public class SearchServiceFacade {
             searchDocument.setSysWhen(header.getWhenCreated());
 
         } else {
-            searchDocument.setTags(tagTrackService.findTrackTags(company, header));
+            searchDocument.setTags(entityTagService.findTrackTags(company, header));
         }
         return searchDocument;
     }
 
     private static final ObjectMapper om = new ObjectMapper();
 
-    public SearchChange prepareSearchDocument(MetaHeader metaHeader, LogInputBean logInput, ChangeEvent event, DateTime fortressWhen, TrackLog trackLog) throws JsonProcessingException {
+    public SearchChange prepareSearchDocument(Entity entity, LogInputBean logInput, ChangeEvent event, DateTime fortressWhen, TrackLog trackLog) throws JsonProcessingException {
 
-        if (metaHeader.isSearchSuppressed())
+        if (entity.isSearchSuppressed())
             return null;
         SearchChange searchDocument;
-        searchDocument = new MetaSearchChange(metaHeader, (HashMap<String, Object>) logInput.getWhat(), event.getCode(), fortressWhen);
+        searchDocument = new EntitySearchChange(entity, (HashMap<String, Object>) logInput.getWhat(), event.getCode(), fortressWhen);
         searchDocument.setWho(trackLog.getLog().getWho().getCode());
-        searchDocument.setTags(tagTrackService.findTrackTags(metaHeader.getFortress().getCompany(), metaHeader));
-        searchDocument.setDescription(metaHeader.getDescription());
-        searchDocument.setName(metaHeader.getName());
+        searchDocument.setTags(entityTagService.findTrackTags(entity.getFortress().getCompany(), entity));
+        searchDocument.setDescription(entity.getDescription());
+        searchDocument.setName(entity.getName());
         try {
             if (logger.isTraceEnabled())
                 logger.trace("JSON {}", om.writeValueAsString(searchDocument));
@@ -157,7 +157,7 @@ public class SearchServiceFacade {
         if (trackLog.getSysWhen() != 0)
             searchDocument.setSysWhen(trackLog.getSysWhen());
         else
-            searchDocument.setSysWhen(metaHeader.getWhenCreated());
+            searchDocument.setSysWhen(entity.getWhenCreated());
 
         // Used to reconcile that the change was actually indexed
         logger.trace("Preparing Search Document [{}]", trackLog);
@@ -165,28 +165,28 @@ public class SearchServiceFacade {
         return searchDocument;
     }
 
-    public MetaSearchChange rebuild(Company company, MetaHeader metaHeader, TrackLog lastLog) {
+    public EntitySearchChange rebuild(Company company, Entity entity, TrackLog lastLog) {
 
         try {
             Log lastChange = null;
             if (lastLog != null)
                 lastChange = lastLog.getLog();
 
-            if (metaHeader.getFortress().isSearchActive() && !metaHeader.isSearchSuppressed()) {
-                // Update against the MetaHeader only by re-indexing the search document
+            if (entity.getFortress().isSearchActive() && !entity.isSearchSuppressed()) {
+                // Update against the Entity only by re-indexing the search document
                 HashMap<String, Object> lastWhat;
-                MetaSearchChange searchDocument;
+                EntitySearchChange searchDocument;
                 if (lastChange != null) {
-                    lastWhat = (HashMap<String, Object>) kvService.getWhat(metaHeader, lastChange).getWhat();
-                    searchDocument = new MetaSearchChange(metaHeader, lastWhat, lastChange.getEvent().getCode(), new DateTime(lastLog.getFortressWhen()));
+                    lastWhat = (HashMap<String, Object>) kvService.getWhat(entity, lastChange).getWhat();
+                    searchDocument = new EntitySearchChange(entity, lastWhat, lastChange.getEvent().getCode(), new DateTime(lastLog.getFortressWhen()));
                     searchDocument.setWho(lastChange.getWho().getCode());
                 } else {
-                    searchDocument = new MetaSearchChange(metaHeader, null, metaHeader.getEvent(), metaHeader.getFortressDateCreated());
-                    if (metaHeader.getCreatedBy() != null)
-                        searchDocument.setWho(metaHeader.getCreatedBy().getCode());
+                    searchDocument = new EntitySearchChange(entity, null, entity.getEvent(), entity.getFortressDateCreated());
+                    if (entity.getCreatedBy() != null)
+                        searchDocument.setWho(entity.getCreatedBy().getCode());
                 }
 
-                searchDocument.setTags(tagTrackService.findTrackTags(company, metaHeader));
+                searchDocument.setTags(entityTagService.findTrackTags(company, entity));
                 searchDocument.setReplyRequired(false);
 
                 return searchDocument;
@@ -220,11 +220,11 @@ public class SearchServiceFacade {
     private SearchChange getSearchChange(TrackResultBean trackResultBean) {
         if ( trackResultBean == null )
             return null;
-        if (trackResultBean.getMetaInputBean()!=null && trackResultBean.getMetaInputBean().isMetaOnly()){
+        if (trackResultBean.getEntityInputBean()!=null && trackResultBean.getEntityInputBean().isMetaOnly()){
             return getMetaSearchChange(trackResultBean);
         }
 
-        if ( trackResultBean.getMetaHeader()== null || !trackResultBean.getMetaHeader().getFortress().isSearchActive())
+        if ( trackResultBean.getEntity()== null || !trackResultBean.getEntity().getFortress().isSearchActive())
             return null;
 
         LogResultBean logResultBean = trackResultBean.getLogResult();
@@ -236,7 +236,7 @@ public class SearchServiceFacade {
         if (logResultBean != null && logResultBean.getLogToIndex() != null && logResultBean.getStatus() == LogInputBean.LogStatus.OK) {
             try {
                 DateTime fWhen = new DateTime(logResultBean.getLogToIndex().getFortressWhen());
-                return prepareSearchDocument(logResultBean.getLogToIndex().getMetaHeader(), input, input.getChangeEvent(), fWhen, logResultBean.getLogToIndex());
+                return prepareSearchDocument(logResultBean.getLogToIndex().getEntity(), input, input.getChangeEvent(), fWhen, logResultBean.getLogToIndex());
             } catch (JsonProcessingException e) {
                 logResultBean.setMessage("Error processing JSON document");
                 logResultBean.setStatus(LogInputBean.LogStatus.ILLEGAL_ARGUMENT);
@@ -246,7 +246,7 @@ public class SearchServiceFacade {
     }
 
     private SearchChange getMetaSearchChange(TrackResultBean trackResultBean) {
-        return getSearchChange(trackResultBean.getMetaHeader().getFortress().getCompany(), trackResultBean);
+        return getSearchChange(trackResultBean.getEntity().getFortress().getCompany(), trackResultBean);
     }
 
 }

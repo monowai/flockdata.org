@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
+ * See also ImportParamsDeserializer for mapping logic
  * User: mike
  * Date: 28/04/14
  * Time: 8:47 AM
@@ -24,20 +25,20 @@ public class ImportParams {
 
     private String documentType;
     private Importer.importer importType;
-    private String tagOrTrack;
+    private String tagOrEntity;
     private String clazz = null;
-    private String staticDataClazz ;
+    private String staticDataClazz;
     private char delimiter = ',';
     private String fortress = null;
     private boolean header = true;
     private AbRestClient restClient;
     private String fortressUser;
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(ImportParams.class);
-    private boolean metaOnly;
+    private boolean entityOnly;
 
     private Map<String, CsvColumnDefinition> csvHeaders;
     private IStaticDataResolver staticDataResolver;
-    private String metaHeader;
+    private String entityKey;
 
     public ImportParams() {
 
@@ -75,7 +76,7 @@ public class ImportParams {
         return "ImportParams{" +
                 "documentType='" + documentType + '\'' +
                 ", importType=" + importType +
-                ", tagOrTrack='" + tagOrTrack + '\'' +
+                ", tagOrEntity='" + tagOrEntity + '\'' +
                 ", clazz='" + clazz + '\'' +
                 ", delimiter=" + delimiter +
                 '}';
@@ -113,12 +114,14 @@ public class ImportParams {
         this.delimiter = delimiter;
     }
 
-    public String getTagOrTrack() {
-        return tagOrTrack;
+    public String getTagOrEntity() {
+        return tagOrEntity;
     }
 
-    public void setTagOrTrack(String tagOrTrack) {
-        this.tagOrTrack = tagOrTrack;
+    public void setTagOrEntity(String tagOrEntity) {
+        if ( tagOrEntity.equalsIgnoreCase("track")) // Backward compatibility. We should look to remove.
+            tagOrEntity = "entity";
+        this.tagOrEntity = tagOrEntity;
     }
 
     public String getFortress() {
@@ -138,9 +141,9 @@ public class ImportParams {
 
         if (!(clazz == null || clazz.equals("")))
             mappable = (Mappable) Class.forName(getClazz()).newInstance();
-        else if (getTagOrTrack().equalsIgnoreCase("track")) {
-            mappable = CsvTrackMapper.newInstance(this);
-        } else if (getTagOrTrack().equalsIgnoreCase("tag")) {
+        else if (getTagOrEntity().equalsIgnoreCase("entity")) {
+            mappable = CsvEntityMapper.newInstance(this);
+        } else if (getTagOrEntity().equalsIgnoreCase("tag")) {
             mappable = TagMapper.newInstance(this);
         } else
             logger.error("Unable to determine the implementing handler");
@@ -162,12 +165,12 @@ public class ImportParams {
         return fortressUser;
     }
 
-    public boolean isMetaOnly() {
-        return metaOnly;
+    public boolean isEntityOnly() {
+        return entityOnly;
     }
 
-    public void setMetaOnly(boolean metaOnly) {
-        this.metaOnly = metaOnly;
+    public void setEntityOnly(boolean entityOnly) {
+        this.entityOnly = entityOnly;
     }
 
     public CsvColumnDefinition getColumnDef(String header) {
@@ -181,18 +184,15 @@ public class ImportParams {
     }
 
     public IStaticDataResolver getStaticDataResolver() {
-        if ( staticDataResolver != null )
+        if (staticDataResolver != null)
             return staticDataResolver;
 
-        if ( staticDataClazz == null )
+        if (staticDataClazz == null)
             return new StaticDataResolver(restClient);
         else {
             try {
-                Constructor<StaticDataResolver> constructor = (Constructor<StaticDataResolver>) Class.forName (staticDataClazz).getConstructor(AbRestClient.class);
-                StaticDataResolver resolver = constructor.newInstance(restClient);
-                if (resolver != null ) {
-                    staticDataResolver = resolver;
-                }
+                Constructor<StaticDataResolver> constructor = (Constructor<StaticDataResolver>) Class.forName(staticDataClazz).getConstructor(AbRestClient.class);
+                staticDataResolver = constructor.newInstance(restClient);
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
                 logger.error("Unexpected", e);
             }
@@ -200,12 +200,12 @@ public class ImportParams {
         }
     }
 
-    public void setMetaHeader(String metaHeader) {
-        this.metaHeader = metaHeader;
+    public void setEntityKey(String entityKey) {
+        this.entityKey = entityKey;
     }
 
-    public String getMetaHeader() {
-        return metaHeader;
+    public String getEntityKey() {
+        return entityKey;
     }
 
     public Map<String, CsvColumnDefinition> getColumns() {
@@ -213,11 +213,11 @@ public class ImportParams {
     }
 
     public Collection<String> getStrategyCols() {
-        Map<String,CsvColumnDefinition> columns = getColumns();
-        ArrayList<String>strategyColumns = new ArrayList<>();
+        Map<String, CsvColumnDefinition> columns = getColumns();
+        ArrayList<String> strategyColumns = new ArrayList<>();
         for (String column : columns.keySet()) {
             String strategy = columns.get(column).getStrategy();
-            if ( strategy !=null )
+            if (strategy != null)
                 strategyColumns.add(column);
         }
         return strategyColumns;

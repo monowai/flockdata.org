@@ -23,7 +23,7 @@ import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.*;
 import com.auditbucket.track.bean.CrossReferenceInputBean;
-import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -68,7 +68,7 @@ public class AbRestClient  {
     private int batchSize;
     private static boolean compress = true;
     private boolean simulateOnly;
-    private List<MetaInputBean> batchHeader = new ArrayList<>();
+    private List<EntityInputBean> batchHeader = new ArrayList<>();
     private Map<String, TagInputBean> batchTag = new HashMap<>();
     private final String headerSync = "BatchSync";
     private final String tagSync = "TagSync";
@@ -279,14 +279,14 @@ public class AbRestClient  {
         return null;
     }
 
-    private String flushAudit(List<MetaInputBean> auditInput) throws DatagioException{
+    private String flushEntities(List<EntityInputBean> auditInput) throws DatagioException{
         if (simulateOnly || auditInput.isEmpty())
             return "OK";
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
         HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
-        HttpEntity<List<MetaInputBean>> requestEntity = new HttpEntity<>(auditInput, httpHeaders);
+        HttpEntity<List<EntityInputBean>> requestEntity = new HttpEntity<>(auditInput, httpHeaders);
 
         try {
             restTemplate.exchange(NEW_HEADER, HttpMethod.PUT, requestEntity, TrackResultBean.class);
@@ -430,7 +430,8 @@ public class AbRestClient  {
             return;
         if (abType.equals(type.TRACK)) {
             synchronized (headerSync) {
-                writeAudit(null, true, message);
+                track(null, true, message);
+
             }
         } else {
             synchronized (tagSync) {
@@ -442,16 +443,16 @@ public class AbRestClient  {
     /**
      * send the data to AuditBucket
      *
-     * @param metaInputBean Input to push
+     * @param entityInputBean Input to push
      */
-    public void writeAudit(MetaInputBean metaInputBean, String message) throws DatagioException{
-        writeAudit(metaInputBean, false, message);
+    public void track(EntityInputBean entityInputBean, String message) throws DatagioException{
+        track(entityInputBean, false, message);
     }
 
-    private void batchTags(MetaInputBean metaInputBeans) {
+    private void batchTags(EntityInputBean entityInputBeans) {
 
-        for (TagInputBean tag : metaInputBeans.getTags()) {
-            String indexKey = tag.getCode() + tag.getIndex();
+        for (TagInputBean tag : entityInputBeans.getTags()) {
+            String indexKey = tag.getCode() + tag.getLabel();
             TagInputBean cachedTag = batchTag.get(indexKey);
             if (cachedTag == null)
                 batchTag.put(indexKey, tag);
@@ -461,14 +462,14 @@ public class AbRestClient  {
         }
     }
 
-    void writeAudit(MetaInputBean metaInputBean, boolean flush, String message) throws DatagioException{
+    void track(EntityInputBean entityInputBean, boolean flush, String message) throws DatagioException{
 
         synchronized (headerSync) {
-            if (metaInputBean != null) {
-                if (metaInputBean.getFortress() == null)
-                    metaInputBean.setFortress(defaultFortress);
-                batchHeader.add(metaInputBean);
-                batchTags(metaInputBean);
+            if (entityInputBean != null) {
+                if (entityInputBean.getFortress() == null)
+                    entityInputBean.setFortress(defaultFortress);
+                batchHeader.add(entityInputBean);
+                batchTags(entityInputBean);
             }
 
             if (flush || batchHeader.size() == batchSize) {
@@ -477,7 +478,7 @@ public class AbRestClient  {
                     logger.debug("Flushing....");
                     // process the tags independently to reduce the chance of a deadlock when processing the header
                     flushTags(new ArrayList<>(batchTag.values()));
-                    flushAudit(batchHeader);
+                    flushEntities(batchHeader);
                     logger.debug("Flushed " + message + " Batch [{}]", batchHeader.size());
                 }
                 batchHeader = new ArrayList<>();
@@ -496,7 +497,7 @@ public class AbRestClient  {
 
         synchronized (tagSync) {
             if (tagInputBean != null)
-                batchTag.put(tagInputBean.getName() + tagInputBean.getIndex(), tagInputBean);
+                batchTag.put(tagInputBean.getName() + tagInputBean.getLabel(), tagInputBean);
 
             if (flush || batchTag.size() == batchSize) {
                 logger.debug("Flushing " + message + " Tag Batch [{}]", batchTag.size());

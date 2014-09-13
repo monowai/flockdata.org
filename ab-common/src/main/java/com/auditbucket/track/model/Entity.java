@@ -24,7 +24,7 @@ import com.auditbucket.registration.model.FortressUser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTime;
 
-public interface MetaHeader {
+public interface Entity {
 
     public Long getId();
 

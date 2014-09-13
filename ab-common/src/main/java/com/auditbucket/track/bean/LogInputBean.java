@@ -38,7 +38,7 @@ public class LogInputBean {
     private Boolean isTransactional = false;
 
     // Use either metaKey or CallerRef strategy
-    // Required if not updating via a MetaHeader
+    // Required if not updating via a Entity
     private String metaKey;
 
     // For tracking by Caller Ref

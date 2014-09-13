@@ -21,11 +21,10 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.test.utils.TestHelper;
+import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.LogInputBean;
-import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 
 import org.joda.time.DateTime;
@@ -82,8 +81,8 @@ public class TestForceDuplicateRlx extends TestEngineBase {
             requests++;
             logger.info("Starting run for " + fortressName);
             while (audit <= auditMax) {
-                MetaInputBean aib = new MetaInputBean(iFortress.getName(), fortress + "olivia@sunnybell.com", "CompanyNode", new DateTime(), "ABC" + audit);
-                TrackResultBean arb = trackEP.trackHeader(aib, null, null).getBody();
+                EntityInputBean aib = new EntityInputBean(iFortress.getName(), fortress + "olivia@sunnybell.com", "CompanyNode", new DateTime(), "ABC" + audit);
+                TrackResultBean arb = trackEP.trackEntity(aib, null, null).getBody();
                 requests++;
                 int log = 1;
                 while (log <= logMax) {
@@ -108,7 +107,7 @@ public class TestForceDuplicateRlx extends TestEngineBase {
         logger.info("*** Created data set in " + f.format(splitTotals) + " fortress avg = " + f.format(splitTotals / fortressMax) + " avg processing time per request " + f.format(splitTotals / totalRows) + ". Requests per second " + f.format(totalRows / splitTotals));
 //        watch.reset();
     }
-    private void createLog(MetaInputBean aib, TrackResultBean arb, int log) throws DatagioException, IOException, ExecutionException, InterruptedException {
+    private void createLog(EntityInputBean aib, TrackResultBean arb, int log) throws DatagioException, IOException, ExecutionException, InterruptedException {
         trackEP.trackLog(new LogInputBean(aib.getFortressUser(), arb.getMetaKey(), new DateTime(), TestHelper.getSimpleMap("who", log)), null, null);
     }
 

@@ -17,42 +17,31 @@
  * along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.auditbucket.track.bean;
+package com.auditbucket.search.model;
 
-import com.auditbucket.track.model.MetaHeader;
-import com.auditbucket.track.model.TrackLog;
-import com.auditbucket.track.model.TrackTag;
+import com.auditbucket.track.model.SearchChange;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
- * User: Mike Holdsworth
- * Since: 25/08/13
+ * User: mike
+ * Date: 23/05/14
+ * Time: 12:10 PM
  */
-public class TrackedSummaryBean {
-    private MetaHeader header;
-    private Set<TrackLog> changes;
-    private Set<TrackTag> tags;
 
-    private TrackedSummaryBean() {
-    }
-
-    public TrackedSummaryBean(MetaHeader header, Set<TrackLog> changes, Set<TrackTag> tags) {
+public class EntitySearchChanges {
+    Collection <EntitySearchChange> searchChanges = new ArrayList<>();
+    public EntitySearchChanges(){}
+    public EntitySearchChanges(Collection<SearchChange> searchDocuments) {
         this();
-        this.header = header;
-        this.changes = changes;
-        this.tags = tags;
+        this.searchChanges = (Collection <EntitySearchChange>)(Collection)searchDocuments;
+    }
+    public Collection<EntitySearchChange> getChanges() {
+        return searchChanges;
     }
 
-    public MetaHeader getHeader() {
-        return header;
-    }
-
-    public Set<TrackLog> getChanges() {
-        return changes;
-    }
-
-    public Set<TrackTag> getTags() {
-        return tags;
+    public void addChange(EntitySearchChange change) {
+        searchChanges.add(change);
     }
 }
