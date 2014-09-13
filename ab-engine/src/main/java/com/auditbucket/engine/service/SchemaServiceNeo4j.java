@@ -25,14 +25,12 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.track.bean.ConceptInputBean;
 import com.auditbucket.track.bean.DocumentResultBean;
-import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.DocumentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -95,21 +93,21 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
         logger.debug("Processing concepts for {}", company);
         Map<DocumentType, Collection<ConceptInputBean>> payload = new HashMap<>();
         for (TrackResultBean resultBean : resultBeans) {
-            if (resultBean.getMetaHeader() != null && resultBean.getMetaHeader().getId() != null) {
-                DocumentType docType = schemaDao.findDocumentType(resultBean.getMetaHeader().getFortress(), resultBean.getMetaHeader().getDocumentType(), false);
+            if (resultBean.getEntity() != null && resultBean.getEntity().getId() != null) {
+                DocumentType docType = schemaDao.findDocumentType(resultBean.getEntity().getFortress(), resultBean.getEntity().getDocumentType(), false);
                 Collection<ConceptInputBean> conceptInputBeans = payload.get(docType);
                 if (conceptInputBeans == null) {
                     conceptInputBeans = new ArrayList<>();
                     payload.put(docType, conceptInputBeans);
                 }
 
-                MetaInputBean inputBean = resultBean.getMetaInputBean();
+                EntityInputBean inputBean = resultBean.getEntityInputBean();
                 if (inputBean != null && inputBean.getTags() != null) {
-                    for (TagInputBean inputTag : resultBean.getMetaInputBean().getTags()) {
-                        if (!inputTag.getMetaLinks().isEmpty()) {
+                    for (TagInputBean inputTag : resultBean.getEntityInputBean().getTags()) {
+                        if (!inputTag.getEntityLinks().isEmpty()) {
                             ConceptInputBean cib = new ConceptInputBean();
-                            cib.setRelationships(inputTag.getMetaLinks().keySet());
-                            cib.setName(inputTag.getIndex());
+                            cib.setRelationships(inputTag.getEntityLinks().keySet());
+                            cib.setName(inputTag.getLabel());
                             if (!conceptInputBeans.contains(cib))
                                 conceptInputBeans.add(cib);
                         }
@@ -140,11 +138,11 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
 
     @Override
     @Transactional
-    public void createDocTypes(Iterable<MetaInputBean> headers, Fortress fortress) {
+    public void createDocTypes(Iterable<EntityInputBean> entities, Fortress fortress) {
         ArrayList<String> docTypes = new ArrayList<>();
-        for (MetaInputBean header : headers) {
-            if (!docTypes.contains(header.getDocumentType()))
-                docTypes.add(header.getDocumentType());
+        for (EntityInputBean entity : entities) {
+            if (!docTypes.contains(entity.getDocumentType()))
+                docTypes.add(entity.getDocumentType());
         }
         schemaDao.createDocTypes(docTypes, fortress);
     }

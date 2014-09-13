@@ -84,6 +84,7 @@ public class CompanyNode implements Company {
         return "CompanyNode{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", code='" + code + '\'' +
                 '}';
     }
 

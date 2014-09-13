@@ -32,14 +32,14 @@ import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.RegistrationService;
+import com.auditbucket.search.model.EntitySearchChange;
 import com.auditbucket.search.model.EsSearchResult;
-import com.auditbucket.search.model.MetaSearchChange;
 import com.auditbucket.search.model.QueryParams;
+import com.auditbucket.track.bean.EntityInputBean;
+import com.auditbucket.track.bean.EntitySummaryBean;
 import com.auditbucket.track.bean.LogInputBean;
-import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
-import com.auditbucket.track.bean.TrackedSummaryBean;
-import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.SearchChange;
 import com.auditbucket.track.model.TrackLog;
 import com.auditbucket.track.service.*;
@@ -76,7 +76,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     TrackService trackService;
 
     @Autowired
-    TagTrackService tagTrackService;
+    EntityTagService entityTagService;
 
     @Autowired
     FortressService fortressService;
@@ -130,7 +130,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     }
 
     /**
-     * Process the MetaHeader input for a company asynchronously
+     * Process the Entity input for a company asynchronously
      *
      * @param fortress   system
      * @param inputBeans data
@@ -139,12 +139,12 @@ public class MediationFacadeNeo4j implements MediationFacade {
      */
     @Override
     @Async
-    public Future<Collection<TrackResultBean>> trackHeadersAsync(final Fortress fortress, List<MetaInputBean> inputBeans) throws DatagioException, IOException, ExecutionException, InterruptedException {
+    public Future<Collection<TrackResultBean>> trackHeadersAsync(final Fortress fortress, List<EntityInputBean> inputBeans) throws DatagioException, IOException, ExecutionException, InterruptedException {
         return new AsyncResult<>(trackHeaders(fortress, inputBeans, 10));
     }
 
     @Override
-    public Collection<TrackResultBean> trackHeaders(final Fortress fortress, final List<MetaInputBean> inputBeans, int listSize) throws DatagioException, IOException, ExecutionException, InterruptedException {
+    public Collection<TrackResultBean> trackHeaders(final Fortress fortress, final List<EntityInputBean> inputBeans, int listSize) throws DatagioException, IOException, ExecutionException, InterruptedException {
         Long id = DateTime.now().getMillis();
         StopWatch watch = new StopWatch();
         watch.start();
@@ -154,12 +154,12 @@ public class MediationFacadeNeo4j implements MediationFacade {
         schemaService.createDocTypes(inputBeans, fortress);
 
         // Tune to balance against concurrency and batch transaction insert efficiency.
-        List<List<MetaInputBean>> splitList = Lists.partition(inputBeans, listSize);
+        List<List<EntityInputBean>> splitList = Lists.partition(inputBeans, listSize);
         Collection<TrackResultBean> results = new ArrayList<>();
-        for (List<MetaInputBean> metaInputBeans : splitList) {
+        for (List<EntityInputBean> entityInputBeans : splitList) {
             Iterable<TrackResultBean> trackResultBeans = (
                     // ToDo: this should dispatch the batch to a message queue
-                    trackBatch(fortress, metaInputBeans)
+                    trackBatch(fortress, entityInputBeans)
             );
 
             for (TrackResultBean resultBean : trackResultBeans) {
@@ -172,13 +172,13 @@ public class MediationFacadeNeo4j implements MediationFacade {
         return results;
     }
 
-    private Iterable<TrackResultBean> trackBatch(final Fortress fortress, List<MetaInputBean> metaInputBeans) throws InterruptedException, ExecutionException, DatagioException, IOException {
+    private Iterable<TrackResultBean> trackBatch(final Fortress fortress, List<EntityInputBean> entityInputBeans) throws InterruptedException, ExecutionException, DatagioException, IOException {
         @Deprecated
         class DLCommand implements Command {
-            Iterable<MetaInputBean> headers = null;
+            Iterable<EntityInputBean> headers = null;
             Iterable<TrackResultBean> resultBeans;
 
-            DLCommand(List<MetaInputBean> processList) {
+            DLCommand(List<EntityInputBean> processList) {
                 this.headers = new CopyOnWriteArrayList<>(processList);
             }
 
@@ -189,20 +189,20 @@ public class MediationFacadeNeo4j implements MediationFacade {
                 // DLCommand and DeadLockRetry need to be removed
                 // this routine is prone to deadlocks under load
 
-                resultBeans = trackService.trackHeaders(fortress, headers);
+                resultBeans = trackService.trackEntities(fortress, headers);
                 resultBeans = logService.processLogsSync(fortress.getCompany(), resultBeans);
 
                 return this;
             }
         }
-        DLCommand dlc = new DLCommand(metaInputBeans);
+        DLCommand dlc = new DLCommand(entityInputBeans);
         DeadlockRetry.execute(dlc, "creating headers", 50);
         return dlc.resultBeans;
 
     }
 
     @Override
-    public TrackResultBean trackHeader(Company company, MetaInputBean inputBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
+    public TrackResultBean trackEntity(Company company, EntityInputBean inputBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
         Fortress fortress = fortressService.findByName(company, inputBean.getFortress());
         if (fortress == null)
             fortress = fortressService.registerFortress(company,
@@ -225,8 +225,8 @@ public class MediationFacadeNeo4j implements MediationFacade {
      * @throws IOException      json processing exception
      */
     @Override
-    public TrackResultBean trackHeader(final Fortress fortress, final MetaInputBean inputBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
-        List<MetaInputBean> inputs = new ArrayList<>(1);
+    public TrackResultBean trackHeader(final Fortress fortress, final EntityInputBean inputBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
+        List<EntityInputBean> inputs = new ArrayList<>(1);
         inputs.add(inputBean);
         Collection<TrackResultBean> results = trackHeaders(fortress, inputs, 1);
         return results.iterator().next();
@@ -236,14 +236,14 @@ public class MediationFacadeNeo4j implements MediationFacade {
     @Override
     @Transactional
     public TrackResultBean processLog(Company company, LogInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException {
-        MetaHeader metaHeader;
+        Entity entity;
         if (input.getMetaKey() != null)
-            metaHeader = trackService.getHeader(company, input.getMetaKey());
+            entity = trackService.getEntity(company, input.getMetaKey());
         else
-            metaHeader = trackService.findByCallerRef(input.getFortress(), input.getDocumentType(), input.getCallerRef());
-        if (metaHeader == null)
-            throw new DatagioException("Unable to resolve the MetaHeader");
-        return logService.writeLog(metaHeader, input);
+            entity = trackService.findByCallerRef(input.getFortress(), input.getDocumentType(), input.getCallerRef());
+        if (entity == null)
+            throw new DatagioException("Unable to resolve the Entity");
+        return logService.writeLog(entity, input);
     }
 
     /**
@@ -279,10 +279,10 @@ public class MediationFacadeNeo4j implements MediationFacade {
     }
 
     private long reindex(Fortress fortress, Long skipCount) {
-        Collection<MetaHeader> headers = trackService.getHeaders(fortress, skipCount);
+        Collection<Entity> headers = trackService.getEntities(fortress, skipCount);
         if (headers.isEmpty())
             return skipCount;
-        skipCount = reindexHeaders(fortress.getCompany(), headers, skipCount);
+        skipCount = reindexEntities(fortress.getCompany(), headers, skipCount);
         return reindex(fortress, skipCount);
     }
 
@@ -306,19 +306,19 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
     private long reindexByDocType(Long skipCount, Fortress fortress, String docType) {
 
-        Collection<MetaHeader> headers = trackService.getHeaders(fortress, docType, skipCount);
-        if (headers.isEmpty())
+        Collection<Entity> entities = trackService.getEntities(fortress, docType, skipCount);
+        if (entities.isEmpty())
             return skipCount;
-        skipCount = reindexHeaders(fortress.getCompany(), headers, skipCount);
+        skipCount = reindexEntities(fortress.getCompany(), entities, skipCount);
         return reindexByDocType(skipCount, fortress, docType);
 
     }
 
-    private Long reindexHeaders(Company company, Collection<MetaHeader> headers, Long skipCount) {
-        Collection<SearchChange> searchDocuments = new ArrayList<>(headers.size());
-        for (MetaHeader header : headers) {
-            TrackLog lastLog = trackService.getLastLog(header.getId());
-            searchDocuments.add(searchService.rebuild(company, header, lastLog));
+    private Long reindexEntities(Company company, Collection<Entity> entities, Long skipCount) {
+        Collection<SearchChange> searchDocuments = new ArrayList<>(entities.size());
+        for (Entity entity : entities) {
+            TrackLog lastLog = trackService.getLastLog(entity.getId());
+            searchDocuments.add(searchService.rebuild(company, entity, lastLog));
             skipCount++;
         }
         searchService.makeChangesSearchable(searchDocuments);
@@ -326,8 +326,8 @@ public class MediationFacadeNeo4j implements MediationFacade {
     }
 
     @Override
-    public TrackedSummaryBean getTrackedSummary(Company company, String metaKey) throws DatagioException {
-        return trackService.getMetaSummary(company, metaKey);
+    public EntitySummaryBean getEntitySummary(Company company, String metaKey) throws DatagioException {
+        return trackService.getEntitySummary(company, metaKey);
     }
 
     @Override
@@ -374,15 +374,15 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
     @Override
     @Transactional
-    public void cancelLastLog(Company company, MetaHeader metaHeader) throws IOException, DatagioException {
-        MetaSearchChange searchChange;
-        // Refresh the header
-        metaHeader = trackService.getMetaHeader(metaHeader);
-        searchChange = trackService.cancelLastLog(company, metaHeader);
+    public void cancelLastLog(Company company, Entity entity) throws IOException, DatagioException {
+        EntitySearchChange searchChange;
+        // Refresh the entity
+        entity = trackService.getEntity(entity);
+        searchChange = trackService.cancelLastLog(company, entity);
         if (searchChange != null) {
             searchService.makeChangeSearchable(searchChange);
         } else {
-            logger.info("ToDo: Delete the search document {}", metaHeader);
+            logger.info("ToDo: Delete the search document {}", entity);
         }
     }
 

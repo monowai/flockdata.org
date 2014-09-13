@@ -48,6 +48,11 @@ public class RegistrationBean {
         this.name = name;
     }
 
+    public RegistrationBean(String accessUser) {
+        this.login = accessUser;
+        this.name  = accessUser;
+    }
+
     public String getCompanyName() {
         return companyName;
     }
@@ -74,6 +79,9 @@ public class RegistrationBean {
 
     public void setCompany(Company company) {
         this.company = company;
+        if ( company != null )
+            this.companyName = company.getName();
+
     }
 
     public RegistrationBean setIsUnique(boolean mustBeUnique) {
@@ -83,5 +91,15 @@ public class RegistrationBean {
 
     public boolean isUnique() {
         return unique;
+    }
+
+    @Override
+    public String toString() {
+        return "RegistrationBean{" +
+                "companyName='" + companyName + '\'' +
+                ", company=" + company +
+                ", login='" + login + '\'' +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

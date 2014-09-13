@@ -7,11 +7,11 @@ import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.search.endpoint.ElasticSearchEP;
-import com.auditbucket.search.model.MetaSearchChange;
-import com.auditbucket.search.model.MetaSearchSchema;
+import com.auditbucket.search.model.EntitySearchChange;
+import com.auditbucket.search.model.EntitySearchSchema;
+import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.LogInputBean;
-import com.auditbucket.track.bean.MetaInputBean;
-import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.SearchChange;
 import com.auditbucket.track.model.TrackSearchDao;
 import com.auditbucket.track.model.TrackTag;
@@ -45,17 +45,17 @@ public class TestMappings extends ESBase {
     public void defaultTagQueryWorks() throws Exception {
         Map<String, Object> json = Helper.getBigJsonText(20);
 
-        // These are the minimum objects necessary to create a MetaHeader data
+        // These are the minimum objects necessary to create Entity data
         Fortress fortress = new FortressNode(new FortressInputBean("fort", false), new CompanyNode("comp")) ;
         FortressUser user = new FortressUserNode(fortress, "mikey");
         DocumentTypeNode doc = new DocumentTypeNode(fortress, fortress.getName());
 
         DateTime now = new DateTime();
-        MetaInputBean mib = getMetaInputBean(doc, user, "zzaa99", now);
+        EntityInputBean mib = getEntityInputBean(doc, user, "zzaa99", now);
 
-        MetaHeader header = new MetaHeaderNode("zzUnique", fortress, mib, doc, user);
+        Entity header = new EntityNode("zzUnique", fortress, mib, doc, user);
 
-        SearchChange change = new MetaSearchChange(header);
+        SearchChange change = new EntitySearchChange(header);
         change.setDescription("Test Description");
         change.setWhat(json);
         ArrayList<TrackTag> tags = new ArrayList<>();
@@ -89,20 +89,20 @@ public class TestMappings extends ESBase {
         DocumentTypeNode doc = new DocumentTypeNode(fortress, fortress.getName());
 
         DateTime now = new DateTime();
-        MetaInputBean mib = getMetaInputBean(doc, user, now.toString(), now);
+        EntityInputBean mib = getEntityInputBean(doc, user, now.toString(), now);
         mib.setDescription("This is a description");
 
-        MetaHeader header = new MetaHeaderNode(Long.toString(now.getMillis()), fortress, mib, doc, user);
+        Entity header = new EntityNode(Long.toString(now.getMillis()), fortress, mib, doc, user);
 
         deleteEsIndex(header.getIndexName());
 
         Map<String, Object> what = Helper.getSimpleMap(
-                  MetaSearchSchema.WHAT_CODE, "AZERTY");
-        what.put( MetaSearchSchema.WHAT_NAME, "NameText");
-        what.put( MetaSearchSchema.WHAT_DESCRIPTION, "This is a description");
+                  EntitySearchSchema.WHAT_CODE, "AZERTY");
+        what.put( EntitySearchSchema.WHAT_NAME, "NameText");
+        what.put( EntitySearchSchema.WHAT_DESCRIPTION, "This is a description");
         LogInputBean log = new LogInputBean(user.getCode(), now, what);
         mib.setLog(log);
-        SearchChange change = new MetaSearchChange(header);
+        SearchChange change = new EntitySearchChange(header);
         change.setWhat(what);
 
         SearchChange searchResult = trackRepo.update(change);
@@ -110,21 +110,21 @@ public class TestMappings extends ESBase {
         Thread.sleep(2000);
         doQuery(header.getIndexName(), "AZERTY", 1);
 
-        doTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "des", 1);
-        doTermQuery(header.getIndexName(), MetaSearchSchema.DESCRIPTION, "des", 1);
-        doTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "de", 0);
-        doTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "descripti", 1);
-        doTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "descriptio", 1);
+        doTermQuery(header.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "des", 1);
+        doTermQuery(header.getIndexName(), EntitySearchSchema.DESCRIPTION, "des", 1);
+        doTermQuery(header.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "de", 0);
+        doTermQuery(header.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "descripti", 1);
+        doTermQuery(header.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "descriptio", 1);
         // ToDo: Figure out ngram mappings
 //        doEsTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "is is a de", 1);
 
-        doTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_NAME, "name", 1);
-        doTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_NAME, "nam", 1);
-        doTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_NAME, "nametext", 1);
+        doTermQuery(header.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_NAME, "name", 1);
+        doTermQuery(header.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_NAME, "nam", 1);
+        doTermQuery(header.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_NAME, "nametext", 1);
 
-        doTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_CODE, "az", 1);
-        doTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_CODE, "azer", 1);
-        doTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_CODE, "azerty", 0);
+        doTermQuery(header.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_CODE, "az", 1);
+        doTermQuery(header.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_CODE, "azer", 1);
+        doTermQuery(header.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_CODE, "azerty", 0);
 
     }
 
@@ -132,11 +132,11 @@ public class TestMappings extends ESBase {
     @Test
     public void testCustomMappingWorks() throws Exception {
         Map<String, Object> json = Helper.getBigJsonText(20);
-        MetaHeader headerA = getMetaHeader("cust", "fort", "anyuser");
-        MetaHeader headerB = getMetaHeader("cust", "fortb", "anyuser");
+        Entity headerA = getEntity("cust", "fort", "anyuser");
+        Entity headerB = getEntity("cust", "fortb", "anyuser");
 
-        SearchChange changeA = new MetaSearchChange(headerA, json);
-        SearchChange changeB = new MetaSearchChange(headerB, json);
+        SearchChange changeA = new EntitySearchChange(headerA, json);
+        SearchChange changeB = new EntitySearchChange(headerB, json);
 
         // FortB will have
         changeA.setDescription("Test Description");
@@ -164,12 +164,12 @@ public class TestMappings extends ESBase {
     @Test
     public void sameIndexDifferentDocumentsHaveMappingApplied() throws Exception {
         Map<String, Object> json = Helper.getBigJsonText(20);
-        MetaHeader headerA = getMetaHeader("cust", "fort", "anyuser", "fortdoc");
-        MetaHeader headerB = getMetaHeader("cust", "fort", "anyuser", "doctype");
+        Entity headerA = getEntity("cust", "fort", "anyuser", "fortdoc");
+        Entity headerB = getEntity("cust", "fort", "anyuser", "doctype");
 
 
-        SearchChange changeA = new MetaSearchChange(headerA, json);
-        SearchChange changeB = new MetaSearchChange(headerB, json);
+        SearchChange changeA = new EntitySearchChange(headerA, json);
+        SearchChange changeB = new EntitySearchChange(headerB, json);
 
         TagNode tag = new TagNode(new TagInputBean("myTag", "TheLabel", "rlxname"));
         tag.setCode("my TAG");// we should be able to find this as lowercase

@@ -38,7 +38,7 @@ import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.SystemUserService;
-import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.TrackLog;
 import com.auditbucket.track.service.*;
 import org.junit.Before;
@@ -84,7 +84,7 @@ public class TestEngineBase {
     TrackService trackService;
 
 	@Autowired
-	TagTrackService tagTrackService;
+    EntityTagService entityTagService;
 
 	@Autowired
 	TrackEP trackEP;
@@ -196,14 +196,20 @@ public class TestEngineBase {
 		t.success();
 		t.close();
 	}
+    public SystemUser registerSystemUser() throws Exception{
+        return registerSystemUser(monowai, mike_admin);
+
+    }
     public SystemUser registerSystemUser(String companyName, String accessUser) throws Exception{
-//        waitAWhile(60); // Trying to avoid Heuristic exception down to the creation of a company altering indexes
         Company company = companyService.findByName(companyName);
         if ( company == null ) {
             logger.debug("Creating company {}", companyName);
             company = companyService.create(companyName);
         }
-        return regService.registerSystemUser(company, new RegistrationBean(companyName, accessUser).setIsUnique(false));
+        SystemUser su = regService.registerSystemUser(company, new RegistrationBean( accessUser).setIsUnique(false));
+//        SystemUser su = regService.registerSystemUser(company, new RegistrationBean(companyName, accessUser).setIsUnique(false));
+        logger.debug("Returning SU {}", su);
+        return su;
     }
 
 
@@ -242,8 +248,8 @@ public class TestEngineBase {
 		logger.trace(message, milliseconds / 1000d);
 	}
 
-	TrackLog waitForLogCount(Company company, MetaHeader header, int expectedCount) throws Exception {
-		// Looking for the first searchKey to be logged against the metaHeader
+	TrackLog waitForLogCount(Company company, Entity entity, int expectedCount) throws Exception {
+		// Looking for the first searchKey to be logged against the entity
 		int i = 0;
 		int timeout = 100;
         int count = 0 ;
@@ -251,7 +257,7 @@ public class TestEngineBase {
         //logger.debug("Sleep Count {}", sleepCount);
         //Thread.sleep(sleepCount); // Avoiding RELATIONSHIP[{id}] has no property with propertyKey="__type__" NotFoundException
 		while ( i <= timeout) {
-            MetaHeader updatedHeader = trackService.getHeader(company, header.getMetaKey());
+            Entity updatedHeader = trackService.getEntity(company, entity.getMetaKey());
             count = trackService.getLogCount(company, updatedHeader.getMetaKey());
 
             TrackLog log = trackService.getLastLog(company, updatedHeader.getMetaKey());
@@ -265,19 +271,19 @@ public class TestEngineBase {
 		}
 		if (i > 22)
 			logger.info("Wait for log got to [{}] for metaId [{}]", i,
-					header.getId());
+                    entity.getId());
         throw new Exception(String.format("Timeout waiting for the defined log count of %s. We found %s", expectedCount, count));
 	}
-    long waitForFirstLog(Company company, MetaHeader header) throws Exception {
-        // Looking for the first searchKey to be logged against the metaHeader
+    long waitForFirstLog(Company company, Entity source) throws Exception {
+        // Looking for the first searchKey to be logged against the entity
         long thenTime = System.currentTimeMillis();
         int i = 0;
 
-        MetaHeader metaHeader = trackService.getHeader(company, header.getMetaKey());
+        Entity entity = trackService.getEntity(company, source.getMetaKey());
 
         int timeout = 100;
         while ( i <= timeout) {
-            TrackLog log = trackService.getLastLog(company, metaHeader.getMetaKey());
+            TrackLog log = trackService.getLastLog(company, entity.getMetaKey());
             if (log != null )
                 return i;
             Thread.yield();
@@ -287,7 +293,7 @@ public class TestEngineBase {
         }
         if (i > 22)
             logger.info("Wait for log got to [{}] for metaId [{}]", i,
-                    metaHeader.getId());
+                    entity.getId());
         return System.currentTimeMillis() - thenTime;
     }
 

@@ -20,15 +20,14 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.LogResultBean;
-import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
+import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.Log;
-import com.auditbucket.track.model.MetaHeader;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -72,10 +71,10 @@ public class TestTxReference extends TestEngineBase{
 
 // ABC Data
         Fortress fortressABC = fortressService.registerFortress("abcTest");
-        MetaInputBean abcHeader = new MetaInputBean(fortressABC.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
+        EntityInputBean abcHeader = new EntityInputBean(fortressABC.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         abcHeader.setLog(new LogInputBean("charlie", null, DateTime.now(), escJsonA, true));
 
-        TrackResultBean resultBean = mediationFacade.trackHeader(suABC.getCompany(), abcHeader);
+        TrackResultBean resultBean = mediationFacade.trackEntity(suABC.getCompany(), abcHeader);
         LogResultBean logResultBean = resultBean.getLogResult();
         assertNotNull(logResultBean);
         String abcTxRef = logResultBean.getTxReference();
@@ -84,8 +83,8 @@ public class TestTxReference extends TestEngineBase{
 // CBA data
         SecurityContextHolder.getContext().setAuthentication(authCBA);
         Fortress fortressCBA = fortressService.registerFortress("cbaTest");
-        MetaInputBean cbaHeader = new MetaInputBean(fortressCBA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
-        String cbaKey = mediationFacade.trackHeader(suCBA.getCompany(), cbaHeader).getMetaKey();
+        EntityInputBean cbaHeader = new EntityInputBean(fortressCBA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
+        String cbaKey = mediationFacade.trackEntity(suCBA.getCompany(), cbaHeader).getMetaKey();
 
         LogInputBean cbaLog = new LogInputBean("charlie", cbaKey, DateTime.now(), escJsonA, true);
         assertEquals("CBA Log Not Created", LogInputBean.LogStatus.OK, mediationFacade.processLog(suCBA.getCompany(), cbaLog).getLogResult().getStatus());
@@ -102,9 +101,9 @@ public class TestTxReference extends TestEngineBase{
         assertNull(txService.findTx(cbaTxRef));
 
         // WHat happens if ABC tries to use CBA's TX Ref.
-        abcHeader = new MetaInputBean(fortressABC.getName(), "wally", "TestTrack", new DateTime(), "ZZZAAA");
+        abcHeader = new EntityInputBean(fortressABC.getName(), "wally", "TestTrack", new DateTime(), "ZZZAAA");
         abcHeader.setLog(new LogInputBean("wally", null, DateTime.now(), escJsonA, null, cbaTxRef));
-        TrackResultBean result = mediationFacade.trackHeader(suABC.getCompany(), abcHeader);
+        TrackResultBean result = mediationFacade.trackEntity(suABC.getCompany(), abcHeader);
         assertNotNull(result);
         // It works because TX References have only to be unique for a company
         //      ab generated references are GUIDs, but the caller is allowed to define their own transaction
@@ -119,13 +118,13 @@ public class TestTxReference extends TestEngineBase{
         SystemUser su = registerSystemUser(company, mike_admin);
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("auditTest", true));
         String tagRef = "MyTXTag";
-        MetaInputBean aBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
+        EntityInputBean aBean = new EntityInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
 
-        String key = mediationFacade.trackHeader(su.getCompany(), aBean).getMetaKey();
+        String key = mediationFacade.trackEntity(su.getCompany(), aBean).getMetaKey();
         assertNotNull(key);
-        MetaHeader header = trackService.getHeader(key);
-        assertNotNull(header);
-        //assertEquals(1, header.getTxTags().size());
+        Entity entity = trackService.getEntity(key);
+        assertNotNull(entity);
+        //assertEquals(1, entity.getTxTags().size());
         LogInputBean alb = new LogInputBean("charlie", key, DateTime.now(), escJsonA, null, tagRef);
         assertTrue(alb.isTransactional());
         String albTxRef = mediationFacade.processLog(su.getCompany(), alb).getLogResult().getTxReference();
@@ -179,11 +178,11 @@ public class TestTxReference extends TestEngineBase{
         SystemUser su = registerSystemUser(company, mike_admin);
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("auditTest", true));
         String tagRef = "MyTXTag";
-        MetaInputBean aBean = new MetaInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
+        EntityInputBean aBean = new EntityInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
 
-        String key = mediationFacade.trackHeader(su.getCompany(), aBean).getMetaKey();
+        String key = mediationFacade.trackEntity(su.getCompany(), aBean).getMetaKey();
         assertNotNull(key);
-        MetaHeader header = trackService.getHeader(key);
+        Entity header = trackService.getEntity(key);
         assertNotNull(header);
         LogInputBean alb = new LogInputBean("charlie", key, DateTime.now(), escJsonA, null, tagRef);
         assertTrue(alb.isTransactional());
@@ -196,12 +195,12 @@ public class TestTxReference extends TestEngineBase{
 
         mediationFacade.processLog(su.getCompany(), alb);
         // All headers touched by this transaction. ToDo: All changes affected
-        Set<MetaHeader> result = txService.findTxHeaders(txStart);
+        Set<Entity> result = txService.findTxHeaders(txStart);
         assertNotNull(result);
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
-        for (MetaHeader metaHeader : result) {
-            assertNotNull(metaHeader.getMetaKey());
+        for (Entity entity : result) {
+            assertNotNull(entity.getMetaKey());
         }
 
 

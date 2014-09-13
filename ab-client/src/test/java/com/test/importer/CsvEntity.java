@@ -1,14 +1,14 @@
 package com.test.importer;
 
 import com.auditbucket.client.Importer;
-import com.auditbucket.client.common.CsvTrackMapper;
+import com.auditbucket.client.common.CsvEntityMapper;
 import com.auditbucket.client.common.DelimitedMappable;
 import com.auditbucket.client.common.ImportParams;
 import com.auditbucket.client.csv.CsvColumnHelper;
 import com.auditbucket.client.rest.IStaticDataResolver;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.TagInputBean;
-import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.bean.EntityInputBean;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -24,9 +24,9 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
  * Date: 8/05/14
  * Time: 11:29 AM
  */
-public class CSVThing {
+public class CsvEntity {
     @Test
-    public void headerRow() throws Exception {
+    public void entityRow() throws Exception {
         ImportParams params = Importer.getImportParams("/csvtest.json", null);
         params.setStaticDataResolver(new IStaticDataResolver() {
             @Override
@@ -39,7 +39,7 @@ public class CSVThing {
                 return null;
             }
         });
-        CsvTrackMapper mapper = new CsvTrackMapper(params);
+        CsvEntityMapper mapper = new CsvEntityMapper(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"Title", "Tag", "TagVal", "ValTag", "Origin", "Year", "Gold Medals"};
         String[] data = new String[]{"TitleTests", "TagName", "Gold", "8", "New Zealand", "2008", "12"};
@@ -54,33 +54,47 @@ public class CSVThing {
 
         assertEquals(data[0], mapper.getCallerRef());
         List<TagInputBean> tags = mapper.getTags();
-        assertEquals(5, tags.size());
-        //assertEquals(true, tags.contains("Gold Medals"));
+        int tagsFound = 0;
+        boolean callerRefFoundAsATag = false;
         for (TagInputBean tag : tags) {
+
             switch (tag.getName()) {
                 case "Gold Medals":
-                    Object o = tag.getMetaLinks().get("2008");
+                    Object o = tag.getEntityLinks().get("2008");
                     assertNotNull(o);
                     assertEquals(12, ((Map) o).get("value"));
+                    tagsFound ++;
                     break;
                 case "TagName":
                     assertEquals("TagName", tag.getCode());
+                    tagsFound ++;
                     break;
                 case "Gold":
                     assertEquals(true, tag.isMustExist());
+                    tagsFound ++;
                     break;
                 case "ValTag":
-                    assertNotNull(tag.getMetaLinks().get("undefined"));
-                    assertEquals(1, tag.getMetaLinks().size());
+                    assertNotNull(tag.getEntityLinks().get("undefined"));
+                    assertEquals(1, tag.getEntityLinks().size());
                     assertEquals("ValTag", tag.getName());
-                    assertEquals("ValTag", tag.getIndex());
-                    assertEquals(8, ((Map) tag.getMetaLinks().get("undefined")).get("value"));
+                    assertEquals("ValTag", tag.getLabel());
+                    assertEquals(8, ((Map) tag.getEntityLinks().get("undefined")).get("value"));
+                    tagsFound ++;
                     break;
                 case "New Zealand":
-                    assertEquals("Country", tag.getIndex());
+                    assertEquals("Country", tag.getLabel());
+                    tagsFound ++;
+                    break;
+                case "TitleTests":
+                    callerRefFoundAsATag = true;
+                    assertEquals("TitleTests", tag.getName());
+                    tagsFound ++;
+                    break;
 
             }
         }
+        assertTrue("The callerRef was flagged as a tag but not found", callerRefFoundAsATag);
+        assertSame(tags.size(), tagsFound);
     }
 
     @Test
@@ -91,10 +105,11 @@ public class CSVThing {
         ImportParams params = Importer.getImportParams("/csvtest.json", null);
         CsvColumnHelper columnHelper = new CsvColumnHelper(headers[0], data[0], params.getColumnDef(headers[0]));
         assertTrue("CallerRef was wrong", columnHelper.isCallerRef());
+        assertTrue("CallerRef was wrong", columnHelper.isTag());
         assertTrue("Title was wrong", columnHelper.isTitle());
         assertEquals("Title", columnHelper.getKey());
         assertEquals(data[0], columnHelper.getValue());
-        assertFalse("Shouldn't be a tag", columnHelper.isTag());
+
 
         columnHelper = new CsvColumnHelper(headers[1], data[1], params.getColumnDef(headers[1]));
         assertTrue("Should be a tag", columnHelper.isTag());
@@ -154,31 +169,31 @@ public class CSVThing {
         String[] headers = {"Athlete", "Age", "Country", "Year", "Sport", "Gold Medals", "Silver Medals", "Bronze Medals"};
         String[] values = {"Michael Phelps", "23", "United States", "2008", "Swimming", "8", "0", "0", "8"};
         DelimitedMappable row = (DelimitedMappable) params.getMappable();
-        MetaInputBean header = (MetaInputBean) row;
+        EntityInputBean header = (EntityInputBean) row;
         row.setData(headers, values, params);
         assertEquals(values[0] + "." + values[3], header.getCallerRef());
         boolean goldTag = false, athleteTag = false, sportTag = false, countryTag = false;
         assertEquals("Silver and Bronze medal values are 0 so should not be included", 5, header.getTags().size());
         for (TagInputBean tagInputBean : header.getTags()) {
             if (tagInputBean.getName().equals("Gold Medals")) {
-                assertEquals("Gold Medals", tagInputBean.getIndex());
-                Object o = tagInputBean.getMetaLinks().get("competed");
+                assertEquals("Gold Medals", tagInputBean.getLabel());
+                Object o = tagInputBean.getEntityLinks().get("competed");
                 assertNotNull("Custom relationship name not working", o);
                 assertEquals(8, ((HashMap) o).get("value"));
                 goldTag = true;
             }
             if (tagInputBean.getName().equals("Michael Phelps")) {
-                assertNotNull("Custom relationship name not working", tagInputBean.getMetaLinks().containsKey("won"));
-                assertEquals("Athlete", tagInputBean.getIndex());
+                assertNotNull("Custom relationship name not working", tagInputBean.getEntityLinks().containsKey("won"));
+                assertEquals("Athlete", tagInputBean.getLabel());
                 athleteTag = true;
             }
             if (tagInputBean.getName().equals("Swimming")) {
-                assertNotNull("Default relationship name not working", tagInputBean.getMetaLinks().containsKey("undefined"));
-                assertEquals("Sport", tagInputBean.getIndex());
+                assertNotNull("Default relationship name not working", tagInputBean.getEntityLinks().containsKey("undefined"));
+                assertEquals("Sport", tagInputBean.getLabel());
                 sportTag = true;
             }
             if (tagInputBean.getName().equals("United States")) {
-                assertNotNull("Default relationship name not working", tagInputBean.getMetaLinks().containsKey("Country"));
+                assertNotNull("Default relationship name not working", tagInputBean.getEntityLinks().containsKey("Country"));
                 countryTag = true;
             }
             if (tagInputBean.getName().equals("Sport")) {
@@ -186,7 +201,7 @@ public class CSVThing {
                 TagInputBean athlete = tagInputBean.getTargets().get("competes-in").iterator().next();
                 assertNotNull(athlete);
                 assertEquals("Michael Phelps", athlete.getName());
-                assertEquals("Athlete", athlete.getIndex());
+                assertEquals("Athlete", athlete.getLabel());
                 assertTrue("Direction not reversed", athlete.isReverse());
             }
 
@@ -195,7 +210,7 @@ public class CSVThing {
                 TagInputBean athlete = tagInputBean.getTargets().get("at-age").iterator().next();
                 assertNotNull(athlete);
                 assertEquals("Michael Phelps", athlete.getName());
-                assertEquals("Athlete", athlete.getIndex());
+                assertEquals("Athlete", athlete.getLabel());
                 assertFalse("Direction not defaulted", athlete.isReverse());
             }
 
@@ -221,7 +236,7 @@ public class CSVThing {
                 return null;
             }
         });
-        CsvTrackMapper mapper = new CsvTrackMapper(params);
+        CsvEntityMapper mapper = new CsvEntityMapper(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"transaction_id", "zip", "state", "city", "country"};
         String[] data = new String[]{"1", "123", "CA", "San Francisco", "United States"};
@@ -233,7 +248,7 @@ public class CSVThing {
 
         TagInputBean zipTag = tags.iterator().next();
         assertEquals("123", zipTag.getName());
-        assertEquals("ZipCode", zipTag.getIndex());
+        assertEquals("ZipCode", zipTag.getLabel());
 
         Map<String, Collection<TagInputBean>> locatedTags = zipTag.getTargets();
         assertEquals(1, locatedTags.size());
@@ -241,7 +256,7 @@ public class CSVThing {
         TagInputBean cityTag = locatedTags.get("located").iterator().next();
         assertNotNull(cityTag);
         assertEquals("San Francisco", cityTag.getName());
-        assertEquals("City", cityTag.getIndex());
+        assertEquals("City", cityTag.getLabel());
 
         Map<String, Collection<TagInputBean>> stateTags = cityTag.getTargets();
         assertEquals(1, stateTags.size());

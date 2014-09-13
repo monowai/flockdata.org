@@ -20,16 +20,14 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.authentication.handler.ApiKeyInterceptor;
-import com.auditbucket.helper.JsonUtils;
 import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.test.endpoint.EngineEndPoints;
 import com.auditbucket.test.utils.TestHelper;
+import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.LogInputBean;
-import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -38,7 +36,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -72,22 +69,22 @@ public class TestAdminCalls extends TestEngineBase {
 
         SystemUser su = registerSystemUser(monowai, mike_admin);
         Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
-        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
+        EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
 
         TagInputBean tagInputBean = new TagInputBean("DeleteTest", "NamedTag", "deltest");
         inputBean.addTag(tagInputBean);
 
 
-        TrackResultBean resultBean = mediationFacade.trackHeader(su.getCompany(), inputBean);
+        TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         String ahKey = resultBean.getMetaKey();
 
         assertNotNull(ahKey);
-        assertNotNull(trackService.getHeader(ahKey));
+        assertNotNull(trackService.getEntity(ahKey));
 
-        inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
+        inputBean = new EntityInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
         inputBean.addTag(tagInputBean);
 
-        mediationFacade.trackHeader(su.getCompany(), inputBean);
+        mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         SecurityContextHolder.getContext().setAuthentication(null);
         // Assert that unauthorised user can't purge a fortress
@@ -99,7 +96,7 @@ public class TestAdminCalls extends TestEngineBase {
         }
         setSecurity();
         adminEP.purgeFortress(fo.getName(), null, null);
-        assertNull(trackService.getHeader(ahKey));
+        assertNull(trackService.getEntity(ahKey));
         assertNull(fortressService.findByName(fo.getName()));
     }
 
@@ -108,13 +105,13 @@ public class TestAdminCalls extends TestEngineBase {
 
         SystemUser su = registerSystemUser(monowai, mike_admin);
         Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
-        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
+        EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
 
-        TrackResultBean resultBean = mediationFacade.trackHeader(su.getCompany(), inputBean);
+        TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         String ahKey = resultBean.getMetaKey();
 
         assertNotNull(ahKey);
-        assertNotNull(trackService.getHeader(ahKey));
+        assertNotNull(trackService.getEntity(ahKey));
 
         mediationFacade.processLog(su.getCompany(), new LogInputBean("wally", ahKey, new DateTime(), TestHelper.getRandomMap()));
         mediationFacade.processLog(su.getCompany(), new LogInputBean("wally", ahKey, new DateTime(), TestHelper.getRandomMap()));
@@ -131,7 +128,7 @@ public class TestAdminCalls extends TestEngineBase {
         }
         setSecurity();
         adminEP.purgeFortress(fo.getName(), su.getApiKey(), su.getApiKey());
-        assertNull(trackService.getHeader(ahKey));
+        assertNull(trackService.getEntity(ahKey));
         assertNull(fortressService.findByName(fo.getName()));
     }
 
@@ -140,15 +137,15 @@ public class TestAdminCalls extends TestEngineBase {
 
         SystemUser su = registerSystemUser(monowai, mike_admin);
         Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
-        MetaInputBean inputBean = new MetaInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
+        EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
         TagInputBean tagInputBean = new TagInputBean("DeleteTest", "NamedTag", "deltest");
         inputBean.addTag(tagInputBean);
 
-        TrackResultBean resultBean = mediationFacade.trackHeader(su.getCompany(), inputBean);
+        TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         String ahKey = resultBean.getMetaKey();
 
         assertNotNull(ahKey);
-        assertNotNull(trackService.getHeader(ahKey));
+        assertNotNull(trackService.getEntity(ahKey));
 
         mediationFacade.processLog(su.getCompany(), new LogInputBean("wally", ahKey, new DateTime(), TestHelper.getRandomMap()));
 
@@ -167,7 +164,7 @@ public class TestAdminCalls extends TestEngineBase {
         }
         setSecurity();
         adminEP.purgeFortress(fo.getName(), su.getApiKey(), su.getApiKey());
-        assertNull(trackService.getHeader(ahKey));
+        assertNull(trackService.getEntity(ahKey));
         assertNull(fortressService.findByName(fo.getName()));
 
 
@@ -179,22 +176,22 @@ public class TestAdminCalls extends TestEngineBase {
         SystemUser su = registerSystemUser(monowai, mike_admin);
         Fortress fortress = fortressService.registerFortress(new FortressInputBean("purgeFortressClearsDown", true));
 
-        MetaInputBean trackBean = new MetaInputBean(fortress.getName(), "olivia@ast.com", "CompanyNode", null, "abc2");
+        EntityInputBean trackBean = new EntityInputBean(fortress.getName(), "olivia@ast.com", "CompanyNode", null, "abc2");
         trackBean.addTag(new TagInputBean("anyName", "rlx"));
         trackBean.addTag(new TagInputBean("otherName", "rlxValue").setReverse(true));
         LogInputBean logBean = new LogInputBean("me", DateTime.now(), TestHelper.getRandomMap());
         trackBean.setLog(logBean);
-        String resultA = mediationFacade.trackHeader(su.getCompany(), trackBean).getMetaKey();
+        String resultA = mediationFacade.trackEntity(su.getCompany(), trackBean).getMetaKey();
 
         assertNotNull(resultA);
 
-        trackBean = new MetaInputBean(fortress.getName(), "olivia@ast.com", "CompanyNode", null, "abc3");
+        trackBean = new EntityInputBean(fortress.getName(), "olivia@ast.com", "CompanyNode", null, "abc3");
         trackBean.addTag(new TagInputBean("anyName", "rlx"));
         trackBean.addTag(new TagInputBean("otherName", "rlxValue").setReverse(true));
         logBean = new LogInputBean("me", DateTime.now(), TestHelper.getRandomMap());
         trackBean.setLog(logBean);
 
-        String resultB = mediationFacade.trackHeader(su.getCompany(), trackBean).getMetaKey();
+        String resultB = mediationFacade.trackEntity(su.getCompany(), trackBean).getMetaKey();
 
         Collection<String> others = new ArrayList<>();
         others.add(resultB);
@@ -205,8 +202,8 @@ public class TestAdminCalls extends TestEngineBase {
         trackEP.putCrossReference(resultB, others, "rlxNameB", su.getApiKey(), su.getApiKey());
 
         mediationFacade.purge(fortress.getName(), su.getApiKey());
-        assertNull(trackService.getHeader(resultA));
-        assertNull(trackService.getHeader(resultB));
+        assertNull(trackService.getEntity(resultA));
+        assertNull(trackService.getEntity(resultB));
 
     }
 

@@ -28,6 +28,8 @@ import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.KeyGenService;
 import com.auditbucket.registration.service.SystemUserService;
 import com.auditbucket.track.service.SchemaService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,7 +53,7 @@ public class RegistrationServiceNeo4j implements com.auditbucket.registration.se
     private SecurityHelper securityHelper;
 
     public static SystemUser GUEST = new SystemUserNode("Guest", null, null, false);
-
+    private Logger logger = LoggerFactory.getLogger(RegistrationServiceNeo4j.class);
 
     @Override
     @Transactional
@@ -60,6 +62,7 @@ public class RegistrationServiceNeo4j implements com.auditbucket.registration.se
         SystemUser systemUser = systemUserService.findByLogin(regBean.getLogin());
 
         if (systemUser != null) {
+            logger.debug("Returning existing SU {}", systemUser);
             return systemUser;
         }
 
@@ -84,7 +87,7 @@ public class RegistrationServiceNeo4j implements com.auditbucket.registration.se
 
     @Transactional
     public SystemUser makeSystemUser(RegistrationBean regBean) {
-
+        logger.debug("Creating new system user {}",regBean);
         return systemUserService.save(regBean);
 
 

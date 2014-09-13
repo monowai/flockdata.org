@@ -49,7 +49,7 @@ public class CsvHelper {
             }
 
             newTag = new TagInputBean(value.toString())
-                    .setIndex(csvTag.getIndex());
+                    .setLabel(csvTag.getLabel());
             newTag.setReverse(csvTag.getReverse());
             newTag.setMustExist(csvTag.getMustExist());
             setInTo.setTargets(csvTag.getRelationship(), newTag);

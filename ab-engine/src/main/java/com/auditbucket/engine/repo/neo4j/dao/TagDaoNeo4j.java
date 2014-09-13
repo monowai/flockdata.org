@@ -92,12 +92,12 @@ public class TagDaoNeo4j {
 
     public Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> createdValues, boolean suppressRelationships) {
         // Check exists
-        TagNode existingTag = (TagNode) findOne(company, (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()), tagInput.getIndex());
+        TagNode existingTag = (TagNode) findOne(company, (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()), tagInput.getLabel());
         Node start;
         if (existingTag == null) {
             if (tagInput.isMustExist()) {
-                tagInput.getServiceMessage("Tag [" + tagInput + "] should exist for [" + tagInput.getIndex() + "] but doesn't. Ignoring this request.");
-                throw new DatagioTagException("Tag [" + tagInput + "] should exist for [" + tagInput.getIndex() + "] but doesn't. Ignoring this request.");
+                tagInput.getServiceMessage("Tag [" + tagInput + "] should exist for [" + tagInput.getLabel() + "] but doesn't. Ignoring this request.");
+                throw new DatagioTagException("Tag [" + tagInput + "] should exist for [" + tagInput.getLabel() + "] but doesn't. Ignoring this request.");
             } else
                 start = createTag(company, tagInput, tagSuffix);
         } else {
@@ -124,8 +124,8 @@ public class TagDaoNeo4j {
         if (tagInput.isDefault())
             tagLabel = Tag.DEFAULT + tagLabel;
         else {
-            schemaDao.registerTag(company, tagInput.getIndex());
-            tagLabel = ":`" + tagInput.getIndex() + "` " + Tag.DEFAULT + tagLabel;
+            schemaDao.registerTag(company, tagInput.getLabel());
+            tagLabel = ":`" + tagInput.getLabel() + "` " + Tag.DEFAULT + tagLabel;
         }
 
         // ToDo: Multi-tenanted custom tagInputs?

@@ -19,7 +19,6 @@
 
 package com.auditbucket.search.model;
 
-import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.SearchChange;
 
 import java.util.Map;
@@ -33,7 +32,7 @@ import java.util.Map;
 public class SearchResult {
 
 
-    // ToDo: Normalize with MetaHeaderResult
+    // ToDo: Normalize with Entity
     private String metaKey, fortress, searchKey, documentType;
     private Long logId;
     private Long metaId;
@@ -74,7 +73,7 @@ public class SearchResult {
 
     public SearchResult(SearchChange thisChange) {
         this();
-        this.metaId = thisChange.getMetaId();
+        this.metaId = thisChange.getEntityId();
         this.fortress = thisChange.getFortressName();
         this.searchKey = thisChange.getSearchKey();
         this.documentType = thisChange.getDocumentType();

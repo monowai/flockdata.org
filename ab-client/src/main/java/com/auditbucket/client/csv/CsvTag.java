@@ -12,7 +12,7 @@ public class CsvTag {
     private String name;
     private Boolean reverse =false;
     private String relationship;
-    private String index;
+    private String label;
     private ArrayList<CsvTag> targets;
     private boolean mustExist;
 
@@ -51,14 +51,14 @@ public class CsvTag {
      *
      * @return The label node that will be created. Reverts to the column name if not defined
      */
-    public String getIndex() {
-        if ( index == null)
+    public String getLabel() {
+        if ( label == null)
             return column;
-        return index;
+        return label;
     }
 
-    public void setIndex(String index) {
-        this.index = index;
+    public void setLabel(String label) {
+        this.label = label;
     }
 
     public ArrayList<CsvTag> getTargets() {
@@ -74,7 +74,7 @@ public class CsvTag {
         return "CsvTag{" +
                 "column='" + column + '\'' +
                 ", relationship='" + relationship + '\'' +
-                ", index='" + index + '\'' +
+                ", label='" + label + '\'' +
                 '}';
     }
 

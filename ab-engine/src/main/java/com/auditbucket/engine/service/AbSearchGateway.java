@@ -19,10 +19,10 @@
 
 package com.auditbucket.engine.service;
 
+import com.auditbucket.search.model.EntitySearchChanges;
 import com.auditbucket.search.model.EsSearchResult;
-import com.auditbucket.search.model.MetaSearchChanges;
 import com.auditbucket.search.model.QueryParams;
-import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.Entity;
 import org.springframework.integration.annotation.Gateway;
 
 /**
@@ -34,17 +34,17 @@ import org.springframework.integration.annotation.Gateway;
 public interface AbSearchGateway {
 
     @Gateway(requestChannel = "sendRequest")
-    public void makeSearchChanges(MetaSearchChanges searchChanges);
+    public void makeSearchChanges(EntitySearchChanges searchChanges);
 
     @Gateway(requestChannel = "sendSearchRequest", replyChannel = "sendSearchReply")
 
     public EsSearchResult search(QueryParams queryParams);
 
-    public void delete(MetaHeader metaHeader, String searchKey);
+    public void delete(Entity entity, String searchKey);
 
-    public byte[] findOne(MetaHeader metaHeader, String searchKey);
+    public byte[] findOne(Entity entity, String searchKey);
 
-    public byte[] findOne(MetaHeader metaHeader);
+    public byte[] findOne(Entity entity);
 
     public Long getHitCount(String s);
 

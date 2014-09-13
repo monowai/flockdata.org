@@ -25,10 +25,10 @@ import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.test.functional.TestEngineBase;
+import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.LogInputBean;
-import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.LogWhat;
-import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -113,11 +113,11 @@ public class KvServiceTest extends TestEngineBase {
         Fortress fortressA = fortressService.registerFortress(new FortressInputBean("Audit Test", true));
         String docType = "TestAuditX";
         String callerRef = "ABC123R";
-        MetaInputBean inputBean = new MetaInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
+        EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
 
-        String ahKey = mediationFacade.trackHeader(su.getCompany(), inputBean).getMetaKey();
+        String ahKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey();
         assertNotNull(ahKey);
-        MetaHeader header = trackService.getHeader(ahKey);
+        Entity entity = trackService.getEntity(su.getCompany(), ahKey, true);
         Map<String, Object> what = getWhatMap();
         //String whatString = getJsonFromObject(what);
         try{
@@ -126,23 +126,23 @@ public class KvServiceTest extends TestEngineBase {
             logger.error("KV Stores are configured in config.properties. This test is failing to find the {} server. Is it even installed?",engineConfig.getKvStore());
             return;
         }
-        TrackLog trackLog = trackService.getLastLog(header.getId());
+        TrackLog trackLog = trackService.getLastLog(entity.getId());
         assertNotNull(trackLog);
 
         //When
         try {
-            LogWhat logWhat = kvService.getWhat(header, trackLog.getLog());
+            LogWhat logWhat = kvService.getWhat(entity, trackLog.getLog());
 
             Assert.assertNotNull(logWhat);
             // Redis should always be available. RIAK is trickier to install
             if ( engineConfig.getKvStore().equals(com.auditbucket.kv.service.KvService.KV_STORE.REDIS)||logWhat.getWhat().keySet().size()>1 ){
                 validateWhat(what, logWhat);
 
-                Assert.assertTrue(kvService.isSame(header, trackLog.getLog(), what));
+                Assert.assertTrue(kvService.isSame(entity, trackLog.getLog(), what));
                 // Testing that cancel works
-                trackService.cancelLastLog(fortressA.getCompany(), header);
-                Assert.assertNull(logService.getLastLog(header));
-                Assert.assertNull(kvService.getWhat(header, trackLog.getLog()).getWhatString());
+                trackService.cancelLastLog(fortressA.getCompany(), entity);
+                Assert.assertNull(logService.getLastLog(entity));
+                Assert.assertNull(kvService.getWhat(entity, trackLog.getLog()).getWhatString());
                 Assert.assertTrue(kvService.isSame(logWhat.getWhatString(), what));
             } else {
                 // ToDo: Mock RIAK

@@ -20,8 +20,8 @@
 package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.registration.model.Tag;
+import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.GeoData;
-import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackTag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -51,14 +51,14 @@ public class TrackTagRelationship implements TrackTag, Comparable {
      * For non-persistent relationship. If caller is not tracking in the graph, then this
      * constructor can be used to create header data suitable for writing to search
      *
-     * @param header       Header object
+     * @param entity       Entity object
      * @param tag          Tag object
      * @param relationship Name of the relationship
      * @param propMap      Relationship properties
      */
-    public TrackTagRelationship(MetaHeader header, Tag tag, String relationship, Map<String, Object> propMap) {
+    public TrackTagRelationship(Entity entity, Tag tag, String relationship, Map<String, Object> propMap) {
         this();
-        this.primaryKey = header.getId();
+        this.primaryKey = entity.getId();
         this.tag = tag;
         this.tagType = relationship;
         this.id = System.currentTimeMillis() + relationship.hashCode(); // random...

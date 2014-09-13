@@ -19,13 +19,12 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.test.utils.TestHelper;
 import com.auditbucket.track.bean.AuditDeltaBean;
+import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.LogInputBean;
-import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.TrackLog;
 import junit.framework.Assert;
@@ -68,19 +67,19 @@ public class TestDelta extends TestEngineBase {
         values.add(3);
         jsonB.put("list", values);
 
-        MetaInputBean header = new MetaInputBean("DELTAForce", "auditTestz", "Delta", new DateTime(), "abdelta");
+        EntityInputBean entity = new EntityInputBean("DELTAForce", "auditTestz", "Delta", new DateTime(), "abdelta");
         LogInputBean log = new LogInputBean("Mike", new DateTime(), jsonA);
-        header.setLog(log);
-        TrackResultBean result = mediationFacade.trackHeader(su.getCompany(), header);
-        TrackLog first = logService.getLastLog(result.getMetaHeader());
+        entity.setLog(log);
+        TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entity);
+        TrackLog first = logService.getLastLog(result.getEntity());
         Assert.assertNotNull(first);
         log = new LogInputBean("Mike", result.getMetaKey(), new DateTime(), jsonB);
         mediationFacade.processLog(su.getCompany(), log);
-        TrackLog second = logService.getLastLog(result.getMetaHeader());
+        TrackLog second = logService.getLastLog(result.getEntity());
         Assert.assertNotNull(second);
 
 
-        AuditDeltaBean deltaBean = kvService.getDelta(result.getMetaHeader(), first.getLog(), second.getLog());
+        AuditDeltaBean deltaBean = kvService.getDelta(result.getEntity(), first.getLog(), second.getLog());
         Map added = deltaBean.getAdded();
         Assert.assertNotNull(added);
         assertTrue(added.containsKey("list"));

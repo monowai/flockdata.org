@@ -22,8 +22,8 @@ package com.auditbucket.dao;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
+import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.Log;
-import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackTag;
 
 import java.util.Collection;
@@ -40,34 +40,34 @@ public interface TrackTagDao {
     // Property that refers to when this relationship was introduced to AB
     String AB_WHEN = "abWhen";
 
-    TrackTag save(MetaHeader metaHeader, Tag tag, String relationshipName);
+    TrackTag save(Entity entity, Tag tag, String relationshipName);
 
-    TrackTag save(MetaHeader ah, Tag tag, String metaLink, boolean reverse);
+    TrackTag save(Entity ah, Tag tag, String metaLink, boolean reverse);
 
-    TrackTag save(MetaHeader ah, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap);
+    TrackTag save(Entity ah, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap);
 
-    Boolean relationshipExists(MetaHeader metaHeader, Tag tag, String relationshipName);
+    Boolean relationshipExists(Entity entity, Tag tag, String relationshipName);
 
     /**
      * Track Tags that are in either direction
      *
      * @param company    validated company
-     * @param metaHeader header the caller is authorised to work with
+     * @param entity header the caller is authorised to work with
      * @return           all TrackTags for the company in both directions
      */
-    Set<TrackTag> getMetaTrackTags(Company company, MetaHeader metaHeader);
+    Set<TrackTag> getMetaTrackTags(Company company, Entity entity);
 
-    Set<TrackTag> getDirectedMetaTags(Company company, MetaHeader metaHeader, boolean outbound);
+    Set<TrackTag> getDirectedMetaTags(Company company, Entity entity, boolean outbound);
 
     Set<TrackTag> findLogTags(Company company, Log log) ;
 
-    void changeType(MetaHeader metaHeader, TrackTag existingTag, String newType);
+    void changeType(Entity entity, TrackTag existingTag, String newType);
 
-    Set<MetaHeader> findTrackTags(Tag tag);
+    Set<Entity> findTrackTags(Tag tag);
 
-    void moveTags(MetaHeader metaHeader, Log log, Collection<TrackTag> trackTag);
+    void moveTags(Entity entity, Log log, Collection<TrackTag> trackTag);
 
-    void deleteTrackTags(MetaHeader metaHeader, Collection<TrackTag> trackTags) throws DatagioException;
+    void deleteTrackTags(Entity entity, Collection<TrackTag> trackTags) throws DatagioException;
 
-    void moveTags(Company company, Log logToMoveFrom, MetaHeader metaHeader);
+    void moveTags(Company company, Log logToMoveFrom, Entity entity);
 }

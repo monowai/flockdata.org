@@ -26,7 +26,7 @@ import com.auditbucket.registration.model.Fortress;
  * User: Mike Holdsworth
  * Since: 5/09/13
  */
-public class MetaSearchSchema {
+public class EntitySearchSchema {
     // Storage schema used in a Search Document
     public static final String WHAT = "@what";
     public static final String WHEN = "@when";
@@ -40,7 +40,7 @@ public class MetaSearchSchema {
     public static final String LAST_EVENT = "@lastEvent";
     public static final String WHO = "@who";
     public static final String META_KEY = "@metaKey";
-    public static String CREATED = "@whenCreated"; // Date the document was first created in the Fortress
+    public static final String CREATED = "@whenCreated"; // Date the document was first created in the Fortress
 
     public static final String WHAT_CODE = "code";
     public static final String WHAT_NAME = "name";

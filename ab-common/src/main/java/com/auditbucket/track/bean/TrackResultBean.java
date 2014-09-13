@@ -19,7 +19,7 @@
 
 package com.auditbucket.track.bean;
 
-import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.TrackTag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -39,9 +39,9 @@ public class TrackResultBean {
     private String metaKey;
     private LogResultBean logResult;
     private LogInputBean log;
-    private MetaHeader metaHeader;
+    private Entity entity;
     private Collection<TrackTag> tags;
-    private MetaInputBean metaInputBean;
+    private EntityInputBean entityInputBean;
 
     protected TrackResultBean() {
     }
@@ -63,22 +63,22 @@ public class TrackResultBean {
 
     }
 
-    public TrackResultBean(MetaHeader input) {
+    public TrackResultBean(Entity input) {
         this(input.getFortress().getName(), input.getDocumentType(), input.getCallerRef(), input.getMetaKey());
         this.metaId = input.getId();
-        this.metaHeader = input;
+        this.entity = input;
     }
 
     public TrackResultBean(LogResultBean logResultBean, LogInputBean input) {
         this.logResult = logResultBean;
         this.log = input;
-        this.metaHeader = logResultBean.getMetaHeader();
+        this.entity = logResultBean.getEntity();
         // ToDo: Do we need these instance variables or just get straight from the header?
-        if (metaHeader != null) {
-            this.fortressName = metaHeader.getFortress().getName();
-            this.documentType = metaHeader.getDocumentType();
-            this.callerRef = metaHeader.getCallerRef();
-            this.metaKey = metaHeader.getMetaKey();
+        if (entity != null) {
+            this.fortressName = entity.getFortress().getName();
+            this.documentType = entity.getDocumentType();
+            this.callerRef = entity.getCallerRef();
+            this.metaKey = entity.getMetaKey();
         }
     }
 
@@ -96,8 +96,8 @@ public class TrackResultBean {
     }
 
     public String getMetaKey() {
-        if (metaHeader != null)
-            return metaHeader.getMetaKey();
+        if (entity != null)
+            return entity.getMetaKey();
         return metaKey;
     }
 
@@ -119,8 +119,8 @@ public class TrackResultBean {
     }
 
     @JsonIgnore
-    public MetaHeader getMetaHeader() {
-        return metaHeader;
+    public Entity getEntity() {
+        return entity;
     }
 
     public void setLogResult(LogResultBean logResult) {
@@ -164,13 +164,13 @@ public class TrackResultBean {
         this.log = logInputBean;
     }
 
-    public void setMetaInputBean(MetaInputBean metaInputBean) {
-        this.metaInputBean = metaInputBean;
+    public void setEntityInputBean(EntityInputBean entityInputBean) {
+        this.entityInputBean = entityInputBean;
     }
 
     @JsonIgnore
-    public MetaInputBean getMetaInputBean() {
-        return metaInputBean;
+    public EntityInputBean getEntityInputBean() {
+        return entityInputBean;
     }
 
     public boolean processLog() {

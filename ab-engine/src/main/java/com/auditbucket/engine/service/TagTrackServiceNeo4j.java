@@ -27,13 +27,13 @@ import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.track.bean.TrackTagInputBean;
+import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.Log;
-import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
 import com.auditbucket.track.model.TrackTag;
 
+import com.auditbucket.track.service.EntityTagService;
 import com.auditbucket.track.service.TagService;
-import com.auditbucket.track.service.TagTrackService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +49,7 @@ import java.util.*;
  */
 @Service
 @Transactional
-public class TagTrackServiceNeo4j implements TagTrackService {
+public class TagTrackServiceNeo4j implements EntityTagService {
 
     @Autowired
     TagService tagService;
@@ -63,7 +63,7 @@ public class TagTrackServiceNeo4j implements TagTrackService {
     private Logger logger = LoggerFactory.getLogger(TagTrackServiceNeo4j.class);
 
     @Override
-    public void processTag(MetaHeader header, TrackTagInputBean tagInput) {
+    public void processTag(Entity header, TrackTagInputBean tagInput) {
         String relationshipName = tagInput.getType();
         boolean existing = relationshipExists(header, tagInput.getTagName(), relationshipName);
         if (existing)
@@ -74,15 +74,15 @@ public class TagTrackServiceNeo4j implements TagTrackService {
     }
 
     @Override
-    public Boolean relationshipExists(MetaHeader metaHeader, String name, String relationshipType) {
+    public Boolean relationshipExists(Entity entity, String name, String relationshipType) {
         Tag tag = tagService.findTag(name);
         if (tag == null)
             return false;
-        return trackTagDao.relationshipExists(metaHeader, tag, relationshipType);
+        return trackTagDao.relationshipExists(entity, tag, relationshipType);
     }
 
     /**
-     * Associates the supplied userTags with the MetaHeaderNode
+     * Associates the supplied userTags with the EntityNode
      * <p/>
      * in JSON terms....
      * "ClientID123" :{"clientKey","prospectKey"}
@@ -103,7 +103,7 @@ public class TagTrackServiceNeo4j implements TagTrackService {
      * @param userTags Key/Value pair of tags. TagNode will be created if missing. Value can be a Collection
      */
     @Override
-    public Collection<TrackTag> associateTags(Company company, MetaHeader ah, TrackLog lastLog, Collection<TagInputBean> userTags) {
+    public Collection<TrackTag> associateTags(Company company, Entity ah, TrackLog lastLog, Collection<TagInputBean> userTags) {
         Collection<TrackTag> rlxs = new ArrayList<>();
         Iterable<TrackTag> existingTags = findTrackTags(company, ah);
 
@@ -112,12 +112,12 @@ public class TagTrackServiceNeo4j implements TagTrackService {
             Tag tag = tagService.createTag(company, tagInput);
 
             // Handle both simple relationships type name or a map/collection of relationships
-            if (tagInput.getMetaLinks() != null) {
-                rlxs.addAll(writeRelationships(ah, tag, tagInput.getMetaLinks(), tagInput.isReverse()));
+            if (tagInput.getEntityLinks() != null) {
+                rlxs.addAll(writeRelationships(ah, tag, tagInput.getEntityLinks(), tagInput.isReverse()));
             }
-            if (tagInput.getMetaLink() != null) // Simple relationship to the track header
+            if (tagInput.getEntityLink() != null) // Simple relationship to the track header
                 // Makes it easier for the API to call
-                rlxs.add(trackTagDao.save(ah, tag, tagInput.getMetaLink(), tagInput.isReverse()));
+                rlxs.add(trackTagDao.save(ah, tag, tagInput.getEntityLink(), tagInput.isReverse()));
         }
 
         if (!userTags.isEmpty()) {
@@ -132,18 +132,18 @@ public class TagTrackServiceNeo4j implements TagTrackService {
         return rlxs;
     }
 
-    private void relocateTags(MetaHeader ah, TrackLog currentLog, Collection<TrackTag> tagsToRelocate) {
+    private void relocateTags(Entity ah, TrackLog currentLog, Collection<TrackTag> tagsToRelocate) {
         if (!tagsToRelocate.isEmpty()) {
             if (currentLog != null)
                 trackTagDao.moveTags(ah, currentLog.getLog(), tagsToRelocate);
         }
     }
 
-    private Collection<TrackTag> writeRelationships(MetaHeader metaHeader, Tag tag, Map<String, Object> metaRelationships, boolean isReversed) {
+    private Collection<TrackTag> writeRelationships(Entity entity, Tag tag, Map<String, Object> metaRelationships, boolean isReversed) {
         Collection<TrackTag> trackTags = new ArrayList<>();
-        long when = metaHeader.getFortressLastWhen();
+        long when = entity.getFortressLastWhen();
         if ( when == 0 )
-            when = metaHeader.getWhenCreated();
+            when = entity.getWhenCreated();
         for (String key : metaRelationships.keySet()) {
             Object properties = metaRelationships.get(key);
             Map<String, Object> propMap;
@@ -154,7 +154,7 @@ public class TagTrackServiceNeo4j implements TagTrackService {
             }
 
             propMap.put(TrackTagDao.AB_WHEN, when);
-            TrackTag trackTagRelationship = trackTagDao.save(metaHeader, tag, key, isReversed, propMap);
+            TrackTag trackTagRelationship = trackTagDao.save(entity, tag, key, isReversed, propMap);
             if (trackTagRelationship != null)
                 trackTags.add(trackTagRelationship);
 
@@ -163,65 +163,65 @@ public class TagTrackServiceNeo4j implements TagTrackService {
     }
 
     /**
-     * Finds both incoming and outgoing tags for the MetaHeader
+     * Finds both incoming and outgoing tags for the Entity
      *
-     * @param metaHeader Header the caller is authorised to work with
+     * @param entity Header the caller is authorised to work with
      * @return TrackTags found
      */
     @Override
-    public Set<TrackTag> findTrackTags(MetaHeader metaHeader) {
+    public Set<TrackTag> findEntityTags(Entity entity) {
         Company company = securityHelper.getCompany();
-        return findTrackTags(company, metaHeader);
+        return findTrackTags(company, entity);
     }
 
     @Override
-    public Set<TrackTag> findOutboundTags(MetaHeader header) {
+    public Set<TrackTag> findOutboundTags(Entity header) {
         Company company = securityHelper.getCompany();
         return findOutboundTags(company, header);
     }
 
     @Override
-    public Set<TrackTag> findOutboundTags(Company company, MetaHeader header) {
-        return trackTagDao.getDirectedMetaTags(company, header, true);
+    public Set<TrackTag> findOutboundTags(Company company, Entity header) {
+        return trackTagDao.getDirectedEntityTags(company, header, true);
     }
 
     @Override
-    public Set<TrackTag> findInboundTags(Company company, MetaHeader header) {
-        return trackTagDao.getDirectedMetaTags(company, header, false);
+    public Set<TrackTag> findInboundTags(Company company, Entity header) {
+        return trackTagDao.getDirectedEntityTags(company, header, false);
     }
 
     @Override
-    public Set<TrackTag> findTrackTags(Company company, MetaHeader metaHeader) {
-        return trackTagDao.getMetaTrackTags(company, metaHeader);
+    public Set<TrackTag> findTrackTags(Company company, Entity entity) {
+        return trackTagDao.getEntityTags(company, entity);
     }
 
     @Override
-    public void deleteTrackTags(MetaHeader metaHeader, Collection<TrackTag> trackTags) throws DatagioException {
-        trackTagDao.deleteTrackTags(metaHeader, trackTags);
+    public void deleteTrackTags(Entity entity, Collection<TrackTag> trackTags) throws DatagioException {
+        trackTagDao.deleteEntityTags(entity, trackTags);
     }
 
     @Override
-    public void deleteTrackTags(MetaHeader metaHeader, TrackTag value) throws DatagioException {
+    public void deleteTrackTags(Entity entity, TrackTag value) throws DatagioException {
         Collection<TrackTag> remove = new ArrayList<>(1);
         remove.add(value);
-        deleteTrackTags(metaHeader, remove);
+        deleteTrackTags(entity, remove);
 
     }
 
     @Override
-    public void changeType(MetaHeader metaHeader, TrackTag existingTag, String newType) throws DatagioException {
-        if (metaHeader == null || existingTag == null || newType == null)
+    public void changeType(Entity entity, TrackTag existingTag, String newType) throws DatagioException {
+        if (entity == null || existingTag == null || newType == null)
             throw new DatagioException(("Illegal parameter"));
-        trackTagDao.changeType(metaHeader, existingTag, newType);
+        trackTagDao.changeType(entity, existingTag, newType);
     }
 
 
     @Override
-    public Set<MetaHeader> findTrackTags(String tagName) throws DatagioException {
+    public Set<Entity> findTrackTags(String tagName) throws DatagioException {
         Tag tag = tagService.findTag(tagName);
         if (tag == null)
             throw new DatagioException("Unable to find the tag [" + tagName + "]");
-        return trackTagDao.findTrackTags(tag);
+        return trackTagDao.findEntityTags(tag);
 
     }
 
@@ -231,7 +231,7 @@ public class TagTrackServiceNeo4j implements TagTrackService {
     }
 
     @Override
-    public void moveTags(Company company, Log previousLog, MetaHeader metaHeader) {
-        trackTagDao.moveTags(company, previousLog, metaHeader);
+    public void moveTags(Company company, Log previousLog, Entity entity) {
+        trackTagDao.moveTags(company, previousLog, entity);
     }
 }

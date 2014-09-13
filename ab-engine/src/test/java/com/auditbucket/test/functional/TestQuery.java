@@ -20,13 +20,12 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.test.endpoint.EngineEndPoints;
 import com.auditbucket.track.bean.DocumentResultBean;
-import com.auditbucket.track.bean.MetaInputBean;
+import com.auditbucket.track.bean.EntityInputBean;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +54,7 @@ public class TestQuery extends TestEngineBase {
 
     @Test
     public void queryInputsReturned () throws Exception{
-        //      Each fortress one MetaHeader (diff docs)
+        //      Each fortress one Entity (diff docs)
         //          One MH with same tags over both companies
         //          One MH with company unique tags
         setSecurity();
@@ -75,23 +74,23 @@ public class TestQuery extends TestEngineBase {
         setSecurity();
         //
         //
-        MetaInputBean inputBean = new MetaInputBean(coAfA.getName(), "poppy", "SalesDocket", DateTime.now(), "ABC1"); // Sales fortress
-        inputBean.addTag(new TagInputBean("c123", "purchased").setIndex("Customer")); // This tag tracks over two fortresses
-        trackEP.trackHeader(inputBean, suA.getApiKey(), null);
-        inputBean = new MetaInputBean(coAfB.getName(), "poppy", "SupportSystem", DateTime.now(), "ABC2"); // Support system fortress
-        inputBean.addTag(new TagInputBean("c123","called").setIndex("Customer")); // Customer number - this will be the same tag as for the sales fortress
-        inputBean.addTag(new TagInputBean("p111","about").setIndex("Product"));   // Product code - unique to this fortress
-        trackEP.trackHeader(inputBean, suA.getApiKey(), null);
+        EntityInputBean inputBean = new EntityInputBean(coAfA.getName(), "poppy", "SalesDocket", DateTime.now(), "ABC1"); // Sales fortress
+        inputBean.addTag(new TagInputBean("c123", "purchased").setLabel("Customer")); // This tag tracks over two fortresses
+        trackEP.trackEntity(inputBean, suA.getApiKey(), null);
+        inputBean = new EntityInputBean(coAfB.getName(), "poppy", "SupportSystem", DateTime.now(), "ABC2"); // Support system fortress
+        inputBean.addTag(new TagInputBean("c123","called").setLabel("Customer")); // Customer number - this will be the same tag as for the sales fortress
+        inputBean.addTag(new TagInputBean("p111","about").setLabel("Product"));   // Product code - unique to this fortress
+        trackEP.trackEntity(inputBean, suA.getApiKey(), null);
 
 
-        inputBean = new MetaInputBean(coBfA.getName(), "petal", "SalesDocket", DateTime.now(), "ABC1"); // Sales fortress
-        inputBean.addTag(new TagInputBean("c123","purchased").setIndex("Customer")); // This tag tracks over two fortresses
-        inputBean.addTag(new TagInputBean("ricky", "from").setIndex("SalesRep")); // This tag is unique to this company
-        trackEP.trackHeader(inputBean, suB.getApiKey(), null);
-        inputBean = new MetaInputBean(coBfB.getName(), "petal", "SupportSystem", DateTime.now(), "ABC2"); // Support system fortress
-        inputBean.addTag(new TagInputBean("c123","called").setIndex("Customer")); // Customer number - this will be the same tag as for the sales fortress
-        inputBean.addTag(new TagInputBean("p111", "about").setIndex("Product"));   // Product code - unique to this fortress
-        trackEP.trackHeader(inputBean, suB.getApiKey(), null);
+        inputBean = new EntityInputBean(coBfA.getName(), "petal", "SalesDocket", DateTime.now(), "ABC1"); // Sales fortress
+        inputBean.addTag(new TagInputBean("c123","purchased").setLabel("Customer")); // This tag tracks over two fortresses
+        inputBean.addTag(new TagInputBean("ricky", "from").setLabel("SalesRep")); // This tag is unique to this company
+        trackEP.trackEntity(inputBean, suB.getApiKey(), null);
+        inputBean = new EntityInputBean(coBfB.getName(), "petal", "SupportSystem", DateTime.now(), "ABC2"); // Support system fortress
+        inputBean.addTag(new TagInputBean("c123","called").setLabel("Customer")); // Customer number - this will be the same tag as for the sales fortress
+        inputBean.addTag(new TagInputBean("p111", "about").setLabel("Product"));   // Product code - unique to this fortress
+        trackEP.trackEntity(inputBean, suB.getApiKey(), null);
 
         Collection<String> fortresses = new ArrayList<>();
         fortresses.add(coAfA.getName());

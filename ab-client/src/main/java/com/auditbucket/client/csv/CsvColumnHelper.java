@@ -13,8 +13,8 @@ public class CsvColumnHelper {
     private CsvColumnDefinition columnDefinition = null;
 
     public String getKey() {
-        if (columnDefinition.getIndex() != null)
-            return columnDefinition.getIndex();
+        if (columnDefinition.getLabel() != null)
+            return columnDefinition.getLabel();
         return key;
     }
 

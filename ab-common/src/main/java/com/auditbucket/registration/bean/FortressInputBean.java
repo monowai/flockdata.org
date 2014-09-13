@@ -125,5 +125,11 @@ public class FortressInputBean {
         }
     }
 
-
+    @Override
+    public String toString() {
+        return "FortressInputBean{" +
+                "name='" + name + '\'' +
+                ", searchActive=" + searchActive +
+                '}';
+    }
 }

@@ -1,16 +1,16 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
+import com.auditbucket.engine.repo.neo4j.model.EntityNode;
 import com.auditbucket.engine.repo.neo4j.model.FortressNode;
 import com.auditbucket.engine.repo.neo4j.model.FortressUserNode;
-import com.auditbucket.engine.repo.neo4j.model.MetaHeaderNode;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
-import com.auditbucket.track.bean.MetaInputBean;
-import com.auditbucket.track.model.MetaHeader;
+import com.auditbucket.track.bean.EntityInputBean;
+import com.auditbucket.track.model.Entity;
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.JestResult;
@@ -283,29 +283,29 @@ public class ESBase {
      * @param comp     company
      * @param fort     fortress
      * @param userName username
-     * @return metaheader with a document type of the same name as fort
+     * @return entity with a document type of the same name as fort
      * @throws com.auditbucket.helper.DatagioException
      */
-    MetaHeader getMetaHeader(String comp, String fort, String userName) throws DatagioException {
-        return getMetaHeader(comp, fort, userName, fort);
+    Entity getEntity(String comp, String fort, String userName) throws DatagioException {
+        return getEntity(comp, fort, userName, fort);
     }
 
-    MetaHeader getMetaHeader(String comp, String fort, String userName, String doctype) throws DatagioException {
-        // These are the minimum objects necessary to create a MetaHeader data
+    Entity getEntity(String comp, String fort, String userName, String doctype) throws DatagioException {
+        // These are the minimum objects necessary to create Entity data
         Fortress fortress = new FortressNode(new FortressInputBean(fort, false), new CompanyNode(comp));
         FortressUser user = new FortressUserNode(fortress, userName);
         DocumentTypeNode doc = new DocumentTypeNode(fortress, doctype);
 
         DateTime now = new DateTime();
-        MetaInputBean mib = getMetaInputBean(doc, user, now.toString(), now);
+        EntityInputBean mib = getEntityInputBean(doc, user, now.toString(), now);
 
-        return new MetaHeaderNode(now.toString(), fortress, mib, doc, user);
+        return new EntityNode(now.toString(), fortress, mib, doc, user);
 
     }
 
-    MetaInputBean getMetaInputBean(DocumentTypeNode docType, FortressUser fortressUser, String callerRef, DateTime now) {
+    EntityInputBean getEntityInputBean(DocumentTypeNode docType, FortressUser fortressUser, String callerRef, DateTime now) {
 
-        return new MetaInputBean(fortressUser.getFortress().getName(),
+        return new EntityInputBean(fortressUser.getFortress().getName(),
                 fortressUser.getCode(),
                 docType.getName(),
                 now,

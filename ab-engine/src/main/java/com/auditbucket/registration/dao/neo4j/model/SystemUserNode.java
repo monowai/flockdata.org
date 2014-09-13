@@ -99,4 +99,12 @@ public class SystemUserNode implements SystemUser {
     }
 
 
+    @Override
+    public String toString() {
+        return "SystemUserNode{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", company=" + company +
+                '}';
+    }
 }

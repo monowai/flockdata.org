@@ -33,7 +33,7 @@ public interface TrackLog {
 
     public Log getLog();
 
-    public MetaHeader getMetaHeader();
+    public Entity getEntity();
 
     public boolean isIndexed();
 
@@ -49,7 +49,7 @@ public interface TrackLog {
 
     public Long getFortressWhen();
 
-    void setMetaHeader(MetaHeader metaHeader);
+    void setEntity(Entity entity);
 
     DateTime getFortressWhen(DateTimeZone tz);
 }

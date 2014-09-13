@@ -19,8 +19,8 @@
 
 package com.auditbucket.engine.repo.neo4j.model;
 
+import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.Log;
-import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTime;
@@ -40,7 +40,7 @@ public class LoggedRelationship implements TrackLog {
     private Long id;
 
     @StartNode
-    private MetaHeaderNode metaHeader;
+    private EntityNode entity;
 
     @EndNode
     @Fetch
@@ -64,16 +64,16 @@ public class LoggedRelationship implements TrackLog {
         setSysWhen(utcNow.getMillis());
     }
 
-    public LoggedRelationship(MetaHeader header, Log log, DateTime fortressWhen) {
+    public LoggedRelationship(Entity entity, Log log, DateTime fortressWhen) {
         this();
-        this.metaHeader = (MetaHeaderNode) header;
+        this.entity = (EntityNode) entity;
         this.log = (LogNode) log;
-        this.timezone = header.getFortress().getTimeZone();
+        this.timezone = entity.getFortress().getTimeZone();
         if (fortressWhen != null && fortressWhen.getMillis() != 0) {
             setFortressWhen(fortressWhen);
         } else {
             // "now" in the fortress default timezone
-            setFortressWhen(new DateTime(sysWhen, DateTimeZone.forTimeZone(TimeZone.getTimeZone(header.getFortress().getTimeZone()))));
+            setFortressWhen(new DateTime(sysWhen, DateTimeZone.forTimeZone(TimeZone.getTimeZone(entity.getFortress().getTimeZone()))));
         }
     }
 
@@ -103,12 +103,12 @@ public class LoggedRelationship implements TrackLog {
     }
 
     @JsonIgnore
-    public MetaHeader getMetaHeader() {
-        return metaHeader;
+    public Entity getEntity() {
+        return entity;
     }
 
-    public void setMetaHeader(MetaHeader metaHeader){
-        this.metaHeader = (MetaHeaderNode)metaHeader;
+    public void setEntity(Entity entity){
+        this.entity = (EntityNode) entity;
     }
 
     public void setChange(LogNode auditLog) {
@@ -134,7 +134,7 @@ public class LoggedRelationship implements TrackLog {
         LoggedRelationship that = (LoggedRelationship) o;
 
         if (log != null ? !log.equals(that.log) : that.log != null) return false;
-        if (metaHeader != null ? !metaHeader.getId().equals(that.metaHeader.getId()) : that.metaHeader != null) return false;
+        if (entity != null ? !entity.getId().equals(that.entity.getId()) : that.entity != null) return false;
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
 
         return true;
@@ -143,7 +143,7 @@ public class LoggedRelationship implements TrackLog {
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (metaHeader != null ? metaHeader.hashCode() : 0);
+        result = 31 * result + (entity != null ? entity.hashCode() : 0);
         result = 31 * result + (log != null ? log.hashCode() : 0);
         return result;
     }

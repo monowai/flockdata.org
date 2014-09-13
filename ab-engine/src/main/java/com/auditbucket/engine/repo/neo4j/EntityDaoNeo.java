@@ -19,10 +19,9 @@
 
 package com.auditbucket.engine.repo.neo4j;
 
-import com.auditbucket.dao.TrackDao;
+import com.auditbucket.engine.repo.neo4j.model.EntityNode;
 import com.auditbucket.engine.repo.neo4j.model.LogNode;
 import com.auditbucket.engine.repo.neo4j.model.LoggedRelationship;
-import com.auditbucket.engine.repo.neo4j.model.MetaHeaderNode;
 import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
 import com.auditbucket.engine.service.TrackEventService;
 import com.auditbucket.helper.DatagioException;
@@ -32,8 +31,8 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.service.KeyGenService;
 import com.auditbucket.track.bean.AuditTXResult;
+import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.LogInputBean;
-import com.auditbucket.track.bean.MetaInputBean;
 import com.auditbucket.track.model.*;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
@@ -56,9 +55,9 @@ import java.util.*;
  */
 @SuppressWarnings("SpringJavaAutowiringInspection")
 @Repository("auditDAO")
-public class TrackDaoNeo implements TrackDao {
+public class EntityDaoNeo {
     @Autowired
-    MetaDataRepo metaRepo;
+    EntityRepo metaRepo;
 
     @Autowired
     TrackLogRepo trackLogRepo;
@@ -78,40 +77,30 @@ public class TrackDaoNeo implements TrackDao {
     @Autowired
     Neo4jTemplate template;
 
-    private Logger logger = LoggerFactory.getLogger(TrackDaoNeo.class);
+    private Logger logger = LoggerFactory.getLogger(EntityDaoNeo.class);
 
-    public MetaHeader save(MetaHeader metaHeader) {
-        return save(metaHeader, null);
+    public Entity save(Entity entity) {
+        return save(entity, null);
     }
 
-    @Override
-    public MetaHeader create(MetaInputBean inputBean, Fortress fortress, DocumentType documentType) throws DatagioException {
-//        MetaHeader metaHeader = findByCallerRef(fortress.getId(), documentType.getId(), inputBean.getCallerRef());
-//        if (metaHeader != null) {
-//            logger.debug("Found existing MetaHeader during request to create - returning");
-//            return metaHeader;
-//        }
+    public Entity create(EntityInputBean inputBean, Fortress fortress, DocumentType documentType) throws DatagioException {
         String metaKey = ( inputBean.isTrackSuppressed()?null:keyGenService.getUniqueKey());
-        MetaHeader metaHeader = new MetaHeaderNode(metaKey, fortress, inputBean, documentType);
+        Entity entity = new EntityNode(metaKey, fortress, inputBean, documentType);
 
         if (! inputBean.isTrackSuppressed()) {
-            logger.debug("Creating {}", metaHeader);
+            logger.debug("Creating {}", entity);
 
-            metaHeader = save(metaHeader, documentType);
-            Node node = template.getPersistentState(metaHeader);
+            entity = save(entity, documentType);
+            Node node = template.getPersistentState(entity);
             node.addLabel(DynamicLabel.label(documentType.getName()));
 
         }
-        return metaHeader;
+        return entity;
     }
 
-    //@Override
-//    @Caching(evict = {@CacheEvict(value = "headerId", key = "#p0.id"),
-//            @CacheEvict(value = "metaKey", key = "#p0.metaKey")}}
-
-    public MetaHeader save(MetaHeader metaHeader, DocumentType documentType) {
-        metaHeader.bumpUpdate();
-        return metaRepo.save((MetaHeaderNode) metaHeader);
+    public Entity save(Entity entity, DocumentType documentType) {
+        entity.bumpUpdate();
+        return metaRepo.save((EntityNode) entity);
 
     }
 
@@ -120,35 +109,32 @@ public class TrackDaoNeo implements TrackDao {
     }
 
     //    @Cacheable(value = "metaKey", unless = "#result==null")
-    private MetaHeader getCachedHeader(String key) {
+    private Entity getCachedEntity(String key) {
         if (key == null)
             return null;
-        return metaRepo.findBySchemaPropertyValue(MetaHeaderNode.UUID_KEY, key);
+        return metaRepo.findBySchemaPropertyValue(EntityNode.UUID_KEY, key);
     }
 
-    @Override
-    public MetaHeader findHeader(String key, boolean inflate) {
-        MetaHeader header = getCachedHeader(key);
-        if (inflate && header != null) {
-            fetch(header);
+    public Entity findEntity(String key, boolean inflate) {
+        Entity entity = getCachedEntity(key);
+        if (inflate && entity != null) {
+            fetch(entity);
         }
-        return header;
+        return entity;
     }
 
-    @Override
-    public Collection<MetaHeader> findByCallerRef(Long fortressId, String callerRef) {
+    public Collection<Entity> findByCallerRef(Long fortressId, String callerRef) {
         return metaRepo.findByCallerRef(fortressId, callerRef);
 
     }
 
-    @Override
-    public MetaHeader findByCallerRefUnique(Long fortressId, String callerRef) throws DatagioException {
+    public Entity findByCallerRefUnique(Long fortressId, String callerRef) throws DatagioException {
         int count = 0;
-        Iterable<MetaHeader> headers = findByCallerRef(fortressId, callerRef);
-        MetaHeader result = null;
-        for (MetaHeader header : headers) {
+        Iterable<Entity> entities = findByCallerRef(fortressId, callerRef);
+        Entity result = null;
+        for (Entity entity : entities) {
             count++;
-            result = header;
+            result = entity;
             if (count > 1) break;
         }
         if (count > 1)
@@ -159,7 +145,7 @@ public class TrackDaoNeo implements TrackDao {
     }
 
     //@Cacheable(value = "callerKey", unless = "#result==null")
-    public MetaHeader findByCallerRef(Long fortressId, Long documentId, String callerRef) {
+    public Entity findByCallerRef(Long fortressId, Long documentId, String callerRef) {
         if (logger.isTraceEnabled())
             logger.trace("findByCallerRef fortress [" + fortressId + "] docType[" + documentId + "], callerRef[" + callerRef + "]");
 
@@ -168,25 +154,22 @@ public class TrackDaoNeo implements TrackDao {
     }
 
     //@Cacheable(value = "headerId", key = "p0.id", unless = "#result==null")
-    public MetaHeader fetch(MetaHeader header) {
-        template.fetch(header.getCreatedBy());
-        template.fetch(header.getLastUser());
+    public Entity fetch(Entity entity) {
+        template.fetch(entity.getCreatedBy());
+        template.fetch(entity.getLastUser());
 
-        return header;
+        return entity;
     }
 
-    @Override
-    public Set<MetaHeader> findHeadersByTxRef(Long txRef) {
+    public Set<Entity> findHeadersByTxRef(Long txRef) {
         return metaRepo.findHeadersByTxRef(txRef);
     }
 
-    @Override
-    public Collection<MetaHeader> findHeaders(Long fortressId, Long skipTo) {
+    public Collection<Entity> findHeaders(Long fortressId, Long skipTo) {
         return metaRepo.findHeadersFrom(fortressId, skipTo);
     }
 
-    @Override
-    public Collection<MetaHeader> findHeaders(Long fortressId, String label, Long skipTo) {
+    public Collection<Entity> findHeaders(Long fortressId, String label, Long skipTo) {
         //ToDo: Should this pass in timestamp it got to??
         String cypher = "match (f:Fortress)-[:TRACKS]->(meta:`" + label + "`) where id(f)={fortress} return meta ORDER BY meta.dateCreated ASC skip {skip} limit 100 ";
         Map<String, Object> args = new HashMap<>();
@@ -195,28 +178,25 @@ public class TrackDaoNeo implements TrackDao {
         Result<Map<String, Object>> result = template.query(cypher, args);
 
         Iterator<Map<String, Object>> rows = result.iterator();
-        Collection<MetaHeader> results = new ArrayList<>();
+        Collection<Entity> results = new ArrayList<>();
 
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
-            results.add(template.projectTo(row.get("meta"), MetaHeaderNode.class));
+            results.add(template.projectTo(row.get("meta"), EntityNode.class));
         }
 
         return results;
     }
 
-    @Override
     public void delete(Log currentChange) {
         trackLogRepo.delete((LogNode) currentChange);
     }
 
-    @Override
     public TxRef findTxTag(@NotEmpty String txTag, @NotNull Company company, boolean fetchHeaders) {
         return metaRepo.findTxTag(txTag, company.getId());
     }
 
 
-    @Override
     public TxRef beginTransaction(String id, Company company) {
 
         TxRef txTag = findTxTag(id, company, false);
@@ -227,7 +207,6 @@ public class TrackDaoNeo implements TrackDao {
         return txTag;
     }
 
-    @Override
     public int getLogCount(Long id) {
         return trackLogRepo.getLogCount(id);
     }
@@ -263,7 +242,7 @@ public class TrackDaoNeo implements TrackDao {
             Map<String, Object> row = rows.next();
             TrackLog log = template.convert(row.get("logs"), LoggedRelationship.class);
             Log change = template.convert(row.get("auditLog"), LogNode.class);
-            MetaHeader audit = template.convert(row.get("track"), MetaHeaderNode.class);
+            Entity audit = template.convert(row.get("track"), EntityNode.class);
             simpleResult.add(new AuditTXResult(audit, change, log));
             i++;
 
@@ -280,7 +259,6 @@ public class TrackDaoNeo implements TrackDao {
         return template.save((LoggedRelationship) log);
     }
 
-    @Override
     public String ping() {
 
 
@@ -295,7 +273,6 @@ public class TrackDaoNeo implements TrackDao {
         return "Neo4J is OK";
     }
 
-    @Override
     public Log prepareLog(FortressUser fUser, LogInputBean input, TxRef txRef, Log previousChange) throws DatagioException {
         ChangeEvent event = trackEventService.processEvent(fUser.getFortress().getCompany(), input.getEvent());
         Log changeLog = new LogNode(fUser, input, txRef);
@@ -309,7 +286,6 @@ public class TrackDaoNeo implements TrackDao {
         return changeLog;
     }
 
-    @Override
 //    @Cacheable(value = "trackLog", unless = "#result==null")
     public TrackLog getLog(Long logId) {
         Relationship change = template.getRelationship(logId);
@@ -326,126 +302,108 @@ public class TrackDaoNeo implements TrackDao {
 
 
     //    @Cacheable(value = "headerId", unless = "#result==null")
-    @Override
-    public MetaHeader getHeader(Long id) {
-        return template.findOne(id, MetaHeaderNode.class);
+    public Entity getHeader(Long id) {
+        return template.findOne(id, EntityNode.class);
     }
 
-    @Override
     public Log fetch(Log lastChange) {
         return template.fetch(lastChange);
     }
 
-    @Override
-    public TrackLog addLog(MetaHeader metaHeader, Log newChange, DateTime fortressWhen, TrackLog existingLog) {
+    public TrackLog addLog(Entity entity, Log newChange, DateTime fortressWhen, TrackLog existingLog) {
 
-        newChange.setTrackLog(new LoggedRelationship(metaHeader, newChange, fortressWhen));
+        newChange.setTrackLog(new LoggedRelationship(entity, newChange, fortressWhen));
 
-        if (metaHeader.getId() == null)// This occurs when tracking in ab-engine is suppressed and the caller is only creating search docs
+        if (entity.getId() == null)// This occurs when tracking in ab-engine is suppressed and the caller is only creating search docs
             return newChange.getTrackLog();
 
-        if ( metaHeader.getLastChange()!=null )
-            metaHeader = template.fetch(metaHeader);
+        if ( entity.getLastChange()!=null )
+            entity = template.fetch(entity);
 
         //template.fetch(newChange.getTrackLog());
         boolean moreRecent = (existingLog == null || existingLog.getFortressWhen() <= fortressWhen.getMillis());
         if (moreRecent) {
-            if (metaHeader.getLastUser() == null || (!metaHeader.getLastUser().getId().equals(newChange.getWho().getId()))) {
-                metaHeader.setLastUser(newChange.getWho());
+            if (entity.getLastUser() == null || (!entity.getLastUser().getId().equals(newChange.getWho().getId()))) {
+                entity.setLastUser(newChange.getWho());
             }
-            metaHeader.setFortressLastWhen(fortressWhen.getMillis());
-            metaHeader.setLastChange(newChange);
-            logger.debug("Detected a more recent change for header {}. Setting it to be the most recent.", metaHeader.getId());
+            entity.setFortressLastWhen(fortressWhen.getMillis());
+            entity.setLastChange(newChange);
+
+            logger.debug("Detected "+(existingLog != null ? " a more recent change ": " the first log ")+" for entity {}. Giving this log most recent status.", entity.getId());
             try {
-                template.save(metaHeader);
+                template.save(entity);
             } catch (IllegalStateException e) {
-                logger.error("ISE saving header {}", new Date(newChange.getTrackLog().getSysWhen()));
+                logger.error("ISE saving Entity {}", new Date(newChange.getTrackLog().getSysWhen()));
                 logger.error("Unexpected", e);
             }
-            logger.debug("Saved change for header [{}], logid [{}]", metaHeader.getId(), newChange.getId());
+            logger.debug("Saved change for Entity [{}], logid [{}]", entity.getId(), newChange.getId());
 
         } else {
             newChange = template.save(newChange);
         }
-        logger.debug("Added Log - MetaHeader [{}], Log [{}], Change [{}]", metaHeader.getId(), newChange.getTrackLog(), newChange.getId());
-        //newChange.getTrackLog().setMetaHeader(metaHeader);
+        logger.debug("Added Log - Entity [{}], Log [{}], Change [{}]", entity.getId(), newChange.getTrackLog(), newChange.getId());
         return newChange.getTrackLog();
     }
 
-    @Override
-    public void crossReference(MetaHeader header, Collection<MetaHeader> targets, String refName) {
+    public void crossReference(Entity header, Collection<Entity> entities, String refName) {
         Node source = template.getPersistentState(header);
-        for (MetaHeader target : targets) {
-            Node dest = template.getPersistentState(target);
-            template.createRelationshipBetween(source, dest, refName, null);
+        for (Entity entity : entities) {
+            Node dest = template.getPersistentState(entity);
+            if ( template.getRelationshipBetween(source,entity, refName)== null )
+                template.createRelationshipBetween(source, dest, refName, null);
         }
     }
 
-    @Override
-    public Map<String, Collection<MetaHeader>> getCrossReference(Company company, MetaHeader header, String xRefName) {
-        Node n = template.getPersistentState(header);
+    public Map<String, Collection<Entity>> getCrossReference(Company company, Entity entity, String xRefName) {
+        Node n = template.getPersistentState(entity);
 
         RelationshipType r = DynamicRelationshipType.withName(xRefName);
         Iterable<Relationship> rlxs = n.getRelationships(r);
-        Map<String, Collection<MetaHeader>> results = new HashMap<>();
-        Collection<MetaHeader> headers = new ArrayList<>();
+        Map<String, Collection<Entity>> results = new HashMap<>();
+        Collection<Entity> headers = new ArrayList<>();
         results.put(xRefName, headers);
         for (Relationship rlx : rlxs) {
-            headers.add(template.projectTo(rlx.getEndNode(), MetaHeaderNode.class));
+            headers.add(template.projectTo(rlx.getEndNode(), EntityNode.class));
         }
         return results;
 
     }
 
-    @Override
-    public Map<String, MetaHeader> findHeaders(Company company, Collection<String> metaKeys) {
+    public Map<String, Entity> findEntities(Company company, Collection<String> metaKeys) {
         logger.debug("Looking for {} headers for company [{}] ", metaKeys.size(), company);
-        Collection<MetaHeader> foundHeaders = metaRepo.findHeaders(company.getId(), metaKeys);
-        Map<String, MetaHeader> unsorted = new HashMap<>();
-        for (MetaHeader foundHeader : foundHeaders) {
+        Collection<Entity> foundHeaders = metaRepo.findHeaders(company.getId(), metaKeys);
+        Map<String, Entity> unsorted = new HashMap<>();
+        for (Entity foundHeader : foundHeaders) {
             unsorted.put(foundHeader.getMetaKey(), foundHeader);
         }
         return unsorted;
-//        // DAT-86 The incoming collection is actually the sort order we want
-//        // ToDo: Find a slicker way of dealing with this
-//        Collection<MetaHeader> sortedResult = new ArrayList<>(unsorted.size());
-//        for (String metaKey : metaKeys) {
-//            MetaHeader header = unsorted.get(metaKey);
-//            if (header != null)
-//                sortedResult.add(header);
-//        }
-//        return sortedResult;
     }
 
-    @Override
     public void purgeTagRelationships(Fortress fortress) {
         // ToDo: Check if this works with huge datasets
         trackLogRepo.purgeTagRelationships(fortress.getId());
     }
 
-    @Override
     public void purgeFortressLogs(Fortress fortress) {
         trackLogRepo.purgeFortressLogs(fortress.getId());
     }
 
-    @Override
     public void purgePeopleRelationships(Fortress fortress) {
         metaRepo.purgePeopleRelationships(fortress.getId());
     }
 
-    @Override
-    public void purgeHeaders(Fortress fortress) {
+    public void purgeEntities(Fortress fortress) {
+        metaRepo.purgeCrossReferences(fortress.getId());
         metaRepo.purgeHeaders(fortress.getId());
     }
 
-    @Override
     public void purgeFortressDocuments(Fortress fortress) {
         documentTypeRepo.purgeFortressDocuments(fortress.getId());
     }
 
-    public TrackLog getLastLog(Long metaHeaderId) {
-        MetaHeader header = getHeader(metaHeaderId);
-        Log lastChange = header.getLastChange();
+    public TrackLog getLastLog(Long entityId) {
+        Entity entity = getHeader(entityId);
+        Log lastChange = entity.getLastChange();
         if (lastChange == null)
             return null;
 

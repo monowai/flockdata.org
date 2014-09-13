@@ -30,8 +30,8 @@ import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.track.bean.CrossReferenceInputBean;
+import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.LogInputBean;
-import com.auditbucket.track.bean.MetaInputBean;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -62,7 +62,7 @@ import java.util.*;
  * <p/>
  * Will send information to AuditBucket as either tags or track information.
  * <p/>
- * You should extend MetaInputBean or TagInputBean and implement XMLMappable or DelimitedMappable
+ * You should extend EntityInputBean or TagInputBean and implement XMLMappable or DelimitedMappable
  * to massage your data prior to dispatch to AB.
  * <p/>
  * Parameters:
@@ -77,10 +77,10 @@ import java.util.*;
  * @see com.auditbucket.client.rest.AbRestClient
  * @see com.auditbucket.client.common.Mappable
  * @see TagInputBean
- * @see com.auditbucket.track.bean.MetaInputBean
- *      <p/>
- *      User: Mike Holdsworth
- *      Since: 13/10/13
+ * @see com.auditbucket.track.bean.EntityInputBean
+ * <p/>
+ * User: Mike Holdsworth
+ * Since: 13/10/13
  */
 @SuppressWarnings("StatementWithEmptyBody")
 public class Importer {
@@ -172,7 +172,7 @@ public class Importer {
                     return;
                 }
                 SystemUserResultBean su = restClient.me(); // Use the configured API as the default FU unless another is set
-                if ( su!=null){
+                if (su != null) {
                     importParams.setFortressUser(su.getLogin());
                 } else {
                     logger.error("Unable to validate the system user as a default fortress user. This will cause errors in the TrackEP if you do not set the FortressUser");
@@ -310,12 +310,12 @@ public class Importer {
                 while (xsr.getLocalName().equals(docType)) {
                     XmlMappable row = mappable.newInstance(importParams.isSimulateOnly());
                     LogInputBean logInputBean = row.setXMLData(xsr, importParams.getStaticDataResolver());
-                    MetaInputBean header = (MetaInputBean) row;
+                    EntityInputBean header = (EntityInputBean) row;
                     if (!header.getCrossReferences().isEmpty()) {
                         referenceInputBeans.add(new CrossReferenceInputBean(header.getFortress(), header.getCallerRef(), header.getCrossReferences()));
                         rows = rows + header.getCrossReferences().size();
                     }
-                    if ( logInputBean != null ){
+                    if (logInputBean != null) {
                         if (logInputBean.getFortressUser() == null)
                             logInputBean.setFortressUser(importParams.getFortressUser());
                         header.setLog(logInputBean);
@@ -375,6 +375,7 @@ public class Importer {
         }
 
         br = new BufferedReader(fileObject);
+        List<CrossReferenceInputBean> referenceInputBeans = new ArrayList<>();
 
         try {
             CSVReader csvReader = new CSVReader(br, importParams.getDelimiter());
@@ -383,8 +384,8 @@ public class Importer {
             String[] nextLine;
             if (mappable.hasHeader()) {
                 while ((nextLine = csvReader.readNext()) != null) {
-                    if (!((nextLine[0].charAt(0) == '#'))) {
-                        headerRow =  nextLine;//addStrategyColumns(nextLine, importParams);
+                    if (!((!nextLine[0].equals("") && nextLine[0].charAt(0) == '#'))) {
+                        headerRow = nextLine;
 
                         break;
                     }
@@ -392,7 +393,6 @@ public class Importer {
             }
             watch.start();
             AbRestClient.type type = mappable.getABType();
-            List<CrossReferenceInputBean> referenceInputBeans = new ArrayList<>();
 
             while ((nextLine = csvReader.readNext()) != null) {
                 if (!nextLine[0].startsWith("#")) {
@@ -404,14 +404,14 @@ public class Importer {
                         row = (DelimitedMappable) importParams.getMappable();
 
                         // ToDo: turn this in to a LogInputBean to reduce impact of interface changes
-                        Map<String,Object>jsonData = row.setData(headerRow, nextLine, importParams);
+                        Map<String, Object> jsonData = row.setData(headerRow, nextLine, importParams);
                         //logger.info(jsonData);
                         if (type == AbRestClient.type.TRACK) {
-                            MetaInputBean header = (MetaInputBean) row;
+                            EntityInputBean header = (EntityInputBean) row;
 
-                            if (importParams.isMetaOnly() || "".equals(jsonData)) {
+                            if (importParams.isEntityOnly() || "".equals(jsonData)) {
                                 header.setMetaOnly(true);
-                                // It's all Meta baby - no track information
+                                // It's all Meta baby - no log information
                             } else {
                                 //jsonData = jsonData.replaceAll("[\\x00-\\x09\\x11\\x12\\x14-\\x1F\\x7F]", "");
                                 LogInputBean logInputBean = new LogInputBean(importParams.getFortressUser(), new DateTime(), jsonData);
@@ -443,11 +443,12 @@ public class Importer {
                         logger.info("Skipping {} of {}", rows, skipCount);
                 }
             }
-            if (!referenceInputBeans.isEmpty()) {
-                logger.debug("Wrote [{}] cross references", writeCrossReferences(importParams.getRestClient(), referenceInputBeans));
-            }
         } finally {
             importParams.getRestClient().flush(mappable.getClass().getCanonicalName(), mappable.getABType());
+            if (!referenceInputBeans.isEmpty()) {
+                // ToDo: This approach is un-scalable - routine works but the ArrayList is kept in memory. It's ok for now...
+                logger.debug("Wrote [{}] cross references", writeCrossReferences(importParams.getRestClient(), referenceInputBeans));
+            }
             br.close();
         }
         if (writeToFile) {
@@ -476,8 +477,8 @@ public class Importer {
         abExporter.writeTag(tagInputBean, message);
     }
 
-    private static void writeAudit(AbRestClient abExporter, MetaInputBean metaInputBean, String message) throws DatagioException {
-        abExporter.writeAudit(metaInputBean, message);
+    private static void writeAudit(AbRestClient abExporter, EntityInputBean entityInputBean, String message) throws DatagioException {
+        abExporter.track(entityInputBean, message);
     }
 
 

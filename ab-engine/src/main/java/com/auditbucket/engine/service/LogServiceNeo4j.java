@@ -19,7 +19,7 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.dao.TrackDao;
+import com.auditbucket.engine.repo.neo4j.EntityDaoNeo;
 import com.auditbucket.helper.Command;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.helper.DeadlockRetry;
@@ -31,8 +31,8 @@ import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.LogResultBean;
 import com.auditbucket.track.bean.TrackResultBean;
+import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.Log;
-import com.auditbucket.track.model.MetaHeader;
 import com.auditbucket.track.model.TrackLog;
 import com.auditbucket.track.model.TxRef;
 import com.auditbucket.track.service.LogService;
@@ -79,7 +79,7 @@ public class LogServiceNeo4j implements LogService {
     CompanyService companyService;
 
     @Autowired
-    TrackDao trackDao;
+    EntityDaoNeo trackDao;
 
     @Override
     public Collection<TrackResultBean> processLogsSync(Company company, Iterable<TrackResultBean> resultBeans) throws DatagioException, IOException, ExecutionException, InterruptedException {
@@ -96,7 +96,6 @@ public class LogServiceNeo4j implements LogService {
     }
 
     TrackResultBean processLogFromResult(TrackResultBean resultBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
-        //DAT-77 the header may still be committing in another thread
         if (resultBean.getLog() == null)
             return resultBean;
 
@@ -104,19 +103,19 @@ public class LogServiceNeo4j implements LogService {
     }
 
     @Override
-    public TrackResultBean writeLog(MetaHeader metaHeader, LogInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException {
+    public TrackResultBean writeLog(Entity entity, LogInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException {
 
-        TrackResultBean resultBean = new TrackResultBean(metaHeader);
+        TrackResultBean resultBean = new TrackResultBean(entity);
         resultBean.setLogInput(input);
         ArrayList<TrackResultBean> logs = new ArrayList<>();
         logs.add(resultBean);
-        return processLogsSync(metaHeader.getFortress().getCompany(), logs).iterator().next();
+        return processLogsSync(entity.getFortress().getCompany(), logs).iterator().next();
     }
 
     /**
      * Deadlock safe processor to creates a log
      *
-     * @param resultBean details to write the log from. Will always contain a metaHeader
+     * @param resultBean details to write the log from. Will always contain an entity
      * @return result details
      * @throws com.auditbucket.helper.DatagioException
      */
@@ -132,14 +131,14 @@ public class LogServiceNeo4j implements LogService {
                 // ToDo: DAT-169 This needs to be dealt with via SpringIntegration and persistent messaging
                 result = writeLog(resultBean);
                 if (result.getLogResult().getStatus() == LogInputBean.LogStatus.NOT_FOUND)
-                    throw new DatagioException("Unable to find MetaHeader ");
+                    throw new DatagioException("Unable to find Entity ");
                 kvService.doKvWrite(result); //ToDo: Consider KV not available. How to write the logs
-                //      need to think of a way to recognize that the header has unprocessed work
+                //      need to think of a way to recognize that the entity has unprocessed work
                 return this;
             }
         }
         DeadLockCommand c = new DeadLockCommand();
-        DeadlockRetry.execute(c, "processing log for header", 20);
+        DeadlockRetry.execute(c, "processing log for entity", 20);
         return c.result;
 
     }
@@ -154,41 +153,41 @@ public class LogServiceNeo4j implements LogService {
     TrackResultBean writeLog(TrackResultBean trackResultBean) throws DatagioException, IOException {
         LogInputBean input = trackResultBean.getLog();
 
-        MetaHeader metaHeader = trackResultBean.getMetaHeader();
+        Entity entity = trackResultBean.getEntity();
 
-        logger.debug("writeLog - Received log request for header=[{}]", metaHeader);
+        logger.debug("writeLog - Received log request for entity [{}]", entity);
 
-        LogResultBean resultBean = new LogResultBean(input, metaHeader);
-        if (metaHeader == null) {
+        LogResultBean resultBean = new LogResultBean(input, entity);
+        if (entity == null) {
             resultBean.setStatus(LogInputBean.LogStatus.NOT_FOUND);
-            resultBean.setMessage("Unable to locate requested header");
+            resultBean.setMessage("Unable to locate requested entity");
             logger.debug(resultBean.getMessage());
             trackResultBean.setLogResult(resultBean);
             return trackResultBean;
         }
-        logger.trace("looking for fortress user {}", metaHeader.getFortress());
-        String fortressUser = (input.getFortressUser() != null ? input.getFortressUser() : trackResultBean.getMetaInputBean().getFortressUser());
-        FortressUser thisFortressUser = fortressService.getFortressUser(metaHeader.getFortress(), fortressUser, true);
-        trackResultBean.setLogResult(createLog(metaHeader, input, thisFortressUser));
+        logger.trace("looking for fortress user {}", entity.getFortress());
+        String fortressUser = (input.getFortressUser() != null ? input.getFortressUser() : trackResultBean.getEntityInputBean().getFortressUser());
+        FortressUser thisFortressUser = fortressService.getFortressUser(entity.getFortress(), fortressUser, true);
+        trackResultBean.setLogResult(createLog(entity, input, thisFortressUser));
         return trackResultBean;
     }
 
     /**
-     * Event log record for the supplied metaHeader from the supplied input
+     * Event log record for the supplied entity from the supplied input
      *
-     * @param authorisedHeader metaHeader the caller is authorised to work with
+     * @param entity entity the caller is authorised to work with
      * @param input            trackLog details containing the data to log
      * @param thisFortressUser User name in calling system that is making the change
      * @return populated log information with any error messages
      */
-    LogResultBean createLog(MetaHeader authorisedHeader, LogInputBean input, FortressUser thisFortressUser) throws DatagioException, IOException {
+    LogResultBean createLog(Entity entity, LogInputBean input, FortressUser thisFortressUser) throws DatagioException, IOException {
         // Warning - making this private means it doesn't get a transaction!
 
-        Fortress fortress = authorisedHeader.getFortress();
+        Fortress fortress = entity.getFortress();
 
         // Transactions checks
         TxRef txRef = txService.handleTxRef(input, fortress.getCompany());
-        LogResultBean resultBean = new LogResultBean(input, authorisedHeader);
+        LogResultBean resultBean = new LogResultBean(input, entity);
         //ToDo: May want to track a "View" event which would not change the What data.
         if (input.getWhat() == null || input.getWhat().isEmpty()) {
             resultBean.setStatus(LogInputBean.LogStatus.IGNORE);
@@ -199,14 +198,14 @@ public class LogServiceNeo4j implements LogService {
         resultBean.setTxReference(txRef);
 
         TrackLog existingLog;
-        existingLog = getLastLog(authorisedHeader);
+        existingLog = getLastLog(entity);
 
         Boolean searchActive = fortress.isSearchActive();
         DateTime fortressWhen = (input.getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(input.getWhen()));
 
         if (existingLog != null) {
             logger.debug("createLog, existing log found {}", existingLog);
-            boolean unchanged = kvService.isSame(authorisedHeader, existingLog.getLog(), input.getWhat());
+            boolean unchanged = kvService.isSame(entity, existingLog.getLog(), input.getWhat());
             if (unchanged) {
                 logger.trace("Ignoring a change we already have {}", input);
                 resultBean.setStatus(LogInputBean.LogStatus.IGNORE);
@@ -222,32 +221,32 @@ public class LogServiceNeo4j implements LogService {
                 input.setEvent(Log.UPDATE);
             }
 //            if (searchActive)
-//                authorisedHeader = waitOnInitialSearchResult(authorisedHeader);
+//                entity = waitOnInitialSearchResult(entity);
 
 
-        } else { // first ever log for the metaHeader
-            logger.debug("createLog - first log created for the header");
+        } else { // first ever log for the entity
+            logger.debug("createLog - first log created for the entity");
             if (input.getEvent() == null) {
                 input.setEvent(Log.CREATE);
             }
-            //if (!metaHeader.getLastUser().getId().equals(thisFortressUser.getId())){
-            authorisedHeader.setLastUser(thisFortressUser);
-            authorisedHeader.setCreatedBy(thisFortressUser);
+            //if (!entity.getLastUser().getId().equals(thisFortressUser.getId())){
+            entity.setLastUser(thisFortressUser);
+            entity.setCreatedBy(thisFortressUser);
         }
 
         Log thisLog = trackDao.prepareLog(thisFortressUser, input, txRef, (existingLog != null ? existingLog.getLog() : null));
         // Prepares the change
         input.setChangeEvent(thisLog.getEvent());
         resultBean.setWhatLog(thisLog);
-        resultBean.setMetaHeader(authorisedHeader);
+        resultBean.setEntity(entity);
 
-        if (authorisedHeader.getId() == null)
+        if (entity.getId() == null)
             input.setStatus(LogInputBean.LogStatus.TRACK_ONLY);
         else
             input.setStatus(LogInputBean.LogStatus.OK);
 
-        // This call also saves the header
-        TrackLog newLog = trackDao.addLog(authorisedHeader, thisLog, fortressWhen, existingLog);
+        // This call also saves the entity
+        TrackLog newLog = trackDao.addLog(entity, thisLog, fortressWhen, existingLog);
 
         resultBean.setSysWhen(newLog.getSysWhen());
 
@@ -261,11 +260,11 @@ public class LogServiceNeo4j implements LogService {
     }
 
     @Override
-    public TrackLog getLastLog(MetaHeader metaHeader) throws DatagioException {
-        if (metaHeader == null || metaHeader.getId() == null)
+    public TrackLog getLastLog(Entity entity) throws DatagioException {
+        if (entity == null || entity.getId() == null)
             return null;
-        logger.trace("Getting lastLog MetaID [{}]", metaHeader.getId());
-        return trackDao.getLastLog(metaHeader.getId());
+        logger.trace("Getting lastLog MetaID [{}]", entity.getId());
+        return trackDao.getLastLog(entity.getId());
     }
 
     void distributeChanges(Company company, Iterable<TrackResultBean> resultBeans) throws IOException {
@@ -275,26 +274,26 @@ public class LogServiceNeo4j implements LogService {
         logger.debug("Distributed changes to search service");
     }
 
-//    private MetaHeader waitOnInitialSearchResult(MetaHeader metaHeader) {
+//    private Entity waitOnInitialSearchResult(Entity entity) {
 //
-//        if (metaHeader.isSearchSuppressed() || metaHeader.getSearchKey() != null)
-//            return metaHeader; // Nothing to wait for as we're suppressing searches for this metaHeader
+//        if (entity.isSearchSuppressed() || entity.getSearchKey() != null)
+//            return entity; // Nothing to wait for as we're suppressing searches for this entity
 //
 //        int timeOut = 100;
 //        int i = 0;
 //
-//        while (metaHeader.getSearchKey() == null && i < timeOut) {
+//        while (entity.getSearchKey() == null && i < timeOut) {
 //            i++;
 //            try {
 //                Thread.sleep(300);
 //            } catch (InterruptedException e) {
 //                logger.error(e.getMessage());
 //            }
-//            metaHeader = getHeader(metaHeader.getId());
+//            entity = getHeader(entity.getId());
 //        }
-//        if (metaHeader.getSearchKey() == null)
-//            logger.error("Timeout waiting for the initial search document to be created [{}]", metaHeader.getMetaKey());
-//        return metaHeader;
+//        if (entity.getSearchKey() == null)
+//            logger.error("Timeout waiting for the initial search document to be created [{}]", entity.getMetaKey());
+//        return entity;
 //
 //    }
 
