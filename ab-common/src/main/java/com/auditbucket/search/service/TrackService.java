@@ -14,6 +14,8 @@ public interface TrackService {
 
     void createSearchableChange(EntitySearchChanges changes) throws IOException;
 
+    void createSearchableChange(byte[] bytes) throws IOException;
+
     void delete(Entity entity);
 
     byte[] findOne(Entity header);

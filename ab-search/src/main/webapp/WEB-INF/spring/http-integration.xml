@@ -30,9 +30,9 @@
 		http://www.springframework.org/schema/integration/http/spring-integration-http.xsd">
 
     <int:annotation-config/>
-    <beans:bean class="org.springframework.integration.http.inbound.UriPathHandlerMapping"/>
+    <beans:bean class="org.springframework.integration.http.inbound.IntegrationRequestMappingHandlerMapping"/>
 
-    <int-http:inbound-gateway request-channel="makeSearchRequest"
+    <int-http:inbound-gateway request-channel="syncSearchDocs"
                               reply-channel="nullChannel"
                               path="/api/esMake"
                               reply-timeout="${reply.timeout}"
@@ -42,7 +42,7 @@
                               supported-methods="POST"/>
 
     <int-http:outbound-gateway reply-timeout="1000"
-                               request-channel="searchResult"
+                               request-channel="searchDocSyncResult"
                                reply-channel="nullChannel"
                                http-method="POST"
                                url="${abengine.result}"/>

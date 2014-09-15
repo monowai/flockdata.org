@@ -36,7 +36,7 @@
 
     <int:json-to-object-transformer id="jsonToObject"
                                     input-channel="searchReply"
-                                    output-channel="searchResult"
+                                    output-channel="searchDocSyncResult"
                                     type="com.auditbucket.search.model.SearchResults">
     </int:json-to-object-transformer>
 
@@ -49,17 +49,15 @@
 
     <int:object-to-json-transformer id="objectToJson"
                                     input-channel="sendRequest"
-                                    output-channel="makeSearchRequest"
-                                    content-type="application/json">
+                                    output-channel="syncSearchDocs">
     </int:object-to-json-transformer>
 
     <int:object-to-json-transformer id="objectToJson2"
                                     input-channel="sendSearchRequest"
-                                    output-channel="doMetaKeyQuery"
-                                    content-type="application/json">
+                                    output-channel="doMetaKeyQuery">
     </int:object-to-json-transformer>
 
-    <int:channel id="makeSearchRequest">
+    <int:channel id="syncSearchDocs">
         <int:dispatcher task-executor="qExecutor"/>
     </int:channel>
 
@@ -67,7 +65,7 @@
         <int:dispatcher task-executor="qExecutor"/>
     </int:channel>
 
-    <int:channel id="searchResult">
+    <int:channel id="searchDocSyncResult">
         <int:dispatcher task-executor="qExecutor"/>
     </int:channel>
     <int:channel id="sendRequest"/>

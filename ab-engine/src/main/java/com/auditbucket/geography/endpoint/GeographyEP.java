@@ -7,10 +7,7 @@ import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 
@@ -22,7 +19,7 @@ import java.util.Collection;
  * Time: 11:41 AM
  * To change this template use File | Settings | File Templates.
  */
-@Controller
+@RestController
 @RequestMapping("/geo")
 public class GeographyEP {
 
@@ -32,7 +29,6 @@ public class GeographyEP {
     RegistrationService regService;
 
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
-    @ResponseBody
     public Collection<Tag> findCountries(String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         return geoService.findCountries(regService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey)));
     }

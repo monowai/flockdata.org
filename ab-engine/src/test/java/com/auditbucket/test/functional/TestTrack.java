@@ -923,7 +923,7 @@ public class TestTrack extends TestEngineBase {
 
         TrackResultBean result = mediationFacade.trackHeader(fortress, inputBean); // Mock result as we're not tracking
 
-        fortress = fortressService.findByName("clientInDifferentTZ");
+        fortress = fortressService.findByName(su.getCompany(), fortressBean.getName());
         assertNotNull (fortress);
         assertEquals(fortressTz, fortress.getTimeZone());
 

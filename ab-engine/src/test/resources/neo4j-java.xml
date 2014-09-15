@@ -24,7 +24,7 @@
 http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <util:map id="config">
-        <entry key="remote_shell_enabled" value="true"/>
+        <entry key="remote_shell_enabled" value="false"/>
     </util:map>
     <bean id="graphDbFactory" class="org.neo4j.graphdb.factory.GraphDatabaseFactory"/>
 

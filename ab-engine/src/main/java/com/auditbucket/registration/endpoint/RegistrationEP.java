@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.*;
  * Date: 4/05/13
  * Time: 8:23 PM
  */
-@Controller
+@RestController
 // Customise a dispatcher in web.xml
 @RequestMapping("/profiles")
 public class RegistrationEP {
@@ -49,7 +49,7 @@ public class RegistrationEP {
 
 
     @RequestMapping(value = "/", consumes = "application/json", method = RequestMethod.POST)
-    @ResponseBody
+
     public ResponseEntity<SystemUserResultBean> registerSystemUser(@RequestBody RegistrationBean regBean) throws DatagioException {
         // curl -u admin:hackme -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/profiles/register -d '{"name":"mikey", "companyName":"Monowai Dev","password":"whocares"}'
         SystemUser su = regService.registerSystemUser( regBean);
@@ -61,7 +61,7 @@ public class RegistrationEP {
     }
 
     @RequestMapping(value = "/me", method = RequestMethod.GET)
-    @ResponseBody
+
     public SystemUserResultBean get(@RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         // curl -u batch:123 -X GET http://localhost:8080/ab/profiles/me/
 

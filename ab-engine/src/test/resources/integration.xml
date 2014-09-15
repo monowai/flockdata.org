@@ -34,7 +34,7 @@
 
     <int:json-to-object-transformer id="jsonToObject"
                                     input-channel="searchReply"
-                                    output-channel="searchResult"
+                                    output-channel="searchDocSyncResult"
                                     type="com.auditbucket.search.model.SearchResults">
     </int:json-to-object-transformer>
 
@@ -47,7 +47,7 @@
 
     <int:object-to-json-transformer id="objectToJson"
                                     input-channel="sendRequest"
-                                    output-channel="makeSearchRequest"
+                                    output-channel="syncSearchDocs"
                                     content-type="application/json">
     </int:object-to-json-transformer>
 
@@ -61,7 +61,7 @@
                    rejection-policy="CALLER_RUNS"/>
 
 
-    <int:channel id="makeSearchRequest">
+    <int:channel id="syncSearchDocs">
         <int:dispatcher task-executor="ab-engine"/>
     </int:channel>
 
@@ -69,7 +69,7 @@
         <int:dispatcher task-executor="ab-engine"/>
     </int:channel>
 
-    <int:channel id="searchResult">
+    <int:channel id="searchDocSyncResult">
         <!--Enabling taskexecutor resulted in transformation failure under http-->
         <!--<int:dispatcher task-executor="taskExecutor"/>-->
     </int:channel>

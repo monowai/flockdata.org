@@ -17,15 +17,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@Controller
+@RestController
 public class AuthenticationEP {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationEP.class);
@@ -38,7 +35,7 @@ public class AuthenticationEP {
     private UserProfileService userProfileService;
 
     @RequestMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
-    @ResponseBody
+
     public ResponseEntity<UserProfile> handleLogin(@RequestBody LoginRequest loginRequest) throws Exception {
         String username = loginRequest.getUsername();
         String password = loginRequest.getPassword();
@@ -56,7 +53,7 @@ public class AuthenticationEP {
      * GET  /account -> get the current user.
      */
     @RequestMapping(value = "/account", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    @ResponseBody
+
     public ResponseEntity<UserProfile> checkUser() throws Exception {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || auth instanceof AnonymousAuthenticationToken) {
@@ -70,7 +67,7 @@ public class AuthenticationEP {
      * GET  /logout -> logout the current user.
      */
     @RequestMapping(value = "/logout", method = RequestMethod.GET)
-    @ResponseBody
+
     public void handleLogout(HttpServletRequest request, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {

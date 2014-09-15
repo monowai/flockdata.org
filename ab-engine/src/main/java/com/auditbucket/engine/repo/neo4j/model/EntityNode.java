@@ -99,6 +99,8 @@ public class EntityNode implements Entity {
 
     private String description;
 
+    private int search=0;
+
     //@Indexed
     private String searchKey = null;
 
@@ -297,6 +299,11 @@ public class EntityNode implements Entity {
 
     public String getDescription() {
         return description;
+    }
+
+    @Override
+    public void bumpSearch() {
+        search++; // Increases the search count of the entity.
     }
 
     @Override

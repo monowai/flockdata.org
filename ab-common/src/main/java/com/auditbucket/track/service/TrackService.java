@@ -90,7 +90,7 @@ public interface TrackService {
 
     void purge(Fortress fortress);
 
-    void saveMetaData(SearchResult searchResult, Long metaId);
+    void recordSearchResult(SearchResult searchResult, Long metaId);
 
     Set<TrackTag> getLastLogTags(Company company, String metaKey) throws DatagioException;
 

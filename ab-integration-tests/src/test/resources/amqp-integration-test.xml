@@ -35,7 +35,7 @@
 
     <!-- from RabbitMq to Ab-engine-->
     <int-amqp:inbound-gateway id="inboundGateway"
-                              request-channel="searchResult"
+                              request-channel="searchDocSyncResult"
                               queue-names="${ab.engine.queue}"
                               shutdown-timeout="3000"
                               concurrent-consumers="50"
@@ -47,10 +47,11 @@
                               message-converter="jsonToSearchResultConverter"/>
 
     <int-amqp:outbound-gateway
-            request-channel="makeSearchRequest"
+            request-channel="syncSearchDocs"
             reply-channel="nullChannel"
             routing-key="${ab.search.binding}"
             exchange-name="${ab.search.exchange}"
+            requires-reply="false"
             reply-timeout="${reply.timeout}"
             amqp-template="amqpTemplate"/>
 

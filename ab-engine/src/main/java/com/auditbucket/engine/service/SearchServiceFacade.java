@@ -19,7 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -33,6 +35,7 @@ import java.util.HashMap;
  * To change this template use File | Settings | File Templates.
  */
 @Service
+@Transactional
 public class SearchServiceFacade {
     private Logger logger = LoggerFactory.getLogger(SearchServiceFacade.class);
 
@@ -55,16 +58,21 @@ public class SearchServiceFacade {
     @Autowired
     FortressService fortressService;
 
+    static final ObjectMapper objectMapper = new ObjectMapper();
 
-    /**
-     * Callback handler that is invoked from ab-search. This routine ties the generated search document ID
-     * to the Entity
-     * <p/>
-     * ToDo: On completion of this, an outbound message should be posted so that the caller can be made aware(?)
-     *
-     * @param searchResults contains keys to tie the search to the meta header
-     */
-    @ServiceActivator(inputChannel = "searchResult")
+    @ServiceActivator(inputChannel = "searchDocSyncResult")
+    public void handleSearchResult(byte[] searchResults) throws IOException {
+        handleSearchResult(objectMapper.readValue(searchResults, SearchResults.class ));
+    }
+
+        /**
+         * Callback handler that is invoked from ab-search. This routine ties the generated search document ID
+         * to the Entity
+         * <p/>
+         * ToDo: On completion of this, an outbound message should be posted so that the caller can be made aware(?)
+         *
+         * @param searchResults contains keys to tie the search to the meta header
+         */
     public void handleSearchResult(SearchResults searchResults) {
         Collection<SearchResult> theResults = searchResults.getSearchResults();
         int count = 0;
@@ -77,7 +85,7 @@ public class SearchServiceFacade {
             if (metaId == null)
                 return;
 
-            trackService.saveMetaData(searchResult, metaId);
+            trackService.recordSearchResult(searchResult, metaId);
         }
         logger.debug("Finished processing search results");
     }

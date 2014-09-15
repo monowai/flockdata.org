@@ -31,7 +31,7 @@
 
     <int:annotation-config/>
 
-    <bean class="org.springframework.integration.http.inbound.UriPathHandlerMapping"/>
+    <bean class="org.springframework.integration.http.inbound.IntegrationRequestMappingHandlerMapping"/>
 
     <int-http:outbound-gateway request-channel="doMetaKeyQuery"
                                reply-channel="doMetaKeyReply"

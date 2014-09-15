@@ -34,14 +34,14 @@ import org.springframework.web.bind.annotation.*;
  * Time: 10:03 PM
  */
 @RequestMapping("/query")
-@Controller
+@RestController
 public class ElasticSearchEP {
     @Autowired
     QueryService searchService;
 
 
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.POST)
-    @ResponseBody
+
     public String simpleQuery(@RequestBody QueryParams queryParams,
                             @RequestHeader(value = "Api-Key", required = false)
                             String apiHeaderKey) throws DatagioException {
@@ -50,7 +50,7 @@ public class ElasticSearchEP {
     }
 
     @RequestMapping(value = "/metaKeys", produces = "application/json", method = RequestMethod.POST)
-    @ResponseBody
+
     public EsSearchResult metaKeys(@RequestBody QueryParams queryParams,
                               @RequestHeader(value = "Api-Key", required = false)
                               String apiHeaderKey) throws DatagioException {

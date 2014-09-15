@@ -20,7 +20,7 @@
 package com.auditbucket.helper;
 
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.json.MappingJacksonJsonView;
+import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import java.util.HashMap;
 
@@ -38,13 +38,13 @@ public class JsonMessage {
         this.message = message;
     }
     public ModelAndView asModelAndViewError() {
-        MappingJacksonJsonView jsonView = new MappingJacksonJsonView();
+        MappingJackson2JsonView jsonView = new MappingJackson2JsonView();
         HashMap<String,Object> map = new HashMap<>();
         map.put("error", message);
         return new ModelAndView(jsonView, map );
     }
     public ModelAndView asModelAndViewMessage() {
-        MappingJacksonJsonView jsonView = new MappingJacksonJsonView();
+        MappingJackson2JsonView jsonView = new MappingJackson2JsonView();
         HashMap<String,Object> map = new HashMap<>();
         map.put("message", message);
         return new ModelAndView(jsonView, map );
