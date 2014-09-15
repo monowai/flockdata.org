@@ -26,9 +26,8 @@ import java.util.Map;
  * Time: 9:09 PM
  * To change this template use File | Settings | File Templates.
  */
-@Controller
+@RestController
 @RequestMapping("/admin")
-
 public class AdminEP {
 
     @Autowired
@@ -51,14 +50,14 @@ public class AdminEP {
 
     }
 
-    @ResponseBody
+
     @RequestMapping(value = "/ping", method = RequestMethod.GET)
     public String getPing() {
         // curl -X GET http://localhost:8081/ab-engine/v1/track/ping
         return "Pong!";
     }
 
-    @ResponseBody
+
     @RequestMapping(value = "/health", method = RequestMethod.GET)
     public Map<String, String> getHealth(HttpServletRequest request) throws DatagioException {
         String apiKey = request.getHeader(ApiKeyInterceptor.API_KEY);
@@ -70,7 +69,7 @@ public class AdminEP {
         return engineConfig.getHealth();
     }
 
-    @ResponseBody
+
     @RequestMapping(value = "/{fortressName}/rebuild", method = RequestMethod.POST)
     public ResponseEntity<String> rebuildSearch(@PathVariable("fortressName") String fortressName,
                                                 String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
@@ -80,7 +79,7 @@ public class AdminEP {
         return new ResponseEntity<>("Request to reindex has been received", HttpStatus.ACCEPTED);
     }
 
-    @ResponseBody
+
     @RequestMapping(value = "/{fortressName}/{docType}/rebuild", method = RequestMethod.POST)
     public ResponseEntity<String> rebuildSearch(@PathVariable("fortressName") String fortressName, @PathVariable("docType") String docType
             , String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
@@ -99,7 +98,7 @@ public class AdminEP {
         return company;
     }
 
-    @ResponseBody
+
     @RequestMapping(value = "/{fortressName}", method = RequestMethod.DELETE)
     public ResponseEntity<String> purgeFortress(@PathVariable("fortressName") String fortressName,
                                                 String apiKey,

@@ -44,7 +44,7 @@ import java.util.Collection;
  * Date: 4/05/13
  * Time: 8:23 PM
  */
-@Controller
+@RestController
 @RequestMapping("/fortress")
 public class FortressEP {
 
@@ -58,7 +58,7 @@ public class FortressEP {
     SecurityHelper securityHelper;
 
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
-    @ResponseBody
+
     public Collection<Fortress> findFortresses(HttpServletRequest request) throws DatagioException {
         // curl -u mike:123 -X GET  http://localhost:8080/ab/company/Monowai/fortresses
         Company company = CompanyResolver.resolveCompany(request);
@@ -66,7 +66,7 @@ public class FortressEP {
     }
 
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
-    @ResponseBody
+
     public ResponseEntity<Fortress> registerFortress( @RequestBody FortressInputBean fortressInputBean, HttpServletRequest request) throws DatagioException {
         Company company = CompanyResolver.resolveCompany(request);
         Fortress fortress = fortressService.registerFortress(company, fortressInputBean, true);
@@ -76,7 +76,7 @@ public class FortressEP {
     }
 
     @RequestMapping(value = "/{code}", method = RequestMethod.GET)
-    @ResponseBody
+
     public ResponseEntity<Fortress> getFortress(@PathVariable("code") String fortressName, HttpServletRequest request) throws DatagioException {
         Company company = CompanyResolver.resolveCompany(request);
         Fortress fortress = fortressService.findByCode(company, fortressName);
@@ -87,7 +87,7 @@ public class FortressEP {
     }
 
     @RequestMapping(value = "/{code}/docs", method = RequestMethod.GET)
-    @ResponseBody
+
     public Collection<DocumentResultBean> getDocumentTypes(@PathVariable("code") String code, HttpServletRequest request) throws DatagioException {
         Company company = CompanyResolver.resolveCompany(request);
         return  fortressService.getFortressDocumentsInUse(company, code);

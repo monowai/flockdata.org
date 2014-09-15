@@ -34,7 +34,7 @@
     <int:gateway id="abMonitoringGateway"
                  service-interface="com.auditbucket.engine.service.AbMonitoringGateway"/>
 
-    <bean class="org.springframework.integration.http.inbound.UriPathHandlerMapping"/>
+    <bean class="org.springframework.integration.http.inbound.IntegrationRequestMappingHandlerMapping"/>
 
     <!-- Channels Definitions
          qExceutor must be declared in the Parent XML SI config XML.

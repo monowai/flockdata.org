@@ -37,7 +37,6 @@ public interface AbSearchGateway {
     public void makeSearchChanges(EntitySearchChanges searchChanges);
 
     @Gateway(requestChannel = "sendSearchRequest", replyChannel = "sendSearchReply")
-
     public EsSearchResult search(QueryParams queryParams);
 
     public void delete(Entity entity, String searchKey);

@@ -21,7 +21,8 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.engine.endpoint.QueryEP;
 import com.auditbucket.engine.endpoint.TrackEP;
-import com.auditbucket.engine.service.*;
+import com.auditbucket.engine.service.FortressService;
+import com.auditbucket.engine.service.QueryService;
 import com.auditbucket.helper.JsonUtils;
 import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.bean.FortressInputBean;
@@ -40,7 +41,10 @@ import com.auditbucket.track.bean.*;
 import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.TrackLog;
 import com.auditbucket.track.model.TrackTag;
-import com.auditbucket.track.service.*;
+import com.auditbucket.track.service.EntityTagService;
+import com.auditbucket.track.service.LogService;
+import com.auditbucket.track.service.MediationFacade;
+import com.auditbucket.track.service.TrackService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.searchbox.client.JestClient;
@@ -54,7 +58,10 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -283,8 +290,9 @@ public class TestABIntegration {
         inputBean.setMetaOnly(true); // Must be true to make over to search
         TrackResultBean trackResult;
         trackResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        waitForEntitiesToUpdate(su.getCompany(), trackResult.getEntity());
+        waitForEntitiesSearchUpdate(su.getCompany(), trackResult.getEntity().getMetaKey());
         EntitySummaryBean summary = mediationFacade.getEntitySummary(su.getCompany(), trackResult.getMetaKey());
+        waitForEntitiesSearchUpdate(su.getCompany(), trackResult.getMetaKey());
         assertNotNull(summary);
         assertSame("change logs were not expected", 0, summary.getChanges().size());
         assertNotNull("Search record not received", summary.getHeader().getSearchKey());
@@ -298,7 +306,7 @@ public class TestABIntegration {
         assertNotNull(summary);
         assertSame("No change logs were expected", 0, summary.getChanges().size());
         assertNull(summary.getHeader().getSearchKey());
-        // Check we can find the Event in ElasticSearch
+        // Check we can't find the Event in ElasticSearch
         doEsQuery(summary.getHeader().getIndexName(), "ZZZ999", 0);
     }
 
@@ -332,7 +340,7 @@ public class TestABIntegration {
     @Test
     public void
     createHeaderTimeLogsWithSearchActivated() throws Exception {
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## createHeaderTimeLogsWithSearchActivated");
         int max = 3;
         String ahKey;

@@ -41,7 +41,7 @@ import java.util.Collection;
  * Date: 4/05/13
  * Time: 8:23 PM
  */
-@Controller
+@RestController
 @RequestMapping("/company")
 public class CompanyEP {
 
@@ -61,13 +61,13 @@ public class CompanyEP {
     RegistrationService registrationService;
 
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
-    @ResponseBody
+
     public Collection<Company> findCompanies(String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         return companyService.findCompanies(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
     }
 
     @RequestMapping(value = "/{companyName}", method = RequestMethod.GET)
-    @ResponseBody
+
     public ResponseEntity<Company> getCompany(@PathVariable("companyName") String companyName,
                                               String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
         // curl -u mike:123 -X GET http://localhost:8080/ab/company/Monowai
@@ -90,7 +90,7 @@ public class CompanyEP {
      * All documents in use by a company
      */
     @RequestMapping(value = "/documents", method = RequestMethod.GET)
-    @ResponseBody
+
     public Collection<DocumentResultBean> getDocumentTypes(
             String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
 

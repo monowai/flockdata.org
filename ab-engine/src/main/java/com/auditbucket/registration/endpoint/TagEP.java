@@ -42,7 +42,7 @@ import java.util.concurrent.ExecutionException;
  * User: Mike Holdsworth
  * Since: 8/11/13
  */
-@Controller
+@RestController
 @RequestMapping("/tag")
 public class TagEP {
 
@@ -56,7 +56,7 @@ public class TagEP {
     MediationFacade mediationFacade;
 
 
-    @ResponseBody
+
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
     public Collection<Tag> createTags(@RequestBody List<TagInputBean> tagInputs,
                                                String apiKey,
@@ -67,7 +67,7 @@ public class TagEP {
 
     }
 
-    @ResponseBody
+
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.DELETE)
     public ResponseEntity<String> purgeUnusedConcepts(
                                                String apiKey,
@@ -79,7 +79,7 @@ public class TagEP {
 
     }
 
-    @ResponseBody
+
     @RequestMapping(value = "/{type}", produces = "application/json", consumes = "application/json", method = RequestMethod.DELETE)
     public ResponseEntity<String> deleteConcepts( @PathVariable("type") String type,
                                                               String apiKey,
@@ -92,7 +92,7 @@ public class TagEP {
     }
 
 
-    @ResponseBody
+
     @RequestMapping(value = "/{type}", produces = "application/json", consumes = "application/json", method = RequestMethod.GET)
     public Collection<Tag> getTags(@PathVariable("type") String index,
                                    String apiKey,

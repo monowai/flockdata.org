@@ -30,7 +30,7 @@
 		http://www.springframework.org/schema/integration/http/spring-integration-http.xsd">
 
     <int:annotation-config/>
-    <beans:bean class="org.springframework.integration.http.inbound.UriPathHandlerMapping"/>
+    <beans:bean class="org.springframework.integration.http.inbound.IntegrationRequestMappingHandlerMapping"/>
 
     <!-- Channels Definitions for Ping AB-Engine ==> Ab-Search -->
     <int:channel id="doEsPingRequest"/>

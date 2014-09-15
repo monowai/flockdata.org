@@ -110,29 +110,17 @@
             <version>${org.aspectj-version}</version>
         </dependency>
 
-        <!--This one is for Spring-->
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-core-asl</artifactId>
-            <version>1.9.13</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-asl</artifactId>
-            <version>1.9.13</version>
-        </dependency>
-
+        <!--This one is for Spring Integration-->
         <!--<dependency>-->
-        <!--<groupId>com.fasterxml.jackson.core</groupId>-->
-        <!--<artifactId>jackson-core</artifactId>-->
-        <!--<version>${jackson.version}</version>-->
+            <!--<groupId>org.codehaus.jackson</groupId>-->
+            <!--<artifactId>jackson-core-asl</artifactId>-->
+            <!--<version>1.9.13</version>-->
         <!--</dependency>-->
         <!--<dependency>-->
-        <!--<groupId>com.fasterxml.jackson.core</groupId>-->
-        <!--<artifactId>jackson-databind</artifactId>-->
-        <!--<version>${jackson.version}</version>-->
+            <!--<groupId>org.codehaus.jackson</groupId>-->
+            <!--<artifactId>jackson-mapper-asl</artifactId>-->
+            <!--<version>1.9.13</version>-->
         <!--</dependency>-->
-
 
         <!-- Servlet -->
         <dependency>
@@ -157,43 +145,38 @@
             <scope>test</scope>
         </dependency>
 
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <version>${org.springframework-version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.8.2</version>
-            <scope>test</scope>
-        </dependency>
-
         <!--Search Engine-->
         <dependency>
             <groupId>fr.pilato.spring</groupId>
             <artifactId>spring-elasticsearch</artifactId>
             <version>1.3.0</version>
-
         </dependency>
+
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
             <version>${es.version}</version>
         </dependency>
+
         <dependency>
             <groupId>com.monowai</groupId>
             <artifactId>ab-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.monowai</groupId>
+            <artifactId>ab-security</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>io.searchbox</groupId>
             <artifactId>jest</artifactId>
             <version>0.1.0</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>

@@ -30,7 +30,7 @@
 		http://www.springframework.org/schema/integration/http/spring-integration-http.xsd">
 
     <int:annotation-config/>
-    <beans:bean class="org.springframework.integration.http.inbound.UriPathHandlerMapping"/>
+    <beans:bean class="org.springframework.integration.http.inbound.IntegrationRequestMappingHandlerMapping"/>
 
     <int-http:inbound-gateway request-channel="doMetaKeyQuery"
                               reply-channel="doMetaKeyReply"

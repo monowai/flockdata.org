@@ -139,4 +139,7 @@ public interface Entity {
     String getCallerKeyRef();
 
     String getDescription();
+
+    void bumpSearch();
+
 }

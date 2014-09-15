@@ -31,15 +31,15 @@
 
     <int:annotation-config/>
 
-    <bean class="org.springframework.integration.http.inbound.UriPathHandlerMapping"/>
+    <bean class="org.springframework.integration.http.inbound.IntegrationRequestMappingHandlerMapping"/>
 
-    <int-http:outbound-gateway request-channel="makeSearchRequest"
+    <int-http:outbound-gateway request-channel="syncSearchDocs"
                                reply-channel="nullChannel"
                                reply-timeout="${reply.timeout}"
                                url="${absearch.make}"
                                extract-request-payload="true"/>
 
-    <int-http:inbound-gateway request-channel="searchResult"
+    <int-http:inbound-gateway request-channel="searchDocSyncResult"
                               path="/api/searchResult"
                               reply-timeout="${reply.timeout}"
                               request-timeout="${request.timeout}"

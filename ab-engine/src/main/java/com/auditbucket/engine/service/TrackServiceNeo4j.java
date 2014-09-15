@@ -223,7 +223,7 @@ public class TrackServiceNeo4j implements TrackService {
 
     @Override
     public void updateHeader(Entity entity) {
-        trackDao.save(entity);
+        trackDao.save(entity );
     }
 
     @Override
@@ -296,7 +296,7 @@ public class TrackServiceNeo4j implements TrackService {
             entity.setLastUser(fortressService.getFortressUser(entity.getFortress(), entity.getCreatedBy().getCode()));
             entity.setFortressLastWhen(0l);
             entity.setSearchKey(null);
-            entity = trackDao.save(entity);
+            entity = trackDao.save(entity );
             trackDao.delete(currentLog);
         }
         kvService.delete(entity, currentLog); // ToDo: Move to mediation facade
@@ -611,7 +611,7 @@ public class TrackServiceNeo4j implements TrackService {
     }
 
     @Override
-    public void saveMetaData(SearchResult searchResult, Long metaId) {
+    public void recordSearchResult(SearchResult searchResult, Long metaId) {
         // Only exists and is public because we need the transaction
         Entity entity;
         try {
@@ -628,7 +628,8 @@ public class TrackServiceNeo4j implements TrackService {
 
         if (entity.getSearchKey() == null) {
             entity.setSearchKey(searchResult.getSearchKey());
-            trackDao.save(entity);
+            entity.bumpSearch();
+            trackDao.save(entity, true); // We don't treat this as a "changed" so we do it quietly
             logger.trace("Updating Header{} search searchResult =[{}]", entity.getMetaKey(), searchResult);
         }
 

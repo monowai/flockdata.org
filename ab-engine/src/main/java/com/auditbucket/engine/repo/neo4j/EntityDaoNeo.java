@@ -79,10 +79,6 @@ public class EntityDaoNeo {
 
     private Logger logger = LoggerFactory.getLogger(EntityDaoNeo.class);
 
-    public Entity save(Entity entity) {
-        return save(entity, null);
-    }
-
     public Entity create(EntityInputBean inputBean, Fortress fortress, DocumentType documentType) throws DatagioException {
         String metaKey = ( inputBean.isTrackSuppressed()?null:keyGenService.getUniqueKey());
         Entity entity = new EntityNode(metaKey, fortress, inputBean, documentType);
@@ -90,7 +86,7 @@ public class EntityDaoNeo {
         if (! inputBean.isTrackSuppressed()) {
             logger.debug("Creating {}", entity);
 
-            entity = save(entity, documentType);
+            entity = save(entity);
             Node node = template.getPersistentState(entity);
             node.addLabel(DynamicLabel.label(documentType.getName()));
 
@@ -98,8 +94,19 @@ public class EntityDaoNeo {
         return entity;
     }
 
-    public Entity save(Entity entity, DocumentType documentType) {
-        entity.bumpUpdate();
+    public Entity save(Entity entity) {
+        return save(entity, false);
+    }
+
+    /**
+     *
+     * @param entity   to save
+     * @param quietly  if we're doing this quietly then lastUpdate is not changed
+     * @return saved entity
+     */
+    public Entity save(Entity entity, boolean quietly) {
+        if (!quietly)
+            entity.bumpUpdate();
         return metaRepo.save((EntityNode) entity);
 
     }

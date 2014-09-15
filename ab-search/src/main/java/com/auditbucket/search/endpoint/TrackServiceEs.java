@@ -9,6 +9,7 @@ import com.auditbucket.search.service.TrackService;
 import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.SearchChange;
 import com.auditbucket.track.model.TrackSearchDao;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,8 @@ public class TrackServiceEs implements TrackService {
     @Autowired(required = false)
     private EngineGateway engineGateway;
 
+    static final ObjectMapper objectMapper = new ObjectMapper();
+
     /**
      * Triggered by the Engine, this is the payload that is required to be indexed
      * <p/>
@@ -47,7 +50,6 @@ public class TrackServiceEs implements TrackService {
      * the message on the queue until the mapping is fixed
      */
     @Override
-    @ServiceActivator(inputChannel = "makeSearchRequest") // Subscriber
     public void createSearchableChange(EntitySearchChanges changes) throws IOException {
         Iterable<EntitySearchChange> thisChange = changes.getChanges();
         logger.debug("Received request to index Batch {}", changes.getChanges().size());
@@ -81,8 +83,15 @@ public class TrackServiceEs implements TrackService {
         }
 
     }
-
     @Override
+    @ServiceActivator(inputChannel = "syncSearchDocs") // Subscriber
+    public void createSearchableChange(byte[] bytes) throws IOException {
+        createSearchableChange(objectMapper.readValue(bytes, EntitySearchChanges.class));
+
+    }
+
+
+        @Override
     public void delete(Entity entity) {
         //trackDao.delete(entity, null);
     }

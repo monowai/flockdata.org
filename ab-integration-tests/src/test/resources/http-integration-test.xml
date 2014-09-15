@@ -31,14 +31,14 @@
 
     <int:annotation-config/>
 
-    <bean class="org.springframework.integration.http.inbound.UriPathHandlerMapping"/>
+    <bean class="org.springframework.integration.http.inbound.IntegrationRequestMappingHandlerMapping"/>
 
-    <int-http:outbound-gateway request-channel="makeSearchRequest"
+    <int-http:outbound-gateway request-channel="syncSearchDocs"
                                reply-channel="nullChannel"
                                url="${absearch.make}"
                                extract-request-payload="true"/>
 
-    <int-http:inbound-gateway request-channel="searchResult"
+    <int-http:inbound-gateway request-channel="searchDocSyncResult"
                               path="/api/searchResult"
                               request-payload-type="com.auditbucket.search.model.SearchResults"
                               supported-methods="POST"/>
