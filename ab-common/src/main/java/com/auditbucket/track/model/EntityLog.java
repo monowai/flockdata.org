@@ -27,7 +27,7 @@ import org.joda.time.DateTimeZone;
  * Date: 21/06/13
  * Time: 1:21 PM
  */
-public interface TrackLog {
+public interface EntityLog {
 
     Long getId();
 

@@ -1,13 +1,13 @@
 package com.auditbucket.kv.service;
 
-import com.auditbucket.track.bean.AuditDeltaBean;
+import com.auditbucket.track.bean.DeltaBean;
+import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.Entity;
+import com.auditbucket.track.model.EntityContent;
 import com.auditbucket.track.model.Log;
-import com.auditbucket.track.model.LogWhat;
 
 import java.io.IOException;
-import java.util.Map;
 
 /**
  * User: mike
@@ -21,17 +21,17 @@ public interface KvService {
 
     void doKvWrite(TrackResultBean resultBean) throws IOException;
 
-    Log prepareLog(Log log, Map<String, Object> jsonText) throws IOException;
+    Log prepareLog(Log log, ContentInputBean content) throws IOException;
 
-    LogWhat getWhat(Entity entity, Log log);
+    EntityContent getContent(Entity entity, Log log);
 
     void delete(Entity entity, Log change);
 
-    boolean isSame(Entity entity, Log compareFrom, Map<String, Object> jsonWith);
+    boolean isSame(Entity entity, Log compareFrom, Log compareTo);
 
-    boolean isSame(String compareFrom, Map<String, Object> compareWith);
+    boolean sameJson(EntityContent compareFrom, EntityContent compareWith);
 
-    AuditDeltaBean getDelta(Entity header, Log from, Log to);
+    DeltaBean getDelta(Entity header, Log from, Log to);
 
     public enum KV_STORE {REDIS, RIAK}
 }

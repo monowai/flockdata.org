@@ -20,8 +20,8 @@
 package com.auditbucket.track.bean;
 
 import com.auditbucket.track.model.Entity;
+import com.auditbucket.track.model.EntityLog;
 import com.auditbucket.track.model.Log;
-import com.auditbucket.track.model.TrackLog;
 
 
 /**
@@ -39,13 +39,13 @@ public class AuditTXResult {
     private Long lastSystemChange;
     private Long fortressWhen = 0l;
 
-    private TrackLog trackLog;
+    private EntityLog entityLog;
 
     private AuditTXResult() {
     }
 
 
-    public AuditTXResult(Entity header, Log change, TrackLog log) {
+    public AuditTXResult(Entity header, Log change, EntityLog log) {
         this();
         this.fortressWhen = log.getFortressWhen();
         this.auditKey = header.getMetaKey();
@@ -54,11 +54,11 @@ public class AuditTXResult {
         this.fortressName = header.getFortress().getName();
         this.fortressKey = header.getFortress().getFortressKey();
         this.lastSystemChange = header.getLastUpdate();
-        this.trackLog = log;
+        this.entityLog = log;
     }
 
-    public Object getTrackLog() {
-        return trackLog;
+    public Object getEntityLog() {
+        return entityLog;
     }
 
     public String getAuditKey() {

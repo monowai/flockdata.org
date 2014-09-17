@@ -21,6 +21,7 @@ package com.auditbucket.engine.repo.redis;
 
 import com.auditbucket.engine.repo.KvRepo;
 import com.auditbucket.track.model.Entity;
+import com.auditbucket.track.model.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,16 +37,16 @@ public class RedisRepo implements KvRepo {
     private RedisTemplate<Long, byte[]> template;
     private static Logger logger = LoggerFactory.getLogger(RedisRepo.class);
 
-    public void add(Entity entity, Long key, byte[] what) {
-        template.opsForValue().set(key, what);
+    public void add(Entity entity, Log log) {
+        template.opsForValue().set(log.getId(), log.getEntityContent());
     }
 
-    public byte[] getValue(Entity entity, Long key) {
-        return template.opsForValue().get(key);
+    public byte[] getValue(Entity entity, Log forLog) {
+        return template.opsForValue().get(forLog.getId());
     }
 
-    public void delete(Entity entity, Long key) {
-        template.opsForValue().getOperations().delete(key);
+    public void delete(Entity entity, Log log) {
+        template.opsForValue().getOperations().delete(log.getId());
     }
 
     @Override

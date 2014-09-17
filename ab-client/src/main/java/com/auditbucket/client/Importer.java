@@ -29,9 +29,9 @@ import com.auditbucket.client.xml.XmlMappable;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.bean.TagInputBean;
+import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.CrossReferenceInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
-import com.auditbucket.track.bean.LogInputBean;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -309,16 +309,16 @@ public class Importer {
                 long then = new DateTime().getMillis();
                 while (xsr.getLocalName().equals(docType)) {
                     XmlMappable row = mappable.newInstance(importParams.isSimulateOnly());
-                    LogInputBean logInputBean = row.setXMLData(xsr, importParams.getStaticDataResolver());
+                    ContentInputBean contentInputBean = row.setXMLData(xsr, importParams.getStaticDataResolver());
                     EntityInputBean header = (EntityInputBean) row;
                     if (!header.getCrossReferences().isEmpty()) {
                         referenceInputBeans.add(new CrossReferenceInputBean(header.getFortress(), header.getCallerRef(), header.getCrossReferences()));
                         rows = rows + header.getCrossReferences().size();
                     }
-                    if (logInputBean != null) {
-                        if (logInputBean.getFortressUser() == null)
-                            logInputBean.setFortressUser(importParams.getFortressUser());
-                        header.setLog(logInputBean);
+                    if (contentInputBean != null) {
+                        if (contentInputBean.getFortressUser() == null)
+                            contentInputBean.setFortressUser(importParams.getFortressUser());
+                        header.setLog(contentInputBean);
                     }
 
                     //logger.info(json);
@@ -414,8 +414,8 @@ public class Importer {
                                 // It's all Meta baby - no log information
                             } else {
                                 //jsonData = jsonData.replaceAll("[\\x00-\\x09\\x11\\x12\\x14-\\x1F\\x7F]", "");
-                                LogInputBean logInputBean = new LogInputBean(importParams.getFortressUser(), new DateTime(), jsonData);
-                                header.setLog(logInputBean);
+                                ContentInputBean contentInputBean = new ContentInputBean(importParams.getFortressUser(), new DateTime(), jsonData);
+                                header.setLog(contentInputBean);
                             }
                             if (!header.getCrossReferences().isEmpty()) {
                                 referenceInputBeans.add(new CrossReferenceInputBean(header.getFortress(), header.getDocumentType(), header.getCallerRef(), header.getCrossReferences()));

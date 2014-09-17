@@ -19,25 +19,18 @@
 
 package com.auditbucket.track.model;
 
+import com.auditbucket.track.bean.ContentInputBean;
+
 import java.util.Map;
 
 /**
  * User: Mike Holdsworth
  * Since: 4/09/13
  */
-public interface LogWhat {
+public interface EntityContent {
 
-    /**
-     * @return uncompressed Json String
-     */
-    public String getWhatString();
+    public Map<String,Object> getWhat();
 
-    /**
-     * @return map converted to map via Json ObjectMapper
-     */
-    public Map<String, Object> getWhat();
-
-    public boolean isCompressed();
-
+    String getAttachment();
 
 }

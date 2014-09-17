@@ -4,7 +4,7 @@ import com.auditbucket.engine.repo.neo4j.EntityDaoNeo;
 import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.search.model.*;
-import com.auditbucket.track.bean.LogInputBean;
+import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.LogResultBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.*;
@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 
 /**
  * Search Service interactions
@@ -138,21 +137,21 @@ public class SearchServiceFacade {
             searchDocument.setSysWhen(header.getWhenCreated());
 
         } else {
-            searchDocument.setTags(entityTagService.findTrackTags(company, header));
+            searchDocument.setTags(entityTagService.getEntityTags(company, header));
         }
         return searchDocument;
     }
 
     private static final ObjectMapper om = new ObjectMapper();
 
-    public SearchChange prepareSearchDocument(Entity entity, LogInputBean logInput, ChangeEvent event, DateTime fortressWhen, TrackLog trackLog) throws JsonProcessingException {
+    public SearchChange prepareSearchDocument(Entity entity, ContentInputBean contentInput, ChangeEvent event, DateTime fortressWhen, EntityLog entityLog) throws JsonProcessingException {
 
         if (entity.isSearchSuppressed())
             return null;
         SearchChange searchDocument;
-        searchDocument = new EntitySearchChange(entity, (HashMap<String, Object>) logInput.getWhat(), event.getCode(), fortressWhen);
-        searchDocument.setWho(trackLog.getLog().getWho().getCode());
-        searchDocument.setTags(entityTagService.findTrackTags(entity.getFortress().getCompany(), entity));
+        searchDocument = new EntitySearchChange(entity, contentInput, event.getCode(), fortressWhen);
+        searchDocument.setWho(entityLog.getLog().getWho().getCode());
+        searchDocument.setTags(entityTagService.getEntityTags(entity.getFortress().getCompany(), entity));
         searchDocument.setDescription(entity.getDescription());
         searchDocument.setName(entity.getName());
         try {
@@ -162,18 +161,18 @@ public class SearchServiceFacade {
             logger.error(e.getMessage());
             throw (e);
         }
-        if (trackLog.getSysWhen() != 0)
-            searchDocument.setSysWhen(trackLog.getSysWhen());
+        if (entityLog.getSysWhen() != 0)
+            searchDocument.setSysWhen(entityLog.getSysWhen());
         else
             searchDocument.setSysWhen(entity.getWhenCreated());
 
         // Used to reconcile that the change was actually indexed
-        logger.trace("Preparing Search Document [{}]", trackLog);
-        searchDocument.setLogId(trackLog.getId());
+        logger.trace("Preparing Search Document [{}]", entityLog);
+        searchDocument.setLogId(entityLog.getId());
         return searchDocument;
     }
 
-    public EntitySearchChange rebuild(Company company, Entity entity, TrackLog lastLog) {
+    public EntitySearchChange rebuild(Company company, Entity entity, EntityLog lastLog) {
 
         try {
             Log lastChange = null;
@@ -182,11 +181,10 @@ public class SearchServiceFacade {
 
             if (entity.getFortress().isSearchActive() && !entity.isSearchSuppressed()) {
                 // Update against the Entity only by re-indexing the search document
-                HashMap<String, Object> lastWhat;
                 EntitySearchChange searchDocument;
                 if (lastChange != null) {
-                    lastWhat = (HashMap<String, Object>) kvService.getWhat(entity, lastChange).getWhat();
-                    searchDocument = new EntitySearchChange(entity, lastWhat, lastChange.getEvent().getCode(), new DateTime(lastLog.getFortressWhen()));
+                    EntityContent content = kvService.getContent(entity, lastChange);
+                    searchDocument = new EntitySearchChange(entity, content, lastChange.getEvent().getCode(), new DateTime(lastLog.getFortressWhen()));
                     searchDocument.setWho(lastChange.getWho().getCode());
                 } else {
                     searchDocument = new EntitySearchChange(entity, null, entity.getEvent(), entity.getFortressDateCreated());
@@ -194,7 +192,7 @@ public class SearchServiceFacade {
                         searchDocument.setWho(entity.getCreatedBy().getCode());
                 }
 
-                searchDocument.setTags(entityTagService.findTrackTags(company, entity));
+                searchDocument.setTags(entityTagService.getEntityTags(company, entity));
                 searchDocument.setReplyRequired(false);
 
                 return searchDocument;
@@ -236,18 +234,18 @@ public class SearchServiceFacade {
             return null;
 
         LogResultBean logResultBean = trackResultBean.getLogResult();
-        LogInputBean input = trackResultBean.getLog();
+        ContentInputBean input = trackResultBean.getLog();
 
         if ( !trackResultBean.processLog())
             return null;
 
-        if (logResultBean != null && logResultBean.getLogToIndex() != null && logResultBean.getStatus() == LogInputBean.LogStatus.OK) {
+        if (logResultBean != null && logResultBean.getLogToIndex() != null && logResultBean.getStatus() == ContentInputBean.LogStatus.OK) {
             try {
                 DateTime fWhen = new DateTime(logResultBean.getLogToIndex().getFortressWhen());
                 return prepareSearchDocument(logResultBean.getLogToIndex().getEntity(), input, input.getChangeEvent(), fWhen, logResultBean.getLogToIndex());
             } catch (JsonProcessingException e) {
                 logResultBean.setMessage("Error processing JSON document");
-                logResultBean.setStatus(LogInputBean.LogStatus.ILLEGAL_ARGUMENT);
+                logResultBean.setStatus(ContentInputBean.LogStatus.ILLEGAL_ARGUMENT);
             }
         }
         return null;

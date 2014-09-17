@@ -1,4 +1,4 @@
-package com.auditbucket.test.functional;
+package com.auditbucket.test.utils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -482,4 +482,5 @@ public class Helper {
                 "NjBiNjMyZjFiYj4KPGYwZTc2NTU2NjI2YmJhM2E4NmJjYjc2MGI2MzJmMWJiPiBd\n" +
                 "ID4+CnN0YXJ0eHJlZgoyMDczMgolJUVPRgo=\n";
     }
+
 }

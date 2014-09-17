@@ -5,10 +5,7 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.search.model.EntitySearchChange;
 import com.auditbucket.search.model.SearchResult;
-import com.auditbucket.track.bean.EntityInputBean;
-import com.auditbucket.track.bean.EntitySummaryBean;
-import com.auditbucket.track.bean.LogDetailBean;
-import com.auditbucket.track.bean.TrackResultBean;
+import com.auditbucket.track.bean.*;
 import com.auditbucket.track.model.*;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -22,7 +19,7 @@ import java.util.concurrent.ExecutionException;
  * Time: 4:22 PM
  */
 public interface TrackService {
-    LogWhat getWhat(Entity entity, Log change);
+    EntityContent getWhat(Entity entity, Log change);
 
     @Deprecated
     Entity getEntity(@NotEmpty String metaKey);
@@ -39,16 +36,18 @@ public interface TrackService {
 
     void updateHeader(Entity entity);
 
-    TrackLog getLastLog(String metaKey) throws DatagioException;
+    EntityLog getLastEntityLog(Company company, String metaKey) throws DatagioException;
 
-    TrackLog getLastLog(Long headerId);
+    @Deprecated
+    EntityLog getLastEntityLog(String metaKey) throws DatagioException;
 
-    Set<TrackLog> getLogs(Long headerId);
+    EntityLog getLastEntityLog(Long headerId);
 
-    Set<TrackLog> getLogs(Company company, String headerKey) throws DatagioException;
+    Set<EntityLog> getEntityLogs(Long headerId);
 
-    Set<TrackLog> getLogs(String headerKey, Date from, Date to) throws DatagioException;
+    Set<EntityLog> getEntityLogs(Company company, String headerKey) throws DatagioException;
 
+    Set<EntityLog> getEntityLogs(String headerKey, Date from, Date to) throws DatagioException;
 
     EntitySearchChange cancelLastLog(Company company, Entity entity) throws IOException, DatagioException;
 
@@ -74,7 +73,7 @@ public interface TrackService {
 
     LogDetailBean getFullDetail(Company company, String metaKey, Long logId);
 
-    TrackLog getLogForEntity(Entity header, Long logId);
+    EntityLog getLogForEntity(Entity header, Long logId);
 
     Iterable<TrackResultBean> trackEntities(Fortress fortress, Iterable<EntityInputBean> inputBeans) throws InterruptedException, ExecutionException, DatagioException, IOException;
 
@@ -84,7 +83,7 @@ public interface TrackService {
 
     Map<String, Collection<Entity>> getCrossReference(Company company, String fortressName, String callerRef, String xRefName) throws DatagioException;
 
-    List<EntityKey> crossReferenceByCallerRef(Company company, EntityKey sourceKey, Collection<EntityKey> targetKeys, String xRefName) throws DatagioException;
+    List<EntityKey> crossReferenceEntities(Company company, EntityKey sourceKey, Collection<EntityKey> targetKeys, String xRefName) throws DatagioException;
 
     Map<String, Entity> getEntities(Company company, Collection<String> metaKeys);
 
@@ -92,13 +91,12 @@ public interface TrackService {
 
     void recordSearchResult(SearchResult searchResult, Long metaId);
 
-    Set<TrackTag> getLastLogTags(Company company, String metaKey) throws DatagioException;
+    Collection<TrackTag> getLastLogTags(Company company, String metaKey) throws DatagioException;
 
-    TrackLog getLastLog(Company company, String metaKey) throws DatagioException;
+    EntityLog getEntityLog(Company company, String metaKey, long logId) throws DatagioException;
 
-    TrackLog getLog(Company company, String metaKey, long logId) throws DatagioException;
-
-    Set<TrackTag> getLogTags(Company company, TrackLog tl);
+    Collection<TrackTag> getLogTags(Company company, EntityLog tl);
 
 
+    List<CrossReferenceInputBean> crossReferenceEntities(Company company, List<CrossReferenceInputBean> crossReferenceInputBeans);
 }

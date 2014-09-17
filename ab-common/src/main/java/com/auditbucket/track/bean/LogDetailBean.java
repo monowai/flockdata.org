@@ -19,8 +19,8 @@
 
 package com.auditbucket.track.bean;
 
-import com.auditbucket.track.model.LogWhat;
-import com.auditbucket.track.model.TrackLog;
+import com.auditbucket.track.model.EntityContent;
+import com.auditbucket.track.model.EntityLog;
 
 /**
  * User: Mike Holdsworth
@@ -31,21 +31,21 @@ public class LogDetailBean {
     private LogDetailBean() {
     }
 
-    public LogDetailBean(TrackLog log, LogWhat what) {
+    public LogDetailBean(EntityLog log, EntityContent what) {
         this();
         this.log = log;
         this.what = what;
 
     }
 
-    private TrackLog log;
-    private LogWhat what;
+    private EntityLog log;
+    private EntityContent what;
 
-    public TrackLog getLog() {
+    public EntityLog getLog() {
         return this.log;
     }
 
-    public LogWhat getWhat() {
+    public EntityContent getWhat() {
         return this.what;
     }
 

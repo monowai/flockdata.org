@@ -28,12 +28,12 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.service.CompanyService;
-import com.auditbucket.track.bean.LogInputBean;
+import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.LogResultBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.Entity;
+import com.auditbucket.track.model.EntityLog;
 import com.auditbucket.track.model.Log;
-import com.auditbucket.track.model.TrackLog;
 import com.auditbucket.track.model.TxRef;
 import com.auditbucket.track.service.LogService;
 import com.auditbucket.track.service.SchemaService;
@@ -89,7 +89,7 @@ public class LogServiceNeo4j implements LogService {
             logResults.add(processLogFromResult(resultBean));
         }
         logger.debug("Logs processed. Proceeding to distribute changes");
-        distributeChanges(company, resultBeans);
+        distributeChanges(company, logResults);
 
         return logResults;
 
@@ -103,7 +103,7 @@ public class LogServiceNeo4j implements LogService {
     }
 
     @Override
-    public TrackResultBean writeLog(Entity entity, LogInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException {
+    public TrackResultBean writeLog(Entity entity, ContentInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException {
 
         TrackResultBean resultBean = new TrackResultBean(entity);
         resultBean.setLogInput(input);
@@ -120,8 +120,8 @@ public class LogServiceNeo4j implements LogService {
      * @throws com.auditbucket.helper.DatagioException
      */
     TrackResultBean writeTheLogAndDistributeChanges(final TrackResultBean resultBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
-        LogInputBean logInputBean = resultBean.getLog();
-        logger.debug("writeLog {}", logInputBean);
+        ContentInputBean contentInputBean = resultBean.getLog();
+        logger.debug("writeLog {}", contentInputBean);
         class DeadLockCommand implements Command {
             TrackResultBean result = null;
 
@@ -130,7 +130,7 @@ public class LogServiceNeo4j implements LogService {
 
                 // ToDo: DAT-169 This needs to be dealt with via SpringIntegration and persistent messaging
                 result = writeLog(resultBean);
-                if (result.getLogResult().getStatus() == LogInputBean.LogStatus.NOT_FOUND)
+                if (result.getLogResult().getStatus() == ContentInputBean.LogStatus.NOT_FOUND)
                     throw new DatagioException("Unable to find Entity ");
                 kvService.doKvWrite(result); //ToDo: Consider KV not available. How to write the logs
                 //      need to think of a way to recognize that the entity has unprocessed work
@@ -151,24 +151,24 @@ public class LogServiceNeo4j implements LogService {
      * @throws IOException
      */
     TrackResultBean writeLog(TrackResultBean trackResultBean) throws DatagioException, IOException {
-        LogInputBean input = trackResultBean.getLog();
+        ContentInputBean content = trackResultBean.getLog();
 
         Entity entity = trackResultBean.getEntity();
 
         logger.debug("writeLog - Received log request for entity [{}]", entity);
 
-        LogResultBean resultBean = new LogResultBean(input, entity);
+        LogResultBean resultBean = new LogResultBean(content, entity);
         if (entity == null) {
-            resultBean.setStatus(LogInputBean.LogStatus.NOT_FOUND);
+            resultBean.setStatus(ContentInputBean.LogStatus.NOT_FOUND);
             resultBean.setMessage("Unable to locate requested entity");
             logger.debug(resultBean.getMessage());
             trackResultBean.setLogResult(resultBean);
             return trackResultBean;
         }
         logger.trace("looking for fortress user {}", entity.getFortress());
-        String fortressUser = (input.getFortressUser() != null ? input.getFortressUser() : trackResultBean.getEntityInputBean().getFortressUser());
+        String fortressUser = (content.getFortressUser() != null ? content.getFortressUser() : trackResultBean.getEntityInputBean().getFortressUser());
         FortressUser thisFortressUser = fortressService.getFortressUser(entity.getFortress(), fortressUser, true);
-        trackResultBean.setLogResult(createLog(entity, input, thisFortressUser));
+        trackResultBean.setLogResult(createLog(entity, content, thisFortressUser));
         return trackResultBean;
     }
 
@@ -176,49 +176,52 @@ public class LogServiceNeo4j implements LogService {
      * Event log record for the supplied entity from the supplied input
      *
      * @param entity entity the caller is authorised to work with
-     * @param input            trackLog details containing the data to log
+     * @param content            trackLog details containing the data to log
      * @param thisFortressUser User name in calling system that is making the change
      * @return populated log information with any error messages
      */
-    LogResultBean createLog(Entity entity, LogInputBean input, FortressUser thisFortressUser) throws DatagioException, IOException {
+    LogResultBean createLog(Entity entity, ContentInputBean content, FortressUser thisFortressUser) throws DatagioException, IOException {
         // Warning - making this private means it doesn't get a transaction!
 
         Fortress fortress = entity.getFortress();
 
         // Transactions checks
-        TxRef txRef = txService.handleTxRef(input, fortress.getCompany());
-        LogResultBean resultBean = new LogResultBean(input, entity);
+        TxRef txRef = txService.handleTxRef(content, fortress.getCompany());
+        LogResultBean resultBean = new LogResultBean(content, entity);
         //ToDo: May want to track a "View" event which would not change the What data.
-        if (input.getWhat() == null || input.getWhat().isEmpty()) {
-            resultBean.setStatus(LogInputBean.LogStatus.IGNORE);
+        if (!content.hasData()) {
+            resultBean.setStatus(ContentInputBean.LogStatus.IGNORE);
             resultBean.setMessage("No 'what' information provided. Ignoring this request");
             return resultBean;
         }
 
         resultBean.setTxReference(txRef);
 
-        TrackLog existingLog;
+        EntityLog existingLog;
         existingLog = getLastLog(entity);
 
         Boolean searchActive = fortress.isSearchActive();
-        DateTime fortressWhen = (input.getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(input.getWhen()));
+        DateTime fortressWhen = (content.getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(content.getWhen()));
+
+        if (content.getEvent() == null ) {
+            content.setEvent(existingLog == null ?Log.CREATE:Log.UPDATE);
+        }
+
+        Log preparedLog = trackDao.prepareLog(thisFortressUser, content, txRef, (existingLog != null ? existingLog.getLog() : null));
 
         if (existingLog != null) {
             logger.debug("createLog, existing log found {}", existingLog);
-            boolean unchanged = kvService.isSame(entity, existingLog.getLog(), input.getWhat());
+            boolean unchanged = kvService.isSame(entity, existingLog.getLog(), preparedLog);
             if (unchanged) {
-                logger.trace("Ignoring a change we already have {}", input);
-                resultBean.setStatus(LogInputBean.LogStatus.IGNORE);
-                if (input.isForceReindex()) { // Caller is recreating the search index
-                    resultBean.setStatus((LogInputBean.LogStatus.REINDEX));
+                logger.trace("Ignoring a change we already have {}", content);
+                resultBean.setStatus(ContentInputBean.LogStatus.IGNORE);
+                if (content.isForceReindex()) { // Caller is recreating the search index
+                    resultBean.setStatus((ContentInputBean.LogStatus.REINDEX));
                     resultBean.setLogToIndex(existingLog);
                     resultBean.setMessage("Ignoring a change we already have. Honouring request to re-index");
                 } else
                     resultBean.setMessage("Ignoring a change we already have");
                 return resultBean;
-            }
-            if (input.getEvent() == null) {
-                input.setEvent(Log.UPDATE);
             }
 //            if (searchActive)
 //                entity = waitOnInitialSearchResult(entity);
@@ -226,27 +229,23 @@ public class LogServiceNeo4j implements LogService {
 
         } else { // first ever log for the entity
             logger.debug("createLog - first log created for the entity");
-            if (input.getEvent() == null) {
-                input.setEvent(Log.CREATE);
-            }
             //if (!entity.getLastUser().getId().equals(thisFortressUser.getId())){
             entity.setLastUser(thisFortressUser);
             entity.setCreatedBy(thisFortressUser);
         }
 
-        Log thisLog = trackDao.prepareLog(thisFortressUser, input, txRef, (existingLog != null ? existingLog.getLog() : null));
         // Prepares the change
-        input.setChangeEvent(thisLog.getEvent());
-        resultBean.setWhatLog(thisLog);
+        content.setChangeEvent(preparedLog.getEvent());
+        resultBean.setWhatLog(preparedLog);
         resultBean.setEntity(entity);
 
         if (entity.getId() == null)
-            input.setStatus(LogInputBean.LogStatus.TRACK_ONLY);
+            content.setStatus(ContentInputBean.LogStatus.TRACK_ONLY);
         else
-            input.setStatus(LogInputBean.LogStatus.OK);
+            content.setStatus(ContentInputBean.LogStatus.OK);
 
         // This call also saves the entity
-        TrackLog newLog = trackDao.addLog(entity, thisLog, fortressWhen, existingLog);
+        EntityLog newLog = trackDao.addLog(entity, preparedLog, fortressWhen, existingLog);
 
         resultBean.setSysWhen(newLog.getSysWhen());
 
@@ -260,7 +259,7 @@ public class LogServiceNeo4j implements LogService {
     }
 
     @Override
-    public TrackLog getLastLog(Entity entity) throws DatagioException {
+    public EntityLog getLastLog(Entity entity) throws DatagioException {
         if (entity == null || entity.getId() == null)
             return null;
         logger.trace("Getting lastLog MetaID [{}]", entity.getId());

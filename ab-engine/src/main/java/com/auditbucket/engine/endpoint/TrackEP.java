@@ -19,32 +19,33 @@
 
 package com.auditbucket.engine.endpoint;
 
-import com.auditbucket.engine.service.*;
-import com.auditbucket.helper.ApiKeyHelper;
+import com.auditbucket.engine.service.FortressService;
+import com.auditbucket.engine.service.TxService;
+import com.auditbucket.helper.CompanyResolver;
 import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.NotFoundException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.kv.service.KvService;
-import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;
-import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.track.bean.*;
 import com.auditbucket.track.model.*;
-import com.auditbucket.track.service.*;
+import com.auditbucket.track.service.EntityTagService;
+import com.auditbucket.track.service.LogService;
+import com.auditbucket.track.service.TrackService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * User: Mike Holdsworth
@@ -81,34 +82,14 @@ public class TrackEP {
     @Autowired
     LogService logService;
 
-    @Autowired
-    private RegistrationService registrationService;
-
     private static Logger logger = LoggerFactory.getLogger(TrackEP.class);
 
 
     @RequestMapping(value = "/", consumes = "application/json", method = RequestMethod.PUT)
-    public void trackHeaders(@RequestBody List<EntityInputBean> inputBeans,
-                             String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, IOException, ExecutionException, InterruptedException {
-        trackHeaders(inputBeans, false, ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
-    }
-
-
-    public Collection<TrackResultBean> trackHeaders(List<EntityInputBean> inputBeans, boolean async, String apiKey) throws DatagioException, IOException, ExecutionException, InterruptedException {
-        Company company = registrationService.resolveCompany(apiKey);
-        EntityInputBean mib = inputBeans.iterator().next();
-        FortressInputBean fib = new FortressInputBean(mib.getFortress());
-        fib.setTimeZone(mib.getTimezone());
-        Fortress fortress = fortressService.registerFortress(company, fib, true);
-        if (async) {
-            Future<Collection<TrackResultBean>> batch = mediationFacade.trackHeadersAsync(fortress, inputBeans);
-            Thread.yield();
-            return batch.get();
-
-        } else {
-            return mediationFacade.trackHeaders(fortress, inputBeans, inputBeans.size());
-        }
-
+    public Collection<TrackResultBean> trackHeaders(@RequestBody List<EntityInputBean> inputBeans,
+                                                    HttpServletRequest request) throws DatagioException, InterruptedException, ExecutionException, IOException {
+        Company company = CompanyResolver.resolveCompany(request);
+        return mediationFacade.trackHeaders(company, inputBeans);
     }
 
     /**
@@ -117,42 +98,35 @@ public class TrackEP {
      * @param input meta header input
      * @return TrackResultBean
      * @throws com.auditbucket.helper.DatagioException
-     *
      */
-
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
-    public ResponseEntity<TrackResultBean> trackEntity(@RequestBody EntityInputBean input,
-                                                       String apiKey,
-                                                       @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, IOException, ExecutionException, InterruptedException {
-        // curl -u mike:123 -H "Content-Type:application/json" -X POST http://localhost:8081/ab-engine/track/track/ -d '"fortress":"MyFortressName", "fortressUser": "yoursystemuser", "documentType":"CompanyNode","when":"2012-11-10"}'
-
+    public TrackResultBean trackEntity(@RequestBody EntityInputBean input ,
+                                                       HttpServletRequest request) throws DatagioException, InterruptedException, ExecutionException, IOException {
+        Company company = CompanyResolver.resolveCompany(request);
         TrackResultBean trackResultBean;
-        Company company = getCompany(apiHeaderKey, apiKey);
         trackResultBean = mediationFacade.trackEntity(company, input);
         trackResultBean.setServiceMessage("OK");
-        return new ResponseEntity<>(trackResultBean, HttpStatus.OK);
+        return trackResultBean;
 
     }
 
 
     @RequestMapping(value = "/log/", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
-    public ResponseEntity<LogResultBean> trackLog(@RequestBody LogInputBean input, String apiKey,
-                                                  @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, IOException, ExecutionException, InterruptedException {
+    public ResponseEntity<LogResultBean> trackLog(@RequestBody ContentInputBean input ,
+                                                  HttpServletRequest request) throws DatagioException, InterruptedException, ExecutionException, IOException {
+        Company company = CompanyResolver.resolveCompany(request);
 
-        // If we have a valid company we are good to go.
-        Company company = getCompany(apiHeaderKey, apiKey);
-
-        LogResultBean resultBean = mediationFacade.processLog(company, input).getLogResult();
-        LogInputBean.LogStatus ls = resultBean.getStatus();
-        if (ls.equals(LogInputBean.LogStatus.FORBIDDEN))
+        LogResultBean resultBean = mediationFacade.trackLog(company, input).getLogResult();
+        ContentInputBean.LogStatus ls = resultBean.getStatus();
+        if (ls.equals(ContentInputBean.LogStatus.FORBIDDEN))
             return new ResponseEntity<>(resultBean, HttpStatus.FORBIDDEN);
-        else if (ls.equals(LogInputBean.LogStatus.NOT_FOUND)) {
+        else if (ls.equals(ContentInputBean.LogStatus.NOT_FOUND)) {
             input.setAbMessage("Illegal meta key");
             return new ResponseEntity<>(resultBean, HttpStatus.NOT_FOUND);
-        } else if (ls.equals(LogInputBean.LogStatus.IGNORE)) {
+        } else if (ls.equals(ContentInputBean.LogStatus.IGNORE)) {
             input.setAbMessage("Ignoring request to change as the 'what' has not changed");
             return new ResponseEntity<>(resultBean, HttpStatus.NOT_MODIFIED);
-        } else if (ls.equals(LogInputBean.LogStatus.ILLEGAL_ARGUMENT)) {
+        } else if (ls.equals(ContentInputBean.LogStatus.ILLEGAL_ARGUMENT)) {
             return new ResponseEntity<>(resultBean, HttpStatus.NO_CONTENT);
         }
 
@@ -164,16 +138,14 @@ public class TrackEP {
     public ResponseEntity<TrackResultBean> trackByClientRef(@RequestBody EntityInputBean input,
                                                             @PathVariable("fortress") String fortress,
                                                             @PathVariable("recordType") String recordType,
-                                                            @PathVariable("callerRef") String callerRef,
-                                                            String apiKey,
-                                                            @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, IOException, ExecutionException, InterruptedException {
-
+                                                            @PathVariable("callerRef") String callerRef ,
+                                                            HttpServletRequest request) throws DatagioException, InterruptedException, ExecutionException, IOException {
+        Company company = CompanyResolver.resolveCompany(request);
         TrackResultBean trackResultBean;
         input.setFortress(fortress);
         input.setDocumentType(recordType);
         input.setCallerRef(callerRef);
         input.setMetaKey(null);
-        Company company = getCompany(apiHeaderKey, ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
         trackResultBean = mediationFacade.trackEntity(company, input);
         trackResultBean.setServiceMessage("OK");
         return new ResponseEntity<>(trackResultBean, HttpStatus.OK);
@@ -182,29 +154,28 @@ public class TrackEP {
 
 
     @RequestMapping(value = "/{fortress}/all/{callerRef}", method = RequestMethod.GET)
-    public Iterable<Entity> getByCallerRef(@PathVariable("fortress") String fortress, @PathVariable("callerRef") String callerRef, String apiKey,
-                                               @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company company = getCompany(apiHeaderKey, apiKey);
+    public Iterable<Entity> findByCallerRef(@PathVariable("fortress") String fortress, @PathVariable("callerRef") String callerRef,
+                                            HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
         return trackService.findByCallerRef(company, fortress, callerRef);  //To change body of created methods use File | Settings | File Templates.
     }
 
 
     @RequestMapping(value = "/{fortress}/{documentType}/{callerRef}", method = RequestMethod.GET)
-    public Entity getByCallerRef(@PathVariable("fortress") String fortressName,
-                                     @PathVariable("documentType") String recordType,
-                                     @PathVariable("callerRef") String callerRef, String apiKey,
-                                     @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company company = getCompany(apiHeaderKey, apiKey);
+    public Entity findByCallerRef(@PathVariable("fortress") String fortressName,
+                                  @PathVariable("documentType") String recordType,
+                                  @PathVariable("callerRef") String callerRef,
+                                  HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
         Fortress fortress = fortressService.findByName(company, fortressName);
-        Entity result = trackService.findByCallerRef(fortress, recordType, callerRef);
-        return result;
+        return trackService.findByCallerRef(fortress, recordType, callerRef);
     }
 
 
     @RequestMapping(value = "/{metaKey}", method = RequestMethod.GET)
-    public ResponseEntity<Entity> getEntity(@PathVariable("metaKey") String metaKey,
-                                            String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company company = getCompany(apiHeaderKey, apiKey);
+    public ResponseEntity<Entity> getEntity(@PathVariable("metaKey") String metaKey ,
+                                            HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/{metaKey}
         Entity result = trackService.getEntity(company, metaKey, true);
         if (result == null)
@@ -217,64 +188,54 @@ public class TrackEP {
      * locates a collection of Entity based on incoming collection of MetaKeys
      *
      * @param toFind       keys to look for
-     * @param apiKey       who you purport to be
-     * @param apiHeaderKey as per apiKey but in the header
      * @return Matching entities you are authorised to receive
      * @throws DatagioException
      */
 
     @RequestMapping(value = "/", method = RequestMethod.POST)
-    public Collection<Entity> getEntities(@RequestBody Collection<String> toFind,
-                                          String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company company = getCompany(apiHeaderKey, apiKey);
+    public Collection<Entity> getEntities(@RequestBody Collection<String> toFind ,
+                                          HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
         return trackService.getEntities(company, toFind).values();
     }
 
-
-    private Company getCompany(String apiHeaderKey, String apiRequestKey) throws DatagioException {
-        Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiRequestKey));
-        if (company == null)
-            throw new DatagioException("Unable to resolve supplied API key to a valid company");
-        return company;
-    }
-
-
     @RequestMapping(value = "/{metaKey}/logs", produces = "application/json", method = RequestMethod.GET)
-    public Set<TrackLog> getLogs(@PathVariable("metaKey") String metaKey,
-                                 String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company company = getCompany(apiHeaderKey, apiKey);
+    public Set<EntityLog> getLogs(@PathVariable("metaKey") String metaKey,
+                                  HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/{metaKey}/logs
-        return trackService.getLogs(company, metaKey);
+        return trackService.getEntityLogs(company, metaKey);
 
     }
 
 
     @RequestMapping(value = "/{metaKey}/summary", produces = "application/json", method = RequestMethod.GET)
-    public ResponseEntity<EntitySummaryBean> getTrackedSummary(@PathVariable("metaKey") String metaKey,
-                                                                String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company company = getCompany(apiHeaderKey, apiKey);
-        return new ResponseEntity<>(mediationFacade.getEntitySummary(company, metaKey), HttpStatus.OK);
+    public EntitySummaryBean getEntitySummary(@PathVariable("metaKey") String metaKey,
+                                              HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
+        return mediationFacade.getEntitySummary(company, metaKey);
 
     }
 
 
     @RequestMapping(value = "/{metaKey}/lastlog", produces = "application/json", method = RequestMethod.GET)
-    public ResponseEntity<TrackLog> getLastChange(@PathVariable("metaKey") String metaKey, String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company company = getCompany(apiHeaderKey, apiKey);
+    public ResponseEntity<EntityLog> getLastLog(@PathVariable("metaKey") String metaKey,
+                                                HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/c27ec2e5-2e17-4855-be18-bd8f82249157/lastchange
-        TrackLog changed = trackService.getLastLog(company, metaKey);
+        EntityLog changed = trackService.getLastEntityLog(company, metaKey);
         if (changed != null)
             return new ResponseEntity<>(changed, HttpStatus.OK);
 
-        return new ResponseEntity<>((TrackLog) null, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>((EntityLog) null, HttpStatus.NOT_FOUND);
 
     }
 
 
-
     @RequestMapping(value = "/{metaKey}/lastlog/tags", produces = "application/json", method = RequestMethod.GET)
-    public Set<TrackTag> getLastChangeTags(@PathVariable("metaKey") String metaKey, String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company company = getCompany(apiHeaderKey, apiKey);
+    public Collection<TrackTag> getLastLogTags(@PathVariable("metaKey") String metaKey,
+                                         HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/c27ec2e5-2e17-4855-be18-bd8f82249157/lastchange
 //        TrackLog changed = trackService.getLastLog(company, metaKey);
         return trackService.getLastLogTags(company, metaKey);
@@ -283,109 +244,100 @@ public class TrackEP {
 
 
     @RequestMapping(value = "/{metaKey}/{logId}/tags", produces = "application/json", method = RequestMethod.GET)
-    public Set<TrackTag> getChangeTags(@PathVariable("metaKey") String metaKey, @PathVariable("logId") long logId,
-                                       String apiKey, @RequestHeader(value = "Api-Key", required = false)
-    String apiHeaderKey) throws DatagioException {
-        Company company = getCompany(apiHeaderKey, apiKey);
+    public Collection<TrackTag> getLogTags(@PathVariable("metaKey") String metaKey, @PathVariable("logId") long logId,
+                                    HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/c27ec2e5-2e17-4855-be18-bd8f82249157/lastchange
-//        TrackLog changed = trackService.getLastLog(company, metaKey);
-        TrackLog tl = trackService.getLog(company, metaKey, logId);
-
+        EntityLog tl = trackService.getEntityLog(company, metaKey, logId);
         return trackService.getLogTags(company, tl);
-
     }
 
+    @RequestMapping(value = "/{metaKey}/tags", method = RequestMethod.GET)
+    public @ResponseBody Collection<TrackTag> getEntityTags(@PathVariable("metaKey") String metaKey,
+                                              HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
 
+        // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/{metaKey}
+        Entity result = trackService.getEntity(company, metaKey);
+        return entityTagService.getEntityTags(company, result);
+    }
 
-    @RequestMapping(value = "/{metaKey}/lastlog/what", produces = "application/json", method = RequestMethod.GET)
-    public ResponseEntity<LogWhat> getLastChangeWhat(@PathVariable("metaKey") String metaKey, String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company company = getCompany(apiHeaderKey, apiKey);
+    @RequestMapping(value = "/{metaKey}/lastlog/attachment",
+            produces = "application/pdf",
+            method = RequestMethod.GET)
+    public @ResponseBody
+    byte[] getAttachment(@PathVariable("metaKey") String metaKey,
+                         HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
         Entity entity = trackService.getEntity(company, metaKey);
         if (entity != null) {
-            TrackLog lastLog = logService.getLastLog(entity);
+            EntityLog lastLog = logService.getLastLog(entity);
             if (lastLog == null) {
                 logger.debug("Unable to find last log for {}", entity);
             } else {
-                LogWhat what = kvService.getWhat(entity, lastLog.getLog());
-                return new ResponseEntity<>(what, HttpStatus.OK);
+                EntityContent log = kvService.getContent(entity, lastLog.getLog());
+                return DatatypeConverter.parseBase64Binary(log.getAttachment());
             }
         }
 
-        return new ResponseEntity<>((LogWhat) null, HttpStatus.NOT_FOUND);
+        throw new NotFoundException("Unable to find the content for the requested metaKey") ;
 
     }
 
-
     @RequestMapping(value = "/{metaKey}/{logId}/delta/{withId}", produces = "application/json", method = RequestMethod.GET)
-    @Secured({"ROLE_AB_ADMIN"})
-    public ResponseEntity<AuditDeltaBean> getDelta(@PathVariable("metaKey") String metaKey, @PathVariable("logId") Long logId, @PathVariable("withId") Long withId
-            , String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company company = getCompany(apiHeaderKey, apiKey);
+    public ResponseEntity<DeltaBean> getDelta(@PathVariable("metaKey") String metaKey, @PathVariable("logId") Long logId, @PathVariable("withId") Long withId,
+                                                   HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
         Entity entity = trackService.getEntity(company, metaKey);
 
         if (entity != null) {
-            TrackLog left = trackService.getLogForEntity(entity, logId);
-            TrackLog right = trackService.getLogForEntity(entity, withId);
+            EntityLog left = trackService.getLogForEntity(entity, logId);
+            EntityLog right = trackService.getLogForEntity(entity, withId);
             if (left != null && right != null) {
-                AuditDeltaBean deltaBean = kvService.getDelta(entity, left.getLog(), right.getLog());
+                DeltaBean deltaBean = kvService.getDelta(entity, left.getLog(), right.getLog());
 
                 if (deltaBean != null)
                     return new ResponseEntity<>(deltaBean, HttpStatus.OK);
             }
         }
 
-        return new ResponseEntity<>((AuditDeltaBean) null, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>((DeltaBean) null, HttpStatus.NOT_FOUND);
 
     }
 
-
     @RequestMapping(value = "/{metaKey}/{logId}", produces = "application/json", method = RequestMethod.GET)
-    public ResponseEntity<LogDetailBean> getFullLog(@PathVariable("metaKey") String metaKey, @PathVariable("logId") Long logId
-            , String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company company = getCompany(apiHeaderKey, apiKey);
+    public ResponseEntity<LogDetailBean> getFullLog(@PathVariable("metaKey") String metaKey, @PathVariable("logId") Long logId,
+                                                    HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
         LogDetailBean change = trackService.getFullDetail(company, metaKey, logId);
 
         if (change != null)
             return new ResponseEntity<>(change, HttpStatus.OK);
 
         return new ResponseEntity<>((LogDetailBean) null, HttpStatus.NOT_FOUND);
-
     }
 
-
     @RequestMapping(value = "/{metaKey}/{logId}/what", produces = "application/json", method = RequestMethod.GET)
-    public ResponseEntity<LogWhat> getLogWhat(@PathVariable("metaKey") String metaKey, @PathVariable("logId") Long logId
-            , String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company company = getCompany(apiHeaderKey, apiKey);
+    public @ResponseBody Map<String, Object> getLogWhat(@PathVariable("metaKey") String metaKey,
+                                          @PathVariable("logId") Long logId,
+                                          HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
 
         Entity header = trackService.getEntity(company, metaKey);
         if (header != null) {
-            TrackLog log = trackService.getLogForEntity(header, logId);
+            EntityLog log = trackService.getLogForEntity(header, logId);
             if (log != null)
-                return new ResponseEntity<>(kvService.getWhat(header, log.getLog()), HttpStatus.OK);
+                return kvService.getContent(header, log.getLog()).getWhat();
         }
 
-        return new ResponseEntity<>((LogWhat) null, HttpStatus.NOT_FOUND);
+        throw new NotFoundException(String.format("Unable to locate the log for %s / %d", metaKey, logId));
 
     }
-
-
-    @RequestMapping(value = "/{metaKey}/tags", method = RequestMethod.GET)
-    public Set<TrackTag> getTrackTags(@PathVariable("metaKey") String metaKey
-            , String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company company = getCompany(apiHeaderKey, apiKey);
-
-        // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/{metaKey}
-        Entity result = trackService.getEntity(company, metaKey);
-        return entityTagService.findTrackTags(company, result);
-    }
-
 
     @RequestMapping(value = "/{metaKey}/lastlog", method = RequestMethod.DELETE)
     public ResponseEntity<String> cancelLastLog(@PathVariable("metaKey") String metaKey,
-                                                String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, IOException {
-
-        Company company = getCompany(apiHeaderKey, apiKey);
+                                                HttpServletRequest request) throws DatagioException, IOException {
+        Company company = CompanyResolver.resolveCompany(request);
         Entity result = trackService.getEntity(company, metaKey);
         if (result != null) {
             mediationFacade.cancelLastLog(company, result);
@@ -396,10 +348,10 @@ public class TrackEP {
 
     }
 
-
     @RequestMapping(value = "/tx/{txRef}", produces = "application/json", method = RequestMethod.GET)
-    public ResponseEntity<TxRef> getAuditTx(@PathVariable("txRef") String txRef) {
-        // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/{metaKey}
+    public ResponseEntity<TxRef> getAuditTx(@PathVariable("txRef") String txRef,
+                                            HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
         TxRef result;
         result = txService.findTx(txRef);
         return new ResponseEntity<>(result, HttpStatus.OK);
@@ -408,8 +360,9 @@ public class TrackEP {
 
 
     @RequestMapping(value = "/tx/{txRef}/headers", produces = "application/json", method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Object>> getAuditTxHeaders(@PathVariable("txRef") String txRef) {
-        // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/{metaKey}
+    public ResponseEntity<Map<String, Object>> getTransactedEntities(@PathVariable("txRef") String txRef,
+                                                                     HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
         Set<Entity> headers;
         Map<String, Object> result = new HashMap<>(2);
         headers = txService.findTxHeaders(txRef);
@@ -420,8 +373,9 @@ public class TrackEP {
 
 
     @RequestMapping(value = "/tx/{txRef}/logs", produces = "application/json", method = RequestMethod.GET)
-    public ResponseEntity<Map> getAuditTxLogs(@PathVariable("txRef") String txRef) {
-        // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/tx/{txRef}/logs
+    public ResponseEntity<Map> getEntityTxLogs(@PathVariable("txRef") String txRef,
+                                               HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
         Map<String, Object> result;
         result = txService.findByTXRef(txRef);
         if (result == null) {
@@ -435,28 +389,25 @@ public class TrackEP {
 
 
     @RequestMapping(value = "/{metaKey}/{xRefName}/xref", produces = "application/json", method = RequestMethod.POST)
-    public Collection<String> putCrossReference(@PathVariable("metaKey") String metaKey, Collection<String> metaKeys, @PathVariable("xRefName") String relationshipName,
-                                                String apiKey,
-                                                @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company company = getCompany(apiHeaderKey, apiKey);
+    public Collection<String> crossReference(@PathVariable("metaKey") String metaKey, Collection<String> metaKeys, @PathVariable("xRefName") String relationshipName,
+                                             HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
         return trackService.crossReference(company, metaKey, metaKeys, relationshipName);
     }
 
     /**
      * Locate cross referenced headers by UID
      *
-     * @param metaKey      uid to start from
-     * @param xRefName     relationship name
-     * @param apiKey       apiKey
-     * @param apiHeaderKey headerKey
+     * @param metaKey  uid to start from
+     * @param xRefName relationship name
      * @return all meta headers of xRefName associated with callerRef
      * @throws DatagioException
      */
 
     @RequestMapping(value = "/{metaKey}/{xRefName}/xref", produces = "application/json", method = RequestMethod.GET)
-    public Map<String, Collection<Entity>> getCrossRefenceByMetaKey(@PathVariable("metaKey") String metaKey, @PathVariable("xRefName") String xRefName, String apiKey,
-                                                                        @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company company = getCompany(apiHeaderKey, apiKey);
+    public Map<String, Collection<Entity>> getCrossRefence(@PathVariable("metaKey") String metaKey, @PathVariable("xRefName") String xRefName,
+                                                           HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
         return trackService.getCrossReference(company, metaKey, xRefName);
     }
 
@@ -466,48 +417,30 @@ public class TrackEP {
      *
      * @param fortressName application
      * @param callerRef    source
-     * @param callerRefs   targets
+     * @param entities   targets
      * @param xRefName     name of the cross reference
-     * @param apiKey       {optional} authorised key
-     * @param apiHeaderKey {optional} authorised key
      * @return unresolvable caller references
      * @throws DatagioException if not exactly one Entity for the callerRef in the fortress
      */
 
     @RequestMapping(value = "/{fortress}/all/{callerRef}/{xRefName}/xref", produces = "application/json", method = RequestMethod.POST)
-    public List<EntityKey> postCrossReferenceByCallerRef(@PathVariable("fortress") String fortressName, @PathVariable("callerRef") String callerRef,
-                                                       @RequestBody Collection<EntityKey> callerRefs,
-                                                       @PathVariable("xRefName") String xRefName,
-                                                       String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company company = getCompany(apiHeaderKey, apiKey);
-        return trackService.crossReferenceByCallerRef(company, new EntityKey(fortressName, "*", callerRef), callerRefs, xRefName);
+    public List<EntityKey> crossReferenceEntity(@PathVariable("fortress") String fortressName,
+                                                @PathVariable("callerRef") String callerRef,
+                                                @RequestBody Collection<EntityKey> entities,
+                                                @PathVariable("xRefName") String xRefName,
+                                                HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
+        return trackService.crossReferenceEntities(company, new EntityKey(fortressName, "*", callerRef), entities, xRefName);
     }
 
 
     @RequestMapping(value = "/xref", produces = "application/json", method = RequestMethod.POST)
-    public List<CrossReferenceInputBean> postCrossReferenceByCallerRef(@RequestBody List<CrossReferenceInputBean> crossReferenceInputBeans,
-                                                                       String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey)
-            throws DatagioException {
-        Company company = getCompany(apiHeaderKey, apiKey);
+    public List<CrossReferenceInputBean> corssReferenceEntities(@RequestBody List<CrossReferenceInputBean> crossReferenceInputBeans,
+                                                                HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
 
-        for (CrossReferenceInputBean crossReferenceInputBean : crossReferenceInputBeans) {
-            Map<String, List<EntityKey>> references = crossReferenceInputBean.getReferences();
-            for (String xRefName : references.keySet()) {
-                try {
-                    List<EntityKey> notFound = trackService.crossReferenceByCallerRef(company,
-                            new EntityKey(crossReferenceInputBean.getFortress(),
-                                    crossReferenceInputBean.getDocumentType(),
-                                    crossReferenceInputBean.getCallerRef()),
-                            references.get(xRefName), xRefName);
-                    crossReferenceInputBean.setIgnored(xRefName, notFound);
-//                    references.put(xRefName, notFound);
-                } catch (DatagioException de) {
-                    logger.error("Exception while cross-referencing Entities. This message is being returned to the caller - [{}]", de.getMessage());
-                    crossReferenceInputBean.setServiceMessage(de.getMessage());
-                }
-            }
-        }
-        return crossReferenceInputBeans;
+       return trackService.crossReferenceEntities(company, crossReferenceInputBeans);
+        //return crossReferenceInputBeans;
     }
 
 
@@ -517,16 +450,13 @@ public class TrackEP {
      * @param fortress     name of the callers application
      * @param callerRef    unique key within the fortress
      * @param xRefName     name of the xReference to lookup
-     * @param apiKey       apikey
-     * @param apiHeaderKey apiKey by header
      * @return xRefName and collection of Entities
      * @throws DatagioException if not exactly one CallerRef exists within the fortress
      */
-
     @RequestMapping(value = "/{fortress}/all/{callerRef}/{xRefName}/xref", produces = "application/json", method = RequestMethod.GET)
-    public Map<String, Collection<Entity>> getCrossReferenceByCallerRef(@PathVariable("fortress") String fortress, @PathVariable("callerRef") String callerRef, @PathVariable("xRefName") String xRefName
-            , String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
-        Company company = getCompany(apiHeaderKey, apiKey);
+    public Map<String, Collection<Entity>> getCrossReference(@PathVariable("fortress") String fortress, @PathVariable("callerRef") String callerRef, @PathVariable("xRefName") String xRefName,
+                                                             HttpServletRequest request) throws DatagioException {
+        Company company = CompanyResolver.resolveCompany(request);
         return trackService.getCrossReference(company, fortress, callerRef, xRefName);
     }
 

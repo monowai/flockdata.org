@@ -20,6 +20,7 @@
 package com.auditbucket.engine.repo;
 
 import com.auditbucket.track.model.Entity;
+import com.auditbucket.track.model.Log;
 
 import java.io.IOException;
 
@@ -28,11 +29,11 @@ import java.io.IOException;
  * Since: 31/01/14
  */
 public interface KvRepo {
-    public void add(Entity entity, Long key, byte[] what) throws IOException;
+    public void add(Entity entity, Log log) throws IOException;
 
-    public byte[] getValue(Entity entity, Long key);
+    public byte[] getValue(Entity entity, Log forLog);
 
-    public void delete(Entity entity, Long key);
+    public void delete(Entity entity, Log log);
 
     public void purge(String index);
 

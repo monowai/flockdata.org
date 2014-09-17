@@ -19,19 +19,20 @@
 
 package com.auditbucket.engine.service;
 
+import com.auditbucket.engine.repo.EntityContentData;
+import com.auditbucket.engine.repo.KvContentData;
 import com.auditbucket.engine.repo.KvRepo;
-import com.auditbucket.engine.repo.LogWhatData;
 import com.auditbucket.engine.repo.redis.RedisRepo;
 import com.auditbucket.engine.repo.riak.RiakRepo;
 import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.helper.CompressionResult;
 import com.auditbucket.kv.service.KvService;
-import com.auditbucket.track.bean.AuditDeltaBean;
-import com.auditbucket.track.bean.LogInputBean;
+import com.auditbucket.track.bean.ContentInputBean;
+import com.auditbucket.track.bean.DeltaBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.Entity;
+import com.auditbucket.track.model.EntityContent;
 import com.auditbucket.track.model.Log;
-import com.auditbucket.track.model.LogWhat;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.MapDifference;
@@ -44,7 +45,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -53,7 +53,7 @@ import java.util.Set;
  */
 @Service
 @Transactional
-public class AbKvService implements KvService {
+public class KvManager implements KvService {
 
     @Override
     public String ping() {
@@ -66,19 +66,9 @@ public class AbKvService implements KvService {
         getKvRepo().purge(indexName);
     }
 
-//    @Override
-//    public void doKvWrite(Iterable<TrackResultBean> resultBeans) throws IOException {
-//        int count = 0;
-//        for (TrackResultBean resultBean : resultBeans) {
-//            doKvWrite(resultBean);
-//            count ++;
-//        }
-//        logger.debug("KV Service handled [{}] requests", count);
-//    }
-
     @Override
     public void doKvWrite(TrackResultBean resultBean) throws IOException {
-        if (resultBean.getLog() != null && resultBean.getLog().getStatus() != LogInputBean.LogStatus.TRACK_ONLY)
+        if (resultBean.getLog() != null && resultBean.getLog().getStatus() != ContentInputBean.LogStatus.TRACK_ONLY)
             doKvWrite(resultBean.getEntity(), resultBean.getLogResult().getWhatLog());
     }
 
@@ -93,7 +83,7 @@ public class AbKvService implements KvService {
     @Autowired
     EngineConfig engineAdmin;
 
-    private Logger logger = LoggerFactory.getLogger(AbKvService.class);
+    private Logger logger = LoggerFactory.getLogger(KvManager.class);
 
     /**
      * adds what store details to the log that will be index in Neo4j
@@ -101,29 +91,31 @@ public class AbKvService implements KvService {
      *
      *
      * @param log      Log
-     * @param jsonText Escaped Json
+     * @param content Escaped Json
      * @return logChange
      * @throws IOException
      */
     @Override
-    public Log prepareLog(Log log, Map<String, Object> jsonText) throws IOException {
+    public Log prepareLog(Log log, ContentInputBean content) throws IOException {
         // Compress the Value of JSONText
-        CompressionResult dataBlock = CompressionHelper.compress(jsonText);
-        Boolean compressed = (dataBlock.getMethod() == CompressionResult.Method.GZIP);
+        CompressionResult compressionResult = CompressionHelper.compress(new KvContentData(content));
+        Boolean compressed = (compressionResult.getMethod() == CompressionResult.Method.GZIP);
         log.setWhatStore(String.valueOf(engineAdmin.getKvStore()));
         log.setCompressed(compressed);
-        log.setDataBlock(dataBlock.getAsBytes());
+        log.setChecksum(compressionResult.getChecksum());
+        log.setEntityContent(compressionResult.getAsBytes());
 
         return log;
     }
+
+
 
     private void doKvWrite(Entity entity, Log log) throws IOException {
         // ToDo: deal with this via spring integration??
         if (log == null) {
             return;
         }
-        byte[] dataBlock = log.getDataBlock();
-        getKvRepo(log).add(entity, log.getId(), dataBlock);
+        getKvRepo(log).add(entity, log);
     }
 
     private KvRepo getKvRepo() {
@@ -146,21 +138,16 @@ public class AbKvService implements KvService {
     }
 
     @Override
-    public LogWhat getWhat(Entity entity, Log log) {
+    public EntityContent getContent(Entity entity, Log log) {
         if (log == null)
             return null;
         try {
-            byte[] whatInformation = getKvRepo(log).getValue(entity, log.getId());
-            if (whatInformation != null)
-                return new LogWhatData(whatInformation, log.isCompressed());
-            else {
-                //logger.error("Unable to obtain What data from {}", log.getWhatStore());
-                return new LogWhatData(null, false);
-            }
-        } catch (RuntimeException re) {
-            logger.error("KV Error Audit[" + entity.getMetaKey() + "] change [" + log.getId() + "]", re);
+            byte[] entityContent = getKvRepo(log).getValue(entity, log);
+            if (entityContent != null)
+                return new EntityContentData(entityContent, log);
 
-            //throw (re);
+        } catch (RuntimeException re) {
+            logger.error("KV Error Entity[" + entity.getMetaKey() + "] change [" + log.getId() + "]", re);
         }
         return null;
     }
@@ -168,72 +155,70 @@ public class AbKvService implements KvService {
     @Override
     public void delete(Entity entity, Log change) {
 
-        getKvRepo(change).delete(entity, change.getId());
+        getKvRepo(change).delete(entity, change);
     }
 
 
     /**
-     * Locate and compare the two JSON What documents to determine if they have changed
+     * Determine if the Log Content has changed
      *
-     *
-     * @param entity  thing being tracked
-     * @param compareFrom existing change to compare from
-     * @param jsonWith new Change to compare with - JSON format
+     * @param entity        thing being tracked
+     * @param compareFrom   existing change to compare from
+     * @param compareTo     new Change to compare with
      * @return false if different, true if same
      */
     @Override
-    public boolean isSame(Entity entity, Log compareFrom, Map<String, Object> jsonWith) {
+    public boolean isSame(Entity entity, Log compareFrom, Log compareTo) {
         if (compareFrom == null)
             return false;
-        LogWhat what = null;
+        EntityContent content = null;
         int count = 0;
         int timeout = 10;
-        while ( what ==null && count < timeout){
+        while ( content ==null && count < timeout){
             count++;
-            what = getWhat(entity, compareFrom);
+            content = getContent(entity, compareFrom);
         }
 
         if ( count >= timeout)
             logger.error("Timeout looking for KV What data for [{}]", entity);
 
-        if (what == null)
+        if (content == null)
             return false;
 
-        String jsonFrom = what.getWhatString();
-        logger.debug("What found [{}]", what);
-        return isSame(jsonFrom, jsonWith);
+        logger.debug("Value found [{}]", content);
+        boolean sameContentType = compareFrom.getContentType().equals(compareTo.getContentType());
+        if ( !sameContentType )
+            return false;
+
+        if ( compareFrom.getContentType()==Log.ContentType.JSON)
+            return sameJson(content, new EntityContentData(compareTo.getEntityContent(), compareTo));
+        else
+            return sameCheckSum(compareFrom, compareTo);
     }
 
+    private boolean sameCheckSum(Log compareFrom, Log compareTo) {
+        return compareFrom.getChecksum().equals(compareTo.getChecksum()) ;
+    }
+
+
     @Override
-    public boolean isSame(String compareFrom, Map<String, Object> compareWith) {
-        logger.debug ("Comparing [{}] with [{}]", compareFrom, compareWith);
-        if (compareFrom == null || compareWith == null)
-            return false;
+    public boolean sameJson(EntityContent compareFrom, EntityContent compareTo) {
 
-//        if (compareFrom.() != compareWith.length())
-//            return false;
-
-        // Compare values
-        JsonNode jCompareFrom = null;
-        JsonNode jCompareWith = null;
-        try {
-            jCompareFrom = om.readTree(compareFrom);
-            jCompareWith = om.valueToTree(compareWith);
-        } catch (IOException e) {
-            logger.error("Comparing JSON docs", e);
-        }
+        logger.debug ("Comparing [{}] with [{}]", compareFrom, compareTo.getWhat());
+        JsonNode jCompareFrom = om.valueToTree(compareFrom.getWhat());
+        JsonNode jCompareWith = om.valueToTree(compareTo.getWhat());
         return !(jCompareFrom == null || jCompareWith == null) && jCompareFrom.equals(jCompareWith);
 
     }
 
     @Override
-    public AuditDeltaBean getDelta(Entity entity, Log from, Log to) {
+    public DeltaBean getDelta(Entity entity, Log from, Log to) {
         if (entity == null || from == null || to == null)
             throw new IllegalArgumentException("Unable to compute delta due to missing arguments");
-        LogWhat source = getWhat(entity, from);
-        LogWhat dest = getWhat(entity, to);
+        EntityContent source = getContent(entity, from);
+        EntityContent dest = getContent(entity, to);
         MapDifference<String, Object> diffMap = Maps.difference(source.getWhat(), dest.getWhat());
-        AuditDeltaBean result = new AuditDeltaBean();
+        DeltaBean result = new DeltaBean();
         result.setAdded(new HashMap<>(diffMap.entriesOnlyOnRight()));
         result.setRemoved(new HashMap<>(diffMap.entriesOnlyOnLeft()));
         HashMap<String, Object> differences = new HashMap<>();

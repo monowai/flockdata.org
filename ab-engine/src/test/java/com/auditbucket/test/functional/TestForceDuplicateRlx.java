@@ -22,9 +22,10 @@ package com.auditbucket.test.functional;
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.test.utils.TestHelper;
+import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.test.utils.Helper;
+import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
-import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 
 import org.joda.time.DateTime;
@@ -51,7 +52,7 @@ public class TestForceDuplicateRlx extends TestEngineBase {
     @Transactional
     public void uniqueChangeRLXUnderLoad() throws Exception {
         logger.info("uniqueChangeRLXUnderLoad started");
-        registerSystemUser("TestTrack", mike_admin);
+        SystemUser su = registerSystemUser("TestTrack", mike_admin);
 
         int auditMax = 10;
         int logMax = 10;
@@ -77,16 +78,16 @@ public class TestForceDuplicateRlx extends TestEngineBase {
             long requests = 0;
             auditSleepCount = 0;
 
-            Fortress iFortress = fortressService.registerFortress(new FortressInputBean(fortressName, true));
+            Fortress iFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean(fortressName, true));
             requests++;
             logger.info("Starting run for " + fortressName);
             while (audit <= auditMax) {
-                EntityInputBean aib = new EntityInputBean(iFortress.getName(), fortress + "olivia@sunnybell.com", "CompanyNode", new DateTime(), "ABC" + audit);
-                TrackResultBean arb = trackEP.trackEntity(aib, null, null).getBody();
+                EntityInputBean entityInputBean = new EntityInputBean(iFortress.getName(), fortress + "olivia@sunnybell.com", "CompanyNode", new DateTime(), "ABC" + audit);
+                TrackResultBean arb = mediationFacade.trackEntity(su.getCompany(), entityInputBean);
                 requests++;
                 int log = 1;
                 while (log <= logMax) {
-                    createLog(aib, arb, log);
+                    createLog(su, arb, log);
                     requests++;
                     log++;
                 } // Logs created
@@ -107,8 +108,8 @@ public class TestForceDuplicateRlx extends TestEngineBase {
         logger.info("*** Created data set in " + f.format(splitTotals) + " fortress avg = " + f.format(splitTotals / fortressMax) + " avg processing time per request " + f.format(splitTotals / totalRows) + ". Requests per second " + f.format(totalRows / splitTotals));
 //        watch.reset();
     }
-    private void createLog(EntityInputBean aib, TrackResultBean arb, int log) throws DatagioException, IOException, ExecutionException, InterruptedException {
-        trackEP.trackLog(new LogInputBean(aib.getFortressUser(), arb.getMetaKey(), new DateTime(), TestHelper.getSimpleMap("who", log)), null, null);
+    private void createLog(SystemUser su, TrackResultBean arb, int log) throws DatagioException, IOException, ExecutionException, InterruptedException {
+        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("who cares", arb.getMetaKey(), new DateTime(), Helper.getSimpleMap("who", log)));
     }
 
 

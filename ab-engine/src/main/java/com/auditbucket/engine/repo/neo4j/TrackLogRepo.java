@@ -21,7 +21,7 @@ package com.auditbucket.engine.repo.neo4j;
 
 import com.auditbucket.engine.repo.neo4j.model.LogNode;
 import com.auditbucket.engine.repo.neo4j.model.LoggedRelationship;
-import com.auditbucket.track.model.TrackLog;
+import com.auditbucket.track.model.EntityLog;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
@@ -43,12 +43,12 @@ public interface TrackLogRepo extends GraphRepository<LogNode> {
     LoggedRelationship getLog(Long logId);
 
     @Query(elementClass = LoggedRelationship.class, value = "match (entity)-[log:LOGGED]->(auditLog) where id(entity)={0} and log.fortressWhen >= {1} and log.fortressWhen <= {2} return log ")
-    Set<TrackLog> getLogs(Long entityId, Long from, Long to);
+    Set<EntityLog> getLogs(Long entityId, Long from, Long to);
 
     @Query(elementClass = LoggedRelationship.class, value =
             "   MATCH track-[log:LOGGED]->change where id(track) = {0} " +
             "return log order by log.fortressWhen desc")
-    Set<TrackLog> findLogs(Long entityId);
+    Set<EntityLog> findLogs(Long entityId);
 
     @Query (value = "match (f:_Fortress)-[:TRACKS]->(m:Entity)-[l:LOGGED]-(log:Log)-[people]-() where id(f)={0} delete l, people, log")
     void purgeFortressLogs(Long fortressId);

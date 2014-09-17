@@ -45,7 +45,7 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
             }
         }
 
-        throw new SecurityException("Unable to resolve or verify your API Key");
+        throw new SecurityException("You are not authorized to work with data in this service");
     }
 
     @Override

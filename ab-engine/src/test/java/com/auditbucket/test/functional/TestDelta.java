@@ -21,13 +21,12 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.test.utils.TestHelper;
-import com.auditbucket.track.bean.AuditDeltaBean;
+import com.auditbucket.test.utils.Helper;
+import com.auditbucket.track.bean.DeltaBean;
+import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
-import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
-import com.auditbucket.track.model.TrackLog;
-import junit.framework.Assert;
+import com.auditbucket.track.model.EntityLog;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Map;
 
-import static junit.framework.Assert.assertTrue;
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -54,12 +53,12 @@ public class TestDelta extends TestEngineBase {
         Fortress fortress = fortressService.registerFortress("DELTAForce");
         assertNotNull(fortress);
 
-        Map<String, Object> jsonA = TestHelper.getSimpleMap("house", "red");
+        Map<String, Object> jsonA = Helper.getSimpleMap("house", "red");
         jsonA.put("bedrooms", 2);
         jsonA.put("garage", "Y");
 
         //String jsonB = "{\"house\": \"green\", \"bedrooms\": 2, \"list\": [1,2,3]}";
-        Map<String, Object> jsonB = TestHelper.getSimpleMap("house", "green");
+        Map<String, Object> jsonB = Helper.getSimpleMap("house", "green");
         jsonB.put("bedrooms", 2);
         ArrayList<Integer> values = new ArrayList<>();
         values.add(1);
@@ -68,28 +67,28 @@ public class TestDelta extends TestEngineBase {
         jsonB.put("list", values);
 
         EntityInputBean entity = new EntityInputBean("DELTAForce", "auditTestz", "Delta", new DateTime(), "abdelta");
-        LogInputBean log = new LogInputBean("Mike", new DateTime(), jsonA);
+        ContentInputBean log = new ContentInputBean("Mike", new DateTime(), jsonA);
         entity.setLog(log);
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entity);
-        TrackLog first = logService.getLastLog(result.getEntity());
-        Assert.assertNotNull(first);
-        log = new LogInputBean("Mike", result.getMetaKey(), new DateTime(), jsonB);
-        mediationFacade.processLog(su.getCompany(), log);
-        TrackLog second = logService.getLastLog(result.getEntity());
-        Assert.assertNotNull(second);
+        EntityLog first = logService.getLastLog(result.getEntity());
+        assertNotNull(first);
+        log = new ContentInputBean("Mike", result.getMetaKey(), new DateTime(), jsonB);
+        mediationFacade.trackLog(su.getCompany(), log);
+        EntityLog second = logService.getLastLog(result.getEntity());
+        assertNotNull(second);
 
 
-        AuditDeltaBean deltaBean = kvService.getDelta(result.getEntity(), first.getLog(), second.getLog());
+        DeltaBean deltaBean = kvService.getDelta(result.getEntity(), first.getLog(), second.getLog());
         Map added = deltaBean.getAdded();
-        Assert.assertNotNull(added);
+        assertNotNull(added);
         assertTrue(added.containsKey("list"));
 
         Map removed = deltaBean.getRemoved();
-        Assert.assertNotNull(removed);
+        assertNotNull(removed);
         assertTrue(removed.containsKey("garage"));
 
         Map changed = deltaBean.getChanged();
-        Assert.assertNotNull(changed);
+        assertNotNull(changed);
         assertTrue(changed.containsKey("house"));
 
         assertNotNull(deltaBean);

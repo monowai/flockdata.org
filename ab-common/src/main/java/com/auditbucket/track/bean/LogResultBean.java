@@ -20,8 +20,8 @@
 package com.auditbucket.track.bean;
 
 import com.auditbucket.track.model.Entity;
+import com.auditbucket.track.model.EntityLog;
 import com.auditbucket.track.model.Log;
-import com.auditbucket.track.model.TrackLog;
 import com.auditbucket.track.model.TxRef;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -37,17 +37,17 @@ public class LogResultBean {
     private String documentType;
     private String metaKey;
     private String callerRef;
-    private LogInputBean.LogStatus status = LogInputBean.LogStatus.OK;
+    private ContentInputBean.LogStatus status = ContentInputBean.LogStatus.OK;
 
     private Entity entity;
 
     private String fortressUser;
     private String txReference = null;
     private Long sysWhen;
-    private TrackLog logToIndex;
+    private EntityLog logToIndex;
     private Log whatLog;
 
-    public LogResultBean(LogInputBean input, Entity entity) {
+    public LogResultBean(ContentInputBean input, Entity entity) {
         this();
         this.entity = entity;
         if ( entity !=null ) {
@@ -64,7 +64,7 @@ public class LogResultBean {
     }
 
 
-    public LogInputBean.LogStatus getStatus() {
+    public ContentInputBean.LogStatus getStatus() {
         return status;
     }
 
@@ -132,7 +132,7 @@ public class LogResultBean {
         this.documentType = documentType;
     }
 
-    public void setStatus(LogInputBean.LogStatus status) {
+    public void setStatus(ContentInputBean.LogStatus status) {
         this.status = status;
     }
 
@@ -144,12 +144,12 @@ public class LogResultBean {
         return sysWhen;
     }
 
-    public void setLogToIndex(TrackLog logToIndex) {
+    public void setLogToIndex(EntityLog logToIndex) {
         this.logToIndex = logToIndex;
     }
 
     @JsonIgnore
-    public TrackLog getLogToIndex() {
+    public EntityLog getLogToIndex() {
         return logToIndex;
     }
 

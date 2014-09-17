@@ -67,7 +67,7 @@ public class QueryResults  extends TestEngineBase {
         inputBean.addTag(new TagInputBean("Grapes", "allergic").setLabel(QueryResults.FRUIT));
 //        inputBean.addTag(new TagInputBean("Peas", "dislikes").setLabel(VEGETABLE));
         inputBean.addTag(new TagInputBean("Potatoes", "likes").setLabel(VEGETABLE)); // No co-occurrence
-        trackEP.trackEntity(inputBean, su.getApiKey(), su.getApiKey()) ;
+        mediationFacade.trackEntity(su.getCompany(), inputBean) ;
 
         inputBean = new EntityInputBean(fortress.getName(), "mike", "Study", new DateTime(), "StudyB");
         inputBean.addTag(new TagInputBean("Apples", "dislikes").setLabel(FRUIT));
@@ -76,7 +76,7 @@ public class QueryResults  extends TestEngineBase {
         inputBean.addTag(new TagInputBean("Grapes", "dislikes").setLabel(FRUIT));
         inputBean.addTag(new TagInputBean("Kiwi", "likes").setLabel(FRUIT));
         inputBean.addTag(new TagInputBean("Peas", "dislikes").setLabel(VEGETABLE));
-        trackEP.trackEntity(inputBean, su.getApiKey(), su.getApiKey()) ;
+        mediationFacade.trackEntity(su.getCompany(), inputBean) ;
 
         MatrixInputBean input = new MatrixInputBean();
         ArrayList<String>docs = new ArrayList<>();

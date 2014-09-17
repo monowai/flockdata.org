@@ -9,8 +9,8 @@ import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.search.endpoint.ElasticSearchEP;
 import com.auditbucket.search.model.EntitySearchChange;
 import com.auditbucket.search.model.EntitySearchSchema;
+import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
-import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.SearchChange;
 import com.auditbucket.track.model.TrackSearchDao;
@@ -100,7 +100,7 @@ public class TestMappings extends ESBase {
                   EntitySearchSchema.WHAT_CODE, "AZERTY");
         what.put( EntitySearchSchema.WHAT_NAME, "NameText");
         what.put( EntitySearchSchema.WHAT_DESCRIPTION, "This is a description");
-        LogInputBean log = new LogInputBean(user.getCode(), now, what);
+        ContentInputBean log = new ContentInputBean(user.getCode(), now, what);
         mib.setLog(log);
         SearchChange change = new EntitySearchChange(header);
         change.setWhat(what);

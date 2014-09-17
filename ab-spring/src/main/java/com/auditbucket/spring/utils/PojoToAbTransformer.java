@@ -2,8 +2,8 @@ package com.auditbucket.spring.utils;
 
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.spring.annotations.*;
+import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
-import com.auditbucket.track.bean.LogInputBean;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
@@ -43,7 +43,7 @@ public class PojoToAbTransformer {
         //ToDo:  caller does not determine this by ab-spring does.
 
         EntityInputBean entityInputBean = new EntityInputBean();
-        LogInputBean logInputBean = new LogInputBean("null", new DateTime(), null);
+        ContentInputBean contentInputBean = new ContentInputBean("null", new DateTime(), null);
         Map<String, Object> tagValues = new HashMap<String, Object>();
         Map<String, Object> mapWhat = new HashMap<String, Object>();
         Class aClass = pojo.getClass();
@@ -118,8 +118,8 @@ public class PojoToAbTransformer {
         }
         //ObjectMapper mapper = new ObjectMapper(); // create once, reuse
         //String what = mapper.writeValueAsString(mapWhat);
-        logInputBean.setWhat(mapWhat);
-        entityInputBean.setLog(logInputBean);
+        contentInputBean.setWhat(mapWhat);
+        entityInputBean.setLog(contentInputBean);
         //ToDo: Figure out tag structure
         //metaInputBean.setTagValues(tagValues);
         return entityInputBean;
@@ -142,8 +142,8 @@ public class PojoToAbTransformer {
      * "what": "{\"name\": \"99\", \"thing\": {\"status\": \"android\"}}"
      * }
      */
-    public static LogInputBean transformToAbLogFormat(Object pojo) throws IllegalAccessException, IOException, DatagioException {
-        LogInputBean logInputBean = new LogInputBean("mike", new DateTime(), null);
+    public static ContentInputBean transformToAbLogFormat(Object pojo) throws IllegalAccessException, IOException, DatagioException {
+        ContentInputBean contentInputBean = new ContentInputBean("mike", new DateTime(), null);
         Map<String, Object> mapWhat = new HashMap<String, Object>();
 
         Class aClass = pojo.getClass();
@@ -161,10 +161,10 @@ public class PojoToAbTransformer {
                         // The case when the value of field are not NULL
                         if (field.get(pojo) != null) {
                             if (fieldAnnotation instanceof DatagioUid) {
-                                logInputBean.setMetaKey(field.get(pojo).toString());
+                                contentInputBean.setMetaKey(field.get(pojo).toString());
                             }
                             if (fieldAnnotation instanceof DatagioCallerRef) {
-                                logInputBean.setCallerRef(field.get(pojo).toString());
+                                contentInputBean.setCallerRef(field.get(pojo).toString());
                             }
 
                             if (fieldAnnotation instanceof NoTrack) {
@@ -184,7 +184,7 @@ public class PojoToAbTransformer {
         }
         //ObjectMapper mapper = new ObjectMapper(); // create once, reuse
         //String what = mapper.writeValueAsString(mapWhat);
-        logInputBean.setWhat(mapWhat);
-        return logInputBean;
+        contentInputBean.setWhat(mapWhat);
+        return contentInputBean;
     }
 }

@@ -31,7 +31,7 @@ public interface SchemaService {
 
     void createDocTypes(Iterable<EntityInputBean> headers, Fortress fortress);
 
-    Collection<DocumentResultBean> getCompanyDocumentsInUse(Company company);
+    Collection<DocumentResultBean> getDocumentsInUse(Company company);
 
     void purge(Fortress fortress);
 

@@ -38,7 +38,7 @@ public class TrackResultBean {
     private String callerRef;
     private String metaKey;
     private LogResultBean logResult;
-    private LogInputBean log;
+    private ContentInputBean log;
     private Entity entity;
     private Collection<TrackTag> tags;
     private EntityInputBean entityInputBean;
@@ -69,7 +69,7 @@ public class TrackResultBean {
         this.entity = input;
     }
 
-    public TrackResultBean(LogResultBean logResultBean, LogInputBean input) {
+    public TrackResultBean(LogResultBean logResultBean, ContentInputBean input) {
         this.logResult = logResultBean;
         this.log = input;
         this.entity = logResultBean.getEntity();
@@ -156,12 +156,12 @@ public class TrackResultBean {
     }
 
     @JsonIgnore
-    public LogInputBean getLog() {
+    public ContentInputBean getLog() {
         return log;
     }
 
-    public void setLogInput(LogInputBean logInputBean) {
-        this.log = logInputBean;
+    public void setLogInput(ContentInputBean contentInputBean) {
+        this.log = contentInputBean;
     }
 
     public void setEntityInputBean(EntityInputBean entityInputBean) {
@@ -174,6 +174,6 @@ public class TrackResultBean {
     }
 
     public boolean processLog() {
-        return getLog() != null && log.getStatus() != LogInputBean.LogStatus.IGNORE;
+        return getLog() != null && log.getStatus() != ContentInputBean.LogStatus.IGNORE;
     }
 }

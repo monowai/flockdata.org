@@ -132,9 +132,8 @@ public class TrackTagRelationship implements TrackTag, Comparable {
     }
 
     @Override
-    @JsonIgnore
     public String getTagType() {
-        return tagType;  //To change body of implemented methods use File | Settings | File Templates.
+        return tagType;
     }
 
     @Override

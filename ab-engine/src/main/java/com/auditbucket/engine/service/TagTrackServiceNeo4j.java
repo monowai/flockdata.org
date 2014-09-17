@@ -28,8 +28,8 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.track.bean.TrackTagInputBean;
 import com.auditbucket.track.model.Entity;
+import com.auditbucket.track.model.EntityLog;
 import com.auditbucket.track.model.Log;
-import com.auditbucket.track.model.TrackLog;
 import com.auditbucket.track.model.TrackTag;
 
 import com.auditbucket.track.service.EntityTagService;
@@ -103,9 +103,9 @@ public class TagTrackServiceNeo4j implements EntityTagService {
      * @param userTags Key/Value pair of tags. TagNode will be created if missing. Value can be a Collection
      */
     @Override
-    public Collection<TrackTag> associateTags(Company company, Entity ah, TrackLog lastLog, Collection<TagInputBean> userTags) {
+    public Collection<TrackTag> associateTags(Company company, Entity ah, EntityLog lastLog, Collection<TagInputBean> userTags) {
         Collection<TrackTag> rlxs = new ArrayList<>();
-        Iterable<TrackTag> existingTags = findTrackTags(company, ah);
+        Iterable<TrackTag> existingTags = getEntityTags(company, ah);
 
         for (TagInputBean tagInput : userTags) {
 
@@ -132,7 +132,7 @@ public class TagTrackServiceNeo4j implements EntityTagService {
         return rlxs;
     }
 
-    private void relocateTags(Entity ah, TrackLog currentLog, Collection<TrackTag> tagsToRelocate) {
+    private void relocateTags(Entity ah, EntityLog currentLog, Collection<TrackTag> tagsToRelocate) {
         if (!tagsToRelocate.isEmpty()) {
             if (currentLog != null)
                 trackTagDao.moveTags(ah, currentLog.getLog(), tagsToRelocate);
@@ -169,30 +169,35 @@ public class TagTrackServiceNeo4j implements EntityTagService {
      * @return TrackTags found
      */
     @Override
-    public Set<TrackTag> findEntityTags(Entity entity) {
+    public Collection<TrackTag> findEntityTags(Entity entity) {
         Company company = securityHelper.getCompany();
-        return findTrackTags(company, entity);
+        return getEntityTags(company, entity);
     }
 
     @Override
-    public Set<TrackTag> findOutboundTags(Entity header) {
+    public Collection<TrackTag> findOutboundTags(Entity header) {
         Company company = securityHelper.getCompany();
         return findOutboundTags(company, header);
     }
 
     @Override
-    public Set<TrackTag> findOutboundTags(Company company, Entity header) {
+    public Collection<TrackTag> findOutboundTags(Company company, Entity header) {
         return trackTagDao.getDirectedEntityTags(company, header, true);
     }
 
     @Override
-    public Set<TrackTag> findInboundTags(Company company, Entity header) {
+    public Collection<TrackTag> findInboundTags(Company company, Entity header) {
         return trackTagDao.getDirectedEntityTags(company, header, false);
     }
 
     @Override
-    public Set<TrackTag> findTrackTags(Company company, Entity entity) {
+    public Collection<TrackTag> getEntityTags(Company company, Entity entity) {
         return trackTagDao.getEntityTags(company, entity);
+    }
+
+    @Override
+    public Collection<TrackTag> findLogTags(Company company, Log log) {
+        return trackTagDao.findLogTags(company, log);
     }
 
     @Override
@@ -223,11 +228,6 @@ public class TagTrackServiceNeo4j implements EntityTagService {
             throw new DatagioException("Unable to find the tag [" + tagName + "]");
         return trackTagDao.findEntityTags(tag);
 
-    }
-
-    @Override
-    public Set<TrackTag> findLogTags(Company company, Log log) {
-        return trackTagDao.findLogTags(company, log);
     }
 
     @Override

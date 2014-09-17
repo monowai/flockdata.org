@@ -20,9 +20,11 @@
 package com.auditbucket.track.bean;
 
 import com.auditbucket.track.model.Entity;
-import com.auditbucket.track.model.TrackLog;
+import com.auditbucket.track.model.EntityLog;
 import com.auditbucket.track.model.TrackTag;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -31,13 +33,13 @@ import java.util.Set;
  */
 public class EntitySummaryBean {
     private Entity header;
-    private Set<TrackLog> changes;
-    private Set<TrackTag> tags;
+    private Set<EntityLog> changes;
+    private Collection<TrackTag> tags;
 
     private EntitySummaryBean() {
     }
 
-    public EntitySummaryBean(Entity header, Set<TrackLog> changes, Set<TrackTag> tags) {
+    public EntitySummaryBean(Entity header, Set<EntityLog> changes, Collection<TrackTag> tags) {
         this();
         this.header = header;
         this.changes = changes;
@@ -48,11 +50,11 @@ public class EntitySummaryBean {
         return header;
     }
 
-    public Set<TrackLog> getChanges() {
+    public Set<EntityLog> getChanges() {
         return changes;
     }
 
-    public Set<TrackTag> getTags() {
+    public Collection<TrackTag> getTags() {
         return tags;
     }
 }

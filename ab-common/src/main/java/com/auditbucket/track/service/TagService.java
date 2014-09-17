@@ -31,7 +31,6 @@ public interface TagService {
     @Deprecated // Pass the company
     public Tag findTag(String tagName);
 
-    @Deprecated
     public Collection<Tag> findDirectedTags(Tag startTag);
 
     public Collection<Tag> findTags(Company company, String index);

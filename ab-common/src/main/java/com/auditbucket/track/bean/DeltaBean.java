@@ -23,7 +23,7 @@ import java.util.Map;
 
 /**
  */
-public class AuditDeltaBean {
+public class DeltaBean {
     private Map<String, Object> added;
     private Map<String, Object> changed;
     private Map<String, Object> removed;
