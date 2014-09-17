@@ -38,7 +38,7 @@ public class EntityInputBean {
     private String fortressUser;
     private String documentType;
     private Date when = null;
-    private LogInputBean log;
+    private ContentInputBean log;
     private List<TagInputBean> tags = new ArrayList<>();
     private Map<String,List<EntityKey>> crossReferences = new HashMap<>();
 
@@ -173,7 +173,7 @@ public class EntityInputBean {
         this.callerRef = callerRef;
     }
 
-    public void setLog(LogInputBean log) {
+    public void setLog(ContentInputBean log) {
         this.log = log;
         if (log != null) {
             this.metaOnly = false;
@@ -182,7 +182,7 @@ public class EntityInputBean {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public LogInputBean getLog() {
+    public ContentInputBean getLog() {
         return log;
     }
 

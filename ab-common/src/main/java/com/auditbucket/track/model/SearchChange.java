@@ -123,4 +123,10 @@ public interface SearchChange {
     public boolean isDelete();
 
     void setName(String name);
+
+    void setAttachment(String attachment);
+
+    boolean hasAttachment();
+
+    String getAttachment();
 }

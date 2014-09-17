@@ -26,7 +26,6 @@ import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.Entity;
-import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -61,12 +60,12 @@ public class TestCallerRef extends TestEngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
         // Duplicate null caller ref keys
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "harry", "TestTrack", new DateTime(), null);
-        Assert.assertNotNull(mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey());
+        assertNotNull(mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey());
         inputBean = new EntityInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), null);
         String ahKey = mediationFacade.trackHeader(fortress, inputBean).getMetaKey();
 
         assertNotNull(ahKey);
-        Entity entity = trackService.getEntity(ahKey);
+        Entity entity = trackService.getEntity(su.getCompany(), ahKey);
         assertNotNull(entity);
         assertNull(entity.getCallerRef());
 
@@ -78,22 +77,22 @@ public class TestCallerRef extends TestEngineBase {
     @Test
     @Transactional
     public void findByCallerRefAcrossDocumentTypes() throws Exception {
-        registerSystemUser(monowai, mike_admin);
-        Fortress fortress = fortressService.registerFortress(new FortressInputBean("auditTest", true));
+        SystemUser su = registerSystemUser(monowai, mike_admin);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
 
-        // Ok we now have a metakey, let's find it by callerRef ignoring the document and make sure we find the same thing
-        String metaKey = trackEP.trackEntity(inputBean, null, null).getBody().getMetaKey();
-        Iterable<Entity> results = trackEP.getByCallerRef(fortress.getName(), "ABC123", null, null);
+        // Ok we now have a metakey, let's find it by callerRef ignoring the document and make sure we find the same entity
+        String metaKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey();
+        Iterable<Entity> results = trackService.findByCallerRef(su.getCompany(), fortress.getName(), "ABC123");
         assertEquals(true, results.iterator().hasNext());
         assertEquals(metaKey, results.iterator().next().getMetaKey());
 
         // Same caller ref but different document - this scenario is the callers to resolve
         inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeZ", new DateTime(), "ABC123");
-        trackEP.trackEntity(inputBean, null, null).getBody();
+        mediationFacade.trackEntity(su.getCompany(), inputBean);
 
-        results = trackEP.getByCallerRef(fortress.getName(), "ABC123", null, null);
+        results = trackService.findByCallerRef(su.getCompany(), fortress.getName(), "ABC123");
         int count = 0;
         // Should be a total of 2, both for the same fortress but different document types
         for (Entity result : results) {
@@ -112,9 +111,9 @@ public class TestCallerRef extends TestEngineBase {
     @Test
     public void duplicateCallerRefKeysAndDocTypesNotCreated() throws Exception {
         cleanUpGraph(); // No transaction so need to clear down the graph
-        registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai, mike_admin);
 
-        Fortress fortress = fortressService.registerFortress(new FortressInputBean("auditTest" + System.currentTimeMillis()));
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest" + System.currentTimeMillis()));
 
         String docType = "TestAuditX";
         String callerRef = "ABC123X";
@@ -126,7 +125,7 @@ public class TestCallerRef extends TestEngineBase {
         }
 
         latch.await();
-        Assert.assertNotNull(trackService.findByCallerRef(fortress, docType, callerRef));
+        assertNotNull(trackService.findByCallerRef(fortress, docType, callerRef));
         for (CallerRefRunner runner : runners) {
             assertEquals(true, runner.isWorking());
         }

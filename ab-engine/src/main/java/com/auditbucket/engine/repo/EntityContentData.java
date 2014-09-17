@@ -20,9 +20,12 @@
 package com.auditbucket.engine.repo;
 
 import com.auditbucket.helper.CompressionHelper;
-import com.auditbucket.track.model.LogWhat;
+import com.auditbucket.track.model.EntityContent;
+import com.auditbucket.track.model.KvContent;
+import com.auditbucket.track.model.Log;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import org.springframework.data.annotation.Transient;
 
 import java.io.IOException;
@@ -31,64 +34,56 @@ import java.util.Map;
 
 /**
  * User: Mike Holdsworth
- * POJO for transmitting what data from a KV store
+ * POJO for transmitting Content data to a KV store
  * Since: 4/09/13
  */
-public class LogWhatData implements LogWhat {
-
-    @JsonIgnore
-    private
-    byte[] whatBytes;
+public class EntityContentData implements EntityContent {
 
     private Boolean compressed;
 
-    @Transient
-    private Map<String, Object> what;
+    private KvContent kvContent;
 
     @Transient
     private
     ObjectMapper objectMapper = new ObjectMapper();
 
-    protected LogWhatData() {
+    protected EntityContentData() {
     }
 
-    public LogWhatData(byte[] whatInformation, boolean compressed) {
+    public EntityContentData(byte[] content, Log log) {
         this();
-        this.setWhatBytes(whatInformation);
-        this.compressed = compressed;
+        this.compressed = log.isCompressed();
+        this.kvContent = extractBytes(CompressionHelper.decompress(content, compressed));
     }
 
     @Override
-    @JsonIgnore
-    public String getWhatString() {
-        return CompressionHelper.decompress(whatBytes, compressed);
-    }
-
-
     public Map<String, Object> getWhat() {
-
-        if (what != null)
-            return what;
-        try {
-            if (whatBytes != null) {
-                what = objectMapper.readValue(getWhatString(), Map.class);
-                return what;
-            }
-
-        } catch (IOException e) {
-        }
-        what = new HashMap<>();
-        what.put("empty", "{}");
-        return what;
+        return kvContent.getWhat();
     }
 
     @Override
-    public boolean isCompressed() {
-        return compressed;
+    public String getAttachment() {
+        return kvContent.getAttachment();
     }
 
-    void setWhatBytes(byte[] whatBytes) {
-        this.whatBytes = whatBytes;
+    private KvContent extractBytes(String base64) {
+        try {
+            KvContent kvContent;
+            try {
+                kvContent = objectMapper.readValue(base64, KvContentData.class);
+            } catch (UnrecognizedPropertyException upe) {
+                // Stored as a map
+                Map<String, Object> result = objectMapper.readValue(base64, HashMap.class);
+                kvContent = new KvContentData(result);
+            }
+            return kvContent;
+
+        } catch (IOException ignored) {
+        }
+        return null;
     }
+
+
+
 
 }

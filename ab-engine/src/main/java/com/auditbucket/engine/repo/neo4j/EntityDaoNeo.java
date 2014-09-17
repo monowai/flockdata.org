@@ -31,8 +31,8 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.service.KeyGenService;
 import com.auditbucket.track.bean.AuditTXResult;
+import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
-import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.model.*;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
@@ -218,11 +218,11 @@ public class EntityDaoNeo {
         return trackLogRepo.getLogCount(id);
     }
 
-    public Set<TrackLog> getLogs(Long auditLogID, Date from, Date to) {
+    public Set<EntityLog> getLogs(Long auditLogID, Date from, Date to) {
         return trackLogRepo.getLogs(auditLogID, from.getTime(), to.getTime());
     }
 
-    public Set<TrackLog> getLogs(Long auditHeaderID) {
+    public Set<EntityLog> getLogs(Long auditHeaderID) {
         return trackLogRepo.findLogs(auditHeaderID);
     }
 
@@ -247,7 +247,7 @@ public class EntityDaoNeo {
         //Result<Map<String, Object>> results =
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
-            TrackLog log = template.convert(row.get("logs"), LoggedRelationship.class);
+            EntityLog log = template.convert(row.get("logs"), LoggedRelationship.class);
             Log change = template.convert(row.get("auditLog"), LogNode.class);
             Entity audit = template.convert(row.get("track"), EntityNode.class);
             simpleResult.add(new AuditTXResult(audit, change, log));
@@ -261,7 +261,7 @@ public class EntityDaoNeo {
         return result;
     }
 
-    public TrackLog save(TrackLog log) {
+    public EntityLog save(EntityLog log) {
         logger.debug("Saving track log [{}] - Log ID [{}]", log, log.getLog().getId());
         return template.save((LoggedRelationship) log);
     }
@@ -280,13 +280,13 @@ public class EntityDaoNeo {
         return "Neo4J is OK";
     }
 
-    public Log prepareLog(FortressUser fUser, LogInputBean input, TxRef txRef, Log previousChange) throws DatagioException {
-        ChangeEvent event = trackEventService.processEvent(fUser.getFortress().getCompany(), input.getEvent());
-        Log changeLog = new LogNode(fUser, input, txRef);
+    public Log prepareLog(FortressUser fUser, ContentInputBean entityContent, TxRef txRef, Log previousChange) throws DatagioException {
+        ChangeEvent event = trackEventService.processEvent(fUser.getFortress().getCompany(), entityContent.getEvent());
+        Log changeLog = new LogNode(fUser, entityContent, txRef);
         changeLog.setEvent(event);
         changeLog.setPreviousLog(previousChange);
         try {
-            changeLog = kvService.prepareLog(changeLog, input.getWhat());
+            changeLog = kvService.prepareLog(changeLog, entityContent);
         } catch (IOException e) {
             throw new DatagioException("Unexpected error talking to What Service", e);
         }
@@ -294,11 +294,11 @@ public class EntityDaoNeo {
     }
 
 //    @Cacheable(value = "trackLog", unless = "#result==null")
-    public TrackLog getLog(Long logId) {
+    public EntityLog getLog(Long logId) {
         Relationship change = template.getRelationship(logId);
         if (change != null)
             try {
-                return (TrackLog) template.getDefaultConverter().convert(change, LoggedRelationship.class);
+                return (EntityLog) template.getDefaultConverter().convert(change, LoggedRelationship.class);
             } catch (NotFoundException nfe) {
                 // Occurs if ab-search has been down and the database is out of sync from multiple restarts
                 logger.error("Error converting relationship to a LoggedRelationship");
@@ -317,12 +317,12 @@ public class EntityDaoNeo {
         return template.fetch(lastChange);
     }
 
-    public TrackLog addLog(Entity entity, Log newChange, DateTime fortressWhen, TrackLog existingLog) {
+    public EntityLog addLog(Entity entity, Log newChange, DateTime fortressWhen, EntityLog existingLog) {
 
         newChange.setTrackLog(new LoggedRelationship(entity, newChange, fortressWhen));
 
         if (entity.getId() == null)// This occurs when tracking in ab-engine is suppressed and the caller is only creating search docs
-            return newChange.getTrackLog();
+            return newChange.getEntityLog();
 
         if ( entity.getLastChange()!=null )
             entity = template.fetch(entity);
@@ -340,7 +340,7 @@ public class EntityDaoNeo {
             try {
                 template.save(entity);
             } catch (IllegalStateException e) {
-                logger.error("ISE saving Entity {}", new Date(newChange.getTrackLog().getSysWhen()));
+                logger.error("ISE saving Entity {}", new Date(newChange.getEntityLog().getSysWhen()));
                 logger.error("Unexpected", e);
             }
             logger.debug("Saved change for Entity [{}], logid [{}]", entity.getId(), newChange.getId());
@@ -348,8 +348,8 @@ public class EntityDaoNeo {
         } else {
             newChange = template.save(newChange);
         }
-        logger.debug("Added Log - Entity [{}], Log [{}], Change [{}]", entity.getId(), newChange.getTrackLog(), newChange.getId());
-        return newChange.getTrackLog();
+        logger.debug("Added Log - Entity [{}], Log [{}], Change [{}]", entity.getId(), newChange.getEntityLog(), newChange.getId());
+        return newChange.getEntityLog();
     }
 
     public void crossReference(Entity header, Collection<Entity> entities, String refName) {
@@ -408,7 +408,7 @@ public class EntityDaoNeo {
         documentTypeRepo.purgeFortressDocuments(fortress.getId());
     }
 
-    public TrackLog getLastLog(Long entityId) {
+    public EntityLog getLastLog(Long entityId) {
         Entity entity = getHeader(entityId);
         Log lastChange = entity.getLastChange();
         if (lastChange == null)

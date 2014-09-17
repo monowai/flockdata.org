@@ -2,10 +2,10 @@ package com.auditbucket.track.service;
 
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.track.bean.LogInputBean;
+import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.Entity;
-import com.auditbucket.track.model.TrackLog;
+import com.auditbucket.track.model.EntityLog;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -20,8 +20,8 @@ public interface LogService {
 
     Collection<TrackResultBean> processLogsSync(Company company, Iterable<TrackResultBean> resultBeans) throws DatagioException, IOException, ExecutionException, InterruptedException;
 
-    TrackResultBean writeLog(Entity entity, LogInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException;
+    TrackResultBean writeLog(Entity entity, ContentInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException;
 
-    TrackLog getLastLog(Entity entity) throws DatagioException;
+    EntityLog getLastLog(Entity entity) throws DatagioException;
 
 }

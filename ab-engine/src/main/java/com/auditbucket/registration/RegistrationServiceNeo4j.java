@@ -31,6 +31,7 @@ import com.auditbucket.track.service.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,6 +58,7 @@ public class RegistrationServiceNeo4j implements com.auditbucket.registration.se
 
     @Override
     @Transactional
+    @Secured({"ROLE_AB_ADMIN"})
     public SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws DatagioException {
 
         SystemUser systemUser = systemUserService.findByLogin(regBean.getLogin());
@@ -71,6 +73,7 @@ public class RegistrationServiceNeo4j implements com.auditbucket.registration.se
     }
 
     @Override
+    @Secured({"ROLE_AB_ADMIN"})
     public SystemUser registerSystemUser(RegistrationBean regBean) throws DatagioException {
         // Non-transactional method
         Company company = companyService.findByName(regBean.getCompanyName());

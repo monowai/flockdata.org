@@ -19,12 +19,11 @@
 
 package com.auditbucket.engine.repo.neo4j.model;
 
-import com.auditbucket.engine.repo.LogWhatData;
 import com.auditbucket.registration.model.FortressUser;
-import com.auditbucket.track.bean.LogInputBean;
+import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.model.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.TypeAlias;
@@ -51,25 +50,43 @@ public class LogNode implements Log {
     @RelatedTo(elementClass = TxRefNode.class, type = "AFFECTED", direction = Direction.INCOMING, enforceTargetType = true)
     private TxRef txRef;
 
-    @RelatedToVia(elementClass = LoggedRelationship.class, type ="LOGGED", direction = Direction.INCOMING)
+    @RelatedToVia(elementClass = LoggedRelationship.class, type = "LOGGED", direction = Direction.INCOMING)
     private LoggedRelationship trackLog;
 
     @RelatedTo(elementClass = ChangeEventNode.class, type = "TRACK_EVENT", direction = Direction.OUTGOING)
     @Fetch
     private ChangeEventNode event;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String comment;
-    private String storage ;
-    // Neo4J will not persist a byte[] over it's http interface. Probably fixed in V2, but not in our version
-    @JsonIgnore
+    private String storage;
+    private String checkSum=null;
+
+    public ContentType getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(ContentType contentType) {
+        this.contentType = contentType;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    private ContentType contentType ;
+    private String fileName;
+    private String content;
+
     private boolean compressed = false;
     private String name;
 
     @RelatedTo(type = "PREVIOUS_LOG", direction = Direction.OUTGOING)
     private LogNode previousLog;
-
-    @Transient
-    private LogWhatData auditWhat;
 
     @Override
     public String toString() {
@@ -80,16 +97,20 @@ public class LogNode implements Log {
                 '}';
     }
 
-    protected LogNode() {}
+    protected LogNode() {
+        this.contentType = ContentType.JSON;
+    }
 
-    public LogNode(FortressUser madeBy, LogInputBean inputBean, TxRef txRef) {
+    public LogNode(FortressUser madeBy, ContentInputBean contentBean, TxRef txRef) {
         this();
         this.madeBy = (FortressUserNode) madeBy;
 
-        String event = inputBean.getEvent();
+        String event = contentBean.getEvent();
         this.name = event + COLON + madeBy.getCode();
+        this.fileName = contentBean.getFileName();
+        this.contentType = contentBean.getContentType();
         setTxRef(txRef);
-        this.comment = inputBean.getComment();
+        this.comment = contentBean.getComment();
     }
 
     @JsonIgnore
@@ -97,8 +118,14 @@ public class LogNode implements Log {
         return id;
     }
 
-    public void setWhat(LogWhat what) {
-        this.auditWhat = (LogWhatData) what;
+    @Override
+    public String getChecksum() {
+        return checkSum;
+    }
+
+    @Override
+    public void setChecksum(String checksum){
+        this.checkSum = checksum;
     }
 
     public FortressUser getWho() {
@@ -114,7 +141,7 @@ public class LogNode implements Log {
         this.comment = comment;
     }
 
-    public void setTrackLog(LoggedRelationship trackLog){
+    public void setTrackLog(LoggedRelationship trackLog) {
         this.trackLog = trackLog;
     }
 
@@ -128,6 +155,7 @@ public class LogNode implements Log {
     public Log getPreviousLog() {
         return previousLog;
     }
+
     @Transient
     private Map<String, Object> what;
 
@@ -157,12 +185,13 @@ public class LogNode implements Log {
         this.event = (ChangeEventNode) event;
 
     }
+
     public boolean equals(Object other) {
         if (this == other) return true;
 
         if (id == null) return false;
 
-        if (! (other instanceof LogNode)) return false;
+        if (!(other instanceof LogNode)) return false;
 
         return id.equals(((LogNode) other).id);
     }
@@ -173,33 +202,34 @@ public class LogNode implements Log {
 
     @Override
     public void setCompressed(Boolean compressed) {
-        this.compressed=compressed;
+        this.compressed = compressed;
     }
 
     @Override
     @JsonIgnore
-    public TrackLog getTrackLog() {
+    public EntityLog getEntityLog() {
         return trackLog;
     }
 
     @Transient
-    private byte[] dataBlock = null ;
+    private byte[] entityContent = null;
+
     @Override
     @JsonIgnore
-    public void setDataBlock(byte[] dataBlock) {
-        this.dataBlock = dataBlock;
+    public void setEntityContent(byte[] entityContent) {
+        this.entityContent = entityContent;
 
     }
 
     @Override
     @JsonIgnore
-    public byte[] getDataBlock() {
-        return dataBlock;  //To change body of implemented methods use File | Settings | File Templates.
+    public byte[] getEntityContent() {
+        return entityContent;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public void setTrackLog(TrackLog trackLog) {
-        this.trackLog = (LoggedRelationship) trackLog;
+    public void setTrackLog(EntityLog entityLog) {
+        this.trackLog = (LoggedRelationship) entityLog;
     }
 
 

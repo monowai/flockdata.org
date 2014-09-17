@@ -31,6 +31,12 @@ public interface Log {
     String CREATE = "Create";
     String UPDATE = "Update";
 
+    String getChecksum();
+
+    void setChecksum(String checksum);
+
+    public enum ContentType {JSON, PDF}
+
     public abstract FortressUser getWho();
 
     public String getComment();
@@ -54,8 +60,6 @@ public interface Log {
 
     long getId();
 
-    void setWhat(LogWhat what);
-
     /**
      * @return mechanism used to store the what text
      */
@@ -72,11 +76,20 @@ public interface Log {
 
     void setCompressed(Boolean compressed);
 
-    TrackLog getTrackLog();
+    EntityLog getEntityLog();
 
-    void setDataBlock(byte[] dataBlock);
+    void setEntityContent(byte[] entityContent);
 
-    byte[] getDataBlock();
+    byte[] getEntityContent();
 
-    void setTrackLog(TrackLog newLog);
+    void setTrackLog(EntityLog newLog);
+
+    public ContentType getContentType();
+
+    public void setContentType(ContentType contentType) ;
+
+    public String getFileName() ;
+
+    public void setFileName(String fileName);
+
 }

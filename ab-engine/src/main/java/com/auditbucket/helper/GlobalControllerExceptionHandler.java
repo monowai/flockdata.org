@@ -23,6 +23,8 @@ import com.fasterxml.jackson.core.JsonParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageConversionException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -85,6 +87,12 @@ public class GlobalControllerExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ModelAndView handleAuthException(final AccessDeniedException ex){
+        return new JsonMessage(ex.getMessage()).asModelAndViewError();
+    }
+
+    @ExceptionHandler(HttpMessageConversionException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ModelAndView handleConversionProblem( final HttpMessageConversionException ex){
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 

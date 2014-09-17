@@ -76,21 +76,21 @@ public class TestQuery extends TestEngineBase {
         //
         EntityInputBean inputBean = new EntityInputBean(coAfA.getName(), "poppy", "SalesDocket", DateTime.now(), "ABC1"); // Sales fortress
         inputBean.addTag(new TagInputBean("c123", "purchased").setLabel("Customer")); // This tag tracks over two fortresses
-        trackEP.trackEntity(inputBean, suA.getApiKey(), null);
+        mediationFacade.trackEntity(suA.getCompany(), inputBean);
         inputBean = new EntityInputBean(coAfB.getName(), "poppy", "SupportSystem", DateTime.now(), "ABC2"); // Support system fortress
         inputBean.addTag(new TagInputBean("c123","called").setLabel("Customer")); // Customer number - this will be the same tag as for the sales fortress
         inputBean.addTag(new TagInputBean("p111","about").setLabel("Product"));   // Product code - unique to this fortress
-        trackEP.trackEntity(inputBean, suA.getApiKey(), null);
+        mediationFacade.trackEntity(suA.getCompany(), inputBean);
 
 
         inputBean = new EntityInputBean(coBfA.getName(), "petal", "SalesDocket", DateTime.now(), "ABC1"); // Sales fortress
         inputBean.addTag(new TagInputBean("c123","purchased").setLabel("Customer")); // This tag tracks over two fortresses
         inputBean.addTag(new TagInputBean("ricky", "from").setLabel("SalesRep")); // This tag is unique to this company
-        trackEP.trackEntity(inputBean, suB.getApiKey(), null);
+        mediationFacade.trackEntity(suB.getCompany(), inputBean);
         inputBean = new EntityInputBean(coBfB.getName(), "petal", "SupportSystem", DateTime.now(), "ABC2"); // Support system fortress
         inputBean.addTag(new TagInputBean("c123","called").setLabel("Customer")); // Customer number - this will be the same tag as for the sales fortress
         inputBean.addTag(new TagInputBean("p111", "about").setLabel("Product"));   // Product code - unique to this fortress
-        trackEP.trackEntity(inputBean, suB.getApiKey(), null);
+        mediationFacade.trackEntity(suB.getCompany(), inputBean);
 
         Collection<String> fortresses = new ArrayList<>();
         fortresses.add(coAfA.getName());

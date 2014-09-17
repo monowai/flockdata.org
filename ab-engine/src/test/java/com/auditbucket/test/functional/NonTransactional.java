@@ -58,12 +58,12 @@ public class NonTransactional extends TestEngineBase{
 
         EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
         inputBean.addTag( new TagInputBean("ABC", "Device", "sold"));
-        TrackResultBean docA = trackEP.trackEntity(inputBean, null, null).getBody();
+        TrackResultBean docA = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         // These are the two records that will cite the previously created header
         EntityInputBean inputBeanB = new EntityInputBean(fortressA.getName(), "wally", "DocTypeB", new DateTime(), "ABC321");
         inputBeanB.addTag( new TagInputBean("ABC", "Device", "applies"));
-        TrackResultBean docB = trackEP.trackEntity(inputBeanB, null, null).getBody();
+        TrackResultBean docB = mediationFacade.trackEntity(su.getCompany(), inputBeanB);
 
         Map<String, List<EntityKey>> refs = new HashMap<>();
         List<EntityKey> callerRefs = new ArrayList<>();
@@ -75,9 +75,9 @@ public class NonTransactional extends TestEngineBase{
         CrossReferenceInputBean bean = new CrossReferenceInputBean(fortressA.getName(), "ABC123",refs);
         List<CrossReferenceInputBean > inputs = new ArrayList<>();
         inputs.add(bean);
-        Set<TrackTag> tagsA = trackEP.getTrackTags(docA.getMetaKey(), su.getApiKey(), su.getApiKey());
+        Collection<TrackTag> tagsA = entityTagService.getEntityTags(su.getCompany(), docA.getEntity());
         assertEquals(1, tagsA.size());
-        Set<TrackTag> tagsB = trackEP.getTrackTags(docB.getMetaKey(), su.getApiKey(), su.getApiKey());
+        Collection<TrackTag> tagsB = entityTagService.getEntityTags(su.getCompany(), docB.getEntity());
         assertEquals(1, tagsB.size());
 
     }

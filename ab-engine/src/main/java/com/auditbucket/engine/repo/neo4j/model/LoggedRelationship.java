@@ -20,8 +20,8 @@
 package com.auditbucket.engine.repo.neo4j.model;
 
 import com.auditbucket.track.model.Entity;
+import com.auditbucket.track.model.EntityLog;
 import com.auditbucket.track.model.Log;
-import com.auditbucket.track.model.TrackLog;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -35,7 +35,7 @@ import java.util.TimeZone;
  * Time: 4:12 PM
  */
 @RelationshipEntity(type = "LOGGED")
-public class LoggedRelationship implements TrackLog {
+public class LoggedRelationship implements EntityLog {
     @GraphId
     private Long id;
 

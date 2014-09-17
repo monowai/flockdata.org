@@ -41,6 +41,7 @@
         <mvc:interceptor>
             <mvc:mapping path="/fortress/**"/>
             <mvc:mapping path="/query/**"/>
+            <mvc:mapping path="/track/**"/>
             <mvc:mapping path="/admin/health/**"/>
             <bean class="com.auditbucket.authentication.handler.ApiKeyInterceptor"/>
         </mvc:interceptor>

@@ -149,7 +149,7 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
 
     @Override
     @Transactional
-    public Collection<DocumentResultBean> getCompanyDocumentsInUse(Company company) {
+    public Collection<DocumentResultBean> getDocumentsInUse(Company company) {
         Collection<DocumentResultBean> results = new ArrayList<>();
         Collection<DocumentType> rawDocs = schemaDao.getCompanyDocumentsInUse(company);
         for (DocumentType rawDoc : rawDocs) {

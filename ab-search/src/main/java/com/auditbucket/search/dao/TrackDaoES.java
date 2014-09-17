@@ -223,7 +223,7 @@ public class TrackDaoES implements TrackSearchDao {
 
     @Override
     public SearchChange update(SearchChange searchChange) throws IOException {
-        String source = makeIndexJson(searchChange);
+        String source = getJsonToIndex(searchChange);
         if (searchChange.getSearchKey() == null || searchChange.getSearchKey().equals("")) {
             logger.debug("No search key, creating as a new document [{}]", searchChange.getMetaKey());
             return save(searchChange, source);
@@ -333,9 +333,9 @@ public class TrackDaoES implements TrackSearchDao {
         return results;
     }
 
-    private String makeIndexJson(SearchChange searchChange) {
+    private String getJsonToIndex(SearchChange searchChange) {
         ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> index = makeIndexDocument(searchChange);
+        Map<String, Object> index = getMapFromChange(searchChange);
         try {
             return mapper.writeValueAsString(index);
         } catch (JsonProcessingException e) {
@@ -351,7 +351,7 @@ public class TrackDaoES implements TrackSearchDao {
      * @param searchChange searchChange
      * @return document to index
      */
-    private Map<String, Object> makeIndexDocument(SearchChange searchChange) {
+    private Map<String, Object> getMapFromChange(SearchChange searchChange) {
         Map<String, Object> indexMe = new HashMap<>();
         if (searchChange.getWhat() != null)
             indexMe.put(EntitySearchSchema.WHAT, searchChange.getWhat());
@@ -364,6 +364,9 @@ public class TrackDaoES implements TrackSearchDao {
             indexMe.put(EntitySearchSchema.LAST_EVENT, searchChange.getEvent());
 
         indexMe.put(EntitySearchSchema.WHEN, searchChange.getWhen());
+
+        if (searchChange.hasAttachment())
+            indexMe.put(EntitySearchSchema.ATTACHMENT, searchChange.getAttachment());
 
         // When the Entity was created in the fortress
         indexMe.put(EntitySearchSchema.CREATED, searchChange.getCreatedDate());

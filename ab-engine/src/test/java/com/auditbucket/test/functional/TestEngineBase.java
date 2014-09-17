@@ -21,7 +21,6 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.company.endpoint.CompanyEP;
 import com.auditbucket.engine.endpoint.AdminEP;
-import com.auditbucket.engine.endpoint.TrackEP;
 import com.auditbucket.engine.repo.neo4j.model.FortressNode;
 import com.auditbucket.engine.service.*;
 import com.auditbucket.geography.endpoint.GeographyEP;
@@ -39,7 +38,7 @@ import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.registration.service.SystemUserService;
 import com.auditbucket.track.model.Entity;
-import com.auditbucket.track.model.TrackLog;
+import com.auditbucket.track.model.EntityLog;
 import com.auditbucket.track.service.*;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -86,10 +85,7 @@ public class TestEngineBase {
 	@Autowired
     EntityTagService entityTagService;
 
-	@Autowired
-	TrackEP trackEP;
-
-	@Autowired
+    @Autowired
 	GeographyEP geographyEP;
 
 	@Autowired
@@ -248,7 +244,7 @@ public class TestEngineBase {
 		logger.trace(message, milliseconds / 1000d);
 	}
 
-	TrackLog waitForLogCount(Company company, Entity entity, int expectedCount) throws Exception {
+	EntityLog waitForLogCount(Company company, Entity entity, int expectedCount) throws Exception {
 		// Looking for the first searchKey to be logged against the entity
 		int i = 0;
 		int timeout = 100;
@@ -260,7 +256,7 @@ public class TestEngineBase {
             Entity updatedHeader = trackService.getEntity(company, entity.getMetaKey());
             count = trackService.getLogCount(company, updatedHeader.getMetaKey());
 
-            TrackLog log = trackService.getLastLog(company, updatedHeader.getMetaKey());
+            EntityLog log = trackService.getLastEntityLog(company, updatedHeader.getMetaKey());
             // We have at least one log?
 			if ( count == expectedCount )
 				return log;
@@ -283,7 +279,7 @@ public class TestEngineBase {
 
         int timeout = 100;
         while ( i <= timeout) {
-            TrackLog log = trackService.getLastLog(company, entity.getMetaKey());
+            EntityLog log = trackService.getLastEntityLog(company, entity.getMetaKey());
             if (log != null )
                 return i;
             Thread.yield();

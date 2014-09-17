@@ -23,14 +23,14 @@ import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.test.utils.TestHelper;
+import com.auditbucket.test.utils.Helper;
+import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
-import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.ChangeEvent;
 import com.auditbucket.track.model.Entity;
+import com.auditbucket.track.model.EntityLog;
 import com.auditbucket.track.model.Log;
-import com.auditbucket.track.model.TrackLog;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,15 +90,15 @@ public class TestTrackEvents extends TestEngineBase{
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));
 
-        mediationFacade.processLog(su.getCompany(), new LogInputBean("wally", ahKey, new DateTime(), TestHelper.getRandomMap()));
+        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", ahKey, new DateTime(), Helper.getRandomMap()));
 
-        TrackLog when = trackService.getLastLog(ahKey);
+        EntityLog when = trackService.getLastEntityLog(ahKey);
         assertNotNull(when);
         assertEquals(Log.CREATE, when.getLog().getEvent().getName()); // log event default
         assertEquals(Log.CREATE.toLowerCase(), when.getLog().getEvent().getName().toLowerCase()); // log event default
 
-        mediationFacade.processLog(su.getCompany(), new LogInputBean("wally", ahKey, new DateTime(), TestHelper.getRandomMap()));
-        TrackLog whenB = trackService.getLastLog(ahKey);
+        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", ahKey, new DateTime(), Helper.getRandomMap()));
+        EntityLog whenB = trackService.getLastEntityLog(ahKey);
         assertNotNull(whenB);
 
         assertFalse(whenB.equals(when));

@@ -6,7 +6,7 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.KeyGenService;
 import com.auditbucket.registration.service.SystemUserService;
-import com.auditbucket.track.bean.LogInputBean;
+import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.TxRef;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +51,7 @@ public class TxService {
         TxRef tx = findTx(txRef);
         return (tx == null ? null : trackDao.findByTransaction(tx));
     }
-    public TxRef handleTxRef(LogInputBean input, Company company) {
+    public TxRef handleTxRef(ContentInputBean input, Company company) {
         TxRef txRef = null;
         if (input.isTransactional()) {
             if (input.getTxRef() == null) {

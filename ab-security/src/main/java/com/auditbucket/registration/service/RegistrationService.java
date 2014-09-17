@@ -23,7 +23,6 @@ import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.SystemUser;
-import org.springframework.security.access.annotation.Secured;
 
 /**
  * User: mike
@@ -31,12 +30,9 @@ import org.springframework.security.access.annotation.Secured;
  * Time: 9:43 AM
  */
 public interface RegistrationService {
-    @Secured({"ROLE_AB_ADMIN"})
     SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws DatagioException;
 
-    @Secured({"ROLE_AB_ADMIN"})
     SystemUser registerSystemUser(RegistrationBean regBean) throws DatagioException;
-
 
     Company resolveCompany(String apiKey) throws DatagioException;
 

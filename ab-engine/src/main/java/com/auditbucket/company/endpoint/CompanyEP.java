@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -91,12 +90,12 @@ public class CompanyEP {
      */
     @RequestMapping(value = "/documents", method = RequestMethod.GET)
 
-    public Collection<DocumentResultBean> getDocumentTypes(
+    public Collection<DocumentResultBean> getDocumentsInUse(
             String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
 
         // ToDo: figure out if the API Key can resolve to multiple companies
         Company company = getCompany(apiHeaderKey, apiKey);
-        return schemaService.getCompanyDocumentsInUse(company);
+        return schemaService.getDocumentsInUse(company);
 
     }
 

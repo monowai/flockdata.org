@@ -35,6 +35,7 @@ public class EntitySearchSchema {
     public static final String TIMESTAMP = "@timestamp";
     public static final String FORTRESS = "@fortress";
     public static final String DOC_TYPE = "@docType";
+    public static final String ATTACHMENT = "@attachment";
 
     public static final String TAG = "@tag";
     public static final String LAST_EVENT = "@lastEvent";
@@ -51,7 +52,7 @@ public class EntitySearchSchema {
         return parseIndex(fortress.getCompany().getCode()) + fortress.getCode();
     }
 
-    private static String parseIndex(String company){
+    private static String parseIndex(String company) {
         // ToDo: Add multi tenant test. Company must always be present if MultiTenanted
         if (company == null || company.equals(""))
             company = "*";
@@ -65,7 +66,7 @@ public class EntitySearchSchema {
             return prefix + "*";
 
 
-        return prefix + queryParams.getFortress().toLowerCase() ;
+        return prefix + queryParams.getFortress().toLowerCase();
     }
 
 }

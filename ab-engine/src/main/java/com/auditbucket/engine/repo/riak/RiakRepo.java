@@ -21,6 +21,7 @@ package com.auditbucket.engine.repo.riak;
 
 import com.auditbucket.engine.repo.KvRepo;
 import com.auditbucket.track.model.Entity;
+import com.auditbucket.track.model.Log;
 import com.basho.riak.client.IRiakClient;
 import com.basho.riak.client.IRiakObject;
 import com.basho.riak.client.RiakException;
@@ -54,10 +55,10 @@ public class RiakRepo implements KvRepo {
         return client;
     }
 
-    public void add(Entity entity, Long key, byte[] what) throws IOException {
+    public void add(Entity entity, Log log) throws IOException {
         try {
             Bucket bucket = getClient().createBucket(entity.getIndexName()).execute();
-            bucket.store(String.valueOf(key), what).execute();
+            bucket.store(String.valueOf(log.getId()), log.getEntityContent()).execute();
         } catch (RiakException e) {
             logger.error("RIAK Repo Error", e);
             client.shutdown();
@@ -66,10 +67,10 @@ public class RiakRepo implements KvRepo {
         }
     }
 
-    public byte[] getValue(Entity entity, Long key) {
+    public byte[] getValue(Entity entity, Log forLog) {
         try {
             Bucket bucket = getClient().createBucket(entity.getIndexName()).execute();
-            IRiakObject result = bucket.fetch(String.valueOf(key)).execute();
+            IRiakObject result = bucket.fetch(String.valueOf(forLog.getId())).execute();
             if (result != null)
                 return result.getValue();
         } catch (RiakException e) {
@@ -83,10 +84,10 @@ public class RiakRepo implements KvRepo {
         return null;
     }
 
-    public void delete(Entity entity, Long key) {
+    public void delete(Entity entity, Log log) {
         try {
             Bucket bucket = getClient().fetchBucket(entity.getIndexName()).execute();
-            bucket.delete(String.valueOf(key)).execute();
+            bucket.delete(String.valueOf(log.getId())).execute();
         } catch (RiakException e) {
             logger.error("RIAK Repo Error", e);
             client.shutdown();

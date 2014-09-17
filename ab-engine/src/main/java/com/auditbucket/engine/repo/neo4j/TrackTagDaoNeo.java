@@ -31,6 +31,7 @@ import com.auditbucket.track.model.GeoData;
 import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.TrackTag;
 import com.auditbucket.track.service.TagService;
+import org.apache.commons.beanutils.BeanComparator;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
@@ -204,8 +205,8 @@ public class TrackTagDaoNeo {
         if ( logToMoveFrom == null )
             return;
 
-        Set<TrackTag> metaTags = getEntityTags(company, entity);
-        Set<TrackTag> trackTags = findLogTags(company, logToMoveFrom);
+        Collection<TrackTag> metaTags = getEntityTags(company, entity);
+        Collection<TrackTag> trackTags = findLogTags(company, logToMoveFrom);
         Node headerNode = template.getPersistentState(entity);
 
         for (TrackTag trackTag : metaTags) {
@@ -213,9 +214,9 @@ public class TrackTagDaoNeo {
             // if trackTag.abWhen moreRecentThan logToMoveFrom
 
             Long metaWhen = (Long) trackTag.getProperties().get(AB_WHEN);
-            template.fetch(logToMoveFrom.getTrackLog());
-            logger.trace("MoveTags - Comparing {} with {}", metaWhen, logToMoveFrom.getTrackLog().getFortressWhen());
-            if ( metaWhen.compareTo(logToMoveFrom.getTrackLog().getFortressWhen()) >= 0 ){
+            template.fetch(logToMoveFrom.getEntityLog());
+            logger.trace("MoveTags - Comparing {} with {}", metaWhen, logToMoveFrom.getEntityLog().getFortressWhen());
+            if ( metaWhen.compareTo(logToMoveFrom.getEntityLog().getFortressWhen()) >= 0 ){
                 // This tag was added to the entity by a more recent log
                 logger.trace("Removing {}", trackTag.getTag().getName());
                 Relationship r = template.getRelationship(trackTag.getId());
@@ -276,7 +277,7 @@ public class TrackTagDaoNeo {
 
     }
 
-    public Set<TrackTag> findLogTags(Company company, Log log) {
+    public Collection<TrackTag> findLogTags(Company company, Log log) {
         String query;
         if ("".equals(engineAdmin.getTagSuffix(company)))
             query = "match (log:_Log)-[tagType]-(tag:_Tag) where id(log)={logId} return tag, tagType";
@@ -291,13 +292,13 @@ public class TrackTagDaoNeo {
 
     }
 
-    public Set<TrackTag> getDirectedEntityTags(Company company, Entity entity, boolean outbound) {
+    public Collection<TrackTag> getDirectedEntityTags(Company company, Entity entity, boolean outbound) {
 
         String tagDirection = "-[tagType]->";
         if ( !outbound )
             tagDirection = "<-[tagType]-";
 
-        Set<TrackTag> tagResults = new HashSet<>();
+        List<TrackTag> tagResults = new ArrayList<>();
         if ( null == entity.getId())
             return tagResults;
         String query = "match (track:Entity)"+tagDirection+"(tag"+Tag.DEFAULT + engineAdmin.getTagSuffix(company) + ") " +
@@ -310,29 +311,31 @@ public class TrackTagDaoNeo {
 
     }
 
-    public Set<TrackTag> getEntityTags(Company company, Entity entity) {
-        Set<TrackTag> tagResults = new HashSet<>();
+    public Collection<TrackTag> getEntityTags(Company company, Entity entity) {
+        List<TrackTag> tagResults = new ArrayList<>();
         if ( null == entity.getId())
             return tagResults;
         String query = "match (track:Entity)-[tagType]-(tag" +Tag.DEFAULT+ engineAdmin.getTagSuffix(company) + ") " +
                 "where id(track)={id} \n" +
                 "optional match tag-[:located]-(located)-[*0..2]-(country:Country) \n" +
                 "optional match located-[*0..2]->(state:State) " +
-                "return tag,tagType,located,state, country";
+                "return tag,tagType,located,state, country " +
+                "order by type(tagType), tag.name";
 
-
+        //List<TrackTag> raw = getEntityTags(entity.getId(), query);
+        //Collections.sort(raw, new BeanComparator<>("tagType"));
         return getEntityTags(entity.getId(), query);
     }
 
-    private Set<TrackTag> getEntityTags(Long primaryKey, String query) {
+    private Collection<TrackTag> getEntityTags(Long primaryKey, String query) {
         Map<String, Object> params = new HashMap<>();
         params.put("id", primaryKey);
         Result<Map<String, Object>> queryResults = template.query(query, params);
         return getEntityTags(primaryKey, queryResults);
     }
 
-    private Set<TrackTag> getEntityTags(Long primaryKey, Result<Map<String, Object>> queryResults) {
-        Set<TrackTag> tagResults = new HashSet<>();
+    private Collection<TrackTag> getEntityTags(Long primaryKey, Result<Map<String, Object>> queryResults) {
+        TreeSet<TrackTag> tagResults = new TreeSet<>();
         for (Map<String, Object> row : queryResults) {
             Node n = (Node) row.get("tag");
             TagNode tag = new TagNode(n);

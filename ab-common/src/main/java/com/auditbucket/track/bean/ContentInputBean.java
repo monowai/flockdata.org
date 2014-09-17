@@ -21,18 +21,23 @@ package com.auditbucket.track.bean;
 
 import com.auditbucket.helper.DatagioException;
 import com.auditbucket.track.model.ChangeEvent;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.auditbucket.track.model.EntityContent;
+import com.auditbucket.track.model.KvContent;
+import com.auditbucket.track.model.Log;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.joda.time.DateTime;
 
 import java.util.Date;
 import java.util.Map;
 
 /**
+ * Tracked in the KV Store this object tracks meta data and the actual content being tracked
+ *
  * User: Mike Holdsworth
  * Date: 8/05/13
  * Time: 7:41 PM
  */
-public class LogInputBean {
+public class ContentInputBean implements EntityContent {
     private LogStatus abStatus;
     private String abMessage;
     private Boolean isTransactional = false;
@@ -54,34 +59,35 @@ public class LogInputBean {
 
     private Map<String, Object> what = null;
 
+    private String attachment = null;
+
     private boolean forceReindex;
-    private Long metaId;
     private boolean status;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private Log.ContentType contentType = Log.ContentType.JSON;
+    private String fileName;
 
-    protected LogInputBean() {
+
+    public ContentInputBean() {
     }
 
-    public LogInputBean(String fortressUser, DateTime when,  Map<String, Object> what) throws DatagioException {
-        this(fortressUser, null, when, what);
-    }
-
-    public LogInputBean(String fortressUser, String metaKey, DateTime when, Map<String, Object> what) throws DatagioException {
-        this(fortressUser, metaKey, when, what, false);
+    public ContentInputBean(String fortressUser, DateTime fortressWhen) {
+        this();
+        this.fortressUser = fortressUser;
+        if (fortressWhen != null)
+            this.when = fortressWhen.toDate();
     }
 
     /**
      * @param fortressUser -user name recognisable in the fortress
      * @param metaKey     -guid
-     * @param when         -fortress view of DateTime
+     * @param fortressWhen         -fortress view of DateTime
      * @param what         -escaped JSON
      */
-    public LogInputBean(String fortressUser, String metaKey, DateTime when, Map<String, Object> what, Boolean isTransactional) throws DatagioException {
-        this();
+    public ContentInputBean(String fortressUser, String metaKey, DateTime fortressWhen, Map<String, Object> what, Boolean isTransactional) throws DatagioException {
+        this(fortressUser, fortressWhen);
         this.metaKey = metaKey;
-        this.fortressUser = fortressUser;
-        if (when != null)
-            this.when = when.toDate();
         setTransactional(isTransactional);
         setWhat(what);
     }
@@ -89,18 +95,30 @@ public class LogInputBean {
     /**
      * @param fortressUser -user name recognisable in the fortress
      * @param metaKey     -guid
-     * @param when         -fortress view of DateTime
-     * @param what         -escaped JSON
+     * @param fortressWhen -fortress view of DateTime
+     * @param what         - Map
      * @param event        -how the caller would like to catalog this change (create, update etc)
      */
-    public LogInputBean(String fortressUser, String metaKey, DateTime when, Map<String, Object> what, String event) throws DatagioException {
-        this(fortressUser, metaKey, when, what);
+    public ContentInputBean(String fortressUser, String metaKey, DateTime fortressWhen, Map<String, Object> what, String event) throws DatagioException {
+        this(fortressUser, metaKey, fortressWhen, what);
         this.event = event;
     }
 
-    public LogInputBean(String fortressUser, String metaKey, DateTime when, Map<String, Object> what, String event, String txName) throws DatagioException {
-        this(fortressUser, metaKey, when, what, event);
+    public ContentInputBean(String fortressUser, String metaKey, DateTime fortressWhen, Map<String, Object> what, String event, String txName) throws DatagioException {
+        this(fortressUser, metaKey, fortressWhen, what, event);
         this.setTxRef(txName);
+    }
+
+    public ContentInputBean(Map<String, Object> result) {
+        this.what = result;
+    }
+
+    public ContentInputBean(String fortressUser, DateTime when, Map<String, Object> what) throws DatagioException {
+        this(fortressUser, null, when, what);
+    }
+
+    public ContentInputBean(String fortressUser, String metaKey, DateTime when, Map<String, Object> what) throws DatagioException {
+        this(fortressUser, metaKey, when, what, false);
     }
 
 
@@ -230,15 +248,6 @@ public class LogInputBean {
         this.forceReindex = forceReindex;
     }
 
-    @JsonIgnore
-    public Long getMetaId() {
-        return metaId;
-    }
-
-    public void setMetaId(Long metaId) {
-        this.metaId = metaId;
-    }
-
     private ChangeEvent changeEvent;
 
     public ChangeEvent getChangeEvent() {
@@ -251,6 +260,44 @@ public class LogInputBean {
 
     public LogStatus getStatus() {
         return abStatus;
+    }
+
+    public String getAttachment() {
+        return attachment;
+    }
+
+    /**
+     *
+     * @param attachment base64 encoded bytes
+     * @param mediaType  valid  HTTP MediaType
+     * @param fileName   How you would like this file to be known if it's downloaded
+     */
+    public void setAttachment(String attachment, Log.ContentType mediaType, String fileName) {
+        this.attachment = attachment;
+        this.contentType = mediaType;
+        this.fileName = fileName;
+    }
+
+    public boolean hasData() {
+        boolean json = getWhat() != null && !getWhat().isEmpty();
+        boolean attachment = getAttachment()!=null;
+        return json || attachment;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public Log.ContentType getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(Log.ContentType contentType) {
+        this.contentType = contentType;
     }
 
     public enum LogStatus {

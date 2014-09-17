@@ -39,7 +39,8 @@ import com.auditbucket.search.model.QueryParams;
 import com.auditbucket.search.model.SearchResult;
 import com.auditbucket.track.bean.*;
 import com.auditbucket.track.model.Entity;
-import com.auditbucket.track.model.TrackLog;
+import com.auditbucket.track.model.EntityLog;
+import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.TrackTag;
 import com.auditbucket.track.service.EntityTagService;
 import com.auditbucket.track.service.LogService;
@@ -59,7 +60,6 @@ import org.apache.commons.lang.time.StopWatch;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -93,14 +93,12 @@ import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.util.*;
 
-import static junit.framework.Assert.*;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
- * Allows the ab-engine services to be tested against ab-search.
+ * Allows the ab-engine services to be tested against ab-search with actual integration.
  * ab-search is stated by Cargo as a Tomcat server.
  * ab-engine runs as a usual Spring test runner.
  * This approach means that RabbitMQ has to be installed to allow integration to occur as
@@ -241,8 +239,8 @@ public class TestABIntegration {
         EntityInputBean entityInputBean =
                 new EntityInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
 
-        LogInputBean logInputBean = new LogInputBean("wally", new DateTime(), getRandomMap());
-        entityInputBean.setLog(logInputBean);
+        ContentInputBean contentInputBean = new ContentInputBean("wally", new DateTime(), getRandomMap());
+        entityInputBean.setLog(contentInputBean);
 
         Entity header = mediationFacade
                 .trackEntity(su.getCompany(), entityInputBean)
@@ -253,6 +251,32 @@ public class TestABIntegration {
 
         doEsQuery(header.getIndexName(), header.getMetaKey());
     }
+
+    @Test
+    public void pdf_TrackedAndFound() throws Exception {
+        assumeTrue(runMe);
+        logger.info("## pdf_TrackedAndFound");
+
+        SystemUser su = registerSystemUser("pdf_TrackedAndFound", "co-fortress");
+        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("pdf_TrackedAndFound", false));
+        String docType = "Contract";
+        String callerRef = "ABC123X";
+        EntityInputBean entityInputBean =
+                new EntityInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
+
+        ContentInputBean contentInputBean = new ContentInputBean("wally", new DateTime());
+        contentInputBean.setAttachment(Helper.getPdfDoc(), Log.ContentType.PDF, "test.pdf");
+        entityInputBean.setLog(contentInputBean);
+
+        Entity header = mediationFacade
+                .trackEntity(su.getCompany(), entityInputBean)
+                .getEntity();
+        waitForEntitiesSearchUpdate(su.getCompany(), header.getMetaKey());
+
+        doEsQuery(header.getIndexName(), header.getMetaKey());
+        doEsQuery(header.getIndexName(), "brown fox",1 );
+    }
+
 
     @Test
     public void headerWithOnlyTagsProcess() throws Exception {
@@ -318,7 +342,7 @@ public class TestABIntegration {
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("rebuildTest", false));
 
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
-        inputBean.setLog(new LogInputBean("wally", new DateTime(), getRandomMap()));
+        inputBean.setLog(new ContentInputBean("wally", new DateTime(), getRandomMap()));
         TrackResultBean auditResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         Entity entity = trackService.getEntity(su.getCompany(), auditResult.getMetaKey());
@@ -331,7 +355,7 @@ public class TestABIntegration {
         SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
         Long fResult = mediationFacade.reindex(fo.getCompany(), fo.getCode());
         waitForEntitiesToUpdate(su.getCompany(), entity);
-        Assert.assertEquals(1l, fResult.longValue());
+        assertEquals(1l, fResult.longValue());
 
         doEsQuery(entity.getIndexName(), "*");
 
@@ -366,7 +390,7 @@ public class TestABIntegration {
         logger.info("Start-");
         watch.start();
         while (i < max) {
-            mediationFacade.processLog(su.getCompany(),new LogInputBean("wally", ahKey, new DateTime(), getSimpleMap("blah", i))).getEntity();
+            mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", ahKey, new DateTime(), getSimpleMap("blah", i))).getEntity();
             i++;
         }
         waitForLogCount(su.getCompany(), entity, 3);
@@ -411,7 +435,7 @@ public class TestABIntegration {
         inputBean.setTrackSuppressed(true);
         inputBean.setMetaOnly(true);
         Entity header = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
-        Assert.assertNull(header.getMetaKey());
+        assertNull(header.getMetaKey());
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(indexName, "*", 2);
 
@@ -439,7 +463,7 @@ public class TestABIntegration {
         SystemUser su = registerSystemUser("Felicity");
         Fortress fo = fortressService.registerFortress(su.getCompany(),new FortressInputBean("cancelLogTag", false));
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "CancelDoc", new DateTime(), "ABC123");
-        LogInputBean log = new LogInputBean("wally", new DateTime(), getRandomMap());
+        ContentInputBean log = new ContentInputBean("wally", new DateTime(), getRandomMap());
         inputBean.addTag(new TagInputBean("Happy").addEntityLink("testinga"));
         inputBean.addTag(new TagInputBean("Happy Days").addEntityLink("testingb"));
         inputBean.setLog(log);
@@ -452,7 +476,7 @@ public class TestABIntegration {
         // We now have 1 log with tags validated in ES
 
         // Add another Log - replacing the two existing Tags with two new ones
-        log = new LogInputBean("wally", new DateTime(), getRandomMap());
+        log = new ContentInputBean("wally", new DateTime(), getRandomMap());
         inputBean.getTags().clear();
         inputBean.addTag(new TagInputBean("Sad Days").addEntityLink("testingb"));
         inputBean.addTag(new TagInputBean("Days Bay").addEntityLink("testingc"));
@@ -470,7 +494,7 @@ public class TestABIntegration {
         // Cancel Log - this will remove the sad tags and leave us with happy tags
         mediationFacade.cancelLastLog(su.getCompany(), result.getEntity());
         waitForEntitiesToUpdate(su.getCompany(), result.getEntity());
-        Set<TrackTag> tags = entityTagService.findTrackTags(su.getCompany(),result.getEntity());
+        Collection<TrackTag> tags = entityTagService.getEntityTags(su.getCompany(), result.getEntity());
         assertEquals(2, tags.size());
 
         // These should have been added back in due to the cancel operation
@@ -492,7 +516,7 @@ public class TestABIntegration {
         SystemUser su = registerSystemUser("Cameron");
         Fortress fo = fortressService.registerFortress(su.getCompany(),new FortressInputBean("tagKeySearch", false));
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
-        LogInputBean log = new LogInputBean("wally", new DateTime(), getRandomMap());
+        ContentInputBean log = new ContentInputBean("wally", new DateTime(), getRandomMap());
         inputBean.addTag(new TagInputBean("Happy").addEntityLink("testinga"));
         inputBean.addTag(new TagInputBean("Happy Days").addEntityLink("testingb"));
         inputBean.addTag(new TagInputBean("Sad Days").addEntityLink("testingb"));
@@ -519,12 +543,12 @@ public class TestABIntegration {
 
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         inputBean.setTrackSuppressed(true); // Write a search doc only
-        inputBean.setLog(new LogInputBean("wally", new DateTime(), getRandomMap()));
+        inputBean.setLog(new ContentInputBean("wally", new DateTime(), getRandomMap()));
         // First header and log, but not stored in graph
         mediationFacade.trackEntity(su.getCompany(), inputBean); // Mock result as we're not tracking
 
         inputBean = new EntityInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
-        inputBean.setLog(new LogInputBean("wally", new DateTime(), getRandomMap()));
+        inputBean.setLog(new ContentInputBean("wally", new DateTime(), getRandomMap()));
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
         Entity entity = trackService.getEntity(su.getCompany(), result.getMetaKey());
         assertEquals("ab.monowai." + fo.getCode(), entity.getIndexName());
@@ -551,12 +575,12 @@ public class TestABIntegration {
         Fortress fo = fortressService.registerFortress(su.getCompany(),new FortressInputBean("QueryTest", false));
 
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
-        inputBean.setLog(new LogInputBean("wally", new DateTime(), getRandomMap()));
+        inputBean.setLog(new ContentInputBean("wally", new DateTime(), getRandomMap()));
 
         mediationFacade.trackEntity(su.getCompany(), inputBean); // Mock result as we're not tracking
 
         inputBean = new EntityInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
-        inputBean.setLog(new LogInputBean("wally", new DateTime(), getRandomMap()));
+        inputBean.setLog(new ContentInputBean("wally", new DateTime(), getRandomMap()));
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         Entity entity = trackService.getEntity(su.getCompany(), result.getMetaKey());
@@ -597,7 +621,7 @@ public class TestABIntegration {
         DateTime lastUpdated = new DateTime(DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/Copenhagen")));
 
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TestTrack", fortressDateCreated, "ABC123");
-        inputBean.setLog(new LogInputBean("wally", lastUpdated, getRandomMap()));
+        inputBean.setLog(new ContentInputBean("wally", lastUpdated, getRandomMap()));
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean); // Mock result as we're not tracking
 
@@ -606,7 +630,7 @@ public class TestABIntegration {
         assertEquals("ab.monowai." + fo.getCode(), entity.getIndexName());
         assertEquals("DateCreated not in Fortress TZ", 0, fortressDateCreated.compareTo(entity.getFortressDateCreated()));
 
-        TrackLog log = trackService.getLastLog(su.getCompany(), result.getMetaKey());
+        EntityLog log = trackService.getLastEntityLog(su.getCompany(), result.getMetaKey());
         assertEquals("LogDate not in Fortress TZ", 0, lastUpdated.compareTo(log.getFortressWhen(ftz)));
 
 
@@ -666,8 +690,8 @@ public class TestABIntegration {
         TrackResultBean indexedResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
         Entity indexHeader = trackService.getEntity(su.getCompany(), indexedResult.getMetaKey());
 
-        LogResultBean resultBean = mediationFacade.processLog(su.getCompany(), new LogInputBean("olivia@sunnybell.com", indexHeader.getMetaKey(), new DateTime(), getSimpleMap("who", "andy"))).getLogResult();
-        junit.framework.Assert.assertNotNull(resultBean);
+        LogResultBean resultBean = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", indexHeader.getMetaKey(), new DateTime(), getSimpleMap("who", "andy"))).getLogResult();
+        assertNotNull(resultBean);
 
         waitForEntitiesToUpdate(su.getCompany(), indexHeader);
         String indexName = indexHeader.getIndexName();
@@ -679,7 +703,7 @@ public class TestABIntegration {
         TrackResultBean noIndex = mediationFacade.trackEntity(su.getCompany(), inputBean);
         Entity noIndexHeader = trackService.getEntity(su.getCompany(), noIndex.getMetaKey());
 
-        mediationFacade.processLog(su.getCompany(), new LogInputBean("olivia@sunnybell.com", noIndexHeader.getMetaKey(), new DateTime(),  getSimpleMap("who", "bob")));
+        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", noIndexHeader.getMetaKey(), new DateTime(), getSimpleMap("who", "bob")));
         // Bob's not there because we said we didn't want to index that header
         doEsQuery(indexName, "bob", 0);
         doEsQuery(indexName, "andy");
@@ -701,11 +725,11 @@ public class TestABIntegration {
         Entity indexHeader = trackService.getEntity(su.getCompany(), indexedResult.getMetaKey());
         String indexName = indexHeader.getIndexName();
 
-        Set<TrackTag> tags = entityTagService.findTrackTags(su.getCompany(), indexHeader);
+        Collection<TrackTag> tags = entityTagService.getEntityTags(su.getCompany(), indexHeader);
         assertNotNull(tags);
         assertEquals(1, tags.size());
 
-        LogResultBean resultBean = mediationFacade.processLog(su.getCompany(),new LogInputBean("olivia@sunnybell.com", indexHeader.getMetaKey(), new DateTime(), getRandomMap())).getLogResult();
+        LogResultBean resultBean = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", indexHeader.getMetaKey(), new DateTime(), getRandomMap())).getLogResult();
         assertNotNull(resultBean);
 
         waitForEntitiesToUpdate(su.getCompany(), indexHeader);
@@ -724,7 +748,7 @@ public class TestABIntegration {
         DateTime dt = new DateTime().toDateTime();
         DateTime firstDate = dt.minusDays(2);
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "olivia@sunnybell.com", "CompanyNode", firstDate, "clb1");
-        inputBean.setLog(new LogInputBean("olivia@sunnybell.com", firstDate, getSimpleMap("house", "house1")));
+        inputBean.setLog(new ContentInputBean("olivia@sunnybell.com", firstDate, getSimpleMap("house", "house1")));
         String ahWP = mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey();
 
         Entity entity = trackService.getEntity(su.getCompany(), ahWP);
@@ -732,18 +756,18 @@ public class TestABIntegration {
 
         doEsTermQuery(entity.getIndexName(), EntitySearchSchema.WHAT + ".house", "house1", 1); // First log
 
-        LogResultBean secondLog = mediationFacade.processLog(su.getCompany(), new LogInputBean("isabella@sunnybell.com", entity.getMetaKey(), firstDate.plusDays(1), getSimpleMap("house", "house2"))).getLogResult();
-        assertNotSame(0l, secondLog.getWhatLog().getTrackLog().getFortressWhen());
-        Set<TrackLog> logs = trackService.getLogs(fortress.getCompany(), entity.getMetaKey());
+        LogResultBean secondLog = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("isabella@sunnybell.com", entity.getMetaKey(), firstDate.plusDays(1), getSimpleMap("house", "house2"))).getLogResult();
+        assertNotSame(0l, secondLog.getWhatLog().getEntityLog().getFortressWhen());
+        Set<EntityLog> logs = trackService.getEntityLogs(fortress.getCompany(), entity.getMetaKey());
         assertEquals(2, logs.size());
         entity = trackService.getEntity(su.getCompany(), ahWP);
         waitAWhile();
-        assertEquals(secondLog.getWhatLog().getTrackLog().getFortressWhen(), entity.getFortressLastWhen());
+        assertEquals(secondLog.getWhatLog().getEntityLog().getFortressWhen(), entity.getFortressLastWhen());
         doEsTermQuery(entity.getIndexName(), EntitySearchSchema.WHAT + ".house", "house2", 1); // replaced first with second
 
         // Test block
         mediationFacade.cancelLastLog(su.getCompany(), entity);
-        logs = trackService.getLogs(fortress.getCompany(), entity.getMetaKey());
+        logs = trackService.getEntityLogs(fortress.getCompany(), entity.getMetaKey());
         assertEquals(1, logs.size());
         entity = trackService.getEntity(su.getCompany(), ahWP); // Refresh the header
         waitAWhile();
@@ -752,8 +776,8 @@ public class TestABIntegration {
         // Last change cancelled
         // DAT-96
         mediationFacade.cancelLastLog(su.getCompany(), entity);
-        logs = trackService.getLogs(fortress.getCompany(), entity.getMetaKey());
-        junit.framework.Assert.assertTrue(logs.isEmpty());
+        logs = trackService.getEntityLogs(fortress.getCompany(), entity.getMetaKey());
+        assertEquals(true, logs.isEmpty());
         doEsQuery(entity.getIndexName(), "*", 0);
 
         entity = trackService.getEntity(su.getCompany(), ahWP); // Refresh the header
@@ -774,7 +798,7 @@ public class TestABIntegration {
 
         Map<String,Object> what = getSimpleMap(EntitySearchSchema.WHAT_CODE, "AZERTY");
         what.put(EntitySearchSchema.WHAT_NAME, "NameText");
-        indexHeader = mediationFacade.processLog(su.getCompany(), new LogInputBean("olivia@sunnybell.com", indexHeader.getMetaKey(), new DateTime(), what)).getEntity();
+        indexHeader = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", indexHeader.getMetaKey(), new DateTime(), what)).getEntity();
         waitForEntitiesToUpdate(su.getCompany(), indexHeader);
 
         String indexName = indexHeader.getIndexName();
@@ -911,7 +935,7 @@ public class TestABIntegration {
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("TestFortress", false));
 
-        LogInputBean log = new LogInputBean("mikeTest", new DateTime(), getSimpleMap("who", searchFor));
+        ContentInputBean log = new ContentInputBean("mikeTest", new DateTime(), getSimpleMap("who", searchFor));
         EntityInputBean input = new EntityInputBean("TestFortress", "mikeTest", "Query", new DateTime(), "abzz");
         input.setLog(log);
 
@@ -936,7 +960,7 @@ public class TestABIntegration {
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("UTF8-Test", false));
 
-        LogInputBean log = new LogInputBean("mikeTest", new DateTime(), json);
+        ContentInputBean log = new ContentInputBean("mikeTest", new DateTime(), json);
         EntityInputBean input = new EntityInputBean(fortress.getName(), "mikeTest", "Query", new DateTime(), "abzz");
         input.setLog(log);
 
@@ -983,7 +1007,7 @@ public class TestABIntegration {
     }
 
     private TrackResultBean createLog(Company company, String metaKey, int log) throws Exception {
-        return mediationFacade.processLog(company, new LogInputBean("olivia@sunnybell.com", metaKey, new DateTime(), getSimpleMap("who", log)));
+        return mediationFacade.trackLog(company, new ContentInputBean("olivia@sunnybell.com", metaKey, new DateTime(), getSimpleMap("who", log)));
     }
 
     private void validateLogsIndexed(ArrayList<Long> list, int auditMax, int expectedLogCount) throws Exception {
@@ -994,10 +1018,10 @@ public class TestABIntegration {
         while (fortress < fortressMax) {
             while (audit <= auditMax) {
                 Entity header = trackService.findByCallerRefFull(list.get(fortress), "CompanyNode", "ABC" + audit);
-                Set<TrackLog> logs = trackService.getLogs(header.getId());
+                Set<EntityLog> logs = trackService.getEntityLogs(header.getId());
                 assertNotNull(logs);
                 assertEquals("Wrong number of logs returned", expectedLogCount, logs.size());
-                for (TrackLog log : logs) {
+                for (EntityLog log : logs) {
                     assertEquals("logId [" + log.getId() + "] changeId[" + log.getLog().getId() + "], event[ " + log.getLog().getEvent() + "]", true, log.isIndexed());
                 }
 
@@ -1056,10 +1080,10 @@ public class TestABIntegration {
                     Entity header = trackService.findByCallerRefFull(list.get(fortress), "CompanyNode", "ABC" + random);
                     assertNotNull("ABC" + random, header);
                     assertNotNull("Looks like ab-search is not sending back results", header.getSearchKey());
-                    TrackLog trackLog = logService.getLastLog(header);
-                    assertNotNull(trackLog);
+                    EntityLog entityLog = logService.getLastLog(header);
+                    assertNotNull(entityLog);
 
-                    assertTrue("fortress " + fortress + " run " + x + " header " + header.getMetaKey() + " - " + trackLog.getId(), trackLog.isIndexed());
+                    assertTrue("fortress " + fortress + " run " + x + " header " + header.getMetaKey() + " - " + entityLog.getId(), entityLog.isIndexed());
                     String result = doEsTermQuery(header.getIndexName(), EntitySearchSchema.META_KEY, header.getMetaKey(), 1, true);
                     totalSearchRequests++;
                     validateResultFieds(result);
@@ -1135,8 +1159,8 @@ public class TestABIntegration {
         } while (nbrResult != expectedHitCount && runCount < esTimeout);
         logger.debug("ran ES query - result count {}, runCount {}", nbrResult, runCount);
 
-        junit.framework.Assert.assertNotNull(jResult);
-        Assert.assertEquals(index + "\r\n" + jResult.getJsonString(), expectedHitCount, nbrResult);
+        assertNotNull(jResult);
+        assertEquals(index + "\r\n" + jResult.getJsonString(), expectedHitCount, nbrResult);
         return jResult.getJsonString();
 
         //return result.getJsonString();
@@ -1193,7 +1217,7 @@ public class TestABIntegration {
             logger.debug("ran ES Term Query - result count {}, runCount {}", nbrResult, runCount);
             logger.trace("searching index [{}] field [{}] for [{}]", index, field, queryString);
         }
-        Assert.assertEquals(jResult.getJsonString(), expectedHitCount, nbrResult);
+        assertEquals(jResult.getJsonString(), expectedHitCount, nbrResult);
         if (nbrResult != 0) {
             return jResult.getJsonObject()
                     .getAsJsonObject("hits")
@@ -1251,7 +1275,7 @@ public class TestABIntegration {
         } while (nbrResult != expectedHitCount && runCount < esTimeout);
 
         logger.debug("ran ES Field Query - result count {}, runCount {}", nbrResult, runCount);
-        Assert.assertEquals("Unexpected hit count searching '" + index + "' for {" + queryString + "} in field {" + field + "}", expectedHitCount, nbrResult);
+        assertEquals("Unexpected hit count searching '" + index + "' for {" + queryString + "} in field {" + field + "}", expectedHitCount, nbrResult);
         return result.getJsonObject()
                 .getAsJsonObject("hits")
                 .getAsJsonArray("hits")
@@ -1315,7 +1339,7 @@ public class TestABIntegration {
         return map;
     }
 
-    TrackLog waitForLogCount(Company company, Entity header, int expectedCount) throws Exception {
+    EntityLog waitForLogCount(Company company, Entity header, int expectedCount) throws Exception {
         // Looking for the first searchKey to be logged against the entity
         int i = 0;
         int timeout = 100;
@@ -1327,7 +1351,7 @@ public class TestABIntegration {
             Entity updatedHeader = trackService.getEntity(company, header.getMetaKey());
             count = trackService.getLogCount(company, updatedHeader.getMetaKey());
 
-            TrackLog log = trackService.getLastLog(company, updatedHeader.getMetaKey());
+            EntityLog log = trackService.getLastEntityLog(company, updatedHeader.getMetaKey());
             // We have at least one log?
             if ( count == expectedCount )
                 return log;

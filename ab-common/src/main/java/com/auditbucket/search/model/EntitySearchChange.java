@@ -21,6 +21,7 @@ package com.auditbucket.search.model;
 
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.track.model.Entity;
+import com.auditbucket.track.model.EntityContent;
 import com.auditbucket.track.model.SearchChange;
 import com.auditbucket.track.model.TrackTag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -48,6 +49,7 @@ public class EntitySearchChange implements SearchChange {
     private String description;
     private String name;
     private Map<String, Object> what;
+    private String attachment;
     private Date when;
     private String fortressName;
     private String companyName;
@@ -56,9 +58,7 @@ public class EntitySearchChange implements SearchChange {
     private String metaKey;
     private String callerRef;
     private Long logId;
-    // String, Object?
     private HashMap<String, Object> tagValues = new HashMap<>();
-    private Long version;
     private Long entityId;
 
     private String indexName;
@@ -92,9 +92,12 @@ public class EntitySearchChange implements SearchChange {
     public EntitySearchChange() {
     }
 
-    public EntitySearchChange(Entity header, HashMap<String, Object> mapWhat, String event, DateTime when) {
+    public EntitySearchChange(Entity header, EntityContent content, String event, DateTime when) {
         this(header);
-        this.what = mapWhat;
+        if ( content != null ) {
+            this.attachment = content.getAttachment();
+            this.what = content.getWhat();
+        }
         this.event = event;
         setWhen(when);
     }
@@ -261,6 +264,20 @@ public class EntitySearchChange implements SearchChange {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public void setAttachment(String attachment) {
+        this.attachment = attachment;
+    }
+
+    @Override
+    public boolean hasAttachment(){
+        return this.attachment!=null;
+    }
+
+    public String getAttachment () {
+        return this.attachment;
     }
 
     @Override

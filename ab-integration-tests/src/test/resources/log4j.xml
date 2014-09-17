@@ -64,7 +64,7 @@
 
     <!-- Root Logger. If you're diagnosing integration test issues, up this value to debug -->
     <root>
-        <priority value="info"/>
+        <priority value="debug"/>
         <appender-ref ref="console"/>
     </root>
 

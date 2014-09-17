@@ -23,10 +23,10 @@ import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
-import com.auditbucket.test.utils.TestHelper;
+import com.auditbucket.test.utils.Helper;
 import com.auditbucket.track.bean.ConceptInputBean;
+import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
-import com.auditbucket.track.bean.LogInputBean;
 import com.auditbucket.track.model.TxRef;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -87,7 +87,7 @@ public class TestInputBeans {
 
         // NonNull tx ref sets the inputBean to be transactional
         DateTime logNow = DateTime.now();
-        LogInputBean logBean = new LogInputBean("user", "aaa", logNow, TestHelper.getSimpleMap("abc", 0), "", "txreftest");
+        ContentInputBean logBean = new ContentInputBean("user", "aaa", logNow, Helper.getSimpleMap("abc", 0), "", "txreftest");
         metaBean.setLog(logBean); // Creation dates defer to the Log
         assertTrue(logBean.isTransactional());
         assertEquals(headerNow.getMillis(), metaBean.getWhen().getTime());
@@ -104,7 +104,7 @@ public class TestInputBeans {
         assertNotSame(dateC.getTime(), metaBean.getWhen().getTime());
         assertEquals(headerNow.getMillis(), metaBean.getWhen().getTime());
 
-        logBean = new LogInputBean("user", "aaa", null, TestHelper.getRandomMap());
+        logBean = new ContentInputBean("user", "aaa", null, Helper.getRandomMap());
         assertFalse(logBean.isTransactional());
 
 

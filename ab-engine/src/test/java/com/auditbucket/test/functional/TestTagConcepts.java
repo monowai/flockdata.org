@@ -19,6 +19,7 @@
 
 package com.auditbucket.test.functional;
 
+import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.Relationship;
@@ -28,7 +29,6 @@ import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.model.Concept;
 import com.auditbucket.track.model.DocumentType;
 import com.auditbucket.track.model.Entity;
-import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.neo4j.graphdb.Transaction;
@@ -40,8 +40,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
-import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
@@ -67,39 +67,39 @@ public class TestTagConcepts extends TestEngineBase {
 
         Transaction t = beginManualTransaction();
         SystemUser su = registerSystemUser("multipleDocsSameFortress", mike_admin);
-        Assert.assertNotNull(su);
+        assertNotNull(su);
 
-        Fortress fortress = fortressService.registerFortress("multipleDocsSameFortress");
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleDocsSameFortress", false));
         DocumentType dType = schemaService.resolveDocType(fortress, "ABC123", true);
         commitManualTransaction(t);// Should only be only one docTypes
 
-        Assert.assertNotNull(dType);
+        assertNotNull(dType);
         Long id = dType.getId();
         dType = schemaService.resolveDocType(fortress, "ABC123", false);
-        Assert.assertEquals(id, dType.getId());
+        assertEquals(id, dType.getId());
 
         EntityInputBean input = new EntityInputBean(fortress.getName(), "jinks", "DocA", new DateTime());
         input.addTag(new TagInputBean("cust123", "purchased").setLabel("Customer"));
-        trackEP.trackEntity(input, su.getApiKey(), su.getApiKey()).getBody().getEntity();
+        mediationFacade.trackEntity(su.getCompany(), input).getEntity();
         waitAWhile("Concepts creating...");
         validateConcepts("DocA", su, 1);
 
         // Different docs, same concepts
         input = new EntityInputBean(fortress.getName(), "jinks", "DocB", new DateTime());
         input.addTag(new TagInputBean("cust123", "purchased").setLabel("Customer"));
-        trackEP.trackEntity(input, su.getApiKey(), su.getApiKey()).getBody().getEntity();
+        mediationFacade.trackEntity(su.getCompany(), input).getEntity();
         waitAWhile("Concepts creating...");
 
         validateConcepts((Collection<String>) null, su, 3); // 3 Doc types.
-        Assert.assertEquals("Docs In Use not supporting 'null args' for fortress'", 3, queryService.getDocumentsInUse(su.getCompany(), null).size());
+        assertEquals("Docs In Use not supporting 'null args' for fortress'", 3, queryService.getDocumentsInUse(su.getCompany(), null).size());
 
         // DAT-112
         Set<DocumentResultBean> found = validateConcepts("DocA", su, 1);
-        Assert.assertEquals(1, found.size());
-        Assert.assertEquals(1, found.iterator().next().getConcepts().size());
+        assertEquals(1, found.size());
+        assertEquals(1, found.iterator().next().getConcepts().size());
         found = validateConcepts("DocB", su, 1);
-        Assert.assertEquals(1, found.size());
-        Assert.assertEquals(1, found.iterator().next().getConcepts().size());
+        assertEquals(1, found.size());
+        assertEquals(1, found.iterator().next().getConcepts().size());
 
 
     }
@@ -114,40 +114,40 @@ public class TestTagConcepts extends TestEngineBase {
         setSecurity();
         SystemUser su = registerSystemUser("fortressConcepts", mike_admin);
         Thread.sleep(1000);
-        Assert.assertNotNull(su);
+        assertNotNull(su);
 
-        Fortress fortA = fortressService.registerFortress("fortressConcepts");
+        Fortress fortA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortressConcepts", true));
 
         DocumentType dType = schemaService.resolveDocType(fortA, "ABC123", true);
         commitManualTransaction(t);// Should only be only one docTypes
 
-        Assert.assertNotNull(dType);
+        assertNotNull(dType);
         Long id = dType.getId();
         dType = schemaService.resolveDocType(fortA, "ABC123", false);
-        Assert.assertEquals(id, dType.getId());
+        assertEquals(id, dType.getId());
 
         EntityInputBean input = new EntityInputBean(fortA.getName(), "jinks", "DocA", new DateTime());
         input.addTag(new TagInputBean("cust123", "purchased").setLabel("Customer"));
-        Entity meta = trackEP.trackEntity(input, su.getApiKey(), su.getApiKey()).getBody().getEntity();
+        Entity meta = mediationFacade.trackEntity(su.getCompany(), input).getEntity();
 
-        assertNotNull(trackEP.getEntity(meta.getMetaKey(), su.getApiKey(), su.getApiKey()));
+        assertNotNull(trackService.getEntity(su.getCompany(), meta.getMetaKey()));
 
         input = new EntityInputBean(fortA.getName(), "jinks", "DocA", new DateTime());
         input.addTag(new TagInputBean("cust124", "purchased").setLabel("Customer"));
 
-        trackEP.trackEntity(input, su.getApiKey(), su.getApiKey()).getBody().getEntity();
+        mediationFacade.trackEntity(su.getCompany(), input).getEntity();
         waitAWhile("Concepts creating...");
 
         Collection<String> docs = new ArrayList<>();
         docs.add("DocA");
         Collection<DocumentResultBean> documentTypes = queryService.getConcepts(su.getCompany(), docs);
-        org.junit.Assert.assertNotNull(documentTypes);
+        assertNotNull(documentTypes);
         assertEquals(1, documentTypes.size());
 
         // add a second docTypes
         input = new EntityInputBean(fortA.getName(), "jinks", "DocA", new DateTime());
         input.addTag(new TagInputBean("cust123", "sold").setLabel("Rep"));
-        trackEP.trackEntity(input, su.getApiKey(), su.getApiKey());
+        mediationFacade.trackEntity(su.getCompany(), input);
         waitAWhile("Concepts creating...");
 
         documentTypes = queryService.getConceptsWithRelationships(su.getCompany(), docs);
@@ -185,26 +185,26 @@ public class TestTagConcepts extends TestEngineBase {
         Transaction t = beginManualTransaction();
 
         SystemUser su = registerSystemUser("multipleRelationships", mike_admin);
-        Assert.assertNotNull(su);
+        assertNotNull(su);
 
-        Fortress fortress = fortressService.registerFortress("multipleRelationships");
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleRelationships", true));
 
         DocumentType dType = schemaService.resolveDocType(fortress, "ABC123", true);
         commitManualTransaction(t);// Should only be only one docTypes
 
-        Assert.assertNotNull(dType);
+        assertNotNull(dType);
         Long id = dType.getId();
         dType = schemaService.resolveDocType(fortress, "ABC123", false);
-        Assert.assertEquals(id, dType.getId());
+        assertEquals(id, dType.getId());
 
         EntityInputBean input = new EntityInputBean(fortress.getName(), "jinks", "DocA", new DateTime());
         input.addTag(new TagInputBean("cust123", "purchased").setLabel("Customer"));
         input.addTag(new TagInputBean("harry", "soldto").setLabel("Customer"));
-        trackEP.trackEntity(input, su.getApiKey(), su.getApiKey()).getBody().getEntity();
+        mediationFacade.trackEntity(su.getCompany(), input).getEntity();
         input = new EntityInputBean(fortress.getName(), "jinks", "DocA", new DateTime());
         input.addTag(new TagInputBean("cust121", "purchased").setLabel("Customer"));
         input.addTag(new TagInputBean("harry", "soldto").setLabel("Customer"));
-        trackEP.trackEntity(input, su.getApiKey(), su.getApiKey()).getBody().getEntity();
+        mediationFacade.trackEntity(su.getCompany(), input).getEntity();
         waitAWhile("Concepts creating...");
         waitAWhile("Concepts creating...");
         validateConcepts("DocA", su, 1);
@@ -219,11 +219,11 @@ public class TestTagConcepts extends TestEngineBase {
                 for (Relationship relationship : relationships) {
                     logger.debug(relationship.getName());
                 }
-                Assert.assertEquals(2, relationships.size());
+                assertEquals(2, relationships.size());
 
             }
         }
-        Assert.assertEquals("Docs In Use not supporting 'null args'", 2,queryService.getConceptsWithRelationships(su.getCompany(), null).size());
+        assertEquals("Docs In Use not supporting 'null args'", 2,queryService.getConceptsWithRelationships(su.getCompany(), null).size());
     }
     @Test
     public void relationshipWorkForMultipleDocuments() throws Exception {
@@ -235,25 +235,25 @@ public class TestTagConcepts extends TestEngineBase {
         Transaction t = beginManualTransaction();
 
         SystemUser su = registerSystemUser("relationshipWorkForMultipleDocuments", mike_admin);
-        Assert.assertNotNull(su);
+        assertNotNull(su);
 
-        Fortress fortress = fortressService.registerFortress("relationshipWorkForMultipleDocuments");
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("relationshipWorkForMultipleDocuments",true));
 
         DocumentType docA = schemaService.resolveDocType(fortress, "DOCA", true);
         DocumentType docB = schemaService.resolveDocType(fortress, "DOCB", true);
         commitManualTransaction(t);// Should only be only one docTypes
 
-        Assert.assertNotNull(docA);
+        assertNotNull(docA);
         Long idA = docA.getId();
         docA = schemaService.resolveDocType(fortress, docA.getName(), false);
-        Assert.assertEquals(idA, docA.getId());
+        assertEquals(idA, docA.getId());
 
         EntityInputBean input = new EntityInputBean(fortress.getName(), "jinks", "DocA", new DateTime());
         input.addTag(new TagInputBean("cust123", "purchased").setLabel("Customer"));
-        trackEP.trackEntity(input, su.getApiKey(), su.getApiKey()).getBody().getEntity();
+        mediationFacade.trackEntity(su.getCompany(), input).getEntity();
         input = new EntityInputBean(fortress.getName(), "jinks", docB.getName(), new DateTime());
         input.addTag(new TagInputBean("cust121", "purchased").setLabel("Customer"));
-        trackEP.trackEntity(input, su.getApiKey(), su.getApiKey()).getBody().getEntity();
+        mediationFacade.trackEntity(su.getCompany(), input).getEntity();
         waitAWhile("Concepts creating...");
 
         Collection<String>docs = new ArrayList<>();
@@ -267,7 +267,7 @@ public class TestTagConcepts extends TestEngineBase {
             for (Concept concept : concepts) {
                 Collection<Relationship> relationships  =concept.getRelationships();
                 for (Relationship relationship : relationships) {
-                    Assert.assertEquals(1, relationship.getDocumentTypes().size());
+                    assertEquals(1, relationship.getDocumentTypes().size());
                     if ( docType.getName().equals(docA.getName()))
                         docAFound = true;
                     else if (docType.getName().equals(docB.getName()) )
@@ -278,7 +278,7 @@ public class TestTagConcepts extends TestEngineBase {
         // ToDo: it is unclear if we should track in this manner
         assertTrue("DocA Not Found in the concept", docAFound);
         assertTrue("DocB Not Found in the concept", docBFound);
-        Assert.assertEquals("Docs In Use not supporting 'null args'", 2, queryService.getConceptsWithRelationships(su.getCompany(), null).size());
+        assertEquals("Docs In Use not supporting 'null args'", 2, queryService.getConceptsWithRelationships(su.getCompany(), null).size());
     }
 
     /**
@@ -299,9 +299,9 @@ public class TestTagConcepts extends TestEngineBase {
         Transaction t = beginManualTransaction();
 
         SystemUser su = registerSystemUser(monowai, mike_admin);
-        Assert.assertNotNull(su);
+        assertNotNull(su);
 
-        Fortress fortress = fortressService.registerFortress("fortA");
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortA",true));
 
         DocumentType sale = schemaService.resolveDocType(fortress, "Sale", true);
         commitManualTransaction(t);
@@ -313,12 +313,12 @@ public class TestTagConcepts extends TestEngineBase {
         EntityInputBean promoInput = new EntityInputBean(fortress.getName(), "jinks", promo.getName(), new DateTime());
         promoInput.addTag(new TagInputBean("Linux", "offer").setLabel("Device"));
         //promoInput.addTag(new TagInputBean("Mike", "sold").setLabel("Person"));
-        trackEP.trackEntity(promoInput, su.getApiKey(), su.getApiKey()).getBody().getEntity();
+        mediationFacade.trackEntity(su.getCompany(), promoInput).getEntity();
 
         EntityInputBean salesInput = new EntityInputBean(fortress.getName(), "jinks", sale.getName(), new DateTime());
         salesInput.addTag(new TagInputBean("Linux", "purchased").setLabel("Device"));
         //promoInput.addTag(new TagInputBean("Gary", "authorised").setLabel("Person"));
-        trackEP.trackEntity(salesInput, su.getApiKey(), su.getApiKey()).getBody().getEntity();
+        mediationFacade.trackEntity(su.getCompany(), salesInput).getEntity();
         waitAWhile();
         Collection<String>docs = new ArrayList<>();
         docs.add(promo.getName());
@@ -328,12 +328,12 @@ public class TestTagConcepts extends TestEngineBase {
         docs.add(promo.getName());
         Set<DocumentResultBean>foundDocs = validateConcepts(docs, su, 1);
         for (DocumentResultBean foundDoc : foundDocs) {
-            Assert.assertEquals("Promotion", foundDoc.getName());
+            assertEquals("Promotion", foundDoc.getName());
             Collection<Concept> concepts = foundDoc.getConcepts();
-            Assert.assertEquals(1, concepts.size());
+            assertEquals(1, concepts.size());
             Concept concept = concepts.iterator().next();
-            Assert.assertEquals("Device", concept.getName());
-            Assert.assertEquals(1, concept.getRelationships().size());
+            assertEquals("Device", concept.getName());
+            assertEquals(1, concept.getRelationships().size());
             logger.info(foundDoc.toString());
         }
         //Set<DocumentType> concepts = queryEP.getRelationships(docs, su.getApiKey(), su.getApiKey());
@@ -351,9 +351,9 @@ public class TestTagConcepts extends TestEngineBase {
         Transaction t ;
 
         SystemUser su = registerSystemUser("relationshipWorkForMultipleDocuments", mike_admin);
-        Assert.assertNotNull(su);
+        assertNotNull(su);
 
-        Fortress fortress = fortressService.registerFortress("relationshipWorkForMultipleDocuments");
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("relationshipWorkForMultipleDocuments",true));
 
         waitAWhile();
         t = beginManualTransaction();
@@ -367,7 +367,7 @@ public class TestTagConcepts extends TestEngineBase {
         promoInput.addTag(
                 new TagInputBean("a1065", "identifier").setLabel("Claim"));
 
-        trackEP.trackEntity(promoInput, su.getApiKey(), su.getApiKey()).getBody().getEntity();
+        mediationFacade.trackEntity(su.getCompany(), promoInput).getEntity();
 
         waitAWhile();
         Collection<String>docs = new ArrayList<>();
@@ -377,16 +377,16 @@ public class TestTagConcepts extends TestEngineBase {
         docs.add(claim.getName());
         Set<DocumentResultBean>foundDocs = validateConcepts(docs, su, 1);
         for (DocumentResultBean foundDoc : foundDocs) {
-            Assert.assertEquals("Claim", foundDoc.getName());
+            assertEquals("Claim", foundDoc.getName());
             Collection<Concept> concepts = foundDoc.getConcepts();
-            Assert.assertEquals(1, concepts.size());
+            assertEquals(1, concepts.size());
             Concept concept = concepts.iterator().next();
-            Assert.assertEquals("Claim", concept.getName());
-            Assert.assertEquals(1, concept.getRelationships().size());
+            assertEquals("Claim", concept.getName());
+            assertEquals(1, concept.getRelationships().size());
             logger.info(foundDoc.toString());
         }
         adminEP.purgeFortress(fortress.getName(), su.getApiKey(), su.getApiKey());
-        Assert.assertEquals(0, schemaService.getCompanyDocumentsInUse(fortress.getCompany()).size());
+        assertEquals(0, schemaService.getDocumentsInUse(fortress.getCompany()).size());
     }
 
     private Set<DocumentResultBean> validateConcepts(String document, SystemUser su, int expected) throws Exception{

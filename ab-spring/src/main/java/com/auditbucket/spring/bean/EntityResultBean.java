@@ -1,6 +1,6 @@
 package com.auditbucket.spring.bean;
 
-import com.auditbucket.track.bean.LogInputBean;
+import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 
 /**
@@ -13,27 +13,27 @@ import com.auditbucket.track.bean.TrackResultBean;
 class EntityResultBean {
 
     private TrackResultBean trackResultBean;
-    private LogInputBean logInputBean;
+    private ContentInputBean contentInputBean;
 
     public EntityResultBean(TrackResultBean trackResultBean) {
         this.trackResultBean = trackResultBean;
     }
 
-    public EntityResultBean(LogInputBean logInputBean) {
-        this.logInputBean = logInputBean;
+    public EntityResultBean(ContentInputBean contentInputBean) {
+        this.contentInputBean = contentInputBean;
     }
 
     public String getMetaKey() {
-        if (logInputBean != null) {
-            return logInputBean.getMetaKey();
+        if (contentInputBean != null) {
+            return contentInputBean.getMetaKey();
         } else {
             return trackResultBean.getMetaKey();
         }
     }
 
     public Object getResult() {
-        if (logInputBean != null) {
-            return logInputBean;
+        if (contentInputBean != null) {
+            return contentInputBean;
         } else {
             return trackResultBean;
         }

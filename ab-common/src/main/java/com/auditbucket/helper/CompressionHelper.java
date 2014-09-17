@@ -19,12 +19,12 @@
 
 package com.auditbucket.helper;
 
+import com.auditbucket.track.model.KvContent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -33,20 +33,23 @@ import java.util.zip.GZIPOutputStream;
  * Since: 20/07/13
  */
 public class CompressionHelper {
+    public static final String PROP_COMPRESSION = "disableCompression";
     public static Charset charSet = Charset.forName("UTF-8");
 
     public static CompressionResult compress(String text) {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        // DAT-218
+        boolean disableCompression = Boolean.parseBoolean(System.getProperty(PROP_COMPRESSION, "false"));
         try {
             byte[] bytes = text.getBytes(charSet);
-            if (bytes.length > 512) {
+            if (!disableCompression && bytes.length > 512) {
                 OutputStream out = new GZIPOutputStream(baos);
                 out.write(bytes);
                 out.close();
                 return new CompressionResult(baos.toByteArray());
             } else {
-                // Not worth compressing
+                // no compression
                 return new CompressionResult(text);
             }
         } catch (IOException e) {
@@ -54,15 +57,11 @@ public class CompressionHelper {
         }
     }
 
-    public static CompressionResult compress(Map<String, Object> mapValue) {
+    public static CompressionResult compress(KvContent content) {
         ObjectMapper om = new ObjectMapper();
-//            JsonParser what = om.readTree(mapValue).toString();
-        JsonNode node = om.valueToTree(mapValue);
+        JsonNode node = om.valueToTree(content);
         String text = node.toString();
         return compress(text);
-        //Object whatJ = om.readValue(mapValue, Map.class);
-
-//        Object var = om.readTree(mapValue);
     }
 
     public static String decompress(CompressionResult result) {
