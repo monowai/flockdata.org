@@ -49,7 +49,7 @@ public class TrackTagRelationship implements TrackTag, Comparable {
 
     /**
      * For non-persistent relationship. If caller is not tracking in the graph, then this
-     * constructor can be used to create header data suitable for writing to search
+     * constructor can be used to create entity data suitable for writing to search
      *
      * @param entity       Entity object
      * @param tag          Tag object

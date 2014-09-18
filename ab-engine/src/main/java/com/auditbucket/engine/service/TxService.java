@@ -75,17 +75,17 @@ public class TxService {
 
         if (su == null)
             throw new SecurityException("Not authorised");
-        TxRef tx = trackDao.findTxTag(txRef, su.getCompany(), fetchHeaders);
+        TxRef tx = trackDao.findTxTag(txRef, su.getCompany());
         if (tx == null)
             return null;
         return tx;
     }
 
-    public Set<Entity> findTxHeaders(String txName) {
+    public Set<Entity> findTxEntities(String txName) {
         TxRef txRef = findTx(txName);
         if (txRef == null)
             return null;
-        return trackDao.findHeadersByTxRef(txRef.getId());
+        return trackDao.findEntitiesByTxRef(txRef.getId());
     }
 
 }

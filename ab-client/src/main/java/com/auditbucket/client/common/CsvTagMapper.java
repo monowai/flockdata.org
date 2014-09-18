@@ -22,7 +22,7 @@ package com.auditbucket.client.common;
 import com.auditbucket.client.Importer;
 import com.auditbucket.client.csv.CsvColumnHelper;
 import com.auditbucket.client.rest.AbRestClient;
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.LoggerFactory;
@@ -53,7 +53,7 @@ public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
     }
 
     @Override
-    public Map<String, Object> setData(final String[] headerRow, final String[] line, ImportParams importParams) throws JsonProcessingException, DatagioException {
+    public Map<String, Object> setData(final String[] headerRow, final String[] line, ImportParams importParams) throws JsonProcessingException, FlockException {
         int col = 0;
         Map<String, Object> row = AbRestClient.convertToMap(headerRow, line);
 

@@ -70,7 +70,7 @@ public class SearchServiceFacade {
          * <p/>
          * ToDo: On completion of this, an outbound message should be posted so that the caller can be made aware(?)
          *
-         * @param searchResults contains keys to tie the search to the meta header
+         * @param searchResults contains keys to tie the search to the entity
          */
     public void handleSearchResult(SearchResults searchResults) {
         Collection<SearchResult> theResults = searchResults.getSearchResults();
@@ -92,8 +92,8 @@ public class SearchServiceFacade {
 
     public SearchChange getSearchChange(Company company, TrackResultBean resultBean) {
         SearchChange searchChange = null;
-        Entity header = resultBean.getEntity();
-        if (!(header.isSearchSuppressed() || !header.getFortress().isSearchActive())) {
+        Entity entity = resultBean.getEntity();
+        if (!(entity.isSearchSuppressed() || !entity.getFortress().isSearchActive())) {
             //result, result.getMetaInputBean().getEvent(), result.getMetaInputBean().getWhen()
             searchChange = getSearchChange(company, resultBean, resultBean.getEntityInputBean().getEvent(), resultBean.getEntityInputBean().getWhen());
         }
@@ -120,24 +120,25 @@ public class SearchServiceFacade {
     }
 
     public SearchChange getSearchChange(Company company, TrackResultBean resultBean, String event, Date when) {
-        Entity header = resultBean.getEntity();
+        Entity entity = resultBean.getEntity();
 
-        if (header.getLastUser() != null)
-            fortressService.fetch(header.getLastUser());
-        SearchChange searchDocument = new EntitySearchChange(header, null, event, new DateTime(when));
+        if (entity.getLastUser() != null)
+            fortressService.fetch(entity.getLastUser());
+        Log log = (resultBean.getLogResult()== null ? null:resultBean.getLogResult().getWhatLog());
+        SearchChange searchDocument = new EntitySearchChange(entity, resultBean.getContentInput(), log);
         if (resultBean.getTags() != null) {
             searchDocument.setTags(resultBean.getTags());
-            //searchDocument.setSearchKey(header.getCallerRef());
+            //searchDocument.setSearchKey(entity.getCallerRef());
 
-            if (header.getId() == null) {
-                logger.debug("No HeaderID so we are not expecting a reply");
+            if (entity.getId() == null) {
+                logger.debug("No entityId so we are not expecting a reply");
                 searchDocument.setWhen(null);
                 searchDocument.setReplyRequired(false);
             }
-            searchDocument.setSysWhen(header.getWhenCreated());
+            searchDocument.setSysWhen(entity.getWhenCreated());
 
         } else {
-            searchDocument.setTags(entityTagService.getEntityTags(company, header));
+            searchDocument.setTags(entityTagService.getEntityTags(company, entity));
         }
         return searchDocument;
     }
@@ -149,7 +150,7 @@ public class SearchServiceFacade {
         if (entity.isSearchSuppressed())
             return null;
         SearchChange searchDocument;
-        searchDocument = new EntitySearchChange(entity, contentInput, event.getCode(), fortressWhen);
+        searchDocument = new EntitySearchChange(entity, contentInput, entityLog.getLog() );
         searchDocument.setWho(entityLog.getLog().getWho().getCode());
         searchDocument.setTags(entityTagService.getEntityTags(entity.getFortress().getCompany(), entity));
         searchDocument.setDescription(entity.getDescription());
@@ -184,10 +185,10 @@ public class SearchServiceFacade {
                 EntitySearchChange searchDocument;
                 if (lastChange != null) {
                     EntityContent content = kvService.getContent(entity, lastChange);
-                    searchDocument = new EntitySearchChange(entity, content, lastChange.getEvent().getCode(), new DateTime(lastLog.getFortressWhen()));
+                    searchDocument = new EntitySearchChange(entity, content, lastChange);
                     searchDocument.setWho(lastChange.getWho().getCode());
                 } else {
-                    searchDocument = new EntitySearchChange(entity, null, entity.getEvent(), entity.getFortressDateCreated());
+                    searchDocument = new EntitySearchChange(entity);
                     if (entity.getCreatedBy() != null)
                         searchDocument.setWho(entity.getCreatedBy().getCode());
                 }
@@ -227,14 +228,14 @@ public class SearchServiceFacade {
         if ( trackResultBean == null )
             return null;
         if (trackResultBean.getEntityInputBean()!=null && trackResultBean.getEntityInputBean().isMetaOnly()){
-            return getMetaSearchChange(trackResultBean);
+            return getEntitySearchChange(trackResultBean);
         }
 
         if ( trackResultBean.getEntity()== null || !trackResultBean.getEntity().getFortress().isSearchActive())
             return null;
 
         LogResultBean logResultBean = trackResultBean.getLogResult();
-        ContentInputBean input = trackResultBean.getLog();
+        ContentInputBean input = trackResultBean.getContentInput();
 
         if ( !trackResultBean.processLog())
             return null;
@@ -251,7 +252,7 @@ public class SearchServiceFacade {
         return null;
     }
 
-    private SearchChange getMetaSearchChange(TrackResultBean trackResultBean) {
+    private SearchChange getEntitySearchChange(TrackResultBean trackResultBean) {
         return getSearchChange(trackResultBean.getEntity().getFortress().getCompany(), trackResultBean);
     }
 

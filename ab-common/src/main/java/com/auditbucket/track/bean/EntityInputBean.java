@@ -131,7 +131,7 @@ public class EntityInputBean {
     /**
      * This is unused in the Entity
      * Obtain this from the InputBean that you are logging, not the
-     * @return
+     * @return name
      */
     @Deprecated
     public String getFortressUser() {
@@ -173,9 +173,9 @@ public class EntityInputBean {
         this.callerRef = callerRef;
     }
 
-    public void setLog(ContentInputBean log) {
-        this.log = log;
-        if (log != null) {
+    public void setContent(ContentInputBean content) {
+        this.log = content;
+        if (content != null) {
             this.metaOnly = false;
             //this.when = log.getWhen();
         }
@@ -192,11 +192,11 @@ public class EntityInputBean {
     }
 
     /**
-     * only used if the header is a one off immutable event
-     * is supplied, then the event is logged against the header. Typically events are logged
+     * only used if the entity is a one off immutable event
+     * is supplied, then the event is logged against the entity. Typically events are logged
      * against AuditLogs
      *
-     * @param event user definable event for an immutable header
+     * @param event user definable event for an immutable entity
      */
     public void setEvent(String event) {
         this.event = event;
@@ -219,7 +219,7 @@ public class EntityInputBean {
      * associative structure will exist. Perhaps you can only identify this while processing
      * a large file set.
      * <p/>
-     * This will not associate the header with the tag structure. To do that
+     * This will not associate the entity with the tag structure. To do that
      *
      * @return Tag values to created
      */
@@ -241,7 +241,7 @@ public class EntityInputBean {
 
     /**
      *
-     * @param description User definable note describing the header
+     * @param description User definable note describing the entity
      */
     public void setDescription(String description) {
         this.description = description;
@@ -321,10 +321,10 @@ public class EntityInputBean {
     }
 
     /**
-     * Flags that this Header will never have a log. Rather it is a Entity thing
-     * that we want to see in the Search Service.
+     * Flags that this Entity will never have a log. It will still be tracked through
+     * in to the Search Service.
      *
-     * @param metaOnly if false then the header will not be indexed in search until a log is added
+     * @param metaOnly if false then the entity will not be indexed in search until a log is added
      */
     public void setMetaOnly(boolean metaOnly) {
         this.metaOnly = metaOnly;

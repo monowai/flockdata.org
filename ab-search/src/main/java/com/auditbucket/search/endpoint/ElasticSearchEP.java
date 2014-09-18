@@ -19,12 +19,11 @@
 
 package com.auditbucket.search.endpoint;
 
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.QueryParams;
 import com.auditbucket.search.service.QueryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -44,7 +43,7 @@ public class ElasticSearchEP {
 
     public String simpleQuery(@RequestBody QueryParams queryParams,
                             @RequestHeader(value = "Api-Key", required = false)
-                            String apiHeaderKey) throws DatagioException {
+                            String apiHeaderKey) throws FlockException {
 
         return searchService.doSearch(queryParams);
     }
@@ -53,7 +52,7 @@ public class ElasticSearchEP {
 
     public EsSearchResult metaKeys(@RequestBody QueryParams queryParams,
                               @RequestHeader(value = "Api-Key", required = false)
-                              String apiHeaderKey) throws DatagioException {
+                              String apiHeaderKey) throws FlockException {
 
         return searchService.metaKeySearch(queryParams);
     }

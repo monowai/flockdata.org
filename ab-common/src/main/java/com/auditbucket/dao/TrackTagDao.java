@@ -19,7 +19,7 @@
 
 package com.auditbucket.dao;
 
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.track.model.Entity;
@@ -52,7 +52,7 @@ public interface TrackTagDao {
      * Track Tags that are in either direction
      *
      * @param company    validated company
-     * @param entity header the caller is authorised to work with
+     * @param entity    entity the caller is authorised to work with
      * @return           all TrackTags for the company in both directions
      */
     Set<TrackTag> getMetaTrackTags(Company company, Entity entity);
@@ -67,7 +67,7 @@ public interface TrackTagDao {
 
     void moveTags(Entity entity, Log log, Collection<TrackTag> trackTag);
 
-    void deleteTrackTags(Entity entity, Collection<TrackTag> trackTags) throws DatagioException;
+    void deleteTrackTags(Entity entity, Collection<TrackTag> trackTags) throws FlockException;
 
     void moveTags(Company company, Log logToMoveFrom, Entity entity);
 }

@@ -20,7 +20,7 @@
 package com.auditbucket.search.service;
 
 import com.auditbucket.dao.QueryDao;
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.QueryParams;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,13 +47,13 @@ public class QueryServiceEs implements QueryService {
 
     @Override
     @ServiceActivator(inputChannel = "doMetaKeyQuery", outputChannel = "doMetaKeyReply") // Subscriber
-    public EsSearchResult metaKeySearch(QueryParams queryParams) throws DatagioException {
+    public EsSearchResult metaKeySearch(QueryParams queryParams) throws FlockException {
         return queryDao.doMetaKeySearch(queryParams);
     }
 
 
     @Override
-    public String doSearch(QueryParams queryParams) throws DatagioException {
+    public String doSearch(QueryParams queryParams) throws FlockException {
         return queryDao.doSearch(queryParams);
     }
 

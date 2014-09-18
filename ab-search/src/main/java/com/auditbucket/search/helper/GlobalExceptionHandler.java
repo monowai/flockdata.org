@@ -1,6 +1,6 @@
 package com.auditbucket.search.helper;
 
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.helper.JsonMessage;
 import com.fasterxml.jackson.core.JsonParseException;
 import org.slf4j.Logger;
@@ -20,9 +20,9 @@ import org.springframework.web.servlet.ModelAndView;
 public class GlobalExceptionHandler {
     private Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler(DatagioException.class)
+    @ExceptionHandler(FlockException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ModelAndView handleAuditException( DatagioException ex){
+    public ModelAndView handleAuditException( FlockException ex){
         logger.error("Datagio Exception", ex);
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }

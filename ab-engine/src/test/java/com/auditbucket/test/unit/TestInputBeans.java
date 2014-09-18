@@ -78,31 +78,31 @@ public class TestInputBeans {
     }
 
     @Test
-    public void testTrackInputBean() throws Exception {
-        DateTime headerNow = DateTime.now();
-        EntityInputBean metaBean = new EntityInputBean("fortress", "user", "booking", headerNow, "myRef");
-        assertNull(metaBean.getMetaKey());
-        metaBean.setMetaKey("AbC");
-        assertNotNull(metaBean.getMetaKey());
+    public void testEntityInputBean() throws Exception {
+        DateTime now = DateTime.now();
+        EntityInputBean entityBean = new EntityInputBean("fortress", "user", "booking", now, "myRef");
+        assertNull(entityBean.getMetaKey());
+        entityBean.setMetaKey("AbC");
+        assertNotNull(entityBean.getMetaKey());
 
         // NonNull tx ref sets the inputBean to be transactional
         DateTime logNow = DateTime.now();
         ContentInputBean logBean = new ContentInputBean("user", "aaa", logNow, Helper.getSimpleMap("abc", 0), "", "txreftest");
-        metaBean.setLog(logBean); // Creation dates defer to the Log
+        entityBean.setContent(logBean); // Creation dates defer to the Log
         assertTrue(logBean.isTransactional());
-        assertEquals(headerNow.getMillis(), metaBean.getWhen().getTime());
+        assertEquals(now.getMillis(), entityBean.getWhen().getTime());
 
         // Change the date on the log, should be the same in the entity
-        logBean.setWhen(headerNow.toDate());
-        assertEquals(headerNow.getMillis(), metaBean.getWhen().getTime());
+        logBean.setWhen(now.toDate());
+        assertEquals(now.getMillis(), entityBean.getWhen().getTime());
         // Null the log
-        metaBean.setLog(null);
+        entityBean.setContent(null);
         Date dateC = new Date();
         logBean.setWhen(dateC);
-        metaBean.setLog(logBean);
+        entityBean.setContent(logBean);
         assertEquals(dateC.getTime(), logBean.getWhen().getTime());
-        assertNotSame(dateC.getTime(), metaBean.getWhen().getTime());
-        assertEquals(headerNow.getMillis(), metaBean.getWhen().getTime());
+        assertNotSame(dateC.getTime(), entityBean.getWhen().getTime());
+        assertEquals(now.getMillis(), entityBean.getWhen().getTime());
 
         logBean = new ContentInputBean("user", "aaa", null, Helper.getRandomMap());
         assertFalse(logBean.isTransactional());

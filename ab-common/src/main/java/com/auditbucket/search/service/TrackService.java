@@ -18,7 +18,7 @@ public interface TrackService {
 
     void delete(Entity entity);
 
-    byte[] findOne(Entity header);
+    byte[] findOne(Entity entity);
 
-    byte[] findOne(Entity header, String id);
+    byte[] findOne(Entity entity, String id);
 }

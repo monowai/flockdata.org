@@ -44,14 +44,14 @@ public interface EntityRepo extends GraphRepository<EntityNode> {
     @Query(elementClass = EntityNode.class, value = "start tx=node({0}) " +
             "   MATCH tx-[:AFFECTED]->change<-[:LOGGED]-auditHeader " +
             "return auditHeader")
-    Set<Entity> findHeadersByTxRef(Long txRef);
+    Set<Entity> findEntitiesByTxRef(Long txRef);
 
     @Query(elementClass = EntityNode.class, value =
                     " match (fortress:Fortress)-[:TRACKS]->(track:Entity) " +
                     " where id(fortress)={0} " +
                     " return track ORDER BY track.dateCreated ASC" +
                     " skip {1} limit 100 ")
-    Set<Entity> findHeadersFrom(Long fortressId, Long skip);
+    Set<Entity> findEntities(Long fortressId, Long skip);
 
     @Query(elementClass = EntityNode.class, value =
                     " match (fortress:Fortress)-[:TRACKS]->(entity:Entity) where id(fortress)={0} " +
@@ -64,7 +64,7 @@ public interface EntityRepo extends GraphRepository<EntityNode> {
             "   and entities.metaKey in {1}  " +
             "  with company, entities match (company)-[*..2]-(entities) " +
             "return entities ")
-    Collection<Entity> findHeaders(Long id, Collection<String> toFind );
+    Collection<Entity> findEntities(Long id, Collection<String> toFind);
 
     @Query (value = "match (f:_Fortress)-[track:TRACKS]->(meta:_Entity)-[other]-(:FortressUser) where id(f)={0} delete other")
     public void purgePeopleRelationships(Long fortressId);
@@ -73,7 +73,7 @@ public interface EntityRepo extends GraphRepository<EntityNode> {
     public void purgeCrossReferences(Long fortressId);
 
     @Query (value="match (f:_Fortress)-[track:TRACKS]->(meta:_Entity) where id(f)={0} delete track, meta ")
-    public void purgeHeaders(Long fortressId);
+    public void purgeEntities(Long fortressId);
 
 
 }

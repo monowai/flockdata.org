@@ -180,7 +180,7 @@ public class EngineConfig {
 
     /**
      * Should be disabled for testing purposes
-     * @param conceptsEnabled if true, concepts will be created in a separate thread when headers are tracked
+     * @param conceptsEnabled if true, concepts will be created in a separate thread when entities are tracked
      */
     public void setConceptsEnabled(boolean conceptsEnabled) {
         this.conceptsEnabled = conceptsEnabled;

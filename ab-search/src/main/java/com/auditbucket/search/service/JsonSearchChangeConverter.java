@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 /**
- * Convert incoming bytes to an ArrayList<MetaSearchChange>
+ * Convert incoming bytes to an ArrayList<SearchChange>
  *
  */
 @Component("jsonToSearchChangeConverter")

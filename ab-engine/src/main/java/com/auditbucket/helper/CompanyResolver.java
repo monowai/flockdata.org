@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
  * Time: 10:27 AM
  */
 public class CompanyResolver {
-    public static Company resolveCompany(HttpServletRequest request) throws DatagioException {
+    public static Company resolveCompany(HttpServletRequest request) throws FlockException {
         Company company = (Company) request.getAttribute(ApiKeyInterceptor.COMPANY);
         if (company == null )
             throw new NotFoundException("Unable to identify any Company that you are authorised to work with");

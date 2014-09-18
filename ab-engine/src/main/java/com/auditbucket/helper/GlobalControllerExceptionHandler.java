@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageConversionException;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -44,9 +43,9 @@ import org.springframework.web.servlet.ModelAndView;
 public class GlobalControllerExceptionHandler {
     private Logger logger = LoggerFactory.getLogger(GlobalControllerExceptionHandler.class);
 
-    @ExceptionHandler(DatagioException.class)
+    @ExceptionHandler(FlockException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ModelAndView handleAppException(DatagioException ex){
+    public ModelAndView handleAppException(FlockException ex){
         logger.error("Processing Exception- {}", ex.getLocalizedMessage());
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }

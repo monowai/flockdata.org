@@ -3,7 +3,7 @@ package com.auditbucket.engine.endpoint;
 import com.auditbucket.authentication.handler.ApiKeyInterceptor;
 import com.auditbucket.engine.service.EngineConfig;
 import com.auditbucket.helper.ApiKeyHelper;
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.service.RegistrationService;
@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -59,7 +58,7 @@ public class AdminEP {
 
 
     @RequestMapping(value = "/health", method = RequestMethod.GET)
-    public Map<String, String> getHealth(HttpServletRequest request) throws DatagioException {
+    public Map<String, String> getHealth(HttpServletRequest request) throws FlockException {
         String apiKey = request.getHeader(ApiKeyInterceptor.API_KEY);
         if ( "".equals(apiKey))
             apiKey = null;
@@ -71,8 +70,9 @@ public class AdminEP {
 
 
     @RequestMapping(value = "/{fortressName}/rebuild", method = RequestMethod.POST)
+    @ResponseStatus(value = HttpStatus.ACCEPTED)
     public ResponseEntity<String> rebuildSearch(@PathVariable("fortressName") String fortressName,
-                                                String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+                                                String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException {
         Company company = getCompany(apiHeaderKey, apiKey);
         logger.info("Reindex command received for " + fortressName + " from [" + securityHelper.getLoggedInUser() + "]");
         mediationFacade.reindex(company, fortressName);
@@ -81,8 +81,9 @@ public class AdminEP {
 
 
     @RequestMapping(value = "/{fortressName}/{docType}/rebuild", method = RequestMethod.POST)
+    @ResponseStatus(value = HttpStatus.ACCEPTED)
     public ResponseEntity<String> rebuildSearch(@PathVariable("fortressName") String fortressName, @PathVariable("docType") String docType
-            , String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+            , String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException {
 
         Company company = getCompany(apiHeaderKey, apiKey);
 
@@ -91,21 +92,22 @@ public class AdminEP {
         return new ResponseEntity<>("Request to reindex fortress document type has been received", HttpStatus.ACCEPTED);
     }
 
-    private Company getCompany(String apiHeaderKey, String apiRequestKey) throws DatagioException {
+    private Company getCompany(String apiHeaderKey, String apiRequestKey) throws FlockException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiRequestKey));
         if (company == null)
-            throw new DatagioException("Unable to resolve supplied API key to a valid company");
+            throw new FlockException("Unable to resolve supplied API key to a valid company");
         return company;
     }
 
 
     @RequestMapping(value = "/{fortressName}", method = RequestMethod.DELETE)
+    @ResponseStatus(value = HttpStatus.ACCEPTED)
     public ResponseEntity<String> purgeFortress(@PathVariable("fortressName") String fortressName,
                                                 String apiKey,
-                                                @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+                                                @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException {
 
         mediationFacade.purge(fortressName, ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
-        return new ResponseEntity<>("Purged " + fortressName, HttpStatus.OK);
+        return new ResponseEntity<>("Purged " + fortressName, HttpStatus.ACCEPTED);
 
     }
 

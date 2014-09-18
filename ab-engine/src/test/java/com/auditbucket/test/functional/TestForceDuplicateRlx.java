@@ -19,7 +19,7 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
@@ -68,21 +68,21 @@ public class TestForceDuplicateRlx extends TestEngineBase {
         watch.start();
         double splitTotals = 0;
         long totalRows = 0;
-        int auditSleepCount;  // Discount all the time we spent sleeping
+        int sleepCount;  // Discount all the time we spent sleeping
 
         DecimalFormat f = new DecimalFormat("##.000");
 
         while (fortress <= fortressMax) {
             String fortressName = "bulkloada" + fortress;
-            int audit = 1;
+            int count = 1;
             long requests = 0;
-            auditSleepCount = 0;
+            sleepCount = 0;
 
             Fortress iFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean(fortressName, true));
             requests++;
             logger.info("Starting run for " + fortressName);
-            while (audit <= auditMax) {
-                EntityInputBean entityInputBean = new EntityInputBean(iFortress.getName(), fortress + "olivia@sunnybell.com", "CompanyNode", new DateTime(), "ABC" + audit);
+            while (count <= auditMax) {
+                EntityInputBean entityInputBean = new EntityInputBean(iFortress.getName(), fortress + "olivia@sunnybell.com", "CompanyNode", new DateTime(), "ABC" + count);
                 TrackResultBean arb = mediationFacade.trackEntity(su.getCompany(), entityInputBean);
                 requests++;
                 int log = 1;
@@ -91,10 +91,10 @@ public class TestForceDuplicateRlx extends TestEngineBase {
                     requests++;
                     log++;
                 } // Logs created
-                audit++;
-            } // Audit headers finished with
+                count++;
+            } // finished with Entities
 //            watch.split();
-//            double fortressRunTime = (watch.getSplitTime() - auditSleepCount) / 1000d;
+//            double fortressRunTime = (watch.getSplitTime() - sleepCount) / 1000d;
 //            logger.info("*** " + iFortress.getName() + " took " + fortressRunTime + "  avg processing time for [" + requests + "] RPS= " + f.format(fortressRunTime / requests) + ". Requests per second " + f.format(requests / fortressRunTime));
 
 //            splitTotals = splitTotals + fortressRunTime;
@@ -108,7 +108,7 @@ public class TestForceDuplicateRlx extends TestEngineBase {
         logger.info("*** Created data set in " + f.format(splitTotals) + " fortress avg = " + f.format(splitTotals / fortressMax) + " avg processing time per request " + f.format(splitTotals / totalRows) + ". Requests per second " + f.format(totalRows / splitTotals));
 //        watch.reset();
     }
-    private void createLog(SystemUser su, TrackResultBean arb, int log) throws DatagioException, IOException, ExecutionException, InterruptedException {
+    private void createLog(SystemUser su, TrackResultBean arb, int log) throws FlockException, IOException, ExecutionException, InterruptedException {
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("who cares", arb.getMetaKey(), new DateTime(), Helper.getSimpleMap("who", log)));
     }
 

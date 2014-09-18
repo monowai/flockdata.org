@@ -90,7 +90,7 @@ public class TestForceDeadlock extends TestEngineBase {
     }
 
     /**
-     * Multi threaded test that tests to make sure duplicate Doc Types and Headers are not created
+     * Multi threaded test that tests to make sure duplicate Doc Types and Entities are not created
      *
      * @throws Exception
      */
@@ -115,7 +115,7 @@ public class TestForceDeadlock extends TestEngineBase {
             CallerRefRunner runner = addRunner(fortress, docType, "ABC" + i, 20, tags);
             runners.put(i, runner);
             List<EntityInputBean> inputBeans = runners.get(i).getInputBeans();
-            Future<Collection<TrackResultBean>> runResult = mediationFacade.trackHeadersAsync(fortress, inputBeans);
+            Future<Collection<TrackResultBean>> runResult = mediationFacade.trackEntitiesAsync(fortress, inputBeans);
             futures.put(i,runResult );
         }
 

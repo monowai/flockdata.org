@@ -19,7 +19,7 @@
 
 package com.auditbucket.registration.endpoint;
 
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.bean.SystemUserResultBean;
@@ -28,7 +28,6 @@ import com.auditbucket.registration.service.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -50,7 +49,7 @@ public class RegistrationEP {
 
     @RequestMapping(value = "/", consumes = "application/json", method = RequestMethod.POST)
 
-    public ResponseEntity<SystemUserResultBean> registerSystemUser(@RequestBody RegistrationBean regBean) throws DatagioException {
+    public ResponseEntity<SystemUserResultBean> registerSystemUser(@RequestBody RegistrationBean regBean) throws FlockException {
         // curl -u admin:hackme -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/profiles/register -d '{"name":"mikey", "companyName":"Monowai Dev","password":"whocares"}'
         SystemUser su = regService.registerSystemUser( regBean);
 
@@ -62,7 +61,7 @@ public class RegistrationEP {
 
     @RequestMapping(value = "/me", method = RequestMethod.GET)
 
-    public SystemUserResultBean get(@RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+    public SystemUserResultBean get(@RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException {
         // curl -u batch:123 -X GET http://localhost:8080/ab/profiles/me/
 
         return new SystemUserResultBean(regService.getSystemUser(apiHeaderKey));

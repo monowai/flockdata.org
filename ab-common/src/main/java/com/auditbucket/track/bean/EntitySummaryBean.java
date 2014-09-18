@@ -24,7 +24,6 @@ import com.auditbucket.track.model.EntityLog;
 import com.auditbucket.track.model.TrackTag;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -32,22 +31,22 @@ import java.util.Set;
  * Since: 25/08/13
  */
 public class EntitySummaryBean {
-    private Entity header;
+    private Entity entity;
     private Set<EntityLog> changes;
     private Collection<TrackTag> tags;
 
     private EntitySummaryBean() {
     }
 
-    public EntitySummaryBean(Entity header, Set<EntityLog> changes, Collection<TrackTag> tags) {
+    public EntitySummaryBean(Entity entity, Set<EntityLog> changes, Collection<TrackTag> tags) {
         this();
-        this.header = header;
+        this.entity = entity;
         this.changes = changes;
         this.tags = tags;
     }
 
-    public Entity getHeader() {
-        return header;
+    public Entity getEntity() {
+        return entity;
     }
 
     public Set<EntityLog> getChanges() {

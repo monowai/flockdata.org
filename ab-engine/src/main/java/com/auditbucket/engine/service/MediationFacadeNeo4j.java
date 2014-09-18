@@ -20,7 +20,7 @@
 package com.auditbucket.engine.service;
 
 import com.auditbucket.helper.Command;
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.helper.DeadlockRetry;
 import com.auditbucket.helper.NotFoundException;
 import com.auditbucket.kv.service.KvService;
@@ -106,7 +106,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     static DecimalFormat f = new DecimalFormat();
 
     @Override
-    public Tag createTag(Company company, TagInputBean tagInput) throws DatagioException, ExecutionException, InterruptedException {
+    public Tag createTag(Company company, TagInputBean tagInput) throws FlockException, ExecutionException, InterruptedException {
         List<TagInputBean> tags = new ArrayList<>();
         tags.add(tagInput);
         return createTags(company, tags).iterator().next();
@@ -114,14 +114,14 @@ public class MediationFacadeNeo4j implements MediationFacade {
     }
 
     @Override
-    public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws DatagioException, ExecutionException, InterruptedException {
+    public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
         Collection<String> existing = tagService.getExistingIndexes();
         schemaService.ensureUniqueIndexes(company, tagInputs,existing );
         try {
             tagService.createTags(company, tagInputs);
         } catch (IOException e) {
             // Todo - how to handle??
-            throw new DatagioException("Error processing your batch. Please run it again");
+            throw new FlockException("Error processing your batch. Please run it again");
         }
         return tagService.makeTags(company, tagInputs).get();
 
@@ -133,12 +133,12 @@ public class MediationFacadeNeo4j implements MediationFacade {
      * @param fortress   system
      * @param inputBeans data
      * @return ResultBeans populated with great data
-     * @throws com.auditbucket.helper.DatagioException
+     * @throws com.auditbucket.helper.FlockException
      */
     @Override
     @Async
-    public Future<Collection<TrackResultBean>> trackHeadersAsync(final Fortress fortress, List<EntityInputBean> inputBeans) throws DatagioException, IOException, ExecutionException, InterruptedException {
-        return new AsyncResult<>(trackHeaders(fortress, inputBeans, 10));
+    public Future<Collection<TrackResultBean>> trackEntitiesAsync(final Fortress fortress, List<EntityInputBean> inputBeans) throws FlockException, IOException, ExecutionException, InterruptedException {
+        return new AsyncResult<>(trackEntities(fortress, inputBeans, 10));
     }
 
     /**
@@ -150,11 +150,11 @@ public class MediationFacadeNeo4j implements MediationFacade {
      * @return                      results
      * @throws InterruptedException
      * @throws ExecutionException
-     * @throws DatagioException
+     * @throws com.auditbucket.helper.FlockException
      * @throws IOException
      */
     @Override
-    public Collection<TrackResultBean> trackHeaders(Company company, List<EntityInputBean> entityInputBeans) throws InterruptedException, ExecutionException, DatagioException, IOException {
+    public Collection<TrackResultBean> trackEntities(Company company, List<EntityInputBean> entityInputBeans) throws InterruptedException, ExecutionException, FlockException, IOException {
         Map<String, List<EntityInputBean>>fortressInput = new HashMap<>();
         for (EntityInputBean entityInputBean : entityInputBeans) {
             String fortressName = entityInputBean.getFortress();
@@ -171,7 +171,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
         Collection<TrackResultBean> results = new ArrayList<>();
         for (String fortressName : fortressInput.keySet()) {
             Fortress f = fortressService.findByName(company,fortressName);
-            results.addAll(trackHeaders(f, fortressInput.get(fortressName),10));
+            results.addAll(trackEntities(f, fortressInput.get(fortressName), 10));
         }
         return results;
 
@@ -179,13 +179,13 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
 
     @Override
-    public Collection<TrackResultBean> trackHeaders(final Fortress fortress, final List<EntityInputBean> inputBeans, int listSize) throws DatagioException, IOException, ExecutionException, InterruptedException {
+    public Collection<TrackResultBean> trackEntities(final Fortress fortress, final List<EntityInputBean> inputBeans, int listSize) throws FlockException, IOException, ExecutionException, InterruptedException {
         Long id = DateTime.now().getMillis();
         StopWatch watch = new StopWatch();
         watch.start();
         logger.debug("Starting Batch [{}] - size [{}]", id, inputBeans.size());
 
-        // This happens before we create headers to minimize IO on the graph
+        // This happens before we create entities to minimize IO on the graph
         schemaService.createDocTypes(inputBeans, fortress);
 
         // Tune to balance against concurrency and batch transaction insert efficiency.
@@ -207,77 +207,77 @@ public class MediationFacadeNeo4j implements MediationFacade {
         return results;
     }
 
-    private Iterable<TrackResultBean> trackBatch(final Fortress fortress, List<EntityInputBean> entityInputBeans) throws InterruptedException, ExecutionException, DatagioException, IOException {
+    private Iterable<TrackResultBean> trackBatch(final Fortress fortress, List<EntityInputBean> entityInputBeans) throws InterruptedException, ExecutionException, FlockException, IOException {
         @Deprecated
         class DLCommand implements Command {
-            Iterable<EntityInputBean> headers = null;
+            Iterable<EntityInputBean> entities = null;
             Iterable<TrackResultBean> resultBeans;
 
             DLCommand(List<EntityInputBean> processList) {
-                this.headers = new CopyOnWriteArrayList<>(processList);
+                this.entities = new CopyOnWriteArrayList<>(processList);
             }
 
             @Override
-            public Command execute() throws DatagioException, IOException, ExecutionException, InterruptedException {
+            public Command execute() throws FlockException, IOException, ExecutionException, InterruptedException {
                 // ToDo: DAT-169 This needs to be dealt with via SpringIntegration and persistent messaging
                 //       weirdly, the integration is with ab-engine
                 // DLCommand and DeadLockRetry need to be removed
                 // this routine is prone to deadlocks under load
 
-                resultBeans = trackService.trackEntities(fortress, headers);
+                resultBeans = trackService.trackEntities(fortress, entities);
                 resultBeans = logService.processLogsSync(fortress.getCompany(), resultBeans);
 
                 return this;
             }
         }
         DLCommand dlc = new DLCommand(entityInputBeans);
-        DeadlockRetry.execute(dlc, "creating headers", 50);
+        DeadlockRetry.execute(dlc, "creating entities", 50);
         return dlc.resultBeans;
 
     }
 
     @Override
-    public TrackResultBean trackEntity(Company company, EntityInputBean inputBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
+    public TrackResultBean trackEntity(Company company, EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException {
         Fortress fortress = fortressService.findByName(company, inputBean.getFortress());
         if (fortress == null)
             fortress = fortressService.registerFortress(company,
                     new FortressInputBean(inputBean.getFortress(), false)
                             .setTimeZone(inputBean.getTimezone()));
         fortress.setCompany(company);
-        return trackHeader(fortress, inputBean);
+        return trackEntity(fortress, inputBean);
     }
 
 
     /**
-     * tracks a header and creates logs. Distributes changes to KV stores and search engine.
+     * tracks an entity and creates logs. Distributes changes to KV stores and search engine.
      * <p/>
      * This is synchronous and blocks until completed
      *
      * @param fortress  - system that owns the data
      * @param inputBean - input
      * @return non-null
-     * @throws DatagioException illegal input
+     * @throws com.auditbucket.helper.FlockException illegal input
      * @throws IOException      json processing exception
      */
     @Override
-    public TrackResultBean trackHeader(final Fortress fortress, final EntityInputBean inputBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
+    public TrackResultBean trackEntity(final Fortress fortress, final EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException {
         List<EntityInputBean> inputs = new ArrayList<>(1);
         inputs.add(inputBean);
-        Collection<TrackResultBean> results = trackHeaders(fortress, inputs, 1);
+        Collection<TrackResultBean> results = trackEntities(fortress, inputs, 1);
         return results.iterator().next();
     }
 
 
     @Override
     @Transactional
-    public TrackResultBean trackLog(Company company, ContentInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException {
+    public TrackResultBean trackLog(Company company, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException {
         Entity entity;
         if (input.getMetaKey() != null)
             entity = trackService.getEntity(company, input.getMetaKey());
         else
             entity = trackService.findByCallerRef(input.getFortress(), input.getDocumentType(), input.getCallerRef());
         if (entity == null)
-            throw new DatagioException("Unable to resolve the Entity");
+            throw new FlockException("Unable to resolve the Entity");
         return logService.writeLog(entity, input);
     }
 
@@ -285,11 +285,11 @@ public class MediationFacadeNeo4j implements MediationFacade {
      * Rebuilds all search documents for the supplied fortress
      *
      * @param fortressName name of the fortress to rebuild
-     * @throws com.auditbucket.helper.DatagioException
+     * @throws com.auditbucket.helper.FlockException
      */
     @Override
     @Secured({"ROLE_AB_ADMIN"})
-    public Long reindex(Company company, String fortressName) throws DatagioException {
+    public Long reindex(Company company, String fortressName) throws FlockException {
         Fortress fortress = fortressService.findByCode(company, fortressName);
         Future<Long> result = reindexAsnc(fortress);
 
@@ -304,20 +304,20 @@ public class MediationFacadeNeo4j implements MediationFacade {
     }
 
     @Async
-    public Future<Long> reindexAsnc(Fortress fortress) throws DatagioException {
+    public Future<Long> reindexAsnc(Fortress fortress) throws FlockException {
         if (fortress == null)
-            throw new DatagioException("No fortress to reindex was supplied");
+            throw new FlockException("No fortress to reindex was supplied");
         Long skipCount = 0l;
         long result = reindex(fortress, skipCount);
-        logger.info("Reindex Search request completed. Processed [" + result + "] headers for [" + fortress.getName() + "]");
+        logger.info("Reindex Search request completed. Processed [" + result + "] entities for [" + fortress.getName() + "]");
         return new AsyncResult<>(result);
     }
 
     private long reindex(Fortress fortress, Long skipCount) {
-        Collection<Entity> headers = trackService.getEntities(fortress, skipCount);
-        if (headers.isEmpty())
+        Collection<Entity> entities = trackService.getEntities(fortress, skipCount);
+        if (entities.isEmpty())
             return skipCount;
-        skipCount = reindexEntities(fortress.getCompany(), headers, skipCount);
+        skipCount = reindexEntities(fortress.getCompany(), entities, skipCount);
         return reindex(fortress, skipCount);
     }
 
@@ -325,18 +325,18 @@ public class MediationFacadeNeo4j implements MediationFacade {
      * Rebuilds all search documents for the supplied fortress of the supplied document type
      *
      * @param fortressName name of the fortress to rebuild
-     * @throws com.auditbucket.helper.DatagioException
+     * @throws com.auditbucket.helper.FlockException
      */
     @Override
     @Async
     @Secured({"ROLE_AB_ADMIN"})
-    public void reindexByDocType(Company company, String fortressName, String docType) throws DatagioException {
+    public void reindexByDocType(Company company, String fortressName, String docType) throws FlockException {
         Fortress fortress = fortressService.findByName(company, fortressName);
         if (fortress == null)
-            throw new DatagioException("Fortress [" + fortressName + "] could not be found");
+            throw new FlockException("Fortress [" + fortressName + "] could not be found");
         Long skipCount = 0l;
         long result = reindexByDocType(skipCount, fortress, docType);
-        logger.info("Reindex Search request completed. Processed [" + result + "] headers for [" + fortressName + "] and document type [" + docType + "]");
+        logger.info("Reindex Search request completed. Processed [" + result + "] entities for [" + fortressName + "] and document type [" + docType + "]");
     }
 
     private long reindexByDocType(Long skipCount, Fortress fortress, String docType) {
@@ -361,7 +361,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     }
 
     @Override
-    public EntitySummaryBean getEntitySummary(Company company, String metaKey) throws DatagioException {
+    public EntitySummaryBean getEntitySummary(Company company, String metaKey) throws FlockException {
         return trackService.getEntitySummary(company, metaKey);
     }
 
@@ -382,9 +382,9 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
     @Override
     @Secured({"ROLE_AB_ADMIN"})
-    public void purge(String fortressName, String apiKey) throws DatagioException {
+    public void purge(String fortressName, String apiKey) throws FlockException {
         if (fortressName == null)
-            throw new DatagioException("Illegal value for fortress name");
+            throw new FlockException("Illegal value for fortress name");
         SystemUser su = registrationService.getSystemUser(apiKey);
         if (su == null || su.getCompany() == null)
             throw new SecurityException("Unable to verify that the caller can work with the requested fortress");
@@ -394,7 +394,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
         purge(fortress, su);
     }
 
-    private void purge(Fortress fortress, SystemUser su) throws DatagioException {
+    private void purge(Fortress fortress, SystemUser su) throws FlockException {
         logger.info("Purging fortress [{}] on behalf of [{}]", fortress, su.getLogin());
 
         String indexName = "ab." + fortress.getCompany().getCode() + "." + fortress.getCode();
@@ -409,7 +409,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
     @Override
     @Transactional
-    public void cancelLastLog(Company company, Entity entity) throws IOException, DatagioException {
+    public void cancelLastLog(Company company, Entity entity) throws IOException, FlockException {
         EntitySearchChange searchChange;
         // Refresh the entity
         entity = trackService.getEntity(entity);

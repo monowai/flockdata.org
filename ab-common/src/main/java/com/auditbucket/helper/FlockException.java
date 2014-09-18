@@ -23,12 +23,12 @@ package com.auditbucket.helper;
  * User: Mike Holdsworth
  * Since: 27/09/13
  */
-public class DatagioException extends Exception {
-    public DatagioException(String message) {
+public class FlockException extends Exception {
+    public FlockException(String message) {
         super(message);
     }
 
-    public DatagioException(String message, Throwable t) {
+    public FlockException(String message, Throwable t) {
         super(message, t);
     }
 }

@@ -37,7 +37,7 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
 
             }
         } else {
-        	logger.trace("Identifying company from Api-Key supplied in request header" );
+        	logger.trace("Identifying company from Api-Key supplied in request HttpHeader" );
             Company company = securityHelper.getCompany(apiKey);
             if (company != null) {
                 request.setAttribute(COMPANY, company);

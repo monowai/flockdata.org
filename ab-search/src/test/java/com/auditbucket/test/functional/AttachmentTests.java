@@ -1,7 +1,9 @@
 package com.auditbucket.test.functional;
 
+import com.auditbucket.engine.repo.EntityContentData;
 import com.auditbucket.search.endpoint.ElasticSearchEP;
 import com.auditbucket.search.model.EntitySearchChange;
+import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.SearchChange;
 import com.auditbucket.track.model.TrackSearchDao;
@@ -32,15 +34,15 @@ public class AttachmentTests extends ESBase {
     @Test
     public void attachment_PdfIndexedAndFound() throws Exception {
         Map<String, Object> json = Helper.getBigJsonText(20);
-        Entity headerA = getEntity("cust", "fort", "anyuser");
+        Entity entity = getEntity("cust", "fort", "anyuser");
 
-        SearchChange changeA = new EntitySearchChange(headerA, json);
+        SearchChange changeA = new EntitySearchChange(entity, new ContentInputBean(json));
         changeA.setAttachment(Helper.getPdfDoc());
 
         // FortB will have
         changeA.setDescription("Test Description");
 
-        deleteEsIndex(headerA.getIndexName());
+        deleteEsIndex(entity.getIndexName());
 
         changeA = trackRepo.update(changeA);
         Thread.sleep(1000);

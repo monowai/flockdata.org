@@ -31,7 +31,7 @@ public interface KvService {
 
     boolean sameJson(EntityContent compareFrom, EntityContent compareWith);
 
-    DeltaBean getDelta(Entity header, Log from, Log to);
+    DeltaBean getDelta(Entity entity, Log from, Log to);
 
     public enum KV_STORE {REDIS, RIAK}
 }

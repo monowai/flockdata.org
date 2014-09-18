@@ -29,9 +29,8 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
 
-import java.util.Map;
-
 /**
+ * Tracks metadata about the Log event that is occurring against the Entity
  * User: Mike Holdsworth
  * Date: 15/04/13
  * Time: 5:57 PM
@@ -62,11 +61,13 @@ public class LogNode implements Log {
     private String storage;
     private String checkSum=null;
 
-    public ContentType getContentType() {
+    public String getContentType() {
+        if ( contentType == null )
+            contentType = "json";
         return contentType;
     }
 
-    public void setContentType(ContentType contentType) {
+    public void setContentType(String contentType) {
         this.contentType = contentType;
     }
 
@@ -78,9 +79,8 @@ public class LogNode implements Log {
         this.fileName = fileName;
     }
 
-    private ContentType contentType ;
+    private String contentType ;
     private String fileName;
-    private String content;
 
     private boolean compressed = false;
     private String name;
@@ -98,7 +98,7 @@ public class LogNode implements Log {
     }
 
     protected LogNode() {
-        this.contentType = ContentType.JSON;
+        this.contentType = "json";
     }
 
     public LogNode(FortressUser madeBy, ContentInputBean contentBean, TxRef txRef) {
@@ -156,9 +156,6 @@ public class LogNode implements Log {
         return previousLog;
     }
 
-    @Transient
-    private Map<String, Object> what;
-
     public void setTxRef(TxRef txRef) {
         this.txRef = txRef;
     }
@@ -187,13 +184,10 @@ public class LogNode implements Log {
     }
 
     public boolean equals(Object other) {
-        if (this == other) return true;
+        return this == other || id != null
+                && other instanceof LogNode
+                && id.equals(((LogNode) other).id);
 
-        if (id == null) return false;
-
-        if (!(other instanceof LogNode)) return false;
-
-        return id.equals(((LogNode) other).id);
     }
 
     public int hashCode() {
@@ -224,7 +218,7 @@ public class LogNode implements Log {
     @Override
     @JsonIgnore
     public byte[] getEntityContent() {
-        return entityContent;  //To change body of implemented methods use File | Settings | File Templates.
+        return entityContent;
     }
 
     @Override

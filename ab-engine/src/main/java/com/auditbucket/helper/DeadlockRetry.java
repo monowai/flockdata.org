@@ -21,7 +21,6 @@ package com.auditbucket.helper;
 
 import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.kernel.DeadlockDetectedException;
-import org.neo4j.kernel.impl.nioneo.store.InvalidRecordException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataRetrievalFailureException;
@@ -41,7 +40,7 @@ import java.util.concurrent.ExecutionException;
 public class DeadlockRetry {
     private static Logger logger = LoggerFactory.getLogger(DeadlockRetry.class);
 
-    public static Command execute(Command command, String block, int maxRetry) throws DatagioException, IOException, ExecutionException, InterruptedException {
+    public static Command execute(Command command, String block, int maxRetry) throws FlockException, IOException, ExecutionException, InterruptedException {
         // Deadlock re-try fun
         int retryCount = 0;
         while (retryCount < maxRetry) {
@@ -56,7 +55,7 @@ public class DeadlockRetry {
                     if (retryCount == maxRetry) {
                         // http://www.slideshare.net/neo4j/zephyr-neo4jgraphconnect-2013short
                         //logger.error("Deadlock retries exceeded in [{}]", block);
-                        throw new DatagioException("Deadlock retries exceeded in "+ block, re.getCause());
+                        throw new FlockException("Deadlock retries exceeded in "+ block, re.getCause());
                     }
                 } else {
                     re.printStackTrace(); // For debugging purposes. This makes things a lot simpler to debug when an unhandled

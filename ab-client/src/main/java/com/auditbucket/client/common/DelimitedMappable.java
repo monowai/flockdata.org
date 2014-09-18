@@ -24,7 +24,7 @@ package com.auditbucket.client.common;
  * Since: 25/01/14
  */
 
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -37,7 +37,7 @@ import java.util.Map;
  */
 public interface DelimitedMappable extends Mappable {
 
-    Map<String, Object> setData(String[] headerRow, String[] line, ImportParams staticDataResolver) throws JsonProcessingException, DatagioException;
+    Map<String, Object> setData(String[] headerRow, String[] line, ImportParams staticDataResolver) throws JsonProcessingException, FlockException;
 
     @JsonIgnore
     boolean hasHeader();

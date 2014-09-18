@@ -82,7 +82,7 @@ public class TrackDaoES implements TrackSearchDao {
         String existingIndexKey = searchChange.getSearchKey();
 
         DeleteResponse dr = esClient.prepareDelete(indexName, recordType, existingIndexKey)
-                //.setRouting(header.getMetaKey())
+                //.setRouting(entity.getMetaKey())
                 .execute()
                 .actionGet();
 
@@ -291,19 +291,19 @@ public class TrackDaoES implements TrackSearchDao {
         return searchChange;
     }
 
-    public Map<String, Object> findOne(Entity header) {
-        return findOne(header, null);
+    public Map<String, Object> findOne(Entity entity) {
+        return findOne(entity, null);
     }
 
-    public Map<String, Object> findOne(Entity header, String id) {
-        String indexName = header.getIndexName();
-        String documentType = header.getDocumentType();
+    public Map<String, Object> findOne(Entity entity, String id) {
+        String indexName = entity.getIndexName();
+        String documentType = entity.getDocumentType();
         if (id == null)
-            id = header.getSearchKey();
+            id = entity.getSearchKey();
         logger.debug("Looking for [{}] in {}", id, indexName + documentType);
 
         GetResponse response = esClient.prepareGet(indexName, documentType, id)
-                //.setRouting(header.getMetaKey())
+                //.setRouting(entity.getMetaKey())
                 .execute()
                 .actionGet();
 
@@ -365,8 +365,11 @@ public class TrackDaoES implements TrackSearchDao {
 
         indexMe.put(EntitySearchSchema.WHEN, searchChange.getWhen());
 
-        if (searchChange.hasAttachment())
+        if (searchChange.hasAttachment()) { // DAT-159
             indexMe.put(EntitySearchSchema.ATTACHMENT, searchChange.getAttachment());
+            indexMe.put(EntitySearchSchema.FILENAME, searchChange.getFileName());
+            indexMe.put(EntitySearchSchema.CONTENT_TYPE, searchChange.getContentType());
+        }
 
         // When the Entity was created in the fortress
         indexMe.put(EntitySearchSchema.CREATED, searchChange.getCreatedDate());

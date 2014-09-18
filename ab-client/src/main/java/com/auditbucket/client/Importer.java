@@ -26,7 +26,7 @@ import com.auditbucket.client.common.ImportParams;
 import com.auditbucket.client.common.Mappable;
 import com.auditbucket.client.rest.AbRestClient;
 import com.auditbucket.client.xml.XmlMappable;
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.track.bean.ContentInputBean;
@@ -224,7 +224,7 @@ public class Importer {
 
     }
 
-    static long processFile(ImportParams importParams, String file, int skipCount) throws IllegalAccessException, InstantiationException, IOException, ParserConfigurationException, SAXException, JDOMException, DatagioException, ClassNotFoundException {
+    static long processFile(ImportParams importParams, String file, int skipCount) throws IllegalAccessException, InstantiationException, IOException, ParserConfigurationException, SAXException, JDOMException, FlockException, ClassNotFoundException {
         Mappable mappable = importParams.getMappable();
 
         //String file = path;
@@ -249,7 +249,7 @@ public class Importer {
         return result;
     }
 
-    private static long processJsonTags(String fileName, ImportParams importParams, int skipCount) throws DatagioException {
+    private static long processJsonTags(String fileName, ImportParams importParams, int skipCount) throws FlockException {
         Collection<TagInputBean> tags;
         ObjectMapper mapper = new ObjectMapper();
         long processed = 0;
@@ -276,7 +276,7 @@ public class Importer {
                     importParams.getRestClient().writeTag(tag, "JSON Tag Importer");
                     processed++;
                 }
-            } catch (DatagioException e) {
+            } catch (FlockException e) {
                 processed = 0;
                 return -1;
             }
@@ -292,7 +292,7 @@ public class Importer {
         return tags.size();  //To change body of created methods use File | Settings | File Templates.
     }
 
-    static long processXMLFile(String file, ImportParams importParams) throws ParserConfigurationException, IOException, SAXException, JDOMException, DatagioException, IllegalAccessException, InstantiationException, ClassNotFoundException {
+    static long processXMLFile(String file, ImportParams importParams) throws ParserConfigurationException, IOException, SAXException, JDOMException, FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
         try {
             long rows = 0;
             XmlMappable mappable = (XmlMappable) importParams.getMappable();
@@ -310,20 +310,20 @@ public class Importer {
                 while (xsr.getLocalName().equals(docType)) {
                     XmlMappable row = mappable.newInstance(importParams.isSimulateOnly());
                     ContentInputBean contentInputBean = row.setXMLData(xsr, importParams.getStaticDataResolver());
-                    EntityInputBean header = (EntityInputBean) row;
-                    if (!header.getCrossReferences().isEmpty()) {
-                        referenceInputBeans.add(new CrossReferenceInputBean(header.getFortress(), header.getCallerRef(), header.getCrossReferences()));
-                        rows = rows + header.getCrossReferences().size();
+                    EntityInputBean entityInputBean = (EntityInputBean) row;
+                    if (!entityInputBean.getCrossReferences().isEmpty()) {
+                        referenceInputBeans.add(new CrossReferenceInputBean(entityInputBean.getFortress(), entityInputBean.getCallerRef(), entityInputBean.getCrossReferences()));
+                        rows = rows + entityInputBean.getCrossReferences().size();
                     }
                     if (contentInputBean != null) {
                         if (contentInputBean.getFortressUser() == null)
                             contentInputBean.setFortressUser(importParams.getFortressUser());
-                        header.setLog(contentInputBean);
+                        entityInputBean.setContent(contentInputBean);
                     }
 
                     //logger.info(json);
                     xsr.nextTag();
-                    writeAudit(importParams.getRestClient(), header, mappable.getClass().getCanonicalName());
+                    writeAudit(importParams.getRestClient(), entityInputBean, mappable.getClass().getCanonicalName());
                     rows++;
                     if (rows % 500 == 0 && !importParams.isSimulateOnly())
                         logger.info("Processed {} elapsed seconds {}", rows, (new DateTime().getMillis() - then) / 1000d);
@@ -343,11 +343,11 @@ public class Importer {
         }
     }
 
-    private static int writeCrossReferences(AbRestClient abExporter, List<CrossReferenceInputBean> referenceInputBeans) throws DatagioException {
+    private static int writeCrossReferences(AbRestClient abExporter, List<CrossReferenceInputBean> referenceInputBeans) throws FlockException {
         return abExporter.flushXReferences(referenceInputBeans);
     }
 
-    static long processCSVFile(String file, ImportParams importParams, int skipCount) throws IOException, IllegalAccessException, InstantiationException, DatagioException, ClassNotFoundException {
+    static long processCSVFile(String file, ImportParams importParams, int skipCount) throws IOException, IllegalAccessException, InstantiationException, FlockException, ClassNotFoundException {
 
         StopWatch watch = new StopWatch();
         DelimitedMappable row;
@@ -407,22 +407,22 @@ public class Importer {
                         Map<String, Object> jsonData = row.setData(headerRow, nextLine, importParams);
                         //logger.info(jsonData);
                         if (type == AbRestClient.type.TRACK) {
-                            EntityInputBean header = (EntityInputBean) row;
+                            EntityInputBean entityInputBean = (EntityInputBean) row;
 
                             if (importParams.isEntityOnly() || "".equals(jsonData)) {
-                                header.setMetaOnly(true);
+                                entityInputBean.setMetaOnly(true);
                                 // It's all Meta baby - no log information
                             } else {
                                 //jsonData = jsonData.replaceAll("[\\x00-\\x09\\x11\\x12\\x14-\\x1F\\x7F]", "");
                                 ContentInputBean contentInputBean = new ContentInputBean(importParams.getFortressUser(), new DateTime(), jsonData);
-                                header.setLog(contentInputBean);
+                                entityInputBean.setContent(contentInputBean);
                             }
-                            if (!header.getCrossReferences().isEmpty()) {
-                                referenceInputBeans.add(new CrossReferenceInputBean(header.getFortress(), header.getDocumentType(), header.getCallerRef(), header.getCrossReferences()));
-                                rows = rows + header.getCrossReferences().size();
+                            if (!entityInputBean.getCrossReferences().isEmpty()) {
+                                referenceInputBeans.add(new CrossReferenceInputBean(entityInputBean.getFortress(), entityInputBean.getDocumentType(), entityInputBean.getCallerRef(), entityInputBean.getCrossReferences()));
+                                rows = rows + entityInputBean.getCrossReferences().size();
                             }
 
-                            writeAudit(importParams.getRestClient(), header, mappable.getClass().getCanonicalName());
+                            writeAudit(importParams.getRestClient(), entityInputBean, mappable.getClass().getCanonicalName());
                         } else {// Tag
                             if (!"".equals(jsonData)) {
                                 TagInputBean tagInputBean = (TagInputBean) row;
@@ -473,11 +473,11 @@ public class Importer {
         return rows;
     }
 
-    private static void writeTag(AbRestClient abExporter, TagInputBean tagInputBean, String message) throws DatagioException {
+    private static void writeTag(AbRestClient abExporter, TagInputBean tagInputBean, String message) throws FlockException {
         abExporter.writeTag(tagInputBean, message);
     }
 
-    private static void writeAudit(AbRestClient abExporter, EntityInputBean entityInputBean, String message) throws DatagioException {
+    private static void writeAudit(AbRestClient abExporter, EntityInputBean entityInputBean, String message) throws FlockException {
         abExporter.track(entityInputBean, message);
     }
 

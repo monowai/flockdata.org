@@ -29,7 +29,7 @@ import com.auditbucket.track.model.Log;
  * Date: 16/06/13
  * Time: 6:12 PM
  */
-public class AuditTXResult {
+public class EntityTXResult {
 
     private String auditKey;
     private String fortressName;
@@ -41,19 +41,19 @@ public class AuditTXResult {
 
     private EntityLog entityLog;
 
-    private AuditTXResult() {
+    private EntityTXResult() {
     }
 
 
-    public AuditTXResult(Entity header, Log change, EntityLog log) {
+    public EntityTXResult(Entity entity, Log change, EntityLog log) {
         this();
         this.fortressWhen = log.getFortressWhen();
-        this.auditKey = header.getMetaKey();
-        this.documentType = header.getDocumentType();
-        this.callerRef = header.getCallerRef();
-        this.fortressName = header.getFortress().getName();
-        this.fortressKey = header.getFortress().getFortressKey();
-        this.lastSystemChange = header.getLastUpdate();
+        this.auditKey = entity.getMetaKey();
+        this.documentType = entity.getDocumentType();
+        this.callerRef = entity.getCallerRef();
+        this.fortressName = entity.getFortress().getName();
+        this.fortressKey = entity.getFortress().getFortressKey();
+        this.lastSystemChange = entity.getLastUpdate();
         this.entityLog = log;
     }
 

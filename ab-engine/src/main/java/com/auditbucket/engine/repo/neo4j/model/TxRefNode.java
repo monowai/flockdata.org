@@ -91,7 +91,7 @@ public class TxRefNode implements TxRef {
 
     @Override
     @JsonIgnore
-    public Set<Entity> getHeaders() {
+    public Set<Entity> getEntities() {
         return entities;
     }
 

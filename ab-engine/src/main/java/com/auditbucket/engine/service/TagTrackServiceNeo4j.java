@@ -21,7 +21,7 @@ package com.auditbucket.engine.service;
 
 import com.auditbucket.dao.TrackTagDao;
 import com.auditbucket.engine.repo.neo4j.TrackTagDaoNeo;
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
@@ -63,14 +63,14 @@ public class TagTrackServiceNeo4j implements EntityTagService {
     private Logger logger = LoggerFactory.getLogger(TagTrackServiceNeo4j.class);
 
     @Override
-    public void processTag(Entity header, TrackTagInputBean tagInput) {
+    public void processTag(Entity entity, TrackTagInputBean tagInput) {
         String relationshipName = tagInput.getType();
-        boolean existing = relationshipExists(header, tagInput.getTagName(), relationshipName);
+        boolean existing = relationshipExists(entity, tagInput.getTagName(), relationshipName);
         if (existing)
             // We already have this tagged so get out of here
             return;
-        Tag tag = tagService.findTag(header.getFortress().getCompany(), tagInput.getTagName(), tagInput.getIndex());
-        trackTagDao.save(header, tag, relationshipName);
+        Tag tag = tagService.findTag(entity.getFortress().getCompany(), tagInput.getTagName(), tagInput.getIndex());
+        trackTagDao.save(entity, tag, relationshipName);
     }
 
     @Override
@@ -88,7 +88,7 @@ public class TagTrackServiceNeo4j implements EntityTagService {
      * "ClientID123" :{"clientKey","prospectKey"}
      * <p/>
      * <p/>
-     * The value can be null which will create a simple tag for the Header such as
+     * The value can be null which will create a simple tag for the Entity such as
      * ClientID123
      * <p/>
      * They type can be Null, String or a Collection<String> that describes the relationship
@@ -98,7 +98,7 @@ public class TagTrackServiceNeo4j implements EntityTagService {
      * describe the association - clientKey and prospectKey
      *
      * @param company
-     * @param ah       Header to associate userTags with
+     * @param ah       Entity to associate userTags with
      * @param lastLog
      * @param userTags Key/Value pair of tags. TagNode will be created if missing. Value can be a Collection
      */
@@ -115,7 +115,7 @@ public class TagTrackServiceNeo4j implements EntityTagService {
             if (tagInput.getEntityLinks() != null) {
                 rlxs.addAll(writeRelationships(ah, tag, tagInput.getEntityLinks(), tagInput.isReverse()));
             }
-            if (tagInput.getEntityLink() != null) // Simple relationship to the track header
+            if (tagInput.getEntityLink() != null) // Simple relationship to the entity
                 // Makes it easier for the API to call
                 rlxs.add(trackTagDao.save(ah, tag, tagInput.getEntityLink(), tagInput.isReverse()));
         }
@@ -165,7 +165,7 @@ public class TagTrackServiceNeo4j implements EntityTagService {
     /**
      * Finds both incoming and outgoing tags for the Entity
      *
-     * @param entity Header the caller is authorised to work with
+     * @param entity Entity the caller is authorised to work with
      * @return TrackTags found
      */
     @Override
@@ -175,19 +175,19 @@ public class TagTrackServiceNeo4j implements EntityTagService {
     }
 
     @Override
-    public Collection<TrackTag> findOutboundTags(Entity header) {
+    public Collection<TrackTag> findOutboundTags(Entity entity) {
         Company company = securityHelper.getCompany();
-        return findOutboundTags(company, header);
+        return findOutboundTags(company, entity);
     }
 
     @Override
-    public Collection<TrackTag> findOutboundTags(Company company, Entity header) {
-        return trackTagDao.getDirectedEntityTags(company, header, true);
+    public Collection<TrackTag> findOutboundTags(Company company, Entity entity) {
+        return trackTagDao.getDirectedEntityTags(company, entity, true);
     }
 
     @Override
-    public Collection<TrackTag> findInboundTags(Company company, Entity header) {
-        return trackTagDao.getDirectedEntityTags(company, header, false);
+    public Collection<TrackTag> findInboundTags(Company company, Entity entity) {
+        return trackTagDao.getDirectedEntityTags(company, entity, false);
     }
 
     @Override
@@ -201,12 +201,12 @@ public class TagTrackServiceNeo4j implements EntityTagService {
     }
 
     @Override
-    public void deleteTrackTags(Entity entity, Collection<TrackTag> trackTags) throws DatagioException {
+    public void deleteTrackTags(Entity entity, Collection<TrackTag> trackTags) throws FlockException {
         trackTagDao.deleteEntityTags(entity, trackTags);
     }
 
     @Override
-    public void deleteTrackTags(Entity entity, TrackTag value) throws DatagioException {
+    public void deleteTrackTags(Entity entity, TrackTag value) throws FlockException {
         Collection<TrackTag> remove = new ArrayList<>(1);
         remove.add(value);
         deleteTrackTags(entity, remove);
@@ -214,18 +214,18 @@ public class TagTrackServiceNeo4j implements EntityTagService {
     }
 
     @Override
-    public void changeType(Entity entity, TrackTag existingTag, String newType) throws DatagioException {
+    public void changeType(Entity entity, TrackTag existingTag, String newType) throws FlockException {
         if (entity == null || existingTag == null || newType == null)
-            throw new DatagioException(("Illegal parameter"));
+            throw new FlockException(("Illegal parameter"));
         trackTagDao.changeType(entity, existingTag, newType);
     }
 
 
     @Override
-    public Set<Entity> findTrackTags(String tagName) throws DatagioException {
+    public Set<Entity> findTrackTags(String tagName) throws FlockException {
         Tag tag = tagService.findTag(tagName);
         if (tag == null)
-            throw new DatagioException("Unable to find the tag [" + tagName + "]");
+            throw new FlockException("Unable to find the tag [" + tagName + "]");
         return trackTagDao.findEntityTags(tag);
 
     }

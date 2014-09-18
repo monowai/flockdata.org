@@ -53,9 +53,9 @@ public class TestMappings extends ESBase {
         DateTime now = new DateTime();
         EntityInputBean mib = getEntityInputBean(doc, user, "zzaa99", now);
 
-        Entity header = new EntityNode("zzUnique", fortress, mib, doc, user);
+        Entity entity = new EntityNode("zzUnique", fortress, mib, doc, user);
 
-        SearchChange change = new EntitySearchChange(header);
+        SearchChange change = new EntitySearchChange(entity);
         change.setDescription("Test Description");
         change.setWhat(json);
         ArrayList<TrackTag> tags = new ArrayList<>();
@@ -66,18 +66,18 @@ public class TestMappings extends ESBase {
         change.setTags(tags);
 
 
-        deleteEsIndex(header.getIndexName());
+        deleteEsIndex(entity.getIndexName());
 
         change = trackRepo.update(change);
         Thread.sleep(1000);
         assertNotNull(change);
         assertNotNull(change.getSearchKey());
-        header.setSearchKey(change.getSearchKey());
-        json = trackRepo.findOne(header);
+        entity.setSearchKey(change.getSearchKey());
+        json = trackRepo.findOne(entity);
 
         // In this test, @tag.*.code is ignored so it should find the value with a space in it
         // In prod we use the .key field in this manner
-        doDefaultFieldQuery(header.getIndexName(), "@tag.mytag.code", "my tag", 1);
+        doDefaultFieldQuery(entity.getIndexName(), "@tag.mytag.code", "my tag", 1);
         assertNotNull(json);
 
     }
@@ -92,39 +92,39 @@ public class TestMappings extends ESBase {
         EntityInputBean mib = getEntityInputBean(doc, user, now.toString(), now);
         mib.setDescription("This is a description");
 
-        Entity header = new EntityNode(Long.toString(now.getMillis()), fortress, mib, doc, user);
+        Entity entity = new EntityNode(Long.toString(now.getMillis()), fortress, mib, doc, user);
 
-        deleteEsIndex(header.getIndexName());
+        deleteEsIndex(entity.getIndexName());
 
         Map<String, Object> what = Helper.getSimpleMap(
                   EntitySearchSchema.WHAT_CODE, "AZERTY");
         what.put( EntitySearchSchema.WHAT_NAME, "NameText");
         what.put( EntitySearchSchema.WHAT_DESCRIPTION, "This is a description");
         ContentInputBean log = new ContentInputBean(user.getCode(), now, what);
-        mib.setLog(log);
-        SearchChange change = new EntitySearchChange(header);
+        mib.setContent(log);
+        SearchChange change = new EntitySearchChange(entity);
         change.setWhat(what);
 
         SearchChange searchResult = trackRepo.update(change);
         assertNotNull(searchResult);
         Thread.sleep(2000);
-        doQuery(header.getIndexName(), "AZERTY", 1);
+        doQuery(entity.getIndexName(), "AZERTY", 1);
 
-        doTermQuery(header.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "des", 1);
-        doTermQuery(header.getIndexName(), EntitySearchSchema.DESCRIPTION, "des", 1);
-        doTermQuery(header.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "de", 0);
-        doTermQuery(header.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "descripti", 1);
-        doTermQuery(header.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "descriptio", 1);
+        doTermQuery(entity.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "des", 1);
+        doTermQuery(entity.getIndexName(), EntitySearchSchema.DESCRIPTION, "des", 1);
+        doTermQuery(entity.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "de", 0);
+        doTermQuery(entity.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "descripti", 1);
+        doTermQuery(entity.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "descriptio", 1);
         // ToDo: Figure out ngram mappings
-//        doEsTermQuery(header.getIndexName(), MetaSearchSchema.WHAT + "." + MetaSearchSchema.WHAT_DESCRIPTION, "is is a de", 1);
+//        doEsTermQuery(entity.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "is is a de", 1);
 
-        doTermQuery(header.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_NAME, "name", 1);
-        doTermQuery(header.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_NAME, "nam", 1);
-        doTermQuery(header.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_NAME, "nametext", 1);
+        doTermQuery(entity.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_NAME, "name", 1);
+        doTermQuery(entity.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_NAME, "nam", 1);
+        doTermQuery(entity.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_NAME, "nametext", 1);
 
-        doTermQuery(header.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_CODE, "az", 1);
-        doTermQuery(header.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_CODE, "azer", 1);
-        doTermQuery(header.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_CODE, "azerty", 0);
+        doTermQuery(entity.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_CODE, "az", 1);
+        doTermQuery(entity.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_CODE, "azer", 1);
+        doTermQuery(entity.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_CODE, "azerty", 0);
 
     }
 
@@ -132,18 +132,18 @@ public class TestMappings extends ESBase {
     @Test
     public void testCustomMappingWorks() throws Exception {
         Map<String, Object> json = Helper.getBigJsonText(20);
-        Entity headerA = getEntity("cust", "fort", "anyuser");
-        Entity headerB = getEntity("cust", "fortb", "anyuser");
+        Entity entityA = getEntity("cust", "fort", "anyuser");
+        Entity entityB = getEntity("cust", "fortb", "anyuser");
 
-        SearchChange changeA = new EntitySearchChange(headerA, json);
-        SearchChange changeB = new EntitySearchChange(headerB, json);
+        SearchChange changeA = new EntitySearchChange(entityA, new ContentInputBean(json));
+        SearchChange changeB = new EntitySearchChange(entityB, new ContentInputBean(json));
 
         // FortB will have
         changeA.setDescription("Test Description");
         changeB.setDescription("Test Description");
 
-        deleteEsIndex(headerA.getIndexName());
-        deleteEsIndex(headerB.getIndexName());
+        deleteEsIndex(entityA.getIndexName());
+        deleteEsIndex(entityB.getIndexName());
 
         changeA = trackRepo.update(changeA);
         changeB = trackRepo.update(changeB);
@@ -154,22 +154,22 @@ public class TestMappings extends ESBase {
         assertNotNull(changeB.getSearchKey());
 
         // by default we analyze the @description field
-        doDefaultFieldQuery(headerA.getIndexName(), "@description", changeA.getDescription(), 1);
+        doDefaultFieldQuery(entityA.getIndexName(), "@description", changeA.getDescription(), 1);
 
         // In fortb.json we don't analyze the description (overriding the default) so it shouldn't be found
-        doDefaultFieldQuery(headerB.getIndexName(), "@description", changeB.getDescription(), 0);
+        doDefaultFieldQuery(entityB.getIndexName(), "@description", changeB.getDescription(), 0);
 
     }
 
     @Test
     public void sameIndexDifferentDocumentsHaveMappingApplied() throws Exception {
         Map<String, Object> json = Helper.getBigJsonText(20);
-        Entity headerA = getEntity("cust", "fort", "anyuser", "fortdoc");
-        Entity headerB = getEntity("cust", "fort", "anyuser", "doctype");
+        Entity entityA = getEntity("cust", "fort", "anyuser", "fortdoc");
+        Entity entityB = getEntity("cust", "fort", "anyuser", "doctype");
 
 
-        SearchChange changeA = new EntitySearchChange(headerA, json);
-        SearchChange changeB = new EntitySearchChange(headerB, json);
+        SearchChange changeA = new EntitySearchChange(entityA, new ContentInputBean(json));
+        SearchChange changeB = new EntitySearchChange(entityB, new ContentInputBean(json));
 
         TagNode tag = new TagNode(new TagInputBean("myTag", "TheLabel", "rlxname"));
         tag.setCode("my TAG");// we should be able to find this as lowercase
@@ -178,8 +178,8 @@ public class TestMappings extends ESBase {
         changeA.setTags(tags);
         changeB.setTags(tags);
 
-        deleteEsIndex(headerA.getIndexName());
-        deleteEsIndex(headerB.getIndexName());
+        deleteEsIndex(entityA.getIndexName());
+        deleteEsIndex(entityB.getIndexName());
 
         changeA = trackRepo.update(changeA);
         changeB = trackRepo.update(changeB);
@@ -189,9 +189,9 @@ public class TestMappings extends ESBase {
         assertNotNull(changeA.getSearchKey());
         assertNotNull(changeB.getSearchKey());
 
-        doDefaultFieldQuery(headerA.getIndexName(), headerA.getDocumentType().toLowerCase(), "@tag.mytag.code", "my tag", 1);
-        doDefaultFieldQuery(headerB.getIndexName(), headerB.getDocumentType().toLowerCase(), "@tag.mytag.code", "my tag", 1);
-        doDefaultFieldQuery(headerB.getIndexName(), "@tag.mytag.code", "my tag", 2);
+        doDefaultFieldQuery(entityA.getIndexName(), entityA.getDocumentType().toLowerCase(), "@tag.mytag.code", "my tag", 1);
+        doDefaultFieldQuery(entityB.getIndexName(), entityB.getDocumentType().toLowerCase(), "@tag.mytag.code", "my tag", 1);
+        doDefaultFieldQuery(entityB.getIndexName(), "@tag.mytag.code", "my tag", 2);
 
     }
 

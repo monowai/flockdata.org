@@ -19,7 +19,7 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
@@ -62,15 +62,14 @@ public class TestCallerRef extends TestEngineBase {
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "harry", "TestTrack", new DateTime(), null);
         assertNotNull(mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey());
         inputBean = new EntityInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), null);
-        String ahKey = mediationFacade.trackHeader(fortress, inputBean).getMetaKey();
+        String metaKey = mediationFacade.trackEntity(fortress, inputBean).getMetaKey();
 
-        assertNotNull(ahKey);
-        Entity entity = trackService.getEntity(su.getCompany(), ahKey);
+        assertNotNull(metaKey);
+        Entity entity = trackService.getEntity(su.getCompany(), metaKey);
         assertNotNull(entity);
         assertNull(entity.getCallerRef());
 
-        // By default this will be found via the header key as it was null when header created.
-        assertNotNull(trackService.findByCallerRef(fortress, "TestTrack", ahKey));
+        assertNotNull("Not found via the metaKey as it was null when entity created.", trackService.findByCallerRef(fortress, "TestTrack", metaKey));
 
     }
 
@@ -82,7 +81,7 @@ public class TestCallerRef extends TestEngineBase {
 
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
 
-        // Ok we now have a metakey, let's find it by callerRef ignoring the document and make sure we find the same entity
+        // Ok we now have a metaKey, let's find it by callerRef ignoring the document and make sure we find the same entity
         String metaKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey();
         Iterable<Entity> results = trackService.findByCallerRef(su.getCompany(), fortress.getName(), "ABC123");
         assertEquals(true, results.iterator().hasNext());
@@ -104,7 +103,7 @@ public class TestCallerRef extends TestEngineBase {
     }
 
     /**
-     * Multi threaded test that tests to make sure duplicate Doc Types and Headers are not created
+     * Multi threaded test that tests to make sure duplicate Doc Types and Entities are not created
      *
      * @throws Exception
      */
@@ -168,7 +167,7 @@ public class TestCallerRef extends TestEngineBase {
             try {
                 while (count < maxRun) {
                     EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef);
-                    TrackResultBean trackResult = mediationFacade.trackHeader(fortress, inputBean);
+                    TrackResultBean trackResult = mediationFacade.trackEntity(fortress, inputBean);
                     assertNotNull(trackResult);
                     assertEquals(callerRef.toLowerCase(), trackResult.getCallerRef().toLowerCase());
                     Entity byCallerRef = trackService.findByCallerRef(fortress, docType, callerRef);
@@ -176,12 +175,12 @@ public class TestCallerRef extends TestEngineBase {
                     assertEquals(trackResult.getEntity().getId(), byCallerRef.getId());
                     // disabled as SDN appears to update the metaKey if multiple threads create the same callerKeyRef
                     // https://groups.google.com/forum/#!topic/neo4j/l35zBVUA4eA
-//                    assertEquals("Headers Don't match!", trackResult.getMetaKey(), byCallerRef.getMetaKey());
+//                    assertEquals("Entities don't match!", trackResult.getMetaKey(), byCallerRef.getMetaKey());
                     count++;
                 }
                 working = true;
                 logger.info ("{} completed", this.toString());
-            } catch (RuntimeException | ExecutionException | InterruptedException | IOException | DatagioException e) {
+            } catch (RuntimeException | ExecutionException | InterruptedException | IOException | FlockException e) {
                 logger.error("Help!!", e);
             } finally {
                 latch.countDown();

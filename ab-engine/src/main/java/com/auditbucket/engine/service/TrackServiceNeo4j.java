@@ -20,7 +20,7 @@
 package com.auditbucket.engine.service;
 
 import com.auditbucket.engine.repo.neo4j.EntityDaoNeo;
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.helper.NotFoundException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.kv.service.KvService;
@@ -37,7 +37,6 @@ import com.auditbucket.track.service.EntityTagService;
 import com.auditbucket.track.service.SchemaService;
 import com.auditbucket.track.service.TrackService;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +50,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Transactional services to support record and working with headers and logs
+ * Transactional services to support record and working with entities and logs
  * <p/>
  * User: Mike Holdsworth
  * Date: 8/04/13
@@ -123,7 +122,7 @@ public class TrackServiceNeo4j implements TrackService {
             TrackResultBean arb = new TrackResultBean(ah);
             arb.setEntityInputBean(inputBean);
             arb.setWasDuplicate();
-            arb.setLogInput(inputBean.getLog());
+            arb.setContentInput(inputBean.getLog());
             // Could be rewriting tags
             // DAT-153 - move this to the end of the process?
             EntityLog entityLog = getLastEntityLog(ah.getId());
@@ -133,7 +132,7 @@ public class TrackServiceNeo4j implements TrackService {
 
         try {
             ah = makeEntity(inputBean, fortress, documentType);
-        } catch (DatagioException e) {
+        } catch (FlockException e) {
             logger.error(e.getMessage());
             return new TrackResultBean("Error processing inputBean [{}]" + inputBean + ". Error " + e.getMessage());
         }
@@ -141,12 +140,12 @@ public class TrackServiceNeo4j implements TrackService {
         resultBean.setEntityInputBean(inputBean);
         resultBean.setTags(entityTagService.associateTags(fortress.getCompany(), resultBean.getEntity(), null, inputBean.getTags()));
 
-        resultBean.setLogInput(inputBean.getLog());
+        resultBean.setContentInput(inputBean.getLog());
         return resultBean;
 
     }
 
-    public Entity makeEntity(EntityInputBean inputBean, Fortress fortress, DocumentType documentType) throws DatagioException {
+    public Entity makeEntity(EntityInputBean inputBean, Fortress fortress, DocumentType documentType) throws FlockException {
         Entity entity = trackDao.create(inputBean, fortress, documentType);
         if (entity.getId() == null)
             inputBean.setMetaKey("NT " + fortress.getFortressKey()); // We ain't tracking this
@@ -160,14 +159,14 @@ public class TrackServiceNeo4j implements TrackService {
      * When you have no API key, find if authorised
      *
      * @param metaKey known GUID
-     * @return header the caller is authorised to view
+     * @return entity the caller is authorised to view
      */
     @Override
     public Entity getEntity(@NotEmpty String metaKey) {
         String userName = securityHelper.getLoggedInUser();
         SystemUser su = sysUserService.findByLogin(userName);
         if (su == null)
-            throw new SecurityException(userName + "Not authorised to retrieve headers");
+            throw new SecurityException(userName + "Not authorised to retrieve entities");
 
         return getEntity(su.getCompany(), metaKey, false);
     }
@@ -201,51 +200,51 @@ public class TrackServiceNeo4j implements TrackService {
 
     @Override
     public Collection<Entity> getEntities(Fortress fortress, Long skipTo) {
-        return trackDao.findHeaders(fortress.getId(), skipTo);
+        return trackDao.findEntities(fortress.getId(), skipTo);
     }
 
     @Override
     public Collection<Entity> getEntities(Fortress fortress, String docTypeName, Long skipTo) {
         DocumentType docType = schemaService.resolveDocType(fortress, docTypeName);
-        return trackDao.findHeaders(fortress.getId(), docType.getName(), skipTo);
+        return trackDao.findEntities(fortress.getId(), docType.getName(), skipTo);
     }
 
 
     Entity getEntity(Long id) {
-        return trackDao.getHeader(id);
+        return trackDao.getEntity(id);
     }
 
 
     @Override
-    public void updateHeader(Entity entity) {
+    public void updateEntity(Entity entity) {
         trackDao.save(entity );
     }
 
     @Override
-    public EntityLog getLastEntityLog(String metaKey) throws DatagioException {
-        Entity header = getValidEntity(metaKey);
-        return getLastEntityLog(header.getId());
+    public EntityLog getLastEntityLog(String metaKey) throws FlockException {
+        Entity entity = getValidEntity(metaKey);
+        return getLastEntityLog(entity.getId());
 
     }
 
     @Override
-    public EntityLog getLastEntityLog(Long headerId) {
-        return trackDao.getLastLog(headerId);
+    public EntityLog getLastEntityLog(Long entityId) {
+        return trackDao.getLastLog(entityId);
     }
 
     @Override
-    public Set<EntityLog> getEntityLogs(Long headerId) {
-        return trackDao.getLogs(headerId);
+    public Set<EntityLog> getEntityLogs(Long entityId) {
+        return trackDao.getLogs(entityId);
     }
 
     @Override
-    public Set<EntityLog> getEntityLogs(Company company, String headerKey) throws DatagioException {
-        Entity entity = getEntity(company, headerKey);
+    public Set<EntityLog> getEntityLogs(Company company, String metaKey) throws FlockException {
+        Entity entity = getEntity(company, metaKey);
         return trackDao.getLogs(entity.getId());
     }
 
     @Override
-    public Set<EntityLog> getEntityLogs(String metaKey, Date from, Date to) throws DatagioException {
+    public Set<EntityLog> getEntityLogs(String metaKey, Date from, Date to) throws FlockException {
         Entity entity = getValidEntity(metaKey);
         return getLogs(entity, from, to);
     }
@@ -258,14 +257,14 @@ public class TrackServiceNeo4j implements TrackService {
      * This can be used toa assist in compensating transactions to roll back the last change
      * if the caller decides a rollback is required after the log has been written.
      * If there are no Log records left, then the entity will also be removed and the
-     * AB headerKey will be forever invalid.
+     * AB metaKey will be forever invalid.
      *
      * @param company   validated company the caller is authorised to work with
      * @param entity UID of the entity
-     * @return Future<MetaSearchChange> search change to index, or null if there are no logs
+     * @return EntitySearchChange search change to index, or null if there are no logs
      */
     @Override
-    public EntitySearchChange cancelLastLog(Company company, Entity entity) throws IOException, DatagioException {
+    public EntitySearchChange cancelLastLog(Company company, Entity entity) throws IOException, FlockException {
         EntityLog existingLog = getLastEntityLog(entity.getId());
         if (existingLog == null)
             return null;
@@ -286,8 +285,8 @@ public class TrackServiceNeo4j implements TrackService {
 
 
         } else {
-            // No changes left, there is now just a header
-            // ToDo: What to to with the header? Delete it? Store the "canceled By" User? Assign the log to a Cancelled RLX?
+            // No changes left, there is now just an entity
+            // ToDo: What to to with the entity? Delete it? Store the "canceled By" User? Assign the log to a Cancelled RLX?
             // Delete from ElasticSearch??
             entity.setLastUser(fortressService.getFortressUser(entity.getFortress(), entity.getCreatedBy().getCode()));
             entity.setFortressLastWhen(0l);
@@ -310,7 +309,7 @@ public class TrackServiceNeo4j implements TrackService {
             // Update against the Entity only by re-indexing the search document
             EntityContent priorContent = kvService.getContent(entity, fromLog);
 
-            searchDocument = new EntitySearchChange(entity, priorContent, fromLog.getEvent().getCode(), new DateTime(fromLog.getEntityLog().getFortressWhen()));
+            searchDocument = new EntitySearchChange(entity, priorContent, fromLog);
             searchDocument.setTags(entityTagService.getEntityTags(company, entity));
             searchDocument.setReplyRequired(false);
             searchDocument.setForceReindex(true);
@@ -326,7 +325,7 @@ public class TrackServiceNeo4j implements TrackService {
      * @return count
      */
     @Override
-    public int getLogCount(Company company, String metaKey) throws DatagioException {
+    public int getLogCount(Company company, String metaKey) throws FlockException {
         Entity entity = getEntity(company, metaKey);
         logger.debug("looking for logs for Entity id [{}] - metaKey [{}]", entity.getId(), metaKey);
         int logs = trackDao.getLogs(entity.getId()).size();
@@ -334,22 +333,22 @@ public class TrackServiceNeo4j implements TrackService {
         return logs;
     }
 
-    private Entity getValidEntity(String headerKey) throws DatagioException {
+    private Entity getValidEntity(String headerKey) throws FlockException {
         return getValidEntity(headerKey, false);
     }
 
-    private Entity getValidEntity(String headerKey, boolean inflate) throws DatagioException {
-        Entity header = trackDao.findEntity(headerKey, inflate);
-        if (header == null) {
-            throw new DatagioException("No entity for [" + headerKey + "]");
+    private Entity getValidEntity(String headerKey, boolean inflate) throws FlockException {
+        Entity entity = trackDao.findEntity(headerKey, inflate);
+        if (entity == null) {
+            throw new FlockException("No entity for [" + headerKey + "]");
         }
         String userName = securityHelper.getLoggedInUser();
         SystemUser sysUser = sysUserService.findByLogin(userName);
 
-        if (!header.getFortress().getCompany().getId().equals(sysUser.getCompany().getId())) {
+        if (!entity.getFortress().getCompany().getId().equals(sysUser.getCompany().getId())) {
             throw new SecurityException("Not authorised to work with this meta data");
         }
-        return header;
+        return entity;
 
     }
 
@@ -429,13 +428,13 @@ public class TrackServiceNeo4j implements TrackService {
 
 
     @Override
-    public EntitySummaryBean getEntitySummary(Company company, String metaKey) throws DatagioException {
-        Entity header = getEntity(company, metaKey, true);
-        if (header == null)
-            throw new DatagioException("Invalid Meta Key [" + metaKey + "]");
-        Set<EntityLog> changes = getEntityLogs(header.getId());
-        Collection<TrackTag> tags = entityTagService.getEntityTags(company, header);
-        return new EntitySummaryBean(header, changes, tags);
+    public EntitySummaryBean getEntitySummary(Company company, String metaKey) throws FlockException {
+        Entity entity = getEntity(company, metaKey, true);
+        if (entity == null)
+            throw new FlockException("Invalid Meta Key [" + metaKey + "]");
+        Set<EntityLog> changes = getEntityLogs(entity.getId());
+        Collection<TrackTag> tags = entityTagService.getEntityTags(company, entity);
+        return new EntitySummaryBean(entity, changes, tags);
     }
 
 
@@ -459,11 +458,11 @@ public class TrackServiceNeo4j implements TrackService {
     }
 
     @Override
-    public EntityLog getLogForEntity(Entity header, Long logId) {
-        if (header != null) {
+    public EntityLog getLogForEntity(Entity entity, Long logId) {
+        if (entity != null) {
 
             EntityLog log = trackDao.getLog(logId);
-            if (!log.getEntity().getId().equals(header.getId()))
+            if (!log.getEntity().getId().equals(entity.getId()))
                 return null;
 
             trackDao.fetch(log.getLog());
@@ -473,7 +472,7 @@ public class TrackServiceNeo4j implements TrackService {
     }
 
     @Override
-    public Iterable<TrackResultBean> trackEntities(Fortress fortress, Iterable<EntityInputBean> inputBeans) throws InterruptedException, ExecutionException, DatagioException, IOException {
+    public Iterable<TrackResultBean> trackEntities(Fortress fortress, Iterable<EntityInputBean> inputBeans) throws InterruptedException, ExecutionException, FlockException, IOException {
         Collection<TrackResultBean> arb = new CopyOnWriteArrayList<>();
         for (EntityInputBean inputBean : inputBeans) {
             logger.trace("Batch Processing metaKey=[{}], documentType=[{}]", inputBean.getCallerRef(), inputBean.getDocumentType());
@@ -493,10 +492,10 @@ public class TrackServiceNeo4j implements TrackService {
      * @param relationshipName name of the relationship
      */
     @Override
-    public Collection<String> crossReference(Company company, String metaKey, Collection<String> xRef, String relationshipName) throws DatagioException {
-        Entity header = getEntity(company, metaKey);
-        if (header == null) {
-            throw new DatagioException("Unable to find the Meta Header [" + metaKey + "]. Perhaps it has not been processed yet?");
+    public Collection<String> crossReference(Company company, String metaKey, Collection<String> xRef, String relationshipName) throws FlockException {
+        Entity entity = getEntity(company, metaKey);
+        if (entity == null) {
+            throw new FlockException("Unable to find the Entity [" + metaKey + "]. Perhaps it has not been processed yet?");
         }
         Collection<Entity> targets = new ArrayList<>();
         Collection<String> ignored = new ArrayList<>();
@@ -509,37 +508,37 @@ public class TrackServiceNeo4j implements TrackService {
                 //logger.info ("Unable to find MetaKey ["+entity+"]. Skipping");
             }
         }
-        trackDao.crossReference(header, targets, relationshipName);
+        trackDao.crossReference(entity, targets, relationshipName);
         return ignored;
     }
 
     @Override
-    public Map<String, Collection<Entity>> getCrossReference(Company company, String metaKey, String xRefName) throws DatagioException {
-        Entity header = getEntity(company, metaKey);
-        if (header == null) {
-            throw new DatagioException("Unable to find the Meta Header [" + metaKey + "]. Perhaps it has not been processed yet?");
+    public Map<String, Collection<Entity>> getCrossReference(Company company, String metaKey, String xRefName) throws FlockException {
+        Entity entity = getEntity(company, metaKey);
+        if (entity == null) {
+            throw new FlockException("Unable to find the Entity [" + metaKey + "]. Perhaps it has not been processed yet?");
         }
 
-        return trackDao.getCrossReference(company, header, xRefName);
+        return trackDao.getCrossReference(entity, xRefName);
     }
 
     @Override
-    public Map<String, Collection<Entity>> getCrossReference(Company company, String fortressName, String callerRef, String xRefName) throws DatagioException {
+    public Map<String, Collection<Entity>> getCrossReference(Company company, String fortressName, String callerRef, String xRefName) throws FlockException {
         Fortress fortress = fortressService.findByName(company, fortressName);
 
         Entity source = trackDao.findByCallerRefUnique(fortress.getId(), callerRef);
         if (source == null) {
-            throw new DatagioException("Unable to find the Meta Header [" + callerRef + "]");
+            throw new FlockException("Unable to find the Entity [" + callerRef + "]");
         }
 
-        return trackDao.getCrossReference(company, source, xRefName);
+        return trackDao.getCrossReference(source, xRefName);
     }
 
     @Override
-    public List<EntityKey> crossReferenceEntities(Company company, EntityKey sourceKey, Collection<EntityKey> entityKeys, String xRefName) throws DatagioException {
+    public List<EntityKey> crossReferenceEntities(Company company, EntityKey sourceKey, Collection<EntityKey> entityKeys, String xRefName) throws FlockException {
         Fortress f = fortressService.findByName(company, sourceKey.getFortressName());
         if ( f == null )
-            throw new DatagioException("Unable to locate the fortress "+sourceKey.getFortressName());
+            throw new FlockException("Unable to locate the fortress "+sourceKey.getFortressName());
         Entity fromEntity;
         if (sourceKey.getDocumentType() == null || sourceKey.getDocumentType().equals("*"))
             fromEntity = trackDao.findByCallerRefUnique(f.getId(), sourceKey.getCallerRef());
@@ -548,7 +547,7 @@ public class TrackServiceNeo4j implements TrackService {
             fromEntity = trackDao.findByCallerRef(f.getId(), document.getId(), sourceKey.getCallerRef());
         }
         if (fromEntity == null)
-            throw new DatagioException("Unable to locate the Entity for MetaKey [" + sourceKey + "]");
+            throw new FlockException("Unable to locate the Entity for MetaKey [" + sourceKey + "]");
 
         //16051954
         Collection<Entity> targets = new ArrayList<>();
@@ -626,7 +625,7 @@ public class TrackServiceNeo4j implements TrackService {
             entity.setSearchKey(searchResult.getSearchKey());
             entity.bumpSearch();
             trackDao.save(entity, true); // We don't treat this as a "changed" so we do it quietly
-            logger.trace("Updating Header{} search searchResult =[{}]", entity.getMetaKey(), searchResult);
+            logger.trace("Updating Entity {} search searchResult =[{}]", entity.getMetaKey(), searchResult);
         }
 
         if (searchResult.getLogId() == null) {
@@ -659,7 +658,7 @@ public class TrackServiceNeo4j implements TrackService {
     }
 
     @Override
-    public Collection<TrackTag> getLastLogTags(Company company, String metaKey) throws DatagioException {
+    public Collection<TrackTag> getLastLogTags(Company company, String metaKey) throws FlockException {
         EntityLog lastLog = getLastEntityLog(company, metaKey);
         if (lastLog == null)
             return new ArrayList<>();
@@ -667,7 +666,7 @@ public class TrackServiceNeo4j implements TrackService {
         return getLogTags(company, lastLog.getLog());
     }
     @Override
-    public EntityLog getLastEntityLog(Company company, String metaKey) throws DatagioException {
+    public EntityLog getLastEntityLog(Company company, String metaKey) throws FlockException {
         Entity entity = getEntity(company, metaKey);
         if ( entity == null  )
             throw new NotFoundException("Unable to locate the requested Entity for metaKey "+metaKey);
@@ -681,15 +680,15 @@ public class TrackServiceNeo4j implements TrackService {
     }
 
     @Override
-    public EntityLog getEntityLog(Company company, String metaKey, long logId) throws DatagioException {
-        Entity header = getEntity(company, metaKey);
+    public EntityLog getEntityLog(Company company, String metaKey, long logId) throws FlockException {
+        Entity entity = getEntity(company, metaKey);
         EntityLog log = trackDao.getLog(logId);
 
         if (log == null)
-            throw new DatagioException(String.format("Invalid logId %d for %s ", logId, metaKey));
+            throw new FlockException(String.format("Invalid logId %d for %s ", logId, metaKey));
 
-        if (!log.getEntity().getId().equals(header.getId()))
-            throw new DatagioException(String.format("Invalid logId %d for %s ", logId, metaKey));
+        if (!log.getEntity().getId().equals(entity.getId()))
+            throw new FlockException(String.format("Invalid logId %d for %s ", logId, metaKey));
         return log;
     }
 
@@ -711,7 +710,7 @@ public class TrackServiceNeo4j implements TrackService {
                             references.get(xRefName), xRefName);
                     crossReferenceInputBean.setIgnored(xRefName, notFound);
 //                    references.put(xRefName, notFound);
-                } catch (DatagioException de) {
+                } catch (FlockException de) {
                     logger.error("Exception while cross-referencing Entities. This message is being returned to the caller - [{}]", de.getMessage());
                     crossReferenceInputBean.setServiceMessage(de.getMessage());
                 }

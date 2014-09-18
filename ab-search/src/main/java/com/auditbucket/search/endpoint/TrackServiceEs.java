@@ -55,21 +55,21 @@ public class TrackServiceEs implements TrackService {
         logger.debug("Received request to index Batch {}", changes.getChanges().size());
         SearchResults results = new SearchResults();
         int processed = 0;
-        for (SearchChange metaSearchChange : thisChange) {
+        for (SearchChange searchChange : thisChange) {
             processed++;
-            logger.trace("searchRequest received for {}", metaSearchChange);
+            logger.trace("searchRequest received for {}", searchChange);
 
-            if (metaSearchChange.isDelete()) {
+            if (searchChange.isDelete()) {
                 logger.debug("Delete request");
-                trackSearch.delete(metaSearchChange);
+                trackSearch.delete(searchChange);
                 return;
             }
-            SearchResult result = new SearchResult(trackSearch.update(metaSearchChange));
+            SearchResult result = new SearchResult(trackSearch.update(searchChange));
 
             // Used to tie the fact that the doc was updated back to the engine
-            result.setLogId(metaSearchChange.getLogId());
-            result.setMetaId(metaSearchChange.getEntityId());
-            if (metaSearchChange.isReplyRequired()) {
+            result.setLogId(searchChange.getLogId());
+            result.setMetaId(searchChange.getEntityId());
+            if (searchChange.isReplyRequired()) {
                 results.addSearchResult(result);
                 logger.trace("Dispatching searchResult to ab-engine {}", result);
             } else {

@@ -19,7 +19,7 @@
 
 package com.auditbucket.registration.service;
 
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.SystemUser;
@@ -30,11 +30,11 @@ import com.auditbucket.registration.model.SystemUser;
  * Time: 9:43 AM
  */
 public interface RegistrationService {
-    SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws DatagioException;
+    SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws FlockException;
 
-    SystemUser registerSystemUser(RegistrationBean regBean) throws DatagioException;
+    SystemUser registerSystemUser(RegistrationBean regBean) throws FlockException;
 
-    Company resolveCompany(String apiKey) throws DatagioException;
+    Company resolveCompany(String apiKey) throws FlockException;
 
     SystemUser getSystemUser(String s);
 }

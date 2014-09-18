@@ -23,7 +23,7 @@ import com.auditbucket.engine.repo.neo4j.model.EntityNode;
 import com.auditbucket.engine.repo.neo4j.model.TagNode;
 import com.auditbucket.engine.repo.neo4j.model.TrackTagRelationship;
 import com.auditbucket.engine.service.EngineConfig;
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.track.model.Entity;
@@ -31,7 +31,6 @@ import com.auditbucket.track.model.GeoData;
 import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.TrackTag;
 import com.auditbucket.track.service.TagService;
-import org.apache.commons.beanutils.BeanComparator;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
@@ -82,13 +81,13 @@ public class TrackTagDaoNeo {
      * @param entity            valid entity
      * @param tag               tag
      * @param relationshipName  name
-     * @param isReversed        tag<-header (false) or header->tag (true)
+     * @param isReversed        tag<-entity (false) or entity->tag (true)
      * @param propMap           properties to associate with the relationship
      *
      * @return Null or TrackTag
      */
     public TrackTag save(Entity entity, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap) {
-        // ToDo: this will only set properties for the "current" tag to Header. it will not version it.
+        // ToDo: this will only set properties for the "current" tag to Entity. it will not version it.
         if (relationshipName == null) {
             relationshipName = "GENERAL_TAG";
         }
@@ -100,7 +99,7 @@ public class TrackTagDaoNeo {
         if (entity.getId() == null)
             return rel;
 
-        Node headerNode = template.getPersistentState(entity);
+        Node entityNode = template.getPersistentState(entity);
 
         Node tagNode;
         try {
@@ -110,8 +109,8 @@ public class TrackTagDaoNeo {
             throw (e);
         }
         //Primary exploration relationship
-        Node start = (isReversed? headerNode:tagNode);
-        Node end = (isReversed? tagNode:headerNode);
+        Node start = (isReversed? entityNode:tagNode);
+        Node end = (isReversed? tagNode:entityNode);
 
         Relationship r = template.getRelationshipBetween(start, end, relationshipName);
 
@@ -123,20 +122,20 @@ public class TrackTagDaoNeo {
         return rel;
     }
 
-    public void deleteEntityTags(Entity entity, Collection<TrackTag> trackTags) throws DatagioException {
-        Node headerNode = null;
+    public void deleteEntityTags(Entity entity, Collection<TrackTag> trackTags) throws FlockException {
+        Node entityNode = null;
         for (TrackTag tag : trackTags) {
             if (!tag.getPrimaryKey().equals(entity.getId()))
-                throw new DatagioException("Tags do not belong to the required Entity");
+                throw new FlockException("Tags do not belong to the required Entity");
 
-            if (headerNode == null) {
-                headerNode = template.getNode(tag.getPrimaryKey());
+            if (entityNode == null) {
+                entityNode = template.getNode(tag.getPrimaryKey());
             }
 
             Relationship r = template.getRelationship(tag.getId());
             r.delete();
             // ToDo - remove nodes that are not attached to other nodes.
-            if ( ! r.getOtherNode(headerNode).getRelationships().iterator().hasNext() )
+            if ( ! r.getOtherNode(entityNode).getRelationships().iterator().hasNext() )
                 template.getNode(tag.getTag().getId()).delete();
         }
     }
@@ -207,7 +206,7 @@ public class TrackTagDaoNeo {
 
         Collection<TrackTag> metaTags = getEntityTags(company, entity);
         Collection<TrackTag> trackTags = findLogTags(company, logToMoveFrom);
-        Node headerNode = template.getPersistentState(entity);
+        Node entityNode = template.getPersistentState(entity);
 
         for (TrackTag trackTag : metaTags) {
             // Remove any MetaTags that are newer than the log being re-instated as the "current" truth
@@ -233,8 +232,8 @@ public class TrackTagDaoNeo {
             if ( relationship!=null ){
 
                 boolean isReversed = relationship.getStartNode().getId() == tagNode.getId();
-                Node start = (isReversed? headerNode :tagNode);
-                Node end = (isReversed? tagNode: headerNode);
+                Node start = (isReversed? entityNode :tagNode);
+                Node end = (isReversed? tagNode: entityNode);
 
                 Map<String, Object> rlxProps = getRelationshipProperties(relationship);
                 // Relationships are immutable, so we have to destroy and recreate
@@ -263,8 +262,8 @@ public class TrackTagDaoNeo {
         Result<Map<String, Object>> result = template.query(query, params);
         Set<Entity> results = new HashSet<>();
         for (Map<String, Object> row : result) {
-            Entity header = template.convert(row.get("track"), EntityNode.class);
-            results.add(header);
+            Entity entity = template.convert(row.get("track"), EntityNode.class);
+            results.add(entity);
         }
 
         return results;

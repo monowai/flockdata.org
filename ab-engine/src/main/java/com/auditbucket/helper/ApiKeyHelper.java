@@ -29,7 +29,7 @@ package com.auditbucket.helper;
 public class ApiKeyHelper {
     /**
      *
-     * headerKey overrides requestKey
+     * api key in the HttpHeader overrides one in the request
      *
      *
      * @param headerKey    headerKey

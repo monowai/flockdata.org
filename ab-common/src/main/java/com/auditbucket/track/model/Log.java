@@ -35,8 +35,6 @@ public interface Log {
 
     void setChecksum(String checksum);
 
-    public enum ContentType {JSON, PDF}
-
     public abstract FortressUser getWho();
 
     public String getComment();
@@ -84,9 +82,9 @@ public interface Log {
 
     void setTrackLog(EntityLog newLog);
 
-    public ContentType getContentType();
+    public String getContentType();
 
-    public void setContentType(ContentType contentType) ;
+    public void setContentType(String contentType) ;
 
     public String getFileName() ;
 

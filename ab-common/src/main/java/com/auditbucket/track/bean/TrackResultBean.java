@@ -38,7 +38,7 @@ public class TrackResultBean {
     private String callerRef;
     private String metaKey;
     private LogResultBean logResult;
-    private ContentInputBean log;
+    private ContentInputBean contentInput;
     private Entity entity;
     private Collection<TrackTag> tags;
     private EntityInputBean entityInputBean;
@@ -71,9 +71,9 @@ public class TrackResultBean {
 
     public TrackResultBean(LogResultBean logResultBean, ContentInputBean input) {
         this.logResult = logResultBean;
-        this.log = input;
+        this.contentInput = input;
         this.entity = logResultBean.getEntity();
-        // ToDo: Do we need these instance variables or just get straight from the header?
+        // ToDo: Do we need these instance variables or just get straight from the entity?
         if (entity != null) {
             this.fortressName = entity.getFortress().getName();
             this.documentType = entity.getDocumentType();
@@ -156,12 +156,12 @@ public class TrackResultBean {
     }
 
     @JsonIgnore
-    public ContentInputBean getLog() {
-        return log;
+    public ContentInputBean getContentInput() {
+        return contentInput;
     }
 
-    public void setLogInput(ContentInputBean contentInputBean) {
-        this.log = contentInputBean;
+    public void setContentInput(ContentInputBean contentInputBean) {
+        this.contentInput = contentInputBean;
     }
 
     public void setEntityInputBean(EntityInputBean entityInputBean) {
@@ -174,6 +174,6 @@ public class TrackResultBean {
     }
 
     public boolean processLog() {
-        return getLog() != null && log.getStatus() != ContentInputBean.LogStatus.IGNORE;
+        return getContentInput() != null && contentInput.getStatus() != ContentInputBean.LogStatus.IGNORE;
     }
 }

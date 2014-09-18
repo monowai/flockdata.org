@@ -19,7 +19,7 @@
 
 package com.auditbucket.client.rest;
 
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.TagInputBean;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +53,7 @@ public class StaticDataResolver implements IStaticDataResolver {
      * @return iso code to use
      */
     @Override
-    public String resolveCountryISOFromName(String name) throws DatagioException {
+    public String resolveCountryISOFromName(String name) throws FlockException {
 //        if (simulateOnly)
 //            return name;
 

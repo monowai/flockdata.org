@@ -68,7 +68,7 @@ public class KvManager implements KvService {
 
     @Override
     public void doKvWrite(TrackResultBean resultBean) throws IOException {
-        if (resultBean.getLog() != null && resultBean.getLog().getStatus() != ContentInputBean.LogStatus.TRACK_ONLY)
+        if (resultBean.getContentInput() != null && resultBean.getContentInput().getStatus() != ContentInputBean.LogStatus.TRACK_ONLY)
             doKvWrite(resultBean.getEntity(), resultBean.getLogResult().getWhatLog());
     }
 
@@ -190,7 +190,7 @@ public class KvManager implements KvService {
         if ( !sameContentType )
             return false;
 
-        if ( compareFrom.getContentType()==Log.ContentType.JSON)
+        if ( compareFrom.getContentType().equals("json"))
             return sameJson(content, new EntityContentData(compareTo.getEntityContent(), compareTo));
         else
             return sameCheckSum(compareFrom, compareTo);

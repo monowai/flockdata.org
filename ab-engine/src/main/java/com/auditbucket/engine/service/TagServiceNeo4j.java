@@ -21,7 +21,7 @@ package com.auditbucket.engine.service;
 
 import com.auditbucket.engine.repo.neo4j.dao.TagDaoNeo4j;
 import com.auditbucket.helper.Command;
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
@@ -104,9 +104,9 @@ public class TagServiceNeo4j implements TagService {
                     com.auditbucket.helper.DeadlockRetry.execute(c, "creating tags", 15);
                 } catch (IOException e) {
                     logger.error("KV Error?", e);
-                    throw new DatagioException("KV Erro", e);
+                    throw new FlockException("KV Erro", e);
                 }
-            } catch (DatagioException e) {
+            } catch (FlockException e) {
                 logger.error(" Tag errors detected");
             }
             failedInput.addAll(c.createdTags);
@@ -149,19 +149,19 @@ public class TagServiceNeo4j implements TagService {
     }
 
     @Override
-    public void createTags(Company company, List<TagInputBean> tagInputs) throws DatagioException, IOException, ExecutionException, InterruptedException {
+    public void createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, IOException, ExecutionException, InterruptedException {
 
-        class HeaderDeadlockRetry implements Command {
+        class EntityDeadlockRetry implements Command {
             Company company;
             List<TagInputBean>tagInputBeans;
 
-            public HeaderDeadlockRetry(Company company, List<TagInputBean> tagInputs) {
+            public EntityDeadlockRetry(Company company, List<TagInputBean> tagInputs) {
                 this.company = company;
                 this.tagInputBeans = tagInputs;
             }
 
             @Override
-            public Command execute() throws DatagioException, IOException {
+            public Command execute() throws FlockException, IOException {
                 boolean suppressRelationships = true;
                 tagDao.save(company, tagInputBeans, suppressRelationships);
 
@@ -169,7 +169,7 @@ public class TagServiceNeo4j implements TagService {
             }
         }
 
-        HeaderDeadlockRetry c = new HeaderDeadlockRetry(company, tagInputs);
+        EntityDeadlockRetry c = new EntityDeadlockRetry(company, tagInputs);
         com.auditbucket.helper.DeadlockRetry.execute(c, "create tags with no relationships", 10);
     }
 

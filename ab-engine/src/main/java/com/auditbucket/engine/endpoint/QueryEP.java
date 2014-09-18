@@ -3,7 +3,7 @@ package com.auditbucket.engine.endpoint;
 import com.auditbucket.engine.service.MatrixService;
 import com.auditbucket.engine.service.QueryService;
 import com.auditbucket.helper.CompanyResolver;
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.query.MatrixInputBean;
 import com.auditbucket.query.MatrixResults;
 import com.auditbucket.registration.model.Company;
@@ -12,7 +12,6 @@ import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.QueryParams;
 import com.auditbucket.track.bean.DocumentResultBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,35 +41,35 @@ public class QueryEP {
 
 
     @RequestMapping(value = "/matrix", method = RequestMethod.POST)
-    public MatrixResults getMatrixResult(@RequestBody MatrixInputBean matrixInput, HttpServletRequest request) throws DatagioException {
+    public MatrixResults getMatrixResult(@RequestBody MatrixInputBean matrixInput, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return matrixService.getMatrix(company, matrixInput);
     }
 
 
     @RequestMapping(value = "/", method = RequestMethod.POST)
-    public EsSearchResult searchQueryParam(@RequestBody QueryParams queryParams, HttpServletRequest request) throws DatagioException {
+    public EsSearchResult searchQueryParam(@RequestBody QueryParams queryParams, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return mediationFacade.search(company, queryParams);
     }
 
 
     @RequestMapping(value = "/documents", method = RequestMethod.POST)
-    public Collection<DocumentResultBean> getDocumentsInUse(@RequestBody (required = false) Collection<String> fortresses, HttpServletRequest request) throws DatagioException {
+    public Collection<DocumentResultBean> getDocumentsInUse(@RequestBody (required = false) Collection<String> fortresses, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return queryService.getDocumentsInUse(company, fortresses);
     }
 
 
     @RequestMapping(value = "/concepts", method = RequestMethod.POST)
-    public Set<DocumentResultBean> getConcepts(@RequestBody (required = false) Collection<String> documents, HttpServletRequest request) throws DatagioException {
+    public Set<DocumentResultBean> getConcepts(@RequestBody (required = false) Collection<String> documents, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return queryService.getConcepts(company, documents);
     }
 
 
     @RequestMapping(value = "/relationships", method = RequestMethod.POST)
-    public Set<DocumentResultBean> getRelationships(@RequestBody(required = false) Collection<String> documents, HttpServletRequest request) throws DatagioException {
+    public Set<DocumentResultBean> getRelationships(@RequestBody(required = false) Collection<String> documents, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         // Todo: DAT-100 Sherry's comment. Should be Concepts, not Doc Types
         return queryService.getConcepts(company, documents, true);
