@@ -30,5 +30,5 @@ import java.util.concurrent.ExecutionException;
  * To change this template use File | Settings | File Templates.
  */
 public interface Command<T> {
-    public Command execute() throws DatagioException, IOException, ExecutionException, InterruptedException;
+    public Command execute() throws FlockException, IOException, ExecutionException, InterruptedException;
 }

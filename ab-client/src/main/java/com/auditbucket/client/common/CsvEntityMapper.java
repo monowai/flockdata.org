@@ -4,7 +4,7 @@ import com.auditbucket.client.Importer;
 import com.auditbucket.client.csv.CsvColumnDefinition;
 import com.auditbucket.client.csv.CsvColumnHelper;
 import com.auditbucket.client.rest.AbRestClient;
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.model.EntityKey;
@@ -70,7 +70,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
     }
 
     @Override
-    public Map<String, Object> setData(final String[] headerRow, final String[] line, ImportParams importParams) throws JsonProcessingException, DatagioException {
+    public Map<String, Object> setData(final String[] headerRow, final String[] line, ImportParams importParams) throws JsonProcessingException, FlockException {
         int col = 0;
         Map<String, Object> row = toMap(headerRow, line, importParams);
 

@@ -1,6 +1,6 @@
 package com.auditbucket.track.service;
 
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
@@ -21,7 +21,7 @@ public interface TagService {
 
     Tag createTag(Company company, TagInputBean tagInput);
 
-    public void createTags(Company company, List<TagInputBean> tagInputs) throws DatagioException, IOException, ExecutionException, InterruptedException;
+    public void createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, IOException, ExecutionException, InterruptedException;
 
     @Async
     public Future<Collection<Tag>> makeTags(Company company, List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException;

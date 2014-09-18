@@ -22,7 +22,7 @@ package com.auditbucket.engine.service;
 
 import com.auditbucket.engine.repo.neo4j.dao.FortressDao;
 import com.auditbucket.engine.repo.neo4j.dao.SchemaDaoNeo4j;
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Company;
@@ -182,7 +182,7 @@ public class FortressService {
         return registerFortress(fb);
     }
 
-    public Collection<Fortress> findFortresses() throws DatagioException{
+    public Collection<Fortress> findFortresses() throws FlockException {
         Company company = securityHelper.getCompany();
         if (company == null)
             return new ArrayList<>();
@@ -190,9 +190,9 @@ public class FortressService {
 
     }
 
-    public Collection<Fortress> findFortresses(Company company) throws DatagioException {
+    public Collection<Fortress> findFortresses(Company company) throws FlockException {
         if ( company == null )
-            throw new DatagioException("Unable to identify the requested company");
+            throw new FlockException("Unable to identify the requested company");
         return fortressDao.findFortresses(company.getId());
 
     }
@@ -202,7 +202,7 @@ public class FortressService {
 
     }
 
-    public void purge(Fortress fortress) throws DatagioException {
+    public void purge(Fortress fortress) throws FlockException {
         fortressDao.delete(fortress);
     }
 

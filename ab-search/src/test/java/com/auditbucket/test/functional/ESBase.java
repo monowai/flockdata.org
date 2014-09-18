@@ -4,7 +4,7 @@ import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
 import com.auditbucket.engine.repo.neo4j.model.EntityNode;
 import com.auditbucket.engine.repo.neo4j.model.FortressNode;
 import com.auditbucket.engine.repo.neo4j.model.FortressUserNode;
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
 import com.auditbucket.registration.model.Fortress;
@@ -284,13 +284,13 @@ public class ESBase {
      * @param fort     fortress
      * @param userName username
      * @return entity with a document type of the same name as fort
-     * @throws com.auditbucket.helper.DatagioException
+     * @throws com.auditbucket.helper.FlockException
      */
-    Entity getEntity(String comp, String fort, String userName) throws DatagioException {
+    Entity getEntity(String comp, String fort, String userName) throws FlockException {
         return getEntity(comp, fort, userName, fort);
     }
 
-    Entity getEntity(String comp, String fort, String userName, String doctype) throws DatagioException {
+    Entity getEntity(String comp, String fort, String userName, String doctype) throws FlockException {
         // These are the minimum objects necessary to create Entity data
         Fortress fortress = new FortressNode(new FortressInputBean(fort, false), new CompanyNode(comp));
         FortressUser user = new FortressUserNode(fortress, userName);

@@ -1,6 +1,6 @@
 package com.auditbucket.spring.utils;
 
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.spring.annotations.DatagioCallerRef;
 import com.auditbucket.spring.annotations.DatagioUid;
 import com.auditbucket.spring.annotations.Trackable;
@@ -13,7 +13,7 @@ import java.io.IOException;
 public class PojoToAbTransformerTest {
 
     @Test
-    public void testTransformPojoPublicField() throws IllegalAccessException, IOException, DatagioException {
+    public void testTransformPojoPublicField() throws IllegalAccessException, IOException, FlockException {
         Pojo1 pojo1 = new Pojo1();
         pojo1.email = "email@email.com";
         pojo1.id = 1L;
@@ -25,7 +25,7 @@ public class PojoToAbTransformerTest {
     }
 
     @Test
-    public void testTransformPojoPublicFieldWithCustomDocType() throws IllegalAccessException, IOException, DatagioException {
+    public void testTransformPojoPublicFieldWithCustomDocType() throws IllegalAccessException, IOException, FlockException {
         Pojo2 pojo2 = new Pojo2();
         pojo2.email = "email@email.com";
         pojo2.id = 1L;
@@ -37,7 +37,7 @@ public class PojoToAbTransformerTest {
     }
 
     @Test
-    public void testTransformPojoPrivateField() throws IllegalAccessException, IOException, DatagioException {
+    public void testTransformPojoPrivateField() throws IllegalAccessException, IOException, FlockException {
         Pojo3 pojo3 = new Pojo3();
         pojo3.email = "email@email.com";
         pojo3.id = 1L;

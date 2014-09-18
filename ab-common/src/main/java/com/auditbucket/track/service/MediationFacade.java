@@ -1,6 +1,6 @@
 package com.auditbucket.track.service;
 
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
@@ -25,31 +25,31 @@ import java.util.concurrent.Future;
  * Time: 2:46 PM
  */
 public interface MediationFacade {
-    Tag createTag(Company company, TagInputBean tagInput) throws DatagioException, ExecutionException, InterruptedException;
+    Tag createTag(Company company, TagInputBean tagInput) throws FlockException, ExecutionException, InterruptedException;
 
-    Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws DatagioException, ExecutionException, InterruptedException;
+    Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException;
 
-    Future<Collection<TrackResultBean>> trackHeadersAsync(Fortress fortress, List<EntityInputBean> inputBeans) throws DatagioException, IOException, ExecutionException, InterruptedException;
+    Future<Collection<TrackResultBean>> trackEntitiesAsync(Fortress fortress, List<EntityInputBean> inputBeans) throws FlockException, IOException, ExecutionException, InterruptedException;
 
-    Collection<TrackResultBean> trackHeaders(Fortress fortress, List<EntityInputBean> inputBeans, int listSize) throws DatagioException, IOException, ExecutionException, InterruptedException;
+    Collection<TrackResultBean> trackEntities(Fortress fortress, List<EntityInputBean> inputBeans, int listSize) throws FlockException, IOException, ExecutionException, InterruptedException;
 
-    TrackResultBean trackEntity(Company company, EntityInputBean inputBean) throws DatagioException, IOException, ExecutionException, InterruptedException;
+    TrackResultBean trackEntity(Company company, EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException;
 
-    TrackResultBean trackHeader(Fortress fortress, EntityInputBean inputBean) throws DatagioException, IOException, ExecutionException, InterruptedException;
+    TrackResultBean trackEntity(Fortress fortress, EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException;
 
-    TrackResultBean trackLog(Company company, ContentInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException;
+    TrackResultBean trackLog(Company company, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException;
 
-    Long reindex(Company company, String fortressName) throws DatagioException;
+    Long reindex(Company company, String fortressName) throws FlockException;
 
-    void reindexByDocType(Company company, String fortressName, String docType) throws DatagioException;
+    void reindexByDocType(Company company, String fortressName, String docType) throws FlockException;
 
-    EntitySummaryBean getEntitySummary(Company company, String metaKey) throws DatagioException;
+    EntitySummaryBean getEntitySummary(Company company, String metaKey) throws FlockException;
 
     EsSearchResult search(Company company, QueryParams queryParams);
 
-    void purge(String fortressName, String apiKey) throws DatagioException;
+    void purge(String fortressName, String apiKey) throws FlockException;
 
-    void cancelLastLog(Company company, Entity entity) throws IOException, DatagioException;
+    void cancelLastLog(Company company, Entity entity) throws IOException, FlockException;
 
-    Collection<TrackResultBean> trackHeaders(Company company, List<EntityInputBean> entityInputBeans) throws InterruptedException, ExecutionException, DatagioException, IOException;
+    Collection<TrackResultBean> trackEntities(Company company, List<EntityInputBean> entityInputBeans) throws InterruptedException, ExecutionException, FlockException, IOException;
 }

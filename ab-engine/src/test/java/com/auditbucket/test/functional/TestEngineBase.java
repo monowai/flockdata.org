@@ -253,10 +253,10 @@ public class TestEngineBase {
         //logger.debug("Sleep Count {}", sleepCount);
         //Thread.sleep(sleepCount); // Avoiding RELATIONSHIP[{id}] has no property with propertyKey="__type__" NotFoundException
 		while ( i <= timeout) {
-            Entity updatedHeader = trackService.getEntity(company, entity.getMetaKey());
-            count = trackService.getLogCount(company, updatedHeader.getMetaKey());
+            Entity updateEntity = trackService.getEntity(company, entity.getMetaKey());
+            count = trackService.getLogCount(company, updateEntity.getMetaKey());
 
-            EntityLog log = trackService.getLastEntityLog(company, updatedHeader.getMetaKey());
+            EntityLog log = trackService.getLastEntityLog(company, updateEntity.getMetaKey());
             // We have at least one log?
 			if ( count == expectedCount )
 				return log;

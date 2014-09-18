@@ -25,7 +25,6 @@ import com.auditbucket.helper.CompressionResult;
 import com.auditbucket.test.utils.Helper;
 import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.model.KvContent;
-import com.auditbucket.track.model.Log;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.MapDifference;
@@ -81,7 +80,7 @@ public class TestCompression {
     @Test
     public void checksum_Constant() throws Exception{
         ContentInputBean content = new ContentInputBean("mike", new DateTime());
-        content.setAttachment(Helper.getPdfDoc(), Log.ContentType.PDF, "test.pdf");
+        content.setAttachment(Helper.getPdfDoc(), "pdf", "test.pdf");
         KvContent kvContent = new KvContentData(content);
         CompressionResult result = CompressionHelper.compress(kvContent);
         final String checksum = result.getChecksum();
@@ -91,12 +90,12 @@ public class TestCompression {
         result = CompressionHelper.compress(kvContent);
         assertTrue("re-compressing should yield same checksum", checksum.equals(result.getChecksum()));
 
-        content.setAttachment(Helper.getPdfDoc() + "a", Log.ContentType.PDF, "test.pdf");
+        content.setAttachment(Helper.getPdfDoc() + "a", "pdf", "test.pdf");
         kvContent = new KvContentData(content);
         result = CompressionHelper.compress(kvContent);
         assertFalse(checksum.equals(result.getChecksum()));
 
-        content.setAttachment(Helper.getPdfDoc(), Log.ContentType.PDF, "test.pdf");
+        content.setAttachment(Helper.getPdfDoc(), "pdf", "test.pdf");
         kvContent = new KvContentData(content);
         result = CompressionHelper.compress(kvContent);
         assertTrue("re-compressing should yield same checksum", checksum.equals(result.getChecksum()));
@@ -135,7 +134,7 @@ public class TestCompression {
     @Test
     public void compressionDisabled(){
         ContentInputBean content = new ContentInputBean("mike", new DateTime());
-        content.setAttachment(Helper.getPdfDoc(), Log.ContentType.PDF, "test.pdf");
+        content.setAttachment(Helper.getPdfDoc(), "pdf", "test.pdf");
         KvContent kvContent = new KvContentData(content);
         System.setProperty(CompressionHelper.PROP_COMPRESSION, "true");
         CompressionResult result = CompressionHelper.compress(kvContent);

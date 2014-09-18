@@ -1,6 +1,6 @@
 package com.auditbucket.spring.utils;
 
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.spring.annotations.*;
 import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
@@ -37,7 +37,7 @@ public class PojoToAbTransformer {
      * }
      */
 
-    public static EntityInputBean transformToAbFormat(Object pojo) throws IllegalAccessException, IOException, DatagioException {
+    public static EntityInputBean transformToAbFormat(Object pojo) throws IllegalAccessException, IOException, FlockException {
 
         //ToDo: LogResultBean is only called when the @DatagioUid is null, otherwise it's a log
         //ToDo:  caller does not determine this by ab-spring does.
@@ -119,7 +119,7 @@ public class PojoToAbTransformer {
         //ObjectMapper mapper = new ObjectMapper(); // create once, reuse
         //String what = mapper.writeValueAsString(mapWhat);
         contentInputBean.setWhat(mapWhat);
-        entityInputBean.setLog(contentInputBean);
+        entityInputBean.setContent(contentInputBean);
         //ToDo: Figure out tag structure
         //metaInputBean.setTagValues(tagValues);
         return entityInputBean;
@@ -142,7 +142,7 @@ public class PojoToAbTransformer {
      * "what": "{\"name\": \"99\", \"thing\": {\"status\": \"android\"}}"
      * }
      */
-    public static ContentInputBean transformToAbLogFormat(Object pojo) throws IllegalAccessException, IOException, DatagioException {
+    public static ContentInputBean transformToAbLogFormat(Object pojo) throws IllegalAccessException, IOException, FlockException {
         ContentInputBean contentInputBean = new ContentInputBean("mike", new DateTime(), null);
         Map<String, Object> mapWhat = new HashMap<String, Object>();
 

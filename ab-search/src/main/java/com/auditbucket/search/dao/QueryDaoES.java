@@ -20,7 +20,7 @@
 package com.auditbucket.search.dao;
 
 import com.auditbucket.dao.QueryDao;
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.search.helper.QueryGenerator;
 import com.auditbucket.search.model.EntitySearchSchema;
 import com.auditbucket.search.model.EsSearchResult;
@@ -75,7 +75,7 @@ public class QueryDaoES implements QueryDao {
     }
 
     @Override
-    public String doSearch(QueryParams queryParams) throws DatagioException {
+    public String doSearch(QueryParams queryParams) throws FlockException {
         SearchResponse result = client.prepareSearch(EntitySearchSchema.parseIndex(queryParams))
                 .setExtraSource(QueryGenerator.getSimpleQuery(queryParams.getSimpleQuery(), false))
                 .execute()
@@ -86,7 +86,7 @@ public class QueryDaoES implements QueryDao {
     }
 
     @Override
-    public EsSearchResult doMetaKeySearch(QueryParams queryParams) throws DatagioException {
+    public EsSearchResult doMetaKeySearch(QueryParams queryParams) throws FlockException {
         StopWatch watch = new StopWatch();
 
         watch.start(queryParams.toString());

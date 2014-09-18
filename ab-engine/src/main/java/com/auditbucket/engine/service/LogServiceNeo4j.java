@@ -21,7 +21,7 @@ package com.auditbucket.engine.service;
 
 import com.auditbucket.engine.repo.neo4j.EntityDaoNeo;
 import com.auditbucket.helper.Command;
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.helper.DeadlockRetry;
 import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.model.Company;
@@ -82,7 +82,7 @@ public class LogServiceNeo4j implements LogService {
     EntityDaoNeo trackDao;
 
     @Override
-    public Collection<TrackResultBean> processLogsSync(Company company, Iterable<TrackResultBean> resultBeans) throws DatagioException, IOException, ExecutionException, InterruptedException {
+    public Collection<TrackResultBean> processLogsSync(Company company, Iterable<TrackResultBean> resultBeans) throws FlockException, IOException, ExecutionException, InterruptedException {
         logger.debug("Process Logs {}", Thread.currentThread().getName());
         Collection<TrackResultBean> logResults = new ArrayList<>();
         for (TrackResultBean resultBean : resultBeans) {
@@ -95,18 +95,18 @@ public class LogServiceNeo4j implements LogService {
 
     }
 
-    TrackResultBean processLogFromResult(TrackResultBean resultBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
-        if (resultBean.getLog() == null)
+    TrackResultBean processLogFromResult(TrackResultBean resultBean) throws FlockException, IOException, ExecutionException, InterruptedException {
+        if (resultBean.getContentInput() == null)
             return resultBean;
 
         return writeTheLogAndDistributeChanges(resultBean);
     }
 
     @Override
-    public TrackResultBean writeLog(Entity entity, ContentInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException {
+    public TrackResultBean writeLog(Entity entity, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException {
 
         TrackResultBean resultBean = new TrackResultBean(entity);
-        resultBean.setLogInput(input);
+        resultBean.setContentInput(input);
         ArrayList<TrackResultBean> logs = new ArrayList<>();
         logs.add(resultBean);
         return processLogsSync(entity.getFortress().getCompany(), logs).iterator().next();
@@ -117,21 +117,21 @@ public class LogServiceNeo4j implements LogService {
      *
      * @param resultBean details to write the log from. Will always contain an entity
      * @return result details
-     * @throws com.auditbucket.helper.DatagioException
+     * @throws com.auditbucket.helper.FlockException
      */
-    TrackResultBean writeTheLogAndDistributeChanges(final TrackResultBean resultBean) throws DatagioException, IOException, ExecutionException, InterruptedException {
-        ContentInputBean contentInputBean = resultBean.getLog();
+    TrackResultBean writeTheLogAndDistributeChanges(final TrackResultBean resultBean) throws FlockException, IOException, ExecutionException, InterruptedException {
+        ContentInputBean contentInputBean = resultBean.getContentInput();
         logger.debug("writeLog {}", contentInputBean);
         class DeadLockCommand implements Command {
             TrackResultBean result = null;
 
             @Override
-            public Command execute() throws DatagioException, IOException, ExecutionException, InterruptedException {
+            public Command execute() throws FlockException, IOException, ExecutionException, InterruptedException {
 
                 // ToDo: DAT-169 This needs to be dealt with via SpringIntegration and persistent messaging
                 result = writeLog(resultBean);
                 if (result.getLogResult().getStatus() == ContentInputBean.LogStatus.NOT_FOUND)
-                    throw new DatagioException("Unable to find Entity ");
+                    throw new FlockException("Unable to find Entity ");
                 kvService.doKvWrite(result); //ToDo: Consider KV not available. How to write the logs
                 //      need to think of a way to recognize that the entity has unprocessed work
                 return this;
@@ -147,11 +147,11 @@ public class LogServiceNeo4j implements LogService {
     /**
      * @param trackResultBean input data to process
      * @return result of the operation
-     * @throws DatagioException
+     * @throws com.auditbucket.helper.FlockException
      * @throws IOException
      */
-    TrackResultBean writeLog(TrackResultBean trackResultBean) throws DatagioException, IOException {
-        ContentInputBean content = trackResultBean.getLog();
+    TrackResultBean writeLog(TrackResultBean trackResultBean) throws FlockException, IOException {
+        ContentInputBean content = trackResultBean.getContentInput();
 
         Entity entity = trackResultBean.getEntity();
 
@@ -180,7 +180,7 @@ public class LogServiceNeo4j implements LogService {
      * @param thisFortressUser User name in calling system that is making the change
      * @return populated log information with any error messages
      */
-    LogResultBean createLog(Entity entity, ContentInputBean content, FortressUser thisFortressUser) throws DatagioException, IOException {
+    LogResultBean createLog(Entity entity, ContentInputBean content, FortressUser thisFortressUser) throws FlockException, IOException {
         // Warning - making this private means it doesn't get a transaction!
 
         Fortress fortress = entity.getFortress();
@@ -204,7 +204,7 @@ public class LogServiceNeo4j implements LogService {
         DateTime fortressWhen = (content.getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(content.getWhen()));
 
         if (content.getEvent() == null ) {
-            content.setEvent(existingLog == null ?Log.CREATE:Log.UPDATE);
+            content.setEvent(existingLog == null ? Log.CREATE : Log.UPDATE);
         }
 
         Log preparedLog = trackDao.prepareLog(thisFortressUser, content, txRef, (existingLog != null ? existingLog.getLog() : null));
@@ -259,7 +259,7 @@ public class LogServiceNeo4j implements LogService {
     }
 
     @Override
-    public EntityLog getLastLog(Entity entity) throws DatagioException {
+    public EntityLog getLastLog(Entity entity) throws FlockException {
         if (entity == null || entity.getId() == null)
             return null;
         logger.trace("Getting lastLog MetaID [{}]", entity.getId());

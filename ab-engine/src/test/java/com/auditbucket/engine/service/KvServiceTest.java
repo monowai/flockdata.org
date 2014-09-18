@@ -19,7 +19,6 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.engine.repo.EntityContentData;
 import com.auditbucket.engine.repo.redis.RedisRepo;
 import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.bean.FortressInputBean;
@@ -31,7 +30,6 @@ import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.EntityContent;
 import com.auditbucket.track.model.EntityLog;
-import com.auditbucket.track.model.Log;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTime;
@@ -115,13 +113,13 @@ public class KvServiceTest extends TestEngineBase {
         setSecurity();
         logger.debug("Registering system user!");
         SystemUser su = registerSystemUser("Company", mike_admin);
-        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("Audit Test", true));
+        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("Entity Test", true));
         String docType = "TestAuditX";
         String callerRef = "ABC123R";
         EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
         Map<String, Object> what = getWhatMap();
         ContentInputBean contentInputBean = new ContentInputBean("wally", new DateTime(), what);
-        inputBean.setLog(contentInputBean);
+        inputBean.setContent(contentInputBean);
 
         Entity entity;
 
@@ -213,13 +211,13 @@ public class KvServiceTest extends TestEngineBase {
         setSecurity();
         logger.debug("Registering system user!");
         SystemUser su = registerSystemUser("Company", mike_admin);
-        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("Audit Test", true));
+        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("Entity Test", true));
         String docType = "TestAuditX";
         String callerRef = "ABC123R";
         EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
         ContentInputBean contentInputBean = new ContentInputBean("wally", new DateTime());
-        contentInputBean.setAttachment("test-attachment-data", Log.ContentType.PDF, "testFile.txt");
-        inputBean.setLog(contentInputBean);
+        contentInputBean.setAttachment("test-attachment-data", "PDF", "testFile.txt");
+        inputBean.setContent(contentInputBean);
 
         Entity entity;
         try {
@@ -239,7 +237,7 @@ public class KvServiceTest extends TestEngineBase {
 
 
             assertEquals(contentInputBean.getFileName(), entityLog.getLog().getFileName());
-            assertEquals(contentInputBean.getContentType(), entityLog.getLog().getContentType());
+            assertEquals("Value didn't convert to lowercase", "pdf", entityLog.getLog().getContentType());
             assertEquals(contentInputBean.getAttachment(), entityContent.getAttachment());
         } catch (Exception ies) {
             logger.error("KV Stores are configured in config.properties. This test is failing to find the {} server. Is it even installed?", engineConfig.getKvStore());

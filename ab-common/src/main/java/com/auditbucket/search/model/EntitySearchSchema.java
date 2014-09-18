@@ -19,7 +19,7 @@
 
 package com.auditbucket.search.model;
 
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.model.Fortress;
 
 /**
@@ -46,6 +46,8 @@ public class EntitySearchSchema {
     public static final String WHAT_CODE = "code";
     public static final String WHAT_NAME = "name";
     public static final String WHAT_DESCRIPTION = "description";
+    public static final String FILENAME = "@filename";
+    public static final String CONTENT_TYPE = "@contentType";
 
     public static String parseIndex(Fortress fortress) {
 
@@ -60,7 +62,7 @@ public class EntitySearchSchema {
         return "ab." + company.toLowerCase() + ".";
     }
 
-    public static String parseIndex(QueryParams queryParams) throws DatagioException {
+    public static String parseIndex(QueryParams queryParams) throws FlockException {
         String prefix = parseIndex(queryParams.getCompany());
         if (queryParams.getFortress() == null || queryParams.getFortress().equals(""))
             return prefix + "*";

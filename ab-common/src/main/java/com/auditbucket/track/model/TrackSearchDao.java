@@ -40,23 +40,23 @@ public interface TrackSearchDao {
      * locates a document by LogResultBean.searchKey
      *
      *
-     * @param header auditHeader
+     * @param entity auditHeader
      * @return document context as bytes
      */
-    public Map<String, Object> findOne(Entity header);
+    public Map<String, Object> findOne(Entity entity);
 
     /**
-     * Locates a specific key monitored by the header.
+     * Locates a specific key monitored by the entity.
      * <p/>
-     * If ID is null then the call is the same as findOne(header)
+     * If ID is null then the call is the same as findOne(entity)
      * where the searchKey is taken to be LogResultBean.searchKey
      *
      * @return found track change or null if none
      */
-    Map<String, Object> findOne(Entity header, String id);
+    Map<String, Object> findOne(Entity entity, String id);
 
     /**
-     * Removes a search document. Most of the time, the searchKey in the header
+     * Removes a search document. Most of the time, the searchKey in the entity
      * is sufficient. However if you are tracking EVERY change in the search engine, then you
      * can delete a specific instance
      *

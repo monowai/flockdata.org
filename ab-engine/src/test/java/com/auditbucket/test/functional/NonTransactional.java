@@ -60,7 +60,7 @@ public class NonTransactional extends TestEngineBase{
         inputBean.addTag( new TagInputBean("ABC", "Device", "sold"));
         TrackResultBean docA = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
-        // These are the two records that will cite the previously created header
+        // These are the two records that will cite the previously created entity
         EntityInputBean inputBeanB = new EntityInputBean(fortressA.getName(), "wally", "DocTypeB", new DateTime(), "ABC321");
         inputBeanB.addTag( new TagInputBean("ABC", "Device", "applies"));
         TrackResultBean docB = mediationFacade.trackEntity(su.getCompany(), inputBeanB);

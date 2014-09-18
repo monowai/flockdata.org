@@ -18,7 +18,7 @@
  */
 package com.auditbucket.registration;
 
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.dao.neo4j.model.SystemUserNode;
@@ -59,7 +59,7 @@ public class RegistrationServiceNeo4j implements com.auditbucket.registration.se
     @Override
     @Transactional
     @Secured({"ROLE_AB_ADMIN"})
-    public SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws DatagioException {
+    public SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws FlockException {
 
         SystemUser systemUser = systemUserService.findByLogin(regBean.getLogin());
 
@@ -74,7 +74,7 @@ public class RegistrationServiceNeo4j implements com.auditbucket.registration.se
 
     @Override
     @Secured({"ROLE_AB_ADMIN"})
-    public SystemUser registerSystemUser(RegistrationBean regBean) throws DatagioException {
+    public SystemUser registerSystemUser(RegistrationBean regBean) throws FlockException {
         // Non-transactional method
         Company company = companyService.findByName(regBean.getCompanyName());
         if (company == null) {
@@ -121,10 +121,10 @@ public class RegistrationServiceNeo4j implements com.auditbucket.registration.se
         return su;
     }
 
-    public Company resolveCompany(String apiKey) throws DatagioException {
+    public Company resolveCompany(String apiKey) throws FlockException {
         Company c = securityHelper.getCompany(apiKey);
         if (c == null)
-            throw new DatagioException("Invalid API Key");
+            throw new FlockException("Invalid API Key");
         return c;
     }
 }

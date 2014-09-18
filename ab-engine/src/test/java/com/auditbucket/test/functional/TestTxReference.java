@@ -71,10 +71,10 @@ public class TestTxReference extends TestEngineBase{
 
 // ABC Data
         Fortress fortressABC = fortressService.registerFortress("abcTest");
-        EntityInputBean abcHeader = new EntityInputBean(fortressABC.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
-        abcHeader.setLog(new ContentInputBean("charlie", null, DateTime.now(), escJsonA, true));
+        EntityInputBean abcEntity = new EntityInputBean(fortressABC.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
+        abcEntity.setContent(new ContentInputBean("charlie", null, DateTime.now(), escJsonA, true));
 
-        TrackResultBean resultBean = mediationFacade.trackEntity(suABC.getCompany(), abcHeader);
+        TrackResultBean resultBean = mediationFacade.trackEntity(suABC.getCompany(), abcEntity);
         LogResultBean logResultBean = resultBean.getLogResult();
         assertNotNull(logResultBean);
         String abcTxRef = logResultBean.getTxReference();
@@ -82,13 +82,13 @@ public class TestTxReference extends TestEngineBase{
 
 // CBA data
         SecurityContextHolder.getContext().setAuthentication(authCBA);
-        Fortress fortressCBA = fortressService.registerFortress("cbaTest");
-        EntityInputBean cbaHeader = new EntityInputBean(fortressCBA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
-        String cbaKey = mediationFacade.trackEntity(suCBA.getCompany(), cbaHeader).getMetaKey();
+        Fortress fortressCBA = fortressService.registerFortress(suCBA.getCompany(), new FortressInputBean("cbaTest",true));
+        EntityInputBean cbaEntity = new EntityInputBean(fortressCBA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
+        String cbaKey = mediationFacade.trackEntity(suCBA.getCompany(), cbaEntity).getMetaKey();
 
-        ContentInputBean cbaLog = new ContentInputBean("charlie", cbaKey, DateTime.now(), escJsonA, true);
-        assertEquals("CBA Log Not Created", ContentInputBean.LogStatus.OK, mediationFacade.trackLog(suCBA.getCompany(), cbaLog).getLogResult().getStatus());
-        String cbaTxRef = cbaLog.getTxRef();
+        ContentInputBean cbaContent = new ContentInputBean("charlie", cbaKey, DateTime.now(), escJsonA, true);
+        assertEquals("CBA Log Not Created", ContentInputBean.LogStatus.OK, mediationFacade.trackLog(suCBA.getCompany(), cbaContent).getLogResult().getStatus());
+        String cbaTxRef = cbaContent.getTxRef();
         assertNotNull(cbaTxRef);
 
         // CBA Caller can not see the ABC transaction
@@ -101,9 +101,9 @@ public class TestTxReference extends TestEngineBase{
         assertNull(txService.findTx(cbaTxRef));
 
         // WHat happens if ABC tries to use CBA's TX Ref.
-        abcHeader = new EntityInputBean(fortressABC.getName(), "wally", "TestTrack", new DateTime(), "ZZZAAA");
-        abcHeader.setLog(new ContentInputBean("wally", null, DateTime.now(), escJsonA, null, cbaTxRef));
-        TrackResultBean result = mediationFacade.trackEntity(suABC.getCompany(), abcHeader);
+        abcEntity = new EntityInputBean(fortressABC.getName(), "wally", "TestTrack", new DateTime(), "ZZZAAA");
+        abcEntity.setContent(new ContentInputBean("wally", null, DateTime.now(), escJsonA, null, cbaTxRef));
+        TrackResultBean result = mediationFacade.trackEntity(suABC.getCompany(), abcEntity);
         assertNotNull(result);
         // It works because TX References have only to be unique for a company
         //      ab generated references are GUIDs, but the caller is allowed to define their own transaction
@@ -173,17 +173,17 @@ public class TestTxReference extends TestEngineBase{
     }
 
     @Test
-    public void txHeadersTracked() throws Exception {
+    public void tx_TrackEntities() throws Exception {
         String company = "Monowai";
         SystemUser su = registerSystemUser(company, mike_admin);
-        Fortress fortressA = fortressService.registerFortress(new FortressInputBean("auditTest", true));
+        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
         String tagRef = "MyTXTag";
         EntityInputBean aBean = new EntityInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
 
         String key = mediationFacade.trackEntity(su.getCompany(), aBean).getMetaKey();
         assertNotNull(key);
-        Entity header = trackService.getEntity(key);
-        assertNotNull(header);
+        Entity entity = trackService.getEntity(su.getCompany(), key);
+        assertNotNull(entity);
         ContentInputBean alb = new ContentInputBean("charlie", key, DateTime.now(), escJsonA, null, tagRef);
         assertTrue(alb.isTransactional());
         String albTxRef = mediationFacade.trackLog(su.getCompany(), alb).getLogResult().getTxReference();
@@ -194,13 +194,13 @@ public class TestTxReference extends TestEngineBase{
         String txStart = albTxRef;
 
         mediationFacade.trackLog(su.getCompany(), alb);
-        // All headers touched by this transaction. ToDo: All changes affected
-        Set<Entity> result = txService.findTxHeaders(txStart);
+        // All entities touched by this transaction. ToDo: All changes affected
+        Set<Entity> result = txService.findTxEntities(txStart);
         assertNotNull(result);
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
-        for (Entity entity : result) {
-            assertNotNull(entity.getMetaKey());
+        for (Entity entityResult : result) {
+            assertNotNull(entityResult.getMetaKey());
         }
 
 

@@ -20,14 +20,12 @@
 package com.auditbucket.client.rest;
 
 import com.auditbucket.helper.CompressionHelper;
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.*;
 import com.auditbucket.track.bean.CrossReferenceInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -44,7 +42,7 @@ import java.nio.charset.Charset;
 import java.util.*;
 
 /**
- * Template to support writing Audit and Tag information to a remote AuditBucket instance.
+ * Template to support writing Entity and Tag information to a remote FlockData service
  *
  * @see com.auditbucket.client.Importer
  *      <p/>
@@ -53,7 +51,7 @@ import java.util.*;
  */
 public class AbRestClient  {
 
-    private String NEW_HEADER;
+    private String NEW_ENTITY;
     private String NEW_TAG;
     private String CROSS_REFERENCES;
     private String FORTRESS;
@@ -68,9 +66,9 @@ public class AbRestClient  {
     private int batchSize;
     private static boolean compress = true;
     private boolean simulateOnly;
-    private List<EntityInputBean> batchHeader = new ArrayList<>();
-    private Map<String, TagInputBean> batchTag = new HashMap<>();
-    private final String headerSync = "BatchSync";
+    private List<EntityInputBean> entityBatch = new ArrayList<>();
+    private Map<String, TagInputBean> tagBatch = new HashMap<>();
+    private final String entitySync = "BatchSync";
     private final String tagSync = "TagSync";
     private String defaultFortress;
 
@@ -87,12 +85,12 @@ public class AbRestClient  {
     }
 
     public AbRestClient(String serverName, String apiKey, String userName, String password, int batchSize, String defaultFortress) {
-        headers = null;
+        httpHeaders = null;
         this.userName = userName;
         this.password = password;
         this.apiKey = apiKey;
-        // Urls to write Audit/Tag/Fortress information
-        this.NEW_HEADER = serverName + "/v1/track/";
+        // Urls to write Entity/Tag/Fortress information
+        this.NEW_ENTITY = serverName + "/v1/track/";
         this.PING = serverName + "/v1/admin/ping/";
         this.REGISTER = serverName + "/v1/profiles/";
         this.ME = serverName + "/v1/profiles/me/";
@@ -228,7 +226,7 @@ public class AbRestClient  {
         this.simulateOnly = simulateOnly;
     }
 
-    public int flushXReferences(List<CrossReferenceInputBean> referenceInputBeans) throws DatagioException{
+    public int flushXReferences(List<CrossReferenceInputBean> referenceInputBeans) throws FlockException {
         logger.info("Processing [{}] cross references - simulate [{}]", referenceInputBeans.size(), simulateOnly);
         if (simulateOnly)
             return 0;
@@ -241,17 +239,17 @@ public class AbRestClient  {
             logServerMessages(response);
             return referenceInputBeans.size();
         } catch (HttpClientErrorException e) {
-            logger.error("AB Client Audit error {}", getErrorMessage(e));
+            logger.error("Service tracking error {}", getErrorMessage(e));
             return 0;
         } catch (HttpServerErrorException e) {
-            logger.error("AB Server Audit error {}", getErrorMessage(e));
+            logger.error("Service tracking error {}", getErrorMessage(e));
             return 0;
 
         }
 
     }
 
-    public Collection<TagInputBean> getCountries() throws DatagioException{
+    public Collection<TagInputBean> getCountries() throws FlockException {
 //        if (simulateOnly)
 //            return null;
         RestTemplate restTemplate = new RestTemplate();
@@ -265,44 +263,41 @@ public class AbRestClient  {
             return mapper.readValue(response.getBody(), collectionType);
         } catch (HttpClientErrorException e) {
             // ToDo: Rest error handling pretty useless. need to know why it's failing
-            logger.error("AB Client Audit error {}", getErrorMessage(e));
+            logger.error("Client tracking error {}", getErrorMessage(e));
             return null;
         } catch (HttpServerErrorException e) {
-            logger.error("AB Server Audit error {}", getErrorMessage(e));
+            logger.error("Client tracking error {}", getErrorMessage(e));
             return null;
 
-        } catch (JsonMappingException | JsonParseException e) {
-            logger.error("Unexpected", e);
         } catch (IOException e) {
             logger.error("Unexpected", e);
         }
         return null;
     }
 
-    private String flushEntities(List<EntityInputBean> auditInput) throws DatagioException{
-        if (simulateOnly || auditInput.isEmpty())
+    private String flushEntities(List<EntityInputBean> entityInputs) throws FlockException {
+        if (simulateOnly || entityInputs.isEmpty())
             return "OK";
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
         HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
-        HttpEntity<List<EntityInputBean>> requestEntity = new HttpEntity<>(auditInput, httpHeaders);
+        HttpEntity<List<EntityInputBean>> requestEntity = new HttpEntity<>(entityInputs, httpHeaders);
 
         try {
-            restTemplate.exchange(NEW_HEADER, HttpMethod.PUT, requestEntity, TrackResultBean.class);
+            restTemplate.exchange(NEW_ENTITY, HttpMethod.PUT, requestEntity, TrackResultBean.class);
             return "OK";
         } catch (HttpClientErrorException e) {
-            // ToDo: Rest error handling pretty useless. need to know why it's failing
-            logger.error("AB Client Audit error {}", getErrorMessage(e));
+            logger.error("Service tracking error {}", getErrorMessage(e));
             return null;
         } catch (HttpServerErrorException e) {
-            logger.error("AB Server Audit error {}", getErrorMessage(e));
+            logger.error("Service tracking error {}", getErrorMessage(e));
             return null;
 
         }
     }
 
-    public String flushTags(List<TagInputBean> tagInputBean) throws DatagioException{
+    public String flushTags(List<TagInputBean> tagInputBean) throws FlockException {
         if (tagInputBean.isEmpty())
             return "OK";
         RestTemplate restTemplate = new RestTemplate();
@@ -337,7 +332,7 @@ public class AbRestClient  {
         }
     }
 
-    public void ensureFortress(String fortressName) throws DatagioException{
+    public void ensureFortress(String fortressName) throws FlockException {
         if (fortressName == null)
             return;
 
@@ -352,23 +347,20 @@ public class AbRestClient  {
                 request = new HttpEntity<>(new FortressInputBean(defaultFortress, false), httpHeaders);
                 restTemplate.exchange(FORTRESS, HttpMethod.POST, request, FortressResultBean.class);
             }
-        } catch (HttpClientErrorException e) {
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
             // ToDo: Rest error handling pretty useless. need to know why it's failing
-            logger.error("AB Client Audit error {}", getErrorMessage(e));
-        } catch (HttpServerErrorException e) {
-            logger.error("AB Server Audit error {}", getErrorMessage(e));
-
+            logger.error("Service Tracking error {}", getErrorMessage(e));
         }
     }
 
-    public String getErrorMessage(HttpStatusCodeException e) throws DatagioException{
+    public String getErrorMessage(HttpStatusCodeException e) throws FlockException {
 
         if (e.getStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR || e.getStatusCode()== HttpStatus.BAD_REQUEST|| e.getStatusCode()== HttpStatus.BAD_REQUEST) {
             logger.error(e.getResponseBodyAsString());
             String error = e.getResponseBodyAsString();
             if ( error.contains("Invalid API"))
                 logger.info("Your API key appears to be invalid. Have you run the configure process?");
-            throw new DatagioException(error);
+            throw new FlockException(error);
         }
 
         JsonNode n = null;
@@ -387,13 +379,13 @@ public class AbRestClient  {
         return message;
     }
 
-    private static HttpHeaders headers = null;
+    private static HttpHeaders httpHeaders = null;
 
     public static HttpHeaders getHeaders(final String apiKey, final String username, final String password) {
-        if (headers != null)
-            return headers;
+        if (httpHeaders != null)
+            return httpHeaders;
 
-        headers = new HttpHeaders() {
+        httpHeaders = new HttpHeaders() {
             {
                 if (username != null && password != null) {
                     String auth = username + ":" + password;
@@ -414,10 +406,10 @@ public class AbRestClient  {
             }
         };
 
-        return headers;
+        return httpHeaders;
     }
 
-    public void flush(String message) throws DatagioException{
+    public void flush(String message) throws FlockException {
         flush(message, type.TAG);
         flush(message, type.TRACK);
     }
@@ -425,11 +417,11 @@ public class AbRestClient  {
     /**
      * push any remaining updates
      */
-    public void flush(String message, type abType) throws DatagioException{
+    public void flush(String message, type abType) throws FlockException {
         if (simulateOnly)
             return;
         if (abType.equals(type.TRACK)) {
-            synchronized (headerSync) {
+            synchronized (entitySync) {
                 track(null, true, message);
 
             }
@@ -445,7 +437,7 @@ public class AbRestClient  {
      *
      * @param entityInputBean Input to push
      */
-    public void track(EntityInputBean entityInputBean, String message) throws DatagioException{
+    public void track(EntityInputBean entityInputBean, String message) throws FlockException {
         track(entityInputBean, false, message);
     }
 
@@ -453,58 +445,58 @@ public class AbRestClient  {
 
         for (TagInputBean tag : entityInputBeans.getTags()) {
             String indexKey = tag.getCode() + tag.getLabel();
-            TagInputBean cachedTag = batchTag.get(indexKey);
+            TagInputBean cachedTag = tagBatch.get(indexKey);
             if (cachedTag == null)
-                batchTag.put(indexKey, tag);
+                tagBatch.put(indexKey, tag);
             else {
                 cachedTag.mergeTags(tag);
             }
         }
     }
 
-    void track(EntityInputBean entityInputBean, boolean flush, String message) throws DatagioException{
+    void track(EntityInputBean entityInputBean, boolean flush, String message) throws FlockException {
 
-        synchronized (headerSync) {
+        synchronized (entitySync) {
             if (entityInputBean != null) {
                 if (entityInputBean.getFortress() == null)
                     entityInputBean.setFortress(defaultFortress);
-                batchHeader.add(entityInputBean);
+                entityBatch.add(entityInputBean);
                 batchTags(entityInputBean);
             }
 
-            if (flush || batchHeader.size() == batchSize) {
+            if (flush || entityBatch.size() == batchSize) {
 
-                if (batchHeader.size() >= 1) {
+                if (entityBatch.size() >= 1) {
                     logger.debug("Flushing....");
-                    // process the tags independently to reduce the chance of a deadlock when processing the header
-                    flushTags(new ArrayList<>(batchTag.values()));
-                    flushEntities(batchHeader);
-                    logger.debug("Flushed " + message + " Batch [{}]", batchHeader.size());
+                    // process the tags independently to reduce the chance of a deadlock when processing the entity
+                    flushTags(new ArrayList<>(tagBatch.values()));
+                    flushEntities(entityBatch);
+                    logger.debug("Flushed " + message + " Batch [{}]", entityBatch.size());
                 }
-                batchHeader = new ArrayList<>();
-                batchTag = new HashMap<>();
+                entityBatch = new ArrayList<>();
+                tagBatch = new HashMap<>();
             }
 
         }
 
     }
 
-    public void writeTag(TagInputBean tagInputBean, String message) throws DatagioException{
+    public void writeTag(TagInputBean tagInputBean, String message) throws FlockException {
         writeTag(tagInputBean, false, message);
     }
 
-    private void writeTag(TagInputBean tagInputBean, boolean flush, String message) throws DatagioException{
+    private void writeTag(TagInputBean tagInputBean, boolean flush, String message) throws FlockException {
 
         synchronized (tagSync) {
             if (tagInputBean != null)
-                batchTag.put(tagInputBean.getName() + tagInputBean.getLabel(), tagInputBean);
+                tagBatch.put(tagInputBean.getName() + tagInputBean.getLabel(), tagInputBean);
 
-            if (flush || batchTag.size() == batchSize) {
-                logger.debug("Flushing " + message + " Tag Batch [{}]", batchTag.size());
-                if (batchTag.size() >= 0)
-                    flushTags(new ArrayList<>(batchTag.values()));
+            if (flush || tagBatch.size() == batchSize) {
+                logger.debug("Flushing " + message + " Tag Batch [{}]", tagBatch.size());
+                if (tagBatch.size() >= 0)
+                    flushTags(new ArrayList<>(tagBatch.values()));
                 logger.debug("Tag Batch Flushed");
-                batchTag = new HashMap<>();
+                tagBatch = new HashMap<>();
             }
         }
 
@@ -521,22 +513,22 @@ public class AbRestClient  {
     /**
      * Converts the strings to a simple JSON representation
      *
-     * @param headerRow - keys
+     * @param headerRowColumns - keys
      * @param line      - values
      * @return JSON Object
      * @throws JsonProcessingException
      */
-    public static String convertToJson(String[] headerRow, String[] line) throws JsonProcessingException {
+    public static String convertToJson(String[] headerRowColumns, String[] line) throws JsonProcessingException {
         ObjectNode node = mapper.createObjectNode();
-        for (int i = 0; i < headerRow.length; i++) {
-            String header = headerRow[i];
+        for (int i = 0; i < headerRowColumns.length; i++) {
+            String column = headerRowColumns[i];
 
-            if (header.startsWith("@!"))
-                header = headerRow[i].substring(2, headerRow[i].length());
-            else if (header.startsWith("@") || header.startsWith("$") || header.startsWith("*"))
-                header = headerRow[i].substring(1, headerRow[i].length());
+            if (column.startsWith("@!"))
+                column = headerRowColumns[i].substring(2, headerRowColumns[i].length());
+            else if (column.startsWith("@") || column.startsWith("$") || column.startsWith("*"))
+                column = headerRowColumns[i].substring(1, headerRowColumns[i].length());
 
-            node.put(header, line[i].trim());
+            node.put(column, line[i].trim());
         }
         return node.toString();
     }

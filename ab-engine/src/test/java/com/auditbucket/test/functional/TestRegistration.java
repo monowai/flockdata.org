@@ -29,13 +29,13 @@ import static org.junit.Assert.assertNull;
 import java.util.Collection;
 import java.util.TimeZone;
 
+import com.auditbucket.helper.FlockException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.auditbucket.helper.DatagioException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Company;
@@ -146,7 +146,7 @@ public class TestRegistration extends TestEngineBase {
         try {
             assertEquals(null, companyEP.getCompany(foundCompany.getName(), "illegal", "illegal"));
             fail("Illegal API key parsed in. This should not have worked");
-        } catch (DatagioException e ){
+        } catch (FlockException e ){
             // Illegal API key so this is good.
         }
         ResponseEntity re = companyEP.getCompany("IllegalCompany Name", su.getApiKey(), su.getApiKey());
@@ -171,7 +171,7 @@ public class TestRegistration extends TestEngineBase {
         try {
             assertEquals("Sally's APIKey cannot see Mikes company record", null, companyEP.getCompany("coA123", apiKeySally, apiKeySally));
             fail("Security Check failed");
-        } catch (DatagioException e ){
+        } catch (FlockException e ){
             // Illegal API key so this is good.
         }
         // Happy path
@@ -181,7 +181,7 @@ public class TestRegistration extends TestEngineBase {
         try {
             assertEquals("Mike's APIKey cannot see Sally's company record", null, companyEP.getCompany("coB123", apiKeyMike, apiKeyMike));
             fail("Security Check failed");
-        } catch (DatagioException e ){
+        } catch (FlockException e ){
             // Illegal API key so this is good.
         }
         // Happy path

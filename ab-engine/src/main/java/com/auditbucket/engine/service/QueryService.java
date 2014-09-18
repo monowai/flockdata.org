@@ -19,7 +19,7 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.track.bean.DocumentResultBean;
@@ -51,7 +51,7 @@ public class QueryService {
     @Autowired
     com.auditbucket.track.service.SchemaService schemaService;
 
-    public Collection<DocumentResultBean> getDocumentsInUse(Company abCompany, Collection<String> fortresses) throws DatagioException {
+    public Collection<DocumentResultBean> getDocumentsInUse(Company abCompany, Collection<String> fortresses) throws FlockException {
         ArrayList<DocumentResultBean> docs = new ArrayList<>();
 
         // ToDo: Optimize via Cypher, not a java loop

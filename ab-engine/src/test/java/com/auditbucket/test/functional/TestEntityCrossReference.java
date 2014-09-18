@@ -1,6 +1,6 @@
 package com.auditbucket.test.functional;
 
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
@@ -84,7 +84,7 @@ public class TestEntityCrossReference extends TestEngineBase {
             EntityKey entityKey = new EntityKey(fortress.getName(), "*", callerRef);
             trackService.crossReferenceEntities(su.getCompany(), entityKey, xRef, "cites");
             fail("Exactly one check failed");
-        } catch ( DatagioException e ){
+        } catch ( FlockException e ){
             // good stuff!
         }
     }
@@ -130,7 +130,7 @@ public class TestEntityCrossReference extends TestEngineBase {
         EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
         mediationFacade.trackEntity(su.getCompany(), inputBean);
 
-        // These are the two records that will cite the previously created header
+        // These are the two records that will cite the previously created entity
         EntityInputBean inputBeanB = new EntityInputBean(fortressA.getName(), "wally", "DocTypeZ", new DateTime(), "ABC321");
         mediationFacade.trackEntity(su.getCompany(), inputBeanB);
         EntityInputBean inputBeanC = new EntityInputBean(fortressA.getName(), "wally", "DocTypeS", new DateTime(), "ABC333");

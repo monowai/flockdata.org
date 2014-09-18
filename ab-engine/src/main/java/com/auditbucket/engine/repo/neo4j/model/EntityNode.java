@@ -19,7 +19,7 @@
 
 package com.auditbucket.engine.repo.neo4j.model;
 
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.search.model.EntitySearchSchema;
@@ -114,7 +114,7 @@ public class EntityNode implements Entity {
         this.lastUpdate = dateCreated;
     }
 
-    public EntityNode(String uniqueKey, @NotEmpty Fortress fortress, @NotEmpty EntityInputBean entityInput, @NotEmpty DocumentType documentType) throws DatagioException {
+    public EntityNode(String uniqueKey, @NotEmpty Fortress fortress, @NotEmpty EntityInputBean entityInput, @NotEmpty DocumentType documentType) throws FlockException {
         this();
         metaKey = uniqueKey;
         this.fortress = (FortressNode)fortress;
@@ -145,7 +145,7 @@ public class EntityNode implements Entity {
 
     }
 
-    public EntityNode(String guid, Fortress fortress, EntityInputBean mib, DocumentTypeNode doc, FortressUser user) throws DatagioException {
+    public EntityNode(String guid, Fortress fortress, EntityInputBean mib, DocumentTypeNode doc, FortressUser user) throws FlockException {
         this(guid, fortress, mib, doc);
         setCreatedBy(user);
     }
@@ -213,9 +213,9 @@ public class EntityNode implements Entity {
 
 
     /**
-     * should only be set if this is an immutable header and no log events will ever be recorded
+     * should only be set if this is an immutable entity and no log events will ever be recorded
      *
-     * @return event that created this meta-header
+     * @return event that created this entity
      */
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public String getEvent() {

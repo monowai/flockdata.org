@@ -16,9 +16,9 @@ public class DatagioAspect {
 
 
     @Around(value = "@annotation(annotation)")
-    public void createAuditHeader(final ProceedingJoinPoint joinPoint, final DatagioHeader annotation) throws Throwable {
+    public void createEntity(final ProceedingJoinPoint joinPoint, final FlockEntity annotation) throws Throwable {
         try {
-            logger.debug("createAuditHeader() is running!");
+            logger.debug("createEntity() is running!");
             logger.debug("hijacked method : {}", joinPoint.getSignature().getName());
             logger.debug("hijacked arguments : {}", Arrays.toString(joinPoint.getArgs()));
             joinPoint.proceed();
@@ -30,7 +30,7 @@ public class DatagioAspect {
     }
 
     @Around(value = "@annotation(annotation)")
-    public void createAuditLog(final ProceedingJoinPoint joinPoint, final DatagioLog annotation) throws Throwable {
+    public void createEntityLog(final ProceedingJoinPoint joinPoint, final FlockLog annotation) throws Throwable {
         try {
             logger.debug("createAuditLog() is running!");
             logger.debug("hijacked method : {}", joinPoint.getSignature().getName());

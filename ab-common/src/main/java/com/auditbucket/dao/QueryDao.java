@@ -19,11 +19,9 @@
 
 package com.auditbucket.dao;
 
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.QueryParams;
-
-import java.util.Collection;
 
 /**
  * User: Mike Holdsworth
@@ -33,7 +31,7 @@ import java.util.Collection;
 public interface QueryDao {
     long getHitCount(String index);
 
-    EsSearchResult doMetaKeySearch(QueryParams queryParams) throws DatagioException;
+    EsSearchResult doMetaKeySearch(QueryParams queryParams) throws FlockException;
 
-    String doSearch(QueryParams queryParams) throws DatagioException;
+    String doSearch(QueryParams queryParams) throws FlockException;
 }

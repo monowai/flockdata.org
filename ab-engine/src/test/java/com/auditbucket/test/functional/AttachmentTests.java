@@ -7,7 +7,6 @@ import com.auditbucket.test.utils.Helper;
 import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
-import com.auditbucket.track.model.Log;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -29,13 +28,13 @@ public class AttachmentTests extends TestEngineBase{
 
         EntityInputBean entity = new EntityInputBean(fortress.getName(), "zippy", "blag", new DateTime(), "ABC");
         ContentInputBean content = new ContentInputBean("zippy", new DateTime());
-        content.setAttachment(Helper.getPdfDoc(), Log.ContentType.PDF, "testing.pdf");
-        entity.setLog(content);
-        TrackResultBean trackResult = mediationFacade.trackHeader(fortress, entity);
+        content.setAttachment(Helper.getPdfDoc(), "PdF", "testing.pdf");
+        entity.setContent(content);
+        TrackResultBean trackResult = mediationFacade.trackEntity(fortress, entity);
         assertFalse("This should have been the first entity logged", trackResult.isDuplicate());
 
         // Update without changing the content
-        trackResult = mediationFacade.trackHeader(fortress, entity);
+        trackResult = mediationFacade.trackEntity(fortress, entity);
         assertTrue("Tracked the same file, so should have been ignored",trackResult.isDuplicate());
     }
 }

@@ -20,10 +20,7 @@
 package com.auditbucket.search.model;
 
 import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.track.model.Entity;
-import com.auditbucket.track.model.EntityContent;
-import com.auditbucket.track.model.SearchChange;
-import com.auditbucket.track.model.TrackTag;
+import com.auditbucket.track.model.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.joda.time.DateTime;
@@ -34,8 +31,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Encapsulates the information to make an track header and log a searchable document
- * according to the way AuditBucket deals with search docs.
+ * Encapsulates the information to make an Entity and it's log in to
+ * a searchable document
  * <p/>
  * This object becomes the payload dispatch to ab-search for indexing.
  * <p/>
@@ -68,43 +65,56 @@ public class EntitySearchChange implements SearchChange {
     private boolean delete;
     private Date createdDate; // Created in the fortress
 
-    /**
-     * extracts relevant header records to be used in indexing
-     *
-     * @param header details
-     */
-    public EntitySearchChange(Entity header) {
-        this();
-        this.metaKey = header.getMetaKey();
-        this.entityId = header.getId();
-        setDocumentType(header.getDocumentType());
-        setFortress(header.getFortress());
-        this.indexName = header.getIndexName();
-        this.searchKey = header.getSearchKey();
-        this.callerRef = header.getCallerRef();
-        if (header.getLastUser() != null)
-            this.who = header.getLastUser().getCode();
-        this.description = header.getDescription();
-        this.createdDate = header.getFortressDateCreated().toDate(); // UTC When created in AuditBucket
-
-    }
+    private String contentType;
+    private String fileName;
 
     public EntitySearchChange() {
     }
 
-    public EntitySearchChange(Entity header, EntityContent content, String event, DateTime when) {
-        this(header);
+
+    /**
+     * extracts relevant entity records to be used in indexing
+     *
+     * @param entity details
+     */
+    public EntitySearchChange(Entity entity) {
+        this();
+        this.metaKey = entity.getMetaKey();
+        this.entityId = entity.getId();
+        setDocumentType(entity.getDocumentType());
+        setFortress(entity.getFortress());
+        this.indexName = entity.getIndexName();
+        this.searchKey = entity.getSearchKey();
+        this.callerRef = entity.getCallerRef();
+        if (entity.getLastUser() != null)
+            this.who = entity.getLastUser().getCode();
+        this.description = entity.getDescription();
+        this.createdDate = entity.getFortressDateCreated().toDate(); // UTC When created in AuditBucket
+        this.event= entity.getEvent();
+        setWhen(new DateTime(entity.getWhenCreated()));
+    }
+
+    public EntitySearchChange(Entity entity, EntityContent content) {
+        this(entity);
         if ( content != null ) {
+            //ToDo: this attachment might be compressed
             this.attachment = content.getAttachment();
             this.what = content.getWhat();
         }
-        this.event = event;
-        setWhen(when);
+
     }
 
-    public EntitySearchChange(Entity header, Map<String, Object> json) {
-        this(header);
-        this.what = json;
+    public EntitySearchChange(Entity entity, EntityContent content, Log log) {
+        this(entity, content);
+        if ( log !=null ) {
+            this.event= log.getEvent().getCode();
+            this.fileName = log.getFileName();
+            this.contentType = log.getContentType();
+            setWhen(new DateTime(log.getEntityLog().getFortressWhen()));
+        } else {
+            event = entity.getEvent();
+            setWhen(entity.getFortressDateCreated());
+        }
     }
 
     @Override
@@ -296,7 +306,7 @@ public class EntitySearchChange implements SearchChange {
 
     @Override
     public String toString() {
-        return "MetaSearchChange{" +
+        return "EntitySearchChange{" +
                 "fortressName='" + fortressName + '\'' +
                 ", documentType='" + documentType + '\'' +
                 ", callerRef='" + callerRef + '\'' +
@@ -335,5 +345,15 @@ public class EntitySearchChange implements SearchChange {
     public boolean isDelete() {
         return delete;
     }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+
 
 }

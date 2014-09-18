@@ -1,6 +1,6 @@
 package com.auditbucket.track.service;
 
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
@@ -18,10 +18,10 @@ import java.util.concurrent.ExecutionException;
  */
 public interface LogService {
 
-    Collection<TrackResultBean> processLogsSync(Company company, Iterable<TrackResultBean> resultBeans) throws DatagioException, IOException, ExecutionException, InterruptedException;
+    Collection<TrackResultBean> processLogsSync(Company company, Iterable<TrackResultBean> resultBeans) throws FlockException, IOException, ExecutionException, InterruptedException;
 
-    TrackResultBean writeLog(Entity entity, ContentInputBean input) throws DatagioException, IOException, ExecutionException, InterruptedException;
+    TrackResultBean writeLog(Entity entity, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException;
 
-    EntityLog getLastLog(Entity entity) throws DatagioException;
+    EntityLog getLastLog(Entity entity) throws FlockException;
 
 }

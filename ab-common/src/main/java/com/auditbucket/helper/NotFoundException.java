@@ -24,7 +24,7 @@ package com.auditbucket.helper;
  * Date: 25/08/14
  * Time: 11:33 AM
  */
-public class NotFoundException extends DatagioException {
+public class NotFoundException extends FlockException {
 
     public NotFoundException(String message) {
         super(message);

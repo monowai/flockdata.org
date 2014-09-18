@@ -64,7 +64,7 @@ public class TagInputBean {
     }
 
     /**
-     * associates a tag to the Meta Header
+     * associates a tag to the Entity
      *
      * @param tagName              Unique name for a tag (if exists will be reused)
      * @param entityRelationshipName name of relationship to the Entity
@@ -240,7 +240,7 @@ public class TagInputBean {
     /**
      * Associates this tag with the Entity
      *
-     * @param relationshipName name of the relationship to the Audit Header
+     * @param relationshipName name of the relationship to the Entity
      * @param properties        properties to store against the relationship
      */
     public TagInputBean addEntityLink(String relationshipName, Map<String, Object> properties) {

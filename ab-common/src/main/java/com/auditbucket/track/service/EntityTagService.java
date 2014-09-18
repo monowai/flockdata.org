@@ -1,6 +1,6 @@
 package com.auditbucket.track.service;
 
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.track.bean.TrackTagInputBean;
@@ -18,7 +18,7 @@ import java.util.Set;
  * Time: 5:13 PM
  */
 public interface EntityTagService {
-    void processTag(Entity header, TrackTagInputBean tagInput);
+    void processTag(Entity entity, TrackTagInputBean tagInput);
 
     Boolean relationshipExists(Entity entity, String name, String relationshipType);
 
@@ -26,21 +26,21 @@ public interface EntityTagService {
 
     Collection<TrackTag> findEntityTags(Entity entity);
 
-    Collection<TrackTag> findOutboundTags(Entity header);
+    Collection<TrackTag> findOutboundTags(Entity entity);
 
-    Collection<TrackTag> findOutboundTags(Company company, Entity header);
+    Collection<TrackTag> findOutboundTags(Company company, Entity entity);
 
-    Collection<TrackTag> findInboundTags(Company company, Entity header);
+    Collection<TrackTag> findInboundTags(Company company, Entity entity);
 
     Collection<TrackTag> getEntityTags(Company company, Entity entity);
 
-    void deleteTrackTags(Entity entity, Collection<TrackTag> trackTags) throws DatagioException;
+    void deleteTrackTags(Entity entity, Collection<TrackTag> trackTags) throws FlockException;
 
-    void deleteTrackTags(Entity entity, TrackTag value) throws DatagioException;
+    void deleteTrackTags(Entity entity, TrackTag value) throws FlockException;
 
-    void changeType(Entity entity, TrackTag existingTag, String newType) throws DatagioException;
+    void changeType(Entity entity, TrackTag existingTag, String newType) throws FlockException;
 
-    Set<Entity> findTrackTags(String tagName) throws DatagioException;
+    Set<Entity> findTrackTags(String tagName) throws FlockException;
 
     Collection<TrackTag> findLogTags(Company company, Log log);
 

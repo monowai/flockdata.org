@@ -22,7 +22,7 @@ package com.auditbucket.engine.endpoint;
 import com.auditbucket.engine.service.FortressService;
 import com.auditbucket.engine.service.TxService;
 import com.auditbucket.helper.CompanyResolver;
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.helper.NotFoundException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.kv.service.KvService;
@@ -33,6 +33,7 @@ import com.auditbucket.track.bean.*;
 import com.auditbucket.track.model.*;
 import com.auditbucket.track.service.EntityTagService;
 import com.auditbucket.track.service.LogService;
+import com.auditbucket.track.service.MediationFacade;
 import com.auditbucket.track.service.TrackService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +60,7 @@ public class TrackEP {
     TrackService trackService;
 
     @Autowired
-    com.auditbucket.track.service.MediationFacade mediationFacade;
+    MediationFacade mediationFacade;
 
     @Autowired
     FortressService fortressService;
@@ -86,34 +87,38 @@ public class TrackEP {
 
 
     @RequestMapping(value = "/", consumes = "application/json", method = RequestMethod.PUT)
-    public Collection<TrackResultBean> trackHeaders(@RequestBody List<EntityInputBean> inputBeans,
-                                                    HttpServletRequest request) throws DatagioException, InterruptedException, ExecutionException, IOException {
+    @ResponseStatus(value = HttpStatus.ACCEPTED)
+    public void trackEntities(@RequestBody List<EntityInputBean> inputBeans,
+                              HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
         Company company = CompanyResolver.resolveCompany(request);
-        return mediationFacade.trackHeaders(company, inputBeans);
+        mediationFacade.trackEntities(company, inputBeans);
     }
 
     /**
      * Tracks an entity
      *
-     * @param input meta header input
+     * @param input Entity input
      * @return TrackResultBean
-     * @throws com.auditbucket.helper.DatagioException
+     * @throws com.auditbucket.helper.FlockException
      */
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
-    public TrackResultBean trackEntity(@RequestBody EntityInputBean input ,
-                                                       HttpServletRequest request) throws DatagioException, InterruptedException, ExecutionException, IOException {
+    public
+    ResponseEntity<TrackResultBean> trackEntity(@RequestBody EntityInputBean input,
+                                                HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
         Company company = CompanyResolver.resolveCompany(request);
         TrackResultBean trackResultBean;
         trackResultBean = mediationFacade.trackEntity(company, input);
         trackResultBean.setServiceMessage("OK");
-        return trackResultBean;
+        if ( trackResultBean.isDuplicate())
+            return new ResponseEntity<>(trackResultBean, HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(trackResultBean, HttpStatus.CREATED);
 
     }
 
 
     @RequestMapping(value = "/log/", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
     public ResponseEntity<LogResultBean> trackLog(@RequestBody ContentInputBean input ,
-                                                  HttpServletRequest request) throws DatagioException, InterruptedException, ExecutionException, IOException {
+                                                  HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
         Company company = CompanyResolver.resolveCompany(request);
 
         LogResultBean resultBean = mediationFacade.trackLog(company, input).getLogResult();
@@ -121,8 +126,7 @@ public class TrackEP {
         if (ls.equals(ContentInputBean.LogStatus.FORBIDDEN))
             return new ResponseEntity<>(resultBean, HttpStatus.FORBIDDEN);
         else if (ls.equals(ContentInputBean.LogStatus.NOT_FOUND)) {
-            input.setAbMessage("Illegal meta key");
-            return new ResponseEntity<>(resultBean, HttpStatus.NOT_FOUND);
+            throw new NotFoundException("Unable to locate the requested metaKey");
         } else if (ls.equals(ContentInputBean.LogStatus.IGNORE)) {
             input.setAbMessage("Ignoring request to change as the 'what' has not changed");
             return new ResponseEntity<>(resultBean, HttpStatus.NOT_MODIFIED);
@@ -130,7 +134,7 @@ public class TrackEP {
             return new ResponseEntity<>(resultBean, HttpStatus.NO_CONTENT);
         }
 
-        return new ResponseEntity<>(resultBean, HttpStatus.OK);
+        return new ResponseEntity<>(resultBean, HttpStatus.CREATED);
     }
 
 
@@ -139,7 +143,7 @@ public class TrackEP {
                                                             @PathVariable("fortress") String fortress,
                                                             @PathVariable("recordType") String recordType,
                                                             @PathVariable("callerRef") String callerRef ,
-                                                            HttpServletRequest request) throws DatagioException, InterruptedException, ExecutionException, IOException {
+                                                            HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
         Company company = CompanyResolver.resolveCompany(request);
         TrackResultBean trackResultBean;
         input.setFortress(fortress);
@@ -154,18 +158,18 @@ public class TrackEP {
 
 
     @RequestMapping(value = "/{fortress}/all/{callerRef}", method = RequestMethod.GET)
-    public Iterable<Entity> findByCallerRef(@PathVariable("fortress") String fortress, @PathVariable("callerRef") String callerRef,
-                                            HttpServletRequest request) throws DatagioException {
+    public @ResponseBody Iterable<Entity> findByCallerRef(@PathVariable("fortress") String fortress, @PathVariable("callerRef") String callerRef,
+                                                          HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return trackService.findByCallerRef(company, fortress, callerRef);  //To change body of created methods use File | Settings | File Templates.
     }
 
 
     @RequestMapping(value = "/{fortress}/{documentType}/{callerRef}", method = RequestMethod.GET)
-    public Entity findByCallerRef(@PathVariable("fortress") String fortressName,
-                                  @PathVariable("documentType") String recordType,
-                                  @PathVariable("callerRef") String callerRef,
-                                  HttpServletRequest request) throws DatagioException {
+    public @ResponseBody  Entity findByCallerRef(@PathVariable("fortress") String fortressName,
+                                                 @PathVariable("documentType") String recordType,
+                                                 @PathVariable("callerRef") String callerRef,
+                                                 HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         Fortress fortress = fortressService.findByName(company, fortressName);
         return trackService.findByCallerRef(fortress, recordType, callerRef);
@@ -174,12 +178,12 @@ public class TrackEP {
 
     @RequestMapping(value = "/{metaKey}", method = RequestMethod.GET)
     public ResponseEntity<Entity> getEntity(@PathVariable("metaKey") String metaKey ,
-                                            HttpServletRequest request) throws DatagioException {
+                                            HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/{metaKey}
         Entity result = trackService.getEntity(company, metaKey, true);
         if (result == null)
-            throw new DatagioException("Unable to resolve requested meta key [" + metaKey + "]. Company is " + (company == null ? "Invalid" : "Valid"));
+            throw new FlockException("Unable to resolve requested meta key [" + metaKey + "]. Company is " + (company == null ? "Invalid" : "Valid"));
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
@@ -189,19 +193,19 @@ public class TrackEP {
      *
      * @param toFind       keys to look for
      * @return Matching entities you are authorised to receive
-     * @throws DatagioException
+     * @throws com.auditbucket.helper.FlockException
      */
 
     @RequestMapping(value = "/", method = RequestMethod.POST)
-    public Collection<Entity> getEntities(@RequestBody Collection<String> toFind ,
-                                          HttpServletRequest request) throws DatagioException {
+    public @ResponseBody Collection<Entity> getEntities(@RequestBody Collection<String> toFind ,
+                                                        HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return trackService.getEntities(company, toFind).values();
     }
 
     @RequestMapping(value = "/{metaKey}/logs", produces = "application/json", method = RequestMethod.GET)
-    public Set<EntityLog> getLogs(@PathVariable("metaKey") String metaKey,
-                                  HttpServletRequest request) throws DatagioException {
+    public @ResponseBody Set<EntityLog> getLogs(@PathVariable("metaKey") String metaKey,
+                                                HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/{metaKey}/logs
         return trackService.getEntityLogs(company, metaKey);
@@ -210,8 +214,8 @@ public class TrackEP {
 
 
     @RequestMapping(value = "/{metaKey}/summary", produces = "application/json", method = RequestMethod.GET)
-    public EntitySummaryBean getEntitySummary(@PathVariable("metaKey") String metaKey,
-                                              HttpServletRequest request) throws DatagioException {
+    public @ResponseBody EntitySummaryBean getEntitySummary(@PathVariable("metaKey") String metaKey,
+                                                            HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return mediationFacade.getEntitySummary(company, metaKey);
 
@@ -220,21 +224,21 @@ public class TrackEP {
 
     @RequestMapping(value = "/{metaKey}/lastlog", produces = "application/json", method = RequestMethod.GET)
     public ResponseEntity<EntityLog> getLastLog(@PathVariable("metaKey") String metaKey,
-                                                HttpServletRequest request) throws DatagioException {
+                                                HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/c27ec2e5-2e17-4855-be18-bd8f82249157/lastchange
+        // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/c27ec2e5-2e17-4855-be18-bd8f82249157/lastlog
         EntityLog changed = trackService.getLastEntityLog(company, metaKey);
         if (changed != null)
             return new ResponseEntity<>(changed, HttpStatus.OK);
 
-        return new ResponseEntity<>((EntityLog) null, HttpStatus.NOT_FOUND);
+        throw new NotFoundException("Unable to locate the last log for the requested metaKey");
 
     }
 
 
     @RequestMapping(value = "/{metaKey}/lastlog/tags", produces = "application/json", method = RequestMethod.GET)
-    public Collection<TrackTag> getLastLogTags(@PathVariable("metaKey") String metaKey,
-                                         HttpServletRequest request) throws DatagioException {
+    public @ResponseBody Collection<TrackTag> getLastLogTags(@PathVariable("metaKey") String metaKey,
+                                                             HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/c27ec2e5-2e17-4855-be18-bd8f82249157/lastchange
 //        TrackLog changed = trackService.getLastLog(company, metaKey);
@@ -244,8 +248,8 @@ public class TrackEP {
 
 
     @RequestMapping(value = "/{metaKey}/{logId}/tags", produces = "application/json", method = RequestMethod.GET)
-    public Collection<TrackTag> getLogTags(@PathVariable("metaKey") String metaKey, @PathVariable("logId") long logId,
-                                    HttpServletRequest request) throws DatagioException {
+    public @ResponseBody Collection<TrackTag> getLogTags(@PathVariable("metaKey") String metaKey, @PathVariable("logId") long logId,
+                                                         HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/c27ec2e5-2e17-4855-be18-bd8f82249157/lastchange
         EntityLog tl = trackService.getEntityLog(company, metaKey, logId);
@@ -254,7 +258,7 @@ public class TrackEP {
 
     @RequestMapping(value = "/{metaKey}/tags", method = RequestMethod.GET)
     public @ResponseBody Collection<TrackTag> getEntityTags(@PathVariable("metaKey") String metaKey,
-                                              HttpServletRequest request) throws DatagioException {
+                                                            HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 
         // curl -u mike:123 -X GET http://localhost:8081/ab-engine/track/{metaKey}
@@ -267,7 +271,7 @@ public class TrackEP {
             method = RequestMethod.GET)
     public @ResponseBody
     byte[] getAttachment(@PathVariable("metaKey") String metaKey,
-                         HttpServletRequest request) throws DatagioException {
+                         HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         Entity entity = trackService.getEntity(company, metaKey);
         if (entity != null) {
@@ -285,8 +289,8 @@ public class TrackEP {
     }
 
     @RequestMapping(value = "/{metaKey}/{logId}/delta/{withId}", produces = "application/json", method = RequestMethod.GET)
-    public ResponseEntity<DeltaBean> getDelta(@PathVariable("metaKey") String metaKey, @PathVariable("logId") Long logId, @PathVariable("withId") Long withId,
-                                                   HttpServletRequest request) throws DatagioException {
+    public @ResponseBody ResponseEntity<DeltaBean> getDelta(@PathVariable("metaKey") String metaKey, @PathVariable("logId") Long logId, @PathVariable("withId") Long withId,
+                                                            HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         Entity entity = trackService.getEntity(company, metaKey);
 
@@ -301,33 +305,33 @@ public class TrackEP {
             }
         }
 
-        return new ResponseEntity<>((DeltaBean) null, HttpStatus.NOT_FOUND);
+        throw new NotFoundException("Unable to find any content for the requested metaKey") ;
 
     }
 
     @RequestMapping(value = "/{metaKey}/{logId}", produces = "application/json", method = RequestMethod.GET)
-    public ResponseEntity<LogDetailBean> getFullLog(@PathVariable("metaKey") String metaKey, @PathVariable("logId") Long logId,
-                                                    HttpServletRequest request) throws DatagioException {
+    public @ResponseBody LogDetailBean getFullLog(@PathVariable("metaKey") String metaKey, @PathVariable("logId") Long logId,
+                                                  HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         LogDetailBean change = trackService.getFullDetail(company, metaKey, logId);
 
         if (change != null)
-            return new ResponseEntity<>(change, HttpStatus.OK);
+            return change;
 
-        return new ResponseEntity<>((LogDetailBean) null, HttpStatus.NOT_FOUND);
+        throw new NotFoundException("Unable to locate the requested log");
     }
 
     @RequestMapping(value = "/{metaKey}/{logId}/what", produces = "application/json", method = RequestMethod.GET)
-    public @ResponseBody Map<String, Object> getLogWhat(@PathVariable("metaKey") String metaKey,
-                                          @PathVariable("logId") Long logId,
-                                          HttpServletRequest request) throws DatagioException {
+    public @ResponseBody Map<String, Object> getLogContent(@PathVariable("metaKey") String metaKey,
+                                                           @PathVariable("logId") Long logId,
+                                                           HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 
-        Entity header = trackService.getEntity(company, metaKey);
-        if (header != null) {
-            EntityLog log = trackService.getLogForEntity(header, logId);
+        Entity entity = trackService.getEntity(company, metaKey);
+        if (entity != null) {
+            EntityLog log = trackService.getLogForEntity(entity, logId);
             if (log != null)
-                return kvService.getContent(header, log.getLog()).getWhat();
+                return kvService.getContent(entity, log.getLog()).getWhat();
         }
 
         throw new NotFoundException(String.format("Unable to locate the log for %s / %d", metaKey, logId));
@@ -336,7 +340,7 @@ public class TrackEP {
 
     @RequestMapping(value = "/{metaKey}/lastlog", method = RequestMethod.DELETE)
     public ResponseEntity<String> cancelLastLog(@PathVariable("metaKey") String metaKey,
-                                                HttpServletRequest request) throws DatagioException, IOException {
+                                                HttpServletRequest request) throws FlockException, IOException {
         Company company = CompanyResolver.resolveCompany(request);
         Entity result = trackService.getEntity(company, metaKey);
         if (result != null) {
@@ -350,7 +354,7 @@ public class TrackEP {
 
     @RequestMapping(value = "/tx/{txRef}", produces = "application/json", method = RequestMethod.GET)
     public ResponseEntity<TxRef> getAuditTx(@PathVariable("txRef") String txRef,
-                                            HttpServletRequest request) throws DatagioException {
+                                            HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         TxRef result;
         result = txService.findTx(txRef);
@@ -359,13 +363,13 @@ public class TrackEP {
     }
 
 
-    @RequestMapping(value = "/tx/{txRef}/headers", produces = "application/json", method = RequestMethod.GET)
+    @RequestMapping(value = "/tx/{txRef}/entities", produces = "application/json", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getTransactedEntities(@PathVariable("txRef") String txRef,
-                                                                     HttpServletRequest request) throws DatagioException {
+                                                                     HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         Set<Entity> headers;
         Map<String, Object> result = new HashMap<>(2);
-        headers = txService.findTxHeaders(txRef);
+        headers = txService.findTxEntities(txRef);
         result.put("txRef", txRef);
         result.put("headers", headers);
         return new ResponseEntity<>(result, HttpStatus.OK);
@@ -374,7 +378,7 @@ public class TrackEP {
 
     @RequestMapping(value = "/tx/{txRef}/logs", produces = "application/json", method = RequestMethod.GET)
     public ResponseEntity<Map> getEntityTxLogs(@PathVariable("txRef") String txRef,
-                                               HttpServletRequest request) throws DatagioException {
+                                               HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         Map<String, Object> result;
         result = txService.findByTXRef(txRef);
@@ -389,8 +393,8 @@ public class TrackEP {
 
 
     @RequestMapping(value = "/{metaKey}/{xRefName}/xref", produces = "application/json", method = RequestMethod.POST)
-    public Collection<String> crossReference(@PathVariable("metaKey") String metaKey, Collection<String> metaKeys, @PathVariable("xRefName") String relationshipName,
-                                             HttpServletRequest request) throws DatagioException {
+    public @ResponseBody Collection<String> crossReference(@PathVariable("metaKey") String metaKey, Collection<String> metaKeys, @PathVariable("xRefName") String relationshipName,
+                                                           HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return trackService.crossReference(company, metaKey, metaKeys, relationshipName);
     }
@@ -401,12 +405,12 @@ public class TrackEP {
      * @param metaKey  uid to start from
      * @param xRefName relationship name
      * @return all meta headers of xRefName associated with callerRef
-     * @throws DatagioException
+     * @throws com.auditbucket.helper.FlockException
      */
 
     @RequestMapping(value = "/{metaKey}/{xRefName}/xref", produces = "application/json", method = RequestMethod.GET)
-    public Map<String, Collection<Entity>> getCrossRefence(@PathVariable("metaKey") String metaKey, @PathVariable("xRefName") String xRefName,
-                                                           HttpServletRequest request) throws DatagioException {
+    public @ResponseBody Map<String, Collection<Entity>> getCrossRefence(@PathVariable("metaKey") String metaKey, @PathVariable("xRefName") String xRefName,
+                                                                         HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return trackService.getCrossReference(company, metaKey, xRefName);
     }
@@ -420,26 +424,26 @@ public class TrackEP {
      * @param entities   targets
      * @param xRefName     name of the cross reference
      * @return unresolvable caller references
-     * @throws DatagioException if not exactly one Entity for the callerRef in the fortress
+     * @throws com.auditbucket.helper.FlockException if not exactly one Entity for the callerRef in the fortress
      */
 
     @RequestMapping(value = "/{fortress}/all/{callerRef}/{xRefName}/xref", produces = "application/json", method = RequestMethod.POST)
-    public List<EntityKey> crossReferenceEntity(@PathVariable("fortress") String fortressName,
-                                                @PathVariable("callerRef") String callerRef,
-                                                @RequestBody Collection<EntityKey> entities,
-                                                @PathVariable("xRefName") String xRefName,
-                                                HttpServletRequest request) throws DatagioException {
+    public @ResponseBody  List<EntityKey> crossReferenceEntity(@PathVariable("fortress") String fortressName,
+                                                               @PathVariable("callerRef") String callerRef,
+                                                               @RequestBody Collection<EntityKey> entities,
+                                                               @PathVariable("xRefName") String xRefName,
+                                                               HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return trackService.crossReferenceEntities(company, new EntityKey(fortressName, "*", callerRef), entities, xRefName);
     }
 
 
     @RequestMapping(value = "/xref", produces = "application/json", method = RequestMethod.POST)
-    public List<CrossReferenceInputBean> corssReferenceEntities(@RequestBody List<CrossReferenceInputBean> crossReferenceInputBeans,
-                                                                HttpServletRequest request) throws DatagioException {
+    public @ResponseBody List<CrossReferenceInputBean> crossReferenceEntities(@RequestBody List<CrossReferenceInputBean> crossReferenceInputBeans,
+                                                                              HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 
-       return trackService.crossReferenceEntities(company, crossReferenceInputBeans);
+        return trackService.crossReferenceEntities(company, crossReferenceInputBeans);
         //return crossReferenceInputBeans;
     }
 
@@ -451,11 +455,11 @@ public class TrackEP {
      * @param callerRef    unique key within the fortress
      * @param xRefName     name of the xReference to lookup
      * @return xRefName and collection of Entities
-     * @throws DatagioException if not exactly one CallerRef exists within the fortress
+     * @throws com.auditbucket.helper.FlockException if not exactly one CallerRef exists within the fortress
      */
     @RequestMapping(value = "/{fortress}/all/{callerRef}/{xRefName}/xref", produces = "application/json", method = RequestMethod.GET)
-    public Map<String, Collection<Entity>> getCrossReference(@PathVariable("fortress") String fortress, @PathVariable("callerRef") String callerRef, @PathVariable("xRefName") String xRefName,
-                                                             HttpServletRequest request) throws DatagioException {
+    public @ResponseBody  Map<String, Collection<Entity>> getCrossReference(@PathVariable("fortress") String fortress, @PathVariable("callerRef") String callerRef, @PathVariable("xRefName") String xRefName,
+                                                                            HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return trackService.getCrossReference(company, fortress, callerRef, xRefName);
     }

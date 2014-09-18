@@ -2,11 +2,10 @@ package com.auditbucket.geography.endpoint;
 
 import com.auditbucket.geography.service.GeographyService;
 import com.auditbucket.helper.ApiKeyHelper;
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -29,7 +28,7 @@ public class GeographyEP {
     RegistrationService regService;
 
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
-    public Collection<Tag> findCountries(String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+    public Collection<Tag> findCountries(String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException {
         return geoService.findCountries(regService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey)));
     }
 

@@ -68,7 +68,7 @@ public class TestDelta extends TestEngineBase {
 
         EntityInputBean entity = new EntityInputBean("DELTAForce", "auditTestz", "Delta", new DateTime(), "abdelta");
         ContentInputBean log = new ContentInputBean("Mike", new DateTime(), jsonA);
-        entity.setLog(log);
+        entity.setContent(log);
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entity);
         EntityLog first = logService.getLastLog(result.getEntity());
         assertNotNull(first);

@@ -21,22 +21,19 @@ package com.auditbucket.fortress.endpoint;
 
 import com.auditbucket.engine.service.FortressService;
 import com.auditbucket.helper.CompanyResolver;
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.track.bean.DocumentResultBean;
-import com.auditbucket.track.model.DocumentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -59,7 +56,7 @@ public class FortressEP {
 
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
 
-    public Collection<Fortress> findFortresses(HttpServletRequest request) throws DatagioException {
+    public Collection<Fortress> findFortresses(HttpServletRequest request) throws FlockException {
         // curl -u mike:123 -X GET  http://localhost:8080/ab/company/Monowai/fortresses
         Company company = CompanyResolver.resolveCompany(request);
         return fortressService.findFortresses(company);
@@ -67,7 +64,7 @@ public class FortressEP {
 
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
 
-    public ResponseEntity<Fortress> registerFortress( @RequestBody FortressInputBean fortressInputBean, HttpServletRequest request) throws DatagioException {
+    public ResponseEntity<Fortress> registerFortress( @RequestBody FortressInputBean fortressInputBean, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         Fortress fortress = fortressService.registerFortress(company, fortressInputBean, true);
         fortressInputBean.setFortressKey(fortress.getFortressKey());
@@ -77,7 +74,7 @@ public class FortressEP {
 
     @RequestMapping(value = "/{code}", method = RequestMethod.GET)
 
-    public ResponseEntity<Fortress> getFortress(@PathVariable("code") String fortressName, HttpServletRequest request) throws DatagioException {
+    public ResponseEntity<Fortress> getFortress(@PathVariable("code") String fortressName, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         Fortress fortress = fortressService.findByCode(company, fortressName);
         if (fortress == null)
@@ -88,7 +85,7 @@ public class FortressEP {
 
     @RequestMapping(value = "/{code}/docs", method = RequestMethod.GET)
 
-    public Collection<DocumentResultBean> getDocumentTypes(@PathVariable("code") String code, HttpServletRequest request) throws DatagioException {
+    public Collection<DocumentResultBean> getDocumentTypes(@PathVariable("code") String code, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return  fortressService.getFortressDocumentsInUse(company, code);
     }

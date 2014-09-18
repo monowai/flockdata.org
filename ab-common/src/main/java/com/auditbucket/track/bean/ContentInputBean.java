@@ -19,12 +19,9 @@
 
 package com.auditbucket.track.bean;
 
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.track.model.ChangeEvent;
 import com.auditbucket.track.model.EntityContent;
-import com.auditbucket.track.model.KvContent;
-import com.auditbucket.track.model.Log;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import org.joda.time.DateTime;
 
 import java.util.Date;
@@ -64,8 +61,7 @@ public class ContentInputBean implements EntityContent {
     private boolean forceReindex;
     private boolean status;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private Log.ContentType contentType = Log.ContentType.JSON;
+    private String contentType = "json";
     private String fileName;
 
 
@@ -85,7 +81,7 @@ public class ContentInputBean implements EntityContent {
      * @param fortressWhen         -fortress view of DateTime
      * @param what         -escaped JSON
      */
-    public ContentInputBean(String fortressUser, String metaKey, DateTime fortressWhen, Map<String, Object> what, Boolean isTransactional) throws DatagioException {
+    public ContentInputBean(String fortressUser, String metaKey, DateTime fortressWhen, Map<String, Object> what, Boolean isTransactional) throws FlockException {
         this(fortressUser, fortressWhen);
         this.metaKey = metaKey;
         setTransactional(isTransactional);
@@ -99,12 +95,12 @@ public class ContentInputBean implements EntityContent {
      * @param what         - Map
      * @param event        -how the caller would like to catalog this change (create, update etc)
      */
-    public ContentInputBean(String fortressUser, String metaKey, DateTime fortressWhen, Map<String, Object> what, String event) throws DatagioException {
+    public ContentInputBean(String fortressUser, String metaKey, DateTime fortressWhen, Map<String, Object> what, String event) throws FlockException {
         this(fortressUser, metaKey, fortressWhen, what);
         this.event = event;
     }
 
-    public ContentInputBean(String fortressUser, String metaKey, DateTime fortressWhen, Map<String, Object> what, String event, String txName) throws DatagioException {
+    public ContentInputBean(String fortressUser, String metaKey, DateTime fortressWhen, Map<String, Object> what, String event, String txName) throws FlockException {
         this(fortressUser, metaKey, fortressWhen, what, event);
         this.setTxRef(txName);
     }
@@ -113,11 +109,11 @@ public class ContentInputBean implements EntityContent {
         this.what = result;
     }
 
-    public ContentInputBean(String fortressUser, DateTime when, Map<String, Object> what) throws DatagioException {
+    public ContentInputBean(String fortressUser, DateTime when, Map<String, Object> what) throws FlockException {
         this(fortressUser, null, when, what);
     }
 
-    public ContentInputBean(String fortressUser, String metaKey, DateTime when, Map<String, Object> what) throws DatagioException {
+    public ContentInputBean(String fortressUser, String metaKey, DateTime when, Map<String, Object> what) throws FlockException {
         this(fortressUser, metaKey, when, what, false);
     }
 
@@ -159,7 +155,7 @@ public class ContentInputBean implements EntityContent {
     }
 
 
-    public void setWhat( Map<String, Object> what) throws DatagioException {
+    public void setWhat( Map<String, Object> what) throws FlockException {
         this.what = what;
 
     }
@@ -267,14 +263,13 @@ public class ContentInputBean implements EntityContent {
     }
 
     /**
-     *
-     * @param attachment base64 encoded bytes
-     * @param mediaType  valid  HTTP MediaType
+     *  @param attachment base64 encoded bytes
+     * @param contentType  valid  HTTP MediaType
      * @param fileName   How you would like this file to be known if it's downloaded
      */
-    public void setAttachment(String attachment, Log.ContentType mediaType, String fileName) {
+    public void setAttachment(String attachment, String contentType, String fileName) {
         this.attachment = attachment;
-        this.contentType = mediaType;
+        this.contentType = contentType;
         this.fileName = fileName;
     }
 
@@ -292,11 +287,11 @@ public class ContentInputBean implements EntityContent {
         this.fileName = fileName;
     }
 
-    public Log.ContentType getContentType() {
-        return contentType;
+    public String getContentType() {
+        return contentType.toLowerCase();
     }
 
-    public void setContentType(Log.ContentType contentType) {
+    public void setContentType(String contentType) {
         this.contentType = contentType;
     }
 

@@ -173,10 +173,10 @@ public class ImportParams {
         this.entityOnly = entityOnly;
     }
 
-    public CsvColumnDefinition getColumnDef(String header) {
+    public CsvColumnDefinition getColumnDef(String column) {
         if (csvHeaders == null)
             return null;
-        return csvHeaders.get(header);
+        return csvHeaders.get(column);
     }
 
     public void setStaticDataResolver(IStaticDataResolver staticDataResolver) {

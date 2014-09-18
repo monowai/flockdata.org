@@ -29,14 +29,14 @@ public interface Entity {
     public Long getId();
 
     /**
-     * Foreign computer system that owns this header
+     * Foreign computer system that owns this entity
      *
      * @return fortress
      */
     public Fortress getFortress();
 
     /**
-     * Callers classification of this header
+     * Callers classification of this entity
      *
      * @return
      */
@@ -74,7 +74,7 @@ public interface Entity {
     public FortressUser getCreatedBy();
 
     /**
-     * @return the index this header belongs to
+     * @return the index this entity belongs to
      */
     public String getIndexName();
 
@@ -89,17 +89,17 @@ public interface Entity {
     void bumpUpdate();
 
     /**
-     * @return if this header should not be made searchable
+     * @return if this entity should not be made searchable
      */
     public boolean isSearchSuppressed();
 
     /**
-     * @param searchSuppressed never index this header in the search service
+     * @param searchSuppressed never index this entity in the search service
      */
     public void suppressSearch(boolean searchSuppressed);
 
     /**
-     * Enables the header to track the search services key. Don't bother setting if it's
+     * Enables the entity to track the search services key. Don't bother setting if it's
      * the same as the metaKey
      * @param parentKey
      */

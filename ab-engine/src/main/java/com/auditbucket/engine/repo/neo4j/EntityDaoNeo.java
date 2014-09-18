@@ -24,13 +24,13 @@ import com.auditbucket.engine.repo.neo4j.model.LogNode;
 import com.auditbucket.engine.repo.neo4j.model.LoggedRelationship;
 import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
 import com.auditbucket.engine.service.TrackEventService;
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.service.KeyGenService;
-import com.auditbucket.track.bean.AuditTXResult;
+import com.auditbucket.track.bean.EntityTXResult;
 import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.model.*;
@@ -79,7 +79,7 @@ public class EntityDaoNeo {
 
     private Logger logger = LoggerFactory.getLogger(EntityDaoNeo.class);
 
-    public Entity create(EntityInputBean inputBean, Fortress fortress, DocumentType documentType) throws DatagioException {
+    public Entity create(EntityInputBean inputBean, Fortress fortress, DocumentType documentType) throws FlockException {
         String metaKey = ( inputBean.isTrackSuppressed()?null:keyGenService.getUniqueKey());
         Entity entity = new EntityNode(metaKey, fortress, inputBean, documentType);
 
@@ -135,7 +135,7 @@ public class EntityDaoNeo {
 
     }
 
-    public Entity findByCallerRefUnique(Long fortressId, String callerRef) throws DatagioException {
+    public Entity findByCallerRefUnique(Long fortressId, String callerRef) throws FlockException {
         int count = 0;
         Iterable<Entity> entities = findByCallerRef(fortressId, callerRef);
         Entity result = null;
@@ -145,7 +145,7 @@ public class EntityDaoNeo {
             if (count > 1) break;
         }
         if (count > 1)
-            throw new DatagioException("Unable to find exactly one record for the callerRef [" + callerRef + "]. Found " + count);
+            throw new FlockException("Unable to find exactly one record for the callerRef [" + callerRef + "]. Found " + count);
 
         return result;
 
@@ -160,7 +160,7 @@ public class EntityDaoNeo {
         return metaRepo.findBySchemaPropertyValue("callerKeyRef", keyToFind);
     }
 
-    //@Cacheable(value = "headerId", key = "p0.id", unless = "#result==null")
+    //@Cacheable(value = "entityId", key = "p0.id", unless = "#result==null")
     public Entity fetch(Entity entity) {
         template.fetch(entity.getCreatedBy());
         template.fetch(entity.getLastUser());
@@ -168,15 +168,15 @@ public class EntityDaoNeo {
         return entity;
     }
 
-    public Set<Entity> findHeadersByTxRef(Long txRef) {
-        return metaRepo.findHeadersByTxRef(txRef);
+    public Set<Entity> findEntitiesByTxRef(Long txRef) {
+        return metaRepo.findEntitiesByTxRef(txRef);
     }
 
-    public Collection<Entity> findHeaders(Long fortressId, Long skipTo) {
-        return metaRepo.findHeadersFrom(fortressId, skipTo);
+    public Collection<Entity> findEntities(Long fortressId, Long skipTo) {
+        return metaRepo.findEntities(fortressId, skipTo);
     }
 
-    public Collection<Entity> findHeaders(Long fortressId, String label, Long skipTo) {
+    public Collection<Entity> findEntities(Long fortressId, String label, Long skipTo) {
         //ToDo: Should this pass in timestamp it got to??
         String cypher = "match (f:Fortress)-[:TRACKS]->(meta:`" + label + "`) where id(f)={fortress} return meta ORDER BY meta.dateCreated ASC skip {skip} limit 100 ";
         Map<String, Object> args = new HashMap<>();
@@ -199,14 +199,14 @@ public class EntityDaoNeo {
         trackLogRepo.delete((LogNode) currentChange);
     }
 
-    public TxRef findTxTag(@NotEmpty String txTag, @NotNull Company company, boolean fetchHeaders) {
+    public TxRef findTxTag(@NotEmpty String txTag, @NotNull Company company) {
         return metaRepo.findTxTag(txTag, company.getId());
     }
 
 
     public TxRef beginTransaction(String id, Company company) {
 
-        TxRef txTag = findTxTag(id, company, false);
+        TxRef txTag = findTxTag(id, company);
         if (txTag == null) {
             txTag = new TxRefNode(id, company);
             template.save(txTag);
@@ -242,15 +242,15 @@ public class EntityDaoNeo {
         Iterator<Map<String, Object>> rows;
         rows = exResult.iterator();
 
-        List<AuditTXResult> simpleResult = new ArrayList<>();
+        List<EntityTXResult> simpleResult = new ArrayList<>();
         int i = 1;
         //Result<Map<String, Object>> results =
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
             EntityLog log = template.convert(row.get("logs"), LoggedRelationship.class);
             Log change = template.convert(row.get("auditLog"), LogNode.class);
-            Entity audit = template.convert(row.get("track"), EntityNode.class);
-            simpleResult.add(new AuditTXResult(audit, change, log));
+            Entity entity = template.convert(row.get("track"), EntityNode.class);
+            simpleResult.add(new EntityTXResult(entity, change, log));
             i++;
 
         }
@@ -280,7 +280,7 @@ public class EntityDaoNeo {
         return "Neo4J is OK";
     }
 
-    public Log prepareLog(FortressUser fUser, ContentInputBean entityContent, TxRef txRef, Log previousChange) throws DatagioException {
+    public Log prepareLog(FortressUser fUser, ContentInputBean entityContent, TxRef txRef, Log previousChange) throws FlockException {
         ChangeEvent event = trackEventService.processEvent(fUser.getFortress().getCompany(), entityContent.getEvent());
         Log changeLog = new LogNode(fUser, entityContent, txRef);
         changeLog.setEvent(event);
@@ -288,7 +288,7 @@ public class EntityDaoNeo {
         try {
             changeLog = kvService.prepareLog(changeLog, entityContent);
         } catch (IOException e) {
-            throw new DatagioException("Unexpected error talking to What Service", e);
+            throw new FlockException("Unexpected error talking to What Service", e);
         }
         return changeLog;
     }
@@ -308,9 +308,9 @@ public class EntityDaoNeo {
     }
 
 
-    //    @Cacheable(value = "headerId", unless = "#result==null")
-    public Entity getHeader(Long id) {
-        return template.findOne(id, EntityNode.class);
+    //    @Cacheable(value = "entityId", unless = "#result==null")
+    public Entity getEntity(Long pk) {
+        return template.findOne(pk, EntityNode.class);
     }
 
     public Log fetch(Log lastChange) {
@@ -352,36 +352,36 @@ public class EntityDaoNeo {
         return newChange.getEntityLog();
     }
 
-    public void crossReference(Entity header, Collection<Entity> entities, String refName) {
-        Node source = template.getPersistentState(header);
-        for (Entity entity : entities) {
-            Node dest = template.getPersistentState(entity);
-            if ( template.getRelationshipBetween(source,entity, refName)== null )
+    public void crossReference(Entity entity, Collection<Entity> entities, String refName) {
+        Node source = template.getPersistentState(entity);
+        for (Entity sourceEntity : entities) {
+            Node dest = template.getPersistentState(sourceEntity);
+            if ( template.getRelationshipBetween(source, sourceEntity, refName)== null )
                 template.createRelationshipBetween(source, dest, refName, null);
         }
     }
 
-    public Map<String, Collection<Entity>> getCrossReference(Company company, Entity entity, String xRefName) {
+    public Map<String, Collection<Entity>> getCrossReference(Entity entity, String xRefName) {
         Node n = template.getPersistentState(entity);
 
         RelationshipType r = DynamicRelationshipType.withName(xRefName);
         Iterable<Relationship> rlxs = n.getRelationships(r);
         Map<String, Collection<Entity>> results = new HashMap<>();
-        Collection<Entity> headers = new ArrayList<>();
-        results.put(xRefName, headers);
+        Collection<Entity> entities = new ArrayList<>();
+        results.put(xRefName, entities);
         for (Relationship rlx : rlxs) {
-            headers.add(template.projectTo(rlx.getEndNode(), EntityNode.class));
+            entities.add(template.projectTo(rlx.getEndNode(), EntityNode.class));
         }
         return results;
 
     }
 
     public Map<String, Entity> findEntities(Company company, Collection<String> metaKeys) {
-        logger.debug("Looking for {} headers for company [{}] ", metaKeys.size(), company);
-        Collection<Entity> foundHeaders = metaRepo.findHeaders(company.getId(), metaKeys);
+        logger.debug("Looking for {} entities for company [{}] ", metaKeys.size(), company);
+        Collection<Entity> foundEntities = metaRepo.findEntities(company.getId(), metaKeys);
         Map<String, Entity> unsorted = new HashMap<>();
-        for (Entity foundHeader : foundHeaders) {
-            unsorted.put(foundHeader.getMetaKey(), foundHeader);
+        for (Entity foundEntity : foundEntities) {
+            unsorted.put(foundEntity.getMetaKey(), foundEntity);
         }
         return unsorted;
     }
@@ -401,7 +401,7 @@ public class EntityDaoNeo {
 
     public void purgeEntities(Fortress fortress) {
         metaRepo.purgeCrossReferences(fortress.getId());
-        metaRepo.purgeHeaders(fortress.getId());
+        metaRepo.purgeEntities(fortress.getId());
     }
 
     public void purgeFortressDocuments(Fortress fortress) {
@@ -409,7 +409,7 @@ public class EntityDaoNeo {
     }
 
     public EntityLog getLastLog(Long entityId) {
-        Entity entity = getHeader(entityId);
+        Entity entity = getEntity(entityId);
         Log lastChange = entity.getLastChange();
         if (lastChange == null)
             return null;

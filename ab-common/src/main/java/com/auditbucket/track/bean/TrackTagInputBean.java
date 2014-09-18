@@ -24,7 +24,7 @@ import com.auditbucket.registration.model.Tag;
 import javax.validation.constraints.NotNull;
 
 /**
- * Associates a Tag with an Audit Header
+ * Associates a Tag with an Entity
  * <p/>
  * User: Mike Holdsworth
  * Date: 28/06/13
@@ -43,7 +43,7 @@ public class TrackTagInputBean {
     }
 
     /**
-     * @param metaKey          existing meta header key
+     * @param metaKey          metaKey for an existing entity
      * @param tagName          name of an existing tag
      * @param relationshipName relationship name to create
      */

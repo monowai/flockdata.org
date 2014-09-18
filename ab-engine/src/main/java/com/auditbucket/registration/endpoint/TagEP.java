@@ -20,7 +20,7 @@
 package com.auditbucket.registration.endpoint;
 
 import com.auditbucket.helper.ApiKeyHelper;
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
@@ -31,7 +31,6 @@ import com.auditbucket.track.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -60,7 +59,7 @@ public class TagEP {
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
     public Collection<Tag> createTags(@RequestBody List<TagInputBean> tagInputs,
                                                String apiKey,
-                                               @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException, ExecutionException, InterruptedException {
+                                               @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException, ExecutionException, InterruptedException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
 
         return mediationFacade.createTags(company, tagInputs);
@@ -71,7 +70,7 @@ public class TagEP {
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.DELETE)
     public ResponseEntity<String> purgeUnusedConcepts(
                                                String apiKey,
-                                               @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+                                               @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
 
         tagService.purgeUnusedConcepts(company);
@@ -83,7 +82,7 @@ public class TagEP {
     @RequestMapping(value = "/{type}", produces = "application/json", consumes = "application/json", method = RequestMethod.DELETE)
     public ResponseEntity<String> deleteConcepts( @PathVariable("type") String type,
                                                               String apiKey,
-            @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+            @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
 
         tagService.purgeType(company, type);
@@ -96,7 +95,7 @@ public class TagEP {
     @RequestMapping(value = "/{type}", produces = "application/json", consumes = "application/json", method = RequestMethod.GET)
     public Collection<Tag> getTags(@PathVariable("type") String index,
                                    String apiKey,
-                                   @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+                                   @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
         return tagService.findTags(company, index);
     }

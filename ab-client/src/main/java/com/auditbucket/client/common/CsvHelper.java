@@ -20,7 +20,7 @@
 package com.auditbucket.client.common;
 
 import com.auditbucket.client.csv.CsvTag;
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.TagInputBean;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ import java.util.Map;
 public class CsvHelper {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(CsvHelper.class);
 
-    public static TagInputBean setNestedTags(TagInputBean setInTo, ArrayList<CsvTag> tagsToAnalyse, Map<String, Object> csvRow) throws DatagioException {
+    public static TagInputBean setNestedTags(TagInputBean setInTo, ArrayList<CsvTag> tagsToAnalyse, Map<String, Object> csvRow) throws FlockException {
         if (tagsToAnalyse == null)
             return null;
 
@@ -45,7 +45,7 @@ public class CsvHelper {
             Object value = csvRow.get(csvTag.getColumn());
             if ( value == null ){
                 logger.error("Undefined row value for {}", csvTag.getColumn());
-                throw new DatagioException(String.format("Undefined row value for %s", csvTag.getColumn()));
+                throw new FlockException(String.format("Undefined row value for %s", csvTag.getColumn()));
             }
 
             newTag = new TagInputBean(value.toString())

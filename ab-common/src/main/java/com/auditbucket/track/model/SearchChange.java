@@ -38,7 +38,7 @@ public interface SearchChange {
     public void setSearchKey(String parent);
 
     /**
-     * primary key of the Audit record that this document belongs to
+     * primary key of the Entity record that this document belongs to
      *
      * @return GUID
      */
@@ -129,4 +129,8 @@ public interface SearchChange {
     boolean hasAttachment();
 
     String getAttachment();
+
+    String getFileName();
+
+    String getContentType();
 }

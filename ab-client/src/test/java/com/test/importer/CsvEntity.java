@@ -6,7 +6,7 @@ import com.auditbucket.client.common.DelimitedMappable;
 import com.auditbucket.client.common.ImportParams;
 import com.auditbucket.client.csv.CsvColumnHelper;
 import com.auditbucket.client.rest.IStaticDataResolver;
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
 import org.junit.Test;
@@ -30,7 +30,7 @@ public class CsvEntity {
         ImportParams params = Importer.getImportParams("/csvtest.json", null);
         params.setStaticDataResolver(new IStaticDataResolver() {
             @Override
-            public String resolveCountryISOFromName(String name) throws DatagioException {
+            public String resolveCountryISOFromName(String name) throws FlockException {
                 return name;
             }
 
@@ -156,7 +156,7 @@ public class CsvEntity {
         ImportParams params = Importer.getImportParams("/complex-concept.json", null);
         params.setStaticDataResolver(new IStaticDataResolver() {
             @Override
-            public String resolveCountryISOFromName(String name) throws DatagioException {
+            public String resolveCountryISOFromName(String name) throws FlockException {
                 return name;
             }
 
@@ -227,7 +227,7 @@ public class CsvEntity {
         ImportParams params = Importer.getImportParams("/nestedTags.json", null);
         params.setStaticDataResolver(new IStaticDataResolver() {
             @Override
-            public String resolveCountryISOFromName(String name) throws DatagioException {
+            public String resolveCountryISOFromName(String name) throws FlockException {
                 return name;
             }
 

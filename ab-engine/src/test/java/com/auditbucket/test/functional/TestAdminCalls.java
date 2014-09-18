@@ -65,7 +65,7 @@ public class TestAdminCalls extends TestEngineBase {
     MockMvc mockMvc;
 
     @Test
-    public void deleteFortressWithHeadersAndTagsOnly() throws Exception {
+    public void deleteFortressWithEntitiesAndTagsOnly() throws Exception {
 
         SystemUser su = registerSystemUser(monowai, mike_admin);
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
@@ -101,7 +101,7 @@ public class TestAdminCalls extends TestEngineBase {
     }
 
     @Test
-    public void deleteFortressPurgesHeaderAndLogs() throws Exception {
+    public void deleteFortressPurgesEntitiesAndLogs() throws Exception {
 
         SystemUser su = registerSystemUser(monowai, mike_admin);
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
@@ -151,8 +151,8 @@ public class TestAdminCalls extends TestEngineBase {
 
         inputBean.setCallerRef("123abc");
         inputBean.setMetaKey(null);
-        inputBean.setLog(new ContentInputBean("wally", metaKey, new DateTime(), Helper.getRandomMap()));
-        mediationFacade.trackHeader(fo, inputBean);
+        inputBean.setContent(new ContentInputBean("wally", metaKey, new DateTime(), Helper.getRandomMap()));
+        mediationFacade.trackEntity(fo, inputBean);
 
         SecurityContextHolder.getContext().setAuthentication(null);
         // Assert that unauthorised user can't purge a fortress
@@ -180,7 +180,7 @@ public class TestAdminCalls extends TestEngineBase {
         trackBean.addTag(new TagInputBean("anyName", "rlx"));
         trackBean.addTag(new TagInputBean("otherName", "rlxValue").setReverse(true));
         ContentInputBean logBean = new ContentInputBean("me", DateTime.now(), Helper.getRandomMap());
-        trackBean.setLog(logBean);
+        trackBean.setContent(logBean);
         String resultA = mediationFacade.trackEntity(su.getCompany(), trackBean).getMetaKey();
 
         assertNotNull(resultA);
@@ -189,7 +189,7 @@ public class TestAdminCalls extends TestEngineBase {
         trackBean.addTag(new TagInputBean("anyName", "rlx"));
         trackBean.addTag(new TagInputBean("otherName", "rlxValue").setReverse(true));
         logBean = new ContentInputBean("me", DateTime.now(), Helper.getRandomMap());
-        trackBean.setLog(logBean);
+        trackBean.setContent(logBean);
 
         String resultB = mediationFacade.trackEntity(su.getCompany(), trackBean).getMetaKey();
 

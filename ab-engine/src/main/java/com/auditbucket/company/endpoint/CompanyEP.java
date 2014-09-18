@@ -20,7 +20,7 @@
 package com.auditbucket.company.endpoint;
 
 import com.auditbucket.helper.ApiKeyHelper;
-import com.auditbucket.helper.DatagioException;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.service.CompanyService;
@@ -61,14 +61,14 @@ public class CompanyEP {
 
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
 
-    public Collection<Company> findCompanies(String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+    public Collection<Company> findCompanies(String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException {
         return companyService.findCompanies(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
     }
 
     @RequestMapping(value = "/{companyName}", method = RequestMethod.GET)
 
     public ResponseEntity<Company> getCompany(@PathVariable("companyName") String companyName,
-                                              String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+                                              String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException {
         // curl -u mike:123 -X GET http://localhost:8080/ab/company/Monowai
 
         Company callersCompany = getCompany(apiHeaderKey, apiKey);
@@ -78,7 +78,7 @@ public class CompanyEP {
         //ToDo figure out companyName strategy
         if (!callersCompany.getId().equals(company.getId())) {
             //Not Authorised
-            throw new DatagioException("Company ["+companyName+"] could not be found");
+            throw new FlockException("Company ["+companyName+"] could not be found");
         } else {
             return new ResponseEntity<>(company, HttpStatus.OK);
         }
@@ -91,7 +91,7 @@ public class CompanyEP {
     @RequestMapping(value = "/documents", method = RequestMethod.GET)
 
     public Collection<DocumentResultBean> getDocumentsInUse(
-            String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws DatagioException {
+            String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException {
 
         // ToDo: figure out if the API Key can resolve to multiple companies
         Company company = getCompany(apiHeaderKey, apiKey);
@@ -99,7 +99,7 @@ public class CompanyEP {
 
     }
 
-    private Company getCompany(String apiHeaderKey, String apiRequestKey) throws DatagioException {
+    private Company getCompany(String apiHeaderKey, String apiRequestKey) throws FlockException {
         return registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiRequestKey));
     }
 

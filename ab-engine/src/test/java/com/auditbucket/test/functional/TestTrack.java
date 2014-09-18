@@ -72,26 +72,26 @@ public class TestTrack extends TestEngineBase {
         EntityInputBean inputBean = new EntityInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), callerRef);
 
 
-        inputBean.setLog(new ContentInputBean("poppy", DateTime.now(), Helper.getSimpleMap("name", "a")));
+        inputBean.setContent(new ContentInputBean("poppy", DateTime.now(), Helper.getSimpleMap("name", "a")));
         List<EntityInputBean> entityInputBeans = new ArrayList<>();
         entityInputBeans.add(inputBean);
 
         inputBean = new EntityInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), callerRef);
-        inputBean.setLog(new ContentInputBean("poppy", DateTime.now(), Helper.getSimpleMap("name", "a")));
+        inputBean.setContent(new ContentInputBean("poppy", DateTime.now(), Helper.getSimpleMap("name", "a")));
         entityInputBeans.add(inputBean);
 
         inputBean = new EntityInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), callerRef);
-        inputBean.setLog(new ContentInputBean("poppy", DateTime.now(), Helper.getSimpleMap("name", "a")));
+        inputBean.setContent(new ContentInputBean("poppy", DateTime.now(), Helper.getSimpleMap("name", "a")));
         entityInputBeans.add(inputBean);
         logger.info("Tracking...");
 
-        mediationFacade.trackHeaders(su.getCompany(), entityInputBeans);
+        mediationFacade.trackEntities(su.getCompany(), entityInputBeans);
         logger.info("Tracked...");
-        Entity header = trackService.findByCallerRef(fortWP, "CompanyNode", callerRef);
-        assertNotNull(header);
-        waitForFirstLog(su.getCompany(), header);
+        Entity entity = trackService.findByCallerRef(fortWP, "CompanyNode", callerRef);
+        assertNotNull(entity);
+        waitForFirstLog(su.getCompany(), entity);
 
-        Set<EntityLog> logs = trackService.getEntityLogs(su.getCompany(), header.getMetaKey());
+        Set<EntityLog> logs = trackService.getEntityLogs(su.getCompany(), entity.getMetaKey());
         org.junit.Assert.assertNotNull(logs);
         assertEquals("3 Identical changes should result in a single log", 1, logs.size());
     }
@@ -111,7 +111,7 @@ public class TestTrack extends TestEngineBase {
     }
 
     @Test
-    public void trackByCallerRef_FortressUserInHeaderButNotLog() throws Exception {
+    public void trackByCallerRef_FortressUserInEntityButNotLog() throws Exception {
         SystemUser su = registerSystemUser(monowai, mike_admin);
         //Fortress fortress = fortressService.registerFortress("auditTest");
         FortressInputBean fortress = new FortressInputBean("trackByCallerRef", true);
@@ -120,7 +120,7 @@ public class TestTrack extends TestEngineBase {
         ContentInputBean aib = new ContentInputBean("wally", new DateTime(), Helper.getSimpleMap("blah", 1));
         aib.setFortressUser(null); // We want AB to extract this from the entity
         aib.setCallerRef(fortress.getName(), "TestTrack", "ABC123");
-        inputBean.setLog(aib);
+        inputBean.setContent(aib);
         // This call expects the service layer to create the missing fortress from the entityInput
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
         assertNotNull(result);
@@ -143,7 +143,7 @@ public class TestTrack extends TestEngineBase {
         Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
         EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         String key = mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey();
-        // Check we can't create the same header twice for a given client ref
+        // Check we can't create the same entity twice for a given client ref
         inputBean = new EntityInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         String keyB = mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey();
         assertEquals(key, keyB);
@@ -158,7 +158,7 @@ public class TestTrack extends TestEngineBase {
 
         assertNotNull(trackService.findByCallerRef(fortressA, "TestTrack", "ABC123"));
         assertNull( "Caller refs are case sensitive so this should not be found", trackService.findByCallerRef(fortressA, "TestTrack", "abc123"));
-        assertNull("Security - shouldn't be able to see this header", trackService.findByCallerRef(fortressA, "TestTrack", "123ABC"));
+        assertNull("Security - shouldn't be able to see this entity", trackService.findByCallerRef(fortressA, "TestTrack", "123ABC"));
 
         setSecurity(harry);
         assertNull("User does not belong to this company.Fortress so should not be able to see it",
@@ -174,13 +174,13 @@ public class TestTrack extends TestEngineBase {
     }
 
     @Test
-    public void createHeaderTimeLogs() throws Exception {
+    public void createEntityTimeLogs() throws Exception {
         SystemUser su = registerSystemUser(monowai, mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("createHeaderTimeLogs", true));
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("createEntityTimeLogs", true));
 
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
-        Entity header = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
-        String ahKey = header.getMetaKey();
+        Entity entity = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
+        String ahKey = entity.getMetaKey();
 
         assertNotNull(ahKey);
 
@@ -198,7 +198,7 @@ public class TestTrack extends TestEngineBase {
             TrackResultBean subsequent = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", ahKey, new DateTime(), Helper.getSimpleMap("blah", i)));
 
             if ( i == 0){
-                waitForFirstLog(su.getCompany(), header);
+                waitForFirstLog(su.getCompany(), entity);
             } else
                 waitForLogCount(su.getCompany(), subsequent.getEntity(),i+1);
             i++;
@@ -280,14 +280,14 @@ public class TestTrack extends TestEngineBase {
     }
 
     @Test
-    public void testHeaderWithLogChange() throws Exception {
+    public void testEntityWithLogChange() throws Exception {
         SystemUser su = registerSystemUser(monowai, mike_admin);
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "uouu87");
         inputBean.setName("MikesNameTest");
         ContentInputBean logBean = new ContentInputBean("wally", null, DateTime.now(), Helper.getSimpleMap("blah", 0));
-        inputBean.setLog(logBean);
+        inputBean.setContent(logBean);
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         assertNotNull(resultBean);
         assertNotNull(resultBean.getMetaKey());
@@ -297,13 +297,13 @@ public class TestTrack extends TestEngineBase {
     }
 
     @Test
-    public void testHeaderWithLogChangeTransactional() throws Exception {
+    public void testEntityWithLogChangeTransactional() throws Exception {
         SystemUser su = registerSystemUser(monowai, mike_admin);
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest",true));
 
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "232146");
         ContentInputBean logBean = new ContentInputBean("wally", null, DateTime.now(), Helper.getSimpleMap("blah", 0));
-        inputBean.setLog(logBean);
+        inputBean.setContent(logBean);
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         assertNotNull(resultBean);
         assertNotNull(resultBean.getMetaKey());
@@ -356,26 +356,26 @@ public class TestTrack extends TestEngineBase {
     }
 
     @Test
-    public void headersForDifferentCompaniesAreNotVisible() throws Exception {
-        logger.info("## headersForDifferentCompaniesAreNotVisible");
+    public void entitysForDifferentCompaniesAreNotVisible() throws Exception {
+        logger.info("## entitysForDifferentCompaniesAreNotVisible");
         SystemUser su = registerSystemUser(monowai, mike_admin);
         String hummingbird = "Hummingbird";
 
         //Monowai/Mike
         Authentication authMike = setSecurity(mike_admin);
         Fortress fortWP = fortressService.registerFortress(su.getCompany(), new FortressInputBean("wportfolio", true));
-        EntityInputBean inputBean = new EntityInputBean(fortWP.getName(), "wally", "CompanyNode", new DateTime(), "AHWP");
-        String ahWP = mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey();
-        assertNotNull(ahWP);
-        assertNotNull(trackService.getEntity(su.getCompany(), ahWP));
+        EntityInputBean entityInputBean = new EntityInputBean(fortWP.getName(), "wally", "CompanyNode", new DateTime(), "AHWP");
+        String metaKey = mediationFacade.trackEntity(su.getCompany(), entityInputBean).getMetaKey();
+        assertNotNull(metaKey);
+        assertNotNull(trackService.getEntity(su.getCompany(), metaKey));
 
         //Hummingbird/Gina
         setSecurity(sally_admin);
         SystemUser suB = registerSystemUser(hummingbird, harry);
         Authentication authHarry = setSecurity(harry); // Harry can create data
         Fortress fortHS = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("honeysuckle", true));
-        inputBean = new EntityInputBean(fortHS.getName(), "harry", "CompanyNode", new DateTime(), "AHHS");
-        String ahHS = mediationFacade.trackEntity(suB.getCompany(), inputBean).getMetaKey();
+        entityInputBean = new EntityInputBean(fortHS.getName(), "harry", "CompanyNode", new DateTime(), "AHHS");
+        String ahHS = mediationFacade.trackEntity(suB.getCompany(), entityInputBean).getMetaKey();
 
         assertNotNull(fortressService.getFortressUser(fortWP, "wally", true));
         assertNotNull(fortressService.getFortressUser(fortHS, "harry", true));
@@ -385,7 +385,7 @@ public class TestTrack extends TestEngineBase {
         StopWatch watch = new StopWatch();
         watch.start();
 
-        createLogRecords(authMike, su, ahWP, "house", 20);
+        createLogRecords(authMike, su, metaKey, "house", 20);
         createLogRecords(authHarry, suB, ahHS, "house", 40);
         watch.stop();
         logger.info(watch.prettyPrint()+ " avg = " + (watch.getLastTaskTimeMillis() / 1000d) / max);
@@ -401,21 +401,21 @@ public class TestTrack extends TestEngineBase {
 
         Fortress fortWP = fortressService.registerFortress(su.getCompany(), new FortressInputBean("wportfolio",true));
         EntityInputBean inputBean = new EntityInputBean(fortWP.getName(), "wally", "CompanyNode", new DateTime(), "ZZZZ");
-        String ahWP = mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey();
-        Entity trackKey = trackService.getEntity(su.getCompany(), ahWP);
+        String metaKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey();
+        Entity trackKey = trackService.getEntity(su.getCompany(), metaKey);
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", trackKey.getMetaKey(), new DateTime(), Helper.getSimpleMap("house", "house1"), "Update"));
-        trackKey = trackService.getEntity(su.getCompany(), ahWP);
+        trackKey = trackService.getEntity(su.getCompany(), metaKey);
         FortressUser fu = fortressService.getUser(trackKey.getLastUser().getId());
         assertEquals("olivia@sunnybell.com", fu.getCode());
 
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("harry@sunnybell.com", trackKey.getMetaKey(), new DateTime(), Helper.getSimpleMap("house", "house2"), "Update"));
-        trackKey = trackService.getEntity(su.getCompany(), ahWP);
+        trackKey = trackService.getEntity(su.getCompany(), metaKey);
 
         fu = fortressService.getUser(trackKey.getLastUser().getId());
         assertEquals("harry@sunnybell.com", fu.getCode());
 
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", trackKey.getMetaKey(), new DateTime(), Helper.getSimpleMap("house", "house3"), "Update"));
-        trackKey = trackService.getEntity(su.getCompany(), ahWP);
+        trackKey = trackService.getEntity(su.getCompany(), metaKey);
 
         fu = fortressService.getUser(trackKey.getLastUser().getId());
         assertEquals("olivia@sunnybell.com", fu.getCode());
@@ -430,19 +430,19 @@ public class TestTrack extends TestEngineBase {
 
         Fortress fortWP = fortressService.registerFortress(su.getCompany(), new FortressInputBean("wportfolio",true));
         EntityInputBean inputBean = new EntityInputBean(fortWP.getName(), "wally", "CompanyNode", new DateTime(), "ZZZZ");
-        String ahWP = mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey();
-        Entity entity = trackService.getEntity(su.getCompany(), ahWP);
+        String metaKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey();
+        Entity entity = trackService.getEntity(su.getCompany(), metaKey);
 
         // Create the future one first.
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), new DateTime(), Helper.getSimpleMap("house", "house1"), "Update"));
-        entity = trackService.getEntity(su.getCompany(), ahWP);
+        entity = trackService.getEntity(su.getCompany(), metaKey);
         FortressUser fu = fortressService.getUser(entity.getLastUser().getId());
         assertEquals("olivia@sunnybell.com", fu.getCode());
         EntityLog compareLog = logService.getLastLog(entity);
 
         // Load a historic record. This should not become "last"
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("harry@sunnybell.com", entity.getMetaKey(), earlyDate, Helper.getSimpleMap("house", "house2"), "Update"));
-        entity = trackService.getEntity(su.getCompany(), ahWP);
+        entity = trackService.getEntity(su.getCompany(), metaKey);
 
         EntityLog lastLog = logService.getLastLog(entity);
         assertNotNull(lastLog);
@@ -455,7 +455,7 @@ public class TestTrack extends TestEngineBase {
     }
 
     /**
-     * test that we find the correct number of changes between a range of dates for a given header
+     * test that we find the correct number of changes between a range of dates for a given entity
      */
     @Test
     public void logDateRangesWorking() throws Exception {
@@ -468,8 +468,8 @@ public class TestTrack extends TestEngineBase {
         DateTime workingDate = firstDate.toDateTime();
 
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "CompanyNode", firstDate, "123");
-        String ahWP = mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey();
-        Entity entity = trackService.getEntity(su.getCompany(), ahWP);
+        String metaKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey();
+        Entity entity = trackService.getEntity(su.getCompany(), metaKey);
         int i = 0;
         while (i < max) {
             workingDate = workingDate.plusDays(1);
@@ -486,7 +486,7 @@ public class TestTrack extends TestEngineBase {
         Log lastChange = lastLog.getLog();
         assertNotNull(lastChange);
         assertEquals(workingDate, new DateTime(lastLog.getFortressWhen()));
-        entity = trackService.getEntity(su.getCompany(), ahWP);
+        entity = trackService.getEntity(su.getCompany(), metaKey);
         assertEquals(max, trackService.getLogCount(su.getCompany(), entity.getMetaKey()));
 
         DateTime then = workingDate.minusDays(4);
@@ -512,16 +512,16 @@ public class TestTrack extends TestEngineBase {
         DateTime dt = new DateTime().toDateTime();
         DateTime firstDate = dt.minusDays(2);
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "olivia@sunnybell.com", "CompanyNode", firstDate, "clb1");
-        String ahWP = mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey();
+        String metaKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey();
 
-        Entity entity = trackService.getEntity(su.getCompany(), ahWP);
+        Entity entity = trackService.getEntity(su.getCompany(), metaKey);
         LogResultBean firstLog  = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), firstDate, Helper.getSimpleMap("house", "house1"))).getLogResult();
         LogResultBean secondLog = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("isabella@sunnybell.com", entity.getMetaKey(), firstDate.plusDays(1), Helper.getSimpleMap("house", "house2"))).getLogResult();
         assertNotSame(0l, firstLog.getWhatLog().getEntityLog().getFortressWhen());
         assertNotSame(0l, secondLog.getWhatLog().getEntityLog().getFortressWhen());
         Set<EntityLog> logs = trackService.getEntityLogs(fortress.getCompany(), entity.getMetaKey());
         assertEquals(2, logs.size());
-        entity = trackService.getEntity(su.getCompany(), ahWP);
+        entity = trackService.getEntity(su.getCompany(), metaKey);
         compareUser(entity, secondLog.getFortressUser());
         assertEquals(secondLog.getWhatLog().getEntityLog().getFortressWhen(), entity.getFortressLastWhen());
 
@@ -529,7 +529,7 @@ public class TestTrack extends TestEngineBase {
         trackService.cancelLastLog(fortress.getCompany(), entity);
         logs = trackService.getEntityLogs(fortress.getCompany(), entity.getMetaKey());
         assertEquals(1, logs.size());
-        entity = trackService.getEntity(su.getCompany(), ahWP, true); // Refresh the entity
+        entity = trackService.getEntity(su.getCompany(), metaKey, true); // Refresh the entity
         compareUser(entity, firstLog.getFortressUser());
         assertEquals(firstLog.getWhatLog().getEntityLog().getFortressWhen(), entity.getFortressLastWhen());
 
@@ -544,11 +544,11 @@ public class TestTrack extends TestEngineBase {
         SystemUser su = registerSystemUser(monowai, mike_admin);
         Fortress fortWP = fortressService.registerFortress(su.getCompany(), new FortressInputBean("wportfolio", true));
         EntityInputBean inputBean = new EntityInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime(), "ABC1");
-        String ahWP = mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey();
+        String metaKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey();
 
-        Entity entity = trackService.getEntity(su.getCompany(), ahWP);
+        Entity entity = trackService.getEntity(su.getCompany(), metaKey);
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), new DateTime(), Helper.getSimpleMap("house", "house1")));
-        entity = trackService.getEntity(su.getCompany(), ahWP); // Inflate the header on the server
+        entity = trackService.getEntity(su.getCompany(), metaKey); // Inflate the entity on the server
         EntityLog lastLog = trackService.getLastEntityLog(su.getCompany(), entity.getMetaKey());
         assertNotNull(lastLog);
 //        assertNotNull(lastLog.getAuditChange().getLogInputBean());
@@ -567,7 +567,7 @@ public class TestTrack extends TestEngineBase {
         EntityInputBean inputBean = new EntityInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", fortressDateCreated, "dcalbu");
         ContentInputBean contentInputBean = new ContentInputBean(mike_admin, fortressDateCreated, Helper.getSimpleMap("abx", "1"));
         // Time will come from the Log
-        inputBean.setLog(contentInputBean);
+        inputBean.setContent(contentInputBean);
         TrackResultBean trackResultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         String metaKey = trackResultBean.getMetaKey();
 
@@ -580,8 +580,8 @@ public class TestTrack extends TestEngineBase {
 
         EntityLog log = trackService.getLastEntityLog(su.getCompany(), metaKey);
         assertEquals("Fortress modification date&time do not match", log.getFortressWhen().longValue(), logTime.getMillis());
-        Entity header = trackService.getEntity(su.getCompany(), metaKey);
-        assertEquals(fortressDateCreated.getMillis(), header.getFortressDateCreated().getMillis());
+        Entity entity = trackService.getEntity(su.getCompany(), metaKey);
+        assertEquals(fortressDateCreated.getMillis(), entity.getFortressDateCreated().getMillis());
         assertEquals("Fortress log time doesn't match", logTime.getMillis(), log.getFortressWhen().longValue());
 
     }
@@ -624,16 +624,16 @@ public class TestTrack extends TestEngineBase {
     }
 
     @Test
-    public void fullHeaderDetailsByCallerRef() throws Exception {
+    public void fullEntityDetailsByCallerRef() throws Exception {
         SystemUser su = registerSystemUser(monowai, mike_admin);
         Fortress fortWP = fortressService.registerFortress(su.getCompany(), new FortressInputBean("wportfolio", true));
         EntityInputBean inputBean = new EntityInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "ABC1");
-        String ahWP = mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey();
+        String metaKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey();
 
-        Entity header = trackService.findByCallerRefFull(fortWP, "CompanyNode", "ABC1");
-        assertNotNull(header);
-        assertNotNull(header.getDocumentType());
-        assertEquals(ahWP, header.getMetaKey());
+        Entity entity = trackService.findByCallerRefFull(fortWP, "CompanyNode", "ABC1");
+        assertNotNull(entity);
+        assertNotNull(entity.getDocumentType());
+        assertEquals(metaKey, entity.getMetaKey());
     }
 
     @Test
@@ -653,19 +653,19 @@ public class TestTrack extends TestEngineBase {
         EntityInputBean astAuditBean = new EntityInputBean(fortressGMT.getName(), "olivia@ast.com", "CompanyNode", null, "ABC1");
         EntityInputBean gmtAuditBean = new EntityInputBean(fortressAST.getName(), "olivia@gmt.com", "CompanyNode", null, "ABC1");
         String result = mediationFacade.trackEntity(su.getCompany(), astAuditBean).getMetaKey();
-        Entity header = trackService.getEntity(su.getCompany(), result);
-        DateTime astTime = new DateTime(header.getFortressDateCreated());
+        Entity entity = trackService.getEntity(su.getCompany(), result);
+        DateTime astTime = new DateTime(entity.getFortressDateCreated());
 
         result = mediationFacade.trackEntity(su.getCompany(), gmtAuditBean).getMetaKey();
-        header = trackService.getEntity(su.getCompany(), result);
-        DateTime gmtTime = new DateTime(header.getFortressDateCreated());
+        entity = trackService.getEntity(su.getCompany(), result);
+        DateTime gmtTime = new DateTime(entity.getFortressDateCreated());
 
         assertNotSame(astTime.getHourOfDay(), gmtTime.getHourOfDay());
 
     }
 
     @Test
-    public void headersByFortressAndDocType() throws Exception {
+    public void entitiesByFortressAndDocType() throws Exception {
         SystemUser su = registerSystemUser(monowai, mike_admin);
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
@@ -711,11 +711,11 @@ public class TestTrack extends TestEngineBase {
         toFind.add(rc.getMetaKey());
         toFind.add(validButNotForCallerA.getMetaKey());
 
-        Collection<Entity>foundHeaders = trackService.getEntities(suA.getCompany(), toFind).values();
-        assertEquals("Caller was authorised to find 3 headers", 3, foundHeaders.size());
+        Collection<Entity>foundEntitys = trackService.getEntities(suA.getCompany(), toFind).values();
+        assertEquals("Caller was authorised to find 3 entitys", 3, foundEntitys.size());
 
-        foundHeaders = trackService.getEntities(suB.getCompany(), toFind).values();
-        assertEquals("Caller was only authorised to find 1 header", 1, foundHeaders.size());
+        foundEntitys = trackService.getEntities(suB.getCompany(), toFind).values();
+        assertEquals("Caller was only authorised to find 1 entity", 1, foundEntitys.size());
 
     }
 
@@ -727,7 +727,7 @@ public class TestTrack extends TestEngineBase {
 
         Fortress fortWP = fortressService.registerFortress(su.getCompany(), new FortressInputBean("wportfolio", true));
         EntityInputBean inputBean = new EntityInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), "ABC1");
-        inputBean.setLog(new ContentInputBean("poppy", DateTime.now(), json));
+        inputBean.setContent(new ContentInputBean("poppy", DateTime.now(), json));
         TrackResultBean trackResultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         waitForFirstLog(su.getCompany(), trackResultBean.getEntity());
         EntityLog lastLog = logService.getLastLog(trackResultBean.getEntity());
@@ -748,20 +748,20 @@ public class TestTrack extends TestEngineBase {
         DateTime dt = new DateTime().toDateTime();
         DateTime firstDate = dt.minusDays(2);
         EntityInputBean inputBean = new EntityInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", firstDate, "ABC1");
-        String ahWP = mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey();
+        String metaKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey();
 
-        Entity entity = trackService.getEntity(su.getCompany(), ahWP);
+        Entity entity = trackService.getEntity(su.getCompany(), metaKey);
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), firstDate, Helper.getSimpleMap("house", "house1")));
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("isabella@sunnybell.com", entity.getMetaKey(), firstDate.plusDays(1), Helper.getSimpleMap("house", "house2")));
         waitForLogCount(su.getCompany(), entity,2);
-        EntitySummaryBean auditSummary = trackService.getEntitySummary(null, ahWP);
-        assertNotNull(auditSummary);
-        assertEquals(ahWP, auditSummary.getHeader().getMetaKey());
-        assertNotNull(auditSummary.getHeader().getLastUser());
-        assertNotNull(auditSummary.getHeader().getCreatedBy());
-        assertNotNull(auditSummary.getHeader().getFortress());
-        assertEquals(2, auditSummary.getChanges().size());
-        for (EntityLog log : auditSummary.getChanges()) {
+        EntitySummaryBean entitySummary = trackService.getEntitySummary(null, metaKey);
+        assertNotNull(entitySummary);
+        assertEquals(metaKey, entitySummary.getEntity().getMetaKey());
+        assertNotNull(entitySummary.getEntity().getLastUser());
+        assertNotNull(entitySummary.getEntity().getCreatedBy());
+        assertNotNull(entitySummary.getEntity().getFortress());
+        assertEquals(2, entitySummary.getChanges().size());
+        for (EntityLog log : entitySummary.getChanges()) {
             Log change = log.getLog();
             assertNotNull(change.getEvent());
             assertNotNull(change.getWho().getCode());
@@ -773,40 +773,40 @@ public class TestTrack extends TestEngineBase {
     @Test
     public void lastLog_CorrectlySequencesInSeparateCallsViaBatchLoad() throws Exception {
         SystemUser su = registerSystemUser(monowai, mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entityHeaderDiff"),true);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entityEntityDiff"),true);
         String callerRef = UUID.randomUUID().toString();
         List<EntityInputBean> inputBeans = new ArrayList<>();
 
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), callerRef);
         ContentInputBean contentInputBean = new ContentInputBean("mike", new DateTime(), Helper.getSimpleMap("col", 123));
-        inputBean.setLog(contentInputBean);
+        inputBean.setContent(contentInputBean);
         inputBeans.add(inputBean);
         logger.debug("** First Track Event");
-        Collection<TrackResultBean> results = mediationFacade.trackHeaders(fortress, inputBeans, 10);
-        Entity header = results.iterator().next().getEntity();
-        waitForFirstLog(su.getCompany(), header);
+        Collection<TrackResultBean> results = mediationFacade.trackEntities(fortress, inputBeans, 10);
+        Entity entity = results.iterator().next().getEntity();
+        waitForFirstLog(su.getCompany(), entity);
 
         inputBeans.clear();
 
-        header = trackService.findByCallerRef(fortress, "TestTrack", callerRef );
-        assertNotNull(header);
+        entity = trackService.findByCallerRef(fortress, "TestTrack", callerRef );
+        assertNotNull(entity);
 
         // Now we record a change
         contentInputBean = new ContentInputBean("mike", new DateTime(), Helper.getSimpleMap("col", 321));
-        inputBean.setLog(contentInputBean);
+        inputBean.setContent(contentInputBean);
         inputBeans = new ArrayList<>();
         inputBeans.add(inputBean);
-        logger.info ("creating {} headers. Current count = {}", inputBeans.size(), trackService.getLogCount(su.getCompany(), header.getMetaKey()));
+        logger.info ("creating {} entitys. Current count = {}", inputBeans.size(), trackService.getLogCount(su.getCompany(), entity.getMetaKey()));
 
         logger.debug("** Second Track Event");
-        mediationFacade.trackHeaders(fortress, inputBeans, 1);
-        logger.info ("Current count now at {}", trackService.getLogCount(su.getCompany(), header.getMetaKey()));
+        mediationFacade.trackEntities(fortress, inputBeans, 1);
+        logger.info ("Current count now at {}", trackService.getLogCount(su.getCompany(), entity.getMetaKey()));
 
-        waitForLogCount(su.getCompany(), header, 2);
-        header = trackService.findByCallerRef(fortress, "TestTrack", callerRef );
-        EntityLog lastLog = trackService.getLastEntityLog(su.getCompany(), header.getMetaKey());
+        waitForLogCount(su.getCompany(), entity, 2);
+        entity = trackService.findByCallerRef(fortress, "TestTrack", callerRef );
+        EntityLog lastLog = trackService.getLastEntityLog(su.getCompany(), entity.getMetaKey());
         assertNotNull(lastLog);
-        EntityContent what = kvService.getContent(header, lastLog.getLog());
+        EntityContent what = kvService.getContent(entity, lastLog.getLog());
 
         assertNotNull(what);
         Object value = what.getWhat().get("col");
@@ -815,7 +815,7 @@ public class TestTrack extends TestEngineBase {
     }
 
     @Test
-    public void datesInHeadersAndLogs() throws Exception{
+    public void datesInEntitysAndLogs() throws Exception{
         SystemUser su = registerSystemUser(monowai, mike_admin);
         FortressInputBean f = new FortressInputBean("dateFun", true);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), f);
@@ -823,7 +823,7 @@ public class TestTrack extends TestEngineBase {
         DateTime past = new DateTime(2010, 10, 1, 11,35);
 
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "poppy", "CompanyNode", past, "ABC1");
-        inputBean.setLog(new ContentInputBean("poppy", past, Helper.getSimpleMap("name", "value")));
+        inputBean.setContent(new ContentInputBean("poppy", past, Helper.getSimpleMap("name", "value")));
         TrackResultBean trackResultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         waitForFirstLog(su.getCompany(), trackResultBean.getEntity());
         EntityLog lastLog = logService.getLastLog(trackResultBean.getEntity());
@@ -850,7 +850,7 @@ public class TestTrack extends TestEngineBase {
 
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TestTrack", fortressDateCreated, "ABC123");
         assertEquals("MetaInputBean mutated the date", 0, fortressDateCreated.toDate().compareTo(inputBean.getWhen()));
-        inputBean.setLog(new ContentInputBean("wally", lastUpdated, Helper.getRandomMap()));
+        inputBean.setContent(new ContentInputBean("wally", lastUpdated, Helper.getRandomMap()));
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean); // Mock result as we're not tracking
 
@@ -882,7 +882,7 @@ public class TestTrack extends TestEngineBase {
 
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TZTest", fortressDateCreated, "ABC123");
         assertEquals("EntityInputBean mutated the date", 0, fortressDateCreated.toDate().compareTo(inputBean.getWhen()));
-        inputBean.setLog(new ContentInputBean("wally", lastUpdated, Helper.getRandomMap()));
+        inputBean.setContent(new ContentInputBean("wally", lastUpdated, Helper.getRandomMap()));
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean); // Mock result as we're not tracking
 
@@ -919,9 +919,9 @@ public class TestTrack extends TestEngineBase {
         EntityInputBean inputBean = new EntityInputBean("A Description", "wally", "TestTrack", fortressDateCreated);
 
         assertEquals("MetaInputBean mutated the date", 0, fortressDateCreated.toDate().compareTo(inputBean.getWhen()));
-        inputBean.setLog(new ContentInputBean("wally", lastUpdated, Helper.getRandomMap()));
+        inputBean.setContent(new ContentInputBean("wally", lastUpdated, Helper.getRandomMap()));
 
-        TrackResultBean result = mediationFacade.trackHeader(fortress, inputBean); // Mock result as we're not tracking
+        TrackResultBean result = mediationFacade.trackEntity(fortress, inputBean); // Mock result as we're not tracking
 
         fortress = fortressService.findByName(su.getCompany(), fortressBean.getName());
         assertNotNull (fortress);
@@ -933,20 +933,20 @@ public class TestTrack extends TestEngineBase {
         EntityLog log = trackService.getLastEntityLog(su.getCompany(), result.getMetaKey());
         assertEquals("LogDate not in Fortress TZ", 0, lastUpdated.compareTo(log.getFortressWhen(tz)));
     }
-    private void compareUser(Entity header, String userName) {
-        FortressUser fu = fortressService.getUser(header.getLastUser().getId());
+    private void compareUser(Entity entity, String userName) {
+        FortressUser fu = fortressService.getUser(entity.getLastUser().getId());
         assertEquals(userName, fu.getCode());
 
     }
 
-    private void createLogRecords(Authentication auth, SystemUser su, String auditHeader, String key, double recordsToCreate) throws Exception {
+    private void createLogRecords(Authentication auth, SystemUser su, String auditEntity, String key, double recordsToCreate) throws Exception {
         int i = 0;
         SecurityContextHolder.getContext().setAuthentication(auth);
         while (i < recordsToCreate) {
-            mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", auditHeader, new DateTime(), Helper.getSimpleMap(key, "house" + i), (String) null));
+            mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", auditEntity, new DateTime(), Helper.getSimpleMap(key, "house" + i), (String) null));
             i++;
         }
-        assertEquals(recordsToCreate, (double) trackService.getLogCount(su.getCompany(), auditHeader));
+        assertEquals(recordsToCreate, (double) trackService.getLogCount(su.getCompany(), auditEntity));
     }
 
 
