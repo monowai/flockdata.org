@@ -59,7 +59,11 @@ public class AdminEP {
 
     @RequestMapping(value = "/health", method = RequestMethod.GET)
     public Map<String, String> getHealth(HttpServletRequest request) throws FlockException {
-        String apiKey = request.getHeader(ApiKeyInterceptor.API_KEY);
+        Object o = request.getAttribute(ApiKeyInterceptor.API_KEY);
+        String apiKey = "";
+        if (o != null )
+            apiKey = o.toString();
+
         if ( "".equals(apiKey))
             apiKey = null;
         if ( request.getAttribute(ApiKeyInterceptor.COMPANY) == null &&
