@@ -143,7 +143,9 @@ public class EngineConfig {
             PingResult esPing = abMonitoringGateway.ping();
             esPingResult = (esPing == null || !esPing.getMessage().equals("Pong!")?"Problem":"Ok");
         } catch (Exception ce){
-            esPingResult="!Unreachable! "+ce.getCause().getMessage();
+            esPingResult="!Unreachable! ";
+            if ( ce.getCause() !=null )
+                esPingResult = esPingResult + ce.getCause().getMessage();
         }
         healthResults.put("ab-search", esPingResult);
 

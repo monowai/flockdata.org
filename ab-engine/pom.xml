@@ -35,7 +35,7 @@
         <docs.url>http://www.monowai.com/wiki/display/DAT/</docs.url>
         <ehcache.version>2.6.7</ehcache.version>
         <org.springdata.neo4j>3.2.0.RELEASE</org.springdata.neo4j>
-        <neo4j.version>2.1.4</neo4j.version>
+        <neo4j.version>2.1.2</neo4j.version>
 
     </properties>
 
@@ -105,12 +105,12 @@
         <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-server</artifactId>
-            <version>1.18</version>
+            <version>1.18.1</version>
         </dependency>
         <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-servlet</artifactId>
-            <version>1.18</version>
+            <version>1.18.1</version>
         </dependency>
 
         <dependency>
