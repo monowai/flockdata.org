@@ -374,8 +374,8 @@ public class TestTags extends TestEngineBase {
         TagInputBean tagInputBean = new TagInputBean("New Zealand").setLabel("Country");
         ArrayList<TagInputBean> countries = new ArrayList<>();
         countries.add(tagInputBean);
-        tagEP.createTags(countries, su.getApiKey(), su.getApiKey());
-        Collection<Tag> co = geographyEP.findCountries(su.getApiKey(), su.getApiKey());
+        mediationFacade.createTags(su.getCompany(), countries);
+        Collection<Tag> co = geoService.findCountries(su.getCompany());
         assertEquals(1, co.size());
 
     }

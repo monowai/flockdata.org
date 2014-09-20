@@ -19,29 +19,25 @@
 
 package com.auditbucket.test.functional;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.fail;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-
-import java.util.Collection;
-import java.util.TimeZone;
-
 import com.auditbucket.helper.FlockException;
-import org.junit.Assert;
-import org.junit.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
+import org.junit.Assert;
+import org.junit.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collection;
+import java.util.TimeZone;
+
+import static junit.framework.Assert.*;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 
 @Transactional
 public class TestRegistration extends TestEngineBase {
@@ -264,7 +260,7 @@ public class TestRegistration extends TestEngineBase {
     public void twoDifferentCompanyFortressSameName() throws Exception {
         setSecurity(mike_admin);
         SystemUser su = registerSystemUser("companya", mike_admin);
-        Fortress fortressA = fortressService.registerFortress("fortress-same");
+        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortress-same",true));
         FortressUser fua = fortressService.getFortressUser(fortressA, mike_admin);
 
         setSecurity(sally_admin);
@@ -312,7 +308,7 @@ public class TestRegistration extends TestEngineBase {
         FortressInputBean fib = new FortressInputBean("uk-wp", true);
         fib.setLanguageTag(languageTag);
         fib.setTimeZone(testTimezone);
-        Fortress custom = fortressService.registerFortress(fib);
+        Fortress custom = fortressService.registerFortress(su.getCompany(), fib);
         assertEquals(languageTag, custom.getLanguageTag());
         assertEquals(testTimezone, custom.getTimeZone());
 
@@ -334,7 +330,7 @@ public class TestRegistration extends TestEngineBase {
         FortressInputBean fibNullSetter = new FortressInputBean("uk-wp", true);
         fibNullSetter.setLanguageTag(null);
         fibNullSetter.setTimeZone(null);
-        Fortress fResult = fortressService.registerFortress(fibNullSetter);
+        Fortress fResult = fortressService.registerFortress(su.getCompany(), fibNullSetter);
         assertNotNull("Language not set to the default", fResult.getLanguageTag());
         assertNotNull("TZ not set to the default", fResult.getTimeZone());
 

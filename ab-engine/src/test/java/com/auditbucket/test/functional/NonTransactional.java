@@ -53,7 +53,7 @@ public class NonTransactional extends TestEngineBase{
         TagInputBean tag = new TagInputBean("ABC", "Device", "sold");
         ArrayList<TagInputBean> tags = new ArrayList<>();
         tags.add(tag);
-        tagEP.createTags(tags, su.getApiKey(), su.getApiKey());
+        mediationFacade.createTags(su.getCompany(), tags);
         Thread.sleep(300); // Let the schema changes occur
 
         EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
@@ -96,7 +96,7 @@ public class NonTransactional extends TestEngineBase{
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleFortressUserRequestsThreaded"));
         // This is being done to create the schema index which otherwise errors when the threads kick off
         fortressService.getFortressUser(fortress, "don'tcare");
-        fortress = fortressService.registerFortress(new FortressInputBean("testThis", true));
+        fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("testThis", true));
         assertNotNull(fortress);
 
         commitManualTransaction(t);
