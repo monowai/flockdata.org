@@ -163,25 +163,6 @@ public class FortressService {
 
     }
 
-    @Deprecated
-    public Fortress registerFortress(FortressInputBean fib) {
-       return registerFortress(getCompany(), fib, true);
-
-    }
-
-    /**
-     * Creates a fortress with the supplied name and will ignore any requests
-     * to create Search Documents.
-     *
-     * @param fortressName company unique name
-     * @return created fortress
-     */
-    @Deprecated
-    public Fortress registerFortress(String fortressName) {
-        FortressInputBean fb = new FortressInputBean(fortressName, true);
-        return registerFortress(fb);
-    }
-
     public Collection<Fortress> findFortresses() throws FlockException {
         Company company = securityHelper.getCompany();
         if (company == null)

@@ -19,6 +19,7 @@
 
 package com.auditbucket.test.functional;
 
+import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.test.utils.Helper;
@@ -50,7 +51,7 @@ public class TestDelta extends TestEngineBase {
         setSecurity();
         SystemUser su = registerSystemUser(monowai, mike_admin);
 
-        Fortress fortress = fortressService.registerFortress("DELTAForce");
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("DELTAForce", true));
         assertNotNull(fortress);
 
         Map<String, Object> jsonA = Helper.getSimpleMap("house", "red");

@@ -49,8 +49,8 @@ public class TestTrackEvents extends TestEngineBase{
 
     @Test
     public void noDuplicateEventsForACompany() throws Exception {
-        registerSystemUser(monowai, mike_admin);
-        Fortress fortressA = fortressService.registerFortress("auditTest");
+        SystemUser su = registerSystemUser(monowai, mike_admin);
+        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest"));
         Company company = fortressA.getCompany();
         assertNotNull(company);
         String eventName = "DuplicateNotAllowed";
@@ -76,29 +76,29 @@ public class TestTrackEvents extends TestEngineBase{
     public void defaultEventTypesAreHandled() throws Exception {
 
         SystemUser su = registerSystemUser(monowai, mike_admin);
-        Fortress fo = fortressService.registerFortress(new FortressInputBean("auditTest", true));
+        Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("defaultEventTypes", true));
 
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        String ahKey = resultBean.getMetaKey();
-        assertNotNull(ahKey);
+        String metaKey = resultBean.getMetaKey();
+        assertNotNull(metaKey);
 
-        Entity entity = trackService.getEntity(ahKey);
+        Entity entity = trackService.getEntity(su.getCompany(), metaKey);
         assertNotNull(entity.getDocumentType());
 
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));
 
-        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", ahKey, new DateTime(), Helper.getRandomMap()));
+        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", metaKey, new DateTime(), Helper.getRandomMap()));
 
-        EntityLog when = trackService.getLastEntityLog(ahKey);
+        EntityLog when = trackService.getLastEntityLog(su.getCompany(), metaKey);
         assertNotNull(when);
         assertEquals(Log.CREATE, when.getLog().getEvent().getName()); // log event default
         assertEquals(Log.CREATE.toLowerCase(), when.getLog().getEvent().getName().toLowerCase()); // log event default
 
-        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", ahKey, new DateTime(), Helper.getRandomMap()));
-        EntityLog whenB = trackService.getLastEntityLog(ahKey);
+        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", metaKey, new DateTime(), Helper.getRandomMap()));
+        EntityLog whenB = trackService.getLastEntityLog(su.getCompany(), metaKey);
         assertNotNull(whenB);
 
         assertFalse(whenB.equals(when));

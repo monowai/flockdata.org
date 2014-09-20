@@ -64,9 +64,9 @@ public class TestForceDeadlock extends TestEngineBase {
         cleanUpGraph(); // No transaction so need to clear down the graph
 
         String monowai = "Monowai";
-        registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai, "tagsUnderLoad");
         setSecurity();
-        Fortress fortress = fortressService.registerFortress(new FortressInputBean("auditTest" + System.currentTimeMillis(), true));
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest" + System.currentTimeMillis(), true));
 
         CountDownLatch latch = new CountDownLatch(4);
         List<TagInputBean> tags = getTags(10);
@@ -101,7 +101,7 @@ public class TestForceDeadlock extends TestEngineBase {
         String monowai = "Monowai";
         SystemUser su = registerSystemUser(monowai, mike_admin);
         setSecurity();
-        Fortress fortress = fortressService.registerFortress(new FortressInputBean("auditTest" + System.currentTimeMillis(),true));
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest" + System.currentTimeMillis(),true));
         String docType = "TestAuditX";
         Thread.sleep(500);
 
@@ -240,7 +240,7 @@ public class TestForceDeadlock extends TestEngineBase {
 
             try {
                 while (count < maxRun) {
-                    tagEP.createTags(tags, null, null);
+                    mediationFacade.createTags(this.fortress.getCompany(), tags);
                     count++;
                 }
                 worked = true;

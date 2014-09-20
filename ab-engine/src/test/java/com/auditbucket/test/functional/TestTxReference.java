@@ -70,7 +70,7 @@ public class TestTxReference extends TestEngineBase{
         Authentication authCBA = new UsernamePasswordAuthenticationToken(suCBA.getLogin(), "123");
 
 // ABC Data
-        Fortress fortressABC = fortressService.registerFortress("abcTest");
+        Fortress fortressABC = fortressService.registerFortress(suABC.getCompany(), new FortressInputBean("abcTest",true));
         EntityInputBean abcEntity = new EntityInputBean(fortressABC.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         abcEntity.setContent(new ContentInputBean("charlie", null, DateTime.now(), escJsonA, true));
 
@@ -116,27 +116,26 @@ public class TestTxReference extends TestEngineBase{
     public void testTxCommits() throws Exception {
         String company = "Monowai";
         SystemUser su = registerSystemUser(company, mike_admin);
-        Fortress fortressA = fortressService.registerFortress(new FortressInputBean("auditTest", true));
+        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("testTxCommits", true));
         String tagRef = "MyTXTag";
         EntityInputBean aBean = new EntityInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
 
-        String key = mediationFacade.trackEntity(su.getCompany(), aBean).getMetaKey();
-        assertNotNull(key);
-        Entity entity = trackService.getEntity(key);
+        String metaKey = mediationFacade.trackEntity(su.getCompany(), aBean).getMetaKey();
+        assertNotNull(metaKey);
+        Entity entity = trackService.getEntity(su.getCompany(), metaKey);
         assertNotNull(entity);
         //assertEquals(1, entity.getTxTags().size());
-        ContentInputBean alb = new ContentInputBean("charlie", key, DateTime.now(), escJsonA, null, tagRef);
+        ContentInputBean alb = new ContentInputBean("charlie", metaKey, DateTime.now(), escJsonA, null, tagRef);
         assertTrue(alb.isTransactional());
         String albTxRef = mediationFacade.trackLog(su.getCompany(), alb).getLogResult().getTxReference();
 
-        alb = new ContentInputBean("harry", key, DateTime.now(), escJsonB);
+        alb = new ContentInputBean("harry", metaKey, DateTime.now(), escJsonB);
 
 
         alb.setTxRef(albTxRef);
-        String txStart = albTxRef;
 
         mediationFacade.trackLog(su.getCompany(), alb);
-        Map<String, Object> result = txService.findByTXRef(txStart);
+        Map<String, Object> result = txService.findByTXRef(albTxRef);
         assertNotNull(result);
         assertEquals(tagRef, result.get("txRef"));
         Collection<Log> logs = (Collection<Log>) result.get("logs");
@@ -144,7 +143,7 @@ public class TestTxReference extends TestEngineBase{
         assertEquals(2, logs.size());
 
         // Create a new Logger for a different transaction
-        alb = new ContentInputBean("mikey", key, DateTime.now(), escJsonA);
+        alb = new ContentInputBean("mikey", metaKey, DateTime.now(), escJsonA);
         alb.setTransactional(true);
         assertNull(alb.getTxRef());
         alb.setTxRef("");
@@ -153,9 +152,9 @@ public class TestTxReference extends TestEngineBase{
         LogResultBean arb = mediationFacade.trackLog(su.getCompany(), alb).getLogResult();
         String txEnd = arb.getTxReference();
         assertNotNull(txEnd);
-        assertNotSame(txEnd, txStart);
+        assertNotSame(txEnd, albTxRef);
 
-        result = txService.findByTXRef(txStart);
+        result = txService.findByTXRef(albTxRef);
         assertNotNull(result);
         assertEquals(tagRef, result.get("txRef"));
         logs = (Collection<Log>) result.get("logs");
@@ -176,7 +175,7 @@ public class TestTxReference extends TestEngineBase{
     public void tx_TrackEntities() throws Exception {
         String company = "Monowai";
         SystemUser su = registerSystemUser(company, mike_admin);
-        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
+        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("tx_TrackEntities", true));
         String tagRef = "MyTXTag";
         EntityInputBean aBean = new EntityInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
 

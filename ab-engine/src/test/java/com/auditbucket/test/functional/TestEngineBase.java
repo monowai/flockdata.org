@@ -24,6 +24,7 @@ import com.auditbucket.engine.endpoint.AdminEP;
 import com.auditbucket.engine.repo.neo4j.model.FortressNode;
 import com.auditbucket.engine.service.*;
 import com.auditbucket.geography.endpoint.GeographyEP;
+import com.auditbucket.geography.service.GeographyService;
 import com.auditbucket.helper.JsonUtils;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.kv.service.KvService;
@@ -86,7 +87,7 @@ public class TestEngineBase {
     EntityTagService entityTagService;
 
     @Autowired
-	GeographyEP geographyEP;
+    GeographyService geoService;
 
 	@Autowired
     protected
@@ -104,9 +105,6 @@ public class TestEngineBase {
 
 	@Autowired
 	SystemUserService systemUserService;
-
-	@Autowired
-	TagEP tagEP;
 
 	@Autowired
     TagService tagService;
