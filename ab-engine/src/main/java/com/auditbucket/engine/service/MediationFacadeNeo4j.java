@@ -19,9 +19,7 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.helper.Command;
 import com.auditbucket.helper.FlockException;
-import com.auditbucket.helper.DeadlockRetry;
 import com.auditbucket.helper.NotFoundException;
 import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.bean.FortressInputBean;
@@ -48,6 +46,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.security.access.annotation.Secured;
@@ -58,7 +57,6 @@ import org.springframework.util.StopWatch;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -69,6 +67,8 @@ import java.util.concurrent.Future;
  * Since: 28/08/13
  */
 @Service
+@Configuration
+//@EnableRetry
 public class MediationFacadeNeo4j implements MediationFacade {
     @Autowired
     TrackService trackService;
@@ -102,6 +102,9 @@ public class MediationFacadeNeo4j implements MediationFacade {
     @Autowired
     EngineConfig engineConfig;
 
+    @Autowired
+    EntityRetryService entityRetry;
+
 
     static DecimalFormat f = new DecimalFormat();
 
@@ -116,7 +119,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     @Override
     public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
         Collection<String> existing = tagService.getExistingIndexes();
-        schemaService.ensureUniqueIndexes(company, tagInputs,existing );
+        schemaService.ensureUniqueIndexes(company, tagInputs, existing);
         try {
             tagService.createTags(company, tagInputs);
         } catch (IOException e) {
@@ -125,6 +128,25 @@ public class MediationFacadeNeo4j implements MediationFacade {
         }
         return tagService.makeTags(company, tagInputs).get();
 
+    }
+
+    /**
+     * tracks an entity and creates logs. Distributes changes to KV stores and search engine.
+     * <p/>
+     * This is synchronous and blocks until completed
+     *
+     * @param fortress  - system that owns the data
+     * @param inputBean - input
+     * @return non-null
+     * @throws com.auditbucket.helper.FlockException illegal input
+     * @throws IOException                           json processing exception
+     */
+    @Override
+    public TrackResultBean trackEntity(final Fortress fortress, final EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException {
+        List<EntityInputBean> inputs = new ArrayList<>(1);
+        inputs.add(inputBean);
+        Collection<TrackResultBean> results = trackEntities(fortress, inputs, 1);
+        return results.iterator().next();
     }
 
     /**
@@ -145,9 +167,9 @@ public class MediationFacadeNeo4j implements MediationFacade {
      * Tracks EntityInput by fortress. Each Entity can have a different fortress value.
      * Note that the fortress is located by Name
      *
-     * @param company               who owns the fortress
-     * @param entityInputBeans      data to track
-     * @return                      results
+     * @param company          who owns the fortress
+     * @param entityInputBeans data to track
+     * @return results
      * @throws InterruptedException
      * @throws ExecutionException
      * @throws com.auditbucket.helper.FlockException
@@ -155,11 +177,11 @@ public class MediationFacadeNeo4j implements MediationFacade {
      */
     @Override
     public Collection<TrackResultBean> trackEntities(Company company, List<EntityInputBean> entityInputBeans) throws InterruptedException, ExecutionException, FlockException, IOException {
-        Map<String, List<EntityInputBean>>fortressInput = new HashMap<>();
+        Map<String, List<EntityInputBean>> fortressInput = new HashMap<>();
         for (EntityInputBean entityInputBean : entityInputBeans) {
             String fortressName = entityInputBean.getFortress();
             List<EntityInputBean> input = fortressInput.get(fortressName);
-            if (input == null){
+            if (input == null) {
                 input = new ArrayList<>();
                 fortressInput.put(fortressName, input);
                 FortressInputBean fib = new FortressInputBean(fortressName);
@@ -170,7 +192,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
         }
         Collection<TrackResultBean> results = new ArrayList<>();
         for (String fortressName : fortressInput.keySet()) {
-            Fortress f = fortressService.findByName(company,fortressName);
+            Fortress f = fortressService.findByName(company, fortressName);
             results.addAll(trackEntities(f, fortressInput.get(fortressName), 10));
         }
         return results;
@@ -190,50 +212,19 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
         // Tune to balance against concurrency and batch transaction insert efficiency.
         List<List<EntityInputBean>> splitList = Lists.partition(inputBeans, listSize);
-        Collection<TrackResultBean> results = new ArrayList<>();
+        Collection<TrackResultBean> allResults = new ArrayList<>();
         for (List<EntityInputBean> entityInputBeans : splitList) {
-            Iterable<TrackResultBean> trackResultBeans = (
-                    // ToDo: this should dispatch the batch to a message queue
-                    trackBatch(fortress, entityInputBeans)
-            );
+            Iterable<TrackResultBean> theseResults =
+                    ( entityRetry.track(fortress, entityInputBeans) );
 
-            for (TrackResultBean resultBean : trackResultBeans) {
-                results.add(resultBean);
+            for (TrackResultBean theResult : theseResults) {
+                allResults.add(theResult);
             }
         }
 
         watch.stop();
         logger.debug("Completed Batch [{}] - secs= {}, RPS={}", id, f.format(watch.getTotalTimeSeconds()), f.format(inputBeans.size() / watch.getTotalTimeSeconds()));
-        return results;
-    }
-
-    private Iterable<TrackResultBean> trackBatch(final Fortress fortress, List<EntityInputBean> entityInputBeans) throws InterruptedException, ExecutionException, FlockException, IOException {
-        @Deprecated
-        class DLCommand implements Command {
-            Iterable<EntityInputBean> entities = null;
-            Iterable<TrackResultBean> resultBeans;
-
-            DLCommand(List<EntityInputBean> processList) {
-                this.entities = new CopyOnWriteArrayList<>(processList);
-            }
-
-            @Override
-            public Command execute() throws FlockException, IOException, ExecutionException, InterruptedException {
-                // ToDo: DAT-169 This needs to be dealt with via SpringIntegration and persistent messaging
-                //       weirdly, the integration is with ab-engine
-                // DLCommand and DeadLockRetry need to be removed
-                // this routine is prone to deadlocks under load
-
-                resultBeans = trackService.trackEntities(fortress, entities);
-                resultBeans = logService.processLogsSync(fortress.getCompany(), resultBeans);
-
-                return this;
-            }
-        }
-        DLCommand dlc = new DLCommand(entityInputBeans);
-        DeadlockRetry.execute(dlc, "creating entities", 50);
-        return dlc.resultBeans;
-
+        return allResults;
     }
 
     @Override
@@ -245,26 +236,6 @@ public class MediationFacadeNeo4j implements MediationFacade {
                             .setTimeZone(inputBean.getTimezone()));
         fortress.setCompany(company);
         return trackEntity(fortress, inputBean);
-    }
-
-
-    /**
-     * tracks an entity and creates logs. Distributes changes to KV stores and search engine.
-     * <p/>
-     * This is synchronous and blocks until completed
-     *
-     * @param fortress  - system that owns the data
-     * @param inputBean - input
-     * @return non-null
-     * @throws com.auditbucket.helper.FlockException illegal input
-     * @throws IOException      json processing exception
-     */
-    @Override
-    public TrackResultBean trackEntity(final Fortress fortress, final EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException {
-        List<EntityInputBean> inputs = new ArrayList<>(1);
-        inputs.add(inputBean);
-        Collection<TrackResultBean> results = trackEntities(fortress, inputs, 1);
-        return results.iterator().next();
     }
 
 
@@ -420,7 +391,6 @@ public class MediationFacadeNeo4j implements MediationFacade {
             logger.info("ToDo: Delete the search document {}", entity);
         }
     }
-
 
 
 }

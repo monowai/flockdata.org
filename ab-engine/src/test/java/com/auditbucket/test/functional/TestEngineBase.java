@@ -196,6 +196,9 @@ public class TestEngineBase {
         return registerSystemUser(monowai, mike_admin);
 
     }
+    public SystemUser registerSystemUser(String companyName) throws Exception{
+        return  registerSystemUser(companyName, Long.toHexString(System.currentTimeMillis()));
+    }
     public SystemUser registerSystemUser(String companyName, String accessUser) throws Exception{
         Company company = companyService.findByName(companyName);
         if ( company == null ) {

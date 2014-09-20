@@ -26,7 +26,7 @@
 
     <util:map id="config">
         <entry key="remote_shell_enabled" value="true"/>
-        <entry key="cache-type" value="weak"/>
+        <entry key="cache-type" value="${neo4j.cacheType}"/>
         <entry key="allow_store_upgrade" value="true"/>
     </util:map>
 
