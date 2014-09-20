@@ -66,7 +66,7 @@ public class TestTrack extends TestEngineBase {
     public void duplicateCallerRefMultipleLastChange() throws Exception {
         logger.debug("### duplicateCallerRefMultipleLastChange");
         String callerRef = "dcABC1";
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai);
 
         Fortress fortWP = fortressService.registerFortress(su.getCompany(), new FortressInputBean("wportfolio", true));
         EntityInputBean inputBean = new EntityInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), callerRef);
@@ -98,7 +98,7 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void logChangeWithNullAuditKeyButCallerRefExists() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest",true));
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         assertNotNull(mediationFacade.trackEntity(su.getCompany(), inputBean));
@@ -112,9 +112,10 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void trackByCallerRef_FortressUserInEntityButNotLog() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai);
         //Fortress fortress = fortressService.registerFortress("auditTest");
-        FortressInputBean fortress = new FortressInputBean("trackByCallerRef", true);
+        FortressInputBean fortress = new FortressInputBean("FortressUserInEntityButNotLog", true);
+        fortressService.registerFortress(su.getCompany(), fortress);
 
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         ContentInputBean aib = new ContentInputBean("wally", new DateTime(), Helper.getSimpleMap("blah", 1));
@@ -131,14 +132,14 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void nullMetaKey() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai);
         assertNull (trackService.getEntity(su.getCompany(), null));
     }
 
     @Test
     public void locatingByCallerRefWillThrowAuthorizationException() throws Exception {
         setSecurity();
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai);
 
         Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
         EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
@@ -175,7 +176,7 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void createEntityTimeLogs() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("createEntityTimeLogs", true));
 
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
@@ -217,7 +218,7 @@ public class TestTrack extends TestEngineBase {
      */
     @Test
     public void noDuplicateLogsWithCompression() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "testDupe", new DateTime(), "ndlwcqw2");
@@ -265,7 +266,7 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void correctLogCountsReturnedForAFortress() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai);
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
@@ -281,7 +282,7 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void testEntityWithLogChange() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai);
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "uouu87");
@@ -298,7 +299,7 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void testEntityWithLogChangeTransactional() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai);
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest",true));
 
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "232146");
@@ -314,7 +315,7 @@ public class TestTrack extends TestEngineBase {
     public void updateByCallerRefNoAuditKeyMultipleClients() throws Exception {
         setSecurity(mike_admin);
         // Registering the internal admin as a data access user
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai);
         Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest" + System.currentTimeMillis(),true));
         String docType = "TestAuditX";
         String callerRef = "ABC123X";
@@ -332,7 +333,7 @@ public class TestTrack extends TestEngineBase {
         SystemUser suB = registerSystemUser("TWEE", harry);
         // Switch to the data access user
         setSecurity(harry);
-        Fortress fortressB = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTestB" + System.currentTimeMillis(),true));
+        Fortress fortressB = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("auditTestB" + System.currentTimeMillis(),true));
         inputBean = new EntityInputBean(fortressB.getName(), "wally", docType, new DateTime(), callerRef);
         String keyB = mediationFacade.trackEntity(suB.getCompany(), inputBean).getMetaKey();
         alb = new ContentInputBean("logTest", new DateTime(), Helper.getSimpleMap("blah", 0));
@@ -358,7 +359,7 @@ public class TestTrack extends TestEngineBase {
     @Test
     public void entitysForDifferentCompaniesAreNotVisible() throws Exception {
         logger.info("## entitysForDifferentCompaniesAreNotVisible");
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai);
         String hummingbird = "Hummingbird";
 
         //Monowai/Mike
@@ -396,7 +397,7 @@ public class TestTrack extends TestEngineBase {
     @Test
     public void lastChangedWorks() throws Exception {
         logger.info ("## lastChangedWorks");
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai);
         // Create a second log record in order to workout who last change the EntityNode
 
         Fortress fortWP = fortressService.registerFortress(su.getCompany(), new FortressInputBean("wportfolio",true));
@@ -424,7 +425,7 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void outOfSequenceLogsWorking() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai);
         DateTime dt = new DateTime().toDateTime();
         DateTime earlyDate = dt.minusDays(2);
 
@@ -459,7 +460,7 @@ public class TestTrack extends TestEngineBase {
      */
     @Test
     public void logDateRangesWorking() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai);
 
         int max = 10;
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("wportfolio", true));
@@ -507,7 +508,7 @@ public class TestTrack extends TestEngineBase {
     public void cancelLastChangeBehaves() throws Exception {
         // For use in compensating transaction cases only
         // DAT-53
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("wportfolio", true));
         DateTime dt = new DateTime().toDateTime();
         DateTime firstDate = dt.minusDays(2);
@@ -541,7 +542,7 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void lastChangeDatesReconcileWithFortressInput() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai);
         Fortress fortWP = fortressService.registerFortress(su.getCompany(), new FortressInputBean("wportfolio", true));
         EntityInputBean inputBean = new EntityInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime(), "ABC1");
         String metaKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey();
@@ -559,7 +560,7 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void dateCreatedAndLastUpdated() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai);
         Fortress fortWP = fortressService.registerFortress(su.getCompany(), new FortressInputBean("wportfolio", true));
         DateTime fortressDateCreated = DateTime.now();
         Thread.sleep(500);
@@ -588,7 +589,7 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void missingLogDateGeneratesSystemDate() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai);
         Fortress fortWP = fortressService.registerFortress(su.getCompany(), new FortressInputBean("wportfolio", true));
         DateTime dt = new DateTime().toDateTime();
         EntityInputBean inputBean = new EntityInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", dt, "mldgsd99");
@@ -625,7 +626,7 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void fullEntityDetailsByCallerRef() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai);
         Fortress fortWP = fortressService.registerFortress(su.getCompany(), new FortressInputBean("wportfolio", true));
         EntityInputBean inputBean = new EntityInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "ABC1");
         String metaKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey();
@@ -638,7 +639,7 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void testFortressTimeBoundaries() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai);
 
         FortressInputBean usFortress = new FortressInputBean("usFortress", true);
         usFortress.setTimeZone(TimeZone.getTimeZone("GMT").getID());
@@ -666,7 +667,7 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void entitiesByFortressAndDocType() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai);
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
         assertNotNull(fortress);
@@ -687,7 +688,7 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void findEntitiesForCollectionOfMetaKeys() throws Exception{
-        SystemUser suA = registerSystemUser(monowai, mike_admin);
+        SystemUser suA = registerSystemUser(monowai, "findEntitiesForCollectionOfMetaKeys");
 
         Fortress fortressA = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("ABC", true));
         assertNotNull(fortressA);
@@ -723,7 +724,7 @@ public class TestTrack extends TestEngineBase {
     public void utf8Strings() throws Exception{
         Map<String, Object> json = Helper.getSimpleMap("Athlete", "Katerina Neumannová") ;
         //getSimpleMap("house", "house1");
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai, "utf8Strings");
 
         Fortress fortWP = fortressService.registerFortress(su.getCompany(), new FortressInputBean("wportfolio", true));
         EntityInputBean inputBean = new EntityInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), "ABC1");
@@ -743,7 +744,7 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void metaSummaryReturnsLogs() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai, "metaSummaryReturnsLogs");
         Fortress fortWP = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entitySummary", true));
         DateTime dt = new DateTime().toDateTime();
         DateTime firstDate = dt.minusDays(2);
@@ -772,8 +773,9 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void lastLog_CorrectlySequencesInSeparateCallsViaBatchLoad() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entityEntityDiff"),true);
+        SystemUser su = registerSystemUser(monowai);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entityEntityDiff", true));
+        assertFalse(fortress.isSearchActive());
         String callerRef = UUID.randomUUID().toString();
         List<EntityInputBean> inputBeans = new ArrayList<>();
 
@@ -816,7 +818,7 @@ public class TestTrack extends TestEngineBase {
 
     @Test
     public void datesInEntitysAndLogs() throws Exception{
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai, "datesInEntitysAndLogs");
         FortressInputBean f = new FortressInputBean("dateFun", true);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), f);
 
@@ -838,7 +840,7 @@ public class TestTrack extends TestEngineBase {
     public void abFortressDateFields() throws Exception {
         // DAT-196
         logger.info("## utcDateFields");
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser(monowai, "userDatesFields");
         FortressInputBean fib = new FortressInputBean("utcDateFields", true);
         String timeZone = "Europe/Copenhagen"; // Arbitrary TZ
         fib.setTimeZone(timeZone);
@@ -854,7 +856,7 @@ public class TestTrack extends TestEngineBase {
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean); // Mock result as we're not tracking
 
-        Entity entity = trackService.getEntity(su.getCompany(), result.getMetaKey());
+        Entity entity = result.getEntity();
         assertEquals("ab.monowai." + fo.getCode(), entity.getIndexName());
         assertEquals("DateCreated not in Fortress TZ", 0, fortressDateCreated.compareTo(entity.getFortressDateCreated()));
 
@@ -865,7 +867,7 @@ public class TestTrack extends TestEngineBase {
     public void clientInDifferentTZ() throws Exception {
         // DAT-196
         logger.info("## clientInDifferentTZ");
-        SystemUser su = registerSystemUser();
+        SystemUser su = registerSystemUser(monowai, "clienttz");
         FortressInputBean fib = new FortressInputBean("clientInDifferentTZ", true);
         String fortressTz = "Europe/Copenhagen"; // Arbitrary TZ
         fib.setTimeZone(fortressTz);

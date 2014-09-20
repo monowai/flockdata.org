@@ -219,7 +219,7 @@ public class TestAdminCalls extends TestEngineBase {
         SystemUser su = registerSystemUser("healthCheck", mike_admin );
         Map<String, Object> results = engineEndPoints.getHealth(su);
         assertFalse("We didn't get back the health results for a valid api account", results.isEmpty());
-        assertEquals("!Unreachable! Connection refused", results.get("ab-search"));
+        assertTrue(results.get("ab-search").toString().contains("!Unreachable!"));
 
         // No api key, auth only DAT-203
         setSecurityEmpty();

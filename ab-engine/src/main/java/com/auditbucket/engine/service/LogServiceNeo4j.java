@@ -20,9 +20,7 @@
 package com.auditbucket.engine.service;
 
 import com.auditbucket.engine.repo.neo4j.EntityDaoNeo;
-import com.auditbucket.helper.Command;
 import com.auditbucket.helper.FlockException;
-import com.auditbucket.helper.DeadlockRetry;
 import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
@@ -83,7 +81,7 @@ public class LogServiceNeo4j implements LogService {
 
     @Override
     public Collection<TrackResultBean> processLogsSync(Company company, Iterable<TrackResultBean> resultBeans) throws FlockException, IOException, ExecutionException, InterruptedException {
-        logger.debug("Process Logs {}", Thread.currentThread().getName());
+//        logger.debug("Process Logs {}", Thread.currentThread().getName());
         Collection<TrackResultBean> logResults = new ArrayList<>();
         for (TrackResultBean resultBean : resultBeans) {
             logResults.add(processLogFromResult(resultBean));
@@ -122,24 +120,30 @@ public class LogServiceNeo4j implements LogService {
     TrackResultBean writeTheLogAndDistributeChanges(final TrackResultBean resultBean) throws FlockException, IOException, ExecutionException, InterruptedException {
         ContentInputBean contentInputBean = resultBean.getContentInput();
         logger.debug("writeLog {}", contentInputBean);
-        class DeadLockCommand implements Command {
-            TrackResultBean result = null;
+        TrackResultBean result = writeLog(resultBean);
+        if (result.getLogResult().getStatus() == ContentInputBean.LogStatus.NOT_FOUND)
+            throw new FlockException("Unable to find Entity ");
+        kvService.doKvWrite(result); //ToDo: Consider KV not available. How to write the logs
+        return result;
 
-            @Override
-            public Command execute() throws FlockException, IOException, ExecutionException, InterruptedException {
-
-                // ToDo: DAT-169 This needs to be dealt with via SpringIntegration and persistent messaging
-                result = writeLog(resultBean);
-                if (result.getLogResult().getStatus() == ContentInputBean.LogStatus.NOT_FOUND)
-                    throw new FlockException("Unable to find Entity ");
-                kvService.doKvWrite(result); //ToDo: Consider KV not available. How to write the logs
-                //      need to think of a way to recognize that the entity has unprocessed work
-                return this;
-            }
-        }
-        DeadLockCommand c = new DeadLockCommand();
-        DeadlockRetry.execute(c, "processing log for entity", 20);
-        return c.result;
+//        class DeadLockCommand implements Command {
+//            TrackResultBean result = null;
+//
+//            @Override
+//            public Command execute() throws FlockException, IOException, ExecutionException, InterruptedException {
+//
+//                // ToDo: DAT-169 This needs to be dealt with via SpringIntegration and persistent messaging
+//                result = writeLog(resultBean);
+//                if (result.getLogResult().getStatus() == ContentInputBean.LogStatus.NOT_FOUND)
+//                    throw new FlockException("Unable to find Entity ");
+//                kvService.doKvWrite(result); //ToDo: Consider KV not available. How to write the logs
+//                //      need to think of a way to recognize that the entity has unprocessed work
+//                return this;
+//            }
+//        }
+//        DeadLockCommand c = new DeadLockCommand();
+//        DeadlockRetry.execute(c, "processing log for entity", 20);
+//        return c.result;
 
     }
 
@@ -272,29 +276,5 @@ public class LogServiceNeo4j implements LogService {
         searchService.makeChangesSearchable(resultBeans);
         logger.debug("Distributed changes to search service");
     }
-
-//    private Entity waitOnInitialSearchResult(Entity entity) {
-//
-//        if (entity.isSearchSuppressed() || entity.getSearchKey() != null)
-//            return entity; // Nothing to wait for as we're suppressing searches for this entity
-//
-//        int timeOut = 100;
-//        int i = 0;
-//
-//        while (entity.getSearchKey() == null && i < timeOut) {
-//            i++;
-//            try {
-//                Thread.sleep(300);
-//            } catch (InterruptedException e) {
-//                logger.error(e.getMessage());
-//            }
-//            entity = getHeader(entity.getId());
-//        }
-//        if (entity.getSearchKey() == null)
-//            logger.error("Timeout waiting for the initial search document to be created [{}]", entity.getMetaKey());
-//        return entity;
-//
-//    }
-
 
 }

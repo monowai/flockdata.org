@@ -46,7 +46,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -473,7 +472,7 @@ public class TrackServiceNeo4j implements TrackService {
 
     @Override
     public Iterable<TrackResultBean> trackEntities(Fortress fortress, Iterable<EntityInputBean> inputBeans) throws InterruptedException, ExecutionException, FlockException, IOException {
-        Collection<TrackResultBean> arb = new CopyOnWriteArrayList<>();
+        Collection<TrackResultBean> arb = new ArrayList<>();
         for (EntityInputBean inputBean : inputBeans) {
             logger.trace("Batch Processing metaKey=[{}], documentType=[{}]", inputBean.getCallerRef(), inputBean.getDocumentType());
             arb.add(createEntity(fortress, inputBean));

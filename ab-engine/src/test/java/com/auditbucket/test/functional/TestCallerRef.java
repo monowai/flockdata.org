@@ -116,10 +116,10 @@ public class TestCallerRef extends TestEngineBase {
 
         String docType = "TestAuditX";
         String callerRef = "ABC123X";
-        int count =3;
-        Collection<CallerRefRunner> runners = new ArrayList <>(count);
-        CountDownLatch latch = new CountDownLatch(count);
-        for( int i = 0; i< count ; i++){
+        int runnersToCreate =3;
+        Collection<CallerRefRunner> runners = new ArrayList <>(runnersToCreate);
+        CountDownLatch latch = new CountDownLatch(runnersToCreate);
+        for( int i = 0; i< runnersToCreate ; i++){
             runners.add (addRunner(fortress, docType, callerRef, latch));
         }
 
