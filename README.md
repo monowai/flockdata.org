@@ -1,25 +1,27 @@
-[auditbucket](http://auditbucket.com) - Data Mediation Service
+[FlockData](http://FlockData.com) - Data Framework and Mediation Service
 ===========
 ## Project Status
-Full support for ElasticSearch 1.3 and Neo4j 2.1.x in place. API is settled. ab-security has been introduced as a plugable authentication service. We support Stormpath and Simple user names/passwords in XML
+Goodbye AuditBucket and hello FlockData. We are changing the name. But this is not yet completed. Most anything referring to ab- will become fd-
+Full support for ElasticSearch 1.3 and Neo4j 2.1.x in place. API is largely settled. 
+fd-security has been introduced as a plugable authentication service. We support Stormpath and Simple user names/passwords in XML
 
-Currently working on tracking attachments.
+Attachment support has now been introduced. Binary attachments can be loaded and searched for.
 
 Checkout out our [CodeFlower](https://monowai.github.io/CodeFlower/)
 
 ## How to get going
-You need to gain a brief understanding of two of the key AuditBucket scalable micro services
-* [ab-engine](ab-engine/README.md) - track incoming changes - think LogStash for business data  
-* [ab-search](ab-search/README.md) - find information tracked by ab-engine into ElasticSearch
+You need to gain a brief understanding of two of the key FlockData scalable micro services
+* [fd-engine](ab-engine/README.md) - track changes to your Entity information - think LogStash for business data  
+* [fd-search](ab-search/README.md) - find entity information tracked by fd-search into ElasticSearch
 
 Familiarise yourself with the general API on our [Wiki](http://www.monowai.com/wiki/pages/viewpage.action?pageId=13172790)
 
 ## Overview
-Track, Find, Compare and Explore AuditBucket helps you find what you're looking for.
+Track, Find, Compare and Explore FlockData helps you find what you're looking for.
 
 Which customers influence other customer purchases? Which customers who buy beer, also by games? Where did we ship these batch numbers to? Alert me to all trades > $1,000,000 involving Trader Joe on the Sell side? Complex questions don't become complex projects. They become realtime dashboards, alerts and queries that can be produced in a morning.
 
-AuditBucket is a data mediation service to track lineage of business information into both an ElasticSearch datastore and Neo4J graph database with minimal upfront analysis or effort.
+FlockData is a data mediation service to track lineage of business information into both an ElasticSearch datastore and Neo4J graph database with minimal upfront analysis or effort.
 
 AB assumes you want to aggregate data from your existing system and look at it new ways to uncover insights you didn't know existed. This real-time anaysis saves time and enables you to identify signal from noise with free-form exploration. This is hugely useful when you are not quite sure what you are looking for in your information and are forming hypotheses on the journey to insight.
 
@@ -66,12 +68,13 @@ Neo4J is another wonderful tool that let's your explore your business informatio
 ## Working with us
 More details? Ideas? Integration assistance? General consulting? Want to get started at the [speed of business](http://www.adamalthus.com/blog/2013/06/05/cloud-computing-and-complexity/#more-890)? 
 
-Drop us a line over at [auditbucket.com](http://auditbucket.com/contact-auditbucket/) and we'd be happy to see if we can help you reach your goals. Usual social media channels also apply - [LinkedIn](http://www.linkedin.com/company/3361595) .
+Drop us a line over at [flockdata.com](http://auditbucket.com/contact-auditbucket/) and we'd be happy to see if we can help you reach your goals. Usual social media channels also apply - [LinkedIn](http://www.linkedin.com/company/3361595) .
 
 ## Contributing
-We encourage contributions to AuditBucket from the community. Here’s how to get started.
+We encourage contributions to FlockData from the community. Here’s how to get started.
 
 * Fork the appropriate sub-projects that are affected by your change. Fork this repository if your changes are for release generation or packaging.
+* Create a branch
 * Make your changes and run the test suite.
 * Commit your changes and push them to your fork.
 * Open pull-requests for the appropriate projects.
@@ -82,7 +85,7 @@ Latest code is on the develop branch
 To report a bug or issue, please open a new [issue](https://github.com/monowai/auditbucket/issues) against this repository.
 
 ### Licensing
-AuditBucket is an open source product. We support a Community edition under the GPLv3 license. The Enterprise edition is available under the AGPLv3 license for open source projects otherwise under a commercial license by [contacting](http://auditbucket.com/contact-auditbucket/). Talk to us about clustering as there can be costs involved with the underlying stack.
+FlockData is an open source project. We support a Community edition under the GPLv3 license. The Enterprise edition is available under the AGPLv3 license for open source projects otherwise under a commercial license by [contacting](http://flockdata.com/contact-auditbucket/). Talk to us about clustering as there can be costs involved with the underlying stack.
 
 Have fun and please share your experiences.
 

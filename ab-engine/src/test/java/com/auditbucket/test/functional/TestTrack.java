@@ -126,7 +126,7 @@ public class TestTrack extends TestEngineBase {
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
         assertNotNull(result);
         assertNotNull(result.getMetaKey());
-        assertNotNull(trackService.findByCallerRef(fortress.getName(), aib.getDocumentType(), aib.getCallerRef()));
+        assertNotNull(trackService.findByCallerRef(su.getCompany(), fortress.getName(), aib.getDocumentType(), aib.getCallerRef()));
     }
 
 
@@ -163,7 +163,7 @@ public class TestTrack extends TestEngineBase {
 
         setSecurity(harry);
         assertNull("User does not belong to this company.Fortress so should not be able to see it",
-                trackService.findByCallerRef(fortressA.getCode(), "TestTrack", "ABC123"));
+                trackService.findByCallerRef(suB.getCompany(), fortressA.getCode(), "TestTrack", "ABC123"));
 
         try {
             assertNull(trackService.getEntity(suB.getCompany(), key));
@@ -336,9 +336,10 @@ public class TestTrack extends TestEngineBase {
         Fortress fortressB = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("auditTestB" + System.currentTimeMillis(),true));
         inputBean = new EntityInputBean(fortressB.getName(), "wally", docType, new DateTime(), callerRef);
         String keyB = mediationFacade.trackEntity(suB.getCompany(), inputBean).getMetaKey();
+
         alb = new ContentInputBean("logTest", new DateTime(), Helper.getSimpleMap("blah", 0));
         alb.setCallerRef(fortressB.getName(), docType, callerRef);
-        arb = mediationFacade.trackLog(su.getCompany(), alb).getLogResult();
+        arb = mediationFacade.trackLog(suB.getCompany(), alb).getLogResult();
         assertNotNull(arb);
         assertEquals("This caller should not see KeyA", keyB, arb.getMetaKey());
 
@@ -492,7 +493,7 @@ public class TestTrack extends TestEngineBase {
 
         DateTime then = workingDate.minusDays(4);
         logger.info("Searching between " + then.toDate() + " and " + workingDate.toDate());
-        Set<EntityLog> logs = trackService.getEntityLogs(entity.getMetaKey(), then.toDate(), workingDate.toDate());
+        Set<EntityLog> logs = trackService.getEntityLogs(su.getCompany(), entity.getMetaKey(), then.toDate(), workingDate.toDate());
         assertEquals(5, logs.size());
         Long logId = logs.iterator().next().getId();
         LogDetailBean change = trackService.getFullDetail(su.getCompany(), entity.getMetaKey(), logId);
@@ -755,7 +756,7 @@ public class TestTrack extends TestEngineBase {
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), firstDate, Helper.getSimpleMap("house", "house1")));
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("isabella@sunnybell.com", entity.getMetaKey(), firstDate.plusDays(1), Helper.getSimpleMap("house", "house2")));
         waitForLogCount(su.getCompany(), entity,2);
-        EntitySummaryBean entitySummary = trackService.getEntitySummary(null, metaKey);
+        EntitySummaryBean entitySummary = trackService.getEntitySummary(su.getCompany(), metaKey);
         assertNotNull(entitySummary);
         assertEquals(metaKey, entitySummary.getEntity().getMetaKey());
         assertNotNull(entitySummary.getEntity().getLastUser());

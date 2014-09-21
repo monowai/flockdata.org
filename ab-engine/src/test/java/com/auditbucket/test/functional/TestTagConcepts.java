@@ -385,7 +385,7 @@ public class TestTagConcepts extends TestEngineBase {
             assertEquals(1, concept.getRelationships().size());
             logger.info(foundDoc.toString());
         }
-        adminEP.purgeFortress(fortress.getName(), su.getApiKey(), su.getApiKey());
+        mediationFacade.purge(su.getCompany(), fortress.getName());
         assertEquals(0, schemaService.getDocumentsInUse(fortress.getCompany()).size());
     }
 

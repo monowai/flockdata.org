@@ -20,10 +20,8 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.company.endpoint.CompanyEP;
-import com.auditbucket.engine.endpoint.AdminEP;
 import com.auditbucket.engine.repo.neo4j.model.FortressNode;
 import com.auditbucket.engine.service.*;
-import com.auditbucket.geography.endpoint.GeographyEP;
 import com.auditbucket.geography.service.GeographyService;
 import com.auditbucket.helper.JsonUtils;
 import com.auditbucket.helper.SecurityHelper;
@@ -31,7 +29,6 @@ import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
-import com.auditbucket.registration.endpoint.TagEP;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
@@ -48,6 +45,7 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.data.neo4j.support.node.Neo4jHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -89,7 +87,8 @@ public class TestEngineBase {
     @Autowired
     GeographyService geoService;
 
-	@Autowired
+    @Qualifier("mediationFacadeNeo4j")
+    @Autowired
     protected
     MediationFacade mediationFacade;
 
@@ -110,9 +109,6 @@ public class TestEngineBase {
     TagService tagService;
 
 	@Autowired
-	AdminEP adminEP;
-
-	@Autowired
     public
     EngineConfig engineConfig;
 
@@ -126,6 +122,7 @@ public class TestEngineBase {
 	CompanyService companyService;
 
 	@Autowired
+    @Deprecated // Use companyService instead
 	CompanyEP companyEP;
 
 	@Autowired
@@ -155,7 +152,6 @@ public class TestEngineBase {
 
     @Rollback(false)
 	@BeforeTransaction
-    @Ignore
 	public void cleanUpGraph() {
 		Neo4jHelper.cleanDb(template);
 		engineConfig.setConceptsEnabled(false);

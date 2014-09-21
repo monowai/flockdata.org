@@ -2,15 +2,15 @@ package com.auditbucket.engine.endpoint;
 
 import com.auditbucket.authentication.handler.ApiKeyInterceptor;
 import com.auditbucket.engine.service.EngineConfig;
-import com.auditbucket.helper.ApiKeyHelper;
+import com.auditbucket.helper.CompanyResolver;
 import com.auditbucket.helper.FlockException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.track.service.MediationFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,14 +29,12 @@ import java.util.Map;
 @RequestMapping("/admin")
 public class AdminEP {
 
+    @Qualifier("mediationFacadeNeo4j")
     @Autowired
     MediationFacade mediationFacade;
 
     @Autowired
     SecurityHelper securityHelper;
-
-    @Autowired
-    private RegistrationService registrationService;
 
     @Autowired
     EngineConfig engineConfig;
@@ -76,8 +74,8 @@ public class AdminEP {
     @RequestMapping(value = "/{fortressName}/rebuild", method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.ACCEPTED)
     public ResponseEntity<String> rebuildSearch(@PathVariable("fortressName") String fortressName,
-                                                String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException {
-        Company company = getCompany(apiHeaderKey, apiKey);
+                                                HttpServletRequest request) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
         logger.info("Reindex command received for " + fortressName + " from [" + securityHelper.getLoggedInUser() + "]");
         mediationFacade.reindex(company, fortressName);
         return new ResponseEntity<>("Request to reindex has been received", HttpStatus.ACCEPTED);
@@ -86,31 +84,22 @@ public class AdminEP {
 
     @RequestMapping(value = "/{fortressName}/{docType}/rebuild", method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.ACCEPTED)
-    public ResponseEntity<String> rebuildSearch(@PathVariable("fortressName") String fortressName, @PathVariable("docType") String docType
-            , String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException {
-
-        Company company = getCompany(apiHeaderKey, apiKey);
+    public ResponseEntity<String> rebuildSearch(@PathVariable("fortressName") String fortressName, @PathVariable("docType") String docType,
+                                                HttpServletRequest request) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
 
         logger.info("Reindex command received for " + fortressName + " & docType " + docType + " from [" + securityHelper.getLoggedInUser() + "]");
         mediationFacade.reindexByDocType(company, fortressName, docType);
         return new ResponseEntity<>("Request to reindex fortress document type has been received", HttpStatus.ACCEPTED);
     }
 
-    private Company getCompany(String apiHeaderKey, String apiRequestKey) throws FlockException {
-        Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiRequestKey));
-        if (company == null)
-            throw new FlockException("Unable to resolve supplied API key to a valid company");
-        return company;
-    }
-
-
     @RequestMapping(value = "/{fortressName}", method = RequestMethod.DELETE)
     @ResponseStatus(value = HttpStatus.ACCEPTED)
     public ResponseEntity<String> purgeFortress(@PathVariable("fortressName") String fortressName,
-                                                String apiKey,
-                                                @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException {
+                                                HttpServletRequest request) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
 
-        mediationFacade.purge(fortressName, ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+        mediationFacade.purge(company, fortressName);
         return new ResponseEntity<>("Purged " + fortressName, HttpStatus.ACCEPTED);
 
     }

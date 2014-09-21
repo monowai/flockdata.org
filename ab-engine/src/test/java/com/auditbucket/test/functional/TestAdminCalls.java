@@ -89,13 +89,13 @@ public class TestAdminCalls extends TestEngineBase {
         SecurityContextHolder.getContext().setAuthentication(null);
         // Assert that unauthorised user can't purge a fortress
         try {
-            adminEP.purgeFortress(fo.getName(), null, null);
+            mediationFacade.purge(su.getCompany(), fo.getName());
             fail("An authorisation exception should have been thrown");
         } catch (Exception e) {
             // This is good
         }
         setSecurity();
-        adminEP.purgeFortress(fo.getName(), null, null);
+        mediationFacade.purge(su.getCompany(), fo.getName());
         assertNull(trackService.getEntity(su.getCompany(), metaKey));
         assertNull(fortressService.findByName(su.getCompany(), fo.getName()));
     }
@@ -121,13 +121,13 @@ public class TestAdminCalls extends TestEngineBase {
         SecurityContextHolder.getContext().setAuthentication(null);
         // Assert that unauthorised user can't purge a fortress
         try {
-            adminEP.purgeFortress(fo.getName(), null, null);
+            mediationFacade.purge(su.getCompany(), fo.getName());
             fail("An authorisation exception should have been thrown");
         } catch (Exception e) {
             // This is good
         }
         setSecurity();
-        adminEP.purgeFortress(fo.getName(), su.getApiKey(), su.getApiKey());
+        mediationFacade.purge(su.getCompany(), fo.getName());
         assertNull(trackService.getEntity(su.getCompany(), metaKey));
         assertNull(fortressService.findByName(su.getCompany(), fo.getName()));
     }
@@ -157,13 +157,13 @@ public class TestAdminCalls extends TestEngineBase {
         SecurityContextHolder.getContext().setAuthentication(null);
         // Assert that unauthorised user can't purge a fortress
         try {
-            adminEP.purgeFortress(fo.getName(), null, null);
+            mediationFacade.purge(su.getCompany(), fo.getName());
             fail("An authorisation exception should have been thrown");
         } catch (Exception e) {
             // This is good
         }
         setSecurity();
-        adminEP.purgeFortress(fo.getName(), su.getApiKey(), su.getApiKey());
+        mediationFacade.purge(su.getCompany(), fo.getName());
         assertNull(trackService.getEntity(su.getCompany(), metaKey));
         assertNull(fortressService.findByName(su.getCompany(), fo.getName()));
 
@@ -201,15 +201,21 @@ public class TestAdminCalls extends TestEngineBase {
         others.add(resultA);
         trackService.crossReference(su.getCompany(), resultB, others, "rlxNameB");
 
-        mediationFacade.purge(fortress.getName(), su.getApiKey());
+        mediationFacade.purge(su.getCompany(), fortress.getName());
         assertNull(trackService.getEntity(su.getCompany(), resultA));
         assertNull(trackService.getEntity(su.getCompany(), resultB));
 
     }
 
     @Test
-    public void testPing() {
-        assertTrue(adminEP.getPing().equalsIgnoreCase("pong!"));
+    public void testPing() throws Exception {
+        setSecurity();
+        EngineEndPoints  eep = new EngineEndPoints(wac);
+        String result = eep.ping();
+        assertTrue("pong!".equalsIgnoreCase(result));
+        setSecurityEmpty(); // Unsecured should also work
+        result = eep.ping();
+        assertTrue("pong!".equalsIgnoreCase(result));
     }
 
     @Test

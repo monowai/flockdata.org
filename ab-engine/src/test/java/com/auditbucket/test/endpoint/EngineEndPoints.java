@@ -15,6 +15,7 @@ import com.auditbucket.track.bean.DocumentResultBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -106,6 +107,13 @@ public class EngineEndPoints {
         String json = response.getResponse().getContentAsString();
 
         return JsonUtils.getAsMap(json);
+    }
+
+    public String ping () throws Exception {
+        ResultActions result = getMockMvc()
+                .perform(
+                        MockMvcRequestBuilders.get("/ping"));
+        return result.andReturn().getResponse().getContentAsString();
     }
 
     public MvcResult login(String user, String pass) throws Exception {
