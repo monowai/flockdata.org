@@ -38,22 +38,19 @@ public interface TrackService {
 
     EntityLog getLastEntityLog(Company company, String metaKey) throws FlockException;
 
-    @Deprecated
-    EntityLog getLastEntityLog(String metaKey) throws FlockException;
-
     EntityLog getLastEntityLog(Long entityId);
 
     Set<EntityLog> getEntityLogs(Long entityId);
 
     Set<EntityLog> getEntityLogs(Company company, String metaKey) throws FlockException;
 
-    Set<EntityLog> getEntityLogs(String metaKey, Date from, Date to) throws FlockException;
+    Set<EntityLog> getEntityLogs(Company company, String metaKey, Date from, Date to) throws FlockException;
 
     EntitySearchChange cancelLastLog(Company company, Entity entity) throws IOException, FlockException;
 
     int getLogCount(Company company, String metaKey) throws FlockException;
 
-    Entity findByCallerRef(String fortress, String documentType, String callerRef);
+    Entity findByCallerRef(Company company, String fortress, String documentType, String callerRef);
 
     Entity findByCallerRefFull(Long fortressId, String documentType, String callerRef);
 
@@ -61,15 +58,9 @@ public interface TrackService {
 
     Iterable<Entity> findByCallerRef(Company company, String fortressName, String callerRef);
 
-    Collection<Entity> findByCallerRef(Fortress fortress, String callerRef);
-
     Entity findByCallerRef(Fortress fortress, String documentType, String callerRef);
 
-    Entity findByCallerRef(Fortress fortress, DocumentType documentType, String callerRef);
-
     EntitySummaryBean getEntitySummary(Company company, String metaKey) throws FlockException;
-
-    LogDetailBean getFullDetail(String metaKey, Long logId);
 
     LogDetailBean getFullDetail(Company company, String metaKey, Long logId);
 

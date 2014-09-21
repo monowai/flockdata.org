@@ -21,15 +21,14 @@ package com.auditbucket.engine.service;
 
 import com.auditbucket.helper.FlockException;
 import com.auditbucket.helper.NotFoundException;
+import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.CompanyService;
-import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.search.model.EntitySearchChange;
 import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.QueryParams;
@@ -46,6 +45,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -69,6 +69,7 @@ import java.util.concurrent.Future;
 @Service
 @Configuration
 //@EnableRetry
+@Qualifier("mediationFacadeNeo4j")
 public class MediationFacadeNeo4j implements MediationFacade {
     @Autowired
     TrackService trackService;
@@ -94,17 +95,16 @@ public class MediationFacadeNeo4j implements MediationFacade {
     @Autowired
     LogService logService;
 
-    private Logger logger = LoggerFactory.getLogger(MediationFacadeNeo4j.class);
-
-    @Autowired
-    private RegistrationService registrationService;
-
     @Autowired
     EngineConfig engineConfig;
 
     @Autowired
     EntityRetryService entityRetry;
 
+    @Autowired
+    SecurityHelper securityHelper;
+
+    private Logger logger = LoggerFactory.getLogger(MediationFacadeNeo4j.class);
 
     static DecimalFormat f = new DecimalFormat();
 
@@ -246,7 +246,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
         if (input.getMetaKey() != null)
             entity = trackService.getEntity(company, input.getMetaKey());
         else
-            entity = trackService.findByCallerRef(input.getFortress(), input.getDocumentType(), input.getCallerRef());
+            entity = trackService.findByCallerRef(company, input.getFortress(), input.getDocumentType(), input.getCallerRef());
         if (entity == null)
             throw new FlockException("Unable to resolve the Entity");
         return logService.writeLog(entity, input);
@@ -260,24 +260,16 @@ public class MediationFacadeNeo4j implements MediationFacade {
      */
     @Override
     @Secured({"ROLE_AB_ADMIN"})
-    public Long reindex(Company company, String fortressName) throws FlockException {
+    public Future<Long> reindex(Company company, String fortressName) throws FlockException {
         Fortress fortress = fortressService.findByCode(company, fortressName);
-        Future<Long> result = reindexAsnc(fortress);
-
-        try {
-            return result.get();
-        } catch (InterruptedException | ExecutionException e) {
-            logger.error("Unexpected", e);
-            return -1l;
-        }
-
+        if (fortress == null)
+            throw new NotFoundException(String.format("No fortress to reindex with the name %s could be found", fortressName));
+        return reindexAsnc(fortress);
 
     }
 
     @Async
     public Future<Long> reindexAsnc(Fortress fortress) throws FlockException {
-        if (fortress == null)
-            throw new FlockException("No fortress to reindex was supplied");
         Long skipCount = 0l;
         long result = reindex(fortress, skipCount);
         logger.info("Reindex Search request completed. Processed [" + result + "] entities for [" + fortress.getName() + "]");
@@ -353,28 +345,25 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
     @Override
     @Secured({"ROLE_AB_ADMIN"})
-    public void purge(String fortressName, String apiKey) throws FlockException {
-        if (fortressName == null)
-            throw new FlockException("Illegal value for fortress name");
-        SystemUser su = registrationService.getSystemUser(apiKey);
-        if (su == null || su.getCompany() == null)
-            throw new SecurityException("Unable to verify that the caller can work with the requested fortress");
-        Fortress fortress = fortressService.findByName(su.getCompany(), fortressName);
+    public void purge(Company company, String fortressName) throws FlockException {
+        Fortress fortress = fortressService.findByName(company, fortressName);
         if (fortress == null)
             throw new NotFoundException("Fortress [" + fortressName + "] does not exist");
-        purge(fortress, su);
+
+        logger.info("Purging fortress [{}] on behalf of [{}]", fortress, securityHelper.getLoggedInUser());
+        purge(company, fortress);
     }
 
-    private void purge(Fortress fortress, SystemUser su) throws FlockException {
-        logger.info("Purging fortress [{}] on behalf of [{}]", fortress, su.getLogin());
+    @Async
+    public Future<Boolean> purge(Company company, Fortress fortress) throws FlockException {
 
-        String indexName = "ab." + fortress.getCompany().getCode() + "." + fortress.getCode();
-
+        String indexName = "ab." + company.getCode() + "." + fortress.getCode();
         trackService.purge(fortress);
         kvService.purge(indexName);
         fortressService.purge(fortress);
         engineConfig.resetCache();
         searchService.purge(indexName);
+        return new AsyncResult<>(true);
 
     }
 

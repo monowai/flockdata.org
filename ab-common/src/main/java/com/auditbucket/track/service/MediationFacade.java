@@ -39,7 +39,7 @@ public interface MediationFacade {
 
     TrackResultBean trackLog(Company company, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException;
 
-    Long reindex(Company company, String fortressName) throws FlockException;
+    Future<Long> reindex(Company company, String fortressName) throws FlockException;
 
     void reindexByDocType(Company company, String fortressName, String docType) throws FlockException;
 
@@ -47,9 +47,11 @@ public interface MediationFacade {
 
     EsSearchResult search(Company company, QueryParams queryParams);
 
-    void purge(String fortressName, String apiKey) throws FlockException;
+    void purge(Company company, String name) throws FlockException;
 
     void cancelLastLog(Company company, Entity entity) throws IOException, FlockException;
 
     Collection<TrackResultBean> trackEntities(Company company, List<EntityInputBean> entityInputBeans) throws InterruptedException, ExecutionException, FlockException, IOException;
+
+
 }

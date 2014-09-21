@@ -220,13 +220,6 @@ public class TrackServiceNeo4j implements TrackService {
     }
 
     @Override
-    public EntityLog getLastEntityLog(String metaKey) throws FlockException {
-        Entity entity = getValidEntity(metaKey);
-        return getLastEntityLog(entity.getId());
-
-    }
-
-    @Override
     public EntityLog getLastEntityLog(Long entityId) {
         return trackDao.getLastLog(entityId);
     }
@@ -243,8 +236,8 @@ public class TrackServiceNeo4j implements TrackService {
     }
 
     @Override
-    public Set<EntityLog> getEntityLogs(String metaKey, Date from, Date to) throws FlockException {
-        Entity entity = getValidEntity(metaKey);
+    public Set<EntityLog> getEntityLogs(Company company, String metaKey, Date from, Date to) throws FlockException {
+        Entity entity = getEntity(company, metaKey);
         return getLogs(entity, from, to);
     }
 
@@ -352,8 +345,8 @@ public class TrackServiceNeo4j implements TrackService {
     }
 
     @Override
-    public Entity findByCallerRef(String fortress, String documentType, String callerRef) {
-        Fortress iFortress = fortressService.findByName(fortress);
+    public Entity findByCallerRef(Company company, String fortress, String documentType, String callerRef){
+        Fortress iFortress = fortressService.findByName(company, fortress);
         if (iFortress == null)
             return null;
 
@@ -396,8 +389,7 @@ public class TrackServiceNeo4j implements TrackService {
         return findByCallerRef(fortress, callerRef);
     }
 
-    @Override
-    public Collection<Entity> findByCallerRef(Fortress fortress, String callerRef) {
+    private Collection<Entity> findByCallerRef(Fortress fortress, String callerRef) {
         return trackDao.findByCallerRef(fortress.getId(), callerRef.trim());
     }
 
@@ -420,8 +412,7 @@ public class TrackServiceNeo4j implements TrackService {
      * @param callerRef    fortressName primary key
      * @return LogResultBean or NULL.
      */
-    @Override
-    public Entity findByCallerRef(Fortress fortress, DocumentType documentType, String callerRef) {
+    private Entity findByCallerRef(Fortress fortress, DocumentType documentType, String callerRef) {
         return trackDao.findByCallerRef(fortress.getId(), documentType.getId(), callerRef.trim());
     }
 
@@ -436,12 +427,6 @@ public class TrackServiceNeo4j implements TrackService {
         return new EntitySummaryBean(entity, changes, tags);
     }
 
-
-    @Override
-    public LogDetailBean getFullDetail(String metaKey, Long logId) {
-        Company company = securityHelper.getCompany();
-        return getFullDetail(company, metaKey, logId);
-    }
 
     @Override
     public LogDetailBean getFullDetail(Company company, String metaKey, Long logId) {

@@ -91,7 +91,7 @@ public class AbRestClient  {
         this.apiKey = apiKey;
         // Urls to write Entity/Tag/Fortress information
         this.NEW_ENTITY = serverName + "/v1/track/";
-        this.PING = serverName + "/v1/admin/ping/";
+        this.PING = serverName + "/v1/ping/";
         this.REGISTER = serverName + "/v1/profiles/";
         this.ME = serverName + "/v1/profiles/me/";
         this.HEALTH = serverName + "/v1/admin/health/";
