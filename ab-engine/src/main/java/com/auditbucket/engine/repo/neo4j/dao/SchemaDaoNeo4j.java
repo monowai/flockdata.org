@@ -226,7 +226,6 @@ public class SchemaDaoNeo4j {
         // match (a:_DocType)-[:HAS_CONCEPT]-(c:_Concept)-[:KNOWN_RELATIONSHIP]-(kr:_Relationship)
         // where a.name="Sales" and c.name="Device"
         // with a, c, kr match (a)-[:DOC_RELATIONSHIP]-(t:Relationship) return a,t
-
         TreeSet<DocumentResultBean> fauxDocuments = new TreeSet<>();
         Set<DocumentType> documents;
         if (docNames == null)
@@ -237,9 +236,14 @@ public class SchemaDaoNeo4j {
         for (DocumentType document : documents) {
             template.fetch(document.getFortress());
             DocumentResultBean fauxDocument = new DocumentResultBean(document);
+//            ConceptNode userConcept = new ConceptNode("User");
+//            userConcept.addRelationship("CREATED_BY", document);
+//            userConcept.addRelationship("CHANGED", document);
 
             fauxDocuments.add(fauxDocument);
+//            fauxDocuments.add(new DocumentResultBean(new DocumentTypeNode()));
             template.fetch(document.getConcepts());
+            //document.getConcepts().add(userConcept);
             if (withRelationships) {
                 for (Concept concept : document.getConcepts()) {
 
@@ -248,6 +252,7 @@ public class SchemaDaoNeo4j {
                     Concept fauxConcept = new ConceptNode(concept.getName());
 
                     fauxDocument.add(fauxConcept);
+//                    fauxDocument.add(userConcept);
                     Collection<Relationship> fauxRlxs = new ArrayList<>();
                     for (Relationship existingRelationship : concept.getRelationships()) {
                         if (existingRelationship.hasDocumentType(document)) {
@@ -277,8 +282,9 @@ public class SchemaDaoNeo4j {
     public void purge(Fortress fortress) {
 
         String docRlx = "match (fort:Fortress)-[fd:FORTRESS_DOC]-(a:DocType)-[dr]-(o)-[k]-(p)" +
-                "where id(fort)={fortId}  delete dr, k, o,  p,a,fd ;";
+                "where id(fort)={fortId}  delete dr, k,a,fd ;";
 
+        // ToDo: Purge Unused Concepts!!
         HashMap<String,Object> params = new HashMap<>();
         params.put("fortId", fortress.getId());
         template.query(docRlx, params);

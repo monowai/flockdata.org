@@ -13,8 +13,10 @@ public class QueryParams {
     private String company;
     private String fortress;
     private String[] types;
+    private String[] data;
     private int rowsPerPage =15;
     private int startFrom= 0;
+    private boolean entityOnly;
 
     public QueryParams() {}
     public QueryParams(Fortress fortress) {
@@ -52,6 +54,10 @@ public class QueryParams {
         return types;
     }
 
+    public String[] getData(){
+        return data;
+    }
+
     public void setTypes(String... types) {
         this.types = types;
     }
@@ -79,5 +85,13 @@ public class QueryParams {
                 ", company='" + company + '\'' +
                 ", fortress='" + fortress + '\'' +
                 '}';
+    }
+
+    public void setEntityOnly(boolean entityOnly) {
+        this.entityOnly = entityOnly;
+    }
+
+    public boolean isEntityOnly() {
+        return entityOnly;
     }
 }

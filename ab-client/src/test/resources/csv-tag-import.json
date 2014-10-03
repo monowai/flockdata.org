@@ -6,6 +6,7 @@
         "device_name": {
             "tag": true,
             "label": "Device",
+            "code": "device_code",
             "mustExist": false,
             "targets": [
                 {
@@ -25,8 +26,19 @@
                     "column": "type",
                     "relationship": "of-type",
                     "reverse": true
+                } ,
+                {
+                    "column": "tags",
+                    "label":"_Tag",
+                    "relationship": "mentions",
+                    "delimiter": ","
+
                 }
             ]
+        },
+        "ram": {
+            "customPropertyName": "RAM"
         }
+
     }
 }

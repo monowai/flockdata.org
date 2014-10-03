@@ -2,7 +2,7 @@ package com.auditbucket.client.common;
 
 import com.auditbucket.client.Importer;
 import com.auditbucket.client.csv.CsvColumnDefinition;
-import com.auditbucket.client.csv.CsvColumnHelper;
+import com.auditbucket.client.csv.CsvTag;
 import com.auditbucket.client.rest.AbRestClient;
 import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.TagInputBean;
@@ -12,7 +12,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,18 +39,20 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
         return AbRestClient.type.TRACK;
     }
 
-    private Map<String, Object> toMap(String[] headerRow, String[] line, ImportParams importParams) {
+    private Map<String, Object> toMap(ImportParams importParams, String[] headerRow, String[] line) {
         int col = 0;
 
         Map<String, Object> row = new HashMap<>();
         for (String column : headerRow) {
             CsvColumnDefinition colDef = importParams.getColumnDef(column);
 
-            //if (colDef.getDateFormat)
             if (NumberUtils.isNumber(line[col])) {
-                row.put(column, NumberUtils.createNumber(line[col]));
+                if ( colDef !=null &&  colDef.getType()!=null && colDef.getType().equalsIgnoreCase("string"))
+                    row.put(column.trim(), String.valueOf(line[col]));
+                else
+                    row.put(column.trim(), NumberUtils.createNumber(line[col]));
             } else {
-                Date date = null;
+//                Date date = null;
 //                try {
 //                    if ( colDef!=null && colDef.getDateFormat()!=null ) {
 //                        date = DateUtils.parseDate(line[col], colDef.getDateFormat());
@@ -61,7 +62,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
 //                    //
 //                }
                 //if ( date == null ) // Stash it as a string
-                row.put(column, line[col]);
+                row.put(column.trim(), (line[col]==null ? null :line[col].trim()));
             }
 
             col++;
@@ -72,76 +73,74 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
     @Override
     public Map<String, Object> setData(final String[] headerRow, final String[] line, ImportParams importParams) throws JsonProcessingException, FlockException {
         int col = 0;
-        Map<String, Object> row = toMap(headerRow, line, importParams);
+        Map<String, Object> row = toMap(importParams, headerRow, line);
+        setArchiveTags(importParams.isArchiveTags());
 
         for (String column : headerRow) {
-            CsvColumnHelper columnHelper = new CsvColumnHelper(column, line[col], importParams.getColumnDef(headerRow[col]));
-            if (!columnHelper.ignoreMe()) {
-                if (columnHelper.isDescription()) {
+            column = column.trim();
+            CsvColumnDefinition colDef = importParams.getColumnDef(column);
+
+            if (colDef != null) {
+                String value = line[col];
+                if (value != null)
+                    value = value.trim();
+
+                if (colDef.isDescription()) {
                     setDescription(row.get(column).toString());
                 }
-                if (columnHelper.isCallerRef()) {
+                if (colDef.isCallerRef()) {
                     String callerRef = getCallerRef();
                     if (callerRef == null)
-                        callerRef = columnHelper.getValue();
+                        callerRef = value;
                     else
-                        callerRef = callerRef + "." + columnHelper.getValue();
+                        callerRef = callerRef + "." + value;
 
                     setCallerRef(callerRef);
                 }
-                if (columnHelper.isTag()) {
-                    String thisColumn = columnHelper.getKey();
-
-                    String val = columnHelper.getValue();
-                    if (val != null && !val.equals("")) {
-                        TagInputBean tag;
-                        val = columnHelper.getValue();
-                        if (columnHelper.isCountry()) {
-                            val = importParams.getStaticDataResolver().resolveCountryISOFromName(val);
+                if (colDef.getDelimiter() != null) {
+                    // Implies a tag because it is a comma delimited list of values
+                    if (value != null && !value.equals("")) {
+                        CsvTag csvTag = new CsvTag();
+                        csvTag.setLabel(colDef.getLabel());
+                        csvTag.setReverse(colDef.getReverse());
+                        csvTag.setMustExist(colDef.isMustExist());
+                        csvTag.setColumn(column);
+                        csvTag.setDelimiter(colDef.getDelimiter());
+                        Collection<TagInputBean> tags = CsvHelper.getTagsFromList(csvTag, row, colDef.getRelationshipName());
+                        for (TagInputBean tag : tags) {
+                            addTag(tag);
                         }
-                        Map<String, Object> properties = new HashMap<>();
-                        if (columnHelper.isValueAsProperty()) {
-                            tag = new TagInputBean(thisColumn).setMustExist(columnHelper.isMustExist()).setLabel(thisColumn);
 
-                            if (Integer.decode(columnHelper.getValue()) != 0) {
-                                properties.put("value", Integer.decode(columnHelper.getValue()));
-                                if (columnHelper.getNameColumn() != null) {
-                                    tag.addEntityLink(row.get(columnHelper.getNameColumn()).toString(), properties);
-                                } else if (columnHelper.getRelationshipName() != null) {
-                                    tag.addEntityLink(columnHelper.getRelationshipName(), properties);
-                                } else
-                                    tag.addEntityLink("undefined", properties);
-                            } else {
-                                break; // Don't set a 0 value tag
-                            }
-                        } else {
-                            String index = columnHelper.getKey();
-
-                            tag = new TagInputBean(val).setMustExist(columnHelper.isMustExist()).setLabel(columnHelper.isCountry() ? "Country" : index);
-                            tag.addEntityLink(columnHelper.getRelationshipName());
-                        }
-                        CsvHelper.setNestedTags(tag, columnHelper.getColumnDefinition().getTargets(), row);
-                        addTag(tag);
                     }
+                } else if (colDef.isTag()) {
+                    TagInputBean tag = new TagInputBean();
+                    if (CsvHelper.getTagInputBean(tag, importParams, row, column, colDef, value))
+                        addTag(tag);
+                }
+                if (colDef.isTitle()) {
+                    setName(value);
+                }
+                if (colDef.isCreatedUser()) { // The user in the calling system
+                    setFortressUser(value);
+                }
 
-                }
-                if (columnHelper.isTitle()) {
-                    setName(line[col]);
-                }
+                if (colDef.isUpdateUser())
+                    setUpdateUser(value);
+
             } // ignoreMe
             col++;
         }
         Collection<String> strategyCols = importParams.getStrategyCols();
         for (String strategyCol : strategyCols) {
             CsvColumnDefinition colDef = importParams.getColumnDef(strategyCol);
-            String tag = importParams.getStaticDataResolver().resolve(strategyCol, getColumnValues(colDef, row));
+            String callerRef = importParams.getStaticDataResolver().resolve(strategyCol, getColumnValues(colDef, row));
 
-            if (tag != null) {
-                addCrossReference(colDef.getStrategy(), new EntityKey(colDef.getFortress(), colDef.getDocumentType(), tag));
+            if (callerRef != null) {
+                addCrossReference(colDef.getStrategy(), new EntityKey(colDef.getFortress(), colDef.getDocumentType(), callerRef));
             }
         }
 
-        if (importParams.getEntityKey() != null){
+        if (importParams.getEntityKey() != null) {
             CsvColumnDefinition columnDefinition = importParams.getColumnDef(importParams.getEntityKey());
             if (columnDefinition != null) {
                 String[] metaCols = columnDefinition.getRefColumns();
@@ -156,6 +155,8 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
 
         return row;
     }
+
+
 
     private Map<String, Object> getColumnValues(CsvColumnDefinition colDef, Map<String, Object> row) {
         Map<String, Object> results = new HashMap<>();
@@ -183,4 +184,5 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
     public char getDelimiter() {
         return ',';
     }
+
 }

@@ -53,6 +53,12 @@ public class QueryEP {
         return mediationFacade.search(company, queryParams);
     }
 
+    @RequestMapping(value = "/es", method = RequestMethod.POST)
+    public EsSearchResult searchEsParam(@RequestBody QueryParams queryParams, HttpServletRequest request) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+        queryParams.setEntityOnly(false);
+        return mediationFacade.search(company, queryParams);
+    }
 
     @RequestMapping(value = "/documents", method = RequestMethod.POST)
     public Collection<DocumentResultBean> getDocumentsInUse(@RequestBody (required = false) Collection<String> fortresses, HttpServletRequest request) throws FlockException {

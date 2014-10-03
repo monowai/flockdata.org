@@ -20,7 +20,9 @@
 package com.auditbucket.search.model;
 
 import com.auditbucket.track.model.SearchChange;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -31,12 +33,15 @@ import java.util.Map;
  */
 public class SearchResult {
 
-
-    // ToDo: Normalize with Entity
     private String metaKey, fortress, searchKey, documentType;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long logId;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long metaId;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private Map<String, String[]> fragments;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private Map<String, Object> data;
     private String callerRef;
     private String createdBy;
     private Long abTimestamp;
@@ -199,5 +204,17 @@ public class SearchResult {
 
     public void setCallerRef(String callerRef) {
         this.callerRef = callerRef;
+    }
+
+    public void addFieldValue(String field, Object value) {
+        if ( this.data == null )
+            data = new HashMap<>();
+        if ( field.contains(EntitySearchSchema.WHAT))
+            field = field.substring(EntitySearchSchema.WHAT.length()+1);
+        this.data.put(field, value);
+    }
+
+    public Map<String,Object> getData(){
+        return data;
     }
 }

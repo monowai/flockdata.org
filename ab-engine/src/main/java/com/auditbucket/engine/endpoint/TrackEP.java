@@ -108,9 +108,12 @@ public class TrackEP {
         Company company = CompanyResolver.resolveCompany(request);
         TrackResultBean trackResultBean;
         trackResultBean = mediationFacade.trackEntity(company, input);
+
+        if ( trackResultBean.entityExists())
+            if ( trackResultBean.getLogResult()!= null && trackResultBean.getLogResult().isLogIgnored())
+                return new ResponseEntity<>(trackResultBean, HttpStatus.NOT_MODIFIED);
+
         trackResultBean.setServiceMessage("OK");
-        if ( trackResultBean.isDuplicate())
-            return new ResponseEntity<>(trackResultBean, HttpStatus.NOT_MODIFIED);
         return new ResponseEntity<>(trackResultBean, HttpStatus.CREATED);
 
     }

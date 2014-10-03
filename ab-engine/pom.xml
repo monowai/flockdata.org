@@ -35,7 +35,7 @@
         <docs.url>http://www.monowai.com/wiki/display/DAT/</docs.url>
         <ehcache.version>2.6.7</ehcache.version>
         <org.springdata.neo4j>3.2.0.RELEASE</org.springdata.neo4j>
-        <neo4j.version>2.1.4</neo4j.version>
+        <neo4j.version>2.1.5</neo4j.version>
         <org.springbatch-version>3.0.1.RELEASE</org.springbatch-version>
 
     </properties>

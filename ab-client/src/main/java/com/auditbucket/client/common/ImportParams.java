@@ -35,10 +35,12 @@ public class ImportParams {
     private String fortressUser;
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(ImportParams.class);
     private boolean entityOnly;
+    private boolean archiveTags = true;
 
     private Map<String, CsvColumnDefinition> csvHeaders;
     private IStaticDataResolver staticDataResolver;
     private String entityKey;
+    private String event = null;
 
     public ImportParams() {
 
@@ -226,5 +228,21 @@ public class ImportParams {
 
     public void setStaticDataClazz(String staticDataClazz) {
         this.staticDataClazz = staticDataClazz;
+    }
+
+    public boolean isArchiveTags() {
+        return archiveTags;
+    }
+
+    public void setArchiveTags(boolean archiveTags) {
+        this.archiveTags = archiveTags;
+    }
+
+    public String getEvent() {
+        return event;
+    }
+
+    public void setEvent(String event) {
+        this.event = event;
     }
 }

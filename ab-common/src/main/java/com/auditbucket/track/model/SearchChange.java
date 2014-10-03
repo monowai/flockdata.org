@@ -48,7 +48,7 @@ public interface SearchChange {
 
     public Map<String, Object> getWhat();
 
-    public Map<String, Object> getTagValues();
+    public java.util.HashMap<String, Map<String, Object>> getTagValues();
 
     public void setTags(Iterable<TrackTag> tagSet);
 

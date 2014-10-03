@@ -323,7 +323,7 @@ public class Importer {
 
                     //logger.info(json);
                     xsr.nextTag();
-                    writeAudit(importParams.getRestClient(), entityInputBean, mappable.getClass().getCanonicalName());
+                    trackEntity(importParams.getRestClient(), entityInputBean, mappable.getClass().getCanonicalName());
                     rows++;
                     if (rows % 500 == 0 && !importParams.isSimulateOnly())
                         logger.info("Processed {} elapsed seconds {}", rows, (new DateTime().getMillis() - then) / 1000d);
@@ -409,12 +409,16 @@ public class Importer {
                         if (type == AbRestClient.type.TRACK) {
                             EntityInputBean entityInputBean = (EntityInputBean) row;
 
-                            if (importParams.isEntityOnly() || "".equals(jsonData)) {
+                            if (importParams.isEntityOnly() || jsonData.isEmpty()) {
                                 entityInputBean.setMetaOnly(true);
                                 // It's all Meta baby - no log information
                             } else {
-                                //jsonData = jsonData.replaceAll("[\\x00-\\x09\\x11\\x12\\x14-\\x1F\\x7F]", "");
-                                ContentInputBean contentInputBean = new ContentInputBean(importParams.getFortressUser(), new DateTime(), jsonData);
+                                String updatingUser = entityInputBean.getUpdateUser();
+                                if ( updatingUser == null )
+                                    updatingUser = (entityInputBean.getFortressUser()==null? importParams.getFortressUser():entityInputBean.getFortressUser());
+
+                                ContentInputBean contentInputBean = new ContentInputBean(updatingUser, new DateTime(), jsonData);
+                                contentInputBean.setEvent( importParams.getEvent());
                                 entityInputBean.setContent(contentInputBean);
                             }
                             if (!entityInputBean.getCrossReferences().isEmpty()) {
@@ -422,9 +426,9 @@ public class Importer {
                                 rows = rows + entityInputBean.getCrossReferences().size();
                             }
 
-                            writeAudit(importParams.getRestClient(), entityInputBean, mappable.getClass().getCanonicalName());
+                            trackEntity(importParams.getRestClient(), entityInputBean, mappable.getClass().getCanonicalName());
                         } else {// Tag
-                            if (!"".equals(jsonData)) {
+                            if (!jsonData.isEmpty()) {
                                 TagInputBean tagInputBean = (TagInputBean) row;
 
                                 if (writeToFile)
@@ -477,7 +481,7 @@ public class Importer {
         abExporter.writeTag(tagInputBean, message);
     }
 
-    private static void writeAudit(AbRestClient abExporter, EntityInputBean entityInputBean, String message) throws FlockException {
+    private static void trackEntity(AbRestClient abExporter, EntityInputBean entityInputBean, String message) throws FlockException {
         abExporter.track(entityInputBean, message);
     }
 

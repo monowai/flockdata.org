@@ -60,7 +60,7 @@ public class TagInputBean {
     private String serviceMessage;
 
 
-    protected TagInputBean() {
+    public TagInputBean() {
     }
 
     /**

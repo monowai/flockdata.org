@@ -4,11 +4,12 @@ import com.auditbucket.client.Importer;
 import com.auditbucket.client.common.CsvEntityMapper;
 import com.auditbucket.client.common.DelimitedMappable;
 import com.auditbucket.client.common.ImportParams;
-import com.auditbucket.client.csv.CsvColumnHelper;
+import com.auditbucket.client.csv.CsvColumnDefinition;
 import com.auditbucket.client.rest.IStaticDataResolver;
 import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -103,51 +104,44 @@ public class CsvEntity {
         String[] headers = new String[]{"Title", "Tag", "TagVal", "ValTag", "Origin", "Year", "Gold Medals"};
         String[] data = new String[]{"TitleTests", "TagName", "Gold", "8", "New Zealand", "2008", "12"};
         ImportParams params = Importer.getImportParams("/csvtest.json", null);
-        CsvColumnHelper columnHelper = new CsvColumnHelper(headers[0], data[0], params.getColumnDef(headers[0]));
-        assertTrue("CallerRef was wrong", columnHelper.isCallerRef());
-        assertTrue("CallerRef was wrong", columnHelper.isTag());
-        assertTrue("Title was wrong", columnHelper.isTitle());
-        assertEquals("Title", columnHelper.getKey());
-        assertEquals(data[0], columnHelper.getValue());
+        CsvColumnDefinition colDef = params.getColumnDef(headers[0]);
+
+        assertTrue("CallerRef was wrong", colDef.isCallerRef());
+        assertTrue("CallerRef was wrong", colDef.isTag());
+        assertTrue("Title was wrong", colDef.isTitle());
 
 
-        columnHelper = new CsvColumnHelper(headers[1], data[1], params.getColumnDef(headers[1]));
-        assertTrue("Should be a tag", columnHelper.isTag());
-        assertEquals(data[1], columnHelper.getValue());
-        assertFalse("Shouldn't be a title", columnHelper.isTitle());
-        assertFalse("Shouldn't be a callerRef", columnHelper.isCallerRef());
+        colDef = params.getColumnDef(headers[1]);
+        assertTrue("Should be a tag", colDef.isTag());
+        assertFalse("Shouldn't be a title", colDef.isTitle());
+        assertFalse("Shouldn't be a callerRef", colDef.isCallerRef());
 
-        columnHelper = new CsvColumnHelper(headers[2], data[2], params.getColumnDef(headers[2]));
-        assertTrue("Should be a tag", columnHelper.isTag());
-        assertEquals(data[2], columnHelper.getValue());
-        assertFalse("Shouldn't be a title", columnHelper.isTitle());
-        assertFalse("Shouldn't be a callerRef", columnHelper.isCallerRef());
-        assertTrue("Should exist", columnHelper.isMustExist());
+        colDef = params.getColumnDef(headers[2]);
+        assertTrue("Should be a tag", colDef.isTag());
 
-        columnHelper = new CsvColumnHelper(headers[3], data[3], params.getColumnDef(headers[3]));
-        assertTrue("Should be a tag", columnHelper.isTag());
-        assertTrue("Tag to value", columnHelper.isValueAsProperty());
-        assertEquals(data[3], columnHelper.getValue());
-        assertFalse("Shouldn't be a title", columnHelper.isTitle());
-        assertFalse("Shouldn't be a callerRef", columnHelper.isCallerRef());
-        assertFalse("Doesn't have to exist", columnHelper.isMustExist());
+        assertFalse("Shouldn't be a title", colDef.isTitle());
+        assertFalse("Shouldn't be a callerRef", colDef.isCallerRef());
+        assertTrue("Should exist", colDef.isMustExist());
 
-        columnHelper = new CsvColumnHelper(headers[4], data[4], params.getColumnDef(headers[4]));
-        assertTrue("Should be a tag", columnHelper.isTag());
-        assertTrue("Should be a country", columnHelper.isCountry());
-        assertTrue("must exist", columnHelper.isMustExist());
+        colDef = params.getColumnDef(headers[3]);
+        assertTrue("Should be a tag", colDef.isTag());
+        assertTrue("Tag to value", colDef.isValueAsProperty());
+        assertFalse("Shouldn't be a title", colDef.isTitle());
+        assertFalse("Shouldn't be a callerRef", colDef.isCallerRef());
+        assertFalse("Doesn't have to exist", colDef.isMustExist());
 
-        columnHelper = new CsvColumnHelper(headers[6], data[6], params.getColumnDef(headers[6]));
-        assertTrue("Should be a tag", columnHelper.isTag());
-        assertEquals("Gold Medals", columnHelper.getKey());
-        assertTrue("Should have an indirect lookup", columnHelper.getNameColumn() != null);
-        assertEquals("Year", columnHelper.getNameColumn());
-        assertTrue("Tag to value", columnHelper.isValueAsProperty());
-        assertEquals(data[6], columnHelper.getValue());
-        assertFalse("Shouldn't be a title", columnHelper.isTitle());
-        assertFalse("Shouldn't be a callerRef", columnHelper.isCallerRef());
-        assertFalse("Doesn't have to exist", columnHelper.isMustExist());
-        //assertEquals("Country index is always Country", "Country", columnHelper.getKey());
+        colDef = params.getColumnDef(headers[4]);
+        assertTrue("Should be a tag", colDef.isTag());
+        assertTrue("Should be a country", colDef.isCountry());
+        assertTrue("must exist", colDef.isMustExist());
+
+        colDef = params.getColumnDef(headers[6]);
+        assertTrue("Should be a tag", colDef.isTag());
+        assertEquals("Year", colDef.getNameColumn());
+        assertTrue("Tag to value", colDef.isValueAsProperty());
+        assertFalse("Shouldn't be a title", colDef.isTitle());
+        assertFalse("Shouldn't be a callerRef", colDef.isCallerRef());
+        assertFalse("Doesn't have to exist", colDef.isMustExist());
 
     }
 
@@ -165,7 +159,7 @@ public class CsvEntity {
                 return null;
             }
         });
-        //CsvTrackMapper mapper = new CsvTrackMapper(params);
+
         String[] headers = {"Athlete", "Age", "Country", "Year", "Sport", "Gold Medals", "Silver Medals", "Bronze Medals"};
         String[] values = {"Michael Phelps", "23", "United States", "2008", "Swimming", "8", "0", "0", "8"};
         DelimitedMappable row = (DelimitedMappable) params.getMappable();
@@ -269,6 +263,51 @@ public class CsvEntity {
         assertNotNull(countryTag);
         assertEquals("United States", countryTag.getName());
         assertEquals(true, countryTag.isMustExist());
+
+    }
+    @Test
+    public void csv_DelmitedTagsInColumn() throws Exception {
+        //
+        String[] headers = new String[]{"Title", "Tag"};
+        String[] data = new String[]{"TitleTests", "TagA,TagB,TagC"};
+        ImportParams params = Importer.getImportParams("/csv-entity-tags.json", null);
+        CsvEntityMapper mapper = new CsvEntityMapper(params);
+        mapper.setData(headers, data, params);
+
+        CsvColumnDefinition colDef = params.getColumnDef(headers[0]);
+
+        assertTrue("CallerRef was wrong", colDef.isCallerRef());
+        assertTrue("Title was wrong", colDef.isTitle());
+
+//        colDef = params.getColumnDef(headers[1]);
+        assertEquals(3, mapper.getTags().size());
+        for (TagInputBean tagInputBean : mapper.getTags()) {
+            String name = tagInputBean.getName();
+            boolean tagA, tagB, tagC;
+            tagA = name.equals("TagA");
+            tagB = name.equals("TagB");
+            tagC = name.equals("TagC");
+            assertEquals(true, tagA || tagB ||tagC);
+        }
+    }
+
+    @Test
+    public void csv_NumberParsesAsString() throws Exception {
+        //
+        String[] headers = new String[]{"Title", "NumberAsString"};
+        String[] data = new String[]{"TitleTests", "123"};
+        ImportParams params = Importer.getImportParams("/csv-entity-data-types.json", null);
+        CsvEntityMapper mapper = new CsvEntityMapper(params);
+        Map<String,Object> json = mapper.setData(headers, data, params);
+
+        CsvColumnDefinition colDef = params.getColumnDef(headers[0]);
+
+        assertTrue("CallerRef was wrong", colDef.isCallerRef());
+        assertTrue("Title was wrong", colDef.isTitle());
+
+        Object o = json.get("NumberAsString");
+        Assert.assertTrue(o instanceof String);
+
 
     }
 }

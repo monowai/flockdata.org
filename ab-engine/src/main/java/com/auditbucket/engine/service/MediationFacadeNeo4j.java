@@ -152,15 +152,28 @@ public class MediationFacadeNeo4j implements MediationFacade {
     /**
      * Process the Entity input for a company asynchronously
      *
-     * @param fortress   system
+     * @param company    system
      * @param inputBeans data
      * @return ResultBeans populated with great data
      * @throws com.auditbucket.helper.FlockException
      */
     @Override
     @Async
-    public Future<Collection<TrackResultBean>> trackEntitiesAsync(final Fortress fortress, List<EntityInputBean> inputBeans) throws FlockException, IOException, ExecutionException, InterruptedException {
-        return new AsyncResult<>(trackEntities(fortress, inputBeans, 10));
+    public Future<Collection<TrackResultBean>> trackEntitiesAsync(final Company company, List<EntityInputBean> inputBeans) throws FlockException, IOException, ExecutionException, InterruptedException {
+        // ToDo:
+        // This is a promise. It should be called after the batch is persisted safely
+
+        // ToDo: This should be a batch task
+        Map<Fortress, List<EntityInputBean>> fortressInput = getEntitiesByFortress(company, inputBeans);
+        Collection<TrackResultBean> results = new ArrayList<>();
+
+        for (Fortress fortress : fortressInput.keySet()) {
+            results.addAll(
+                    trackEntities(fortress, fortressInput.get(fortress), 10)
+            );
+        }
+
+        return new AsyncResult<>(results);
     }
 
     /**
@@ -177,35 +190,50 @@ public class MediationFacadeNeo4j implements MediationFacade {
      */
     @Override
     public Collection<TrackResultBean> trackEntities(Company company, List<EntityInputBean> entityInputBeans) throws InterruptedException, ExecutionException, FlockException, IOException {
-        Map<String, List<EntityInputBean>> fortressInput = new HashMap<>();
-        for (EntityInputBean entityInputBean : entityInputBeans) {
-            String fortressName = entityInputBean.getFortress();
-            List<EntityInputBean> input = fortressInput.get(fortressName);
-            if (input == null) {
-                input = new ArrayList<>();
-                fortressInput.put(fortressName, input);
-                FortressInputBean fib = new FortressInputBean(fortressName);
-                fib.setTimeZone(entityInputBean.getTimezone());
-                fortressService.registerFortress(company, fib, true);
-            }
-            input.add(entityInputBean);
-        }
+        Map<Fortress, List<EntityInputBean>> fortressInput = getEntitiesByFortress(company, entityInputBeans);
         Collection<TrackResultBean> results = new ArrayList<>();
-        for (String fortressName : fortressInput.keySet()) {
-            Fortress f = fortressService.findByName(company, fortressName);
-            results.addAll(trackEntities(f, fortressInput.get(fortressName), 10));
+        for (Fortress fortress : fortressInput.keySet()) {
+            results.addAll(trackEntities(fortress, fortressInput.get(fortress), 10));
         }
         return results;
 
+    }
+
+    private Map<Fortress, List<EntityInputBean>> getEntitiesByFortress(Company company, List<EntityInputBean> entityInputBeans) {
+        Map<Fortress, List<EntityInputBean>> fortressInput = new HashMap<>();
+
+        // Local cache of fortress by name - never very big, often only 1
+        Map<String, Fortress> resolvedFortress = new HashMap<>();
+        for (EntityInputBean entityInputBean : entityInputBeans) {
+            String fortressName = entityInputBean.getFortress();
+            Fortress f = resolvedFortress.get(fortressName);
+            if (f == null) {
+                f = fortressService.findByName(company, fortressName);
+                if (f != null)
+                    resolvedFortress.put(fortressName, f);
+            }
+
+            List<EntityInputBean> input = null;
+            if (f != null)
+                input = fortressInput.get(f);// are we caching this already?
+
+            if (input == null) {
+                input = new ArrayList<>();
+
+                FortressInputBean fib = new FortressInputBean(fortressName);
+                fib.setTimeZone(entityInputBean.getTimezone());
+                Fortress fortress = fortressService.registerFortress(company, fib, true);
+                fortressInput.put(fortress, input);
+            }
+            input.add(entityInputBean);
+        }
+        return fortressInput;
     }
 
 
     @Override
     public Collection<TrackResultBean> trackEntities(final Fortress fortress, final List<EntityInputBean> inputBeans, int listSize) throws FlockException, IOException, ExecutionException, InterruptedException {
         Long id = DateTime.now().getMillis();
-        StopWatch watch = new StopWatch();
-        watch.start();
-        logger.debug("Starting Batch [{}] - size [{}]", id, inputBeans.size());
 
         // This happens before we create entities to minimize IO on the graph
         schemaService.createDocTypes(inputBeans, fortress);
@@ -213,17 +241,20 @@ public class MediationFacadeNeo4j implements MediationFacade {
         // Tune to balance against concurrency and batch transaction insert efficiency.
         List<List<EntityInputBean>> splitList = Lists.partition(inputBeans, listSize);
         Collection<TrackResultBean> allResults = new ArrayList<>();
+        StopWatch watch = new StopWatch();
+        watch.start();
+        logger.trace("Starting Batch [{}] - size [{}]", id, inputBeans.size());
         for (List<EntityInputBean> entityInputBeans : splitList) {
-            Iterable<TrackResultBean> theseResults =
-                    ( entityRetry.track(fortress, entityInputBeans) );
+            Iterable<TrackResultBean> theseResults = (
+                    entityRetry.track(fortress, entityInputBeans));
 
             for (TrackResultBean theResult : theseResults) {
                 allResults.add(theResult);
             }
         }
-
         watch.stop();
         logger.debug("Completed Batch [{}] - secs= {}, RPS={}", id, f.format(watch.getTotalTimeSeconds()), f.format(inputBeans.size() / watch.getTotalTimeSeconds()));
+
         return allResults;
     }
 

@@ -48,7 +48,7 @@ public class QueryServiceEs implements QueryService {
     @Override
     @ServiceActivator(inputChannel = "doMetaKeyQuery", outputChannel = "doMetaKeyReply") // Subscriber
     public EsSearchResult metaKeySearch(QueryParams queryParams) throws FlockException {
-        return queryDao.doMetaKeySearch(queryParams);
+        return queryDao.doEntitySearch(queryParams);
     }
 
 

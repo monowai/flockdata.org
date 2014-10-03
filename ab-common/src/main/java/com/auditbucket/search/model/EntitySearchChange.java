@@ -55,7 +55,7 @@ public class EntitySearchChange implements SearchChange {
     private String metaKey;
     private String callerRef;
     private Long logId;
-    private HashMap<String, Object> tagValues = new HashMap<>();
+    private HashMap<String, Map<String,Object>> tagValues = new HashMap<>();
     private Long entityId;
 
     private String indexName;
@@ -200,14 +200,14 @@ public class EntitySearchChange implements SearchChange {
         return metaKey;
     }
 
-    public Map<String, Object> getTagValues() {
+    public HashMap<String, Map<String, Object>> getTagValues() {
         return tagValues;
     }
 
     public void setTags(Iterable<TrackTag> tagSet) {
         tagValues = new HashMap<>();
         for (TrackTag tag : tagSet) {
-            HashMap<String, Object> tagValues = (HashMap<String, Object>) this.tagValues.get(tag.getTagType());
+            Map<String, Object> tagValues = this.tagValues.get(tag.getTagType().toLowerCase());
             if (tagValues == null) {
                 tagValues = new HashMap<>();
                 this.tagValues.put(tag.getTagType().toLowerCase(), tagValues);
@@ -227,7 +227,7 @@ public class EntitySearchChange implements SearchChange {
         }
     }
 
-    private void setTagValue(String key, Object value, HashMap<String, Object> masterValues) {
+    private void setTagValue(String key, Object value, Map<String, Object> masterValues) {
         if (value != null) {
             Object object = masterValues.get(key);
             ArrayList values;

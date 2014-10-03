@@ -29,7 +29,7 @@ public interface MediationFacade {
 
     Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException;
 
-    Future<Collection<TrackResultBean>> trackEntitiesAsync(Fortress fortress, List<EntityInputBean> inputBeans) throws FlockException, IOException, ExecutionException, InterruptedException;
+    Future<Collection<TrackResultBean>> trackEntitiesAsync(Company company, List<EntityInputBean> inputBeans) throws FlockException, IOException, ExecutionException, InterruptedException;
 
     Collection<TrackResultBean> trackEntities(Fortress fortress, List<EntityInputBean> inputBeans, int listSize) throws FlockException, IOException, ExecutionException, InterruptedException;
 

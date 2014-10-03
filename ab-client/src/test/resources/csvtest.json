@@ -1,7 +1,7 @@
 {
     "documentType": "Athlete",
     "importType": "csv",
-    "tagOrTrack": "track",
+    "tagOrEntity": "entity",
     "entityOnly": true,
     "fortress": {
         "name": "Olympic",
@@ -17,7 +17,8 @@
             "tag": true
         },
         "Origin": {
-            "country": true
+            "country": true,
+            "mustExist": true
         },
         "Tag": {
             "tag": true,
@@ -28,10 +29,12 @@
             "mustExist": true
         },
         "ValTag": {
+            "tag": true,
             "valueAsProperty": true
         },
         "Gold Medals": {
             "nameColumn": "Year",
+            "tag": true,
             "valueAsProperty": true
         }
     }

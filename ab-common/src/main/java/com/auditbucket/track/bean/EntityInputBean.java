@@ -49,7 +49,8 @@ public class EntityInputBean {
     private boolean trackSuppressed = false;
     private boolean metaOnly = false;
     private String timezone;
-
+    private boolean archiveTags = true;
+    private String updateUser;
 
     public EntityInputBean() {
     }
@@ -129,11 +130,8 @@ public class EntityInputBean {
     }
 
     /**
-     * This is unused in the Entity
-     * Obtain this from the InputBean that you are logging, not the
      * @return name
      */
-    @Deprecated
     public String getFortressUser() {
         return fortressUser;
     }
@@ -348,5 +346,53 @@ public class EntityInputBean {
         if (timezone !=null )
             return timezone;
         return TimeZone.getDefault().getID();
+    }
+
+    public boolean isArchiveTags() {
+        return archiveTags;
+    }
+
+    public void setArchiveTags(boolean archiveTags) {
+        this.archiveTags = archiveTags;
+    }
+
+    /**
+     * Supports the situation where an entity and it's log are being created and parsed from a single row.
+     * The mapping process is responsible for mapping the value to the Log as the entity does not have it
+     *
+     * @param updateUser fortressUser
+     */
+    public void setUpdateUser(String updateUser) {
+        this.updateUser = updateUser;
+    }
+
+    public String getUpdateUser() {
+        return updateUser;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof EntityInputBean)) return false;
+
+        EntityInputBean that = (EntityInputBean) o;
+
+        if (callerRef != null ? !callerRef.equals(that.callerRef) : that.callerRef != null) return false;
+        if (!documentType.equals(that.documentType)) return false;
+        if (!fortress.equals(that.fortress)) return false;
+        if (fortressUser != null ? !fortressUser.equals(that.fortressUser) : that.fortressUser != null) return false;
+        if (metaKey != null ? !metaKey.equals(that.metaKey) : that.metaKey != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = metaKey != null ? metaKey.hashCode() : 0;
+        result = 31 * result + (callerRef != null ? callerRef.hashCode() : 0);
+        result = 31 * result + fortress.hashCode();
+        result = 31 * result + (fortressUser != null ? fortressUser.hashCode() : 0);
+        result = 31 * result + documentType.hashCode();
+        return result;
     }
 }

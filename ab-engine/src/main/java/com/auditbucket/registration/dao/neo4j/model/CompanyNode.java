@@ -97,4 +97,24 @@ public class CompanyNode implements Company {
     public void setId(long id) {
         this.id = id;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CompanyNode)) return false;
+
+        CompanyNode that = (CompanyNode) o;
+
+        if (apiKey != null ? !apiKey.equals(that.apiKey) : that.apiKey != null) return false;
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (apiKey != null ? apiKey.hashCode() : 0);
+        return result;
+    }
 }

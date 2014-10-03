@@ -96,14 +96,14 @@ public class TagTrackServiceNeo4j implements EntityTagService {
      * <p/>
      * If this scenario, ClientID123 is created as a single node with two relationships that
      * describe the association - clientKey and prospectKey
-     *
-     * @param company
+     *  @param company
      * @param ah       Entity to associate userTags with
      * @param lastLog
      * @param userTags Key/Value pair of tags. TagNode will be created if missing. Value can be a Collection
+     * @param archiveRemovedTags
      */
     @Override
-    public Collection<TrackTag> associateTags(Company company, Entity ah, EntityLog lastLog, Collection<TagInputBean> userTags) {
+    public Collection<TrackTag> associateTags(Company company, Entity ah, EntityLog lastLog, Collection<TagInputBean> userTags, Boolean archiveRemovedTags) {
         Collection<TrackTag> rlxs = new ArrayList<>();
         Iterable<TrackTag> existingTags = getEntityTags(company, ah);
 
@@ -127,7 +127,8 @@ public class TagTrackServiceNeo4j implements EntityTagService {
                 if (!rlxs.contains(existingTag))
                     tagsToRelocate.add(existingTag);
             }
-            relocateTags(ah, lastLog, tagsToRelocate);
+            if (archiveRemovedTags)
+                relocateTags(ah, lastLog, tagsToRelocate);
         }
         return rlxs;
     }

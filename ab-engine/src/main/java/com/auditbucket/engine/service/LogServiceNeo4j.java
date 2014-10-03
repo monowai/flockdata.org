@@ -223,8 +223,11 @@ public class LogServiceNeo4j implements LogService {
                     resultBean.setStatus((ContentInputBean.LogStatus.REINDEX));
                     resultBean.setLogToIndex(existingLog);
                     resultBean.setMessage("Ignoring a change we already have. Honouring request to re-index");
-                } else
+                } else {
                     resultBean.setMessage("Ignoring a change we already have");
+                    resultBean.setLogIgnored();
+                }
+
                 return resultBean;
             }
 //            if (searchActive)
@@ -235,7 +238,8 @@ public class LogServiceNeo4j implements LogService {
             logger.debug("createLog - first log created for the entity");
             //if (!entity.getLastUser().getId().equals(thisFortressUser.getId())){
             entity.setLastUser(thisFortressUser);
-            entity.setCreatedBy(thisFortressUser);
+            if ( entity.getCreatedBy() == null )
+                entity.setCreatedBy(thisFortressUser);
         }
 
         // Prepares the change

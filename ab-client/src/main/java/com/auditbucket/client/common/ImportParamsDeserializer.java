@@ -69,6 +69,11 @@ public class ImportParamsDeserializer extends JsonDeserializer<ImportParams> {
         if ( column == null )
             column = node.get("metaHeader");// legacy value
 
+        column = node.get("event");
+        if ( column != null )
+            importParams.setEvent(column.asText());
+
+
         if ( column!=null) {
             importParams.setEntityKey(column.asText());
         }

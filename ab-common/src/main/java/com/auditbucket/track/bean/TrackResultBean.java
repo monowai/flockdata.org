@@ -101,6 +101,37 @@ public class TrackResultBean {
         return metaKey;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TrackResultBean)) return false;
+
+        TrackResultBean that = (TrackResultBean) o;
+
+        if (callerRef != null ? !callerRef.equals(that.callerRef) : that.callerRef != null) return false;
+        if (documentType != null ? !documentType.equals(that.documentType) : that.documentType != null) return false;
+        if (entity != null ? !entity.equals(that.entity) : that.entity != null) return false;
+        if (entityInputBean != null ? !entityInputBean.equals(that.entityInputBean) : that.entityInputBean != null)
+            return false;
+        if (fortressName != null ? !fortressName.equals(that.fortressName) : that.fortressName != null) return false;
+        if (metaId != null ? !metaId.equals(that.metaId) : that.metaId != null) return false;
+        if (metaKey != null ? !metaKey.equals(that.metaKey) : that.metaKey != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = metaId != null ? metaId.hashCode() : 0;
+        result = 31 * result + (fortressName != null ? fortressName.hashCode() : 0);
+        result = 31 * result + (documentType != null ? documentType.hashCode() : 0);
+        result = 31 * result + (callerRef != null ? callerRef.hashCode() : 0);
+        result = 31 * result + (metaKey != null ? metaKey.hashCode() : 0);
+        result = 31 * result + (entity != null ? entity.hashCode() : 0);
+        result = 31 * result + (entityInputBean != null ? entityInputBean.hashCode() : 0);
+        return result;
+    }
+
     public void setMetaKey(String metaKey) {
         this.metaKey = metaKey;
     }
@@ -132,14 +163,14 @@ public class TrackResultBean {
         return logResult;
     }
 
-    boolean wasDuplicate = false;
+    boolean entityExisted = false;
 
-    public void setWasDuplicate() {
-        this.wasDuplicate = true;
+    public void entityExisted() {
+        this.entityExisted = true;
     }
 
-    public boolean isDuplicate() {
-        return wasDuplicate;
+    public boolean entityExists() {
+        return entityExisted;
     }
 
     public void setTags(Collection<TrackTag> tags) {

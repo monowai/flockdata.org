@@ -20,12 +20,11 @@
 package com.auditbucket.client.common;
 
 import com.auditbucket.client.Importer;
-import com.auditbucket.client.csv.CsvColumnHelper;
+import com.auditbucket.client.csv.CsvColumnDefinition;
 import com.auditbucket.client.rest.AbRestClient;
 import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -35,12 +34,7 @@ import java.util.Map;
  * Time: 4:34 PM
  */
 public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(CsvTagMapper.class);
-    private ImportParams importParams;
 
-    public CsvTagMapper(ImportParams importParams) {
-        this.importParams = importParams;
-    }
 
     @Override
     public Importer.importer getImporter() {
@@ -58,29 +52,26 @@ public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
         Map<String, Object> row = AbRestClient.convertToMap(headerRow, line);
 
         for (String column : headerRow) {
-            CsvColumnHelper columnHelper = new CsvColumnHelper(column, line[col], importParams.getColumnDef(headerRow[col]));
-            if (!columnHelper.ignoreMe()) {
+            CsvColumnDefinition colDef = importParams.getColumnDef(column);
+            String value = line[col];
+            if ( value !=null )
+                value = value.trim();
 
-                if (columnHelper.isTag()) {
+            if (colDef!=null) {
 
-                    String val = columnHelper.getValue();
-                    if (val != null && !val.equals("")) {
-                        val = columnHelper.getValue();
-                        if (columnHelper.isCountry()) {
-                            val = importParams.getStaticDataResolver().resolveCountryISOFromName(val);
-                        }
-                        setName(val);
-                        setCode(val);
-                        String index = columnHelper.getKey();
-                        setMustExist(columnHelper.isMustExist())
-                                .setLabel(columnHelper.isCountry() ? "Country" : index);
-
-                        CsvHelper.setNestedTags(this, columnHelper.getColumnDefinition().getTargets(), row);
+                if (colDef.isTag()) {
+                    if (value != null && !value.equals("")) {
+                        CsvHelper.getTagInputBean(this, importParams, row, column, colDef, value);
                     }
                 }
-                if (columnHelper.isTitle()) {
+                if (colDef.isTitle()) {
                     setName(line[col]);
+                    if ( colDef.getCode()!=null )
+                        row.get(colDef.getCode());
                 }
+                if ( colDef.getCustomPropertyName()!=null)
+                    setProperty(colDef.getCustomPropertyName(), line[col]);
+
             } // ignoreMe
             col++;
         }
