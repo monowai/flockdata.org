@@ -46,6 +46,7 @@ public class LogResultBean {
     private Long sysWhen;
     private EntityLog logToIndex;
     private Log whatLog;
+    private boolean logIgnored = false;
 
     public LogResultBean(ContentInputBean input, Entity entity) {
         this();
@@ -169,5 +170,13 @@ public class LogResultBean {
 
     public void setEntity(Entity entity) {
         this.entity = entity;
+    }
+
+    public void setLogIgnored() {
+        this.logIgnored = true;
+    }
+
+    public boolean isLogIgnored() {
+        return logIgnored;
     }
 }

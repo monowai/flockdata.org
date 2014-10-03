@@ -166,4 +166,28 @@ public class FortressNode implements Fortress {
     public void setFortressKey(String fortressKey) {
         this.fortressKey = fortressKey;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FortressNode)) return false;
+
+        FortressNode that = (FortressNode) o;
+
+        if (code != null ? !code.equals(that.code) : that.code != null) return false;
+        if (company != null ? !company.equals(that.company) : that.company != null) return false;
+        if (fortressKey != null ? !fortressKey.equals(that.fortressKey) : that.fortressKey != null) return false;
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = fortressKey != null ? fortressKey.hashCode() : 0;
+        result = 31 * result + (id != null ? id.hashCode() : 0);
+        result = 31 * result + (code != null ? code.hashCode() : 0);
+        result = 31 * result + (company != null ? company.hashCode() : 0);
+        return result;
+    }
 }

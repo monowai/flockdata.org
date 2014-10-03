@@ -41,7 +41,7 @@ public class TagMapper extends TagInputBean implements DelimitedMappable {
 
     public static DelimitedMappable newInstance(ImportParams importParams) {
         if (importParams.getImportType()== Importer.importer.CSV)
-            return new CsvTagMapper(importParams);
+            return new CsvTagMapper();
 
         return new TagMapper(importParams);
     }

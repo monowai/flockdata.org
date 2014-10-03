@@ -31,7 +31,7 @@ import com.auditbucket.search.model.QueryParams;
 public interface QueryDao {
     long getHitCount(String index);
 
-    EsSearchResult doMetaKeySearch(QueryParams queryParams) throws FlockException;
+    EsSearchResult doEntitySearch(QueryParams queryParams) throws FlockException;
 
     String doSearch(QueryParams queryParams) throws FlockException;
 }

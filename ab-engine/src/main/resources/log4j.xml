@@ -58,10 +58,6 @@
         <level value="info"/>
     </logger>
 
-    <logger name="org.springframework.integration">
-        <level value="info"/>
-    </logger>
-
     <logger name="org.springframework.amqp">
         <level value="info"/>
     </logger>
@@ -97,9 +93,6 @@
     <logger name="org.springframework">
         <level value="info"/>
     </logger>
-    <logger name="com.auditbucket">
-        <level value="info"/>
-    </logger>
 
     <logger name="com.jersey">
         <level value="error"/>
@@ -127,6 +120,10 @@
 
     <logger name="com.auditbucket">
         <level value="info"/>
+    </logger>
+
+    <logger name="com.auditbucket.engine.service.MediationFacadeNeo4j">
+        <level value="debug"/>
     </logger>
 
     <!-- Root Logger -->

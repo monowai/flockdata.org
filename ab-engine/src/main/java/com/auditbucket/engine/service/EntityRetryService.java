@@ -40,7 +40,6 @@ public class EntityRetryService {
             throws InterruptedException, ExecutionException, FlockException, IOException {
 
         Iterable<TrackResultBean> resultBeans = trackService.trackEntities(fortress, entities);
-
         return logService.processLogsSync(fortress.getCompany(), resultBeans);
 
     }

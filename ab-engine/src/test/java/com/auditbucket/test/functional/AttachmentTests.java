@@ -31,10 +31,10 @@ public class AttachmentTests extends TestEngineBase{
         content.setAttachment(Helper.getPdfDoc(), "PdF", "testing.pdf");
         entity.setContent(content);
         TrackResultBean trackResult = mediationFacade.trackEntity(fortress, entity);
-        assertFalse("This should have been the first entity logged", trackResult.isDuplicate());
+        assertFalse("This should have been the first entity logged", trackResult.entityExists());
 
         // Update without changing the content
         trackResult = mediationFacade.trackEntity(fortress, entity);
-        assertTrue("Tracked the same file, so should have been ignored",trackResult.isDuplicate());
+        assertTrue("Tracked the same file, so should have been ignored",trackResult.entityExists());
     }
 }

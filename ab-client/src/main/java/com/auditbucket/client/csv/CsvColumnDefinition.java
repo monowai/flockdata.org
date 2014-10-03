@@ -11,18 +11,35 @@ import java.util.ArrayList;
  * Time: 7:44 AM
  */
 public class CsvColumnDefinition {
-    private boolean callerRef;
-    private boolean title;
+    private boolean  callerRef;
+    private boolean  title;
+    private boolean  description;
+    private String   dateFormat;
+    private boolean  valueAsProperty;
+    private boolean  country;
+    private String   strategy = null;
+    private String   fortress = null;
+    private String   documentType = null;
+    private String   label;
+    private String   type; //datatype
+    private String   nameColumn;
+    private String   appendJoinText = " ";
+    private String   relationshipName;
+    private String[] refColumns;
+    private String[] metaValues;
+
+    // ToDo: Replace this with CsvTagMapper ??
     private boolean tag;
-    private boolean description;
-    private String dateFormat;
-    private boolean mustExist;
-    private boolean valueAsProperty;
-    private boolean country;
-    private String  strategy=null;
-    private String  fortress=null;
-    private String  documentType=null;
+    private boolean  mustExist;
+    private String relationship;
+    private Boolean reverse = false;
+    private String delimiter;
+
     private String[] columns;
+    private String code;
+    private String customPropertyName;
+    private boolean createdUser;
+    private boolean updateUser;
 
     public String getLabel() {
         return label;
@@ -32,67 +49,17 @@ public class CsvColumnDefinition {
         this.label = label;
     }
 
-    private String label;
-    private String nameColumn;
-    private String appendJoinText = " ";
-    private String relationshipName;
-    private String[] refColumns;
-    private String[] metaValues;
-
     @JsonDeserialize(using = CsvColumnTargetDeserializer.class)
-    private ArrayList<CsvTag>targets = new ArrayList<>();
+    private ArrayList<CsvTag> targets = new ArrayList<>();
 
     public String[] getRefColumns() {
         return refColumns;
-    }
-
-    public void setRefColumns(String[] refColumns) {
-        this.refColumns = refColumns;
-    }
-
-    public String[] getMetaValues() {
-        return metaValues;
-    }
-
-    public void setMetaValues(String[] metaValues) {
-        this.metaValues = metaValues;
-    }
-
-    public void setCallerRef(boolean callerRef) {
-        this.callerRef = callerRef;
-    }
-
-    public void setTitle(boolean title) {
-        this.title = title;
     }
 
     public void setTag(boolean tag) {
         this.tag = tag;
     }
 
-    public void setMustExist(boolean mustExist) {
-        this.mustExist = mustExist;
-        this.tag = true;
-    }
-
-    public void setValueAsProperty(boolean valueAsProperty) {
-        this.valueAsProperty = valueAsProperty;
-        this.tag = true;
-    }
-
-    public void setCountry(boolean country) {
-        this.country = country;
-        this.tag = true;
-        this.mustExist = true;
-    }
-
-    public void setNameColumn(String nameColumn) {
-        this.nameColumn = nameColumn;
-    }
-
-    public void setAppendJoinText(String appendJoinText) {
-        this.appendJoinText = appendJoinText;
-    }
 
     public boolean isCallerRef() {
         return callerRef;
@@ -103,7 +70,7 @@ public class CsvColumnDefinition {
     }
 
     public boolean isTag() {
-        return tag;
+        return tag || isCountry();
     }
 
     public boolean isMustExist() {
@@ -122,18 +89,10 @@ public class CsvColumnDefinition {
         return nameColumn;
     }
 
-    public String getAppendJoinText() {
-        return appendJoinText;
-    }
-
     public String getRelationshipName() {
-        if ( relationshipName== null )
-            return (isCountry()? null :"undefined");
+        if (relationshipName == null)
+            return (isCountry() ? null : "undefined");
         return relationshipName;
-    }
-
-    public void setRelationshipName(String relationshipName) {
-        this.relationshipName = relationshipName;
     }
 
     public ArrayList<CsvTag> getTargets() {
@@ -144,16 +103,8 @@ public class CsvColumnDefinition {
         return strategy;
     }
 
-    public void setStrategy(String strategy) {
-        this.strategy = strategy;
-    }
-
     public String[] getColumns() {
         return columns;
-    }
-
-    public void setColumns(String[] columns) {
-        this.columns = columns;
     }
 
     public String getFortress() {
@@ -164,19 +115,68 @@ public class CsvColumnDefinition {
         return documentType;
     }
 
-    public String getDateFormat() {
-        return dateFormat;
-    }
-
-    public void setDateFormat(String dateFormat) {
-        this.dateFormat = dateFormat;
-    }
-
     public boolean isDescription() {
         return description;
     }
 
-    public void setDescription(boolean description) {
-        this.description = description;
+
+    public String getCode() {
+        return code;
+    }
+
+    public String getCustomPropertyName() {
+        return customPropertyName;
+    }
+
+    public String getRelationship() {
+        return relationship;
+    }
+
+    public Boolean getReverse() {
+        return reverse;
+    }
+
+    public void setReverse(Boolean reverse) {
+        this.reverse = reverse;
+    }
+
+    public String getDelimiter() {
+        return delimiter;
+    }
+
+    public void setDelimiter(String delimiter) {
+        this.delimiter = delimiter;
+    }
+
+    public void setMetaValues(String[] metaValues) {
+        this.metaValues = metaValues;
+    }
+
+    public void setRefColumns(String[] refColumns) {
+        this.refColumns = refColumns;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public boolean isCreatedUser() {
+        return createdUser;
+    }
+
+    public void setCreatedUser(boolean createdUser) {
+        this.createdUser = createdUser;
+    }
+
+    public boolean isUpdateUser() {
+        return updateUser;
+    }
+
+    public void setUpdateUser(boolean updateUser) {
+        this.updateUser = updateUser;
     }
 }

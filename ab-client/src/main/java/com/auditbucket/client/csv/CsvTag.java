@@ -10,8 +10,10 @@ import java.util.ArrayList;
 public class CsvTag {
     private String column;
     private String name;
+    private String code;
     private Boolean reverse =false;
     private String relationship;
+    private String delimiter =null;
     private String label;
     private ArrayList<CsvTag> targets;
     private boolean mustExist;
@@ -88,5 +90,21 @@ public class CsvTag {
 
     public void setMustExist(boolean mustExist) {
         this.mustExist = mustExist;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getDelimter() {
+        return delimiter;
+    }
+
+    public void setDelimiter(String delimiter){
+        this.delimiter= delimiter;
     }
 }

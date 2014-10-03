@@ -64,6 +64,10 @@ public class TagServiceNeo4j implements TagService {
     @Autowired
     EngineConfig engineConfig;
 
+    @Autowired
+    TagRetryService tagRetryService;
+
+
     private Logger logger = LoggerFactory.getLogger(TagServiceNeo4j.class);
 
     @Override
@@ -150,27 +154,7 @@ public class TagServiceNeo4j implements TagService {
 
     @Override
     public void createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, IOException, ExecutionException, InterruptedException {
-
-        class EntityDeadlockRetry implements Command {
-            Company company;
-            List<TagInputBean>tagInputBeans;
-
-            public EntityDeadlockRetry(Company company, List<TagInputBean> tagInputs) {
-                this.company = company;
-                this.tagInputBeans = tagInputs;
-            }
-
-            @Override
-            public Command execute() throws FlockException, IOException {
-                boolean suppressRelationships = true;
-                tagDao.save(company, tagInputBeans, suppressRelationships);
-
-                return this;
-            }
-        }
-
-        EntityDeadlockRetry c = new EntityDeadlockRetry(company, tagInputs);
-        com.auditbucket.helper.DeadlockRetry.execute(c, "create tags with no relationships", 10);
+        tagRetryService.track(company, tagInputs);
     }
 
     @Override

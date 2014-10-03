@@ -27,6 +27,7 @@ import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.QueryParams;
 import com.auditbucket.search.model.SearchResult;
 import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
@@ -86,7 +87,7 @@ public class QueryDaoES implements QueryDao {
     }
 
     @Override
-    public EsSearchResult doMetaKeySearch(QueryParams queryParams) throws FlockException {
+    public EsSearchResult doEntitySearch(QueryParams queryParams) throws FlockException {
         StopWatch watch = new StopWatch();
 
         watch.start(queryParams.toString());
@@ -94,7 +95,7 @@ public class QueryDaoES implements QueryDao {
         if (queryParams.getTypes() != null) {
             types = queryParams.getTypes();
         }
-        ListenableActionFuture<SearchResponse> future = client.prepareSearch(EntitySearchSchema.parseIndex(queryParams))
+        SearchRequestBuilder query = client.prepareSearch(EntitySearchSchema.parseIndex(queryParams))
                 .setTypes(types)
                 .addField(EntitySearchSchema.META_KEY)
                 .addField(EntitySearchSchema.FORTRESS)
@@ -107,9 +108,13 @@ public class QueryDaoES implements QueryDao {
                 .addField(EntitySearchSchema.TIMESTAMP)
                 .setSize(queryParams.getRowsPerPage())
                 .setFrom(queryParams.getStartFrom())
-                .setExtraSource(QueryGenerator.getSimpleQuery(queryParams.getSimpleQuery(), highlightEnabled))
-                .execute();
+                .setExtraSource(QueryGenerator.getSimpleQuery(queryParams.getSimpleQuery(), highlightEnabled));
 
+        // Add user requested fields
+        if ( queryParams.getData() !=null )
+            query.addFields(queryParams.getData());
+
+        ListenableActionFuture<SearchResponse> future = query.execute();
         Collection<SearchResult> results = new ArrayList<>();
 
         SearchResponse response;
@@ -121,6 +126,16 @@ public class QueryDaoES implements QueryDao {
             return new EsSearchResult();
         }
 
+        getEntityResults(results, response, queryParams);
+        EsSearchResult searchResult = new EsSearchResult(results);
+        searchResult.setTotalHits(response.getHits().getTotalHits());
+        searchResult.setStartedFrom(queryParams.getStartFrom());
+        watch.stop();
+        logger.info("ES Query. Results [{}] took [{}]", results.size(), watch.prettyPrint());
+        return searchResult;
+    }
+
+    private void getEntityResults(Collection<SearchResult> results, SearchResponse response, QueryParams queryParams) {
         for (SearchHit searchHitFields : response.getHits().getHits()) {
             if (!searchHitFields.getFields().isEmpty()) { // DAT-83
                 // This function returns only information tracked by AB which will always have  a metaKey
@@ -129,6 +144,7 @@ public class QueryDaoES implements QueryDao {
                     Object metaKey = metaKeyCol.getValue();
                     if (metaKey != null) {
                         Map<String, String[]> fragments = convertHighlightToMap(searchHitFields.getHighlightFields());
+
                         SearchResult sr = new SearchResult(
                                 searchHitFields.getId(),
                                 metaKey.toString(),
@@ -140,25 +156,26 @@ public class QueryDaoES implements QueryDao {
                                 searchHitFields.getFields().get(EntitySearchSchema.CREATED).getValue().toString(),
                                 searchHitFields.getFields().get(EntitySearchSchema.TIMESTAMP).getValue().toString(),
                                 fragments);
-                        SearchHitField field = searchHitFields.getFields().get(EntitySearchSchema.DESCRIPTION);
-                        if ( field !=null )
-                            sr.setDescription(field.getValue().toString());
+                        SearchHitField esField = searchHitFields.getFields().get(EntitySearchSchema.DESCRIPTION);
+                        if ( esField !=null )
+                            sr.setDescription(esField.getValue().toString());
 
-                        field = searchHitFields.getFields().get(EntitySearchSchema.CALLER_REF);
-                        if ( field!=null )
-                            sr.setCallerRef(field.getValue().toString());
+                        esField = searchHitFields.getFields().get(EntitySearchSchema.CALLER_REF);
+                        if ( esField!=null )
+                            sr.setCallerRef(esField.getValue().toString());
+                        if (queryParams.getData()!=null ){
+                            for (String field : queryParams.getData()) {
+                                esField = searchHitFields.getFields().get(field);
+                                if ( esField != null )
+                                    sr.addFieldValue(field, esField.getValue());
+                            }
+                        }
                         results.add(sr);
 
                     }
                 }
             }
         }
-        EsSearchResult searchResult = new EsSearchResult(results);
-        searchResult.setTotalHits(response.getHits().getTotalHits());
-        searchResult.setStartedFrom(queryParams.getStartFrom());
-        watch.stop();
-        logger.info("ES Query. Results [{}] took [{}]", results.size(), watch.prettyPrint());
-        return searchResult;
     }
 
     private Map<String, String[]> convertHighlightToMap(Map<String, HighlightField> highlightFields) {

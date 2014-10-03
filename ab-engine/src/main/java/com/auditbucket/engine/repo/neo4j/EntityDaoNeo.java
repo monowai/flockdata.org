@@ -57,7 +57,7 @@ import java.util.*;
 @Repository("auditDAO")
 public class EntityDaoNeo {
     @Autowired
-    EntityRepo metaRepo;
+    EntityRepo entityRepo;
 
     @Autowired
     TrackLogRepo trackLogRepo;
@@ -79,10 +79,10 @@ public class EntityDaoNeo {
 
     private Logger logger = LoggerFactory.getLogger(EntityDaoNeo.class);
 
-    public Entity create(EntityInputBean inputBean, Fortress fortress, DocumentType documentType) throws FlockException {
+    public Entity create(EntityInputBean inputBean, FortressUser fortressUser, DocumentType documentType) throws FlockException {
         String metaKey = ( inputBean.isTrackSuppressed()?null:keyGenService.getUniqueKey());
-        Entity entity = new EntityNode(metaKey, fortress, inputBean, documentType);
-
+        Entity entity = new EntityNode(metaKey, fortressUser.getFortress(), inputBean, documentType);
+        entity.setCreatedBy(fortressUser);
         if (! inputBean.isTrackSuppressed()) {
             logger.debug("Creating {}", entity);
 
@@ -107,7 +107,7 @@ public class EntityDaoNeo {
     public Entity save(Entity entity, boolean quietly) {
         if (!quietly)
             entity.bumpUpdate();
-        return metaRepo.save((EntityNode) entity);
+        return entityRepo.save((EntityNode) entity);
 
     }
 
@@ -119,7 +119,7 @@ public class EntityDaoNeo {
     private Entity getCachedEntity(String key) {
         if (key == null)
             return null;
-        return metaRepo.findBySchemaPropertyValue(EntityNode.UUID_KEY, key);
+        return entityRepo.findBySchemaPropertyValue(EntityNode.UUID_KEY, key);
     }
 
     public Entity findEntity(String key, boolean inflate) {
@@ -131,7 +131,7 @@ public class EntityDaoNeo {
     }
 
     public Collection<Entity> findByCallerRef(Long fortressId, String callerRef) {
-        return metaRepo.findByCallerRef(fortressId, callerRef);
+        return entityRepo.findByCallerRef(fortressId, callerRef);
 
     }
 
@@ -154,10 +154,10 @@ public class EntityDaoNeo {
     //@Cacheable(value = "callerKey", unless = "#result==null")
     public Entity findByCallerRef(Long fortressId, Long documentId, String callerRef) {
         if (logger.isTraceEnabled())
-            logger.trace("findByCallerRef fortress [" + fortressId + "] docType[" + documentId + "], callerRef[" + callerRef + "]");
+            logger.trace("findByCallerRef fortressUser [" + fortressId + "] docType[" + documentId + "], callerRef[" + callerRef + "]");
 
         String keyToFind = "" + fortressId + "." + documentId + "." + callerRef;
-        return metaRepo.findBySchemaPropertyValue("callerKeyRef", keyToFind);
+        return entityRepo.findBySchemaPropertyValue("callerKeyRef", keyToFind);
     }
 
     //@Cacheable(value = "entityId", key = "p0.id", unless = "#result==null")
@@ -169,18 +169,18 @@ public class EntityDaoNeo {
     }
 
     public Set<Entity> findEntitiesByTxRef(Long txRef) {
-        return metaRepo.findEntitiesByTxRef(txRef);
+        return entityRepo.findEntitiesByTxRef(txRef);
     }
 
     public Collection<Entity> findEntities(Long fortressId, Long skipTo) {
-        return metaRepo.findEntities(fortressId, skipTo);
+        return entityRepo.findEntities(fortressId, skipTo);
     }
 
     public Collection<Entity> findEntities(Long fortressId, String label, Long skipTo) {
         //ToDo: Should this pass in timestamp it got to??
-        String cypher = "match (f:Fortress)-[:TRACKS]->(meta:`" + label + "`) where id(f)={fortress} return meta ORDER BY meta.dateCreated ASC skip {skip} limit 100 ";
+        String cypher = "match (f:Fortress)-[:TRACKS]->(meta:`" + label + "`) where id(f)={fortressUser} return meta ORDER BY meta.dateCreated ASC skip {skip} limit 100 ";
         Map<String, Object> args = new HashMap<>();
-        args.put("fortress", fortressId);
+        args.put("fortressUser", fortressId);
         args.put("skip", skipTo);
         Result<Map<String, Object>> result = template.query(cypher, args);
 
@@ -200,7 +200,7 @@ public class EntityDaoNeo {
     }
 
     public TxRef findTxTag(@NotEmpty String txTag, @NotNull Company company) {
-        return metaRepo.findTxTag(txTag, company.getId());
+        return entityRepo.findTxTag(txTag, company.getId());
     }
 
 
@@ -378,7 +378,7 @@ public class EntityDaoNeo {
 
     public Map<String, Entity> findEntities(Company company, Collection<String> metaKeys) {
         logger.debug("Looking for {} entities for company [{}] ", metaKeys.size(), company);
-        Collection<Entity> foundEntities = metaRepo.findEntities(company.getId(), metaKeys);
+        Collection<Entity> foundEntities = entityRepo.findEntities(company.getId(), metaKeys);
         Map<String, Entity> unsorted = new HashMap<>();
         for (Entity foundEntity : foundEntities) {
             unsorted.put(foundEntity.getMetaKey(), foundEntity);
@@ -396,12 +396,12 @@ public class EntityDaoNeo {
     }
 
     public void purgePeopleRelationships(Fortress fortress) {
-        metaRepo.purgePeopleRelationships(fortress.getId());
+        entityRepo.purgePeopleRelationships(fortress.getId());
     }
 
     public void purgeEntities(Fortress fortress) {
-        metaRepo.purgeCrossReferences(fortress.getId());
-        metaRepo.purgeEntities(fortress.getId());
+        entityRepo.purgeCrossReferences(fortress.getId());
+        entityRepo.purgeEntities(fortress.getId());
     }
 
     public void purgeFortressDocuments(Fortress fortress) {

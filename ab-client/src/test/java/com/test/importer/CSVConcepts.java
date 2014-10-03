@@ -39,18 +39,19 @@ public class CSVConcepts {
     @org.junit.Test
     public void csvTags() throws Exception{
         ImportParams params = Importer.getImportParams("/csv-tag-import.json", null);
-        CsvTagMapper mapper = new CsvTagMapper(params);
-        String[] headers= new String[]{"company_name",     "device_name",     "type", "city"};
-        String[] data = new String[]{  "Samsoon", "Palaxy", "Mobile Phone", "Auckland"};
-        Map<String,Object> json = mapper.setData(headers, data, params);
+        CsvTagMapper mappedTag = new CsvTagMapper();
+        String[] headers= new String[]{"company_name", "device_name",  "device_code", "type",         "city", "ram", "tags"};
+        String[] data = new String[]{  "Samsoon",      "Palaxy",       "PX",          "Mobile Phone", "Auckland", "32mb", "phone,thing,other"};
+        Map<String,Object> json = mappedTag.setData(headers, data, params);
         assertNotNull (json);
-        Map<String, Collection<TagInputBean>> allTargets = mapper.getTargets();
+        Map<String, Collection<TagInputBean>> allTargets = mappedTag.getTargets();
         assertNotNull(allTargets);
-        assertEquals(2, allTargets.size());
-        assertEquals("Should have overridden the column name of device_name", "Device", mapper.getLabel());
-        assertEquals("Palaxy", mapper.getCode());
-
-        assertEquals(2, allTargets.size());
+        assertEquals(3, allTargets.size());
+        assertEquals("Should have overridden the column name of device_name", "Device", mappedTag.getLabel());
+        assertEquals("Palaxy", mappedTag.getName());
+        assertEquals("PX", mappedTag.getCode());
+        assertEquals("Device", mappedTag.getLabel());
+        assertNotNull(mappedTag.getProperties().get("RAM"));
 
         TagInputBean makes = allTargets.get("makes").iterator().next();
         assertEquals("Manufacturer", makes.getLabel());
@@ -61,6 +62,7 @@ public class CSVConcepts {
 
         assertEquals("Samsoon", makes.getCode());
         assertEquals("Should be using the column name", "type", allTargets.get("of-type").iterator().next().getLabel());
+        assertEquals(3, allTargets.get("mentions").size());
 
     }
 }

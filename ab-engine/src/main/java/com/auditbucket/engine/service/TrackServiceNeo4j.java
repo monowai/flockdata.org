@@ -26,6 +26,7 @@ import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.SystemUserService;
@@ -65,9 +66,6 @@ public class TrackServiceNeo4j implements TrackService {
     CompanyService companyService;
 
     @Autowired
-    TrackEventService trackEventService;
-
-    @Autowired
     SystemUserService sysUserService;
 
     @Autowired
@@ -105,51 +103,52 @@ public class TrackServiceNeo4j implements TrackService {
      *
      * @return unique primary key to be used for subsequent log calls
      */
-    public TrackResultBean createEntity(Fortress fortress, EntityInputBean inputBean) {
-        DocumentType documentType = schemaService.resolveDocType(fortress, inputBean.getDocumentType());
+    public TrackResultBean createEntity(Fortress fortress, EntityInputBean entityInputBean) {
+        DocumentType documentType = schemaService.resolveDocType(fortress, entityInputBean.getDocumentType());
 
         Entity ah = null;
-        if (inputBean.getMetaKey() != null) {
-            ah = getEntity(fortress.getCompany(), inputBean.getMetaKey());
+        if (entityInputBean.getMetaKey() != null) {
+            ah = getEntity(fortress.getCompany(), entityInputBean.getMetaKey());
         }
-        if (ah == null && (inputBean.getCallerRef() != null && !inputBean.getCallerRef().equals(EMPTY)))
-            ah = findByCallerRef(fortress, documentType, inputBean.getCallerRef());
+        if (ah == null && (entityInputBean.getCallerRef() != null && !entityInputBean.getCallerRef().equals(EMPTY)))
+            ah = findByCallerRef(fortress, documentType, entityInputBean.getCallerRef());
         if (ah != null) {
-            logger.debug("Existing entity record found by Caller Ref [{}] found [{}]", inputBean.getCallerRef(), ah.getMetaKey());
-            inputBean.setMetaKey(ah.getMetaKey());
+            logger.debug("Existing entity record found by Caller Ref [{}] found [{}]", entityInputBean.getCallerRef(), ah.getMetaKey());
+            entityInputBean.setMetaKey(ah.getMetaKey());
 
             TrackResultBean arb = new TrackResultBean(ah);
-            arb.setEntityInputBean(inputBean);
-            arb.setWasDuplicate();
-            arb.setContentInput(inputBean.getLog());
+            arb.setEntityInputBean(entityInputBean);
+            arb.entityExisted();
+            arb.setContentInput(entityInputBean.getLog());
             // Could be rewriting tags
             // DAT-153 - move this to the end of the process?
             EntityLog entityLog = getLastEntityLog(ah.getId());
-            arb.setTags(entityTagService.associateTags(fortress.getCompany(), ah, entityLog, inputBean.getTags()));
+            arb.setTags(entityTagService.associateTags(fortress.getCompany(), ah, entityLog, entityInputBean.getTags(), entityInputBean.isArchiveTags() ));
             return arb;
         }
 
         try {
-            ah = makeEntity(inputBean, fortress, documentType);
+            ah = makeEntity(fortress, documentType, entityInputBean);
         } catch (FlockException e) {
             logger.error(e.getMessage());
-            return new TrackResultBean("Error processing inputBean [{}]" + inputBean + ". Error " + e.getMessage());
+            return new TrackResultBean("Error processing entityInput [{}]" + entityInputBean + ". Error " + e.getMessage());
         }
         TrackResultBean resultBean = new TrackResultBean(ah);
-        resultBean.setEntityInputBean(inputBean);
-        resultBean.setTags(entityTagService.associateTags(fortress.getCompany(), resultBean.getEntity(), null, inputBean.getTags()));
+        resultBean.setEntityInputBean(entityInputBean);
+        resultBean.setTags(entityTagService.associateTags(fortress.getCompany(), resultBean.getEntity(), null, entityInputBean.getTags(), entityInputBean.isArchiveTags()));
 
-        resultBean.setContentInput(inputBean.getLog());
+        resultBean.setContentInput(entityInputBean.getLog());
         return resultBean;
 
     }
 
-    public Entity makeEntity(EntityInputBean inputBean, Fortress fortress, DocumentType documentType) throws FlockException {
-        Entity entity = trackDao.create(inputBean, fortress, documentType);
+    public Entity makeEntity(Fortress fortress, DocumentType documentType, EntityInputBean entityInput) throws FlockException {
+        FortressUser fu = fortressService.getFortressUser(fortress, entityInput.getFortressUser());
+        Entity entity = trackDao.create(entityInput, fu, documentType);
         if (entity.getId() == null)
-            inputBean.setMetaKey("NT " + fortress.getFortressKey()); // We ain't tracking this
+            entityInput.setMetaKey("NT " + fortress.getFortressKey()); // We ain't tracking this
 
-        inputBean.setMetaKey(entity.getMetaKey());
+        entityInput.setMetaKey(entity.getMetaKey());
         logger.trace("Entity created: id=[{}] key=[{}] for fortress [{}] callerKeyRef = [{}]", entity.getId(), entity.getMetaKey(), fortress.getCode(), entity.getCallerKeyRef());
         return entity;
     }
@@ -323,25 +322,6 @@ public class TrackServiceNeo4j implements TrackService {
         int logs = trackDao.getLogs(entity.getId()).size();
         logger.debug("Log count {}", logs);
         return logs;
-    }
-
-    private Entity getValidEntity(String headerKey) throws FlockException {
-        return getValidEntity(headerKey, false);
-    }
-
-    private Entity getValidEntity(String headerKey, boolean inflate) throws FlockException {
-        Entity entity = trackDao.findEntity(headerKey, inflate);
-        if (entity == null) {
-            throw new FlockException("No entity for [" + headerKey + "]");
-        }
-        String userName = securityHelper.getLoggedInUser();
-        SystemUser sysUser = sysUserService.findByLogin(userName);
-
-        if (!entity.getFortress().getCompany().getId().equals(sysUser.getCompany().getId())) {
-            throw new SecurityException("Not authorised to work with this meta data");
-        }
-        return entity;
-
     }
 
     @Override
@@ -595,7 +575,7 @@ public class TrackServiceNeo4j implements TrackService {
         Entity entity;
         try {
             entity = getEntity(metaId); // Happens during development when Graph is cleared down and incoming search results are on the q
-        } catch (DataRetrievalFailureException e) {
+        } catch (DataRetrievalFailureException | IllegalStateException e  ) {
             logger.error("Unable to locate entity for metaId {} in order to handle the search metaKey. Ignoring.", metaId);
             return;
         }

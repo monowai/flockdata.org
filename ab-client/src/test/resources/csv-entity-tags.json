@@ -1,0 +1,23 @@
+{
+    "documentType": "Athlete",
+    "importType": "csv",
+    "tagOrEntity": "entity",
+    "entityOnly": true,
+    "fortress": {
+        "name": "Olympic",
+        "search": true
+    },
+    "fortressUser": "mike",
+    "batchSize": -1,
+    "header": true,
+    "csvHeaders": {
+        "Title": {
+            "callerRef": true,
+            "title": true
+        },
+        "Tag": {
+            "delimiter": ",",
+            "relationshipName": "subject"
+        }
+    }
+}
