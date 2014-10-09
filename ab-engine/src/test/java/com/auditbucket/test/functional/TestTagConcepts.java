@@ -316,7 +316,7 @@ public class TestTagConcepts extends TestEngineBase {
 
             Transaction t = beginManualTransaction();
 
-            SystemUser su = registerSystemUser(monowai, mike_admin);
+            SystemUser su = registerSystemUser("uniqueRelationshipByDocType", mike_admin);
             assertNotNull(su);
 
             Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortA", true));

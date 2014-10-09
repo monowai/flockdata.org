@@ -27,7 +27,7 @@ public class TestEntityCrossReference extends TestEngineBase {
 
     @Test
     public void xRef_MetaKeysForSameCompany() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("xRef_MetaKeysForSameCompany", mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
@@ -63,7 +63,7 @@ public class TestEntityCrossReference extends TestEngineBase {
 
     @Test
     public void xRef_duplicateCallerRefForFortressFails() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("xRef_duplicateCallerRefForFortressFails", mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
@@ -91,7 +91,7 @@ public class TestEntityCrossReference extends TestEngineBase {
 
     @Test
     public void xRef_ByCallerRefsForFortress() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("xRef_ByCallerRefsForFortress", mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
@@ -124,7 +124,7 @@ public class TestEntityCrossReference extends TestEngineBase {
     }
     @Test
     public void xRef_FromInputBeans() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("xRef_FromInputBeans", mike_admin);
         Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
         EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
@@ -159,7 +159,7 @@ public class TestEntityCrossReference extends TestEngineBase {
     }
     @Test
     public void xRef_AcrossFortressBoundaries() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("xRef_AcrossFortressBoundaries", mike_admin);
         Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTestA", true));
         Fortress fortressB = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTestB", true));
 
@@ -203,7 +203,7 @@ public class TestEntityCrossReference extends TestEngineBase {
 
     @Test
     public void xRef_CreatesUniqueRelationships() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("xRef_CreatesUniqueRelationships", mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("xRef_CreatesUniqueRelationships", true));
 
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");

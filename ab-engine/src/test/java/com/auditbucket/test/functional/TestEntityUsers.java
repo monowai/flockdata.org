@@ -37,7 +37,7 @@ public class TestEntityUsers extends TestEngineBase  {
         public void created_UserAgainstEntityAndLog() throws Exception {
             logger.debug("### created_UserAgainstEntityAndLog");
             String callerRef = "mk1hz";
-            SystemUser su = registerSystemUser(monowai);
+            SystemUser su = registerSystemUser("created_UserAgainstEntityAndLog");
 
             Fortress fortWP = fortressService.registerFortress(su.getCompany(), new FortressInputBean("created_UserAgainstEntityAndLog", true));
             EntityInputBean entityBean = new EntityInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), callerRef);

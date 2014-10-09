@@ -42,7 +42,7 @@ public class TestAPISecurity extends TestEngineBase {
 	public void invokeSecureAPIWithoutAPIKeyButAfterValidLogin_shouldReturnOk()
 			throws Exception {
 		setSecurity();
-		registerSystemUser(monowai, sally_admin);
+		registerSystemUser("invokeSecureAPIWithoutAPIKeyButAfterValidLogin_shouldReturnOk", sally_admin);
 		setSecurityEmpty();
 		
 		LoginRequest loginReq = new LoginRequest();
@@ -60,7 +60,7 @@ public class TestAPISecurity extends TestEngineBase {
 	@Test
 	public void invokeSecureAPIWithAPIKeyWithoutLogin_shouldReturnOk() throws Exception {
 		setSecurity();
-		SystemUser su = registerSystemUser(monowai, mike_admin);
+		SystemUser su = registerSystemUser("invokeSecureAPIWithAPIKeyWithoutLogin_shouldReturnOk", mike_admin);
 		String apikey = su.getApiKey();
 		setSecurityEmpty();
 

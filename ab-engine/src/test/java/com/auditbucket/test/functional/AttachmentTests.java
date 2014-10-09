@@ -22,7 +22,7 @@ import static org.junit.Assert.assertFalse;
 public class AttachmentTests extends TestEngineBase{
     @Test
     public void duplicate_sameContentIgnored() throws Exception{
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("duplicate_sameContentIgnored", mike_admin);
         FortressInputBean f = new FortressInputBean("attachmentFun", true);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), f);
 

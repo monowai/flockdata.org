@@ -24,7 +24,7 @@ public class TestSchemaManagement extends TestEngineBase {
     @Test
     public void documentTypesTrackedPerFortress() throws Exception {
         cleanUpGraph();
-        SystemUser suA = registerSystemUser(monowai, mike_admin);
+        SystemUser suA = registerSystemUser("documentTypesTrackedPerFortress", mike_admin);
 
         Fortress fortressA = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("auditTestA", true));
         Fortress fortressB = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("auditTestB", true));
@@ -60,7 +60,7 @@ public class TestSchemaManagement extends TestEngineBase {
         cleanUpGraph();
         Thread.sleep(100);
         //SystemUserResultBean cOtherAPI = registrationEP.registerSystemUser(new RegistrationBean("OtherCo", "harry")).getBody();
-        SystemUser suA = registerSystemUser(monowai, mike_admin);
+        SystemUser suA = registerSystemUser("documentTypesTrackedPerCompany", mike_admin);
         SystemUser suB = registerSystemUser("OtherCo", harry);
 
         Fortress fortressA = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("auditTestA", true));
@@ -94,7 +94,7 @@ public class TestSchemaManagement extends TestEngineBase {
     @Test
     public void documentTypesWork() throws Exception {
         cleanUpGraph();
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("documentTypesWork", mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
 
         String docName = "CamelCaseDoc";
@@ -117,7 +117,7 @@ public class TestSchemaManagement extends TestEngineBase {
     public void duplicateDocumentTypes() throws Exception {
         cleanUpGraph();
         setSecurity(sally_admin);
-        SystemUser su = registerSystemUser(monowai, sally_admin);
+        SystemUser su = registerSystemUser("duplicateDocumentTypes", sally_admin);
         assertNotNull(su);
 
         Fortress fortA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortA", true));

@@ -140,7 +140,6 @@ public class TestEngineBase {
     protected static final String sally_admin = "sally";
 	protected static final String mike_admin = "mike"; // Admin role
     protected static final String harry = "harry";
-	protected static final String monowai = "Monowai"; // constant
 
 	Authentication authDefault = new UsernamePasswordAuthenticationToken(
 			mike_admin, "123");
@@ -187,7 +186,7 @@ public class TestEngineBase {
 		t.close();
 	}
     public SystemUser registerSystemUser() throws Exception{
-        return registerSystemUser(monowai, mike_admin);
+        return registerSystemUser("deleteFortressPurgesEntitiesAndLogs", mike_admin);
 
     }
     public SystemUser registerSystemUser(String companyName) throws Exception{

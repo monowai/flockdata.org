@@ -44,7 +44,7 @@ import static junit.framework.Assert.*;
 public class TestTags extends TestEngineBase {
 
     public void duplicateTagLists() throws Exception {
-        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
+        SystemUser iSystemUser = registerSystemUser("duplicateTagLists", mike_admin);
         assertNotNull(iSystemUser);
 
         List<TagInputBean> tags = new ArrayList<>();
@@ -85,7 +85,7 @@ public class TestTags extends TestEngineBase {
     @Transactional
     public void secureMultiTenantedTags() throws Exception {
         engineConfig.setMultiTenanted(true);
-        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
+        SystemUser iSystemUser = registerSystemUser("secureMultiTenantedTags", mike_admin);
         assertNotNull(iSystemUser);
 
         List<TagInputBean> tags = new ArrayList<>();
@@ -108,7 +108,7 @@ public class TestTags extends TestEngineBase {
     @Test
     public void updateExistingTag() throws Exception {
 
-        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
+        SystemUser iSystemUser = registerSystemUser("updateExistingTag", mike_admin);
         assertNull(tagService.findTag(iSystemUser.getCompany(), "ABC"));
         Tag tag = tagService.createTag(iSystemUser.getCompany(), new TagInputBean("FLOP"));
         assertNotNull(tag);
@@ -124,7 +124,7 @@ public class TestTags extends TestEngineBase {
 
     @Test
     public void tagMustExist() throws Exception {
-        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
+        SystemUser iSystemUser = registerSystemUser("tagMustExist", mike_admin);
 
         assertNotNull(iSystemUser);
 
@@ -147,7 +147,7 @@ public class TestTags extends TestEngineBase {
 
     @Test
     public void tagWithProperties() throws Exception {
-        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
+        SystemUser iSystemUser = registerSystemUser("tagWithProperties", mike_admin);
 
         TagInputBean tagInput = new TagInputBean("ZFLOP");
         tagInput.setProperty("num", 123);
@@ -168,7 +168,7 @@ public class TestTags extends TestEngineBase {
 
     @Test
     public void prohibitedPropertiesIgnored() throws Exception {
-        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
+        SystemUser iSystemUser = registerSystemUser("prohibitedPropertiesIgnored", mike_admin);
 
         TagInputBean tagInput = new TagInputBean("FLOP");
 
@@ -187,7 +187,7 @@ public class TestTags extends TestEngineBase {
 
     @Test
     public void targetRelationships() throws Exception {
-        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
+        SystemUser iSystemUser = registerSystemUser("targetRelationships", mike_admin);
 
         TagInputBean tagInput = new TagInputBean("Source");
         tagInput.setTargets("testAssoc", new TagInputBean("Dest"));
@@ -215,7 +215,7 @@ public class TestTags extends TestEngineBase {
     @Test
     public void customLabelsSingleTenant() throws Exception {
         engineConfig.setMultiTenanted(false);
-        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
+        SystemUser iSystemUser = registerSystemUser("customLabelsSingleTenant", mike_admin);
 
         TagInputBean tagInput = new TagInputBean("Source");
         tagInput.setLabel(":TestTag");
@@ -236,7 +236,7 @@ public class TestTags extends TestEngineBase {
     @Test
     public void tagWithSpacesWorks() throws Exception {
         engineConfig.setMultiTenanted(false);
-        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
+        SystemUser iSystemUser = registerSystemUser("tagWithSpacesWorks", mike_admin);
 
         TagInputBean tagInput = new TagInputBean("Source");
         tagInput.setLabel(":Test Tag");
@@ -257,7 +257,7 @@ public class TestTags extends TestEngineBase {
     // ToDo: Multi-tenanted custom tags
     public void customLabelsMultiTenant() throws Exception {
         engineConfig.setMultiTenanted(true);
-        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
+        SystemUser iSystemUser = registerSystemUser("customLabelsMultiTenant", mike_admin);
 
         TagInputBean tagInput = new TagInputBean("Source");
         tagInput.setLabel(":TestTag");
@@ -289,7 +289,7 @@ public class TestTags extends TestEngineBase {
     @Test
     public void duplicateTagsForSameIndexReturnSingleTag() throws Exception {
         engineConfig.setMultiTenanted(false);
-        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
+        SystemUser iSystemUser = registerSystemUser("duplicateTagsForSameIndexReturnSingleTag", mike_admin);
 
         TagInputBean tagInputA = new TagInputBean("Source");
         tagInputA.setLabel(":TestTagA");
@@ -321,7 +321,7 @@ public class TestTags extends TestEngineBase {
     @Test
     public void tagUniqueForIndex() throws Exception {
         engineConfig.setMultiTenanted(false);
-        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
+        SystemUser iSystemUser = registerSystemUser("tagUniqueForIndex", mike_admin);
 
         TagInputBean tagInputA = new TagInputBean("Source");
         tagInputA.setLabel(":TestTagA");
@@ -345,7 +345,7 @@ public class TestTags extends TestEngineBase {
     @Test
     public void tagAppleNameIssue() throws Exception {
         engineConfig.setMultiTenanted(false);
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("tagAppleNameIssue", mike_admin);
 
         // Exists in one index
         TagInputBean tagInputA = new TagInputBean("Apple");
@@ -367,9 +367,9 @@ public class TestTags extends TestEngineBase {
         //assertTrue(tagA.getId().equals(tagB.getId()));
     }
     @Test
-    public void goegoraphyEndPoints() throws Exception {
+    public void geographyEndPoints() throws Exception {
         engineConfig.setMultiTenanted(false);
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("geographyEndPoints", mike_admin);
 
         TagInputBean tagInputBean = new TagInputBean("New Zealand").setLabel("Country");
         ArrayList<TagInputBean> countries = new ArrayList<>();
@@ -384,7 +384,7 @@ public class TestTags extends TestEngineBase {
     public void sameKeyForDifferentTagTypes() throws Exception {
         engineConfig.setMultiTenanted(false);
 
-        SystemUser iSystemUser = registerSystemUser(monowai, mike_admin);
+        SystemUser iSystemUser = registerSystemUser("sameKeyForDifferentTagTypes", mike_admin);
 
         TagInputBean tagInputA = new TagInputBean("Source");
         tagInputA.setLabel(":TestTagA");
