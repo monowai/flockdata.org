@@ -19,8 +19,6 @@
 
 package com.auditbucket.track.model;
 
-import com.auditbucket.track.bean.ContentInputBean;
-
 import java.util.Map;
 
 /**

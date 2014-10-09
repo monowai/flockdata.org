@@ -19,8 +19,8 @@
 
 package com.auditbucket.registration.dao.neo4j.model;
 
-import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.model.Company;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;

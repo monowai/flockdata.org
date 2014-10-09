@@ -1,7 +1,6 @@
 package com.auditbucket.client;
 
-import com.auditbucket.client.common.ConfigProperties;
-import com.auditbucket.client.rest.AbRestClient;
+import com.auditbucket.client.rest.FdRestWriter;
 import com.auditbucket.registration.bean.SystemUserResultBean;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
@@ -36,7 +35,7 @@ public class Configure {
         internalUser = ns.getString("user");
 
         File file = getFile(configFile, ns);
-        ConfigProperties defaults = readConfiguration(file);
+        ClientConfiguration defaults = readConfiguration(file);
         configureLogger(ns.getBoolean("debug"));
 
         boolean reconfigure = ns.getBoolean("reconfig");
@@ -148,7 +147,7 @@ public class Configure {
         return ns;
     }
 
-    private static boolean configure(File file, ConfigProperties defaults) {
+    private static boolean configure(File file, ClientConfiguration defaults) {
         String version;
 
         internalPass = getPassword();
@@ -201,11 +200,11 @@ public class Configure {
         return true;
     }
 
-    private static String pingServer(ConfigProperties defaults, boolean b) {
+    private static String pingServer(ClientConfiguration defaults, boolean b) {
         return pingServer(defaults, defaults.getEngineURL(), b);
     }
 
-    private static String pingServer(ConfigProperties defaults, String engineURL, boolean suppressSuccessMessage) {
+    private static String pingServer(ClientConfiguration defaults, String engineURL, boolean suppressSuccessMessage) {
         String pingResult;
         if ( engineURL!=null && !engineURL.equals("") && !engineURL.startsWith("http"))
             engineURL=  "http://" +engineURL;
@@ -237,7 +236,7 @@ public class Configure {
         return Boolean.parseBoolean(yn);
     }
 
-    private static void testConfig(ConfigProperties defaults) {
+    private static void testConfig(ClientConfiguration defaults) {
         String version = getVersion(defaults.getEngineURL(), defaults.getApiKey());
         if (version == null)
             logger.error("!! Error communicating with AuditBucket using parameters {}", defaults);
@@ -245,7 +244,7 @@ public class Configure {
             logger.info("** Success communicating with AuditBucket {} with parameters {}", version, defaults);
     }
 
-    private static void writeConfiguration(File file, ConfigProperties defaults) {
+    private static void writeConfiguration(File file, ClientConfiguration defaults) {
         try {
             Properties properties = defaults.getAsProperties();
             OutputStream out = new FileOutputStream(file);
@@ -259,34 +258,34 @@ public class Configure {
         }
     }
 
-    static ConfigProperties readConfiguration(File file) {
+    static ClientConfiguration readConfiguration(File file) {
         if (file.exists()) {
             // Load the defaults
             try {
                 Properties prop = new Properties();
                 prop.load(new FileInputStream(file));
-                return new ConfigProperties(prop);
+                return new ClientConfiguration(prop);
             } catch (IOException e) {
                 logger.error("Unexpected", e);
             }
-            return new ConfigProperties();
+            return new ClientConfiguration();
         }
 
-        return new ConfigProperties();
+        return new ClientConfiguration();
     }
 
     private static SystemUserResultBean registerUser(String serverName, String intName, String intPass, String userName, String company) {
-        AbRestClient restClient = new AbRestClient(serverName, intName, intPass, 0);
+        FdRestWriter restClient = new FdRestWriter(serverName, intName, intPass, 0);
         return restClient.registerProfile(intName, intPass, userName, company);
     }
 
     static String pingServer(String serverName, String userName, String password) {
-        AbRestClient restClient = new AbRestClient(serverName, userName, password, 0);
+        FdRestWriter restClient = new FdRestWriter(serverName, userName, password, 0);
         return restClient.ping();
     }
 
     static String getVersion(String serverName, String apiKey) {
-        AbRestClient restClient = new AbRestClient(serverName, apiKey, 0);
+        FdRestWriter restClient = new FdRestWriter(serverName, apiKey, 0);
         Map<String, Object> result = restClient.health();
         if (result == null || result.get("error") != null)
             return null;

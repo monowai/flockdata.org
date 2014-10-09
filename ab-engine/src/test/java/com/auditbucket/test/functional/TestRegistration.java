@@ -19,13 +19,13 @@
 
 package com.auditbucket.test.functional;
 
+import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
-import com.auditbucket.registration.model.SystemUser;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
@@ -43,20 +43,18 @@ import static org.junit.Assert.assertNull;
 public class TestRegistration extends TestEngineBase {
     @Test
     public void createPersonsTest() throws Exception {
-        createCompanyUsers();
-
-    }
-
-    private void createCompanyUsers() throws Exception {
         setSecurity();
-        registerSystemUser(monowai, mike_admin);
+        registerSystemUser("createPersonsTest", mike_admin);
+
+
     }
+
 
     @Test
     public void companyFortressNameSearch() throws Exception {
         // Create the company.
         setSecurity();
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("companyFortressNameSearch", mike_admin);
         assertNotNull(su);
 
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortressA"));
@@ -80,14 +78,15 @@ public class TestRegistration extends TestEngineBase {
 
         // Create the company.
         setSecurity();
-        Company company = companyService.create(monowai);
-        SystemUser systemUser = regService.registerSystemUser(company, new RegistrationBean(monowai, "password", "user").setIsUnique(false) );
+        String companyName = "onlyOneCompanyCreatedWithMixedCase";
+        Company company = companyService.create(companyName);
+        SystemUser systemUser = regService.registerSystemUser(company, new RegistrationBean(companyName, "password", "user").setIsUnique(false) );
         assertNotNull(systemUser);
         Collection<Company> companies = companyEP.findCompanies(systemUser.getApiKey(), null);
         assertEquals(1, companies.size());
         String cKey = companies.iterator().next().getApiKey();
-        Company companyB = companyService.create(monowai.toLowerCase());
-        SystemUser systemUserB = regService.registerSystemUser(companyB, new RegistrationBean(monowai.toLowerCase(), "password", "xyz").setIsUnique(false));
+        Company companyB = companyService.create(companyName.toLowerCase());
+        SystemUser systemUserB = regService.registerSystemUser(companyB, new RegistrationBean(companyName.toLowerCase(), "password", "xyz").setIsUnique(false));
         assertNotNull(systemUserB);
 
         companyEP.findCompanies(systemUserB.getApiKey(), null);
@@ -294,7 +293,7 @@ public class TestRegistration extends TestEngineBase {
     @Test
     public void fortressTZLocaleChecks() throws Exception {
         String uid = "user";
-        SystemUser su = registerSystemUser(monowai, uid);
+        SystemUser su = registerSystemUser("fortressTZLocaleChecks", uid);
         setSecurity(uid);
         // Null fortress
         Fortress fortressNull = fortressService.registerFortress(su.getCompany(), new FortressInputBean("wportfolio", true));
@@ -381,6 +380,18 @@ public class TestRegistration extends TestEngineBase {
         setSecurity();
         Collection<Company> co = companyEP.findCompanies(null, null);
         Assert.assertFalse(co.isEmpty());
+    }
+
+    @Test
+    public void defaults_FortressBooleanValues() throws Exception {
+        setSecurity(mike_admin);
+        // Assume the user has now logged in.
+        String company = "defaults_FortressBooleanValues";
+        SystemUser su = registerSystemUser(company, mike_admin);
+        Fortress f = fortressService.registerFortress(su.getCompany(), new FortressInputBean("TestName", true));
+        assertTrue (f.isEnabled());
+        assertFalse (f.isSystem());
+
     }
 
 

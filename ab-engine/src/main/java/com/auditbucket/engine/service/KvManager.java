@@ -19,19 +19,19 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.engine.repo.EntityContentData;
 import com.auditbucket.engine.repo.KvContentData;
-import com.auditbucket.engine.repo.KvRepo;
-import com.auditbucket.engine.repo.redis.RedisRepo;
 import com.auditbucket.engine.repo.riak.RiakRepo;
-import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.helper.CompressionResult;
 import com.auditbucket.kv.service.KvService;
 import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.DeltaBean;
-import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.EntityContent;
+import com.auditbucket.engine.repo.EntityContentData;
+import com.auditbucket.engine.repo.KvRepo;
+import com.auditbucket.engine.repo.redis.RedisRepo;
+import com.auditbucket.helper.CompressionHelper;
+import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.Log;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

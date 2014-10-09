@@ -46,7 +46,7 @@ public class EntityKey {
         return fortressName;
     }
 
-    public String getDocumentType() {
+    public String getDocumentCode() {
         if ( documentType == null || documentType.equals(""))
             return "*";
         return documentType;

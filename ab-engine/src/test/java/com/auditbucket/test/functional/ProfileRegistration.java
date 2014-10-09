@@ -1,7 +1,7 @@
 package com.auditbucket.test.functional;
 
-import com.auditbucket.helper.JsonUtils;
 import com.auditbucket.registration.bean.RegistrationBean;
+import com.auditbucket.helper.JsonUtils;
 import com.auditbucket.registration.bean.SystemUserResultBean;
 import junit.framework.Assert;
 import org.junit.Test;

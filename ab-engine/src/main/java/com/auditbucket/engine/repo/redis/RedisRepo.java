@@ -19,8 +19,8 @@
 
 package com.auditbucket.engine.repo.redis;
 
-import com.auditbucket.engine.repo.KvRepo;
 import com.auditbucket.track.model.Entity;
+import com.auditbucket.engine.repo.KvRepo;
 import com.auditbucket.track.model.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,7 +1,8 @@
 package com.auditbucket.geography.service;
 
-import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
+import com.auditbucket.track.service.TagService;
+import com.auditbucket.registration.model.Company;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,7 @@ import java.util.Collection;
 @Transactional
 public class GeographyService {
     @Autowired
-    com.auditbucket.track.service.TagService tagService;
+    TagService tagService;
     public Collection<Tag> findCountries(Company company) {
         return tagService.findTags(company, "Country");
 

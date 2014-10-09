@@ -27,17 +27,18 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.dao.TrackTagDao;
 import com.auditbucket.helper.FlockException;
-import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.model.Tag;
-import com.auditbucket.test.utils.Helper;
 import com.auditbucket.track.bean.*;
 import com.auditbucket.track.model.Entity;
+import com.auditbucket.track.model.TrackTag;
+import com.auditbucket.registration.bean.FortressInputBean;
+import com.auditbucket.test.utils.Helper;
 import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.SearchChange;
-import com.auditbucket.track.model.TrackTag;
+import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -243,7 +244,7 @@ public class TestEntityTags extends TestEngineBase {
         assertNotNull(tag);
         Collection<TrackTag> trackTags = entityTagService.findEntityTags(entity);
         for (TrackTag trackTag : trackTags) {
-            assertEquals("Expected same tag for each relationship", tag.getId(), trackTag.getTag().getId());
+            Assert.assertEquals("Expected same tag for each relationship", tag.getId(), trackTag.getTag().getId());
         }
         assertEquals("Expected 3 relationships for the same tag", 3, trackTags.size());
 
@@ -270,7 +271,7 @@ public class TestEntityTags extends TestEngineBase {
         for (TrackTag trackTag : resultBean.getTags()) {
             if ( id == null )
                 id = trackTag.getTag().getId();
-            assertEquals(id, trackTag.getTag().getId());
+            Assert.assertEquals(id, trackTag.getTag().getId());
         }
         assertNull(resultBean.getMetaKey());
 
@@ -512,13 +513,13 @@ public class TestEntityTags extends TestEngineBase {
         Tag houseTag = tagService.findTag(su.getCompany(), "ABC House");
 
         assertNotNull(countryTag);
-        assertEquals(2, tagService.findDirectedTags(countryTag).size());  // Country has 2 cities
+        Assert.assertEquals(2, tagService.findDirectedTags(countryTag).size());  // Country has 2 cities
         assertNotNull(cityTag);
-        assertEquals(1, tagService.findDirectedTags(cityTag).size());
+        Assert.assertEquals(1, tagService.findDirectedTags(cityTag).size());
         assertNotNull(sectionTag);
-        assertEquals(1, tagService.findDirectedTags(sectionTag).size());
+        Assert.assertEquals(1, tagService.findDirectedTags(sectionTag).size());
         assertNotNull(houseTag);
-        assertEquals(0, tagService.findDirectedTags(houseTag).size());
+        Assert.assertEquals(0, tagService.findDirectedTags(houseTag).size());
     }
 
     @Test
@@ -552,7 +553,7 @@ public class TestEntityTags extends TestEngineBase {
         assertFalse(tags.isEmpty());
 
         for (TrackTag tag : tags) {
-            assertEquals("mikecorp", tag.getTag().getName());
+            Assert.assertEquals("mikecorp", tag.getTag().getName());
             Collection<Tag> cities = tagService.findDirectedTags(tag.getTag());
             org.junit.Assert.assertFalse(cities.isEmpty());
             Tag cityTag = cities.iterator().next();
@@ -669,7 +670,7 @@ public class TestEntityTags extends TestEngineBase {
         assertFalse(tags.isEmpty());
 
         for (TrackTag tag : tags) {
-            assertEquals("mikecorp", tag.getTag().getName());
+            Assert.assertEquals("mikecorp", tag.getTag().getName());
             assertNotNull(tag.getGeoData());
             assertEquals("CA", tag.getGeoData().getState());
             assertEquals("Los Angeles", tag.getGeoData().getCity());
@@ -726,7 +727,7 @@ public class TestEntityTags extends TestEngineBase {
 
         results = trackService.getLogTags(su.getCompany(), firstLog.getEntityLog());
         assertEquals(1, results.size());
-        assertEquals("TEST-CREATE", results.iterator().next().getTag().getName());
+        Assert.assertEquals("TEST-CREATE", results.iterator().next().getTag().getName());
 
         // Make sure when we pass NO tags, i.e. just running an update, we don't change ANY tags
 
@@ -854,7 +855,7 @@ public class TestEntityTags extends TestEngineBase {
         Collection<TrackTag> outboundTags = entityTagService.findInboundTags(su.getCompany(), created);
         assertEquals("One tag should be reversed", 1, outboundTags.size());
         TrackTag trackOut = outboundTags.iterator().next();
-        assertEquals("TAG-IN", trackOut.getTag().getName());
+        Assert.assertEquals("TAG-IN", trackOut.getTag().getName());
         assertEquals("blah", trackOut.getProperties().get("stringTest"));
         assertEquals(100d, trackOut.getProperties().get("doubleTest"));
         assertEquals((Integer)99, trackOut.getWeight());
@@ -884,7 +885,7 @@ public class TestEntityTags extends TestEngineBase {
         // Check that we still have our custom properties
         outboundTags = entityTagService.getEntityTags(su.getCompany(), created);
         trackOut = outboundTags.iterator().next();
-        assertEquals("TAG-IN", trackOut.getTag().getName());
+        Assert.assertEquals("TAG-IN", trackOut.getTag().getName());
         assertEquals("blah", trackOut.getProperties().get("stringTest"));
         assertEquals(100d, trackOut.getProperties().get("doubleTest"));
         assertEquals((Integer)99, trackOut.getWeight());

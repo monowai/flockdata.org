@@ -1,12 +1,13 @@
 package com.auditbucket.track.service;
 
 import com.auditbucket.helper.FlockException;
-import com.auditbucket.registration.model.Company;
+import com.auditbucket.helper.NotFoundException;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.search.model.EntitySearchChange;
 import com.auditbucket.search.model.SearchResult;
 import com.auditbucket.track.bean.*;
 import com.auditbucket.track.model.*;
+import com.auditbucket.registration.model.Company;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import java.io.IOException;
@@ -50,13 +51,15 @@ public interface TrackService {
 
     int getLogCount(Company company, String metaKey) throws FlockException;
 
-    Entity findByCallerRef(Company company, String fortress, String documentType, String callerRef);
+    public Entity findByCallerRef(Fortress fortress, DocumentType documentType, String callerRef);
+
+    Entity findByCallerRef(Company company, String fortress, String documentCode, String callerRef) throws NotFoundException;
 
     Entity findByCallerRefFull(Long fortressId, String documentType, String callerRef);
 
     Entity findByCallerRefFull(Fortress fortress, String documentType, String callerRef);
 
-    Iterable<Entity> findByCallerRef(Company company, String fortressName, String callerRef);
+    Iterable<Entity> findByCallerRef(Company company, String fortressName, String callerRef) throws NotFoundException;
 
     Entity findByCallerRef(Fortress fortress, String documentType, String callerRef);
 

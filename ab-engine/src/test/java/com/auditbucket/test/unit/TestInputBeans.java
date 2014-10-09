@@ -23,11 +23,12 @@ import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
-import com.auditbucket.test.utils.Helper;
 import com.auditbucket.track.bean.ConceptInputBean;
 import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.model.TxRef;
+import com.auditbucket.test.utils.Helper;
+import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -50,12 +51,12 @@ public class TestInputBeans {
         TxRefNode tx = new TxRefNode("abc", new CompanyNode(""));
 
         // Current status should be created
-        assertEquals(TxRef.TxStatus.TX_CREATED, tx.getTxStatus());
+        Assert.assertEquals(TxRef.TxStatus.TX_CREATED, tx.getTxStatus());
         TxRefNode.TxStatus previous = tx.commit();
-        assertEquals(TxRef.TxStatus.TX_COMMITTED, tx.getTxStatus());
+        Assert.assertEquals(TxRef.TxStatus.TX_COMMITTED, tx.getTxStatus());
         assertEquals(TxRef.TxStatus.TX_CREATED, previous);
         previous = tx.rollback();
-        assertEquals(TxRef.TxStatus.TX_ROLLBACK, tx.getTxStatus());
+        Assert.assertEquals(TxRef.TxStatus.TX_ROLLBACK, tx.getTxStatus());
         assertEquals(TxRef.TxStatus.TX_COMMITTED, previous);
 
     }

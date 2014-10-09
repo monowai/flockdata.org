@@ -19,8 +19,8 @@
 
 package com.auditbucket.registration.dao;
 
-import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.model.Company;
 
 import java.util.Collection;
 

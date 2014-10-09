@@ -2,8 +2,8 @@ package com.auditbucket.geography.endpoint;
 
 import com.auditbucket.geography.service.GeographyService;
 import com.auditbucket.helper.ApiKeyHelper;
-import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.model.Tag;
+import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.service.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

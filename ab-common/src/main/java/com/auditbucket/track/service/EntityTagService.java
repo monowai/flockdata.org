@@ -2,12 +2,12 @@ package com.auditbucket.track.service;
 
 import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.TagInputBean;
-import com.auditbucket.registration.model.Company;
 import com.auditbucket.track.bean.TrackTagInputBean;
 import com.auditbucket.track.model.Entity;
-import com.auditbucket.track.model.EntityLog;
 import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.TrackTag;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.track.model.EntityLog;
 
 import java.util.Collection;
 import java.util.Set;

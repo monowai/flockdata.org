@@ -2,14 +2,14 @@ package com.auditbucket.engine.service;
 
 import com.auditbucket.engine.repo.neo4j.EntityDaoNeo;
 import com.auditbucket.kv.service.KvService;
-import com.auditbucket.registration.model.Company;
 import com.auditbucket.search.model.*;
 import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.LogResultBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.*;
-import com.auditbucket.track.service.EntityTagService;
 import com.auditbucket.track.service.TrackService;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.track.service.EntityTagService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTime;

@@ -19,9 +19,9 @@
 
 package com.auditbucket.engine.repo.neo4j;
 
+import com.auditbucket.registration.model.Relationship;
 import com.auditbucket.engine.repo.neo4j.model.ConceptNode;
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.Relationship;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
@@ -38,6 +38,5 @@ public interface ConceptTypeRepo extends GraphRepository<ConceptNode> {
                             " -[:HAS_CONCEPT]->(concept:_Concept)" +
                             "        where id(company)={0} and doc.name in{1}" +
                             "       return concept")
-
     Relationship findRelationship(Company company, String conceptName, String relationship);
 }

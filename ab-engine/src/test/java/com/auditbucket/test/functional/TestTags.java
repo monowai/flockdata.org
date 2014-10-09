@@ -21,9 +21,9 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.engine.PropertyConversion;
 import com.auditbucket.helper.DatagioTagException;
-import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.model.Tag;
+import com.auditbucket.registration.bean.TagInputBean;
 import org.junit.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

@@ -1,8 +1,8 @@
 package com.auditbucket.authentication.handler;
 
+import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.SystemUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

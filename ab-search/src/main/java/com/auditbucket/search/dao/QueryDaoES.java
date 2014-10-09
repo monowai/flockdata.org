@@ -19,10 +19,10 @@
 
 package com.auditbucket.search.dao;
 
+import com.auditbucket.search.model.EntitySearchSchema;
 import com.auditbucket.dao.QueryDao;
 import com.auditbucket.helper.FlockException;
 import com.auditbucket.search.helper.QueryGenerator;
-import com.auditbucket.search.model.EntitySearchSchema;
 import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.QueryParams;
 import com.auditbucket.search.model.SearchResult;

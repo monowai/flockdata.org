@@ -20,8 +20,8 @@
 package com.auditbucket.track.bean;
 
 import com.auditbucket.track.model.Entity;
-import com.auditbucket.track.model.EntityLog;
 import com.auditbucket.track.model.TrackTag;
+import com.auditbucket.track.model.EntityLog;
 
 import java.util.Collection;
 import java.util.Set;

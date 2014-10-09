@@ -20,9 +20,9 @@
 package com.auditbucket.engine.service;
 
 import com.auditbucket.search.model.EntitySearchChanges;
+import com.auditbucket.track.model.Entity;
 import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.QueryParams;
-import com.auditbucket.track.model.Entity;
 import org.springframework.integration.annotation.Gateway;
 
 /**

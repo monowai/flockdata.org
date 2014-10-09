@@ -19,8 +19,9 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.engine.repo.neo4j.EntityDaoNeo;
 import com.auditbucket.helper.VersionHelper;
+import com.auditbucket.engine.repo.neo4j.EntityDaoNeo;
+import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.search.model.PingResult;
 import org.slf4j.Logger;
@@ -57,7 +58,7 @@ public class EngineConfig {
 
     private Boolean multiTenanted = false;
 
-    private com.auditbucket.kv.service.KvService.KV_STORE kvStore = null;
+    private KvService.KV_STORE kvStore = null;
 
     @Qualifier("abMonitoringGateway")
     @Autowired
@@ -97,16 +98,16 @@ public class EngineConfig {
     @Value("${abengine.kvStore}")
     public void setKvStore(String kvStore) {
         if ("@null".equals(kvStore) || kvStore.equalsIgnoreCase("redis"))
-            this.kvStore = com.auditbucket.kv.service.KvService.KV_STORE.REDIS;
+            this.kvStore = KvService.KV_STORE.REDIS;
         else if (kvStore.equalsIgnoreCase("riak"))
-            this.kvStore = com.auditbucket.kv.service.KvService.KV_STORE.RIAK;
+            this.kvStore = KvService.KV_STORE.RIAK;
         else {
             logger.error("Unable to resolve the abengine.kvstore property [" + kvStore + "]. Defaulting to REDIS");
         }
 
     }
 
-    public com.auditbucket.kv.service.KvService.KV_STORE getKvStore() {
+    public KvService.KV_STORE getKvStore() {
         return kvStore;
     }
 

@@ -1,7 +1,6 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.authentication.handler.ApiKeyInterceptor;
-import com.auditbucket.registration.bean.RegistrationBean;
 import com.auditbucket.registration.model.Company;
 import junit.framework.Assert;
 import org.junit.After;
@@ -40,7 +39,8 @@ public class TestApiKeyInterceptor extends TestEngineBase {
 	@Test
 	public void givenValidAPIKey_WhenCallingSecureAPI_ThenShouldBeAllowed()
 			throws Exception {
-		String apiKey = registerSystemUser(monowai, mike_admin)
+        String companyName = "SecAPI";
+		String apiKey = registerSystemUser(companyName, mike_admin)
 				.getApiKey();
 
 		request.setRequestURI("/fortress/");
@@ -51,7 +51,7 @@ public class TestApiKeyInterceptor extends TestEngineBase {
         Company company = (Company) request.getAttribute("company");
         assertNotNull (company);
 
-		Assert.assertEquals("Monowai", company.getName());
+		Assert.assertEquals(companyName, company.getName());
 	}
 
 	@Test

@@ -18,6 +18,7 @@
  */
 package com.auditbucket.registration;
 
+import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.helper.FlockException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.RegistrationBean;
@@ -36,7 +37,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class RegistrationServiceNeo4j implements com.auditbucket.registration.service.RegistrationService {
+public class RegistrationServiceNeo4j implements RegistrationService {
 
     @Autowired
     private CompanyService companyService;

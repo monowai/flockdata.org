@@ -3,6 +3,10 @@ package com.auditbucket.test.endpoint;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+
+import com.auditbucket.authentication.LoginRequest;
+import com.auditbucket.authentication.UserProfile;
+import com.auditbucket.helper.JsonUtils;
 import junit.framework.Assert;
 
 import org.junit.Before;
@@ -19,10 +23,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
-import com.auditbucket.authentication.LoginRequest;
-import com.auditbucket.authentication.UserProfile;
-import com.auditbucket.helper.JsonUtils;
 
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)

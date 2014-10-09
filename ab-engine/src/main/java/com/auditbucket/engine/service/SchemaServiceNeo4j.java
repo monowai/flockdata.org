@@ -19,14 +19,15 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.engine.repo.neo4j.dao.SchemaDaoNeo4j;
 import com.auditbucket.registration.bean.TagInputBean;
-import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.track.bean.ConceptInputBean;
 import com.auditbucket.track.bean.DocumentResultBean;
 import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
+import com.auditbucket.track.service.SchemaService;
+import com.auditbucket.engine.repo.neo4j.dao.SchemaDaoNeo4j;
+import com.auditbucket.registration.model.Company;
 import com.auditbucket.track.model.DocumentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +43,7 @@ import java.util.*;
  * Time: 7:43 AM
  */
 @Service
-public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaService {
+public class SchemaServiceNeo4j implements SchemaService {
     @Autowired
     SchemaDaoNeo4j schemaDao;
 
@@ -56,13 +57,13 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
 
     /**
      * @param fortress     system that has an interest
-     * @param documentType name of the doc type
+     * @param documentCode name of the doc type
      * @return resolved document. Created if missing
      */
     @Override
     @Transactional
-    public DocumentType resolveDocType(Fortress fortress, String documentType) {
-        return resolveDocType(fortress, documentType, true);
+    public DocumentType resolveDocType(Fortress fortress, String documentCode) {
+        return resolveDocCode(fortress, documentCode, true);
     }
 
     /**
@@ -70,18 +71,18 @@ public class SchemaServiceNeo4j implements com.auditbucket.track.service.SchemaS
      * There should only exist one document type for a given company
      *
      * @param fortress        system that has an interest
-     * @param documentType    name of the document
+     * @param documentCode    name of the document
      * @param createIfMissing create document types that are missing
      * @return created DocumentType
      */
     @Override
     @Transactional
-    public DocumentType resolveDocType(Fortress fortress, String documentType, Boolean createIfMissing) {
-        if (documentType == null) {
+    public DocumentType resolveDocCode(Fortress fortress, String documentCode, Boolean createIfMissing) {
+        if (documentCode == null) {
             throw new IllegalArgumentException("DocumentType cannot be null");
         }
 
-        return schemaDao.findDocumentType(fortress, documentType, createIfMissing);
+        return schemaDao.findDocumentType(fortress, documentCode, createIfMissing);
 
     }
 

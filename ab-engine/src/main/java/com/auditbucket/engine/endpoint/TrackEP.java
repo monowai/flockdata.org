@@ -23,7 +23,6 @@ import com.auditbucket.engine.service.FortressService;
 import com.auditbucket.engine.service.TxService;
 import com.auditbucket.helper.CompanyResolver;
 import com.auditbucket.helper.FlockException;
-import com.auditbucket.helper.NotFoundException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.model.Company;
@@ -35,6 +34,7 @@ import com.auditbucket.track.service.EntityTagService;
 import com.auditbucket.track.service.LogService;
 import com.auditbucket.track.service.MediationFacade;
 import com.auditbucket.track.service.TrackService;
+import com.auditbucket.helper.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -217,7 +217,8 @@ public class TrackEP {
 
 
     @RequestMapping(value = "/{metaKey}/summary", produces = "application/json", method = RequestMethod.GET)
-    public @ResponseBody EntitySummaryBean getEntitySummary(@PathVariable("metaKey") String metaKey,
+    public @ResponseBody
+    EntitySummaryBean getEntitySummary(@PathVariable("metaKey") String metaKey,
                                                             HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return mediationFacade.getEntitySummary(company, metaKey);

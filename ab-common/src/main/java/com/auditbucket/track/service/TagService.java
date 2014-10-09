@@ -1,9 +1,9 @@
 package com.auditbucket.track.service;
 
+import com.auditbucket.registration.model.Tag;
 import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.Tag;
 import org.springframework.scheduling.annotation.Async;
 
 import java.io.IOException;

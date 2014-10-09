@@ -1,13 +1,13 @@
 package com.auditbucket.test.functional;
 
-import com.auditbucket.helper.FlockException;
-import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.track.bean.CrossReferenceInputBean;
+import com.auditbucket.track.model.Entity;
+import com.auditbucket.helper.FlockException;
+import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
-import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.EntityKey;
 import org.joda.time.DateTime;
 import org.junit.Test;

@@ -19,13 +19,13 @@
 
 package com.auditbucket.engine.service;
 
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.engine.repo.redis.RedisRepo;
 import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.test.functional.TestEngineBase;
-import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.EntityContent;
@@ -140,7 +140,7 @@ public class KvServiceTest extends TestEngineBase {
 
             assertNotNull(entityContent);
             // Redis should always be available. RIAK is trickier to install
-            if (engineConfig.getKvStore().equals(com.auditbucket.kv.service.KvService.KV_STORE.REDIS) || entityContent.getWhat().keySet().size() > 1) {
+            if (engineConfig.getKvStore().equals(KvService.KV_STORE.REDIS) || entityContent.getWhat().keySet().size() > 1) {
                 validateWhat(what, entityContent);
                 //new EntityContentData(compareTo.getEntityContent(), compareTo)
                 //assertEquals(true, kvService.isSame(entity, entityLog.getLog(), contentInputBean));

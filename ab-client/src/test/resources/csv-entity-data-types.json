@@ -1,6 +1,6 @@
 {
     "documentType": "Athlete",
-    "importType": "csv",
+    "contentType": "csv",
     "tagOrEntity": "entity",
     "entityOnly": true,
     "fortress": {
@@ -10,7 +10,7 @@
     "fortressUser": "mike",
     "batchSize": -1,
     "header": true,
-    "csvHeaders": {
+    "columns": {
         "Title": {
             "callerRef": true,
             "title": true

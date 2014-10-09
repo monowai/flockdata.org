@@ -19,12 +19,12 @@
 
 package com.auditbucket.dao;
 
-import com.auditbucket.helper.FlockException;
-import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.track.model.Entity;
-import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.TrackTag;
+import com.auditbucket.helper.FlockException;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.track.model.Log;
 
 import java.util.Collection;
 import java.util.Map;

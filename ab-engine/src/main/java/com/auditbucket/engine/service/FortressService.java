@@ -20,17 +20,18 @@
 package com.auditbucket.engine.service;
 
 
-import com.auditbucket.engine.repo.neo4j.dao.FortressDao;
-import com.auditbucket.engine.repo.neo4j.dao.SchemaDaoNeo4j;
-import com.auditbucket.helper.FlockException;
-import com.auditbucket.helper.SecurityHelper;
-import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.model.Company;
+import com.auditbucket.helper.NotFoundException;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.SystemUserService;
 import com.auditbucket.track.bean.DocumentResultBean;
+import com.auditbucket.engine.repo.neo4j.dao.FortressDaoNeo;
+import com.auditbucket.engine.repo.neo4j.dao.SchemaDaoNeo4j;
+import com.auditbucket.helper.FlockException;
+import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.registration.bean.FortressInputBean;
+import com.auditbucket.registration.model.Company;
 import com.auditbucket.track.model.DocumentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,7 @@ import java.util.Collection;
 public class FortressService {
     private Logger logger = LoggerFactory.getLogger(FortressService.class);
     @Autowired
-    private FortressDao fortressDao;
+    private FortressDaoNeo fortressDao;
 
     @Autowired
     private SystemUserService sysUserService;
@@ -65,12 +66,14 @@ public class FortressService {
         return fortressDao.findOneUser(id);
     }
 //    @Cacheable(value = "fortressName", unless = "#result == null")
-    public Fortress findByName(Company company, String fortressName) {
+    public Fortress findByName(Company company, String fortressName) throws NotFoundException {
+        if ( fortressName == null )
+            throw new NotFoundException("Unable to lookup a fortress name with a null value");
         return fortressDao.getFortressByName(company.getId(), fortressName);
     }
 
 
-    public Fortress findByName(String fortressName) {
+    public Fortress findByName(String fortressName) throws NotFoundException {
         Company ownedBy = getCompany();
         return findByName(ownedBy, fortressName);
     }
@@ -111,7 +114,7 @@ public class FortressService {
      * @param fortressUser user to locate
      * @return fortressUser identity
      */
-    public FortressUser getFortressUser(Company company, String fortressName, String fortressUser) {
+    public FortressUser getFortressUser(Company company, String fortressName, String fortressUser) throws NotFoundException {
         Fortress fortress = findByName(company, fortressName);
         if ( fortress == null )
             return null;
@@ -216,7 +219,7 @@ public class FortressService {
     }
 
 
-    public Collection<DocumentResultBean> getFortressDocumentsInUse(Company company, String code) {
+    public Collection<DocumentResultBean> getFortressDocumentsInUse(Company company, String code) throws NotFoundException {
         Fortress fortress = findByCode(company, code);
         if ( fortress == null )
             fortress = findByName(company, code);

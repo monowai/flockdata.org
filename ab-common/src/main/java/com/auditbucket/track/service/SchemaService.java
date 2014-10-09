@@ -23,7 +23,7 @@ public interface SchemaService {
 
     DocumentType resolveDocType(Fortress fortress, String documentType);
 
-    DocumentType resolveDocType(Fortress fortress, String documentType, Boolean createIfMissing);
+    DocumentType resolveDocCode(Fortress fortress, String documentType, Boolean createIfMissing);
 
     void registerConcepts(Company company, Iterable<TrackResultBean> resultBeans);
 

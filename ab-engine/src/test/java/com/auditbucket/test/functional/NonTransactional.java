@@ -1,15 +1,15 @@
 package com.auditbucket.test.functional;
 
-import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.track.bean.CrossReferenceInputBean;
+import com.auditbucket.track.model.TrackTag;
+import com.auditbucket.registration.bean.FortressInputBean;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.EntityKey;
-import com.auditbucket.track.model.TrackTag;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Test;

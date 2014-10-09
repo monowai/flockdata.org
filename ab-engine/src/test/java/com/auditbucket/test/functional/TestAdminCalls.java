@@ -19,6 +19,7 @@
 
 package com.auditbucket.test.functional;
 
+import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.authentication.handler.ApiKeyInterceptor;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.TagInputBean;
@@ -26,7 +27,6 @@ import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.test.endpoint.EngineEndPoints;
 import com.auditbucket.test.utils.Helper;
-import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import org.joda.time.DateTime;

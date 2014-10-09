@@ -103,9 +103,9 @@ public class TestSchemaManagement extends TestEngineBase {
         assertTrue(docType.getCode().contains(docName.toLowerCase()));
         assertEquals(docName, docType.getName());
         // Should be finding by code which is always Lower
-        assertNotNull(schemaService.resolveDocType(fortress, docType.getName().toUpperCase(), false));
+        assertNotNull(schemaService.resolveDocCode(fortress, docType.getName().toUpperCase(), false));
         try {
-            schemaService.resolveDocType(fortress, null, false);
+            schemaService.resolveDocCode(fortress, null, false);
             fail("Null not handled correctly");
         } catch ( IllegalArgumentException e){
             // Good
@@ -123,13 +123,13 @@ public class TestSchemaManagement extends TestEngineBase {
         Fortress fortA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortA", true));
         Fortress fortB = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortB", true));
 
-        DocumentType dType = schemaService.resolveDocType(fortA, "ABC123", true);
+        DocumentType dType = schemaService.resolveDocCode(fortA, "ABC123", true);
         assertNotNull(dType);
         Long id = dType.getId();
-        dType = schemaService.resolveDocType(fortA, "ABC123", false);
+        dType = schemaService.resolveDocCode(fortA, "ABC123", false);
         assertEquals(id, dType.getId());
 
-        DocumentType nextType = schemaService.resolveDocType(fortB, "ABC123", true);
+        DocumentType nextType = schemaService.resolveDocCode(fortB, "ABC123", true);
         assertNotSame("Same company + different fortresses = different document types", dType, nextType);
 
         // Company 2 gets a different tag with the same name

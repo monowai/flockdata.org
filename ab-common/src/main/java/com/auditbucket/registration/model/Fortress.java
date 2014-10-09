@@ -55,4 +55,8 @@ public interface Fortress {
     public String getLanguageTag();
 
     String getCode();
+
+    Boolean isEnabled();
+
+    Boolean isSystem();
 }

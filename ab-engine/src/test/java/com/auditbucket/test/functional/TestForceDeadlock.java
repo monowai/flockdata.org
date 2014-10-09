@@ -24,9 +24,10 @@ import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.model.Tag;
-import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
+import com.auditbucket.track.service.TrackService;
+import com.auditbucket.registration.service.RegistrationService;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +50,7 @@ public class TestForceDeadlock extends TestEngineBase {
 
     private Logger logger = LoggerFactory.getLogger(TestForceDeadlock.class);
     @Autowired
-    com.auditbucket.track.service.TrackService trackService;
+    TrackService trackService;
 
     @Autowired
     RegistrationService regService;

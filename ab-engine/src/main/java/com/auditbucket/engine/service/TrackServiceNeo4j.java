@@ -19,7 +19,11 @@
 
 package com.auditbucket.engine.service;
 
+import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.track.bean.*;
+import com.auditbucket.track.model.*;
 import com.auditbucket.engine.repo.neo4j.EntityDaoNeo;
+import com.auditbucket.track.service.TagService;
 import com.auditbucket.helper.FlockException;
 import com.auditbucket.helper.NotFoundException;
 import com.auditbucket.helper.SecurityHelper;
@@ -27,13 +31,10 @@ import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
-import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.SystemUserService;
 import com.auditbucket.search.model.EntitySearchChange;
 import com.auditbucket.search.model.SearchResult;
-import com.auditbucket.track.bean.*;
-import com.auditbucket.track.model.*;
 import com.auditbucket.track.service.EntityTagService;
 import com.auditbucket.track.service.SchemaService;
 import com.auditbucket.track.service.TrackService;
@@ -88,7 +89,7 @@ public class TrackServiceNeo4j implements TrackService {
     EntityDaoNeo trackDao;
 
     @Autowired
-    com.auditbucket.track.service.TagService tagService;
+    TagService tagService;
 
     private Logger logger = LoggerFactory.getLogger(TrackServiceNeo4j.class);
 
@@ -115,7 +116,7 @@ public class TrackServiceNeo4j implements TrackService {
         if (ah != null) {
             logger.debug("Existing entity record found by Caller Ref [{}] found [{}]", entityInputBean.getCallerRef(), ah.getMetaKey());
             entityInputBean.setMetaKey(ah.getMetaKey());
-
+            logger.debug("Existing AH [{}]", ah);
             TrackResultBean arb = new TrackResultBean(ah);
             arb.setEntityInputBean(entityInputBean);
             arb.entityExisted();
@@ -325,12 +326,12 @@ public class TrackServiceNeo4j implements TrackService {
     }
 
     @Override
-    public Entity findByCallerRef(Company company, String fortress, String documentType, String callerRef){
+    public Entity findByCallerRef(Company company, String fortress, String documentCode, String callerRef) throws NotFoundException {
         Fortress iFortress = fortressService.findByName(company, fortress);
         if (iFortress == null)
             return null;
 
-        return findByCallerRef(iFortress, documentType, callerRef);
+        return findByCallerRef(iFortress, documentCode, callerRef);
     }
 
     @Override
@@ -364,7 +365,7 @@ public class TrackServiceNeo4j implements TrackService {
      * @return entities
      */
     @Override
-    public Iterable<Entity> findByCallerRef(Company company, String fortressName, String callerRef) {
+    public Iterable<Entity> findByCallerRef(Company company, String fortressName, String callerRef) throws NotFoundException {
         Fortress fortress = fortressService.findByName(company, fortressName);
         return findByCallerRef(fortress, callerRef);
     }
@@ -375,11 +376,11 @@ public class TrackServiceNeo4j implements TrackService {
 
 
     @Override
-    public Entity findByCallerRef(Fortress fortress, String documentType, String callerRef) {
+    public Entity findByCallerRef(Fortress fortress, String documentCode, String callerRef) {
 
-        DocumentType doc = schemaService.resolveDocType(fortress, documentType, false);
+        DocumentType doc = schemaService.resolveDocCode(fortress, documentCode, false);
         if (doc == null) {
-            logger.debug("Unable to find document for callerRef {}, {}, {}", fortress, documentType, callerRef);
+            logger.debug("Unable to find document for callerRef {}, {}, {}", fortress, documentCode, callerRef);
             return null;
         }
         return findByCallerRef(fortress, doc, callerRef);
@@ -392,7 +393,7 @@ public class TrackServiceNeo4j implements TrackService {
      * @param callerRef    fortressName primary key
      * @return LogResultBean or NULL.
      */
-    private Entity findByCallerRef(Fortress fortress, DocumentType documentType, String callerRef) {
+    public Entity findByCallerRef(Fortress fortress, DocumentType documentType, String callerRef) {
         return trackDao.findByCallerRef(fortress.getId(), documentType.getId(), callerRef.trim());
     }
 
@@ -504,10 +505,10 @@ public class TrackServiceNeo4j implements TrackService {
         if ( f == null )
             throw new FlockException("Unable to locate the fortress "+sourceKey.getFortressName());
         Entity fromEntity;
-        if (sourceKey.getDocumentType() == null || sourceKey.getDocumentType().equals("*"))
+        if (sourceKey.getDocumentCode() == null || sourceKey.getDocumentCode().equals("*"))
             fromEntity = trackDao.findByCallerRefUnique(f.getId(), sourceKey.getCallerRef());
         else {
-            DocumentType document = schemaService.resolveDocType(f, sourceKey.getDocumentType(), false);
+            DocumentType document = schemaService.resolveDocCode(f, sourceKey.getDocumentCode(), false);
             fromEntity = trackDao.findByCallerRef(f.getId(), document.getId(), sourceKey.getCallerRef());
         }
         if (fromEntity == null)
@@ -521,10 +522,10 @@ public class TrackServiceNeo4j implements TrackService {
             int count = 1;
 
             Collection<Entity> entities;
-            if (entityKey.getDocumentType().equals("*"))
+            if (entityKey.getDocumentCode().equals("*"))
                 entities = findByCallerRef(f, entityKey.getCallerRef());
             else {
-                Entity mh = findByCallerRef(fortressService.findByName(company, entityKey.getFortressName()), entityKey.getDocumentType(), entityKey.getCallerRef());
+                Entity mh = findByCallerRef(fortressService.findByName(company, entityKey.getFortressName()), entityKey.getDocumentCode(), entityKey.getCallerRef());
                 if (mh == null) {
                     ignored.add(entityKey);
                     entities = null;

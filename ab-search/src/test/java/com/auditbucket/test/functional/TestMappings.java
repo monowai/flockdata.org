@@ -1,20 +1,20 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.engine.repo.neo4j.model.*;
-import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
 import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.search.model.EntitySearchSchema;
+import com.auditbucket.track.bean.ContentInputBean;
+import com.auditbucket.track.model.Entity;
+import com.auditbucket.track.model.TrackTag;
+import com.auditbucket.registration.bean.FortressInputBean;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.search.endpoint.ElasticSearchEP;
 import com.auditbucket.search.model.EntitySearchChange;
-import com.auditbucket.search.model.EntitySearchSchema;
-import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
-import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.SearchChange;
 import com.auditbucket.track.model.TrackSearchDao;
-import com.auditbucket.track.model.TrackTag;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;

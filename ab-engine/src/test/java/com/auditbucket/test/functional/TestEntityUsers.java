@@ -1,13 +1,14 @@
 package com.auditbucket.test.functional;
 
-import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.test.utils.Helper;
 import com.auditbucket.track.bean.ContentInputBean;
-import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.model.Entity;
+import com.auditbucket.registration.bean.FortressInputBean;
+import com.auditbucket.test.utils.Helper;
+import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.model.EntityLog;
+import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -46,7 +47,7 @@ public class TestEntityUsers extends TestEngineBase  {
             mediationFacade.trackEntity(su.getCompany(), entityBean);
             logger.info("Tracked...");
             Entity entity = trackService.findByCallerRef(fortWP, "CompanyNode", callerRef);
-            assertEquals("poppy", entity.getCreatedBy().getCode().toLowerCase());
+            Assert.assertEquals("poppy", entity.getCreatedBy().getCode().toLowerCase());
 
             Set<EntityLog> logs = trackService.getEntityLogs(su.getCompany(), entity.getMetaKey());
             assertEquals(1, logs.size());
@@ -58,7 +59,7 @@ public class TestEntityUsers extends TestEngineBase  {
             assertTrue("Event name incorrect", log.getLog().getEvent().getCode().equalsIgnoreCase("answer"));
 
             entity = trackService.findByCallerRef(fortWP, "CompanyNode", callerRef);
-            assertEquals("poppy", entity.getCreatedBy().getCode().toLowerCase());
+            Assert.assertEquals("poppy", entity.getCreatedBy().getCode().toLowerCase());
 
             logs = trackService.getEntityLogs(su.getCompany(), entity.getMetaKey());
             assertTrue(logs.size()==2);
