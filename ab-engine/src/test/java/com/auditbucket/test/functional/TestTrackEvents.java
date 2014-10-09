@@ -49,7 +49,7 @@ public class TestTrackEvents extends TestEngineBase{
 
     @Test
     public void noDuplicateEventsForACompany() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("noDuplicateEventsForACompany", mike_admin);
         Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest"));
         Company company = fortressA.getCompany();
         assertNotNull(company);
@@ -75,7 +75,7 @@ public class TestTrackEvents extends TestEngineBase{
     @Test
     public void defaultEventTypesAreHandled() throws Exception {
 
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("defaultEventTypesAreHandled", mike_admin);
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("defaultEventTypes", true));
 
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");

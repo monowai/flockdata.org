@@ -64,7 +64,7 @@ public class TestEntityTags extends TestEngineBase {
 
     @Test
     public void simpleTagAgainstEntity() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("simpleTagAgainstEntity", mike_admin);
         assertNotNull(su);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
         assertNotNull(fortress);
@@ -100,7 +100,7 @@ public class TestEntityTags extends TestEngineBase {
     @Test
     public void renameRelationship() throws Exception {
 
-        SystemUser su= registerSystemUser(monowai, mike_admin);
+        SystemUser su= registerSystemUser("renameRelationship", mike_admin);
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC",true));
 
         TagInputBean tagInput = new TagInputBean("FLOP");
@@ -131,7 +131,7 @@ public class TestEntityTags extends TestEngineBase {
     @Test
     public void createAndDeleteTrackTags() throws Exception {
 
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("createAndDeleteTrackTags", mike_admin);
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC",true));
 
         TagInputBean tagInput = new TagInputBean("FLOP");
@@ -166,7 +166,7 @@ public class TestEntityTags extends TestEngineBase {
 
     @Test
     public void nullTagValueCRUD() throws Exception {
-        SystemUser su= registerSystemUser(monowai, mike_admin);
+        SystemUser su= registerSystemUser("nullTagValueCRUD", mike_admin);
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC",true));
 
         TagInputBean tagInput = new TagInputBean("FLOP");
@@ -205,7 +205,7 @@ public class TestEntityTags extends TestEngineBase {
 
     @Test
     public void nullCodeValue() throws Exception {
-        SystemUser su= registerSystemUser(monowai, mike_admin);
+        SystemUser su= registerSystemUser("nullCodeValue", mike_admin);
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC",true));
 
         TagInputBean tagInput = new TagInputBean("FLOP");
@@ -226,7 +226,7 @@ public class TestEntityTags extends TestEngineBase {
     }
     @Test
     public void duplicateTagNotCreated() throws Exception {
-        SystemUser su= registerSystemUser(monowai, mike_admin);
+        SystemUser su= registerSystemUser("duplicateTagNotCreated", mike_admin);
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC",true));
 
         TagInputBean tagInput = new TagInputBean("FLOP");
@@ -252,7 +252,7 @@ public class TestEntityTags extends TestEngineBase {
 
     @Test
     public void noTrackTagsAreReturned() throws Exception {
-        SystemUser su= registerSystemUser(monowai, mike_admin);
+        SystemUser su= registerSystemUser("noTrackTagsAreReturned", mike_admin);
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC"));
 
         TagInputBean tagInput = new TagInputBean("FLOP");
@@ -279,7 +279,7 @@ public class TestEntityTags extends TestEngineBase {
 
     @Test
     public void createLogForInvalidEntity() throws Exception{
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("createLogForInvalidEntity", mike_admin);
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC"));
 
         EntityInputBean entity = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
@@ -296,7 +296,7 @@ public class TestEntityTags extends TestEngineBase {
     }
     @Test
     public void createLogForValidEntityWithNoContent() throws Exception{
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("createLogForValidEntityWithNoContent", mike_admin);
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
 
         EntityInputBean entity = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
@@ -308,7 +308,7 @@ public class TestEntityTags extends TestEngineBase {
 
     @Test
     public void differentTagTypeSameTagName() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("differentTagTypeSameTagName", mike_admin);
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
 
         TagInputBean tagInput = new TagInputBean("FLOP");
@@ -337,7 +337,7 @@ public class TestEntityTags extends TestEngineBase {
 
     @Test
     public void tagListAndSingular() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("tagListAndSingular", mike_admin);
         assertNotNull(su);
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC",true));
@@ -361,7 +361,7 @@ public class TestEntityTags extends TestEngineBase {
 
     @Test
     public void mapRelationshipsWithNullProperties() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("mapRelationshipsWithNullProperties", mike_admin);
         assertNotNull(su);
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC",true));
@@ -384,7 +384,7 @@ public class TestEntityTags extends TestEngineBase {
 
     @Test
     public void mapRelationshipsWithProperties() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("mapRelationshipsWithProperties", mike_admin);
         assertNotNull(su);
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC",true));
@@ -412,7 +412,7 @@ public class TestEntityTags extends TestEngineBase {
 
     @Test
     public void duplicateRLXTypesNotStored() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("duplicateRLXTypesNotStored", mike_admin);
         assertNotNull(su);
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC",true));
@@ -434,7 +434,7 @@ public class TestEntityTags extends TestEngineBase {
 
     @Test
     public void directedEntityTagsWork()throws Exception{
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("directedEntityTagsWork", mike_admin);
         assertNotNull(su);
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC",true));
@@ -459,7 +459,7 @@ public class TestEntityTags extends TestEngineBase {
     @Test
     public void tagsAndValuesWithSpaces() throws Exception {
 
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("tagsAndValuesWithSpaces", mike_admin);
         assertNotNull(su);
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC",true));
@@ -486,7 +486,7 @@ public class TestEntityTags extends TestEngineBase {
     public void entity_nestedTagStructure() throws Exception {
 
         SecurityContextHolder.getContext().setAuthentication(authDefault);
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("entity_nestedTagStructure", mike_admin);
         assertNotNull(su);
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC",true));
@@ -524,7 +524,7 @@ public class TestEntityTags extends TestEngineBase {
 
     @Test
     public void usGeographyStructure() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("usGeographyStructure", mike_admin);
         assertNotNull(su);
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC",true));
@@ -568,7 +568,7 @@ public class TestEntityTags extends TestEngineBase {
 
     @Test
     public void tagsInSearchDoc() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("tagsInSearchDoc", mike_admin);
         assertNotNull(su);
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC",true));
@@ -608,7 +608,7 @@ public class TestEntityTags extends TestEngineBase {
         authorTag.addEntityLink("writer");
         authorTag.addEntityLink("lead");
 
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("targetTagWithAuditRelationship", mike_admin);
         assertNotNull(su);
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC",true));
@@ -639,7 +639,7 @@ public class TestEntityTags extends TestEngineBase {
 
     @Test
     public void geoTag() throws Exception {
-        SystemUser su = registerSystemUser( monowai, mike_admin);
+        SystemUser su = registerSystemUser( "geoTag", mike_admin);
         assertNotNull(su);
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC",true));
@@ -688,7 +688,7 @@ public class TestEntityTags extends TestEngineBase {
 
     @Test
     public void tagsAreUpdatedOnEntityUpdate() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("tagsAreUpdatedOnEntityUpdate", mike_admin);
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC",true));
 
         TagInputBean tagInput = new TagInputBean("TEST-CREATE", "rlx-test");
@@ -755,7 +755,7 @@ public class TestEntityTags extends TestEngineBase {
 
     @Test
     public void oneTagRemovedFromASetOfTwo() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("oneTagRemovedFromASetOfTwo", mike_admin);
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC",true));
 
         TagInputBean tagInput = new TagInputBean("TAG-FIRST", "rlx-test");
@@ -800,7 +800,7 @@ public class TestEntityTags extends TestEngineBase {
 
     @Test
     public void addNewTagToExistingEntity() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("addNewTagToExistingEntity", mike_admin);
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC",true));
 
         //assertNotNull(result);
@@ -826,7 +826,7 @@ public class TestEntityTags extends TestEngineBase {
 
     @Test
     public void directionalTagsAndRelationshipPropertiesPreserved() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("directionalTagsAndRelationshipPropertiesPreserved", mike_admin);
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC",true));
 
         EntityInputBean inputBean = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc1");
@@ -894,7 +894,7 @@ public class TestEntityTags extends TestEngineBase {
 
     @Test
     public void addNewTagToExistingEntityWithNoLog() throws Exception {
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("addNewTagToExistingEntityWithNoLog", mike_admin);
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
 
         //assertNotNull(result);
@@ -917,7 +917,7 @@ public class TestEntityTags extends TestEngineBase {
     }
     @Test
     public void search() throws Exception{
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("search", mike_admin);
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("cancelLogTag", true));
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "CancelDoc", new DateTime(), "ABC123");
         ContentInputBean log = new ContentInputBean("wally", new DateTime(),  Helper.getRandomMap());

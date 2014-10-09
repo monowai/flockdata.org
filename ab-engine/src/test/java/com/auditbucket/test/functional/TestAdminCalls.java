@@ -67,7 +67,7 @@ public class TestAdminCalls extends TestEngineBase {
     @Test
     public void deleteFortressWithEntitiesAndTagsOnly() throws Exception {
 
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("deleteFortressPurgesEntitiesAndLogs", mike_admin);
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
 
@@ -103,7 +103,7 @@ public class TestAdminCalls extends TestEngineBase {
     @Test
     public void deleteFortressPurgesEntitiesAndLogs() throws Exception {
 
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("deleteFortressPurgesEntitiesAndLogs", mike_admin);
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
 
@@ -135,7 +135,7 @@ public class TestAdminCalls extends TestEngineBase {
     @Test
     public void deleteFortressPurgesDataWithTags() throws Exception {
 
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("deleteFortressPurgesDataWithTags", mike_admin);
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
         TagInputBean tagInputBean = new TagInputBean("DeleteTest", "NamedTag", "deltest");
@@ -173,7 +173,7 @@ public class TestAdminCalls extends TestEngineBase {
     @Test
     public void purgeFortressClearsDown() throws Exception {
         setSecurity();
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        SystemUser su = registerSystemUser("deleteFortressPurgesEntitiesAndLogs", mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("purgeFortressClearsDown", true));
 
         EntityInputBean trackBean = new EntityInputBean(fortress.getName(), "olivia@ast.com", "CompanyNode", null, "abc2");
