@@ -19,11 +19,10 @@
 
 package com.auditbucket.engine.repo;
 
-import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.track.model.EntityContent;
+import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.track.model.KvContent;
 import com.auditbucket.track.model.Log;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import org.springframework.data.annotation.Transient;

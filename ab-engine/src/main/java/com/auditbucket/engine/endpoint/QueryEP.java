@@ -1,8 +1,10 @@
 package com.auditbucket.engine.endpoint;
 
-import com.auditbucket.engine.service.MatrixService;
 import com.auditbucket.engine.service.QueryService;
 import com.auditbucket.helper.CompanyResolver;
+import com.auditbucket.track.bean.DocumentResultBean;
+import com.auditbucket.engine.service.MatrixService;
+import com.auditbucket.track.service.MediationFacade;
 import com.auditbucket.helper.FlockException;
 import com.auditbucket.query.MatrixInputBean;
 import com.auditbucket.query.MatrixResults;
@@ -10,7 +12,6 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.service.RegistrationService;
 import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.QueryParams;
-import com.auditbucket.track.bean.DocumentResultBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,7 +38,7 @@ public class QueryEP {
     RegistrationService registrationService;
 
     @Autowired
-    com.auditbucket.track.service.MediationFacade mediationFacade;
+    MediationFacade mediationFacade;
 
 
     @RequestMapping(value = "/matrix", method = RequestMethod.POST)

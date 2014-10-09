@@ -1,10 +1,10 @@
 package com.auditbucket.kv.service;
 
-import com.auditbucket.track.bean.DeltaBean;
 import com.auditbucket.track.bean.ContentInputBean;
-import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.EntityContent;
+import com.auditbucket.track.bean.DeltaBean;
+import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.Log;
 
 import java.io.IOException;

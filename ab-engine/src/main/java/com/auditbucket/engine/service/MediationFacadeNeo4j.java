@@ -19,6 +19,8 @@
 
 package com.auditbucket.engine.service;
 
+import com.auditbucket.track.bean.ContentInputBean;
+import com.auditbucket.track.service.*;
 import com.auditbucket.helper.FlockException;
 import com.auditbucket.helper.NotFoundException;
 import com.auditbucket.helper.SecurityHelper;
@@ -32,14 +34,12 @@ import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.search.model.EntitySearchChange;
 import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.QueryParams;
-import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.EntitySummaryBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.EntityLog;
 import com.auditbucket.track.model.SearchChange;
-import com.auditbucket.track.service.*;
 import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -199,7 +199,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
     }
 
-    private Map<Fortress, List<EntityInputBean>> getEntitiesByFortress(Company company, List<EntityInputBean> entityInputBeans) {
+    private Map<Fortress, List<EntityInputBean>> getEntitiesByFortress(Company company, List<EntityInputBean> entityInputBeans) throws NotFoundException {
         Map<Fortress, List<EntityInputBean>> fortressInput = new HashMap<>();
 
         // Local cache of fortress by name - never very big, often only 1

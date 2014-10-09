@@ -1,8 +1,8 @@
 package com.auditbucket.track.service;
 
+import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.EntityLog;

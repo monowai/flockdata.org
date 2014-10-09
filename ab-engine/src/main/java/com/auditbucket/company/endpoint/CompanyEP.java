@@ -19,6 +19,7 @@
 
 package com.auditbucket.company.endpoint;
 
+import com.auditbucket.track.service.SchemaService;
 import com.auditbucket.helper.ApiKeyHelper;
 import com.auditbucket.helper.FlockException;
 import com.auditbucket.helper.SecurityHelper;
@@ -51,7 +52,7 @@ public class CompanyEP {
     CompanyService companyService;
 
     @Autowired
-    com.auditbucket.track.service.SchemaService schemaService;
+    SchemaService schemaService;
 
     @Autowired
     SecurityHelper securityHelper;

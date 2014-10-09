@@ -19,6 +19,7 @@
 
 package com.auditbucket.engine.repo.neo4j;
 
+import com.auditbucket.track.model.TrackTag;
 import com.auditbucket.engine.repo.neo4j.model.EntityNode;
 import com.auditbucket.engine.repo.neo4j.model.TagNode;
 import com.auditbucket.engine.repo.neo4j.model.TrackTagRelationship;
@@ -29,7 +30,6 @@ import com.auditbucket.registration.model.Tag;
 import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.GeoData;
 import com.auditbucket.track.model.Log;
-import com.auditbucket.track.model.TrackTag;
 import com.auditbucket.track.service.TagService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;

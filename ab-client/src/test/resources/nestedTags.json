@@ -1,16 +1,13 @@
 {
     "documentType": "Sales",
-    "importType": "csv",
+    "contentType": "csv",
     "tagOrTrack": "track",
     "staticDataClazz": "com.absales.DataResolver",
     "entityOnly": false,
-    "fortress": {
-        "name": "Sales",
-        "search": true
-    },
+    "fortress": "Sales",
     "fortressUser": "batch",
     "header": true,
-    "csvHeaders": {
+    "columns": {
         "transaction_id": {
             "callerRef": true
         },

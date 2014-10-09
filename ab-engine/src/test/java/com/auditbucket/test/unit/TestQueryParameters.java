@@ -19,8 +19,8 @@
 
 package com.auditbucket.test.unit;
 
-import com.auditbucket.helper.NeoSyntaxHelper;
 import com.auditbucket.query.MatrixInputBean;
+import com.auditbucket.helper.NeoSyntaxHelper;
 import org.junit.Test;
 
 import java.util.ArrayList;

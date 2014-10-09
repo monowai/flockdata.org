@@ -19,9 +19,9 @@
 
 package com.auditbucket.engine.repo.neo4j.model;
 
+import com.auditbucket.registration.model.Tag;
 import com.auditbucket.engine.PropertyConversion;
 import com.auditbucket.registration.bean.TagInputBean;
-import com.auditbucket.registration.model.Tag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.neo4j.graphdb.Node;

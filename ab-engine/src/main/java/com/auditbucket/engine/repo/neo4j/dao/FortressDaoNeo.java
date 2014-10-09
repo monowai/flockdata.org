@@ -21,6 +21,13 @@ package com.auditbucket.engine.repo.neo4j.dao;
 
 import java.util.List;
 
+import com.auditbucket.engine.repo.neo4j.FortressUserRepository;
+import com.auditbucket.engine.repo.neo4j.model.FortressNode;
+import com.auditbucket.engine.repo.neo4j.model.FortressUserNode;
+import com.auditbucket.registration.bean.FortressInputBean;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.FortressUser;
+import com.auditbucket.registration.service.KeyGenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,14 +35,7 @@ import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.auditbucket.engine.repo.neo4j.FortressRepository;
-import com.auditbucket.engine.repo.neo4j.FortressUserRepository;
-import com.auditbucket.engine.repo.neo4j.model.FortressNode;
-import com.auditbucket.engine.repo.neo4j.model.FortressUserNode;
-import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.model.FortressUser;
-import com.auditbucket.registration.service.KeyGenService;
 
 /**
  * User: Mike Holdsworth
@@ -43,7 +43,7 @@ import com.auditbucket.registration.service.KeyGenService;
  * Time: 10:29 PM
  */
 @Repository
-public class FortressDaoNeo implements FortressDao {
+public class FortressDaoNeo  {
     @Autowired
     private FortressRepository fortressRepo;
 
@@ -55,19 +55,16 @@ public class FortressDaoNeo implements FortressDao {
 
     private Logger logger = LoggerFactory.getLogger(FortressDaoNeo.class);
 
-    @Override
     public Fortress save(Company company, FortressInputBean fortressInput) {
         FortressNode fortress = new FortressNode(fortressInput, company);
         fortress.setFortressKey(keyGenService.getUniqueKey());
         return fortressRepo.save(fortress);
     }
 
-    @Override
     public Fortress findByPropertyValue(String property, Object value) {
         return fortressRepo.findBySchemaPropertyValue(property, value);
     }
 
-    @Override
     public Fortress findOne(Long fortressId) {
 //        logger.debug("Looking for {}", fortressId);
         return fortressRepo.findOne(fortressId);
@@ -76,43 +73,35 @@ public class FortressDaoNeo implements FortressDao {
     @Autowired
     Neo4jTemplate template;
 
-    @Override
     public FortressUser getFortressUser(Long fortressId, String name) {
         return fortressRepo.getFortressUser(fortressId, name);
     }
 
-    @Override
     public List<Fortress> findFortresses(Long companyID) {
         return fortressRepo.findCompanyFortresses(companyID);
     }
 
-    @Override
     public FortressUser findOneUser(Long fortressUserId) {
         return fortressUserRepo.findOne(fortressUserId);
     }
 
-    @Override
     public FortressUser save(Fortress fortress, String fortressUserName) {
         return fortressUserRepo.save(new FortressUserNode(fortress, fortressUserName));
     }
 
-    @Override
     public void fetch(FortressUser fortressUser) {
         template.fetch(fortressUser);
 
     }
 
-    @Override
     public void delete(Fortress fortress) {
         template.delete(fortress);
     }
 
-    @Override
     public Fortress getFortressByName(Long companyId, String fortressName) {
         return fortressRepo.getFortressByName(companyId, fortressName);
     }
 
-    @Override
     public Fortress getFortressByCode(Long companyId, String fortressCode) {
         return fortressRepo.getFortressByCode(companyId, fortressCode);
     }

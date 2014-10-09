@@ -19,13 +19,13 @@
 
 package com.auditbucket.engine.repo.neo4j.model;
 
-import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.search.model.EntitySearchSchema;
+import com.auditbucket.track.model.Entity;
+import com.auditbucket.helper.FlockException;
+import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.model.DocumentType;
-import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.Log;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;

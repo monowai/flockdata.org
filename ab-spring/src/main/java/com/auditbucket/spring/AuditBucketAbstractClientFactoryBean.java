@@ -1,6 +1,6 @@
 package com.auditbucket.spring;
 
-import com.auditbucket.client.rest.AbRestClient;
+import com.auditbucket.client.rest.FdRestWriter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -9,11 +9,11 @@ import org.springframework.beans.factory.InitializingBean;
 
 
 abstract class AuditBucketAbstractClientFactoryBean extends AuditBucketAbstractFactoryBean
-        implements FactoryBean<AbRestClient>, InitializingBean, DisposableBean {
+        implements FactoryBean<FdRestWriter>, InitializingBean, DisposableBean {
 
     private final Log logger = LogFactory.getLog(getClass());
 
-    private AbRestClient client;
+    private FdRestWriter client;
 
     /**
      * Implement this method to build an AuditBucket client
@@ -21,7 +21,7 @@ abstract class AuditBucketAbstractClientFactoryBean extends AuditBucketAbstractF
      * @return AuditBucket Client
      * @throws Exception if something goes wrong
      */
-    abstract protected AbRestClient buildClient() throws Exception;
+    abstract protected FdRestWriter buildClient() throws Exception;
 
 
     @Override
@@ -32,25 +32,26 @@ abstract class AuditBucketAbstractClientFactoryBean extends AuditBucketAbstractF
 
     @Override
     public void destroy() throws Exception {
-        try {
-            logger.info("Closing AuditBucket client");
-            if (client != null) {
-                client.flush("");
-                //client.close();
-            }
-        } catch (final Exception e) {
-            logger.error("Error closing AuditBucket client: ", e);
-        }
+        // ToDo: FixMe
+//        try {
+//            logger.info("Closing AuditBucket client");
+////            if (client != null) {
+////                client.flush("");
+//                //client.close();
+//            }
+//        } catch (final Exception e) {
+//            logger.error("Error closing AuditBucket client: ", e);
+//        }
     }
 
     @Override
-    public AbRestClient getObject() throws Exception {
+    public FdRestWriter getObject() throws Exception {
         return client;
     }
 
     @Override
-    public Class<AbRestClient> getObjectType() {
-        return AbRestClient.class;
+    public Class<FdRestWriter> getObjectType() {
+        return FdRestWriter.class;
     }
 
     @Override

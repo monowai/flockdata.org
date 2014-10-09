@@ -20,17 +20,17 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.test.utils.Helper;
 import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
-import com.auditbucket.track.model.ChangeEvent;
 import com.auditbucket.track.model.Entity;
-import com.auditbucket.track.model.EntityLog;
 import com.auditbucket.track.model.Log;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.test.utils.Helper;
+import com.auditbucket.track.model.ChangeEvent;
+import com.auditbucket.track.model.EntityLog;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.transaction.annotation.Transactional;

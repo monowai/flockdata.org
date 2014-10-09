@@ -1,13 +1,13 @@
 package com.auditbucket.track.service;
 
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.model.Tag;
+import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.model.Tag;
 import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.QueryParams;
-import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.EntitySummaryBean;
 import com.auditbucket.track.bean.TrackResultBean;

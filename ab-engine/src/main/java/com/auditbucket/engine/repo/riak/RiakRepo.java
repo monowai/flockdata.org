@@ -19,8 +19,8 @@
 
 package com.auditbucket.engine.repo.riak;
 
-import com.auditbucket.engine.repo.KvRepo;
 import com.auditbucket.track.model.Entity;
+import com.auditbucket.engine.repo.KvRepo;
 import com.auditbucket.track.model.Log;
 import com.basho.riak.client.IRiakClient;
 import com.basho.riak.client.IRiakObject;

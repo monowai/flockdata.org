@@ -19,12 +19,12 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.track.bean.ContentInputBean;
+import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.test.utils.Helper;
 import com.auditbucket.track.bean.DeltaBean;
-import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.EntityLog;

@@ -19,22 +19,22 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.engine.repo.neo4j.EntityDaoNeo;
-import com.auditbucket.helper.FlockException;
 import com.auditbucket.kv.service.KvService;
-import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.track.bean.ContentInputBean;
+import com.auditbucket.track.model.Entity;
+import com.auditbucket.track.service.LogService;
+import com.auditbucket.track.service.SchemaService;
+import com.auditbucket.engine.repo.neo4j.EntityDaoNeo;
+import com.auditbucket.helper.FlockException;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.track.bean.LogResultBean;
 import com.auditbucket.track.bean.TrackResultBean;
-import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.EntityLog;
 import com.auditbucket.track.model.Log;
 import com.auditbucket.track.model.TxRef;
-import com.auditbucket.track.service.LogService;
-import com.auditbucket.track.service.SchemaService;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;

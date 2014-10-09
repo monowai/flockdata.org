@@ -19,9 +19,12 @@
 
 package com.auditbucket.engine.repo.neo4j.model;
 
-import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.track.bean.ContentInputBean;
-import com.auditbucket.track.model.*;
+import com.auditbucket.registration.model.FortressUser;
+import com.auditbucket.track.model.ChangeEvent;
+import com.auditbucket.track.model.EntityLog;
+import com.auditbucket.track.model.Log;
+import com.auditbucket.track.model.TxRef;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.neo4j.graphdb.Direction;

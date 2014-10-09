@@ -2,7 +2,6 @@ package com.auditbucket.engine.repo.neo4j.dao;
 
 import com.auditbucket.engine.repo.neo4j.ConceptTypeRepo;
 import com.auditbucket.engine.repo.neo4j.DocumentTypeRepo;
-import com.auditbucket.engine.repo.neo4j.model.ConceptNode;
 import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
@@ -12,6 +11,7 @@ import com.auditbucket.track.bean.ConceptInputBean;
 import com.auditbucket.track.bean.DocumentResultBean;
 import com.auditbucket.track.model.Concept;
 import com.auditbucket.track.model.DocumentType;
+import com.auditbucket.engine.repo.neo4j.model.ConceptNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,20 +72,20 @@ public class SchemaDaoNeo4j {
      * Tracks the DocumentTypes used by a Fortress that can be used to find Entities
      *
      * @param fortress        fortress generating
-     * @param docName         name of the Label
+     * @param docCode         name of the Label
      * @param createIfMissing if not found will create
      * @return the node
      */
-    public DocumentType findDocumentType(Fortress fortress, String docName, Boolean createIfMissing) {
-        DocumentType docResult = documentExists(fortress, docName);
+    public DocumentType findDocumentType(Fortress fortress, String docCode, Boolean createIfMissing) {
+        DocumentType docResult = documentExists(fortress, docCode);
 
         if (docResult == null && createIfMissing) {
             try {
                 lock.lock();
-                docResult = documentExists(fortress, docName);
+                docResult = documentExists(fortress, docCode);
                 if (docResult == null) {
 
-                    docResult = new DocumentTypeNode(fortress, docName);
+                    docResult = new DocumentTypeNode(fortress, docCode);
                     template.save(docResult);
                 }
             } finally{
@@ -107,10 +107,10 @@ public class SchemaDaoNeo4j {
 
 
     //@Cacheable(value = "companyDocType", unless = "#result == null")
-    private DocumentType documentExists(Fortress fortress, String docName) {
+    private DocumentType documentExists(Fortress fortress, String docCode) {
 
-        DocumentType dt = documentTypeRepo.findFortressDocCode(fortress.getId(), DocumentTypeNode.parse(fortress, docName));
-        logger.trace("Document Exists= {} - Looking for {}", dt!=null, DocumentTypeNode.parse(fortress, docName));
+        DocumentType dt = documentTypeRepo.findFortressDocCode(fortress.getId(), DocumentTypeNode.parse(fortress, docCode));
+        logger.trace("Document Exists= {} - Looking for {}", dt!=null, DocumentTypeNode.parse(fortress, docCode));
         return dt;
     }
 
@@ -168,6 +168,7 @@ public class SchemaDaoNeo4j {
     public Boolean ensureSystemIndexes(Company company, String suffix) {
         logger.debug("Creating System Indexes for {} ", company.getName());
         template.query("create constraint on (t:Country) assert t.key is unique", null);
+        // ToDo: This looks wrong. Cities can have the same name in different countries
         template.query("create constraint on (t:City) assert t.key is unique", null);
         logger.debug("Created the indexes");
         return true;
@@ -272,8 +273,8 @@ public class SchemaDaoNeo4j {
         return fauxDocuments;
     }
 
-    public void createDocTypes(ArrayList<String> docTypes, Fortress fortress) {
-        for (String docType : docTypes) {
+    public void createDocTypes(ArrayList<String> docCodes, Fortress fortress) {
+        for (String docType : docCodes) {
             findDocumentType(fortress, docType, true);
         }
 

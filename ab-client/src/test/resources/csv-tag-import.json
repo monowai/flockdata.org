@@ -1,8 +1,8 @@
 {
-    "importType": "csv",
+    "contentType": "csv",
     "tagOrTrack": "tag",
     "header": true,
-    "csvHeaders": {
+    "columns": {
         "device_name": {
             "tag": true,
             "label": "Device",

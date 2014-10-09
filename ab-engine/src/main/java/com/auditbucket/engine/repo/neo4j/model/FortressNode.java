@@ -54,6 +54,8 @@ public class FortressNode implements Fortress {
     private Boolean searchActive = true;
     private String timeZone;
     private String languageTag;
+    private Boolean system = Boolean.FALSE;
+    private Boolean enabled = Boolean.TRUE;
 
     protected FortressNode() {
     }
@@ -66,6 +68,8 @@ public class FortressNode implements Fortress {
         setName(fortressInputBean.getName());
         setSearchActive(fortressInputBean.getSearchActive());
         setCompany(ownedBy);
+        system = fortressInputBean.getSystem();
+        enabled = fortressInputBean.getEnabled();
         if (fortressInputBean.getTimeZone() != null) {
             this.timeZone = fortressInputBean.getTimeZone();
             if (TimeZone.getTimeZone(timeZone) == null)
@@ -161,6 +165,16 @@ public class FortressNode implements Fortress {
 
     public String getCode() {
         return code;
+    }
+
+    @Override
+    public Boolean isEnabled() {
+        return enabled;
+    }
+
+    @Override
+    public Boolean isSystem() {
+        return system;
     }
 
     public void setFortressKey(String fortressKey) {

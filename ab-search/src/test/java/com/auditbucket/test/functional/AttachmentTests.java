@@ -1,12 +1,11 @@
 package com.auditbucket.test.functional;
 
-import com.auditbucket.engine.repo.EntityContentData;
-import com.auditbucket.search.endpoint.ElasticSearchEP;
 import com.auditbucket.search.model.EntitySearchChange;
 import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.model.Entity;
-import com.auditbucket.track.model.SearchChange;
 import com.auditbucket.track.model.TrackSearchDao;
+import com.auditbucket.search.endpoint.ElasticSearchEP;
+import com.auditbucket.track.model.SearchChange;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

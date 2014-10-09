@@ -40,7 +40,7 @@ public class JsonMessage {
     public ModelAndView asModelAndViewError() {
         MappingJackson2JsonView jsonView = new MappingJackson2JsonView();
         HashMap<String,Object> map = new HashMap<>();
-        map.put("error", message);
+        map.put("message", message);
         return new ModelAndView(jsonView, map );
     }
     public ModelAndView asModelAndViewMessage() {

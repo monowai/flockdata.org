@@ -1,8 +1,8 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.registration.bean.RegistrationBean;
-import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.RegistrationService;
 import org.junit.Test;

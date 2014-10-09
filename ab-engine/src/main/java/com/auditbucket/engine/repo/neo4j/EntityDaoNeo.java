@@ -21,19 +21,19 @@ package com.auditbucket.engine.repo.neo4j;
 
 import com.auditbucket.engine.repo.neo4j.model.EntityNode;
 import com.auditbucket.engine.repo.neo4j.model.LogNode;
-import com.auditbucket.engine.repo.neo4j.model.LoggedRelationship;
 import com.auditbucket.engine.repo.neo4j.model.TxRefNode;
 import com.auditbucket.engine.service.TrackEventService;
-import com.auditbucket.helper.FlockException;
 import com.auditbucket.kv.service.KvService;
-import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.service.KeyGenService;
-import com.auditbucket.track.bean.EntityTXResult;
 import com.auditbucket.track.bean.ContentInputBean;
-import com.auditbucket.track.bean.EntityInputBean;
+import com.auditbucket.track.bean.EntityTXResult;
 import com.auditbucket.track.model.*;
+import com.auditbucket.engine.repo.neo4j.model.LoggedRelationship;
+import com.auditbucket.helper.FlockException;
+import com.auditbucket.registration.model.Company;
+import com.auditbucket.track.bean.EntityInputBean;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.neo4j.graphdb.*;
@@ -54,7 +54,7 @@ import java.util.*;
  * Time: 8:00 PM
  */
 @SuppressWarnings("SpringJavaAutowiringInspection")
-@Repository("auditDAO")
+@Repository("entityDao")
 public class EntityDaoNeo {
     @Autowired
     EntityRepo entityRepo;

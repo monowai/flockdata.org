@@ -20,13 +20,14 @@
 package com.auditbucket.engine.service;
 
 import com.auditbucket.engine.repo.neo4j.dao.TagDaoNeo4j;
-import com.auditbucket.helper.Command;
-import com.auditbucket.helper.FlockException;
-import com.auditbucket.helper.SecurityHelper;
+import com.auditbucket.helper.*;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.track.service.TagService;
+import com.auditbucket.helper.Command;
+import com.auditbucket.helper.FlockException;
+import com.auditbucket.helper.SecurityHelper;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,7 +106,7 @@ public class TagServiceNeo4j implements TagService {
             DLCommand c = new DLCommand(tagInputBeans);
             try {
                 try {
-                    com.auditbucket.helper.DeadlockRetry.execute(c, "creating tags", 15);
+                    DeadlockRetry.execute(c, "creating tags", 15);
                 } catch (IOException e) {
                     logger.error("KV Error?", e);
                     throw new FlockException("KV Erro", e);

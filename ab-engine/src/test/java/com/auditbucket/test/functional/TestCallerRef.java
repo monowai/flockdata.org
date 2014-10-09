@@ -20,12 +20,12 @@
 package com.auditbucket.test.functional;
 
 import com.auditbucket.helper.FlockException;
-import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.track.model.Entity;
+import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.TrackResultBean;
-import com.auditbucket.track.model.Entity;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -53,23 +53,26 @@ public class TestCallerRef extends TestEngineBase {
 
     @Test
     public void nullCallerRefBehaviour() throws Exception {
-        cleanUpGraph(); // No transaction so need to clear down the graph
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        try {
+            SystemUser su = registerSystemUser(monowai, "nullCallerRefBehaviour");
 
-        FortressInputBean fib = new FortressInputBean("auditTest" + System.currentTimeMillis());
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
-        // Duplicate null caller ref keys
-        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "harry", "TestTrack", new DateTime(), null);
-        assertNotNull(mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey());
-        inputBean = new EntityInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), null);
-        String metaKey = mediationFacade.trackEntity(fortress, inputBean).getMetaKey();
+            FortressInputBean fib = new FortressInputBean("trackTest" + System.currentTimeMillis());
+            Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
+            // Duplicate null caller ref keys
+            EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "harry", "TestTrack", new DateTime(), null);
+            assertNotNull(mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey());
+            inputBean = new EntityInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), null);
+            String metaKey = mediationFacade.trackEntity(fortress, inputBean).getMetaKey();
 
-        assertNotNull(metaKey);
-        Entity entity = trackService.getEntity(su.getCompany(), metaKey);
-        assertNotNull(entity);
-        assertNull(entity.getCallerRef());
+            assertNotNull(metaKey);
+            Entity entity = trackService.getEntity(su.getCompany(), metaKey);
+            assertNotNull(entity);
+            assertNull(entity.getCallerRef());
 
-        assertNotNull("Not found via the metaKey as it was null when entity created.", trackService.findByCallerRef(fortress, "TestTrack", metaKey));
+            assertNotNull("Not found via the metaKey as it was null when entity created.", trackService.findByCallerRef(fortress, "TestTrack", metaKey));
+        } finally {
+            cleanUpGraph(); // No transaction so need to clear down the graph
+        }
 
     }
 
@@ -109,24 +112,28 @@ public class TestCallerRef extends TestEngineBase {
      */
     @Test
     public void duplicateCallerRefKeysAndDocTypesNotCreated() throws Exception {
-        cleanUpGraph(); // No transaction so need to clear down the graph
-        SystemUser su = registerSystemUser(monowai, mike_admin);
+        try {
+            cleanUpGraph();
+            SystemUser su = registerSystemUser(monowai, "dupex");
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest" + System.currentTimeMillis()));
+            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest" + System.currentTimeMillis()));
 
-        String docType = "TestAuditX";
-        String callerRef = "ABC123X";
-        int runnersToCreate =3;
-        Collection<CallerRefRunner> runners = new ArrayList <>(runnersToCreate);
-        CountDownLatch latch = new CountDownLatch(runnersToCreate);
-        for( int i = 0; i< runnersToCreate ; i++){
-            runners.add (addRunner(fortress, docType, callerRef, latch));
-        }
+            String docType = "TestAuditX";
+            String callerRef = "ABC123X";
+            int runnersToCreate = 3;
+            Collection<CallerRefRunner> runners = new ArrayList<>(runnersToCreate);
+            CountDownLatch latch = new CountDownLatch(runnersToCreate);
+            for (int i = 0; i < runnersToCreate; i++) {
+                runners.add(addRunner(fortress, docType, callerRef, latch));
+            }
 
-        latch.await();
-        assertNotNull(trackService.findByCallerRef(fortress, docType, callerRef));
-        for (CallerRefRunner runner : runners) {
-            assertEquals(true, runner.isWorking());
+            latch.await();
+            assertNotNull(trackService.findByCallerRef(fortress, docType, callerRef));
+            for (CallerRefRunner runner : runners) {
+                assertEquals("failed to get a good result when checking if the runner worked", true, runner.getWorked());
+            }
+        } finally {
+            cleanUpGraph(); // No transaction so need to clear down the graph
         }
 
 
@@ -146,18 +153,18 @@ public class TestCallerRef extends TestEngineBase {
         Fortress fortress;
         CountDownLatch latch;
         int maxRun = 20;
-        boolean working = false;
+        boolean worked = false;
 
         public CallerRefRunner(String callerRef, String docType, Fortress fortress, CountDownLatch latch) {
             this.callerRef = callerRef;
             this.docType = docType;
             this.fortress = fortress;
             this.latch = latch;
-            this.working = false;
+            this.worked = false;
         }
 
-        public boolean isWorking() {
-            return working;
+        public boolean getWorked() {
+            return worked;
         }
 
         @Override
@@ -167,6 +174,7 @@ public class TestCallerRef extends TestEngineBase {
             try {
                 while (count < maxRun) {
                     EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef);
+                    assert (docType!=null);
                     TrackResultBean trackResult = mediationFacade.trackEntity(fortress, inputBean);
                     assertNotNull(trackResult);
                     assertEquals(callerRef.toLowerCase(), trackResult.getCallerRef().toLowerCase());
@@ -178,7 +186,7 @@ public class TestCallerRef extends TestEngineBase {
 //                    assertEquals("Entities don't match!", trackResult.getMetaKey(), byCallerRef.getMetaKey());
                     count++;
                 }
-                working = true;
+                worked = true;
                 logger.info ("{} completed", this.toString());
             } catch (RuntimeException | ExecutionException | InterruptedException | IOException | FlockException e) {
                 logger.error("Help!!", e);

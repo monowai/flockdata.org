@@ -40,6 +40,8 @@ public class FortressInputBean {
     private String fortressKey = null;
     private String timeZone = null;
     private String languageTag;
+    private Boolean enabled = true;
+    private Boolean system = false;
 
 
     protected FortressInputBean() {
@@ -131,5 +133,21 @@ public class FortressInputBean {
                 "name='" + name + '\'' +
                 ", searchActive=" + searchActive +
                 '}';
+    }
+
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public Boolean getSystem() {
+        return system;
+    }
+
+    public void setSystem(Boolean system) {
+        this.system = system;
     }
 }

@@ -28,6 +28,7 @@ import com.auditbucket.track.bean.LogResultBean;
 import com.auditbucket.track.bean.TrackResultBean;
 import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.Log;
+import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -87,7 +88,7 @@ public class TestTxReference extends TestEngineBase{
         String cbaKey = mediationFacade.trackEntity(suCBA.getCompany(), cbaEntity).getMetaKey();
 
         ContentInputBean cbaContent = new ContentInputBean("charlie", cbaKey, DateTime.now(), escJsonA, true);
-        assertEquals("CBA Log Not Created", ContentInputBean.LogStatus.OK, mediationFacade.trackLog(suCBA.getCompany(), cbaContent).getLogResult().getStatus());
+        Assert.assertEquals("CBA Log Not Created", ContentInputBean.LogStatus.OK, mediationFacade.trackLog(suCBA.getCompany(), cbaContent).getLogResult().getStatus());
         String cbaTxRef = cbaContent.getTxRef();
         assertNotNull(cbaTxRef);
 

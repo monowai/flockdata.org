@@ -20,13 +20,14 @@
 package com.auditbucket.registration;
 
 
+import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.engine.repo.neo4j.dao.SchemaDaoNeo4j;
 import com.auditbucket.engine.service.EngineConfig;
+import com.auditbucket.track.service.SchemaService;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.dao.CompanyDao;
 import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
 import com.auditbucket.registration.model.Company;
-import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.service.CompanyService;
 import com.auditbucket.registration.service.KeyGenService;
 import org.slf4j.Logger;
@@ -36,8 +37,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 @Service
 @Transactional
@@ -56,7 +55,7 @@ public class CompanyServiceNeo4j implements CompanyService {
     SchemaDaoNeo4j schemaDao;
 
     @Autowired
-    com.auditbucket.track.service.SchemaService schemaService;
+    SchemaService schemaService;
 
     @Autowired
     private SecurityHelper securityHelper;

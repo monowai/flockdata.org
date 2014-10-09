@@ -19,8 +19,8 @@
 
 package com.auditbucket.test.functional;
 
-import com.auditbucket.search.endpoint.ElasticSearchEP;
 import com.auditbucket.search.model.EntitySearchChange;
+import com.auditbucket.search.endpoint.ElasticSearchEP;
 import com.auditbucket.track.model.TrackSearchDao;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
