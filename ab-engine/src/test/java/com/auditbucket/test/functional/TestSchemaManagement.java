@@ -8,6 +8,7 @@ import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.model.DocumentType;
 import org.joda.time.DateTime;
 import org.junit.Test;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
@@ -19,6 +20,7 @@ import static org.junit.Assert.*;
  * Date: 3/04/14
  * Time: 9:54 AM
  */
+@Transactional
 public class TestSchemaManagement extends TestEngineBase {
 
     @Test
