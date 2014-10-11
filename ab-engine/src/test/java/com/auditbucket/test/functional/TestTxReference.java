@@ -49,7 +49,7 @@ import static junit.framework.Assert.*;
  * Time: 10:41 AM
  */
 @Transactional
-public class TestTxReference extends TestEngineBase{
+public class TestTxReference extends EngineBase {
 
 
     private static  Map<String, Object> escJsonA;

@@ -105,7 +105,7 @@ public class ClientConfiguration {
         return properties;
     }
 
-    public static ImportProfile getImportParams(String profile) throws IOException {
+    public static ImportProfile getImportParams(String profile) throws IOException, ClassNotFoundException {
         ImportProfile importProfile;
         ObjectMapper om = new ObjectMapper();
 

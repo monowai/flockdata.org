@@ -14,7 +14,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.fail;
 
-public class TestApiKeyInterceptor extends TestEngineBase {
+public class TestApiKeyInterceptor extends EngineBase {
 
 	@Autowired
 	ApplicationContext context;

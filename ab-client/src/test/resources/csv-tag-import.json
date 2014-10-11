@@ -2,7 +2,7 @@
     "contentType": "csv",
     "tagOrTrack": "tag",
     "header": true,
-    "columns": {
+    "content": {
         "device_name": {
             "tag": true,
             "label": "Device",

@@ -40,7 +40,7 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 
 @Transactional
-public class TestRegistration extends TestEngineBase {
+public class TestRegistration extends EngineBase {
     @Test
     public void createPersonsTest() throws Exception {
         setSecurity();

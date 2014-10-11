@@ -24,7 +24,7 @@ import static org.junit.Assert.assertNotNull;
  * Time: 2:23 PM
  */
 @WebAppConfiguration
-public class ProfileRegistration extends TestEngineBase {
+public class TestProfileRegistration extends EngineBase {
 
     @Autowired
     protected WebApplicationContext wac;

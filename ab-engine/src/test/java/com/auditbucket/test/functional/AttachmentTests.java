@@ -19,7 +19,7 @@ import static org.junit.Assert.assertFalse;
  * Time: 5:03 PM
  */
 
-public class AttachmentTests extends TestEngineBase{
+public class AttachmentTests extends EngineBase {
     @Test
     public void duplicate_sameContentIgnored() throws Exception{
         SystemUser su = registerSystemUser("duplicate_sameContentIgnored", mike_admin);

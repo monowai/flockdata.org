@@ -24,8 +24,8 @@ import java.util.Map;
 public class CsvEntityMapper extends EntityInputBean implements DelimitedMappable {
 
     public CsvEntityMapper(com.auditbucket.profile.ImportProfile importProfile) {
-        setDocumentType(importProfile.getDocumentType());
-        setFortress(importProfile.getFortress());
+        setDocumentType(importProfile.getDocumentName());
+        setFortress(importProfile.getFortressName());
         setFortressUser(importProfile.getFortressUser());
     }
 

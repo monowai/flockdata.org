@@ -44,7 +44,7 @@ import java.util.concurrent.ExecutionException;
  * User: Mike Holdsworth
  * Since: 1/12/13
  */
-public class TestForceDuplicateRlx extends TestEngineBase {
+public class TestForceDuplicateRlx extends EngineBase {
 
     private Logger logger = LoggerFactory.getLogger(TestForceDuplicateRlx.class);
 

@@ -21,7 +21,7 @@ import static org.junit.Assert.*;
  * Date: 3/10/14
  * Time: 8:35 PM
  */
-public class TestProfiles extends TestEngineBase {
+public class TestProfiles extends EngineBase {
 
     private Logger logger = LoggerFactory.getLogger(TestProfiles.class);
     @Autowired
@@ -35,14 +35,14 @@ public class TestProfiles extends TestEngineBase {
 
         ProfileConfiguration profile = ImportProfileDeserializer.getImportParams("/test_profile.json");
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("create_profile", true));
-        DocumentType docType = schemaService.resolveDocType(fortress, "Olympic");
+        DocumentType docType = schemaService.resolveByDocCode(fortress, "Olympic");
         profileService.save(fortress, docType, profile);
         ProfileConfiguration savedProfile = profileService.get(fortress, docType);
         assertNotNull ( savedProfile);
         assertEquals(profile.getFortressUser(), savedProfile.getFortressUser());
         assertEquals(profile.isEntityOnly(), savedProfile.isEntityOnly());
-        assertEquals(profile.getColumns().size(), savedProfile.getColumns().size());
-        ColumnDefinition column = savedProfile.getColumns().get("TagVal");
+        assertEquals(profile.getContent().size(), savedProfile.getContent().size());
+        ColumnDefinition column = savedProfile.getContent().get("TagVal");
         assertNotNull(column);
         assertEquals(true, column.isMustExist());
         assertEquals(true, column.isTag());
@@ -51,7 +51,7 @@ public class TestProfiles extends TestEngineBase {
         profileService.save(fortress,docType, savedProfile);
         savedProfile = profileService.get(fortress, docType);
         assertNull(savedProfile.getClazz());
-        assertFalse("Updating the mustExist attribute did not persist",savedProfile.getColumns().get("TagVal").isMustExist());
+        assertFalse("Updating the mustExist attribute did not persist",savedProfile.getContent().get("TagVal").isMustExist());
 
 
 

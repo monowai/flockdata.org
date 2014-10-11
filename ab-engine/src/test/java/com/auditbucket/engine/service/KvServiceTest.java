@@ -21,11 +21,11 @@ package com.auditbucket.engine.service;
 
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.test.functional.EngineBase;
 import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.engine.repo.redis.RedisRepo;
 import com.auditbucket.kv.service.KvService;
 import com.auditbucket.registration.bean.FortressInputBean;
-import com.auditbucket.test.functional.TestEngineBase;
 import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.model.Entity;
 import com.auditbucket.track.model.EntityContent;
@@ -53,7 +53,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @Transactional
-public class KvServiceTest extends TestEngineBase {
+public class KvServiceTest extends EngineBase {
 
     @Autowired
     RedisRepo redisRepo;

@@ -1,5 +1,5 @@
 {
-    "documentType": "Test",
+    "documentName": "Test",
     "contentType": "csv",
     "tagOrTrack": "track",
     "entityOnly": false,
@@ -7,7 +7,7 @@
     "fortressUser": "batch",
     "delimiter": ",",
     "header": true,
-    "columns": {
+    "content": {
         "id": {
             "callerRef": true
         },

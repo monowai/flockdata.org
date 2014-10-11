@@ -53,7 +53,7 @@ import static org.junit.Assert.fail;
  * Date: 15/04/13
  * Time: 6:43 AM
  */
-public class TestTrack extends TestEngineBase {
+public class TestTrack extends EngineBase {
 
     private Logger logger = LoggerFactory.getLogger(TestTrack.class);
 

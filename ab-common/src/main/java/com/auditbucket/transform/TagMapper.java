@@ -16,7 +16,7 @@ import java.util.Map;
 public class TagMapper extends TagInputBean implements DelimitedMappable {
     private boolean hasHeader = true;
     public TagMapper(ImportProfile importProfile) {
-        setLabel(importProfile.getDocumentType());
+        setLabel(importProfile.getDocumentName());
         hasHeader = importProfile.hasHeader();
     }
 

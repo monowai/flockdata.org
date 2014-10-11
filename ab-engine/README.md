@@ -106,7 +106,7 @@ You should have started [fd-search](../fd-search) before doing this if you're no
 curl -u batch:123 -H "Content-Type:application/json" -X POST http://localhost:8080/fd-engine/v1/track/ -d '{
   "fortress":"demo-app", 
   "event":"Create",
-  "documentType":"Debtor",
+  "documentName":"Debtor",
   "callerRef":"myRef",
   "log": {   "fortressUser": "ak0919",
            		 "what": {"BusinessData": "Your Text", "nestedObject": {"serviceMessage": "kool for kats"}}

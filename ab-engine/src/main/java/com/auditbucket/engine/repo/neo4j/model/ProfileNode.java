@@ -78,7 +78,7 @@ public class ProfileNode implements Profile {
     }
 
 //    @Override
-//    public String getDocumentType() {
+//    public String getDocumentName() {
 //        return document.getCode();
 //    }
 //
@@ -93,7 +93,7 @@ public class ProfileNode implements Profile {
 //    }
 //
 //    @Override
-//    public Map<String, ColumnDefinition> getColumns() {
+//    public Map<String, ColumnDefinition> getContent() {
 //        return columns;
 //    }
 //
@@ -113,7 +113,7 @@ public class ProfileNode implements Profile {
 //    }
 //
 //    @Override
-//    public String getFortress() {
+//    public String getFortressName() {
 //        return fortress.getCode();
 //    }
 //
@@ -166,7 +166,7 @@ public class ProfileNode implements Profile {
 //        this.strategyCols = fromProfile.getStrategyCols();
 //        this.entityKey = fromProfile.getEntityKey();
 //        this.fortressUser = fromProfile.getFortressUser();
-//        this.columns = fromProfile.getColumns();
+//        this.columns = fromProfile.getContent();
 //        this.entityOnly = fromProfile.isEntityOnly();
 //
 //    }

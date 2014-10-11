@@ -3,7 +3,7 @@ package com.auditbucket.test.endpoint;
 import com.auditbucket.authentication.LoginRequest;
 import com.auditbucket.helper.JsonUtils;
 import com.auditbucket.registration.model.SystemUser;
-import com.auditbucket.test.functional.TestEngineBase;
+import com.auditbucket.test.functional.EngineBase;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 @WebAppConfiguration
-public class TestAPISecurity extends TestEngineBase {
+public class TestAPISecurity extends EngineBase {
 
 	private MockMvc mockMVC;
 

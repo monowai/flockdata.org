@@ -21,9 +21,9 @@ public interface SchemaService {
 
     Boolean ensureSystemIndexes(Company company);
 
-    DocumentType resolveDocType(Fortress fortress, String documentType);
+    DocumentType resolveByDocCode(Fortress fortress, String documentType);
 
-    DocumentType resolveDocCode(Fortress fortress, String documentType, Boolean createIfMissing);
+    DocumentType resolveByDocCode(Fortress fortress, String documentType, Boolean createIfMissing);
 
     void registerConcepts(Company company, Iterable<TrackResultBean> resultBeans);
 
@@ -36,4 +36,5 @@ public interface SchemaService {
     void purge(Fortress fortress);
 
     boolean ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs, Collection<String> existingIndexes);
+
 }

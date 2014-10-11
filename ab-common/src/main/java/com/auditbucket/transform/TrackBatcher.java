@@ -27,7 +27,7 @@ public class TrackBatcher {
     private int batchSize = 100;
     FdWriter fdWriter;
 
-    public TrackBatcher(ProfileConfiguration importProfile, FdWriter writer, int batchSize){
+    public TrackBatcher(ProfileConfiguration importProfile, FdWriter writer, int batchSize) {
         this.importProfile = importProfile;
         this.batchSize = batchSize;
         this.fdWriter = writer;
@@ -43,7 +43,7 @@ public class TrackBatcher {
         synchronized (entitySync) {
             if (entityInputBean != null) {
                 if (entityInputBean.getFortress() == null)
-                    entityInputBean.setFortress(importProfile.getFortress());
+                    entityInputBean.setFortress(importProfile.getFortressName());
                 entityBatch.add(entityInputBean);
                 batchTags(entityInputBean);
             }
@@ -81,6 +81,7 @@ public class TrackBatcher {
         }
 
     }
+
     private void batchTags(EntityInputBean entityInputBeans) {
 
         for (TagInputBean tag : entityInputBeans.getTags()) {
@@ -95,26 +96,17 @@ public class TrackBatcher {
     }
 
 
-    public void flush(String canonicalName, ProfileConfiguration.DataType dataType) throws FlockException {
+    public void flush() throws FlockException {
         if (fdWriter.isSimulateOnly())
             return;
-        if (dataType.equals(ProfileConfiguration.DataType.TRACK)) {
-            synchronized (entitySync) {
-                fdWriter.flushEntities(entityBatch);
-                entityBatch.clear();
+        synchronized (entitySync) {
+            fdWriter.flushEntities(entityBatch);
+            entityBatch.clear();
 
-            }
-        } else {
-            synchronized (tagSync) {
-                batchTag(null, true, "");
-            }
         }
-
-    }
-
-    public void flush(String message) throws FlockException{
-        flush(message, ProfileConfiguration.DataType.TAG);
-        flush(message, ProfileConfiguration.DataType.TRACK);
+        synchronized (tagSync) {
+            batchTag(null, true, "");
+        }
 
     }
 }

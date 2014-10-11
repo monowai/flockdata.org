@@ -27,17 +27,14 @@ package com.auditbucket.test.functional;
 
 import com.auditbucket.dao.TrackTagDao;
 import com.auditbucket.helper.FlockException;
+import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
 import com.auditbucket.registration.model.Tag;
-import com.auditbucket.track.bean.*;
-import com.auditbucket.track.model.Entity;
-import com.auditbucket.track.model.TrackTag;
-import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.test.utils.Helper;
-import com.auditbucket.track.model.Log;
-import com.auditbucket.track.model.SearchChange;
+import com.auditbucket.track.bean.*;
+import com.auditbucket.track.model.*;
 import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -60,7 +57,55 @@ import static org.junit.Assert.fail;
  * Time: 8:11 AM
  */
 @Transactional
-public class TestEntityTags extends TestEngineBase {
+public class TestEntityTags extends EngineBase {
+
+    @Test
+    public void tags_MetaTagsUpdatedForExistingEntity() throws Exception {
+        SystemUser su = registerSystemUser("tags_MetaTagsUpdatedForExistingEntity", mike_admin);
+        assertNotNull(su);
+        FortressInputBean fib = new FortressInputBean("ABC", true);
+
+        Fortress fortress = fortressService.registerFortress(su.getCompany(),fib );
+        assertNotNull(fortress);
+
+        TagInputBean firstTag = new TagInputBean("firstTag", "demo");
+
+        EntityInputBean entityBean = new EntityInputBean(fortress.getName(), "mtest", "aTest", new DateTime(), "abc");
+        entityBean.addTag(firstTag);
+        entityBean.setArchiveTags(false);
+        ContentInputBean contentBean = new ContentInputBean();
+        contentBean.setEvent("Test");
+        Map<String, Object> jsonMap = Helper.getRandomMap();
+        contentBean.setWhat(jsonMap);
+        entityBean.setContent(contentBean);
+
+        TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityBean);
+        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
+
+        assertEquals(1, trackService.getLogCount(su.getCompany(), entity.getMetaKey()));
+        assertEquals(1, entityTagService.getEntityTags(su.getCompany(), entity).size());
+
+        // Scenario 1: We send in the header with no content
+        entityBean.setContent(null);
+        mediationFacade.trackEntity(su.getCompany(), entityBean);
+        assertEquals(1, trackService.getLogCount(su.getCompany(), entity.getMetaKey()));
+        assertEquals(1, entityTagService.getEntityTags(su.getCompany(), entity).size());
+
+        // Scenario 2: We have an existing entity with content logged - it has one existing tag
+        //           we now have a second tag added but no content.
+        TagInputBean secondTag = new TagInputBean("secondTag", "demo");
+        entityBean.addTag(secondTag);
+        mediationFacade.trackEntity(su.getCompany(), entityBean);
+
+        assertEquals(1, trackService.getLogCount(su.getCompany(), entity.getMetaKey()));
+        assertEquals(2, entityTagService.getEntityTags(su.getCompany(), entity).size());
+
+        EntityLog lastLog = logService.getLastLog(entity);
+        EntityContent entityContent = kvService.getContent(entity, lastLog.getLog());
+        assertEquals(jsonMap.get("Key").toString(), entityContent.getWhat().get("Key").toString());
+
+    }
+
 
     @Test
     public void simpleTagAgainstEntity() throws Exception {

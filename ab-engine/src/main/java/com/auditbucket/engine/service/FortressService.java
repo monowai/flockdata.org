@@ -235,4 +235,10 @@ public class FortressService {
     }
 
 
+    public Fortress getFortress(Company company, String fortressName) throws NotFoundException {
+        Fortress fortress = fortressDao.getFortressByName(company.getId(), fortressName);
+        if (fortress == null )
+            throw new NotFoundException("Unable to locate the fortress "+fortressName);
+        return fortress;
+    }
 }

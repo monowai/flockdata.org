@@ -17,8 +17,8 @@ import static junit.framework.Assert.assertEquals;
  * Date: 4/08/14
  * Time: 4:34 PM
  */
-public class HashcodeAndEqualityChecks {
-    public HashcodeAndEqualityChecks() {
+public class TestHashcodeAndEquality {
+    public TestHashcodeAndEquality() {
         super();    //To change body of overridden methods use File | Settings | File Templates.
     }
 

@@ -21,7 +21,7 @@ import static org.junit.Assert.*;
  * Time: 9:54 AM
  */
 @Transactional
-public class TestSchemaManagement extends TestEngineBase {
+public class TestSchemaManagement extends EngineBase {
 
     @Test
     public void documentTypesTrackedPerFortress() throws Exception {
@@ -100,14 +100,14 @@ public class TestSchemaManagement extends TestEngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
 
         String docName = "CamelCaseDoc";
-        DocumentType docType = schemaService.resolveDocType(fortress, docName); // Creates if missing
+        DocumentType docType = schemaService.resolveByDocCode(fortress, docName); // Creates if missing
         assertNotNull(docType);
         assertTrue(docType.getCode().contains(docName.toLowerCase()));
         assertEquals(docName, docType.getName());
         // Should be finding by code which is always Lower
-        assertNotNull(schemaService.resolveDocCode(fortress, docType.getName().toUpperCase(), false));
+        assertNotNull(schemaService.resolveByDocCode(fortress, docType.getName().toUpperCase(), false));
         try {
-            schemaService.resolveDocCode(fortress, null, false);
+            schemaService.resolveByDocCode(fortress, null, false);
             fail("Null not handled correctly");
         } catch ( IllegalArgumentException e){
             // Good
@@ -125,13 +125,13 @@ public class TestSchemaManagement extends TestEngineBase {
         Fortress fortA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortA", true));
         Fortress fortB = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortB", true));
 
-        DocumentType dType = schemaService.resolveDocCode(fortA, "ABC123", true);
+        DocumentType dType = schemaService.resolveByDocCode(fortA, "ABC123", true);
         assertNotNull(dType);
         Long id = dType.getId();
-        dType = schemaService.resolveDocCode(fortA, "ABC123", false);
+        dType = schemaService.resolveByDocCode(fortA, "ABC123", false);
         assertEquals(id, dType.getId());
 
-        DocumentType nextType = schemaService.resolveDocCode(fortB, "ABC123", true);
+        DocumentType nextType = schemaService.resolveByDocCode(fortB, "ABC123", true);
         assertNotSame("Same company + different fortresses = different document types", dType, nextType);
 
         // Company 2 gets a different tag with the same name
@@ -139,7 +139,7 @@ public class TestSchemaManagement extends TestEngineBase {
         SystemUser suHarry = registerSystemUser("secondcompany", harry);
         setSecurity(harry); // Register an Auth user as an engine system user
         // Same fortress name, but different company results in a new fortress
-        dType = schemaService.resolveDocType(fortressService.registerFortress(suHarry.getCompany(), new FortressInputBean("fortA",true)), "ABC123"); // Creates if missing
+        dType = schemaService.resolveByDocCode(fortressService.registerFortress(suHarry.getCompany(), new FortressInputBean("fortA", true)), "ABC123"); // Creates if missing
         assertNotNull(dType);
         assertNotSame(id, dType.getId());
     }

@@ -105,7 +105,7 @@ public class TrackServiceNeo4j implements TrackService {
      * @return unique primary key to be used for subsequent log calls
      */
     public TrackResultBean createEntity(Fortress fortress, EntityInputBean entityInputBean) {
-        DocumentType documentType = schemaService.resolveDocType(fortress, entityInputBean.getDocumentType());
+        DocumentType documentType = schemaService.resolveByDocCode(fortress, entityInputBean.getDocumentType());
 
         Entity ah = null;
         if (entityInputBean.getMetaKey() != null) {
@@ -204,7 +204,7 @@ public class TrackServiceNeo4j implements TrackService {
 
     @Override
     public Collection<Entity> getEntities(Fortress fortress, String docTypeName, Long skipTo) {
-        DocumentType docType = schemaService.resolveDocType(fortress, docTypeName);
+        DocumentType docType = schemaService.resolveByDocCode(fortress, docTypeName);
         return trackDao.findEntities(fortress.getId(), docType.getName(), skipTo);
     }
 
@@ -378,7 +378,7 @@ public class TrackServiceNeo4j implements TrackService {
     @Override
     public Entity findByCallerRef(Fortress fortress, String documentCode, String callerRef) {
 
-        DocumentType doc = schemaService.resolveDocCode(fortress, documentCode, false);
+        DocumentType doc = schemaService.resolveByDocCode(fortress, documentCode, false);
         if (doc == null) {
             logger.debug("Unable to find document for callerRef {}, {}, {}", fortress, documentCode, callerRef);
             return null;
@@ -508,7 +508,7 @@ public class TrackServiceNeo4j implements TrackService {
         if (sourceKey.getDocumentCode() == null || sourceKey.getDocumentCode().equals("*"))
             fromEntity = trackDao.findByCallerRefUnique(f.getId(), sourceKey.getCallerRef());
         else {
-            DocumentType document = schemaService.resolveDocCode(f, sourceKey.getDocumentCode(), false);
+            DocumentType document = schemaService.resolveByDocCode(f, sourceKey.getDocumentCode(), false);
             fromEntity = trackDao.findByCallerRef(f.getId(), document.getId(), sourceKey.getCallerRef());
         }
         if (fromEntity == null)

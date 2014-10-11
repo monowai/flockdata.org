@@ -45,7 +45,7 @@ import static org.junit.Assert.assertNotNull;
  * Since: 6/09/13
  */
 @Transactional
-public class TestTrackEvents extends TestEngineBase{
+public class TestTrackEvents extends EngineBase {
 
     @Test
     public void noDuplicateEventsForACompany() throws Exception {

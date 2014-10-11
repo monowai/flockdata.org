@@ -41,7 +41,7 @@ import static junit.framework.Assert.*;
  * Date: 29/06/13
  * Time: 8:11 AM
  */
-public class TestTags extends TestEngineBase {
+public class TestTags extends EngineBase {
 
     public void duplicateTagLists() throws Exception {
         SystemUser iSystemUser = registerSystemUser("duplicateTagLists", mike_admin);

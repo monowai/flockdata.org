@@ -46,7 +46,7 @@ import static org.junit.Assert.assertEquals;
 @Transactional
 @WebAppConfiguration
 
-public class TestQuery extends TestEngineBase {
+public class TestQuery extends EngineBase {
 
     @Autowired
     WebApplicationContext wac;
