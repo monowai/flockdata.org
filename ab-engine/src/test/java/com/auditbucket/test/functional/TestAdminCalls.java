@@ -57,7 +57,7 @@ import static org.junit.Assert.*;
  */
 @Transactional
 @WebAppConfiguration
-public class TestAdminCalls extends TestEngineBase {
+public class TestAdminCalls extends EngineBase {
 
     @Autowired
     protected WebApplicationContext wac;

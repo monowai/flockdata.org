@@ -62,8 +62,8 @@ public class SchemaServiceNeo4j implements SchemaService {
      */
     @Override
     @Transactional
-    public DocumentType resolveDocType(Fortress fortress, String documentCode) {
-        return resolveDocCode(fortress, documentCode, true);
+    public DocumentType resolveByDocCode(Fortress fortress, String documentCode) {
+        return resolveByDocCode(fortress, documentCode, true);
     }
 
     /**
@@ -77,7 +77,7 @@ public class SchemaServiceNeo4j implements SchemaService {
      */
     @Override
     @Transactional
-    public DocumentType resolveDocCode(Fortress fortress, String documentCode, Boolean createIfMissing) {
+    public DocumentType resolveByDocCode(Fortress fortress, String documentCode, Boolean createIfMissing) {
         if (documentCode == null) {
             throw new IllegalArgumentException("DocumentType cannot be null");
         }

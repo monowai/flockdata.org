@@ -48,7 +48,7 @@ import static org.junit.Assert.assertFalse;
 @Transactional
 @WebAppConfiguration
 
-public class TestQueryResults extends TestEngineBase {
+public class TestQueryResults extends EngineBase {
     public static final String VEGETABLE = "Vegetable";
     public static final String FRUIT = "Fruit";
     @Autowired

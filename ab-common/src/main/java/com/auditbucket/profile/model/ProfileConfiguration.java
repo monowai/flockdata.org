@@ -11,13 +11,13 @@ import java.util.Map;
  * Time: 2:51 PM
  */
 public interface ProfileConfiguration {
-    String getDocumentType();
+    String getDocumentName();
 
     ContentType getContentType();
 
-    public void setColumns(Map<String, ColumnDefinition> columns);
+    public void setContent(Map<String, ColumnDefinition> columns);
 
-    public Map<String, ColumnDefinition> getColumns();
+    public Map<String, ColumnDefinition> getContent();
 
     String getClazz();
 
@@ -25,7 +25,7 @@ public interface ProfileConfiguration {
 
     String getTagOrEntity();
 
-    String getFortress();
+    String getFortressName();
 
     boolean hasHeader();
 
@@ -46,6 +46,10 @@ public interface ProfileConfiguration {
     String getStaticDataClazz();
 
     ColumnDefinition getColumnDef(String column);
+
+    void setFortressName(String fortressName);
+
+    void setDocumentName(String name);
 
     enum ContentType {CSV, JSON, XML}
 

@@ -1,28 +1,27 @@
 package com.auditbucket.test.functional;
 
+import com.auditbucket.helper.NotFoundException;
 import com.auditbucket.profile.ImportProfile;
+import com.auditbucket.profile.model.ProfileConfiguration;
 import com.auditbucket.profile.service.ImportProfileService;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.SystemUser;
+import com.auditbucket.test.utils.Helper;
 import com.auditbucket.track.model.DocumentType;
 import com.auditbucket.track.model.Entity;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.auditbucket.transform.FileProcessor;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * User: mike
  * Date: 8/10/14
  * Time: 5:30 PM
  */
-public class TestBatch extends TestEngineBase {
+public class TestBatch extends EngineBase {
     @Autowired
     ImportProfileService importProfileService;
 
@@ -33,9 +32,9 @@ public class TestBatch extends TestEngineBase {
         assertNotNull(su);
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("doBatchTest", true));
-        DocumentType docType = schemaService.resolveDocType(fortress, "test-batch");
+        DocumentType docType = schemaService.resolveByDocCode(fortress, "test-batch");
 
-        ImportProfile params = getImportParams("/batch-csv-profile.json");
+        ImportProfile params = Helper.getImportParams("/batch-csv-profile.json");
 
         importProfileService.save(fortress, docType, params );
         importProfileService.process(su.getCompany(), fortress, docType, "/batch-test.csv");
@@ -45,24 +44,18 @@ public class TestBatch extends TestEngineBase {
 
     }
 
-    public static ImportProfile getImportParams(String profile) throws IOException {
-        ImportProfile importProfile;
-        ObjectMapper om = new ObjectMapper();
-
-        File fileIO = new File(profile);
-        if (fileIO.exists()) {
-            importProfile = om.readValue(fileIO, ImportProfile.class);
-
-        } else {
-            InputStream stream = ClassLoader.class.getResourceAsStream(profile);
-            if (stream != null) {
-                importProfile = om.readValue(stream, ImportProfile.class);
-            } else
-                // Defaults??
-                importProfile = new ImportProfile();
+    @Test
+    public void import_ValidateArgs() throws Exception{
+        FileProcessor fileProcessor = new FileProcessor();
+        ProfileConfiguration profileConfiguration = new ImportProfile();
+        try {
+            FileProcessor.validateArgs("/illegalFile");
+            fail("Exception not thrown");
+        } catch ( NotFoundException nfe){
+            // Great
+            assertEquals(true,true);
         }
-        //importParams.setWriter(restClient);
-        return importProfile;
     }
+
 
 }

@@ -15,6 +15,7 @@ import com.auditbucket.track.service.SchemaService;
 import com.auditbucket.transform.FileProcessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -50,8 +51,8 @@ public class ProfileServiceNeo4j implements ImportProfileService {
         String json = profile.getContent();
         try {
             ImportProfile iProfile=  objectMapper.readValue(json, ImportProfile.class);
-            iProfile.setFortress(fortress.getName());
-            iProfile.setDocumentType(documentType.getName());
+            iProfile.setFortressName(fortress.getName());
+            iProfile.setDocumentName(documentType.getName());
             return iProfile;
         } catch (IOException e) {
             throw new FlockException(String.format("Unable to obtain content from ImportProfile {%d}", profile.getId()), e);
@@ -75,20 +76,56 @@ public class ProfileServiceNeo4j implements ImportProfileService {
         profileDao.save(profile);
     }
 
-    public void process(Company company, Fortress fortress, DocumentType documentCode, String pathToBatch) throws FlockException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
-        ProfileConfiguration profile = get(fortress, documentCode);
-        FileProcessor fileProcessor = new FileProcessor(fdServerWriter);
-        fileProcessor.processFile(profile,pathToBatch, 0, fdServerWriter) ;
 
+    @Override
+    public void save(Company company, String fortressCode, String documentCode, ImportProfile profile) throws FlockException {
+        Fortress fortress = fortressService.findByCode(company, fortressCode);
+        DocumentType documentType = schemaService.resolveByDocCode(fortress, documentCode, false);
+        if (documentType == null )
+            throw new NotFoundException("Unable to resolve document type ");
+        save(fortress, documentType, profile);
+    }
+
+    /**
+     * Does not validate the arguments.
+     */
+    @Override
+    @Async
+    public void processAsync(Company company, String fortressCode, String documentName, String file) throws ClassNotFoundException, FlockException, InstantiationException, IOException, IllegalAccessException {
+        process(company, fortressCode, documentName, file);
     }
 
     @Override
     public void process(Company company, String fortressCode, String documentCode, String file) throws FlockException, ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
         Fortress fortress = fortressService.findByCode(company, fortressCode);
-        DocumentType documentType = schemaService.resolveDocCode(fortress, documentCode, false);
+        DocumentType documentType = schemaService.resolveByDocCode(fortress, documentCode, false);
         if (documentType == null )
             throw new NotFoundException("Unable to resolve document type ");
         process(company, fortress, documentType, file);
+    }
+
+    public void process(Company company, Fortress fortress, DocumentType documentType, String file) throws FlockException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
+        ProfileConfiguration profile = get(fortress, documentType);
+        profile.setFortressName(fortress.getName());
+        profile.setDocumentName(documentType.getName());
+        FileProcessor fileProcessor = new FileProcessor(fdServerWriter);
+        FileProcessor.validateArgs(file);
+        fileProcessor.processFile(profile, file, 0, fdServerWriter);
+    }
+
+    @Override
+    public void validateArguments(Company company, String fortressCode, String documentCode, String fileName) throws NotFoundException, IOException {
+        if ( !FileProcessor.validateArgs(fileName)) {
+            throw new NotFoundException("Unable to process filename "+ fileName);
+        }
+        Fortress fortress = fortressService.findByCode(company, fortressCode);
+        if ( fortress == null )
+            throw new NotFoundException("Unable to locate the fortress " + fortressCode);
+        DocumentType documentType = schemaService.resolveByDocCode(fortress, documentCode, false);
+        if (documentType == null )
+            throw new NotFoundException("Unable to resolve document type " + documentCode);
+
+
     }
 
 

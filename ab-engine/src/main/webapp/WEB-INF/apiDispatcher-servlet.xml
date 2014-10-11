@@ -48,6 +48,7 @@
             <mvc:mapping path="/query/**"/>
             <mvc:mapping path="/track/**"/>
             <mvc:mapping path="/admin/**"/>
+            <mvc:mapping path="/batch/**"/>
             <bean class="com.auditbucket.authentication.handler.ApiKeyInterceptor"/>
         </mvc:interceptor>
         <!--<mvc:interceptor>-->

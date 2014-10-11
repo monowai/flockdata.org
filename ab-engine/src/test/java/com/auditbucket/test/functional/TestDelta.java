@@ -44,7 +44,7 @@ import static org.junit.Assert.assertNotNull;
  * Time: 6:43 AM
  */
 @Transactional
-public class TestDelta extends TestEngineBase {
+public class TestDelta extends EngineBase {
 
     @Test
     public void jsonDeltasAreFound() throws Exception {

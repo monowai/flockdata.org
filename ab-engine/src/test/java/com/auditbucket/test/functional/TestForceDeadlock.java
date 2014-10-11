@@ -46,7 +46,7 @@ import static junit.framework.Assert.assertNotNull;
  * User: Mike Holdsworth
  * Since: 1/12/13
  */
-public class TestForceDeadlock extends TestEngineBase {
+public class TestForceDeadlock extends EngineBase {
 
     private Logger logger = LoggerFactory.getLogger(TestForceDeadlock.class);
     @Autowired

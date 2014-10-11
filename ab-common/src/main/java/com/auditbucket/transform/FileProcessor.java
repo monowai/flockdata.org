@@ -2,6 +2,7 @@ package com.auditbucket.transform;
 
 import au.com.bytecode.opencsv.CSVReader;
 import com.auditbucket.helper.FlockException;
+import com.auditbucket.helper.NotFoundException;
 import com.auditbucket.profile.model.Mappable;
 import com.auditbucket.profile.model.ProfileConfiguration;
 import com.auditbucket.registration.bean.TagInputBean;
@@ -41,10 +42,10 @@ public class FileProcessor {
 
     private static final DecimalFormat formatter = new DecimalFormat();
     private TrackBatcher trackBatcher;
-    private FdReader defaultStaticDataResolver = null ;
+    private FdReader defaultStaticDataResolver = null;
     private FdReader staticDataResolver = null; // Instance specific
 
-    public FileProcessor(){
+    public FileProcessor() {
 
     }
 
@@ -53,7 +54,7 @@ public class FileProcessor {
         this.defaultStaticDataResolver = staticDataResolver;
     }
 
-    public long processFile(ProfileConfiguration importProfile, String file, int skipCount, FdWriter writer) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
+    public Long processFile(ProfileConfiguration importProfile, String file, int skipCount, FdWriter writer) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
         trackBatcher = new TrackBatcher(importProfile, writer, 100);
         Mappable mappable = importProfile.getMappable();
 
@@ -72,9 +73,9 @@ public class FileProcessor {
         } finally {
             if (result > 0) {
                 if (mappable != null)
-                    trackBatcher.flush(mappable.getClass().getCanonicalName(), mappable.getABType());
+                    trackBatcher.flush();
                 else
-                    trackBatcher.flush("Tags", ProfileConfiguration.DataType.TAG);
+                    trackBatcher.flush();
             }
         }
         return result;
@@ -112,7 +113,7 @@ public class FileProcessor {
             throw new RuntimeException("IO Exception ", e);
         } finally {
             if (processed > 0l)
-                trackBatcher.flush("Finishing processing of TagInputBeans " + fileName);
+                trackBatcher.flush();
 
         }
         return tags.size();  //To change body of created methods use File | Settings | File Templates.
@@ -157,7 +158,7 @@ public class FileProcessor {
 
                 }
             } finally {
-                trackBatcher.flush(mappable.getClass().getCanonicalName(), mappable.getABType());
+                trackBatcher.flush();
             }
             if (!referenceInputBeans.isEmpty()) {
                 logger.debug("Wrote [{}] cross references", writeCrossReferences(writer, referenceInputBeans));
@@ -186,20 +187,7 @@ public class FileProcessor {
         // purpose is to write all the tags to an import structure
 
         BufferedReader br;
-        InputStream stream = ClassLoader.class.getResourceAsStream(file);
-
-        Reader fileObject = null;
-        try {
-            fileObject = new FileReader(file);
-        } catch (FileNotFoundException e) {
-            if (stream != null)
-                fileObject = new InputStreamReader(stream);
-
-        }
-        if (fileObject == null) {
-            logger.error("Unable to resolve the file [{}]", file);
-            return 0;
-        }
+        Reader fileObject = getReader(file);
 
         br = new BufferedReader(fileObject);
         List<CrossReferenceInputBean> referenceInputBeans = new ArrayList<>();
@@ -275,7 +263,7 @@ public class FileProcessor {
                 }
             }
         } finally {
-            trackBatcher.flush(mappable.getClass().getCanonicalName(), mappable.getABType());
+            trackBatcher.flush();
             if (!referenceInputBeans.isEmpty()) {
                 // ToDo: This approach is un-scalable - routine works but the ArrayList is kept in memory. It's ok for now...
                 logger.debug("Wrote [{}] cross references", writeCrossReferences(writer, referenceInputBeans));
@@ -295,6 +283,24 @@ public class FileProcessor {
         return endProcess(watch, rows);
     }
 
+    private static Reader getReader(String file) throws NotFoundException {
+        InputStream stream = ClassLoader.class.getResourceAsStream(file);
+
+        Reader fileObject = null;
+        try {
+            fileObject = new FileReader(file);
+        } catch (FileNotFoundException e) {
+            if (stream != null)
+                fileObject = new InputStreamReader(stream);
+
+        }
+        if (fileObject == null) {
+            logger.error("Unable to resolve the file [{}]", file);
+            throw new NotFoundException("Unable to resolve the file " + file);
+        }
+        return fileObject;
+    }
+
     public long endProcess(StopWatch watch, long rows) {
         watch.stop();
         double mins = watch.getTotalTimeSeconds() / 60;
@@ -303,7 +309,7 @@ public class FileProcessor {
     }
 
     public FdReader getStaticDataResolver(ProfileConfiguration importProfile, FdWriter writer) {
-        if ( staticDataResolver != null)
+        if (staticDataResolver != null)
             return staticDataResolver;
 
         if (importProfile.getStaticDataClazz() == null)
@@ -320,4 +326,10 @@ public class FileProcessor {
     }
 
 
+    public static boolean validateArgs(String pathToBatch) throws NotFoundException, IOException {
+        Reader reader = getReader(pathToBatch);
+        if ( reader != null )
+            reader.close();
+        return true;
+    }
 }

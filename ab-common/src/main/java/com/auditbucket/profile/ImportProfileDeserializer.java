@@ -27,7 +27,7 @@ public class ImportProfileDeserializer extends JsonDeserializer<ImportProfile> {
         JsonNode node = jp.getCodec().readTree(jp);
         JsonNode column = node.get("documentType");
         if (column != null)
-            importProfile.setDocumentType(column.asText());
+            importProfile.setDocumentName(column.asText());
 
         column = node.get("clazz");
         if (column != null && !column.isNull())
@@ -35,7 +35,7 @@ public class ImportProfileDeserializer extends JsonDeserializer<ImportProfile> {
 
         column = node.get("fortressName");
         if (column != null&& !column.isNull())
-            importProfile.setFortress(column.asText());
+            importProfile.setFortressName(column.asText());
 
         column = node.get("tagOrEntity");
         if ( column == null  )
@@ -71,11 +71,11 @@ public class ImportProfileDeserializer extends JsonDeserializer<ImportProfile> {
         if ( column == null )
             column = node.get("metaHeader");// legacy value
 
-        if ( column !=null )
+        if ( column !=null && !column.isNull() )
             importProfile.setEntityKey(column.asText());
 
         column = node.get("event");
-        if ( column != null )
+        if ( column != null && !column.isNull() )
             importProfile.setEvent(column.asText());
 
 
@@ -98,18 +98,18 @@ public class ImportProfileDeserializer extends JsonDeserializer<ImportProfile> {
                     break;
             }
         }
-        column = node.get("columns");
+        column = node.get("content");
         if ( column !=null ){
             ObjectMapper mapper = new ObjectMapper();
             Iterator<Map.Entry<String,JsonNode>> columns = column.fields();
-            Map<String,ColumnDefinition>csvHeaders = new HashMap<>();
+            Map<String,ColumnDefinition>content = new HashMap<>();
             while (columns.hasNext()) {
                 Map.Entry<String, JsonNode> next = columns.next();
                 String colName = next.getKey();
                 ColumnDefinition columnDefinition = mapper.readValue(next.getValue().toString(), ColumnDefinition.class);
-                csvHeaders.put(colName, columnDefinition);
+                content.put(colName, columnDefinition);
             }
-            importProfile.setColumns(csvHeaders);
+            importProfile.setContent(content);
         }
         return importProfile;  //To change body of implemented methods use File | Settings | File Templates.
     }

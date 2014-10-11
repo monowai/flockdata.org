@@ -22,20 +22,22 @@ import java.util.Map;
 @JsonDeserialize(using = ImportProfileDeserializer.class)
 public class ImportProfile implements ProfileConfiguration {
 
-    private String documentType;
+    // Default fortress name if not otherwise supplied
+    private String fortressName = null;
+    // Default document name if not otherwise supplied
+    private String documentName;
     private ContentType contentType;
     private String tagOrEntity;
     private String clazz = null;
     private String staticDataClazz;
     private char delimiter = ',';
-    private String fortress = null;
     private boolean header = true;
     private String fortressUser;
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(ImportProfile.class);
     private boolean entityOnly;
     private boolean archiveTags = true;
 
-    private Map<String, ColumnDefinition> columns;
+    private Map<String, ColumnDefinition> content;
     private FdReader staticDataResolver;
     private String entityKey;
     private String event = null;
@@ -63,14 +65,14 @@ public class ImportProfile implements ProfileConfiguration {
         this.fortressUser = fortressUser;
     }
 
-    public void setColumns(Map<String, ColumnDefinition> columns) {
-        this.columns = columns;
+    public void setContent(Map<String, ColumnDefinition> columns) {
+        this.content = columns;
     }
 
     @Override
     public String toString() {
         return "ImportParams{" +
-                "documentType='" + documentType + '\'' +
+                "documentName='" + documentName + '\'' +
                 ", contentType=" + contentType +
                 ", tagOrEntity='" + tagOrEntity + '\'' +
                 ", clazz='" + clazz + '\'' +
@@ -79,12 +81,12 @@ public class ImportProfile implements ProfileConfiguration {
     }
 
     @Override
-    public String getDocumentType() {
-        return documentType;
+    public String getDocumentName() {
+        return documentName;
     }
 
-    public void setDocumentType(String documentType) {
-        this.documentType = documentType;
+    public void setDocumentName(String documentName) {
+        this.documentName = documentName;
     }
 
     @Override
@@ -126,12 +128,12 @@ public class ImportProfile implements ProfileConfiguration {
     }
 
     @Override
-    public String getFortress() {
-        return fortress;
+    public String getFortressName() {
+        return fortressName;
     }
 
-    public void setFortress(String fortress) {
-        this.fortress = fortress;
+    public void setFortressName(String fortressName) {
+        this.fortressName = fortressName;
     }
 
     @Override
@@ -172,9 +174,9 @@ public class ImportProfile implements ProfileConfiguration {
     }
 
     public ColumnDefinition getColumnDef(String column) {
-        if (columns == null)
+        if (content == null)
             return null;
-        return columns.get(column);
+        return content.get(column);
     }
 
     public void setStaticDataResolver(FdReader staticDataResolver) {
@@ -190,13 +192,13 @@ public class ImportProfile implements ProfileConfiguration {
         return entityKey;
     }
 
-    public Map<String, ColumnDefinition> getColumns() {
-        return columns;
+    public Map<String, ColumnDefinition> getContent() {
+        return content;
     }
 
     @Override
     public Collection<String> getStrategyCols() {
-        Map<String, ColumnDefinition> columns = getColumns();
+        Map<String, ColumnDefinition> columns = getContent();
 
         ArrayList<String> strategyColumns = new ArrayList<>();
         if (columns == null )

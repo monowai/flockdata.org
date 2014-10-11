@@ -22,12 +22,14 @@ package com.auditbucket.fortress.endpoint;
 import com.auditbucket.engine.service.FortressService;
 import com.auditbucket.helper.CompanyResolver;
 import com.auditbucket.helper.FlockException;
-import com.auditbucket.registration.model.Fortress;
-import com.auditbucket.registration.service.CompanyService;
-import com.auditbucket.track.bean.DocumentResultBean;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.model.Company;
+import com.auditbucket.registration.model.Fortress;
+import com.auditbucket.registration.service.CompanyService;
+import com.auditbucket.track.bean.DocumentResultBean;
+import com.auditbucket.track.model.DocumentType;
+import com.auditbucket.track.service.SchemaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,10 +48,13 @@ import java.util.Collection;
 public class FortressEP {
 
     @Autowired
-    FortressService fortressService;
+    CompanyService companyService;
 
     @Autowired
-    CompanyService companyService;
+    SchemaService schemaService;
+
+    @Autowired
+    FortressService fortressService;
 
     @Autowired
     SecurityHelper securityHelper;
@@ -63,7 +68,6 @@ public class FortressEP {
     }
 
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
-
     public ResponseEntity<Fortress> registerFortress( @RequestBody FortressInputBean fortressInputBean, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         Fortress fortress = fortressService.registerFortress(company, fortressInputBean, true);
@@ -71,6 +75,15 @@ public class FortressEP {
         return new ResponseEntity<>(fortress, HttpStatus.CREATED);
 
     }
+
+    @RequestMapping(value = "/{fortressName}/{docTypeName}", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
+    public DocumentType registerDocumentType(HttpServletRequest request, @PathVariable("fortressName") String fortressName, @PathVariable("docTypeName") String docTypeName) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+        Fortress fortress = fortressService.getFortress(company, fortressName);
+        return schemaService.resolveByDocCode(fortress, docTypeName, Boolean.TRUE);
+
+    }
+
 
     @RequestMapping(value = "/{code}", method = RequestMethod.GET)
 

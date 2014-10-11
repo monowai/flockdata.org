@@ -1,5 +1,11 @@
 package com.auditbucket.test.utils;
 
+import com.auditbucket.profile.ImportProfile;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +34,26 @@ public class Helper {
         } while ( count < i);
         return map;
     }
+
+    public static ImportProfile getImportParams(String profile) throws IOException {
+        ImportProfile importProfile;
+        ObjectMapper om = new ObjectMapper();
+
+        File fileIO = new File(profile);
+        if (fileIO.exists()) {
+            importProfile = om.readValue(fileIO, ImportProfile.class);
+
+        } else {
+            InputStream stream = ClassLoader.class.getResourceAsStream(profile);
+            if (stream != null) {
+                importProfile = om.readValue(stream, ImportProfile.class);
+            } else
+                // Defaults??
+                importProfile = new ImportProfile();
+        }
+        return importProfile;
+    }
+
 
     public static String getPdfDoc() {
         // Romeo is a keyword

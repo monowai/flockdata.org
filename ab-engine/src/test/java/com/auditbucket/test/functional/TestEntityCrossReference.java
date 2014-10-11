@@ -23,7 +23,7 @@ import static org.junit.Assert.*;
  * Time: 4:12 PM
  */
 @Transactional
-public class TestEntityCrossReference extends TestEngineBase {
+public class TestEntityCrossReference extends EngineBase {
 
     @Test
     public void xRef_MetaKeysForSameCompany() throws Exception {

@@ -46,7 +46,7 @@ import static org.junit.Assert.assertNotNull;
  * User: Mike Holdsworth
  * Since: 1/12/13
  */
-public class TestCallerRef extends TestEngineBase {
+public class TestCallerRef extends EngineBase {
 
     private Logger logger = LoggerFactory.getLogger(TestCallerRef.class);
     private String monowai = "Monowai";

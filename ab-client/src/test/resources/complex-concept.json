@@ -1,13 +1,13 @@
 {
-    "documentType": "Athlete Medals",
+    "documentName": "Athlete Medals",
     "contentType": "csv",
     "tagOrEntity": "entity",
     "entityOnly": true,
-    "fortress": "Olympic",
+    "fortressName": "Olympic",
     "fortressUser": "mike",
     "header": true,
     "entityKey": "Medals",
-    "columns": {
+    "content": {
         "Athlete": {
             "tag": true,
             "relationshipName": "won"

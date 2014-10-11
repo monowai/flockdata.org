@@ -9,7 +9,8 @@
                 "5a51da51-48df-b25e-bbef-b04a86703197",
                 "480fa015-8f0c-b42e-2f50-4f8d4c9ef00c",
                 "59439f50-a633-4abe-3255-ba0ce09457f3",
-                "ebdb1d38-dbfb-ff40-b495-06a014fa4a93"
+                "ebdb1d38-dbfb-ff40-b495-06a014fa4a93",
+                "c593d3dc-8172-e544-dedb-6de7f3aa980e"
             ],
             "folders": [],
             "timestamp": 1397592909423,
@@ -66,6 +67,24 @@
                     "description": "(ms:MS)-[r]-(os:MS) return ms, r, os;",
                     "collectionId": "034704d1-cb1b-7392-80f3-614c15c098e1",
                     "responses": []
+                },
+                {
+                    "id": "c593d3dc-8172-e544-dedb-6de7f3aa980e",
+                    "headers": "Api-Key: {{api-key}}\nContent-Type: application/json\n",
+                    "url": "{{ab-engine}}/{{v}}/tag/",
+                    "preRequestScript": "",
+                    "pathVariables": {},
+                    "method": "PUT",
+                    "data": "[\n    {\"name\": \"ab-engine\",  \"label\":\"AB\", \"targets\": {\"integrates-with\": [{\"name\": \"ab-search\", \"label\":\"AB\"}]}},\n    {\"name\": \"ab-engine\",  \"label\":\"AB\", \"targets\": {\"writes-to\": [{\"name\": \"neo4j\", \"label\":\"AB\"}]}},\n    {\"name\": \"ab-search\",  \"label\":\"AB\", \"targets\": {\"writes-to\": [{\"name\": \"ElasticSearch\", \"label\":\"AB\"}]}},\n      {\"name\": \"ab-search\",  \"label\":\"MDL\", \"targets\": {\"integrates-with\": [{\"name\": \"ab-engine\", \"label\":\"AB\"}]}},\n\n    {\"name\": \"ab-client\",  \"label\":\"MDL\", \"targets\": {\"communicates-with\": [{\"name\": \"ab-engine\", \"label\":\"AB\"}]}},\n    {\"name\": \"ab-view\",  \"label\":\"MDL\", \"targets\": {\"communicates-with\": [{\"name\": \"ab-engine\", \"label\":\"AB\"}]}},\n    {\"name\": \"kibana\",  \"label\":\"AB\", \"targets\": {\"reads\": [{\"name\": \"ElasticSearch\", \"label\":\"AB\"}]}},\n    {\"name\": \"linkurious\",  \"label\":\"AB\", \"targets\": {\"reads\": [{\"name\": \"neo4j\", \"label\":\"AB\"}]}},\n\n    {\"name\": \"ab-view\",  \"label\":\"AB\", \"targets\": {\"uses\": [{\"name\": \"d3js\", \"label\":\"AB\"}]}},\n    {\"name\": \"ab-view\",  \"label\":\"AB\", \"targets\": {\"supports\": [{\"name\": \"linkurious\", \"label\":\"AB\"}]}},\n\n  {\"name\": \"d3js\",  \"label\":\"AB\", \"targets\": {\"sources\": [{\"name\": \"ab-engine\", \"label\":\"AB\"}]}}\n\n]\n",
+                    "dataMode": "raw",
+                    "version": 2,
+                    "tests": "",
+                    "time": 1409267723007,
+                    "name": "Microservices",
+                    "description": "(ms:AB)-[r]-(os:AB) return ms, r, os;",
+                    "collectionId": "034704d1-cb1b-7392-80f3-614c15c098e1",
+                    "responses": [],
+                    "synced": true
                 },
                 {
                     "id": "ebdb1d38-dbfb-ff40-b495-06a014fa4a93",
@@ -534,7 +553,7 @@
                     "data": [],
                     "dataMode": "params",
                     "name": "Ping",
-                    "description": "",
+                    "description": "Authenticated Ping Request",
                     "descriptionFormat": "html",
                     "time": 1397554902327,
                     "version": 2,
@@ -596,7 +615,7 @@
                 {
                     "id": "c8f26ced-38d4-72b3-2aab-b7c697ebf048",
                     "headers": "Content-Type: application/json\n",
-                    "url": "{{ab-engine}}/{{v}}/admin/Sales",
+                    "url": "{{ab-engine}}/{{v}}/admin/sflow",
                     "preRequestScript": "",
                     "pathVariables": {},
                     "method": "DELETE",
@@ -604,7 +623,7 @@
                     "dataMode": "params",
                     "version": 2,
                     "tests": "",
-                    "time": 1409267710592,
+                    "time": 1412973677088,
                     "name": "Delete Fortress",
                     "description": "Purges all data logged against the named fortress.\n\n** This does not delete the ElasticSearch index. See Delete Index for that **",
                     "collectionId": "2d2efe91-b889-31e3-0f77-eb000f4ff775",
@@ -765,8 +784,8 @@
                     "version": 2,
                     "tests": "",
                     "time": 1408919304932,
-                    "name": "Highlight Searc",
-                    "description": "",
+                    "name": "Highlight Search",
+                    "description": "Executes an elasticsearch highlight query",
                     "collectionId": "7eafb815-95ad-1d7f-6c2d-6a26ca6ecefe"
                 },
                 {
@@ -1015,33 +1034,6 @@
             ]
         },
         {
-            "id": "84ceadfa-66c1-a6a3-7569-ca3f3b9bcb1f",
-            "name": "AB Service",
-            "requests": [
-                {
-                    "id": "a05dc6df-6035-5e88-a45b-9dd655e9584b",
-                    "headers": "Api-Key: {{api-key}}\nContent-Type: application/json\n",
-                    "url": "{{ab-engine}}/{{v}}/tag/",
-                    "preRequestScript": "",
-                    "pathVariables": {},
-                    "method": "PUT",
-                    "data": "[\n    {\"name\": \"ab-engine\",  \"label\":\"AB\", \"targets\": {\"integrates-with\": [{\"name\": \"ab-search\", \"label\":\"AB\"}]}},\n    {\"name\": \"ab-engine\",  \"label\":\"AB\", \"targets\": {\"writes-to\": [{\"name\": \"neo4j\", \"label\":\"AB\"}]}},\n    {\"name\": \"ab-search\",  \"label\":\"AB\", \"targets\": {\"writes-to\": [{\"name\": \"ElasticSearch\", \"label\":\"AB\"}]}},\n      {\"name\": \"ab-search\",  \"label\":\"MDL\", \"targets\": {\"integrates-with\": [{\"name\": \"ab-engine\", \"label\":\"AB\"}]}},\n\n    {\"name\": \"ab-client\",  \"label\":\"MDL\", \"targets\": {\"communicates-with\": [{\"name\": \"ab-engine\", \"label\":\"AB\"}]}},\n    {\"name\": \"ab-view\",  \"label\":\"MDL\", \"targets\": {\"communicates-with\": [{\"name\": \"ab-engine\", \"label\":\"AB\"}]}},\n    {\"name\": \"kibana\",  \"label\":\"AB\", \"targets\": {\"reads\": [{\"name\": \"ElasticSearch\", \"label\":\"AB\"}]}},\n    {\"name\": \"linkurious\",  \"label\":\"AB\", \"targets\": {\"reads\": [{\"name\": \"neo4j\", \"label\":\"AB\"}]}},\n\n    {\"name\": \"ab-view\",  \"label\":\"AB\", \"targets\": {\"uses\": [{\"name\": \"d3js\", \"label\":\"AB\"}]}},\n    {\"name\": \"ab-view\",  \"label\":\"AB\", \"targets\": {\"supports\": [{\"name\": \"linkurious\", \"label\":\"AB\"}]}},\n\n  {\"name\": \"d3js\",  \"label\":\"AB\", \"targets\": {\"sources\": [{\"name\": \"ab-engine\", \"label\":\"AB\"}]}}\n\n]\n",
-                    "dataMode": "raw",
-                    "version": 2,
-                    "tests": "",
-                    "time": 1409267723007,
-                    "name": "Microservices",
-                    "description": "(ms:AB)-[r]-(os:AB) return ms, r, os;",
-                    "collectionId": "84ceadfa-66c1-a6a3-7569-ca3f3b9bcb1f",
-                    "responses": []
-                }
-            ],
-            "order": [
-                "a05dc6df-6035-5e88-a45b-9dd655e9584b"
-            ],
-            "timestamp": 1403576016062
-        },
-        {
             "id": "949a0782-0fb1-0b29-9de9-77656c4c3e16",
             "name": "Concepts",
             "description": "",
@@ -1092,12 +1084,13 @@
         },
         {
             "id": "9e2c0b72-c713-c0dc-11f5-67db3b62b940",
-            "name": "Profiles",
+            "name": "Profiles - Start Here",
             "description": "",
             "order": [
                 "285bdae7-53f6-0d6a-a46c-5999e4c3fe5a",
                 "b2d21c4a-4c35-5afc-1538-760ff8291501",
-                "3649daf4-b196-20e2-5526-d6919bae7ac1"
+                "3649daf4-b196-20e2-5526-d6919bae7ac1",
+                "911b9ea5-07fa-87f6-c06f-d8f7ec3ef1fc"
             ],
             "folders": [],
             "timestamp": 1368514208362,
@@ -1134,6 +1127,23 @@
                     "time": 1409266036343,
                     "name": "Authenticate",
                     "description": "Login:\nadmin/hackme can deal with the Admin and Profile endpoints but by default has no access to data\n\nTo give the admin user access to data you need to call the profiles/register endpoint which we recommend you do for the batch user.\n\nbatch/123 is a default user for batch operations that is not an administrator but should have access to your company data",
+                    "collectionId": "9e2c0b72-c713-c0dc-11f5-67db3b62b940",
+                    "responses": []
+                },
+                {
+                    "id": "911b9ea5-07fa-87f6-c06f-d8f7ec3ef1fc",
+                    "headers": "Content-Type: application/json\n",
+                    "url": "{{ab-engine}}/{{v}}/ping",
+                    "preRequestScript": "",
+                    "pathVariables": {},
+                    "method": "GET",
+                    "data": [],
+                    "dataMode": "params",
+                    "version": 2,
+                    "tests": "",
+                    "time": 1412956894173,
+                    "name": "Ping",
+                    "description": "Unauthenticated Ping request",
                     "collectionId": "9e2c0b72-c713-c0dc-11f5-67db3b62b940",
                     "responses": []
                 },
@@ -1359,6 +1369,14 @@
         {
             "id": "d1857278-e1e3-abed-1ec8-51b8074d35f6",
             "name": "Snapshot Repo",
+            "description": "",
+            "order": [
+                "ae3f8dea-dc3f-1470-0bd9-b1ece1b907b4"
+            ],
+            "folders": [],
+            "timestamp": 1407043145922,
+            "synced": false,
+            "remote_id": 0,
             "requests": [
                 {
                     "id": "ae3f8dea-dc3f-1470-0bd9-b1ece1b907b4",
@@ -1377,11 +1395,7 @@
                     "collectionId": "d1857278-e1e3-abed-1ec8-51b8074d35f6",
                     "responses": []
                 }
-            ],
-            "order": [
-                "ae3f8dea-dc3f-1470-0bd9-b1ece1b907b4"
-            ],
-            "timestamp": 1407043145922
+            ]
         },
         {
             "id": "e0f84bb1-03cb-d206-3f54-8563112b937c",
@@ -1429,6 +1443,108 @@
                     "description": "All tags associated with a Label",
                     "collectionId": "e0f84bb1-03cb-d206-3f54-8563112b937c",
                     "responses": []
+                }
+            ]
+        },
+        {
+            "id": "e83f85dd-447e-0b11-fb8a-985f5b21d8fd",
+            "name": "Batch",
+            "description": "",
+            "order": [
+                "1eb7a8ff-ca2f-d3ed-402c-bfc3cfc720de",
+                "87ac2ba7-011b-f467-2c55-a35ae7769b41",
+                "6d6ae8ba-e2fb-defe-2f87-b1548a140f05",
+                "3564fc15-65d7-7dc0-0225-3615518e57e2",
+                "35ed4850-a559-69e2-fabc-42c1180af467"
+            ],
+            "folders": [],
+            "timestamp": 1412956969794,
+            "synced": false,
+            "remote_id": 0,
+            "requests": [
+                {
+                    "id": "1eb7a8ff-ca2f-d3ed-402c-bfc3cfc720de",
+                    "headers": "Content-Type: application/json\n",
+                    "url": "{{ab-engine}}/{{v}}/login/",
+                    "preRequestScript": "",
+                    "pathVariables": {},
+                    "method": "POST",
+                    "data": "{\n  \"username\":\"admin\", \n \"password\": \"hackme\"}",
+                    "dataMode": "raw",
+                    "version": 2,
+                    "tests": "",
+                    "time": 1409266036343,
+                    "name": "0 - Authenticate",
+                    "description": "Login:\nadmin/hackme can deal with the Admin and Profile endpoints but by default has no access to data\n\nTo give the admin user access to data you need to call the profiles/register endpoint which we recommend you do for the batch user.\n\nbatch/123 is a default user for batch operations that is not an administrator but should have access to your company data",
+                    "collectionId": "e83f85dd-447e-0b11-fb8a-985f5b21d8fd",
+                    "responses": [],
+                    "synced": true,
+                    "isFromCollection": true,
+                    "collectionRequestId": "6f79f257-130b-87bd-deec-1144a4ecf63c"
+                },
+                {
+                    "id": "3564fc15-65d7-7dc0-0225-3615518e57e2",
+                    "headers": "Content-Type: application/json\n",
+                    "url": "{{ab-engine}}/{{v}}/batch/sflow/Question",
+                    "preRequestScript": "",
+                    "pathVariables": {},
+                    "method": "POST",
+                    "data": "{\n    \"contentType\": \"csv\",\n    \"tagOrEntity\": \"entity\",\n    \"documentName\": \"QuestionEvent\",\n    \"header\": true,\n    \"archiveTags\": false,\n    \"event\": \"Answer\",\n    \"fortressName\": \"StackOverflow\",\n    \"columns\": {\n        \"qid\": {\n            \"callerRef\": true\n        },\n        \"tags\": {\n            \"label\": \"Topic\",\n            \"reverse\": true,\n            \"relationshipName\": \"REFERS\",\n            \"delimiter\": \",\"\n        },\n        \"i\": {\n            \"tag\": true,\n            \"label\": \"Developer\",\n            \"relationshipName\": \"ASKS\",\n            \"createdUser\": true\n\n        },\n        \"j\": {\n            \"tag\": true,\n            \"label\": \"Developer\",\n            \"relationshipName\": \"HAS_ANSWER\",\n            \"updateUser\": true\n        }\n    }\n}\n",
+                    "dataMode": "raw",
+                    "version": 2,
+                    "tests": "",
+                    "time": 1412958164316,
+                    "name": "3 - Document Mapping",
+                    "description": "Creates a document mapping between the fortress and the document type that describes the content and import approach",
+                    "collectionId": "e83f85dd-447e-0b11-fb8a-985f5b21d8fd"
+                },
+                {
+                    "id": "35ed4850-a559-69e2-fabc-42c1180af467",
+                    "headers": "Content-Type: application/json\n",
+                    "url": "{{ab-engine}}/{{v}}/batch/sflow/Question/import",
+                    "preRequestScript": "",
+                    "pathVariables": {},
+                    "method": "POST",
+                    "data": "{\n  \"file\":\"/Users/mike/Downloads/answers.csv\",\n  \"filex\": \"/Users/mike/Documents/projects/datagio.com/ab-sales/src/main/resources/data/sflow/sm-answers.csv\"\n}\n  ",
+                    "dataMode": "raw",
+                    "version": 2,
+                    "tests": "",
+                    "time": 1412960082042,
+                    "name": "4 - Import File",
+                    "description": "Track the import file in to the system",
+                    "collectionId": "e83f85dd-447e-0b11-fb8a-985f5b21d8fd"
+                },
+                {
+                    "id": "6d6ae8ba-e2fb-defe-2f87-b1548a140f05",
+                    "headers": "Content-Type: application/json\n",
+                    "url": "{{ab-engine}}/{{v}}/fortress/sflow/Question",
+                    "preRequestScript": "",
+                    "pathVariables": {},
+                    "method": "PUT",
+                    "data": "",
+                    "dataMode": "raw",
+                    "version": 2,
+                    "tests": "",
+                    "time": 1412957889337,
+                    "name": "2 - Put DocumentType",
+                    "description": "Put a document type in to the system",
+                    "collectionId": "e83f85dd-447e-0b11-fb8a-985f5b21d8fd"
+                },
+                {
+                    "id": "87ac2ba7-011b-f467-2c55-a35ae7769b41",
+                    "headers": "Content-Type: application/json\n",
+                    "url": "{{ab-engine}}/{{v}}/fortress/",
+                    "preRequestScript": "",
+                    "pathVariables": {},
+                    "method": "POST",
+                    "data": "{\n  \"name\": \"sflow\",\n  \"searchActive\": false\n}",
+                    "dataMode": "raw",
+                    "version": 2,
+                    "tests": "",
+                    "time": 1412957053500,
+                    "name": "1 - Make Fortress",
+                    "description": "Step 1 - Create Fortress",
+                    "collectionId": "e83f85dd-447e-0b11-fb8a-985f5b21d8fd"
                 }
             ]
         }

@@ -31,7 +31,7 @@ import static org.junit.Assert.assertEquals;
  * Date: 2/05/14
  * Time: 8:26 AM
  */
-public class NonTransactional extends TestEngineBase{
+public class NonTransactional extends EngineBase {
 
     private Logger logger = LoggerFactory.getLogger(NonTransactional.class);
     @Override
@@ -110,7 +110,7 @@ public class NonTransactional extends TestEngineBase{
         ArrayList<Thread> threads = new ArrayList<>();
         int i = 0;
         while (i <= count) {
-            FuAction action = new FuAction(fortress, Integer.toString(i), TestEngineBase.mike_admin, latch);
+            FuAction action = new FuAction(fortress, Integer.toString(i), EngineBase.mike_admin, latch);
             actions.add(action);
             threads.add(new Thread(action));
             threads.get(i).start();

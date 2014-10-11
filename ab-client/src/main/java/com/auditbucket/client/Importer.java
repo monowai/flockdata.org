@@ -19,8 +19,8 @@
 
 package com.auditbucket.client;
 
-import com.auditbucket.client.rest.FdRestWriter;
 import com.auditbucket.client.rest.FdRestReader;
+import com.auditbucket.client.rest.FdRestWriter;
 import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.transform.FdWriter;
@@ -131,40 +131,43 @@ public class Importer {
 
                 int item = 0;
                 String fileName = null;
-                String importProfile = null;
+                String clazz = null;
                 for (String itemArg : items) {
                     if (item == 0) {
                         fileName = itemArg;
                     } else if (item == 1) {
-                        importProfile = itemArg;
+                        clazz = itemArg;
                     } else if (item == 2)
                         skipCount = Integer.parseInt(itemArg);
 
                     item++;
                 }
-                com.auditbucket.profile.ImportProfile importParams;
+                com.auditbucket.profile.ImportProfile importProfile;
                 defaults.setBatchSize(batchSize);
                 FdWriter restClient = getRestClient(defaults);
-                if (importProfile != null) {
-                    importParams = ClientConfiguration.getImportParams(importProfile);
+                if (clazz != null) {
+                    //importParams = Class.forName(importProfile);
+
+                    importProfile = ClientConfiguration.getImportParams(clazz);
+
                 } else {
                     logger.error("No import parameters to work with");
                     return;
                 }
                 SystemUserResultBean su = restClient.me(); // Use the configured API as the default FU unless another is set
                 if (su != null) {
-                    importParams.setFortressUser(su.getLogin());
+                    importProfile.setFortressUser(su.getLogin());
                 } else {
                     logger.error("Unable to validate the system user as a default fortress user. This will cause errors in the TrackEP if you do not set the FortressUser");
                 }
-                logger.debug("*** Calculated process args {}, {}, {}, {}", fileName, importParams, batchSize, skipCount);
+                logger.debug("*** Calculated process args {}, {}, {}, {}", fileName, importProfile, batchSize, skipCount);
 
 
                 if (fileProcessor== null )
                     fileProcessor = new FileProcessor(new FdRestReader(restClient));
 
 
-                totalRows = totalRows + fileProcessor.processFile(importParams, fileName, skipCount, restClient);
+                totalRows = totalRows + fileProcessor.processFile(importProfile, fileName, skipCount, restClient);
             }
             logger.info("Finished at {}", DateFormat.getDateTimeInstance().format(new Date()));
 

@@ -66,10 +66,6 @@ public class FdRestWriter implements FdWriter {
     private int batchSize;
     private static boolean compress = true;
     private boolean simulateOnly;
-//    private List<EntityInputBean> entityBatch = new ArrayList<>();
-//    private Map<String, TagInputBean> tagBatch = new HashMap<>();
-//    private final String entitySync = "BatchSync";
-//    private final String tagSync = "TagSync";
     private String defaultFortress;
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -111,6 +107,8 @@ public class FdRestWriter implements FdWriter {
 
     /**
      * Helper that turns the supplied object in to a Jackson mapped Map
+     * Used by ab-client
+     *
      * @param o - arbitrary object
      * @return Map<String,Object>
      */
@@ -398,6 +396,13 @@ public class FdRestWriter implements FdWriter {
 
         return httpHeaders;
     }
+
+    public static Map<String, Object> getWeightedMap(int weight) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("weight", weight);
+        return properties;
+    }
+
 
 //    public void flush(String message) throws FlockException {
 //        flush(message, ProfileConfiguration.DataType.TAG);

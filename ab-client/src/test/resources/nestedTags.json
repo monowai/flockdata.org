@@ -1,5 +1,5 @@
 {
-    "documentType": "Sales",
+    "documentName": "Sales",
     "contentType": "csv",
     "tagOrTrack": "track",
     "staticDataClazz": "com.absales.DataResolver",
@@ -7,7 +7,7 @@
     "fortress": "Sales",
     "fortressUser": "batch",
     "header": true,
-    "columns": {
+    "content": {
         "transaction_id": {
             "callerRef": true
         },
