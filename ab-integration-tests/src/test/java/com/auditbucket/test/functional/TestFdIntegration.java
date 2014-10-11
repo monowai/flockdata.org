@@ -1077,11 +1077,11 @@ public class TestFdIntegration {
 
         Entity entity = trackService.getEntity(company, metaKey);
         if ( entity == null )
-            return entity;
+            return null;
         int timeout = 100;
         while (entity.getSearchKey() == null && i <= timeout) {
-            entity =  trackService.getEntity(company, metaKey);
             Thread.sleep(20);
+            entity =  trackService.getEntity(company, metaKey);
             if (i > 20)
                 waitAWhile("Sleeping for the entity to update {}");
             i++;
