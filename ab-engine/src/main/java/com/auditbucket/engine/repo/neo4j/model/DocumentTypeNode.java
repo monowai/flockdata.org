@@ -149,8 +149,10 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
 
         DocumentTypeNode that = (DocumentTypeNode) o;
 
+        if (code != null ? !code.equals(that.code) : that.code != null) return false;
         if (companyKey != null ? !companyKey.equals(that.companyKey) : that.companyKey != null) return false;
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
 
         return true;
     }
@@ -158,6 +160,8 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (code != null ? code.hashCode() : 0);
         result = 31 * result + (companyKey != null ? companyKey.hashCode() : 0);
         return result;
     }

@@ -45,7 +45,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
         //ToDo: Restrict Entities by Company
         String query = "match (meta:_Entity) "+(docFilter? "where  " + docIndexes: "")+
                 " with meta " +
-                "match t=(tag1:_Tag)-[" + fromRlx + "]-(meta)-[" + toRlx + "]-(tag2:_Tag) " +     // Concepts
+                "match t=(tag1)-[" + fromRlx + "]-(meta)-[" + toRlx + "]-(tag2) " +     // Concepts
                 conceptString+
                 "with tag1.name as tag1, tag2.name as tag2, count(t) as links " +
                 "order by links desc, tag2 " +

@@ -3,6 +3,7 @@ package com.auditbucket.transform;
 import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.bean.TagInputBean;
+import com.auditbucket.registration.model.Tag;
 import com.auditbucket.track.bean.CrossReferenceInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
 
@@ -35,5 +36,5 @@ public interface FdWriter {
      */
     boolean isSimulateOnly();
 
-    Collection<com.auditbucket.registration.model.Tag> getCountries()  throws FlockException ;
+    Collection<Tag> getCountries()  throws FlockException ;
 }

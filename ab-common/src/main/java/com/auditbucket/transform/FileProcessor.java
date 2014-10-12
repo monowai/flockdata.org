@@ -78,6 +78,7 @@ public class FileProcessor {
                     trackBatcher.flush();
             }
         }
+        logger.info("Processed {}", file);
         return result;
     }
 

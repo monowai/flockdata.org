@@ -13,6 +13,7 @@ import com.auditbucket.track.model.Entity;
 import com.auditbucket.transform.FileProcessor;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.Assert.*;
 
@@ -21,6 +22,7 @@ import static org.junit.Assert.*;
  * Date: 8/10/14
  * Time: 5:30 PM
  */
+@Transactional
 public class TestBatch extends EngineBase {
     @Autowired
     ImportProfileService importProfileService;
@@ -28,7 +30,7 @@ public class TestBatch extends EngineBase {
     @Test
     public void doBatchTest() throws Exception {
         setSecurity();
-        SystemUser su = registerSystemUser("doBatchTest", mike_admin);
+        SystemUser su = registerSystemUser("doBatchTest", "mike");
         assertNotNull(su);
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("doBatchTest", true));

@@ -20,13 +20,14 @@
 package com.auditbucket.client.rest;
 
 import com.auditbucket.helper.FlockException;
-import com.auditbucket.registration.model.Tag;
+import com.auditbucket.registration.bean.TagInputBean;
 import com.auditbucket.transform.FdReader;
 import com.auditbucket.transform.FdWriter;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -36,7 +37,7 @@ import java.util.Map;
  */
 public class FdRestReader implements FdReader {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdRestReader.class);
-    Map<String, Tag> countriesByName = new HashMap<>();
+    Map<String, TagInputBean> countriesByName = new HashMap<>();
 
     private FdWriter writer;
 
@@ -65,13 +66,19 @@ public class FdRestReader implements FdReader {
 
         if (countriesByName.isEmpty() ) {
 
-            Collection<Tag> countries = writer.getCountries();
+            Collection countries = writer.getCountries();
             countriesByName = new HashMap<>(countries.size());
-            for (Tag next : countries) {
-                countriesByName.put(next.getName().toLowerCase(), next);
+            Iterator it = countries.iterator();
+            while ( it.hasNext()){
+                TagInputBean simpleTag = new TagInputBean();
+                TagInputBean tag = (TagInputBean)it.next();
+                simpleTag.setCode(tag.getCode());
+                simpleTag.setName(tag.getName());
+                countriesByName.put(tag.getName().toLowerCase(), tag);
             }
+
         }
-        Tag tag = countriesByName.get(name.toLowerCase());
+        TagInputBean tag = countriesByName.get(name.toLowerCase());
         if (tag == null) {
             logger.error("Unable to resolve country name [{}]", name);
             return null;

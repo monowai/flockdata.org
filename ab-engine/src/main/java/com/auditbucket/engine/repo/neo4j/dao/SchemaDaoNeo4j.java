@@ -88,7 +88,7 @@ public class SchemaDaoNeo4j {
                     docResult = new DocumentTypeNode(fortress, docCode);
                     template.save(docResult);
                 }
-            } finally{
+            } finally {
                 lock.unlock();
             }
         }
@@ -110,7 +110,7 @@ public class SchemaDaoNeo4j {
     private DocumentType documentExists(Fortress fortress, String docCode) {
 
         DocumentType dt = documentTypeRepo.findFortressDocCode(fortress.getId(), DocumentTypeNode.parse(fortress, docCode));
-        logger.trace("Document Exists= {} - Looking for {}", dt!=null, DocumentTypeNode.parse(fortress, docCode));
+        logger.trace("Document Exists= {} - Looking for {}", dt != null, DocumentTypeNode.parse(fortress, docCode));
         return dt;
     }
 
@@ -227,25 +227,23 @@ public class SchemaDaoNeo4j {
         // match (a:_DocType)-[:HAS_CONCEPT]-(c:_Concept)-[:KNOWN_RELATIONSHIP]-(kr:_Relationship)
         // where a.name="Sales" and c.name="Device"
         // with a, c, kr match (a)-[:DOC_RELATIONSHIP]-(t:Relationship) return a,t
-        TreeSet<DocumentResultBean> fauxDocuments = new TreeSet<>();
+        TreeSet<DocumentResultBean> documentResults = new TreeSet<>();
         Set<DocumentType> documents;
         if (docNames == null)
             documents = documentTypeRepo.findAllDocuments(company);
         else
             documents = documentTypeRepo.findDocuments(company, docNames);
 
+        ConceptNode userConcept = new ConceptNode("User");
         for (DocumentType document : documents) {
             template.fetch(document.getFortress());
             DocumentResultBean fauxDocument = new DocumentResultBean(document);
-//            ConceptNode userConcept = new ConceptNode("User");
-//            userConcept.addRelationship("CREATED_BY", document);
-//            userConcept.addRelationship("CHANGED", document);
-
-            fauxDocuments.add(fauxDocument);
-//            fauxDocuments.add(new DocumentResultBean(new DocumentTypeNode()));
+            documentResults.add(fauxDocument);
             template.fetch(document.getConcepts());
-            //document.getConcepts().add(userConcept);
+
             if (withRelationships) {
+
+                boolean added = false;
                 for (Concept concept : document.getConcepts()) {
 
                     template.fetch(concept);
@@ -253,24 +251,34 @@ public class SchemaDaoNeo4j {
                     Concept fauxConcept = new ConceptNode(concept.getName());
 
                     fauxDocument.add(fauxConcept);
-//                    fauxDocument.add(userConcept);
+//                    if ( !added )
+//                        fauxDocument.add(userConcept);
+
+                    added = true;
                     Collection<Relationship> fauxRlxs = new ArrayList<>();
                     for (Relationship existingRelationship : concept.getRelationships()) {
                         if (existingRelationship.hasDocumentType(document)) {
                             fauxRlxs.add(existingRelationship);
                         }
                     }
+                    //fauxRlxs.add();
+//                    userConcept.addRelationship("CREATED_BY", document);
                     fauxConcept.addRelationships(fauxRlxs);
+
                 }
+                userConcept.addRelationship("CREATED_BY", document);
+                if (!fauxDocument.getConcepts().isEmpty())
+                    fauxDocument.getConcepts().add(userConcept);
             } else {
                 // Just return the concepts
                 for (Concept concept : document.getConcepts()) {
                     template.fetch(concept);
                     fauxDocument.add(concept);
                 }
+                fauxDocument.add(userConcept);
             }
         }
-        return fauxDocuments;
+        return documentResults;
     }
 
     public void createDocTypes(ArrayList<String> docCodes, Fortress fortress) {
@@ -286,7 +294,7 @@ public class SchemaDaoNeo4j {
                 "where id(fort)={fortId}  delete dr, k,a,fd ;";
 
         // ToDo: Purge Unused Concepts!!
-        HashMap<String,Object> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         params.put("fortId", fortress.getId());
         template.query(docRlx, params);
     }

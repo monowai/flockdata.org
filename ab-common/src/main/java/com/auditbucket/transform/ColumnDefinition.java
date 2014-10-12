@@ -1,5 +1,6 @@
 package com.auditbucket.transform;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ public class ColumnDefinition {
     private String   dateFormat;
     private boolean  valueAsProperty;
     private boolean  country;
+    private boolean  createdDate;
     private String   strategy = null;
     private String   fortress = null;
     private String   documentType = null;
@@ -68,6 +70,7 @@ public class ColumnDefinition {
         return title;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public boolean isTag() {
         return tag || isCountry();
     }
@@ -98,6 +101,7 @@ public class ColumnDefinition {
         return targets;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getStrategy() {
         return strategy;
     }
@@ -181,5 +185,9 @@ public class ColumnDefinition {
 
     public void setMustExist(boolean mustExist) {
         this.mustExist = mustExist;
+    }
+
+    public boolean isCreatedDate() {
+        return createdDate;
     }
 }

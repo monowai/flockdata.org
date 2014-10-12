@@ -55,6 +55,9 @@ public class NeoSyntaxHelper {
         String result = "";//(delimiter.equals(":")? ":": "");
         for (String field : input) {
             if ( field != null ) {
+                // ToDo: Fix this hack
+                if ( field.equals("User"))
+                    field = "_FortressUser";
                 if ( field.contains(" ") || field.contains("-")|| field.contains(".") || field.matches("^[\\d\\-\\.]+$"))
                     field = "`"+ field +"`" ;
 

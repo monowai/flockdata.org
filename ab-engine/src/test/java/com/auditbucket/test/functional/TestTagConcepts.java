@@ -98,10 +98,10 @@ public class TestTagConcepts extends EngineBase {
             // DAT-112
             Set<DocumentResultBean> found = validateConcepts("DocA", su, 1);
             assertEquals(1, found.size());
-            assertEquals(1, found.iterator().next().getConcepts().size());
+            assertEquals(2, found.iterator().next().getConcepts().size());
             found = validateConcepts("DocB", su, 1);
             assertEquals(1, found.size());
-            assertEquals(1, found.iterator().next().getConcepts().size());
+            assertEquals("Didn't find the Document + User concept",2, found.iterator().next().getConcepts().size());
         } finally {
             Neo4jHelper.cleanDb(template);
         }
@@ -228,7 +228,11 @@ public class TestTagConcepts extends EngineBase {
                     for (Relationship relationship : relationships) {
                         logger.debug(relationship.getName());
                     }
-                    assertEquals(2, relationships.size());
+                    if ( concept.getName().equals("User")){
+                        // Currently only tracking the created. Should be 2 when tracking the updated
+                        assertEquals(1, relationships.size());
+                    } else
+                        assertEquals(2, relationships.size());
 
                 }
             }
@@ -348,10 +352,22 @@ public class TestTagConcepts extends EngineBase {
             for (DocumentResultBean foundDoc : foundDocs) {
                 assertEquals("Promotion", foundDoc.getName());
                 Collection<Concept> concepts = foundDoc.getConcepts();
-                assertEquals(1, concepts.size());
-                Concept concept = concepts.iterator().next();
-                assertEquals("Device", concept.getName());
-                assertEquals(1, concept.getRelationships().size());
+                assertEquals(2, concepts.size());
+                boolean deviceFound = false;
+                boolean userFound = false;
+                for (Concept concept : concepts) {
+                    if (concept.getName().equalsIgnoreCase("Device")) {
+                        deviceFound = true;
+                        assertEquals(1, concept.getRelationships().size());
+                    } else if (concept.getName().equalsIgnoreCase("User")) {
+                        userFound = true;
+                        assertEquals(1, concept.getRelationships().size());
+                    }
+
+                }
+
+                assertEquals(true, deviceFound && userFound);
+
                 logger.info(foundDoc.toString());
             }
         } finally {
@@ -400,10 +416,21 @@ public class TestTagConcepts extends EngineBase {
             for (DocumentResultBean foundDoc : foundDocs) {
                 assertEquals("Claim", foundDoc.getName());
                 Collection<Concept> concepts = foundDoc.getConcepts();
-                assertEquals(1, concepts.size());
-                Concept concept = concepts.iterator().next();
-                assertEquals("Claim", concept.getName());
-                assertEquals(1, concept.getRelationships().size());
+                assertEquals(2, concepts.size());
+                boolean claimFound = false;
+                boolean userFound = false;
+                for (Concept concept : concepts) {
+                    if (concept.getName().equalsIgnoreCase("Claim")) {
+                        claimFound = true;
+                        assertEquals(1, concept.getRelationships().size());
+                    } else if (concept.getName().equalsIgnoreCase("User")) {
+                        userFound = true;
+                        assertEquals(1, concept.getRelationships().size());
+                    }
+
+                }
+
+                assertEquals(true, claimFound && userFound);
                 logger.info(foundDoc.toString());
             }
             mediationFacade.purge(su.getCompany(), fortress.getName());
