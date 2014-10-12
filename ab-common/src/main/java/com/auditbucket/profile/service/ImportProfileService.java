@@ -30,4 +30,6 @@ public interface ImportProfileService {
     public void process(Company company, Fortress fortressCode, DocumentType documentName, String pathToBatch) throws FlockException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException;
 
     public void validateArguments(Company company, String fortressCode, String documentCode, String fileName) throws NotFoundException, IOException ;
+
+    public ProfileConfiguration get(Company company, String fortressCode, String documentName) throws FlockException;
 }

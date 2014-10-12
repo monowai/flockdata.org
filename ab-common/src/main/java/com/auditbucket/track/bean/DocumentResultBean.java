@@ -36,7 +36,7 @@ public class DocumentResultBean implements Comparable<DocumentResultBean>{
         return concepts;
     }
 
-    ArrayList<Concept> concepts = null;
+    ArrayList<Concept> concepts = new ArrayList<>();
 
     DocumentResultBean() {
     }

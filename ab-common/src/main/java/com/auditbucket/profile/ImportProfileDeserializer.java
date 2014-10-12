@@ -25,7 +25,9 @@ public class ImportProfileDeserializer extends JsonDeserializer<ImportProfile> {
     public ImportProfile deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         ImportProfile importProfile = new ImportProfile();
         JsonNode node = jp.getCodec().readTree(jp);
-        JsonNode column = node.get("documentType");
+        JsonNode column = node.get("documentName");
+        if ( column == null )
+            column = node.get("documentType");
         if (column != null)
             importProfile.setDocumentName(column.asText());
 

@@ -40,7 +40,7 @@ public class TestApiKeyInterceptor extends EngineBase {
 	public void givenValidAPIKey_WhenCallingSecureAPI_ThenShouldBeAllowed()
 			throws Exception {
         String companyName = "SecAPI";
-		String apiKey = registerSystemUser(companyName, mike_admin)
+		String apiKey = registerSystemUser(companyName, "abc123")
 				.getApiKey();
 
 		request.setRequestURI("/fortress/");

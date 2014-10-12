@@ -91,8 +91,8 @@ public class ProfileServiceNeo4j implements ImportProfileService {
      */
     @Override
     @Async
-    public void processAsync(Company company, String fortressCode, String documentName, String file) throws ClassNotFoundException, FlockException, InstantiationException, IOException, IllegalAccessException {
-        process(company, fortressCode, documentName, file);
+    public void processAsync(Company company, String fortressCode, String documentCode, String file) throws ClassNotFoundException, FlockException, InstantiationException, IOException, IllegalAccessException {
+        process(company, fortressCode, documentCode, file);
     }
 
     @Override
@@ -126,6 +126,18 @@ public class ProfileServiceNeo4j implements ImportProfileService {
             throw new NotFoundException("Unable to resolve document type " + documentCode);
 
 
+    }
+
+    @Override
+    public ProfileConfiguration get(Company company, String fortressCode, String documentCode) throws FlockException {
+        Fortress fortress = fortressService.findByCode(company, fortressCode);
+        if ( fortress == null )
+            throw new NotFoundException("Unable to locate the fortress " + fortressCode);
+        DocumentType documentType = schemaService.resolveByDocCode(fortress, documentCode, false);
+        if (documentType == null )
+            throw new NotFoundException("Unable to resolve document type " + documentCode);
+
+        return get(fortress, documentType);
     }
 
 

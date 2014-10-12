@@ -187,7 +187,7 @@ public class TestTags extends EngineBase {
 
     @Test
     public void targetRelationships() throws Exception {
-        SystemUser iSystemUser = registerSystemUser("targetRelationships", mike_admin);
+        SystemUser iSystemUser = registerSystemUser("targetRelationships", "mary");
 
         TagInputBean tagInput = new TagInputBean("Source");
         tagInput.setTargets("testAssoc", new TagInputBean("Dest"));

@@ -120,7 +120,7 @@ public class FdRestWriter implements FdWriter {
     public SystemUserResultBean me(){
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-        HttpHeaders httpHeaders = getHeaders(apiKey, null, null);// Unauthorized ping is ok
+        HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);// Unauthorized ping is ok
         HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
         try {
             ResponseEntity<SystemUserResultBean> response = restTemplate.exchange(ME, HttpMethod.GET, requestEntity, SystemUserResultBean.class);
@@ -142,7 +142,7 @@ public class FdRestWriter implements FdWriter {
     public String ping() {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-        HttpHeaders httpHeaders = getHeaders(apiKey, null, null);// Unauthorized ping is ok
+        HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);// Unauthorized ping is ok
         HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
         try {
             ResponseEntity<String> response = restTemplate.exchange(PING, HttpMethod.GET, requestEntity, String.class);

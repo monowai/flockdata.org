@@ -11,6 +11,7 @@ import com.auditbucket.transform.FdReader;
 import com.auditbucket.transform.TagProfile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.joda.time.DateTime;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -88,6 +89,10 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                 if (colDef.isDescription()) {
                     setDescription(row.get(column).toString());
                 }
+                if ( colDef.isCreatedDate()){
+                    setWhen( new DateTime(value));
+                }
+
                 if (colDef.isCallerRef()) {
                     String callerRef = getCallerRef();
                     if (callerRef == null)

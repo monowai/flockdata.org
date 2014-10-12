@@ -52,6 +52,8 @@ public class TestCallerRef extends EngineBase {
     private String monowai = "Monowai";
 
     @Test
+    @Transactional
+
     public void nullCallerRefBehaviour() throws Exception {
         try {
             SystemUser su = registerSystemUser(monowai, "nullCallerRefBehaviour");

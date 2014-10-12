@@ -62,6 +62,14 @@ public class RelationshipNode implements Relationship, Comparable<RelationshipNo
     }
 
     @Override
+    public String toString() {
+        return "RelationshipNode{" +
+                "name='" + name + '\'' +
+                ", id=" + id +
+                '}';
+    }
+
+    @Override
     public boolean hasDocumentType(DocumentType document) {
         if ( documentTypes == null )
             return false;
