@@ -505,10 +505,10 @@ public class TrackServiceNeo4j implements TrackService {
         if ( f == null )
             throw new FlockException("Unable to locate the fortress "+sourceKey.getFortressName());
         Entity fromEntity;
-        if (sourceKey.getDocumentCode() == null || sourceKey.getDocumentCode().equals("*"))
+        if (sourceKey.getDocumentType() == null || sourceKey.getDocumentType().equals("*"))
             fromEntity = trackDao.findByCallerRefUnique(f.getId(), sourceKey.getCallerRef());
         else {
-            DocumentType document = schemaService.resolveByDocCode(f, sourceKey.getDocumentCode(), false);
+            DocumentType document = schemaService.resolveByDocCode(f, sourceKey.getDocumentType(), false);
             fromEntity = trackDao.findByCallerRef(f.getId(), document.getId(), sourceKey.getCallerRef());
         }
         if (fromEntity == null)
@@ -522,10 +522,10 @@ public class TrackServiceNeo4j implements TrackService {
             int count = 1;
 
             Collection<Entity> entities;
-            if (entityKey.getDocumentCode().equals("*"))
+            if (entityKey.getDocumentType().equals("*"))
                 entities = findByCallerRef(f, entityKey.getCallerRef());
             else {
-                Entity mh = findByCallerRef(fortressService.findByName(company, entityKey.getFortressName()), entityKey.getDocumentCode(), entityKey.getCallerRef());
+                Entity mh = findByCallerRef(fortressService.findByName(company, entityKey.getFortressName()), entityKey.getDocumentType(), entityKey.getCallerRef());
                 if (mh == null) {
                     ignored.add(entityKey);
                     entities = null;
