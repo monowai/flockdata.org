@@ -23,8 +23,8 @@ public class EntityKeyTests {
         assertEquals("Hashcodes should match", entityKeyA.hashCode(), entityKeyB.hashCode());
 
         EntityKey entityKeyC = new EntityKey("abc", null, "456");
-        assertEquals("WildCard document not working", "*", entityKeyC.getDocumentCode());
+        assertEquals("WildCard document not working", "*", entityKeyC.getDocumentType());
         entityKeyC = new EntityKey();
-        assertEquals("WildCard document not working", "*", entityKeyC.getDocumentCode());
+        assertEquals("WildCard document not working", "*", entityKeyC.getDocumentType());
     }
 }
