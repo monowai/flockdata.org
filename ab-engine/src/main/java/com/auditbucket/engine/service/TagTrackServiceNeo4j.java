@@ -172,6 +172,10 @@ public class TagTrackServiceNeo4j implements EntityTagService {
     @Override
     public Collection<TrackTag> findEntityTags(Entity entity) {
         Company company = securityHelper.getCompany();
+        return findEntityTags(company, entity);
+    }
+
+    public Collection<TrackTag> findEntityTags(Company company, Entity entity){
         return getEntityTags(company, entity);
     }
 

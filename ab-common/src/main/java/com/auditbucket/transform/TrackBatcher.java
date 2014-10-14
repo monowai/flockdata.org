@@ -3,6 +3,7 @@ package com.auditbucket.transform;
 import com.auditbucket.helper.FlockException;
 import com.auditbucket.profile.model.ProfileConfiguration;
 import com.auditbucket.registration.bean.TagInputBean;
+import com.auditbucket.registration.model.Company;
 import com.auditbucket.track.bean.EntityInputBean;
 import org.slf4j.LoggerFactory;
 
@@ -21,17 +22,26 @@ public class TrackBatcher {
     private Map<String, TagInputBean> tagBatch = new HashMap<>();
     private final String entitySync = "BatchSync";
     private final String tagSync = "TagSync";
+    private Company company = null;
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TrackBatcher.class);
 
     private ProfileConfiguration importProfile;
     private int batchSize = 100;
     FdWriter fdWriter;
+    boolean async = false;
 
-    public TrackBatcher(ProfileConfiguration importProfile, FdWriter writer, int batchSize) {
+    public TrackBatcher(ProfileConfiguration importProfile, FdWriter writer, int batchSize, Company company, Boolean async) {
         this.importProfile = importProfile;
         this.batchSize = batchSize;
         this.fdWriter = writer;
+        this.company = company;
+        this.async = async;
 
+    }
+
+    public TrackBatcher(ProfileConfiguration profileConfiguration, FdWriter writer, int batchSize, Company company) {
+        this (profileConfiguration, writer, batchSize, company, false);
+        this.company = company;
     }
 
     public void batchTag(TagInputBean tagInputBean, String message) throws FlockException {
@@ -54,7 +64,7 @@ public class TrackBatcher {
                     logger.debug("Flushing....");
                     // process the tags independently to reduce the chance of a deadlock when processing the entity
                     fdWriter.flushTags(new ArrayList<>(tagBatch.values()));
-                    fdWriter.flushEntities(entityBatch);
+                    fdWriter.flushEntities(company, entityBatch, async );
                     logger.debug("Flushed " + message + " Batch [{}]", entityBatch.size());
                 }
                 entityBatch = new ArrayList<>();
@@ -100,7 +110,7 @@ public class TrackBatcher {
         if (fdWriter.isSimulateOnly())
             return;
         synchronized (entitySync) {
-            fdWriter.flushEntities(entityBatch);
+            fdWriter.flushEntities(company, entityBatch, async);
             entityBatch.clear();
 
         }

@@ -41,7 +41,15 @@ public class BatchEP {
             throw new NotFoundException("No file to process");
 
         profileService.validateArguments(company, fortressCode, documentName, filename.toString());
-        profileService.process(company, fortressCode, documentName, filename.toString());
+        boolean async = false;
+        Object value = file.get("async");
+        if ( value != null )
+            async = Boolean.parseBoolean(value.toString());
+
+        if ( async)
+            profileService.processAsync(company, fortressCode, documentName, filename.toString());
+        else
+            profileService.process(company, fortressCode, documentName, filename.toString(), async);
     }
 
     @RequestMapping(value = "/{fortress}/{document}", consumes = "application/json", method = RequestMethod.POST)

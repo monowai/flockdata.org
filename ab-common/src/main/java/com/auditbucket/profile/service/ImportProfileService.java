@@ -23,11 +23,11 @@ public interface ImportProfileService {
 
     public void save(Fortress fortress, DocumentType documentType, ProfileConfiguration importProfile) throws FlockException;
 
-    public void process(Company company, String fortressCode, String documentCode, String file) throws FlockException, ClassNotFoundException, InstantiationException, IllegalAccessException, IOException;
+    public void process(Company company, String fortressCode, String documentCode, String file, boolean async) throws FlockException, ClassNotFoundException, InstantiationException, IllegalAccessException, IOException;
 
     void processAsync(Company company, String fortressCode, String documentName, String file) throws ClassNotFoundException, FlockException, InstantiationException, IOException, IllegalAccessException;
 
-    public void process(Company company, Fortress fortressCode, DocumentType documentName, String pathToBatch) throws FlockException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException;
+    public void process(Company company, Fortress fortressCode, DocumentType documentName, String pathToBatch, Boolean async) throws FlockException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException;
 
     public void validateArguments(Company company, String fortressCode, String documentCode, String fileName) throws NotFoundException, IOException ;
 

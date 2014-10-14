@@ -5,6 +5,7 @@ import com.auditbucket.helper.FlockException;
 import com.auditbucket.helper.SecurityHelper;
 import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.bean.TagInputBean;
+import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.track.bean.CrossReferenceInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
@@ -56,9 +57,14 @@ public class FdServerWriter implements FdWriter, FdReader {
     }
 
     @Override
-    public String flushEntities(List<EntityInputBean> entityBatch) throws FlockException {
+    public String flushEntities(Company company, List<EntityInputBean> entityBatch, boolean async) throws FlockException {
         try {
-            mediationFacade.trackEntities(securityHelper.getCompany(), entityBatch);
+            if ( company == null )
+                company = securityHelper.getCompany();
+            if ( async )
+                mediationFacade.trackEntitiesAsync(company, entityBatch);
+            else
+                mediationFacade.trackEntities(company, entityBatch);
             return "ok";
         } catch (InterruptedException e) {
             throw new FlockException("Interrupted", e);

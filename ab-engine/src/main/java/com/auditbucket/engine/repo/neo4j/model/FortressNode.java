@@ -65,7 +65,7 @@ public class FortressNode implements Fortress {
         getTimeZone();
         getLanguageTag();
 
-        setName(fortressInputBean.getName());
+        setName(fortressInputBean.getName().trim());
         setSearchActive(fortressInputBean.getSearchActive());
         setCompany(ownedBy);
         system = fortressInputBean.getSystem();

@@ -46,6 +46,12 @@
                                     type="com.auditbucket.search.model.EsSearchResult">
     </int:json-to-object-transformer>
 
+    <int:json-to-object-transformer id="jsonToObjectTagCloud"
+                                    input-channel="doTagCloudReply"
+                                    output-channel="sendTagCloudReply"
+                                    type="com.auditbucket.search.model.EsSearchResult">
+    </int:json-to-object-transformer>
+
 
     <int:object-to-json-transformer id="objectToJson"
                                     input-channel="sendRequest"
@@ -56,6 +62,12 @@
     <int:object-to-json-transformer id="objectToJson2"
                                     input-channel="sendSearchRequest"
                                     output-channel="doMetaKeyQuery"
+                                    content-type="application/json">
+    </int:object-to-json-transformer>
+
+    <int:object-to-json-transformer id="objectToJsonTagCloud"
+                                    input-channel="sendTagCloudRequest"
+                                    output-channel="doTagCloudQuery"
                                     content-type="application/json">
     </int:object-to-json-transformer>
 
@@ -71,6 +83,10 @@
         <int:dispatcher task-executor="ab-engine"/>
     </int:channel>
 
+    <int:channel id="doTagCloudQuery">
+        <int:dispatcher task-executor="ab-engine"/>
+    </int:channel>
+
     <int:channel id="searchDocSyncResult">
         <!--Enabling taskexecutor resulted in transformation failure under http-->
         <!--<int:dispatcher task-executor="taskExecutor"/>-->
@@ -80,4 +96,8 @@
 
     <int:channel id="sendSearchRequest"/>
     <int:channel id="sendSearchReply"/>
+
+    <!-- TAG CLOUD CHANNEL AB-ENGINE-->
+    <int:channel id="sendTagCloudRequest"/>
+    <int:channel id="sendTagCloudReply"/>
 </beans>

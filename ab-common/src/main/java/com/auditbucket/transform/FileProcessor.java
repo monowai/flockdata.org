@@ -6,6 +6,7 @@ import com.auditbucket.helper.NotFoundException;
 import com.auditbucket.profile.model.Mappable;
 import com.auditbucket.profile.model.ProfileConfiguration;
 import com.auditbucket.registration.bean.TagInputBean;
+import com.auditbucket.registration.model.Company;
 import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.bean.CrossReferenceInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
@@ -54,8 +55,8 @@ public class FileProcessor {
         this.defaultStaticDataResolver = staticDataResolver;
     }
 
-    public Long processFile(ProfileConfiguration importProfile, String file, int skipCount, FdWriter writer) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
-        trackBatcher = new TrackBatcher(importProfile, writer, 100);
+    public Long processFile(ProfileConfiguration importProfile, String file, int skipCount, FdWriter writer, Company company, Boolean async) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
+        trackBatcher = new TrackBatcher(importProfile, writer, 100, company, async);
         Mappable mappable = importProfile.getMappable();
 
         //String file = path;

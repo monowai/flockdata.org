@@ -46,6 +46,11 @@
                                     type="com.auditbucket.search.model.EsSearchResult">
     </int:json-to-object-transformer>
 
+    <int:json-to-object-transformer id="jsonToObjectTagCloud"
+                                    input-channel="doTagCloudReply"
+                                    output-channel="sendTagCloudReply"
+                                    type="com.auditbucket.search.model.TagCloud">
+    </int:json-to-object-transformer>
 
     <int:object-to-json-transformer id="objectToJson"
                                     input-channel="sendRequest"
@@ -57,11 +62,20 @@
                                     output-channel="doMetaKeyQuery">
     </int:object-to-json-transformer>
 
+    <int:object-to-json-transformer id="objectToJsonTagCloud"
+                                    input-channel="sendTagCloudRequest"
+                                    output-channel="doTagCloudQuery">
+    </int:object-to-json-transformer>
+
     <int:channel id="syncSearchDocs">
         <int:dispatcher task-executor="qExecutor"/>
     </int:channel>
 
     <int:channel id="doMetaKeyQuery">
+        <int:dispatcher task-executor="qExecutor"/>
+    </int:channel>
+
+    <int:channel id="doTagCloudQuery">
         <int:dispatcher task-executor="qExecutor"/>
     </int:channel>
 
@@ -73,6 +87,9 @@
 
     <int:channel id="sendSearchRequest"/>
     <int:channel id="sendSearchReply"/>
+
+    <int:channel id="sendTagCloudRequest"/>
+    <int:channel id="sendTagCloudReply"/>
 
     <int:channel id="errors"/>
 

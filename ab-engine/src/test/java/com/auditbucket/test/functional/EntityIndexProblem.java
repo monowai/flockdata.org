@@ -81,7 +81,7 @@ public class EntityIndexProblem extends EngineBase {
         DocumentType docType = schemaService.resolveByDocCode(f, "QuestionEvent");
         importProfile.save(f, docType, Helper.getImportParams("/sflow.json") );
 
-        importProfile.process(su.getCompany(), f, docType, "/Users/mike/Downloads/answers.csv");
+        importProfile.process(su.getCompany(), f, docType, "/Users/mike/Downloads/answers.csv", false);
         //importProfile.process(su.getCompany(), f, docType, "/data/sflow/sm-answers.csv");
     }
 }

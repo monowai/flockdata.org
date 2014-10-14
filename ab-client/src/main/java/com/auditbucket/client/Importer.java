@@ -77,6 +77,11 @@ public class Importer {
                 .required(false)
                 .help("Default batch size");
 
+        parser.addArgument("-a", "--async")
+                .required(false)
+                .setDefault(false)
+                .help("Async processing");
+
         parser.addArgument("-c", "--path")
                 .setDefault("./conf")
                 .required(false)
@@ -99,6 +104,7 @@ public class Importer {
     public static void main(String args[]) {
         StopWatch watch = new StopWatch("Batch Import");
         long totalRows = 0;
+        boolean async = false;
         FileProcessor fileProcessor = null;
         try {
             Namespace ns = getCommandLineArgs(args);
@@ -120,6 +126,7 @@ public class Importer {
             if (batch != null && !batch.equals(""))
                 batchSize = Integer.parseInt(batch);
 
+            async = Boolean.parseBoolean(ns.getString("async"));
 
             watch.start();
             //logger.info("*** Starting {}", DateFormat.getDateTimeInstance().format(new Date()));
@@ -166,8 +173,8 @@ public class Importer {
                 if (fileProcessor== null )
                     fileProcessor = new FileProcessor(new FdRestReader(restClient));
 
-
-                totalRows = totalRows + fileProcessor.processFile(importProfile, fileName, skipCount, restClient);
+                // Importer does not know what the company is
+                totalRows = totalRows + fileProcessor.processFile(importProfile, fileName, skipCount, restClient, null, async);
             }
             logger.info("Finished at {}", DateFormat.getDateTimeInstance().format(new Date()));
 

@@ -88,10 +88,13 @@ public class TrackEP {
 
     @RequestMapping(value = "/", consumes = "application/json", method = RequestMethod.PUT)
     @ResponseStatus(value = HttpStatus.ACCEPTED)
-    public void trackEntities(@RequestBody List<EntityInputBean> inputBeans,
+    public void trackEntities(@RequestBody List<EntityInputBean> inputBeans, boolean async,
                               HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
         Company company = CompanyResolver.resolveCompany(request);
-        mediationFacade.trackEntities(company, inputBeans);
+        if ( async)
+            mediationFacade.trackEntitiesAsync(company, inputBeans);
+        else
+            mediationFacade.trackEntities(company, inputBeans);
     }
 
     /**

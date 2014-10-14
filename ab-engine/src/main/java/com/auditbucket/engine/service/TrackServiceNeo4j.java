@@ -565,7 +565,7 @@ public class TrackServiceNeo4j implements TrackService {
         trackDao.purgeFortressLogs(fortress);
         trackDao.purgePeopleRelationships(fortress);
         schemaService.purge(fortress);
-        //trackDao.purgeFortressDocuments(fortress);
+        //entityDao.purgeFortressDocuments(fortress);
         trackDao.purgeEntities(fortress);
 
     }

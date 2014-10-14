@@ -22,6 +22,7 @@ package com.auditbucket.client.rest;
 import com.auditbucket.helper.CompressionHelper;
 import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.*;
+import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.track.bean.CrossReferenceInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
@@ -262,7 +263,7 @@ public class FdRestWriter implements FdWriter {
         return null;
     }
 
-    public String flushEntities(List<EntityInputBean> entityInputs) throws FlockException {
+    public String flushEntities(Company company, List<EntityInputBean> entityInputs, boolean async) throws FlockException {
         if (simulateOnly || entityInputs.isEmpty())
             return "OK";
         RestTemplate restTemplate = new RestTemplate();
@@ -272,7 +273,7 @@ public class FdRestWriter implements FdWriter {
         HttpEntity<List<EntityInputBean>> requestEntity = new HttpEntity<>(entityInputs, httpHeaders);
 
         try {
-            restTemplate.exchange(NEW_ENTITY, HttpMethod.PUT, requestEntity, TrackResultBean.class);
+            restTemplate.exchange( NEW_ENTITY+"?async="+async, HttpMethod.PUT, requestEntity, TrackResultBean.class);
             return "OK";
         } catch (HttpClientErrorException e) {
             logger.error("Service tracking error {}", getErrorMessage(e));

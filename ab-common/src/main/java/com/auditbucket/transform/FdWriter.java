@@ -3,6 +3,7 @@ package com.auditbucket.transform;
 import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.SystemUserResultBean;
 import com.auditbucket.registration.bean.TagInputBean;
+import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.track.bean.CrossReferenceInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
@@ -24,7 +25,7 @@ public interface FdWriter {
 
     String flushTags(List<TagInputBean> tagInputBeans) throws FlockException;
 
-    String flushEntities(List<EntityInputBean> entityBatch) throws FlockException;
+    String flushEntities(Company company, List<EntityInputBean> entityBatch, boolean async) throws FlockException;
 
     int flushXReferences(List<CrossReferenceInputBean> referenceInputBeans) throws FlockException;
 

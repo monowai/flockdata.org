@@ -40,4 +40,10 @@
                                extract-request-payload="true"
                                expected-response-type="java.lang.String" />
 
+    <int-http:outbound-gateway request-channel="doTagCloudQuery"
+                               reply-channel="doTagCloudReply"
+                               reply-timeout="${reply.timeout}"
+                               url="${absearch.tagcloud}"
+                               extract-request-payload="true"
+                               expected-response-type="java.lang.String" />
 </beans>

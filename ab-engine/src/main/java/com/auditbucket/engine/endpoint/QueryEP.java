@@ -2,6 +2,8 @@ package com.auditbucket.engine.endpoint;
 
 import com.auditbucket.engine.service.QueryService;
 import com.auditbucket.helper.CompanyResolver;
+import com.auditbucket.search.model.TagCloud;
+import com.auditbucket.search.model.TagCloudParams;
 import com.auditbucket.track.bean.DocumentResultBean;
 import com.auditbucket.engine.service.MatrixService;
 import com.auditbucket.track.service.MediationFacade;
@@ -59,6 +61,12 @@ public class QueryEP {
         Company company = CompanyResolver.resolveCompany(request);
         queryParams.setEntityOnly(false);
         return mediationFacade.search(company, queryParams);
+    }
+
+    @RequestMapping(value = "/tagcloud", method = RequestMethod.POST)
+    public TagCloud getTagCloudEsParam(@RequestBody TagCloudParams tagCloudParams, HttpServletRequest request) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+        return mediationFacade.getTagCloud(company, tagCloudParams);
     }
 
     @RequestMapping(value = "/documents", method = RequestMethod.POST)
