@@ -62,6 +62,10 @@ public class EntitySearchSchema {
         return "ab." + company.toLowerCase() + ".";
     }
 
+    public static String parseIndex(String company, String fortress) {
+        return "ab." + company.toLowerCase() + "." + fortress.toLowerCase();
+    }
+
     public static String parseIndex(QueryParams queryParams) throws FlockException {
         String prefix = parseIndex(queryParams.getCompany());
         if (queryParams.getFortress() == null || queryParams.getFortress().equals(""))

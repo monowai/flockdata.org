@@ -39,7 +39,7 @@ public class TestBatch extends EngineBase {
         ImportProfile params = Helper.getImportParams("/batch-csv-profile.json");
 
         importProfileService.save(fortress, docType, params );
-        importProfileService.process(su.getCompany(), fortress, docType, "/batch-test.csv");
+        importProfileService.process(su.getCompany(), fortress, docType, "/batch-test.csv", false);
 
         Entity resultBean = trackService.findByCallerRef( fortress, docType, "1");
         assertNotNull(resultBean);

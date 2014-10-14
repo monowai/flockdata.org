@@ -60,8 +60,8 @@ public class SearchServiceFacade {
     static final ObjectMapper objectMapper = new ObjectMapper();
 
     @ServiceActivator(inputChannel = "searchDocSyncResult")
-    public void handleSearchResult(byte[] searchResults) throws IOException {
-        handleSearchResult(objectMapper.readValue(searchResults, SearchResults.class ));
+    public void searchDocSyncResult(byte[] searchResults) throws IOException {
+        searchDocSyncResult(objectMapper.readValue(searchResults, SearchResults.class));
     }
 
         /**
@@ -72,7 +72,7 @@ public class SearchServiceFacade {
          *
          * @param searchResults contains keys to tie the search to the entity
          */
-    public void handleSearchResult(SearchResults searchResults) {
+    public void searchDocSyncResult(SearchResults searchResults) {
         Collection<SearchResult> theResults = searchResults.getSearchResults();
         int count = 0;
         int size = theResults.size();
@@ -206,6 +206,10 @@ public class SearchServiceFacade {
 
     public EsSearchResult search(QueryParams queryParams) {
         return searchGateway.search(queryParams);
+    }
+
+    public TagCloud getTagCloud(TagCloudParams tagCloudParams) {
+        return searchGateway.getTagCloud(tagCloudParams);
     }
 
     public void purge(String indexName) {

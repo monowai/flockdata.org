@@ -24,6 +24,8 @@ public interface EntityTagService {
 
     Collection<TrackTag> associateTags(Company company, Entity ah, EntityLog lastLog, Collection<TagInputBean> userTags, Boolean archiveRemovedTags);
 
+    Collection<TrackTag> findEntityTags(Company company, Entity entity);
+
     Collection<TrackTag> findEntityTags(Entity entity);
 
     Collection<TrackTag> findOutboundTags(Entity entity);
@@ -45,4 +47,6 @@ public interface EntityTagService {
     Collection<TrackTag> findLogTags(Company company, Log log);
 
     void moveTags(Company company, Log previousLog, Entity entity);
+
+
 }

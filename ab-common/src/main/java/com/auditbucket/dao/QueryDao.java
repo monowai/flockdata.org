@@ -22,6 +22,10 @@ package com.auditbucket.dao;
 import com.auditbucket.helper.FlockException;
 import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.QueryParams;
+import com.auditbucket.search.model.TagCloud;
+import com.auditbucket.search.model.TagCloudParams;
+
+import java.io.IOException;
 
 /**
  * User: Mike Holdsworth
@@ -29,6 +33,8 @@ import com.auditbucket.search.model.QueryParams;
  * Time: 8:44 PM
  */
 public interface QueryDao {
+    TagCloud getCloudTag(TagCloudParams tagCloudParams);
+
     long getHitCount(String index);
 
     EsSearchResult doEntitySearch(QueryParams queryParams) throws FlockException;

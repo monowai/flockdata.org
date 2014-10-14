@@ -38,7 +38,7 @@
             <authentication-provider>
                 <user-service>
                     <user name="batch" password="123" authorities="ROLE_AB_USER"/>
-                    <user name="mike" password="123" authorities="ROLE_AB_USER"/>
+                    <user name="mike" password="123" authorities="ROLE_AB_USER,ROLE_AB_ADMIN"/>
                     <user name="${reg.user}" password="${reg.pass}" authorities="ROLE_AB_ADMIN"/>
                 </user-service>
             </authentication-provider>

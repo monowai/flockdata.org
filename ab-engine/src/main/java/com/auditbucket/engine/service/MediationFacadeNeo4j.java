@@ -19,6 +19,7 @@
 
 package com.auditbucket.engine.service;
 
+import com.auditbucket.search.model.*;
 import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.track.service.*;
 import com.auditbucket.helper.FlockException;
@@ -31,9 +32,6 @@ import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.Tag;
 import com.auditbucket.registration.service.CompanyService;
-import com.auditbucket.search.model.EntitySearchChange;
-import com.auditbucket.search.model.EsSearchResult;
-import com.auditbucket.search.model.QueryParams;
 import com.auditbucket.track.bean.EntityInputBean;
 import com.auditbucket.track.bean.EntitySummaryBean;
 import com.auditbucket.track.bean.TrackResultBean;
@@ -369,6 +367,17 @@ public class MediationFacadeNeo4j implements MediationFacade {
         logger.info(watch.prettyPrint());
 
         return esSearchResult;
+    }
+
+    @Override
+    public TagCloud getTagCloud(Company company, TagCloudParams tagCloudParams) throws NotFoundException {
+        Fortress fortress = fortressService.findByName(company, tagCloudParams.getFortress());
+        if (fortress == null)
+            throw new NotFoundException("Fortress [" + tagCloudParams.getFortress() + "] does not exist");
+        tagCloudParams.setCompany(company.getName());
+        TagCloud tagCloud = searchService.getTagCloud(tagCloudParams);
+
+        return tagCloud;
     }
 
     @Autowired

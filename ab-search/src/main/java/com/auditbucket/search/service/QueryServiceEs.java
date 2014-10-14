@@ -23,6 +23,8 @@ import com.auditbucket.dao.QueryDao;
 import com.auditbucket.helper.FlockException;
 import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.QueryParams;
+import com.auditbucket.search.model.TagCloud;
+import com.auditbucket.search.model.TagCloudParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.ServiceActivator;
@@ -39,6 +41,12 @@ public class QueryServiceEs implements QueryService {
 
     @Autowired
     private QueryDao queryDao;
+
+    @Override
+    @ServiceActivator(inputChannel = "doTagCloudQuery", outputChannel = "doTagCloudReply") // Subscriber
+    public TagCloud getTagCloud(TagCloudParams tagCloudParams) {
+        return queryDao.getCloudTag(tagCloudParams);
+    }
 
     @Override
     public Long getHitCount(String index) {

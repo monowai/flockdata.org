@@ -40,4 +40,12 @@
                               request-payload-type="com.auditbucket.search.model.QueryParams"
                               supported-methods="POST"/>
 
+    <int-http:inbound-gateway request-channel="doTagCloudQuery"
+                              reply-channel="doTagCloudReply"
+                              path="/api/esTagCloud"
+                              reply-timeout="${reply.timeout}"
+                              request-timeout="${request.timeout}"
+                              request-payload-type="com.auditbucket.search.model.TagCloudParams"
+                              supported-methods="POST"/>
+
 </beans:beans>

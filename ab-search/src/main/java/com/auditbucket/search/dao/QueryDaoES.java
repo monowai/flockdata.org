@@ -19,21 +19,23 @@
 
 package com.auditbucket.search.dao;
 
-import com.auditbucket.search.model.EntitySearchSchema;
 import com.auditbucket.dao.QueryDao;
 import com.auditbucket.helper.FlockException;
 import com.auditbucket.search.helper.QueryGenerator;
-import com.auditbucket.search.model.EsSearchResult;
-import com.auditbucket.search.model.QueryParams;
-import com.auditbucket.search.model.SearchResult;
+import com.auditbucket.search.model.*;
 import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
+import org.elasticsearch.common.collect.ImmutableMap;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHitField;
+import org.elasticsearch.search.facet.FacetBuilders;
+import org.elasticsearch.search.facet.terms.TermsFacet;
+import org.elasticsearch.search.facet.terms.TermsFacetBuilder;
 import org.elasticsearch.search.highlight.HighlightField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,10 +44,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StopWatch;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -63,6 +62,43 @@ public class QueryDaoES implements QueryDao {
     Boolean highlightEnabled;
 
     private Logger logger = LoggerFactory.getLogger(QueryDaoES.class);
+
+    @Override
+    public TagCloud getCloudTag(TagCloudParams tagCloudParams) {
+        // Getting all tag and What fields
+        String index = EntitySearchSchema.parseIndex(tagCloudParams.getCompany(),tagCloudParams.getFortress());
+        List<String> whatAndTagFields = new ArrayList<>();
+        ImmutableMap<String, GetFieldMappingsResponse.FieldMappingMetaData> responseFieldsMapping = client.admin()
+                .indices()
+                .prepareGetFieldMappings(index)
+                .setTypes(tagCloudParams.getType())
+                .setFields("@tag.*.code")
+                .get()
+                .mappings()
+                .get(index)
+                .get(tagCloudParams.getType());
+        for (String what : responseFieldsMapping.keySet()) {
+            whatAndTagFields.add(what);
+        }
+
+        //settings().prepareSearch(index).
+
+        TermsFacetBuilder builder = FacetBuilders.termsFacet("tagcloud")
+                .fields(whatAndTagFields.toArray(new String[whatAndTagFields.size()]))
+                .size(100);
+
+        SearchResponse response = client.prepareSearch(index)
+
+                .addFacet(builder)
+                .execute()
+                .actionGet();
+        TagCloud tagcloud = new TagCloud();
+        TermsFacet tagCloudFacet = (TermsFacet) response.getFacets().getFacets().get("tagcloud");
+        for (TermsFacet.Entry entry : tagCloudFacet.getEntries()) {
+            tagcloud.addTerm(entry.getTerm().string(), entry.getCount());
+        }
+        return tagcloud;
+    }
 
     @Override
     public long getHitCount(String index) {
@@ -111,7 +147,7 @@ public class QueryDaoES implements QueryDao {
                 .setExtraSource(QueryGenerator.getSimpleQuery(queryParams.getSimpleQuery(), highlightEnabled));
 
         // Add user requested fields
-        if ( queryParams.getData() !=null )
+        if (queryParams.getData() != null)
             query.addFields(queryParams.getData());
 
         ListenableActionFuture<SearchResponse> future = query.execute();
@@ -157,16 +193,16 @@ public class QueryDaoES implements QueryDao {
                                 searchHitFields.getFields().get(EntitySearchSchema.TIMESTAMP).getValue().toString(),
                                 fragments);
                         SearchHitField esField = searchHitFields.getFields().get(EntitySearchSchema.DESCRIPTION);
-                        if ( esField !=null )
+                        if (esField != null)
                             sr.setDescription(esField.getValue().toString());
 
                         esField = searchHitFields.getFields().get(EntitySearchSchema.CALLER_REF);
-                        if ( esField!=null )
+                        if (esField != null)
                             sr.setCallerRef(esField.getValue().toString());
-                        if (queryParams.getData()!=null ){
+                        if (queryParams.getData() != null) {
                             for (String field : queryParams.getData()) {
                                 esField = searchHitFields.getFields().get(field);
-                                if ( esField != null )
+                                if (esField != null)
                                     sr.addFieldValue(field, esField.getValue());
                             }
                         }
@@ -183,9 +219,9 @@ public class QueryDaoES implements QueryDao {
         for (String key : highlightFields.keySet()) {
             Text[] esFrag = highlightFields.get(key).getFragments();
             String[] frags = new String[esFrag.length];
-            int i=0;
+            int i = 0;
             for (Text text : esFrag) {
-                frags[i]=text.string();
+                frags[i] = text.string();
                 i++;
             }
             highlights.put(key, frags);

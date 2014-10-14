@@ -19,10 +19,8 @@
 
 package com.auditbucket.engine.service;
 
-import com.auditbucket.search.model.EntitySearchChanges;
+import com.auditbucket.search.model.*;
 import com.auditbucket.track.model.Entity;
-import com.auditbucket.search.model.EsSearchResult;
-import com.auditbucket.search.model.QueryParams;
 import org.springframework.integration.annotation.Gateway;
 
 /**
@@ -38,6 +36,9 @@ public interface AbSearchGateway {
 
     @Gateway(requestChannel = "sendSearchRequest", replyChannel = "sendSearchReply")
     public EsSearchResult search(QueryParams queryParams);
+
+    @Gateway(requestChannel = "sendTagCloudRequest", replyChannel = "sendTagCloudReply")
+    public TagCloud getTagCloud(TagCloudParams tagCloudParams);
 
     public void delete(Entity entity, String searchKey);
 

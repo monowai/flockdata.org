@@ -1,7 +1,10 @@
 package com.auditbucket.track.service;
 
+import com.auditbucket.helper.NotFoundException;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.Tag;
+import com.auditbucket.search.model.TagCloud;
+import com.auditbucket.search.model.TagCloudParams;
 import com.auditbucket.track.bean.ContentInputBean;
 import com.auditbucket.helper.FlockException;
 import com.auditbucket.registration.bean.TagInputBean;
@@ -46,6 +49,8 @@ public interface MediationFacade {
     EntitySummaryBean getEntitySummary(Company company, String metaKey) throws FlockException;
 
     EsSearchResult search(Company company, QueryParams queryParams);
+
+    TagCloud getTagCloud(Company company, TagCloudParams tagCloudParams) throws NotFoundException;
 
     void purge(Company company, String name) throws FlockException;
 

@@ -66,23 +66,23 @@ public class TagInputBean {
     /**
      * associates a tag to the Entity
      *
-     * @param tagName              Unique name for a tag (if exists will be reused)
+     * @param tagValue              Unique name for a tag (if exists will be reused)
      * @param entityRelationshipName name of relationship to the Entity
      */
-    public TagInputBean(String tagName, String entityRelationshipName) {
-        this(tagName, null, entityRelationshipName);
+    public TagInputBean(String tagValue, String entityRelationshipName) {
+        this(tagValue, null, entityRelationshipName);
     }
 
     /**
      * associates a tag to the entity giving it an optional label label to categorize it by
      *
-     * @param tagName              Unique name for a tag (if exists will be reused)
-     * @param label                optional label label to give the Tag. Must start with ":"
+     * @param tagValue              Unique name for a tag (if exists will be reused)
+     * @param tagLabel                optional label label to give the Tag. Must start with ":"
      * @param entityRelationshipName name of relationship to the Entity
      */
-    public TagInputBean(String tagName, String label, String entityRelationshipName) {
-        this(tagName, entityRelationshipName, (Map<String, Object>) null);
-        setLabel(label);
+    public TagInputBean(String tagValue, String tagLabel, String entityRelationshipName) {
+        this(tagValue, entityRelationshipName, (Map<String, Object>) null);
+        setLabel(tagLabel);
 
     }
 
@@ -96,13 +96,13 @@ public class TagInputBean {
      * <p/>
      * Code value defaults to the tag name
      *
-     * @param tagName unique name
+     * @param tagValue unique name
      */
-    public TagInputBean(String tagName) {
+    public TagInputBean(String tagValue) {
         this();
-        if ( tagName == null )
+        if ( tagValue == null )
             throw new IllegalArgumentException("The name of a tag cannot be null");
-        this.name = tagName;
+        this.name = tagValue;
 
         this.code = this.name;
     }

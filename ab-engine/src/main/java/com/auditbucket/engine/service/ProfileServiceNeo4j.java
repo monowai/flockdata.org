@@ -76,7 +76,6 @@ public class ProfileServiceNeo4j implements ImportProfileService {
         profileDao.save(profile);
     }
 
-
     @Override
     public void save(Company company, String fortressCode, String documentCode, ImportProfile profile) throws FlockException {
         Fortress fortress = fortressService.findByCode(company, fortressCode);
@@ -92,25 +91,25 @@ public class ProfileServiceNeo4j implements ImportProfileService {
     @Override
     @Async
     public void processAsync(Company company, String fortressCode, String documentCode, String file) throws ClassNotFoundException, FlockException, InstantiationException, IOException, IllegalAccessException {
-        process(company, fortressCode, documentCode, file);
+        process(company, fortressCode, documentCode, file, true);
     }
 
     @Override
-    public void process(Company company, String fortressCode, String documentCode, String file) throws FlockException, ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
+    public void process(Company company, String fortressCode, String documentCode, String file, boolean async) throws FlockException, ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
         Fortress fortress = fortressService.findByCode(company, fortressCode);
         DocumentType documentType = schemaService.resolveByDocCode(fortress, documentCode, false);
         if (documentType == null )
             throw new NotFoundException("Unable to resolve document type ");
-        process(company, fortress, documentType, file);
+        process(company, fortress, documentType, file, async);
     }
 
-    public void process(Company company, Fortress fortress, DocumentType documentType, String file) throws FlockException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
+    public void process(Company company, Fortress fortress, DocumentType documentType, String file, Boolean async) throws FlockException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
         ProfileConfiguration profile = get(fortress, documentType);
         profile.setFortressName(fortress.getName());
         profile.setDocumentName(documentType.getName());
         FileProcessor fileProcessor = new FileProcessor(fdServerWriter);
         FileProcessor.validateArgs(file);
-        fileProcessor.processFile(profile, file, 0, fdServerWriter);
+        fileProcessor.processFile(profile, file, 0, fdServerWriter, company, async);
     }
 
     @Override
