@@ -68,18 +68,36 @@ public class QueryDaoES implements QueryDao {
         // Getting all tag and What fields
         String index = EntitySearchSchema.parseIndex(tagCloudParams.getCompany(),tagCloudParams.getFortress());
         List<String> whatAndTagFields = new ArrayList<>();
-        ImmutableMap<String, GetFieldMappingsResponse.FieldMappingMetaData> responseFieldsMapping = client.admin()
+        ImmutableMap<String, ImmutableMap<String, GetFieldMappingsResponse.FieldMappingMetaData>>
+                mappings = client.admin()
                 .indices()
                 .prepareGetFieldMappings(index)
-                .setTypes(tagCloudParams.getType())
+                .setTypes("*")
                 .setFields("@tag.*.code")
-                .get()
-                .mappings()
-                .get(index)
-                .get(tagCloudParams.getType());
-        for (String what : responseFieldsMapping.keySet()) {
-            whatAndTagFields.add(what);
+                .get().mappings().get(index);
+        for (String s : mappings.keySet()) {
+            ImmutableMap<String, GetFieldMappingsResponse.FieldMappingMetaData> var = mappings.get(s);
+            //for (String key : var.keySet()) {
+                for (String field: var.keySet()) {
+                    whatAndTagFields.add(field);
+                    //logger.info(field);
+                }
+        //    }
         }
+
+//        ImmutableMap<String, GetFieldMappingsResponse.FieldMappingMetaData> responseFieldsMapping =
+//                client.admin()
+//                .indices()
+//                .prepareGetFieldMappings(index)
+//                .setTypes("*")
+//                .setFields("@tag.*.code")
+//                .get()
+//                .mappings()
+//                .get(index)
+//                .get("*");
+//        for (String what : responseFieldsMapping.keySet()) {
+//            whatAndTagFields.add(what);
+//        }
 
         //settings().prepareSearch(index).
 
