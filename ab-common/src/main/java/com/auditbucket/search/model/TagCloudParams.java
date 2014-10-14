@@ -11,7 +11,9 @@ import com.auditbucket.registration.model.Fortress;
 public class TagCloudParams {
 
     private String company;
+
     private String fortress;
+    // ToDo: This should be an Array[]
     private String type;
 
     public TagCloudParams() {}
@@ -38,7 +40,7 @@ public class TagCloudParams {
     }
 
     public String getType() {
-        return type;
+        return type.toLowerCase();
     }
 
     public void setType(String type) {
