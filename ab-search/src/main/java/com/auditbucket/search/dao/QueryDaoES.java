@@ -72,7 +72,7 @@ public class QueryDaoES implements QueryDao {
                 mappings = client.admin()
                 .indices()
                 .prepareGetFieldMappings(index)
-                .setTypes("*")
+                .setTypes(tagCloudParams.getType())
                 .setFields("@tag.*.code")
                 .get().mappings().get(index);
         for (String s : mappings.keySet()) {
