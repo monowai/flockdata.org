@@ -1,6 +1,7 @@
 package com.auditbucket.search.service;
 
 import com.auditbucket.helper.FlockException;
+import com.auditbucket.helper.NotFoundException;
 import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.QueryParams;
 import com.auditbucket.search.model.TagCloud;
@@ -12,7 +13,7 @@ import com.auditbucket.search.model.TagCloudParams;
  * Time: 10:55 AM
  */
 public interface QueryService {
-    TagCloud getTagCloud(TagCloudParams tagCloudParams);
+    TagCloud getTagCloud(TagCloudParams tagCloudParams) throws NotFoundException;
 
     Long getHitCount(String index);
 

@@ -65,11 +65,11 @@ public class SearchAdmin {
     }
 
     public String getEsDefaultSettings() {
-        return getEsMappingPath()+"/ab-default-settings.json";
+        return getEsMappingPath()+ "/fd-default-settings.json";
     }
 
 
-    String esDefaultMapping="ab-default-mapping.json";
+    String esDefaultMapping= "fd-default-mapping.json";
     public String getEsDefaultMapping(){
         return getEsMappingPath()+"/"+esDefaultMapping;
     }

@@ -78,9 +78,10 @@
                 {
                     "ab.tag-template": {
                         "path_match": "@tag.*.code",
-                        "match_mapping_type": "{dynamic_type}",
+                        "match_mapping_type": "string",
                         "mapping": {
-                            "type": "{dynamic_type}",
+                            "type": "string",
+                            "doc_values": true,
                             "boost": 3.0,
                             "index": "not_analyzed",
                             "store": "true"

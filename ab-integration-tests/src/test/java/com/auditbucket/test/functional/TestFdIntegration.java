@@ -1027,7 +1027,7 @@ public class TestFdIntegration {
 
                 aib.setContent(cib);
                 //TrackResultBean tr = mediationFacade.trackEntity(iFortress, aib);
-                tb.batchEntity(aib, false, null);
+                tb.batchEntity(aib);
 
                 //assertNotNull(tr);
                 metaKeys.add("ABC" + rows);

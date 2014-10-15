@@ -20,6 +20,7 @@
 package com.auditbucket.dao;
 
 import com.auditbucket.helper.FlockException;
+import com.auditbucket.helper.NotFoundException;
 import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.QueryParams;
 import com.auditbucket.search.model.TagCloud;
@@ -33,7 +34,7 @@ import java.io.IOException;
  * Time: 8:44 PM
  */
 public interface QueryDao {
-    TagCloud getCloudTag(TagCloudParams tagCloudParams);
+    TagCloud getCloudTag(TagCloudParams tagCloudParams) throws NotFoundException;
 
     long getHitCount(String index);
 

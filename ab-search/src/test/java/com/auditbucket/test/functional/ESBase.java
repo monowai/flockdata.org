@@ -1,16 +1,16 @@
 package com.auditbucket.test.functional;
 
+import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
 import com.auditbucket.engine.repo.neo4j.model.EntityNode;
 import com.auditbucket.engine.repo.neo4j.model.FortressNode;
 import com.auditbucket.engine.repo.neo4j.model.FortressUserNode;
+import com.auditbucket.helper.FlockException;
+import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.registration.dao.neo4j.model.CompanyNode;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
-import com.auditbucket.track.model.Entity;
-import com.auditbucket.engine.repo.neo4j.model.DocumentTypeNode;
-import com.auditbucket.helper.FlockException;
-import com.auditbucket.registration.bean.FortressInputBean;
 import com.auditbucket.track.bean.EntityInputBean;
+import com.auditbucket.track.model.Entity;
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.JestResult;
@@ -245,7 +245,7 @@ public class ESBase {
         } while (nbrResult != expectedHitCount && runCount < 5);
 
         logger.debug("ran ES Field Query - result count {}, runCount {}", nbrResult, runCount);
-        Assert.assertEquals("Unexpected hit count searching '" + index + "' for {" + queryString + "} in field {" + field + "}", expectedHitCount, nbrResult);
+        Assert.assertEquals("Unexpected hit count searching '" + index + "' for [" + queryString + "] in field [" + field + "]", expectedHitCount, nbrResult);
         if (nbrResult != 0)
             return result.getJsonObject()
                     .getAsJsonObject("hits")

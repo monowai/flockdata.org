@@ -153,7 +153,7 @@ public class FileProcessor {
 
                     //logger.info(json);
                     xsr.nextTag();
-                    trackBatcher.batchEntity(entityInputBean, false, mappable.getClass().getCanonicalName());
+                    trackBatcher.batchEntity(entityInputBean);
                     rows++;
                     if (rows % 500 == 0 && !writer.isSimulateOnly())
                         logger.info("Processed {} elapsed seconds {}", rows, (new DateTime().getMillis() - then) / 1000d);
@@ -243,7 +243,7 @@ public class FileProcessor {
                                 rows = rows + entityInputBean.getCrossReferences().size();
                             }
 
-                            trackBatcher.batchEntity(entityInputBean, false, mappable.getClass().getCanonicalName());
+                            trackBatcher.batchEntity(entityInputBean);
                         } else {// Tag
                             if (!jsonData.isEmpty()) {
                                 TagInputBean tagInputBean = (TagInputBean) row;
