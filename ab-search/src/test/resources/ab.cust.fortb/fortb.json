@@ -48,6 +48,7 @@
                     "match_mapping_type": "string",
                     "mapping": {
                         "type": "string",
+                        "doc_values": true,
                         "boost": 3.0,
                         "index": "not_analyzed",
                         "store": "true"
@@ -55,5 +56,6 @@
                 }
             }
         ]
+
     }
 }

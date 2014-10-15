@@ -401,8 +401,8 @@ public class TrackDaoES implements TrackSearchDao {
                 file = getClass().getClassLoader().getResourceAsStream(settings);
                 if (file == null) {
                     // Read it from inside the WAR
-                    file = getClass().getClassLoader().getResourceAsStream("/ab-default-settings.json");
-                    logger.info("No default settings exists. Using AB defaults /ab-default-settings.json");
+                    file = getClass().getClassLoader().getResourceAsStream("/fd-default-settings.json");
+                    logger.info("No default settings exists. Using AB defaults /fd-default-settings.json");
 
                     if ( file == null ) // for JUnit tests
                         file = new FileInputStream(settings);
@@ -467,18 +467,18 @@ public class TrackDaoES implements TrackSearchDao {
                 logger.debug("Custom mapping does not exists for {} - reverting to default", key);
             }
 
-            found = mappings.get("ab.default");
+            found = mappings.get("fd.default");
             if (found == null) {
                 String esDefault = searchAdmin.getEsDefaultMapping();
                 try {
                     // Chance to find it on disk
                     found = getMapping(esDefault);
-                    mappings.put("ab.default", found);
+                    mappings.put("fd.default", found);
                     logger.debug("Overriding packaged mapping with local default of [{}]. {} keys", esDefault, found.keySet().size());
                 } catch (IOException ioe) {
                     // Extract it from the WAR
                     logger.debug("Reading default mapping from the package");
-                    found = getMapping("/ab-default-mapping.json");
+                    found = getMapping("/fd-default-mapping.json");
                 }
             }
         }

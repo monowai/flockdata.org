@@ -21,6 +21,7 @@ package com.auditbucket.search.service;
 
 import com.auditbucket.dao.QueryDao;
 import com.auditbucket.helper.FlockException;
+import com.auditbucket.helper.NotFoundException;
 import com.auditbucket.search.model.EsSearchResult;
 import com.auditbucket.search.model.QueryParams;
 import com.auditbucket.search.model.TagCloud;
@@ -44,7 +45,7 @@ public class QueryServiceEs implements QueryService {
 
     @Override
     @ServiceActivator(inputChannel = "doTagCloudQuery", outputChannel = "doTagCloudReply") // Subscriber
-    public TagCloud getTagCloud(TagCloudParams tagCloudParams) {
+    public TagCloud getTagCloud(TagCloudParams tagCloudParams) throws NotFoundException {
         return queryDao.getCloudTag(tagCloudParams);
     }
 

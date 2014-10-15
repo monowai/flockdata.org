@@ -21,6 +21,7 @@ package com.auditbucket.search.dao;
 
 import com.auditbucket.dao.QueryDao;
 import com.auditbucket.helper.FlockException;
+import com.auditbucket.helper.NotFoundException;
 import com.auditbucket.search.helper.QueryGenerator;
 import com.auditbucket.search.model.*;
 import org.elasticsearch.action.ListenableActionFuture;
@@ -31,6 +32,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.collect.ImmutableMap;
 import org.elasticsearch.common.text.Text;
+import org.elasticsearch.indices.IndexMissingException;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHitField;
 import org.elasticsearch.search.facet.FacetBuilders;
@@ -63,26 +65,60 @@ public class QueryDaoES implements QueryDao {
 
     private Logger logger = LoggerFactory.getLogger(QueryDaoES.class);
 
+    private String[] getTagFields(String[] concepts) {
+        if (concepts==null || concepts.length == 0)
+            return new String[]{EntitySearchSchema.TAG + ".*.code"};
+
+        String[] result = new String[concepts.length];
+        int i = 0;
+        for (String concept : concepts) {
+            result[i] = EntitySearchSchema.TAG + "." + concept.toLowerCase() + ".code";
+            i++;
+        }
+        return result;
+
+    }
+
+    private String[] getDocumentTypes (String docTypes){
+        return new String[]{docTypes.toLowerCase()};
+//        String[] result = new String[docTypes.length];
+//        int i = 0;
+//        for (String type : docTypes) {
+//            result[i] = type.toLowerCase() ;
+//            i++;
+//        }
+        //return result;
+
+
+
+    }
+
     @Override
-    public TagCloud getCloudTag(TagCloudParams tagCloudParams) {
+    public TagCloud getCloudTag(TagCloudParams tagCloudParams) throws NotFoundException {
         // Getting all tag and What fields
-        String index = EntitySearchSchema.parseIndex(tagCloudParams.getCompany(),tagCloudParams.getFortress());
-        List<String> whatAndTagFields = new ArrayList<>();
+        String index = EntitySearchSchema.parseIndex(tagCloudParams.getCompany(), tagCloudParams.getFortress());
+        GetFieldMappingsResponse esIndex;
+        try {
+            esIndex = client.admin()
+                    .indices()
+                    .prepareGetFieldMappings(index)
+                    .setTypes(getDocumentTypes(tagCloudParams.getType()))
+                    .setFields(getTagFields(tagCloudParams.getRelationships()))
+                    .get();
+        } catch (IndexMissingException ie) {
+            logger.error("Requested data from a missing index {}", index);
+            throw new NotFoundException("The requested index does not exist in the Search Service", ie);
+        }
+
         ImmutableMap<String, ImmutableMap<String, GetFieldMappingsResponse.FieldMappingMetaData>>
-                mappings = client.admin()
-                .indices()
-                .prepareGetFieldMappings(index)
-                .setTypes(tagCloudParams.getType())
-                .setFields("@tag.*.code")
-                .get().mappings().get(index);
+                mappings = esIndex.mappings().get(index);
+
+        List<String> whatAndTagFields = new ArrayList<>();
         for (String s : mappings.keySet()) {
             ImmutableMap<String, GetFieldMappingsResponse.FieldMappingMetaData> var = mappings.get(s);
-            //for (String key : var.keySet()) {
-                for (String field: var.keySet()) {
-                    whatAndTagFields.add(field);
-                    //logger.info(field);
-                }
-        //    }
+            for (String field : var.keySet()) {
+                whatAndTagFields.add(field);
+            }
         }
 
 //        ImmutableMap<String, GetFieldMappingsResponse.FieldMappingMetaData> responseFieldsMapping =
@@ -103,10 +139,9 @@ public class QueryDaoES implements QueryDao {
 
         TermsFacetBuilder builder = FacetBuilders.termsFacet("tagcloud")
                 .fields(whatAndTagFields.toArray(new String[whatAndTagFields.size()]))
-                .size(100);
+                .size(500);
 
         SearchResponse response = client.prepareSearch(index)
-
                 .addFacet(builder)
                 .execute()
                 .actionGet();
@@ -117,6 +152,7 @@ public class QueryDaoES implements QueryDao {
         }
         return tagcloud;
     }
+
 
     @Override
     public long getHitCount(String index) {

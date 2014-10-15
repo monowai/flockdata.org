@@ -126,7 +126,9 @@ public class Importer {
             if (batch != null && !batch.equals(""))
                 batchSize = Integer.parseInt(batch);
 
-            async = Boolean.parseBoolean(ns.getString("async"));
+            Object o = ns.get("async");
+            if ( o!=null )
+                async = Boolean.parseBoolean(o.toString());
 
             watch.start();
             //logger.info("*** Starting {}", DateFormat.getDateTimeInstance().format(new Date()));

@@ -16,6 +16,7 @@ public class TagCloudParams {
     private String fortress;
     // ToDo: This should be an Array[]
     private String type;
+    private String[] relationships;
 
     public TagCloudParams() {}
     public TagCloudParams(Fortress fortress) {
@@ -41,10 +42,18 @@ public class TagCloudParams {
     }
 
     public String getType() {
-        return type.toLowerCase();
+        return type;
     }
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String[] getRelationships() {
+        return relationships;
+    }
+
+    public void setRelationships(String[] relationships) {
+        this.relationships = relationships;
     }
 }

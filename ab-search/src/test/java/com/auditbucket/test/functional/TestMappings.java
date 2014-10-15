@@ -77,7 +77,7 @@ public class TestMappings extends ESBase {
 
         // In this test, @tag.*.code is ignored so it should find the value with a space in it
         // In prod we use the .key field in this manner
-        doDefaultFieldQuery(entity.getIndexName(), "@tag.mytag.code", "my tag", 1);
+        doTermQuery(entity.getIndexName(), "@tag.mytag.code", "my tag", 1);
         assertNotNull(json);
 
     }
@@ -189,9 +189,9 @@ public class TestMappings extends ESBase {
         assertNotNull(changeA.getSearchKey());
         assertNotNull(changeB.getSearchKey());
 
-        doDefaultFieldQuery(entityA.getIndexName(), entityA.getDocumentType().toLowerCase(), "@tag.mytag.code", "my tag", 1);
-        doDefaultFieldQuery(entityB.getIndexName(), entityB.getDocumentType().toLowerCase(), "@tag.mytag.code", "my tag", 1);
-        doDefaultFieldQuery(entityB.getIndexName(), "@tag.mytag.code", "my tag", 2);
+        doFieldQuery(entityA.getIndexName(), entityA.getDocumentType().toLowerCase(), "@tag.mytag.code", "my tag", 1);
+        doFieldQuery(entityB.getIndexName(), entityB.getDocumentType().toLowerCase(), "@tag.mytag.code", "my tag", 1);
+        doTermQuery(entityB.getIndexName(), "@tag.mytag.code", "my tag", 2);
 
     }
 

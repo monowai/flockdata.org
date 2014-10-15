@@ -48,7 +48,11 @@ public class TrackBatcher {
         batchTag(tagInputBean, false, message);
     }
 
-    public void batchEntity(EntityInputBean entityInputBean, boolean flush, String message) throws FlockException {
+    public void batchEntity(EntityInputBean entityInputBean) throws FlockException {
+        batchEntity(entityInputBean, false);
+    }
+
+    public void batchEntity(EntityInputBean entityInputBean, boolean flush) throws FlockException {
 
         synchronized (entitySync) {
             if (entityInputBean != null) {
@@ -65,7 +69,7 @@ public class TrackBatcher {
                     // process the tags independently to reduce the chance of a deadlock when processing the entity
                     fdWriter.flushTags(new ArrayList<>(tagBatch.values()));
                     fdWriter.flushEntities(company, entityBatch, async );
-                    logger.debug("Flushed " + message + " Batch [{}]", entityBatch.size());
+                    logger.debug("Flushed Batch [{}]", entityBatch.size());
                 }
                 entityBatch = new ArrayList<>();
                 tagBatch = new HashMap<>();

@@ -352,6 +352,15 @@ public class EntityInputBean {
         return archiveTags;
     }
 
+    /**
+     * Instructs FlockData to Move tags already associated with an entity to the log
+     * if they are NOT present in this track request.
+     *
+     * Only applies to updating existing entities.
+     *
+     * @param archiveTags default False - tags not present in this request but are recorded
+     *                    against the entity will be MOVED to the log
+     */
     public void setArchiveTags(boolean archiveTags) {
         this.archiveTags = archiveTags;
     }
