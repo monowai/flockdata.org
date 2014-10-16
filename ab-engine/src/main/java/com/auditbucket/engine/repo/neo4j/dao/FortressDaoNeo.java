@@ -19,12 +19,12 @@
 
 package com.auditbucket.engine.repo.neo4j.dao;
 
-import java.util.List;
-
+import com.auditbucket.engine.repo.neo4j.FortressRepository;
 import com.auditbucket.engine.repo.neo4j.FortressUserRepository;
 import com.auditbucket.engine.repo.neo4j.model.FortressNode;
 import com.auditbucket.engine.repo.neo4j.model.FortressUserNode;
 import com.auditbucket.registration.bean.FortressInputBean;
+import com.auditbucket.registration.model.Company;
 import com.auditbucket.registration.model.Fortress;
 import com.auditbucket.registration.model.FortressUser;
 import com.auditbucket.registration.service.KeyGenService;
@@ -34,8 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.auditbucket.engine.repo.neo4j.FortressRepository;
-import com.auditbucket.registration.model.Company;
+import java.util.List;
 
 /**
  * User: Mike Holdsworth
@@ -74,7 +73,8 @@ public class FortressDaoNeo  {
     Neo4jTemplate template;
 
     public FortressUser getFortressUser(Long fortressId, String name) {
-        return fortressRepo.getFortressUser(fortressId, name);
+        //return fortressRepo.getFortressUser(fortressId, name);
+        return fortressUserRepo.findBySchemaPropertyValue("key", fortressId+"."+name);
     }
 
     public List<Fortress> findFortresses(Long companyID) {

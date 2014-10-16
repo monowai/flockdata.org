@@ -65,11 +65,17 @@ public class EntityNode implements Entity {
     @Indexed
     private String callerRef;
 
+    private String name;
+
+    private String description;
+
+    // By the Fortress
     private long dateCreated = 0;
 
-    private String event = null; // should only be set if this is an immutable entity and no log events will be recorded
+    // should only be set if this is an immutable entity and no log events will be recorded
+    private String event = null;
 
-    // By AB in UTC
+    // By FlockData, set in UTC
     private long lastUpdate = 0;
 
     // Fortress in fortress timezone
@@ -93,11 +99,6 @@ public class EntityNode implements Entity {
     private LogNode lastChange;
 
     public static final String UUID_KEY = "metaKey";
-
-    @Indexed
-    private String name;
-
-    private String description;
 
     private int search=0;
 
