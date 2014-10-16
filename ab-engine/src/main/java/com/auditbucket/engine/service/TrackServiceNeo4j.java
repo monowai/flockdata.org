@@ -105,14 +105,14 @@ public class TrackServiceNeo4j implements TrackService {
      * @return unique primary key to be used for subsequent log calls
      */
     public TrackResultBean createEntity(Fortress fortress, EntityInputBean entityInputBean) {
-        DocumentType documentType = schemaService.resolveByDocCode(fortress, entityInputBean.getDocumentType());
 
         Entity ah = null;
         if (entityInputBean.getMetaKey() != null) {
             ah = getEntity(fortress.getCompany(), entityInputBean.getMetaKey());
         }
+
         if (ah == null && (entityInputBean.getCallerRef() != null && !entityInputBean.getCallerRef().equals(EMPTY)))
-            ah = findByCallerRef(fortress, documentType, entityInputBean.getCallerRef());
+            ah = findByCallerRef(fortress, entityInputBean.getDocumentType(), entityInputBean.getCallerRef());
         if (ah != null) {
             logger.debug("Existing entity record found by Caller Ref [{}] found [{}]", entityInputBean.getCallerRef(), ah.getMetaKey());
             entityInputBean.setMetaKey(ah.getMetaKey());
@@ -127,7 +127,7 @@ public class TrackServiceNeo4j implements TrackService {
             arb.setTags(entityTagService.associateTags(fortress.getCompany(), ah, entityLog, entityInputBean.getTags(), entityInputBean.isArchiveTags() ));
             return arb;
         }
-
+        DocumentType documentType = schemaService.resolveByDocCode(fortress, entityInputBean.getDocumentType());
         try {
             ah = makeEntity(fortress, documentType, entityInputBean);
         } catch (FlockException e) {

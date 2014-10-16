@@ -230,14 +230,14 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
 
     @Override
-    public Collection<TrackResultBean> trackEntities(final Fortress fortress, final List<EntityInputBean> inputBeans, int listSize) throws FlockException, IOException, ExecutionException, InterruptedException {
+    public Collection<TrackResultBean> trackEntities(final Fortress fortress, final List<EntityInputBean> inputBeans, int splitListInTo) throws FlockException, IOException, ExecutionException, InterruptedException {
         Long id = DateTime.now().getMillis();
 
         // This happens before we create entities to minimize IO on the graph
         schemaService.createDocTypes(inputBeans, fortress);
 
         // Tune to balance against concurrency and batch transaction insert efficiency.
-        List<List<EntityInputBean>> splitList = Lists.partition(inputBeans, listSize);
+        List<List<EntityInputBean>> splitList = Lists.partition(inputBeans, splitListInTo);
         Collection<TrackResultBean> allResults = new ArrayList<>();
         StopWatch watch = new StopWatch();
         watch.start();

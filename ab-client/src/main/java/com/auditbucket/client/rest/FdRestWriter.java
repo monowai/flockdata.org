@@ -119,8 +119,7 @@ public class FdRestWriter implements FdWriter {
     }
 
     public SystemUserResultBean me(){
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+        RestTemplate restTemplate = getRestTemplate();
         HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);// Unauthorized ping is ok
         HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
         try {
@@ -141,8 +140,7 @@ public class FdRestWriter implements FdWriter {
     }
 
     public String ping() {
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+        RestTemplate restTemplate = getRestTemplate();
         HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);// Unauthorized ping is ok
         HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
         try {
@@ -162,8 +160,7 @@ public class FdRestWriter implements FdWriter {
     }
 
     public Map<String, Object> health() {
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+        RestTemplate restTemplate = getRestTemplate();
         HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
         HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
         Map<String, Object> result = new HashMap<>();
@@ -189,8 +186,7 @@ public class FdRestWriter implements FdWriter {
     }
 
     public SystemUserResultBean registerProfile(String authUser, String authPass, String userName, String company) {
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+        RestTemplate restTemplate = getRestTemplate();
         HttpHeaders httpHeaders = getHeaders(null, authUser, authPass); // Internal application authorisation
         RegistrationBean registrationBean = new RegistrationBean(company, userName).setIsUnique(false);
         HttpEntity requestEntity = new HttpEntity<>(registrationBean, httpHeaders);
@@ -218,8 +214,7 @@ public class FdRestWriter implements FdWriter {
         logger.info("Processing [{}] cross references - simulate [{}]", referenceInputBeans.size(), simulateOnly);
         if (simulateOnly)
             return 0;
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+        RestTemplate restTemplate = getRestTemplate();
         HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
         HttpEntity<List<CrossReferenceInputBean>> requestEntity = new HttpEntity<>(referenceInputBeans, httpHeaders);
         try {
@@ -240,8 +235,7 @@ public class FdRestWriter implements FdWriter {
     public Collection<Tag> getCountries() throws FlockException {
 //        if (simulateOnly)
 //            return null;
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+        RestTemplate restTemplate = getRestTemplate();
         HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
         HttpEntity<List<TagInputBean>> requestEntity = new HttpEntity<>(httpHeaders);
         try {
@@ -266,8 +260,7 @@ public class FdRestWriter implements FdWriter {
     public String flushEntities(Company company, List<EntityInputBean> entityInputs, boolean async) throws FlockException {
         if (simulateOnly || entityInputs.isEmpty())
             return "OK";
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+        RestTemplate restTemplate = getRestTemplate();
 
         HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
         HttpEntity<List<EntityInputBean>> requestEntity = new HttpEntity<>(entityInputs, httpHeaders);
@@ -285,11 +278,19 @@ public class FdRestWriter implements FdWriter {
         }
     }
 
+    RestTemplate restTemplate= null;
+    private RestTemplate getRestTemplate() {
+        if ( restTemplate == null ) {
+            restTemplate = new RestTemplate();
+            restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+        }
+        return restTemplate;
+    }
+
     public String flushTags(List<TagInputBean> tagInputBean) throws FlockException {
         if (tagInputBean.isEmpty())
             return "OK";
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+        RestTemplate restTemplate = getRestTemplate();
 
         HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
         HttpEntity<List<TagInputBean>> requestEntity = new HttpEntity<>(tagInputBean, httpHeaders);
@@ -324,8 +325,7 @@ public class FdRestWriter implements FdWriter {
         if (fortressName == null)
             return;
 
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+        RestTemplate restTemplate = getRestTemplate();
 
         HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
         HttpEntity<FortressInputBean> request = new HttpEntity<>(new FortressInputBean(fortressName), httpHeaders);

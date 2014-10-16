@@ -82,7 +82,15 @@ public class LogRetryService {
         }
         logger.trace("looking for fortress user {}", entity.getFortress());
         String fortressUser = (content.getFortressUser() != null ? content.getFortressUser() : trackResultBean.getEntityInputBean().getFortressUser());
-        FortressUser thisFortressUser = fortressService.getFortressUser(entity.getFortress(), fortressUser, true);
+
+        FortressUser thisFortressUser ;
+        if (!fortressUser.equals( trackResultBean.getEntity().getCreatedBy().getCode())){
+            // Different user creating the Entity than is creating the log
+            thisFortressUser = fortressService.getFortressUser(entity.getFortress(), fortressUser, true);
+        } else {
+            thisFortressUser = trackResultBean.getEntity().getCreatedBy();
+        }
+
         trackResultBean.setLogResult(createLog(entity, content, thisFortressUser));
         return trackResultBean;
     }

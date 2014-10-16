@@ -151,8 +151,8 @@ public class FortressService {
         if (fortress == null)
             throw new IllegalArgumentException("Unable to find requested fortress");
         logger.trace("Request to add fortressUser [{}], [{}]",fortress, fortressUser);
-        Fortress fortressz = findByCode(fortress.getCompany(), fortress.getCode());
-        logger.trace("Fortress result {}", fortressz);
+        //Fortress fortressz = findByCode(fortress.getCompany(), fortress.getCode());
+        //logger.trace("Fortress result {}", fortressz);
         Company company = fortress.getCompany();
         // this should never happen
         if (company == null)
