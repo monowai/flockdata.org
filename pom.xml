@@ -21,17 +21,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.monowai</groupId>
-    <artifactId>auditbucket</artifactId>
-    <name>auditbucket</name>
+    <groupId>org.flockdata</groupId>
+    <artifactId>flockdata</artifactId>
+    <name>flockdata</name>
     <modules>
-        <module>ab-common</module>
-        <module>ab-security</module>
-        <module>ab-client</module>
-        <module>ab-engine</module>
-        <module>ab-search</module>
-        <module>ab-spring</module>
-        <module>ab-integration-tests</module>
+        <module>fd-common</module>
+        <module>fd-security</module>
+        <module>fd-client</module>
+        <module>fd-engine</module>
+        <module>fd-search</module>
+        <module>fd-spring</module>
+        <module>fd-integration-tests</module>
     </modules>
     <packaging>pom</packaging>
     <version>0.98-BUILD-SNAPSHOT</version>

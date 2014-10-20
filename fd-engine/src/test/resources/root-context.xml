@@ -1,0 +1,87 @@
+<?xml version=
+        "1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (company) 2012-2014 "Monowai Developments Limited"
+  ~
+  ~ This file is part of AuditBucket.
+  ~
+  ~ AuditBucket is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ AuditBucket is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:cache="http://www.springframework.org/schema/cache" xmlns:aop="http://www.springframework.org/schema/aop"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/task
+		http://www.springframework.org/schema/task/spring-task.xsd
+		http://www.springframework.org/schema/cache
+		http://www.springframework.org/schema/cache/spring-cache.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <context:spring-configured/>
+    <context:annotation-config/>
+
+    <context:component-scan base-package="org.flockdata, org.flockdata.authentication"/>
+    <!-- Root Context: defines shared resources visible to all other web components -->
+
+    <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true"
+                                  location="classpath:config.properties"/>
+
+    <import resource="neo4j-context.xml"/>
+    <import resource="integration.xml"/>
+    <import resource="test-security.xml" />
+    <import resource="kv-context.xml"/>
+    <import resource="http-monitoring-integration.xml"/>
+
+
+    <task:annotation-driven executor="fd-engine"/>
+
+    <task:executor id="fd-engine" pool-size="30-50" keep-alive="120" queue-capacity="30"
+                   rejection-policy="CALLER_RUNS"/>
+    <cache:annotation-driven/>
+
+    <aop:aspectj-autoproxy/>
+
+    <bean id="cacheManager" class="org.springframework.cache.support.NoOpCacheManager"/>
+
+	<bean id="apiKeyInterceptor" class="org.flockdata.authentication.handler.ApiKeyInterceptor"/>
+
+    <bean id="corsFilter" class="org.flockdata.helper.CorsSpringFilter" >
+        <constructor-arg>
+            <bean class="com.thetransactioncompany.cors.CORSConfiguration">
+                <constructor-arg>
+                    <!-- Init the CORS filter via Spring so that properties can be extracted from anywhere-->
+                    <props>
+                        <prop key="cors.allowOrigin">${cors.allowOrigin}</prop>
+                        <prop key="cors.allowSubdomains">${cors.allowSubdomains}</prop>
+                        <prop key="cors.supportedHeaders">${cors.supportedHeaders}</prop>
+                        <prop key="cors.exposedHeaders">${cors.exposedHeaders}</prop>
+                        <prop key="cors.supportedMethods">${cors.supportedMethods}</prop>
+                        <prop key="cors.supportsCredentials">${cors.supportsCredentials}</prop>
+                        <prop key="cors.maxAge">${cors.maxAge}</prop>
+                        <prop key="cors.tagRequests">${cors.tagRequests}</prop>
+
+                    </props>
+                </constructor-arg>
+            </bean>
+        </constructor-arg>
+    </bean>
+</beans>
