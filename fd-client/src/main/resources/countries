@@ -1,0 +1,39 @@
+#!/bin/bash
+function findBaseDirAndCdThere {
+    CDPATH=""
+    SCRIPT="$0"
+
+    # SCRIPT may be an arbitrarily deep series of symlinks. Loop until we have the concrete path.
+    while [ -h "$SCRIPT" ] ; do
+      ls=`ls -ld "$SCRIPT"`
+      # Drop everything prior to ->
+      link=`expr "$ls" : '.*-> \(.*\)$'`
+      if expr "$link" : '/.*' > /dev/null; then
+        SCRIPT="$link"
+      else
+        SCRIPT=`dirname "$SCRIPT"`/"$link"
+      fi
+    done
+
+  FD_HOME=`cd $( dirname "$SCRIPT" )/.. && dirs -l +0`
+  FD_CONFIG=$FD_HOME/conf
+  FD_APP=$FD_HOME/app
+
+  cd "$FD_HOME"
+}
+if [ -x "$JAVA_HOME/bin/java" ]; then
+    JAVA="$JAVA_HOME/bin/java"
+else
+    JAVA=$(which java)
+fi
+
+if [ ! -x "$JAVA" ]; then
+    echo "Could not find any executable java binary. Please install java in your PATH or set JAVA_HOME"
+    exit 1
+fi
+findBaseDirAndCdThere
+
+## Countries
+## match (c:Country) return c;
+$JAVA -classpath $FD_APP/fd-client.jar org.flockdata.client.Importer -c ${FD_CONFIG} "/countries.json, /JsonTags.json"
+

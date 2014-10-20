@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:fd="http://www.flockdata.com/schema/spring/flockdata"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/aop
+                           http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+                           http://www.flockdata.com/schema/spring/flockdata
+                           http://www.flockdata.com/schema/spring/flockdata-0.1.xsd
+		                   http://www.springframework.org/schema/beans
+		                   http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                           http://www.springframework.org/schema/util
+                           http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <aop:aspectj-autoproxy/>
+
+    <fd:client id="client" properties="fd-properties"/>
+
+    <util:map id="fd-properties">
+        <entry key="server.name" value="http://track.flockdata.com"/>
+        <entry key="fd.apikey" value="232efr-234-fffaa-3434d"/>
+        <entry key="fd.username" value="someuser"/>
+        <entry key="fd.password" value="somepass"/>
+        <entry key="fortress.name" value="MyDefaultFortress"/>
+    </util:map>
+
+    <bean id="simpleTrackedService" class="org.flockdata.spring.service.SimpleTrackedService"/>
+</beans>

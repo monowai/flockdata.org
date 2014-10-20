@@ -1,0 +1,118 @@
+<?xml version=
+        "1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (company) 2012-2014 "Monowai Developments Limited"
+  ~
+  ~ This file is part of AuditBucket.
+  ~
+  ~ AuditBucket is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ AuditBucket is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with AuditBucket.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:task="http://www.springframework.org/schema/task"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+	   http://www.springframework.org/schema/integration
+	   http://www.springframework.org/schema/integration/spring-integration.xsd
+	   http://www.springframework.org/schema/task
+	   http://www.springframework.org/schema/task/spring-task.xsd">
+
+    <int:gateway id="fdSearchGateway"
+                 service-interface="org.flockdata.engine.service.FdSearchGateway"/>
+
+    <!--<int:json-to-object-transformer id="jsonToObject"-->
+                                    <!--input-channel="searchReply"-->
+                                    <!--output-channel="searchDocSyncResult"-->
+                                    <!--type="SearchResults">-->
+    <!--</int:json-to-object-transformer>-->
+
+    <int:json-to-object-transformer id="jsonToObject2"
+                                    input-channel="doMetaKeyReply"
+                                    output-channel="sendSearchReply"
+                                    type="org.flockdata.search.model.EsSearchResult">
+    </int:json-to-object-transformer>
+
+    <int:json-to-object-transformer id="jsonToObjectTagCloud"
+                                    input-channel="doTagCloudReply"
+                                    output-channel="sendTagCloudReply"
+                                    type="org.flockdata.search.model.TagCloud">
+    </int:json-to-object-transformer>
+
+
+    <int:object-to-json-transformer id="objectToJson"
+                                    input-channel="sendRequest"
+                                    output-channel="syncSearchDocs"
+                                    content-type="application/json">
+    </int:object-to-json-transformer>
+
+    <int:object-to-json-transformer id="objectToJson2"
+                                    input-channel="sendSearchRequest"
+                                    output-channel="doMetaKeyQuery"
+                                    content-type="application/json">
+    </int:object-to-json-transformer>
+
+    <int:object-to-json-transformer id="objectToJsonTagCloud"
+                                    input-channel="sendTagCloudRequest"
+                                    output-channel="doTagCloudQuery"
+                                    content-type="application/json">
+    </int:object-to-json-transformer>
+
+    <int:channel id="syncSearchDocs">
+        <int:dispatcher task-executor="qExecutor"/>
+    </int:channel>
+
+    <int:channel id="doMetaKeyQuery">
+        <int:dispatcher task-executor="qExecutor"/>
+    </int:channel>
+
+    <int:channel id="doTagCloudQuery">
+        <int:dispatcher task-executor="qExecutor"/>
+    </int:channel>
+
+    <int:channel id="searchDocSyncResult">
+        <int:dispatcher task-executor="qExecutor"/>
+    </int:channel>
+    <int:channel id="sendRequest"/>
+    <int:channel id="searchReply"/>
+
+    <int:channel id="sendSearchRequest"/>
+    <int:channel id="sendSearchReply"/>
+
+    <!-- TAG CLOUD CHANNEL Fd-ENGINE-->
+    <int:channel id="sendTagCloudRequest"/>
+    <int:channel id="sendTagCloudReply"/>
+
+    <int:channel id="errors"/>
+
+    <int:service-activator id="abErrorLogger" input-channel="errors" ref="abloggingHandler"/>
+
+    <bean id="abloggingHandler" class="org.springframework.integration.handler.LoggingHandler">
+        <constructor-arg index="0" value="DEBUG"/>
+    </bean>
+
+    <task:executor id="qExecutor" pool-size="40-40" keep-alive="180" queue-capacity="30"
+                   rejection-policy="CALLER_RUNS"/>
+
+
+    <!--<bean fortressId="qThreadPoolExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">-->
+    <!--<property name="allowCoreThreadTimeOut" value="true"/>-->
+    <!--<property name="queueCapacity" value="50"/>-->
+    <!--<property name="rejectedExecutionHandler" value="CALLER_RUNS"/>-->
+    <!--&lt;!&ndash;Was -1&ndash;&gt;-->
+    <!--</bean>-->
+
+</beans>
