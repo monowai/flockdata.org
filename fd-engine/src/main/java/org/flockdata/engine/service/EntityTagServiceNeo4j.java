@@ -20,13 +20,13 @@
 package org.flockdata.engine.service;
 
 import org.flockdata.dao.TrackTagDao;
-import org.flockdata.engine.repo.neo4j.TrackTagDaoNeo;
+import org.flockdata.engine.repo.neo4j.EntityTagDaoNeo4j;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.track.bean.TrackTagInputBean;
 import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.TrackTag;
+import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.service.TagService;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.registration.model.Company;
@@ -49,7 +49,7 @@ import java.util.*;
  */
 @Service
 @Transactional
-public class TagTrackServiceNeo4j implements EntityTagService {
+public class EntityTagServiceNeo4j implements EntityTagService {
 
     @Autowired
     TagService tagService;
@@ -58,9 +58,9 @@ public class TagTrackServiceNeo4j implements EntityTagService {
     SecurityHelper securityHelper;
 
     @Autowired
-    TrackTagDaoNeo trackTagDao;
+    EntityTagDaoNeo4j entityTagDao;
 
-    private Logger logger = LoggerFactory.getLogger(TagTrackServiceNeo4j.class);
+    private Logger logger = LoggerFactory.getLogger(EntityTagServiceNeo4j.class);
 
     @Override
     public void processTag(Entity entity, TrackTagInputBean tagInput) {
@@ -70,7 +70,7 @@ public class TagTrackServiceNeo4j implements EntityTagService {
             // We already have this tagged so get out of here
             return;
         Tag tag = tagService.findTag(entity.getFortress().getCompany(), tagInput.getTagName(), tagInput.getIndex());
-        trackTagDao.save(entity, tag, relationshipName);
+        entityTagDao.save(entity, tag, relationshipName);
     }
 
     @Override
@@ -78,7 +78,7 @@ public class TagTrackServiceNeo4j implements EntityTagService {
         Tag tag = tagService.findTag(name);
         if (tag == null)
             return false;
-        return trackTagDao.relationshipExists(entity, tag, relationshipType);
+        return entityTagDao.relationshipExists(entity, tag, relationshipType);
     }
 
     /**
@@ -97,15 +97,15 @@ public class TagTrackServiceNeo4j implements EntityTagService {
      * If this scenario, ClientID123 is created as a single node with two relationships that
      * describe the association - clientKey and prospectKey
      *  @param company
-     * @param ah       Entity to associate userTags with
+     * @param entity       Entity to associate userTags with
      * @param lastLog
      * @param userTags Key/Value pair of tags. TagNode will be created if missing. Value can be a Collection
      * @param archiveRemovedTags
      */
     @Override
-    public Collection<TrackTag> associateTags(Company company, Entity ah, EntityLog lastLog, Collection<TagInputBean> userTags, Boolean archiveRemovedTags) {
-        Collection<TrackTag> rlxs = new ArrayList<>();
-        Iterable<TrackTag> existingTags = getEntityTags(company, ah);
+    public Collection<EntityTag> associateTags(Company company, Entity entity, EntityLog lastLog, Collection<TagInputBean> userTags, Boolean archiveRemovedTags) {
+        Collection<EntityTag> rlxs = new ArrayList<>();
+        Iterable<EntityTag> existingTags = getEntityTags(company, entity);
 
         for (TagInputBean tagInput : userTags) {
 
@@ -113,36 +113,36 @@ public class TagTrackServiceNeo4j implements EntityTagService {
 
             // Handle both simple relationships type name or a map/collection of relationships
             if (tagInput.getEntityLinks() != null) {
-                rlxs.addAll(writeRelationships(ah, tag, tagInput.getEntityLinks(), tagInput.isReverse()));
+                rlxs.addAll(writeRelationships(entity, tag, tagInput.getEntityLinks(), tagInput.isReverse()));
             }
             if (tagInput.getEntityLink() != null) // Simple relationship to the entity
                 // Makes it easier for the API to call
-                rlxs.add(trackTagDao.save(ah, tag, tagInput.getEntityLink(), tagInput.isReverse()));
+                rlxs.add(entityTagDao.save(entity, tag, tagInput.getEntityLink(), tagInput.isReverse()));
         }
 
         if (!userTags.isEmpty()) {
             // We only consider relocating tags to the log if the caller passes at least one tag set
-            Collection<TrackTag> tagsToRelocate = new ArrayList<>();
-            for (TrackTag existingTag : existingTags) {
+            Collection<EntityTag> tagsToRelocate = new ArrayList<>();
+            for (EntityTag existingTag : existingTags) {
                 if (!rlxs.contains(existingTag))
                     tagsToRelocate.add(existingTag);
             }
             if (archiveRemovedTags)
-                relocateTags(ah, lastLog, tagsToRelocate);
+                relocateTags(entity, lastLog, tagsToRelocate);
         }
         return rlxs;
     }
 
-    private void relocateTags(Entity ah, EntityLog currentLog, Collection<TrackTag> tagsToRelocate) {
+    private void relocateTags(Entity ah, EntityLog currentLog, Collection<EntityTag> tagsToRelocate) {
         if (!tagsToRelocate.isEmpty()) {
             if (currentLog != null)
-                trackTagDao.moveTags(ah, currentLog.getLog(), tagsToRelocate);
+                entityTagDao.moveTags(ah, currentLog.getLog(), tagsToRelocate);
         }
     }
 
-    private Collection<TrackTag> writeRelationships(Entity entity, Tag tag, Map<String, Object> metaRelationships, boolean isReversed) {
-        Collection<TrackTag> trackTags = new ArrayList<>();
-        long when = entity.getFortressLastWhen();
+    private Collection<EntityTag> writeRelationships(Entity entity, Tag tag, Map<String, Object> metaRelationships, boolean isReversed) {
+        Collection<EntityTag> entityTags = new ArrayList<>();
+        long when = entity.getFortressDateUpdated();
         if ( when == 0 )
             when = entity.getWhenCreated();
         for (String key : metaRelationships.keySet()) {
@@ -154,13 +154,13 @@ public class TagTrackServiceNeo4j implements EntityTagService {
                 propMap = new HashMap<>();
             }
 
-            propMap.put(TrackTagDao.AB_WHEN, when);
-            TrackTag trackTagRelationship = trackTagDao.save(entity, tag, key, isReversed, propMap);
-            if (trackTagRelationship != null)
-                trackTags.add(trackTagRelationship);
+            propMap.put(TrackTagDao.FD_WHEN, when);
+            EntityTag entityTagRelationship = entityTagDao.save(entity, tag, key, isReversed, propMap);
+            if (entityTagRelationship != null)
+                entityTags.add(entityTagRelationship);
 
         }
-        return trackTags;
+        return entityTags;
     }
 
     /**
@@ -170,59 +170,59 @@ public class TagTrackServiceNeo4j implements EntityTagService {
      * @return TrackTags found
      */
     @Override
-    public Collection<TrackTag> findEntityTags(Entity entity) {
+    public Collection<EntityTag> findEntityTags(Entity entity) {
         Company company = securityHelper.getCompany();
         return findEntityTags(company, entity);
     }
 
-    public Collection<TrackTag> findEntityTags(Company company, Entity entity){
+    public Collection<EntityTag> findEntityTags(Company company, Entity entity){
         return getEntityTags(company, entity);
     }
 
     @Override
-    public Collection<TrackTag> findOutboundTags(Entity entity) {
+    public Collection<EntityTag> findOutboundTags(Entity entity) {
         Company company = securityHelper.getCompany();
         return findOutboundTags(company, entity);
     }
 
     @Override
-    public Collection<TrackTag> findOutboundTags(Company company, Entity entity) {
-        return trackTagDao.getDirectedEntityTags(company, entity, true);
+    public Collection<EntityTag> findOutboundTags(Company company, Entity entity) {
+        return entityTagDao.getDirectedEntityTags(company, entity, true);
     }
 
     @Override
-    public Collection<TrackTag> findInboundTags(Company company, Entity entity) {
-        return trackTagDao.getDirectedEntityTags(company, entity, false);
+    public Collection<EntityTag> findInboundTags(Company company, Entity entity) {
+        return entityTagDao.getDirectedEntityTags(company, entity, false);
     }
 
     @Override
-    public Collection<TrackTag> getEntityTags(Company company, Entity entity) {
-        return trackTagDao.getEntityTags(company, entity);
+    public Collection<EntityTag> getEntityTags(Company company, Entity entity) {
+        return entityTagDao.getEntityTags(company, entity);
     }
 
     @Override
-    public Collection<TrackTag> findLogTags(Company company, Log log) {
-        return trackTagDao.findLogTags(company, log);
+    public Collection<EntityTag> findLogTags(Company company, Log log) {
+        return entityTagDao.findLogTags(company, log);
     }
 
     @Override
-    public void deleteTrackTags(Entity entity, Collection<TrackTag> trackTags) throws FlockException {
-        trackTagDao.deleteEntityTags(entity, trackTags);
+    public void deleteTrackTags(Entity entity, Collection<EntityTag> entityTags) throws FlockException {
+        entityTagDao.deleteEntityTags(entity, entityTags);
     }
 
     @Override
-    public void deleteTrackTags(Entity entity, TrackTag value) throws FlockException {
-        Collection<TrackTag> remove = new ArrayList<>(1);
+    public void deleteTrackTags(Entity entity, EntityTag value) throws FlockException {
+        Collection<EntityTag> remove = new ArrayList<>(1);
         remove.add(value);
         deleteTrackTags(entity, remove);
 
     }
 
     @Override
-    public void changeType(Entity entity, TrackTag existingTag, String newType) throws FlockException {
+    public void changeType(Entity entity, EntityTag existingTag, String newType) throws FlockException {
         if (entity == null || existingTag == null || newType == null)
             throw new FlockException(("Illegal parameter"));
-        trackTagDao.changeType(entity, existingTag, newType);
+        entityTagDao.changeType(entity, existingTag, newType);
     }
 
 
@@ -231,12 +231,12 @@ public class TagTrackServiceNeo4j implements EntityTagService {
         Tag tag = tagService.findTag(tagName);
         if (tag == null)
             throw new FlockException("Unable to find the tag [" + tagName + "]");
-        return trackTagDao.findEntityTags(tag);
+        return entityTagDao.findEntityTags(tag);
 
     }
 
     @Override
     public void moveTags(Company company, Log previousLog, Entity entity) {
-        trackTagDao.moveTags(company, previousLog, entity);
+        entityTagDao.moveTags(company, previousLog, entity);
     }
 }

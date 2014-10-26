@@ -42,7 +42,7 @@ public interface TrackLogRepo extends GraphRepository<LogNode> {
                     "   return log")
     LoggedRelationship getLog(Long logId);
 
-    @Query(elementClass = LoggedRelationship.class, value = "match (entity)-[log:LOGGED]->(auditLog) where id(entity)={0} and log.fortressWhen >= {1} and log.fortressWhen <= {2} return log ")
+    @Query(elementClass = LoggedRelationship.class, value = "match (entity)-[log:LOGGED]->(entityLog) where id(entity)={0} and log.fortressWhen >= {1} and log.fortressWhen <= {2} return log ")
     Set<EntityLog> getLogs(Long entityId, Long from, Long to);
 
     @Query(elementClass = LoggedRelationship.class, value =
@@ -50,10 +50,10 @@ public interface TrackLogRepo extends GraphRepository<LogNode> {
             "return log order by log.fortressWhen desc")
     Set<EntityLog> findLogs(Long entityId);
 
-    @Query (value = "match (f:_Fortress)-[:TRACKS]->(m:Entity)-[l:LOGGED]-(log:Log)-[people]-() where id(f)={0} delete l, people, log")
+    @Query (value = "match (f:_Fortress)-[:TRACKS]->(m:_Entity)-[l:LOGGED]-(log:Log)-[people]-() where id(f)={0} delete l, people, log")
     void purgeFortressLogs(Long fortressId);
 
-    @Query (value = "match (f:_Fortress)-[track:TRACKS]->(m:Entity)-[tagRlx]-(:_Tag) where id(f)={0} delete tagRlx")
+    @Query (value = "match (f:_Fortress)-[track:TRACKS]->(m:_Entity)-[tagRlx]-(:_Tag) where id(f)={0} delete tagRlx")
     void purgeTagRelationships(Long fortressId);
 
 

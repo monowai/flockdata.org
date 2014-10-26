@@ -21,7 +21,7 @@ package org.flockdata.dao;
 
 import org.flockdata.registration.model.Tag;
 import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.TrackTag;
+import org.flockdata.track.model.EntityTag;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.model.Company;
 import org.flockdata.track.model.Log;
@@ -37,14 +37,14 @@ import java.util.Set;
  */
 public interface TrackTagDao {
 
-    // Property that refers to when this relationship was introduced to AB
-    String AB_WHEN = "abWhen";
+    // Property that refers to when this relationship was introduced to FD
+    String FD_WHEN = "fdWhen";
 
-    TrackTag save(Entity entity, Tag tag, String relationshipName);
+    EntityTag save(Entity entity, Tag tag, String relationshipName);
 
-    TrackTag save(Entity ah, Tag tag, String metaLink, boolean reverse);
+    EntityTag save(Entity ah, Tag tag, String metaLink, boolean reverse);
 
-    TrackTag save(Entity ah, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap);
+    EntityTag save(Entity ah, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap);
 
     Boolean relationshipExists(Entity entity, Tag tag, String relationshipName);
 
@@ -55,19 +55,19 @@ public interface TrackTagDao {
      * @param entity    entity the caller is authorised to work with
      * @return           all TrackTags for the company in both directions
      */
-    Set<TrackTag> getMetaTrackTags(Company company, Entity entity);
+    Set<EntityTag> getMetaTrackTags(Company company, Entity entity);
 
-    Set<TrackTag> getDirectedMetaTags(Company company, Entity entity, boolean outbound);
+    Set<EntityTag> getDirectedMetaTags(Company company, Entity entity, boolean outbound);
 
-    Set<TrackTag> findLogTags(Company company, Log log) ;
+    Set<EntityTag> findLogTags(Company company, Log log) ;
 
-    void changeType(Entity entity, TrackTag existingTag, String newType);
+    void changeType(Entity entity, EntityTag existingTag, String newType);
 
     Set<Entity> findTrackTags(Tag tag);
 
-    void moveTags(Entity entity, Log log, Collection<TrackTag> trackTag);
+    void moveTags(Entity entity, Log log, Collection<EntityTag> entityTag);
 
-    void deleteTrackTags(Entity entity, Collection<TrackTag> trackTags) throws FlockException;
+    void deleteTrackTags(Entity entity, Collection<EntityTag> entityTags) throws FlockException;
 
     void moveTags(Company company, Log logToMoveFrom, Entity entity);
 }

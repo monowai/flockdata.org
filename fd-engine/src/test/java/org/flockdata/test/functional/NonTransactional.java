@@ -23,7 +23,7 @@ import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.FortressUser;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.track.bean.CrossReferenceInputBean;
-import org.flockdata.track.model.TrackTag;
+import org.flockdata.track.model.EntityTag;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -94,9 +94,9 @@ public class NonTransactional extends EngineBase {
         CrossReferenceInputBean bean = new CrossReferenceInputBean(fortressA.getName(), "ABC123",refs);
         List<CrossReferenceInputBean > inputs = new ArrayList<>();
         inputs.add(bean);
-        Collection<TrackTag> tagsA = entityTagService.getEntityTags(su.getCompany(), docA.getEntity());
+        Collection<EntityTag> tagsA = entityTagService.getEntityTags(su.getCompany(), docA.getEntity());
         assertEquals(1, tagsA.size());
-        Collection<TrackTag> tagsB = entityTagService.getEntityTags(su.getCompany(), docB.getEntity());
+        Collection<EntityTag> tagsB = entityTagService.getEntityTags(su.getCompany(), docB.getEntity());
         assertEquals(1, tagsB.size());
 
     }

@@ -42,7 +42,7 @@ import java.util.List;
  * General importer with support for CSV and XML parsing. Interacts with AbRestClient to send
  * information via a RESTful interface
  * <p/>
- * Will send information to AuditBucket as either tags or track information.
+ * Will send information to FlockData as either tags or track information.
  * <p/>
  * You should extend EntityInputBean or TagInputBean and implement XMLMappable or DelimitedMappable
  * to massage your data prior to dispatch to FD.
@@ -71,7 +71,7 @@ public class Importer {
     private static Namespace getCommandLineArgs(String args[]) {
         ArgumentParser parser = ArgumentParsers.newArgumentParser("importer")
                 .defaultHelp(true)
-                .description("Client side batch importer to AuditBucket");
+                .description("Client side batch importer to FlockData");
 
         parser.addArgument("-b", "--batch")
                 .required(false)

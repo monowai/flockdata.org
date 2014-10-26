@@ -25,7 +25,7 @@ import org.flockdata.registration.model.Fortress;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.TrackTag;
+import org.flockdata.track.model.EntityTag;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.FortressUser;
@@ -55,7 +55,7 @@ import static junit.framework.Assert.assertNotNull;
 @ContextConfiguration({"classpath:root-context.xml"})
 public class TestMappings extends ESBase {
     @Autowired
-    TrackSearchDao trackRepo;
+    TrackSearchDao searchRepo;
 
     @Autowired
     ElasticSearchEP searchEP;
@@ -77,26 +77,26 @@ public class TestMappings extends ESBase {
         SearchChange change = new EntitySearchChange(entity);
         change.setDescription("Test Description");
         change.setWhat(json);
-        ArrayList<TrackTag> tags = new ArrayList<>();
+        ArrayList<EntityTag> tags = new ArrayList<>();
 
         TagNode tag = new TagNode(new TagInputBean("myTag", "TheLabel", "rlxname"));
         tag.setCode("my TAG");// we should be able to find this as lowercase
-        tags.add(new TrackTagRelationship(66l, tag));
+        tags.add(new EntityTagRelationship(66l, tag));
         change.setTags(tags);
 
 
         deleteEsIndex(entity.getIndexName());
 
-        change = trackRepo.update(change);
+        change = searchRepo.update(change);
         Thread.sleep(1000);
         assertNotNull(change);
         assertNotNull(change.getSearchKey());
         entity.setSearchKey(change.getSearchKey());
-        json = trackRepo.findOne(entity);
+        json = searchRepo.findOne(entity);
 
-        // In this test, @tag.*.code is ignored so it should find the value with a space in it
-        // In prod we use the .key field in this manner
-        doTermQuery(entity.getIndexName(), "@tag.mytag.code", "my tag", 1);
+        // In this test, @tag.*.code is NOT_ANALYZED so it should find the value with a space in it
+        // We also expect the code to be lower case
+        doTermQuery(entity.getIndexName(), "@tag.mytag.code", "my tag", 1, "Case insensitive search of tag codes is not working");
         assertNotNull(json);
 
     }
@@ -124,7 +124,7 @@ public class TestMappings extends ESBase {
         SearchChange change = new EntitySearchChange(entity);
         change.setWhat(what);
 
-        SearchChange searchResult = trackRepo.update(change);
+        SearchChange searchResult = searchRepo.update(change);
         assertNotNull(searchResult);
         Thread.sleep(2000);
         doQuery(entity.getIndexName(), "AZERTY", 1);
@@ -164,8 +164,8 @@ public class TestMappings extends ESBase {
         deleteEsIndex(entityA.getIndexName());
         deleteEsIndex(entityB.getIndexName());
 
-        changeA = trackRepo.update(changeA);
-        changeB = trackRepo.update(changeB);
+        changeA = searchRepo.update(changeA);
+        changeB = searchRepo.update(changeB);
         Thread.sleep(1000);
         assertNotNull(changeA);
         assertNotNull(changeB);
@@ -192,16 +192,16 @@ public class TestMappings extends ESBase {
 
         TagNode tag = new TagNode(new TagInputBean("myTag", "TheLabel", "rlxname"));
         tag.setCode("my TAG");// we should be able to find this as lowercase
-        ArrayList<TrackTag> tags = new ArrayList<>();
-        tags.add(new TrackTagRelationship(66l, tag));
+        ArrayList<EntityTag> tags = new ArrayList<>();
+        tags.add(new EntityTagRelationship(66l, tag));
         changeA.setTags(tags);
         changeB.setTags(tags);
 
         deleteEsIndex(entityA.getIndexName());
         deleteEsIndex(entityB.getIndexName());
 
-        changeA = trackRepo.update(changeA);
-        changeB = trackRepo.update(changeB);
+        changeA = searchRepo.update(changeA);
+        changeB = searchRepo.update(changeB);
         Thread.sleep(1000);
         assertNotNull(changeA);
         assertNotNull(changeB);

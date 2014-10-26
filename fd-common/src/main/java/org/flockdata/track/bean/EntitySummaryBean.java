@@ -20,7 +20,7 @@
 package org.flockdata.track.bean;
 
 import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.TrackTag;
+import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.model.EntityLog;
 
 import java.util.Collection;
@@ -33,12 +33,12 @@ import java.util.Set;
 public class EntitySummaryBean {
     private Entity entity;
     private Set<EntityLog> changes;
-    private Collection<TrackTag> tags;
+    private Collection<EntityTag> tags;
 
     private EntitySummaryBean() {
     }
 
-    public EntitySummaryBean(Entity entity, Set<EntityLog> changes, Collection<TrackTag> tags) {
+    public EntitySummaryBean(Entity entity, Set<EntityLog> changes, Collection<EntityTag> tags) {
         this();
         this.entity = entity;
         this.changes = changes;
@@ -53,7 +53,7 @@ public class EntitySummaryBean {
         return changes;
     }
 
-    public Collection<TrackTag> getTags() {
+    public Collection<EntityTag> getTags() {
         return tags;
     }
 }

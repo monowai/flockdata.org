@@ -30,7 +30,7 @@ import org.flockdata.registration.model.Tag;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.TrackTag;
+import org.flockdata.track.model.EntityTag;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -49,14 +49,14 @@ import static org.junit.Assert.assertEquals;
 public class TestEntitySearch {
     @Test
     public void tags_ArrayWork() throws Exception{
-        Collection<TrackTag> tags = new ArrayList<>();
+        Collection<EntityTag> tags = new ArrayList<>();
 
         Entity e = getEntity("test", "blah", "asdf", "don'tcare");
 
         // ToDo: What is the diff between these relationships
-        tags.add( new TrackTagRelationship(e, getTag("NameA", "dupe"), "dupe", null ));
-        tags.add( new TrackTagRelationship(e, getTag("NameB", "Dupe"), "Dupe", null ));
-        tags.add( new TrackTagRelationship(e, getTag("NameC", "dupe"), "dupe", null ));
+        tags.add( new EntityTagRelationship(e, getTag("NameA", "dupe"), "dupe", null ));
+        tags.add( new EntityTagRelationship(e, getTag("NameB", "Dupe"), "Dupe", null ));
+        tags.add( new EntityTagRelationship(e, getTag("NameC", "dupe"), "dupe", null ));
 
         EntitySearchChange entitySearchChange = new EntitySearchChange(e);
         entitySearchChange.setTags(tags);

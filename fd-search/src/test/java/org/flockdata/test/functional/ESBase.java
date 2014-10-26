@@ -19,6 +19,13 @@
 
 package org.flockdata.test.functional;
 
+import io.searchbox.client.JestClient;
+import io.searchbox.client.JestClientFactory;
+import io.searchbox.client.JestResult;
+import io.searchbox.client.config.HttpClientConfig;
+import io.searchbox.core.Search;
+import io.searchbox.indices.DeleteIndex;
+import io.searchbox.indices.mapping.GetMapping;
 import org.flockdata.engine.repo.neo4j.model.DocumentTypeNode;
 import org.flockdata.engine.repo.neo4j.model.EntityNode;
 import org.flockdata.engine.repo.neo4j.model.FortressNode;
@@ -30,13 +37,6 @@ import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.FortressUser;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.model.Entity;
-import io.searchbox.client.JestClient;
-import io.searchbox.client.JestClientFactory;
-import io.searchbox.client.JestResult;
-import io.searchbox.client.config.HttpClientConfig;
-import io.searchbox.core.Search;
-import io.searchbox.indices.DeleteIndex;
-import io.searchbox.indices.mapping.GetMapping;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -82,9 +82,13 @@ public class ESBase {
         esClient = factory.getObject();
 
     }
-
     String doTermQuery(String index, String field, String queryString, int expectedHitCount) throws Exception {
-        // There should only ever be one document for a given AuditKey.
+        return doTermQuery(index, field, queryString, expectedHitCount, null);
+    }
+
+
+    String doTermQuery(String index, String field, String queryString, int expectedHitCount, String exceptionMessage) throws Exception {
+        // There should only ever be one document for a given Entity.
         // Let's assert that
         int runCount = 0, nbrResult;
         JestResult jResult;
@@ -119,7 +123,9 @@ public class ESBase {
 
         logger.debug("ran ES Term Query - result count {}, runCount {}", nbrResult, runCount);
         logger.trace("searching index [{}] field [{}] for [{}]", index, field, queryString);
-        Assert.assertEquals(jResult.getJsonString(), expectedHitCount, nbrResult);
+        if ( exceptionMessage == null )
+            exceptionMessage = jResult.getJsonString();
+        Assert.assertEquals(exceptionMessage, expectedHitCount, nbrResult);
         if (nbrResult != 0) {
             return jResult.getJsonObject()
                     .getAsJsonObject("hits")
@@ -132,6 +138,7 @@ public class ESBase {
             return null;
         }
     }
+
 
     String doQuery(String index, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
@@ -173,7 +180,7 @@ public class ESBase {
         } while (nbrResult != expectedHitCount && runCount < 6);
         logger.debug("ran ES query - result count {}, runCount {}", nbrResult, runCount);
 
-        junit.framework.Assert.assertNotNull(jResult);
+        assertNotNull(jResult);
         Assert.assertEquals(index + "\r\n" + queryString + "\r\n" + jResult.getJsonString(), expectedHitCount, nbrResult);
 
         return jResult.getJsonString();

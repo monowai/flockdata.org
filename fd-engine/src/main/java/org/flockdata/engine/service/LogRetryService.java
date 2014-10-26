@@ -133,7 +133,8 @@ public class LogRetryService {
         //ToDo: May want to track a "View" event which would not change the What data.
         if (!content.hasData()) {
             resultBean.setStatus(ContentInputBean.LogStatus.IGNORE);
-            resultBean.setMessage("No 'what' information provided. Ignoring this request");
+            resultBean.setMessage("No content information provided. Ignoring this request");
+            logger.debug( resultBean.getMessage());
             return resultBean;
         }
 

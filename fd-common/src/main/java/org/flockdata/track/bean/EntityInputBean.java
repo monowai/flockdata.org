@@ -161,7 +161,7 @@ public class EntityInputBean {
     /**
      * Optional case sensitive & unique for the Fortress & Document Type combination. If you do not have
      * a primary key, then to update "this" instance of the Entity you will need to use
-     * the generated AuditKey returned by AuditBucket in the TrackResultBean
+     * the generated AuditKey returned by FlockData in the TrackResultBean
      *
      * @see TrackResultBean
      *

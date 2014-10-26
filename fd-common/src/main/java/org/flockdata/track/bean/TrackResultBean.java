@@ -20,7 +20,7 @@
 package org.flockdata.track.bean;
 
 import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.TrackTag;
+import org.flockdata.track.model.EntityTag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -40,7 +40,7 @@ public class TrackResultBean {
     private LogResultBean logResult;
     private ContentInputBean contentInput;
     private Entity entity;
-    private Collection<TrackTag> tags;
+    private Collection<EntityTag> tags;
     private EntityInputBean entityInputBean;
 
     protected TrackResultBean() {
@@ -173,7 +173,7 @@ public class TrackResultBean {
         return entityExisted;
     }
 
-    public void setTags(Collection<TrackTag> tags) {
+    public void setTags(Collection<EntityTag> tags) {
         this.tags = tags;
     }
 
@@ -182,7 +182,7 @@ public class TrackResultBean {
      * Only used when creating  relationships for the purpose of search
      * that bypass the graph
      */
-    public Collection<TrackTag> getTags() {
+    public Collection<EntityTag> getTags() {
         return tags;
     }
 

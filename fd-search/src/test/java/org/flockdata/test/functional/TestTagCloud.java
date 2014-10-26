@@ -32,9 +32,9 @@ import org.flockdata.search.model.TagCloud;
 import org.flockdata.search.model.TagCloudParams;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.model.Entity;
+import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.model.SearchChange;
 import org.flockdata.track.model.TrackSearchDao;
-import org.flockdata.track.model.TrackTag;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -79,11 +79,11 @@ public class TestTagCloud extends ESBase {
         SearchChange change = new EntitySearchChange(entity);
         change.setDescription("Test Description");
         change.setWhat(json);
-        ArrayList<TrackTag> tags = new ArrayList<>();
+        ArrayList<EntityTag> tags = new ArrayList<>();
 
         TagNode tag = new TagNode(new TagInputBean("myTag", "TheLabel", "rlxname"));
         tag.setCode("my TAG");// we should be able to find this as lowercase
-        tags.add(new TrackTagRelationship(66l, tag));
+        tags.add(new EntityTagRelationship(66l, tag));
         change.setTags(tags);
 
         deleteEsIndex(entity.getIndexName());

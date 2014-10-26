@@ -43,7 +43,7 @@ public interface EntityLog {
     public void setIsIndexed();
 
     /**
-     * @return When this log file was created in AuditBucket
+     * @return When this log file was created in FlockData
      */
     public Long getSysWhen();
 

@@ -37,6 +37,7 @@ import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -56,6 +57,9 @@ public class EntityNode implements Entity {
     @RelatedTo(elementClass = FortressNode.class, type = "TRACKS", direction = Direction.INCOMING)
     @Fetch
     private FortressNode fortress;
+
+    @Labels
+    private ArrayList<String> labels = new ArrayList<>();
 
     private String documentType;
 
@@ -113,6 +117,9 @@ public class EntityNode implements Entity {
         DateTime now = new DateTime().toDateTime(DateTimeZone.UTC);
         this.dateCreated = now.toDate().getTime();
         this.lastUpdate = dateCreated;
+        labels.add("_Entity");
+        labels.add("Entity");
+
     }
 
     public EntityNode(String uniqueKey, @NotEmpty Fortress fortress, @NotEmpty EntityInputBean entityInput, @NotEmpty DocumentType documentType) throws FlockException {
@@ -197,7 +204,7 @@ public class EntityNode implements Entity {
     }
 
     @Override
-    public Long getFortressLastWhen() {
+    public Long getFortressDateUpdated() {
         return fortressLastWhen;
     }
 
@@ -333,5 +340,9 @@ public class EntityNode implements Entity {
 
     public void setLastChange(LogNode lastChange) {
         this.lastChange = lastChange;
+    }
+
+    public void addLabel(String label){
+        labels.add(label);
     }
 }

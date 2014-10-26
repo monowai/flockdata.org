@@ -106,35 +106,39 @@ public class TrackServiceNeo4j implements TrackService {
      */
     public TrackResultBean createEntity(Fortress fortress, EntityInputBean entityInputBean) {
 
-        Entity ah = null;
+        Entity entity = null;
         if (entityInputBean.getMetaKey() != null) {
-            ah = getEntity(fortress.getCompany(), entityInputBean.getMetaKey());
+            entity = getEntity(fortress.getCompany(), entityInputBean.getMetaKey());
         }
 
-        if (ah == null && (entityInputBean.getCallerRef() != null && !entityInputBean.getCallerRef().equals(EMPTY)))
-            ah = findByCallerRef(fortress, entityInputBean.getDocumentType(), entityInputBean.getCallerRef());
-        if (ah != null) {
-            logger.debug("Existing entity record found by Caller Ref [{}] found [{}]", entityInputBean.getCallerRef(), ah.getMetaKey());
-            entityInputBean.setMetaKey(ah.getMetaKey());
-            logger.debug("Existing AH [{}]", ah);
-            TrackResultBean arb = new TrackResultBean(ah);
+        if (entity == null && (entityInputBean.getCallerRef() != null && !entityInputBean.getCallerRef().equals(EMPTY)))
+            entity = findByCallerRef(fortress, entityInputBean.getDocumentType(), entityInputBean.getCallerRef());
+        if (entity != null) {
+            logger.debug("Existing entity record found by Caller Ref [{}] found [{}]", entityInputBean.getCallerRef(), entity.getMetaKey());
+            entityInputBean.setMetaKey(entity.getMetaKey());
+            logger.debug("Existing AH [{}]", entity);
+            TrackResultBean arb = new TrackResultBean(entity);
             arb.setEntityInputBean(entityInputBean);
             arb.entityExisted();
             arb.setContentInput(entityInputBean.getLog());
+            if ( entityInputBean.getLog()!=null && entityInputBean.getLog().getWhen()!=null) {
+                // Communicating the POTENTIAL last update so it can be recorded in the tag relationships
+                entity.setFortressLastWhen(entityInputBean.getLog().getWhen().getTime());
+            }
             // Could be rewriting tags
             // DAT-153 - move this to the end of the process?
-            EntityLog entityLog = getLastEntityLog(ah.getId());
-            arb.setTags(entityTagService.associateTags(fortress.getCompany(), ah, entityLog, entityInputBean.getTags(), entityInputBean.isArchiveTags() ));
+            EntityLog entityLog = getLastEntityLog(entity.getId());
+            arb.setTags(entityTagService.associateTags(fortress.getCompany(), entity, entityLog, entityInputBean.getTags(), entityInputBean.isArchiveTags()));
             return arb;
         }
         DocumentType documentType = schemaService.resolveByDocCode(fortress, entityInputBean.getDocumentType());
         try {
-            ah = makeEntity(fortress, documentType, entityInputBean);
+            entity = makeEntity(fortress, documentType, entityInputBean);
         } catch (FlockException e) {
             logger.error(e.getMessage());
             return new TrackResultBean("Error processing entityInput [{}]" + entityInputBean + ". Error " + e.getMessage());
         }
-        TrackResultBean resultBean = new TrackResultBean(ah);
+        TrackResultBean resultBean = new TrackResultBean(entity);
         resultBean.setEntityInputBean(entityInputBean);
         resultBean.setTags(entityTagService.associateTags(fortress.getCompany(), resultBean.getEntity(), null, entityInputBean.getTags(), entityInputBean.isArchiveTags()));
 
@@ -404,7 +408,7 @@ public class TrackServiceNeo4j implements TrackService {
         if (entity == null)
             throw new FlockException("Invalid Meta Key [" + metaKey + "]");
         Set<EntityLog> changes = getEntityLogs(entity.getId());
-        Collection<TrackTag> tags = entityTagService.getEntityTags(company, entity);
+        Collection<EntityTag> tags = entityTagService.getEntityTags(company, entity);
         return new EntitySummaryBean(entity, changes, tags);
     }
 
@@ -623,7 +627,7 @@ public class TrackServiceNeo4j implements TrackService {
     }
 
     @Override
-    public Collection<TrackTag> getLastLogTags(Company company, String metaKey) throws FlockException {
+    public Collection<EntityTag> getLastLogTags(Company company, String metaKey) throws FlockException {
         EntityLog lastLog = getLastEntityLog(company, metaKey);
         if (lastLog == null)
             return new ArrayList<>();
@@ -639,7 +643,7 @@ public class TrackServiceNeo4j implements TrackService {
     }
 
 
-    private Collection<TrackTag> getLogTags(Company company, Log log) {
+    private Collection<EntityTag> getLogTags(Company company, Log log) {
         return entityTagService.findLogTags(company, log);
 
     }
@@ -658,7 +662,7 @@ public class TrackServiceNeo4j implements TrackService {
     }
 
     @Override
-    public Collection<TrackTag> getLogTags(Company company, EntityLog tl) {
+    public Collection<EntityTag> getLogTags(Company company, EntityLog tl) {
         return getLogTags(company, tl.getLog());  //To change body of created methods use File | Settings | File Templates.
     }
 

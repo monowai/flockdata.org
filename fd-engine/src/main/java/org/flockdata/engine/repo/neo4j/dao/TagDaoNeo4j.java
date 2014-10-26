@@ -189,6 +189,7 @@ public class TagDaoNeo4j {
         Map<String, Object> params = new HashMap<>();
         params.put("start", startId);
         params.put("end", endId);
+        //params.put("timestamp", System.currentTimeMillis());
         template.query(cypher, params);
         createdValues.add(key);
         return tag;
