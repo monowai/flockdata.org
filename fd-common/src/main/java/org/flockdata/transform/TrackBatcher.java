@@ -55,6 +55,7 @@ public class TrackBatcher {
         this.fdWriter = writer;
         this.company = company;
         this.async = async;
+        logger.info("batchsize={}, async={}", batchSize, async);
 
     }
 
@@ -81,7 +82,7 @@ public class TrackBatcher {
                 batchTags(entityInputBean);
             }
 
-            if (flush || entityBatch.size() == batchSize) {
+            if ( batchSize> 0 && (flush || entityBatch.size() >= batchSize)) {
 
                 if (entityBatch.size() >= 1) {
                     logger.debug("Flushing....");
@@ -96,6 +97,10 @@ public class TrackBatcher {
 
         }
 
+    }
+
+    public int getEntityCount(){
+        return entityBatch.size();
     }
 
     private void batchTag(TagInputBean tagInputBean, boolean flush, String message) throws FlockException {

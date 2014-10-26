@@ -31,7 +31,7 @@ import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.TrackTag;
+import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.service.LogService;
 import org.flockdata.track.service.MediationFacade;
 import org.flockdata.engine.endpoint.TrackEP;
@@ -542,7 +542,7 @@ public class TestFdIntegration {
         // Cancel Log - this will remove the sad tags and leave us with happy tags
         mediationFacade.cancelLastLog(su.getCompany(), result.getEntity());
         waitForEntitiesToUpdate(su.getCompany(), result.getEntity());
-        Collection<TrackTag> tags = entityTagService.getEntityTags(su.getCompany(), result.getEntity());
+        Collection<EntityTag> tags = entityTagService.getEntityTags(su.getCompany(), result.getEntity());
         assertEquals(2, tags.size());
 
         // These should have been added back in due to the cancel operation
@@ -773,7 +773,7 @@ public class TestFdIntegration {
         Entity entity = trackService.getEntity(su.getCompany(), indexedResult.getMetaKey());
         String indexName = entity.getIndexName();
 
-        Collection<TrackTag> tags = entityTagService.getEntityTags(su.getCompany(), entity);
+        Collection<EntityTag> tags = entityTagService.getEntityTags(su.getCompany(), entity);
         assertNotNull(tags);
         assertEquals(1, tags.size());
 
@@ -810,7 +810,7 @@ public class TestFdIntegration {
         assertEquals(2, logs.size());
         entity = trackService.getEntity(su.getCompany(), metaKey);
         waitAWhile();
-        Assert.assertEquals(secondLog.getWhatLog().getEntityLog().getFortressWhen(), entity.getFortressLastWhen());
+        Assert.assertEquals(secondLog.getWhatLog().getEntityLog().getFortressWhen(), entity.getFortressDateUpdated());
         doEsTermQuery(entity.getIndexName(), EntitySearchSchema.WHAT + ".house", "house2", 1); // replaced first with second
 
         // Test block

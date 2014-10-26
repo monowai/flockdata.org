@@ -41,7 +41,7 @@
                               concurrent-consumers="50"
                               prefetch-count="10"
                               channel-transacted="false"
-                              task-executor="AMQPPoolTaskExecutor"
+                              task-executor="rabbitTaskExec"
                               receive-timeout="${request.timeout}"
                               connection-factory="connectionFactory"
                               message-converter="jsonToSearchResultConverter"/>

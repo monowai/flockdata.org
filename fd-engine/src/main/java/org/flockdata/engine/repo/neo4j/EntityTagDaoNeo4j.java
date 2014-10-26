@@ -19,10 +19,10 @@
 
 package org.flockdata.engine.repo.neo4j;
 
-import org.flockdata.track.model.TrackTag;
+import org.flockdata.engine.repo.neo4j.model.EntityTagRelationship;
+import org.flockdata.track.model.EntityTag;
 import org.flockdata.engine.repo.neo4j.model.EntityNode;
 import org.flockdata.engine.repo.neo4j.model.TagNode;
-import org.flockdata.engine.repo.neo4j.model.TrackTagRelationship;
 import org.flockdata.engine.service.EngineConfig;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.model.Company;
@@ -49,8 +49,8 @@ import java.util.*;
  * Date: 28/06/13
  * Time: 11:07 PM
  */
-@Repository("trackTagDAO")
-public class TrackTagDaoNeo {
+@Repository("entityTagDao")
+public class EntityTagDaoNeo4j {
     @Autowired
     Neo4jTemplate template;
 
@@ -60,15 +60,15 @@ public class TrackTagDaoNeo {
     @Autowired
     EngineConfig engineAdmin;
 
-    private Logger logger = LoggerFactory.getLogger(TrackTagDaoNeo.class);
+    private Logger logger = LoggerFactory.getLogger(EntityTagDaoNeo4j.class);
 
-    static final String AB_WHEN = "abWhen";
+    static final String FD_WHEN = "fdWhen";
 
-    public TrackTag save(Entity entity, Tag tag, String relationshipName) {
-        return save(entity, tag, relationshipName, false, null);
+    public EntityTag save(Entity entity, Tag tag, String relationshipName) {
+        return save(entity, tag, relationshipName, false, new HashMap<String,Object>());
     }
 
-    public TrackTag save(Entity ah, Tag tag, String metaLink, boolean reverse) {
+    public EntityTag save(Entity ah, Tag tag, String metaLink, boolean reverse) {
         return save(ah, tag, metaLink, reverse, null );
     }
 
@@ -86,7 +86,7 @@ public class TrackTagDaoNeo {
      *
      * @return Null or TrackTag
      */
-    public TrackTag save(Entity entity, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap) {
+    public EntityTag save(Entity entity, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap) {
         // ToDo: this will only set properties for the "current" tag to Entity. it will not version it.
         if (relationshipName == null) {
             relationshipName = "GENERAL_TAG";
@@ -94,12 +94,13 @@ public class TrackTagDaoNeo {
         if (tag == null)
             throw new IllegalArgumentException("Tag must not be NULL. Relationship[" + relationshipName + "]");
 
-        TrackTagRelationship rel = new TrackTagRelationship(entity, tag, relationshipName, propMap);
+        EntityTagRelationship rel = new EntityTagRelationship(entity, tag, relationshipName, propMap);
 
         if (entity.getId() == null)
             return rel;
 
         Node entityNode = template.getPersistentState(entity);
+        // ToDo: Save a timestamp against the relationship
 
         Node tagNode;
         try {
@@ -117,14 +118,17 @@ public class TrackTagDaoNeo {
         if (r != null) {
             return rel;
         }
+
+        long lastUpdate = entity.getFortressDateUpdated();
+        propMap.put(EntityTag.SINCE, (lastUpdate ==0 ? entity.getFortressDateCreated().getMillis(): lastUpdate));
         template.createRelationshipBetween(start, end, relationshipName, propMap);
         logger.trace("Created Relationship Tag[{}] of type {}", tag, relationshipName);
         return rel;
     }
 
-    public void deleteEntityTags(Entity entity, Collection<TrackTag> trackTags) throws FlockException {
+    public void deleteEntityTags(Entity entity, Collection<EntityTag> entityTags) throws FlockException {
         Node entityNode = null;
-        for (TrackTag tag : trackTags) {
+        for (EntityTag tag : entityTags) {
             if (!tag.getPrimaryKey().equals(entity.getId()))
                 throw new FlockException("Tags do not belong to the required Entity");
 
@@ -147,7 +151,7 @@ public class TrackTagDaoNeo {
      * @param existingTag current
      * @param newType     new type name
      */
-    public void changeType(Entity entity, TrackTag existingTag, String newType) {
+    public void changeType(Entity entity, EntityTag existingTag, String newType) {
         if (!relationshipExists(entity, existingTag.getTag(), newType)) {
             Relationship r = template.getRelationship(existingTag.getId());
             Iterable<String> propertyKeys = r.getPropertyKeys();
@@ -167,15 +171,15 @@ public class TrackTagDaoNeo {
      * @param log pointer to the node we want to move the relationships to
      * @param entity where the tags are currently located
      */
-    public void moveTags(Entity entity, Log log, Collection<TrackTag> trackTags) {
+    public void moveTags(Entity entity, Log log, Collection<EntityTag> entityTags) {
         if ( log == null )
             return;
 
         Node logNode = template.getPersistentState(log);
-        for (TrackTag trackTag : trackTags) {
-            Node tagNode = template.getNode(trackTag.getTag().getId());
+        for (EntityTag entityTag : entityTags) {
+            Node tagNode = template.getNode(entityTag.getTag().getId());
 
-            Relationship relationship = template.getRelationship(trackTag.getId());
+            Relationship relationship = template.getRelationship(entityTag.getId());
             if ( relationship!=null ){
 
                 boolean isReversed = relationship.getStartNode().getId() == tagNode.getId();
@@ -194,7 +198,7 @@ public class TrackTagDaoNeo {
     /**
      * This version is used to relocate the tags associated with Log back to the Entity
      *
-     * This will examine the TrackTagDao.AB_WHEN property and >= fortressDate log when, it will be removed
+     * This will examine the TrackTagDao.FD_WHEN property and >= fortressDate log when, it will be removed
      *
      * @param company       a validated company that the caller is allowed to work with
      * @param logToMoveFrom where the logs are currently associated
@@ -204,31 +208,31 @@ public class TrackTagDaoNeo {
         if ( logToMoveFrom == null )
             return;
 
-        Collection<TrackTag> metaTags = getEntityTags(company, entity);
-        Collection<TrackTag> trackTags = findLogTags(company, logToMoveFrom);
+        Collection<EntityTag> metaTags = getEntityTags(company, entity);
+        Collection<EntityTag> entityTags = findLogTags(company, logToMoveFrom);
         Node entityNode = template.getPersistentState(entity);
 
-        for (TrackTag trackTag : metaTags) {
+        for (EntityTag entityTag : metaTags) {
             // Remove any MetaTags that are newer than the log being re-instated as the "current" truth
             // if trackTag.abWhen moreRecentThan logToMoveFrom
 
-            Long metaWhen = (Long) trackTag.getProperties().get(AB_WHEN);
+            Long metaWhen = (Long) entityTag.getProperties().get(FD_WHEN);
             template.fetch(logToMoveFrom.getEntityLog());
             logger.trace("MoveTags - Comparing {} with {}", metaWhen, logToMoveFrom.getEntityLog().getFortressWhen());
             if ( metaWhen.compareTo(logToMoveFrom.getEntityLog().getFortressWhen()) >= 0 ){
                 // This tag was added to the entity by a more recent log
-                logger.trace("Removing {}", trackTag.getTag().getName());
-                Relationship r = template.getRelationship(trackTag.getId());
+                logger.trace("Removing {}", entityTag.getTag().getName());
+                Relationship r = template.getRelationship(entityTag.getId());
                 if ( r!=null )
                     template.delete(r);
 
             }
         }
 
-        for (TrackTag trackTag : trackTags) {
-            Node tagNode = template.getNode(trackTag.getTag().getId());
+        for (EntityTag entityTag : entityTags) {
+            Node tagNode = template.getNode(entityTag.getTag().getId());
 
-            Relationship relationship = template.getRelationship(trackTag.getId());
+            Relationship relationship = template.getRelationship(entityTag.getId());
             if ( relationship!=null ){
 
                 boolean isReversed = relationship.getStartNode().getId() == tagNode.getId();
@@ -276,7 +280,7 @@ public class TrackTagDaoNeo {
 
     }
 
-    public Collection<TrackTag> findLogTags(Company company, Log log) {
+    public Collection<EntityTag> findLogTags(Company company, Log log) {
         String query;
         if ("".equals(engineAdmin.getTagSuffix(company)))
             query = "match (log:_Log)-[tagType]-(tag:_Tag) where id(log)={logId} return tag, tagType";
@@ -291,16 +295,16 @@ public class TrackTagDaoNeo {
 
     }
 
-    public Collection<TrackTag> getDirectedEntityTags(Company company, Entity entity, boolean outbound) {
+    public Collection<EntityTag> getDirectedEntityTags(Company company, Entity entity, boolean outbound) {
 
         String tagDirection = "-[tagType]->";
         if ( !outbound )
             tagDirection = "<-[tagType]-";
 
-        List<TrackTag> tagResults = new ArrayList<>();
+        List<EntityTag> tagResults = new ArrayList<>();
         if ( null == entity.getId())
             return tagResults;
-        String query = "match (track:Entity)"+tagDirection+"(tag"+Tag.DEFAULT + engineAdmin.getTagSuffix(company) + ") " +
+        String query = "match (track:_Entity)"+tagDirection+"(tag"+Tag.DEFAULT + engineAdmin.getTagSuffix(company) + ") " +
                 "where id(track)={id} \n" +
                 "optional match tag-[:located]-(located)-[*0..2]-(country:Country) \n" +
                 "optional match located-[*0..2]->(state:State) " +
@@ -310,11 +314,11 @@ public class TrackTagDaoNeo {
 
     }
 
-    public Collection<TrackTag> getEntityTags(Company company, Entity entity) {
-        List<TrackTag> tagResults = new ArrayList<>();
+    public Collection<EntityTag> getEntityTags(Company company, Entity entity) {
+        List<EntityTag> tagResults = new ArrayList<>();
         if ( null == entity.getId())
             return tagResults;
-        String query = "match (track:Entity)-[tagType]-(tag" +Tag.DEFAULT+ engineAdmin.getTagSuffix(company) + ") " +
+        String query = "match (track:_Entity)-[tagType]-(tag" +Tag.DEFAULT+ engineAdmin.getTagSuffix(company) + ") " +
                 "where id(track)={id} \n" +
                 "optional match tag-[:located]-(located)-[*0..2]-(country:Country) \n" +
                 "optional match located-[*0..2]->(state:State) " +
@@ -326,20 +330,20 @@ public class TrackTagDaoNeo {
         return getEntityTags(entity.getId(), query);
     }
 
-    private Collection<TrackTag> getEntityTags(Long primaryKey, String query) {
+    private Collection<EntityTag> getEntityTags(Long primaryKey, String query) {
         Map<String, Object> params = new HashMap<>();
         params.put("id", primaryKey);
         Result<Map<String, Object>> queryResults = template.query(query, params);
         return getEntityTags(primaryKey, queryResults);
     }
 
-    private Collection<TrackTag> getEntityTags(Long primaryKey, Result<Map<String, Object>> queryResults) {
-        TreeSet<TrackTag> tagResults = new TreeSet<>();
+    private Collection<EntityTag> getEntityTags(Long primaryKey, Result<Map<String, Object>> queryResults) {
+        TreeSet<EntityTag> tagResults = new TreeSet<>();
         for (Map<String, Object> row : queryResults) {
             Node n = (Node) row.get("tag");
             TagNode tag = new TagNode(n);
             Relationship relationship = template.convert(row.get("tagType"), Relationship.class);
-            TrackTagRelationship trackTag = new TrackTagRelationship(primaryKey, tag, relationship);
+            EntityTagRelationship trackTag = new EntityTagRelationship(primaryKey, tag, relationship);
 
             Node loc = (Node) row.get("located");
 

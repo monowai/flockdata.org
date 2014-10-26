@@ -525,7 +525,7 @@ public class TestTrack extends EngineBase {
         assertEquals(2, logs.size());
         entity = trackService.getEntity(su.getCompany(), metaKey);
         compareUser(entity, secondLog.getFortressUser());
-        assertEquals(secondLog.getWhatLog().getEntityLog().getFortressWhen(), entity.getFortressLastWhen());
+        assertEquals(secondLog.getWhatLog().getEntityLog().getFortressWhen(), entity.getFortressDateUpdated());
 
         // Test block
         trackService.cancelLastLog(fortress.getCompany(), entity);
@@ -533,7 +533,7 @@ public class TestTrack extends EngineBase {
         assertEquals(1, logs.size());
         entity = trackService.getEntity(su.getCompany(), metaKey, true); // Refresh the entity
         compareUser(entity, firstLog.getFortressUser());
-        assertEquals(firstLog.getWhatLog().getEntityLog().getFortressWhen(), entity.getFortressLastWhen());
+        assertEquals(firstLog.getWhatLog().getEntityLog().getFortressWhen(), entity.getFortressDateUpdated());
 
         // Last change cancelled
         trackService.cancelLastLog(fortress.getCompany(), entity);
@@ -833,7 +833,7 @@ public class TestTrack extends EngineBase {
         assertEquals(past.getMillis(), lastLog.getFortressWhen().longValue());
         assertEquals(past.getMillis(), trackResultBean.getEntity().getFortressDateCreated().getMillis());
         assertEquals("Modified " + new Date(trackResultBean.getEntity().getLastUpdate()),
-                past.getMillis(), trackResultBean.getEntity().getFortressLastWhen().longValue());
+                past.getMillis(), trackResultBean.getEntity().getFortressDateUpdated().longValue());
 
         logger.info(lastLog.toString());
     }

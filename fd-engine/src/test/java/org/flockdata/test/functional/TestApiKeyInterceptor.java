@@ -104,7 +104,7 @@ public class TestApiKeyInterceptor extends EngineBase {
 
     // ToDo: add a disabled user check
 
-    // ToDo: user is enabled but has no API key in AuditBucket - still valid, but results in a null company
+    // ToDo: user is enabled but has no API key in FlockData - still valid, but results in a null company
 
 
 	@After

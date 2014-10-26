@@ -53,13 +53,13 @@ public interface Entity {
     public FortressUser getLastUser();
 
     /**
-     * Last updated by AuditBucket
+     * Last updated by FlockData
      *
      * @return date in UTC
      */
     public Long getLastUpdate();
 
-    public Long getFortressLastWhen();
+    public Long getFortressDateUpdated();
 
     /**
      * Who, in the foreign fortress, last changed this?
@@ -116,7 +116,7 @@ public interface Entity {
     String getCallerRef();
 
     /**
-     * @return date created in AuditBucket UTC
+     * @return date created in FlockData UTC
      */
     long getWhenCreated();
 
@@ -142,4 +142,5 @@ public interface Entity {
 
     void bumpSearch();
 
+    void addLabel(String label);
 }

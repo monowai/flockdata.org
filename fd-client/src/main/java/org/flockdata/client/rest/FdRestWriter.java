@@ -101,6 +101,7 @@ public class FdRestWriter implements FdWriter {
         this.COUNTRIES = serverName + "/v1/geo/";
         this.batchSize = batchSize;
         this.defaultFortress = defaultFortress;
+        simulateOnly = batchSize <1;
     }
 
     public FdRestWriter(String serverName, String apiKey, int batchSize) {

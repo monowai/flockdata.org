@@ -104,11 +104,11 @@ public interface TrackService {
 
     void recordSearchResult(SearchResult searchResult, Long metaId) throws FlockException;
 
-    Collection<TrackTag> getLastLogTags(Company company, String metaKey) throws FlockException;
+    Collection<EntityTag> getLastLogTags(Company company, String metaKey) throws FlockException;
 
     EntityLog getEntityLog(Company company, String metaKey, long logId) throws FlockException;
 
-    Collection<TrackTag> getLogTags(Company company, EntityLog tl);
+    Collection<EntityTag> getLogTags(Company company, EntityLog tl);
 
 
     List<CrossReferenceInputBean> crossReferenceEntities(Company company, List<CrossReferenceInputBean> crossReferenceInputBeans);

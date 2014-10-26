@@ -28,7 +28,9 @@ import java.util.Map;
  * Date: 29/06/13
  * Time: 12:52 PM
  */
-public interface TrackTag {
+public interface EntityTag {
+    // Key value indicating when, in the fortress, this relationship was established
+    public static final String SINCE = "since";
 
     public Long getId();
 

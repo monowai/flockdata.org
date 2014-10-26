@@ -83,13 +83,10 @@ public class EntityDaoNeo {
         String metaKey = ( inputBean.isTrackSuppressed()?null:keyGenService.getUniqueKey());
         Entity entity = new EntityNode(metaKey, fortressUser.getFortress(), inputBean, documentType);
         entity.setCreatedBy(fortressUser);
+        entity.addLabel(documentType.getName());
         if (! inputBean.isTrackSuppressed()) {
             logger.debug("Creating {}", entity);
-
             entity = save(entity);
-            Node node = template.getPersistentState(entity);
-            node.addLabel(DynamicLabel.label(documentType.getName()));
-
         }
         return entity;
     }
@@ -218,20 +215,20 @@ public class EntityDaoNeo {
         return trackLogRepo.getLogCount(id);
     }
 
-    public Set<EntityLog> getLogs(Long auditLogID, Date from, Date to) {
-        return trackLogRepo.getLogs(auditLogID, from.getTime(), to.getTime());
+    public Set<EntityLog> getLogs(Long entityId, Date from, Date to) {
+        return trackLogRepo.getLogs(entityId, from.getTime(), to.getTime());
     }
 
-    public Set<EntityLog> getLogs(Long auditHeaderID) {
-        return trackLogRepo.findLogs(auditHeaderID);
+    public Set<EntityLog> getLogs(Long entityId) {
+        return trackLogRepo.findLogs(entityId);
     }
 
     public Map<String, Object> findByTransaction(TxRef txRef) {
         //Example showing how to use cypher and extract
 
         String findByTagRef = "start tag =node({txRef}) " +
-                "              match tag-[:AFFECTED]->auditLog<-[logs:LOGGED]-track " +
-                "             return logs, track, auditLog " +
+                "              match tag-[:AFFECTED]->log<-[logs:LOGGED]-track " +
+                "             return logs, track, log " +
                 "           order by logs.sysWhen";
         Map<String, Object> params = new HashMap<>();
         params.put("txRef", txRef.getId());
@@ -248,7 +245,7 @@ public class EntityDaoNeo {
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
             EntityLog log = template.convert(row.get("logs"), LoggedRelationship.class);
-            Log change = template.convert(row.get("auditLog"), LogNode.class);
+            Log change = template.convert(row.get("log"), LogNode.class);
             Entity entity = template.convert(row.get("track"), EntityNode.class);
             simpleResult.add(new EntityTXResult(entity, change, log));
             i++;

@@ -62,7 +62,7 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
  * Date: 27/04/13
  * Time: 12:00 PM
  */
-@Repository("esAuditChange")
+@Repository("esEntityChange")
 public class TrackDaoES implements TrackSearchDao {
 
 
@@ -246,7 +246,7 @@ public class TrackDaoES implements TrackSearchDao {
                 // Check to ensure we don't accidentally overwrite a more current
                 // document with an older one. We assume the calling fortress understands
                 // what the most recent doc is.
-                Object o = response.getSource().get(EntitySearchSchema.WHEN); // fortress view of WHEN, not AuditBuckets!
+                Object o = response.getSource().get(EntitySearchSchema.WHEN); // fortress view of WHEN, not FlockDatas!
                 if (o != null) {
 
                     Long existingWhen = Long.decode(o.toString());
@@ -323,7 +323,7 @@ public class TrackDaoES implements TrackSearchDao {
             results.put("status", "error!");
             return results;
         }
-        results.put("abStatus", "ok");
+        results.put("Status", "ok");
         results.put("health", response.getStatus().name());
         results.put("dataNodes", response.getNumberOfDataNodes());
         results.put("nodes", response.getNumberOfNodes());

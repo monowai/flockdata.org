@@ -24,7 +24,7 @@ import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.dao.neo4j.model.CompanyNode;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.model.TrackTag;
+import org.flockdata.track.model.EntityTag;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -77,10 +77,10 @@ public class TestHashcodeAndEquality {
         entityInput.setCallerRef("abc");
 
         EntityNode mh = new EntityNode("123abc", fortress, entityInput, documentTypeNode);
-        TrackTagRelationship trackTagA = new TrackTagRelationship(mh.getId(), tagNode);
-        TrackTagRelationship trackTagB = new TrackTagRelationship(mh.getId(), tagNodeB);
+        EntityTagRelationship trackTagA = new EntityTagRelationship(mh.getId(), tagNode);
+        EntityTagRelationship trackTagB = new EntityTagRelationship(mh.getId(), tagNodeB);
 
-        ArrayList<TrackTag>existingTags = new ArrayList<>();
+        ArrayList<EntityTag>existingTags = new ArrayList<>();
         existingTags.add(trackTagA);
         existingTags.add(trackTagB);
         assertEquals(true, existingTags.contains(trackTagA));

@@ -50,7 +50,7 @@ public interface SearchChange {
 
     public java.util.HashMap<String, Map<String, Object>> getTagValues();
 
-    public void setTags(Iterable<TrackTag> tagSet);
+    public void setTags(Iterable<EntityTag> tagSet);
 
     /**
      * @return who made this change

@@ -42,24 +42,24 @@ public interface EntityRepo extends GraphRepository<EntityNode> {
     TxRefNode findTxTag(String userTag, Long company);
 
     @Query(elementClass = EntityNode.class, value = "start tx=node({0}) " +
-            "   MATCH tx-[:AFFECTED]->change<-[:LOGGED]-auditHeader " +
-            "return auditHeader")
+            "   MATCH tx-[:AFFECTED]->change<-[:LOGGED]-entity " +
+            "return entity")
     Set<Entity> findEntitiesByTxRef(Long txRef);
 
     @Query(elementClass = EntityNode.class, value =
-                    " match (fortress:Fortress)-[:TRACKS]->(track:Entity) " +
+                    " match (fortress:Fortress)-[:TRACKS]->(track:_Entity) " +
                     " where id(fortress)={0} " +
                     " return track ORDER BY track.dateCreated ASC" +
                     " skip {1} limit 100 ")
     Set<Entity> findEntities(Long fortressId, Long skip);
 
     @Query(elementClass = EntityNode.class, value =
-                    " match (fortress:Fortress)-[:TRACKS]->(entity:Entity) where id(fortress)={0} " +
+                    " match (fortress:Fortress)-[:TRACKS]->(entity:_Entity) where id(fortress)={0} " +
                     " and entity.callerRef ={1}" +
                     " return entity ")
     Collection<Entity> findByCallerRef(Long fortressId, String callerRef);
 
-    @Query (elementClass = EntityNode.class, value = "match (company:ABCompany), (entities:Entity) " +
+    @Query (elementClass = EntityNode.class, value = "match (company:ABCompany), (entities:_Entity) " +
             " where id(company)={0} " +
             "   and entities.metaKey in {1}  " +
             "  with company, entities match (company)-[*..2]-(entities) " +

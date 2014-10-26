@@ -88,8 +88,11 @@ public class EntitySearchChange implements SearchChange {
         this.callerRef = entity.getCallerRef();
         if (entity.getLastUser() != null)
             this.who = entity.getLastUser().getCode();
+        else
+            this.who = entity.getCreatedBy().getCode();
+
         this.description = entity.getDescription();
-        this.createdDate = entity.getFortressDateCreated().toDate(); // UTC When created in AuditBucket
+        this.createdDate = entity.getFortressDateCreated().toDate(); // UTC When created in FlockData
         this.event= entity.getEvent();
         setWhen(new DateTime(entity.getWhenCreated()));
     }
@@ -204,9 +207,9 @@ public class EntitySearchChange implements SearchChange {
         return tagValues;
     }
 
-    public void setTags(Iterable<TrackTag> tagSet) {
+    public void setTags(Iterable<EntityTag> tagSet) {
         tagValues = new HashMap<>();
-        for (TrackTag tag : tagSet) {
+        for (EntityTag tag : tagSet) {
             Map<String, Object> tagValues = this.tagValues.get(tag.getTagType().toLowerCase());
             if (tagValues == null) {
                 tagValues = new HashMap<>();
@@ -246,7 +249,7 @@ public class EntitySearchChange implements SearchChange {
     }
 
     /**
-     * When this log file was created in AuditBucket graph
+     * When this log file was created in FlockData graph
      */
     public void setSysWhen(Long sysWhen) {
         this.sysWhen = sysWhen;

@@ -21,8 +21,8 @@ package org.flockdata.engine.repo.neo4j.model;
 
 import org.flockdata.registration.model.Tag;
 import org.flockdata.track.model.Entity;
+import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.model.GeoData;
-import org.flockdata.track.model.TrackTag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.neo4j.graphdb.Relationship;
@@ -35,16 +35,16 @@ import java.util.Map;
  * Date: 29/06/13
  * Time: 12:59 PM
  */
-public class TrackTagRelationship implements TrackTag, Comparable {
+public class EntityTagRelationship implements EntityTag, Comparable {
     Long id;
 
     private Tag tag;
     private Long primaryKey;
     private String tagType;
-    private Map<String, Object> properties;
+    private Map<String, Object> properties = new HashMap<>();
     private GeoData geoData;
 
-    protected TrackTagRelationship() {
+    protected EntityTagRelationship() {
     }
 
     /**
@@ -56,7 +56,7 @@ public class TrackTagRelationship implements TrackTag, Comparable {
      * @param relationship Name of the relationship
      * @param propMap      Relationship properties
      */
-    public TrackTagRelationship(Entity entity, Tag tag, String relationship, Map<String, Object> propMap) {
+    public EntityTagRelationship(Entity entity, Tag tag, String relationship, Map<String, Object> propMap) {
         this();
         this.primaryKey = entity.getId();
         this.tag = tag;
@@ -65,16 +65,16 @@ public class TrackTagRelationship implements TrackTag, Comparable {
         this.properties = propMap;
     }
 
-    public TrackTagRelationship(Long pk, Tag tag) {
+    public EntityTagRelationship(Long pk, Tag tag) {
         this(pk, tag, null);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof TrackTagRelationship)) return false;
+        if (!(o instanceof EntityTagRelationship)) return false;
 
-        TrackTagRelationship that = (TrackTagRelationship) o;
+        EntityTagRelationship that = (EntityTagRelationship) o;
 
         if (primaryKey != null ? !primaryKey.equals(that.primaryKey) : that.primaryKey != null) return false;
         if (tag != null ? !tag.equals(that.tag) : that.tag != null) return false;
@@ -100,7 +100,7 @@ public class TrackTagRelationship implements TrackTag, Comparable {
         return result;
     }
 
-    public TrackTagRelationship(Long primaryKey, Tag tag, Relationship relationship) {
+    public EntityTagRelationship(Long primaryKey, Tag tag, Relationship relationship) {
         this();
         this.primaryKey = primaryKey;
         this.tag = tag;

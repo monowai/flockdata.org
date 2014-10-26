@@ -244,7 +244,7 @@ public class TrackEP {
 
 
     @RequestMapping(value = "/{metaKey}/lastlog/tags", produces = "application/json", method = RequestMethod.GET)
-    public @ResponseBody Collection<TrackTag> getLastLogTags(@PathVariable("metaKey") String metaKey,
+    public @ResponseBody Collection<EntityTag> getLastLogTags(@PathVariable("metaKey") String metaKey,
                                                              HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/fd-engine/track/c27ec2e5-2e17-4855-be18-bd8f82249157/lastchange
@@ -255,7 +255,7 @@ public class TrackEP {
 
 
     @RequestMapping(value = "/{metaKey}/{logId}/tags", produces = "application/json", method = RequestMethod.GET)
-    public @ResponseBody Collection<TrackTag> getLogTags(@PathVariable("metaKey") String metaKey, @PathVariable("logId") long logId,
+    public @ResponseBody Collection<EntityTag> getLogTags(@PathVariable("metaKey") String metaKey, @PathVariable("logId") long logId,
                                                          HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/fd-engine/track/c27ec2e5-2e17-4855-be18-bd8f82249157/lastchange
@@ -264,7 +264,7 @@ public class TrackEP {
     }
 
     @RequestMapping(value = "/{metaKey}/tags", method = RequestMethod.GET)
-    public @ResponseBody Collection<TrackTag> getEntityTags(@PathVariable("metaKey") String metaKey,
+    public @ResponseBody Collection<EntityTag> getEntityTags(@PathVariable("metaKey") String metaKey,
                                                             HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 

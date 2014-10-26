@@ -25,6 +25,7 @@ package org.flockdata.test.functional;
  * Time: 4:49 PM
  */
 
+import junit.framework.Assert;
 import org.flockdata.dao.TrackTagDao;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.FortressInputBean;
@@ -33,7 +34,6 @@ import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.test.utils.Helper;
-import junit.framework.Assert;
 import org.flockdata.track.bean.*;
 import org.flockdata.track.model.*;
 import org.joda.time.DateTime;
@@ -143,6 +143,57 @@ public class TestEntityTags extends EngineBase {
     }
 
     @Test
+    public void dates_TagRelationshipSinceTests() throws Exception {
+        SystemUser su = registerSystemUser("dates_SinceRecorded", mike_admin);
+        assertNotNull(su);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("dates_SinceRecorded", true));
+        assertNotNull(fortress);
+
+        TagInputBean flopTag = new TagInputBean("FLOP");
+        tagService.createTag(su.getCompany(), flopTag);
+
+        DateTime fCreated = new DateTime().minus(10000);
+        EntityInputBean entityBean = new EntityInputBean(fortress.getName(), "anyone", "aTest", fCreated, "abc");
+        TrackResultBean resultBean = mediationFacade.trackEntity(fortress, entityBean);
+        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
+
+        assertEquals(fCreated.getMillis(), entity.getFortressDateCreated().getMillis());
+
+        TrackTagInputBean tagA = new TrackTagInputBean(entity.getMetaKey(), flopTag.getName(), "ABC");
+        entityTagService.processTag(entity, tagA);
+
+        Boolean tagRlxExists = entityTagService.relationshipExists(entity, flopTag.getName(), "ABC");
+        assertTrue("Tag not found " + flopTag.getName(), tagRlxExists);
+
+        Collection<EntityTag> tags = entityTagService.getEntityTags(su.getCompany(), entity);
+        for (EntityTag tag : tags) {
+            assertEquals("Date did not correspond to the Fortress created date", entity.getFortressDateCreated().getMillis(), Long.parseLong(tag.getProperties().get("since").toString()));
+        }
+
+        // Creating some content and adding a new Tag to the entity
+        DateTime fUpdated = new DateTime().minus(10000);
+        ContentInputBean contentInputBean = new ContentInputBean("harry", fUpdated, Helper.getRandomMap());
+        entityBean.addTag( new TagInputBean("Tag2", "second"));
+        entityBean.setArchiveTags(false);// We don't have a reference to the original tag in the Input
+        // as we assigned it in a secondary step, so will accumulate tags and stop them being archived
+        entityBean.setContent(contentInputBean);
+        mediationFacade.trackEntity(fortress, entityBean);
+        entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
+        assertEquals(fCreated, entity.getFortressDateCreated());
+        assertEquals(fUpdated.getMillis(), entity.getFortressDateUpdated().longValue());
+        tags = entityTagService.getEntityTags(su.getCompany(), entity);
+        assertEquals(2, tags.size());
+        for (EntityTag tag : tags) {
+            if ( tag.getTag().getName().equalsIgnoreCase(flopTag.getName()))
+                assertEquals("Date did not correspond to the Fortress created date", entity.getFortressDateCreated().getMillis(), Long.parseLong(tag.getProperties().get("since").toString()));
+            else
+                assertEquals("Date did not correspond to the Fortress updated date", entity.getFortressDateUpdated().longValue(), Long.parseLong(tag.getProperties().get("since").toString()));
+        }
+
+    }
+
+
+    @Test
     public void renameRelationship() throws Exception {
 
         SystemUser su= registerSystemUser("renameRelationship", mike_admin);
@@ -159,13 +210,13 @@ public class TestEntityTags extends EngineBase {
         entityInput.addTag(new TagInputBean("TagD", "DDDD"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
         Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
-        Collection<TrackTag> tagSet = entityTagService.findEntityTags(entity);
+        Collection<EntityTag> tagSet = entityTagService.findEntityTags(entity);
 
         assertNotNull(tagSet);
         assertEquals(4, tagSet.size());
         assertFalse(entityTagService.relationshipExists(entity, "TagC", "!!Twee!!"));//
         // Remove a single tag
-        for (TrackTag value : tagSet) {
+        for (EntityTag value : tagSet) {
             if (value.getTag().getName().equals("TagC"))
                 entityTagService.changeType(entity, value, "!!Twee!!");
         }
@@ -191,12 +242,12 @@ public class TestEntityTags extends EngineBase {
         entityInput.addTag(new TagInputBean("TagD", "DDDD"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
         Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
-        Collection<TrackTag> tagSet = entityTagService.findEntityTags(entity);
+        Collection<EntityTag> tagSet = entityTagService.findEntityTags(entity);
 
         assertNotNull(tagSet);
         assertEquals(4, tagSet.size());
         // Remove a single tag
-        for (TrackTag value : tagSet) {
+        for (EntityTag value : tagSet) {
             if (value.getTag().getName().equals("TagB"))
                 entityTagService.deleteTrackTags(entity, value);
         }
@@ -204,8 +255,8 @@ public class TestEntityTags extends EngineBase {
         assertNotNull(tagSet);
         assertEquals(3, tagSet.size());
         // Ensure that the deleted tag is not in the results
-        for (TrackTag trackTag : tagSet) {
-            assertFalse(trackTag.getTag().getName().equals("TagB"));
+        for (EntityTag entityTag : tagSet) {
+            assertFalse(entityTag.getTag().getName().equals("TagB"));
         }
     }
 
@@ -226,7 +277,7 @@ public class TestEntityTags extends EngineBase {
         entityInput.addTag(new TagInputBean("TagD", "DDDD"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
         Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
-        Collection<TrackTag> tagSet = entityTagService.findEntityTags(entity);
+        Collection<EntityTag> tagSet = entityTagService.findEntityTags(entity);
         assertNotNull(tagSet);
         assertEquals(4, tagSet.size());
 
@@ -264,7 +315,7 @@ public class TestEntityTags extends EngineBase {
         entityInput.addTag(tag);
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
         Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
-        Collection<TrackTag> tagSet = entityTagService.findEntityTags(entity);
+        Collection<EntityTag> tagSet = entityTagService.findEntityTags(entity);
         assertNotNull(tagSet);
         assertEquals(1, tagSet.size());
 
@@ -287,11 +338,11 @@ public class TestEntityTags extends EngineBase {
         Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
         Tag tag = tagService.findTag(su.getCompany(), "Taga");
         assertNotNull(tag);
-        Collection<TrackTag> trackTags = entityTagService.findEntityTags(entity);
-        for (TrackTag trackTag : trackTags) {
-            Assert.assertEquals("Expected same tag for each relationship", tag.getId(), trackTag.getTag().getId());
+        Collection<EntityTag> entityTags = entityTagService.findEntityTags(entity);
+        for (EntityTag entityTag : entityTags) {
+            Assert.assertEquals("Expected same tag for each relationship", tag.getId(), entityTag.getTag().getId());
         }
-        assertEquals("Expected 3 relationships for the same tag", 3, trackTags.size());
+        assertEquals("Expected 3 relationships for the same tag", 3, entityTags.size());
 
     }
 
@@ -313,10 +364,10 @@ public class TestEntityTags extends EngineBase {
 
         assertEquals(3, resultBean.getTags().size());
         Long id = null;
-        for (TrackTag trackTag : resultBean.getTags()) {
+        for (EntityTag entityTag : resultBean.getTags()) {
             if ( id == null )
-                id = trackTag.getTag().getId();
-            Assert.assertEquals(id, trackTag.getTag().getId());
+                id = entityTag.getTag().getId();
+            Assert.assertEquals(id, entityTag.getTag().getId());
         }
         assertNull(resultBean.getMetaKey());
 
@@ -370,7 +421,7 @@ public class TestEntityTags extends EngineBase {
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
         Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
-        Collection<TrackTag> tagSet = entityTagService.findEntityTags(entity);
+        Collection<EntityTag> tagSet = entityTagService.findEntityTags(entity);
         assertNotNull(tagSet);
         assertEquals(3, tagSet.size());
 
@@ -398,7 +449,7 @@ public class TestEntityTags extends EngineBase {
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey(),true);
-        Collection<TrackTag> tagResults = entityTagService.findEntityTags(entity);
+        Collection<EntityTag> tagResults = entityTagService.findEntityTags(entity);
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
         EntitySummaryBean summaryBean = trackService.getEntitySummary(null, entity.getMetaKey());
         assertEquals(3, summaryBean.getTags().size());
@@ -421,7 +472,7 @@ public class TestEntityTags extends EngineBase {
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey(),true);
-        Collection<TrackTag> tagResults = entityTagService.findEntityTags(entity);
+        Collection<EntityTag> tagResults = entityTagService.findEntityTags(entity);
         EntitySummaryBean summaryBean = trackService.getEntitySummary(null, entity.getMetaKey());
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
         assertEquals(3, summaryBean.getTags().size());
@@ -449,7 +500,7 @@ public class TestEntityTags extends EngineBase {
         inputBean.addTag(tagB);
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey(), true);
-        Collection<TrackTag> tagResults = entityTagService.findEntityTags(entity);
+        Collection<EntityTag> tagResults = entityTagService.findEntityTags(entity);
         EntitySummaryBean summaryBean = trackService.getEntitySummary(null, entity.getMetaKey());
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
         assertEquals(3, summaryBean.getTags().size());
@@ -473,7 +524,7 @@ public class TestEntityTags extends EngineBase {
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey(), true);
-        Collection<TrackTag> tagResults = entityTagService.findEntityTags(entity);
+        Collection<EntityTag> tagResults = entityTagService.findEntityTags(entity);
         assertEquals("One for the Generic tag and one for exploration", 1, tagResults.size());
     }
 
@@ -496,7 +547,7 @@ public class TestEntityTags extends EngineBase {
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
         // By default, tags are inbound to the Entity. This asserts the reverse also works
-        Collection<TrackTag> tagResults = entityTagService.findOutboundTags(entity);
+        Collection<EntityTag> tagResults = entityTagService.findOutboundTags(entity);
         assertEquals("No tag heading out from the Entity could be found", 1, tagResults.size());
 
     }
@@ -521,7 +572,7 @@ public class TestEntityTags extends EngineBase {
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
-        Collection<TrackTag> tagResults = entityTagService.findEntityTags(entity);
+        Collection<EntityTag> tagResults = entityTagService.findEntityTags(entity);
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
         EntitySummaryBean summaryBean = trackService.getEntitySummary(null, entity.getMetaKey());
         assertEquals(3, summaryBean.getTags().size());
@@ -594,10 +645,10 @@ public class TestEntityTags extends EngineBase {
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
         assertNotNull(resultBean);
-        Collection<TrackTag> tags = entityTagService.findEntityTags(resultBean.getEntity());
+        Collection<EntityTag> tags = entityTagService.findEntityTags(resultBean.getEntity());
         assertFalse(tags.isEmpty());
 
-        for (TrackTag tag : tags) {
+        for (EntityTag tag : tags) {
             Assert.assertEquals("mikecorp", tag.getTag().getName());
             Collection<Tag> cities = tagService.findDirectedTags(tag.getTag());
             org.junit.Assert.assertFalse(cities.isEmpty());
@@ -638,7 +689,7 @@ public class TestEntityTags extends EngineBase {
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         assertNotNull(resultBean);
-        Collection<TrackTag> tags = entityTagService.findEntityTags(resultBean.getEntity());
+        Collection<EntityTag> tags = entityTagService.findEntityTags(resultBean.getEntity());
         assertFalse(tags.isEmpty());
 
         SearchChange searchChange = searchService.getSearchChange(fortress.getCompany(), resultBean, "Blah", new Date());
@@ -674,9 +725,9 @@ public class TestEntityTags extends EngineBase {
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
         assertNotNull(result);
-        Collection<TrackTag> tags = entityTagService.findEntityTags(result.getEntity());
+        Collection<EntityTag> tags = entityTagService.findEntityTags(result.getEntity());
         assertEquals(2, tags.size());
-        for (TrackTag tag : tags) {
+        for (EntityTag tag : tags) {
             assertTrue(tag.getTag().getName().equals(institution.getName()) || tag.getTag().getName().equals(cityTag.getName()));
         }
 
@@ -690,7 +741,7 @@ public class TestEntityTags extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC",true));
         assertNotNull(fortress);
 
-        EntityInputBean entityInput = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
+        EntityInputBean entityInput = new EntityInputBean("ABC", "geoTest", "geoTest", new DateTime(), "abc");
         String country = "USA";
         String city = "Los Angeles";
 
@@ -711,11 +762,11 @@ public class TestEntityTags extends EngineBase {
         assertNotNull(resultBean);
         assertNotNull(tagService.findTag(fortress.getCompany(), "USA", "Country"));
 
-        Collection<TrackTag> tags = entityTagService.findEntityTags(resultBean.getEntity());
+        Collection<EntityTag> tags = entityTagService.findEntityTags(resultBean.getEntity());
         assertFalse(tags.isEmpty());
 
-        for (TrackTag tag : tags) {
-            Assert.assertEquals("mikecorp", tag.getTag().getName());
+        for (EntityTag tag : tags) {
+            assertEquals("mikecorp", tag.getTag().getName());
             assertNotNull(tag.getGeoData());
             assertEquals("CA", tag.getGeoData().getState());
             assertEquals("Los Angeles", tag.getGeoData().getCity());
@@ -767,7 +818,7 @@ public class TestEntityTags extends EngineBase {
         // The create tag should not be against the entity but against the log
         validateTag(entity, "TEST-CREATE", 0);
 
-        Collection<TrackTag> results = trackService.getLastLogTags(su.getCompany(), entity.getMetaKey());
+        Collection<EntityTag> results = trackService.getLastLogTags(su.getCompany(), entity.getMetaKey());
         assertEquals(0, results.size()); // No tags against the last change log - tags are against the entity
 
         results = trackService.getLogTags(su.getCompany(), firstLog.getEntityLog());
@@ -836,7 +887,7 @@ public class TestEntityTags extends EngineBase {
         // The create tag should not be against the entity but against the log
         validateTag(entity, "TEST-SECOND", 0);
 
-        Collection<TrackTag> results = trackService.getLastLogTags(su.getCompany(), entity.getMetaKey());
+        Collection<EntityTag> results = trackService.getLastLogTags(su.getCompany(), entity.getMetaKey());
         // No tags removed for the last tag
         assertEquals(0, results.size()); // No tags against the logs
         Assert.assertEquals(1, entityTagService.getEntityTags(su.getCompany(), entity).size());
@@ -897,14 +948,14 @@ public class TestEntityTags extends EngineBase {
         // Total of two tags
         validateTag(created, null, 2);
 
-        Collection<TrackTag> outboundTags = entityTagService.findInboundTags(su.getCompany(), created);
+        Collection<EntityTag> outboundTags = entityTagService.findInboundTags(su.getCompany(), created);
         assertEquals("One tag should be reversed", 1, outboundTags.size());
-        TrackTag trackOut = outboundTags.iterator().next();
+        EntityTag trackOut = outboundTags.iterator().next();
         Assert.assertEquals("TAG-IN", trackOut.getTag().getName());
         assertEquals("blah", trackOut.getProperties().get("stringTest"));
         assertEquals(100d, trackOut.getProperties().get("doubleTest"));
         assertEquals((Integer)99, trackOut.getWeight());
-        Long currentWhen = (Long)trackOut.getProperties().get(TrackTagDao.AB_WHEN);
+        Long currentWhen = (Long)trackOut.getProperties().get(TrackTagDao.FD_WHEN);
         assertTrue(currentWhen>0);
 
         logBean = new ContentInputBean("mike", new DateTime(),  Helper.getRandomMap());
@@ -934,7 +985,7 @@ public class TestEntityTags extends EngineBase {
         assertEquals("blah", trackOut.getProperties().get("stringTest"));
         assertEquals(100d, trackOut.getProperties().get("doubleTest"));
         assertEquals((Integer)99, trackOut.getWeight());
-        assertEquals(currentWhen, trackOut.getProperties().get(TrackTagDao.AB_WHEN));
+        assertEquals(currentWhen, trackOut.getProperties().get(TrackTagDao.FD_WHEN));
     }
 
     @Test
@@ -985,13 +1036,13 @@ public class TestEntityTags extends EngineBase {
 
         // Cancel Log - this will remove the sad tags and leave us with happy tags
         mediationFacade.cancelLastLog(su.getCompany(), result.getEntity());
-        Collection<TrackTag>tags = entityTagService.findEntityTags(result.getEntity());
+        Collection<EntityTag>tags = entityTagService.findEntityTags(result.getEntity());
         assertEquals(2, tags.size());
 
     }
 
     private void validateTag(Entity entity,  String tagName, int totalExpected) {
-        Collection<TrackTag> tags;
+        Collection<EntityTag> tags;
         tags = entityTagService.findEntityTags(entity);
         if ( tagName == null ) {
             assertEquals("Total Expected Tags is incorrect", totalExpected, tags.size() );
@@ -999,7 +1050,7 @@ public class TestEntityTags extends EngineBase {
         }
 
         boolean found = false;
-        for (TrackTag tag : tags){
+        for (EntityTag tag : tags){
             if (tag.getTag().getName().equals(tagName)){
                 found = true;
                 break;

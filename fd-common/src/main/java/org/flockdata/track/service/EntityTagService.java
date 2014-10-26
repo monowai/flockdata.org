@@ -23,8 +23,8 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.TrackTagInputBean;
 import org.flockdata.track.model.Entity;
+import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.model.Log;
-import org.flockdata.track.model.TrackTag;
 import org.flockdata.registration.model.Company;
 import org.flockdata.track.model.EntityLog;
 
@@ -41,29 +41,29 @@ public interface EntityTagService {
 
     Boolean relationshipExists(Entity entity, String name, String relationshipType);
 
-    Collection<TrackTag> associateTags(Company company, Entity ah, EntityLog lastLog, Collection<TagInputBean> userTags, Boolean archiveRemovedTags);
+    Collection<EntityTag> associateTags(Company company, Entity ah, EntityLog lastLog, Collection<TagInputBean> userTags, Boolean archiveRemovedTags);
 
-    Collection<TrackTag> findEntityTags(Company company, Entity entity);
+    Collection<EntityTag> findEntityTags(Company company, Entity entity);
 
-    Collection<TrackTag> findEntityTags(Entity entity);
+    Collection<EntityTag> findEntityTags(Entity entity);
 
-    Collection<TrackTag> findOutboundTags(Entity entity);
+    Collection<EntityTag> findOutboundTags(Entity entity);
 
-    Collection<TrackTag> findOutboundTags(Company company, Entity entity);
+    Collection<EntityTag> findOutboundTags(Company company, Entity entity);
 
-    Collection<TrackTag> findInboundTags(Company company, Entity entity);
+    Collection<EntityTag> findInboundTags(Company company, Entity entity);
 
-    Collection<TrackTag> getEntityTags(Company company, Entity entity);
+    Collection<EntityTag> getEntityTags(Company company, Entity entity);
 
-    void deleteTrackTags(Entity entity, Collection<TrackTag> trackTags) throws FlockException;
+    void deleteTrackTags(Entity entity, Collection<EntityTag> entityTags) throws FlockException;
 
-    void deleteTrackTags(Entity entity, TrackTag value) throws FlockException;
+    void deleteTrackTags(Entity entity, EntityTag value) throws FlockException;
 
-    void changeType(Entity entity, TrackTag existingTag, String newType) throws FlockException;
+    void changeType(Entity entity, EntityTag existingTag, String newType) throws FlockException;
 
     Set<Entity> findTrackTags(String tagName) throws FlockException;
 
-    Collection<TrackTag> findLogTags(Company company, Log log);
+    Collection<EntityTag> findLogTags(Company company, Log log);
 
     void moveTags(Company company, Log previousLog, Entity entity);
 
