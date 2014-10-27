@@ -20,6 +20,7 @@
 package org.flockdata.test.client;
 
 import org.flockdata.client.ClientConfiguration;
+import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.registration.bean.TagInputBean;
@@ -65,12 +66,12 @@ public class TestCsvEntity {
         ImportProfile params = ClientConfiguration.getImportParams("/csvtest.json");
         CsvEntityMapper mapper = new CsvEntityMapper(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
-        String[] headers = new String[]{"Title", "Tag", "TagVal", "ValTag", "Origin", "Year", "Gold Medals"};
-        String[] data = new String[]{"TitleTests", "TagName", "Gold", "8", "New Zealand", "2008", "12"};
+        String[] headers = new String[]{"Title", "Tag", "TagVal", "ValTag", "Origin", "Year", "Gold Medals", "Category"};
+        // Category column is intentionally null
+        String[] data = new String[]{"TitleTests", "TagName", "Gold", "8", "New Zealand", "2008", "12", null };
         Map<String, Object> json = mapper.setData(headers, data, params, reader);
         assertNotNull(json);
-        //ObjectMapper om = new ObjectMapper();
-        //Map values = om.readValue(json, Map.class);
+
         assertTrue("Title Missing", json.containsKey("Title"));
         assertTrue("Tag Missing", json.containsKey("Tag"));
         assertTrue("Tag Value Missing", json.containsKey("TagVal"));
@@ -80,6 +81,7 @@ public class TestCsvEntity {
         List<TagInputBean> tags = mapper.getTags();
         int tagsFound = 0;
         boolean callerRefFoundAsATag = false;
+        boolean nullCategoryFound = false;
         for (TagInputBean tag : tags) {
 
             switch (tag.getName()) {
@@ -114,10 +116,17 @@ public class TestCsvEntity {
                     assertEquals("TitleTests", tag.getName());
                     tagsFound ++;
                     break;
+                case "Undefined":
+                    nullCategoryFound = true;
+                    assertEquals("Undefined", tag.getCode());
+                    assertEquals("Category", tag.getLabel());
+                    tagsFound++;
+                    break;
 
             }
         }
         assertTrue("The callerRef was flagged as a tag but not found", callerRefFoundAsATag);
+        assertTrue("The undefined category column was not found ", nullCategoryFound);
         assertSame(tags.size(), tagsFound);
     }
 
@@ -323,7 +332,7 @@ public class TestCsvEntity {
     }
     public static ImportProfile getImportParams(String profile) throws IOException {
         ImportProfile importProfile;
-        ObjectMapper om = new ObjectMapper();
+        ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
 
         File fileIO = new File(profile);
         if (fileIO.exists()) {
