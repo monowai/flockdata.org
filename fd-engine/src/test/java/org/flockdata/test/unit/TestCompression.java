@@ -21,6 +21,7 @@ package org.flockdata.test.unit;
 
 import org.flockdata.engine.repo.KvContentData;
 import org.flockdata.helper.CompressionResult;
+import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.helper.CompressionHelper;
 import org.flockdata.test.utils.Helper;
@@ -71,7 +72,7 @@ public class TestCompression {
         //json = TestHelper.getBigJsonText(99);
         String uncompressed = CompressionHelper.decompress(result);
 
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
         JsonNode compareTo = mapper.valueToTree(content);
         JsonNode other = mapper.readTree(uncompressed);
         Assert.assertTrue(compareTo.equals(other));
@@ -112,7 +113,7 @@ public class TestCompression {
 
         String uncompressed = CompressionHelper.decompress(result);
 
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
         JsonNode compareTo = mapper.readTree(json);
         JsonNode other = mapper.readTree(uncompressed);
         Assert.assertTrue(compareTo.equals(other));
@@ -123,7 +124,7 @@ public class TestCompression {
         String jsonA = "{\"house\": \"red\", \"bedrooms\": 2, \"list\": [3,2,1]}";
         String jsonB = "{\"house\": \"green\", \"bedrooms\": 2, \"list\": [1,2,3]}";
         Map mapA, mapB;
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
 
         mapA = mapper.readValue(jsonA, HashMap.class);
         mapB = mapper.readValue(jsonB, HashMap.class);

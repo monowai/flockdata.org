@@ -19,6 +19,7 @@
 
 package org.flockdata.engine.service;
 
+import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.test.functional.EngineBase;
@@ -188,7 +189,7 @@ public class KvServiceTest extends EngineBase {
     }
 
     public static String getJsonFromObject(Map<String, Object> what) throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
         return mapper.writeValueAsString(what);
     }
 

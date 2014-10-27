@@ -36,7 +36,7 @@ import java.util.Map;
  * Time: 3:38 PM
  */
 public class JsonUtils {
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
     public static byte[] getObjectAsJsonBytes(Object object) throws IOException {
 
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
