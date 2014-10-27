@@ -33,6 +33,10 @@
             "nameColumn": "Year",
             "tag": true,
             "valueAsProperty": true
+        },
+        "Category": {
+            "tag": true,
+            "nullOrEmpty":  "Undefined"   // Default if Value is missing in source file
         }
     }
 }

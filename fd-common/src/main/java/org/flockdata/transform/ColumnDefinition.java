@@ -43,6 +43,7 @@ public class ColumnDefinition {
     private String   label;
     private String   type; //datatype
     private String   nameColumn;
+    private String   nullOrEmpty;
     private String   appendJoinText = " ";
     private String   relationshipName;
     private String[] refColumns;
@@ -208,5 +209,9 @@ public class ColumnDefinition {
 
     public boolean isCreatedDate() {
         return createdDate;
+    }
+
+    public String getNullOrEmpty() {
+        return nullOrEmpty;
     }
 }
