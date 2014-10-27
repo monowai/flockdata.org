@@ -20,6 +20,7 @@
 package org.flockdata.client.rest;
 
 import org.flockdata.helper.CompressionHelper;
+import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Tag;
@@ -69,7 +70,7 @@ public class FdRestWriter implements FdWriter {
     private static boolean compress = true;
     private boolean simulateOnly;
     private String defaultFortress;
-    private ObjectMapper mapper = new ObjectMapper();
+    private ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
 
     /**
      * Use this version for administrative access where the username and password must exist
@@ -117,7 +118,7 @@ public class FdRestWriter implements FdWriter {
      * @return Map<String,Object>
      */
     public static Map<String,Object> convertToMap(Object o ){
-        ObjectMapper om = new ObjectMapper();
+        ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
         return  om.convertValue(o, Map.class);
     }
 

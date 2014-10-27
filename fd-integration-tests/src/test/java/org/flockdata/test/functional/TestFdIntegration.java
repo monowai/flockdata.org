@@ -23,6 +23,7 @@ import org.flockdata.engine.FdServerWriter;
 import org.flockdata.engine.endpoint.QueryEP;
 import org.flockdata.engine.service.FortressService;
 import org.flockdata.engine.service.QueryService;
+import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.bean.RegistrationBean;
@@ -1240,7 +1241,7 @@ public class TestFdIntegration {
         logger.info("Total Search Requests = " + totalSearchRequests + ". Total time for searches " + end + " avg requests per second = " + totalSearchRequests / end);
     }
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private ObjectMapper objectMapper = FlockDataJsonFactory.getObjectMapper();
 
     private void validateResultFieds(String result) throws Exception {
         JsonNode node = objectMapper.readTree(result);

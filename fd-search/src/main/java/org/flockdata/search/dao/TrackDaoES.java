@@ -19,6 +19,7 @@
 
 package org.flockdata.search.dao;
 
+import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.service.SearchAdmin;
 import org.flockdata.track.model.Entity;
@@ -334,7 +335,7 @@ public class TrackDaoES implements TrackSearchDao {
     }
 
     private String getJsonToIndex(SearchChange searchChange) {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
         Map<String, Object> index = getMapFromChange(searchChange);
         try {
             return mapper.writeValueAsString(index);
@@ -422,7 +423,7 @@ public class TrackDaoES implements TrackSearchDao {
     }
 
     private Map<String, Object> getMapFromStream(InputStream file) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
         TypeFactory typeFactory = mapper.getTypeFactory();
         MapType mapType = typeFactory.constructMapType(HashMap.class, String.class, HashMap.class);
         return mapper.readValue(file, mapType);
