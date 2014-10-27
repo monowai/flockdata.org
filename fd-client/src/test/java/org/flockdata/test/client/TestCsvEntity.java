@@ -22,6 +22,7 @@ package org.flockdata.test.client;
 import org.flockdata.client.ClientConfiguration;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
+import org.flockdata.helper.JsonUtils;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -348,6 +349,25 @@ public class TestCsvEntity {
         }
         //importParams.setWriter(restClient);
         return importProfile;
+    }
+
+    @Test
+    public void null_EntityRow() throws Exception {
+        ImportProfile params = ClientConfiguration.getImportParams("/csvtest.json");
+        CsvEntityMapper mapper = new CsvEntityMapper(params);
+        // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
+        String[] headers = new String[]{"Title",  "Field"};
+        String[] data = new String[]{"TitleTests", null };
+        Map<String, Object> jsonMap = mapper.setData(headers, data, params, reader);
+        assertNotNull(jsonMap);
+
+        assertEquals(null, jsonMap.get("Field"));
+        String json = JsonUtils.getJSON(jsonMap);
+        jsonMap = JsonUtils.getAsMap(json);
+        assertNotNull(jsonMap);
+        assertFalse (jsonMap.isEmpty());
+        assertEquals(null, jsonMap.get("Field"));
+
     }
 
 }

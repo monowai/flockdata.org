@@ -66,8 +66,9 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
         Map<String, Object> row = new HashMap<>();
         for (String column : headerRow) {
             ColumnDefinition colDef = importProfile.getColumnDef(column);
-
-            if (NumberUtils.isNumber(line[col])) {
+            if ( line[col]==null || line[col].equals("null"))
+                row.put(column, null);
+            else if (NumberUtils.isNumber(line[col])) {
                 if ( colDef !=null &&  colDef.getType()!=null && colDef.getType().equalsIgnoreCase("string"))
                     row.put(column.trim(), String.valueOf(line[col]));
                 else
@@ -102,9 +103,10 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
             ColumnDefinition colDef = importProfile.getColumnDef(column);
 
             if (colDef != null) {
-                String value = line[col];
-                if (value != null)
-                    value = value.trim();
+                Object o = row.get(column);
+                String value = null ;
+                if ( o !=null )
+                    value = o.toString().trim();
 
                 if (colDef.isDescription()) {
                     setDescription(row.get(column).toString());

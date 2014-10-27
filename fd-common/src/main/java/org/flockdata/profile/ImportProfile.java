@@ -90,7 +90,7 @@ public class ImportProfile implements ProfileConfiguration {
 
     @Override
     public String toString() {
-        return "ImportParams{" +
+        return "ImportProfile{" +
                 "documentName='" + documentName + '\'' +
                 ", contentType=" + contentType +
                 ", tagOrEntity='" + tagOrEntity + '\'' +

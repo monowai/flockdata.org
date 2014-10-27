@@ -49,6 +49,7 @@ public class FlockDataJsonFactory extends JsonFactory {
                 l.lock();
                 if ( objectMapper == null ){
                     objectMapper = new ObjectMapper( new FlockDataJsonFactory());
+                    //objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
                 }
 
             } finally {
@@ -62,21 +63,25 @@ public class FlockDataJsonFactory extends JsonFactory {
     @Override
     public JsonParser createParser(URL url) throws IOException {
         JsonParser p = super.createParser(url);
-        p.enable(JsonParser.Feature.ALLOW_COMMENTS);
+        setParserFeatures(p);
         return p;
+    }
+
+    private void setParserFeatures(JsonParser p) {
+        p.enable(JsonParser.Feature.ALLOW_COMMENTS);
     }
 
     @Override
     public JsonParser createParser(InputStream stream) throws IOException {
         JsonParser p = super.createParser(stream);
-        p.enable(JsonParser.Feature.ALLOW_COMMENTS);
+        setParserFeatures(p);
         return p;
     }
 
     @Override
     public JsonParser createParser(File file) throws IOException {
         JsonParser p = super.createParser(file);
-        p.enable(JsonParser.Feature.ALLOW_COMMENTS);
+        setParserFeatures(p);
         return p;
     }
 }
