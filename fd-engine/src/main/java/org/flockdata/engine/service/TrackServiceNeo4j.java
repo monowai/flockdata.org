@@ -516,7 +516,7 @@ public class TrackServiceNeo4j implements TrackService {
             fromEntity = trackDao.findByCallerRef(f.getId(), document.getId(), sourceKey.getCallerRef());
         }
         if (fromEntity == null)
-            throw new FlockException("Unable to locate the Entity for MetaKey [" + sourceKey + "]");
+            throw new FlockException("Unable to locate the Entity [" + sourceKey + "]");
 
         //16051954
         Collection<Entity> targets = new ArrayList<>();

@@ -23,20 +23,30 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * User: mike
  * Date: 9/05/14
  * Time: 7:44 AM
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ColumnDefinition {
-    private boolean  callerRef;
-    private boolean  title;
-    private boolean  description;
+
+    // Flags that profile the properties of a column
+    private boolean callerRef;
+    private boolean title;
+    private boolean description;
+    private boolean valueAsProperty;
+    private boolean country;
+    private boolean createdDate;
+    private boolean tag;
+    private boolean mustExist;
+    private boolean createdUser;
+    private boolean updateUser;
+    private boolean reverse = false;
+
     private String   dateFormat;
-    private boolean  valueAsProperty;
-    private boolean  country;
-    private boolean  createdDate;
     private String   strategy = null;
     private String   fortress = null;
     private String   documentType = null;
@@ -46,26 +56,26 @@ public class ColumnDefinition {
     private String   nullOrEmpty;
     private String   appendJoinText = " ";
     private String   relationshipName;
-    private String[] refColumns;
-    private String[] metaValues;
 
-    // ToDo: Replace this with CsvTagMapper ??
-    private boolean tag;
-    private boolean  mustExist;
+    private String[] refColumns;
+
     private String relationship;
-    private Boolean reverse = false;
+
     private String delimiter;
 
-    private String[] columns;
     private String code;
     private String customPropertyName;
-    private boolean createdUser;
-    private boolean updateUser;
+
+    private ArrayList<Map<String,String>>crossReferences = new ArrayList<>();
 
     public String getLabel() {
         return label;
     }
 
+    /**
+     *
+     * @param label Noun that describes the tag
+     */
     public void setLabel(String label) {
         this.label = label;
     }
@@ -73,14 +83,21 @@ public class ColumnDefinition {
     @JsonDeserialize(using = TagProfileDeserializer.class)
     private ArrayList<TagProfile> targets = new ArrayList<>();
 
+    /**
+     *
+     * @return Columns used to create a callerReference where there is otherwise no identifiable key
+     */
     public String[] getRefColumns() {
         return refColumns;
     }
 
+    /**
+     *
+     * @param tag flags this column as being an identifying tag.
+     */
     public void setTag(boolean tag) {
         this.tag = tag;
     }
-
 
     public boolean isCallerRef() {
         return callerRef;
@@ -90,7 +107,6 @@ public class ColumnDefinition {
         return title;
     }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     public boolean isTag() {
         return tag || isCountry();
     }
@@ -126,9 +142,9 @@ public class ColumnDefinition {
         return strategy;
     }
 
-    public String[] getColumns() {
-        return columns;
-    }
+//    public String[] getColumns() {
+//        return columns;
+//    }
 
     public String getFortress() {
         return fortress;
@@ -163,6 +179,11 @@ public class ColumnDefinition {
         this.reverse = reverse;
     }
 
+    /**
+     * if a delimiter is specified, then the column value will be treated as a delimited string and
+     * a Tag.code will be created for each delimited value
+     * @return default is a ,
+     */
     public String getDelimiter() {
         return delimiter;
     }
@@ -171,9 +192,9 @@ public class ColumnDefinition {
         this.delimiter = delimiter;
     }
 
-    public void setMetaValues(String[] metaValues) {
-        this.metaValues = metaValues;
-    }
+//    public void setMetaValues(String[] metaValues) {
+//        this.metaValues = metaValues;
+//    }
 
     public void setRefColumns(String[] refColumns) {
         this.refColumns = refColumns;
@@ -187,6 +208,10 @@ public class ColumnDefinition {
         this.type = type;
     }
 
+    /**
+     *
+     * @return is this column carrying the value for the Creating user
+     */
     public boolean isCreatedUser() {
         return createdUser;
     }
@@ -195,6 +220,10 @@ public class ColumnDefinition {
         this.createdUser = createdUser;
     }
 
+    /**
+     *
+     * @return is this column carrying the value for the Last Update user
+     */
     public boolean isUpdateUser() {
         return updateUser;
     }
@@ -203,15 +232,36 @@ public class ColumnDefinition {
         this.updateUser = updateUser;
     }
 
+    /**
+     *
+     * @param mustExist if true, FdServer will throw an error if the tag does not exist
+     */
     public void setMustExist(boolean mustExist) {
         this.mustExist = mustExist;
     }
 
+    /**
+     *
+     * @return is this column carrying the value for the Created Date
+     */
     public boolean isCreatedDate() {
         return createdDate;
     }
 
+    /**
+     * Defines the literal to set the Tag.code value to if the value is not present
+     * Treats null & "" as equivalent
+     * @return literal
+     */
     public String getNullOrEmpty() {
         return nullOrEmpty;
+    }
+
+    public ArrayList<Map<String, String>> getCrossReferences() {
+        return crossReferences;
+    }
+
+    public void setCrossReferences(ArrayList<Map<String, String>> crossReferences) {
+        this.crossReferences = crossReferences;
     }
 }
