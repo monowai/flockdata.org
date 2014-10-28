@@ -156,7 +156,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                 }
                 if ( !colDef.getCrossReferences().isEmpty()){
                     for (Map<String, String> key : colDef.getCrossReferences()) {
-                         addCrossReference(key.get("relationshipName"), new EntityKey(key.get("fortress"), key.get("documentName"), value));
+                        addCrossReference(key.get("relationshipName"), new EntityKey(key.get("fortress"), key.get("documentName"), value));
                     }
                 }
 
@@ -193,14 +193,14 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
 
     private Map<String, Object> getColumnValues(ColumnDefinition colDef, Map<String, Object> row) {
         Map<String, Object> results = new HashMap<>();
-        //String[] columns = colDef.getColumns();
+        String[] columns = colDef.getRefColumns();
+        int i = 0;
+        int max = columns.length;
+        while (i < max) {
+            results.put(columns[i], row.get(columns[i]));
+            i++;
+        }
 
-//        int i = 0;
-//        int max = columns.length;
-//        while (i < max) {
-//            results.put(columns[i], row.get(columns[i]));
-//            i++;
-//        }
         return results;
     }
 
