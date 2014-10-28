@@ -38,8 +38,7 @@
         },
         "Medals": {
             "callerRef": true,
-            "refColumns": ["Athlete", "Year"],
-            "metaValues": ["Gold Medals", "Silver Medals", "Bronze Medals"]
+            "refColumns": ["Athlete", "Year"]
         },
         "Gold Medals": {
             "tag": true,

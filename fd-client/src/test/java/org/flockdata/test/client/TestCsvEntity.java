@@ -19,6 +19,7 @@
 
 package org.flockdata.test.client;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.client.ClientConfiguration;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
@@ -26,11 +27,11 @@ import org.flockdata.helper.JsonUtils;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.model.EntityKey;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.DelimitedMappable;
 import org.flockdata.transform.FdReader;
 import org.flockdata.transform.csv.CsvEntityMapper;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -67,9 +68,9 @@ public class TestCsvEntity {
         ImportProfile params = ClientConfiguration.getImportParams("/csvtest.json");
         CsvEntityMapper mapper = new CsvEntityMapper(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
-        String[] headers = new String[]{"Title", "Tag", "TagVal", "ValTag", "Origin", "Year", "Gold Medals", "Category"};
+        String[] headers = new String[]{"Title", "Tag", "TagVal", "ValTag", "Origin", "Year", "Gold Medals", "Category", "xRef"};
         // Category column is intentionally null
-        String[] data = new String[]{"TitleTests", "TagName", "Gold", "8", "New Zealand", "2008", "12", null };
+        String[] data = new String[]{"TitleTests", "TagName", "Gold", "8", "New Zealand", "2008", "12", null, "qwerty" };
         Map<String, Object> json = mapper.setData(headers, data, params, reader);
         assertNotNull(json);
 
@@ -77,7 +78,28 @@ public class TestCsvEntity {
         assertTrue("Tag Missing", json.containsKey("Tag"));
         assertTrue("Tag Value Missing", json.containsKey("TagVal"));
         assertTrue("Tag Value Missing", json.containsKey("ValTag"));
+        Map<String, List<EntityKey>> xRefs = mapper.getCrossReferences();
 
+        assertFalse(xRefs.isEmpty());
+        assertEquals(2, xRefs.size());
+        boolean foundExposed=false, foundBlah=false;
+        for (String s : xRefs.keySet()) {
+            if ( s.equals("exposed")){
+                // Check for 2 values
+                assertEquals(2, xRefs.get("exposed").size());
+                foundExposed = true;
+            } else if ( s.equals("blah")){
+                assertEquals(1, xRefs.get("blah").size());
+                for (String s1 : xRefs.keySet()) {
+                    EntityKey ek = xRefs.get("blah").iterator().next();
+                    assertEquals("Olympic", ek.getFortressName());
+                    assertEquals("Other", ek.getDocumentType());
+                    assertEquals("qwerty", ek.getCallerRef());
+                }
+                foundBlah = true;
+            }
+        }
+        assertEquals(true, foundBlah & foundExposed);
         Assert.assertEquals(data[0], mapper.getCallerRef());
         List<TagInputBean> tags = mapper.getTags();
         int tagsFound = 0;

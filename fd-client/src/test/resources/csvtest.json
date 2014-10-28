@@ -36,7 +36,27 @@
         },
         "Category": {
             "tag": true,
-            "nullOrEmpty":  "Undefined"   // Default if Value is missing in source file
+            "nullOrEmpty": "Undefined"   // Default if Value is missing in source file
+        },
+        "xRef": {
+            "crossReferences": [
+                {
+                    "fortress": "Olympic",
+                    "documentName": "Celebration",
+                    "relationshipName": "exposed"
+                },
+                {
+                    "fortress": "Olympic",
+                    "documentName": "Other",
+                    "relationshipName": "exposed"
+                },
+                {
+                    "fortress": "Olympic",
+                    "documentName": "Other",
+                    "relationshipName": "blah"
+                }
+            ]
         }
+
     }
 }

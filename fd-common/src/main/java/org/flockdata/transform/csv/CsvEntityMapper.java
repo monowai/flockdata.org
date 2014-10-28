@@ -151,8 +151,14 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                     setFortressUser(value);
                 }
 
-                if (colDef.isUpdateUser())
+                if (colDef.isUpdateUser()) {
                     setUpdateUser(value);
+                }
+                if ( !colDef.getCrossReferences().isEmpty()){
+                    for (Map<String, String> key : colDef.getCrossReferences()) {
+                         addCrossReference(key.get("relationshipName"), new EntityKey(key.get("fortress"), key.get("documentName"), value));
+                    }
+                }
 
             } // ignoreMe
             col++;
@@ -170,10 +176,10 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
         if (importProfile.getEntityKey() != null) {
             ColumnDefinition columnDefinition = importProfile.getColumnDef(importProfile.getEntityKey());
             if (columnDefinition != null) {
-                String[] metaCols = columnDefinition.getRefColumns();
+                String[] dataCols = columnDefinition.getRefColumns();
                 String callerRef = "";
-                for (String metaCol : metaCols) {
-                    callerRef = callerRef + (!callerRef.equals("") ? "." : "") + row.get(metaCol);
+                for (String dataCol : dataCols) {
+                    callerRef = callerRef + (!callerRef.equals("") ? "." : "") + row.get(dataCol);
                 }
                 setCallerRef(callerRef);
             }
@@ -187,14 +193,14 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
 
     private Map<String, Object> getColumnValues(ColumnDefinition colDef, Map<String, Object> row) {
         Map<String, Object> results = new HashMap<>();
-        String[] columns = colDef.getColumns();
+        //String[] columns = colDef.getColumns();
 
-        int i = 0;
-        int max = columns.length;
-        while (i < max) {
-            results.put(columns[i], row.get(columns[i]));
-            i++;
-        }
+//        int i = 0;
+//        int max = columns.length;
+//        while (i < max) {
+//            results.put(columns[i], row.get(columns[i]));
+//            i++;
+//        }
         return results;
     }
 
