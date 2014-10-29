@@ -31,6 +31,8 @@ import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.registration.bean.SystemUserResultBean;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.TrackResultBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -147,5 +149,16 @@ public class EngineEndPoints {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(JsonUtils.getJSON(loginReq)))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+    }
+
+    public TrackResultBean track(EntityInputBean eib, SystemUser su) throws Exception {
+        MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.post("/track/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(ApiKeyInterceptor.API_KEY, (su != null ? su.getApiKey() : ""))
+                        .content(JsonUtils.getObjectAsJsonBytes(eib))
+        ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
+        byte[] json = response.getResponse().getContentAsByteArray();
+
+        return JsonUtils.getBytesAsObject(json, TrackResultBean.class);
     }
 }
