@@ -148,7 +148,11 @@ public class TrackServiceNeo4j implements TrackService {
     }
 
     public Entity makeEntity(Fortress fortress, DocumentType documentType, EntityInputBean entityInput) throws FlockException {
-        FortressUser fu = fortressService.getFortressUser(fortress, entityInput.getFortressUser());
+        String fortressUser = entityInput.getFortressUser();
+        if ( fortressUser == null && entityInput.getLog()!=null )
+            fortressUser = entityInput.getLog().getFortressUser();
+
+        FortressUser fu = fortressService.getFortressUser(fortress, fortressUser);
         Entity entity = trackDao.create(entityInput, fu, documentType);
         if (entity.getId() == null)
             entityInput.setMetaKey("NT " + fortress.getFortressKey()); // We ain't tracking this

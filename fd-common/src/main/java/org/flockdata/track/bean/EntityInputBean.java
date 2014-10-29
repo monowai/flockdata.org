@@ -78,6 +78,12 @@ public class EntityInputBean {
 
     }
 
+    public EntityInputBean(String fortressName, String docTypeName) {
+        this();
+        this.fortress= fortressName;
+        this.documentType = docTypeName;
+    }
+
     public void setMetaKey(String metaKey) {
         this.metaKey = metaKey;
     }

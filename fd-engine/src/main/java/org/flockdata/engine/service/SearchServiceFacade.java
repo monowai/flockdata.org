@@ -136,7 +136,7 @@ public class SearchServiceFacade {
     }
 
     public void makeChangesSearchable(Collection<SearchChange> searchDocument) {
-        if (searchDocument == null || searchDocument.size() == 0)
+        if (searchDocument.isEmpty())
             return ;
         logger.debug("Sending request to index [{}]] logs", searchDocument.size());
 

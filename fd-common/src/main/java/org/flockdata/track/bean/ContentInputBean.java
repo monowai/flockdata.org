@@ -117,6 +117,11 @@ public class ContentInputBean implements EntityContent {
         this(fortressUser, metaKey, when, what, false);
     }
 
+    public ContentInputBean(String user, Map<String, Object> what) {
+        this.fortressUser = user;
+        this.what = what;
+    }
+
 
     public String getMetaKey() {
         return metaKey;
