@@ -35,7 +35,7 @@ import java.util.Set;
  * Date: 28/06/13
  * Time: 9:55 PM
  */
-public interface TrackTagDao {
+public interface EntityTagDao {
 
     // Property that refers to when this relationship was introduced to FD
     String FD_WHEN = "fdWhen";
@@ -53,21 +53,21 @@ public interface TrackTagDao {
      *
      * @param company    validated company
      * @param entity    entity the caller is authorised to work with
-     * @return           all TrackTags for the company in both directions
+     * @return           all EntityTags for the company in both directions
      */
-    Set<EntityTag> getMetaTrackTags(Company company, Entity entity);
+    Set<EntityTag> getEntityTags(Company company, Entity entity);
 
-    Set<EntityTag> getDirectedMetaTags(Company company, Entity entity, boolean outbound);
+    Set<EntityTag> getDirectedEntityTags(Company company, Entity entity, boolean outbound);
 
     Set<EntityTag> findLogTags(Company company, Log log) ;
 
     void changeType(Entity entity, EntityTag existingTag, String newType);
 
-    Set<Entity> findTrackTags(Tag tag);
+    Set<Entity> findEntitiesByTag(Tag tag);
 
     void moveTags(Entity entity, Log log, Collection<EntityTag> entityTag);
 
-    void deleteTrackTags(Entity entity, Collection<EntityTag> entityTags) throws FlockException;
+    void deleteEntityTags(Entity entity, Collection<EntityTag> entityTags) throws FlockException;
 
     void moveTags(Company company, Log logToMoveFrom, Entity entity);
 }

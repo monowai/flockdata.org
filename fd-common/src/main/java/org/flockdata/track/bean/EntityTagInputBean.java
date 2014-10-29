@@ -30,7 +30,7 @@ import javax.validation.constraints.NotNull;
  * Date: 28/06/13
  * Time: 9:58 PM
  */
-public class TrackTagInputBean {
+public class EntityTagInputBean {
     @NotNull
     private String tagName;
     @NotNull
@@ -39,7 +39,7 @@ public class TrackTagInputBean {
     private String type;
     private String index;
 
-    private TrackTagInputBean() {
+    private EntityTagInputBean() {
     }
 
     /**
@@ -47,7 +47,7 @@ public class TrackTagInputBean {
      * @param tagName          name of an existing tag
      * @param relationshipName relationship name to create
      */
-    public TrackTagInputBean(String metaKey, String tagName, String relationshipName) {
+    public EntityTagInputBean(String metaKey, String tagName, String relationshipName) {
         this();
         this.metaKey = metaKey;
         this.tagName = tagName;
