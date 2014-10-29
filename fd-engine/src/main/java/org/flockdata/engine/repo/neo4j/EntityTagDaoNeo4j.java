@@ -74,7 +74,7 @@ public class EntityTagDaoNeo4j {
 
     /**
      * creates the relationship between the entity and the tag of the name type.
-     * If metaId== null, then an TrackTag for the caller to deal with otherwise the relationship
+     * If metaId== null, then an EntityTag for the caller to deal with otherwise the relationship
      * is persisted and null is returned.
      *
      *
@@ -84,7 +84,7 @@ public class EntityTagDaoNeo4j {
      * @param isReversed        tag<-entity (false) or entity->tag (true)
      * @param propMap           properties to associate with the relationship
      *
-     * @return Null or TrackTag
+     * @return Null or EntityTag
      */
     public EntityTag save(Entity entity, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap) {
         // ToDo: this will only set properties for the "current" tag to Entity. it will not version it.
@@ -165,7 +165,7 @@ public class EntityTagDaoNeo4j {
     }
 
     /**
-     * Moves the trackTag relationships from the Entity to the Log
+     * Moves the entityTag relationships from the Entity to the Log
      * Purpose is to track at which version of a log the metadata covered2
      *
      * @param log pointer to the node we want to move the relationships to
@@ -198,7 +198,7 @@ public class EntityTagDaoNeo4j {
     /**
      * This version is used to relocate the tags associated with Log back to the Entity
      *
-     * This will examine the TrackTagDao.FD_WHEN property and >= fortressDate log when, it will be removed
+     * This will examine the EntityTagDao.FD_WHEN property and >= fortressDate log when, it will be removed
      *
      * @param company       a validated company that the caller is allowed to work with
      * @param logToMoveFrom where the logs are currently associated
@@ -214,7 +214,7 @@ public class EntityTagDaoNeo4j {
 
         for (EntityTag entityTag : metaTags) {
             // Remove any MetaTags that are newer than the log being re-instated as the "current" truth
-            // if trackTag.abWhen moreRecentThan logToMoveFrom
+            // if entityTag.abWhen moreRecentThan logToMoveFrom
 
             Long metaWhen = (Long) entityTag.getProperties().get(FD_WHEN);
             template.fetch(logToMoveFrom.getEntityLog());
@@ -325,7 +325,7 @@ public class EntityTagDaoNeo4j {
                 "return tag,tagType,located,state, country " +
                 "order by type(tagType), tag.name";
 
-        //List<TrackTag> raw = getEntityTags(entity.getId(), query);
+        //List<EntityTag> raw = getEntityTags(entity.getId(), query);
         //Collections.sort(raw, new BeanComparator<>("tagType"));
         return getEntityTags(entity.getId(), query);
     }
@@ -343,7 +343,7 @@ public class EntityTagDaoNeo4j {
             Node n = (Node) row.get("tag");
             TagNode tag = new TagNode(n);
             Relationship relationship = template.convert(row.get("tagType"), Relationship.class);
-            EntityTagRelationship trackTag = new EntityTagRelationship(primaryKey, tag, relationship);
+            EntityTagRelationship entityTagRlx = new EntityTagRelationship(primaryKey, tag, relationship);
 
             Node loc = (Node) row.get("located");
 
@@ -360,9 +360,9 @@ public class EntityTagDaoNeo4j {
                 }
                 if (state != null && state.hasProperty("name"))
                     geoData.setState((String) state.getProperty("name"));
-                trackTag.setGeoData(geoData);
+                entityTagRlx.setGeoData(geoData);
             }
-            tagResults.add(trackTag) ;
+            tagResults.add(entityTagRlx) ;
         }
         return tagResults;
 

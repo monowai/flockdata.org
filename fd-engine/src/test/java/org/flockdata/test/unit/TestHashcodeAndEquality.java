@@ -64,7 +64,7 @@ public class TestHashcodeAndEquality {
     }
 
     @Test
-    public void trackTags() throws Exception{
+    public void entityTags() throws Exception{
 
         TagNode tagNode = getTag("Samsung", "plantif", 12345l);
         TagNode tagNodeB = getTag("Apple", "defendant", 12343l);
@@ -77,14 +77,14 @@ public class TestHashcodeAndEquality {
         entityInput.setCallerRef("abc");
 
         EntityNode mh = new EntityNode("123abc", fortress, entityInput, documentTypeNode);
-        EntityTagRelationship trackTagA = new EntityTagRelationship(mh.getId(), tagNode);
-        EntityTagRelationship trackTagB = new EntityTagRelationship(mh.getId(), tagNodeB);
+        EntityTagRelationship entityTagA = new EntityTagRelationship(mh.getId(), tagNode);
+        EntityTagRelationship entityTagB = new EntityTagRelationship(mh.getId(), tagNodeB);
 
         ArrayList<EntityTag>existingTags = new ArrayList<>();
-        existingTags.add(trackTagA);
-        existingTags.add(trackTagB);
-        assertEquals(true, existingTags.contains(trackTagA));
-        assertEquals(true, existingTags.contains(trackTagB));
+        existingTags.add(entityTagA);
+        existingTags.add(entityTagB);
+        assertEquals(true, existingTags.contains(entityTagA));
+        assertEquals(true, existingTags.contains(entityTagB));
 
     }
 }
