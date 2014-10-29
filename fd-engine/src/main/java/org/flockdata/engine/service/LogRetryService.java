@@ -194,7 +194,7 @@ public class LogRetryService {
         // This call also saves the entity
         EntityLog newLog = entityDao.addLog(entity, preparedLog, fortressWhen, existingLog);
 
-        resultBean.setSysWhen(newLog.getSysWhen());
+        resultBean.setFdWhen(newLog.getSysWhen());
 
         boolean moreRecent = (existingLog == null || existingLog.getFortressWhen().compareTo(newLog.getFortressWhen()) <= 0);
 

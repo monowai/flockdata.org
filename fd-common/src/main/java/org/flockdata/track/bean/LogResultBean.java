@@ -43,7 +43,7 @@ public class LogResultBean {
 
     private String fortressUser;
     private String txReference = null;
-    private Long sysWhen;
+    private Long fdWhen;
     private EntityLog logToIndex;
     private Log whatLog;
     private boolean logIgnored = false;
@@ -137,12 +137,12 @@ public class LogResultBean {
         this.status = status;
     }
 
-    public void setSysWhen(Long sysWhe) {
-        this.sysWhen = sysWhe;
+    public void setFdWhen(Long sysWhe) {
+        this.fdWhen = sysWhe;
     }
 
-    public Long getSysWhen() {
-        return sysWhen;
+    public Long getFdWhen() {
+        return fdWhen;
     }
 
     public void setLogToIndex(EntityLog logToIndex) {
