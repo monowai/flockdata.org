@@ -247,10 +247,7 @@ public class TrackEP {
     public @ResponseBody Collection<EntityTag> getLastLogTags(@PathVariable("metaKey") String metaKey,
                                                              HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        // curl -u mike:123 -X GET http://localhost:8081/fd-engine/track/c27ec2e5-2e17-4855-be18-bd8f82249157/lastchange
-//        TrackLog changed = trackService.getLastLog(company, metaKey);
         return trackService.getLastLogTags(company, metaKey);
-
     }
 
 
@@ -380,7 +377,7 @@ public class TrackEP {
     @RequestMapping(value = "/tx/{txRef}", produces = "application/json", method = RequestMethod.GET)
     public ResponseEntity<TxRef> getAuditTx(@PathVariable("txRef") String txRef,
                                             HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyResolver.resolveCompany(request);
         TxRef result;
         result = txService.findTx(txRef);
         return new ResponseEntity<>(result, HttpStatus.OK);

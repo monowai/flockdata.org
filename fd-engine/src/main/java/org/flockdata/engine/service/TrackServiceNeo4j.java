@@ -666,8 +666,8 @@ public class TrackServiceNeo4j implements TrackService {
     }
 
     @Override
-    public Collection<EntityTag> getLogTags(Company company, EntityLog tl) {
-        return getLogTags(company, tl.getLog());  //To change body of created methods use File | Settings | File Templates.
+    public Collection<EntityTag> getLogTags(Company company, EntityLog entityLog) {
+        return getLogTags(company, entityLog.getLog());  //To change body of created methods use File | Settings | File Templates.
     }
 
     @Override
