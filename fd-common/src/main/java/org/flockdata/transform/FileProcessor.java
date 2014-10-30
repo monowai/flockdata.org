@@ -20,6 +20,7 @@
 package org.flockdata.transform;
 
 import au.com.bytecode.opencsv.CSVReader;
+import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.profile.model.Mappable;
@@ -104,7 +105,7 @@ public class FileProcessor {
 
     private long processJsonTags(String fileName, ProfileConfiguration importProfile, int skipCount, FdWriter restClient) throws FlockException {
         Collection<TagInputBean> tags;
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
         long processed = 0;
         try {
             File file = new File(fileName);
@@ -293,7 +294,7 @@ public class FileProcessor {
         }
         if (writeToFile) {
             // ToDo: Unsure how to handle this. CSV -> JSON
-            ObjectMapper om = new ObjectMapper();
+            ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
             try {
                 om.writerWithDefaultPrettyPrinter().writeValue(new File(file + ".json"), tags);
             } catch (IOException e) {

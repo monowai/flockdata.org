@@ -279,9 +279,6 @@ public class Configure {
             Properties properties = defaults.getAsProperties();
             OutputStream out = new FileOutputStream(file);
             properties.store(out, null);
-            //ObjectMapper om = new ObjectMapper();
-
-            //om.writerWithDefaultPrettyPrinter().writeValue(file, defaults);
             logger.debug("** Configuration defaults written to {} ", file.getAbsoluteFile().toString());
         } catch (IOException e) {
             logger.error("Unexpected", e);

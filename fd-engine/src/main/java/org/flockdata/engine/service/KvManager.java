@@ -22,6 +22,7 @@ package org.flockdata.engine.service;
 import org.flockdata.engine.repo.KvContentData;
 import org.flockdata.engine.repo.riak.RiakRepo;
 import org.flockdata.helper.CompressionResult;
+import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DeltaBean;
@@ -72,7 +73,7 @@ public class KvManager implements KvService {
             doKvWrite(resultBean.getEntity(), resultBean.getLogResult().getWhatLog());
     }
 
-    private static final ObjectMapper om = new ObjectMapper();
+    private static final ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
 
     @Autowired
     RedisRepo redisRepo;

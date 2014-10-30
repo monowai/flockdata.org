@@ -20,6 +20,7 @@
 package org.flockdata.search.service;
 
 import org.flockdata.helper.CompressionHelper;
+import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.search.model.EntitySearchChanges;
 import org.flockdata.search.model.JsonSearchChange;
 import com.fasterxml.jackson.core.Version;
@@ -45,7 +46,7 @@ public class JsonSearchChangeConverter extends SimpleMessageConverter {
         final Object content = super.fromMessage(message);
         try {
             if (content instanceof String) {
-                ObjectMapper mapper = new ObjectMapper();
+                ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
                 SimpleModule iModule = new SimpleModule("ImportParameters", new Version(1,0,0,null))
                         .addDeserializer(EntitySearchChanges.class, new JsonSearchChange());
                 mapper.registerModule(iModule);

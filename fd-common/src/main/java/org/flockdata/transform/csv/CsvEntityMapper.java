@@ -66,8 +66,9 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
         Map<String, Object> row = new HashMap<>();
         for (String column : headerRow) {
             ColumnDefinition colDef = importProfile.getColumnDef(column);
-
-            if (NumberUtils.isNumber(line[col])) {
+            if ( line[col]==null || line[col].equals("null"))
+                row.put(column, null);
+            else if (NumberUtils.isNumber(line[col])) {
                 if ( colDef !=null &&  colDef.getType()!=null && colDef.getType().equalsIgnoreCase("string"))
                     row.put(column.trim(), String.valueOf(line[col]));
                 else
@@ -102,9 +103,10 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
             ColumnDefinition colDef = importProfile.getColumnDef(column);
 
             if (colDef != null) {
-                String value = line[col];
-                if (value != null)
-                    value = value.trim();
+                Object o = row.get(column);
+                String value = null ;
+                if ( o !=null )
+                    value = o.toString().trim();
 
                 if (colDef.isDescription()) {
                     setDescription(row.get(column).toString());
@@ -149,8 +151,14 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                     setFortressUser(value);
                 }
 
-                if (colDef.isUpdateUser())
+                if (colDef.isUpdateUser()) {
                     setUpdateUser(value);
+                }
+                if ( !colDef.getCrossReferences().isEmpty()){
+                    for (Map<String, String> key : colDef.getCrossReferences()) {
+                        addCrossReference(key.get("relationshipName"), new EntityKey(key.get("fortress"), key.get("documentName"), value));
+                    }
+                }
 
             } // ignoreMe
             col++;
@@ -168,10 +176,10 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
         if (importProfile.getEntityKey() != null) {
             ColumnDefinition columnDefinition = importProfile.getColumnDef(importProfile.getEntityKey());
             if (columnDefinition != null) {
-                String[] metaCols = columnDefinition.getRefColumns();
+                String[] dataCols = columnDefinition.getRefColumns();
                 String callerRef = "";
-                for (String metaCol : metaCols) {
-                    callerRef = callerRef + (!callerRef.equals("") ? "." : "") + row.get(metaCol);
+                for (String dataCol : dataCols) {
+                    callerRef = callerRef + (!callerRef.equals("") ? "." : "") + row.get(dataCol);
                 }
                 setCallerRef(callerRef);
             }
@@ -185,14 +193,14 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
 
     private Map<String, Object> getColumnValues(ColumnDefinition colDef, Map<String, Object> row) {
         Map<String, Object> results = new HashMap<>();
-        String[] columns = colDef.getColumns();
-
+        String[] columns = colDef.getRefColumns();
         int i = 0;
         int max = columns.length;
         while (i < max) {
             results.put(columns[i], row.get(columns[i]));
             i++;
         }
+
         return results;
     }
 

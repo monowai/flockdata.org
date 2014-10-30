@@ -19,12 +19,12 @@
 
 package org.flockdata.engine.service;
 
-import org.flockdata.dao.TrackTagDao;
+import org.flockdata.dao.EntityTagDao;
 import org.flockdata.engine.repo.neo4j.EntityTagDaoNeo4j;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Tag;
-import org.flockdata.track.bean.TrackTagInputBean;
+import org.flockdata.track.bean.EntityTagInputBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.service.TagService;
@@ -63,7 +63,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
     private Logger logger = LoggerFactory.getLogger(EntityTagServiceNeo4j.class);
 
     @Override
-    public void processTag(Entity entity, TrackTagInputBean tagInput) {
+    public void processTag(Entity entity, EntityTagInputBean tagInput) {
         String relationshipName = tagInput.getType();
         boolean existing = relationshipExists(entity, tagInput.getTagName(), relationshipName);
         if (existing)
@@ -154,7 +154,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
                 propMap = new HashMap<>();
             }
 
-            propMap.put(TrackTagDao.FD_WHEN, when);
+            propMap.put(EntityTagDao.FD_WHEN, when);
             EntityTag entityTagRelationship = entityTagDao.save(entity, tag, key, isReversed, propMap);
             if (entityTagRelationship != null)
                 entityTags.add(entityTagRelationship);
@@ -167,7 +167,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
      * Finds both incoming and outgoing tags for the Entity
      *
      * @param entity Entity the caller is authorised to work with
-     * @return TrackTags found
+     * @return EntityTags found
      */
     @Override
     public Collection<EntityTag> findEntityTags(Entity entity) {
@@ -206,15 +206,15 @@ public class EntityTagServiceNeo4j implements EntityTagService {
     }
 
     @Override
-    public void deleteTrackTags(Entity entity, Collection<EntityTag> entityTags) throws FlockException {
+    public void deleteEntityTags(Entity entity, Collection<EntityTag> entityTags) throws FlockException {
         entityTagDao.deleteEntityTags(entity, entityTags);
     }
 
     @Override
-    public void deleteTrackTags(Entity entity, EntityTag value) throws FlockException {
+    public void deleteEntityTags(Entity entity, EntityTag value) throws FlockException {
         Collection<EntityTag> remove = new ArrayList<>(1);
         remove.add(value);
-        deleteTrackTags(entity, remove);
+        deleteEntityTags(entity, remove);
 
     }
 
@@ -227,7 +227,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
 
 
     @Override
-    public Set<Entity> findTrackTags(String tagName) throws FlockException {
+    public Set<Entity> findEntityTags(String tagName) throws FlockException {
         Tag tag = tagService.findTag(tagName);
         if (tag == null)
             throw new FlockException("Unable to find the tag [" + tagName + "]");

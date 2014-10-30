@@ -19,6 +19,7 @@
 
 package org.flockdata.search.service;
 
+import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.VersionHelper;
 import org.flockdata.track.model.TrackSearchDao;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -116,7 +117,7 @@ public class SearchAdmin {
 
     @PostConstruct
     private void doHealth() {
-        ObjectMapper om = new ObjectMapper();
+        ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
         try {
             ObjectWriter or = om.writerWithDefaultPrettyPrinter();
             logger.info("\r\n" + or.writeValueAsString(getHealth()));

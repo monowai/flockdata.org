@@ -148,7 +148,11 @@ public class TrackServiceNeo4j implements TrackService {
     }
 
     public Entity makeEntity(Fortress fortress, DocumentType documentType, EntityInputBean entityInput) throws FlockException {
-        FortressUser fu = fortressService.getFortressUser(fortress, entityInput.getFortressUser());
+        String fortressUser = entityInput.getFortressUser();
+        if ( fortressUser == null && entityInput.getLog()!=null )
+            fortressUser = entityInput.getLog().getFortressUser();
+
+        FortressUser fu = fortressService.getFortressUser(fortress, fortressUser);
         Entity entity = trackDao.create(entityInput, fu, documentType);
         if (entity.getId() == null)
             entityInput.setMetaKey("NT " + fortress.getFortressKey()); // We ain't tracking this
@@ -516,7 +520,7 @@ public class TrackServiceNeo4j implements TrackService {
             fromEntity = trackDao.findByCallerRef(f.getId(), document.getId(), sourceKey.getCallerRef());
         }
         if (fromEntity == null)
-            throw new FlockException("Unable to locate the Entity for MetaKey [" + sourceKey + "]");
+            throw new FlockException("Unable to locate the Entity [" + sourceKey + "]");
 
         //16051954
         Collection<Entity> targets = new ArrayList<>();
@@ -662,8 +666,8 @@ public class TrackServiceNeo4j implements TrackService {
     }
 
     @Override
-    public Collection<EntityTag> getLogTags(Company company, EntityLog tl) {
-        return getLogTags(company, tl.getLog());  //To change body of created methods use File | Settings | File Templates.
+    public Collection<EntityTag> getLogTags(Company company, EntityLog entityLog) {
+        return getLogTags(company, entityLog.getLog());  //To change body of created methods use File | Settings | File Templates.
     }
 
     @Override

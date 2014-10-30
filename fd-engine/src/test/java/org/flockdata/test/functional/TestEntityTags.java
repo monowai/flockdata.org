@@ -26,7 +26,7 @@ package org.flockdata.test.functional;
  */
 
 import junit.framework.Assert;
-import org.flockdata.dao.TrackTagDao;
+import org.flockdata.dao.EntityTagDao;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
@@ -121,15 +121,15 @@ public class TestEntityTags extends EngineBase {
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
 
-        TrackTagInputBean auditTag = new TrackTagInputBean(resultBean.getMetaKey(), null, "!!!");
+        EntityTagInputBean auditTag = new EntityTagInputBean(resultBean.getMetaKey(), null, "!!!");
         try {
             entityTagService.processTag(entity, auditTag);
             fail("Null argument exception should have been thrown");
         } catch (IllegalArgumentException ie) {
             // This should have happened
         }
-        // First trackTag created
-        auditTag = new TrackTagInputBean(entity.getMetaKey(), flopTag.getName(), "ABC");
+        // First entityTag created
+        auditTag = new EntityTagInputBean(entity.getMetaKey(), flopTag.getName(), "ABC");
 
         entityTagService.processTag(entity, auditTag);
 
@@ -159,7 +159,7 @@ public class TestEntityTags extends EngineBase {
 
         assertEquals(fCreated.getMillis(), entity.getFortressDateCreated().getMillis());
 
-        TrackTagInputBean tagA = new TrackTagInputBean(entity.getMetaKey(), flopTag.getName(), "ABC");
+        EntityTagInputBean tagA = new EntityTagInputBean(entity.getMetaKey(), flopTag.getName(), "ABC");
         entityTagService.processTag(entity, tagA);
 
         Boolean tagRlxExists = entityTagService.relationshipExists(entity, flopTag.getName(), "ABC");
@@ -225,9 +225,9 @@ public class TestEntityTags extends EngineBase {
     }
 
     @Test
-    public void createAndDeleteTrackTags() throws Exception {
+    public void createAndDeleteEntityTags() throws Exception {
 
-        SystemUser su = registerSystemUser("createAndDeleteTrackTags", mike_admin);
+        SystemUser su = registerSystemUser("createAndDeleteEntityTags", mike_admin);
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC",true));
 
         TagInputBean tagInput = new TagInputBean("FLOP");
@@ -249,7 +249,7 @@ public class TestEntityTags extends EngineBase {
         // Remove a single tag
         for (EntityTag value : tagSet) {
             if (value.getTag().getName().equals("TagB"))
-                entityTagService.deleteTrackTags(entity, value);
+                entityTagService.deleteEntityTags(entity, value);
         }
         tagSet = entityTagService.findEntityTags(entity);
         assertNotNull(tagSet);
@@ -286,15 +286,15 @@ public class TestEntityTags extends EngineBase {
         EntitySummaryBean summaryBean = trackService.getEntitySummary(null, entity.getMetaKey());
         tagSet = summaryBean.getTags();
         assertNotNull(tagSet);
-        Set<Entity> entities = entityTagService.findTrackTags("TagA");
+        Set<Entity> entities = entityTagService.findEntityTags("TagA");
         assertNotNull(entities);
         assertNotSame(entities.size() + " Entities returned!", 0, entities.size());
 
         assertEquals(entity.getMetaKey(), entities.iterator().next().getMetaKey());
-        entities = entityTagService.findTrackTags("TagC");
+        entities = entityTagService.findEntityTags("TagC");
         assertNotNull(entities);
         assertEquals(entity.getMetaKey(), entities.iterator().next().getMetaKey());
-        entities = entityTagService.findTrackTags("TagD");
+        entities = entityTagService.findEntityTags("TagD");
         assertNotNull(entities);
         assertEquals(entity.getMetaKey(), entities.iterator().next().getMetaKey());
     }
@@ -347,8 +347,8 @@ public class TestEntityTags extends EngineBase {
     }
 
     @Test
-    public void noTrackTagsAreReturned() throws Exception {
-        SystemUser su= registerSystemUser("noTrackTagsAreReturned", mike_admin);
+    public void noEntityTagsAreReturned() throws Exception {
+        SystemUser su= registerSystemUser("noEntityTagsAreReturned", mike_admin);
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC"));
 
         TagInputBean tagInput = new TagInputBean("FLOP");
@@ -955,7 +955,7 @@ public class TestEntityTags extends EngineBase {
         assertEquals("blah", trackOut.getProperties().get("stringTest"));
         assertEquals(100d, trackOut.getProperties().get("doubleTest"));
         assertEquals((Integer)99, trackOut.getWeight());
-        Long currentWhen = (Long)trackOut.getProperties().get(TrackTagDao.FD_WHEN);
+        Long currentWhen = (Long)trackOut.getProperties().get(EntityTagDao.FD_WHEN);
         assertTrue(currentWhen>0);
 
         logBean = new ContentInputBean("mike", new DateTime(),  Helper.getRandomMap());
@@ -985,7 +985,7 @@ public class TestEntityTags extends EngineBase {
         assertEquals("blah", trackOut.getProperties().get("stringTest"));
         assertEquals(100d, trackOut.getProperties().get("doubleTest"));
         assertEquals((Integer)99, trackOut.getWeight());
-        assertEquals(currentWhen, trackOut.getProperties().get(TrackTagDao.FD_WHEN));
+        assertEquals(currentWhen, trackOut.getProperties().get(EntityTagDao.FD_WHEN));
     }
 
     @Test

@@ -47,10 +47,7 @@ public class CsvHelper {
             value = staticDataResolver.resolveCountryISOFromName(value);
         }
         Map<String, Object> properties = new HashMap<>();
-//        if ( colDef.getDelimiter() != null ){
-//
-//            tag.setTargets(colDef.getRelationshipName(), getTagsFromList(csvTag,row));
-//        }
+
         if (colDef.isValueAsProperty()) {
             tag.setMustExist(colDef.isMustExist()).setLabel(column);
             tag.setReverse(colDef.getReverse());
@@ -68,6 +65,10 @@ public class CsvHelper {
                 return false;
             }
         } else {
+            if (value == null || value.equals("") ){
+                // Value is missing in the data set - see if there is a default
+                value = colDef.getNullOrEmpty();
+            }
             String label = (colDef.getLabel()!=null? colDef.getLabel(): column);
             if (colDef.getCode() != null)
                 tag.setCode(row.get(colDef.getCode()).toString());

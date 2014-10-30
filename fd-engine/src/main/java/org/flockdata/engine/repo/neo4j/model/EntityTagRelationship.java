@@ -85,7 +85,7 @@ public class EntityTagRelationship implements EntityTag, Comparable {
 
     @Override
     public String toString() {
-        return "TrackTagRelationship{" +
+        return "EntityTagRelationship{" +
                 "primaryKey=" + primaryKey +
                 ", tag=" + tag +
                 ", tagType='" + tagType + '\'' +

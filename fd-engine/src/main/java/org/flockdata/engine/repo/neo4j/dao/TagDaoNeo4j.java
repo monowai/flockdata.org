@@ -251,7 +251,7 @@ public class TagDaoNeo4j {
 //    @Cacheable(value = "companyTag", unless = "#result == null")
     public Tag findOne(Company company, String tagName, String label) {
         if (tagName == null || company == null)
-            throw new IllegalArgumentException("Null can not be used to find a tag ");
+            throw new IllegalArgumentException("Null can not be used to find a tag ("+label +")");
 
         if (label.startsWith(":"))
             label = label.substring(1);
