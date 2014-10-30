@@ -58,7 +58,7 @@ public class CompressionHelper {
     }
 
     public static CompressionResult compress(KvContent content) {
-        ObjectMapper om = new ObjectMapper();
+        ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
         JsonNode node = om.valueToTree(content);
         String text = node.toString();
         return compress(text);

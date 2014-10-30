@@ -108,7 +108,17 @@ public interface TrackService {
 
     EntityLog getEntityLog(Company company, String metaKey, long logId) throws FlockException;
 
-    Collection<EntityTag> getLogTags(Company company, EntityLog tl);
+    /**
+     *
+     * It a tag is removed from an entity, then it is associated to the last log that it was known to belong to
+     * This call returns those entity tags associated with
+     *
+     * @param company company caller is authorized to work with
+     * @param entityLog Log for which tags might exist
+     * @return All entity Tags archived to the log
+     */
+
+    Collection<EntityTag> getLogTags(Company company, EntityLog entityLog);
 
 
     List<CrossReferenceInputBean> crossReferenceEntities(Company company, List<CrossReferenceInputBean> crossReferenceInputBeans);

@@ -21,7 +21,7 @@ package org.flockdata.track.service;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.track.bean.TrackTagInputBean;
+import org.flockdata.track.bean.EntityTagInputBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.model.Log;
@@ -37,7 +37,7 @@ import java.util.Set;
  * Time: 5:13 PM
  */
 public interface EntityTagService {
-    void processTag(Entity entity, TrackTagInputBean tagInput);
+    void processTag(Entity entity, EntityTagInputBean tagInput);
 
     Boolean relationshipExists(Entity entity, String name, String relationshipType);
 
@@ -55,13 +55,13 @@ public interface EntityTagService {
 
     Collection<EntityTag> getEntityTags(Company company, Entity entity);
 
-    void deleteTrackTags(Entity entity, Collection<EntityTag> entityTags) throws FlockException;
+    void deleteEntityTags(Entity entity, Collection<EntityTag> entityTags) throws FlockException;
 
-    void deleteTrackTags(Entity entity, EntityTag value) throws FlockException;
+    void deleteEntityTags(Entity entity, EntityTag value) throws FlockException;
 
     void changeType(Entity entity, EntityTag existingTag, String newType) throws FlockException;
 
-    Set<Entity> findTrackTags(String tagName) throws FlockException;
+    Set<Entity> findEntityTags(String tagName) throws FlockException;
 
     Collection<EntityTag> findLogTags(Company company, Log log);
 

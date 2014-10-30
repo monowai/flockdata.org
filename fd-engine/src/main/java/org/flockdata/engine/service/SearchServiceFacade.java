@@ -20,6 +20,7 @@
 package org.flockdata.engine.service;
 
 import org.flockdata.engine.repo.neo4j.EntityDaoNeo;
+import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.track.bean.ContentInputBean;
@@ -77,7 +78,7 @@ public class SearchServiceFacade {
     @Autowired
     FortressService fortressService;
 
-    static final ObjectMapper objectMapper = new ObjectMapper();
+    static final ObjectMapper objectMapper = FlockDataJsonFactory.getObjectMapper();
 
     @ServiceActivator(inputChannel = "searchDocSyncResult")
     public void searchDocSyncResult(byte[] searchResults) throws IOException {
@@ -135,7 +136,7 @@ public class SearchServiceFacade {
     }
 
     public void makeChangesSearchable(Collection<SearchChange> searchDocument) {
-        if (searchDocument == null || searchDocument.size() == 0)
+        if (searchDocument.isEmpty())
             return ;
         logger.debug("Sending request to index [{}]] logs", searchDocument.size());
 
@@ -167,7 +168,7 @@ public class SearchServiceFacade {
         return searchDocument;
     }
 
-    private static final ObjectMapper om = new ObjectMapper();
+    private static final ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
 
     public SearchChange prepareSearchDocument(Entity entity, ContentInputBean contentInput, ChangeEvent event, DateTime fortressWhen, EntityLog entityLog) throws JsonProcessingException {
 

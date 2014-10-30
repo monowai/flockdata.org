@@ -247,10 +247,7 @@ public class TrackEP {
     public @ResponseBody Collection<EntityTag> getLastLogTags(@PathVariable("metaKey") String metaKey,
                                                              HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        // curl -u mike:123 -X GET http://localhost:8081/fd-engine/track/c27ec2e5-2e17-4855-be18-bd8f82249157/lastchange
-//        TrackLog changed = trackService.getLastLog(company, metaKey);
         return trackService.getLastLogTags(company, metaKey);
-
     }
 
 
@@ -357,13 +354,30 @@ public class TrackEP {
         }
 
         return new ResponseEntity<>("Not Found", HttpStatus.NOT_FOUND);
+    }
+
+    @RequestMapping(value = "/{metaKey}/lastlog/what", produces = "application/json", method = RequestMethod.GET)
+    public @ResponseBody Map<String, Object> getLastLogWhat(@PathVariable("metaKey") String metaKey,
+                                                           HttpServletRequest request) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+
+        Entity entity = trackService.getEntity(company, metaKey);
+        if (entity != null) {
+
+            EntityLog log = trackService.getLastEntityLog(entity.getId());
+            if (log != null)
+                return kvService.getContent(entity, log.getLog()).getWhat();
+        }
+
+        throw new NotFoundException(String.format("Unable to locate the log for %s / lastLog", metaKey));
 
     }
+
 
     @RequestMapping(value = "/tx/{txRef}", produces = "application/json", method = RequestMethod.GET)
     public ResponseEntity<TxRef> getAuditTx(@PathVariable("txRef") String txRef,
                                             HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyResolver.resolveCompany(request);
         TxRef result;
         result = txService.findTx(txRef);
         return new ResponseEntity<>(result, HttpStatus.OK);

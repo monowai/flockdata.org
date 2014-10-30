@@ -26,12 +26,12 @@ import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.FortressUser;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.LogResultBean;
+import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
 import org.flockdata.track.model.Log;
 import org.flockdata.track.model.TxRef;
 import org.flockdata.track.service.LogService;
-import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.TrackService;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -46,6 +46,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.Set;
 
 /**
  * User: mike
@@ -79,6 +80,8 @@ public class LogRetryService {
 
     @Retryable(include = ConcurrencyFailureException.class, maxAttempts = 12, backoff = @Backoff(delay = 100, maxDelay = 500))
     /**
+     * Attempts to gracefully handle deadlock conditions
+     *
      * @param trackResultBean input data to process
      * @return result of the operation
      * @throws org.flockdata.helper.FlockException
@@ -102,15 +105,17 @@ public class LogRetryService {
         logger.trace("looking for fortress user {}", entity.getFortress());
         String fortressUser = (content.getFortressUser() != null ? content.getFortressUser() : trackResultBean.getEntityInputBean().getFortressUser());
 
-        FortressUser thisFortressUser ;
-        if (!fortressUser.equals( trackResultBean.getEntity().getCreatedBy().getCode())){
+        FortressUser thisFortressUser;
+        if (!fortressUser.equals(trackResultBean.getEntity().getCreatedBy().getCode())) {
             // Different user creating the Entity than is creating the log
             thisFortressUser = fortressService.getFortressUser(entity.getFortress(), fortressUser, true);
         } else {
             thisFortressUser = trackResultBean.getEntity().getCreatedBy();
         }
 
-        trackResultBean.setLogResult(createLog(entity, content, thisFortressUser));
+        trackResultBean.setLogResult(
+                createLog(entity, content, thisFortressUser)
+        );
         return trackResultBean;
     }
 
@@ -134,7 +139,7 @@ public class LogRetryService {
         if (!content.hasData()) {
             resultBean.setStatus(ContentInputBean.LogStatus.IGNORE);
             resultBean.setMessage("No content information provided. Ignoring this request");
-            logger.debug( resultBean.getMessage());
+            logger.debug(resultBean.getMessage());
             return resultBean;
         }
 
@@ -145,6 +150,8 @@ public class LogRetryService {
 
         Boolean searchActive = fortress.isSearchActive();
         DateTime fortressWhen = (content.getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(content.getWhen()));
+
+        existingLog = resolveHistoricLog(entity, existingLog, fortressWhen);
 
         if (content.getEvent() == null) {
             content.setEvent(existingLog == null ? Log.CREATE : Log.UPDATE);
@@ -194,7 +201,7 @@ public class LogRetryService {
         // This call also saves the entity
         EntityLog newLog = entityDao.addLog(entity, preparedLog, fortressWhen, existingLog);
 
-        resultBean.setSysWhen(newLog.getSysWhen());
+        resultBean.setFdWhen(newLog.getSysWhen());
 
         boolean moreRecent = (existingLog == null || existingLog.getFortressWhen().compareTo(newLog.getFortressWhen()) <= 0);
 
@@ -203,6 +210,37 @@ public class LogRetryService {
 
         return resultBean;
 
+    }
+
+    /**
+     * Evaluates which log is the one for the fortress whenDate. It will either be the "current"
+     * or is the log for the fortressWhen date
+     *
+     * @param entity       entity owning the logs
+     * @param existingLog  defaults to the last log found
+     * @param fortressWhen date range to consider
+     * @return entityLog to compare against
+     */
+    private EntityLog resolveHistoricLog(Entity entity, EntityLog existingLog, DateTime fortressWhen) {
+        boolean historicIncomingLog = (existingLog != null && fortressWhen.isBefore(existingLog.getFortressWhen()));
+        if (historicIncomingLog) {
+            Set<EntityLog> entityLogs = entityDao.getLogs(entity.getId(), fortressWhen.toDate());
+            if ( entityLogs.isEmpty()  )
+                return existingLog;
+            else {
+                EntityLog closestLog = null;
+                for (EntityLog entityLog : entityLogs) {
+                    if ( closestLog == null )
+                        closestLog = entityLog;
+                    else
+                        if (entityLog.getFortressWhen()<closestLog.getFortressWhen())
+                            closestLog = entityLog;
+                }
+                return closestLog;
+            }
+
+        }
+        return existingLog;
     }
 
     public EntityLog getLastLog(Entity entity) throws FlockException {

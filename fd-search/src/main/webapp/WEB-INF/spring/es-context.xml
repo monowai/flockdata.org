@@ -26,9 +26,4 @@
         <!--<entry key="plugin.mandatory" value="mapper-attachments"/>-->
     </util:map>
 
-    <!--Transport only-->
-    <!--<elasticsearch:node id="esNode" settingsFile="esclient.yml"/>-->
-    <!--<elasticsearch:client node="esNode" id="esClient"  esNodes="localhost:9301" name="es_auditbucket" settingsFile="esclient.yml"/>-->
-
-
 </beans>

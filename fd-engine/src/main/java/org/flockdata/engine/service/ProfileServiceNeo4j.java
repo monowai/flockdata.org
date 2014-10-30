@@ -22,6 +22,7 @@ package org.flockdata.engine.service;
 import org.flockdata.engine.FdServerWriter;
 import org.flockdata.engine.repo.neo4j.dao.ProfileDao;
 import org.flockdata.engine.repo.neo4j.model.ProfileNode;
+import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.profile.ImportProfile;
@@ -59,7 +60,7 @@ public class ProfileServiceNeo4j implements ImportProfileService {
     @Autowired
     FdServerWriter fdServerWriter;
 
-    static final ObjectMapper objectMapper = new ObjectMapper();
+    static final ObjectMapper objectMapper = FlockDataJsonFactory.getObjectMapper();
 
     public ProfileConfiguration get(Fortress fortress, DocumentType documentType) throws FlockException {
         ProfileNode profile = profileDao.find(fortress, documentType);

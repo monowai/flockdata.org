@@ -600,10 +600,10 @@ public class TestTrack extends EngineBase {
         // Check that TimeZone information is used to correctly establish Now when not passed in a log
         // No Date, so default to NOW in the Fortress Timezone
         LogResultBean log = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), null, Helper.getSimpleMap("house", "house1"))).getLogResult();
-        logger.info("1 " + new Date(log.getSysWhen()).toString());
+        logger.info("1 " + new Date(log.getFdWhen()).toString());
 
         log = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), null, Helper.getSimpleMap("house", "house2"))).getLogResult();
-        logger.info("2 " + new Date(log.getSysWhen()).toString());
+        logger.info("2 " + new Date(log.getFdWhen()).toString());
 
         Set<EntityLog> logs = trackService.getEntityLogs(entity.getId());
         assertEquals("Logs with missing dates not correctly recorded", 2, logs.size());
@@ -611,10 +611,10 @@ public class TestTrack extends EngineBase {
         // Same date should still log
         DateTime dateMidnight = new DateTime();
         log = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), dateMidnight.toDateTime(), Helper.getSimpleMap("house", "house3"))).getLogResult();
-        logger.info("3 " + new Date(log.getSysWhen()).toString());
+        logger.info("3 " + new Date(log.getFdWhen()).toString());
         EntityLog thirdLog = trackService.getLastEntityLog(su.getCompany(), metaKey);
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), dateMidnight.toDateTime(), Helper.getSimpleMap("house", "house4")));
-        logger.info("4 " + new Date(log.getSysWhen()).toString());
+        logger.info("4 " + new Date(log.getFdWhen()).toString());
         logs = trackService.getEntityLogs(entity.getId());
         assertEquals(4, logs.size());
         for (EntityLog next : logs) {

@@ -19,6 +19,7 @@
 
 package org.flockdata.engine.repo;
 
+import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.track.model.EntityContent;
 import org.flockdata.helper.CompressionHelper;
 import org.flockdata.track.model.KvContent;
@@ -44,7 +45,7 @@ public class EntityContentData implements EntityContent {
 
     @Transient
     private
-    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectMapper objectMapper = FlockDataJsonFactory.getObjectMapper();
 
     protected EntityContentData() {
     }

@@ -19,6 +19,7 @@
 
 package org.flockdata.search.endpoint;
 
+import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchChanges;
 import org.flockdata.search.model.SearchResult;
@@ -57,7 +58,7 @@ public class TrackServiceEs implements TrackService {
     @Autowired(required = false)
     private EngineGateway engineGateway;
 
-    static final ObjectMapper objectMapper = new ObjectMapper();
+    static final ObjectMapper objectMapper = FlockDataJsonFactory.getObjectMapper();
 
     /**
      * Triggered by the Engine, this is the payload that is required to be indexed

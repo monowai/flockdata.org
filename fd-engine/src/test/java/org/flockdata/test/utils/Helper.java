@@ -19,6 +19,7 @@
 
 package org.flockdata.test.utils;
 
+import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.profile.ImportProfile;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -56,7 +57,7 @@ public class Helper {
 
     public static ImportProfile getImportParams(String profile) throws IOException {
         ImportProfile importProfile;
-        ObjectMapper om = new ObjectMapper();
+        ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
 
         File fileIO = new File(profile);
         if (fileIO.exists()) {
