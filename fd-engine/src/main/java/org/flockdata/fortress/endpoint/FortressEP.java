@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
+import java.util.TimeZone;
 
 /**
  * User: Mike Holdsworth
@@ -97,9 +98,14 @@ public class FortressEP {
     }
 
     @RequestMapping(value = "/{code}/docs", method = RequestMethod.GET)
-
     public Collection<DocumentResultBean> getDocumentTypes(@PathVariable("code") String code, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return  fortressService.getFortressDocumentsInUse(company, code);
     }
+    @RequestMapping(value = "/timezones", method = RequestMethod.GET)
+    public String[] getTimezones(HttpServletRequest request) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+        return TimeZone.getAvailableIDs();
+    }
+
 }

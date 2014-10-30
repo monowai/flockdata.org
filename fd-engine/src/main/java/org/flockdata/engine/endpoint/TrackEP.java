@@ -357,8 +357,25 @@ public class TrackEP {
         }
 
         return new ResponseEntity<>("Not Found", HttpStatus.NOT_FOUND);
+    }
+
+    @RequestMapping(value = "/{metaKey}/lastlog/what", produces = "application/json", method = RequestMethod.GET)
+    public @ResponseBody Map<String, Object> getLastLogWhat(@PathVariable("metaKey") String metaKey,
+                                                           HttpServletRequest request) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+
+        Entity entity = trackService.getEntity(company, metaKey);
+        if (entity != null) {
+
+            EntityLog log = trackService.getLastEntityLog(entity.getId());
+            if (log != null)
+                return kvService.getContent(entity, log.getLog()).getWhat();
+        }
+
+        throw new NotFoundException(String.format("Unable to locate the log for %s / lastLog", metaKey));
 
     }
+
 
     @RequestMapping(value = "/tx/{txRef}", produces = "application/json", method = RequestMethod.GET)
     public ResponseEntity<TxRef> getAuditTx(@PathVariable("txRef") String txRef,
