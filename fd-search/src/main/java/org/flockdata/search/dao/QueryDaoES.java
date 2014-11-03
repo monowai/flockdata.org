@@ -19,25 +19,25 @@
 
 package org.flockdata.search.dao;
 
-import org.flockdata.dao.QueryDao;
-import org.flockdata.helper.FlockException;
-import org.flockdata.helper.NotFoundException;
-import org.flockdata.search.helper.QueryGenerator;
 import org.elasticsearch.action.ListenableActionFuture;
-import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
-import org.elasticsearch.common.collect.ImmutableMap;
 import org.elasticsearch.common.text.Text;
-import org.elasticsearch.indices.IndexMissingException;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHitField;
-import org.elasticsearch.search.facet.FacetBuilders;
-import org.elasticsearch.search.facet.terms.TermsFacet;
-import org.elasticsearch.search.facet.terms.TermsFacetBuilder;
+import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.terms.InternalTerms;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.highlight.HighlightField;
+import org.flockdata.dao.QueryDao;
+import org.flockdata.helper.FlockException;
+import org.flockdata.helper.NotFoundException;
+import org.flockdata.search.helper.QueryGenerator;
 import org.flockdata.search.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +46,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StopWatch;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -72,84 +75,84 @@ public class QueryDaoES implements QueryDao {
         String[] result = new String[concepts.length];
         int i = 0;
         for (String concept : concepts) {
-            result[i] = EntitySearchSchema.TAG + "." + concept.toLowerCase() + ".code";
+            result[i] = parseConcept(concept);
             i++;
         }
         return result;
 
     }
+    private Collection<String> getTagArray(String[] concepts) {
+        Collection<String> result = new ArrayList<>();
+        if (concepts==null || concepts.length == 0)
+            return result;
 
-    private String[] getDocumentTypes (String docTypes){
-        return new String[]{docTypes.toLowerCase()};
-//        String[] result = new String[docTypes.length];
-//        int i = 0;
-//        for (String type : docTypes) {
-//            result[i] = type.toLowerCase() ;
-//            i++;
-//        }
-        //return result;
+        for (String concept : concepts) {
+            result.add(parseConcept(concept));
+        }
 
+        return result;
 
+    }
 
+    private String parseConcept(String tag ){
+        return EntitySearchSchema.TAG + "." + tag.toLowerCase() + ".code";
     }
 
     @Override
     public TagCloud getCloudTag(TagCloudParams tagCloudParams) throws NotFoundException {
         // Getting all tag and What fields
         String index = EntitySearchSchema.parseIndex(tagCloudParams.getCompany(), tagCloudParams.getFortress());
-        GetFieldMappingsResponse esIndex;
-        try {
-            esIndex = client.admin()
-                    .indices()
-                    .prepareGetFieldMappings(index)
-                    .setTypes(getDocumentTypes(tagCloudParams.getType()))
-                    .setFields(getTagFields(tagCloudParams.getRelationships()))
-                    .get();
-        } catch (IndexMissingException ie) {
-            logger.error("Requested data from a missing index {}", index);
-            throw new NotFoundException("The requested index does not exist in the Search Service", ie);
-        }
-
-        ImmutableMap<String, ImmutableMap<String, GetFieldMappingsResponse.FieldMappingMetaData>>
-                mappings = esIndex.mappings().get(index);
-
-        List<String> whatAndTagFields = new ArrayList<>();
-        for (String s : mappings.keySet()) {
-            ImmutableMap<String, GetFieldMappingsResponse.FieldMappingMetaData> var = mappings.get(s);
-            for (String field : var.keySet()) {
-                whatAndTagFields.add(field);
-            }
-        }
-
-//        ImmutableMap<String, GetFieldMappingsResponse.FieldMappingMetaData> responseFieldsMapping =
-//                client.admin()
-//                .indices()
-//                .prepareGetFieldMappings(index)
-//                .setTypes("*")
-//                .setFields("@tag.*.code")
-//                .get()
-//                .mappings()
-//                .get(index)
-//                .get("*");
-//        for (String what : responseFieldsMapping.keySet()) {
-//            whatAndTagFields.add(what);
+//        GetFieldMappingsResponse esIndex;
+//        try {
+//            esIndex = client.admin()
+//                    .indices()
+//                    .prepareGetFieldMappings(index)
+//                    .setTypes(getDocumentTypes(tagCloudParams.getType()))
+//                    .setFields(getTagFields(tagCloudParams.getRelationships()))
+//                    .get();
+//        } catch (IndexMissingException ie) {
+//            logger.error("Requested data from a missing index {}", index);
+//            throw new NotFoundException("The requested index does not exist in the Search Service", ie);
 //        }
 
-        //settings().prepareSearch(index).
+//        ImmutableMap<String, ImmutableMap<String, GetFieldMappingsResponse.FieldMappingMetaData>>
+//                mappings = esIndex.mappings().get(index);
+        //List<String> whatAndTagFields = new ArrayList<>();
+        Collection<String> whatAndTagFields = getTagArray(tagCloudParams.getRelationships());
 
-        TermsFacetBuilder builder = FacetBuilders.termsFacet("tagcloud")
-                .fields(whatAndTagFields.toArray(new String[whatAndTagFields.size()]))
-                .size(500);
 
-        SearchResponse response = client.prepareSearch(index)
-                .addFacet(builder)
-                .execute()
-                .actionGet();
-        TagCloud tagcloud = new TagCloud();
-        TermsFacet tagCloudFacet = (TermsFacet) response.getFacets().getFacets().get("tagcloud");
-        for (TermsFacet.Entry entry : tagCloudFacet.getEntries()) {
-            tagcloud.addTerm(entry.getTerm().string(), entry.getCount());
+//        for (String s : mappings.keySet()) {
+//            ImmutableMap<String, GetFieldMappingsResponse.FieldMappingMetaData> var = mappings.get(s);
+//            for (String field : var.keySet()) {
+//                whatAndTagFields.add(field);
+//            }
+//        }
+
+        SearchRequestBuilder searchRequest=
+                client.prepareSearch(index)
+                        .setTypes(tagCloudParams.getType().toLowerCase())
+                        .setQuery(
+                                QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), null)
+                        );
+
+        for (String whatAndTagField : whatAndTagFields) {
+            searchRequest.addAggregation(AggregationBuilders.terms(whatAndTagField).field(whatAndTagField).size(50));
         }
+        //SearchRequestBuilder searchRequest ;
+        SearchResponse response = searchRequest.setSize(0).get();
+
+        TagCloud tagcloud = new TagCloud();
+        Aggregations tagCloudFacet = response.getAggregations();
+        Map<String, Aggregation> aggregates = tagCloudFacet.getAsMap();
+        for (String key : aggregates.keySet()) {
+            InternalTerms terms = (InternalTerms) aggregates.get(key);
+            for (Terms.Bucket bucket : terms.getBuckets()) {
+                // ToDo: Figure out date handling. When writing the tag, we've lost the datatype
+                //       we could autodetect
+                tagcloud.addTerm(bucket.getKey(), bucket.getDocCount());
+            }
+        }
+        tagcloud.scale(); // Scale the results suitable for presentation
         return tagcloud;
     }
 
