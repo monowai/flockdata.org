@@ -90,7 +90,7 @@ public class TagCloud {
     public void scale() {
         for (String key : workingMap.keySet()) {
             Long value = workingMap.get(key);
-            Double scaled = scale(Double.valueOf(value.toString()), minValue.doubleValue(), maxValue.doubleValue(), 10, 60);
+            Double scaled = scale(Double.valueOf(value.toString()), minValue.doubleValue(), maxValue.doubleValue(), 15, 60);
             terms.put(key, scaled.longValue());
         }
 
