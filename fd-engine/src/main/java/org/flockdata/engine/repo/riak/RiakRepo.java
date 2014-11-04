@@ -19,36 +19,41 @@
 
 package org.flockdata.engine.repo.riak;
 
-import org.flockdata.track.model.Entity;
-import org.flockdata.engine.repo.KvRepo;
-import org.flockdata.track.model.Log;
 import com.basho.riak.client.IRiakClient;
 import com.basho.riak.client.IRiakObject;
 import com.basho.riak.client.RiakException;
 import com.basho.riak.client.RiakFactory;
 import com.basho.riak.client.bucket.Bucket;
+import org.flockdata.engine.repo.KvRepo;
+import org.flockdata.track.model.Entity;
+import org.flockdata.track.model.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Component
 public class RiakRepo implements KvRepo {
 
     private static Logger logger = LoggerFactory.getLogger(RiakRepo.class);
     private IRiakClient client = null;
-    private final Object synLock = "RiakRepoLock";
+    private Lock lock = new ReentrantLock();
 
     private IRiakClient getClient() throws RiakException {
         if (client == null) {
-            synchronized (synLock) {
+            try {
+                lock.lock();
                 if (client == null) {
                     // ToDo: set server and host
                     client = RiakFactory.pbcClient();
                     client.generateAndSetClientId();
 
                 }
+            } finally{
+                lock.unlock();
             }
 
         }

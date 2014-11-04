@@ -120,6 +120,5 @@ public interface TrackService {
 
     Collection<EntityTag> getLogTags(Company company, EntityLog entityLog);
 
-
     List<CrossReferenceInputBean> crossReferenceEntities(Company company, List<CrossReferenceInputBean> crossReferenceInputBeans);
 }

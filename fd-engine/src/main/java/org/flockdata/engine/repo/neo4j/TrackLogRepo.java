@@ -19,8 +19,8 @@
 
 package org.flockdata.engine.repo.neo4j;
 
+import org.flockdata.engine.repo.neo4j.model.EntityLogRelationship;
 import org.flockdata.engine.repo.neo4j.model.LogNode;
-import org.flockdata.engine.repo.neo4j.model.LoggedRelationship;
 import org.flockdata.track.model.EntityLog;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
@@ -37,18 +37,18 @@ public interface TrackLogRepo extends GraphRepository<LogNode> {
     @Query(value = "match entity-[cw:LOGGED]->log where id(entity)={0} return count(cw)")
     int getLogCount(Long entityId);
 
-    @Query(elementClass = LoggedRelationship.class,
+    @Query(elementClass = EntityLogRelationship.class,
             value = "match (change:Log)<-[log:LOGGED]-() where id(change)={0} " +
                     "   return log")
-    LoggedRelationship getLog(Long logId);
+    EntityLogRelationship getLog(Long logId);
 
-    @Query(elementClass = LoggedRelationship.class, value = "match (entity)-[log:LOGGED]->(entityLog) where id(entity)={0} and log.fortressWhen >= {1} and log.fortressWhen <= {2}  return log ")
+    @Query(elementClass = EntityLogRelationship.class, value = "match (entity)-[log:LOGGED]->(entityLog) where id(entity)={0} and log.fortressWhen >= {1} and log.fortressWhen <= {2}  return log ")
     Set<EntityLog> getLogs(Long entityId, Long from, Long to);
 
-    @Query(elementClass = LoggedRelationship.class, value = "match (entity)-[log:LOGGED]->(entityLog) where id(entity)={0} and log.fortressWhen <= {1} return log limit 5")
+    @Query(elementClass = EntityLogRelationship.class, value = "match (entity)-[log:LOGGED]->(entityLog) where id(entity)={0} and log.fortressWhen <= {1} return log limit 5")
     Set<EntityLog> getLogs(Long entityId, Long from );
 
-    @Query(elementClass = LoggedRelationship.class, value =
+    @Query(elementClass = EntityLogRelationship.class, value =
             "   MATCH track-[log:LOGGED]->change where id(track) = {0} " +
             "return log order by log.fortressWhen desc")
     Set<EntityLog> findLogs(Long entityId);
