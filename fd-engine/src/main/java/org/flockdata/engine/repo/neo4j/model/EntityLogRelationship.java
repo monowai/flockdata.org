@@ -35,7 +35,7 @@ import java.util.TimeZone;
  * Time: 4:12 PM
  */
 @RelationshipEntity(type = "LOGGED")
-public class LoggedRelationship implements EntityLog {
+public class EntityLogRelationship implements EntityLog {
     @GraphId
     private Long id;
 
@@ -59,12 +59,12 @@ public class LoggedRelationship implements EntityLog {
     // ToDo: Associated with a node if Not Indexed. This is for maintenance and rebuilding missing docs.
     private boolean indexed = false;
 
-    protected LoggedRelationship() {
+    protected EntityLogRelationship() {
         DateTime utcNow = new DateTime().toDateTime(DateTimeZone.UTC);
         setSysWhen(utcNow.getMillis());
     }
 
-    public LoggedRelationship(Entity entity, Log log, DateTime fortressWhen) {
+    public EntityLogRelationship(Entity entity, Log log, DateTime fortressWhen) {
         this();
         this.entity = (EntityNode) entity;
         this.log = (LogNode) log;
@@ -129,9 +129,9 @@ public class LoggedRelationship implements EntityLog {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof LoggedRelationship)) return false;
+        if (!(o instanceof EntityLogRelationship)) return false;
 
-        LoggedRelationship that = (LoggedRelationship) o;
+        EntityLogRelationship that = (EntityLogRelationship) o;
 
         if (log != null ? !log.equals(that.log) : that.log != null) return false;
         if (entity != null ? !entity.getId().equals(that.entity.getId()) : that.entity != null) return false;

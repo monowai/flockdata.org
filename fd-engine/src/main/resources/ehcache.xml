@@ -59,7 +59,7 @@
            eternal="true"
            memoryStoreEvictionPolicy="LRU"/>
 
-    <cache name="trackLog"
+    <cache name="entityLog"
            maxElementsInMemory="200"
            eternal="true"
            memoryStoreEvictionPolicy="LRU"/>

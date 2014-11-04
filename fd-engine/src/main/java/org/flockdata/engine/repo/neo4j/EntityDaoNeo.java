@@ -19,6 +19,7 @@
 
 package org.flockdata.engine.repo.neo4j;
 
+import org.flockdata.engine.repo.neo4j.model.EntityLogRelationship;
 import org.flockdata.engine.repo.neo4j.model.EntityNode;
 import org.flockdata.engine.repo.neo4j.model.LogNode;
 import org.flockdata.engine.repo.neo4j.model.TxRefNode;
@@ -29,7 +30,6 @@ import org.flockdata.registration.model.FortressUser;
 import org.flockdata.registration.service.KeyGenService;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityTXResult;
-import org.flockdata.engine.repo.neo4j.model.LoggedRelationship;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.model.Company;
 import org.flockdata.track.bean.EntityInputBean;
@@ -244,7 +244,7 @@ public class EntityDaoNeo {
         //Result<Map<String, Object>> results =
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
-            EntityLog log = template.convert(row.get("logs"), LoggedRelationship.class);
+            EntityLog log = template.convert(row.get("logs"), EntityLogRelationship.class);
             Log change = template.convert(row.get("log"), LogNode.class);
             Entity entity = template.convert(row.get("track"), EntityNode.class);
             simpleResult.add(new EntityTXResult(entity, change, log));
@@ -260,7 +260,7 @@ public class EntityDaoNeo {
 
     public EntityLog save(EntityLog log) {
         logger.debug("Saving track log [{}] - Log ID [{}]", log, log.getLog().getId());
-        return template.save((LoggedRelationship) log);
+        return template.save((EntityLogRelationship) log);
     }
 
     public String ping() {
@@ -287,7 +287,7 @@ public class EntityDaoNeo {
         Relationship change = template.getRelationship(logId);
         if (change != null)
             try {
-                return (EntityLog) template.getDefaultConverter().convert(change, LoggedRelationship.class);
+                return (EntityLog) template.getDefaultConverter().convert(change, EntityLogRelationship.class);
             } catch (NotFoundException nfe) {
                 // Occurs if fd-search has been down and the database is out of sync from multiple restarts
                 logger.error("Error converting relationship to a LoggedRelationship");
@@ -309,7 +309,7 @@ public class EntityDaoNeo {
 
     public EntityLog addLog(Entity entity, Log newChange, DateTime fortressWhen, EntityLog existingLog) {
 
-        newChange.setTrackLog(new LoggedRelationship(entity, newChange, fortressWhen));
+        newChange.setTrackLog(new EntityLogRelationship(entity, newChange, fortressWhen));
 
         if (entity.getId() == null)// This occurs when tracking in fd-engine is suppressed and the caller is only creating search docs
             return newChange.getEntityLog();
