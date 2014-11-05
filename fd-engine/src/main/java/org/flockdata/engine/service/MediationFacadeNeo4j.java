@@ -243,10 +243,12 @@ public class MediationFacadeNeo4j implements MediationFacade {
         watch.start();
         logger.trace("Starting Batch [{}] - size [{}]", id, inputBeans.size());
         for (List<EntityInputBean> entityInputBeans : splitList) {
-            Iterable<TrackResultBean> theseResults = (
-                    entityRetry.track(fortress, entityInputBeans));
+            Iterable<TrackResultBean> theseResults ;
+
+            theseResults = entityRetry.track(fortress, entityInputBeans);
 
             searchService.makeChangesSearchable(theseResults);
+            //kvService.doKvWrites(theseResults); //ToDo: Via integration with persistent properties
 
             for (TrackResultBean theResult : theseResults) {
                 allResults.add(theResult);
@@ -282,6 +284,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
             throw new FlockException("Unable to resolve the Entity");
         TrackResultBean trackResult= logService.writeLog(entity, input);
         searchService.makeChangeSearchable(trackResult);
+        //kvService.doKvWrite(trackResult);
         return trackResult;
     }
 
