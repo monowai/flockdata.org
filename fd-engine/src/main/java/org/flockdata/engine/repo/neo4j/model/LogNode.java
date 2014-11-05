@@ -52,8 +52,8 @@ public class LogNode implements Log {
     @RelatedTo(elementClass = TxRefNode.class, type = "AFFECTED", direction = Direction.INCOMING, enforceTargetType = true)
     private TxRef txRef;
 
-    @RelatedToVia(elementClass = LoggedRelationship.class, type = "LOGGED", direction = Direction.INCOMING)
-    private LoggedRelationship trackLog;
+    @RelatedToVia(elementClass = EntityLogRelationship.class, type = "LOGGED", direction = Direction.INCOMING)
+    private EntityLogRelationship entityLog;
 
     @RelatedTo(elementClass = ChangeEventNode.class, type = "TRACK_EVENT", direction = Direction.OUTGOING)
     @Fetch
@@ -144,8 +144,8 @@ public class LogNode implements Log {
         this.comment = comment;
     }
 
-    public void setTrackLog(LoggedRelationship trackLog) {
-        this.trackLog = trackLog;
+    public void setEntityLog(EntityLogRelationship entityLog) {
+        this.entityLog = entityLog;
     }
 
     @Override
@@ -205,7 +205,7 @@ public class LogNode implements Log {
     @Override
     @JsonIgnore
     public EntityLog getEntityLog() {
-        return trackLog;
+        return entityLog;
     }
 
     @Transient
@@ -226,7 +226,7 @@ public class LogNode implements Log {
 
     @Override
     public void setTrackLog(EntityLog entityLog) {
-        this.trackLog = (LoggedRelationship) entityLog;
+        this.entityLog = (EntityLogRelationship) entityLog;
     }
 
 
