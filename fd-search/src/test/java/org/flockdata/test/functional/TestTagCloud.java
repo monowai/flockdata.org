@@ -45,6 +45,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.ArrayList;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * User: mike
  * Date: 15/08/14
@@ -94,6 +96,8 @@ public class TestTagCloud extends ESBase {
         tagCloudParams.setCompany(entity.getFortress().getCompany().getName());
         tagCloudParams.setFortress(entity.getFortress().getName());
         tagCloudParams.setType(entity.getDocumentType());
+        String [] rlxs = {"rlxname"};
+        tagCloudParams.setRelationships(rlxs);
 
         TagCloud tagCloud = queryDaoES.getCloudTag(tagCloudParams);
         // ToDo: Fix this
@@ -114,6 +118,45 @@ public class TestTagCloud extends ESBase {
         // TODO to get the tag cloud working this asserts must wrok and be uncommented
         //assertEquals(60, tagCloud.getTerms().get("the").intValue());
         //assertEquals(40, tagCloud.getTerms().get("to").intValue());
+
+    }
+
+    @Test
+    public void pojo_TagCloud(){
+        int count = 10;
+        TagCloud tagCloud = new TagCloud(count);
+
+        long max =100l;
+        // 100 random keys and values
+        for (long lValue=max; lValue > 0; lValue--) {
+            tagCloud.addTerm("key" +lValue, lValue);
+        }
+        tagCloud.scale();
+        assertEquals("Unexpected term count", count, tagCloud.getTerms().size());
+
+        max =100l;
+        tagCloud = new TagCloud(count);
+
+        // Checking that the same value for different keys still results in a map
+        // populated to capacity
+        for (long lValue=max; lValue > 0; lValue--) {
+            tagCloud.addTerm("keyA" +lValue, lValue);
+            tagCloud.addTerm("keyB" +lValue, lValue);
+            tagCloud.addTerm("keyC" +lValue, lValue);
+            tagCloud.addTerm("keyD" +lValue, lValue);
+            tagCloud.addTerm("keyE" +lValue, lValue);
+        }
+        tagCloud.scale();
+        assertEquals(count, tagCloud.getTerms().size());
+
+        max =100l;
+        tagCloud = new TagCloud(10);
+
+        for (long lValue=max; lValue > 0; lValue--) {
+            tagCloud.addTerm("keyA"+lValue, 10);
+        }
+        tagCloud.scale();
+        assertEquals("Adding the same value to different key should result in a full populated map", 10, tagCloud.getTerms().size());
 
     }
 
