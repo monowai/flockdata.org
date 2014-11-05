@@ -19,25 +19,25 @@
 
 package org.flockdata.engine.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.MapDifference;
+import com.google.common.collect.Maps;
+import org.flockdata.engine.repo.EntityContentData;
 import org.flockdata.engine.repo.KvContentData;
+import org.flockdata.engine.repo.KvRepo;
+import org.flockdata.engine.repo.redis.RedisRepo;
 import org.flockdata.engine.repo.riak.RiakRepo;
+import org.flockdata.helper.CompressionHelper;
 import org.flockdata.helper.CompressionResult;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DeltaBean;
+import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityContent;
-import org.flockdata.engine.repo.EntityContentData;
-import org.flockdata.engine.repo.KvRepo;
-import org.flockdata.engine.repo.redis.RedisRepo;
-import org.flockdata.helper.CompressionHelper;
-import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.Log;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.MapDifference;
-import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,8 +69,16 @@ public class KvManager implements KvService {
 
     @Override
     public void doKvWrite(TrackResultBean resultBean) throws IOException {
-        if (resultBean.getContentInput() != null && resultBean.getContentInput().getStatus() != ContentInputBean.LogStatus.TRACK_ONLY)
-            doKvWrite(resultBean.getEntity(), resultBean.getLogResult().getWhatLog());
+        if (resultBean.getContentInput() != null && resultBean.getContentInput().getStatus() != ContentInputBean.LogStatus.TRACK_ONLY) {
+            // ToDo: deal with this via spring integration??
+            // Making this Async will break a lot of the functional tests.
+            Log log = resultBean.getLogResult().getWhatLog();
+            if (log == null) {
+                return;
+            }
+            getKvRepo(log).add(resultBean.getEntity(), log);
+
+        }
     }
 
     private static final ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
@@ -107,16 +115,6 @@ public class KvManager implements KvService {
         log.setEntityContent(compressionResult.getAsBytes());
 
         return log;
-    }
-
-
-
-    private void doKvWrite(Entity entity, Log log) throws IOException {
-        // ToDo: deal with this via spring integration??
-        if (log == null) {
-            return;
-        }
-        getKvRepo(log).add(entity, log);
     }
 
     private KvRepo getKvRepo() {

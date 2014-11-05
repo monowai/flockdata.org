@@ -33,7 +33,7 @@
 	<import resource="integration.xml" />
 	<import resource="http-proxy-integration.xml" />
 	<import resource="http-monitoring-integration.xml" />
-	<import resource="${fd.integration}-integration.xml" />
+	<import resource="amqp-integration.xml" />
 	<import resource="neo4j-context.xml" />
 	<import resource="kv-context.xml" />
 

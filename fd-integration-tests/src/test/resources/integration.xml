@@ -13,7 +13,7 @@
 	   http://www.springframework.org/schema/integration
 	   http://www.springframework.org/schema/integration/spring-integration.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
-    <int:gateway id="fdSearchGateway"
+    <int:gateway id="fdSearchGateway" async-executor="qExecutor"
                  service-interface="org.flockdata.engine.service.FdSearchGateway"/>
 
     <int:json-to-object-transformer id="jsonToObject"
@@ -53,13 +53,9 @@
         <int:dispatcher task-executor="qExecutor"/>
     </int:channel>
 
-    <int:channel id="doMetaKeyQuery">
-        <int:dispatcher task-executor="qExecutor"/>
-    </int:channel>
+    <int:channel id="doMetaKeyQuery"/>
 
-    <int:channel id="doTagCloudQuery">
-        <int:dispatcher task-executor="qExecutor"/>
-    </int:channel>
+    <int:channel id="doTagCloudQuery"/>
 
     <int:channel id="searchDocSyncResult">
         <int:dispatcher task-executor="qExecutor"/>
@@ -75,13 +71,13 @@
 
     <int:channel id="errors"/>
 
-    <int:service-activator id="abErrorLogger" input-channel="errors" ref="abloggingHandler"/>
+    <int:service-activator id="fdErrorLogger" input-channel="errors" ref="fdLoggingHandler"/>
 
-    <bean id="abloggingHandler" class="org.springframework.integration.handler.LoggingHandler">
+    <bean id="fdLoggingHandler" class="org.springframework.integration.handler.LoggingHandler">
         <constructor-arg index="0" value="DEBUG"/>
     </bean>
 
-    <task:executor id="qExecutor" pool-size="40-40" keep-alive="180" queue-capacity="100"
+    <task:executor id="qExecutor" pool-size="40-40" keep-alive="180" queue-capacity="40"
                    rejection-policy="CALLER_RUNS"/>
 
 
