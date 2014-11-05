@@ -94,6 +94,7 @@ public class LogServiceNeo4j implements LogService {
         TrackResultBean result = logRetryService.writeLog(resultBean);
         if (result.getLogResult().getStatus() == ContentInputBean.LogStatus.NOT_FOUND)
             throw new FlockException("Unable to find Entity ");
+        // ToDo: KV should be written to first as a notional update
         kvService.doKvWrite(result); //ToDo: Consider KV not available. How to write the logs
         return result;
     }

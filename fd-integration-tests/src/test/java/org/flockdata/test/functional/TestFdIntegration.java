@@ -274,7 +274,7 @@ public class TestFdIntegration {
 
     @Test
     public void companyAndFortressWithSpaces() throws Exception {
-        assumeTrue(runMe);
+        //assumeTrue(runMe);
         logger.info("## companyAndFortressWithSpaces");
 
         SystemUser su = registerSystemUser("testcompany", "companyAndFortressWithSpaces");

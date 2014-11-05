@@ -41,12 +41,18 @@ import org.flockdata.track.model.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * User: Mike Holdsworth
@@ -54,6 +60,7 @@ import java.util.Set;
  */
 @Service
 @Transactional
+@EnableAsync
 public class KvManager implements KvService {
 
     @Override
@@ -62,10 +69,27 @@ public class KvManager implements KvService {
         return repo.ping();
     }
 
+    Boolean asyncWrites =true;
+
+    @Value("${fd-engine.kv.async:@null}")
+    protected void setAsyncWrites(String kvAsync) {
+        if (!"@null".equals(kvAsync))
+            this.asyncWrites = Boolean.parseBoolean(kvAsync);
+    }
+
+
     @Override
     public void purge(String indexName) {
         getKvRepo().purge(indexName);
     }
+
+    @Override
+    public void doKvWrites(Iterable<TrackResultBean> theseResults) throws IOException {
+        for (TrackResultBean thisResult : theseResults) {
+            doKvWrite(thisResult)  ;
+        }
+    }
+
 
     @Override
     public void doKvWrite(TrackResultBean resultBean) throws IOException {
@@ -73,12 +97,26 @@ public class KvManager implements KvService {
             // ToDo: deal with this via spring integration??
             // Making this Async will break a lot of the functional tests.
             Log log = resultBean.getLogResult().getWhatLog();
-            if (log == null) {
-                return;
+            if (log != null && !resultBean.getLogResult().isLogIgnored()) {
+//                logger.info ("AsyncWrites = {}. Thread {}", asyncWrites, Thread.currentThread().getName());
+                Future<Void> done = doKvWrite(resultBean.getEntity(), log);
+                try {
+                    if ( !asyncWrites) // Configurable to make functional testing easier
+                        done.get(); // Wait for the response
+                } catch (InterruptedException | ExecutionException e) {
+                    logger.error("Unexpected", e);
+                    throw new IOException(e.getMessage());
+                }
             }
-            getKvRepo(log).add(resultBean.getEntity(), log);
-
         }
+    }
+
+    @Async
+    public Future<Void> doKvWrite (Entity entity, Log log) throws IOException {
+        AsyncResult<Void> result = new AsyncResult<>(null);
+        getKvRepo(log).add(entity, log);
+//        logger.info ("DoWrite = {}. Thread {}", asyncWrites, Thread.currentThread().getName());
+        return result;
     }
 
     private static final ObjectMapper om = FlockDataJsonFactory.getObjectMapper();

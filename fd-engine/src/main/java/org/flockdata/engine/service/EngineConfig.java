@@ -85,9 +85,9 @@ public class EngineConfig {
     }
 
     @Value("${fd-search.url:@null}")
-    protected void setAbSearch(String absearchMake) {
-        if ("@null".equals(absearchMake)) this.abSearch = null;
-        else this.abSearch = absearchMake;
+    protected void setFdSearch(String fdSearchMake) {
+        if ("@null".equals(fdSearchMake)) this.abSearch = null;
+        else this.abSearch = fdSearchMake;
     }
 
     @Value("${fdengine.multiTenanted:@null}")

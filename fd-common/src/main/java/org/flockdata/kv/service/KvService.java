@@ -38,7 +38,9 @@ public interface KvService {
 
     void purge(String indexName);
 
-    void doKvWrite(TrackResultBean resultBean) throws IOException;
+    public void doKvWrites(Iterable<TrackResultBean> theseResults) throws IOException;
+
+    public void doKvWrite(TrackResultBean resultBean) throws IOException;
 
     Log prepareLog(Log log, ContentInputBean content) throws IOException;
 
@@ -51,6 +53,8 @@ public interface KvService {
     boolean sameJson(EntityContent compareFrom, EntityContent compareWith);
 
     DeltaBean getDelta(Entity entity, Log from, Log to);
+
+
 
     public enum KV_STORE {REDIS, RIAK}
 }
