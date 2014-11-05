@@ -96,6 +96,8 @@ public class TestTagCloud extends ESBase {
         tagCloudParams.setCompany(entity.getFortress().getCompany().getName());
         tagCloudParams.setFortress(entity.getFortress().getName());
         tagCloudParams.setType(entity.getDocumentType());
+        String [] rlxs = {"rlxname"};
+        tagCloudParams.setRelationships(rlxs);
 
         TagCloud tagCloud = queryDaoES.getCloudTag(tagCloudParams);
         // ToDo: Fix this
