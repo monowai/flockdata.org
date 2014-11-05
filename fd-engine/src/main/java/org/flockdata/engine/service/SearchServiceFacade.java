@@ -242,6 +242,13 @@ public class SearchServiceFacade {
         logger.info("Purge the search Fortress {}", indexName);
     }
 
+    public void makeChangeSearchable(TrackResultBean trackResult) {
+        Collection<TrackResultBean>results = new ArrayList<>();
+        results.add(trackResult);
+        makeChangesSearchable(results);
+
+    }
+
     public void makeChangesSearchable(Iterable<TrackResultBean> resultBeans) {
         Collection<SearchChange> changes = new ArrayList<>();
         for (TrackResultBean resultBean : resultBeans) {

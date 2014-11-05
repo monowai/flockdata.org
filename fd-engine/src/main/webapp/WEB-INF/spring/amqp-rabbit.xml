@@ -15,12 +15,7 @@
                                channel-cache-size="${rabbit.publisherCacheSize}"
                                publisher-confirms="${rabbit.publisher.confirms}"
                                publisher-returns="${rabbit.publisher.returns}"
-                               executor="rabbitTaskExec"/>
-
-    <task:executor id="rabbitTaskExec"
-                   pool-size="${rabbit.thread.poolSize}"
-                   queue-capacity="${rabbit.task.capacity}"
-                   rejection-policy="CALLER_RUNS"/>
+                               executor="fd-q-exec"/>
 
     <rabbit:template id="amqpTemplate" connection-factory="connectionFactory"/>
 
@@ -28,6 +23,8 @@
 
     <rabbit:queue name="${fd.search.queue}"/>
     <rabbit:queue name="${fd.engine.queue}"/>
+    <!--<rabbit:queue name="${fd.trackin.queue}"/>-->
+    <!--<rabbit:queue name="${fd.track.queue}"/>-->
 
     <rabbit:direct-exchange name="${fd.search.exchange}">
         <rabbit:bindings>
@@ -40,5 +37,13 @@
             <rabbit:binding queue="${fd.engine.queue}" key="${fd.engine.binding}"/>
         </rabbit:bindings>
     </rabbit:direct-exchange>
+
+    <!--<rabbit:direct-exchange name="${fd.track.exchange}">-->
+        <!--<rabbit:bindings>-->
+            <!--<rabbit:binding queue="${fd.track.queue}" key="${fd.track.binding}"/>-->
+            <!--<rabbit:binding queue="${fd.trackin.queue}" key="${fd.track.binding}"/>-->
+        <!--</rabbit:bindings>-->
+
+    <!--</rabbit:direct-exchange>-->
 
 </beans>
