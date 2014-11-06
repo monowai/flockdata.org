@@ -77,9 +77,17 @@
             "dynamic_templates": [
                 {
                     "fd.tag-template": {
-                        "path_match": "@tag.*.code",
-                        "match_mapping_type": "string",
+                        "match": "@tag.*.code",
                         "mapping": {
+                            "type": "nested"
+                        }
+                    }
+                },
+                {
+                    "nested_tag": {
+                        "path_match":"@tag.*.code",
+                        "match_mapping_type": "string",
+                        "mapping":{
                             "type": "string",
                             "doc_values": true,
                             "boost": 3.0,
