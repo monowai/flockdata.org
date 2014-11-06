@@ -936,6 +936,44 @@ public class TestTrack extends EngineBase {
         EntityLog log = trackService.getLastEntityLog(su.getCompany(), result.getMetaKey());
         assertEquals("LogDate not in Fortress TZ", 0, lastUpdated.compareTo(log.getFortressWhen(tz)));
     }
+
+
+    @Test
+    public void event_NullWhenMetaOnlyIsFalse() throws Exception {
+        // DAT-276
+        logger.info("## event_NullWhenMetaOnlyIsFalse");
+        SystemUser su = registerSystemUser("event_NullWhenMetaOnlyIsFalse", "defUser");
+
+        FortressInputBean fortressBean = new FortressInputBean("event_MetaOnlyRecordsOtherwiseNull", true);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), fortressBean);
+
+        EntityInputBean inputBean = new EntityInputBean("A Description", "wally", "TestTrack", new DateTime());
+
+        inputBean.setContent(new ContentInputBean("wally", new DateTime(), Helper.getRandomMap()));
+
+        TrackResultBean result = mediationFacade.trackEntity(fortress, inputBean); // Mock result as we're not tracking
+        assertNull(result.getEntity().getEvent());
+
+    }
+
+    @Test
+    public void event_NotNullWhenMetaOnlyIsTrue() throws Exception {
+        // DAT-276
+        logger.info("## event_NotNullWhenMetaOnlyIsTrue");
+        SystemUser su = registerSystemUser("event_NotNullWhenMetaOnlyIsTrue", "defUser");
+
+        FortressInputBean fortressBean = new FortressInputBean("event_NotNullWhenMetaOnlyIsTrue", true);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), fortressBean);
+
+        EntityInputBean inputBean = new EntityInputBean("A Description", "wally", "TestTrack", new DateTime());
+
+        inputBean.setMetaOnly(true);
+        TrackResultBean result = mediationFacade.trackEntity(fortress, inputBean); // Mock result as we're not tracking
+        assertNotNull("Event should not be null for metaOnly==true", result.getEntity().getEvent());
+
+    }
+
+
     private void compareUser(Entity entity, String userName) {
         FortressUser fu = fortressService.getUser(entity.getLastUser().getId());
         assertEquals(userName, fu.getCode());
