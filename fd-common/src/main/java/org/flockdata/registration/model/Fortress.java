@@ -59,4 +59,6 @@ public interface Fortress {
     Boolean isEnabled();
 
     Boolean isSystem();
+
+    String getIndexName();
 }

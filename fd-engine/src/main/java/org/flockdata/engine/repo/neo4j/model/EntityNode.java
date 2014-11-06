@@ -34,6 +34,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.neo4j.graphdb.Direction;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
 
@@ -110,6 +111,8 @@ public class EntityNode implements Entity {
     private String searchKey = null;
 
     private boolean searchSuppressed;
+
+    @Transient
     private String indexName;
 
     EntityNode() {
@@ -238,12 +241,6 @@ public class EntityNode implements Entity {
     @Override
     public void setFortressLastWhen(Long fortressWhen) {
         this.fortressLastWhen = fortressWhen;
-    }
-
-    @Override
-    @JsonIgnore
-    public String getIndexName() {
-        return indexName;
     }
 
     @Override

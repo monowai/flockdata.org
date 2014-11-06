@@ -83,7 +83,7 @@ public class EntitySearchChange implements SearchChange {
         this.entityId = entity.getId();
         setDocumentType(entity.getDocumentType());
         setFortress(entity.getFortress());
-        this.indexName = entity.getIndexName();
+        this.indexName = entity.getFortress().getIndexName();
         this.searchKey = entity.getSearchKey();
         this.callerRef = entity.getCallerRef();
         if (entity.getLastUser() != null)
