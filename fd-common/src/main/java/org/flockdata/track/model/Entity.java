@@ -74,11 +74,6 @@ public interface Entity {
     public FortressUser getCreatedBy();
 
     /**
-     * @return the index this entity belongs to
-     */
-    public String getIndexName();
-
-    /**
      * @return unique identify the fortress recognises for the recordType.
      */
     public String getName();

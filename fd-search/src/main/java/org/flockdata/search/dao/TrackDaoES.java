@@ -297,7 +297,7 @@ public class TrackDaoES implements TrackSearchDao {
     }
 
     public Map<String, Object> findOne(Entity entity, String id) {
-        String indexName = entity.getIndexName();
+        String indexName = entity.getFortress().getIndexName();
         String documentType = entity.getDocumentType();
         if (id == null)
             id = entity.getSearchKey();

@@ -858,7 +858,7 @@ public class TestTrack extends EngineBase {
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean); // Mock result as we're not tracking
 
         Entity entity = result.getEntity();
-        assertEquals(EntitySearchSchema.PREFIX+su.getCompany().getCode() + "."+fo.getCode(), entity.getIndexName());
+        assertEquals(EntitySearchSchema.PREFIX+su.getCompany().getCode() + "."+fo.getCode(), entity.getFortress().getIndexName());
         assertEquals("DateCreated not in Fortress TZ", 0, fortressDateCreated.compareTo(entity.getFortressDateCreated()));
 
         EntityLog log = trackService.getLastEntityLog(su.getCompany(), result.getMetaKey());
@@ -892,7 +892,7 @@ public class TestTrack extends EngineBase {
         Entity entity = trackService.getEntity(su.getCompany(), result.getMetaKey());
         logger.debug("***  problem {}", entity.toString());
         logger.debug("**** Fortress {}, Company {}, Entity Fortress {}", entity.getFortress(), entity.getFortress().getCompany(), result.getEntity().getFortress());
-        assertEquals("Why is this failing", EntitySearchSchema.PREFIX+su.getCompany().getCode()+"." + fo.getCode(), entity.getIndexName());
+        assertEquals("Why is this failing", EntitySearchSchema.PREFIX+su.getCompany().getCode()+"." + fo.getCode(), entity.getFortress().getIndexName());
         assertEquals("DateCreated not in Fortress TZ", 0, expectedCreateDate.compareTo(entity.getFortressDateCreated()));
 
         EntityLog log = trackService.getLastEntityLog(su.getCompany(), result.getMetaKey());
