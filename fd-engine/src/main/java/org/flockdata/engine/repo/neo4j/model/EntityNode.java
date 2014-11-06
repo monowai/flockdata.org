@@ -62,8 +62,6 @@ public class EntityNode implements Entity {
     @Labels
     private ArrayList<String> labels = new ArrayList<>();
 
-    private String documentType;
-
     @Indexed(unique = true)
     private String callerKeyRef;
 
@@ -121,21 +119,24 @@ public class EntityNode implements Entity {
         this.dateCreated = now.toDate().getTime();
         this.lastUpdate = dateCreated;
         labels.add("_Entity");
-        labels.add("Entity");
+        //labels.add("Entity");
 
     }
 
     public EntityNode(String uniqueKey, @NotEmpty Fortress fortress, @NotEmpty EntityInputBean entityInput, @NotEmpty DocumentType documentType) throws FlockException {
         this();
+        assert documentType != null;
         metaKey = uniqueKey;
         this.fortress = (FortressNode)fortress;
-        this.documentType = (documentType != null ? documentType.getName().toLowerCase() : "");
+        // DAT-278
+        String docType = (documentType.getName().toLowerCase());
+        labels.add(documentType.getName());
         callerRef = entityInput.getCallerRef();
-        assert documentType != null;
+
         callerKeyRef = this.fortress.getId() + "." + documentType.getId() + "." + (callerRef != null ? callerRef : metaKey);
 
         if (entityInput.getName() == null || entityInput.getName().equals(""))
-            this.name = (callerRef == null ? this.documentType : (this.documentType + "." + callerRef));
+            this.name = (callerRef == null ? docType : (docType + "." + callerRef));
         else
             this.name = entityInput.getName();
 
@@ -194,7 +195,12 @@ public class EntityNode implements Entity {
     @Override
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getDocumentType() {
-        return documentType;
+        // DAT-278
+        for (String label : labels) {
+            if (!label.equalsIgnoreCase("_Entity") && ! label.equalsIgnoreCase("Entity"))
+                return label.toLowerCase();
+        }
+        return null;
     }
 
     @Override
