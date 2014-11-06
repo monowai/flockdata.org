@@ -151,7 +151,8 @@ public class EntityNode implements Entity {
             fortressCreate = new DateTime (when.getTime()).getMillis();//new DateTime( when.getTime(), DateTimeZone.forTimeZone(TimeZone.getTimeZone(entityInput.getMetaTZ()))).toDate().getTime();
 
         lastUpdate = 0l;
-        this.event = entityInput.getEvent();
+        if ( entityInput.isMetaOnly())
+            this.event = entityInput.getEvent();
         this.suppressSearch(entityInput.isSearchSuppressed());
 
     }
