@@ -106,8 +106,7 @@ public class LogServiceNeo4j implements LogService {
         resultBean.setContentInput(input);
         ArrayList<TrackResultBean> logs = new ArrayList<>();
         logs.add(resultBean);
-        resultBean = processLogsSync(entity.getFortress().getCompany(), logs).iterator().next();
-        return resultBean;
+        return processLogsSync(entity.getFortress().getCompany(), logs).iterator().next();
     }
 
     @Override
@@ -123,8 +122,8 @@ public class LogServiceNeo4j implements LogService {
     void distributeChanges(Company company, Iterable<TrackResultBean> resultBeans) throws IOException {
         logger.debug("Distributing changes to sub-services");
         schemaService.registerConcepts(company, resultBeans);
-//        searchService.makeChangesSearchable(resultBeans);
-        //logger.debug("Distributed changes to search service");
+        searchService.makeChangesSearchable(resultBeans);
+        logger.debug("Distributed changes to search service");
     }
 
 }
