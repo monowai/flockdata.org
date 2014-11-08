@@ -19,6 +19,9 @@
 
 package org.flockdata.helper;
 
+import org.neo4j.graphdb.Label;
+import org.neo4j.graphdb.Node;
+
 import java.util.Collection;
 
 /**
@@ -26,7 +29,7 @@ import java.util.Collection;
  * Date: 12/06/14
  * Time: 11:37 AM
  */
-public class NeoSyntaxHelper {
+public class CypherHelper {
 
     public static String getLabels(String columnName, Collection<String> values) {
         if (values == null || values.isEmpty())
@@ -70,6 +73,15 @@ public class NeoSyntaxHelper {
         if ( result.equals(delimiter))
             result = "";
         return result;
+    }
+
+    public static boolean isEntity (Node node ){
+        // DAT-279
+        for (Label label : node.getLabels()) {
+            if ( label.name().equals("_Entity"))
+                return true;
+        }
+        return false;
     }
 
 }
