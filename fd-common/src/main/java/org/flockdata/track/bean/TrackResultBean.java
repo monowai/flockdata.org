@@ -31,7 +31,7 @@ import java.util.Collection;
  * Since: 11/05/13
  */
 public class TrackResultBean {
-    private Long metaId = null;
+    private Long entityId = null;
     private String serviceMessage;
     private String fortressName;
     private String documentType;
@@ -65,7 +65,7 @@ public class TrackResultBean {
 
     public TrackResultBean(Entity input) {
         this(input.getFortress().getName(), input.getDocumentType(), input.getCallerRef(), input.getMetaKey());
-        this.metaId = input.getId();
+        this.entityId = input.getId();
         this.entity = input;
     }
 
@@ -114,7 +114,7 @@ public class TrackResultBean {
         if (entityInputBean != null ? !entityInputBean.equals(that.entityInputBean) : that.entityInputBean != null)
             return false;
         if (fortressName != null ? !fortressName.equals(that.fortressName) : that.fortressName != null) return false;
-        if (metaId != null ? !metaId.equals(that.metaId) : that.metaId != null) return false;
+        if (entityId != null ? !entityId.equals(that.entityId) : that.entityId != null) return false;
         if (metaKey != null ? !metaKey.equals(that.metaKey) : that.metaKey != null) return false;
 
         return true;
@@ -122,7 +122,7 @@ public class TrackResultBean {
 
     @Override
     public int hashCode() {
-        int result = metaId != null ? metaId.hashCode() : 0;
+        int result = entityId != null ? entityId.hashCode() : 0;
         result = 31 * result + (fortressName != null ? fortressName.hashCode() : 0);
         result = 31 * result + (documentType != null ? documentType.hashCode() : 0);
         result = 31 * result + (callerRef != null ? callerRef.hashCode() : 0);
@@ -145,8 +145,8 @@ public class TrackResultBean {
     }
 
     @JsonIgnore
-    public Long getMetaId() {
-        return metaId;
+    public Long getEntityId() {
+        return entityId;
     }
 
     @JsonIgnore

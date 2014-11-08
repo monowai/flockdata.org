@@ -75,5 +75,8 @@ public interface EntityRepo extends GraphRepository<EntityNode> {
     @Query (value="match (f:_Fortress)-[track:TRACKS]->(meta:_Entity) where id(f)={0} delete track, meta ")
     public void purgeEntities(Long fortressId);
 
-
+    @Query (elementClass = EntityNode.class, value = "match (entity:_Entity) " +
+            " where id(entity)in {0} " +
+            "return entity ")
+    Collection<Entity> getEntities(Collection<Long> entities);
 }

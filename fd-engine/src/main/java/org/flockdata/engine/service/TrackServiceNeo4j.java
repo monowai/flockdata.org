@@ -696,4 +696,9 @@ public class TrackServiceNeo4j implements TrackService {
     public Entity save(Entity entity) {
         return trackDao.save(entity);
     }
+
+    @Override
+    public Collection<Entity> getEntities(Collection<Long> entities) {
+        return trackDao.getEntities(entities);
+    }
 }

@@ -21,6 +21,7 @@ package org.flockdata.track.service;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.registration.model.Tag;
 import org.flockdata.track.bean.EntityTagInputBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityTag;
@@ -63,9 +64,11 @@ public interface EntityTagService {
 
     Set<Entity> findEntityTags(String tagName) throws FlockException;
 
+    Set<Entity> findEntityTags(Company company, String tagName) throws FlockException;
+
     Collection<EntityTag> findLogTags(Company company, Log log);
 
     void moveTags(Company company, Log previousLog, Entity entity);
 
-
+    Collection<Long> mergeTags(Tag fromTag, Tag toTag);
 }

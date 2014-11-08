@@ -119,7 +119,7 @@ public class EntityNode implements Entity {
         this.dateCreated = now.toDate().getTime();
         this.lastUpdate = dateCreated;
         labels.add("_Entity");
-        //labels.add("Entity");
+        labels.add("Entity");
 
     }
 
@@ -256,7 +256,7 @@ public class EntityNode implements Entity {
                 "id=" + id +
                 ", metaKey='" + metaKey + '\'' +
                 ", name='" + name + '\'' +
-                ", index='" +indexName+ '\'' +
+                ", fortress='" +fortress+ '\'' +
                 '}';
     }
 

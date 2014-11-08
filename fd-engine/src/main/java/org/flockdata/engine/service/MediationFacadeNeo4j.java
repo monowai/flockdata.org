@@ -158,10 +158,10 @@ public class MediationFacadeNeo4j implements MediationFacade {
     @Override
     @Async
     public Future<Collection<TrackResultBean>> trackEntitiesAsync(final Company company, List<EntityInputBean> inputBeans) throws FlockException, IOException, ExecutionException, InterruptedException {
-        // ToDo:
-        // This is a promise. It should be called after the batch is persisted safely
+        // ToDo: Make this the event handler
+        // This is a promise. It should be called after the batch has been persisted safely
 
-        // ToDo: This should be a batch task
+        // ToDo: This can be a batch task
         Map<Fortress, List<EntityInputBean>> fortressInput = getEntitiesByFortress(company, inputBeans);
         Collection<TrackResultBean> results = new ArrayList<>();
 
@@ -194,6 +194,16 @@ public class MediationFacadeNeo4j implements MediationFacade {
             results.addAll(trackEntities(fortress, fortressInput.get(fortress), 10));
         }
         return results;
+
+    }
+
+    @Override
+    @Secured({"ROLE_AB_ADMIN"})
+    public void mergeTags(Company company, Tag source, Tag target) {
+        // ToDo: Transactional?
+        // Update the search docs for the affected entities
+        Collection<Long> entities = entityTagService.mergeTags(source, target);
+        searchService.refresh(company, entities);
 
     }
 
@@ -247,7 +257,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
             theseResults = entityRetry.track(fortress, entityInputBeans);
 
-            searchService.makeChangesSearchable(theseResults);
+            //searchService.makeChangesSearchable(theseResults);
             //kvService.doKvWrites(theseResults); //ToDo: Via integration with persistent properties
 
             for (TrackResultBean theResult : theseResults) {
@@ -282,10 +292,10 @@ public class MediationFacadeNeo4j implements MediationFacade {
             entity = trackService.findByCallerRef(company, input.getFortress(), input.getDocumentType(), input.getCallerRef());
         if (entity == null)
             throw new FlockException("Unable to resolve the Entity");
-        TrackResultBean trackResult= logService.writeLog(entity, input);
-        searchService.makeChangeSearchable(trackResult);
+        return logService.writeLog(entity, input);
+        //searchService.makeChangeSearchable(trackResult);
         //kvService.doKvWrite(trackResult);
-        return trackResult;
+        //return trackResult;
     }
 
     /**
