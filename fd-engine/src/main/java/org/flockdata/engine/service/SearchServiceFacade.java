@@ -19,20 +19,20 @@
 
 package org.flockdata.engine.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.engine.repo.neo4j.EntityDaoNeo;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.kv.service.KvService;
+import org.flockdata.registration.model.Company;
+import org.flockdata.search.model.*;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.LogResultBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.*;
-import org.flockdata.track.service.TrackService;
-import org.flockdata.registration.model.Company;
 import org.flockdata.track.service.EntityTagService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.search.model.*;
+import org.flockdata.track.service.TrackService;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -170,7 +170,7 @@ public class SearchServiceFacade {
 
     private static final ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
 
-    public SearchChange prepareSearchDocument(Entity entity, ContentInputBean contentInput, ChangeEvent event, DateTime fortressWhen, EntityLog entityLog) throws JsonProcessingException {
+    public SearchChange prepareSearchDocument(Entity entity, ContentInputBean contentInput, EntityLog entityLog) throws JsonProcessingException {
 
         if (entity.isSearchSuppressed())
             return null;
@@ -279,7 +279,7 @@ public class SearchServiceFacade {
         if (logResultBean != null && logResultBean.getLogToIndex() != null && logResultBean.getStatus() == ContentInputBean.LogStatus.OK) {
             try {
                 DateTime fWhen = new DateTime(logResultBean.getLogToIndex().getFortressWhen());
-                return prepareSearchDocument(logResultBean.getLogToIndex().getEntity(), input, input.getChangeEvent(), fWhen, logResultBean.getLogToIndex());
+                return prepareSearchDocument(logResultBean.getLogToIndex().getEntity(), input, logResultBean.getLogToIndex());
             } catch (JsonProcessingException e) {
                 logResultBean.setMessage("Error processing JSON document");
                 logResultBean.setStatus(ContentInputBean.LogStatus.ILLEGAL_ARGUMENT);
@@ -292,4 +292,17 @@ public class SearchServiceFacade {
         return getSearchChange(trackResultBean.getEntity().getFortress().getCompany(), trackResultBean);
     }
 
+    public void refresh(Company company, Collection<Long> entities) {
+        // To support DAT-279 - not going to work well with massive result sets
+        Collection<Entity> entitiesSet = trackService.getEntities(entities);
+        Collection<SearchChange>searchChanges = new ArrayList<>();
+
+        for (Entity entity : entitiesSet) {
+            SearchChange change = rebuild(company, entity, trackService.getLastEntityLog(entity.getId()));
+            if ( change !=null )
+                searchChanges.add(change);
+        }
+        makeChangesSearchable(searchChanges);
+
+    }
 }

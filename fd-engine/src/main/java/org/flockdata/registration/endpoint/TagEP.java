@@ -54,8 +54,6 @@ public class TagEP {
     @Autowired
     MediationFacade mediationFacade;
 
-
-
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
     public Collection<Tag> createTags(@RequestBody List<TagInputBean> tagInputs,
                                                String apiKey,
@@ -99,4 +97,16 @@ public class TagEP {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
         return tagService.findTags(company, index);
     }
+
+    @RequestMapping(value = "/merge/{label}/{sourceTag}/{targetTag}", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
+    public void mergeTags(
+            String apiKey,
+            @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey, @PathVariable("sourceTag") String sourceTag, @PathVariable("targetTag") String targetTag, @PathVariable("label") String label) throws FlockException, ExecutionException, InterruptedException {
+        Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+        Tag source = tagService.findTag(company,sourceTag, label);
+        Tag target = tagService.findTag(company,targetTag, label);
+        mediationFacade.mergeTags(company, source, target);
+
+    }
+
 }

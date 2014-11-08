@@ -52,9 +52,9 @@ public interface TagService {
 
     public Collection<Tag> findDirectedTags(Tag startTag);
 
-    public Collection<Tag> findTags(Company company, String index);
+    public Collection<Tag> findTags(Company company, String label);
 
-    public Tag findTag(Company company, String tagName, String index);
+    public Tag findTag(Company company, String tagName, String label);
 
     public Collection<String> getExistingIndexes();
 

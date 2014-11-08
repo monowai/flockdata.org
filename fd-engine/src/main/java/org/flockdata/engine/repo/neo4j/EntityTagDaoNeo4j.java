@@ -19,20 +19,22 @@
 
 package org.flockdata.engine.repo.neo4j;
 
-import org.flockdata.engine.repo.neo4j.model.EntityTagRelationship;
-import org.flockdata.track.model.EntityTag;
 import org.flockdata.engine.repo.neo4j.model.EntityNode;
+import org.flockdata.engine.repo.neo4j.model.EntityTagRelationship;
 import org.flockdata.engine.repo.neo4j.model.TagNode;
 import org.flockdata.engine.service.EngineConfig;
+import org.flockdata.helper.CypherHelper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.track.model.Entity;
+import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.model.GeoData;
 import org.flockdata.track.model.Log;
 import org.flockdata.track.service.TagService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -368,5 +370,37 @@ public class EntityTagDaoNeo4j {
 
     }
 
+    public Collection<Long> mergeTags(Tag fromTag, Tag toTag) {
+        // DAT-279
+        Node fromNode = template.getNode(fromTag.getId());
+        Node toNode   = template.getNode(toTag.getId());
+        Collection<Long>results =  moveRelationships(fromTag, fromNode, toNode);
+        template.delete(fromNode);
+        return results;
+    }
 
+    private Collection<Long> moveRelationships(Tag fromTag, Node fromNode, Node toNode){
+
+        Iterable<Relationship> fromRlxs = fromNode.getRelationships();
+        Collection<Long>results = new ArrayList<>();
+        for (Relationship fromRlx : fromRlxs) {
+            RelationshipType rType = fromRlx.getType();
+            Node startNode = fromRlx.getStartNode();
+            Node endNode = fromRlx.getEndNode();
+            Map<String,Object>properties = new HashMap<>();
+            for (String key : properties.keySet()) {
+                properties.put (key, fromRlx.getProperty(key));
+            }
+            if ( startNode.getId() == fromTag.getId()){
+                template.createRelationshipBetween(toNode, endNode, rType.name(), properties);
+                if (CypherHelper.isEntity(endNode))
+                    results.add(endNode.getId());
+            } else {
+                template.createRelationshipBetween(endNode, toNode, rType.name(), properties);
+                if (CypherHelper.isEntity(toNode))
+                    results.add(toNode.getId());
+            }
+        }
+        return results;
+    }
 }

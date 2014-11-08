@@ -123,4 +123,6 @@ public interface TrackService {
     List<CrossReferenceInputBean> crossReferenceEntities(Company company, List<CrossReferenceInputBean> crossReferenceInputBeans);
 
     Entity save(Entity entity);
+
+    Collection<Entity> getEntities(Collection<Long> entities);
 }

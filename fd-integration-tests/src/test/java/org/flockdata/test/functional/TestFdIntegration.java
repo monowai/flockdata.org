@@ -29,12 +29,12 @@ import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.bean.RegistrationBean;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
+import org.flockdata.registration.model.Tag;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityTag;
-import org.flockdata.track.service.LogService;
-import org.flockdata.track.service.MediationFacade;
+import org.flockdata.track.service.*;
 import org.flockdata.engine.endpoint.TrackEP;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
@@ -44,8 +44,6 @@ import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
 import org.flockdata.search.model.SearchResult;
 import org.flockdata.track.model.EntityLog;
-import org.flockdata.track.service.EntityTagService;
-import org.flockdata.track.service.TrackService;
 import org.flockdata.transform.TrackBatcher;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -148,6 +146,9 @@ public class TestFdIntegration {
     LogService logService;
 
     @Autowired
+    TagService tagService;
+
+    @Autowired
     FortressService fortressService;
 
     @Qualifier("mediationFacadeNeo4j")
@@ -211,19 +212,19 @@ public class TestFdIntegration {
         //factory.setClientConfig(clientConfig);
         esClient = factory.getObject();
 
-        deleteEsIndex(EntitySearchSchema.PREFIX+"monowai.suppress");
-        deleteEsIndex(EntitySearchSchema.PREFIX+"monowai.testfortress");
-        deleteEsIndex(EntitySearchSchema.PREFIX+"monowai.ngram");
-        deleteEsIndex(EntitySearchSchema.PREFIX+"monowai.rebuildtest");
-        deleteEsIndex(EntitySearchSchema.PREFIX+"monowai.audittest");
-        deleteEsIndex(EntitySearchSchema.PREFIX+"monowai.suppress");
-        deleteEsIndex(EntitySearchSchema.PREFIX+"monowai.entitywithtagsprocess");
-        deleteEsIndex(EntitySearchSchema.PREFIX+"monowai.trackgraph");
-        deleteEsIndex(EntitySearchSchema.PREFIX+"monowai.audittest");
-        deleteEsIndex(EntitySearchSchema.PREFIX+"monowai.111");
+        deleteEsIndex(EntitySearchSchema.PREFIX + "monowai.suppress");
+        deleteEsIndex(EntitySearchSchema.PREFIX + "monowai.testfortress");
+        deleteEsIndex(EntitySearchSchema.PREFIX + "monowai.ngram");
+        deleteEsIndex(EntitySearchSchema.PREFIX + "monowai.rebuildtest");
+        deleteEsIndex(EntitySearchSchema.PREFIX + "monowai.audittest");
+        deleteEsIndex(EntitySearchSchema.PREFIX + "monowai.suppress");
+        deleteEsIndex(EntitySearchSchema.PREFIX + "monowai.entitywithtagsprocess");
+        deleteEsIndex(EntitySearchSchema.PREFIX + "monowai.trackgraph");
+        deleteEsIndex(EntitySearchSchema.PREFIX + "monowai.audittest");
+        deleteEsIndex(EntitySearchSchema.PREFIX + "monowai.111");
 
         for (int i = 1; i < fortressMax + 1; i++) {
-            deleteEsIndex(EntitySearchSchema.PREFIX+"monowai.bulkloada" + i);
+            deleteEsIndex(EntitySearchSchema.PREFIX + "monowai.bulkloada" + i);
         }
 
     }
@@ -251,11 +252,11 @@ public class TestFdIntegration {
         logger.info("## dataTypes_WhatFieldsIndexed");
 
         SystemUser su = registerSystemUser("dataTypes_WhatFieldsIndexed", "dataTypes_WhatFieldsIndexed");
-        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("dataTypes_WhatFieldsIndexed"));
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("dataTypes_WhatFieldsIndexed"));
         String docType = "DT";
         String callerRef = "ABC123X";
         EntityInputBean entityInputBean =
-                new EntityInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
+                new EntityInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef);
 
         Map<String, Object> json = getRandomMap();
         json.put("int", 123);
@@ -268,13 +269,13 @@ public class TestFdIntegration {
                 .getEntity();
         waitForInitialSearchResult(su.getCompany(), entity.getMetaKey());
 
-        doEsQuery(entity.getFortress().getIndexName(), entity.getMetaKey());
+        doEsQuery(fortress.getIndexName(), entity.getMetaKey());
         doEsFieldQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + ".int", "123", 1);
     }
 
     @Test
     public void companyAndFortressWithSpaces() throws Exception {
-        //assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## companyAndFortressWithSpaces");
 
         SystemUser su = registerSystemUser("testcompany", "companyAndFortressWithSpaces");
@@ -291,7 +292,7 @@ public class TestFdIntegration {
                 .trackEntity(su.getCompany(), entityInputBean)
                 .getEntity();
 
-        assertEquals(EntitySearchSchema.PREFIX+"testcompany.tracktest", entity.getFortress().getIndexName());
+        assertEquals(EntitySearchSchema.PREFIX + "testcompany.tracktest", entity.getFortress().getIndexName());
 
         waitForInitialSearchResult(su.getCompany(), entity.getMetaKey());
 
@@ -397,7 +398,6 @@ public class TestFdIntegration {
 
         Entity entity = trackService.getEntity(su.getCompany(), auditResult.getMetaKey());
         waitForEntitiesToUpdate(su.getCompany(), entity);
-        assertEquals(EntitySearchSchema.PREFIX+"monowai.rebuildtest", entity.getFortress().getIndexName());
 
         doEsQuery(entity.getFortress().getIndexName(), "*");
 
@@ -470,7 +470,7 @@ public class TestFdIntegration {
         waitAWhile();
 
         String indexName = EntitySearchSchema.parseIndex(fortress);
-        assertEquals(EntitySearchSchema.PREFIX+"monowai.trackgraph", indexName);
+        assertEquals(EntitySearchSchema.PREFIX + "monowai.trackgraph", indexName);
 
         // Putting asserts On elasticsearch
         doEsQuery(indexName, "*", 1);
@@ -601,11 +601,10 @@ public class TestFdIntegration {
         inputBean.setContent(new ContentInputBean("wally", new DateTime(), getRandomMap()));
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
         Entity entity = trackService.getEntity(su.getCompany(), result.getMetaKey());
-        assertEquals(EntitySearchSchema.PREFIX+"monowai." + fo.getCode(), entity.getFortress().getIndexName());
 
         waitForEntitiesToUpdate(su.getCompany(), entity); // 2nd document in the index
         // We have one with a metaKey and one without
-        doEsQuery(EntitySearchSchema.PREFIX+"monowai." + fo.getCode(), "*", 2);
+        doEsQuery(EntitySearchSchema.PREFIX + "monowai." + fo.getCode(), "*", 2);
 
         QueryParams qp = new QueryParams(fo);
         qp.setSimpleQuery("*");
@@ -634,11 +633,10 @@ public class TestFdIntegration {
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         Entity entity = trackService.getEntity(su.getCompany(), result.getMetaKey());
-        assertEquals(EntitySearchSchema.PREFIX+"monowai." + fo.getCode(), entity.getFortress().getIndexName());
 
         waitForEntitiesToUpdate(su.getCompany(), entity); // 2nd document in the index
         // We have one with a metaKey and one without
-        doEsQuery(EntitySearchSchema.PREFIX+"monowai." + fo.getCode(), "*", 2);
+        doEsQuery(EntitySearchSchema.PREFIX + "monowai." + fo.getCode(), "*", 2);
 
         QueryParams qp = new QueryParams(fo);
         qp.setSimpleQuery("*");
@@ -677,7 +675,7 @@ public class TestFdIntegration {
 
         Entity entity = trackService.getEntity(su.getCompany(), result.getMetaKey());
 
-        assertEquals(EntitySearchSchema.PREFIX+"monowai." + fo.getCode(), entity.getFortress().getIndexName());
+        assertEquals(EntitySearchSchema.PREFIX + "monowai." + fo.getCode(), entity.getFortress().getIndexName());
         assertEquals("DateCreated not in Fortress TZ", 0, fortressDateCreated.compareTo(entity.getFortressDateCreated()));
 
         EntityLog log = trackService.getLastEntityLog(su.getCompany(), result.getMetaKey());
@@ -686,7 +684,7 @@ public class TestFdIntegration {
 
         waitForEntitiesToUpdate(su.getCompany(), entity); // 2nd document in the index
         // We have one with a metaKey and one without
-        doEsQuery(EntitySearchSchema.PREFIX+"monowai." + fo.getCode(), "*", 1);
+        doEsQuery(EntitySearchSchema.PREFIX + "monowai." + fo.getCode(), "*", 1);
 
         QueryParams qp = new QueryParams(fo);
         qp.setSimpleQuery("*");
@@ -865,7 +863,51 @@ public class TestFdIntegration {
         doEsTermQuery(indexName, EntitySearchSchema.DESCRIPTION, "this", 1);
         // ToDo: Figure out ngram details
         //doEsTermQuery(indexName, EntitySearchSchema.DESCRIPTION, "this is a description", 0);
+    }
 
+    @Test
+    public void merge_SearchDocIsReWrittenAfterTagMerge() throws Exception {
+        assumeTrue(runMe);
+        //DAT-279
+        logger.info("## merge_SearchDocIsReWritten");
+        SystemUser su = registerSystemUser("merge_Simple");
+        Fortress fortWP = fortressService.registerFortress(su.getCompany(),
+                new FortressInputBean("mergeSimple", false));
+
+        TagInputBean tagInputA = new TagInputBean("TagA", "MoveTag", "rlxA");
+        TagInputBean tagInputB = new TagInputBean("TagB", "MoveTag", "rlxB");
+
+        EntityInputBean inputBean = new EntityInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "AAA");
+
+        inputBean.addTag(tagInputA);
+        inputBean.setContent(new ContentInputBean("blah", getRandomMap()));
+
+        Entity entityA = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
+        inputBean = new EntityInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "BBB");
+        inputBean.addTag(tagInputB);
+        // Without content, a search doc will not be created
+        inputBean.setContent(new ContentInputBean("blah", getRandomMap()));
+
+        Entity entityB = mediationFacade.trackEntity(fortWP, inputBean).getEntity();
+        waitForInitialSearchResult(su.getCompany(), entityA.getMetaKey());
+        waitForInitialSearchResult(su.getCompany(), entityB.getMetaKey());
+        Tag tagA = tagService.findTag(su.getCompany(), tagInputA.getName());
+        assertNotNull(tagA);
+        Tag tagB = tagService.findTag(su.getCompany(), tagInputB.getName());
+        assertNotNull(tagB);
+        waitAWhile();
+
+        doEsFieldQuery(fortWP.getIndexName(), "@tag.rlxa.code", "taga", 1);
+        doEsFieldQuery(fortWP.getIndexName(), "@tag.rlxb.code", "tagb", 1);
+
+        mediationFacade.mergeTags(su.getCompany(), tagA, tagB);
+        waitAWhile();
+        // We should not find anything against tagA",
+        doEsFieldQuery(fortWP.getIndexName(), "@tag.rlxa.code", "taga", 0);
+        doEsFieldQuery(fortWP.getIndexName(), "@tag.rlxb.code", "taga", 0);
+        // Both docs will be against TagB
+        doEsFieldQuery(fortWP.getIndexName(), "@tag.rlxa.code", "tagb", 1);
+        doEsFieldQuery(fortWP.getIndexName(), "@tag.rlxb.code", "tagb", 1);
 
     }
 
@@ -893,8 +935,8 @@ public class TestFdIntegration {
         int runMax = 10, logMax = 10, fortress = 1;
 
         for (int i = 1; i < fortressMax + 1; i++) {
-            deleteEsIndex(EntitySearchSchema.PREFIX+"monowai.bulkloada" + i);
-            doEsQuery(EntitySearchSchema.PREFIX+"monowai.bulkloada" + i, "*", -1);
+            deleteEsIndex(EntitySearchSchema.PREFIX + "monowai.bulkloada" + i);
+            doEsQuery(EntitySearchSchema.PREFIX + "monowai.bulkloada" + i, "*", -1);
         }
 
         waitAWhile("Wait {} secs for index to delete ");
@@ -1012,7 +1054,7 @@ public class TestFdIntegration {
         Fortress iFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean(fortressName, true));
         requests++;
         logger.info("Starting run for " + fortressName);
-        TrackBatcher tb = new TrackBatcher(null , serverWriter, 50, su.getCompany());
+        TrackBatcher tb = new TrackBatcher(null, serverWriter, 50, su.getCompany());
         try {
             while (rows <= runMax) {
 
@@ -1040,7 +1082,7 @@ public class TestFdIntegration {
                 }
             }
         } finally {
-            logger.info ("Final Flush");
+            logger.info("Final Flush");
             tb.flush();
         }
         fortressWatch.stop();
@@ -1064,7 +1106,7 @@ public class TestFdIntegration {
                 f.format(totalTime / fortressMax),
                 f.format(totalRows / totalTime));
 
-        logger.info ("Validating tags for entity");
+        logger.info("Validating tags for entity");
 //        for (String metaKey : metaKeys) {
 //            wait(5000);
 //            Entity e = trackService.findByCallerRef(su.getCompany(), iFortress.getCode(), "CompanyNode", metaKey);
@@ -1093,7 +1135,7 @@ public class TestFdIntegration {
 
 
         QueryParams q = new QueryParams(fortress).setSimpleQuery(searchFor);
-        doEsQuery(EntitySearchSchema.PREFIX+"*", searchFor, 1);
+        doEsQuery(EntitySearchSchema.PREFIX + "*", searchFor, 1);
 
         String qResult = runQuery(q);
         assertNotNull(qResult);
@@ -1419,13 +1461,16 @@ public class TestFdIntegration {
 
         logger.debug("ran ES Field Query - result count {}, runCount {}", nbrResult, runCount);
         assertEquals("Unexpected hit count searching '" + index + "' for {" + queryString + "} in field {" + field + "}", expectedHitCount, nbrResult);
-        return result.getJsonObject()
-                .getAsJsonObject("hits")
-                .getAsJsonArray("hits")
-                .getAsJsonArray()
-                .iterator()
-                .next()
-                .getAsJsonObject().get("_source").toString();
+        if (nbrResult == 0)
+            return "";
+        else
+            return result.getJsonObject()
+                    .getAsJsonObject("hits")
+                    .getAsJsonArray("hits")
+                    .getAsJsonArray()
+                    .iterator()
+                    .next()
+                    .getAsJsonObject().get("_source").toString();
     }
 
     public static HttpHeaders getHttpHeaders(final String apiKey, final String username, final String password) {

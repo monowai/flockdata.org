@@ -139,13 +139,13 @@ public class TagServiceNeo4j implements TagService {
     }
 
     @Override
-    public Collection<Tag> findTags(Company company, String index) {
-        return tagDao.findTags(company, index);
+    public Collection<Tag> findTags(Company company, String label) {
+        return tagDao.findTags(company, label);
     }
 
     @Override
-    public Tag findTag(Company company, String tagName, String index) {
-        return tagDao.findOne(company, tagName, index);  //To change body of created methods use File | Settings | File Templates.
+    public Tag findTag(Company company, String tagName, String label) {
+        return tagDao.findOne(company, tagName, label);  //To change body of created methods use File | Settings | File Templates.
     }
 
     @Override
