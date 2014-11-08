@@ -257,7 +257,7 @@ public class TrackDaoES implements TrackSearchDao {
                             logger.debug("ignoring a request to update as the existing document dated [{}] is newer than the searchChange document dated [{}]", new Date(existingWhen), searchChange.getWhen());
                             return searchChange; // Don't overwrite the most current doc!
                         } else if (searchChange.getWhen().getTime() == 0l && !searchChange.isReplyRequired()) {
-                            // Meta Change - not indexed in AB, so ignore something we already have.
+                            // Meta Change - not indexed in FD, so ignore something we already have.
                             // Likely scenario is a batch is being reprocessed
                             return searchChange;
                         }
@@ -403,7 +403,7 @@ public class TrackDaoES implements TrackSearchDao {
                 if (file == null) {
                     // Read it from inside the WAR
                     file = getClass().getClassLoader().getResourceAsStream("/fd-default-settings.json");
-                    logger.info("No default settings exists. Using AB defaults /fd-default-settings.json");
+                    logger.info("No default settings exists. Using FD defaults /fd-default-settings.json");
 
                     if ( file == null ) // for JUnit tests
                         file = new FileInputStream(settings);
