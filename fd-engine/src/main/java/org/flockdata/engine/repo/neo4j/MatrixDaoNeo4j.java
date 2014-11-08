@@ -20,7 +20,7 @@
 package org.flockdata.engine.repo.neo4j;
 
 import org.flockdata.dao.MatrixDao;
-import org.flockdata.helper.NeoSyntaxHelper;
+import org.flockdata.helper.CypherHelper;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResult;
 import org.flockdata.query.MatrixResults;
@@ -49,11 +49,11 @@ public class MatrixDaoNeo4j implements MatrixDao {
     public MatrixResults getMatrix(Company company, MatrixInputBean input) {
 
         // DAT-109 enhancements
-        String docIndexes = NeoSyntaxHelper.getLabels("meta", input.getDocuments());
-        String conceptsFrom = NeoSyntaxHelper.getConcepts("tag1", input.getConcepts());
-        String conceptsTo = NeoSyntaxHelper.getConcepts("tag2", input.getConcepts());
-        String fromRlx = NeoSyntaxHelper.getRelationships(input.getFromRlxs());
-        String toRlx = NeoSyntaxHelper.getRelationships(input.getToRlxs()); // ToDo: Can we have diff from and too?
+        String docIndexes = CypherHelper.getLabels("meta", input.getDocuments());
+        String conceptsFrom = CypherHelper.getConcepts("tag1", input.getConcepts());
+        String conceptsTo = CypherHelper.getConcepts("tag2", input.getConcepts());
+        String fromRlx = CypherHelper.getRelationships(input.getFromRlxs());
+        String toRlx = CypherHelper.getRelationships(input.getToRlxs()); // ToDo: Can we have diff from and too?
         String conceptString = "";
         if (!conceptsFrom.equals(""))
             conceptString = "where ("+ conceptsFrom +")";
