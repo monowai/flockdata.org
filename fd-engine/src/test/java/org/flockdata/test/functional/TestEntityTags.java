@@ -760,7 +760,7 @@ public class TestEntityTags extends EngineBase {
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
         assertNotNull(resultBean);
-        assertNotNull(tagService.findTag(fortress.getCompany(), "USA", "Country"));
+        assertNotNull(tagService.findTag(fortress.getCompany(), "Country", "USA"));
 
         Collection<EntityTag> tags = entityTagService.findEntityTags(resultBean.getEntity());
         assertFalse(tags.isEmpty());

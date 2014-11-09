@@ -45,7 +45,7 @@ public interface TagService {
     @Async
     public Future<Collection<Tag>> makeTags(Company company, List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException;
 
-    public Tag findTag(Company company, String tagName);
+    public Tag findTag(Company company, String tagCode);
 
     @Deprecated // Pass the company
     public Tag findTag(String tagName);
@@ -54,11 +54,13 @@ public interface TagService {
 
     public Collection<Tag> findTags(Company company, String label);
 
-    public Tag findTag(Company company, String tagName, String label);
+    public Tag findTag(Company company, String label, String tagCode);
 
     public Collection<String> getExistingIndexes();
 
     public void purgeUnusedConcepts(Company company);
 
-    public void purgeType(Company company, String type);
+    public void purgeLabel(Company company, String label);
+
+    void createAlias(Company company, Tag tag, String label, String aliasKeyValue);
 }

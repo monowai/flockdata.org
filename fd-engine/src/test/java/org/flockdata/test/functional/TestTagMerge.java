@@ -88,4 +88,46 @@ public class TestTagMerge extends EngineBase {
         //assertEquals("rlxA", tags.iterator().next().);
 
     }
+
+    @Test
+    public void alias_TagsByAlias() throws Exception {
+        SystemUser su = registerSystemUser("alias_Simple");
+        Fortress fortWP = fortressService.registerFortress(su.getCompany(),
+                new FortressInputBean("alias_Simple", true));
+
+        TagInputBean tagInput = new TagInputBean("TagA", "AliasTest", "rlxA");
+
+        EntityInputBean inputBean = new EntityInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "AAA");
+        inputBean.addTag(tagInput);
+        // Creating the tag for an entity
+        mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
+
+        Tag tag = tagService.findTag(su.getCompany(), tagInput.getName());
+        assertNotNull ( tag);
+
+        // The above is the setup.
+
+        // Alias nodes are not stored in the _Tag bucket; then are connected to a _Tag. Since we're not searching by a Tag type(Label)
+        // we can't find JUST by the Alias.key
+
+        // Now create an alias for TagA such that when we track a new entity with zzz as the tag value
+        // the entity will be mapped to TagA
+        tagService.createAlias( su.getCompany(), tag, "AliasTest", "zzz");
+
+        // Make sure creating it twice doesn't cause an error
+        tagService.createAlias( su.getCompany(), tag, "AliasTest", "zzz");
+
+        // An alias exists for this tag that points to TagA.
+        tagInput = new TagInputBean("zzz", "AliasTest", "rlxA");
+        inputBean = new EntityInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "BBB");
+        inputBean.addTag(tagInput);
+        mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
+        Tag aliasTag = tagService.findTag(su.getCompany(), "AliasTest", "zzz");
+        assertNotNull(aliasTag);
+        assertEquals("The call to find tag with an alias should find the aliased tag", tag.getId(), aliasTag.getId());
+
+        assertEquals("Couldn't find via case-insensitive check", 2, entityTagService.findEntityTags(su.getCompany(), tag.getCode().toLowerCase()).size());
+        assertEquals("Couldn't find via case-insensitive check", 2, entityTagService.findEntityTags(su.getCompany(), tag.getCode().toUpperCase()).size());
+
+    }
 }
