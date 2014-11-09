@@ -260,15 +260,14 @@ public class EntityTagDaoNeo4j {
     }
 
     public Set<Entity> findEntityTags(Tag tag) {
-        String query = "start tag=node({tagId}) " +
-                "       match tag-[]->track" +
-                "      return track";
+        String query = " match (tag:_Tag)-[]-(entity:_Entity) where id(tag)={tagId}" +
+                       " return entity";
         Map<String, Object> params = new HashMap<>();
         params.put("tagId", tag.getId());
         Result<Map<String, Object>> result = template.query(query, params);
         Set<Entity> results = new HashSet<>();
         for (Map<String, Object> row : result) {
-            Entity entity = template.convert(row.get("track"), EntityNode.class);
+            Entity entity = template.convert(row.get("entity"), EntityNode.class);
             results.add(entity);
         }
 

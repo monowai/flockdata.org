@@ -207,6 +207,11 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
     }
 
+    @Override
+    public void createAlias(Company company, String label, Tag tag, String akaValue) {
+        tagService.createAlias(company, tag, label, akaValue);
+    }
+
     private Map<Fortress, List<EntityInputBean>> getEntitiesByFortress(Company company, List<EntityInputBean> entityInputBeans) throws NotFoundException {
         Map<Fortress, List<EntityInputBean>> fortressInput = new HashMap<>();
 
@@ -331,7 +336,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     }
 
     /**
-     * Rebuilds all search documents for the supplied fortress of the supplied document type
+     * Rebuilds all search documents for the supplied fortress of the supplied document label
      *
      * @param fortressName name of the fortress to rebuild
      * @throws org.flockdata.helper.FlockException

@@ -179,6 +179,8 @@ public class SchemaDaoNeo4j {
         String index = tagInput.getLabel();
 
         template.query("create constraint on (t:`" + index + "`) assert t.key is unique", null);
+        // Tag alias also have a unique key
+        template.query("create constraint on (t:`" + index + "Alias`) assert t.key is unique", null);
         logger.debug("Creating constraint on [{}]", tagInput.getLabel());
         return true;
 
@@ -188,7 +190,7 @@ public class SchemaDaoNeo4j {
         logger.debug("Creating System Indexes for {} ", company.getName());
         template.query("create constraint on (t:Country) assert t.key is unique", null);
         // ToDo: This looks wrong. Cities can have the same name in different countries
-        template.query("create constraint on (t:City) assert t.key is unique", null);
+//        template.query("create constraint on (t:City) assert t.key is unique", null);
         logger.debug("Created the indexes");
         return true;
     }
