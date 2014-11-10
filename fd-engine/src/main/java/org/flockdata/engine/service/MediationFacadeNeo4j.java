@@ -19,7 +19,8 @@
 
 package org.flockdata.engine.service;
 
-import com.google.common.collect.Lists;
+import org.flockdata.search.model.*;
+import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;
@@ -30,14 +31,13 @@ import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.registration.service.CompanyService;
-import org.flockdata.search.model.*;
-import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntitySummaryBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
 import org.flockdata.track.model.SearchChange;
+import com.google.common.collect.Lists;
 import org.flockdata.track.service.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
