@@ -60,7 +60,7 @@ public class AttachmentTests extends ESBase {
         // FortB will have
         changeA.setDescription("Test Description");
 
-        deleteEsIndex(entity.getIndexName());
+        deleteEsIndex(entity.getFortress().getIndexName());
 
         changeA = trackRepo.update(changeA);
         Thread.sleep(1000);

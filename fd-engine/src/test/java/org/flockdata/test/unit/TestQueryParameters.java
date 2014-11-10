@@ -19,8 +19,8 @@
 
 package org.flockdata.test.unit;
 
+import org.flockdata.helper.CypherHelper;
 import org.flockdata.query.MatrixInputBean;
-import org.flockdata.helper.NeoSyntaxHelper;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -38,19 +38,19 @@ public class TestQueryParameters {
     public void documentTypes() throws Exception {
         MatrixInputBean inputBean = new MatrixInputBean();
         String result =":_Entity";
-        Assert.assertEquals(result, NeoSyntaxHelper.getLabels("meta", inputBean.getDocuments()));
+        Assert.assertEquals(result, CypherHelper.getLabels("meta", inputBean.getDocuments()));
         ArrayList<String>docs = new ArrayList<>();
         docs.add("With Space");
         docs.add("SecondDoc");
         docs.add("third-doc");
         inputBean.setDocuments(docs);
         result = "meta:`With Space` or meta:SecondDoc or meta:`third-doc`";
-        assertEquals(result, NeoSyntaxHelper.getLabels("meta", inputBean.getDocuments()));
+        assertEquals(result, CypherHelper.getLabels("meta", inputBean.getDocuments()));
 
         docs.clear();
         docs.add(null);
         inputBean.setDocuments(docs);
-        assertEquals("", NeoSyntaxHelper.getLabels("meta", inputBean.getDocuments()));
+        assertEquals("", CypherHelper.getLabels("meta", inputBean.getDocuments()));
 
     }
 
@@ -76,8 +76,8 @@ public class TestQueryParameters {
     @Test
     public void relationships() throws Exception {
         MatrixInputBean inputBean = new MatrixInputBean();
-        assertEquals("", NeoSyntaxHelper.getRelationships(inputBean.getFromRlxs()));
-        assertEquals("", NeoSyntaxHelper.getRelationships(inputBean.getToRlxs()));
+        assertEquals("", CypherHelper.getRelationships(inputBean.getFromRlxs()));
+        assertEquals("", CypherHelper.getRelationships(inputBean.getToRlxs()));
         ArrayList<String>relationships = new ArrayList<>();
         relationships.add("With Space");
         relationships.add("SecondConcept");
@@ -86,8 +86,8 @@ public class TestQueryParameters {
         relationships.add("2010");        // Numbers need to be escaped
         inputBean.setFromRlxs(relationships);
         inputBean.setToRlxs(relationships);
-        assertEquals(":`With Space` |:SecondConcept |:`third-concept` |:`dot.concept` |:`2010`", NeoSyntaxHelper.getRelationships(inputBean.getFromRlxs()));
-        assertEquals(":`With Space` |:SecondConcept |:`third-concept` |:`dot.concept` |:`2010`", NeoSyntaxHelper.getRelationships(inputBean.getToRlxs()));
+        assertEquals(":`With Space` |:SecondConcept |:`third-concept` |:`dot.concept` |:`2010`", CypherHelper.getRelationships(inputBean.getFromRlxs()));
+        assertEquals(":`With Space` |:SecondConcept |:`third-concept` |:`dot.concept` |:`2010`", CypherHelper.getRelationships(inputBean.getToRlxs()));
     }
 
 

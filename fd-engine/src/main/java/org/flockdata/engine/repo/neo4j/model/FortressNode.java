@@ -24,6 +24,7 @@ import org.flockdata.registration.dao.neo4j.model.CompanyNode;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.flockdata.search.model.EntitySearchSchema;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
@@ -56,6 +57,7 @@ public class FortressNode implements Fortress {
     private String languageTag;
     private Boolean system = Boolean.FALSE;
     private Boolean enabled = Boolean.TRUE;
+    private String indexName = null;
 
     protected FortressNode() {
     }
@@ -80,6 +82,7 @@ public class FortressNode implements Fortress {
         else
             getLanguageTag();
 
+        this.indexName = EntitySearchSchema.parseIndex(ownedBy.getCode(),getCode() );
 
     }
 
@@ -175,6 +178,13 @@ public class FortressNode implements Fortress {
     @Override
     public Boolean isSystem() {
         return system;
+    }
+
+    @Override
+    public String getIndexName() {
+        if ( indexName == null )
+         indexName = EntitySearchSchema.parseIndex(this);
+        return indexName;
     }
 
     public void setFortressKey(String fortressKey) {

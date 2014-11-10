@@ -120,8 +120,8 @@ public class TagServiceNeo4j implements TagService {
     }
 
     @Override
-    public Tag findTag(Company company, String tagName) {
-        return tagDao.findOne(company, tagName, Tag.DEFAULT);
+    public Tag findTag(Company company, String tagCode) {
+        return tagDao.findTag(company, tagCode, Tag.DEFAULT);
     }
 
 
@@ -139,13 +139,13 @@ public class TagServiceNeo4j implements TagService {
     }
 
     @Override
-    public Collection<Tag> findTags(Company company, String index) {
-        return tagDao.findTags(company, index);
+    public Collection<Tag> findTags(Company company, String label) {
+        return tagDao.findTags(company, label);
     }
 
     @Override
-    public Tag findTag(Company company, String tagName, String index) {
-        return tagDao.findOne(company, tagName, index);  //To change body of created methods use File | Settings | File Templates.
+    public Tag findTag(Company company, String label, String tagCode) {
+        return tagDao.findTag(company, tagCode, label);
     }
 
     @Override
@@ -164,7 +164,12 @@ public class TagServiceNeo4j implements TagService {
     }
 
     @Override
-    public void purgeType(Company company, String type) {
-        tagDao.purge(company,type);
+    public void purgeLabel(Company company, String label) {
+        tagDao.purge(company, label);
+    }
+
+    @Override
+    public void createAlias(Company company, Tag tag, String label, String aliasKeyValue) {
+        tagDao.createAlias(company, tag, label, aliasKeyValue);
     }
 }

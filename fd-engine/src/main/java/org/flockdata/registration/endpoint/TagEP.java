@@ -21,6 +21,7 @@ package org.flockdata.registration.endpoint;
 
 import org.flockdata.helper.ApiKeyHelper;
 import org.flockdata.helper.FlockException;
+import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Tag;
@@ -54,9 +55,8 @@ public class TagEP {
     @Autowired
     MediationFacade mediationFacade;
 
-
-
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
+    @ResponseStatus(HttpStatus.ACCEPTED)
     public Collection<Tag> createTags(@RequestBody List<TagInputBean> tagInputs,
                                                String apiKey,
                                                @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException, ExecutionException, InterruptedException {
@@ -66,8 +66,7 @@ public class TagEP {
 
     }
 
-
-    @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.DELETE)
     public ResponseEntity<String> purgeUnusedConcepts(
                                                String apiKey,
                                                @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException {
@@ -78,25 +77,56 @@ public class TagEP {
 
     }
 
-
-    @RequestMapping(value = "/{type}", produces = "application/json", consumes = "application/json", method = RequestMethod.DELETE)
-    public ResponseEntity<String> deleteConcepts( @PathVariable("type") String type,
+    @RequestMapping(value = "/{label}", produces = "application/json", method = RequestMethod.DELETE)
+    public ResponseEntity<String> deleteConcepts( @PathVariable("label") String label,
                                                               String apiKey,
             @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
 
-        tagService.purgeType(company, type);
+        tagService.purgeLabel(company, label);
         return new ResponseEntity<>("Purged unused concepts", HttpStatus.ACCEPTED);
 
     }
 
-
-
-    @RequestMapping(value = "/{type}", produces = "application/json", consumes = "application/json", method = RequestMethod.GET)
+    @RequestMapping(value = "/{type}", produces = "application/json", method = RequestMethod.GET)
     public Collection<Tag> getTags(@PathVariable("type") String index,
                                    String apiKey,
                                    @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
         return tagService.findTags(company, index);
     }
+
+    @RequestMapping(value = "/{label}/{code}", produces = "application/json",  method = RequestMethod.GET)
+    public Tag getTag(@PathVariable("label") String label,
+                                  String apiKey,
+                                  @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey, @PathVariable("code") String code) throws FlockException {
+        Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+        return tagService.findTag(company, label, code);
+    }
+
+    @RequestMapping(value = "/merge/{label}/{sourceTag}/{targetTag}", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void mergeTags(
+            String apiKey,
+            @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey, @PathVariable("sourceTag") String sourceTag, @PathVariable("targetTag") String targetTag, @PathVariable("label") String label) throws FlockException, ExecutionException, InterruptedException {
+        Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+        Tag source = tagService.findTag(company, label, sourceTag);
+        Tag target = tagService.findTag(company, label, targetTag);
+        mediationFacade.mergeTags(company, source, target);
+
+    }
+
+    @RequestMapping(value = "/alias/{label}/{sourceTag}/{akaValue}", produces = "application/json", method = RequestMethod.PUT)
+    @ResponseStatus(HttpStatus.CREATED)
+    public void aliasTag(
+            String apiKey,
+            @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey, @PathVariable("sourceTag") String sourceTag, @PathVariable("akaValue") String akaValue, @PathVariable("label") String label) throws FlockException, ExecutionException, InterruptedException {
+        Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+        Tag source = tagService.findTag(company, label, sourceTag);
+        if ( source == null )
+            throw new NotFoundException(String.format("Unable to locate the tag {%s}/{%s}", label, sourceTag));
+        mediationFacade.createAlias(company, label, source, akaValue);
+
+    }
+
 }

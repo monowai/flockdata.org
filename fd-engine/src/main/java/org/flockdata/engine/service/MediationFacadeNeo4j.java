@@ -19,7 +19,8 @@
 
 package org.flockdata.engine.service;
 
-import com.google.common.collect.Lists;
+import org.flockdata.search.model.*;
+import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;
@@ -30,14 +31,13 @@ import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.registration.service.CompanyService;
-import org.flockdata.search.model.*;
-import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntitySummaryBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
 import org.flockdata.track.model.SearchChange;
+import com.google.common.collect.Lists;
 import org.flockdata.track.service.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -158,10 +158,10 @@ public class MediationFacadeNeo4j implements MediationFacade {
     @Override
     @Async
     public Future<Collection<TrackResultBean>> trackEntitiesAsync(final Company company, List<EntityInputBean> inputBeans) throws FlockException, IOException, ExecutionException, InterruptedException {
-        // ToDo:
-        // This is a promise. It should be called after the batch is persisted safely
+        // ToDo: Make this the event handler
+        // This is a promise. It should be called after the batch has been persisted safely
 
-        // ToDo: This should be a batch task
+        // ToDo: This can be a batch task
         Map<Fortress, List<EntityInputBean>> fortressInput = getEntitiesByFortress(company, inputBeans);
         Collection<TrackResultBean> results = new ArrayList<>();
 
@@ -195,6 +195,21 @@ public class MediationFacadeNeo4j implements MediationFacade {
         }
         return results;
 
+    }
+
+    @Override
+    @Secured({"ROLE_AB_ADMIN"})
+    public void mergeTags(Company company, Tag source, Tag target) {
+        // ToDo: Transactional?
+        // Update the search docs for the affected entities
+        Collection<Long> entities = entityTagService.mergeTags(source, target);
+        searchService.refresh(company, entities);
+
+    }
+
+    @Override
+    public void createAlias(Company company, String label, Tag tag, String akaValue) {
+        tagService.createAlias(company, tag, label, akaValue);
     }
 
     private Map<Fortress, List<EntityInputBean>> getEntitiesByFortress(Company company, List<EntityInputBean> entityInputBeans) throws NotFoundException {
@@ -247,7 +262,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
             theseResults = entityRetry.track(fortress, entityInputBeans);
 
-            searchService.makeChangesSearchable(theseResults);
+            //searchService.makeChangesSearchable(theseResults);
             //kvService.doKvWrites(theseResults); //ToDo: Via integration with persistent properties
 
             for (TrackResultBean theResult : theseResults) {
@@ -282,10 +297,10 @@ public class MediationFacadeNeo4j implements MediationFacade {
             entity = trackService.findByCallerRef(company, input.getFortress(), input.getDocumentType(), input.getCallerRef());
         if (entity == null)
             throw new FlockException("Unable to resolve the Entity");
-        TrackResultBean trackResult= logService.writeLog(entity, input);
-        searchService.makeChangeSearchable(trackResult);
+        return logService.writeLog(entity, input);
+        //searchService.makeChangeSearchable(trackResult);
         //kvService.doKvWrite(trackResult);
-        return trackResult;
+        //return trackResult;
     }
 
     /**
@@ -321,7 +336,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     }
 
     /**
-     * Rebuilds all search documents for the supplied fortress of the supplied document type
+     * Rebuilds all search documents for the supplied fortress of the supplied document label
      *
      * @param fortressName name of the fortress to rebuild
      * @throws org.flockdata.helper.FlockException

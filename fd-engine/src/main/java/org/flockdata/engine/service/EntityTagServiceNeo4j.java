@@ -69,7 +69,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
         if (existing)
             // We already have this tagged so get out of here
             return;
-        Tag tag = tagService.findTag(entity.getFortress().getCompany(), tagInput.getTagName(), tagInput.getIndex());
+        Tag tag = tagService.findTag(entity.getFortress().getCompany(), tagInput.getIndex(), tagInput.getTagName());
         entityTagDao.save(entity, tag, relationshipName);
     }
 
@@ -227,16 +227,38 @@ public class EntityTagServiceNeo4j implements EntityTagService {
 
 
     @Override
-    public Set<Entity> findEntityTags(String tagName) throws FlockException {
-        Tag tag = tagService.findTag(tagName);
+    public Set<Entity> findEntityTags(String tagCode) throws FlockException {
+        Tag tag = tagService.findTag(tagCode);
         if (tag == null)
-            throw new FlockException("Unable to find the tag [" + tagName + "]");
+            throw new FlockException("Unable to find the tag [" + tagCode + "]");
         return entityTagDao.findEntityTags(tag);
 
     }
 
     @Override
+    public Set<Entity> findEntityTags(Company company, String tagCode) throws FlockException {
+        Tag tag = tagService.findTag(company, tagCode);
+        if (tag == null)
+            throw new FlockException("Unable to find the tag [" + tagCode + "]");
+        return entityTagDao.findEntityTags(tag);
+
+    }
+
+
+    @Override
     public void moveTags(Company company, Log previousLog, Entity entity) {
         entityTagDao.moveTags(company, previousLog, entity);
+    }
+
+    /**
+     *
+     * @param fromTag tag that will be deleted
+     * @param toTag   tag to merge fromTag into
+     *
+     * @return  Collection of affected Entity IDs
+     */
+    @Override
+    public Collection<Long> mergeTags(Tag fromTag, Tag toTag) {
+        return entityTagDao.mergeTags(fromTag, toTag);
     }
 }

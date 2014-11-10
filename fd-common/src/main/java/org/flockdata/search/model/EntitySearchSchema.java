@@ -55,12 +55,12 @@ public class EntitySearchSchema {
         return parseIndex(fortress.getCompany().getCode()) + fortress.getCode();
     }
 
-    private static String parseIndex(String company) {
+    private static String parseIndex(String companyCode) {
         // ToDo: Add multi tenant test. Company must always be present if MultiTenanted
-        if (company == null || company.equals(""))
-            company = "*";
+        if (companyCode == null || companyCode.equals(""))
+            companyCode = "*";
 
-        return PREFIX + company.toLowerCase() + ".";
+        return PREFIX + companyCode.toLowerCase() + ".";
     }
 
     public static String parseIndex(String company, String fortress) {
