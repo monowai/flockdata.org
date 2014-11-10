@@ -123,7 +123,7 @@ public class LogServiceNeo4j implements LogService {
     void distributeChanges(Company company, Iterable<TrackResultBean> resultBeans) throws IOException {
         logger.debug("Distributing changes to sub-services");
         schemaService.registerConcepts(company, resultBeans);
-//        searchService.makeChangesSearchable(resultBeans);
+        searchService.makeChangesSearchable(resultBeans);
         //logger.debug("Distributed changes to search service");
     }
 

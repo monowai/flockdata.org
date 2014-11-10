@@ -23,9 +23,9 @@ import org.flockdata.engine.PropertyConversion;
 import org.flockdata.engine.repo.neo4j.model.TagNode;
 import org.flockdata.engine.service.EngineConfig;
 import org.flockdata.helper.DatagioTagException;
-import org.flockdata.registration.model.Tag;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
+import org.flockdata.registration.model.Tag;
 import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.api.properties.DefinedProperty;
 import org.neo4j.kernel.impl.core.NodeProxy;
@@ -76,7 +76,7 @@ public class TagDaoNeo4j {
         String tagSuffix = engineAdmin.getTagSuffix(company);
         List<TagInputBean> errorResults = new ArrayList<>();
         List<String> createdValues = new ArrayList<>();
-        Collection<Tag>results = new ArrayList<>();
+        Collection<Tag> results = new ArrayList<>();
         for (TagInputBean tagInputBean : tagInputs) {
             try {
                 results.add(save(company, tagInputBean, tagSuffix, createdValues, suppressRelationships));
@@ -92,7 +92,7 @@ public class TagDaoNeo4j {
 
     public Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> createdValues, boolean suppressRelationships) {
         // Check exists
-        TagNode existingTag = (TagNode) findOne(company, (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()), tagInput.getLabel());
+        TagNode existingTag = (TagNode) findTag(company, (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()), tagInput.getLabel());
         Node start;
         if (existingTag == null) {
             if (tagInput.isMustExist()) {
@@ -118,7 +118,7 @@ public class TagDaoNeo4j {
     private Node createTag(Company company, TagInputBean tagInput, String tagLabel) {
         TagNode tag = new TagNode(tagInput);
 
-        // ToDo: Should a type be suffixed with company in multi-tenanted? - more time to think!!
+        // ToDo: Should a label be suffixed with company in multi-tenanted? - more time to think!!
         //       do we care that one company can see another companies tag value? Certainly not the
         //       track data.
         if (tagInput.isDefault())
@@ -248,27 +248,48 @@ public class TagDaoNeo4j {
 
     }
 
-//    @Cacheable(value = "companyTag", unless = "#result == null")
-    public Tag findOne(Company company, String tagName, String label) {
-        if (tagName == null || company == null)
-            throw new IllegalArgumentException("Null can not be used to find a tag ("+label +")");
+    /**
+     * Locates a tag fro the company of the supplied label including searching for it by alias
+     *
+     * @param company company to restrict by
+     * @param tagCode value to search for. generally this is the Code value of the tag
+     * @param label   Neo4j label for the node
+     * @return null if not found
+     */
+
+    public Tag findTag(Company company, String tagCode, String label) {
+        if (tagCode == null || company == null)
+            throw new IllegalArgumentException("Null can not be used to find a tag (" + label + ")");
 
         if (label.startsWith(":"))
             label = label.substring(1);
         String query;
-        if ("".equals(engineAdmin.getTagSuffix(company)))
-            query = "match (tag:`" + label + "`) where tag.key ={tagKey} return tag";
-        else
-            query = "match (tag:`" + label + engineAdmin.getTagSuffix(company) + "`) where tag.key ={tagKey} return tag";
+        String theLabel =resolveLabel(label, engineAdmin.getTagSuffix(company));
+
+        query = "optional match (t:`" + theLabel + "` {key:{tagKey}}) " +
+                "optional match (a:`" + theLabel + "Alias` {key:{tagKey}}) " +
+                "with t,a " +
+                "optional match (tag)-[:HAS_ALIAS]->(a) " +
+                "return t,a,tag ";
 
         Map<String, Object> params = new HashMap<>();
-        params.put("tagKey", tagName.toLowerCase().replaceAll("\\s", "")); // ToDo- formula to static method
+        params.put("tagKey", parseKey(tagCode)); // ToDo- formula to static method
         Result<Map<String, Object>> result = template.query(query, params);
         Map<String, Object> mapResult = result.singleOrNull();
-        if (mapResult != null)
-            return new TagNode((Node) mapResult.get("tag"));
-        else
-            return null;
+        if (mapResult != null) {
+            Node n = null;
+            if (mapResult.get("t") != null)
+                n = (Node) mapResult.get("t");
+            else if (mapResult.get("tag") != null)
+                n = (Node) mapResult.get("tag");
+
+            if (n == null)
+                return null;
+            else
+                return new TagNode(n);
+        }
+
+        return null;// No tag found
 
     }
 
@@ -277,7 +298,7 @@ public class TagDaoNeo4j {
         String query = "match (tag" + Tag.DEFAULT + ") delete tag";
         template.query(query, null);
 
-        query = "match (tag:_Tag)-[r:TAG_INDEX]-(c:ABCompany) where id(c)={company} delete r, tag";
+        query = "match (tag:_Tag)-[r:TAG_INDEX]-(c:_ABCompany) where id(c)={company} delete r, tag";
         Map<String, Object> params = new HashMap<>();
         params.put("company", company.getId());
         template.query(query, params);
@@ -288,16 +309,55 @@ public class TagDaoNeo4j {
 
     }
 
-    public void purge(Company company, String type) {
+    public void purge(Company company, String label) {
         String query;
-        if ("".equals(engineAdmin.getTagSuffix(company)))
-            query = "match (tag:`" + type + "`) optional match(tag)-[r]-() delete r,tag";
-        else
-            query = "match (tag:`" + type + engineAdmin.getTagSuffix(company) + "`) optional match(tag)-[r]-() delete r,tag";
+        query = "match (tag:`" + resolveLabel(label, engineAdmin.getTagSuffix(company)) + "`) optional match(tag)-[r]-() delete r,tag";
 
         // ToDo: Tidy up concepts in use
         template.query(query, null);
     }
 
+    private String resolveLabel(String label, String tagSuffix) {
+        if ("".equals(tagSuffix))
+            return label;
+        return label + tagSuffix;
+    }
 
+    public void createAlias(Company company, Tag tag, String label, String aliasKeyValue) {
+        // ToDo
+        // match (c:Country) where c.code="NZ" create (ac:CountryAlias {name:"New Zealand", code:"New Zealand"}) , (c)-[:HAS_ALIAS]->(ac) return c, ac
+
+        // This query will find the Tag, if it exists, or any alias that might exist
+        // optional match (c:Country {code:"New Zealand"})
+        // optional match (a:CountryAlias {code:"New Zealand"})
+        // with c,a optional match (tag)-[:HAS_ALIAS]->(a)
+        // return c, a,tag
+        String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company)) ;
+        if (doesAliasExist(tag.getId(), theLabel, aliasKeyValue))
+            return;
+
+        String query = "match (t:"+theLabel+") where id(t)={id} create (alias:`"+theLabel+"Alias"+"` {key:{key}}) ,(t)-[:HAS_ALIAS]->(alias) return t, alias";
+        Map<String,Object>params = new HashMap<>();
+        params.put("key", parseKey(aliasKeyValue));
+        params.put("id", tag.getId());
+        Result<Map<String, Object>> result = template.query(query, params);
+        Map<String,Object> mapResult = result.singleOrNull();
+        if ( mapResult != null )
+             logger.debug("Created alias {} for tag {}", mapResult.get("alias"), tag);
+    }
+
+    private boolean doesAliasExist(Long tagId, String label, String key){
+        String query = "match (t:_Tag )-[:HAS_ALIAS]->(alias:`"+label+"Alias"+"` {key:{key}}) where id(t) = {id} return alias";
+        Map<String,Object>params = new HashMap<>();
+        params.put("key", parseKey (key));
+        params.put("id", tagId);
+        Result<Map<String, Object>> result = template.query(query, params);
+        Map<String,Object> mapResult = result.singleOrNull();
+        return mapResult != null && mapResult.get("alias") != null;
+
+    }
+
+    public static String parseKey (String key){
+        return key.toLowerCase().replaceAll("\\s", "");
+    }
 }

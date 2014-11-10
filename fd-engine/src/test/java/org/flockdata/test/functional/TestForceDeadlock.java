@@ -129,7 +129,7 @@ public class TestForceDeadlock extends EngineBase {
                 doFutureWorked(future, runners.get(i).getMaxRun());
             }
         }
-        assertNotNull(tagService.findTag(fortress.getCompany(), tags.get(0).getName(), tags.get(0).getLabel()));
+        assertNotNull(tagService.findTag(fortress.getCompany(), tags.get(0).getLabel(), tags.get(0).getName()));
 
         Collection<Tag> createdTags = tagService.findTags(fortress.getCompany(), tags.get(0).getLabel());
         assertEquals(false, createdTags.isEmpty());

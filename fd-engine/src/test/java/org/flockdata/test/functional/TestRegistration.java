@@ -19,6 +19,7 @@
 
 package org.flockdata.test.functional;
 
+import org.flockdata.engine.repo.neo4j.model.FortressNode;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.FortressInputBean;
@@ -26,6 +27,7 @@ import org.flockdata.registration.bean.RegistrationBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.FortressUser;
+import org.flockdata.search.model.EntitySearchSchema;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
@@ -71,6 +73,16 @@ public class TestRegistration extends EngineBase {
             Assert.assertNotNull(fCode);
             assertEquals("Fortress Space Name", fCode.getName());
         }
+    }
+
+    @Test
+    public void search_IndexNameParses() throws Exception {
+        setSecurity();
+        SystemUser su = registerSystemUser("searchIndexTest", mike_admin);
+
+        Fortress f = new FortressNode(new FortressInputBean("TESTING", true), su.getCompany());
+        assertNotNull ( f.getIndexName());
+        assertEquals(EntitySearchSchema.parseIndex(f), f.getIndexName());
     }
 
     @Test

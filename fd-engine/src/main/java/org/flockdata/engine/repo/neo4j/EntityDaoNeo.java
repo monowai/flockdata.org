@@ -411,4 +411,8 @@ public class EntityDaoNeo {
     public Set<EntityLog> getLogs(Long id, Date date) {
         return trackLogRepo.getLogs(id, date.getTime());
     }
+
+    public Collection<Entity> getEntities(Collection<Long> entities) {
+        return entityRepo.getEntities(entities);
+    }
 }

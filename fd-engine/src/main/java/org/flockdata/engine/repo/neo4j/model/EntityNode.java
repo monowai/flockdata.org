@@ -34,6 +34,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.neo4j.graphdb.Direction;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
 
@@ -60,8 +61,6 @@ public class EntityNode implements Entity {
 
     @Labels
     private ArrayList<String> labels = new ArrayList<>();
-
-    private String documentType;
 
     @Indexed(unique = true)
     private String callerKeyRef;
@@ -110,6 +109,8 @@ public class EntityNode implements Entity {
     private String searchKey = null;
 
     private boolean searchSuppressed;
+
+    @Transient
     private String indexName;
 
     EntityNode() {
@@ -124,15 +125,18 @@ public class EntityNode implements Entity {
 
     public EntityNode(String uniqueKey, @NotEmpty Fortress fortress, @NotEmpty EntityInputBean entityInput, @NotEmpty DocumentType documentType) throws FlockException {
         this();
+        assert documentType != null;
         metaKey = uniqueKey;
         this.fortress = (FortressNode)fortress;
-        this.documentType = (documentType != null ? documentType.getName().toLowerCase() : "");
+        // DAT-278
+        String docType = (documentType.getName().toLowerCase());
+        labels.add(documentType.getName());
         callerRef = entityInput.getCallerRef();
-        assert documentType != null;
+
         callerKeyRef = this.fortress.getId() + "." + documentType.getId() + "." + (callerRef != null ? callerRef : metaKey);
 
         if (entityInput.getName() == null || entityInput.getName().equals(""))
-            this.name = (callerRef == null ? this.documentType : (this.documentType + "." + callerRef));
+            this.name = (callerRef == null ? docType : (docType + "." + callerRef));
         else
             this.name = entityInput.getName();
 
@@ -148,7 +152,8 @@ public class EntityNode implements Entity {
             fortressCreate = new DateTime (when.getTime()).getMillis();//new DateTime( when.getTime(), DateTimeZone.forTimeZone(TimeZone.getTimeZone(entityInput.getMetaTZ()))).toDate().getTime();
 
         lastUpdate = 0l;
-        this.event = entityInput.getEvent();
+        if ( entityInput.isMetaOnly())
+            this.event = entityInput.getEvent();
         this.suppressSearch(entityInput.isSearchSuppressed());
 
     }
@@ -190,7 +195,12 @@ public class EntityNode implements Entity {
     @Override
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getDocumentType() {
-        return documentType;
+        // DAT-278
+        for (String label : labels) {
+            if (!label.equalsIgnoreCase("_Entity") && ! label.equalsIgnoreCase("Entity"))
+                return label.toLowerCase();
+        }
+        return null;
     }
 
     @Override
@@ -241,18 +251,12 @@ public class EntityNode implements Entity {
     }
 
     @Override
-    @JsonIgnore
-    public String getIndexName() {
-        return indexName;
-    }
-
-    @Override
     public String toString() {
         return "EntityNode{" +
                 "id=" + id +
                 ", metaKey='" + metaKey + '\'' +
                 ", name='" + name + '\'' +
-                ", index='" +indexName+ '\'' +
+                ", fortress='" +fortress+ '\'' +
                 '}';
     }
 

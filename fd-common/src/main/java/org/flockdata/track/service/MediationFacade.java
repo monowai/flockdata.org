@@ -77,5 +77,7 @@ public interface MediationFacade {
 
     Collection<TrackResultBean> trackEntities(Company company, List<EntityInputBean> entityInputBeans) throws InterruptedException, ExecutionException, FlockException, IOException;
 
+    void mergeTags(Company company, Tag source, Tag target);
 
+    void createAlias(Company company, String label, Tag source, String akaValue);
 }

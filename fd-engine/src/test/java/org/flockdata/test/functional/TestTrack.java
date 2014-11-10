@@ -634,7 +634,9 @@ public class TestTrack extends EngineBase {
 
         Entity entity = trackService.findByCallerRefFull(fortWP, "CompanyNode", "ABC1");
         assertNotNull(entity);
+        // DAT-278
         assertNotNull(entity.getDocumentType());
+        assertEquals(inputBean.getDocumentType().toLowerCase(), entity.getDocumentType());
         assertEquals(metaKey, entity.getMetaKey());
     }
 
@@ -858,7 +860,7 @@ public class TestTrack extends EngineBase {
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean); // Mock result as we're not tracking
 
         Entity entity = result.getEntity();
-        assertEquals(EntitySearchSchema.PREFIX+su.getCompany().getCode() + "."+fo.getCode(), entity.getIndexName());
+        assertEquals(EntitySearchSchema.PREFIX+su.getCompany().getCode() + "."+fo.getCode(), entity.getFortress().getIndexName());
         assertEquals("DateCreated not in Fortress TZ", 0, fortressDateCreated.compareTo(entity.getFortressDateCreated()));
 
         EntityLog log = trackService.getLastEntityLog(su.getCompany(), result.getMetaKey());
@@ -892,7 +894,7 @@ public class TestTrack extends EngineBase {
         Entity entity = trackService.getEntity(su.getCompany(), result.getMetaKey());
         logger.debug("***  problem {}", entity.toString());
         logger.debug("**** Fortress {}, Company {}, Entity Fortress {}", entity.getFortress(), entity.getFortress().getCompany(), result.getEntity().getFortress());
-        assertEquals("Why is this failing", EntitySearchSchema.PREFIX+su.getCompany().getCode()+"." + fo.getCode(), entity.getIndexName());
+        assertEquals("Why is this failing", EntitySearchSchema.PREFIX+su.getCompany().getCode()+"." + fo.getCode(), entity.getFortress().getIndexName());
         assertEquals("DateCreated not in Fortress TZ", 0, expectedCreateDate.compareTo(entity.getFortressDateCreated()));
 
         EntityLog log = trackService.getLastEntityLog(su.getCompany(), result.getMetaKey());
@@ -936,6 +938,44 @@ public class TestTrack extends EngineBase {
         EntityLog log = trackService.getLastEntityLog(su.getCompany(), result.getMetaKey());
         assertEquals("LogDate not in Fortress TZ", 0, lastUpdated.compareTo(log.getFortressWhen(tz)));
     }
+
+
+    @Test
+    public void event_NullWhenMetaOnlyIsFalse() throws Exception {
+        // DAT-276
+        logger.info("## event_NullWhenMetaOnlyIsFalse");
+        SystemUser su = registerSystemUser("event_NullWhenMetaOnlyIsFalse", "defUser");
+
+        FortressInputBean fortressBean = new FortressInputBean("event_MetaOnlyRecordsOtherwiseNull", true);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), fortressBean);
+
+        EntityInputBean inputBean = new EntityInputBean("A Description", "wally", "TestTrack", new DateTime());
+
+        inputBean.setContent(new ContentInputBean("wally", new DateTime(), Helper.getRandomMap()));
+
+        TrackResultBean result = mediationFacade.trackEntity(fortress, inputBean); // Mock result as we're not tracking
+        assertNull(result.getEntity().getEvent());
+
+    }
+
+    @Test
+    public void event_NotNullWhenMetaOnlyIsTrue() throws Exception {
+        // DAT-276
+        logger.info("## event_NotNullWhenMetaOnlyIsTrue");
+        SystemUser su = registerSystemUser("event_NotNullWhenMetaOnlyIsTrue", "defUser");
+
+        FortressInputBean fortressBean = new FortressInputBean("event_NotNullWhenMetaOnlyIsTrue", true);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), fortressBean);
+
+        EntityInputBean inputBean = new EntityInputBean("A Description", "wally", "TestTrack", new DateTime());
+
+        inputBean.setMetaOnly(true);
+        TrackResultBean result = mediationFacade.trackEntity(fortress, inputBean); // Mock result as we're not tracking
+        assertNotNull("Event should not be null for metaOnly==true", result.getEntity().getEvent());
+
+    }
+
+
     private void compareUser(Entity entity, String userName) {
         FortressUser fu = fortressService.getUser(entity.getLastUser().getId());
         assertEquals(userName, fu.getCode());

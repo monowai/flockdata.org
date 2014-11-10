@@ -85,7 +85,7 @@ public class TestMappings extends ESBase {
         change.setTags(tags);
 
 
-        deleteEsIndex(entity.getIndexName());
+        deleteEsIndex(entity.getFortress().getIndexName());
 
         change = searchRepo.update(change);
         Thread.sleep(1000);
@@ -96,7 +96,7 @@ public class TestMappings extends ESBase {
 
         // In this test, @tag.*.code is NOT_ANALYZED so it should find the value with a space in it
         // We also expect the code to be lower case
-        doTermQuery(entity.getIndexName(), "@tag.mytag.code", "my tag", 1, "Case insensitive search of tag codes is not working");
+        doTermQuery(entity.getFortress().getIndexName(), "@tag.mytag.code", "my tag", 1, "Case insensitive search of tag codes is not working");
         assertNotNull(json);
 
     }
@@ -113,7 +113,7 @@ public class TestMappings extends ESBase {
 
         Entity entity = new EntityNode(Long.toString(now.getMillis()), fortress, mib, doc, user);
 
-        deleteEsIndex(entity.getIndexName());
+        deleteEsIndex(entity.getFortress().getIndexName());
 
         Map<String, Object> what = Helper.getSimpleMap(
                   EntitySearchSchema.WHAT_CODE, "AZERTY");
@@ -127,23 +127,23 @@ public class TestMappings extends ESBase {
         SearchChange searchResult = searchRepo.update(change);
         assertNotNull(searchResult);
         Thread.sleep(2000);
-        doQuery(entity.getIndexName(), "AZERTY", 1);
+        doQuery(entity.getFortress().getIndexName(), "AZERTY", 1);
 
-        doTermQuery(entity.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "des", 1);
-        doTermQuery(entity.getIndexName(), EntitySearchSchema.DESCRIPTION, "des", 1);
-        doTermQuery(entity.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "de", 0);
-        doTermQuery(entity.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "descripti", 1);
-        doTermQuery(entity.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "descriptio", 1);
+        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "des", 1);
+        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.DESCRIPTION, "des", 1);
+        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "de", 0);
+        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "descripti", 1);
+        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "descriptio", 1);
         // ToDo: Figure out ngram mappings
-//        doEsTermQuery(entity.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "is is a de", 1);
+//        doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "is is a de", 1);
 
-        doTermQuery(entity.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_NAME, "name", 1);
-        doTermQuery(entity.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_NAME, "nam", 1);
-        doTermQuery(entity.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_NAME, "nametext", 1);
+        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_NAME, "name", 1);
+        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_NAME, "nam", 1);
+        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_NAME, "nametext", 1);
 
-        doTermQuery(entity.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_CODE, "az", 1);
-        doTermQuery(entity.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_CODE, "azer", 1);
-        doTermQuery(entity.getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_CODE, "azerty", 0);
+        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_CODE, "az", 1);
+        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_CODE, "azer", 1);
+        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_CODE, "azerty", 0);
 
     }
 
@@ -161,8 +161,8 @@ public class TestMappings extends ESBase {
         changeA.setDescription("Test Description");
         changeB.setDescription("Test Description");
 
-        deleteEsIndex(entityA.getIndexName());
-        deleteEsIndex(entityB.getIndexName());
+        deleteEsIndex(entityA.getFortress().getIndexName());
+        deleteEsIndex(entityB.getFortress().getIndexName());
 
         changeA = searchRepo.update(changeA);
         changeB = searchRepo.update(changeB);
@@ -173,10 +173,10 @@ public class TestMappings extends ESBase {
         assertNotNull(changeB.getSearchKey());
 
         // by default we analyze the @description field
-        doDefaultFieldQuery(entityA.getIndexName(), "@description", changeA.getDescription(), 1);
+        doDefaultFieldQuery(entityA.getFortress().getIndexName(), "@description", changeA.getDescription(), 1);
 
         // In fortb.json we don't analyze the description (overriding the default) so it shouldn't be found
-        doDefaultFieldQuery(entityB.getIndexName(), "@description", changeB.getDescription(), 0);
+        doDefaultFieldQuery(entityB.getFortress().getIndexName(), "@description", changeB.getDescription(), 0);
 
     }
 
@@ -197,8 +197,8 @@ public class TestMappings extends ESBase {
         changeA.setTags(tags);
         changeB.setTags(tags);
 
-        deleteEsIndex(entityA.getIndexName());
-        deleteEsIndex(entityB.getIndexName());
+        deleteEsIndex(entityA.getFortress().getIndexName());
+        deleteEsIndex(entityB.getFortress().getIndexName());
 
         changeA = searchRepo.update(changeA);
         changeB = searchRepo.update(changeB);
@@ -208,9 +208,9 @@ public class TestMappings extends ESBase {
         assertNotNull(changeA.getSearchKey());
         assertNotNull(changeB.getSearchKey());
 
-        doFieldQuery(entityA.getIndexName(), entityA.getDocumentType().toLowerCase(), "@tag.mytag.code", "my tag", 1);
-        doFieldQuery(entityB.getIndexName(), entityB.getDocumentType().toLowerCase(), "@tag.mytag.code", "my tag", 1);
-        doTermQuery(entityB.getIndexName(), "@tag.mytag.code", "my tag", 2);
+        doFieldQuery(entityA.getFortress().getIndexName(), entityA.getDocumentType().toLowerCase(), "@tag.mytag.code", "my tag", 1);
+        doFieldQuery(entityB.getFortress().getIndexName(), entityB.getDocumentType().toLowerCase(), "@tag.mytag.code", "my tag", 1);
+        doTermQuery(entityB.getFortress().getIndexName(), "@tag.mytag.code", "my tag", 2);
 
     }
 

@@ -88,7 +88,7 @@ public class TestTagCloud extends ESBase {
         tags.add(new EntityTagRelationship(66l, tag));
         change.setTags(tags);
 
-        deleteEsIndex(entity.getIndexName());
+        deleteEsIndex(entity.getFortress().getIndexName());
 
         trackRepo.update(change);
         Thread.sleep(1000);
