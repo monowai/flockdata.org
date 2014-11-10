@@ -355,7 +355,7 @@ public class TestFdIntegration {
 
     @Test
     public void immutableEntityWithNoLogsAreIndexed() throws Exception {
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## immutableEntityWithNoLogsAreIndexed");
         SystemUser su = registerSystemUser("Manfred");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("immutableEntityWithNoLogsAreIndexed"));
@@ -1228,7 +1228,7 @@ public class TestFdIntegration {
         Entity entity = trackService.getEntity(company, metaKey);
         if (entity == null)
             return null;
-        int timeout = 100;
+        int timeout = 50;
         while (entity.getSearchKey() == null && i <= timeout) {
             Thread.sleep(20);
             entity = trackService.getEntity(company, metaKey);
