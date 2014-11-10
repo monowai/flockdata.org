@@ -104,7 +104,7 @@ public class TagEP {
         return tagService.findTag(company, label, code);
     }
 
-    @RequestMapping(value = "/merge/{label}/{sourceTag}/{targetTag}", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
+    @RequestMapping(value = "/{label}/{sourceTag}/merge/{targetTag}", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void mergeTags(
             String apiKey,
@@ -116,7 +116,7 @@ public class TagEP {
 
     }
 
-    @RequestMapping(value = "/alias/{label}/{sourceTag}/{akaValue}", produces = "application/json", method = RequestMethod.PUT)
+    @RequestMapping(value = "/{label}/{sourceTag}/alias/{akaValue}", produces = "application/json", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.CREATED)
     public void aliasTag(
             String apiKey,
