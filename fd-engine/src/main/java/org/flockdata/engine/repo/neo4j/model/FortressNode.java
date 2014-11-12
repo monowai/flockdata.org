@@ -36,8 +36,6 @@ import java.util.TimeZone;
 @TypeAlias("Fortress")
 public class FortressNode implements Fortress {
 
-    private String fortressKey;
-
     @GraphId
     Long id;
 
@@ -57,6 +55,8 @@ public class FortressNode implements Fortress {
     private String languageTag;
     private Boolean system = Boolean.FALSE;
     private Boolean enabled = Boolean.TRUE;
+
+    @Indexed (unique = true)
     private String indexName = null;
 
     protected FortressNode() {
@@ -84,10 +84,6 @@ public class FortressNode implements Fortress {
 
         this.indexName = EntitySearchSchema.parseIndex(ownedBy.getCode(),getCode() );
 
-    }
-
-    public String getFortressKey() {
-        return fortressKey;
     }
 
     public Long getId() {
@@ -139,13 +135,19 @@ public class FortressNode implements Fortress {
 
     @Override
     public String toString() {
-        String companyName = null;
-        if ( company!=null )
+        String companyName ;
+        String companyId;
+        if ( company!=null ) {
             companyName = company.getName();
+            companyId = company.getId().toString();
+        } else {
+            companyId ="[NULL]";
+            companyName ="[NULL]";
+        }
         return "FortressNode{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                (company !=null ? ", company='" + companyName + '\'' : ", companyId='" + company.getId() + '\'') +
+                (company !=null ? ", company='" + companyName + '\'' : ", companyId='" + companyId + '\'') +
                 '}';
     }
 
@@ -187,10 +189,6 @@ public class FortressNode implements Fortress {
         return indexName;
     }
 
-    public void setFortressKey(String fortressKey) {
-        this.fortressKey = fortressKey;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -200,7 +198,7 @@ public class FortressNode implements Fortress {
 
         if (code != null ? !code.equals(that.code) : that.code != null) return false;
         if (company != null ? !company.equals(that.company) : that.company != null) return false;
-        if (fortressKey != null ? !fortressKey.equals(that.fortressKey) : that.fortressKey != null) return false;
+        if (indexName != null ? !indexName.equals(that.indexName) : that.indexName != null) return false;
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
 
         return true;
@@ -208,7 +206,7 @@ public class FortressNode implements Fortress {
 
     @Override
     public int hashCode() {
-        int result = fortressKey != null ? fortressKey.hashCode() : 0;
+        int result = indexName != null ? indexName.hashCode() : 0;
         result = 31 * result + (id != null ? id.hashCode() : 0);
         result = 31 * result + (code != null ? code.hashCode() : 0);
         result = 31 * result + (company != null ? company.hashCode() : 0);

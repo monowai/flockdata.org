@@ -72,7 +72,6 @@ public class FortressEP {
     public ResponseEntity<Fortress> registerFortress( @RequestBody FortressInputBean fortressInputBean, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         Fortress fortress = fortressService.registerFortress(company, fortressInputBean, true);
-        fortressInputBean.setFortressKey(fortress.getFortressKey());
         return new ResponseEntity<>(fortress, HttpStatus.CREATED);
 
     }

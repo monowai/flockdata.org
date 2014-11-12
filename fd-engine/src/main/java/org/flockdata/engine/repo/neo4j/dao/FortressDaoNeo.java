@@ -50,13 +50,12 @@ public class FortressDaoNeo  {
     private FortressUserRepository fortressUserRepo;
 
     @Autowired
-    private KeyGenService keyGenService;
+    Neo4jTemplate template;
 
     private Logger logger = LoggerFactory.getLogger(FortressDaoNeo.class);
 
     public Fortress save(Company company, FortressInputBean fortressInput) {
         FortressNode fortress = new FortressNode(fortressInput, company);
-        fortress.setFortressKey(keyGenService.getUniqueKey());
         return fortressRepo.save(fortress);
     }
 
@@ -68,9 +67,6 @@ public class FortressDaoNeo  {
 //        logger.debug("Looking for {}", fortressId);
         return fortressRepo.findOne(fortressId);
     }
-
-    @Autowired
-    Neo4jTemplate template;
 
     public FortressUser getFortressUser(Long fortressId, String name) {
         //return fortressRepo.getFortressUser(fortressId, name);

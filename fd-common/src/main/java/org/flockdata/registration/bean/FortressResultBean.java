@@ -27,7 +27,6 @@ import org.flockdata.registration.model.Fortress;
  */
 public class FortressResultBean {
     private String name;
-    private String fortressKey;
     private String timeZone;
 
     protected FortressResultBean() {
@@ -37,16 +36,11 @@ public class FortressResultBean {
     public FortressResultBean(Fortress fortress) {
         this();
         this.name = fortress.getName();
-        this.fortressKey = fortress.getFortressKey();
         this.timeZone = fortress.getTimeZone();
     }
 
     public String getName() {
         return name;
-    }
-
-    public String getFortressKey() {
-        return fortressKey;
     }
 
     public String getTimeZone() {
