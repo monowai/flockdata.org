@@ -32,8 +32,6 @@ public interface Fortress {
 
     public abstract void setCompany(Company ownedBy);
 
-    public String getFortressKey();
-
     /**
      * Are changes logged against this fortress accumulated or updated in the search engine
      *

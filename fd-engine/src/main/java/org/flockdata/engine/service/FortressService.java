@@ -65,9 +65,10 @@ public class FortressService {
     public FortressUser getUser(Long id) {
         return fortressDao.findOneUser(id);
     }
-//    @Cacheable(value = "fortressName", unless = "#result == null")
+
+    //    @Cacheable(value = "fortressName", unless = "#result == null")
     public Fortress findByName(Company company, String fortressName) throws NotFoundException {
-        if ( fortressName == null )
+        if (fortressName == null)
             throw new NotFoundException("Unable to lookup a fortress name with a null value");
         return fortressDao.getFortressByName(company.getId(), fortressName);
     }
@@ -80,7 +81,7 @@ public class FortressService {
 
     public Fortress findByCode(String fortressCode) {
         Company ownedBy = getCompany();
-        return findByCode(ownedBy, fortressCode) ;
+        return findByCode(ownedBy, fortressCode);
     }
 
     public Fortress findByCode(Company company, String fortressCode) {
@@ -109,14 +110,13 @@ public class FortressService {
      * FortressUser Name is deemed to always be unique and is converted to a lowercase trimmed
      * string to enforce this
      *
-     *
-     * @param company pre-authorised company
+     * @param company      pre-authorised company
      * @param fortressUser user to locate
      * @return fortressUser identity
      */
     public FortressUser getFortressUser(Company company, String fortressName, String fortressUser) throws NotFoundException {
         Fortress fortress = findByName(company, fortressName);
-        if ( fortress == null )
+        if (fortress == null)
             return null;
         return getFortressUser(fortress, fortressUser, true);
     }
@@ -150,7 +150,7 @@ public class FortressService {
     private FortressUser addFortressUser(Fortress fortress, String fortressUser) {
         if (fortress == null)
             throw new IllegalArgumentException("Unable to find requested fortress");
-        logger.trace("Request to add fortressUser [{}], [{}]",fortress, fortressUser);
+        logger.trace("Request to add fortressUser [{}], [{}]", fortress, fortressUser);
         //Fortress fortressz = findByCode(fortress.getCompany(), fortress.getCode());
         //logger.trace("Fortress result {}", fortressz);
         Company company = fortress.getCompany();
@@ -175,7 +175,7 @@ public class FortressService {
     }
 
     public Collection<Fortress> findFortresses(Company company) throws FlockException {
-        if ( company == null )
+        if (company == null)
             throw new FlockException("Unable to identify the requested company");
         return fortressDao.findFortresses(company.getId());
 
@@ -193,7 +193,8 @@ public class FortressService {
 
     /**
      * Creates a fortress if it's missing.
-     * @param company   who to crate for
+     *
+     * @param company           who to crate for
      * @param fortressInputBean payload
      * @return existing or newly created fortress
      */
@@ -205,28 +206,31 @@ public class FortressService {
         logger.debug("Fortress registration request {}, {}", company, fib);
         Fortress fortress = fortressDao.getFortressByName(company.getId(), fib.getName());
 
-        if (fortress != null || !createIfMissing) {
+        if (fortress != null) {
             // Already associated, get out of here
             logger.debug("Company {} has existing fortress {}", company, fortress);
             return fortress;
         }
+        if (createIfMissing) {
+            fortress = save(company, fib);
+            logger.debug("Created fortress {}", fortress);
+            fortress.setCompany(company);
+            logger.debug("Returning fortress {}", fortress);
+            return fortress;
+        }
+        return null;
 
-        fortress = save(company, fib);
-        logger.debug ("Created fortress {}", fortress);
-        fortress.setCompany(company);
-        logger.debug("Returning fortress {}", fortress);
-        return fortress;
     }
 
 
     public Collection<DocumentResultBean> getFortressDocumentsInUse(Company company, String code) throws NotFoundException {
         Fortress fortress = findByCode(company, code);
-        if ( fortress == null )
+        if (fortress == null)
             fortress = findByName(company, code);
-        if (fortress == null ) {
+        if (fortress == null) {
             return new ArrayList<>();
         }
-        Collection<DocumentResultBean>results = new ArrayList<>();
+        Collection<DocumentResultBean> results = new ArrayList<>();
         Collection<DocumentType> rawDocs = schemaDao.getFortressDocumentsInUse(fortress);
         for (DocumentType rawDoc : rawDocs) {
             results.add(new DocumentResultBean(rawDoc));
@@ -237,8 +241,8 @@ public class FortressService {
 
     public Fortress getFortress(Company company, String fortressName) throws NotFoundException {
         Fortress fortress = fortressDao.getFortressByName(company.getId(), fortressName);
-        if (fortress == null )
-            throw new NotFoundException("Unable to locate the fortress "+fortressName);
+        if (fortress == null)
+            throw new NotFoundException("Unable to locate the fortress " + fortressName);
         return fortress;
     }
 }
