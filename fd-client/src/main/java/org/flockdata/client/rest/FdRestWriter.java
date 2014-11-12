@@ -36,6 +36,7 @@ import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.track.bean.CrossReferenceInputBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.transform.FdWriter;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -323,27 +324,29 @@ public class FdRestWriter implements FdWriter {
         return "OK";
 
     }
+    private boolean amqp = false; // Experimental support
 
     public String flushEntities(Company company, List<EntityInputBean> entityInputs, boolean async) throws FlockException {
         if (simulateOnly || entityInputs.isEmpty())
             return "OK";
-        return flushEntitiesAmqp(company, entityInputs, async);
-//        RestTemplate restTemplate = getRestTemplate();
-//
-//        HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
-//        HttpEntity<List<EntityInputBean>> requestEntity = new HttpEntity<>(entityInputs, httpHeaders);
-//
-//        try {
-//            restTemplate.exchange(NEW_ENTITY + "?async=" + async, HttpMethod.PUT, requestEntity, TrackResultBean.class);
-//            return "OK";
-//        } catch (HttpClientErrorException e) {
-//            logger.error("Service tracking error {}", getErrorMessage(e));
-//            return null;
-//        } catch (HttpServerErrorException e) {
-//            logger.error("Service tracking error {}", getErrorMessage(e));
-//            return null;
-//
-//        }
+        if ( amqp )
+            return flushEntitiesAmqp(company, entityInputs, async);
+        RestTemplate restTemplate = getRestTemplate();
+
+        HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
+        HttpEntity<List<EntityInputBean>> requestEntity = new HttpEntity<>(entityInputs, httpHeaders);
+
+        try {
+            restTemplate.exchange(NEW_ENTITY + "?async=" + async, HttpMethod.PUT, requestEntity, TrackResultBean.class);
+            return "OK";
+        } catch (HttpClientErrorException e) {
+            logger.error("Service tracking error {}", getErrorMessage(e));
+            return null;
+        } catch (HttpServerErrorException e) {
+            logger.error("Service tracking error {}", getErrorMessage(e));
+            return null;
+
+        }
     }
 
     RestTemplate restTemplate = null;
