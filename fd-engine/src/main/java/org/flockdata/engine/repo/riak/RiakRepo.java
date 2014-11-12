@@ -62,7 +62,7 @@ public class RiakRepo implements KvRepo {
 
     public void add(Entity entity, Log log) throws IOException {
         try {
-            Bucket bucket = getClient().createBucket(entity.getFortress().getIndexName()).execute();
+            Bucket bucket = getClient().createBucket(getBucket(entity)).execute();
             bucket.store(String.valueOf(log.getId()), log.getEntityContent()).execute();
         } catch (RiakException e) {
             logger.error("RIAK Repo Error", e);
@@ -72,9 +72,13 @@ public class RiakRepo implements KvRepo {
         }
     }
 
+    private String getBucket(Entity entity) {
+        return entity.getFortress().getIndexName()+"/"+entity.getDocumentType().toLowerCase();
+    }
+
     public byte[] getValue(Entity entity, Log forLog) {
         try {
-            Bucket bucket = getClient().createBucket(entity.getFortress().getIndexName()).execute();
+            Bucket bucket = getClient().createBucket(getBucket(entity)).execute();
             IRiakObject result = bucket.fetch(String.valueOf(forLog.getId())).execute();
             if (result != null)
                 return result.getValue();
@@ -91,7 +95,7 @@ public class RiakRepo implements KvRepo {
 
     public void delete(Entity entity, Log log) {
         try {
-            Bucket bucket = getClient().fetchBucket(entity.getFortress().getIndexName()).execute();
+            Bucket bucket = getClient().fetchBucket(getBucket(entity)).execute();
             bucket.delete(String.valueOf(log.getId())).execute();
         } catch (RiakException e) {
             logger.error("RIAK Repo Error", e);

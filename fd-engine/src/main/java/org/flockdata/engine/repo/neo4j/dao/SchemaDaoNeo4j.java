@@ -104,8 +104,7 @@ public class SchemaDaoNeo4j {
                 docResult = documentExists(fortress, docCode);
                 if (docResult == null) {
 
-                    docResult = new DocumentTypeNode(fortress, docCode);
-                    template.save(docResult);
+                    docResult = template.save(new DocumentTypeNode(fortress, docCode));
                 }
             } finally {
                 lock.unlock();
@@ -127,7 +126,7 @@ public class SchemaDaoNeo4j {
 
     //@Cacheable(value = "companyDocType", unless = "#result == null")
     private DocumentType documentExists(Fortress fortress, String docCode) {
-
+        assert fortress !=null;
         DocumentType dt = documentTypeRepo.findFortressDocCode(fortress.getId(), DocumentTypeNode.parse(fortress, docCode));
         logger.trace("Document Exists= {} - Looking for {}", dt != null, DocumentTypeNode.parse(fortress, docCode));
         return dt;

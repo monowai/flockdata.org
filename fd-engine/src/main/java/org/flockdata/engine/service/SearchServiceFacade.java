@@ -26,6 +26,7 @@ import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.model.Company;
+import org.flockdata.registration.model.Fortress;
 import org.flockdata.search.model.*;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.LogResultBean;
@@ -242,17 +243,17 @@ public class SearchServiceFacade {
         logger.info("Purge the search Fortress {}", indexName);
     }
 
-    public void makeChangeSearchable(TrackResultBean trackResult) {
+    public void makeChangeSearchable(Fortress fortress, TrackResultBean trackResult) {
         Collection<TrackResultBean>results = new ArrayList<>();
         results.add(trackResult);
-        makeChangesSearchable(results);
+        makeChangesSearchable(fortress, results);
 
     }
 
-    public void makeChangesSearchable(Iterable<TrackResultBean> resultBeans) {
+    public void makeChangesSearchable(Fortress fortress, Iterable<TrackResultBean> resultBeans) {
         Collection<SearchChange> changes = new ArrayList<>();
         for (TrackResultBean resultBean : resultBeans) {
-            SearchChange change = getSearchChange(resultBean);
+            SearchChange change = getSearchChange(fortress, resultBean);
             if (change!=null )
                 changes.add(change);
         }
@@ -260,14 +261,14 @@ public class SearchServiceFacade {
 
     }
 
-    private SearchChange getSearchChange(TrackResultBean trackResultBean) {
+    private SearchChange getSearchChange(Fortress fortress, TrackResultBean trackResultBean) {
         if ( trackResultBean == null )
             return null;
         if (trackResultBean.getEntityInputBean()!=null && trackResultBean.getEntityInputBean().isMetaOnly()){
-            return getEntitySearchChange(trackResultBean);
+            return getSearchChange(fortress.getCompany(), trackResultBean);
         }
 
-        if ( trackResultBean.getEntity()== null || !trackResultBean.getEntity().getFortress().isSearchActive())
+        if ( trackResultBean.getEntity()== null || !fortress.isSearchActive())
             return null;
 
         LogResultBean logResultBean = trackResultBean.getLogResult();
@@ -288,9 +289,6 @@ public class SearchServiceFacade {
         return null;
     }
 
-    private SearchChange getEntitySearchChange(TrackResultBean trackResultBean) {
-        return getSearchChange(trackResultBean.getEntity().getFortress().getCompany(), trackResultBean);
-    }
 
     public void refresh(Company company, Collection<Long> entities) {
         // To support DAT-279 - not going to work well with massive result sets

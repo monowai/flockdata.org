@@ -90,13 +90,13 @@ public class AdminEP {
     }
 
 
-    @RequestMapping(value = "/{fortressName}/rebuild", method = RequestMethod.POST)
+    @RequestMapping(value = "/{fortressCode}/rebuild", method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.ACCEPTED)
-    public ResponseEntity<String> rebuildSearch(@PathVariable("fortressName") String fortressName,
+    public ResponseEntity<String> rebuildSearch(@PathVariable("fortressCode") String fortressCode,
                                                 HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        logger.info("Reindex command received for " + fortressName + " from [" + securityHelper.getLoggedInUser() + "]");
-        mediationFacade.reindex(company, fortressName);
+        logger.info("Reindex command received for " + fortressCode + " from [" + securityHelper.getLoggedInUser() + "]");
+        mediationFacade.reindex(company, fortressCode);
         return new ResponseEntity<>("Request to reindex has been received", HttpStatus.ACCEPTED);
     }
 
@@ -114,12 +114,12 @@ public class AdminEP {
 
     @RequestMapping(value = "/{fortressName}", method = RequestMethod.DELETE)
     @ResponseStatus(value = HttpStatus.ACCEPTED)
-    public ResponseEntity<String> purgeFortress(@PathVariable("fortressName") String fortressName,
+    public ResponseEntity<String> purgeFortress(@PathVariable("fortressName") String fortressCode,
                                                 HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 
-        mediationFacade.purge(company, fortressName);
-        return new ResponseEntity<>("Purged " + fortressName, HttpStatus.ACCEPTED);
+        mediationFacade.purge(company, fortressCode);
+        return new ResponseEntity<>("Purged " + fortressCode, HttpStatus.ACCEPTED);
 
     }
 

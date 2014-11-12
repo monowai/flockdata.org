@@ -217,7 +217,7 @@ public class KvManager implements KvService {
         }
 
         if ( count >= timeout)
-            logger.error("Timeout looking for KV What data for [{}]", entity);
+            logger.error("Timeout looking for KV What data for [{}] [{}]", entity, compareFrom);
 
         if (content == null)
             return false;

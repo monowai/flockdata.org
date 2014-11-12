@@ -69,6 +69,8 @@
     <int:channel id="sendTagCloudRequest"/>
     <int:channel id="sendTagCloudReply"/>
 
+    <int:channel id="trackEntity"/>
+
     <int:channel id="errors"/>
 
     <int:service-activator id="fdErrorLogger" input-channel="errors" ref="fdLoggingHandler"/>

@@ -29,6 +29,7 @@
 
     <rabbit:queue name="${fd.search.queue}"/>
     <rabbit:queue name="${fd.engine.queue}"/>
+    <rabbit:queue name="${fd.track.queue}"/>
 
     <rabbit:direct-exchange name="${fd.search.exchange}">
         <rabbit:bindings>
@@ -39,6 +40,12 @@
     <rabbit:direct-exchange name="${fd.engine.exchange}">
         <rabbit:bindings>
             <rabbit:binding queue="${fd.engine.queue}" key="${fd.engine.binding}"/>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+
+    <rabbit:direct-exchange name="${fd.track.exchange}">
+        <rabbit:bindings>
+            <rabbit:binding queue="${fd.track.queue}" key="${fd.track.binding}"/>
         </rabbit:bindings>
     </rabbit:direct-exchange>
 

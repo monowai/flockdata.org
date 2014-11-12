@@ -19,16 +19,16 @@
 
 package org.flockdata.engine.service;
 
+import org.flockdata.engine.repo.neo4j.dao.SchemaDaoNeo4j;
 import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.track.bean.ConceptInputBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.service.SchemaService;
-import org.flockdata.engine.repo.neo4j.dao.SchemaDaoNeo4j;
-import org.flockdata.registration.model.Company;
 import org.flockdata.track.model.DocumentType;
+import org.flockdata.track.service.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,14 +88,15 @@ public class SchemaServiceNeo4j implements SchemaService {
 
     @Override
     @Transactional
-    public void registerConcepts(Company company, Iterable<TrackResultBean> resultBeans) {
+    public void registerConcepts(Fortress fortress, Iterable<TrackResultBean> resultBeans) {
         if (!engineConfig.isConceptsEnabled())
             return;
-        logger.debug("Processing concepts for {}", company);
+        assert fortress!=null;
+        logger.debug("Processing concepts for {}", fortress.getCompany());
         Map<DocumentType, Collection<ConceptInputBean>> payload = new HashMap<>();
         for (TrackResultBean resultBean : resultBeans) {
             if (resultBean.getEntity() != null && resultBean.getEntity().getId() != null) {
-                DocumentType docType = schemaDao.findDocumentType(resultBean.getEntity().getFortress(), resultBean.getEntity().getDocumentType(), false);
+                DocumentType docType = schemaDao.findDocumentType(fortress, resultBean.getEntity().getDocumentType(), false);
                 Collection<ConceptInputBean> conceptInputBeans = payload.get(docType);
                 if (conceptInputBeans == null) {
                     conceptInputBeans = new ArrayList<>();
@@ -117,7 +118,7 @@ public class SchemaServiceNeo4j implements SchemaService {
             }
         }
         if (!payload.isEmpty())
-            schemaDao.registerConcepts(company, payload);
+            schemaDao.registerConcepts(fortress.getCompany(), payload);
     }
 
     /**

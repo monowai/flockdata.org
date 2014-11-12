@@ -319,8 +319,8 @@ public class EntityTagDaoNeo4j {
         List<EntityTag> tagResults = new ArrayList<>();
         if ( null == entity.getId())
             return tagResults;
-        String query = "match (track:_Entity)-[tagType]-(tag" +Tag.DEFAULT+ engineAdmin.getTagSuffix(company) + ") " +
-                "where id(track)={id} \n" +
+        String query = "match (entity:_Entity)-[tagType]-(tag" +Tag.DEFAULT+ engineAdmin.getTagSuffix(company) + ") " +
+                "where id(entity)={id} \n" +
                 "optional match tag-[:located]-(located)-[*0..2]-(country:Country) \n" +
                 "optional match located-[*0..2]->(state:State) " +
                 "return tag,tagType,located,state, country " +

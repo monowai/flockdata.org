@@ -17,10 +17,6 @@
     <int:gateway id="fdSearchGateway"  async-executor="fd-q-exec"
                  service-interface="org.flockdata.engine.service.FdSearchGateway"/>
 
-    <!--<int:gateway id="fdTrackGateway"-->
-                 <!--service-interface="org.flockdata.engine.endpoint.TrackGateway"/>-->
-
-
     <int:json-to-object-transformer id="jsonToObject2"
                                     input-channel="doMetaKeyReply"
                                     output-channel="sendSearchReply"
@@ -76,15 +72,16 @@
     <int:channel id="sendTagCloudRequest"/>
     <int:channel id="sendTagCloudReply"/>
 
-    <!--<int:channel id="trackEntityOut"/>-->
-    <!--<int:channel id="trackEntityIn"/>-->
+    <int:channel id="trackEntity">
+        <int:dispatcher task-executor="fd-qt-exec"/>
+    </int:channel>
 
-    <int:channel id="errors"/>
+    <int:channel id="entityErrors"/>
 
-    <int:service-activator id="fdErrorLogger" input-channel="errors" ref="fdLoggingHandler"/>
+    <int:service-activator id="fdEntityErrorLogger" input-channel="entityErrors" ref="fdEntityErrorHandler"/>
 
-    <bean id="fdLoggingHandler" class="org.springframework.integration.handler.LoggingHandler">
-        <constructor-arg index="0" value="DEBUG"/>
+    <bean id="fdEntityErrorHandler" class="org.flockdata.helper.EntityErrorHandler">
+
     </bean>
 
     <task:executor id="fd-q-exec"
@@ -92,11 +89,9 @@
                    queue-capacity="${q.task.capacity}"
                    rejection-policy="CALLER_RUNS"/>
 
-    <!--<bean fortressId="qThreadPoolExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">-->
-    <!--<property name="allowCoreThreadTimeOut" value="true"/>-->
-    <!--<property name="queueCapacity" value="50"/>-->
-    <!--<property name="rejectedExecutionHandler" value="CALLER_RUNS"/>-->
-    <!--&lt;!&ndash;Was -1&ndash;&gt;-->
-    <!--</bean>-->
+    <task:executor id="fd-qt-exec"
+                   pool-size="${q.thread.poolSize}"
+                   queue-capacity="${q.task.capacity}"
+                   rejection-policy="CALLER_RUNS"/>
 
 </beans>

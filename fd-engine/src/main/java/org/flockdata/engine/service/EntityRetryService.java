@@ -21,12 +21,17 @@ package org.flockdata.engine.service;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.model.Fortress;
-import org.flockdata.track.service.LogService;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.track.service.LogService;
+import org.flockdata.track.service.SchemaService;
 import org.flockdata.track.service.TrackService;
+import org.neo4j.kernel.DeadlockDetectedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.dao.ConcurrencyFailureException;
+import org.springframework.dao.DataRetrievalFailureException;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.retry.annotation.Retryable;
@@ -42,10 +47,10 @@ import java.util.concurrent.ExecutionException;
  * Date: 20/09/14
  * Time: 3:38 PM
  */
-//@Configuration
+@Configuration
 @EnableRetry
 @Service
-@Transactional
+//@Transactional
 public class EntityRetryService {
 
     @Autowired
@@ -54,12 +59,28 @@ public class EntityRetryService {
     @Autowired
     LogService logService;
 
-    @Retryable(include = ConcurrencyFailureException.class, maxAttempts = 12, backoff = @Backoff(delay = 100, maxDelay = 500))
+    @Autowired
+    LogRetryService logRetryService;
+
+    @Autowired
+    SchemaService schemaService;
+
+    @Retryable(include = {DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
     public Iterable<TrackResultBean> track(Fortress fortress, List<EntityInputBean> entities)
             throws InterruptedException, ExecutionException, FlockException, IOException {
+        return doTrack(fortress, entities);
+    }
 
+    @Transactional
+    Iterable<TrackResultBean> doTrack(Fortress fortress, List<EntityInputBean> entities) throws InterruptedException, FlockException, ExecutionException, IOException {
         Iterable<TrackResultBean> resultBeans = trackService.trackEntities(fortress, entities);
-        return logService.processLogsSync(fortress.getCompany(), resultBeans);
+        schemaService.registerConcepts(fortress, resultBeans);
+//        Collection<TrackResultBean> trackResultBeans = new ArrayList<>();
+//        for (TrackResultBean resultBean : resultBeans) {
+//            trackResultBeans.add(logRetryService.writeLogTx(fortress, resultBean));
+//        }
+        //return trackResultBeans;
+        return logService.processLogsSync(fortress, resultBeans);
 
     }
 

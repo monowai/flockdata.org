@@ -83,4 +83,7 @@
     <!-- TAG CLOUD CHANNEL Fd-ENGINE-->
     <int:channel id="sendTagCloudRequest"/>
     <int:channel id="sendTagCloudReply"/>
+
+    <int:channel id="trackEntity"/>
+
 </beans>
