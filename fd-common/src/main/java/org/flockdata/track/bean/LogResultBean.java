@@ -19,6 +19,7 @@
 
 package org.flockdata.track.bean;
 
+import org.flockdata.registration.model.Fortress;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
 import org.flockdata.track.model.Log;
@@ -48,20 +49,21 @@ public class LogResultBean {
     private Log whatLog;
     private boolean logIgnored = false;
 
-    public LogResultBean(ContentInputBean input, Entity entity) {
+
+    private LogResultBean() {
+    }
+
+    public LogResultBean(ContentInputBean content, Entity entity, Fortress fortress) {
         this();
         this.entity = entity;
         if ( entity !=null ) {
             setMetaKey(entity.getMetaKey());
             setDocumentType(entity.getDocumentType());
             setCallerRef(entity.getCallerRef());
-            setFortress(entity.getFortress().getName());
+            setFortress(fortress.getName());
         }
-        setFortressUser(input.getFortressUser());
+        setFortressUser(content.getFortressUser());
 
-    }
-
-    private LogResultBean() {
     }
 
 

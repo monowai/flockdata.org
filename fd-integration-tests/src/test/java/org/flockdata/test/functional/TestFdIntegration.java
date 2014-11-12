@@ -19,34 +19,11 @@
 
 package org.flockdata.test.functional;
 
-import org.flockdata.engine.FdServerWriter;
-import org.flockdata.engine.endpoint.QueryEP;
-import org.flockdata.engine.service.FortressService;
-import org.flockdata.engine.service.QueryService;
-import org.flockdata.helper.FlockDataJsonFactory;
-import org.flockdata.helper.JsonUtils;
-import org.flockdata.kv.service.KvService;
-import org.flockdata.registration.bean.RegistrationBean;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.SystemUser;
-import org.flockdata.registration.model.Tag;
-import org.flockdata.registration.service.CompanyService;
-import org.flockdata.search.model.EntitySearchSchema;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityTag;
-import org.flockdata.track.service.*;
-import org.flockdata.engine.endpoint.TrackEP;
-import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.service.RegistrationService;
-import org.flockdata.search.model.EsSearchResult;
-import org.flockdata.search.model.QueryParams;
-import org.flockdata.search.model.SearchResult;
-import org.flockdata.track.model.EntityLog;
-import org.flockdata.transform.TrackBatcher;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.JestResult;
@@ -56,7 +33,33 @@ import io.searchbox.indices.DeleteIndex;
 import io.searchbox.indices.mapping.GetMapping;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.time.StopWatch;
+import org.flockdata.engine.FdServerWriter;
+import org.flockdata.engine.endpoint.QueryEP;
+import org.flockdata.engine.endpoint.TrackEP;
+import org.flockdata.engine.service.FortressService;
+import org.flockdata.engine.service.QueryService;
+import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.helper.JsonUtils;
+import org.flockdata.kv.service.KvService;
+import org.flockdata.registration.bean.FortressInputBean;
+import org.flockdata.registration.bean.RegistrationBean;
+import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.registration.model.Company;
+import org.flockdata.registration.model.Fortress;
+import org.flockdata.registration.model.SystemUser;
+import org.flockdata.registration.model.Tag;
+import org.flockdata.registration.service.CompanyService;
+import org.flockdata.registration.service.RegistrationService;
+import org.flockdata.search.model.EntitySearchSchema;
+import org.flockdata.search.model.EsSearchResult;
+import org.flockdata.search.model.QueryParams;
+import org.flockdata.search.model.SearchResult;
 import org.flockdata.track.bean.*;
+import org.flockdata.track.model.Entity;
+import org.flockdata.track.model.EntityLog;
+import org.flockdata.track.model.EntityTag;
+import org.flockdata.track.service.*;
+import org.flockdata.transform.TrackBatcher;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.AfterClass;
@@ -66,8 +69,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -94,7 +99,6 @@ import java.io.FileInputStream;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.concurrent.Future;
 
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
@@ -174,6 +178,12 @@ public class TestFdIntegration {
 
     @Autowired
     FdServerWriter serverWriter;
+
+    @Autowired
+    RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    ApplicationContext applicationContext;
 
     private static Logger logger = LoggerFactory.getLogger(TestFdIntegration.class);
     private static Authentication AUTH_MIKE = new UsernamePasswordAuthenticationToken("mike", "123");
@@ -275,7 +285,7 @@ public class TestFdIntegration {
 
     @Test
     public void companyAndFortressWithSpaces() throws Exception {
-        //assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## companyAndFortressWithSpaces");
 
         SystemUser su = registerSystemUser("testcompany", "companyAndFortressWithSpaces");
@@ -355,7 +365,7 @@ public class TestFdIntegration {
 
     @Test
     public void immutableEntityWithNoLogsAreIndexed() throws Exception {
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## immutableEntityWithNoLogsAreIndexed");
         SystemUser su = registerSystemUser("Manfred");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("immutableEntityWithNoLogsAreIndexed"));
@@ -403,9 +413,10 @@ public class TestFdIntegration {
 
         // Rebuild....
         SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
-        Future<Long> fResult = mediationFacade.reindex(fo.getCompany(), fo.getCode());
+        Long lResult = mediationFacade.reindex(fo.getCompany(), fo.getCode());
         waitForEntitiesToUpdate(su.getCompany(), entity);
-        assertEquals(1l, fResult.get().longValue());
+        assertNotNull(lResult);
+        assertEquals(1l, lResult.longValue());
 
         doEsQuery(entity.getFortress().getIndexName(), "*");
 
@@ -586,7 +597,7 @@ public class TestFdIntegration {
     @Test
     public void searchIndexWithNoMetaKeysDoesNotError() throws Exception {
         // DAT-83
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## searchDocWithNoMetaKeyWorks");
         SystemUser su = registerSystemUser("HarryIndex");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("searchIndexWithNoMetaKeysDoesNotError"));
@@ -870,25 +881,25 @@ public class TestFdIntegration {
         assumeTrue(runMe);
         //DAT-279
         logger.info("## merge_SearchDocIsReWritten");
-        SystemUser su = registerSystemUser("merge_Simple");
-        Fortress fortWP = fortressService.registerFortress(su.getCompany(),
-                new FortressInputBean("mergeSimple", false));
+        SystemUser su = registerSystemUser("merge_SimpleSearch");
+        Fortress fortress = fortressService.registerFortress(su.getCompany(),
+                new FortressInputBean("mergeSimpleSearch", false));
 
         TagInputBean tagInputA = new TagInputBean("TagA", "MoveTag", "rlxA");
         TagInputBean tagInputB = new TagInputBean("TagB", "MoveTag", "rlxB");
 
-        EntityInputBean inputBean = new EntityInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "AAA");
+        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "AAA");
 
         inputBean.addTag(tagInputA);
         inputBean.setContent(new ContentInputBean("blah", getRandomMap()));
 
         Entity entityA = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
-        inputBean = new EntityInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "BBB");
+        inputBean = new EntityInputBean(fortress.getName(), "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "BBB");
         inputBean.addTag(tagInputB);
         // Without content, a search doc will not be created
         inputBean.setContent(new ContentInputBean("blah", getRandomMap()));
 
-        Entity entityB = mediationFacade.trackEntity(fortWP, inputBean).getEntity();
+        Entity entityB = mediationFacade.trackEntity(fortress, inputBean).getEntity();
         waitForInitialSearchResult(su.getCompany(), entityA.getMetaKey());
         waitForInitialSearchResult(su.getCompany(), entityB.getMetaKey());
         Tag tagA = tagService.findTag(su.getCompany(), tagInputA.getName());
@@ -897,17 +908,48 @@ public class TestFdIntegration {
         assertNotNull(tagB);
         waitAWhile();
 
-        doEsFieldQuery(fortWP.getIndexName(), "@tag.rlxa.code", "taga", 1);
-        doEsFieldQuery(fortWP.getIndexName(), "@tag.rlxb.code", "tagb", 1);
+        doEsFieldQuery(fortress.getIndexName(), "@tag.rlxa.code", "taga", 1);
+        doEsFieldQuery(fortress.getIndexName(), "@tag.rlxb.code", "tagb", 1);
 
         mediationFacade.mergeTags(su.getCompany(), tagA, tagB);
         waitAWhile();
         // We should not find anything against tagA",
-        doEsFieldQuery(fortWP.getIndexName(), "@tag.rlxa.code", "taga", 0);
-        doEsFieldQuery(fortWP.getIndexName(), "@tag.rlxb.code", "taga", 0);
+        doEsFieldQuery(fortress.getIndexName(), "@tag.rlxa.code", "taga", 0);
+        doEsFieldQuery(fortress.getIndexName(), "@tag.rlxb.code", "taga", 0);
         // Both docs will be against TagB
-        doEsFieldQuery(fortWP.getIndexName(), "@tag.rlxa.code", "tagb", 1);
-        doEsFieldQuery(fortWP.getIndexName(), "@tag.rlxb.code", "tagb", 1);
+        doEsFieldQuery(fortress.getIndexName(), "@tag.rlxa.code", "tagb", 1);
+        doEsFieldQuery(fortress.getIndexName(), "@tag.rlxb.code", "tagb", 1);
+
+    }
+
+    @Test
+    public void amqp_TrackEntity () throws Exception {
+//        assumeTrue(runMe);
+        logger.info("## amqp_TrackEntity");
+        SystemUser su = registerSystemUser("amqp_TrackEntity");
+        Fortress fortress = fortressService.registerFortress(su.getCompany(),
+                new FortressInputBean("amqp_TrackEntity", false));
+
+        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "olivia@sunnybell.com", "DocType", DateTime.now(), "AAA");
+
+        inputBean.setContent(new ContentInputBean("blah", getRandomMap()));
+        inputBean.setApiKey(su.getApiKey());
+
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost("localhost");
+
+        Connection connection = factory.newConnection();
+        Channel channel = connection.createChannel();
+
+        channel.queueBind("int.fd.track.queue", "int.fd.track.exchange", "int.fd.track.queue");
+
+        channel.basicPublish("int.fd.track.exchange", "int.fd.track.queue", null, JsonUtils.getObjectAsJsonBytes(inputBean));
+        channel.close();
+        connection.close();
+        waitAWhile();
+        Entity entityA = trackService.findByCallerRef(fortress, "DocType", "AAA");
+        assertNotNull(entityA);
+
 
     }
 

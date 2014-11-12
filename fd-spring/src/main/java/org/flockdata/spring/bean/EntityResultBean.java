@@ -20,7 +20,6 @@
 package org.flockdata.spring.bean;
 
 import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.track.bean.TrackResultBean;
 
 /**
  * Created with IntelliJ IDEA.
@@ -31,30 +30,20 @@ import org.flockdata.track.bean.TrackResultBean;
  */
 class EntityResultBean {
 
-    private TrackResultBean trackResultBean;
     private ContentInputBean contentInputBean;
 
-    public EntityResultBean(TrackResultBean trackResultBean) {
-        this.trackResultBean = trackResultBean;
-    }
 
     public EntityResultBean(ContentInputBean contentInputBean) {
         this.contentInputBean = contentInputBean;
     }
 
     public String getMetaKey() {
-        if (contentInputBean != null) {
+        if (contentInputBean != null)
             return contentInputBean.getMetaKey();
-        } else {
-            return trackResultBean.getMetaKey();
-        }
+        return null;
     }
 
     public Object getResult() {
-        if (contentInputBean != null) {
-            return contentInputBean;
-        } else {
-            return trackResultBean;
-        }
+        return contentInputBean;
     }
 }

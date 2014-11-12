@@ -41,11 +41,20 @@
         <level value="info"/>
     </logger>
 
+    <logger name="org.springframework">
+        <level value="error"/>
+    </logger>
+    <!--<logger name="org.springframework.retry.support.RetryTemplate">-->
+        <!--<level value="debug"/>-->
+    <!--</logger>-->
     <logger name="org.springframework.amqp">
         <level value="info"/>
     </logger>
+    <logger name="org.springframework.amqp.rabbit.listener.BlockingQueueConsumer">
+        <level value="info"/>
+    </logger>
     <logger name="org.springframework.integration">
-        <level value="error"/>
+        <level value="info"/>
     </logger>
     <logger name="org.springframework.scheduling">
         <level value="error"/>
@@ -73,9 +82,6 @@
         <level value="error"/>
     </logger>
 
-    <logger name="org.springframework">
-        <level value="info"/>
-    </logger>
 
     <logger name="com.jersey">
         <level value="error"/>
@@ -105,13 +111,9 @@
         <level value="info"/>
     </logger>
 
-    <logger name="org.flockdata.engine.service.MediationFacadeNeo4j">
-        <level value="debug"/>
-    </logger>
-
     <!-- Root Logger -->
     <root>
-        <priority value="debug"/>
+        <priority value="${fd.loglevel}"/>
         <appender-ref ref="console"/>
     </root>
 

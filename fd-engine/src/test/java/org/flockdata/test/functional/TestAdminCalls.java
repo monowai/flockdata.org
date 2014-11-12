@@ -68,8 +68,8 @@ public class TestAdminCalls extends EngineBase {
     public void deleteFortressWithEntitiesAndTagsOnly() throws Exception {
 
         SystemUser su = registerSystemUser("deleteFortressPurgesEntitiesAndLogs", mike_admin);
-        Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
-        EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
+        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "testDupe", new DateTime(), "YYY");
 
         TagInputBean tagInputBean = new TagInputBean("DeleteTest", "NamedTag", "deltest");
         inputBean.addTag(tagInputBean);
@@ -81,7 +81,7 @@ public class TestAdminCalls extends EngineBase {
         assertNotNull(metaKey);
         assertNotNull(trackService.getEntity(su.getCompany(), metaKey));
 
-        inputBean = new EntityInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
+        inputBean = new EntityInputBean(fortress.getName(), "wally", "testDupe", new DateTime(), "YYY");
         inputBean.addTag(tagInputBean);
 
         mediationFacade.trackEntity(su.getCompany(), inputBean);
@@ -89,23 +89,23 @@ public class TestAdminCalls extends EngineBase {
         SecurityContextHolder.getContext().setAuthentication(null);
         // Assert that unauthorised user can't purge a fortress
         try {
-            mediationFacade.purge(su.getCompany(), fo.getName());
+            mediationFacade.purge(su.getCompany(), fortress.getName());
             fail("An authorisation exception should have been thrown");
         } catch (Exception e) {
             // This is good
         }
         setSecurity();
-        mediationFacade.purge(su.getCompany(), fo.getName());
+        mediationFacade.purge(fortress);
         assertNull(trackService.getEntity(su.getCompany(), metaKey));
-        assertNull(fortressService.findByName(su.getCompany(), fo.getName()));
+        assertNull(fortressService.findByName(su.getCompany(), fortress.getName()));
     }
 
     @Test
     public void deleteFortressPurgesEntitiesAndLogs() throws Exception {
 
         SystemUser su = registerSystemUser("deleteFortressPurgesEntitiesAndLogs", mike_admin);
-        Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
-        EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
+        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "testDupe", new DateTime(), "YYY");
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         String metaKey = resultBean.getMetaKey();
@@ -121,23 +121,23 @@ public class TestAdminCalls extends EngineBase {
         SecurityContextHolder.getContext().setAuthentication(null);
         // Assert that unauthorised user can't purge a fortress
         try {
-            mediationFacade.purge(su.getCompany(), fo.getName());
+            mediationFacade.purge(fortress);
             fail("An authorisation exception should have been thrown");
         } catch (Exception e) {
             // This is good
         }
         setSecurity();
-        mediationFacade.purge(su.getCompany(), fo.getName());
+        mediationFacade.purge(fortress);
         assertNull(trackService.getEntity(su.getCompany(), metaKey));
-        assertNull(fortressService.findByName(su.getCompany(), fo.getName()));
+        assertNull(fortressService.findByName(su.getCompany(), fortress.getName()));
     }
 
     @Test
     public void deleteFortressPurgesDataWithTags() throws Exception {
 
         SystemUser su = registerSystemUser("deleteFortressPurgesDataWithTags", mike_admin);
-        Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
-        EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
+        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "testDupe", new DateTime(), "YYY");
         TagInputBean tagInputBean = new TagInputBean("DeleteTest", "NamedTag", "deltest");
         inputBean.addTag(tagInputBean);
 
@@ -152,20 +152,20 @@ public class TestAdminCalls extends EngineBase {
         inputBean.setCallerRef("123abc");
         inputBean.setMetaKey(null);
         inputBean.setContent(new ContentInputBean("wally", metaKey, new DateTime(), Helper.getRandomMap()));
-        mediationFacade.trackEntity(fo, inputBean);
+        mediationFacade.trackEntity(fortress, inputBean);
 
         SecurityContextHolder.getContext().setAuthentication(null);
         // Assert that unauthorised user can't purge a fortress
         try {
-            mediationFacade.purge(su.getCompany(), fo.getName());
+            mediationFacade.purge(su.getCompany(), fortress.getName());
             fail("An authorisation exception should have been thrown");
         } catch (Exception e) {
             // This is good
         }
         setSecurity();
-        mediationFacade.purge(su.getCompany(), fo.getName());
+        mediationFacade.purge(fortress);
         assertNull(trackService.getEntity(su.getCompany(), metaKey));
-        assertNull(fortressService.findByName(su.getCompany(), fo.getName()));
+        assertNull(fortressService.findByName(su.getCompany(), fortress.getName()));
 
 
     }
@@ -201,7 +201,7 @@ public class TestAdminCalls extends EngineBase {
         others.add(resultA);
         trackService.crossReference(su.getCompany(), resultB, others, "rlxNameB");
 
-        mediationFacade.purge(su.getCompany(), fortress.getName());
+        mediationFacade.purge(fortress);
         assertNull(trackService.getEntity(su.getCompany(), resultA));
         assertNull(trackService.getEntity(su.getCompany(), resultB));
 

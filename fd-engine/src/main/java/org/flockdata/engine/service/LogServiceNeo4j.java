@@ -22,7 +22,7 @@ package org.flockdata.engine.service;
 import org.flockdata.engine.repo.neo4j.EntityDaoNeo;
 import org.flockdata.helper.FlockException;
 import org.flockdata.kv.service.KvService;
-import org.flockdata.registration.model.Company;
+import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -47,6 +47,7 @@ import java.util.concurrent.ExecutionException;
  * Time: 12:56 PM
  */
 @Service
+@Transactional
 public class LogServiceNeo4j implements LogService {
     private Logger logger = LoggerFactory.getLogger(LogServiceNeo4j.class);
 
@@ -72,26 +73,26 @@ public class LogServiceNeo4j implements LogService {
     LogRetryService logRetryService;
 
     @Override
-    public Collection<TrackResultBean> processLogsSync(Company company, Iterable<TrackResultBean> resultBeans) throws FlockException, IOException, ExecutionException, InterruptedException {
+    public Collection<TrackResultBean> processLogsSync(Fortress fortress, Iterable<TrackResultBean> resultBeans) throws FlockException, IOException, ExecutionException, InterruptedException {
 
         Collection<TrackResultBean> logResults = new ArrayList<>();
         for (TrackResultBean resultBean : resultBeans) {
-            logResults.add(processLogFromResult(resultBean));
+            logResults.add(processLogFromResult(fortress, resultBean));
         }
-        logger.debug("Logs processed. Proceeding to distribute changes");
-        distributeChanges(company, logResults);
+        //logger.debug("Logs processed. Proceeding to distribute changes");
+        //distributeChanges(company, logResults);
 
         return logResults;
 
     }
 
-    TrackResultBean processLogFromResult(TrackResultBean resultBean) throws FlockException, IOException, ExecutionException, InterruptedException {
+    TrackResultBean processLogFromResult(Fortress fortress, TrackResultBean resultBean) throws FlockException, IOException, ExecutionException, InterruptedException {
         if (resultBean.getContentInput() == null)
             return resultBean;
 
         ContentInputBean contentInputBean = resultBean.getContentInput();
         logger.debug("writeLog {}", contentInputBean);
-        TrackResultBean result = logRetryService.writeLog(resultBean);
+        TrackResultBean result = logRetryService.writeLog(fortress, resultBean);
         if (result.getLogResult().getStatus() == ContentInputBean.LogStatus.NOT_FOUND)
             throw new FlockException("Unable to find Entity ");
         // ToDo: KV should be written to first as a notional update
@@ -106,8 +107,9 @@ public class LogServiceNeo4j implements LogService {
         resultBean.setContentInput(input);
         ArrayList<TrackResultBean> logs = new ArrayList<>();
         logs.add(resultBean);
-        resultBean = processLogsSync(entity.getFortress().getCompany(), logs).iterator().next();
-        return resultBean;
+        Collection<TrackResultBean> results = processLogsSync(entity.getFortress(), logs);
+        //logService.distributeChanges(entity.getFortress().getCompany(), results);
+        return results.iterator().next();
     }
 
     @Override
@@ -119,12 +121,11 @@ public class LogServiceNeo4j implements LogService {
         return entityDao.getLastLog(entity.getId());
     }
 
-    @Transactional
-    void distributeChanges(Company company, Iterable<TrackResultBean> resultBeans) throws IOException {
-        logger.debug("Distributing changes to sub-services");
-        schemaService.registerConcepts(company, resultBeans);
-        searchService.makeChangesSearchable(resultBeans);
-        //logger.debug("Distributed changes to search service");
-    }
+//    public void distributeChanges(Company company, Iterable<TrackResultBean> resultBeans) throws IOException {
+//        logger.debug("Distributing changes to sub-services");
+//        schemaService.registerConcepts(company, resultBeans);
+//        searchService.makeChangesSearchable(resultBeans);
+//        //logger.debug("Distributed changes to search service");
+//    }
 
 }

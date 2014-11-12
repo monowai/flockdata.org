@@ -125,14 +125,16 @@ public class EntityNode implements Entity {
 
     public EntityNode(String uniqueKey, @NotEmpty Fortress fortress, @NotEmpty EntityInputBean entityInput, @NotEmpty DocumentType documentType) throws FlockException {
         this();
+
         assert documentType != null;
+        assert fortress!=null;
+
         metaKey = uniqueKey;
         this.fortress = (FortressNode)fortress;
         // DAT-278
         String docType = (documentType.getName().toLowerCase());
         labels.add(documentType.getName());
         callerRef = entityInput.getCallerRef();
-
         callerKeyRef = this.fortress.getId() + "." + documentType.getId() + "." + (callerRef != null ? callerRef : metaKey);
 
         if (entityInput.getName() == null || entityInput.getName().equals(""))

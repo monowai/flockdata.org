@@ -400,12 +400,22 @@ public class EntityDaoNeo {
 
     public EntityLog getLastLog(Long entityId) {
         Entity entity = getEntity(entityId);
+        return getLastEntityLog(entity);
+    }
+
+    public EntityLog getLastEntityLog(Entity entity) {
+        if (entity == null ){
+            throw new NotFoundException( "Unable to locate the requested entity");
+        }
         Log lastChange = entity.getLastChange();
         if (lastChange == null)
             return null;
 
         return trackLogRepo.getLog(lastChange.getId());
+
     }
+
+
 
 
     public Set<EntityLog> getLogs(Long id, Date date) {
@@ -414,5 +424,12 @@ public class EntityDaoNeo {
 
     public Collection<Entity> getEntities(Collection<Long> entities) {
         return entityRepo.getEntities(entities);
+    }
+
+    public Entity findEntity(Long entityId, boolean inflate) {
+        Entity e = getEntity(entityId);
+        if (inflate)
+            template.fetch(e);
+        return e;
     }
 }

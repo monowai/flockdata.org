@@ -834,13 +834,13 @@ public class TestTrack extends EngineBase {
         EntityLog lastLog = logService.getLastLog(trackResultBean.getEntity());
         assertEquals(past.getMillis(), lastLog.getFortressWhen().longValue());
         assertEquals(past.getMillis(), trackResultBean.getEntity().getFortressDateCreated().getMillis());
-        assertEquals("Modified " + new Date(trackResultBean.getEntity().getLastUpdate()),
-                past.getMillis(), trackResultBean.getEntity().getFortressDateUpdated().longValue());
+        assertEquals("Created " +  trackResultBean.getEntity().getFortressDateCreated(),
+                past.getMillis(), trackResultBean.getEntity().getFortressDateCreated().toDate().getTime());
 
         logger.info(lastLog.toString());
     }
     @Test
-    public void abFortressDateFields() throws Exception {
+    public void date_FortressDateFields() throws Exception {
         // DAT-196
         logger.info("## utcDateFields");
         SystemUser su = registerSystemUser("abFortressDateFields", "userDatesFields");

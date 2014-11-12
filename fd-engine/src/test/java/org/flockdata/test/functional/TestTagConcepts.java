@@ -433,7 +433,7 @@ public class TestTagConcepts extends EngineBase {
                 assertEquals(true, claimFound && userFound);
                 logger.info(foundDoc.toString());
             }
-            mediationFacade.purge(su.getCompany(), fortress.getName());
+            mediationFacade.purge( fortress);
             assertEquals(0, schemaService.getDocumentsInUse(fortress.getCompany()).size());
         } finally {
             Neo4jHelper.cleanDb(template);

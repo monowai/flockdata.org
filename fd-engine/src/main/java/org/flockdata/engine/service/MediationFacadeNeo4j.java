@@ -19,9 +19,9 @@
 
 package org.flockdata.engine.service;
 
-import org.flockdata.search.model.*;
-import org.flockdata.track.bean.ContentInputBean;
+import com.google.common.collect.Lists;
 import org.flockdata.helper.FlockException;
+import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.kv.service.KvService;
@@ -31,20 +31,21 @@ import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.registration.service.CompanyService;
+import org.flockdata.search.model.*;
+import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntitySummaryBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
 import org.flockdata.track.model.SearchChange;
-import com.google.common.collect.Lists;
 import org.flockdata.track.service.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.security.access.annotation.Secured;
@@ -65,8 +66,6 @@ import java.util.concurrent.Future;
  * Since: 28/08/13
  */
 @Service
-@Configuration
-//@EnableRetry
 @Qualifier("mediationFacadeNeo4j")
 public class MediationFacadeNeo4j implements MediationFacade {
     @Autowired
@@ -131,13 +130,36 @@ public class MediationFacadeNeo4j implements MediationFacade {
     /**
      * tracks an entity and creates logs. Distributes changes to KV stores and search engine.
      * <p/>
+     * This is synchronous and blocks until completed. Designed to be accessed as a ServiceActivtory via integration mechanisms
+     * APIKey should be set in the EntityInputBean as it will be used resolve access to the Company and Fortress in the payload
+     *
+     * @param payload - input
+     * @return non-null
+     * @throws org.flockdata.helper.FlockException illegal input
+     * @throws IOException                         json processing exception
+     */
+    @ServiceActivator(inputChannel = "trackEntity")
+    public void trackEntity(byte[] payload) throws FlockException, IOException, ExecutionException, InterruptedException {
+        EntityInputBean inputBean = JsonUtils.getBytesAsObject(payload, EntityInputBean.class);
+        //EntityInputBean inputBean = JsonUtils.(payload, EntityInputBean.class) ;
+        Company c = securityHelper.getCompany(inputBean.getApiKey());
+        Fortress fortress = fortressService.registerFortress(c, new FortressInputBean(inputBean.getFortress()), true);
+        //Fortress fortress = fortressService.findByName(c, inputBean.getFortress());
+        assert fortress != null;
+        trackEntity(fortress, inputBean);
+        //return results.iterator().next();
+    }
+
+    /**
+     * tracks an entity and creates logs. Distributes changes to KV stores and search engine.
+     * <p/>
      * This is synchronous and blocks until completed
      *
      * @param fortress  - system that owns the data
      * @param inputBean - input
      * @return non-null
      * @throws org.flockdata.helper.FlockException illegal input
-     * @throws IOException                           json processing exception
+     * @throws IOException                         json processing exception
      */
     @Override
     public TrackResultBean trackEntity(final Fortress fortress, final EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException {
@@ -247,8 +269,10 @@ public class MediationFacadeNeo4j implements MediationFacade {
     @Override
     public Collection<TrackResultBean> trackEntities(final Fortress fortress, final List<EntityInputBean> inputBeans, int splitListInTo) throws FlockException, IOException, ExecutionException, InterruptedException {
         Long id = DateTime.now().getMillis();
+        if (fortress == null) {
+            throw new FlockException("No fortress supplied. Unable to process work without a valid fortress");
+        }
 
-        // This happens before we create entities to minimize IO on the graph
         schemaService.createDocTypes(inputBeans, fortress);
 
         // Tune to balance against concurrency and batch transaction insert efficiency.
@@ -258,14 +282,14 @@ public class MediationFacadeNeo4j implements MediationFacade {
         watch.start();
         logger.trace("Starting Batch [{}] - size [{}]", id, inputBeans.size());
         for (List<EntityInputBean> entityInputBeans : splitList) {
-            Iterable<TrackResultBean> theseResults ;
+            Iterable<TrackResultBean> loopResults;
 
-            theseResults = entityRetry.track(fortress, entityInputBeans);
-
+            loopResults = entityRetry.track(fortress, entityInputBeans);
+            distributeChanges(fortress, loopResults);
             //searchService.makeChangesSearchable(theseResults);
             //kvService.doKvWrites(theseResults); //ToDo: Via integration with persistent properties
 
-            for (TrackResultBean theResult : theseResults) {
+            for (TrackResultBean theResult : loopResults) {
                 allResults.add(theResult);
             }
         }
@@ -286,10 +310,19 @@ public class MediationFacadeNeo4j implements MediationFacade {
         return trackEntity(fortress, inputBean);
     }
 
-
     @Override
-    @Transactional
     public TrackResultBean trackLog(Company company, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException {
+        // Create the basic data within a transaction
+        TrackResultBean result = doTrackLog(company, input);
+        Collection<TrackResultBean> results = new ArrayList<>();
+        results.add(result);
+        // Finally distribute the changes
+        distributeChanges(result.getEntity().getFortress(), results);
+        return result;
+    }
+
+    @Transactional
+    public TrackResultBean doTrackLog(Company company, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException {
         Entity entity;
         if (input.getMetaKey() != null)
             entity = trackService.getEntity(company, input.getMetaKey());
@@ -298,24 +331,28 @@ public class MediationFacadeNeo4j implements MediationFacade {
         if (entity == null)
             throw new FlockException("Unable to resolve the Entity");
         return logService.writeLog(entity, input);
-        //searchService.makeChangeSearchable(trackResult);
-        //kvService.doKvWrite(trackResult);
-        //return trackResult;
     }
 
     /**
      * Rebuilds all search documents for the supplied fortress
      *
-     * @param fortressName name of the fortress to rebuild
+     * @param fortressCode name of the fortress to rebuild
      * @throws org.flockdata.helper.FlockException
      */
     @Override
     @Secured({"ROLE_AB_ADMIN"})
-    public Future<Long> reindex(Company company, String fortressName) throws FlockException {
-        Fortress fortress = fortressService.findByCode(company, fortressName);
+    public Long reindex(Company company, String fortressCode) throws FlockException {
+        Fortress fortress = fortressService.findByCode(company, fortressCode);
         if (fortress == null)
-            throw new NotFoundException(String.format("No fortress to reindex with the name %s could be found", fortressName));
-        return reindexAsnc(fortress);
+            throw new NotFoundException(String.format("No fortress to reindex with the name %s could be found", fortressCode));
+
+        Future<Long> result = reindexAsnc(fortress);
+        try {
+            return result.get();
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Unexpected", e);
+        }
+        return null;
 
     }
 
@@ -407,19 +444,25 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
     @Override
     @Secured({"ROLE_AB_ADMIN"})
-    public void purge(Company company, String fortressName) throws FlockException {
-        Fortress fortress = fortressService.findByName(company, fortressName);
+    public void purge(Company company, String fortressCode) throws FlockException {
+        Fortress fortress = fortressService.findByCode(company, fortressCode);
         if (fortress == null)
-            throw new NotFoundException("Fortress [" + fortressName + "] does not exist");
+            throw new NotFoundException("Fortress [" + fortressCode + "] does not exist");
 
         logger.info("Purging fortress [{}] on behalf of [{}]", fortress, securityHelper.getLoggedInUser());
         purge(company, fortress);
     }
 
+    @Override
+    @Secured("ROLE_AB_ADMIN")
+    public void purge(Fortress fortress) throws FlockException {
+        purge(fortress.getCompany(), fortress);
+    }
+
     @Async
     public Future<Boolean> purge(Company company, Fortress fortress) throws FlockException {
 
-        String indexName = EntitySearchSchema.PREFIX +company.getCode() + "." + fortress.getCode();
+        String indexName = EntitySearchSchema.PREFIX + company.getCode() + "." + fortress.getCode();
         trackService.purge(fortress);
         kvService.purge(indexName);
         fortressService.purge(fortress);
@@ -441,6 +484,12 @@ public class MediationFacadeNeo4j implements MediationFacade {
         } else {
             logger.info("ToDo: Delete the search document {}", entity);
         }
+    }
+
+    public void distributeChanges(Fortress fortress, Iterable<TrackResultBean> resultBeans) throws IOException {
+        logger.debug("Distributing changes to sub-services");
+        searchService.makeChangesSearchable(fortress, resultBeans);
+        //logger.debug("Distributed changes to search service");
     }
 
 

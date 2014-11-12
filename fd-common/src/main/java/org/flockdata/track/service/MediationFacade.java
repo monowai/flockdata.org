@@ -59,9 +59,11 @@ public interface MediationFacade {
 
     TrackResultBean trackEntity(Fortress fortress, EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException;
 
+    public void trackEntity(byte[] payload) throws FlockException, IOException, ExecutionException, InterruptedException;
+
     TrackResultBean trackLog(Company company, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException;
 
-    Future<Long> reindex(Company company, String fortressName) throws FlockException;
+    Long reindex(Company company, String fortressCode) throws FlockException;
 
     void reindexByDocType(Company company, String fortressName, String docType) throws FlockException;
 
@@ -71,7 +73,9 @@ public interface MediationFacade {
 
     TagCloud getTagCloud(Company company, TagCloudParams tagCloudParams) throws NotFoundException;
 
-    void purge(Company company, String name) throws FlockException;
+    void purge(Fortress fo) throws FlockException;
+
+    void purge(Company company, String fortressCode) throws FlockException;
 
     void cancelLastLog(Company company, Entity entity) throws IOException, FlockException;
 
@@ -80,4 +84,6 @@ public interface MediationFacade {
     void mergeTags(Company company, Tag source, Tag target);
 
     void createAlias(Company company, String label, Tag source, String akaValue);
+
+
 }

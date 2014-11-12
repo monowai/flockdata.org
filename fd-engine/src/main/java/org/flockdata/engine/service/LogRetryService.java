@@ -35,10 +35,12 @@ import org.flockdata.track.service.LogService;
 import org.flockdata.track.service.TrackService;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.neo4j.kernel.DeadlockDetectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.ConcurrencyFailureException;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.retry.annotation.Retryable;
@@ -56,7 +58,6 @@ import java.util.Set;
 //@Configuration
 @EnableRetry
 @Service
-@Transactional
 public class LogRetryService {
     private Logger logger = LoggerFactory.getLogger(LogRetryService.class);
     @Autowired
@@ -74,11 +75,9 @@ public class LogRetryService {
     @Autowired
     EntityDaoNeo entityDao;
 
-
     @Autowired
     LogService logService;
 
-    @Retryable(include = ConcurrencyFailureException.class, maxAttempts = 12, backoff = @Backoff(delay = 100, maxDelay = 500))
     /**
      * Attempts to gracefully handle deadlock conditions
      *
@@ -87,14 +86,27 @@ public class LogRetryService {
      * @throws org.flockdata.helper.FlockException
      * @throws IOException
      */
-    TrackResultBean writeLog(TrackResultBean trackResultBean) throws FlockException, IOException {
-        ContentInputBean content = trackResultBean.getContentInput();
+    @Transactional
+    @Retryable(include = {DeadlockDetectedException.class, ConcurrencyFailureException.class, InvalidDataAccessResourceUsageException.class}, maxAttempts = 12, backoff = @Backoff(delay = 100, maxDelay = 500))
+    TrackResultBean writeLog(Fortress fortress, TrackResultBean trackResultBean) throws FlockException, IOException {
+        return writeLogTx(fortress, trackResultBean);
+    }
 
-        Entity entity = trackResultBean.getEntity();
+    @Transactional
+    TrackResultBean writeLogTx(Fortress fortress, TrackResultBean trackResultBean) throws FlockException, IOException {
+        ContentInputBean content = trackResultBean.getContentInput();
+        boolean entityExists = ( trackResultBean.getEntityInputBean()!=null && !trackResultBean.getEntityInputBean().isTrackSuppressed());
+
+        Entity entity;
+        if (entityExists)
+            entity = entityDao.findEntity(trackResultBean.getEntityId(), true);
+        else
+            entity = trackResultBean.getEntity();
+
 
         logger.debug("writeLog - Received log request for entity [{}]", entity);
 
-        LogResultBean resultBean = new LogResultBean(content, entity);
+        LogResultBean resultBean = new LogResultBean(content, entity, fortress);
         if (entity == null) {
             resultBean.setStatus(ContentInputBean.LogStatus.NOT_FOUND);
             resultBean.setMessage("Unable to locate requested entity");
@@ -102,21 +114,20 @@ public class LogRetryService {
             trackResultBean.setLogResult(resultBean);
             return trackResultBean;
         }
-        logger.trace("looking for fortress user {}", entity.getFortress());
+        logger.trace("looking for fortress user {}", fortress);
         String fortressUser = (content.getFortressUser() != null ? content.getFortressUser() : trackResultBean.getEntityInputBean().getFortressUser());
 
-        FortressUser thisFortressUser;
-        if (!fortressUser.equals(trackResultBean.getEntity().getCreatedBy().getCode())) {
+        FortressUser thisFortressUser = trackResultBean.getEntity().getCreatedBy();
+        if (thisFortressUser==null || !fortressUser.equals(thisFortressUser.getCode())) {
             // Different user creating the Entity than is creating the log
-            thisFortressUser = fortressService.getFortressUser(entity.getFortress(), fortressUser, true);
-        } else {
-            thisFortressUser = trackResultBean.getEntity().getCreatedBy();
+            thisFortressUser = fortressService.getFortressUser(fortress, fortressUser, true);
         }
 
         trackResultBean.setLogResult(
                 createLog(entity, content, thisFortressUser)
         );
         return trackResultBean;
+
     }
 
     /**
@@ -127,6 +138,7 @@ public class LogRetryService {
      * @param thisFortressUser User name in calling system that is making the change
      * @return populated log information with any error messages
      */
+    @Transactional
     LogResultBean createLog(Entity entity, ContentInputBean content, FortressUser thisFortressUser) throws FlockException, IOException {
         // Warning - making this private means it doesn't get a transaction!
 
@@ -134,7 +146,7 @@ public class LogRetryService {
 
         // Transactions checks
         TxRef txRef = txService.handleTxRef(content, fortress.getCompany());
-        LogResultBean resultBean = new LogResultBean(content, entity);
+        LogResultBean resultBean = new LogResultBean(content, entity, thisFortressUser.getFortress());
         //ToDo: May want to track a "View" event which would not change the What data.
         if (!content.hasData()) {
             resultBean.setStatus(ContentInputBean.LogStatus.IGNORE);
@@ -243,11 +255,12 @@ public class LogRetryService {
         return existingLog;
     }
 
+    @Transactional
     public EntityLog getLastLog(Entity entity) throws FlockException {
         if (entity == null || entity.getId() == null)
             return null;
         logger.trace("Getting lastLog MetaID [{}]", entity.getId());
-        return entityDao.getLastLog(entity.getId());
+        return entityDao.getLastEntityLog(entity);
     }
 
 
