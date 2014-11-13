@@ -141,13 +141,10 @@ public class MediationFacadeNeo4j implements MediationFacade {
     @ServiceActivator(inputChannel = "trackEntity")
     public void trackEntity(byte[] payload) throws FlockException, IOException, ExecutionException, InterruptedException {
         EntityInputBean inputBean = JsonUtils.getBytesAsObject(payload, EntityInputBean.class);
-        //EntityInputBean inputBean = JsonUtils.(payload, EntityInputBean.class) ;
         Company c = securityHelper.getCompany(inputBean.getApiKey());
         Fortress fortress = fortressService.registerFortress(c, new FortressInputBean(inputBean.getFortress()), true);
-        //Fortress fortress = fortressService.findByName(c, inputBean.getFortress());
         assert fortress != null;
         trackEntity(fortress, inputBean);
-        //return results.iterator().next();
     }
 
     /**
@@ -460,6 +457,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     }
 
     @Async
+    @Transactional
     public Future<Boolean> purge(Company company, Fortress fortress) throws FlockException {
 
         String indexName = EntitySearchSchema.PREFIX + company.getCode() + "." + fortress.getCode();

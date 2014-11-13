@@ -19,17 +19,18 @@
 
 package org.flockdata.engine.repo.neo4j.model;
 
-import org.flockdata.registration.model.Tag;
-import org.flockdata.engine.PropertyConversion;
-import org.flockdata.registration.bean.TagInputBean;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.neo4j.graphdb.Node;
+import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.registration.model.Tag;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;
+import org.springframework.data.neo4j.annotation.Labels;
 import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.fieldaccess.DynamicProperties;
+import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -47,11 +48,16 @@ public class TagNode implements Tag {
 
     private String code;
 
-    Map<String,Object> properties = new HashMap<>();
+    @Labels
+    private ArrayList<String> labels = new ArrayList<>();
+
+    DynamicProperties props = new DynamicPropertiesContainer();
 
     private String name;
 
     protected TagNode() {
+        labels.add("Tag");
+        labels.add("_Tag");
     }
 
     public TagNode(TagInputBean tagInput) {
@@ -64,21 +70,13 @@ public class TagNode implements Tag {
 
         this.key = getCode().toLowerCase().replaceAll("\\s", "");
         if ( tagInput.getProperties()!=null && !tagInput.getProperties().isEmpty()) {
-            properties.putAll(tagInput.getProperties());
+            props = new DynamicPropertiesContainer(tagInput.getProperties());
         }
     }
-    @Deprecated
-    public TagNode(Node tag) {
-        this.id = tag.getId();
-        this.code = (String) tag.getProperty("code");
-        this.name = (String) tag.getProperty("name");
-        this.key = (String) tag.getProperty("key");
-        Iterable<String> keys = tag.getPropertyKeys();
-        for (String s : keys) {
-            if ( !(PropertyConversion.isSystemColumn(s)))
-                properties.put(s, tag.getProperty(s));
 
-        }
+    public TagNode(TagInputBean tagInput, String tagLabel) {
+        this(tagInput);
+        labels.add(tagLabel);
     }
 
     @Override
@@ -111,12 +109,12 @@ public class TagNode implements Tag {
 
     @Override
     public Object getProperty(String name) {
-        return properties.get(name);
+        return props.getProperty(name);
     }
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public Map<String, Object> getProperties() {
-        return new HashMap<>(properties);
+        return props.asMap();
     }
 
     public void setCode(String code) {

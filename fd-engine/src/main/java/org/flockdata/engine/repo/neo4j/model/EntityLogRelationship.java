@@ -152,7 +152,8 @@ public class EntityLogRelationship implements EntityLog {
     public String toString() {
         return "LoggedRelationship{" +
                 "id=" + id +
-                ", sysWhen=" + sysWhen +
+                ", fortressWhen=" + new DateTime(fortressWhen) +
+                ", sysWhen=" + new DateTime(sysWhen) +
                 ", indexed=" + indexed +
                 '}';
     }

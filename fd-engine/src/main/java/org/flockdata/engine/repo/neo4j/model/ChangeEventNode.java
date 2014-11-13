@@ -44,6 +44,14 @@ public class ChangeEventNode implements ChangeEvent {
     private String code;
     private String name;
 
+    @Override
+    public String toString() {
+        return "ChangeEventNode{" +
+                "id=" + id +
+                ", code='" + code + '\'' +
+                '}';
+    }
+
     @RelatedTo(type = "COMPANY_EVENT", direction = Direction.INCOMING)
     private Iterable<CompanyNode> companies;
 

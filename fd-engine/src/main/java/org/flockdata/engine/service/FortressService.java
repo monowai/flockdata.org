@@ -203,19 +203,19 @@ public class FortressService {
     }
 
     public Fortress registerFortress(Company company, FortressInputBean fib, boolean createIfMissing) {
-        logger.debug("Fortress registration request {}, {}", company, fib);
+        logger.trace("Fortress registration request {}, {}", company, fib);
         Fortress fortress = fortressDao.getFortressByName(company.getId(), fib.getName());
 
         if (fortress != null) {
             // Already associated, get out of here
-            logger.debug("Company {} has existing fortress {}", company, fortress);
+            logger.debug("Found existing Fortress {} for Company {}", fortress, company);
             return fortress;
         }
         if (createIfMissing) {
             fortress = save(company, fib);
-            logger.debug("Created fortress {}", fortress);
+            logger.trace("Created fortress {}", fortress);
             fortress.setCompany(company);
-            logger.debug("Returning fortress {}", fortress);
+            logger.trace("Returning fortress {}", fortress);
             return fortress;
         }
         return null;

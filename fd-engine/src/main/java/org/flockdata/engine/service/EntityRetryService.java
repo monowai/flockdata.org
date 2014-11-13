@@ -75,12 +75,13 @@ public class EntityRetryService {
     Iterable<TrackResultBean> doTrack(Fortress fortress, List<EntityInputBean> entities) throws InterruptedException, FlockException, ExecutionException, IOException {
         Iterable<TrackResultBean> resultBeans = trackService.trackEntities(fortress, entities);
         schemaService.registerConcepts(fortress, resultBeans);
+        resultBeans = logService.processLogsSync(fortress, resultBeans);
 //        Collection<TrackResultBean> trackResultBeans = new ArrayList<>();
 //        for (TrackResultBean resultBean : resultBeans) {
 //            trackResultBeans.add(logRetryService.writeLogTx(fortress, resultBean));
 //        }
         //return trackResultBeans;
-        return logService.processLogsSync(fortress, resultBeans);
+        return resultBeans;
 
     }
 

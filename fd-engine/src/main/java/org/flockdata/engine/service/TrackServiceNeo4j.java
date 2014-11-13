@@ -448,8 +448,9 @@ public class TrackServiceNeo4j implements TrackService {
     public Iterable<TrackResultBean> trackEntities(Fortress fortress, Iterable<EntityInputBean> inputBeans) throws InterruptedException, ExecutionException, FlockException, IOException {
         Collection<TrackResultBean> arb = new ArrayList<>();
         for (EntityInputBean inputBean : inputBeans) {
-            logger.trace("Batch Processing metaKey=[{}], documentType=[{}]", inputBean.getCallerRef(), inputBean.getDocumentType());
-            arb.add(createEntity(fortress, inputBean));
+            TrackResultBean result = createEntity(fortress, inputBean);
+            logger.debug("Batch Processed {}, callerRef=[{}], documentType=[{}]", result.getEntityId(), inputBean.getCallerRef(), inputBean.getDocumentType());
+            arb.add(result);
         }
 
         return arb;
@@ -567,13 +568,12 @@ public class TrackServiceNeo4j implements TrackService {
 
     @Override
     public void purge(Fortress fortress) {
-
+        schemaService.purge(fortress);
         entityDao.purgeTagRelationships(fortress);
-
         entityDao.purgeFortressLogs(fortress);
         entityDao.purgePeopleRelationships(fortress);
-        schemaService.purge(fortress);
-        //entityDao.purgeFortressDocuments(fortress);
+
+        entityDao.purgeFortressDocuments(fortress);
         entityDao.purgeEntities(fortress);
 
     }
@@ -643,7 +643,7 @@ public class TrackServiceNeo4j implements TrackService {
         Entity entity = getEntity(company, metaKey);
         if ( entity == null  )
             throw new NotFoundException("Unable to locate the requested Entity for metaKey "+metaKey);
-        return entityDao.getLastLog(entity.getId());
+        return entityDao.getLastEntityLog(entity);
     }
 
 

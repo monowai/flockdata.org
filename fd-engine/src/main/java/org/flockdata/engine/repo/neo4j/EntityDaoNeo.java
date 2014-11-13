@@ -80,11 +80,11 @@ public class EntityDaoNeo {
     private Logger logger = LoggerFactory.getLogger(EntityDaoNeo.class);
 
     public Entity create(EntityInputBean inputBean, FortressUser fortressUser, DocumentType documentType) throws FlockException {
-        String metaKey = ( inputBean.isTrackSuppressed()?null:keyGenService.getUniqueKey());
+        String metaKey = (inputBean.isTrackSuppressed() ? null : keyGenService.getUniqueKey());
         Entity entity = new EntityNode(metaKey, fortressUser.getFortress(), inputBean, documentType);
         entity.setCreatedBy(fortressUser);
         entity.addLabel(documentType.getName());
-        if (! inputBean.isTrackSuppressed()) {
+        if (!inputBean.isTrackSuppressed()) {
             logger.debug("Creating {}", entity);
             entity = save(entity);
         }
@@ -96,9 +96,8 @@ public class EntityDaoNeo {
     }
 
     /**
-     *
-     * @param entity   to save
-     * @param quietly  if we're doing this quietly then lastUpdate is not changed
+     * @param entity  to save
+     * @param quietly if we're doing this quietly then lastUpdate is not changed
      * @return saved entity
      */
     public Entity save(Entity entity, boolean quietly) {
@@ -282,7 +281,6 @@ public class EntityDaoNeo {
         return changeLog;
     }
 
-//    @Cacheable(value = "trackLog", unless = "#result==null")
     public EntityLog getLog(Long logId) {
         Relationship change = template.getRelationship(logId);
         if (change != null)
@@ -297,7 +295,6 @@ public class EntityDaoNeo {
     }
 
 
-    //    @Cacheable(value = "entityId", unless = "#result==null")
     public Entity getEntity(Long pk) {
         return entityRepo.findOne(pk);
         //return template.findOne(pk, EntityNode.class);
@@ -311,42 +308,45 @@ public class EntityDaoNeo {
 
         newChange.setTrackLog(new EntityLogRelationship(entity, newChange, fortressWhen));
 
-        if (entity.getId() == null)// This occurs when tracking in fd-engine is suppressed and the caller is only creating search docs
+        if (entity.getId() == null)// This occurs when graph tracking is suppressed; caller is only creating search docs
             return newChange.getEntityLog();
 
-        if ( entity.getLastChange()!=null )
-            entity = template.fetch(entity);
+        entity = template.fetch(entity);// latest version (according to this transaction
+        newChange = template.save(newChange);
+        setLatest(entity);
 
-        //template.fetch(newChange.getTrackLog());
-        boolean moreRecent = (existingLog == null || existingLog.getFortressWhen() <= fortressWhen.getMillis());
-        if (moreRecent) {
-            if (entity.getLastUser() == null || (!entity.getLastUser().getId().equals(newChange.getWho().getId()))) {
-                entity.setLastUser(newChange.getWho());
-            }
-            entity.setFortressLastWhen(fortressWhen.getMillis());
-            entity.setLastChange(newChange);
-
-            logger.debug("Detected "+(existingLog != null ? " a more recent change ": " the first log ")+" for entity {}. Giving this log most recent status.", entity.getId());
-            try {
-                template.save(entity);
-            } catch (IllegalStateException e) {
-                logger.error("ISE saving Entity {}", new Date(newChange.getEntityLog().getSysWhen()));
-                logger.error("Unexpected", e);
-            }
-            logger.debug("Saved change for Entity [{}], logid [{}]", entity.getId(), newChange.getId());
-
-        } else {
-            newChange = template.save(newChange);
-        }
         logger.debug("Added Log - Entity [{}], Log [{}], Change [{}]", entity.getId(), newChange.getEntityLog(), newChange.getId());
-        return newChange.getEntityLog();
+        return template.fetch(newChange.getEntityLog());
+    }
+
+    public void setLatest(Entity entity) {
+        Set<EntityLog> logs = getLogs(entity.getId(), new Date(entity.getFortressDateUpdated()), new DateTime().toDate());
+        EntityLog latest = null;
+
+        for (EntityLog log : logs) {
+            if (latest == null || log.getLog().getEntityLog().getFortressWhen() > latest.getFortressWhen())
+                latest = log;
+        }
+        if (latest == null)
+            return;
+
+        boolean moreRecent = (entity.getFortressDateUpdated() < latest.getLog().getEntityLog().getFortressWhen());
+        if (moreRecent) {
+            logger.debug("Detected a more recent change ", new DateTime(latest.getFortressWhen()), entity.getId(), latest.getFortressWhen());
+            entity.setFortressLastWhen(latest.getFortressWhen());
+            entity.setLastChange(latest.getLog());
+            entity.setLastUser(latest.getLog().getWho());
+            template.save(entity);
+            logger.debug("Saved change for Entity [{}], log [{}]", entity.getId(), latest);
+        }
+
     }
 
     public void crossReference(Entity entity, Collection<Entity> entities, String refName) {
         Node source = template.getPersistentState(entity);
         for (Entity sourceEntity : entities) {
             Node dest = template.getPersistentState(sourceEntity);
-            if ( template.getRelationshipBetween(source, sourceEntity, refName)== null )
+            if (template.getRelationshipBetween(source, sourceEntity, refName) == null)
                 template.createRelationshipBetween(source, dest, refName, null);
         }
     }
@@ -404,18 +404,15 @@ public class EntityDaoNeo {
     }
 
     public EntityLog getLastEntityLog(Entity entity) {
-        if (entity == null ){
-            throw new NotFoundException( "Unable to locate the requested entity");
-        }
+
         Log lastChange = entity.getLastChange();
         if (lastChange == null)
             return null;
 
-        return trackLogRepo.getLog(lastChange.getId());
+        return trackLogRepo.getLog(entity.getLastChange().getId());
+        //return trackLogRepo.getLastChange(entity.getId());
 
     }
-
-
 
 
     public Set<EntityLog> getLogs(Long id, Date date) {

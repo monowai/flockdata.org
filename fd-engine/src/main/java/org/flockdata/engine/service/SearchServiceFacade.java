@@ -34,7 +34,6 @@ import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.*;
 import org.flockdata.track.service.EntityTagService;
 import org.flockdata.track.service.TrackService;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,7 +111,7 @@ public class SearchServiceFacade {
                 logger.error("Unexpected error recording searchResult for entityId "+entityId, e);
             }
         }
-        logger.debug("Finished processing search results");
+        logger.trace("Finished processing search results");
     }
 
 
@@ -172,7 +171,7 @@ public class SearchServiceFacade {
     private static final ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
 
     public SearchChange prepareSearchDocument(Entity entity, ContentInputBean contentInput, EntityLog entityLog) throws JsonProcessingException {
-
+        assert entity!=null ;
         if (entity.isSearchSuppressed())
             return null;
         SearchChange searchDocument;
@@ -279,8 +278,7 @@ public class SearchServiceFacade {
 
         if (logResultBean != null && logResultBean.getLogToIndex() != null && logResultBean.getStatus() == ContentInputBean.LogStatus.OK) {
             try {
-                DateTime fWhen = new DateTime(logResultBean.getLogToIndex().getFortressWhen());
-                return prepareSearchDocument(logResultBean.getLogToIndex().getEntity(), input, logResultBean.getLogToIndex());
+                return prepareSearchDocument(logResultBean.getEntity(), input, logResultBean.getWhatLog().getEntityLog());
             } catch (JsonProcessingException e) {
                 logResultBean.setMessage("Error processing JSON document");
                 logResultBean.setStatus(ContentInputBean.LogStatus.ILLEGAL_ARGUMENT);

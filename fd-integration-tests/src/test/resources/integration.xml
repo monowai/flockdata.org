@@ -73,11 +73,14 @@
 
     <int:channel id="errors"/>
 
-    <int:service-activator id="fdErrorLogger" input-channel="errors" ref="fdLoggingHandler"/>
+    <int:channel id="entityErrors"/>
 
-    <bean id="fdLoggingHandler" class="org.springframework.integration.handler.LoggingHandler">
-        <constructor-arg index="0" value="DEBUG"/>
+    <int:service-activator id="fdEntityErrorLogger" input-channel="entityErrors" ref="fdEntityErrorHandler"/>
+
+    <bean id="fdEntityErrorHandler" class="org.flockdata.helper.EntityErrorHandler">
+
     </bean>
+
 
     <task:executor id="qExecutor" pool-size="40-40" keep-alive="180" queue-capacity="40"
                    rejection-policy="CALLER_RUNS"/>

@@ -20,7 +20,7 @@
 package org.flockdata.test.functional;
 
 import org.flockdata.engine.PropertyConversion;
-import org.flockdata.helper.DatagioTagException;
+import org.flockdata.helper.FlockDataTagException;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.registration.bean.TagInputBean;
@@ -133,7 +133,7 @@ public class TestTags extends EngineBase {
         try {
             tagService.createTag(iSystemUser.getCompany(), new TagInputBean("FLOPX").setMustExist(true));
             fail("Incorrect exception");
-        } catch (DatagioTagException dte) {
+        } catch (FlockDataTagException dte) {
             logger.debug("Correct");
         }
 
@@ -150,7 +150,7 @@ public class TestTags extends EngineBase {
         SystemUser iSystemUser = registerSystemUser("tagWithProperties", mike_admin);
 
         TagInputBean tagInput = new TagInputBean("ZFLOP");
-        tagInput.setProperty("num", 123);
+        tagInput.setProperty("num", 123l);
         tagInput.setProperty("dec", 123.11);
         tagInput.setProperty("string", "abc");
 
@@ -160,9 +160,9 @@ public class TestTags extends EngineBase {
         Tag result = tagService.findTag(iSystemUser.getCompany(),"ZFLOP");
 
         assertNotNull(result);
-        assertEquals(123l, tag.getProperty("num"));
-        assertEquals(123.11, tag.getProperty("dec"));
-        assertEquals("abc", tag.getProperty("string"));
+        assertEquals(123l, result.getProperty("num"));
+        assertEquals(123.11, result.getProperty("dec"));
+        assertEquals("abc", result.getProperty("string"));
 
     }
 
