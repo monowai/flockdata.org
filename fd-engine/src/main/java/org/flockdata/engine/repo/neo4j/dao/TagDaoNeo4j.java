@@ -19,15 +19,13 @@
 
 package org.flockdata.engine.repo.neo4j.dao;
 
-import org.flockdata.engine.PropertyConversion;
 import org.flockdata.engine.repo.neo4j.model.TagNode;
 import org.flockdata.engine.service.EngineConfig;
-import org.flockdata.helper.DatagioTagException;
+import org.flockdata.helper.FlockDataTagException;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Tag;
 import org.neo4j.graphdb.Node;
-import org.neo4j.kernel.api.properties.DefinedProperty;
 import org.neo4j.kernel.impl.core.NodeProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +78,7 @@ public class TagDaoNeo4j {
         for (TagInputBean tagInputBean : tagInputs) {
             try {
                 results.add(save(company, tagInputBean, tagSuffix, createdValues, suppressRelationships));
-            } catch (DatagioTagException te) {
+            } catch (FlockDataTagException te) {
                 logger.error("Tag Exception [{}]", te.getMessage());
                 tagInputBean.getServiceMessage(te.getMessage());
                 errorResults.add(tagInputBean);
@@ -93,15 +91,15 @@ public class TagDaoNeo4j {
     public Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> createdValues, boolean suppressRelationships) {
         // Check exists
         TagNode existingTag = (TagNode) findTag(company, (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()), tagInput.getLabel());
-        Node start;
+        Tag start;
         if (existingTag == null) {
             if (tagInput.isMustExist()) {
                 tagInput.getServiceMessage("Tag [" + tagInput + "] should exist for [" + tagInput.getLabel() + "] but doesn't. Ignoring this request.");
-                throw new DatagioTagException("Tag [" + tagInput + "] should exist for [" + tagInput.getLabel() + "] but doesn't. Ignoring this request.");
+                throw new FlockDataTagException("Tag [" + tagInput + "] should exist for [" + tagInput.getLabel() + "] but doesn't. Ignoring this request.");
             } else
                 start = createTag(company, tagInput, tagSuffix);
         } else {
-            start = template.getNode(existingTag.getId());
+            start = template.findOne(existingTag.getId(), TagNode.class);
         }
 
         Map<String, Collection<TagInputBean>> tags = tagInput.getTargets();
@@ -112,47 +110,53 @@ public class TagDaoNeo4j {
             }
 
         }
-        return new TagNode(start);
+        return template.findOne(start.getId(), TagNode.class);
     }
 
-    private Node createTag(Company company, TagInputBean tagInput, String tagLabel) {
-        TagNode tag = new TagNode(tagInput);
+    private Tag createTag(Company company, TagInputBean tagInput, String tagLabel) {
 
+        logger.debug("Request to create tag {}", tagInput);
         // ToDo: Should a label be suffixed with company in multi-tenanted? - more time to think!!
         //       do we care that one company can see another companies tag value? Certainly not the
         //       track data.
         if (tagInput.isDefault())
-            tagLabel = Tag.DEFAULT + tagLabel;
+            tagLabel = "_Tag" + tagLabel;
         else {
+            // This call will register a unique index for the tag label
             schemaDao.registerTag(company, tagInput.getLabel());
-            tagLabel = ":`" + tagInput.getLabel() + "` " + Tag.DEFAULT + tagLabel;
+            tagLabel = tagInput.getLabel() ;
         }
+        TagNode tag = new TagNode(tagInput, tagLabel);
 
         // ToDo: Multi-tenanted custom tagInputs?
         // _Tag only exists for SDN projection
-        String query = "merge (tag" + tagLabel + " {code:{code}, name:{name}, key:{key}";
-        Map<String, Object> params = new HashMap<>();
-        params.put("code", tag.getCode());
-        params.put("key", tag.getKey());
-        //params.put("typeKey", tag.getKey());
-        params.put("name", tag.getName());
-        // ToDo: - set custom properties
+//        String query = "merge (tag" + tagLabel + " {code:{code}, name:{name}, key:{key}";
+//        Map<String, Object> params = new HashMap<>();
+//        params.put("code", tag.getCode());
+//        params.put("key", tag.getKey());
+//        //params.put("typeKey", tag.getKey());
+//        params.put("name", tag.getName());
+//        // ToDo: - set custom properties
+//
+//        Map<String, Object> properties = tagInput.getProperties();
+//        if (properties != null)
+//            for (Map.Entry<String, Object> prop : properties.entrySet()) {
+//                if (!PropertyConversion.isSystemColumn(prop.getKey())) {
+//                    if (prop.getValue() != null) {
+//                        DefinedProperty property = PropertyConversion.convertProperty(1, prop.getValue());
+//                        query = query + ", " + PropertyConversion.toJsonColumn(prop.getKey(), property.value());
+//                    }
+//                }
+//            }
+//
+//        query = query + "})  return tag";
+//        Result<Map<String, Object>> result = template.query(query, params);
 
-        Map<String, Object> properties = tagInput.getProperties();
-        if (properties != null)
-            for (Map.Entry<String, Object> prop : properties.entrySet()) {
-                if (!PropertyConversion.isSystemColumn(prop.getKey())) {
-                    if (prop.getValue() != null) {
-                        DefinedProperty property = PropertyConversion.convertProperty(1, prop.getValue());
-                        query = query + ", " + PropertyConversion.toJsonColumn(prop.getKey(), property.value());
-                    }
-                }
-            }
 
-        query = query + "})  return tag";
-        Result<Map<String, Object>> result = template.query(query, params);
-        Map<String, Object> mapResult = result.singleOrNull();
-        return (Node) mapResult.get("tag");
+        //Map<String, Object> mapResult = result.singleOrNull();
+        //return (Node) mapResult.get("tag");
+        tag = template.save(tag);
+        return tag;
     }
 
     /**
@@ -166,7 +170,7 @@ public class TagDaoNeo4j {
      * @param suppressRelationships
      * @return the created tag
      */
-    Tag createRelationship(Company company, Node startNode, TagInputBean associatedTag, String rlxName, Collection<String> createdValues, boolean suppressRelationships) {
+    Tag createRelationship(Company company, Tag startNode, TagInputBean associatedTag, String rlxName, Collection<String> createdValues, boolean suppressRelationships) {
         // Careful - this save can be recursive
         // ToDo - idea = create all tagInputs first then just create the relationships
         Tag tag = save(company, associatedTag, createdValues, suppressRelationships);
@@ -236,7 +240,7 @@ public class TagDaoNeo4j {
         Result<Map<String, Object>> results = template.query(query, null);
         for (Map<String, Object> row : results) {
             Object o = row.get("tag");
-            Tag t = new TagNode((NodeProxy) o);
+            Tag t = template.projectTo(o, TagNode.class);
             tagResults.add(t);
 
         }
@@ -265,7 +269,7 @@ public class TagDaoNeo4j {
             label = label.substring(1);
         String query;
         String theLabel =resolveLabel(label, engineAdmin.getTagSuffix(company));
-
+        logger.debug("Looking for tagCode [{}] for label [{}]", tagCode, label);
         query = "optional match (t:`" + theLabel + "` {key:{tagKey}}) " +
                 "optional match (a:`" + theLabel + "Alias` {key:{tagKey}}) " +
                 "with t,a " +
@@ -286,7 +290,7 @@ public class TagDaoNeo4j {
             if (n == null)
                 return null;
             else
-                return new TagNode(n);
+                return template.projectTo(n, TagNode.class);
         }
 
         return null;// No tag found

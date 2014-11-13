@@ -79,8 +79,6 @@ public class LogServiceNeo4j implements LogService {
         for (TrackResultBean resultBean : resultBeans) {
             logResults.add(processLogFromResult(fortress, resultBean));
         }
-        //logger.debug("Logs processed. Proceeding to distribute changes");
-        //distributeChanges(company, logResults);
 
         return logResults;
 

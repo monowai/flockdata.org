@@ -86,7 +86,6 @@ public class LogRetryService {
      * @throws org.flockdata.helper.FlockException
      * @throws IOException
      */
-    @Transactional
     @Retryable(include = {DeadlockDetectedException.class, ConcurrencyFailureException.class, InvalidDataAccessResourceUsageException.class}, maxAttempts = 12, backoff = @Backoff(delay = 100, maxDelay = 500))
     TrackResultBean writeLog(Fortress fortress, TrackResultBean trackResultBean) throws FlockException, IOException {
         return writeLogTx(fortress, trackResultBean);
@@ -104,7 +103,7 @@ public class LogRetryService {
             entity = trackResultBean.getEntity();
 
 
-        logger.debug("writeLog - Received log request for entity [{}]", entity);
+        logger.debug("writeLog existed [{}]  entity [{}]", entityExists, entity);
 
         LogResultBean resultBean = new LogResultBean(content, entity, fortress);
         if (entity == null) {
@@ -122,7 +121,7 @@ public class LogRetryService {
             // Different user creating the Entity than is creating the log
             thisFortressUser = fortressService.getFortressUser(fortress, fortressUser, true);
         }
-
+        resultBean.setEntity(entity);
         trackResultBean.setLogResult(
                 createLog(entity, content, thisFortressUser)
         );
@@ -141,11 +140,9 @@ public class LogRetryService {
     @Transactional
     LogResultBean createLog(Entity entity, ContentInputBean content, FortressUser thisFortressUser) throws FlockException, IOException {
         // Warning - making this private means it doesn't get a transaction!
-
+        //entity = trackService.getEntity(entity);
         Fortress fortress = entity.getFortress();
 
-        // Transactions checks
-        TxRef txRef = txService.handleTxRef(content, fortress.getCompany());
         LogResultBean resultBean = new LogResultBean(content, entity, thisFortressUser.getFortress());
         //ToDo: May want to track a "View" event which would not change the What data.
         if (!content.hasData()) {
@@ -155,31 +152,32 @@ public class LogRetryService {
             return resultBean;
         }
 
+        // Transactions checks
+        TxRef txRef = txService.handleTxRef(content, fortress.getCompany());
         resultBean.setTxReference(txRef);
 
-        EntityLog existingLog;
-        existingLog = getLastLog(entity);
+        EntityLog lastLog = getLastLog(entity);
+        logger.debug("writeLog lastLog {} - {}", lastLog, (lastLog== null? "[null]": new DateTime(lastLog.getFortressWhen())));
 
-        Boolean searchActive = fortress.isSearchActive();
-        DateTime fortressWhen = (content.getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(content.getWhen()));
+        DateTime contentWhen = (content.getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(content.getWhen()));
 
-        existingLog = resolveHistoricLog(entity, existingLog, fortressWhen);
+        lastLog = resolveHistoricLog(entity, lastLog, contentWhen);
 
         if (content.getEvent() == null) {
-            content.setEvent(existingLog == null ? Log.CREATE : Log.UPDATE);
+            content.setEvent(lastLog == null ? Log.CREATE : Log.UPDATE);
         }
 
-        Log preparedLog = entityDao.prepareLog(thisFortressUser, content, txRef, (existingLog != null ? existingLog.getLog() : null));
+        Log preparedLog = entityDao.prepareLog(thisFortressUser, content, txRef, (lastLog != null ? lastLog.getLog() : null));
 
-        if (existingLog != null) {
-            logger.debug("createLog, existing log found {}", existingLog);
-            boolean unchanged = kvService.isSame(entity, existingLog.getLog(), preparedLog);
+        if (lastLog != null) {
+            logger.debug("createLog, existing log found {}", lastLog);
+            boolean unchanged = kvService.isSame(entity, lastLog.getLog(), preparedLog);
             if (unchanged) {
                 logger.trace("Ignoring a change we already have {}", content);
                 resultBean.setStatus(ContentInputBean.LogStatus.IGNORE);
                 if (content.isForceReindex()) { // Caller is recreating the search index
                     resultBean.setStatus((ContentInputBean.LogStatus.REINDEX));
-                    resultBean.setLogToIndex(existingLog);
+                    resultBean.setLogToIndex(lastLog);
                     resultBean.setMessage("Ignoring a change we already have. Honouring request to re-index");
                 } else {
                     resultBean.setMessage("Ignoring a change we already have");
@@ -188,12 +186,9 @@ public class LogRetryService {
 
                 return resultBean;
             }
-//            if (searchActive)
-//                entity = waitOnInitialSearchResult(entity);
-
 
         } else { // first ever log for the entity
-            logger.debug("createLog - first log created for the entity");
+            logger.debug("createLog - first log created {}", contentWhen);
             //if (!entity.getLastUser().getId().equals(thisFortressUser.getId())){
             entity.setLastUser(thisFortressUser);
             if (entity.getCreatedBy() == null)
@@ -211,13 +206,13 @@ public class LogRetryService {
             content.setStatus(ContentInputBean.LogStatus.OK);
 
         // This call also saves the entity
-        EntityLog newLog = entityDao.addLog(entity, preparedLog, fortressWhen, existingLog);
+        EntityLog newLog = entityDao.addLog(entity, preparedLog, contentWhen, lastLog);
 
         resultBean.setFdWhen(newLog.getSysWhen());
 
-        boolean moreRecent = (existingLog == null || existingLog.getFortressWhen().compareTo(newLog.getFortressWhen()) <= 0);
+        boolean moreRecent = (lastLog == null || lastLog.getFortressWhen().compareTo(newLog.getFortressWhen()) <= 0);
 
-        if (moreRecent && searchActive)
+        if (moreRecent && fortress.isSearchActive())
             resultBean.setLogToIndex(newLog);  // Notional log to index.
 
         return resultBean;
@@ -234,24 +229,40 @@ public class LogRetryService {
      * @return entityLog to compare against
      */
     private EntityLog resolveHistoricLog(Entity entity, EntityLog existingLog, DateTime fortressWhen) {
+
         boolean historicIncomingLog = (existingLog != null && fortressWhen.isBefore(existingLog.getFortressWhen()));
+
+        logger.debug("Historic Incoming {}, log {}, fortressWhen {}",
+                historicIncomingLog,
+                existingLog !=null ?new DateTime(existingLog.getFortressWhen()):"[no existing]",
+                fortressWhen);
+
         if (historicIncomingLog) {
             Set<EntityLog> entityLogs = entityDao.getLogs(entity.getId(), fortressWhen.toDate());
-            if ( entityLogs.isEmpty()  )
+            if ( entityLogs.isEmpty()  ) {
+                logger.debug("No logs prior to {}. Returning existing log", fortressWhen);
                 return existingLog;
+            }
             else {
+                logger.debug( "Found {} historic logs", entityLogs.size());
                 EntityLog closestLog = null;
+
                 for (EntityLog entityLog : entityLogs) {
                     if ( closestLog == null )
                         closestLog = entityLog;
                     else
                         if (entityLog.getFortressWhen()<closestLog.getFortressWhen())
                             closestLog = entityLog;
+                        if (entityLog.getFortressWhen().equals(fortressWhen.getMillis()))
+                            return entityLog; // Exact match to the millis
                 }
+
+                logger.debug("return closestLog {}", closestLog== null ? "[null]":closestLog.getFortressWhen());
                 return closestLog;
             }
 
         }
+        logger.debug("return existingLog");
         return existingLog;
     }
 

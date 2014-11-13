@@ -26,8 +26,8 @@ package org.flockdata.helper;
  * Time: 6:51 AM
  * To change this template use File | Settings | File Templates.
  */
-public class DatagioTagException extends RuntimeException {
-    public DatagioTagException(String message) {
+public class FlockDataTagException extends RuntimeException {
+    public FlockDataTagException(String message) {
         super(message);
     }
 

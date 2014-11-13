@@ -42,6 +42,12 @@ public interface TrackLogRepo extends GraphRepository<LogNode> {
                     "   return log")
     EntityLogRelationship getLog(Long logId);
 
+    @Query(elementClass = EntityLogRelationship.class,
+            value = "match (change:Log)<-[log:LAST_CHANGE]-(entity:_Entity) where id(entity)={0} " +
+                    "   return log")
+    EntityLogRelationship getLastChange(Long entityId);
+
+
     @Query(elementClass = EntityLogRelationship.class, value = "match (entity)-[log:LOGGED]->(entityLog) where id(entity)={0} and log.fortressWhen >= {1} and log.fortressWhen <= {2}  return log ")
     Set<EntityLog> getLogs(Long entityId, Long from, Long to);
 
@@ -49,7 +55,7 @@ public interface TrackLogRepo extends GraphRepository<LogNode> {
     Set<EntityLog> getLogs(Long entityId, Long from );
 
     @Query(elementClass = EntityLogRelationship.class, value =
-            "   MATCH track-[log:LOGGED]->change where id(track) = {0} " +
+            "   MATCH (entity:_Entity)-[log:LOGGED]->(change) where id(entity) = {0} " +
             "return log order by log.fortressWhen desc")
     Set<EntityLog> findLogs(Long entityId);
 

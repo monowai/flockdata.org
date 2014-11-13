@@ -20,7 +20,7 @@
             "tag": true,
             "label": "Developer",
             "relationshipName": "ASKS",
-            "createdUser": true
+            "createUser": true
 
         },
         "j": {
@@ -28,6 +28,10 @@
             "label": "Developer",
             "relationshipName": "HAS_ANSWER",
             "updateUser": true
+        },
+        "at" :{
+            "createDate":true,
+            "dateFormat": "epoc"
         }
     }
 }
