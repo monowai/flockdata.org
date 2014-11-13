@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.schema.data;
+package org.flockdata.engine.schema.dao;
 
 import org.flockdata.engine.schema.model.ChangeEventNode;
 import org.flockdata.track.model.ChangeEvent;

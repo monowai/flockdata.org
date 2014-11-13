@@ -20,7 +20,7 @@
 package org.flockdata.engine.schema.service;
 
 import org.flockdata.engine.track.service.FdServerWriter;
-import org.flockdata.engine.schema.data.ProfileDao;
+import org.flockdata.engine.schema.dao.ProfileDao;
 import org.flockdata.engine.schema.model.ProfileNode;
 import org.flockdata.company.service.FortressService;
 import org.flockdata.helper.FlockDataJsonFactory;

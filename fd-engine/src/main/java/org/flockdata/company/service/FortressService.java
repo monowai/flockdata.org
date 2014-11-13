@@ -27,7 +27,7 @@ import org.flockdata.registration.model.FortressUser;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.track.bean.DocumentResultBean;
-import org.flockdata.engine.schema.data.SchemaDaoNeo4j;
+import org.flockdata.engine.schema.dao.SchemaDaoNeo4j;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.registration.bean.FortressInputBean;

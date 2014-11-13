@@ -36,28 +36,18 @@
         <level value="error"/>
     </logger>
 
-    <logger name="org.flockdata.engine.track.service.LogServiceNeo4j">
-        <level value="info"/>
-    </logger>
-    <logger name="org.flockdata.engine.schema.data.SchemaDaoNeo4j">
-        <level value="info"/>
-    </logger>
-    <logger name="org.flockdata.engine.schema.service.SchemaServiceNeo4j">
-        <level value="info"/>
+    <logger name="org.flockdata.engine.schema">
+        <level value="debug"/>
     </logger>
     <logger name="org.flockdata.engine.tag">
         <level value="debug"/>
     </logger>
-    <logger name="org.flockdata.company.service.FortressService">
+    <logger name="org.flockdata.company">
         <level value="info"/>
     </logger>
-    <logger name="org.flockdata.engine.track.service.MediationFacadeNeo4j">
+    <logger name="org.flockdata.engine.track">
         <level value="info"/>
     </logger>
-    <logger name="org.flockdata.engine.track.service.TrackServiceNeo4j">
-        <level value="info"/>
-    </logger>
-
     <logger name="org.flockdata.kv.KvManager">
         <level value="info"/>
     </logger>
