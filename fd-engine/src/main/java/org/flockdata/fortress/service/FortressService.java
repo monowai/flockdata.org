@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.service;
+package org.flockdata.fortress.service;
 
 
 import org.flockdata.helper.NotFoundException;
@@ -26,7 +26,7 @@ import org.flockdata.registration.model.FortressUser;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.track.bean.DocumentResultBean;
-import org.flockdata.engine.repo.neo4j.dao.FortressDaoNeo;
+import org.flockdata.fortress.dao.FortressDaoNeo;
 import org.flockdata.engine.repo.neo4j.dao.SchemaDaoNeo4j;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.SecurityHelper;

@@ -17,10 +17,10 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.repo.neo4j;
+package org.flockdata.fortress.repo;
 
-import org.flockdata.engine.repo.neo4j.model.FortressNode;
-import org.flockdata.engine.repo.neo4j.model.FortressUserNode;
+import org.flockdata.fortress.model.FortressNode;
+import org.flockdata.fortress.model.FortressUserNode;
 import org.flockdata.registration.model.Fortress;
 
 import org.springframework.data.neo4j.annotation.Query;

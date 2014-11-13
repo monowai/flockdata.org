@@ -20,6 +20,7 @@
 package org.flockdata.engine.service;
 
 import com.google.common.collect.Lists;
+import org.flockdata.fortress.service.FortressService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;

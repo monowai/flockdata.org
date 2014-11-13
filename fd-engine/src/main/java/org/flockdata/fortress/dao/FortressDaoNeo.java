@@ -17,17 +17,16 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.repo.neo4j.dao;
+package org.flockdata.fortress.dao;
 
-import org.flockdata.engine.repo.neo4j.FortressRepository;
-import org.flockdata.engine.repo.neo4j.FortressUserRepository;
-import org.flockdata.engine.repo.neo4j.model.FortressNode;
-import org.flockdata.engine.repo.neo4j.model.FortressUserNode;
+import org.flockdata.fortress.repo.FortressRepository;
+import org.flockdata.fortress.repo.FortressUserRepository;
+import org.flockdata.fortress.model.FortressNode;
+import org.flockdata.fortress.model.FortressUserNode;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.FortressUser;
-import org.flockdata.registration.service.KeyGenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,17 +58,11 @@ public class FortressDaoNeo  {
         return fortressRepo.save(fortress);
     }
 
-    public Fortress findByPropertyValue(String property, Object value) {
-        return fortressRepo.findBySchemaPropertyValue(property, value);
-    }
-
     public Fortress findOne(Long fortressId) {
-//        logger.debug("Looking for {}", fortressId);
         return fortressRepo.findOne(fortressId);
     }
 
     public FortressUser getFortressUser(Long fortressId, String name) {
-        //return fortressRepo.getFortressUser(fortressId, name);
         return fortressUserRepo.findBySchemaPropertyValue("key", fortressId + "." + name);
     }
 

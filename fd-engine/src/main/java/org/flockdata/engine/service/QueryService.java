@@ -19,6 +19,7 @@
 
 package org.flockdata.engine.service;
 
+import org.flockdata.fortress.service.FortressService;
 import org.flockdata.track.service.SchemaService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.model.Company;

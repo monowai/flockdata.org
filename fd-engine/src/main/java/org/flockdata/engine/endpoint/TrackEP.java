@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.endpoint;
 
-import org.flockdata.engine.service.FortressService;
+import org.flockdata.fortress.service.FortressService;
 import org.flockdata.engine.service.TxService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;

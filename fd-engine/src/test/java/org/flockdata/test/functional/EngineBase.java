@@ -20,7 +20,8 @@
 package org.flockdata.test.functional;
 
 import org.flockdata.company.endpoint.CompanyEP;
-import org.flockdata.engine.repo.neo4j.model.FortressNode;
+import org.flockdata.fortress.model.FortressNode;
+import org.flockdata.fortress.service.FortressService;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.registration.bean.RegistrationBean;
 import org.flockdata.registration.dao.neo4j.model.CompanyNode;
@@ -39,7 +40,6 @@ import org.flockdata.track.model.EntityLog;
 import org.flockdata.engine.service.*;
 import org.flockdata.track.service.*;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;

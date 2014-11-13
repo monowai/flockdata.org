@@ -22,6 +22,7 @@ package org.flockdata.engine.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.engine.repo.neo4j.EntityDaoNeo;
+import org.flockdata.fortress.service.FortressService;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.kv.service.KvService;

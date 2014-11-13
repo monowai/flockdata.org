@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.repo.neo4j.model;
+package org.flockdata.fortress.model;
 
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.dao.neo4j.model.CompanyNode;

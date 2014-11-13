@@ -48,7 +48,7 @@
     <logger name="org.flockdata.engine.repo.neo4j.dao.TagDaoNeo4j">
         <level value="info"/>
     </logger>
-    <logger name="org.flockdata.engine.service.FortressService">
+    <logger name="org.flockdata.fortress.service.FortressService">
         <level value="info"/>
     </logger>
     <logger name="org.flockdata.engine.service.MediationFacadeNeo4j">
