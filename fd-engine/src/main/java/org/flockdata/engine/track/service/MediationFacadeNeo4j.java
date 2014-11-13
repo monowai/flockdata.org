@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import org.flockdata.company.service.FortressService;
 import org.flockdata.engine.admin.EngineConfig;
 import org.flockdata.engine.query.service.SearchServiceFacade;
+import org.flockdata.engine.tag.service.TagRetryService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;
@@ -105,6 +106,9 @@ public class MediationFacadeNeo4j implements MediationFacade {
     SecurityHelper securityHelper;
 
     @Autowired
+    TagRetryService tagRetryService;
+
+    @Autowired
     KvService kvService;
 
     private Logger logger = LoggerFactory.getLogger(MediationFacadeNeo4j.class);
@@ -124,10 +128,16 @@ public class MediationFacadeNeo4j implements MediationFacade {
         Collection<String> existing = tagService.getExistingIndexes();
         schemaService.ensureUniqueIndexes(company, tagInputs, existing);
 //        try {
-            Collection<Tag>results = new ArrayList<>();
-            for (TagInputBean tag : tagInputs) {
-                results.add(tagService.createTag(company, tag));
-            }
+            //Collection<Tag>results = new ArrayList<>();
+        Collection<Tag>results;
+        //for (TagInputBean tag : tagInputs) {
+        try {
+            results =tagRetryService.createTags(company, tagInputs);
+        } catch (IOException e) {
+            logger.error("Unexpected", e);
+            throw new FlockException("IO Exception", e);
+        }
+        //}
             //return tagService.createTags(company, tagInputs);
             return results;
 //        } catch (IOException e) {

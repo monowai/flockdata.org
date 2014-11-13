@@ -88,18 +88,16 @@ public class TagDaoNeo4j {
         return results;
     }
 
-    public Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> createdValues, boolean suppressRelationships) {
+    Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> createdValues, boolean suppressRelationships) {
         // Check exists
-        TagNode existingTag = (TagNode) findTag(company, (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()), tagInput.getLabel());
-        Tag start;
-        if (existingTag == null) {
+        Tag start = findTag(company, (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()), tagInput.getLabel());
+        if (start == null) {
             if (tagInput.isMustExist()) {
                 tagInput.getServiceMessage("Tag [" + tagInput + "] should exist for [" + tagInput.getLabel() + "] but doesn't. Ignoring this request.");
                 throw new FlockDataTagException("Tag [" + tagInput + "] should exist for [" + tagInput.getLabel() + "] but doesn't. Ignoring this request.");
-            } else
+            } else {
                 start = createTag(company, tagInput, tagSuffix);
-        } else {
-            start = template.findOne(existingTag.getId(), TagNode.class);
+            }
         }
 
         Map<String, Collection<TagInputBean>> tags = tagInput.getTargets();
@@ -115,16 +113,16 @@ public class TagDaoNeo4j {
 
     private Tag createTag(Company company, TagInputBean tagInput, String suffix) {
 
-        logger.debug("Request to create tag {}", tagInput);
+        logger.trace("createTag {}", tagInput);
         // ToDo: Should a label be suffixed with company in multi-tenanted? - more time to think!!
         //       do we care that one company can see another companies tag value? Certainly not the
         //       track data.
-        String label ;
+        String label;
         if (tagInput.isDefault())
             label = "_Tag" + suffix;
         else {
             schemaDao.registerTag(company, tagInput.getLabel());
-            label = tagInput.getLabel() ;
+            label = tagInput.getLabel();
         }
         TagNode tag = new TagNode(tagInput, label);
 
@@ -156,13 +154,14 @@ public class TagDaoNeo4j {
         //Map<String, Object> mapResult = result.singleOrNull();
         //return (Node) mapResult.get("tag");
         try {
-            logger.debug( "About to save {}",tag);
+            logger.debug("Saving {}", tag);
             tag = template.save(tag);
-            logger.debug( "Saved");
+            logger.debug("Saved {}", tag);
             return tag;
-        } catch ( ConstraintViolationException e) {
-            logger.debug("Error after save");
-            return findTag(company, tagInput.getCode(), label);
+        } catch (ConstraintViolationException e) {
+            logger.debug("Error saving {}", tag);
+            throw e;
+            //return findTag(company, tagInput.getCode(), label);
 
         }
 
@@ -274,11 +273,12 @@ public class TagDaoNeo4j {
         if (tagCode == null || company == null)
             throw new IllegalArgumentException("Null can not be used to find a tag (" + label + ")");
 
+        logger.debug("findTag request {}, {}", tagCode, label);
         if (label.startsWith(":"))
             label = label.substring(1);
         String query;
-        String theLabel =resolveLabel(label, engineAdmin.getTagSuffix(company));
-        logger.debug("Looking for tagCode [{}] for label [{}]", tagCode, label);
+        String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
+        logger.debug("findTag code [{}] label [{}]", tagCode, label);
         query = "optional match (t:`" + theLabel + "` {key:{tagKey}}) " +
                 "optional match (a:`" + theLabel + "Alias` {key:{tagKey}}) " +
                 "with t,a " +
@@ -290,18 +290,23 @@ public class TagDaoNeo4j {
         Result<Map<String, Object>> result = template.query(query, params);
         Map<String, Object> mapResult = result.singleOrNull();
         if (mapResult != null) {
+
             Node n = null;
             if (mapResult.get("t") != null)
                 n = (Node) mapResult.get("t");
             else if (mapResult.get("tag") != null)
                 n = (Node) mapResult.get("tag");
 
-            if (n == null)
+            if (n == null) {
+                logger.debug("findTag notFound {}, {}", tagCode, label);
                 return null;
-            else
-                return template.projectTo(n, TagNode.class);
-        }
+            }
 
+            Tag tag = template.projectTo(n, TagNode.class);
+            logger.debug("findTag found {}, {}", tag.getCode(), label);
+            return tag;
+        }
+        logger.debug("findTag notFound {}, {}", tagCode, label);
         return null;// No tag found
 
     }
@@ -345,32 +350,32 @@ public class TagDaoNeo4j {
         // optional match (a:CountryAlias {code:"New Zealand"})
         // with c,a optional match (tag)-[:HAS_ALIAS]->(a)
         // return c, a,tag
-        String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company)) ;
+        String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
         if (doesAliasExist(tag.getId(), theLabel, aliasKeyValue))
             return;
 
-        String query = "match (t:"+theLabel+") where id(t)={id} create (alias:`"+theLabel+"Alias"+"` {key:{key}}) ,(t)-[:HAS_ALIAS]->(alias) return t, alias";
-        Map<String,Object>params = new HashMap<>();
+        String query = "match (t:" + theLabel + ") where id(t)={id} create (alias:`" + theLabel + "Alias" + "` {key:{key}}) ,(t)-[:HAS_ALIAS]->(alias) return t, alias";
+        Map<String, Object> params = new HashMap<>();
         params.put("key", parseKey(aliasKeyValue));
         params.put("id", tag.getId());
         Result<Map<String, Object>> result = template.query(query, params);
-        Map<String,Object> mapResult = result.singleOrNull();
-        if ( mapResult != null )
-             logger.debug("Created alias {} for tag {}", mapResult.get("alias"), tag);
+        Map<String, Object> mapResult = result.singleOrNull();
+        if (mapResult != null)
+            logger.debug("Created alias {} for tag {}", mapResult.get("alias"), tag);
     }
 
-    private boolean doesAliasExist(Long tagId, String label, String key){
-        String query = "match (t:_Tag )-[:HAS_ALIAS]->(alias:`"+label+"Alias"+"` {key:{key}}) where id(t) = {id} return alias";
-        Map<String,Object>params = new HashMap<>();
-        params.put("key", parseKey (key));
+    private boolean doesAliasExist(Long tagId, String label, String key) {
+        String query = "match (t:_Tag )-[:HAS_ALIAS]->(alias:`" + label + "Alias" + "` {key:{key}}) where id(t) = {id} return alias";
+        Map<String, Object> params = new HashMap<>();
+        params.put("key", parseKey(key));
         params.put("id", tagId);
         Result<Map<String, Object>> result = template.query(query, params);
-        Map<String,Object> mapResult = result.singleOrNull();
+        Map<String, Object> mapResult = result.singleOrNull();
         return mapResult != null && mapResult.get("alias") != null;
 
     }
 
-    public static String parseKey (String key){
+    public static String parseKey(String key) {
         return key.toLowerCase().replaceAll("\\s", "");
     }
 }

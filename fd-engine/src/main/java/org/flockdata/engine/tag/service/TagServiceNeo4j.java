@@ -59,10 +59,6 @@ public class TagServiceNeo4j implements TagService {
     @Autowired
     EngineConfig engineConfig;
 
-    @Autowired
-    TagRetryService tagRetryService;
-
-
     private Logger logger = LoggerFactory.getLogger(TagServiceNeo4j.class);
 
     @Override
@@ -106,7 +102,7 @@ public class TagServiceNeo4j implements TagService {
 
     @Override
     public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, IOException, ExecutionException, InterruptedException {
-        return tagRetryService.createTags(company, tagInputs);
+        return tagDao.save(company, tagInputs);
     }
 
     @Override
