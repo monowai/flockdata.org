@@ -14,7 +14,7 @@
     <int:annotation-config/>
 
     <int:gateway id="fdMonitoringGateway"
-                 service-interface="org.flockdata.engine.service.FdMonitoringGateway"/>
+                 service-interface="org.flockdata.engine.admin.FdMonitoringGateway"/>
 
     <bean class="org.springframework.integration.http.inbound.IntegrationRequestMappingHandlerMapping"/>
 

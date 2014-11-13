@@ -29,7 +29,7 @@
             <mvc:mapping path="/admin/**"/>
             <mvc:mapping path="/track/**"/>
             <mvc:mapping path="/batch/**"/>
-            <bean class="org.flockdata.authentication.handler.ApiKeyInterceptor"/>
+            <bean class="org.flockdata.helper.ApiKeyInterceptor"/>
         </mvc:interceptor>
         <!--<mvc:interceptor>-->
             <!--<mvc:mapping path="/profiles/me/"/>-->

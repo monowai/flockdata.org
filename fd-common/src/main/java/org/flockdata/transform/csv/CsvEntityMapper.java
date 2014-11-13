@@ -120,7 +120,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                         long val = Long.parseLong(value)*1000;
 
                         setWhen(new DateTime(val));
-                        logger.debug ("{}, {}, {}", val, value, getWhen());
+//                        logger.debug ("{}, {}, {}", val, value, getWhen());
                     }
                     else if ( NumberUtils.isDigits(value))  // plain old java millis
                         setWhen(new DateTime(Long.parseLong(value)));

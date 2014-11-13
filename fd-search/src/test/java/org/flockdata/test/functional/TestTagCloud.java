@@ -19,12 +19,15 @@
 
 package org.flockdata.test.functional;
 
-import org.flockdata.engine.repo.neo4j.model.*;
-import org.flockdata.fortress.model.FortressNode;
-import org.flockdata.fortress.model.FortressUserNode;
+import org.flockdata.engine.schema.model.DocumentTypeNode;
+import org.flockdata.engine.tag.model.TagNode;
+import org.flockdata.engine.track.model.EntityNode;
+import org.flockdata.engine.track.model.EntityTagRelationship;
+import org.flockdata.company.model.FortressNode;
+import org.flockdata.company.model.FortressUserNode;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.dao.neo4j.model.CompanyNode;
+import org.flockdata.company.model.CompanyNode;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.FortressUser;
 import org.flockdata.search.dao.QueryDaoES;

@@ -19,10 +19,10 @@
 
 package org.flockdata.test.unit;
 
-import org.flockdata.engine.repo.neo4j.model.TxRefNode;
+import org.flockdata.engine.schema.model.TxRefNode;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.dao.neo4j.model.CompanyNode;
+import org.flockdata.company.model.CompanyNode;
 import org.flockdata.track.bean.ConceptInputBean;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;

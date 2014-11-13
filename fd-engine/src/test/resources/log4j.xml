@@ -36,32 +36,32 @@
         <level value="error"/>
     </logger>
 
-    <logger name="org.flockdata.engine.service.LogServiceNeo4j">
+    <logger name="org.flockdata.engine.track.service.LogServiceNeo4j">
         <level value="info"/>
     </logger>
-    <logger name="org.flockdata.engine.repo.neo4j.dao.SchemaDaoNeo4j">
+    <logger name="org.flockdata.engine.schema.data.SchemaDaoNeo4j">
         <level value="info"/>
     </logger>
-    <logger name="org.flockdata.engine.service.SchemaServiceNeo4j">
+    <logger name="org.flockdata.engine.schema.service.SchemaServiceNeo4j">
         <level value="info"/>
     </logger>
-    <logger name="org.flockdata.engine.repo.neo4j.dao.TagDaoNeo4j">
+    <logger name="org.flockdata.engine.tag">
+        <level value="debug"/>
+    </logger>
+    <logger name="org.flockdata.company.service.FortressService">
         <level value="info"/>
     </logger>
-    <logger name="org.flockdata.fortress.service.FortressService">
+    <logger name="org.flockdata.engine.track.service.MediationFacadeNeo4j">
         <level value="info"/>
     </logger>
-    <logger name="org.flockdata.engine.service.MediationFacadeNeo4j">
-        <level value="info"/>
-    </logger>
-    <logger name="org.flockdata.engine.service.TrackServiceNeo4j">
+    <logger name="org.flockdata.engine.track.service.TrackServiceNeo4j">
         <level value="info"/>
     </logger>
 
-    <logger name="org.flockdata.engine.service.KvManager">
+    <logger name="org.flockdata.kv.KvManager">
         <level value="info"/>
     </logger>
-    <logger name=" org.flockdata.engine.service.TrackServiceNeo4j">
+    <logger name=" org.flockdata.engine.track.service.TrackServiceNeo4j">
         <level value="info"/>
     </logger>
 

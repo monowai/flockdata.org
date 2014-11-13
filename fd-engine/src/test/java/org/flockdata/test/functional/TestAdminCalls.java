@@ -20,7 +20,7 @@
 package org.flockdata.test.functional;
 
 import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.authentication.handler.ApiKeyInterceptor;
+import org.flockdata.helper.ApiKeyInterceptor;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Fortress;

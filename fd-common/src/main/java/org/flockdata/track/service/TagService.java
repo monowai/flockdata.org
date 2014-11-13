@@ -19,17 +19,15 @@
 
 package org.flockdata.track.service;
 
-import org.flockdata.registration.model.Tag;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
-import org.springframework.scheduling.annotation.Async;
+import org.flockdata.registration.model.Tag;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * User: mike
@@ -40,10 +38,7 @@ public interface TagService {
 
     Tag createTag(Company company, TagInputBean tagInput);
 
-    public void createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, IOException, ExecutionException, InterruptedException;
-
-    @Async
-    public Future<Collection<Tag>> makeTags(Company company, List<TagInputBean> tagInputs) throws ExecutionException, InterruptedException;
+    public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, IOException, ExecutionException, InterruptedException;
 
     public Tag findTag(Company company, String tagCode);
 
