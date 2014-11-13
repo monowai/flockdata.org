@@ -21,7 +21,6 @@ package org.flockdata.test.functional;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.profile.service.ImportProfileService;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.SystemUserResultBean;
 import org.flockdata.registration.bean.TagInputBean;
@@ -39,7 +38,6 @@ import org.flockdata.transform.FdWriter;
 import org.flockdata.transform.FileProcessor;
 import org.joda.time.DateTime;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -65,42 +63,33 @@ import static org.junit.Assert.assertNotNull;
  */
 public class TestCsvImportIntegration extends EngineBase {
 
-    @Autowired
-    private
-    ImportProfileService importProfile;
 
     @Test
-//    @Repeat(30)
     public void csvImport_DuplicateLogsNotCreated() throws Exception {
+        cleanUpGraph(); // No transaction so need to clear down the graph
         logger.info("Starting ## csvImport_DuplicateLogsNotCreated");
         setSecurity();
         final SystemUser su = registerSystemUser("importSflow", mike_admin);
 
         Fortress f = fortressService.registerFortress(su.getCompany(), new FortressInputBean("StackOverflow", true));
         DocumentType docType = schemaService.resolveByDocCode(f, "QuestionEvent");
+        int i = 1, maxRuns =4;
+        do {
 
-        FileProcessor myProcessor = new FileProcessor();
-        FdTestWriter testWriter = new FdTestWriter(su);
+            FileProcessor myProcessor = new FileProcessor();
+            FdTestWriter testWriter = new FdTestWriter(su);
 
-        myProcessor.processFile(Helper.getImportParams("/sflow.json"), "/sflow.csv", 0, testWriter, su.getCompany(), false);
-        Entity entityA = trackService.findByCallerRef(su.getCompany(), f.getName(), docType.getName(), "563890");
-//        Entity entityB = trackService.findByCallerRef(su.getCompany(), f.getName(), docType.getName(), "563480");
-        assertNotNull(entityA);
-//        assertNotNull(entityB);
+            myProcessor.processFile(Helper.getImportParams("/sflow.json"), "/sflow.csv", 0, testWriter, su.getCompany(), false);
+            Entity entityA = trackService.findByCallerRef(su.getCompany(), f.getName(), docType.getName(), "563890");
+            assertNotNull(entityA);
 
-        EntityLog log = trackService.getLastEntityLog(entityA.getId());
+            EntityLog log = trackService.getLastEntityLog(entityA.getId());
 
-        logger.debug("entity.Log When {}", new DateTime(log.getFortressWhen()));
-        assertEquals("Log was not set to the most recent", new DateTime(1235020128000l), new DateTime(log.getFortressWhen()));
-        assertEquals("First run through got the wrong log count", testWriter.count, trackService.getLogCount(su.getCompany(), entityA.getMetaKey()));
-
-        logger.debug("@@@ Second run beginning");
-        myProcessor.processFile(Helper.getImportParams("/sflow.json"), "/sflow.csv", 0, testWriter, su.getCompany(), false);
-        log = trackService.getLastEntityLog(su.getCompany(), entityA.getMetaKey());
-        logger.debug("logWhen {}, entity.Log When {}", entityA.getLastChange(), new DateTime(log.getFortressWhen()));
-        //assertEquals();
-        assertEquals("Second run through got the wrong log count", testWriter.count, trackService.getLogCount(su.getCompany(), entityA.getMetaKey()));
-
+//            logger.debug("entity.Log When {}", new DateTime(log.getFortressWhen()));
+            assertEquals( "Run "+i+" Log was not set to the most recent", new DateTime(1235020128000l), new DateTime(log.getFortressWhen()));
+            assertEquals( "Run "+i+" has wrong log count", testWriter.count, trackService.getLogCount(su.getCompany(), entityA.getMetaKey()));
+            i++;
+        } while ( i <= maxRuns ) ;
     }
 
     private class FdTestWriter implements FdWriter {
@@ -132,8 +121,9 @@ public class TestCsvImportIntegration extends EngineBase {
                 MyRunner runner = new MyRunner(entityInputBean);
                 executor.execute(runner);
             }
-            while (executor.getActiveCount() != 0)
-                logger.trace("Waiting for active count to hit 0");
+            while (executor.getActiveCount() > 0)
+                logger.debug("Executor at {}",executor.getActiveCount());
+            logger.debug("Executor at {}",executor.getActiveCount());
             return "";
         }
 
