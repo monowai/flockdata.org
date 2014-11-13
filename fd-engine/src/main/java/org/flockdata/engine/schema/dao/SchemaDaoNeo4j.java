@@ -149,24 +149,24 @@ public class SchemaDaoNeo4j {
      * @param company   who owns the tags
      * @param tagInputs collection to process
      */
-    public synchronized boolean ensureUniqueIndexes(Company company, Iterable<TagInputBean> tagInputs, Collection<String> added) {
+    public synchronized boolean ensureUniqueIndexes(Company company, Iterable<TagInputBean> tagInputs, Collection<String> knownLabels) {
 
         for (TagInputBean tagInput : tagInputs) {
             if (tagInput != null) {
                 logger.trace("Checking label for {}", tagInput);
                 String label = tagInput.getLabel();
-                if (!added.contains(label)) {
+                if (!knownLabels.contains(label)) {
                     logger.debug("Creating label for {}", tagInput);
                     //if (index != null && !tagExists(company, index)) { // This check causes deadlocks in TagEP ?
                     if (!(tagInput.isDefault() || isSystemLabel(tagInput.getLabel()))) {
                         ensureIndex(tagInput);
-                        added.add(tagInput.getLabel());
+                        knownLabels.add(tagInput.getLabel());
                     }
                 }
                 if (!tagInput.getTargets().isEmpty()) {
                     for (String key : tagInput.getTargets().keySet()) {
                         if (key != null)
-                            ensureUniqueIndexes(company, tagInput.getTargets().get(key), added);
+                            ensureUniqueIndexes(company, tagInput.getTargets().get(key), knownLabels);
                     }
                 }
             } else
@@ -184,7 +184,7 @@ public class SchemaDaoNeo4j {
         template.query("create constraint on (t:`" + index + "`) assert t.key is unique", null);
         // Tag alias also have a unique key
         template.query("create constraint on (t:`" + index + "Alias`) assert t.key is unique", null);
-        logger.debug("Created constraint on [{}]", tagInput.getLabel());
+        logger.debug("Tag constraint created - [{}]", tagInput.getLabel());
         return true;
 
     }

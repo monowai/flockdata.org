@@ -20,9 +20,12 @@
 package org.flockdata.engine.tag.service;
 
 import org.flockdata.engine.tag.model.TagDaoNeo4j;
+import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Tag;
+import org.flockdata.track.service.TagService;
+import org.neo4j.graphdb.ConstraintViolationException;
 import org.neo4j.kernel.DeadlockDetectedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.ConcurrencyFailureException;
@@ -33,8 +36,10 @@ import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * User: mike
@@ -49,11 +54,17 @@ public class TagRetryService {
     @Autowired
     private TagDaoNeo4j tagDao;
 
-    @Retryable(include =  {DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 12, backoff = @Backoff(delay = 50, maxDelay = 400))
-    public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputBeans) {
-        return tagDao.save(company, tagInputBeans, true);
+    @Autowired
+    private TagService tagService;
 
-
+    @Retryable(include =  {ConstraintViolationException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 12, backoff = @Backoff(delay = 50, maxDelay = 400))
+    public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputBeans) throws InterruptedException, FlockException, ExecutionException, IOException {
+        return tagService.createTags(company, tagInputBeans);
     }
+
+//    @Retryable( include =  {DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 12, backoff = @Backoff(delay = 50, maxDelay = 400))
+//    public Tag createTag(Company company,TagInputBean tagInputBean) {
+//        return tagDao.save(company, tagInputBean);
+//    }
 
 }
