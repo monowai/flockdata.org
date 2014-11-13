@@ -20,6 +20,7 @@
 package org.flockdata.engine.service;
 
 import org.flockdata.engine.repo.neo4j.EntityDaoNeo;
+import org.flockdata.fortress.service.FortressService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.model.Fortress;

@@ -36,7 +36,7 @@ import org.apache.commons.lang.time.StopWatch;
 import org.flockdata.engine.FdServerWriter;
 import org.flockdata.engine.endpoint.QueryEP;
 import org.flockdata.engine.endpoint.TrackEP;
-import org.flockdata.engine.service.FortressService;
+import org.flockdata.fortress.service.FortressService;
 import org.flockdata.engine.service.QueryService;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.JsonUtils;

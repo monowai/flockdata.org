@@ -20,6 +20,8 @@
 package org.flockdata.test.unit;
 
 import org.flockdata.engine.repo.neo4j.model.*;
+import org.flockdata.fortress.model.FortressNode;
+import org.flockdata.fortress.model.FortressUserNode;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;

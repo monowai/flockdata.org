@@ -22,6 +22,7 @@ package org.flockdata.engine.service;
 import org.flockdata.engine.FdServerWriter;
 import org.flockdata.engine.repo.neo4j.dao.ProfileDao;
 import org.flockdata.engine.repo.neo4j.model.ProfileNode;
+import org.flockdata.fortress.service.FortressService;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;

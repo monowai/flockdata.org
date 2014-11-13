@@ -19,6 +19,7 @@
 
 package org.flockdata.engine.service;
 
+import org.flockdata.fortress.service.FortressService;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.engine.repo.neo4j.EntityDaoNeo;
 import org.flockdata.track.bean.*;

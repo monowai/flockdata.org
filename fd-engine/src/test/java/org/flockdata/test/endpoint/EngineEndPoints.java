@@ -22,7 +22,7 @@ package org.flockdata.test.endpoint;
 import org.flockdata.authentication.LoginRequest;
 import org.flockdata.authentication.handler.ApiKeyInterceptor;
 import org.flockdata.engine.repo.neo4j.model.DocumentTypeNode;
-import org.flockdata.engine.repo.neo4j.model.FortressNode;
+import org.flockdata.fortress.model.FortressNode;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;

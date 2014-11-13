@@ -19,6 +19,7 @@
 
 package org.flockdata.engine.repo.neo4j.model;
 
+import org.flockdata.fortress.model.FortressUserNode;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.registration.model.FortressUser;
 import org.flockdata.track.model.ChangeEvent;

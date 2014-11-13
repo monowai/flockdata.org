@@ -19,6 +19,8 @@
 
 package org.flockdata.engine.repo.neo4j.model;
 
+import org.flockdata.fortress.model.FortressNode;
+import org.flockdata.fortress.model.FortressUserNode;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.track.model.Entity;
