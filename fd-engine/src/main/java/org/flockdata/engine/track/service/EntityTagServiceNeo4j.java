@@ -81,6 +81,14 @@ public class EntityTagServiceNeo4j implements EntityTagService {
         return entityTagDao.relationshipExists(entity, tag, relationshipType);
     }
 
+    private Tag getTag(Iterable<EntityTag>existingTags, String code){
+        for (EntityTag existingTag : existingTags) {
+            if ( existingTag.getTag().getCode().equalsIgnoreCase(code))
+                return existingTag.getTag();
+        }
+        return null;
+    }
+
     /**
      * Associates the supplied userTags with the EntityNode
      * <p/>
@@ -109,7 +117,9 @@ public class EntityTagServiceNeo4j implements EntityTagService {
 
         for (TagInputBean tagInput : userTags) {
 
-            Tag tag = tagService.createTag(company, tagInput);
+            Tag tag = getTag(existingTags, tagInput.getCode());
+            if ( tag == null )
+                tag = tagService.createTag(company, tagInput);
 
             // Handle both simple relationships type name or a map/collection of relationships
             if (tagInput.getEntityLinks() != null) {

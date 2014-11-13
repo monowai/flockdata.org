@@ -313,6 +313,7 @@ public class EntityDaoNeo {
             return newChange.getEntityLog();
 
         entity = template.fetch(entity);// latest version (according to this transaction
+
         newChange = template.save(newChange);
         setLatest(entity);
 

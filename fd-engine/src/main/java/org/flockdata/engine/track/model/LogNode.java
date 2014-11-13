@@ -66,6 +66,8 @@ public class LogNode implements Log {
     private String comment;
     private String storage;
     private String checkSum=null;
+    @Indexed (unique =  true)
+    private String logKey;
 
     public String getContentType() {
         if ( contentType == null )
@@ -229,6 +231,7 @@ public class LogNode implements Log {
 
     @Override
     public void setTrackLog(EntityLog entityLog) {
+        this.logKey = ""+entityLog.getEntity().getId() +"."+ entityLog.getFortressWhen();
         this.entityLog = (EntityLogRelationship) entityLog;
     }
 
