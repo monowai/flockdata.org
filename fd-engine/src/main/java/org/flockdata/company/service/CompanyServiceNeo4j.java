@@ -20,7 +20,7 @@
 package org.flockdata.company.service;
 
 
-import org.flockdata.engine.schema.data.SchemaDaoNeo4j;
+import org.flockdata.engine.schema.dao.SchemaDaoNeo4j;
 import org.flockdata.engine.admin.EngineConfig;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.registration.dao.CompanyDao;

@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.track;
 
-import org.flockdata.engine.schema.data.DocumentTypeRepo;
+import org.flockdata.engine.schema.dao.DocumentTypeRepo;
 import org.flockdata.engine.schema.model.TxRefNode;
 import org.flockdata.engine.track.model.EntityLogRelationship;
 import org.flockdata.engine.track.model.EntityNode;

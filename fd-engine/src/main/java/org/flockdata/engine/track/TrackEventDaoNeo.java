@@ -20,7 +20,7 @@
 package org.flockdata.engine.track;
 
 import org.flockdata.dao.TrackEventDao;
-import org.flockdata.engine.schema.data.ChangeEventRepo;
+import org.flockdata.engine.schema.dao.ChangeEventRepo;
 import org.flockdata.engine.schema.model.ChangeEventNode;
 import org.flockdata.registration.model.Company;
 import org.flockdata.track.model.ChangeEvent;
