@@ -324,7 +324,7 @@ public class FdRestWriter implements FdWriter {
         return "OK";
 
     }
-    private boolean amqp = false; // Experimental support
+    private boolean amqp = true; // Experimental support
 
     public String flushEntities(Company company, List<EntityInputBean> entityInputs, boolean async) throws FlockException {
         if (simulateOnly || entityInputs.isEmpty())
