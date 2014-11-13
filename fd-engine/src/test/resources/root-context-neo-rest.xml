@@ -45,7 +45,7 @@
 
     <bean id="cacheManager" class="org.springframework.cache.support.NoOpCacheManager"/>
 
-	<bean id="apiKeyInterceptor" class="org.flockdata.authentication.handler.ApiKeyInterceptor"/>
+	<bean id="apiKeyInterceptor" class="org.flockdata.helper.ApiKeyInterceptor"/>
 
     <bean id="corsFilter" class="org.flockdata.helper.CorsSpringFilter" >
         <constructor-arg>

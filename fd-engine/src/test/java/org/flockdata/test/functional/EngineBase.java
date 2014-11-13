@@ -20,11 +20,16 @@
 package org.flockdata.test.functional;
 
 import org.flockdata.company.endpoint.CompanyEP;
-import org.flockdata.fortress.model.FortressNode;
-import org.flockdata.fortress.service.FortressService;
+import org.flockdata.company.model.FortressNode;
+import org.flockdata.company.service.FortressService;
+import org.flockdata.engine.admin.EngineConfig;
+import org.flockdata.engine.query.service.QueryService;
+import org.flockdata.engine.query.service.SearchServiceFacade;
+import org.flockdata.engine.schema.service.TxService;
+import org.flockdata.engine.track.service.TrackEventService;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.registration.bean.RegistrationBean;
-import org.flockdata.registration.dao.neo4j.model.CompanyNode;
+import org.flockdata.company.model.CompanyNode;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.service.SystemUserService;
@@ -37,7 +42,6 @@ import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
-import org.flockdata.engine.service.*;
 import org.flockdata.track.service.*;
 import org.junit.Before;
 import org.junit.runner.RunWith;

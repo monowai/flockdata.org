@@ -19,7 +19,7 @@
 
 package org.flockdata.test.functional;
 
-import org.flockdata.authentication.handler.ApiKeyInterceptor;
+import org.flockdata.helper.ApiKeyInterceptor;
 import org.flockdata.registration.model.Company;
 import junit.framework.Assert;
 import org.junit.After;

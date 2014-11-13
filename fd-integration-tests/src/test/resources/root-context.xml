@@ -51,7 +51,7 @@
     <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
           p:configLocation="classpath:/ehcache.xml"/>
 
-    <bean id="apiKeyInterceptor" class="org.flockdata.authentication.handler.ApiKeyInterceptor"/>
+    <bean id="apiKeyInterceptor" class="org.flockdata.helper.ApiKeyInterceptor"/>
 
 
 </beans>

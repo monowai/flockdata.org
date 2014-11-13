@@ -96,11 +96,11 @@
     <logger name="org.springframework.data.neo4j.support.query">
         <level value="info"/> <!-- turn this on to see erer statements")-->
     </logger>
-    <logger name="org.flockdata.engine.repo.neo4j.EntityDaoNeo">
+    <logger name="org.flockdata.engine.track.EntityDaoNeo">
         <level value="info"/>
     </logger>
 
-    <logger name="org.flockdata.engine.service.TrackServiceNeo4j">
+    <logger name="org.flockdata.engine.track.service.TrackServiceNeo4j">
         <level value="info"/>
     </logger>
     <logger name="org.neo4j.cypher">

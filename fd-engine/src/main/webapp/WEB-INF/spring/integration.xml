@@ -15,7 +15,7 @@
 	   http://www.springframework.org/schema/task/spring-task.xsd">
 
     <int:gateway id="fdSearchGateway"  async-executor="fd-q-exec"
-                 service-interface="org.flockdata.engine.service.FdSearchGateway"/>
+                 service-interface="org.flockdata.engine.query.endpoint.FdSearchGateway"/>
 
     <int:json-to-object-transformer id="jsonToObject2"
                                     input-channel="doMetaKeyReply"
