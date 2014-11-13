@@ -19,6 +19,14 @@
             "type": "String",
             "tag":true,
             "relationshipName": "subject"
+        },
+        "created": {
+            "createDate":true,
+            "dateFormat":"epoc"
+        },
+
+        "updated": {
+            "updateDate":true
         }
     }
 }

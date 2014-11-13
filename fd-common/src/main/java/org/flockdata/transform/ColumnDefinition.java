@@ -19,6 +19,7 @@
 
 package org.flockdata.transform;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -39,10 +40,10 @@ public class ColumnDefinition {
     private boolean description;
     private boolean valueAsProperty;
     private boolean country;
-    private boolean createdDate;
+    private boolean createDate;
     private boolean tag;
     private boolean mustExist;
-    private boolean createdUser;
+    private boolean createUser;
     private boolean updateUser;
     private boolean reverse = false;
 
@@ -67,6 +68,7 @@ public class ColumnDefinition {
     private String customPropertyName;
 
     private ArrayList<Map<String,String>>crossReferences = new ArrayList<>();
+    private boolean updateDate;
 
     public String getLabel() {
         return label;
@@ -212,12 +214,12 @@ public class ColumnDefinition {
      *
      * @return is this column carrying the value for the Creating user
      */
-    public boolean isCreatedUser() {
-        return createdUser;
+    public boolean isCreateUser() {
+        return createUser;
     }
 
-    public void setCreatedUser(boolean createdUser) {
-        this.createdUser = createdUser;
+    public void setCreateUser(boolean createUser) {
+        this.createUser = createUser;
     }
 
     /**
@@ -244,8 +246,8 @@ public class ColumnDefinition {
      *
      * @return is this column carrying the value for the Created Date
      */
-    public boolean isCreatedDate() {
-        return createdDate;
+    public boolean isCreateDate() {
+        return createDate;
     }
 
     /**
@@ -263,5 +265,26 @@ public class ColumnDefinition {
 
     public void setCrossReferences(ArrayList<Map<String, String>> crossReferences) {
         this.crossReferences = crossReferences;
+    }
+
+    public boolean isUpdateDate() {
+        return updateDate;
+    }
+
+    public void setUpdateDate(boolean updateDate) {
+        this.updateDate = updateDate;
+    }
+
+    public String getDateFormat() {
+        return dateFormat;
+    }
+
+    @JsonIgnore
+    public boolean isDateEpoc(){
+        return dateFormat != null && dateFormat.equalsIgnoreCase("epoc");
+    }
+
+    public void setDateFormat(String dateFormat) {
+        this.dateFormat = dateFormat;
     }
 }

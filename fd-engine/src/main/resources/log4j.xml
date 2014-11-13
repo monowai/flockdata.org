@@ -113,7 +113,7 @@
 
     <!-- Root Logger -->
     <root>
-        <priority value="${fd.loglevel}"/>
+        <priority value="info"/>
         <appender-ref ref="console"/>
     </root>
 

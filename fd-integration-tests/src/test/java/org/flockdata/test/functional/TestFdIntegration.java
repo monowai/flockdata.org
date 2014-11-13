@@ -597,7 +597,7 @@ public class TestFdIntegration {
     @Test
     public void searchIndexWithNoMetaKeysDoesNotError() throws Exception {
         // DAT-83
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## searchDocWithNoMetaKeyWorks");
         SystemUser su = registerSystemUser("HarryIndex");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("searchIndexWithNoMetaKeysDoesNotError"));
@@ -956,7 +956,6 @@ public class TestFdIntegration {
     private SystemUser registerSystemUser(String companyName, String userName) throws Exception {
         SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
         Company c = companyService.create(companyName);
-        //Thread.sleep(80);
         SystemUser su = regService.registerSystemUser(c, new RegistrationBean(companyName, userName));
         // creating company alters the schema that sometimes throws a heuristic exception.
         Thread.yield();
@@ -1063,7 +1062,7 @@ public class TestFdIntegration {
 
     //@Test
     public void memoryLeak() throws Exception {
-        //assumeTrue(false);// Suppressing this for the time being
+//        assumeTrue(false);// Suppressing this for the time being
         logger.info("## memoryLeak");
         int runMax = 500;
 

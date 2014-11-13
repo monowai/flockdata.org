@@ -254,7 +254,7 @@ public class FileProcessor {
                                 if (updatingUser == null)
                                     updatingUser = (entityInputBean.getFortressUser() == null ? importProfile.getFortressUser() : entityInputBean.getFortressUser());
 
-                                ContentInputBean contentInputBean = new ContentInputBean(updatingUser, new DateTime(), jsonData);
+                                ContentInputBean contentInputBean = new ContentInputBean(updatingUser, new DateTime(entityInputBean.getWhen()) , jsonData);
                                 contentInputBean.setEvent(importProfile.getEvent());
                                 entityInputBean.setContent(contentInputBean);
                             }
